@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2025-01-30 09:44\n"
+"PO-Revision-Date: 2025-03-25 14:23\n"
 
 msgid "%(amount)d more..."
 msgstr "Mais %(amount)d..."
@@ -327,9 +327,12 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "Expandir %(location)s"
 
+#. This is used by screenreaders to communicate the "x" button next to a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the account number to the left of the button
 msgctxt "accessibility"
-msgid "Forget %(accountNumber)s"
-msgstr "Esquecer %(accountNumber)s"
+msgid "Forget account number %(accountNumber)s"
+msgstr "Esquecer o número de conta %(accountNumber)s"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -345,6 +348,13 @@ msgstr "informação"
 msgctxt "accessibility"
 msgid "Login"
 msgstr "Iniciar sessão"
+
+#. This is used by screenreaders to communicate logging in with a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the saved account number
+msgctxt "accessibility"
+msgid "Login with account number %(accountNumber)s"
+msgstr "Iniciar sessão com o número de conta %(accountNumber)s"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -479,8 +489,8 @@ msgid "Enter port"
 msgstr "Introduzir porta"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
-msgstr "Se não estiver ligado à nossa VPN, o proxy DNS encriptado utilizará o seu próprio IP não VPN ao estabelecer a ligação. Os servidores DoH são hospedados por um dos seguintes provedores: Quad 9, CloudFlare ou Google."
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
+msgstr "Se não estiver ligado à nossa VPN, o proxy DNS encriptado utiliza o seu próprio IP e não a VPN ao estabelecer a ligação. Os servidores DoH são alojados por um dos seguintes fornecedores: Quad9 ou CloudFlare."
 
 msgctxt "api-access-methods-view"
 msgid "In use"
@@ -621,10 +631,6 @@ msgstr "Não foi possível autenticar a conta. Envie um relatório do problema."
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "Tem sessão iniciada com um número de conta inválido. Termine a sessão e tente com outro."
-
-msgctxt "changelog"
-msgid "See full changelog"
-msgstr "Ver registo de alterações completo"
 
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -972,6 +978,10 @@ msgstr "Bem-vindo, este dispositivo é agora chamado <b>%(deviceName)s</b>. Para
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "A ligar-se ao serviço de sistema Mulvad..."
+
+msgctxt "launch-view"
+msgid "Disable third party antivirus software."
+msgstr "Desativar software antivírus de terceiros."
 
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
@@ -2344,9 +2354,6 @@ msgstr "VPN sempre ligada atribuída a outra VPN"
 msgid "At least one method needs to be enabled"
 msgstr "É necessário ativar pelo menos um método"
 
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
-msgstr "Atenção: tenha cuidado se tiver um plano de dados limitado, pois esta funcionalidade aumentará o tráfego de rede."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr "Atenção: se a opção \"Bloquear ligações sem VPN\" estiver ativada, a opção \"Partilha de rede local\" não funcionará."
 
@@ -2355,6 +2362,9 @@ msgstr "Atenção: se a opção \"Bloquear ligações sem VPN\" estiver ativada,
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "Atenção: Shadowsocks pode aumentar o consumo da bateria dependendo da utilização de dados, como a transmissão de um vídeo."
+
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "Atenção: Isto aumenta o tráfego de rede e também afeta negativamente a velocidade, a latência e a utilização da bateria. Utilize com precaução em planos limitados."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "Atenção: esta definição não pode ser utilizada em combinação com \"Utilizar servidor DNS personalizado\"."
@@ -2634,6 +2644,12 @@ msgstr "Repor para as predefinições"
 
 msgid "Search"
 msgstr "Pesquisar"
+
+msgid "See full changelog"
+msgstr "Ver registo de alterações completo"
+
+msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
+msgstr "Defina abaixo a ofuscação %s para \"Automático\" ou \"Desligado\" para ativar esta definição."
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Definir o valor WireGuard MTU. Intervalo válido: %d - %d."

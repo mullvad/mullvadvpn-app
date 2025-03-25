@@ -109,6 +109,7 @@
     <string name="custom_port_dialog_title">%1$s 自訂連接埠</string>
     <string name="custom_port_dialog_valid_ranges">有效範圍：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>
+    <string name="daita_description_slide_1_first_paragraph">請注意：這會增加網路流量，並對速度、延遲與電池耗電產生負面影響。若方案流量有限，請謹慎使用。</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) 會在您的加密 VPN 流量中隱藏模式。</string>
     <string name="daita_description_slide_1_third_paragraph">可透過精密的 AI 分析進出裝置的資料封包流量 (即使流量已加密)。</string>
     <string name="daita_description_slide_2_first_paragraph">如果有觀察者正在監控這些資料封包，%1$s 會大大增加他們的難度，讓他們很難辨識您正在瀏覽哪些網站或者在和誰通訊。</string>
@@ -156,6 +157,7 @@
     <string name="enable_direct_only">啟用 %1$s</string>
     <string name="enable_method">啟用方式</string>
     <string name="encrypted_dns_proxy_info_message_part1">使用「加密 DNS 代理伺服器」方法時，應用程式會透過代理伺服器位址和我們的 Mullvad API 通訊。應用程式會先從 DNS over HTTPS (DoH) 伺服器取得一個位址，再利用該位址連線至我們的 API 伺服器。</string>
+    <string name="encrypted_dns_proxy_info_message_part2">如果您未連線至我們的 VPN 服務，則加密 DNS 代理伺服器將在連線時使用您本人的非 VPN IP。DoH 伺服器由下列供應商之一負責託管：Quad9 或 CloudFlare。</string>
     <string name="enter_value_placeholder">輸入 MTU</string>
     <string name="enter_voucher_code">輸入優惠券兌換碼</string>
     <string name="entry">入口</string>
@@ -382,6 +384,7 @@
     <string name="vpn_permission_error_notification_message">請按「連線」請求 VPN 權限</string>
     <string name="vpn_permission_error_notification_title">VPN 權限錯誤</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
+    <string name="wg_port_subtitle">若要啟用此設定，請將 %1$s 混淆設為「自動」或「關閉」。</string>
     <string name="wireguard_custon_port_title">自訂</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>

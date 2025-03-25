@@ -109,6 +109,7 @@
     <string name="custom_port_dialog_title">Пользовательский порт %1$s</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
+    <string name="daita_description_slide_1_first_paragraph">Внимание! Включение этой функции приведет к увеличению сетевого трафика. Также снизится скорость, увеличится задержка и усилится расход заряда аккумулятора. Будьте внимательны при использовании функции на ограниченных по трафику планах.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) скрывает характерные признаки в зашифрованном VPN-трафике.</string>
     <string name="daita_description_slide_1_third_paragraph">С помощью сложных ИИ-алгоритмов можно анализировать входящий и исходящий трафик пакетов данных вашего устройства (даже если трафик зашифрован).</string>
     <string name="daita_description_slide_2_first_paragraph">В случае, если наблюдатель отслеживает пакеты данных, %1$s значительно затрудняет определение того, какие веб-сайты вы посещаете или с кем общаетесь.</string>
@@ -156,6 +157,7 @@
     <string name="enable_direct_only">Включить параметр «%1$s»</string>
     <string name="enable_method">Включить метод</string>
     <string name="encrypted_dns_proxy_info_message_part1">При использовании метода «Прокси через зашифрованный DNS» приложение будет взаимодействовать с API Mullvad через прокси-адрес. Полученный от сервера «DNS по HTTPS» (DoH) адрес будет использоваться для доступа к нашим серверам API.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Если вы не подключены к нашему VPN, функция «Зашифрованный DNS-прокси» при подключении будет использовать ваш IP-адрес, не относящийся к VPN. Серверы DoH размещаются у одного из следующих провайдеров: Quad9 или CloudFlare.</string>
     <string name="enter_value_placeholder">Введите MTU</string>
     <string name="enter_voucher_code">Введите код ваучера</string>
     <string name="entry">Вход</string>
@@ -253,8 +255,8 @@
     <string name="obfuscation_info">Обфускация скрывает трафик WireGuard внутри другого протокола. Это может использоваться для обхода цензуры и других видов фильтрации, когда обычное соединение WireGuard было бы заблокировано.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Внимание! Функция Shadowsocks может увеличивать расход заряда аккумулятора в зависимости от использования трафика (например, при потоковой передаче видео).</string>
     <string name="obfuscation_title">Обфускация WireGuard</string>
-    <string name="off">Выключен</string>
-    <string name="on">Включен</string>
+    <string name="off">Выкл.</string>
+    <string name="on">Вкл.</string>
     <string name="open_feature_settings">Открыть настройки %1$s</string>
     <string name="open_url">Открыть URL</string>
     <string name="out_of_time">Закончилось время</string>
@@ -382,6 +384,7 @@
     <string name="vpn_permission_error_notification_message">Чтобы запросить разрешение для VPN, нажмите «Подключить»</string>
     <string name="vpn_permission_error_notification_title">Ошибка разрешения для VPN</string>
     <string name="we_will_look_into_this">Мы рассмотрим эту проблему.</string>
+    <string name="wg_port_subtitle">Чтобы активировать эту настройку, установите для параметра обфускации %1$s значение «Автоматически» или «Выкл.» (см. ниже).</string>
     <string name="wireguard_custon_port_title">Пользовательский</string>
     <string name="wireguard_mtu">MTU для WireGuard</string>
     <string name="wireguard_mtu_footer">Установите значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>

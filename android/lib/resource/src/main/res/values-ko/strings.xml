@@ -109,6 +109,7 @@
     <string name="custom_port_dialog_title">%1$s 사용자 지정 포트</string>
     <string name="custom_port_dialog_valid_ranges">유효한 범위: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">사용자 지정 터널의 호스트를 확인할 수 없습니다. 설정을 변경해 보세요.</string>
+    <string name="daita_description_slide_1_first_paragraph">주의: 이 기능은 네트워크 트래픽을 증가시키며 속도, 대기 시간, 배터리 사용에도 부정적인 영향을 미칩니다. 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s(%2$s)는 암호화된 VPN 트래픽의 패턴을 숨깁니다.</string>
     <string name="daita_description_slide_1_third_paragraph">정교한 AI를 사용하면, 트래픽이 암호화된 경우라도 장치를 드나드는 데이터 패킷의 트래픽을 분석하는 것이 가능합니다.</string>
     <string name="daita_description_slide_2_first_paragraph">이러한 데이터 패킷을 모니터링하고 있는 관찰자가 있는 경우, %1$s는 사용자가 어느 웹사이트를 방문하고 있는지, 누구와 대화하고 있는지 아주 식별하기 어렵게 만듭니다.</string>
@@ -156,6 +157,7 @@
     <string name="enable_direct_only">%1$s 활성화</string>
     <string name="enable_method">방법 활성화</string>
     <string name="encrypted_dns_proxy_info_message_part1">앱은 \"암호화된 DNS 프록시\" 방식을 사용하여 프록시 주소를 통해 Mullvad API와 통신합니다. 이는 DoH(DNS over HTTPS) 서버에서 주소를 검색한 다음, 그 주소를 사용해 당사 API 서버에 도달하는 방식으로 이루어집니다.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">당사 VPN에 연결되지 않은 경우, 연결 시 암호화된 DNS 프록시는 사용자의 비 VPN IP를 사용합니다. DoH 서버는 Quad 9, CloudFlare 등의 제공업체에서 호스팅합니다.</string>
     <string name="enter_value_placeholder">MTU 입력</string>
     <string name="enter_voucher_code">바우처 코드 입력</string>
     <string name="entry">시작</string>
@@ -382,6 +384,7 @@
     <string name="vpn_permission_error_notification_message">VPN 권한을 요청하려면 연결을 누르세요</string>
     <string name="vpn_permission_error_notification_title">VPN 권한 오류</string>
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
+    <string name="wg_port_subtitle">이 설정을 활성화하려면 아래 %1$s 난독 처리를 \"자동\" 또는 \"끄기\"로 설정합니다.</string>
     <string name="wireguard_custon_port_title">사용자 지정</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d</string>
