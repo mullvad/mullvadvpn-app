@@ -36,8 +36,7 @@ pub const FULLY_ROLLED_OUT: Rollout = 1.;
 pub type VersionArchitecture = format::Architecture;
 
 /// Version information derived from querying a [format::Response] using [VersionParameters]
-#[derive(Debug, Clone)]
-#[cfg_attr(test, derive(serde::Serialize))]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct VersionInfo {
     /// Stable version info
     pub stable: Version,
@@ -47,8 +46,7 @@ pub struct VersionInfo {
 }
 
 /// Contains information about a version for the current target
-#[derive(Debug, Clone)]
-#[cfg_attr(test, derive(serde::Serialize))]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Version {
     /// Version
     pub version: mullvad_version::Version,
