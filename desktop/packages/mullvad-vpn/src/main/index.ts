@@ -12,6 +12,7 @@ import {
 import { urls } from '../shared/constants';
 import {
   AccessMethodSetting,
+  AppUpgradeEvent,
   DaemonEvent,
   DeviceEvent,
   ErrorStateCause,
@@ -100,6 +101,7 @@ class ApplicationMain
   private tunnelState = new TunnelStateHandler(this);
 
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
+  private appUpgradeEventListener?: SubscriptionListener<AppUpgradeEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;
   private isPerformingPostUpgrade = false;
@@ -532,6 +534,16 @@ class ApplicationMain
       return this.handleBootstrapError(error);
     }
 
+    // subscribe to app upgrade events
+    try {
+      this.appUpgradeEventListener = this.subscribeAppUpgradeEvents();
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to subscribe to app upgrade events: ${error.message}`);
+
+      return this.handleBootstrapError(error);
+    }
+
     if (firstDaemonConnection) {
       // check if daemon is performing post upgrade tasks the first time it's connected to
       try {
@@ -655,8 +667,12 @@ class ApplicationMain
     if (this.daemonEventListener) {
       this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
     }
-    // Reset the daemon event listener since it's going to be invalidated on disconnect
+    if (this.appUpgradeEventListener) {
+      this.daemonRpc.unsubscribeAppUpgradeEventListener(this.appUpgradeEventListener);
+    }
+    // Reset the daemon and app upgrade event listeners since they're going to be invalidated on disconnect
     this.daemonEventListener = undefined;
+    this.appUpgradeEventListener = undefined;
 
     this.notificationController.closeNotificationsInCategory(
       SystemNotificationCategory.tunnelState,
@@ -705,6 +721,21 @@ class ApplicationMain
     if (this.daemonEventListener) {
       this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
     }
+  }
+
+  private subscribeAppUpgradeEvents() {
+    const appUpgradeEventListener = new SubscriptionListener(
+      (appUpgradeEvent: AppUpgradeEvent) => {
+        IpcMainEventChannel.app.notifyUpgradeEvent?.(appUpgradeEvent);
+      },
+      (error: Error) => {
+        log.error(`Cannot deserialize the app upgrade event: ${error.message}`);
+      },
+    );
+
+    this.daemonRpc.subscribeAppUpgradeEventListener(appUpgradeEventListener);
+
+    return appUpgradeEventListener;
   }
 
   private subscribeEvents(): SubscriptionListener<DaemonEvent> {
