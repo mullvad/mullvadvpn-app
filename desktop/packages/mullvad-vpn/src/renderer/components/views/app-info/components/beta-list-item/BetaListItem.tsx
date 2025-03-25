@@ -6,7 +6,7 @@ import { ListItem } from '../../../../../lib/components/list-item';
 import { useSelector } from '../../../../../redux/store';
 import Switch from '../../../../Switch';
 
-export const BetaListItem = () => {
+export function BetaListItem() {
   const isBeta = useSelector((state) => state.version.isBeta);
   const showBetaReleases = useSelector((state) => state.settings.showBetaReleases);
   const { setShowBetaReleases } = useAppContext();
@@ -50,4 +50,4 @@ export const BetaListItem = () => {
       </ListItem.Footer>
     </ListItem>
   );
-};
+}
