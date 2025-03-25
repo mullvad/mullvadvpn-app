@@ -1,13 +1,13 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { messages } from '../../../../../shared/gettext';
-import { Flex, Icon } from '../../../../lib/components';
-import { Dot } from '../../../../lib/components/dot';
-import { ListItem } from '../../../../lib/components/list-item';
-import { useHistory } from '../../../../lib/history';
-import { RoutePath } from '../../../../lib/routes';
-import { useSelector } from '../../../../redux/store';
+import { messages } from '../../../../../../shared/gettext';
+import { Flex, Icon } from '../../../../../lib/components';
+import { Dot } from '../../../../../lib/components/dot';
+import { ListItem } from '../../../../../lib/components/list-item';
+import { useHistory } from '../../../../../lib/history';
+import { RoutePath } from '../../../../../lib/routes';
+import { useSelector } from '../../../../../redux/store';
 
 const StyledText = styled(ListItem.Text)`
   margin-top: -4px;

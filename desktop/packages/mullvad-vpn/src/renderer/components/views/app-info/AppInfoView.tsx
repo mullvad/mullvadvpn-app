@@ -9,7 +9,7 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { ChangelogListItem, UpdateAvailableListItem, VersionListItem } from './components';
-import { BetaListItem } from './components/BetaListItem';
+import { BetaListItem } from './components/beta-list-item';
 
 export function AppInfoView() {
   const { pop } = useHistory();
