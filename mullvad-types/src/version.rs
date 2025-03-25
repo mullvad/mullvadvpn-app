@@ -14,7 +14,7 @@ pub struct AppVersionInfo {
     ///
     /// The user should really upgrade when this is false.
     pub supported: bool,
-    /// Whether should update to newer version
+    /// A newer version that may be upgraded to
     pub suggested_upgrade: Option<SuggestedUpgrade>,
 }
 
