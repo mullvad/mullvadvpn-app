@@ -162,7 +162,7 @@ message AppUpgradeError {
   enum Error {
     GENERAL_ERROR = 0;
     DOWNLOAD_FAILED = 1;
-    VERFICATION_FAILED = 2;
+    VERIFICATION_FAILED = 2;
   }
   Error error = 1;
 }
