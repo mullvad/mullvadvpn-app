@@ -20,11 +20,13 @@ enum Target {
 impl Target {
     fn current_target() -> Result<Self, String> {
         println!("cargo:rerun-if-env-changed=CARGO_CFG_TARGET_OS");
-        let s = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS should be set");
-        match s.as_str() {
+        match env::var("CARGO_CFG_TARGET_OS")
+            .expect("CARGO_CFG_TARGET_OS should be set")
+            .as_str()
+        {
             "android" => Ok(Self::Android),
             "linux" | "windows" | "macos" => Ok(Self::Desktop),
-            _ => Err(s),
+            other => Err(other.to_owned()),
         }
     }
 }
