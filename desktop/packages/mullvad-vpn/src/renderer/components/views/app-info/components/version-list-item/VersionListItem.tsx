@@ -2,11 +2,11 @@ import { messages } from '../../../../../../shared/gettext';
 import { Box, Icon } from '../../../../../lib/components';
 import { ListItem } from '../../../../../lib/components/list-item';
 import { Colors } from '../../../../../lib/foundations';
-import { useSelector } from '../../../../../redux/store';
+import { useVersionConsistent, useVersionCurrent } from '../../hooks';
 
 export function VersionListItem() {
-  const appVersion = useSelector((state) => state.version.current);
-  const consistentVersion = useSelector((state) => state.version.consistent);
+  const currentVersion = useVersionCurrent();
+  const consistentVersion = useVersionConsistent();
 
   return (
     <ListItem>
@@ -17,7 +17,7 @@ export function VersionListItem() {
             <ListItem.Label>{messages.pgettext('app-info-view', 'Version')}</ListItem.Label>
           </ListItem.Group>
           <Box $width="24px" $height="24px" center>
-            <ListItem.Text>{appVersion}</ListItem.Text>
+            <ListItem.Text>{currentVersion}</ListItem.Text>
           </Box>
         </ListItem.Content>
       </ListItem.Item>

@@ -1,15 +1,13 @@
 import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
-import { useAppContext } from '../../../../../context';
 import { ListItem } from '../../../../../lib/components/list-item';
-import { useSelector } from '../../../../../redux/store';
 import Switch from '../../../../Switch';
+import { useSetttingsShowBetaReleases, useVersionIsBeta } from '../../hooks';
 
 export function BetaListItem() {
-  const isBeta = useSelector((state) => state.version.isBeta);
-  const showBetaReleases = useSelector((state) => state.settings.showBetaReleases);
-  const { setShowBetaReleases } = useAppContext();
+  const isBeta = useVersionIsBeta();
+  const { showBetaReleases, setShowBetaReleases } = useSetttingsShowBetaReleases();
   const switchId = React.useId();
   const labelId = React.useId();
   const descriptionId = React.useId();
