@@ -190,7 +190,7 @@ pub struct AccessModeConnectionModeProvider {
 }
 
 impl AccessModeConnectionModeProvider {
-    fn new(
+    pub fn new(
         handle: AccessModeSelectorHandle,
         initial_connection_mode: ApiConnectionMode,
         change_rx: mpsc::UnboundedReceiver<ApiConnectionMode>,
