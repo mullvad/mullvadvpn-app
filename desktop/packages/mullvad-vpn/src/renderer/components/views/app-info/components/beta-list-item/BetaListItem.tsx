@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { messages } from '../../../../../shared/gettext';
-import { useAppContext } from '../../../../context';
-import { ListItem } from '../../../../lib/components/list-item';
-import { useSelector } from '../../../../redux/store';
-import Switch from '../../../Switch';
+import { messages } from '../../../../../../shared/gettext';
+import { useAppContext } from '../../../../../context';
+import { ListItem } from '../../../../../lib/components/list-item';
+import { useSelector } from '../../../../../redux/store';
+import Switch from '../../../../Switch';
 
 export const BetaListItem = () => {
   const isBeta = useSelector((state) => state.version.isBeta);
