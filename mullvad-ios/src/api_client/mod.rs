@@ -1,20 +1,25 @@
 use std::{ffi::CStr, ops::Deref, sync::Arc};
 
 use mullvad_api::{
+    access_mode::AccessModeSelector,
     proxy::{ApiConnectionMode, StaticConnectionModeProvider},
     rest::{self, MullvadRestHandle},
     ApiEndpoint, Runtime,
 };
+use swift_access_method_resolver::SwiftAccessMethodResolver;
 use swift_connection_mode_provider::{
     connection_mode_provider_rotate, SwiftConnectionModeProvider,
 };
+use swift_shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
 
 mod api;
 mod cancellation;
 mod completion;
 mod response;
 mod retry_strategy;
+mod swift_access_method_resolver;
 mod swift_connection_mode_provider;
+mod swift_shadowsocks_loader;
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);
@@ -55,6 +60,7 @@ impl ApiContext {
 pub extern "C" fn mullvad_api_init_new(
     host: *const u8,
     address: *const u8,
+    bridge_provider: SwiftShadowsocksLoaderWrapper,
     provider: SwiftConnectionModeProvider,
 ) -> SwiftApiContext {
     let host = unsafe { CStr::from_ptr(host.cast()) };
@@ -71,6 +77,16 @@ pub extern "C" fn mullvad_api_init_new(
     let tokio_handle = crate::mullvad_ios_runtime().unwrap();
 
     let connection_mode_provider_context = unsafe { provider.into_rust_context() };
+
+    let method_resolver =
+        unsafe { SwiftAccessMethodResolver::new(*bridge_provider.into_rust_context()) };
+    println!("{:?}", method_resolver);
+    // TODO: Use the method_resolver in the AccessModeSelector::spawn call
+    // TODO: Bridge settings.api_access_methods
+    // TODO: Handle #[cfg(feature = "api-override")]
+    // TODO: Handle access_method_event_sender, used for "sending", should we just remove that parameter from iOS?
+    // AccessModeSelector::spawn(method_resolver, access_method_settings, access_method_event_sender)
+
     tokio_handle.spawn(connection_mode_provider_context.spawn_rotator());
 
     let api_context = tokio_handle.clone().block_on(async move {
