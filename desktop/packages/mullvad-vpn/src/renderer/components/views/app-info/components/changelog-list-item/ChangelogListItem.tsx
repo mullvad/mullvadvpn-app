@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 
-import { messages } from '../../../../../shared/gettext';
-import { Icon } from '../../../../lib/components';
-import { ListItem } from '../../../../lib/components/list-item';
-import { useHistory } from '../../../../lib/history';
-import { RoutePath } from '../../../../lib/routes';
+import { messages } from '../../../../../../shared/gettext';
+import { Icon } from '../../../../../lib/components';
+import { ListItem } from '../../../../../lib/components/list-item';
+import { useHistory } from '../../../../../lib/history';
+import { RoutePath } from '../../../../../lib/routes';
 
 export function ChangelogListItem() {
   const history = useHistory();
