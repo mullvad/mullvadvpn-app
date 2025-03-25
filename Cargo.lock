@@ -2785,6 +2785,7 @@ dependencies = [
 name = "mullvad-ios"
 version = "0.0.0"
 dependencies = [
+ "async-trait",
  "cbindgen 0.28.0",
  "futures",
  "hyper",
@@ -2793,6 +2794,7 @@ dependencies = [
  "log",
  "mullvad-api",
  "mullvad-encrypted-dns-proxy",
+ "mullvad-types",
  "oslog",
  "serde_json",
  "shadowsocks-service",
