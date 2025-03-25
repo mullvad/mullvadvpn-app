@@ -1,3 +1,3 @@
-export * from './VersionListItem';
-export * from './ChangelogListItem';
-export * from './UpdateAvailableListItem';
+export * from './version-list-item';
+export * from './changelog-list-item';
+export * from './update-available-list-item';
