@@ -795,6 +795,9 @@
 		A97D25B42B0CB59300946B2D /* TunnelObfuscationStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25B32B0CB59300946B2D /* TunnelObfuscationStub.swift */; };
 		A97D30172AE6B5E90045C0E4 /* StoredWgKeyData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D30162AE6B5E90045C0E4 /* StoredWgKeyData.swift */; };
 		A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */; };
+		A98207EB2D9190F100654558 /* ShadowsocksConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */; };
+		A98207EF2D9192A300654558 /* ShadowsocksBridgeProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98207EE2D9192A300654558 /* ShadowsocksBridgeProviding.swift */; };
+		A98207F12D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */; };
 		A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98502022B627B120061901E /* LocalNetworkProbe.swift */; };
 		A988A3E22AFE54AC0008D2C7 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
 		A988DF272ADE86ED00D807EF /* WireGuardObfuscationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */; };
@@ -1070,7 +1073,6 @@
 		F0DAC8AD2C16EFE400F80144 /* TunnelSettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */; };
 		F0DDE4152B220458006B57A7 /* ShadowsocksConfigurationCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */; };
 		F0DDE4162B220458006B57A7 /* TransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4112B220458006B57A7 /* TransportProvider.swift */; };
-		F0DDE4182B220458006B57A7 /* ShadowsocksConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */; };
 		F0DDE42A2B220A15006B57A7 /* Haversine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4272B220A15006B57A7 /* Haversine.swift */; };
 		F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4282B220A15006B57A7 /* RelaySelector.swift */; };
 		F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4292B220A15006B57A7 /* Midpoint.swift */; };
@@ -2339,6 +2341,8 @@
 		A97D25B32B0CB59300946B2D /* TunnelObfuscationStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationStub.swift; sourceTree = "<group>"; };
 		A97D30162AE6B5E90045C0E4 /* StoredWgKeyData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredWgKeyData.swift; sourceTree = "<group>"; };
 		A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSFileCoordinator+Extensions.swift"; sourceTree = "<group>"; };
+		A98207EE2D9192A300654558 /* ShadowsocksBridgeProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksBridgeProviding.swift; sourceTree = "<group>"; };
+		A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadShadowsocksBridgeProvider.swift; sourceTree = "<group>"; };
 		A9840BB32C69F78A0030F05E /* Maybenot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Maybenot.swift; sourceTree = "<group>"; };
 		A98502022B627B120061901E /* LocalNetworkProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNetworkProbe.swift; sourceTree = "<group>"; };
 		A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardObfuscationSettings.swift; sourceTree = "<group>"; };
@@ -3002,6 +3006,7 @@
 		581943F228F8014500B0CB5E /* MullvadTypes */ = {
 			isa = PBXGroup;
 			children = (
+				F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */,
 				588D7ED72AF3A533005DF40A /* AccessMethodKind.swift */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				586A951329013235007BAF2B /* AnyIPEndpoint.swift */,
@@ -3039,6 +3044,7 @@
 				A91614D02B108D1B00F416EB /* TransportLayer.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
 				A9711B2A2D662AE3003DA71D /* SwiftConnectionModeProvider.swift */,
+				A98207EE2D9192A300654558 /* ShadowsocksBridgeProviding.swift */,
 			);
 			path = MullvadTypes;
 			sourceTree = "<group>";
@@ -4555,6 +4561,7 @@
 				F0A89CB62D9D922300580C27 /* String+UnsafePointer.swift */,
 				584023212A406BF5007B27AC /* TunnelObfuscator.swift */,
 				A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */,
+				A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */,
 			);
 			path = MullvadRustRuntime;
 			sourceTree = "<group>";
@@ -4763,7 +4770,6 @@
 		F0DC77A22B2314EF0087F09D /* Shadowsocks */ = {
 			isa = PBXGroup;
 			children = (
-				F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */,
 				F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */,
 				F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */,
 				F01528BA2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift */,
@@ -5813,7 +5819,6 @@
 				A970C89D2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift in Sources */,
 				A90763B32B2857D50045ADF0 /* Socks5Authentication.swift in Sources */,
 				06799ADB28F98E4800ACD94E /* RESTProxyFactory.swift in Sources */,
-				F0DDE4182B220458006B57A7 /* ShadowsocksConfiguration.swift in Sources */,
 				7AA7046A2C8EFE2B0045699D /* StoredRelays.swift in Sources */,
 				F0E5B2F82C9C68CF0007F78C /* EncryptedDNSTransport.swift in Sources */,
 				06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */,
@@ -6696,11 +6701,13 @@
 				A9A8A8EB2A262AB30086D569 /* FileCache.swift in Sources */,
 				A90C48692C36BF3900DCB94C /* TunnelProvider.swift in Sources */,
 				58D2240D294C90210029F5F8 /* CustomErrorDescriptionProtocol.swift in Sources */,
+				A98207EF2D9192A300654558 /* ShadowsocksBridgeProviding.swift in Sources */,
 				58D2240E294C90210029F5F8 /* Error+Chain.swift in Sources */,
 				586168692976F6BD00EF8598 /* DisplayError.swift in Sources */,
 				58D2240F294C90210029F5F8 /* KeychainError.swift in Sources */,
 				A959E2422D75F3D200F95DDB /* AccessMethodKind.swift in Sources */,
 				58D22410294C90210029F5F8 /* Location.swift in Sources */,
+				A98207EB2D9190F100654558 /* ShadowsocksConfiguration.swift in Sources */,
 				58D22411294C90210029F5F8 /* MullvadEndpoint.swift in Sources */,
 				58D22412294C90210029F5F8 /* RelayConstraint.swift in Sources */,
 				7A7AD14F2BF21EF200B30B3C /* NameInputFormatter.swift in Sources */,
@@ -6856,6 +6863,7 @@
 				A9D9A4BB2C36D397004088DD /* EphemeralPeerNegotiator.swift in Sources */,
 				F0A89CB72D9D923300580C27 /* String+UnsafePointer.swift in Sources */,
 				A9D9A4B22C36D12D004088DD /* TunnelObfuscator.swift in Sources */,
+				A98207F12D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift in Sources */,
 				7AB931262D43D22F005FCEBA /* MullvadApiResponse.swift in Sources */,
 				A9173C322C36CCDD00F6A08C /* EphemeralPeerReceiver.swift in Sources */,
 				A96D0B452D675F0400DD6C59 /* MullvadConnectionModeProvider.swift in Sources */,
