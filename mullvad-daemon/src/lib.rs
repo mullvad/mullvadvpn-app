@@ -64,7 +64,7 @@ use mullvad_types::{
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{Secured, TargetState, TargetStateStrict, TunnelState},
-    version::{AppVersion, AppVersionInfo},
+    version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
 use relay_list::{RelayListUpdater, RelayListUpdaterHandle, RELAYS_FILENAME};
@@ -337,7 +337,7 @@ pub enum DaemonCommand {
     /// Return whether the daemon is performing post-upgrade tasks
     IsPerformingPostUpgrade(oneshot::Sender<bool>),
     /// Get current version of the app
-    GetCurrentVersion(oneshot::Sender<AppVersion>),
+    GetCurrentVersion(oneshot::Sender<String>),
     /// Remove settings and clear the cache
     #[cfg(not(target_os = "android"))]
     FactoryReset(ResponseTx<(), Error>),
@@ -1939,7 +1939,7 @@ impl Daemon {
         });
     }
 
-    fn on_get_current_version(&mut self, tx: oneshot::Sender<AppVersion>) {
+    fn on_get_current_version(&mut self, tx: oneshot::Sender<String>) {
         Self::oneshot_send(
             tx,
             mullvad_version::VERSION.to_owned(),

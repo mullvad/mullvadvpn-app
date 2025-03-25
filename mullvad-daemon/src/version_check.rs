@@ -9,7 +9,7 @@ use mullvad_api::{
     rest::MullvadRestHandle,
     version::{AppVersionProxy, AppVersionResponse},
 };
-use mullvad_types::version::AppVersionInfo;
+use mullvad_update::version::VersionInfo;
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -50,6 +50,13 @@ const PLATFORM: &str = "windows";
 #[cfg(target_os = "android")]
 const PLATFORM: &str = "android";
 
+// TODO: convert to AppVersionInfo in mullvad_types for protobuf
+struct AppVersionInfo {
+    supported: bool,
+    version_info: mullvad_update::version::VersionInfo,
+}
+
+// TODO: remove this?
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 struct CachedAppVersionInfo {
     #[serde(flatten)]
@@ -418,19 +425,22 @@ struct ApiContext {
     api_handle: ApiAvailability,
     version_proxy: AppVersionProxy,
     platform_version: String,
+    beta_program: bool,
 }
 
 /// Immediately query the API for the latest [AppVersionInfo].
 fn do_version_check(api: ApiContext) -> BoxFuture<'static, Result<AppVersionInfo, Error>> {
     let download_future_factory = move || async move {
-        let first = api.version_proxy
+        let first = api
+            .version_proxy
             .version_check(
                 mullvad_version::VERSION.to_owned(),
                 PLATFORM,
                 api.platform_version.clone(),
             )
             .map_err(Error::Download);
-        let second = api.version_proxy
+        let second = api
+            .version_proxy
             .version_check_2(
                 mullvad_version::VERSION.to_owned(),
                 PLATFORM,
@@ -440,10 +450,8 @@ fn do_version_check(api: ApiContext) -> BoxFuture<'static, Result<AppVersionInfo
         let (v1_response, v2_response) = tokio::try_join!(first, second).expect("fixme");
 
         Ok(AppVersionInfo {
-            latest_beta: v1_response.latest_beta,
-            latest_stable: v1_response.latest_stable,
-            suggested_upgrade: suggested_upgrade(v1_response., latest_stable, latest_beta, show_beta)
             supported: v1_response.supported,
+            version_info: v2_response,
         })
     };
 
@@ -542,9 +550,16 @@ fn dev_version_cache() -> AppVersionInfo {
 
     AppVersionInfo {
         supported: false,
-        latest_stable: mullvad_version::VERSION.to_owned(),
-        latest_beta: mullvad_version::VERSION.to_owned(),
-        suggested_upgrade: None,
+        version_info: VersionInfo {
+            stable: mullvad_update::version::Version {
+                version: mullvad_version::VERSION,
+                changelog: "".to_owned(),
+                urls: vec![],
+                sha256: [0u8; 32],
+                size: 0,
+            },
+            beta: None,
+        },
     }
 }
 
@@ -554,7 +569,7 @@ fn suggested_upgrade(
     latest_stable: &Option<String>,
     latest_beta: &str,
     show_beta: bool,
-) -> Option<String> {
+) -> Option<SuggestedUpgrade> {
     let stable_version = latest_stable
         .as_ref()
         .and_then(|stable| Version::from_str(stable).ok());

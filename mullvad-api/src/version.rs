@@ -2,9 +2,10 @@ use std::future::Future;
 use std::sync::Arc;
 
 use http::StatusCode;
-use mullvad_types::version::AppVersion;
 use mullvad_update::version::{VersionInfo, VersionParameters};
 use vec1::vec1;
+
+type AppVersion = String;
 
 use super::rest;
 use super::APP_URL_PREFIX;
