@@ -1,8 +1,8 @@
-import { messages } from '../../../../../shared/gettext';
-import { Box, Icon } from '../../../../lib/components';
-import { ListItem } from '../../../../lib/components/list-item';
-import { Colors } from '../../../../lib/foundations';
-import { useSelector } from '../../../../redux/store';
+import { messages } from '../../../../../../shared/gettext';
+import { Box, Icon } from '../../../../../lib/components';
+import { ListItem } from '../../../../../lib/components/list-item';
+import { Colors } from '../../../../../lib/foundations';
+import { useSelector } from '../../../../../redux/store';
 
 export const VersionListItem = () => {
   const appVersion = useSelector((state) => state.version.current);
