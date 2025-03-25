@@ -6,6 +6,7 @@ use std::sync::LazyLock;
 use regex_lite::Regex;
 
 /// The Mullvad VPN app product version
+#[cfg(has_version)]
 pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
 #[derive(Debug, Clone, PartialEq)]
