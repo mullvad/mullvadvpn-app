@@ -79,6 +79,12 @@ impl Serialize for SecretKey {
 #[cfg_attr(test, derive(Clone))]
 pub struct VerifyingKey(pub ed25519_dalek::VerifyingKey);
 
+impl fmt::Display for VerifyingKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", hex::encode(self.0.as_bytes()))
+    }
+}
+
 impl VerifyingKey {
     pub fn from_hex(s: &str) -> anyhow::Result<Self> {
         let bytes = bytes_from_hex::<{ ed25519_dalek::PUBLIC_KEY_LENGTH }>(s)?;
