@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -39,7 +39,7 @@ class SplitTunnelingScreenTest {
         onExcludeAppClick: (packageName: String) -> Unit = {},
         onIncludeAppClick: (packageName: String) -> Unit = {},
         onBackClick: () -> Unit = {},
-        onResolveIcon: (String) -> Bitmap? = { null },
+        onResolveIcon: (String) -> Drawable? = { null },
     ) {
         setContentWithTheme {
             SplitTunnelingScreen(
