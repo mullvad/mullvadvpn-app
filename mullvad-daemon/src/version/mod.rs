@@ -1,0 +1,70 @@
+use std::io;
+
+pub mod check;
+pub mod downloader;
+pub mod router;
+
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("Failed to open app version cache file for reading")]
+    ReadVersionCache(#[source] io::Error),
+
+    #[error("Failed to open app version cache file for writing")]
+    WriteVersionCache(#[source] io::Error),
+
+    #[error("Failure in serialization of the version info")]
+    Serialize(#[source] serde_json::Error),
+
+    #[error("Failure in deserialization of the version info")]
+    Deserialize(#[source] serde_json::Error),
+
+    #[error("Failed to check the latest app version")]
+    Download(#[source] mullvad_api::rest::Error),
+
+    #[error("API availability check failed")]
+    ApiCheck(#[source] mullvad_api::availability::Error),
+
+    #[error("Response is missing a valid stable version")]
+    MissingStable,
+
+    #[error("Clearing version check cache due to old version")]
+    OutdatedVersion,
+
+    #[error("Version updater is down")]
+    VersionUpdaterDown,
+
+    #[error("Version router is down")]
+    VersionRouterClosed,
+
+    #[error("Version cache update was aborted")]
+    UpdateAborted,
+
+    #[error("Failed to get download directory")]
+    GetDownloadDir(#[from] mullvad_paths::Error),
+
+    #[error("Failed to create download directory")]
+    CreateDownloadDir(#[source] io::Error),
+
+    #[error("Could not select URL for app update")]
+    NoUrlFound,
+}
+
+/// Contains the date of the git commit this was built from
+pub const COMMIT_DATE: &str = include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"));
+
+pub fn is_beta_version() -> bool {
+    mullvad_version::VERSION.contains("beta")
+}
+
+pub fn is_dev_version() -> bool {
+    mullvad_version::VERSION.contains("dev")
+}
+
+pub fn log_version() {
+    log::info!(
+        "Starting {} - {} {}",
+        env!("CARGO_PKG_NAME"),
+        mullvad_version::VERSION,
+        COMMIT_DATE,
+    )
+}
