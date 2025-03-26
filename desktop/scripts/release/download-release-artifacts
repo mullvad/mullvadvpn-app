@@ -21,8 +21,8 @@ URL_BASE="https://releases.mullvad.net/desktop/releases"
 
 mkdir -p $ARTIFACT_DIR
 
-# Find GnuPG command to use. Prefer gpg2
-gpg_cmd=$(command -v gpg2 || command -v gpg)
+# The signer key file "mullvad-code-signing-key.asc" is expected to exist in the current working directory.
+SIGNER_KEY_FILE="./mullvad-code-signing-key.asc"
 
 for ext in .exe _arm64.exe _x64.exe _amd64.deb _arm64.deb _x86_64.rpm _aarch64.rpm .pkg; do
     pkg_filename="MullvadVPN-${PRODUCT_VERSION}${ext}"
@@ -45,7 +45,9 @@ for ext in .exe _arm64.exe _x64.exe _amd64.deb _arm64.deb _x86_64.rpm _aarch64.r
 
     echo ""
     echo ">>> Verifying integrity of $pkg_filename"
-    if ! $gpg_cmd --verify "$pkg_path.asc" "$pkg_path"; then
+    # We prefer sqv for PGP key verification as it a strict and easy-to-use implementation of PGP.
+    # gpg is also not suitable for use in scripting.
+    if ! sqv --keyring "$SIGNER_KEY_FILE" "$pkg_path.asc" "$pkg_path"; then
         echo ""
         echo "!!! INTEGRITY CHECKING FAILED !!!"
         rm "$pkg_path" "$pkg_path.asc"
