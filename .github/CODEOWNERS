@@ -8,6 +8,7 @@
 
 # Developer signing keys must be approved by team/tech leads
 /ci/keys/ @faern @raksooo @pinkisemils @albin-mullvad
+/mullvad-update/prod-pubkeys @faern @raksooo @pinkisemils @albin-mullvad
 
 # Desktop build server files owned by desktop leads
 /ci/buildserver* @faern @raksooo
