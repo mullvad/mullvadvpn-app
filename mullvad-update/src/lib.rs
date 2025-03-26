@@ -6,6 +6,8 @@ mod client;
 #[cfg(feature = "client")]
 pub use client::*;
 
+pub mod keys;
+
 pub mod version;
 
 /// Parser and serializer for version metadata

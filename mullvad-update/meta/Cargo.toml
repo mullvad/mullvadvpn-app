@@ -22,7 +22,6 @@ serde = { workspace = true }
 sha2 = "0.10"
 tokio = { version = "1", features = ["full"] }
 toml = "0.8"
-vec1 = { workspace = true }
 
 mullvad-version = { path = "../../mullvad-version", features = ["serde"] }
 mullvad-update = { path = "../", features = ["client", "sign"] }

@@ -2496,7 +2496,6 @@ dependencies = [
  "sha2",
  "tokio",
  "toml 0.8.19",
- "vec1",
 ]
 
 [[package]]

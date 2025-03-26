@@ -13,7 +13,6 @@ use std::{
     sync::LazyLock,
 };
 use tokio::{fs, io};
-use vec1::vec1;
 
 use crate::{
     artifacts,
