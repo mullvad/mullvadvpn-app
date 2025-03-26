@@ -1,5 +1,5 @@
-import { useAppContext } from '../../../../context';
-import { useSelector } from '../../../../redux/store';
+import { useAppContext } from '../../../context';
+import { useSelector } from '../../store';
 
 export const useSettingsShowBetaReleases = () => {
   const { setShowBetaReleases } = useAppContext();

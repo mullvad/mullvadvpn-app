@@ -2,7 +2,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { Icon } from '../../../../../lib/components';
 import { ListItem } from '../../../../../lib/components/list-item';
 import { Colors } from '../../../../../lib/foundations';
-import { useVersionCurrent } from '../../hooks';
+import { useVersionCurrent } from '../../../../../redux/hooks';
 import { useShowAlert, useShowFooter } from './hooks';
 
 export function VersionListItem() {

@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useHistory } from '../../../../lib/history';
-import { RoutePath } from '../../../../lib/routes';
+import { useHistory } from '../../lib/history';
+import { RoutePath } from '../../lib/routes';
 
 export const usePushAppUpgrade = () => {
   const history = useHistory();
