@@ -13,7 +13,6 @@ use std::{
     sync::LazyLock,
 };
 use tokio::{fs, io};
-use vec1::vec1;
 
 use crate::{
     artifacts,
@@ -22,7 +21,7 @@ use crate::{
 
 /// Base URL for metadata found with `meta pull`.
 /// Actual JSON files should be stored at `<base url>/<platform>.json`.
-const META_REPOSITORY_URL: &str = "https://releases.stagemole.eu/desktop/metadata/";
+const META_REPOSITORY_URL: &str = "https://releases.mullvad.net/desktop/metadata/";
 
 /// TLS certificate to pin to for `meta pull`.
 static PINNED_CERTIFICATE: LazyLock<reqwest::Certificate> = LazyLock::new(|| {
@@ -128,14 +127,10 @@ impl Platform {
 
         println!("Pulling {self} metadata from {url}...");
 
-        // Pull latest metadata
-        let verifying_key =
-            key::VerifyingKey::from_hex(crate::VERIFYING_PUBKEY).expect("Invalid pubkey");
-
         let version_provider = HttpVersionInfoProvider {
             pinned_certificate: Some(PINNED_CERTIFICATE.clone()),
             url,
-            verifying_keys: vec1![verifying_key],
+            verifying_keys: mullvad_update::keys::TRUSTED_METADATA_SIGNING_PUBKEYS.clone(),
         };
         let response = version_provider
             .get_versions(crate::MIN_VERIFY_METADATA_VERSION)
@@ -236,11 +231,8 @@ impl Platform {
         println!("Verifying signature of {}...", signed_path.display());
         let bytes = fs::read(signed_path).await.context("Failed to read file")?;
 
-        let public_key = key::VerifyingKey::from_hex(include_str!("../../stagemole-pubkey"))
-            .expect("Invalid pubkey");
-
         format::SignedResponse::deserialize_and_verify(
-            &vec1![public_key],
+            &mullvad_update::keys::TRUSTED_METADATA_SIGNING_PUBKEYS,
             &bytes,
             crate::MIN_VERIFY_METADATA_VERSION,
         )

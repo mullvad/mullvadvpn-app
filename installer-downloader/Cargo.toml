@@ -28,7 +28,6 @@ rand = { version = "0.8.5" }
 reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"] }
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["rt-multi-thread", "fs"] }
-vec1 = { workspace = true }
 
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 mullvad-update = { path = "../mullvad-update", features = ["client"] }

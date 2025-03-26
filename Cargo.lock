@@ -2041,7 +2041,6 @@ dependencies = [
  "serde",
  "talpid-platform-metadata",
  "tokio",
- "vec1",
  "windows-sys 0.52.0",
  "winres",
 ]
@@ -2496,7 +2495,6 @@ dependencies = [
  "sha2",
  "tokio",
  "toml 0.8.19",
- "vec1",
 ]
 
 [[package]]
@@ -2638,7 +2636,6 @@ dependencies = [
  "tokio-socks",
  "tower 0.5.1",
  "uuid",
- "vec1",
 ]
 
 [[package]]
