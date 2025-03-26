@@ -7,8 +7,8 @@ use mnl::mnl_sys::libc;
 use std::sync::MutexGuard;
 use std::{
     collections::{BTreeMap, BTreeSet},
-    net::IpAddr,
 };
+use ipnetwork::IpNetwork;
 use uuid::Uuid;
 
 use crate::block_list::{BlockList, BlockRule, Endpoints};
@@ -16,8 +16,8 @@ use crate::web;
 
 #[derive(serde::Deserialize, Clone)]
 pub struct NewRule {
-    pub src: IpAddr,
-    pub dst: IpAddr,
+    pub src: IpNetwork,
+    pub dst: IpNetwork,
     pub protocols: Option<BTreeSet<TransportProtocol>>,
     #[serde(default)]
     pub block_wireguard: bool,
