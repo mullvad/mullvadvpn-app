@@ -12,6 +12,7 @@ import {
   BridgeState,
   CustomListError,
   CustomProxy,
+  DaemonAppUpgradeEvent,
   DaemonEvent,
   DeviceState,
   IAppVersionInfo,
@@ -31,6 +32,7 @@ import {
 import { ConnectionObserver, GrpcClient, noConnectionError } from './grpc-client';
 import {
   convertFromApiAccessMethodSetting,
+  convertFromAppUpgradeEvent,
   convertFromDaemonEvent,
   convertFromDevice,
   convertFromDeviceState,
@@ -89,6 +91,38 @@ export class DaemonRpc extends GrpcClient {
     }
 
     super.disconnect();
+  }
+
+  public subscribeAppUpgradeEventListener(listener: SubscriptionListener<DaemonAppUpgradeEvent>) {
+    const call = this.isConnected && this.client.appUpgradeEventsListen(new Empty());
+    if (!call) {
+      throw noConnectionError;
+    }
+    const subscriptionId = this.subscriptionId();
+    listener.subscriptionId = subscriptionId;
+    this.subscriptions.set(subscriptionId, call);
+
+    call.on('data', (data: grpcTypes.AppUpgradeEvent) => {
+      try {
+        const appUpgradeEvent = convertFromAppUpgradeEvent(data);
+        listener.onEvent(appUpgradeEvent);
+      } catch (e) {
+        const error = e as Error;
+        listener.onError(error);
+      }
+    });
+
+    call.on('error', (error) => {
+      listener.onError(error);
+      this.removeSubscription(subscriptionId);
+    });
+  }
+
+  public unsubscribeAppUpgradeEventListener(listener: SubscriptionListener<DaemonAppUpgradeEvent>) {
+    const id = listener.subscriptionId;
+    if (id !== undefined) {
+      this.removeSubscription(id);
+    }
   }
 
   public subscribeDaemonEventListener(listener: SubscriptionListener<DaemonEvent>) {
