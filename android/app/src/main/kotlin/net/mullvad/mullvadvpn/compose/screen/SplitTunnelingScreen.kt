@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,7 +49,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.util.getApplicationIconBitmapOrNull
+import net.mullvad.mullvadvpn.util.getApplicationIconOrNull
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -77,9 +77,7 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
         onExcludeAppClick = viewModel::onExcludeAppClick,
         onIncludeAppClick = viewModel::onIncludeAppClick,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        onResolveIcon = { packageName ->
-            packageManager.getApplicationIconBitmapOrNull(packageName)
-        },
+        onResolveIcon = { packageName -> packageManager.getApplicationIconOrNull(packageName) },
     )
 }
 
@@ -91,7 +89,7 @@ fun SplitTunnelingScreen(
     onExcludeAppClick: (packageName: String) -> Unit,
     onIncludeAppClick: (packageName: String) -> Unit,
     onBackClick: () -> Unit,
-    onResolveIcon: (String) -> Bitmap?,
+    onResolveIcon: (String) -> Drawable?,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -164,7 +162,7 @@ private fun LazyListScope.appList(
     onShowSystemAppsClick: (show: Boolean) -> Unit,
     onExcludeAppClick: (packageName: String) -> Unit,
     onIncludeAppClick: (packageName: String) -> Unit,
-    onResolveIcon: (String) -> Bitmap?,
+    onResolveIcon: (String) -> Drawable?,
 ) {
     if (state.excludedApps.isNotEmpty()) {
         headerItem(
@@ -206,7 +204,7 @@ private fun LazyListScope.appItems(
     apps: List<AppData>,
     focusManager: FocusManager,
     onAppClick: (String) -> Unit,
-    onResolveIcon: (String) -> Bitmap?,
+    onResolveIcon: (String) -> Drawable?,
     enabled: Boolean,
     excluded: Boolean,
 ) {
