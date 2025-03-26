@@ -1,8 +1,8 @@
-use crate::{version::is_beta_version, DaemonEventSender};
+use crate::DaemonEventSender;
 use futures::{
     channel::{mpsc, oneshot},
     future::{BoxFuture, FusedFuture},
-    FutureExt, SinkExt, StreamExt, TryFutureExt,
+    FutureExt, StreamExt, TryFutureExt,
 };
 use mullvad_api::{
     availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
@@ -24,6 +24,8 @@ use talpid_core::mpsc::Sender;
 use talpid_future::retry::{retry_future, ConstantInterval};
 use talpid_types::ErrorExt;
 use tokio::{fs::File, io::AsyncReadExt};
+
+use super::Error;
 
 const VERSION_INFO_FILENAME: &str = "version-info.json";
 
@@ -50,7 +52,7 @@ const PLATFORM: &str = "windows";
 const PLATFORM: &str = "android";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct VersionCache {
+pub(super) struct VersionCache {
     /// Whether the current (installed) version is supported
     pub supported: bool,
     /// The latest available versions
@@ -70,71 +72,23 @@ impl VersionCache {
             self.latest_version.stable.clone()
         }
     }
-
-    pub fn suggested_upgrade(&self, beta_program: bool) -> mullvad_types::version::AppVersionInfo {
-        let version = self.target_version(beta_program);
-
-        mullvad_types::version::AppVersionInfo {
-            supported: self.supported,
-            suggested_upgrade: Some(SuggestedUpgrade {
-                version: version.version,
-                changelog: Some(version.changelog),
-                // TODO: This should return the downloaded & verified path, if it exists
-                verified_installer_path: None,
-            }),
-        }
-    }
 }
 
-#[derive(thiserror::Error, Debug)]
-pub enum Error {
-    #[error("Failed to open app version cache file for reading")]
-    ReadVersionCache(#[source] io::Error),
-
-    #[error("Failed to open app version cache file for writing")]
-    WriteVersionCache(#[source] io::Error),
-
-    #[error("Failure in serialization of the version info")]
-    Serialize(#[source] serde_json::Error),
-
-    #[error("Failure in deserialization of the version info")]
-    Deserialize(#[source] serde_json::Error),
-
-    #[error("Failed to check the latest app version")]
-    Download(#[source] mullvad_api::rest::Error),
-
-    #[error("API availability check failed")]
-    ApiCheck(#[source] mullvad_api::availability::Error),
-
-    #[error("Clearing version check cache due to a version mismatch")]
-    CacheVersionMismatch,
-
-    #[error("Version updater is down")]
-    VersionUpdaterDown,
-
-    #[error("Version cache update was aborted")]
-    UpdateAborted,
-}
-
-pub(crate) struct VersionUpdater;
+pub(crate) struct VersionUpdater(());
 
 #[derive(Default)]
 struct VersionUpdaterInner {
-    beta_program: bool,
     /// The last known [AppVersionInfo], along with the time it was determined.
     last_app_version_info: Option<(VersionCache, SystemTime)>,
     /// Oneshot channels for responding to [VersionUpdaterCommand::GetVersionInfo].
     get_version_info_responders: Vec<oneshot::Sender<VersionCache>>,
 }
 
+type VersionUpdateCommand = oneshot::Sender<VersionCache>;
+
 #[derive(Clone)]
 pub(crate) struct VersionUpdaterHandle {
-    tx: mpsc::Sender<VersionUpdaterCommand>,
-}
-
-enum VersionUpdaterCommand {
-    SetShowBetaReleases(bool),
-    GetVersionInfo(oneshot::Sender<mullvad_types::version::AppVersionInfo>),
+    tx: mpsc::UnboundedSender<VersionUpdateCommand>,
 }
 
 impl VersionUpdaterHandle {
@@ -142,16 +96,9 @@ impl VersionUpdaterHandle {
     ///
     /// If the cache is stale or missing, this will immediately query the API for the latest
     /// version. This may take a few seconds.
-    pub async fn get_version_info(
-        &mut self,
-    ) -> Result<mullvad_types::version::AppVersionInfo, Error> {
+    pub async fn get_version_info(&self) -> Result<VersionCache, Error> {
         let (done_tx, done_rx) = oneshot::channel();
-        if self
-            .tx
-            .send(VersionUpdaterCommand::GetVersionInfo(done_tx))
-            .await
-            .is_err()
-        {
+        if self.tx.unbounded_send(done_tx).is_err() {
             Err(Error::VersionUpdaterDown)
         } else {
             done_rx.await.map_err(|_| Error::UpdateAborted)
@@ -164,13 +111,12 @@ impl VersionUpdater {
         mut api_handle: MullvadRestHandle,
         availability_handle: ApiAvailability,
         cache_dir: PathBuf,
-        update_sender: DaemonEventSender<mullvad_types::version::AppVersionInfo>,
-        beta_program: bool,
+        update_sender: mpsc::UnboundedSender<VersionCache>,
     ) -> VersionUpdaterHandle {
         // load the last known AppVersionInfo from cache
         let last_app_version_info = load_cache(&cache_dir).await;
 
-        let (tx, rx) = mpsc::channel(1);
+        let (tx, rx) = mpsc::unbounded();
 
         api_handle.factory = api_handle.factory.default_timeout(DOWNLOAD_TIMEOUT);
         let version_proxy = AppVersionProxy::new(api_handle);
@@ -179,7 +125,6 @@ impl VersionUpdater {
 
         tokio::spawn(
             VersionUpdaterInner {
-                beta_program,
                 last_app_version_info,
                 get_version_info_responders: vec![],
             }
@@ -260,24 +205,21 @@ impl VersionUpdaterInner {
 
     async fn run(
         self,
-        mut rx: mpsc::Receiver<VersionUpdaterCommand>,
+        mut rx: mpsc::UnboundedReceiver<VersionUpdateCommand>,
         update: UpdateContext,
         api: ApiContext,
     ) {
         // If this is a dev build, there's no need to pester the API for version checks.
         if *IS_DEV_BUILD {
             log::warn!("Not checking for updates because this is a development build");
-            while let Some(cmd) = rx.next().await {
-                if let VersionUpdaterCommand::GetVersionInfo(done_tx) = cmd {
-                    log::info!("Version check is disabled in dev builds");
-                    let _ = done_tx.send(dev_version_cache());
-                }
+            while let Some(done_tx) = rx.next().await {
+                log::info!("Version check is disabled in dev builds");
+                let _ = done_tx.send(dev_version_cache());
             }
             return;
         }
 
-        let update =
-            |info| Box::pin(update.update(info, self.beta_program)) as BoxFuture<'static, _>;
+        let update = |info| Box::pin(update.update(info)) as BoxFuture<'static, _>;
         let do_version_check = || do_version_check(api.clone());
         let do_version_check_in_background = || do_version_check_in_background(api.clone());
 
@@ -287,7 +229,7 @@ impl VersionUpdaterInner {
 
     async fn run_inner(
         mut self,
-        mut rx: mpsc::Receiver<VersionUpdaterCommand>,
+        mut rx: mpsc::UnboundedReceiver<VersionUpdateCommand>,
         update: impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
         do_version_check: impl Fn() -> BoxFuture<'static, Result<VersionCache, Error>>,
         do_version_check_in_background: impl Fn() -> BoxFuture<'static, Result<VersionCache, Error>>,
@@ -298,16 +240,8 @@ impl VersionUpdaterInner {
         loop {
             futures::select! {
                 command = rx.next() => match command {
-                    Some(VersionUpdaterCommand::SetShowBetaReleases(show_beta_releases)) => {
-                        self.beta_program = show_beta_releases;
 
-                        if let Some(last_version) = self.last_app_version_info() {
-                            // FIXME: notify
-                            let _ = self.send(last_version.suggested_upgrade(self.beta_program));
-                        }
-                    }
-
-                    Some(VersionUpdaterCommand::GetVersionInfo(done_tx)) => {
+                    Some(done_tx) => {
                         match (self.version_is_stale(), self.last_app_version_info()) {
                             (false, Some(version_info)) => {
                                 // if the version_info isn't stale, return it immediately.
@@ -345,7 +279,7 @@ impl VersionUpdaterInner {
                                 let _ = done_tx.send(version_info.clone());
                             }
 
-                            self.update_version_info(&update, new_version_info).await;
+                            self.update_version_info(&update, version_info).await;
 
                         }
                         Err(err) => {
@@ -363,7 +297,7 @@ impl VersionUpdaterInner {
 
 struct UpdateContext {
     cache_path: PathBuf,
-    update_sender: DaemonEventSender<mullvad_types::version::AppVersionInfo>,
+    update_sender: mpsc::UnboundedSender<VersionCache>,
 }
 
 impl UpdateContext {
@@ -372,11 +306,8 @@ impl UpdateContext {
     fn update(
         &self,
         last_app_version: VersionCache,
-        beta_program: bool,
     ) -> impl Future<Output = Result<(), Error>> + use<> {
-        let _ = self
-            .update_sender
-            .send(last_app_version.suggested_upgrade(beta_program));
+        let _ = self.update_sender.send(last_app_version.clone());
         let cache_path = self.cache_path.clone();
 
         async move {
@@ -570,6 +501,8 @@ mod test {
         Arc,
     };
 
+    use futures::SinkExt;
+
     use super::*;
 
     /// If there's no cached version, it should count as stale
@@ -624,7 +557,7 @@ mod test {
         let updated = Arc::new(AtomicBool::new(false));
         let update = fake_updater(updated.clone());
 
-        let (_tx, rx) = mpsc::channel(1);
+        let (_tx, rx) = mpsc::unbounded();
         tokio::spawn(checker.run_inner(rx, update, fake_version_check, fake_version_check));
 
         talpid_time::sleep(Duration::from_secs(10)).await;
@@ -642,7 +575,7 @@ mod test {
         let updated = Arc::new(AtomicBool::new(false));
         let update = fake_updater(updated.clone());
 
-        let (_tx, rx) = mpsc::channel(1);
+        let (_tx, rx) = mpsc::unbounded();
         tokio::spawn(checker.run_inner(rx, update, fake_version_check, fake_version_check));
 
         assert!(!updated.load(Ordering::SeqCst));
@@ -671,7 +604,7 @@ mod test {
         let updated = Arc::new(AtomicBool::new(false));
         let update = fake_updater(updated.clone());
 
-        let (mut tx, rx) = mpsc::channel(1);
+        let (mut tx, rx) = mpsc::unbounded();
         tokio::spawn(checker.run_inner(rx, update, fake_version_check, fake_version_check_err));
 
         // Fail automatic update
@@ -695,11 +628,10 @@ mod test {
     }
 
     async fn send_version_request(
-        tx: &mut mpsc::Sender<VersionUpdaterCommand>,
+        tx: &mut mpsc::Sender<VersionUpdateCommand>,
     ) -> Result<(), futures::channel::mpsc::SendError> {
         let (done_tx, _done_rx) = oneshot::channel();
-        tx.send(VersionUpdaterCommand::GetVersionInfo(done_tx))
-            .await
+        tx.send(done_tx).await
     }
 
     fn fake_updater(
@@ -730,98 +662,5 @@ mod test {
             latest_stable: None,
             latest_beta: "2024.1-beta1".to_owned(),
         }
-    }
-
-    #[test]
-    fn test_version_upgrade_suggestions() {
-        let latest_stable = Some("2020.4".to_string());
-        let latest_beta = "2020.5-beta3";
-
-        let older_stable = Version::from_str("2020.3").unwrap();
-        let current_stable = Version::from_str("2020.4").unwrap();
-        let newer_stable = Version::from_str("2021.5").unwrap();
-
-        let older_beta = Version::from_str("2020.3-beta3").unwrap();
-        let current_beta = Version::from_str("2020.5-beta3").unwrap();
-        let newer_beta = Version::from_str("2021.5-beta3").unwrap();
-
-        let older_alpha = Version::from_str("2020.3-alpha3").unwrap();
-        let current_alpha = Version::from_str("2020.5-alpha3").unwrap();
-        let newer_alpha = Version::from_str("2021.5-alpha3").unwrap();
-
-        assert_eq!(
-            suggested_upgrade(&older_stable, &latest_stable, latest_beta, false),
-            Some("2020.4".to_owned())
-        );
-        assert_eq!(
-            suggested_upgrade(&older_stable, &latest_stable, latest_beta, true),
-            Some("2020.5-beta3".to_owned())
-        );
-        assert_eq!(
-            suggested_upgrade(&current_stable, &latest_stable, latest_beta, false),
-            None
-        );
-        assert_eq!(
-            suggested_upgrade(&current_stable, &latest_stable, latest_beta, true),
-            Some("2020.5-beta3".to_owned())
-        );
-        assert_eq!(
-            suggested_upgrade(&newer_stable, &latest_stable, latest_beta, false),
-            None
-        );
-        assert_eq!(
-            suggested_upgrade(&newer_stable, &latest_stable, latest_beta, true),
-            None
-        );
-
-        assert_eq!(
-            suggested_upgrade(&older_beta, &latest_stable, latest_beta, false),
-            Some("2020.4".to_owned())
-        );
-        assert_eq!(
-            suggested_upgrade(&older_beta, &latest_stable, latest_beta, true),
-            Some("2020.5-beta3".to_owned())
-        );
-        assert_eq!(
-            suggested_upgrade(&current_beta, &latest_stable, latest_beta, false),
-            None
-        );
-        assert_eq!(
-            suggested_upgrade(&current_beta, &latest_stable, latest_beta, true),
-            None
-        );
-        assert_eq!(
-            suggested_upgrade(&newer_beta, &latest_stable, latest_beta, false),
-            None
-        );
-        assert_eq!(
-            suggested_upgrade(&newer_beta, &latest_stable, latest_beta, true),
-            None
-        );
-
-        assert_eq!(
-            suggested_upgrade(&older_alpha, &latest_stable, latest_beta, false),
-            Some("2020.4".to_owned())
-        );
-        assert_eq!(
-            suggested_upgrade(&older_alpha, &latest_stable, latest_beta, true),
-            Some("2020.5-beta3".to_owned())
-        );
-        assert_eq!(
-            suggested_upgrade(&current_alpha, &latest_stable, latest_beta, false),
-            None,
-        );
-        assert_eq!(
-            suggested_upgrade(&current_alpha, &latest_stable, latest_beta, true),
-            Some("2020.5-beta3".to_owned())
-        );
-        assert_eq!(
-            suggested_upgrade(&newer_alpha, &latest_stable, latest_beta, false),
-            None
-        );
-        assert_eq!(
-            suggested_upgrade(&newer_alpha, &latest_stable, latest_beta, true),
-            None
-        );
     }
 }
