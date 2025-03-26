@@ -40,6 +40,10 @@ Line wrap the file at 100 chars.                                              Th
 - Will no longer try to connect using an IP version if that IP version is not available.
 
 
+## [android/2025.1] - 2025-03-20
+Identical to `android/2025.1-beta1`
+
+
 ## [android/2025.1-beta1] - 2025-03-05
 ### Fixed
 - Fix a crash that could occur in the Filter screen.
