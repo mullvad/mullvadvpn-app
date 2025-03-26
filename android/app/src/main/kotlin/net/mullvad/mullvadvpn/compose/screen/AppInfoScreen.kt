@@ -28,7 +28,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
@@ -73,17 +72,12 @@ fun AppInfo(navigator: DestinationsNavigator) {
     val uriHandler = LocalUriHandler.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    CollectSideEffectWithLifecycle(vm.uiSideEffect) {
-        when (it) {
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
+        when (sideEffect) {
             is AppInfoSideEffect.OpenUri -> {
-                uriHandler.safeOpenUri(
-                    it.uri.toString(),
-                    {
-                        launch {
-                            snackbarHostState.showSnackbarImmediately(message = it.errorMessage)
-                        }
-                    },
-                )
+                uriHandler.safeOpenUri(sideEffect.uri.toString()).onLeft {
+                    snackbarHostState.showSnackbarImmediately(message = sideEffect.errorMessage)
+                }
             }
         }
     }

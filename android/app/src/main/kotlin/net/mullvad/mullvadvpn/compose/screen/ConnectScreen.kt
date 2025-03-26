@@ -234,16 +234,9 @@ fun Connect(
             }
 
             is ConnectViewModel.UiSideEffect.OpenUri ->
-                uriHandler.safeOpenUri(
-                    sideEffect.uri.toString(),
-                    {
-                        launch {
-                            snackbarHostState.showSnackbarImmediately(
-                                message = sideEffect.errorMessage
-                            )
-                        }
-                    },
-                )
+                uriHandler.safeOpenUri(sideEffect.uri.toString()).onLeft {
+                    snackbarHostState.showSnackbarImmediately(message = sideEffect.errorMessage)
+                }
         }
     }
 
