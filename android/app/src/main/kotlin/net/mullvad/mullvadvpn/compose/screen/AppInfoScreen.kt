@@ -72,7 +72,6 @@ fun AppInfo(navigator: DestinationsNavigator) {
 
     val uriHandler = LocalUriHandler.current
     val snackbarHostState = remember { SnackbarHostState() }
-    val openUriError = stringResource(R.string.uri_app_not_found)
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
@@ -82,7 +81,7 @@ fun AppInfo(navigator: DestinationsNavigator) {
                         it.uri.toString(),
                         {
                             launch {
-                                snackbarHostState.showSnackbarImmediately(message = openUriError)
+                                snackbarHostState.showSnackbarImmediately(message = it.errorMessage)
                             }
                         },
                     )

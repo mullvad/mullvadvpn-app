@@ -403,5 +403,6 @@
     <string name="device_ip_version_title">Device IP version</string>
     <string name="confirm_ipv6_dns">The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings.</string>
     <string name="enable_ipv6">Enable IPv6</string>
-    <string name="uri_app_not_found">No app was found to handle this request</string>
+    <string name="uri_market_app_not_found">No Android app store installed, could not open link</string>
+    <string name="uri_browser_app_not_found">No browser app installed, could not open link</string>
 </resources>

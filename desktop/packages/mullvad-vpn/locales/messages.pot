@@ -2644,7 +2644,10 @@ msgstr ""
 msgid "New list"
 msgstr ""
 
-msgid "No app was found to handle this request"
+msgid "No Android app store installed, could not open link"
+msgstr ""
+
+msgid "No browser app installed, could not open link"
 msgstr ""
 
 msgid "No changelog was added for this version"

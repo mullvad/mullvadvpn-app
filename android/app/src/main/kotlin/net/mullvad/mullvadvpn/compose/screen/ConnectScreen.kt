@@ -240,7 +240,7 @@ fun Connect(
                         {
                             launch {
                                 snackbarHostState.showSnackbarImmediately(
-                                    message = context.getString(R.string.uri_app_not_found)
+                                    message = sideEffect.errorMessage
                                 )
                             }
                         },
