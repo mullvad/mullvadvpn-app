@@ -2644,6 +2644,9 @@ msgstr ""
 msgid "New list"
 msgstr ""
 
+msgid "No app was found to handle this request"
+msgstr ""
+
 msgid "No changelog was added for this version"
 msgstr ""
 
