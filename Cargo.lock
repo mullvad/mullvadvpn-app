@@ -2041,7 +2041,6 @@ dependencies = [
  "serde",
  "talpid-platform-metadata",
  "tokio",
- "vec1",
  "windows-sys 0.52.0",
  "winres",
 ]
