@@ -28,7 +28,6 @@ pub mod shutdown;
 mod target_state;
 mod tunnel;
 pub mod version;
-mod version_check;
 
 use crate::target_state::PersistentTargetState;
 use api::DaemonAccessMethodResolver;
@@ -96,6 +95,7 @@ use talpid_types::{
     ErrorExt,
 };
 use tokio::io;
+use version::version_check;
 
 #[cfg(target_os = "android")]
 use talpid_core::connectivity_listener::ConnectivityListener;
