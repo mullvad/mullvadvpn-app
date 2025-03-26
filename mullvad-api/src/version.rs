@@ -4,7 +4,6 @@ use std::sync::Arc;
 use http::StatusCode;
 use mullvad_types::version::AppVersion;
 use mullvad_update::version::{VersionInfo, VersionParameters};
-use vec1::vec1;
 
 use super::rest;
 use super::APP_URL_PREFIX;
@@ -23,9 +22,6 @@ pub struct AppVersionResponse {
 }
 
 impl AppVersionProxy {
-    /// Public key to use for `version_check_2` response
-    const VERSION_PROVIDER_PUBKEY: &str = include_str!("../../mullvad-update/stagemole-pubkey");
-
     /// Maximum size of `version_check_2` response
     const SIZE_LIMIT: usize = 1024 * 1024;
 
@@ -65,18 +61,13 @@ impl AppVersionProxy {
         let path = format!("app/releases/{platform}.json");
         let request = self.handle.factory.get(&path);
 
-        let verifying_key =
-            mullvad_update::format::key::VerifyingKey::from_hex(Self::VERSION_PROVIDER_PUBKEY)
-                .expect("valid key");
-        let verifying_keys = vec1![verifying_key];
-
         async move {
             let request = request?.expected_status(&[StatusCode::OK]);
             let response = service.request(request).await?;
             let bytes = response.body_with_max_size(Self::SIZE_LIMIT).await?;
 
             let response = mullvad_update::format::SignedResponse::deserialize_and_verify(
-                &verifying_keys,
+                &mullvad_update::keys::TRUSTED_METADATA_SIGNING_PUBKEYS,
                 &bytes,
                 lowest_metadata_version,
             )

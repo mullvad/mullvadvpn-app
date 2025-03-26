@@ -75,8 +75,7 @@ impl Serialize for SecretKey {
 }
 
 /// ed25519 verifying key
-#[derive(Debug, PartialEq, Eq)]
-#[cfg_attr(test, derive(Clone))]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct VerifyingKey(pub ed25519_dalek::VerifyingKey);
 
 impl fmt::Display for VerifyingKey {

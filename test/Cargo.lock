@@ -2101,7 +2101,6 @@ dependencies = [
  "tokio-socks",
  "tower 0.5.1",
  "uuid",
- "vec1",
 ]
 
 [[package]]
