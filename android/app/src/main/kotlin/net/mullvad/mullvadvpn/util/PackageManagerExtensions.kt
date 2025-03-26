@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.util
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 
-fun PackageManager.getApplicationIconBitmapOrNull(packageName: String): Drawable? =
+fun PackageManager.getApplicationIconOrNull(packageName: String): Drawable? =
     try {
         getApplicationIcon(packageName)
     } catch (e: PackageManager.NameNotFoundException) {

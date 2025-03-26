@@ -49,7 +49,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.util.getApplicationIconBitmapOrNull
+import net.mullvad.mullvadvpn.util.getApplicationIconOrNull
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -77,9 +77,7 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
         onExcludeAppClick = viewModel::onExcludeAppClick,
         onIncludeAppClick = viewModel::onIncludeAppClick,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        onResolveIcon = { packageName ->
-            packageManager.getApplicationIconBitmapOrNull(packageName)
-        },
+        onResolveIcon = { packageName -> packageManager.getApplicationIconOrNull(packageName) },
     )
 }
 
