@@ -3,6 +3,7 @@ use std::{
     ptr::{self, null_mut},
 };
 
+use mullvad_api::StatusCode;
 use mullvad_api::{
     rest::{self, Response},
     RelayListProxy, StatusCode,

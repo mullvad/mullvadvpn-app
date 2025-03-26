@@ -263,20 +263,6 @@ extension REST {
         let newExpiry: Date
     }
 
-    public struct ProblemReportRequest: Codable, Sendable {
-        public let address: String
-        public let message: String
-        public let log: String
-        public let metadata: [String: String]
-
-        public init(address: String, message: String, log: String, metadata: [String: String]) {
-            self.address = address
-            self.message = message
-            self.log = log
-            self.metadata = metadata
-        }
-    }
-
     private struct SubmitVoucherRequest: Encodable, Sendable {
         let voucherCode: String
     }
