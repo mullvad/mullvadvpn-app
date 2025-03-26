@@ -80,7 +80,7 @@ final class ProblemReportInteractor: @unchecked Sendable {
             metadata: metadataDict
         )
 
-        _ = self.apiProxy.mullvadSendProblemReport(request, retryStrategy: .default, completionHandler: { result in
+        _ = self.apiProxy.sendProblemReport(request, retryStrategy: .default, completionHandler: { result in
             DispatchQueue.main.async {
                 completion(result)
             }

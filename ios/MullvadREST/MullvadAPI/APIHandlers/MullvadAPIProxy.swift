@@ -201,7 +201,7 @@ extension REST {
         let newExpiry: Date
     }
 
-    public struct ProblemReportRequest: Encodable, Sendable {
+    public struct ProblemReportRequest: Codable, Sendable {
         public let address: String
         public let message: String
         public let log: String
