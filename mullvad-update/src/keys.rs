@@ -8,11 +8,6 @@ use vec1::Vec1;
 pub static TRUSTED_METADATA_SIGNING_PUBKEYS: LazyLock<Vec1<VerifyingKey>> =
     LazyLock::new(|| parse_keys(include_str!("../trusted-metadata-signing-pubkeys")));
 
-/// Pubkeys used to verify metadata from stagemole
-#[cfg(test)]
-pub static STAGING_KEYS: LazyLock<Vec1<VerifyingKey>> =
-    LazyLock::new(|| parse_keys(include_str!("../stagemole-pubkey")));
-
 fn parse_keys(keys: &str) -> Vec1<VerifyingKey> {
     let mut v = vec![];
     for key in keys.split('\n') {
@@ -43,5 +38,4 @@ fn test_parse_keys() {
 
     // Test that actual keys are validly parsed
     let _prod = &*TRUSTED_METADATA_SIGNING_PUBKEYS;
-    let _staging = &*STAGING_KEYS;
 }
