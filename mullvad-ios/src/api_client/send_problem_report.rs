@@ -2,6 +2,8 @@ use mullvad_api::{
     rest::{self, MullvadRestHandle},
     ProblemReportProxy,
 };
+use std::ffi::CStr;
+use std::os::raw::c_char;
 use talpid_future::retry::retry_future;
 
 use super::{
@@ -13,7 +15,7 @@ use super::{
 };
 
 use mullvad_api::rest::Error;
-use std::{collections::BTreeMap};
+use std::collections::BTreeMap;
 use std::slice;
 use tokio::task::JoinHandle;
 
@@ -22,7 +24,7 @@ pub unsafe extern "C" fn mullvad_api_send_problem_report(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
-    request: *const SwiftProblemReportRequest,
+    request: SwiftProblemReportRequest,
 ) -> SwiftCancelHandle {
     let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
     let completion = completion_handler.clone();
@@ -35,10 +37,15 @@ pub unsafe extern "C" fn mullvad_api_send_problem_report(
     let api_context = api_context.into_rust_context();
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
-    let problem_report_request = match unsafe { ProblemReportRequest::from_swift_parameters(request) } {
+    let problem_report_request = match unsafe {
+        ProblemReportRequest::from_swift_parameters(request)
+    } {
         Some(req) => req,
         None => {
-            let err = Error::ApiError(rest::StatusCode::BAD_REQUEST, "Failed to send problem report: invalid address, message, or log data.".to_string());
+            let err = Error::ApiError(
+                rest::StatusCode::BAD_REQUEST,
+                "Failed to send problem report: invalid address, message, or log data.".to_string(),
+            );
             log::error!("{err:?}");
             completion.finish(SwiftMullvadApiResponse::rest_error(err));
             return SwiftCancelHandle::empty();
@@ -70,18 +77,23 @@ async fn mullvad_api_send_problem_report_inner(
     problem_report_request: ProblemReportRequest,
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
     let api = ProblemReportProxy::new(rest_client);
-    let empty_metadata: BTreeMap<String, String> = BTreeMap::new();
 
-    let future_factory = || api.porblem_report_response(&problem_report_request.address, &problem_report_request.message, &(String::from_utf8_lossy(&problem_report_request.log)), &empty_metadata);
+    let future_factory = || {
+        api.problem_report(
+            &problem_report_request.address,
+            &problem_report_request.message,
+            &(String::from_utf8_lossy(&problem_report_request.log)),
+            &problem_report_request.meta_data,
+        )
+    };
 
     let should_retry = |result: &Result<_, rest::Error>| match result {
         Err(err) => err.is_network_error(),
         Ok(_) => false,
     };
 
-    let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
-    SwiftMullvadApiResponse::with_body(response).await
-
+    retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
+    SwiftMullvadApiResponse::ok().await
 }
 
 #[repr(C)]
@@ -92,25 +104,20 @@ pub struct SwiftProblemReportRequest {
     message_len: usize,
     log: *const u8,
     log_len: usize,
+    meta_data: ProblemReportMetadata,
 }
 
 struct ProblemReportRequest {
     address: String,
     message: String,
     log: Vec<u8>,
+    meta_data: BTreeMap<String, String>,
 }
-
 
 unsafe impl Send for SwiftProblemReportRequest {}
 
 impl ProblemReportRequest {
-    unsafe fn from_swift_parameters(request: *const SwiftProblemReportRequest) -> Option<Self> {
-        if request.is_null() {
-            return None;
-        }
-
-        let request = &*request; // Dereference the pointer
-
+    unsafe fn from_swift_parameters(request: SwiftProblemReportRequest) -> Option<Self> {
         let address_slice = slice::from_raw_parts(request.address, request.address_len);
         let message_slice = slice::from_raw_parts(request.message, request.message_len);
         let log_slice = slice::from_raw_parts(request.log, request.log_len);
@@ -119,6 +126,95 @@ impl ProblemReportRequest {
         let message = String::from_utf8(message_slice.to_vec()).ok()?;
         let log = log_slice.to_vec();
 
-        Some(Self { address, message, log })
+        let meta_data = if request.meta_data.inner.is_null() {
+            BTreeMap::new()
+        } else {
+            let swift_map = &request.meta_data;
+            let mut converted_map = BTreeMap::new();
+
+            if let Some(inner) = swift_map.inner.as_ref() {
+                for (key, value) in &inner.0 {
+                    converted_map.insert(key.clone(), value.clone());
+                }
+            }
+            converted_map
+        };
+
+        Some(Self {
+            address,
+            message,
+            log,
+            meta_data,
+        })
+    }
+}
+
+#[repr(C)]
+pub struct ProblemReportMetadata {
+    inner: *mut Map,
+}
+
+struct Map(BTreeMap<String, String>);
+
+impl Map {
+    fn new() -> Self {
+        Map(BTreeMap::new())
+    }
+
+    unsafe fn add(&mut self, key: *const c_char, value: *const c_char) -> bool {
+        if key.is_null() || value.is_null() {
+            log::error!("Failed to add metadata: key or value is NULL.");
+            return false;
+        }
+        let key = unsafe { CStr::from_ptr(key) };
+        let value = unsafe { CStr::from_ptr(value) };
+
+        match key.to_str() {
+            Ok(key_str) => match value.to_str() {
+                Ok(value_str) => {
+                    self.0.insert(key_str.to_owned(), value_str.to_owned());
+                    true
+                }
+                Err(err) => {
+                    log::error!("{err:?}");
+                    false
+                }
+            },
+            Err(err) => {
+                log::error!("{err:?}");
+                false
+            }
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn swift_problem_report_meta_data_new() -> ProblemReportMetadata {
+    let map = Box::new(Map::new());
+    ProblemReportMetadata {
+        inner: Box::into_raw(map),
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn swift_problem_report_meta_data_add(
+    map: ProblemReportMetadata,
+    key: *const c_char,
+    value: *const c_char,
+) -> bool {
+    if let Some(inner) = unsafe { map.inner.as_mut() } {
+        unsafe { inner.add(key, value) }
+    } else {
+        false
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn swift_problem_report_meta_data_free(mut map: ProblemReportMetadata) {
+    if !map.inner.is_null() {
+        unsafe {
+            drop(Box::from_raw(map.inner));
+            map.inner = std::ptr::null_mut();
+        }
     }
 }
