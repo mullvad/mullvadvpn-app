@@ -24,20 +24,28 @@ public struct MullvadApiRequestFactory: Sendable {
 
             let rawPointer = Unmanaged.passRetained(pointerClass).toOpaque()
 
-            return switch request {
+            switch request {
             case let .getAddressList(retryStrategy):
-                MullvadApiCancellable(handle: mullvad_api_get_addresses(
-                    apiContext.context,
-                    rawPointer,
-                    retryStrategy.toRustStrategy()
-                ))
+                return MullvadApiCancellable(
+                    handle: mullvad_api_get_addresses(
+                        apiContext.context,
+                        rawPointer,
+                        retryStrategy.toRustStrategy()
+                    )
+                )
             case let .sendProblemReport(retryStrategy, problemReportRequest):
-                MullvadApiCancellable(handle: mullvad_api_send_problem_report(
-                    apiContext.context,
-                    rawPointer,
-                    retryStrategy.toRustStrategy(),
-                    problemReportRequest.toRust()
-                ))
+                let rustRequest = RustProblemReportRequest(from: problemReportRequest)
+                return MullvadApiCancellable(
+                    handle: mullvad_api_send_problem_report(
+                        apiContext.context,
+                        rawPointer,
+                        retryStrategy.toRustStrategy(),
+                        rustRequest.toRust()
+                    ),
+                    deinitializer: {
+                        rustRequest.release()
+                    }
+                )
             }
         }
     }
@@ -45,25 +53,4 @@ public struct MullvadApiRequestFactory: Sendable {
 
 extension REST {
     public typealias MullvadApiRequestHandler = (((MullvadApiResponse) throws -> Void)?) -> MullvadApiCancellable
-}
-
-private extension REST.ProblemReportRequest {
-    func toRust() -> UnsafePointer<SwiftProblemReportRequest> {
-        let structPointer = UnsafeMutablePointer<SwiftProblemReportRequest>.allocate(capacity: 1)
-
-        let addressPointer = address.toUnsafePointer()
-        let messagePointer = message.toUnsafePointer()
-        let logPointer = log.toUnsafePointer()
-
-        structPointer.initialize(to: SwiftProblemReportRequest(
-            address: addressPointer,
-            address_len: UInt(address.utf8.count),
-            message: messagePointer,
-            message_len: UInt(message.utf8.count),
-            log: logPointer,
-            log_len: UInt(log.utf8.count)
-        ))
-
-        return UnsafePointer(structPointer)
-    }
 }

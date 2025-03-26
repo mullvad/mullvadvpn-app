@@ -7,10 +7,14 @@
 //
 import Foundation
 extension String {
-    func toUnsafePointer() -> UnsafePointer<UInt8>? {
+    /// Converts the `String` to an `UnsafePointer<UInt8>`. The memory allocated for the pointer
+    /// is not null-terminated, so the caller must ensure that they manage the memory properly.
+    func toUnsafePointer() -> (pointer: UnsafePointer<UInt8>?, size: UInt)? {
         guard let data = self.data(using: .utf8) else { return nil }
+
         let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: data.count)
         data.copyBytes(to: buffer, count: data.count)
-        return UnsafePointer(buffer)
+
+        return (UnsafePointer(buffer), UInt(data.count))
     }
 }

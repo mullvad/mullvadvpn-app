@@ -1,7 +1,7 @@
 use std::{ffi::CString, ptr::null_mut};
 
 use mullvad_api::rest::{self, Response};
-
+use mullvad_api::StatusCode;
 
 #[repr(C)]
 pub struct SwiftMullvadApiResponse {
@@ -27,6 +27,17 @@ impl SwiftMullvadApiResponse {
             error_description: null_mut(),
             server_response_code: null_mut(),
             success: true,
+        })
+    }
+
+    pub async fn ok() -> Result<Self, rest::Error> {
+        Ok(Self {
+            success: true,
+            error_description: null_mut(),
+            body: null_mut(),
+            body_size: 0,
+            status_code: StatusCode::NO_CONTENT.as_u16(),
+            server_response_code: null_mut(),
         })
     }
 
