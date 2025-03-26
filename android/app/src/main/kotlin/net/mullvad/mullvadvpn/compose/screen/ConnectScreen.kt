@@ -81,7 +81,7 @@ import net.mullvad.mullvadvpn.compose.component.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
-import net.mullvad.mullvadvpn.compose.extensions.createUriHook
+import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
 import net.mullvad.mullvadvpn.compose.preview.ConnectUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -234,18 +234,16 @@ fun Connect(
             }
 
             is ConnectViewModel.UiSideEffect.OpenUri ->
-                uriHandler
-                    .createUriHook(
-                        sideEffect.uri.toString(),
-                        {
-                            launch {
-                                snackbarHostState.showSnackbarImmediately(
-                                    message = sideEffect.errorMessage
-                                )
-                            }
-                        },
-                    )
-                    .invoke()
+                uriHandler.safeOpenUri(
+                    sideEffect.uri.toString(),
+                    {
+                        launch {
+                            snackbarHostState.showSnackbarImmediately(
+                                message = sideEffect.errorMessage
+                            )
+                        }
+                    },
+                )
         }
     }
 

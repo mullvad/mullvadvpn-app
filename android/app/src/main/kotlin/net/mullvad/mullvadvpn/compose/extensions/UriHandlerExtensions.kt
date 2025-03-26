@@ -21,7 +21,7 @@ fun UriHandler.createUriHook(uri: String, onFailure: () -> Unit = {}): () -> Uni
     safeOpenUri(uri, onFailure)
 }
 
-private fun UriHandler.safeOpenUri(uri: String, onFailure: () -> Unit) {
+fun UriHandler.safeOpenUri(uri: String, onFailure: () -> Unit) {
     try {
         openUri(uri)
     } catch (e: IllegalArgumentException) {

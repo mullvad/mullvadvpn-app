@@ -34,7 +34,7 @@ import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.extensions.createUriHook
+import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
 import net.mullvad.mullvadvpn.compose.preview.AppInfoUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -76,16 +76,14 @@ fun AppInfo(navigator: DestinationsNavigator) {
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             is AppInfoSideEffect.OpenUri -> {
-                uriHandler
-                    .createUriHook(
-                        it.uri.toString(),
-                        {
-                            launch {
-                                snackbarHostState.showSnackbarImmediately(message = it.errorMessage)
-                            }
-                        },
-                    )
-                    .invoke()
+                uriHandler.safeOpenUri(
+                    it.uri.toString(),
+                    {
+                        launch {
+                            snackbarHostState.showSnackbarImmediately(message = it.errorMessage)
+                        }
+                    },
+                )
             }
         }
     }
