@@ -724,7 +724,8 @@ impl ProblemReportProxy {
             let request = factory
                 .post_json(&format!("{APP_URL_PREFIX}/problem-report"), &report)?
                 .expected_status(&[StatusCode::NO_CONTENT]);
-            service.request(request).await
+            service.request(request).await?;
+            Ok(())
         }
     }
 }

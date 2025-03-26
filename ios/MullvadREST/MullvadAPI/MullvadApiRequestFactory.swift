@@ -24,43 +24,44 @@ public struct MullvadApiRequestFactory: Sendable {
 
             let rawCompletionPointer = Unmanaged.passRetained(completionPointer).toOpaque()
 
-            return switch request {
+            switch request {
             case let .getAddressList(retryStrategy):
-                MullvadApiCancellable(handle: mullvad_api_get_addresses(
+                return MullvadApiCancellable(handle: mullvad_api_get_addresses(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy()
                 ))
 
             case let .getRelayList(retryStrategy, etag: etag):
-                MullvadApiCancellable(handle: mullvad_api_get_relays(
+                return MullvadApiCancellable(handle: mullvad_api_get_relays(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy(),
                     etag
                 ))
             case let .sendProblemReport(retryStrategy, problemReportRequest):
-                MullvadApiCancellable(handle: mullvad_api_send_problem_report(
+                let rustRequest = RustProblemReportRequest(from: problemReportRequest)
+                return MullvadApiCancellable(handle: mullvad_api_send_problem_report(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy(),
-                    problemReportRequest.toRust()
+                    rustRequest.toRust()
                 ))
             case let .getAccount(retryStrategy, accountNumber: accountNumber):
-                MullvadApiCancellable(handle: mullvad_api_get_account(
+                return MullvadApiCancellable(handle: mullvad_api_get_account(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy(),
                     accountNumber
                 ))
             case let .createAccount(retryStrategy):
-                MullvadApiCancellable(handle: mullvad_api_create_account(
+                return MullvadApiCancellable(handle: mullvad_api_create_account(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy()
                 ))
             case let .deleteAccount(retryStrategy, accountNumber: accountNumber):
-                MullvadApiCancellable(handle: mullvad_api_delete_account(
+                return MullvadApiCancellable(handle: mullvad_api_delete_account(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy(),
@@ -73,25 +74,4 @@ public struct MullvadApiRequestFactory: Sendable {
 
 extension REST {
     public typealias MullvadApiRequestHandler = (((MullvadApiResponse) throws -> Void)?) -> MullvadApiCancellable
-}
-
-private extension REST.ProblemReportRequest {
-    func toRust() -> UnsafePointer<SwiftProblemReportRequest> {
-        let structPointer = UnsafeMutablePointer<SwiftProblemReportRequest>.allocate(capacity: 1)
-
-        let addressPointer = address.toUnsafePointer()
-        let messagePointer = message.toUnsafePointer()
-        let logPointer = log.toUnsafePointer()
-
-        structPointer.initialize(to: SwiftProblemReportRequest(
-            address: addressPointer,
-            address_len: UInt(address.utf8.count),
-            message: messagePointer,
-            message_len: UInt(message.utf8.count),
-            log: logPointer,
-            log_len: UInt(log.utf8.count)
-        ))
-
-        return UnsafePointer(structPointer)
-    }
 }
