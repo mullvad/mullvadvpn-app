@@ -27,3 +27,27 @@ pub struct SuggestedUpgrade {
     /// Path to the available installer, iff it has been verified
     pub verified_installer_path: Option<PathBuf>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AppUpgradeDownloadProgress {
+    pub server: String,
+    pub progress: u32,
+    pub time_left: std::time::Duration,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum AppUpgradeEvent {
+    DownloadStarting,
+    DownloadProgress(AppUpgradeDownloadProgress),
+    Aborted,
+    VerifyingInstaller,
+    VerifiedInstaller,
+    Error(AppUpgradeError),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum AppUpgradeError {
+    GeneralError,
+    DownloadFailed,
+    VerificationFailed,
+}

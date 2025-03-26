@@ -126,7 +126,7 @@ pub enum Error {
     ApiCheckError(#[source] mullvad_api::availability::Error),
 
     #[error("Version check failed")]
-    VersionCheckError(#[source] check::Error),
+    VersionCheckError(#[source] version::Error),
 
     #[error("Unable to load account history")]
     LoadAccountHistory(#[source] account_history::Error),
@@ -614,7 +614,7 @@ pub struct Daemon {
     access_mode_handler: mullvad_api::access_mode::AccessModeSelectorHandle,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
-    version_updater_handle: check::VersionUpdaterHandle,
+    version_handle: version::router::VersionRouterHandle,
     relay_selector: RelaySelector,
     relay_list_updater: RelayListUpdaterHandle,
     parameters_generator: tunnel::ParametersGenerator,
@@ -883,14 +883,13 @@ impl Daemon {
             on_relay_list_update,
         );
 
-        let version_updater_handle = check::VersionUpdater::spawn(
+        let version_handle = version::router::VersionRouter::spawn(
             api_handle.clone(),
-            api_availability.clone(),
+            api_handle.availability.clone(),
             config.cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
-        )
-        .await;
+        );
 
         // Attempt to download a fresh relay list
         relay_list_updater.update().await;
@@ -937,7 +936,7 @@ impl Daemon {
             access_mode_handler,
             api_runtime,
             api_handle,
-            version_updater_handle,
+            version_handle,
             relay_selector,
             relay_list_updater,
             parameters_generator,
@@ -1920,12 +1919,12 @@ impl Daemon {
     }
 
     fn on_get_version_info(&mut self, tx: oneshot::Sender<Result<AppVersionInfo, Error>>) {
-        let mut handle = self.version_updater_handle.clone();
+        let mut handle = self.version_handle.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
                 tx,
                 handle
-                    .get_version_info()
+                    .get_latest_version()
                     .await
                     .inspect_err(|error| {
                         log::error!(
@@ -2288,8 +2287,7 @@ impl Daemon {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_show_beta_releases response");
                 if settings_changed {
-                    let mut handle = self.version_updater_handle.clone();
-                    handle.set_show_beta_releases(enabled).await;
+                    self.version_handle.set_show_beta_releases(enabled).await;
                 }
             }
             Err(e) => {
@@ -2994,7 +2992,7 @@ impl Daemon {
         let dns = dns::addresses_from_options(&self.settings.tunnel_options.dns_options);
         self.send_tunnel_command(TunnelCommand::Dns(dns, tx));
 
-        self.version_updater_handle
+        self.version_handle
             .set_show_beta_releases(self.settings.show_beta_releases)
             .await;
         let access_mode_handler = self.access_mode_handler.clone();
