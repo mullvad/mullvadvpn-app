@@ -1078,6 +1078,7 @@
 		F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */; };
 		F0E8E4C52A60499100ED26A3 /* AccountDeletionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C42A60499100ED26A3 /* AccountDeletionViewController.swift */; };
 		F0E8E4C92A604E7400ED26A3 /* AccountDeletionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C82A604E7400ED26A3 /* AccountDeletionInteractor.swift */; };
+		F0EEFBA22D8D61A9007FE4B3 /* RustProblemReportRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EEFB9E2D8D60E1007FE4B3 /* RustProblemReportRequest.swift */; };
 		F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */; };
 		F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */; };
 		F0F3161B2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */; };
@@ -2475,6 +2476,7 @@
 		F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionViewModel.swift; sourceTree = "<group>"; };
 		F0E8E4C42A60499100ED26A3 /* AccountDeletionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionViewController.swift; sourceTree = "<group>"; };
 		F0E8E4C82A604E7400ED26A3 /* AccountDeletionInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionInteractor.swift; sourceTree = "<group>"; };
+		F0EEFB9E2D8D60E1007FE4B3 /* RustProblemReportRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequest.swift; sourceTree = "<group>"; };
 		F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewModel.swift; sourceTree = "<group>"; };
 		F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
 		F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorResult.swift; sourceTree = "<group>"; };
@@ -2694,6 +2696,7 @@
 				F0DC779F2B2222D20087F09D /* Relay */,
 				06FAE67B28F83CA50033DD93 /* REST.swift */,
 				F0DC77A12B2313330087F09D /* RetryStrategy */,
+				F0EEFBA02D8D6133007FE4B3 /* Rust */,
 				F0DC77A02B2223290087F09D /* Transport */,
 			);
 			path = MullvadREST;
@@ -4505,16 +4508,16 @@
 		A992DA1E2C24709F00DE7CE5 /* MullvadRustRuntime */ = {
 			isa = PBXGroup;
 			children = (
-				A9D9A4D32C36E1EA004088DD /* mullvad_rust_runtime.h */,
-				A992DA1F2C24709F00DE7CE5 /* MullvadRustRuntime.h */,
 				014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */,
 				A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */,
 				A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */,
 				A9A557F42B7E3E5C0017ADA8 /* EphemeralPeerReceiver.swift */,
+				A9D9A4D32C36E1EA004088DD /* mullvad_rust_runtime.h */,
 				7A99D3702D56220E00891FF7 /* MullvadApiCancellable.swift */,
 				7A3215702D392F0B005DF395 /* MullvadApiCompletion.swift */,
 				7AB931232D43C2C2005FCEBA /* MullvadApiContext.swift */,
 				7AB931252D43D222005FCEBA /* MullvadApiResponse.swift */,
+				A992DA1F2C24709F00DE7CE5 /* MullvadRustRuntime.h */,
 				F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */,
 				584023212A406BF5007B27AC /* TunnelObfuscator.swift */,
 			);
@@ -4787,6 +4790,14 @@
 				F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */,
 			);
 			path = AccountDeletion;
+			sourceTree = "<group>";
+		};
+		F0EEFBA02D8D6133007FE4B3 /* Rust */ = {
+			isa = PBXGroup;
+			children = (
+				F0EEFB9E2D8D60E1007FE4B3 /* RustProblemReportRequest.swift */,
+			);
+			path = Rust;
 			sourceTree = "<group>";
 		};
 		F0EF50D12A8FA47E0031E8DF /* ChangeLog */ = {
@@ -5787,6 +5798,7 @@
 				F0B894EF2BF751C500817A42 /* RelayWithLocation.swift in Sources */,
 				F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */,
 				A90763C72B2858DC0045ADF0 /* CancellableChain.swift in Sources */,
+				F0EEFBA22D8D61A9007FE4B3 /* RustProblemReportRequest.swift in Sources */,
 				7AB9312F2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift in Sources */,
 				06799AF128F98E4800ACD94E /* RESTAPIProxy.swift in Sources */,
 				F0DDE42A2B220A15006B57A7 /* Haversine.swift in Sources */,
