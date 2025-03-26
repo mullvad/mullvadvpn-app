@@ -1,7 +1,7 @@
 import { messages } from '../../../../../../shared/gettext';
+import { usePushChangelog } from '../../../../../history/hooks';
 import { Icon } from '../../../../../lib/components';
 import { ListItem } from '../../../../../lib/components/list-item';
-import { usePushChangelog } from '../../hooks';
 
 export function ChangelogListItem() {
   const pushChangelog = usePushChangelog();

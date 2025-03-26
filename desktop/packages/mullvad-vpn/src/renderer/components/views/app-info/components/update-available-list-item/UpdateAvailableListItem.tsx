@@ -1,10 +1,11 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
+import { usePushAppUpgrade } from '../../../../../history/hooks';
 import { Flex, Icon } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
 import { ListItem } from '../../../../../lib/components/list-item';
-import { useConnectionIsBlocked, usePushAppUpgrade, useVersionSuggestedUpgrade } from '../../hooks';
+import { useConnectionIsBlocked, useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
 
 const StyledText = styled(ListItem.Text)`
   margin-top: -4px;
