@@ -1,4 +1,4 @@
-use crate::{account_history, device, version_check, DaemonCommand, DaemonCommandSender};
+use crate::{account_history, check, device, DaemonCommand, DaemonCommandSender};
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
@@ -1373,11 +1373,11 @@ fn map_account_history_error(error: account_history::Error) -> Status {
     }
 }
 
-fn map_version_check_error(error: version_check::Error) -> Status {
+fn map_version_check_error(error: check::Error) -> Status {
     match error {
-        version_check::Error::Download(..)
-        | version_check::Error::ReadVersionCache(..)
-        | version_check::Error::ApiCheck(..) => Status::unavailable(error.to_string()),
+        check::Error::Download(..)
+        | check::Error::ReadVersionCache(..)
+        | check::Error::ApiCheck(..) => Status::unavailable(error.to_string()),
         _ => Status::unknown(error.to_string()),
     }
 }
