@@ -1,3 +1,5 @@
+import styled from 'styled-components';
+
 import { Flex } from '../flex';
 import {
   ListItemContent,
@@ -17,12 +19,16 @@ export interface ListItemProps {
   children: React.ReactNode;
 }
 
+const StyledFlex = styled(Flex)`
+  margin-bottom: 1px;
+`;
+
 const ListItem = ({ level = 0, disabled, children }: ListItemProps) => {
   return (
     <ListItemProvider level={level} disabled={disabled}>
-      <Flex $flexDirection="column" $gap="tiny">
+      <StyledFlex $flexDirection="column" $gap="tiny">
         {children}
-      </Flex>
+      </StyledFlex>
     </ListItemProvider>
   );
 };
