@@ -104,7 +104,7 @@ is not really possible, or hard to implement on some operating systems. See the
 
 ### Temporary leaks while tunnel is being reconfigured on Android
 
-Android may leak for a short period of time while a VPN tunnel is being re-configured
+Android may leak for a short period of time while a VPN tunnel is being reconfigured
 (reconnecting, force-stopped etc), sending traffic outside the tunnel that is supposed to be inside
 the tunnel. Packets sent may have the source IP of the internal tunnel interface. Some of these
 leaks can happen even when the system setting "Block connections without VPN" is enabled.
@@ -126,7 +126,7 @@ still persist. Mullvad is not aware of any mitigation to these leaks.
 
 #### Timeline
 
-* April 22, 2024 - Mullvad became aware that Android could leak DNS when getaddrinfo was being used.
+* April 22, 2024 - Mullvad became aware that Android could leak DNS when `getaddrinfo` was being used.
 * April 30, 2024 - Mullvad [report the issue](https://issuetracker.google.com/issues/337961996) upstream to Google.
 * May 3, 2024 - Mullvad [blog](https://mullvad.net/blog/dns-traffic-can-leak-outside-the-vpn-tunnel-on-android) about the findings. This post contains more details.
 * Mar 12, 2025 - Mullvad realize the leaks are about much more than just DNS. This document is updated accordingly.
