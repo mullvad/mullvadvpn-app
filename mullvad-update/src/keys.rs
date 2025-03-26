@@ -15,7 +15,11 @@ pub static STAGING_KEYS: LazyLock<Vec1<VerifyingKey>> =
 fn parse_keys(keys: &str) -> Vec1<VerifyingKey> {
     let mut v = vec![];
     for key in keys.split('\n') {
-        v.push(VerifyingKey::from_hex(key.trim()).expect("invalid pubkey"));
+        let key = key.trim();
+        if key.starts_with('#') || key.is_empty() {
+            continue;
+        }
+        v.push(VerifyingKey::from_hex(key).expect("invalid pubkey"));
     }
     v.try_into().expect("need at least one key")
 }
@@ -23,6 +27,19 @@ fn parse_keys(keys: &str) -> Vec1<VerifyingKey> {
 #[cfg(test)]
 #[test]
 fn test_parse_keys() {
+    let key1 = "AB4EF63FFDCC6BD5A19C30CD23B9DE03099407A04463418F17AE338B98AA09D4".to_lowercase();
+    let key2 = "BB4EF63FFDCC6BD5A19C30CD23B9DE03099407A04463418F17AE338B98AA09D4".to_lowercase();
+    let keys = parse_keys(&format!(
+        r#"
+# test
+{key1}
+# test 2
+{key2}
+"#
+    ));
+    assert_eq!(format!("{}", keys[0]), key1);
+    assert_eq!(format!("{}", keys[1]), key2);
+
     // Test that actual keys are validly parsed
     let _prod = &*PRODUCTION_KEYS;
     let _staging = &*STAGING_KEYS;
