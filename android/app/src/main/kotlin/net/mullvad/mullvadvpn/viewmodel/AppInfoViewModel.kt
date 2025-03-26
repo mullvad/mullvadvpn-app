@@ -46,18 +46,24 @@ class AppInfoViewModel(
 
     fun openAppListing() =
         viewModelScope.launch {
-            val uri =
+            val sideEffect =
                 if (isPlayBuild || isFdroidBuild) {
-                    resources.getString(R.string.market_uri, packageName)
+                    AppInfoSideEffect.OpenUri(
+                        uri = resources.getString(R.string.market_uri, packageName).toUri(),
+                        errorMessage = resources.getString(R.string.uri_market_app_not_found),
+                    )
                 } else {
-                    resources.getString(R.string.download_url)
+                    AppInfoSideEffect.OpenUri(
+                        uri = resources.getString(R.string.download_url).toUri(),
+                        errorMessage = resources.getString(R.string.uri_browser_app_not_found),
+                    )
                 }
-            _uiSideEffect.send(AppInfoSideEffect.OpenUri(uri.toUri()))
+            _uiSideEffect.send(sideEffect)
         }
 }
 
 data class AppInfoUiState(val version: VersionInfo, val isPlayBuild: Boolean)
 
 sealed interface AppInfoSideEffect {
-    data class OpenUri(val uri: Uri) : AppInfoSideEffect
+    data class OpenUri(val uri: Uri, val errorMessage: String) : AppInfoSideEffect
 }

@@ -55,7 +55,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
@@ -82,6 +81,7 @@ import net.mullvad.mullvadvpn.compose.component.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
 import net.mullvad.mullvadvpn.compose.preview.ConnectUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -234,10 +234,8 @@ fun Connect(
             }
 
             is ConnectViewModel.UiSideEffect.OpenUri ->
-                try {
-                    uriHandler.openUri(sideEffect.uri.toString())
-                } catch (e: IllegalArgumentException) {
-                    Logger.w("Failed to open uri", e)
+                uriHandler.safeOpenUri(sideEffect.uri.toString()).onLeft {
+                    snackbarHostState.showSnackbarImmediately(message = sideEffect.errorMessage)
                 }
         }
     }

@@ -185,13 +185,19 @@ class ConnectViewModel(
 
     fun openAppListing() =
         viewModelScope.launch {
-            val uri =
+            val sideEffect =
                 if (isPlayBuild || isFdroidBuild) {
-                    resources.getString(R.string.market_uri, packageName)
+                    UiSideEffect.OpenUri(
+                        uri = resources.getString(R.string.market_uri, packageName).toUri(),
+                        errorMessage = resources.getString(R.string.uri_market_app_not_found),
+                    )
                 } else {
-                    resources.getString(R.string.download_url)
+                    UiSideEffect.OpenUri(
+                        uri = resources.getString(R.string.download_url).toUri(),
+                        errorMessage = resources.getString(R.string.uri_browser_app_not_found),
+                    )
                 }
-            _uiSideEffect.send(UiSideEffect.OpenUri(uri.toUri()))
+            _uiSideEffect.send(sideEffect)
         }
 
     fun dismissNewDeviceNotification() {
@@ -214,7 +220,7 @@ class ConnectViewModel(
 
         data object OutOfTime : UiSideEffect
 
-        data class OpenUri(val uri: Uri) : UiSideEffect
+        data class OpenUri(val uri: Uri, val errorMessage: String) : UiSideEffect
 
         data object RevokedDevice : UiSideEffect
 

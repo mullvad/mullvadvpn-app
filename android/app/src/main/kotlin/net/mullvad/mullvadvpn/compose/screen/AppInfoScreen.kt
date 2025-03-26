@@ -11,9 +11,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
@@ -31,9 +33,11 @@ import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
 import net.mullvad.mullvadvpn.compose.preview.AppInfoUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.AppInfoSideEffect
@@ -48,7 +52,13 @@ private fun PreviewAppInfoScreen(
     @PreviewParameter(AppInfoUiStatePreviewParameterProvider::class) state: AppInfoUiState
 ) {
     AppTheme {
-        AppInfo(state = state, onBackClick = {}, navigateToChangelog = {}, openAppListing = {})
+        AppInfo(
+            state = state,
+            snackbarHostState = SnackbarHostState(),
+            onBackClick = {},
+            navigateToChangelog = {},
+            openAppListing = {},
+        )
     }
 }
 
@@ -60,15 +70,21 @@ fun AppInfo(navigator: DestinationsNavigator) {
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     val uriHandler = LocalUriHandler.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    CollectSideEffectWithLifecycle(vm.uiSideEffect) {
-        when (it) {
-            is AppInfoSideEffect.OpenUri -> uriHandler.openUri(it.uri.toString())
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
+        when (sideEffect) {
+            is AppInfoSideEffect.OpenUri -> {
+                uriHandler.safeOpenUri(sideEffect.uri.toString()).onLeft {
+                    snackbarHostState.showSnackbarImmediately(message = sideEffect.errorMessage)
+                }
+            }
         }
     }
 
     AppInfo(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
         navigateToChangelog =
             dropUnlessResumed { navigator.navigate(ChangelogDestination(ChangelogNavArgs())) },
@@ -80,6 +96,7 @@ fun AppInfo(navigator: DestinationsNavigator) {
 @Composable
 fun AppInfo(
     state: AppInfoUiState,
+    snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     navigateToChangelog: () -> Unit,
     openAppListing: () -> Unit,
@@ -87,6 +104,7 @@ fun AppInfo(
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.app_info),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        snackbarHostState = snackbarHostState,
     ) { modifier ->
         Column(horizontalAlignment = Alignment.Start, modifier = modifier.animateContentSize()) {
             AppInfoContent(state, navigateToChangelog, openAppListing)
