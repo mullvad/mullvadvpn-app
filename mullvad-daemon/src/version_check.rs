@@ -7,7 +7,7 @@ use futures::{
 use mullvad_api::{
     availability::ApiAvailability,
     rest::MullvadRestHandle,
-    version::{AppVersionProxy, AppVersionResponse},
+    version::AppVersionProxy,
 };
 use mullvad_types::version::SuggestedUpgrade;
 use mullvad_update::version::VersionInfo;
@@ -118,6 +118,7 @@ pub(crate) struct VersionUpdater;
 
 #[derive(Default)]
 struct VersionUpdaterInner {
+    beta_program: bool,
     /// The last known [AppVersionInfo], along with the time it was determined.
     last_app_version_info: Option<(VersionCache, SystemTime)>,
     /// Oneshot channels for responding to [VersionUpdaterCommand::GetVersionInfo].
@@ -131,7 +132,7 @@ pub(crate) struct VersionUpdaterHandle {
 
 enum VersionUpdaterCommand {
     SetShowBetaReleases(bool),
-    GetVersionInfo(oneshot::Sender<VersionCache>),
+    GetVersionInfo(oneshot::Sender<mullvad_types::version::AppVersionInfo>),
 }
 
 impl VersionUpdaterHandle {
@@ -139,7 +140,7 @@ impl VersionUpdaterHandle {
     ///
     /// If the cache is stale or missing, this will immediately query the API for the latest
     /// version. This may take a few seconds.
-    pub async fn get_version_info(&mut self) -> Result<VersionCache, Error> {
+    pub async fn get_version_info(&mut self) -> Result<mullvad_types::version::AppVersionInfo, Error> {
         let (done_tx, done_rx) = oneshot::channel();
         if self
             .tx
@@ -156,10 +157,11 @@ impl VersionUpdaterHandle {
 
 impl VersionUpdater {
     pub async fn spawn(
+        beta_program: bool,
         mut api_handle: MullvadRestHandle,
         availability_handle: ApiAvailability,
         cache_dir: PathBuf,
-        update_sender: DaemonEventSender<SuggestedUpgrade>,
+        update_sender: DaemonEventSender<mullvad_types::version::AppVersionInfo>,
     ) -> VersionUpdaterHandle {
         // load the last known AppVersionInfo from cache
         let last_app_version_info = load_cache(&cache_dir).await;
@@ -173,6 +175,7 @@ impl VersionUpdater {
 
         tokio::spawn(
             VersionUpdaterInner {
+                beta_program,
                 last_app_version_info,
                 get_version_info_responders: vec![],
             }
@@ -292,23 +295,11 @@ impl VersionUpdaterInner {
             futures::select! {
                 command = rx.next() => match command {
                     Some(VersionUpdaterCommand::SetShowBetaReleases(show_beta_releases)) => {
-                        self.show_beta_releases = show_beta_releases;
+                        self.beta_program = show_beta_releases;
 
-                        if let Some(last_app_version_info) = self
-                            .last_app_version_info()
-                            .cloned()
-                        {
-                            let suggested_upgrade = suggested_upgrade(
-                                &APP_VERSION,
-                                &Some(last_app_version_info.latest_stable.clone()),
-                                &last_app_version_info.latest_beta,
-                                self.show_beta_releases || is_beta_version(),
-                            );
-
-                            self.update_version_info(&update, VersionCache {
-                                supported: last_app_version_info.supported,
-                                suggested_upgrade,
-                            }).await;
+                        if let Some(last_version) = self.last_app_version_info() {
+                            // FIXME: notify
+                            let _ = self.send(last_version.suggested_upgrade(self.beta_program));
                         }
                     }
 
@@ -344,10 +335,10 @@ impl VersionUpdaterInner {
 
                 response = version_check => {
                     match response {
-                        Ok(version_info_response) => {
+                        Ok(version_info) => {
                             // Respond to all pending GetVersionInfo commands
                             for done_tx in self.get_version_info_responders.drain(..) {
-                                let _ = done_tx.send(new_version_info.clone());
+                                let _ = done_tx.send(version_info.clone());
                             }
 
                             self.update_version_info(&update, new_version_info).await;
@@ -368,7 +359,7 @@ impl VersionUpdaterInner {
 
 struct UpdateContext {
     cache_path: PathBuf,
-    update_sender: DaemonEventSender<VersionCache>,
+    update_sender: DaemonEventSender<mullvad_types::version::AppVersionInfo>,
 }
 
 impl UpdateContext {
