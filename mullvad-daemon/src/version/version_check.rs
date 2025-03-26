@@ -5,9 +5,7 @@ use futures::{
     FutureExt, SinkExt, StreamExt, TryFutureExt,
 };
 use mullvad_api::{
-    availability::ApiAvailability,
-    rest::MullvadRestHandle,
-    version::AppVersionProxy,
+    availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
 };
 use mullvad_types::version::SuggestedUpgrade;
 use mullvad_update::version::VersionInfo;
@@ -63,7 +61,11 @@ impl VersionCache {
     /// Return the latest version that should be downloaded
     pub fn target_version(&self, beta_program: bool) -> mullvad_update::version::Version {
         if beta_program {
-            self.latest_version.beta.as_ref().unwrap_or(&self.latest_version.stable).clone()
+            self.latest_version
+                .beta
+                .as_ref()
+                .unwrap_or(&self.latest_version.stable)
+                .clone()
         } else {
             self.latest_version.stable.clone()
         }
@@ -79,7 +81,7 @@ impl VersionCache {
                 changelog: Some(version.changelog),
                 // TODO: This should return the downloaded & verified path, if it exists
                 verified_installer_path: None,
-            })
+            }),
         }
     }
 }
@@ -140,7 +142,9 @@ impl VersionUpdaterHandle {
     ///
     /// If the cache is stale or missing, this will immediately query the API for the latest
     /// version. This may take a few seconds.
-    pub async fn get_version_info(&mut self) -> Result<mullvad_types::version::AppVersionInfo, Error> {
+    pub async fn get_version_info(
+        &mut self,
+    ) -> Result<mullvad_types::version::AppVersionInfo, Error> {
         let (done_tx, done_rx) = oneshot::channel();
         if self
             .tx
@@ -157,11 +161,11 @@ impl VersionUpdaterHandle {
 
 impl VersionUpdater {
     pub async fn spawn(
-        beta_program: bool,
         mut api_handle: MullvadRestHandle,
         availability_handle: ApiAvailability,
         cache_dir: PathBuf,
         update_sender: DaemonEventSender<mullvad_types::version::AppVersionInfo>,
+        beta_program: bool,
     ) -> VersionUpdaterHandle {
         // load the last known AppVersionInfo from cache
         let last_app_version_info = load_cache(&cache_dir).await;
@@ -272,7 +276,8 @@ impl VersionUpdaterInner {
             return;
         }
 
-        let update = |info| Box::pin(update.update(info, self.beta_program)) as BoxFuture<'static, _>;
+        let update =
+            |info| Box::pin(update.update(info, self.beta_program)) as BoxFuture<'static, _>;
         let do_version_check = || do_version_check(api.clone());
         let do_version_check_in_background = || do_version_check_in_background(api.clone());
 
@@ -285,8 +290,7 @@ impl VersionUpdaterInner {
         mut rx: mpsc::Receiver<VersionUpdaterCommand>,
         update: impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
         do_version_check: impl Fn() -> BoxFuture<'static, Result<VersionCache, Error>>,
-        do_version_check_in_background: impl Fn()
-            -> BoxFuture<'static, Result<VersionCache, Error>>,
+        do_version_check_in_background: impl Fn() -> BoxFuture<'static, Result<VersionCache, Error>>,
     ) {
         let mut version_is_stale = self.wait_until_version_is_stale();
         let mut version_check = futures::future::Fuse::terminated();
@@ -370,7 +374,9 @@ impl UpdateContext {
         last_app_version: VersionCache,
         beta_program: bool,
     ) -> impl Future<Output = Result<(), Error>> + use<> {
-        let _ = self.update_sender.send(last_app_version.suggested_upgrade(beta_program));
+        let _ = self
+            .update_sender
+            .send(last_app_version.suggested_upgrade(beta_program));
         let cache_path = self.cache_path.clone();
 
         async move {

@@ -1,3 +1,5 @@
+pub mod version_check;
+
 /// Contains the date of the git commit this was built from
 pub const COMMIT_DATE: &str = include_str!(concat!(env!("OUT_DIR"), "/git-commit-date.txt"));
 
