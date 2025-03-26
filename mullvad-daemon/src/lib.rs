@@ -95,7 +95,7 @@ use talpid_types::{
     ErrorExt,
 };
 use tokio::io;
-use version::version_check;
+use version::check;
 
 #[cfg(target_os = "android")]
 use talpid_core::connectivity_listener::ConnectivityListener;
@@ -126,7 +126,7 @@ pub enum Error {
     ApiCheckError(#[source] mullvad_api::availability::Error),
 
     #[error("Version check failed")]
-    VersionCheckError(#[source] version_check::Error),
+    VersionCheckError(#[source] check::Error),
 
     #[error("Unable to load account history")]
     LoadAccountHistory(#[source] account_history::Error),
@@ -614,7 +614,7 @@ pub struct Daemon {
     access_mode_handler: mullvad_api::access_mode::AccessModeSelectorHandle,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
-    version_updater_handle: version_check::VersionUpdaterHandle,
+    version_updater_handle: check::VersionUpdaterHandle,
     relay_selector: RelaySelector,
     relay_list_updater: RelayListUpdaterHandle,
     parameters_generator: tunnel::ParametersGenerator,
@@ -883,7 +883,7 @@ impl Daemon {
             on_relay_list_update,
         );
 
-        let version_updater_handle = version_check::VersionUpdater::spawn(
+        let version_updater_handle = check::VersionUpdater::spawn(
             api_handle.clone(),
             api_availability.clone(),
             config.cache_dir.clone(),
