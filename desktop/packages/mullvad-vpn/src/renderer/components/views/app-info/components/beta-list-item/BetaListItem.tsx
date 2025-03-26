@@ -2,8 +2,8 @@ import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
 import { ListItem } from '../../../../../lib/components/list-item';
+import { useSettingsShowBetaReleases, useVersionIsBeta } from '../../../../../redux/hooks';
 import Switch from '../../../../Switch';
-import { useSettingsShowBetaReleases, useVersionIsBeta } from '../../hooks';
 
 export function BetaListItem() {
   const { isBeta } = useVersionIsBeta();

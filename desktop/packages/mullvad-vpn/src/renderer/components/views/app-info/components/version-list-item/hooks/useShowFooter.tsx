@@ -1,4 +1,4 @@
-import { useVersionConsistent } from '../../../hooks';
+import { useVersionConsistent } from '../../../../../../redux/hooks';
 
 export const useShowFooter = () => {
   const { consistent } = useVersionConsistent();
