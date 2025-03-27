@@ -1,27 +1,36 @@
+use libc::endgrent;
 use mullvad_api::{
     access_mode::AccessMethodResolver,
     proxy::{ApiConnectionMode, ProxyConfig},
+    ApiEndpoint,
 };
 use mullvad_types::access_method::{AccessMethod, BuiltInAccessMethod};
 use talpid_types::{
     self,
     net::{
         proxy::{CustomProxy, Shadowsocks},
-        AllowedClients, AllowedEndpoint,
+        AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol,
     },
 };
 use tonic::async_trait;
 
-use super::swift_shadowsocks_loader::SwiftShadowsocksLoaderWrapperContext;
+use super::shadowsocks_loader::SwiftShadowsocksLoaderWrapperContext;
 
 #[derive(Debug)]
 pub struct SwiftAccessMethodResolver {
+    endpoint: ApiEndpoint,
     bridge_provider: SwiftShadowsocksLoaderWrapperContext,
 }
 
 impl SwiftAccessMethodResolver {
-    pub fn new(bridge_provider: SwiftShadowsocksLoaderWrapperContext) -> Self {
-        Self { bridge_provider }
+    pub fn new(
+        endpoint: ApiEndpoint,
+        bridge_provider: SwiftShadowsocksLoaderWrapperContext,
+    ) -> Self {
+        Self {
+            endpoint,
+            bridge_provider,
+        }
     }
 }
 
@@ -33,7 +42,6 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
     ) -> Option<(AllowedEndpoint, ApiConnectionMode)> {
         let connection_mode = match access_method {
             AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
-            // TODO: This should call upon the relay selector and get bridges
             AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => {
                 let Some(bridge) = self.bridge_provider.get_bridges() else {
                     return None;
@@ -41,6 +49,7 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
                 let proxy = CustomProxy::Shadowsocks(bridge);
                 ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
             }
+            // TODO: Reuse the eDNS proxy from encrypted_dns_proxy.rs ?
             AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
                 ApiConnectionMode::Direct
             }
@@ -51,7 +60,13 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
 
         Some((
             AllowedEndpoint {
-                endpoint: connection_mode.get_endpoint().unwrap(),
+                endpoint: match connection_mode.get_endpoint() {
+                    Some(endpoint) => endpoint,
+                    None => Endpoint::from_socket_address(
+                        self.endpoint.address.unwrap(),
+                        TransportProtocol::Tcp,
+                    ),
+                },
                 clients: AllowedClients::All,
             },
             connection_mode,

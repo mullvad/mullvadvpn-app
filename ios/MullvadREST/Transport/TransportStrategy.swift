@@ -54,6 +54,10 @@ public struct TransportStrategy: Equatable, Sendable {
 
     public let opaqueConnectionModeProvider: SwiftConnectionModeProvider
 
+    public let opaqueAccessMethodSettingsWrapper: SwiftAccessMethodSettingsWrapper
+
+    // TODO: Create the SwiftAccessMethodSettingsWrapper here ??
+
     public init(
         datasource: AccessMethodRepositoryDataSource,
         shadowsocksLoader: ShadowsocksLoaderProtocol
@@ -64,6 +68,7 @@ public struct TransportStrategy: Equatable, Sendable {
             provider: accessMethodIterator,
             domainName: REST.encryptedDNSHostname
         )
+        self.opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(provider: connectionModeProviderProxy)
         self.opaqueConnectionModeProvider = initConnectionModeProvider(provider: connectionModeProviderProxy)
     }
 

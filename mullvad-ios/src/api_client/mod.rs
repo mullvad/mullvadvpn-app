@@ -1,25 +1,26 @@
 use std::{ffi::CStr, ops::Deref, sync::Arc};
 
+use access_method_resolver::SwiftAccessMethodResolver;
+use access_method_settings::SwiftAccessMethodSettingsWrapper;
+use connection_mode_provider::{connection_mode_provider_rotate, SwiftConnectionModeProvider};
 use mullvad_api::{
-    access_mode::AccessModeSelector,
+    access_mode::{AccessModeSelector, Error},
     proxy::{ApiConnectionMode, StaticConnectionModeProvider},
     rest::{self, MullvadRestHandle},
     ApiEndpoint, Runtime,
 };
-use swift_access_method_resolver::SwiftAccessMethodResolver;
-use swift_connection_mode_provider::{
-    connection_mode_provider_rotate, SwiftConnectionModeProvider,
-};
-use swift_shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
+use shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
 
+mod access_method_resolver;
+mod access_method_settings;
 mod api;
 mod cancellation;
 mod completion;
+mod connection_mode_provider;
+mod helpers;
 mod response;
 mod retry_strategy;
-mod swift_access_method_resolver;
-mod swift_connection_mode_provider;
-mod swift_shadowsocks_loader;
+mod shadowsocks_loader;
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);
@@ -61,6 +62,7 @@ pub extern "C" fn mullvad_api_init_new(
     host: *const u8,
     address: *const u8,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
+    settings_provider: SwiftAccessMethodSettingsWrapper,
     provider: SwiftConnectionModeProvider,
 ) -> SwiftApiContext {
     let host = unsafe { CStr::from_ptr(host.cast()) };
@@ -77,23 +79,41 @@ pub extern "C" fn mullvad_api_init_new(
     let tokio_handle = crate::mullvad_ios_runtime().unwrap();
 
     let connection_mode_provider_context = unsafe { provider.into_rust_context() };
+    let settings_context = unsafe { settings_provider.into_rust_context() };
+    let access_method_settings = settings_context.convert_access_method().unwrap();
 
-    let method_resolver =
-        unsafe { SwiftAccessMethodResolver::new(*bridge_provider.into_rust_context()) };
-    println!("{:?}", method_resolver);
+    let method_resolver = unsafe {
+        SwiftAccessMethodResolver::new(endpoint.clone(), *bridge_provider.into_rust_context())
+    };
+    println!(
+        "{:?}, {:?}, {:?}",
+        method_resolver, settings_context, access_method_settings
+    );
     // TODO: Use the method_resolver in the AccessModeSelector::spawn call
     // TODO: Bridge settings.api_access_methods
     // TODO: Handle #[cfg(feature = "api-override")]
     // TODO: Handle access_method_event_sender, used for "sending", should we just remove that parameter from iOS?
-    // AccessModeSelector::spawn(method_resolver, access_method_settings, access_method_event_sender)
-
     tokio_handle.spawn(connection_mode_provider_context.spawn_rotator());
 
     let api_context = tokio_handle.clone().block_on(async move {
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.
+
+        let (access_mode_handler, access_mode_provider) =
+            AccessModeSelector::spawn(method_resolver, access_method_settings)
+                .await
+                .expect("no errors here, move along");
+
+        // TODO: Should this be sent back to swift to invoke when the user changes access methods?
+
         let api_client = mullvad_api::Runtime::new(tokio_handle, &endpoint);
-        let rest_client = api_client.mullvad_rest_handle(*connection_mode_provider_context);
+        let rest_client = api_client.mullvad_rest_handle(access_mode_provider);
+
+        // tokio::spawn(async move {
+        //     let _ = access_mode_handler
+        //         .update_access_methods(access_method_settings)
+        //         .await;
+        // });
 
         ApiContext {
             _api_client: api_client,
