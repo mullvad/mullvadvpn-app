@@ -392,6 +392,13 @@ pub enum DaemonCommand {
     ExportJsonSettings(ResponseTx<String, settings::patch::Error>),
     /// Request the current feature indicators.
     GetFeatureIndicators(oneshot::Sender<FeatureIndicators>),
+    // App upgrade
+    /// Prompt the daemon to start an app version upgrade.
+    ///
+    /// If an upgrade had previously been started but not completed the daemon should continue the upgrade process at the appropriate step. The client need not be notified about this detail.
+    AppUpgrade(ResponseTx<(), Error>),
+    /// Prompt the daemon to abort the current upgrade.
+    AppUpgradeAbort(ResponseTx<(), Error>),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -1453,6 +1460,8 @@ impl Daemon {
             ApplyJsonSettings(tx, blob) => self.on_apply_json_settings(tx, blob).await,
             ExportJsonSettings(tx) => self.on_export_json_settings(tx),
             GetFeatureIndicators(tx) => self.on_get_feature_indicators(tx),
+            AppUpgrade(sender) => todo!("Implement `on_app_upgrade`"),
+            AppUpgradeAbort(sender) => todo!("Implement `on_app_upgrade_abort`"),
         }
     }
 
