@@ -22,7 +22,7 @@ pub struct VersionRouterHandle {
 }
 
 impl VersionRouterHandle {
-    pub async fn set_beta_program(&self, state: bool) -> Result<()> {
+    pub async fn set_show_beta_releases(&self, state: bool) -> Result<()> {
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
             .send(Message::SetBetaProgram { state, result_tx })
@@ -54,7 +54,7 @@ impl VersionRouterHandle {
         result_rx.await.map_err(|_| Error::VersionRouterClosed)
     }
 
-    pub async fn new_upgrade_event_listener(
+    pub fn new_upgrade_event_listener(
         &self,
     ) -> Result<mpsc::UnboundedReceiver<mullvad_types::version::AppUpgradeEvent>> {
         let (result_tx, result_rx) = mpsc::unbounded();
@@ -113,7 +113,7 @@ enum RoutingState {
 }
 
 impl VersionRouter {
-    pub fn spawn(
+    pub(crate) fn spawn(
         api_handle: MullvadRestHandle,
         availability_handle: ApiAvailability,
         cache_dir: PathBuf,
@@ -128,6 +128,7 @@ impl VersionRouter {
                 VersionUpdater::spawn(api_handle, availability_handle, cache_dir, new_version_tx)
                     .await;
 
+            // TODO: tokio::join! here?
             Self {
                 rx,
                 state: RoutingState::Forwarding,
@@ -137,7 +138,8 @@ impl VersionRouter {
                 new_version_rx,
                 latest_notified_version: None,
             }
-            .run();
+            .run()
+            .await;
         });
         VersionRouterHandle { tx }
     }
@@ -145,7 +147,7 @@ impl VersionRouter {
     async fn run(mut self) {
         loop {
             tokio::select! {
-                Some(new_version) = self.new_version_rx.next() => self.on_new_version(new_version).await,
+                Some(new_version) = self.new_version_rx.next() => self.on_new_version(new_version),
                 Some(message) = self.rx.next() => self.handle_message(message).await,
                 else => break,
             }
@@ -160,7 +162,7 @@ impl VersionRouter {
                 self.beta_program = state;
                 if let Ok(new_version) = self.version_check.get_version_info().await {
                     // Suggested upgrade might change with beta status even if the version is the same
-                    self.on_new_version(new_version).await;
+                    self.on_new_version(new_version);
                 }
                 result_tx.send(()).unwrap();
 
@@ -169,7 +171,7 @@ impl VersionRouter {
             Message::GetLatestVersion(result_tx) => {
                 let res = match self.version_check.get_version_info().await {
                     Ok(version) => {
-                        self.on_new_version(version.clone()).await;
+                        self.on_new_version(version.clone());
                         Ok(to_app_version_info(version, self.beta_program))
                     }
                     Err(e) => Err(e),
@@ -191,7 +193,9 @@ impl VersionRouter {
                             .await
                             .expect("Failed to get version info");
                         let app_version_info = to_app_version_info(new_version, self.beta_program);
-                        self.version_event_sender.send(app_version_info.clone());
+                        self.version_event_sender
+                            .send(app_version_info.clone())
+                            .unwrap();
                         self.latest_notified_version = Some(app_version_info);
                         self.latest_notified_version.as_ref().unwrap()
                     }
@@ -209,7 +213,7 @@ impl VersionRouter {
                 };
                 // TODO: Cancel update
                 if let Some(new_version) = new_version {
-                    self.on_new_version(new_version).await;
+                    self.on_new_version(new_version);
                 }
 
                 result_tx.send(()).unwrap();
@@ -225,13 +229,13 @@ impl VersionRouter {
     /// If the router is forwarding and the version is newer than the last, it will propagate the
     /// version info. If the router is paused, it will store the new version info until the router
     /// is resumed.
-    async fn on_new_version(&mut self, version: VersionCache) {
+    fn on_new_version(&mut self, version: VersionCache) {
         match self.state {
             RoutingState::Forwarding => {
                 let app_version_info = to_app_version_info(version, self.beta_program);
                 if self.latest_notified_version.as_ref() != Some(&app_version_info) {
                     self.latest_notified_version = Some(app_version_info.clone());
-                    self.version_event_sender.send(app_version_info);
+                    self.version_event_sender.send(app_version_info).unwrap(); // TODO: handle error
                 }
             }
             RoutingState::Paused {
@@ -255,7 +259,7 @@ fn to_app_version_info(cache: VersionCache, beta_program: bool) -> AppVersionInf
 
     // TODO: if the current version is up to date, set suggested_upgrade to None
 
-    let app_version_info = mullvad_types::version::AppVersionInfo {
+    mullvad_types::version::AppVersionInfo {
         current_version_supported: cache.current_version_supported,
         suggested_upgrade: Some(SuggestedUpgrade {
             version: version.version,
@@ -263,6 +267,5 @@ fn to_app_version_info(cache: VersionCache, beta_program: bool) -> AppVersionInf
             // TODO: This should return the downloaded & verified path, if it exists
             verified_installer_path: None,
         }),
-    };
-    app_version_info
+    }
 }
