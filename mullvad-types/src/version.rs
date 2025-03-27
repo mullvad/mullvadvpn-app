@@ -13,7 +13,7 @@ pub struct AppVersionInfo {
     ///   issues, so using it is no longer recommended.
     ///
     /// The user should really upgrade when this is false.
-    pub supported: bool,
+    pub current_version_supported: bool,
     /// A newer version that may be upgraded to
     pub suggested_upgrade: Option<SuggestedUpgrade>,
 }
