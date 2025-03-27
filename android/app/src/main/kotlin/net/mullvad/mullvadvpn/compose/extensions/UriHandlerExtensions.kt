@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.extensions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
+import arrow.core.Either
 import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.common.util.createAccountUri
@@ -19,12 +20,11 @@ fun UriHandler.createOpenAccountPageHook(): (WebsiteAuthToken?) -> Unit {
 
 fun UriHandler.createUriHook(uri: String): () -> Unit = { safeOpenUri(uri) }
 
-private fun UriHandler.safeOpenUri(uri: String) {
+fun UriHandler.safeOpenUri(uri: String): Either<IllegalArgumentException, Unit> =
     try {
-        openUri(uri)
+        Either.Right(openUri(uri))
     } catch (e: IllegalArgumentException) {
         // E.g user has no browser or invalid uri
         Logger.e("Failed to open uri: $uri", e)
-        e.cause?.let { Logger.e("cause:", it) }
+        Either.Left(e)
     }
-}
