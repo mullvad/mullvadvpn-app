@@ -2695,6 +2695,7 @@ dependencies = [
  "mullvad-version",
  "nix 0.23.2",
  "objc2",
+ "rand 0.8.5",
  "regex",
  "serde",
  "serde_json",

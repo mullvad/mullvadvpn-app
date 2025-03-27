@@ -45,6 +45,7 @@ talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-time = { path = "../talpid-time" }
 talpid-types = { path = "../talpid-types" }
 talpid-routing = { path = "../talpid-routing" }
+rand = "0.8.5"
 
 clap = { workspace = true }
 log-panics = "2.0.0"
