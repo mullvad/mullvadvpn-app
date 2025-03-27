@@ -13,6 +13,7 @@ use std::{
 /// Message that describes a route - either an added, removed, changed or plainly retrieved route.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RouteMessage {
+    // INVARIANT: The `AddressFlag` must match the variant of `RouteSocketAddress`.
     sockaddrs: BTreeMap<AddressFlag, RouteSocketAddress>,
     mtu: u32,
     route_flags: RouteFlag,
@@ -1038,7 +1039,7 @@ impl Iterator for RouteSockAddrIterator<'_> {
             Consider adding them to the definition."
         );
 
-        return match RouteSocketAddress::new(current_flag, self.buffer) {
+        match RouteSocketAddress::new(current_flag, self.buffer) {
             Ok((next_addr, addr_len)) => {
                 self.advance_buffer(addr_len);
                 Some(Ok(next_addr))
@@ -1047,7 +1048,7 @@ impl Iterator for RouteSockAddrIterator<'_> {
                 self.buffer = &[];
                 Some(Err(err))
             }
-        };
+        }
     }
 }
 
