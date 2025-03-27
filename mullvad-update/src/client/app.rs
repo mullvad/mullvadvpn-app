@@ -136,7 +136,7 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
 }
 
 impl<AppProgress> HttpAppDownloader<AppProgress> {
-    fn bin_path(&self) -> PathBuf {
+    pub fn bin_path(&self) -> PathBuf {
         #[cfg(windows)]
         let bin_filename = format!("mullvad-{}.exe", self.params.app_version);
 
