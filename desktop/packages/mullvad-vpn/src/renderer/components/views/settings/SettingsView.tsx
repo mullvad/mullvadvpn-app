@@ -45,7 +45,7 @@ export function SettingsView() {
           <AppNavigationHeader
             title={
               // TRANSLATORS: Title label in navigation bar
-              messages.pgettext('navigation-bar', 'Settings')
+              messages.pgettext('settings-view', 'Settings')
             }
           />
 
@@ -53,7 +53,7 @@ export function SettingsView() {
             <Title>
               {
                 // TRANSLATORS: Main title for settings view
-                messages.pgettext('navigation-bar', 'Settings')
+                messages.pgettext('settings-view', 'Settings')
               }
             </Title>
 
