@@ -41,10 +41,7 @@ public struct MullvadApiRequestFactory: Sendable {
                         rawPointer,
                         retryStrategy.toRustStrategy(),
                         rustRequest.toRust()
-                    ),
-                    deinitializer: {
-                        rustRequest.release()
-                    }
+                    )
                 )
             }
         }
