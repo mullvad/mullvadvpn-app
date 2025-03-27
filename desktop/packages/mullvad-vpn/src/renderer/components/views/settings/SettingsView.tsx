@@ -1,16 +1,17 @@
 import styled from 'styled-components';
 
-import { strings } from '../../shared/constants';
-import { messages } from '../../shared/gettext';
-import { useAppContext } from '../context';
-import { Button, Flex, Icon, TitleBig } from '../lib/components';
-import { Dot } from '../lib/components/dot';
-import { ListItem } from '../lib/components/list-item';
-import { useHistory } from '../lib/history';
-import { RoutePath } from '../lib/routes';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import { BackAction } from './KeyboardNavigation';
+import { strings } from '../../../../shared/constants';
+import { messages } from '../../../../shared/gettext';
+import { useAppContext } from '../../../context';
+import { Button, Flex, Icon, TitleBig } from '../../../lib/components';
+import { Dot } from '../../../lib/components/dot';
+import { ListItem } from '../../../lib/components/list-item';
+import { useHistory } from '../../../lib/history';
+import { RoutePath } from '../../../lib/routes';
+import { useSelector } from '../../../redux/store';
+import SettingsHeader from '../..//SettingsHeader';
+import { AppNavigationHeader } from '../../';
+import { BackAction } from '../../KeyboardNavigation';
 import {
   ButtonStack,
   Footer,
@@ -19,16 +20,15 @@ import {
   SettingsContent,
   SettingsNavigationScrollbars,
   SettingsStack,
-} from './Layout';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationListItem } from './NavigationListItem';
-import SettingsHeader from './SettingsHeader';
+} from '../../Layout';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationListItem } from '../../NavigationListItem';
 
 export const StyledFlex = styled(Flex).attrs({ $flexDirection: 'column' })`
   gap: 1px;
 `;
 
-export default function Support() {
+export function SettingsView() {
   const history = useHistory();
 
   const loginState = useSelector((state) => state.account.status);
