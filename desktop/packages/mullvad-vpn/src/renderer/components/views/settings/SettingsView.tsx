@@ -6,26 +6,23 @@ import { useAppContext } from '../../../context';
 import { Button, Flex, Icon, TitleBig } from '../../../lib/components';
 import { Dot } from '../../../lib/components/dot';
 import { ListItem } from '../../../lib/components/list-item';
+import { spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { RoutePath } from '../../../lib/routes';
 import { useSelector } from '../../../redux/store';
-import SettingsHeader from '../..//SettingsHeader';
 import { AppNavigationHeader } from '../../';
+import { measurements } from '../../common-styles';
 import { BackAction } from '../../KeyboardNavigation';
-import {
-  ButtonStack,
-  Footer,
-  Layout,
-  SettingsContainer,
-  SettingsContent,
-  SettingsNavigationScrollbars,
-  SettingsStack,
-} from '../../Layout';
+import { SettingsContainer, SettingsNavigationScrollbars } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationListItem } from '../../NavigationListItem';
 
-export const StyledFlex = styled(Flex).attrs({ $flexDirection: 'column' })`
-  gap: 1px;
+export const Title = styled(TitleBig)`
+  margin: 0 ${spacings.medium} ${spacings.medium};
+`;
+
+export const Footer = styled(Flex)`
+  margin: ${spacings.large} ${measurements.horizontalViewMargin} ${measurements.verticalViewMargin};
 `;
 
 export function SettingsView() {
@@ -40,62 +37,52 @@ export function SettingsView() {
 
   return (
     <BackAction action={history.pop}>
-      <Layout>
-        <SettingsContainer>
-          <NavigationContainer>
-            <AppNavigationHeader
-              title={
-                // TRANSLATORS: Title label in navigation bar
+      <SettingsContainer>
+        <NavigationContainer>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title label in navigation bar
+              messages.pgettext('navigation-bar', 'Settings')
+            }
+          />
+
+          <SettingsNavigationScrollbars fillContainer>
+            <Title>
+              {
+                // TRANSLATORS: Main title for settings view
                 messages.pgettext('navigation-bar', 'Settings')
               }
-            />
+            </Title>
 
-            <SettingsNavigationScrollbars fillContainer>
-              <SettingsContent>
-                <SettingsHeader>
-                  <TitleBig>
-                    {
-                      // TRANSLATORS: Main title for settings view
-                      messages.pgettext('navigation-bar', 'Settings')
-                    }
-                  </TitleBig>
-                </SettingsHeader>
+            <Flex $flexDirection="column" $gap="medium">
+              {showSubSettings ? (
+                <Flex $flexDirection="column">
+                  <DaitaListItem />
+                  <MultihopListItem />
+                  <VpnSettingsListItem />
+                  <UserInterfaceSettingsListItem />
 
-                <SettingsStack>
-                  {showSubSettings ? (
-                    <>
-                      <StyledFlex>
-                        <DaitaListItem />
-                        <MultihopListItem />
-                        <VpnSettingsListItem />
-                        <UserInterfaceSettingsListItem />
-                      </StyledFlex>
+                  {showSplitTunneling && <SplitTunnelingListItem />}
+                </Flex>
+              ) : (
+                <UserInterfaceSettingsListItem />
+              )}
 
-                      {showSplitTunneling && <SplitTunnelingListItem />}
-                    </>
-                  ) : (
-                    <UserInterfaceSettingsListItem />
-                  )}
+              <ApiAccessMethodsButton />
 
-                  <ApiAccessMethodsButton />
+              <Flex $flexDirection="column">
+                <SupportListItem />
+                <AppInfoListItem />
+              </Flex>
 
-                  <StyledFlex>
-                    <SupportListItem />
-                    <AppInfoListItem />
-                  </StyledFlex>
-
-                  {window.env.development && <DebugButton />}
-                </SettingsStack>
-                <Footer>
-                  <ButtonStack>
-                    <QuitButton />
-                  </ButtonStack>
-                </Footer>
-              </SettingsContent>
-            </SettingsNavigationScrollbars>
-          </NavigationContainer>
-        </SettingsContainer>
-      </Layout>
+              {window.env.development && <DebugButton />}
+            </Flex>
+            <Footer>
+              <QuitButton />
+            </Footer>
+          </SettingsNavigationScrollbars>
+        </NavigationContainer>
+      </SettingsContainer>
     </BackAction>
   );
 }
