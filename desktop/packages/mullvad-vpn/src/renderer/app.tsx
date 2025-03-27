@@ -405,6 +405,26 @@ export default class AppRenderer {
     IpcRendererEventChannel.app.upgrade();
   };
   public appUpgradeAbort = () => IpcRendererEventChannel.app.upgradeAbort();
+  public appUpgradeInstallerStart = () => {
+    const reduxState = this.reduxStore.getState();
+    const appUpgradeEvent = reduxState.appUpgrade.event;
+    const verifiedInstallerPath = reduxState.version.suggestedUpgrade?.verifiedInstallerPath;
+
+    // Ensure we have a the path to the verified installer and that we are not already trying
+    // to start the installer.
+    if (
+      verifiedInstallerPath &&
+      appUpgradeEvent?.type !== 'APP_UPGRADE_STATUS_STARTING_INSTALLER'
+    ) {
+      // Ensure we don't try to start the installer multiple times by setting the status
+      // as starting
+      this.reduxActions.appUpgrade.setAppUpgradeEvent({
+        type: 'APP_UPGRADE_STATUS_STARTING_INSTALLER',
+      });
+
+      IpcRendererEventChannel.app.upgradeInstallerStart(verifiedInstallerPath);
+    }
+  };
 
   public login = async (accountNumber: AccountNumber) => {
     const actions = this.reduxActions;
