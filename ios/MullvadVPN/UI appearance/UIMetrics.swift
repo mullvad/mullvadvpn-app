@@ -68,7 +68,8 @@ enum UIMetrics {
     }
 
     enum Button {
-        static let barButtonSize: CGFloat = 44
+        static let barButtonSize: CGFloat = 32
+        static let accountInfoSize: CGFloat = 18
         static let minimumTappableAreaSize = CGSize(width: 44, height: 44)
     }
 

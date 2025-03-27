@@ -1,13 +1,13 @@
 {
   "images" : [
     {
-      "idiom" : "universal",
-      "filename" : "IconBack.pdf"
+      "filename" : "icon-chevron-left-circle.svg",
+      "idiom" : "universal"
     }
   ],
   "info" : {
-    "version" : 1,
-    "author" : "xcode"
+    "author" : "xcode",
+    "version" : 1
   },
   "properties" : {
     "preserves-vector-representation" : true

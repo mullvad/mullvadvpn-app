@@ -31,7 +31,7 @@ class SpinnerActivityIndicatorView: UIView {
         }
     }
 
-    private let imageView = UIImageView(image: UIImage(named: "IconSpinner"))
+    private let imageView = UIImageView(image: .spinner)
 
     private(set) var isAnimating = false
     private(set) var style = Style.large

@@ -37,7 +37,7 @@ class ChipViewCell: UIView, UIContentView {
     private let closeButton: IncreasedHitButton = {
         let button = IncreasedHitButton()
         var buttonConfiguration = UIButton.Configuration.plain()
-        buttonConfiguration.image = UIImage(resource: .iconCloseSml).withTintColor(.white.withAlphaComponent(0.6))
+        buttonConfiguration.image = UIImage.Buttons.closeSmall.withTintColor(.white.withAlphaComponent(0.6))
         buttonConfiguration.contentInsets = .zero
         button.setAccessibilityIdentifier(.relayFilterChipCloseButton)
         button.configuration = buttonConfiguration

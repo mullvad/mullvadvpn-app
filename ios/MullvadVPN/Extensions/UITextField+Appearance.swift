@@ -36,7 +36,7 @@ extension UITextField {
 
         func apply(to searchBar: UISearchBar) {
             searchBar.setImage(
-                UIImage(named: "IconCloseSml")?.withTintColor(leftViewTintColor),
+                UIImage.Buttons.closeSmall.withTintColor(leftViewTintColor),
                 for: .clear,
                 state: .normal
             )

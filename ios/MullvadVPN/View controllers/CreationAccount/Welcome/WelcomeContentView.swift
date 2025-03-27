@@ -89,7 +89,7 @@ final class WelcomeContentView: UIView, Sendable {
         button.setAccessibilityIdentifier(.infoButton)
         button.tintColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "IconInfo"), for: .normal)
+        button.setImage(UIImage.Buttons.info, for: .normal)
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return button
