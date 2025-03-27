@@ -17,8 +17,8 @@ use std::ffi::CStr;
 /// A thin wrapper around [`mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState`] that
 /// can start a local forwarder (see [`Self::start`]).
 pub struct EncryptedDnsProxyState {
-    pub(crate) state: State,
-    pub(crate) domain: String,
+    state: State,
+    domain: String,
 }
 
 #[derive(Debug)]
@@ -118,6 +118,7 @@ pub unsafe extern "C" fn encrypted_dns_proxy_init(
 /// once.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn encrypted_dns_proxy_free(ptr: *mut EncryptedDnsProxyState) {
+    // SAFETY: See notes above
     let _ = unsafe { Box::from_raw(ptr) };
 }
 
@@ -143,17 +144,20 @@ pub unsafe extern "C" fn encrypted_dns_proxy_start(
         }
     };
 
+    // SAFETY: See notes above
     let mut encrypted_dns_proxy = unsafe { Box::from_raw(encrypted_dns_proxy) };
     let proxy_result = handle.block_on(encrypted_dns_proxy.start());
     mem::forget(encrypted_dns_proxy);
 
     match proxy_result {
+        // SAFETY: `proxy_handle` is guaranteed to be a valid pointer
         Ok(handle) => unsafe { ptr::write(proxy_handle, handle) },
         Err(err) => {
             let empty_handle = ProxyHandle {
                 context: ptr::null_mut(),
                 port: 0,
             };
+            // SAFETY: `proxy_handle` is guaranteed to be a valid pointer
             unsafe { ptr::write(proxy_handle, empty_handle) }
             log::error!("Failed to create a proxy connection: {err:?}");
             return err.into();
@@ -168,8 +172,10 @@ pub unsafe extern "C" fn encrypted_dns_proxy_start(
 /// [`encrypted_dns_proxy_start`]. It should only ever be called once.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn encrypted_dns_proxy_stop(proxy_config: *mut ProxyHandle) -> i32 {
+    // SAFETY: See notes above
     let ptr = unsafe { (*proxy_config).context };
     if !ptr.is_null() {
+        // SAFETY: `ptr` is guaranteed to be non-null and valid
         let handle: Box<JoinHandle<()>> = unsafe { Box::from_raw(ptr.cast()) };
         handle.abort();
     }

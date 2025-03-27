@@ -53,7 +53,7 @@ for arch in $ARCHS; do
   case "$arch" in
     arm64)
       if [ $IS_SIMULATOR -eq 0 ]; then
-        # Hardware iOS targets      
+        # Hardware iOS targets
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
       else

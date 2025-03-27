@@ -31,8 +31,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var encryptedDNSTransport: EncryptedDNSTransport!
     private var migrationManager: MigrationManager!
     let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
-    private var shadowsocksBridgeProvider: SwiftShadowsocksBridgeProvider!
-    private var shadowsocksBridgeProviderWrapper: SwiftShadowsocksLoaderWrapper!
 
     private let tunnelSettingsListener = TunnelSettingsListener()
     private lazy var ephemeralPeerReceiver = {
@@ -40,6 +38,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     }()
 
     var apiContext: MullvadApiContext!
+    var accessMethodReceiver: MullvadAccessMethodReceiver!
 
     // swiftlint:disable:next function_body_length
     override init() {
@@ -250,21 +249,27 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             relaySelector: shadowsocksRelaySelector,
             settingsUpdater: tunnelSettingsUpdater
         )
+
+        let accessMethodRepository = AccessMethodRepository()
+
         let transportStrategy = TransportStrategy(
-            datasource: AccessMethodRepository(),
+            datasource: accessMethodRepository,
             shadowsocksLoader: shadowsocksLoader
         )
 
-        /// TODO: Consider the lifetime of `shadowsocksBridgeProvider` and `shadowsocksBridgeProviderWrapper`
-        ///  is it necessary for those to live that long ?
-        shadowsocksBridgeProvider = SwiftShadowsocksBridgeProvider(provider: shadowsocksLoader)
-        shadowsocksBridgeProviderWrapper = initMullvadShadowsocksBridgeProvider(provider: shadowsocksBridgeProvider)
-
+        // swiftlint:disable:next force_try
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
-            shadowsocksProvider: shadowsocksBridgeProviderWrapper,
-            provider: transportStrategy.opaqueConnectionModeProvider
+            domain: REST.encryptedDNSHostname,
+            shadowsocksProvider: shadowsocksLoader,
+            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper
+        )
+
+        accessMethodReceiver = MullvadAccessMethodReceiver(
+            apiContext: apiContext,
+            accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
+            lastReachableDataSource: accessMethodRepository.lastReachableAccessMethodPublisher
         )
 
         encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSession)

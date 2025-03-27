@@ -39,9 +39,11 @@ pub unsafe extern "C" fn mullvad_api_mock_get(
     response_code: usize,
     response_body: *const u8,
 ) -> SwiftServerMock {
+    // SAFETY: See notes above
     let path = unsafe { std::ffi::CStr::from_ptr(path.cast()) }
         .to_str()
         .unwrap();
+    // SAFETY: See notes above
     let response_body = unsafe { std::ffi::CStr::from_ptr(response_body.cast()) }
         .to_str()
         .unwrap();
@@ -70,9 +72,11 @@ pub unsafe extern "C" fn mullvad_api_mock_post(
     response_code: usize,
     match_body: *const c_char,
 ) -> SwiftServerMock {
+    // SAFETY: See notes above
     let path = unsafe { std::ffi::CStr::from_ptr(path.cast()) }
         .to_str()
         .unwrap();
+    // SAFETY: See notes above
     let match_body = unsafe { std::ffi::CStr::from_ptr(match_body.cast()) }
         .to_str()
         .unwrap();
@@ -96,9 +100,11 @@ pub unsafe extern "C" fn mullvad_api_mock_post(
 #[unsafe(no_mangle)]
 extern "C" fn mullvad_api_mock_drop(mock_ptr: SwiftServerMock) {
     if !mock_ptr.mock_ptr.is_null() {
+        // SAFETY: See notes above
         unsafe { drop(Box::from_raw(mock_ptr.mock_ptr as *mut Mock)) };
     }
     if !mock_ptr.server_ptr.is_null() {
+        // SAFETY: See notes above
         unsafe { drop(Box::from_raw(mock_ptr.server_ptr as *mut ServerGuard)) };
     }
 }

@@ -52,7 +52,7 @@ public struct TransportStrategy: Equatable, Sendable {
 
     private let connectionModeProviderProxy: SwiftConnectionModeProviderProxy
 
-    public let opaqueConnectionModeProvider: SwiftConnectionModeProvider
+    public let opaqueAccessMethodSettingsWrapper: SwiftAccessMethodSettingsWrapper
 
     public init(
         datasource: AccessMethodRepositoryDataSource,
@@ -64,7 +64,11 @@ public struct TransportStrategy: Equatable, Sendable {
             provider: accessMethodIterator,
             domainName: REST.encryptedDNSHostname
         )
-        self.opaqueConnectionModeProvider = initConnectionModeProvider(provider: connectionModeProviderProxy)
+        self
+            .opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
+                methods: connectionModeProviderProxy
+                    .accessMethods()
+            )
     }
 
     /// Rotating between enabled configurations by what order they were added in
