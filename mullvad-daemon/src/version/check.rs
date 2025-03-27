@@ -154,15 +154,18 @@ impl VersionUpdaterInner {
     /// This happens [UPDATE_INTERVAL] after the last version check.
     fn time_until_version_is_stale(&self) -> Duration {
         let now = SystemTime::now();
-        self
-            .last_app_version_info
-            .as_ref()
-            .map(|(_, last_update_time)| last_update_time)
+        self.last_update_time()
             .and_then(|&last_update_time| now.duration_since(last_update_time).ok())
             .map(|time_since_last_update| UPDATE_INTERVAL.saturating_sub(time_since_last_update))
             // if there is no last_app_version_info, or if clocks are being weird,
             // assume that the version is stale
             .unwrap_or(Duration::ZERO)
+    }
+
+    fn last_update_time(&self) -> Option<&SystemTime> {
+        self.last_app_version_info
+            .as_ref()
+            .map(|(_, last_update_time)| last_update_time)
     }
 
     /// Is [Self::last_app_version_info] stale?

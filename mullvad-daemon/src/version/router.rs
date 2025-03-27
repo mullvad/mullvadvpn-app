@@ -184,7 +184,8 @@ impl VersionRouter {
                     result_tx.send(()).unwrap();
                     return;
                 };
-                let last_version = match &self.latest_notified_version {
+                self.state = RoutingState::Paused { new_version: None };
+                let version_to_update = match &self.latest_notified_version {
                     Some(version) => version,
                     None => {
                         let new_version = self
@@ -200,27 +201,29 @@ impl VersionRouter {
                         self.latest_notified_version.as_ref().unwrap()
                     }
                 };
-                self.state = RoutingState::Paused { new_version: None };
+
                 // TODO: start update
                 result_tx.send(()).unwrap();
             }
             Message::CancelUpdate { result_tx } => {
-                let state = mem::replace(&mut self.state, RoutingState::Forwarding);
-                let RoutingState::Paused { new_version } = state else {
-                    log::warn!("Cancel update called while not updating");
-                    result_tx.send(()).unwrap();
-                    return;
-                };
-                // TODO: Cancel update
-                if let Some(new_version) = new_version {
-                    self.on_new_version(new_version);
-                }
+                self.transition_to_forwarding();
 
+                // TODO: Cancel update
                 result_tx.send(()).unwrap();
             }
             Message::NewUpgradeEventListener { result_tx } => {
                 todo!();
             }
+        }
+    }
+
+    fn transition_to_forwarding(&mut self) {
+        let state = mem::replace(&mut self.state, RoutingState::Forwarding);
+        if let RoutingState::Paused {
+            new_version: Some(new_version),
+        } = state
+        {
+            self.on_new_version(new_version);
         }
     }
 
