@@ -40,6 +40,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix BSOD caused by routing loop in wireguard-nt.
 
 
+## [2025.5] - 2025-03-26
+This release is identical to 2025.5-beta1
+
+
 ## [2025.5-beta1] - 2025-03-11
 ### Added
 #### Windows
