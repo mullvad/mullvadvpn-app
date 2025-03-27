@@ -8,6 +8,18 @@ use super::Response;
 use super::{PartialSignedResponse, ResponseSignature, SignedResponse};
 
 impl SignedResponse {
+    /// Deserialize and verify using [crate::keys::TRUSTED_METADATA_SIGNING_PUBKEYS]
+    pub fn trusted_deserialize_and_verify(
+        bytes: &[u8],
+        min_metadata_version: usize,
+    ) -> Result<Self, anyhow::Error> {
+        Self::deserialize_and_verify(
+            &crate::keys::TRUSTED_METADATA_SIGNING_PUBKEYS,
+            bytes,
+            min_metadata_version,
+        )
+    }
+
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
     /// If successful, the deserialized data is returned.
     pub fn deserialize_and_verify(

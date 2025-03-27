@@ -35,6 +35,35 @@ impl HttpVersionInfoProvider {
     /// Maximum size of the GET response, in bytes
     const SIZE_LIMIT: usize = 1024 * 1024;
 
+    /// Construct a provider for the Mullvad API using [crate::keys::TRUSTED_METADATA_SIGNING_PUBKEYS]
+    /// and the current platform
+    pub fn trusted_provider() -> Self {
+        /// Pinned root certificate used when fetching version metadata
+        const PINNED_CERTIFICATE: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
+
+        /// Base URL for pulling metadata. Actual JSON files should be stored at `<base
+        /// url>/<platform>.json`
+        const META_REPOSITORY_URL: &str = "https://api.mullvad.net/app/releases/";
+
+        /// Assume platform is what we're currently running on
+        const PLATFORM: &str = if cfg!(target_os = "windows") {
+            "windows"
+        } else if cfg!(target_os = "macos") {
+            "macos"
+        } else {
+            panic!("Unsupported platform")
+        };
+        let url = format!("{META_REPOSITORY_URL}/{PLATFORM}.json");
+
+        let cert = reqwest::Certificate::from_pem(PINNED_CERTIFICATE).expect("invalid cert");
+
+        HttpVersionInfoProvider {
+            url,
+            pinned_certificate: Some(cert),
+            verifying_keys: crate::keys::TRUSTED_METADATA_SIGNING_PUBKEYS.clone(),
+        }
+    }
+
     /// Download and verify signed data
     pub async fn get_versions(
         &self,

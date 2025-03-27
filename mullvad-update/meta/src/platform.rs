@@ -23,12 +23,6 @@ use crate::{
 /// Actual JSON files should be stored at `<base url>/<platform>.json`.
 const META_REPOSITORY_URL: &str = "https://releases.stagemole.eu/desktop/metadata/";
 
-/// TLS certificate to pin to for `meta pull`.
-static PINNED_CERTIFICATE: LazyLock<reqwest::Certificate> = LazyLock::new(|| {
-    const CERT_BYTES: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
-    reqwest::Certificate::from_pem(CERT_BYTES).expect("invalid cert")
-});
-
 #[derive(Clone, Copy)]
 pub enum Platform {
     Windows,
@@ -81,11 +75,6 @@ impl Platform {
         Path::new("signed").join(self.local_filename())
     }
 
-    /// URL that stores the latest published metadata
-    pub fn published_url(&self) -> String {
-        format!("{META_REPOSITORY_URL}/{}", self.published_filename())
-    }
-
     /// Expected artifacts in `artifacts/` directory
     pub fn artifact_filenames(&self, version: &mullvad_version::Version) -> Artifacts {
         let artifacts_dir = Path::new("artifacts");
@@ -123,15 +112,10 @@ impl Platform {
 
     /// Pull latest metadata from repository and store it in `signed/`
     pub async fn pull(&self, assume_yes: bool) -> anyhow::Result<()> {
-        let url = self.published_url();
+        let version_provider = HttpVersionInfoProvider::trusted_provider();
 
-        println!("Pulling {self} metadata from {url}...");
+        println!("Pulling {self} metadata from {}...", version_provider.url);
 
-        let version_provider = HttpVersionInfoProvider {
-            pinned_certificate: Some(PINNED_CERTIFICATE.clone()),
-            url,
-            verifying_keys: mullvad_update::keys::TRUSTED_METADATA_SIGNING_PUBKEYS.clone(),
-        };
         let response = version_provider
             .get_versions(crate::MIN_VERIFY_METADATA_VERSION)
             .await
@@ -231,8 +215,7 @@ impl Platform {
         println!("Verifying signature of {}...", signed_path.display());
         let bytes = fs::read(signed_path).await.context("Failed to read file")?;
 
-        format::SignedResponse::deserialize_and_verify(
-            &mullvad_update::keys::TRUSTED_METADATA_SIGNING_PUBKEYS,
+        format::SignedResponse::trusted_deserialize_and_verify(
             &bytes,
             crate::MIN_VERIFY_METADATA_VERSION,
         )

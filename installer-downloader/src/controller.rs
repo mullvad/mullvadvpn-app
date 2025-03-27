@@ -20,13 +20,6 @@ use tokio::{
     task::JoinHandle,
 };
 
-/// Pinned root certificate used when fetching version metadata
-const PINNED_CERTIFICATE: &[u8] = include_bytes!("../../mullvad-api/le_root_cert.pem");
-
-/// Base URL for pulling metadata. Actual JSON files should be stored at `<base
-/// url>/<platform>.json`
-const META_REPOSITORY_URL: &str = "https://api.stagemole.eu/app/releases/";
-
 /// Actions handled by an async worker task in [ActionMessageHandler].
 enum TaskMessage {
     BeginDownload,
@@ -48,31 +41,13 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     type Downloader<T> = HttpAppDownloader<UiProgressUpdater<T>>;
     // Directory provider to use
     type DirProvider = crate::temp::TempDirProvider;
-
-    let cert = reqwest::Certificate::from_pem(PINNED_CERTIFICATE).expect("invalid cert");
-    let version_provider = HttpVersionInfoProvider {
-        url: get_metadata_url(),
-        pinned_certificate: Some(cert),
-        verifying_keys: mullvad_update::keys::TRUSTED_METADATA_SIGNING_PUBKEYS.clone(),
-    };
+    let version_provider = HttpVersionInfoProvider::trusted_provider();
 
     AppController::initialize::<_, Downloader<T>, _, DirProvider>(
         delegate,
         version_provider,
         environment,
     )
-}
-
-/// JSON files should be stored at `<base url>/<platform>.json`.
-fn get_metadata_url() -> String {
-    const PLATFORM: &str = if cfg!(target_os = "windows") {
-        "windows"
-    } else if cfg!(target_os = "macos") {
-        "macos"
-    } else {
-        panic!("Unsupported platform")
-    };
-    format!("{META_REPOSITORY_URL}/{PLATFORM}.json")
 }
 
 impl AppController {
