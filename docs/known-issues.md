@@ -190,7 +190,10 @@ exempted since the routing table will ensure that traffic is tunneled in that ca
 (see details below).
 
 There are certain limitations to this mitigation. First, the Hyper-V firewall is only available on
-*Windows 11 version 22H2 and above*, so it has no effect on earlier versions of Windows.
+_Windows 11 version 22H2 and above_, so it has no effect on earlier versions of Windows. The
+net-firewall Hyper-V profile must not be disabled, which can be inspected using the
+`Get-NetFirewallHyperVProfile` PowerShell command.
+
 Additionally, LAN traffic will never be blocked while connected, regardless of whether "Local
 network sharing" is enabled. Moreover, DNS leaks are more likely to occur.
 
