@@ -48,7 +48,7 @@ final public class RustProblemReportRequest {
         )
     }
 
-    public func release() {
+    deinit {
         swift_problem_report_meta_data_free(problemReportMetaData)
         addressPointer?.pointer?.deallocate()
         messagePointer?.pointer?.deallocate()
