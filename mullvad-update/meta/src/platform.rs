@@ -192,7 +192,7 @@ impl Platform {
 
         // Read unsigned JSON data
         let data = fs::read(work_path).await?;
-        let mut response = format::SignedResponse::deserialize_and_verify_insecure(&data)?;
+        let mut response = format::SignedResponse::deserialize_insecure(&data)?;
 
         // Update the expiration date
         response.signed.metadata_expiry = chrono::Utc::now()
@@ -424,7 +424,7 @@ impl Platform {
             Err(error) => bail!("Failed to read {}: {error}", work_path.display()),
         };
         // Note: We don't need to verify the signature here
-        format::SignedResponse::deserialize_and_verify_insecure(&bytes)
+        format::SignedResponse::deserialize_insecure(&bytes)
     }
 }
 
