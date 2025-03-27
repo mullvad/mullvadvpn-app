@@ -373,11 +373,6 @@ fn do_version_check_in_background(
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let download_future_factory = move || {
         let when_available = api.api_handle.wait_background();
-        let request = api.version_proxy.version_check(
-            mullvad_version::VERSION.to_owned(),
-            PLATFORM,
-            api.platform_version.clone(),
-        );
 
         let first = api
             .version_proxy
