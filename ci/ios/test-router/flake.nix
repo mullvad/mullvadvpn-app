@@ -1,7 +1,7 @@
 {
   description = "Config for our testing router";
 
-  inputs = { nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11"; };
+  inputs = { nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11"; };
 
   outputs = { self, nixpkgs }: {
     nixosConfigurations.app-team-ios-lab = nixpkgs.lib.nixosSystem {
