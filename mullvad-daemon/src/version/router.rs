@@ -1,3 +1,4 @@
+use std::mem;
 use std::path::PathBuf;
 
 use futures::channel::{mpsc, oneshot};
@@ -64,6 +65,12 @@ impl VersionRouterHandle {
     }
 }
 
+/// Router of version updates and update requests.
+///
+/// New available app version events are forwarded from the [`VersionUpdater`].
+/// If an update is in progress, these events are paused until the update is completed or canceled.
+/// This is done to prevent frontends from confusing which version is currently being installed,
+/// in case new version info is received while the update is in progress.
 pub struct VersionRouter {
     rx: mpsc::UnboundedReceiver<Message>,
     state: RoutingState,
@@ -144,8 +151,6 @@ impl VersionRouter {
             }
         }
         log::info!("Version router closed");
-
-        todo!()
     }
 
     /// Handle [Message] sent by user
@@ -196,12 +201,12 @@ impl VersionRouter {
                 result_tx.send(()).unwrap();
             }
             Message::CancelUpdate { result_tx } => {
-                let RoutingState::Paused { new_version } = &self.state else {
+                let state = mem::replace(&mut self.state, RoutingState::Forwarding);
+                let RoutingState::Paused { new_version } = state else {
                     log::warn!("Cancel update called while not updating");
                     result_tx.send(()).unwrap();
                     return;
                 };
-                self.state = RoutingState::Forwarding;
                 // TODO: Cancel update
                 if let Some(new_version) = new_version {
                     self.on_new_version(new_version).await;
