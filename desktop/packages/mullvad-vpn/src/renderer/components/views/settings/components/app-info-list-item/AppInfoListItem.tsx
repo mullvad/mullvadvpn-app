@@ -5,7 +5,7 @@ import { Flex, Icon } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
 import { ListItem } from '../../../../../lib/components/list-item';
 import { RoutePath } from '../../../../../lib/routes';
-import { useSelector } from '../../../../../redux/store';
+import { useVersionCurrent, useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
 import { NavigationListItem } from '../../../../NavigationListItem';
 
 const StyledText = styled(ListItem.Text)`
@@ -13,8 +13,8 @@ const StyledText = styled(ListItem.Text)`
 `;
 
 export function AppInfoListItem() {
-  const appVersion = useSelector((state) => state.version.current);
-  const suggestedUpgrade = useSelector((state) => state.version.suggestedUpgrade);
+  const { current } = useVersionCurrent();
+  const { suggestedUpgrade } = useVersionSuggestedUpgrade();
 
   return (
     <NavigationListItem to={RoutePath.appInfo}>
@@ -35,7 +35,7 @@ export function AppInfoListItem() {
         )}
       </Flex>
       <ListItem.Group>
-        <ListItem.Text>{appVersion}</ListItem.Text>
+        <ListItem.Text>{current}</ListItem.Text>
         {suggestedUpgrade && <Dot variant="warning" size="small" />}
         <Icon icon="chevron-right" />
       </ListItem.Group>

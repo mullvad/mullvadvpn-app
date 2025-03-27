@@ -1,10 +1,9 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
+import { usePop } from '../../../history/hooks';
 import { Flex, TitleBig } from '../../../lib/components';
 import { spacings } from '../../../lib/foundations';
-import { useHistory } from '../../../lib/history';
-import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../';
 import { measurements } from '../../common-styles';
 import { BackAction } from '../../KeyboardNavigation';
@@ -22,6 +21,7 @@ import {
   UserInterfaceSettingsListItem,
   VpnSettingsListItem,
 } from './components';
+import { useShowDebug, useShowSplitTunneling, useShowSubSettings } from './hooks';
 
 export const Title = styled(TitleBig)`
   margin: 0 ${spacings.medium} ${spacings.medium};
@@ -32,17 +32,14 @@ export const Footer = styled(Flex)`
 `;
 
 export function SettingsView() {
-  const history = useHistory();
+  const pop = usePop();
 
-  const loginState = useSelector((state) => state.account.status);
-  const connectedToDaemon = useSelector((state) => state.userInterface.connectedToDaemon);
-  const isMacOs13OrNewer = useSelector((state) => state.userInterface.isMacOs13OrNewer);
-
-  const showSubSettings = loginState.type === 'ok' && connectedToDaemon;
-  const showSplitTunneling = window.env.platform !== 'darwin' || isMacOs13OrNewer;
+  const showSubSettings = useShowSubSettings();
+  const showSplitTunneling = useShowSplitTunneling();
+  const showDebug = useShowDebug();
 
   return (
-    <BackAction action={history.pop}>
+    <BackAction action={pop}>
       <SettingsContainer>
         <NavigationContainer>
           <AppNavigationHeader
@@ -81,7 +78,7 @@ export function SettingsView() {
                 <AppInfoListItem />
               </Flex>
 
-              {window.env.development && <DebugListItem />}
+              {showDebug && <DebugListItem />}
             </Flex>
             <Footer>
               <QuitButton />
