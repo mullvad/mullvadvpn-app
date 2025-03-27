@@ -54,6 +54,8 @@ const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
 impl ManagementService for ManagementServiceImpl {
     type GetSplitTunnelProcessesStream = UnboundedReceiverStream<Result<i32, Status>>;
     type EventsListenStream = EventsListenerReceiver;
+    type AppUpgradeEventsListenStream =
+        UnboundedReceiverStream<Result<types::AppUpgradeEvent, Status>>;
 
     // Control and get the tunnel state
     //
@@ -1114,6 +1116,23 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::EnableRelay { relay, tx })?;
         self.wait_for_result(rx).await?;
         Ok(Response::new(()))
+    }
+
+    // App upgrade
+
+    async fn app_upgrade(&self, _: Request<()>) -> ServiceResult<()> {
+        todo!()
+    }
+
+    async fn app_upgrade_abort(&self, _: Request<()>) -> ServiceResult<()> {
+        todo!()
+    }
+
+    async fn app_upgrade_events_listen(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<Self::AppUpgradeEventsListenStream> {
+        todo!()
     }
 }
 
