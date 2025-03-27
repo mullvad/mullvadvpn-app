@@ -7,7 +7,7 @@ use super::FromProtobufTypeError;
 impl From<mullvad_types::version::AppVersionInfo> for proto::AppVersionInfo {
     fn from(version_info: mullvad_types::version::AppVersionInfo) -> Self {
         Self {
-            supported: version_info.supported,
+            supported: version_info.current_version_supported,
             suggested_upgrade: version_info
                 .suggested_upgrade
                 .map(proto::SuggestedUpgrade::from),
@@ -20,7 +20,7 @@ impl TryFrom<proto::AppVersionInfo> for mullvad_types::version::AppVersionInfo {
 
     fn try_from(version_info: proto::AppVersionInfo) -> Result<Self, Self::Error> {
         Ok(Self {
-            supported: version_info.supported,
+            current_version_supported: version_info.supported,
             suggested_upgrade: version_info
                 .suggested_upgrade
                 .map(mullvad_types::version::SuggestedUpgrade::try_from)

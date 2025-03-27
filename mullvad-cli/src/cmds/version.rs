@@ -21,7 +21,10 @@ pub async fn print() -> Result<()> {
         .get_version_info()
         .await
         .context("Failed to get version info")?;
-    println!("{:22}: {}", "Is supported", version_info.supported);
+    println!(
+        "{:22}: {}",
+        "Is supported", version_info.current_version_supported
+    );
 
     if let Some(suggested_upgrade) = version_info.suggested_upgrade {
         println!("{:22}: {}", "Suggested upgrade", suggested_upgrade);

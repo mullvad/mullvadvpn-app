@@ -2,6 +2,7 @@ use std::io;
 
 pub mod check;
 pub mod router;
+pub mod updater;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

@@ -51,10 +51,10 @@ const PLATFORM: &str = "windows";
 #[cfg(target_os = "android")]
 const PLATFORM: &str = "android";
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub(super) struct VersionCache {
-    /// Whether the current (installed) version is supported
-    pub supported: bool,
+    /// Whether the current (installed) version is supported or an upgrade is required
+    pub current_version_supported: bool,
     /// The latest available versions
     pub latest_version: mullvad_update::version::VersionInfo,
 }
@@ -357,7 +357,7 @@ fn do_version_check(api: ApiContext) -> BoxFuture<'static, Result<VersionCache, 
             let (v1_response, v2_response) = tokio::try_join!(first, second)?;
 
             Ok(VersionCache {
-                supported: v1_response.supported,
+                current_version_supported: v1_response.supported,
                 latest_version: v2_response,
             })
         }
@@ -421,7 +421,7 @@ fn do_version_check_in_background(
             when_available.await.map_err(Error::ApiCheck)?;
             let (v1_response, v2_response) = tokio::try_join!(first, second)?;
             Ok(VersionCache {
-                supported: v1_response.supported,
+                current_version_supported: v1_response.supported,
                 latest_version: v2_response,
             })
         }
@@ -480,7 +480,7 @@ fn dev_version_cache() -> VersionCache {
     assert!(*IS_DEV_BUILD);
 
     VersionCache {
-        supported: false,
+        current_version_supported: false,
         latest_version: VersionInfo {
             stable: mullvad_update::version::Version {
                 version: mullvad_version::VERSION.parse().unwrap(),
