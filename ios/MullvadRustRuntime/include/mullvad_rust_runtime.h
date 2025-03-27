@@ -5,6 +5,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+enum SwiftAccessMethodKind {
+  KindDirect = 0,
+  KindBridge,
+  KindEncryptedDnsProxy,
+  KindShadowsocks,
+  KindSocks5Local,
+};
+typedef uint8_t SwiftAccessMethodKind;
+
 /**
  * SAFETY: `TunnelObfuscatorProtocol` values must either be `0` or `1`
  */
@@ -30,6 +39,8 @@ typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
 
+typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
+
 typedef struct SwiftConnectionModeProviderContext SwiftConnectionModeProviderContext;
 
 typedef struct SwiftShadowsocksLoaderWrapperContext SwiftShadowsocksLoaderWrapperContext;
@@ -41,6 +52,10 @@ typedef struct SwiftApiContext {
 typedef struct SwiftShadowsocksLoaderWrapper {
   struct SwiftShadowsocksLoaderWrapperContext *_0;
 } SwiftShadowsocksLoaderWrapper;
+
+typedef struct SwiftAccessMethodSettingsWrapper {
+  struct SwiftAccessMethodSettingsContext *_0;
+} SwiftAccessMethodSettingsWrapper;
 
 typedef struct SwiftConnectionModeProvider {
   struct SwiftConnectionModeProviderContext *_0;
@@ -123,7 +138,20 @@ extern const uint16_t CONFIG_SERVICE_PORT;
 struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
                                             const uint8_t *address,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
+                                            struct SwiftAccessMethodSettingsWrapper settings_provider,
                                             struct SwiftConnectionModeProvider provider);
+
+void *convert_builtin_access_method_setting(const char *unique_identifier,
+                                            const char *name,
+                                            bool is_enabled,
+                                            SwiftAccessMethodKind method_kind,
+                                            const void *proxy_configuration);
+
+struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(const void *direct_method_raw,
+                                                                            const void *bridges_method_raw,
+                                                                            const void *encrypted_dns_method_raw,
+                                                                            const void *custom_methods_raw,
+                                                                            uintptr_t custom_methods_count);
 
 /**
  * # Safety
@@ -251,6 +279,29 @@ void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
 extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse response,
                                           struct CompletionCookie completion_cookie);
 
+extern void connection_mode_provider_initial(const void *rawPointer);
+
+extern void connection_mode_provider_rotate(const void *rawPointer);
+
+extern const void *connection_mode_provider_receive(const void *rawIterator);
+
+struct SwiftConnectionModeProvider init_connection_mode_provider(const void *raw_provider,
+                                                                 const char *domain_name);
+
+const void *convert_direct(void);
+
+const void *convert_shadowsocks(const uint8_t *address,
+                                uintptr_t address_len,
+                                uint16_t port,
+                                const char *c_password,
+                                const char *c_cipher);
+
+const void *convert_socks5(const uint8_t *address,
+                           uintptr_t address_len,
+                           uint16_t port,
+                           const char *c_username,
+                           const char *c_password);
+
 /**
  * Send a problem report via the Mullvad API client.
  *
@@ -323,26 +374,9 @@ struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_r
                                                                  uint32_t factor,
                                                                  uint64_t max_delay_sec);
 
-extern void connection_mode_provider_initial(const void *rawPointer);
-
-extern void connection_mode_provider_rotate(const void *rawPointer);
-
-extern const void *connection_mode_provider_receive(const void *rawIterator);
-
-struct SwiftConnectionModeProvider init_connection_mode_provider(const void *raw_provider,
-                                                                 const char *domain_name);
-
-const void *convert_direct(void);
-
 extern const void *swift_get_shadowsocks_bridges(const void *rawBridgeProvider);
 
 struct SwiftShadowsocksLoaderWrapper init_swift_shadowsocks_loader_wrapper(const void *shadowsocks_loader);
-
-const void *convert_shadowsocks(const uint8_t *address,
-                                uintptr_t address_len,
-                                uint16_t port,
-                                const char *c_password,
-                                const char *c_cipher);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
