@@ -41,7 +41,17 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     type Downloader<T> = HttpAppDownloader<UiProgressUpdater<T>>;
     // Directory provider to use
     type DirProvider = crate::temp::TempDirProvider;
-    let version_provider = HttpVersionInfoProvider::trusted_provider();
+
+    /// Assume platform is what we're currently running on
+    const PLATFORM: &str = if cfg!(target_os = "windows") {
+        "windows"
+    } else if cfg!(target_os = "macos") {
+        "macos"
+    } else {
+        panic!("Unsupported platform")
+    };
+
+    let version_provider = HttpVersionInfoProvider::trusted_provider(PLATFORM);
 
     AppController::initialize::<_, Downloader<T>, _, DirProvider>(
         delegate,
