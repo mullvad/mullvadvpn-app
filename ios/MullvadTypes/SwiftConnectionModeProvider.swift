@@ -14,6 +14,8 @@ public protocol SwiftConnectionModeProviding: Sendable {
     func initial()
     func pickMethod() -> PersistentProxyConfiguration
     func rotate()
+
+    func accessMethods() -> [PersistentAccessMethod]
 }
 
 public final class SwiftConnectionModeProviderProxy: SwiftConnectionModeProviding, Sendable {
@@ -35,5 +37,9 @@ public final class SwiftConnectionModeProviderProxy: SwiftConnectionModeProvidin
 
     public func rotate() {
         provider.rotate()
+    }
+
+    public func accessMethods() -> [PersistentAccessMethod] {
+        provider.accessMethods()
     }
 }
