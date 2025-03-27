@@ -1,7 +1,9 @@
 use std::io;
 
 pub mod check;
+pub mod downloader;
 pub mod router;
+pub mod updater;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -37,6 +39,15 @@ pub enum Error {
 
     #[error("Version cache update was aborted")]
     UpdateAborted,
+
+    #[error("Failed to get download directory")]
+    GetDownloadDir(#[from] mullvad_paths::Error),
+
+    #[error("Failed to create download directory")]
+    CreateDownloadDir(#[source] io::Error),
+
+    #[error("Could not select URL for app update")]
+    NoUrlFound,
 }
 
 /// Contains the date of the git commit this was built from
