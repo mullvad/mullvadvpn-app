@@ -12,7 +12,7 @@ use futures::{channel::{mpsc, oneshot}, SinkExt};
 use mullvad_update::app::AppDownloaderParameters;
 
 pub struct AppUpdater {
-    abort_handle: tokio::task::JoinHandle<anyhow::Result<()>>,
+    task: tokio::task::JoinHandle<()>,
 }
 
 pub type AbortHandle = oneshot::Sender<()>;
@@ -60,7 +60,7 @@ impl AppUpdater {
 
         // TODO: begin download + verify
 
-        tokio::spawn(async move {
+        let task = tokio::spawn(async move {
             if let Err(error) = downloader.download_executable().await {
                 event_tx.send(UpdateEvent::DownloadFailed);
                 return;
@@ -76,7 +76,7 @@ impl AppUpdater {
             event_tx.send(UpdateEvent::Verified { verified_installer_path: downloader.bin_path() });
         });
 
-        AppUpdater { abort_handle }
+        AppUpdater { task }
     }
 }
 
