@@ -78,4 +78,8 @@ final class AccessMethodIterator: @unchecked Sendable, SwiftConnectionModeProvid
             return configurations[circularIndex]
         }
     }
+
+    func accessMethods() -> [PersistentAccessMethod] {
+        dataSource.fetchAll()
+    }
 }

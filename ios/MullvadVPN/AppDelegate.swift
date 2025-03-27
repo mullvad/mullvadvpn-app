@@ -113,6 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             shadowsocksProvider: shadowsocksBridgeProviderWrapper,
+            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper,
             provider: transportStrategy.opaqueConnectionModeProvider
         )
         setUpProxies(containerURL: containerURL)
