@@ -1,6 +1,6 @@
 use crate::web::routes::TransportProtocol;
 use mnl::mnl_sys::libc;
-use nftnl::{expr, nft_expr, nft_expr_bitwise, nft_expr_payload, Chain, Rule};
+use nftnl::{expr, nft_expr, nft_expr_payload, Chain, Rule};
 
 use ipnetwork::IpNetwork;
 use std::{collections::BTreeSet, iter};
