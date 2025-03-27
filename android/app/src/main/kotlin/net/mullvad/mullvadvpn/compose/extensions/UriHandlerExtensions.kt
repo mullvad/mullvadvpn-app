@@ -10,19 +10,17 @@ import net.mullvad.mullvadvpn.lib.common.util.createAccountUri
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 
 @Composable
-fun UriHandler.createOpenAccountPageHook(onFailure: () -> Unit = {}): (WebsiteAuthToken?) -> Unit {
+fun UriHandler.createOpenAccountPageHook(): (WebsiteAuthToken?) -> Unit {
     val accountUrl = stringResource(id = R.string.account_url)
     return { token ->
         val accountUri = createAccountUri(accountUrl, token).toString()
-        safeOpenUri(accountUri).onLeft { onFailure() }
+        safeOpenUri(accountUri)
     }
 }
 
-fun UriHandler.createUriHook(uri: String, onFailure: () -> Unit = {}): () -> Unit = {
-    safeOpenUri(uri).onLeft { onFailure() }
-}
+fun UriHandler.createUriHook(uri: String): () -> Unit = { safeOpenUri(uri) }
 
-fun UriHandler.safeOpenUri(uri: String): Either<Exception, Unit> =
+fun UriHandler.safeOpenUri(uri: String): Either<IllegalArgumentException, Unit> =
     try {
         Either.Right(openUri(uri))
     } catch (e: IllegalArgumentException) {
