@@ -10,7 +10,6 @@ use std::{
     fmt,
     path::{Path, PathBuf},
     str::FromStr,
-    sync::LazyLock,
 };
 use tokio::{fs, io};
 
@@ -18,10 +17,6 @@ use crate::{
     artifacts,
     io_util::{create_dir_and_write, wait_for_confirm},
 };
-
-/// Base URL for metadata found with `meta pull`.
-/// Actual JSON files should be stored at `<base url>/<platform>.json`.
-const META_REPOSITORY_URL: &str = "https://releases.stagemole.eu/desktop/metadata/";
 
 #[derive(Clone, Copy)]
 pub enum Platform {
@@ -94,11 +89,11 @@ impl Platform {
         }
     }
 
-    fn published_filename(&self) -> &str {
+    fn platform(&self) -> &str {
         match self {
-            Platform::Windows => "windows.json",
-            Platform::Linux => "linux.json",
-            Platform::Macos => "macos.json",
+            Platform::Windows => "windows",
+            Platform::Linux => "linux",
+            Platform::Macos => "macos",
         }
     }
 
@@ -112,7 +107,7 @@ impl Platform {
 
     /// Pull latest metadata from repository and store it in `signed/`
     pub async fn pull(&self, assume_yes: bool) -> anyhow::Result<()> {
-        let version_provider = HttpVersionInfoProvider::trusted_provider();
+        let version_provider = HttpVersionInfoProvider::trusted_provider(self.platform());
 
         println!("Pulling {self} metadata from {}...", version_provider.url);
 
