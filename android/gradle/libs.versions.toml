@@ -51,10 +51,10 @@ ktor = "3.0.3"
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
-kotlin = "2.1.10"
-kotlin-ksp = "2.1.10-1.0.31"
+kotlin = "2.1.20"
+kotlin-ksp = "2.1.20-1.0.31"
 kotlinx = "1.10.1"
-kotlinx-serialization = "2.1.10"
+kotlinx-serialization = "2.1.20"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.4"
