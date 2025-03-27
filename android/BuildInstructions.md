@@ -261,15 +261,24 @@ To maximize reproducibility when building without the container:
 A simple way to check that a build is reproducible across environments is to build the `fdroid` version of the app with and without the container and comparing the checksums of the produced APKs.
 
 1. Build the app with the container: `../building/containerized-build.sh android --fdroid`
-2. Copy the resulting APK to a different folder as it will be overwritten in the following step: `app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk fdroid-container.apk`
-3. Build the app locally without the container: `./build.sh --fdroid`
-4. Compare the checksums of the two APKs: `md5sum fdroid-container.apk app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk`
+1. Copy the resulting APK to a different folder as it will be overwritten in the following step: `app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk fdroid-container.apk`
+1. Build the app locally without the container: `./build.sh --fdroid`
+1. Compare the checksums of the two APKs: `sha256sum fdroid-container.apk app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk`
+
+## Verifying that an official release is reproducible
+
+1. Obtain the release APK (`2025.2-beta1` or newer) from [GitHub releases](https://github.com/mullvad/mullvadvpn-app/releases)
+1. Checkout the release tag: `git checkout android/<version>`
+1. Build a release build using our [build instructions](#release-build)
+1. Delete the signatures from the two APKs by running `zip -d app-oss-prod-release.apk "META-INF/*"` and `zip -d MullvadVPN-<version>.apk "META-INF/*"`
+1. Compare the checksums of the two APKs: `sha256sum app-oss-prod-release.apk MullvadVPN-<version>.apk`. If the checksums are equal the build is reproducible.
 
 ### Troubleshooting reproducibility
 
 If two APKs built from the same commit have different checksums the build is not reproducible. This could be because of either:
 
 1. A build dependency on the local system has the wrong version.
-2. There is a bug that breaks the build reproducibility.
+1. There is a bug that breaks the build reproducibility.
+1. The APK built is a version prior to `2025.2-beta1`, which is the first version that supports reproducible builds.
 
 If you suspect that a bug is causing the build to not be reproducible, please open a Github issue.
