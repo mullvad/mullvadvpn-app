@@ -1,4 +1,3 @@
-use crate::DaemonEventSender;
 use futures::{
     channel::{mpsc, oneshot},
     future::{BoxFuture, FusedFuture},
@@ -7,13 +6,12 @@ use futures::{
 use mullvad_api::{
     availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
 };
-use mullvad_types::version::SuggestedUpgrade;
+
 use mullvad_update::version::VersionInfo;
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{
     future::Future,
-    io,
     path::{Path, PathBuf},
     pin::Pin,
     str::FromStr,
@@ -59,21 +57,6 @@ pub(super) struct VersionCache {
     pub latest_version: mullvad_update::version::VersionInfo,
 }
 
-impl VersionCache {
-    /// Return the latest version that should be downloaded
-    pub fn target_version(&self, beta_program: bool) -> mullvad_update::version::Version {
-        if beta_program {
-            self.latest_version
-                .beta
-                .as_ref()
-                .unwrap_or(&self.latest_version.stable)
-                .clone()
-        } else {
-            self.latest_version.stable.clone()
-        }
-    }
-}
-
 pub(crate) struct VersionUpdater(());
 
 #[derive(Default)]
@@ -96,7 +79,7 @@ impl VersionUpdaterHandle {
     ///
     /// If the cache is stale or missing, this will immediately query the API for the latest
     /// version. This may take a few seconds.
-    pub async fn get_version_info(&self) -> Result<VersionCache, Error> {
+    pub(super) async fn get_version_info(&self) -> Result<VersionCache, Error> {
         let (done_tx, done_rx) = oneshot::channel();
         if self.tx.unbounded_send(done_tx).is_err() {
             Err(Error::VersionUpdaterDown)
@@ -107,7 +90,7 @@ impl VersionUpdaterHandle {
 }
 
 impl VersionUpdater {
-    pub async fn spawn(
+    pub(super) async fn spawn(
         mut api_handle: MullvadRestHandle,
         availability_handle: ApiAvailability,
         cache_dir: PathBuf,
@@ -502,6 +485,7 @@ mod test {
     };
 
     use futures::SinkExt;
+    use mullvad_update::version::Version;
 
     use super::*;
 
@@ -628,7 +612,7 @@ mod test {
     }
 
     async fn send_version_request(
-        tx: &mut mpsc::Sender<VersionUpdateCommand>,
+        tx: &mut mpsc::UnboundedSender<VersionUpdateCommand>,
     ) -> Result<(), futures::channel::mpsc::SendError> {
         let (done_tx, _done_rx) = oneshot::channel();
         tx.send(done_tx).await
@@ -643,11 +627,11 @@ mod test {
         }
     }
 
-    fn fake_version_check() -> BoxFuture<'static, Result<AppVersionResponse, Error>> {
+    fn fake_version_check() -> BoxFuture<'static, Result<VersionCache, Error>> {
         Box::pin(async { Ok(fake_version_response()) })
     }
 
-    fn fake_version_check_err() -> BoxFuture<'static, Result<AppVersionResponse, Error>> {
+    fn fake_version_check_err() -> BoxFuture<'static, Result<VersionCache, Error>> {
         Box::pin(retry_future(
             || async { Err(Error::Download(mullvad_api::rest::Error::TimeoutError)) },
             |_| true,
@@ -655,12 +639,20 @@ mod test {
         ))
     }
 
-    fn fake_version_response() -> AppVersionResponse {
-        AppVersionResponse {
-            supported: true,
-            latest: "2024.1".to_owned(),
-            latest_stable: None,
-            latest_beta: "2024.1-beta1".to_owned(),
+    fn fake_version_response() -> VersionCache {
+        // TODO: The tests pass, but check that this is a sane fake version cache anyway
+        VersionCache {
+            current_version_supported: true,
+            latest_version: VersionInfo {
+                stable: Version {
+                    version: "2025.5".parse::<mullvad_version::Version>().unwrap(),
+                    urls: vec![],
+                    size: 0,
+                    changelog: "".to_owned(),
+                    sha256: [0u8; 32],
+                },
+                beta: None,
+            },
         }
     }
 }

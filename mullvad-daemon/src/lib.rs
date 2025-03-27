@@ -95,7 +95,6 @@ use talpid_types::{
     ErrorExt,
 };
 use tokio::io;
-use version::check;
 
 #[cfg(target_os = "android")]
 use talpid_core::connectivity_listener::ConnectivityListener;
@@ -1919,7 +1918,7 @@ impl Daemon {
     }
 
     fn on_get_version_info(&mut self, tx: oneshot::Sender<Result<AppVersionInfo, Error>>) {
-        let mut handle = self.version_handle.clone();
+        let handle = self.version_handle.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
                 tx,
@@ -2287,7 +2286,10 @@ impl Daemon {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_show_beta_releases response");
                 if settings_changed {
-                    self.version_handle.set_show_beta_releases(enabled).await;
+                    self.version_handle
+                        .set_show_beta_releases(enabled)
+                        .await
+                        .unwrap(); // TODO: Handle error
                 }
             }
             Err(e) => {
@@ -2994,7 +2996,8 @@ impl Daemon {
 
         self.version_handle
             .set_show_beta_releases(self.settings.show_beta_releases)
-            .await;
+            .await
+            .unwrap(); // TODO: Handle error????
         let access_mode_handler = self.access_mode_handler.clone();
         tokio::spawn(async move {
             if let Err(error) = access_mode_handler.rotate().await {
