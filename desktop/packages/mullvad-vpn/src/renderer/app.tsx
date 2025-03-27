@@ -177,6 +177,9 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.app.listenUpgradeEvent((appUpgradeEvent) => {
       this.reduxActions.appUpgrade.setAppUpgradeEvent(appUpgradeEvent);
+
+      // Check if the installer should be started automatically
+      this.maybeStartAppUpgradeInstaller();
     });
 
     IpcRendererEventChannel.app.listenUpgradeError((appUpgradeError) => {
@@ -189,6 +192,9 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.upgradeVersion.listen((upgradeVersion: IAppVersionInfo) => {
       this.setUpgradeVersion(upgradeVersion);
+
+      // Check if the installer should be started automatically
+      this.maybeStartAppUpgradeInstaller();
     });
 
     IpcRendererEventChannel.guiSettings.listen((guiSettings: IGuiSettingsState) => {
@@ -632,6 +638,24 @@ export default class AppRenderer {
 
     if (window.env.e2e) {
       window.e2e.location = history.entries[history.index].pathname;
+    }
+  }
+
+  // If the installer has just been downloaded and verified we want to automatically
+  // start the installer if the window is focused.
+  private maybeStartAppUpgradeInstaller() {
+    const reduxState = this.reduxStore.getState();
+
+    const appUpgradeEvent = reduxState.appUpgrade.event;
+    const verifiedInstallerPath = reduxState.version.suggestedUpgrade?.verifiedInstallerPath;
+    const windowFocused = reduxState.userInterface.windowFocused;
+
+    if (
+      verifiedInstallerPath &&
+      windowFocused &&
+      appUpgradeEvent?.type === 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER'
+    ) {
+      this.appUpgradeInstallerStart();
     }
   }
 
