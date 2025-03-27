@@ -32,6 +32,7 @@ pub async fn print() -> Result<()> {
         println!("{:22}: none", "Suggested upgrade");
     }
 
+    // TODO: should these be printed?
     // if !version_info.latest_stable.is_empty() {
     //     println!(
     //         "{:22}: {}",
