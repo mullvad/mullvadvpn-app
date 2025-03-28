@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.tile"
+    namespace = "net.mullvad.mullvadvpn.widget"
     compileSdk = Versions.compileSdkVersion
     buildToolsVersion = Versions.buildToolsVersion
 
@@ -51,6 +51,6 @@ dependencies {
 
     //implementation(libs.glance.app.widget)
     //implementation(libs.glance.material)
-    implementation("androidx.glance:glance-appwidget:1.1.1")
-    implementation("androidx.glance:glance-material3:1.1.1")
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material)
 }

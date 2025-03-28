@@ -78,7 +78,7 @@ mockwebserver = "4.12.0"
 play-publisher = "3.12.1"
 turbine = "1.2.0"
 
-glance-appwidget = "1.1.0"
+glance = "1.1.1"
 
 [libraries]
 # Android
@@ -125,6 +125,10 @@ compose-ui-tooling-android-preview = { module = "androidx.compose.ui:ui-tooling-
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "drawablepainter"  }
+
+# Widget
+glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
+glance-material = { module = "androidx.glance:glance-material3", version.ref = "glance" }
 
 # gRPC
 grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }
@@ -203,10 +207,6 @@ grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.r
 
 # Rust Android Gradle
 rust-android-gradle = { id = "org.mozilla.rust-android-gradle.rust-android", version.ref = "rust-android-gradle" }
-
-# Glance App Widget
-glance-app-widget = { id = "androidx.glance:glance-appwidget", version.ref = "glance-appwidget" }
-glance-material = { id = "androidx.glance:glance-material3", version.ref = "glance-appwidget" }
 
 dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
