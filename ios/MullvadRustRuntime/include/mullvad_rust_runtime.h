@@ -41,8 +41,6 @@ typedef struct RetryStrategy RetryStrategy;
 
 typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
 
-typedef struct SwiftConnectionModeProviderContext SwiftConnectionModeProviderContext;
-
 typedef struct SwiftShadowsocksLoaderWrapperContext SwiftShadowsocksLoaderWrapperContext;
 
 typedef struct SwiftApiContext {
@@ -56,10 +54,6 @@ typedef struct SwiftShadowsocksLoaderWrapper {
 typedef struct SwiftAccessMethodSettingsWrapper {
   struct SwiftAccessMethodSettingsContext *_0;
 } SwiftAccessMethodSettingsWrapper;
-
-typedef struct SwiftConnectionModeProvider {
-  struct SwiftConnectionModeProviderContext *_0;
-} SwiftConnectionModeProvider;
 
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
@@ -138,8 +132,7 @@ extern const uint16_t CONFIG_SERVICE_PORT;
 struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
                                             const uint8_t *address,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
-                                            struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                            struct SwiftConnectionModeProvider provider);
+                                            struct SwiftAccessMethodSettingsWrapper settings_provider);
 
 void *convert_builtin_access_method_setting(const char *unique_identifier,
                                             const char *name,
@@ -150,8 +143,7 @@ void *convert_builtin_access_method_setting(const char *unique_identifier,
 struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(const void *direct_method_raw,
                                                                             const void *bridges_method_raw,
                                                                             const void *encrypted_dns_method_raw,
-                                                                            const void *custom_methods_raw,
-                                                                            uintptr_t custom_methods_count);
+                                                                            const void *custom_methods_raw);
 
 /**
  * # Safety
@@ -279,22 +271,15 @@ void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
 extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse response,
                                           struct CompletionCookie completion_cookie);
 
-extern void connection_mode_provider_initial(const void *rawPointer);
-
-extern void connection_mode_provider_rotate(const void *rawPointer);
-
-extern const void *connection_mode_provider_receive(const void *rawIterator);
-
-struct SwiftConnectionModeProvider init_connection_mode_provider(const void *raw_provider,
-                                                                 const char *domain_name);
-
-const void *convert_direct(void);
-
 const void *convert_shadowsocks(const uint8_t *address,
                                 uintptr_t address_len,
                                 uint16_t port,
                                 const char *c_password,
                                 const char *c_cipher);
+
+const void *access_method_settings_vector(uintptr_t capacity);
+
+void vector_add_access_method_setting(const void *vector, const void *access_method);
 
 const void *convert_socks5(const uint8_t *address,
                            uintptr_t address_len,

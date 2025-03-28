@@ -264,8 +264,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             shadowsocksProvider: shadowsocksBridgeProviderWrapper,
-            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper,
-            provider: transportStrategy.opaqueConnectionModeProvider
+            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper
         )
 
         encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSession)
