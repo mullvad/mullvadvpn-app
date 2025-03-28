@@ -4,21 +4,23 @@ import { messages } from '../../../../../../shared/gettext';
 import { usePushAppUpgrade } from '../../../../../history/hooks';
 import { Flex, Icon } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
-import { ListItem } from '../../../../../lib/components/list-item';
+import { ListItem, ListItemProps } from '../../../../../lib/components/list-item';
 import { useConnectionIsBlocked, useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
 
 const StyledText = styled(ListItem.Text)`
   margin-top: -4px;
 `;
 
-export function UpdateAvailableListItem() {
+type UpdateAvailableListItemProps = Omit<ListItemProps, 'children'>;
+
+export function UpdateAvailableListItem(props: UpdateAvailableListItemProps) {
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
   const { isBlocked } = useConnectionIsBlocked();
 
   const pushAppUpgrade = usePushAppUpgrade();
 
   return (
-    <ListItem disabled={isBlocked}>
+    <ListItem disabled={isBlocked} {...props}>
       <ListItem.Item>
         <ListItem.Trigger onClick={pushAppUpgrade}>
           <ListItem.Content>
