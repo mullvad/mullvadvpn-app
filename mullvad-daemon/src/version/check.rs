@@ -394,10 +394,14 @@ async fn load_cache(cache_dir: &Path) -> Option<(VersionCache, SystemTime)> {
     try_load_cache(cache_dir)
         .await
         .inspect_err(|error| {
-            log::warn!(
-                "{}",
-                error.display_chain_with_msg("Unable to load cached version info")
-            )
+            if matches!(error, Error::OutdatedVersion) {
+                log::trace!("Ignoring outdated version cache");
+            } else {
+                log::warn!(
+                    "{}",
+                    error.display_chain_with_msg("Unable to load cached version info")
+                );
+            }
         })
         .ok()
 }
@@ -421,11 +425,30 @@ async fn try_load_cache(cache_dir: &Path) -> Result<(VersionCache, SystemTime), 
         .map_err(Error::ReadVersionCache)
         .await?;
 
-    let cache = serde_json::from_str(&content).map_err(Error::Deserialize)?;
+    let cache: VersionCache = serde_json::from_str(&content).map_err(Error::Deserialize)?;
 
-    // TODO: discard cache if the latest (beta) version is older than the current version
+    if cache_is_old(&cache.latest_version, &*APP_VERSION) {
+        return Err(Error::OutdatedVersion);
+    }
 
     Ok((cache, mtime))
+}
+
+/// Check if the cached version is older than the current version. If so, assume the cache is stale.
+/// It could in principle mean that a version has been yanked, but we do not really support this,
+/// and it should not cause any real issue to delete the cache anyway.
+fn cache_is_old(cached_version: &VersionInfo, current_version: &mullvad_version::Version) -> bool {
+    let last_version = if current_version.pre_stable.is_some() {
+        // Discard suggested version if current beta is newer
+        cached_version
+            .beta
+            .as_ref()
+            .unwrap_or(&cached_version.stable)
+    } else {
+        // Discard suggested version if current stable is newer
+        &cached_version.stable
+    };
+    current_version > &last_version.version
 }
 
 fn dev_version_cache() -> VersionCache {
@@ -457,6 +480,55 @@ mod test {
     use mullvad_update::version::Version;
 
     use super::*;
+
+    /// Test whether outdated version caches are ignored correctly.
+    /// This prevents old versions from being suggested as updates.
+    #[test]
+    fn test_old_cache() {
+        assert!(cache_is_old(
+            &version_info("2025.5", None),
+            &"2025.6".parse().unwrap()
+        ));
+        assert!(!cache_is_old(
+            &version_info("2025.5", None),
+            &"2025.5".parse().unwrap()
+        ));
+        assert!(!cache_is_old(
+            &version_info("2025.5", Some("2025.5-beta1")),
+            &"2025.5-beta1".parse().unwrap()
+        ));
+        assert!(cache_is_old(
+            &version_info("2025.5", Some("2025.5-beta1")),
+            &"2025.5-beta2".parse().unwrap()
+        ));
+        assert!(!cache_is_old(
+            &version_info("2025.5", None),
+            &"2025.5-beta2".parse().unwrap()
+        ));
+        assert!(cache_is_old(
+            &version_info("2025.5", None),
+            &"2025.6-beta2".parse().unwrap()
+        ));
+    }
+
+    fn version_info(stable: &str, beta: Option<&str>) -> VersionInfo {
+        VersionInfo {
+            stable: Version {
+                version: stable.parse().unwrap(),
+                urls: vec![],
+                size: 0,
+                changelog: "".to_owned(),
+                sha256: [0u8; 32],
+            },
+            beta: beta.map(|beta| Version {
+                version: beta.parse().unwrap(),
+                urls: vec![],
+                size: 0,
+                changelog: "".to_owned(),
+                sha256: [0u8; 32],
+            }),
+        }
+    }
 
     /// If there's no cached version, it should count as stale
     #[test]
