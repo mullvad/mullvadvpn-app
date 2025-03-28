@@ -6,10 +6,17 @@ AppUpgradeDownloadProgress
 AppUpgradeVerifyingInstaller
 */
 
+use futures::{
+    channel::{mpsc, oneshot},
+    SinkExt,
+};
+use mullvad_update::app::{AppDownloaderParameters, HttpAppDownloader};
 use std::path::PathBuf;
 use std::time::Duration;
-use futures::{channel::{mpsc, oneshot}, SinkExt};
-use mullvad_update::app::AppDownloaderParameters;
+use tokio::fs;
+
+use super::Error;
+type Result<T> = std::result::Result<T, Error>;
 
 pub struct AppUpdater {
     task: tokio::task::JoinHandle<()>,
@@ -33,32 +40,32 @@ pub enum UpdateEvent {
     /// The verification failed due to some error
     VerificationFailed,
     /// There is a downloaded and verified installer available
-    Verified {
-        verified_installer_path: PathBuf,
-    },
+    Verified { verified_installer_path: PathBuf },
 }
 
 impl AppUpdater {
     /// Begin or resume download of `version`
-    pub fn spawn(
+    pub async fn spawn(
         version: mullvad_update::version::Version,
         event_tx: mpsc::Sender<UpdateEvent>,
-    ) -> AppUpdater {
+    ) -> Result<AppUpdater> {
         // TODO: select url
         let url = version.urls[0].clone();
+
+        let download_dir = mullvad_paths::cache_dir()?.join("mullvad-update");
+        fs::create_dir_all(&download_dir)
+            .await
+            .map_err(Error::CreateDownloadDir)?;
 
         let params = AppDownloaderParameters {
             app_version: version.version,
             app_url: url.clone(),
             app_size: version.size,
-            app_progress: ProgressUpdater::new(event_tx.clone(), url),
+            app_progress: ProgressUpdater::new(url, event_tx.clone()),
             app_sha256: version.sha256,
-            // TODO: mkdir
-            cache_dir: cache_dir().join("mullvad-update"),
+            cache_dir: download_dir,
         };
         let downloader = HttpAppDownloader::from(params);
-
-        // TODO: begin download + verify
 
         let task = tokio::spawn(async move {
             if let Err(error) = downloader.download_executable().await {
@@ -73,14 +80,15 @@ impl AppUpdater {
                 return;
             }
 
-            event_tx.send(UpdateEvent::Verified { verified_installer_path: downloader.bin_path() });
+            event_tx.send(UpdateEvent::Verified {
+                verified_installer_path: downloader.bin_path(),
+            });
         });
 
-        AppUpdater { task }
+        Ok(AppUpdater { task })
     }
 }
 
-#[derive(Default)]
 struct ProgressUpdater {
     //began_download: Duration,
     url: String,
@@ -89,13 +97,11 @@ struct ProgressUpdater {
 }
 
 impl ProgressUpdater {
-    fn new(
-        url: String,
-        event_tx: mpsc::Sender<UpdateEvent>,
-    ) -> Self {
+    fn new(url: String, event_tx: mpsc::Sender<UpdateEvent>) -> Self {
         Self {
             url,
-            ..Default::default()
+            event_tx,
+            complete_frac: 0.,
         }
     }
 }
