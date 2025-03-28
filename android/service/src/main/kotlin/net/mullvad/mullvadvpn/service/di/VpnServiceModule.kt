@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.FILES_DIR_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
+import net.mullvad.mullvadvpn.lib.shared.WidgetRepository
 import net.mullvad.mullvadvpn.service.BuildConfig
 import net.mullvad.mullvadvpn.service.DaemonConfig
 import net.mullvad.mullvadvpn.service.migration.MigrateSplitTunneling
@@ -15,6 +16,7 @@ import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.service.notifications.tunnelstate.TunnelStateNotificationProvider
+import net.mullvad.mullvadvpn.widget.MullvadWidgetAction
 import net.mullvad.mullvadvpn.widget.MullvadWidgetUpdater
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.createdAtStart
@@ -70,11 +72,7 @@ val vpnServiceModule = module {
                 },
         )
     }
-    single {
-        MullvadWidgetUpdater(
-            androidContext(),
-            get(),
-            MainScope(),
-        )
-    }
+    single { MullvadWidgetUpdater(androidContext(), get(), MainScope()) }
+    single { WidgetRepository(get()) }
+    single { MullvadWidgetAction(get()) }
 }

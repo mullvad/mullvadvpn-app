@@ -1,0 +1,10 @@
+<!-- Widget features is ignored on API level < 28-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:configure="net.mullvad.mullvadvpn.ui.WidgetSettingsActivity"
+    android:widgetFeatures="reconfigurable"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:minWidth="180dp"
+    android:minHeight="110dp"
+    tools:targetApi="28">
+</appwidget-provider>

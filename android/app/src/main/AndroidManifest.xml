@@ -61,6 +61,11 @@
                 <action android:name="net.mullvad.mullvadvpn.request_vpn_permission" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.WidgetSettingsActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
         <!--
             foregroundServiceType="systemExempted" is required in Android 14+
             https://developer.android.com/guide/components/fg-service-types#system-exempted
@@ -82,6 +87,12 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="net.mullvad.mullvadvpn.quit_action" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.block_dns_action" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.update_setting_action" />
             </intent-filter>
         </service>
         <!--
@@ -119,14 +130,23 @@
                         <action android:name="android.intent.action.BOOT_COMPLETED" />
                     </intent-filter>
                 </receiver>
-        <receiver tools:ignore="MissingClass" android:name=".widget.MullvadWidgetReceiver"
+        <receiver tools:ignore="MissingClass" android:name=".widget.SettingsWidgetReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/app_widget_info" />
+                android:resource="@xml/app_widget_settings_info" />
+        </receiver>
+        <receiver tools:ignore="MissingClass" android:name=".widget.DnsContentBlockersWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/app_widget_content_blockers_info" />
         </receiver>
     </application>
 </manifest>

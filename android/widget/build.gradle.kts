@@ -29,7 +29,7 @@ android {
     }
     buildFeatures { compose = true }
 
-    //composeOptions { kotlinCompilerExtensionVersion = "1.5.15" }
+    // composeOptions { kotlinCompilerExtensionVersion = "1.5.15" }
 }
 
 dependencies {
@@ -49,8 +49,8 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
 
-    //implementation(libs.glance.app.widget)
-    //implementation(libs.glance.material)
+    // implementation(libs.glance.app.widget)
+    // implementation(libs.glance.material)
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material)
 }

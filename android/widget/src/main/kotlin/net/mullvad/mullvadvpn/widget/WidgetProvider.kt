@@ -1,17 +1,10 @@
 package net.mullvad.mullvadvpn.widget
 
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.WidgetRepository
+import net.mullvad.mullvadvpn.lib.shared.WidgetSettingsPersister
 
-class WidgetProvider(
-    private val connectionProxy: ConnectionProxy
-) {
-    fun state() = connectionProxy.tunnelState.stateIn(
-        scope = MainScope(),
-        started = SharingStarted.Lazily,
-        initialValue = TunnelState.Disconnected(null)
-    )
+class WidgetProvider(private val widgetRepository: WidgetRepository) {
+    fun settings() = widgetRepository.settingsUpdates
+
+    fun widgetSettings() = WidgetSettingsPersister.SINGLETON.widgetSettingsState
 }

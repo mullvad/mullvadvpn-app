@@ -16,6 +16,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_SET_BLOCK_DNS
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_UPDATE_SETTING
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -26,6 +28,7 @@ import net.mullvad.mullvadvpn.service.notifications.ForegroundNotificationManage
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.util.extractAndOverwriteIfAssetMoreRecent
+import net.mullvad.mullvadvpn.widget.MullvadWidgetAction
 import net.mullvad.mullvadvpn.widget.MullvadWidgetUpdater
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.android.ext.android.getKoin
@@ -39,6 +42,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private lateinit var managementService: ManagementService
     private lateinit var mullvadWidgetUpdater: MullvadWidgetUpdater
+    private lateinit var mullvadWidgetAction: MullvadWidgetAction
     private lateinit var migrateSplitTunneling: MigrateSplitTunneling
     private lateinit var apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder
     private lateinit var connectionProxy: ConnectionProxy
@@ -62,6 +66,7 @@ class MullvadVpnService : TalpidVpnService() {
             managementService = get()
 
             mullvadWidgetUpdater = get()
+            mullvadWidgetAction = get()
 
             foregroundNotificationHandler =
                 ForegroundNotificationManager(this@MullvadVpnService, get())
@@ -110,6 +115,7 @@ class MullvadVpnService : TalpidVpnService() {
         Logger.i(
             "onStartCommand (intent=$intent, action=${intent?.action}, flags=$flags, startId=$startId)"
         )
+        Logger.i("intent.extras = ${intent?.extras?.keySet()?.map { it }}")
 
         val startResult = super.onStartCommand(intent, flags, startId)
 
@@ -136,6 +142,34 @@ class MullvadVpnService : TalpidVpnService() {
                 // foreground and let system stop service when it deems it not to be necessary.
                 if (bindCount.get() == 0) {
                     foregroundNotificationHandler.stopForeground()
+                }
+            }
+
+            intent?.action == KEY_SET_BLOCK_DNS -> {
+                lifecycleScope.launch {
+                    val dnsAction = intent.getStringExtra("ACTION")
+                    val enable = intent.getBooleanExtra("android.widget.extra.CHECKED", false)
+                    when (dnsAction) {
+                        "BLOCK_ADS" -> mullvadWidgetAction.setBlockAds(enable)
+                        "BLOCK_TRACKERS" -> mullvadWidgetAction.setBlockTrackers(enable)
+                        "BLOCK_MALWARE" -> mullvadWidgetAction.setBlockMalware(enable)
+                        "BLOCK_ADULT_CONTENT" -> mullvadWidgetAction.setBlockAdultContent(enable)
+                        "BLOCK_GAMBLING" -> mullvadWidgetAction.setBlockGambling(enable)
+                        "BLOCK_SOCIAL_MEDIA" -> mullvadWidgetAction.setBlockSocialMedia(enable)
+                    }
+                }
+            }
+
+            intent?.action == KEY_UPDATE_SETTING -> {
+                lifecycleScope.launch {
+                    val settingAction = intent.getStringExtra("SETTING")
+                    val enable = intent.getBooleanExtra("android.widget.extra.CHECKED", false)
+                    when (settingAction) {
+                        "LAN" -> mullvadWidgetAction.setLan(enable)
+                        "CUSTOM_DNS" -> mullvadWidgetAction.setCustomDns(enable)
+                        "DAITA" -> mullvadWidgetAction.setDaita(enable)
+                        "SPLIT_TUNNELING" -> mullvadWidgetAction.setSplitTunneling(enable)
+                    }
                 }
             }
         }
