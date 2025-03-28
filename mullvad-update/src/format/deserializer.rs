@@ -20,7 +20,7 @@ impl SignedResponse {
 
     /// This method is used mostly for testing, and skips all verification.
     /// Own method to prevent accidental misuse.
-    pub fn deserialize_and_verify_insecure(bytes: &[u8]) -> Result<Self, anyhow::Error> {
+    pub fn deserialize_insecure(bytes: &[u8]) -> Result<Self, anyhow::Error> {
         let partial_data: PartialSignedResponse =
             serde_json::from_slice(bytes).context("Invalid version JSON")?;
         let signed = serde_json::from_value(partial_data.signed)
@@ -186,8 +186,8 @@ mod test {
 
         let bytes = serde_json::to_vec(&value).expect("serialize should succeed");
 
-        let response = SignedResponse::deserialize_and_verify_insecure(&bytes)
-            .expect("deserialization failed");
+        let response =
+            SignedResponse::deserialize_insecure(&bytes).expect("deserialization failed");
 
         let expected_key = VerifyingKey::from_hex(pubkey).unwrap();
         let expected_sig = Signature::from_hex(fakesig).unwrap();
