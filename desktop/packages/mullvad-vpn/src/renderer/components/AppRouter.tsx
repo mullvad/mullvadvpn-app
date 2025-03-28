@@ -75,7 +75,7 @@ export default function AppRouter() {
             <Route exact path={RoutePath.login} component={LoginPage} />
             <Route exact path={RoutePath.tooManyDevices} component={TooManyDevices} />
             <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />
-            <Route exact path={RoutePath.main} component={MainView} />
+            <Route exact path={RoutePath.main} component={AppUpgradeView} />
             <Route exact path={RoutePath.expired} component={ExpiredAccountErrorView} />
             <Route exact path={RoutePath.redeemVoucher} component={VoucherInput} />
             <Route exact path={RoutePath.voucherSuccess} component={VoucherVerificationSuccess} />

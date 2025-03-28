@@ -7,7 +7,7 @@ export function UpgradeError() {
 
   return (
     <Flex $gap="small" $alignItems="baseline" $flexDirection="row">
-      <Dot variant="error" />
+      <Dot size="small" variant="error" />
       <Flex $flexDirection="column">
         {texts.map((text) => (
           <LabelTiny key={text}>{text}</LabelTiny>

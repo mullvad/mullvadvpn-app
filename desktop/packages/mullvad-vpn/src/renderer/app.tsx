@@ -647,15 +647,35 @@ export default class AppRenderer {
     const reduxState = this.reduxStore.getState();
 
     const appUpgradeEvent = reduxState.appUpgrade.event;
-    const verifiedInstallerPath = reduxState.version.suggestedUpgrade?.verifiedInstallerPath;
+    // const verifiedInstallerPath = reduxState.version.suggestedUpgrade?.verifiedInstallerPath;
     const windowFocused = reduxState.userInterface.windowFocused;
 
-    if (
-      verifiedInstallerPath &&
-      windowFocused &&
-      appUpgradeEvent?.type === 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER'
-    ) {
-      this.appUpgradeInstallerStart();
+    if (appUpgradeEvent?.type === 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER') {
+      if (windowFocused) {
+        this.reduxActions.version.updateLatest({
+          supported: true,
+          suggestedIsBeta: false,
+          suggestedUpgrade: {
+            version: '2100.1',
+            changelog:
+              'This is a changelog.\nEvery newline should be a new item.\nThere are three items.',
+            verifiedInstallerPath: '/tmp/mock_installer.sh',
+          },
+        });
+        this.appUpgradeInstallerStart();
+      } else {
+        this.reduxActions.appUpgrade.setAppUpgradeError('START_INSTALLER_FAILED');
+        this.reduxActions.version.updateLatest({
+          supported: true,
+          suggestedIsBeta: false,
+          suggestedUpgrade: {
+            version: '2100.1',
+            changelog:
+              'This is a changelog.\nEvery newline should be a new item.\nThere are three items.',
+            verifiedInstallerPath: '/tmp/mock_installer.sh',
+          },
+        });
+      }
     }
   }
 
@@ -1016,7 +1036,15 @@ export default class AppRenderer {
   }
 
   private setUpgradeVersion(upgradeVersion: IAppVersionInfo) {
-    this.reduxActions.version.updateLatest(upgradeVersion);
+    this.reduxActions.version.updateLatest({
+      supported: true,
+      suggestedIsBeta: false,
+      suggestedUpgrade: {
+        version: '2100.1',
+        changelog:
+          'This is a changelog.\nEvery newline should be a new item.\nThere are three items.',
+      },
+    });
   }
 
   private setGuiSettings(guiSettings: IGuiSettingsState) {
