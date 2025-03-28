@@ -653,6 +653,130 @@ msgctxt "app-info-view"
 msgid "What’s new"
 msgstr ""
 
+#. Status text displayed below a progress bar when the update is being downloaded
+#. Available placeholders:
+#. %(minutes)s - Will be replaced with remaining minutes until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(minutes)s minutes remaining..."
+msgstr ""
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. Available placeholders:
+#. %(second)s - Will be replaced with remaining seconds until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(seconds)s seconds remaining..."
+msgstr ""
+
+#. Label displayed when an unknown error occurred
+msgctxt "app-upgrade-view"
+msgid "An unknown error occurred. Please try again. If this problem persists, please contact support."
+msgstr ""
+
+#. Button text to cancel the download of an update
+msgctxt "app-upgrade-view"
+msgid "Cancel"
+msgstr ""
+
+#. Label displayed when an error occurred due to the connection being blocked
+msgctxt "app-upgrade-view"
+msgid "Connection blocked. Try changing server or other settings"
+msgstr ""
+
+#. Label displayed when an error occurred due to the installer failing to start
+#. and the suggested resolution is to download the update again.
+msgctxt "app-upgrade-view"
+msgid "Could not start the update installer, try downloading it again. If this problem persists, please contact support."
+msgstr ""
+
+#. Button text to download and install an update
+msgctxt "app-upgrade-view"
+msgid "Download and install"
+msgstr ""
+
+#. Status text displayed below a progress bar when the download of an update is complete
+msgctxt "app-upgrade-view"
+msgid "Download complete!"
+msgstr ""
+
+#. Status text displayed below a progress bar when the download of an update has been paused
+msgctxt "app-upgrade-view"
+msgid "Download paused"
+msgstr ""
+
+#. Label displayed above a progress bar informing the user which server
+#. the update is downloading from
+msgctxt "app-upgrade-view"
+msgid "Downloading from: %(server)s"
+msgstr ""
+
+#. Label displayed above a progress bar when a download is in progress
+msgctxt "app-upgrade-view"
+msgid "Downloading..."
+msgstr ""
+
+#. Button text to install an update
+msgctxt "app-upgrade-view"
+msgid "Install update"
+msgstr ""
+
+#. Text displayed when there are no updates for this platform in the next app version
+msgctxt "app-upgrade-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr ""
+
+#. Button text to report a problem
+msgctxt "app-upgrade-view"
+msgid "Report a problem"
+msgstr ""
+
+#. Button text to retry download of an update
+msgctxt "app-upgrade-view"
+msgid "Retry download"
+msgstr ""
+
+#. Status text displayed below a progress bar when the download of an update is starting
+msgctxt "app-upgrade-view"
+msgid "Starting download..."
+msgstr ""
+
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Unable to download update. Check your connection and/or firewall then try again. If this problem persists, please contact support."
+msgstr ""
+
+#. Title in navigation bar
+#. Main title for the update available view
+msgctxt "app-upgrade-view"
+msgid "Update available"
+msgstr ""
+
+#. Label displayed when an error occurred due to the installer failed verification
+msgctxt "app-upgrade-view"
+msgid "Verification failed. Try again. If this problem persists, please contact support."
+msgstr ""
+
+#. Label displayed above a progress bar when the update is ready to be installed
+msgctxt "app-upgrade-view"
+msgid "Verification successful! Ready to install."
+msgstr ""
+
+#. Label displayed above a progress bar when the update is ready to be installed
+msgctxt "app-upgrade-view"
+msgid "Verification successful! Starting installer..."
+msgstr ""
+
+#. Label displayed above a progress bar when the update is being verified
+msgctxt "app-upgrade-view"
+msgid "Verifying installer..."
+msgstr ""
+
+#. Heading which shows the version of the app which can be upgraded to.
+#. Available placeholders:
+#. %(version)s - The new version of the app.
+msgctxt "app-upgrade-view"
+msgid "Version %(version)s"
+msgstr ""
+
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
 msgstr ""
