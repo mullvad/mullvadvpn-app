@@ -192,7 +192,7 @@ trait IpPacket: pnet_packet::Packet {
     }
 }
 
-impl<'a> IpPacket for Ipv4Packet<'a> {
+impl IpPacket for Ipv4Packet<'_> {
     fn source(&self) -> IpAddr {
         self.get_source().into()
     }
@@ -206,7 +206,7 @@ impl<'a> IpPacket for Ipv4Packet<'a> {
     }
 }
 
-impl<'a> IpPacket for Ipv6Packet<'a> {
+impl IpPacket for Ipv6Packet<'_> {
     fn source(&self) -> IpAddr {
         self.get_source().into()
     }

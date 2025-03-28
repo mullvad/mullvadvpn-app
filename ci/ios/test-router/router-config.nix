@@ -33,7 +33,7 @@ in
   networking.hostName = args.hostname;
   networking.useDHCP = true;
 
-  system.stateVersion = "23.11";
+  system.stateVersion = "24.11";
 
   systemd.network.netdevs."1-lanBridge" = {
     netdevConfig = {
