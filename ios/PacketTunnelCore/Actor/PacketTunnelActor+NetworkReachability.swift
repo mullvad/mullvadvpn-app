@@ -17,7 +17,6 @@ extension PacketTunnelActor {
      */
     func startDefaultPathObserver() {
         logger.trace("Start default path observer.")
-
         defaultPathObserver.start { [weak self] networkPath in
             self?.eventChannel.send(.networkReachability(networkPath))
         }
@@ -35,8 +34,8 @@ extension PacketTunnelActor {
 
      - Parameter networkPath: new default path
      */
-    func handleDefaultPathChange(_ networkPath: Network.NWPath.Status) {
-        tunnelMonitor.handleNetworkPathUpdate(networkPath)
+    func handleDefaultPathChange(_ networkPath: Network.NWPath.Status) async {
+        await tunnelMonitor.handleNetworkPathUpdate(networkPath)
 
         let newReachability = networkPath.networkReachability
 
