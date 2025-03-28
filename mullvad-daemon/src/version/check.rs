@@ -317,37 +317,7 @@ struct ApiContext {
 fn do_version_check(api: ApiContext) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let api_handle = api.api_handle.clone();
 
-    let download_future_factory = move || {
-        let api = api.clone();
-        async move {
-            let first = api
-                .version_proxy
-                .version_check(
-                    mullvad_version::VERSION.to_owned(),
-                    PLATFORM,
-                    api.platform_version.clone(),
-                )
-                .map_err(Error::Download);
-            let second = api
-                .version_proxy
-                .version_check_2(
-                    PLATFORM,
-                    // TODO: get current architecture (from talpid_platform_metadata)
-                    mullvad_update::format::Architecture::X86,
-                    // TODO: set reasonable rollout,
-                    0.,
-                    // TODO: set last known metadata version + 1
-                    0,
-                )
-                .map_err(Error::Download);
-            let (v1_response, v2_response) = tokio::try_join!(first, second)?;
-
-            Ok(VersionCache {
-                current_version_supported: v1_response.supported,
-                latest_version: v2_response,
-            })
-        }
-    };
+    let download_future_factory = move || version_check_inner(&api);
 
     // retry immediately on network errors (unless we're offline)
     let should_retry_immediate = move |result: &Result<_, Error>| {
@@ -376,35 +346,10 @@ fn do_version_check_in_background(
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let download_future_factory = move || {
         let when_available = api.api_handle.wait_background();
-
-        let first = api
-            .version_proxy
-            .version_check(
-                mullvad_version::VERSION.to_owned(),
-                PLATFORM,
-                api.platform_version.clone(),
-            )
-            .map_err(Error::Download);
-        let second = api
-            .version_proxy
-            .version_check_2(
-                PLATFORM,
-                // TODO: get current architecture (from talpid_platform_metadata)
-                mullvad_update::format::Architecture::X86,
-                // TODO: set reasonable rollout,
-                0.,
-                // TODO: set last known metadata version + 1
-                0,
-            )
-            .map_err(Error::Download);
-
+        let version_cache = version_check_inner(&api);
         async move {
             when_available.await.map_err(Error::ApiCheck)?;
-            let (v1_response, v2_response) = tokio::try_join!(first, second)?;
-            Ok(VersionCache {
-                current_version_supported: v1_response.supported,
-                latest_version: v2_response,
-            })
+            version_cache.await
         }
     };
 
@@ -413,6 +358,32 @@ fn do_version_check_in_background(
         |result| result.is_err(),
         std::iter::repeat(UPDATE_INTERVAL_ERROR),
     ))
+}
+
+/// Combine the old version and new version endpoint
+fn version_check_inner(api: &ApiContext) -> impl Future<Output = Result<VersionCache, Error>> {
+    let v1_endpoint = api.version_proxy.version_check(
+        mullvad_version::VERSION.to_owned(),
+        PLATFORM,
+        api.platform_version.clone(),
+    );
+    let v2_endpoint = api.version_proxy.version_check_2(
+        PLATFORM,
+        // TODO: get current architecture (from talpid_platform_metadata)
+        mullvad_update::format::Architecture::X86,
+        // TODO: set reasonable rollout,
+        0.,
+        // TODO: set last known metadata version + 1
+        0,
+    );
+    async move {
+        let (v1_response, v2_response) =
+            tokio::try_join!(v1_endpoint, v2_endpoint).map_err(Error::Download)?;
+        Ok(VersionCache {
+            current_version_supported: v1_response.supported,
+            latest_version: v2_response,
+        })
+    }
 }
 
 /// Read the app version cache from the provided directory.
