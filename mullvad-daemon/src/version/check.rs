@@ -361,6 +361,7 @@ fn do_version_check_in_background(
 }
 
 /// Combine the old version and new version endpoint
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 fn version_check_inner(api: &ApiContext) -> impl Future<Output = Result<VersionCache, Error>> {
     let v1_endpoint = api.version_proxy.version_check(
         mullvad_version::VERSION.to_owned(),
@@ -382,6 +383,49 @@ fn version_check_inner(api: &ApiContext) -> impl Future<Output = Result<VersionC
         Ok(VersionCache {
             current_version_supported: v1_response.supported,
             latest_version: v2_response,
+        })
+    }
+}
+
+#[cfg(any(target_os = "linux", target_os = "android"))]
+fn version_check_inner(api: &ApiContext) -> impl Future<Output = Result<VersionCache, Error>> {
+    let v1_endpoint = api.version_proxy.version_check(
+        mullvad_version::VERSION.to_owned(),
+        PLATFORM,
+        api.platform_version.clone(),
+    );
+    async move {
+        let response = v1_endpoint.await.map_err(Error::Download)?;
+        let latest_stable = response.latest_stable
+            .and_then(|version| version.parse().ok())
+            // Suggested stable must actually be stable
+            .filter(|version: &mullvad_version::Version| version.pre_stable.is_none())
+            .ok_or_else(|| Error::MissingStable)?;
+        let latest_beta = response.latest_beta
+            .and_then(|version| version.parse().ok())
+            // Suggested beta must actually be non-stable
+            .filter(|version: &mullvad_version::Version| version.pre_stable.is_some());
+
+        Ok(VersionCache {
+            current_version_supported: response.supported,
+            // Note: We're pretending that this is complete information,
+            // but on Android and Linux, most of the information is missing
+            latest_version: VersionInfo {
+                stable: mullvad_update::version::Version {
+                    version: latest_stable,
+                    changelog: "".to_owned(),
+                    urls: vec![],
+                    sha256: [0u8; 32],
+                    size: 0,
+                },
+                beta: latest_beta.map(|version| mullvad_update::version::Version {
+                    version,
+                    changelog: "".to_owned(),
+                    urls: vec![],
+                    sha256: [0u8; 32],
+                    size: 0,
+                }),
+            },
         })
     }
 }
