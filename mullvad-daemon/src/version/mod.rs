@@ -23,6 +23,9 @@ pub enum Error {
     #[error("API availability check failed")]
     ApiCheck(#[source] mullvad_api::availability::Error),
 
+    #[error("Response is missing a valid stable version")]
+    MissingStable,
+
     #[error("Clearing version check cache due to old version")]
     OutdatedVersion,
 
