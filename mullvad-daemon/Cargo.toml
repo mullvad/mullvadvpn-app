@@ -15,7 +15,6 @@ workspace = true
 api-override = ["mullvad-api/api-override"]
 boringtun = ["talpid-core/boringtun"]
 
-default = ["boringtun"]
 
 [dependencies]
 anyhow = { workspace = true }
