@@ -106,8 +106,8 @@ impl ProgressUpdater {
     }
 }
 
-impl mullvad_update::client::fetch::ProgressUpdater for ProgressUpdater {
-    fn set_url(&mut self, url: &str) {
+impl mullvad_update::fetch::ProgressUpdater for ProgressUpdater {
+    fn set_url(&mut self, _url: &str) {
         // ignored since we already know the URL
     }
 
@@ -118,12 +118,20 @@ impl mullvad_update::client::fetch::ProgressUpdater for ProgressUpdater {
 
         self.complete_frac = fraction_complete;
 
-        // TODO: estimate time left based on how much was downloaded (maybe in last n seconds)
-        // TODO: emit Downloading event
+        self.event_tx.send(UpdateEvent::Downloading {
+            complete_frac: fraction_complete,
+            // TODO: estimate time left based on how much was downloaded (maybe in last n seconds)
+            time_left: Duration::ZERO,
+        });
     }
 
     fn clear_progress(&mut self) {
         self.complete_frac = 0.;
-        // TODO: emit Downloading event
+
+        self.event_tx.send(UpdateEvent::Downloading {
+            complete_frac: 0.,
+            // TODO: Check if this is reasonable
+            time_left: Duration::ZERO,
+        });
     }
 }
