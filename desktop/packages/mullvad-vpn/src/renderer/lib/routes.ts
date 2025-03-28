@@ -33,4 +33,5 @@ export enum RoutePath {
   filter = '/select-location/filter',
   appInfo = '/settings/app-info',
   changelog = '/settings/changelog',
+  appUpgrade = '/settings/app-upgrade',
 }
