@@ -20,4 +20,4 @@ jobs:
     # yamllint disable rule:line-length
     uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@ab8175fc65a74d8c0308f623b1c617a39bdc34fe"  # v1.9.2 + submodule patch
     with:
-      checkout-submodules: true
+      checkout-submodules: false
