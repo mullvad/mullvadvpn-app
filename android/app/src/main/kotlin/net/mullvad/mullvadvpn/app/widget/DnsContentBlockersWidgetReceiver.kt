@@ -1,12 +1,8 @@
-package net.mullvad.mullvadvpn.widget
+package net.mullvad.mullvadvpn.app.widget
 
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 
-
-
-class MullvadWidgetReceiver(
+class DnsContentBlockersWidgetReceiver(
     override val glanceAppWidget: GlanceAppWidget = MullvadAppWidget()
-) : GlanceAppWidgetReceiver() {
-
-}
+) : GlanceAppWidgetReceiver()

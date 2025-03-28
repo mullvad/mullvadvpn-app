@@ -6,25 +6,23 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
-import net.mullvad.mullvadvpn.widget.MullvadAppWidget
+import net.mullvad.mullvadvpn.lib.repository.WidgetRepository
+import net.mullvad.mullvadvpn.lib.repository.WidgetSettingsPersister
 
 class MullvadWidgetUpdater(
     private val context: Context,
-    private val connectionProxy: ConnectionProxy,
+    private val widgetRepository: WidgetRepository,
     private val scope: CoroutineScope,
 ) {
     private var job: Job? = null
 
     fun start() {
-        // Just to ensure that connection is set up since the connection won't be setup without a
-        // call to the daemon
         if (job != null) {
             error("MullvadWidgetUpdater already started")
         }
 
-        job = scope.launch { launchListenToTunnelState() }
+        job = scope.launch { launchListenToSettings() }
+        job = scope.launch { launchListenToWidgetSettings() }
     }
 
     fun stop() {
@@ -33,10 +31,15 @@ class MullvadWidgetUpdater(
         job = null
     }
 
-    private suspend fun launchListenToTunnelState() {
-        connectionProxy.tunnelState
-            .onStart { emit(TunnelState.Disconnected(null)) }
-            // .debounce(TUNNEL_STATE_DEBOUNCE_MS)
+    private suspend fun launchListenToSettings() {
+        widgetRepository.settingsUpdates
+            .onStart { null }
             .collect { MullvadAppWidget.updateAllWidgets(context) }
+    }
+
+    private suspend fun launchListenToWidgetSettings() {
+        WidgetSettingsPersister.SINGLETON.widgetSettingsState.collect {
+            MullvadAppWidget.updateAllWidgets(context)
+        }
     }
 }

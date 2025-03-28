@@ -68,6 +68,8 @@ private fun PreviewSettingsScreen(
             onDaitaClick = {},
             onBackClick = {},
             onNotificationSettingsCellClick = {},
+            onAppObfuscationClick = {},
+            onWidgetClick = {},
         )
     }
 }
@@ -91,6 +93,7 @@ fun Settings(navigator: Navigator) {
         onNotificationSettingsCellClick =
             dropUnlessResumed { navigator.navigate(NotificationSettingsNavKey) },
         onAppObfuscationClick = dropUnlessResumed { navigator.navigate(AppearanceNavKey) },
+        onWidgetClick = dropUnlessResumed { /*navigator.navigate(WidgetDestination)*/ },
     )
 }
 
@@ -106,7 +109,8 @@ fun SettingsScreen(
     onDaitaClick: () -> Unit,
     onBackClick: () -> Unit,
     onNotificationSettingsCellClick: () -> Unit,
-    onAppObfuscationClick: () -> Unit = {},
+    onAppObfuscationClick: () -> Unit,
+    onWidgetClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings),
@@ -135,6 +139,7 @@ fun SettingsScreen(
                         onDaitaClick = onDaitaClick,
                         onNotificationSettingsCellClick = onNotificationSettingsCellClick,
                         onAppObfuscationClick = onAppObfuscationClick,
+                        onWidgetClick = onWidgetClick,
                     )
                 }
             }
@@ -152,7 +157,8 @@ private fun LazyListScope.content(
     onMultihopClick: () -> Unit,
     onDaitaClick: () -> Unit,
     onNotificationSettingsCellClick: () -> Unit,
-    onAppObfuscationClick: () -> Unit = {},
+    onAppObfuscationClick: () -> Unit,
+    onWidgetClick: () -> Unit,
 ) {
     if (state.isLoggedIn) {
         itemWithDivider {
@@ -174,6 +180,8 @@ private fun LazyListScope.content(
         }
         item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
         item { SplitTunneling(onSplitTunnelingCellClick) }
+        item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
+        item { Widget(onWidgetClick) }
         item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
     }
 
@@ -311,6 +319,11 @@ private fun MultihopCell(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit
         position = Position.Middle,
         testTag = MULTIHOP_CELL_TEST_TAG,
     )
+}
+
+@Composable
+private fun Widget(onWidgetClick: () -> Unit) {
+    NavigationListItem(title = "Widget", onClick = onWidgetClick)
 }
 
 private fun LazyListScope.loading() {

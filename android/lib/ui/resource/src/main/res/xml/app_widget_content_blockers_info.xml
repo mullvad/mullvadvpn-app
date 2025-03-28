@@ -2,5 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:targetApi="31"
     android:initialLayout="@layout/glance_default_loading_layout"
-    android:resizeMode="horizontal|vertical">
+    android:minWidth="180dp"
+    android:minHeight="110dp">
 </appwidget-provider>
