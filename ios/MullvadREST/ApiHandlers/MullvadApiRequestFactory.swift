@@ -24,13 +24,25 @@ public struct MullvadApiRequestFactory: Sendable {
 
             let rawPointer = Unmanaged.passRetained(pointerClass).toOpaque()
 
-            return switch request {
+            switch request {
             case let .getAddressList(retryStrategy):
-                MullvadApiCancellable(handle: mullvad_api_get_addresses(
-                    apiContext.context,
-                    rawPointer,
-                    retryStrategy.toRustStrategy()
-                ))
+                return MullvadApiCancellable(
+                    handle: mullvad_api_get_addresses(
+                        apiContext.context,
+                        rawPointer,
+                        retryStrategy.toRustStrategy()
+                    )
+                )
+            case let .sendProblemReport(retryStrategy, problemReportRequest):
+                let rustRequest = RustProblemReportRequest(from: problemReportRequest)
+                return MullvadApiCancellable(
+                    handle: mullvad_api_send_problem_report(
+                        apiContext.context,
+                        rawPointer,
+                        retryStrategy.toRustStrategy(),
+                        rustRequest.toRust()
+                    )
+                )
             }
         }
     }

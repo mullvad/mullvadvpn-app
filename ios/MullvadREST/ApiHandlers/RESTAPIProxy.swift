@@ -18,6 +18,12 @@ public protocol APIQuerying: Sendable {
         completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
     ) -> Cancellable
 
+    func mullvadSendProblemReport(
+        _ body: REST.ProblemReportRequest,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
+    ) -> Cancellable
+
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
@@ -75,6 +81,28 @@ extension REST {
                 name: "get-api-addrs",
                 dispatchQueue: dispatchQueue,
                 request: .getAddressList(retryStrategy),
+                transportProvider: configuration.apiTransportProvider,
+                responseDecoder: responseDecoder,
+                responseHandler: responseHandler,
+                completionHandler: completionHandler
+            )
+
+            operationQueue.addOperation(networkOperation)
+
+            return networkOperation
+        }
+
+        public func mullvadSendProblemReport(
+            _ body: REST.ProblemReportRequest,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping ProxyCompletionHandler<Void>
+        ) -> any Cancellable {
+            let responseHandler = rustEmptyResponseHandler()
+
+            let networkOperation = MullvadApiNetworkOperation(
+                name: "send_problem_report",
+                dispatchQueue: dispatchQueue,
+                request: .sendProblemReport(retryStrategy, problemReportRequest: body),
                 transportProvider: configuration.apiTransportProvider,
                 responseDecoder: responseDecoder,
                 responseHandler: responseHandler,
@@ -358,7 +386,7 @@ extension REST {
         let newExpiry: Date
     }
 
-    public struct ProblemReportRequest: Encodable, Sendable {
+    public struct ProblemReportRequest: Codable, Sendable {
         public let address: String
         public let message: String
         public let log: String

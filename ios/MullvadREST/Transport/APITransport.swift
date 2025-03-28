@@ -34,7 +34,7 @@ public final class APITransport: APITransportProtocol {
         let apiRequest = requestFactory.makeRequest(request)
 
         return apiRequest { response in
-            let error: APIError? = if response.statusCode != 200 {
+            let error: APIError? = if !response.success {
                 APIError(
                     statusCode: Int(response.statusCode),
                     errorDescription: response.errorDescription ?? "",
