@@ -22,9 +22,12 @@ class TunnelViewController: UIViewController, RootContainment {
     private var indicatorsViewViewModel: FeatureIndicatorsViewModel
     private var connectionView: ConnectionView
     private var connectionController: UIHostingController<ConnectionView>?
+    private var searchController: SearchAnythingViewController?
+    private let relays: [RelayWithLocation<REST.ServerRelay>]
 
     var shouldShowSelectLocationPicker: (() -> Void)?
     var shouldShowCancelTunnelAlert: (() -> Void)?
+    var didSelect: ((SearchAnythingViewController.Item) -> Void)?
 
     let activityIndicator: SpinnerActivityIndicatorView = {
         let activityIndicator = SpinnerActivityIndicatorView(style: .large)
@@ -61,8 +64,9 @@ class TunnelViewController: UIViewController, RootContainment {
         false
     }
 
-    init(interactor: TunnelViewControllerInteractor) {
+    init(interactor: TunnelViewControllerInteractor, relays: [RelayWithLocation<REST.ServerRelay>]) {
         self.interactor = interactor
+        self.relays = relays
 
         tunnelState = interactor.tunnelStatus.state
         connectionViewViewModel = ConnectionViewViewModel(
@@ -157,6 +161,29 @@ class TunnelViewController: UIViewController, RootContainment {
         }
     }
 
+    func toggleSearchController() {
+        guard searchController == nil else {
+            hideSearchController()
+            return
+        }
+
+        let controller = SearchAnythingViewController(relays: relays)
+        searchController = controller
+
+        addChild(controller)
+        controller.didMove(toParent: self)
+
+        controller.didSelect = { [weak self] item in
+            self?.toggleSearchController()
+            self?.didSelect?(item)
+        }
+
+        view.addConstrainedSubviews([controller.view]) {
+            controller.view.pinEdgesToSuperview(.all().excluding(.top))
+            controller.view.topAnchor.constraint(equalTo: view.topAnchor, constant: 148)
+        }
+    }
+
     // MARK: - Private
 
     private func setTunnelState(_ tunnelState: TunnelState, animated: Bool) {
@@ -247,5 +274,12 @@ class TunnelViewController: UIViewController, RootContainment {
         view.addConstrainedSubviews([activityIndicator, connectionViewProxy]) {
             connectionViewProxy.pinEdgesToSuperview(.all())
         }
+    }
+
+    private func hideSearchController() {
+        searchController?.view.removeFromSuperview()
+        searchController?.removeFromParent()
+
+        searchController = nil
     }
 }

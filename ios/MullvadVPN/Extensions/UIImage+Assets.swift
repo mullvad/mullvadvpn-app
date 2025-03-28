@@ -26,6 +26,10 @@ extension UIImage {
             UIImage(named: "IconSettings")!
         }
 
+        static var search: UIImage {
+            UIImage(systemName: "magnifyingglass")!
+        }
+
         static var back: UIImage {
             UIImage(named: "IconBack")!
         }

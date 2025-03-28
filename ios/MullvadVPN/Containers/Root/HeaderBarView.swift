@@ -46,7 +46,7 @@ class HeaderBarView: UIView {
     }()
 
     private lazy var buttonContainer: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [accountButton, settingsButton])
+        let stackView = UIStackView(arrangedSubviews: [accountButton, settingsButton, searchButton])
         stackView.spacing = 12
         return stackView
     }()
@@ -85,6 +85,20 @@ class HeaderBarView: UIView {
         return button
     }()
 
+    let searchButton: UIButton = {
+        let button = makeHeaderBarButton(with: UIImage.Buttons.search)
+        button.setAccessibilityIdentifier(.searchAnythingButton)
+        button.accessibilityLabel = NSLocalizedString(
+            "HEADER_BAR_SEARCH_BUTTON_ACCESSIBILITY_LABEL",
+            tableName: "HeaderBar",
+            value: "Search anything",
+            comment: ""
+        )
+        button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.barButtonSize).isActive = true
+        button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
+        return button
+    }()
+
     class func makeHeaderBarButton(with image: UIImage?) -> IncreasedHitButton {
         let buttonImage = image?.withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
         let barButton = IncreasedHitButton(type: .system)
@@ -113,6 +127,7 @@ class HeaderBarView: UIView {
     private var isAccountButtonHidden = false {
         didSet {
             accountButton.isHidden = isAccountButtonHidden
+            searchButton.isHidden = isAccountButtonHidden
         }
     }
 
