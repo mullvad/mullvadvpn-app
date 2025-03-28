@@ -8,7 +8,7 @@ import workspaceConfig from '../../eslint.config.mjs';
 export default [
   ...workspaceConfig,
   react.configs.flat.recommended,
-  { ignores: ['build/'] },
+  { ignores: ['build/', 'build-standalone/'] },
   {
     files: ['**/*'],
     ignores: ['src/renderer/'],
