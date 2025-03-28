@@ -1,10 +1,13 @@
-use std::{ffi::CStr, sync::Arc};
+use std::{ffi::CStr, future::Future, sync::Arc};
 
 use mullvad_api::{
     proxy::{ApiConnectionMode, StaticConnectionModeProvider},
-    rest::MullvadRestHandle,
+    rest::{self, MullvadRestHandle},
     ApiEndpoint, Runtime,
 };
+use response::SwiftMullvadApiResponse;
+use retry_strategy::RetryStrategy;
+use talpid_future::retry::retry_future;
 
 mod api;
 mod cancellation;
@@ -80,4 +83,22 @@ pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> S
     });
 
     SwiftApiContext::new(api_context)
+}
+
+async fn do_request<F, T>(
+    retry_strategy: RetryStrategy,
+    future_factory: F,
+) -> Result<SwiftMullvadApiResponse, rest::Error>
+where
+    F: Fn() -> T,
+    T: Future<Output = Result<rest::Response<hyper::body::Incoming>, rest::Error>>,
+{
+    let should_retry = |result: &Result<_, rest::Error>| match result {
+        Err(err) => err.is_network_error(),
+        Ok(_) => false,
+    };
+
+    let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
+
+    SwiftMullvadApiResponse::with_body(response).await
 }

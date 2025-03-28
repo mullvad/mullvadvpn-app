@@ -19,7 +19,7 @@ protocol RESTResponseHandler<Success> {
 protocol RESTRustResponseHandler<Success> {
     associatedtype Success
 
-    func handleResponse(_ body: Data?) -> REST.ResponseHandlerResult<Success>
+    func handleResponse(_ resonse: ProxyAPIResponse) -> REST.ResponseHandlerResult<Success>
 }
 
 extension REST {
@@ -76,7 +76,7 @@ extension REST {
     }
 
     final class RustResponseHandler<Success>: RESTRustResponseHandler {
-        typealias HandlerBlock = (Data?) -> REST.ResponseHandlerResult<Success>
+        typealias HandlerBlock = (ProxyAPIResponse) -> REST.ResponseHandlerResult<Success>
 
         private let handlerBlock: HandlerBlock
 
@@ -84,8 +84,8 @@ extension REST {
             handlerBlock = block
         }
 
-        func handleResponse(_ body: Data?) -> REST.ResponseHandlerResult<Success> {
-            handlerBlock(body)
+        func handleResponse(_ response: ProxyAPIResponse) -> REST.ResponseHandlerResult<Success> {
+            handlerBlock(response)
         }
     }
 
@@ -96,13 +96,30 @@ extension REST {
         decoding type: T.Type,
         with decoder: JSONDecoder
     ) -> RustResponseHandler<T> {
-        RustResponseHandler { data in
-            guard let data else {
+        RustResponseHandler { (response: ProxyAPIResponse) in
+            guard let data = response.data else {
                 return .unhandledResponse(nil)
             }
 
-            return if let decoded = try? decoder.decode(type, from: data) {
-                .decoding { decoded }
+            do {
+                let decoded = try decoder.decode(type, from: data)
+                return .decoding { decoded }
+            } catch {
+                return .unhandledResponse(ServerErrorResponse(code: .parsingError, detail: error.localizedDescription))
+            }
+        }
+    }
+
+    static func rustCustomResponseHandler<T: Decodable>(
+        conversion: @escaping (_ data: Data, _ etag: String?) -> T?
+    ) -> RustResponseHandler<T> {
+        RustResponseHandler { (response: ProxyAPIResponse) in
+            guard let data = response.data else {
+                return .unhandledResponse(nil)
+            }
+
+            return if let convertedResponse = conversion(data, response.etag) {
+                .decoding { convertedResponse }
             } else {
                 .unhandledResponse(nil)
             }

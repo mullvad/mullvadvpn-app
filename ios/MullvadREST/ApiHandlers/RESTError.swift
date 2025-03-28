@@ -115,6 +115,7 @@ extension REST {
         public static let tooManyRequests = ServerResponseCode(rawValue: "TOO_MANY_REQUESTS")
         public static let invalidVoucher = ServerResponseCode(rawValue: "INVALID_VOUCHER")
         public static let usedVoucher = ServerResponseCode(rawValue: "VOUCHER_USED")
+        public static let parsingError = ServerResponseCode(rawValue: "PARSING_ERROR")
 
         public let rawValue: String
         public init(rawValue: String) {
