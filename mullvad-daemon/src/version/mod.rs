@@ -23,8 +23,8 @@ pub enum Error {
     #[error("API availability check failed")]
     ApiCheck(#[source] mullvad_api::availability::Error),
 
-    #[error("Clearing version check cache due to a version mismatch")]
-    CacheVersionMismatch,
+    #[error("Clearing version check cache due to old version")]
+    OutdatedVersion,
 
     #[error("Version updater is down")]
     VersionUpdaterDown,
