@@ -6,6 +6,7 @@ import { Flex, Icon } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
 import { ListItem, ListItemProps } from '../../../../../lib/components/list-item';
 import { useConnectionIsBlocked, useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
+import { useIsLinux, useOpenDownloadUrl } from './hooks';
 
 const StyledText = styled(ListItem.Text)`
   margin-top: -4px;
@@ -17,12 +18,15 @@ export function UpdateAvailableListItem(props: UpdateAvailableListItemProps) {
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
   const { isBlocked } = useConnectionIsBlocked();
 
+  const openDownloadUrl = useOpenDownloadUrl();
   const pushAppUpgrade = usePushAppUpgrade();
+  const isLinux = useIsLinux();
+  const onClick = isLinux ? openDownloadUrl : pushAppUpgrade;
 
   return (
     <ListItem disabled={isBlocked} {...props}>
       <ListItem.Item>
-        <ListItem.Trigger onClick={pushAppUpgrade}>
+        <ListItem.Trigger onClick={onClick}>
           <ListItem.Content>
             <Flex $flexDirection="column">
               <ListItem.Label>
@@ -35,7 +39,7 @@ export function UpdateAvailableListItem(props: UpdateAvailableListItemProps) {
             </Flex>
             <ListItem.Group>
               <Dot variant="warning" size="small" />
-              <Icon icon="chevron-right" />
+              <Icon icon={isLinux ? 'external' : 'chevron-right'} />
             </ListItem.Group>
           </ListItem.Content>
         </ListItem.Trigger>
