@@ -143,7 +143,8 @@ impl Client {
         let connection = connecting.await.map_err(Error::Connection)?;
 
         let (connection, send_stream, request_stream) =
-            Self::setup_h3_connection(connection, target_addr, server_host).await?;
+            Self::setup_h3_connection(connection, target_addr, server_host, maximum_packet_size)
+                .await?;
 
         Ok(Self {
             connection,
@@ -160,6 +161,7 @@ impl Client {
         connection: quinn::Connection,
         target: SocketAddr,
         server_host: &str,
+        maximum_packet_size: u16,
     ) -> Result<(
         client::Connection<h3_quinn::Connection, bytes::Bytes>,
         client::SendRequest<h3_quinn::OpenStreams, bytes::Bytes>,
@@ -173,7 +175,7 @@ impl Client {
             .await
             .map_err(Error::CreateClient)?;
 
-        let request = new_connect_request(target, &server_host)?;
+        let request = new_connect_request(target, &server_host, maximum_packet_size)?;
 
         let request_future = async move {
             let mut request_stream = send_stream.send_request(request).await?;
@@ -213,7 +215,7 @@ impl Client {
                     return_addr = recv_addr;
 
                     let mut send_buf = client_read_buf.split().freeze();
-                    if send_buf.len() < self.maximum_packet_size.into() {
+                    if send_buf.len() < (Into::<usize>::into(self.maximum_packet_size) - 100usize) {
                         self.connection
                             .send_datagram(stream_id, send_buf)
                             .map_err(Error::SendDatagram)?;
@@ -285,6 +287,7 @@ impl Client {
 fn new_connect_request(
     socket_addr: SocketAddr,
     authority: &dyn AsRef<str>,
+    maximum_packet_size: u16,
 ) -> Result<http::Request<()>> {
     let host = socket_addr.ip();
     let port = socket_addr.port();
@@ -302,6 +305,10 @@ fn new_connect_request(
         .header(b"Capsule-Protocol".as_slice(), b"?1".as_slice())
         .header(header::AUTHORIZATION, b"Bearer test".as_slice())
         .header(header::HOST, authority.as_ref())
+        .header(
+            b"X-Mullvad-Uplink-Mtu".as_slice(),
+            format!("{maximum_packet_size}"),
+        )
         .body(())
         .expect("failed to construct a body");
 
