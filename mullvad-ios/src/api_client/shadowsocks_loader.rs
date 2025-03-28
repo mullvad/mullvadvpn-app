@@ -1,13 +1,5 @@
-use std::{
-    ffi::{c_char, c_void, CStr},
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
-    ptr,
-};
-
-use mullvad_api::proxy::{ApiConnectionMode, ProxyConfig};
-use talpid_types::net::proxy::{self, Shadowsocks};
-
-use super::helpers::{convert_c_string, parse_ip_addr};
+use std::ffi::c_void;
+use talpid_types::net::proxy::Shadowsocks;
 
 extern "C" {
     pub fn swift_get_shadowsocks_bridges(rawBridgeProvider: *const c_void) -> *const c_void;

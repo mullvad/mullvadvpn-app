@@ -1,14 +1,8 @@
-use std::{ffi::CStr, ops::Deref, sync::Arc};
+use std::{ffi::CStr, sync::Arc};
 
 use access_method_resolver::SwiftAccessMethodResolver;
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
-use connection_mode_provider::{connection_mode_provider_rotate, SwiftConnectionModeProvider};
-use mullvad_api::{
-    access_mode::{AccessModeSelector, Error},
-    proxy::{ApiConnectionMode, StaticConnectionModeProvider},
-    rest::{self, MullvadRestHandle},
-    ApiEndpoint, Runtime,
-};
+use mullvad_api::{access_mode::AccessModeSelector, rest::MullvadRestHandle, ApiEndpoint, Runtime};
 use shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
 
 mod access_method_resolver;
@@ -17,7 +11,6 @@ mod account;
 mod api;
 mod cancellation;
 mod completion;
-mod connection_mode_provider;
 mod helpers;
 mod response;
 mod retry_strategy;
@@ -64,7 +57,6 @@ pub extern "C" fn mullvad_api_init_new(
     address: *const u8,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
-    provider: SwiftConnectionModeProvider,
 ) -> SwiftApiContext {
     let host = unsafe { CStr::from_ptr(host.cast()) };
     let address = unsafe { CStr::from_ptr(address.cast()) };
@@ -79,7 +71,6 @@ pub extern "C" fn mullvad_api_init_new(
 
     let tokio_handle = crate::mullvad_ios_runtime().unwrap();
 
-    let connection_mode_provider_context = unsafe { provider.into_rust_context() };
     let settings_context = unsafe { settings_provider.into_rust_context() };
     let access_method_settings = settings_context.convert_access_method().unwrap();
 
@@ -90,11 +81,7 @@ pub extern "C" fn mullvad_api_init_new(
         "{:?}, {:?}, {:?}",
         method_resolver, settings_context, access_method_settings
     );
-    // TODO: Use the method_resolver in the AccessModeSelector::spawn call
-    // TODO: Bridge settings.api_access_methods
     // TODO: Handle #[cfg(feature = "api-override")]
-    // TODO: Handle access_method_event_sender, used for "sending", should we just remove that parameter from iOS?
-    tokio_handle.spawn(connection_mode_provider_context.spawn_rotator());
 
     let api_context = tokio_handle.clone().block_on(async move {
         // It is imperative that the REST runtime is created within an async context, otherwise
@@ -105,7 +92,9 @@ pub extern "C" fn mullvad_api_init_new(
                 .await
                 .expect("no errors here, move along");
 
-        // TODO: Should this be sent back to swift to invoke when the user changes access methods?
+        // TODO: Send the `access_mode_handler` back to swift to invoke update on access methods
+        // TODO: Call `use_access_method` when the user manually switches access methods
+        // TODO: Call `update_access_methods` when the user changes a method configuration
 
         let api_client = mullvad_api::Runtime::new(tokio_handle, &endpoint);
         let rest_client = api_client.mullvad_rest_handle(access_mode_provider);

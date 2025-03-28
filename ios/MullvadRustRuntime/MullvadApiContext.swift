@@ -15,15 +15,13 @@ public struct MullvadApiContext: Sendable {
         host: String,
         address: String,
         shadowsocksProvider: SwiftShadowsocksLoaderWrapper,
-        accessMethodWrapper: SwiftAccessMethodSettingsWrapper,
-        provider: SwiftConnectionModeProvider
+        accessMethodWrapper: SwiftAccessMethodSettingsWrapper
     ) throws {
         context = mullvad_api_init_new(
             host,
             address,
             shadowsocksProvider,
-            accessMethodWrapper,
-            provider
+            accessMethodWrapper
         )
 
         if context._0 == nil {
