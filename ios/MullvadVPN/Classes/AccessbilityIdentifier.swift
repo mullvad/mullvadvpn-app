@@ -46,6 +46,7 @@ public enum AccessibilityIdentifier: Equatable {
     case selectLocationButton
     case closeSelectLocationButton
     case settingsButton
+    case searchAnythingButton
     case startUsingTheAppButton
     case problemReportAppLogsButton
     case problemReportSendButton

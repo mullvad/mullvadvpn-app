@@ -371,6 +371,12 @@ class RootContainerViewController: UIViewController {
             for: .touchUpInside
         )
 
+        headerBarView.searchButton.addTarget(
+            self,
+            action: #selector(handleSearchButtonTap),
+            for: .touchUpInside
+        )
+
         view.addSubview(headerBarView)
 
         NSLayoutConstraint.activate(constraints)
@@ -422,6 +428,12 @@ class RootContainerViewController: UIViewController {
 
     @objc private func handleSettingsButtonTap() {
         showSettings(animated: true)
+    }
+
+    @objc private func handleSearchButtonTap() {
+        if let controller = (viewControllers.first { $0 is TunnelViewController }) as? TunnelViewController {
+            controller.toggleSearchController()
+        }
     }
 
     // swiftlint:disable:next function_body_length

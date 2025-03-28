@@ -500,6 +500,7 @@
 		7A28826A2BA8336600FD9F20 /* VPNSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */; };
 		7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960F52A963F7500389B82 /* AlertCoordinator.swift */; };
 		7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960FC2A964BB700389B82 /* AlertPresentation.swift */; };
+		7A2C0E8E2D969C45003D8048 /* SearchAnythingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2C0E8D2D969C3E003D8048 /* SearchAnythingViewController.swift */; };
 		7A2E7B702D6C9FCF009EF2C3 /* APITransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B672D6C9D7A009EF2C3 /* APITransport.swift */; };
 		7A2E7B712D6C9FE0009EF2C3 /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B6E2D6C9ED9009EF2C3 /* APIError.swift */; };
 		7A2E7B722D6C9FE5009EF2C3 /* APIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B6C2D6C9E53009EF2C3 /* APIRequest.swift */; };
@@ -2034,6 +2035,7 @@
 		7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsCoordinator.swift; sourceTree = "<group>"; };
 		7A2960F52A963F7500389B82 /* AlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertCoordinator.swift; sourceTree = "<group>"; };
 		7A2960FC2A964BB700389B82 /* AlertPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresentation.swift; sourceTree = "<group>"; };
+		7A2C0E8D2D969C3E003D8048 /* SearchAnythingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchAnythingViewController.swift; sourceTree = "<group>"; };
 		7A2E7B672D6C9D7A009EF2C3 /* APITransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITransport.swift; sourceTree = "<group>"; };
 		7A2E7B6C2D6C9E53009EF2C3 /* APIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRequest.swift; sourceTree = "<group>"; };
 		7A2E7B6E2D6C9ED9009EF2C3 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
@@ -3963,6 +3965,7 @@
 		58D1560C29C0B27600749324 /* Root */ = {
 			isa = PBXGroup;
 			children = (
+				7A2C0E8D2D969C3E003D8048 /* SearchAnythingViewController.swift */,
 				58F3C0A3249CB069003E76BE /* HeaderBarView.swift */,
 				7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */,
 				587425C02299833500CA2045 /* RootContainerViewController.swift */,
@@ -6199,6 +6202,7 @@
 				5878A27529093A310096FC88 /* StorePaymentEvent.swift in Sources */,
 				7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */,
 				F062000C2CB7EB5D002E6DB9 /* UIImage+Helpers.swift in Sources */,
+				7A2C0E8E2D969C45003D8048 /* SearchAnythingViewController.swift in Sources */,
 				F910A4012D3FF23A002FF3BB /* View+Modifier.swift in Sources */,
 				7A6389EB2B7FAD7A008E77E1 /* SettingsFieldValidationErrorContentView.swift in Sources */,
 				440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */,
