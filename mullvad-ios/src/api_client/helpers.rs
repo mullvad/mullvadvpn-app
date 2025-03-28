@@ -3,6 +3,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
+use mullvad_types::access_method::AccessMethodSetting;
 use talpid_types::net::proxy::{Shadowsocks, Socks5Remote, SocksAuth};
 
 /// Constructs a new IP address from a pointer containing bytes representing an IP address.
@@ -60,6 +61,26 @@ pub unsafe extern "C" fn convert_shadowsocks(
     };
 
     return Box::into_raw(Box::new(shadowsocks_configuration)) as *mut c_void;
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn access_method_settings_vector(capacity: usize) -> *const c_void {
+    let vector: Vec<AccessMethodSetting> = Vec::with_capacity(capacity);
+
+    Box::into_raw(Box::new(vector)) as *mut c_void
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn vector_add_access_method_setting(
+    vector: *const c_void,
+    access_method: *const c_void,
+) {
+    if (vector.is_null() && access_method.is_null()) == false {
+        let mut vector: Vec<AccessMethodSetting> = unsafe { *Box::from_raw(vector as *mut _) };
+        let access_method: AccessMethodSetting = unsafe { *Box::from_raw(access_method as *mut _) };
+
+        vector.push(access_method);
+    }
 }
 
 #[no_mangle]

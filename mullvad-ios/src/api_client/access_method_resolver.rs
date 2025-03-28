@@ -1,16 +1,11 @@
-use libc::endgrent;
 use mullvad_api::{
     access_mode::AccessMethodResolver,
     proxy::{ApiConnectionMode, ProxyConfig},
     ApiEndpoint,
 };
 use mullvad_types::access_method::{AccessMethod, BuiltInAccessMethod};
-use talpid_types::{
-    self,
-    net::{
-        proxy::{CustomProxy, Shadowsocks},
-        AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol,
-    },
+use talpid_types::net::{
+    proxy::CustomProxy, AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol,
 };
 use tonic::async_trait;
 

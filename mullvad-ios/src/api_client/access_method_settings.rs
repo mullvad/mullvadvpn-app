@@ -1,10 +1,8 @@
 use std::{
     ffi::{c_char, c_void},
     ptr::null_mut,
-    slice::{from_raw_parts, from_raw_parts_mut},
 };
 
-use libc::SETVAL;
 use mullvad_types::access_method::{
     AccessMethod, AccessMethodSetting,
     BuiltInAccessMethod::{Bridge, Direct, EncryptedDnsProxy},
@@ -13,8 +11,6 @@ use mullvad_types::access_method::{
 use talpid_types::net::proxy::{self, Shadowsocks, Socks5Remote};
 
 use super::helpers::convert_c_string;
-
-// #[no_mangle]
 
 #[no_mangle]
 unsafe extern "C" fn convert_builtin_access_method_setting(
@@ -97,6 +93,7 @@ unsafe fn convert_builtin_access_method_setting_inner(
     }
 }
 
+#[allow(dead_code)]
 #[repr(u8)]
 pub enum SwiftAccessMethodKind {
     KindDirect = 0,
@@ -112,14 +109,10 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
     bridges_method_raw: *const c_void,
     encrypted_dns_method_raw: *const c_void,
     custom_methods_raw: *const c_void,
-    custom_methods_count: usize,
 ) -> SwiftAccessMethodSettingsWrapper {
     let custom: Vec<AccessMethodSetting> = match custom_methods_raw.is_null() {
         true => vec![],
-        false => {
-            let methods_vec: Vec<AccessMethodSetting> = Vec::with_capacity(custom_methods_count);
-            methods_vec
-        }
+        false => unsafe { *Box::from_raw(custom_methods_raw as *mut _) },
     };
 
     let direct: AccessMethodSetting = unsafe { *Box::from_raw(direct_method_raw as *mut _) };
