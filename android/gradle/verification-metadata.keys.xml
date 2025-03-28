@@ -203,6 +203,7 @@
             <trusting group="androidx.concurrent"/>
             <trusting group="androidx.core"/>
             <trusting group="androidx.databinding"/>
+            <trusting group="androidx.fragment"/>
             <trusting group="androidx.glance"/>
             <trusting group="androidx.graphics"/>
             <trusting group="androidx.lifecycle"/>
