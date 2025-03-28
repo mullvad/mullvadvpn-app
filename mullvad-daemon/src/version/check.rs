@@ -403,7 +403,7 @@ fn version_check_inner(api: &ApiContext) -> impl Future<Output = Result<VersionC
             .ok_or_else(|| Error::MissingStable)?;
         let latest_beta = response.latest_beta
             .and_then(|version| version.parse().ok())
-            // Suggested stable must actually be non-stable
+            // Suggested beta must actually be non-stable
             .filter(|version: &mullvad_version::Version| version.pre_stable.is_some());
 
         Ok(VersionCache {
