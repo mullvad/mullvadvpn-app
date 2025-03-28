@@ -191,6 +191,11 @@ mod tests {
     }
 
     #[test]
+    fn test_product_version() {
+        parse(VERSION);
+    }
+
+    #[test]
     fn test_version_ordering() {
         // Test year comparison
         assert!(parse("2022.1") > parse("2021.1"),);
