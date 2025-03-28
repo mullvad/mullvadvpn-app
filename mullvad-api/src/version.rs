@@ -20,7 +20,7 @@ pub struct AppVersionResponse {
     pub supported: bool,
     pub latest: AppVersion,
     pub latest_stable: Option<AppVersion>,
-    pub latest_beta: AppVersion,
+    pub latest_beta: Option<AppVersion>,
 }
 
 impl AppVersionProxy {
