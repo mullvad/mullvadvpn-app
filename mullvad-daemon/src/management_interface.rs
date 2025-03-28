@@ -1095,6 +1095,26 @@ impl ManagementService for ManagementServiceImpl {
 
         Ok(Response::new(feature_indicators))
     }
+
+    // Debug features
+
+    async fn disable_relay(&self, relay: Request<String>) -> ServiceResult<()> {
+        log::debug!("disable_relay");
+        let (tx, rx) = oneshot::channel();
+        let relay = relay.into_inner();
+        self.send_command_to_daemon(DaemonCommand::DisableRelay { relay, tx })?;
+        self.wait_for_result(rx).await?;
+        Ok(Response::new(()))
+    }
+
+    async fn enable_relay(&self, relay: Request<String>) -> ServiceResult<()> {
+        log::debug!("enable_relay");
+        let (tx, rx) = oneshot::channel();
+        let relay = relay.into_inner();
+        self.send_command_to_daemon(DaemonCommand::EnableRelay { relay, tx })?;
+        self.wait_for_result(rx).await?;
+        Ok(Response::new(()))
+    }
 }
 
 impl ManagementServiceImpl {
