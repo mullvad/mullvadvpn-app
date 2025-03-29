@@ -15,18 +15,24 @@ import {
   UpdateAvailableNotificationProvider,
 } from '../../shared/notifications';
 import { useAppContext } from '../context';
-import { useHasAppUpgradeError } from '../hooks';
+import {
+  useAppUpgradeDownloadProgressValue,
+  useAppUpgradeEventType,
+  useHasAppUpgradeError,
+  useIsAppUpgradeInProgress,
+} from '../hooks';
 import useActions from '../lib/actionsHook';
 import { Button } from '../lib/components';
 import { TransitionType, useHistory } from '../lib/history';
 import {
+  AppUpgradeErrorNotificationProvider,
+  AppUpgradeProgressNotificationProvider,
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
   NoOpenVpnServerAvailableNotificationProvider,
   OpenVpnSupportEndingNotificationProvider,
   UnsupportedWireGuardPortNotificationProvider,
 } from '../lib/notifications';
-import { AppUpgradeErrorNotificationProvider } from '../lib/notifications/app-upgrade-error';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
@@ -98,6 +104,9 @@ export default function NotificationArea(props: IProps) {
   const restartAppUpgrade = useCallback(() => {
     appUpgrade();
   }, [appUpgrade]);
+  const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
+  const appUpgradeEventType = useAppUpgradeEventType();
+  const isAppUpgradeInProgress = useIsAppUpgradeInProgress();
 
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
@@ -111,6 +120,11 @@ export default function NotificationArea(props: IProps) {
       hasAppUpgradeError,
       appUpgradeError,
       restartAppUpgrade,
+    }),
+    new AppUpgradeProgressNotificationProvider({
+      isAppUpgradeInProgress,
+      appUpgradeEventType,
+      appUpgradeDownloadProgressValue,
     }),
     new NoOpenVpnServerAvailableNotificationProvider({
       connection,
