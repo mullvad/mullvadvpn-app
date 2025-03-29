@@ -15,6 +15,7 @@ import {
   UpdateAvailableNotificationProvider,
 } from '../../shared/notifications';
 import { useAppContext } from '../context';
+import { useHasAppUpgradeError } from '../hooks';
 import useActions from '../lib/actionsHook';
 import { transitions, useHistory } from '../lib/history';
 import {
@@ -23,9 +24,11 @@ import {
   NoOpenVpnServerAvailableNotificationProvider,
   OpenVpnSupportEndingNotificationProvider,
 } from '../lib/notifications';
+import { AppUpgradeErrorNotificationProvider } from '../lib/notifications/app-upgrade-error';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
+import { useAppUpgradeError } from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
@@ -66,7 +69,7 @@ export default function NotificationArea(props: IProps) {
 
   const { hideNewDeviceBanner } = useActions(accountActions);
 
-  const { setDisplayedChangelog } = useAppContext();
+  const { setDisplayedChangelog, appUpgrade } = useAppContext();
 
   const currentVersion = useSelector((state) => state.version.current);
   const displayedForVersion = useSelector(
@@ -86,6 +89,13 @@ export default function NotificationArea(props: IProps) {
     await setSplitTunnelingState(false);
   }, [setSplitTunnelingState]);
 
+  const hasAppUpgradeError = useHasAppUpgradeError();
+  const { appUpgradeError } = useAppUpgradeError();
+
+  const restartAppUpgrade = useCallback(() => {
+    appUpgrade();
+  }, [appUpgrade]);
+
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
@@ -93,6 +103,11 @@ export default function NotificationArea(props: IProps) {
       tunnelState,
       blockWhenDisconnected,
       hasExcludedApps,
+    }),
+    new AppUpgradeErrorNotificationProvider({
+      hasAppUpgradeError,
+      appUpgradeError,
+      restartAppUpgrade,
     }),
     new NoOpenVpnServerAvailableNotificationProvider({
       tunnelProtocol,
