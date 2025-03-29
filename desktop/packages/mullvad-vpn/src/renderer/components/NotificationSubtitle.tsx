@@ -2,9 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { InAppNotificationSubtitle } from '../../shared/notifications';
-import { Icon, LabelTiny } from '../lib/components';
+import { Icon, LabelTiny, Link } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
+import { buttonReset } from '../lib/styles';
 import { ExternalLink } from './ExternalLink';
 import { InternalLink } from './InternalLink';
 
@@ -16,6 +17,10 @@ const StyledIcon = styled(Icon)`
   display: inline-flex;
   vertical-align: middle;
 `;
+
+const StyledLink = styled(Link)({
+  ...buttonReset,
+});
 
 const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
   const content = formatHtml(subtitle.content);
@@ -34,6 +39,13 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
             <StyledIcon icon="external" size="small" />
           </ExternalLink>
         );
+      case 'run-function':
+        return (
+          <StyledLink color={Colors.white60} forwardedAs="button" {...subtitle.action.button}>
+            {content}
+          </StyledLink>
+        );
+
       default:
         break;
     }
