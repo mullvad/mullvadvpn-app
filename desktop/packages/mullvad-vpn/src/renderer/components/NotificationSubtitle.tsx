@@ -2,8 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { InAppNotificationSubtitle } from '../../shared/notifications';
-import { LabelTiny } from '../lib/components';
+import { LabelTiny, Link } from '../lib/components';
 import { formatHtml } from '../lib/html-formatter';
+import { buttonReset } from '../lib/styles';
 import { ExternalLink } from './ExternalLink';
 import { InternalLink } from './InternalLink';
 
@@ -14,6 +15,10 @@ export type NotificationSubtitleProps = {
 const StyledExternalLink = styled(ExternalLink)`
   display: flex;
 `;
+
+const StyledLink = styled(Link)({
+  ...buttonReset,
+});
 
 const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
   const content = formatHtml(subtitle.content);
@@ -32,6 +37,13 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
             <ExternalLink.Icon icon="external" size="small" />
           </StyledExternalLink>
         );
+      case 'run-function':
+        return (
+          <StyledLink color="whiteAlpha60" forwardedAs="button" {...subtitle.action.button}>
+            {content}
+          </StyledLink>
+        );
+
       default:
         break;
     }
