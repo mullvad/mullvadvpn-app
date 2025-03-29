@@ -15,9 +15,19 @@ import {
   UpdateAvailableNotificationProvider,
 } from '../../shared/notifications';
 import { useAppContext } from '../context';
+import {
+  useAppUpgradeDownloadProgressValue,
+  useAppUpgradeEventType,
+  useHasAppUpgradeError,
+  useIsAppUpgradeInProgress,
+  useShouldAppUpgradeInstallManually,
+} from '../hooks';
 import useActions from '../lib/actionsHook';
 import { transitions, useHistory } from '../lib/history';
 import {
+  AppUpgradeErrorNotificationProvider,
+  AppUpgradeProgressNotificationProvider,
+  AppUpgradeReadyNotificationProvider,
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
   NoOpenVpnServerAvailableNotificationProvider,
@@ -26,6 +36,7 @@ import {
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
+import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
@@ -86,6 +97,21 @@ export default function NotificationArea(props: IProps) {
     await setSplitTunnelingState(false);
   }, [setSplitTunnelingState]);
 
+  const hasAppUpgradeError = useHasAppUpgradeError();
+  const { appUpgradeError } = useAppUpgradeError();
+
+  const restartAppUpgrade = useCallback(() => {
+    // TODO: Replace with real logic
+    console.log('Restarting app upgrade');
+  }, []);
+
+  const shouldAppUpgradeInstallManually = useShouldAppUpgradeInstallManually();
+  const { suggestedUpgrade } = useVersionSuggestedUpgrade();
+
+  const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
+  const appUpgradeEventType = useAppUpgradeEventType();
+  const isAppUpgradeInProgress = useIsAppUpgradeInProgress();
+
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
@@ -93,6 +119,20 @@ export default function NotificationArea(props: IProps) {
       tunnelState,
       blockWhenDisconnected,
       hasExcludedApps,
+    }),
+    new AppUpgradeErrorNotificationProvider({
+      hasAppUpgradeError,
+      appUpgradeError,
+      restartAppUpgrade,
+    }),
+    new AppUpgradeReadyNotificationProvider({
+      shouldAppUpgradeInstallManually,
+      suggestedUpgradeVersion: suggestedUpgrade?.version,
+    }),
+    new AppUpgradeProgressNotificationProvider({
+      isAppUpgradeInProgress,
+      appUpgradeEventType,
+      appUpgradeDownloadProgressValue,
     }),
     new NoOpenVpnServerAvailableNotificationProvider({
       tunnelProtocol,

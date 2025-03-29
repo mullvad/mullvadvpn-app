@@ -1,5 +1,6 @@
 import { ExternalLinkProps } from '../../renderer/components/ExternalLink';
 import { InternalLinkProps } from '../../renderer/components/InternalLink';
+import { ButtonProps } from '../../renderer/lib/components';
 import { Url } from '../constants';
 
 export type NotificationAction = {
@@ -38,6 +39,10 @@ export type InAppNotificationAction =
   | {
       type: 'navigate-external';
       link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label'>;
+    }
+  | {
+      type: 'run-function';
+      button: Pick<ButtonProps, 'onClick' | 'aria-label'>;
     };
 
 export type InAppNotificationIndicatorType = 'success' | 'warning' | 'error';
