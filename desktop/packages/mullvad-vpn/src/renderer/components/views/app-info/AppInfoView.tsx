@@ -1,15 +1,22 @@
+import styled from 'styled-components';
+
 import { messages } from '../../../../shared/gettext';
 import { Flex } from '../../../lib/components';
+import { Animate } from '../../../lib/components/animate';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../';
 import { BackAction } from '../../KeyboardNavigation';
-import { Layout, SettingsContainer, SettingsStack } from '../../Layout';
+import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { ChangelogListItem, UpdateAvailableListItem, VersionListItem } from './components';
 import { BetaListItem } from './components/beta-list-item';
 import { useShowUpdateAvailable } from './hooks';
+
+const StyledUpdateAvailableListItem = styled(UpdateAvailableListItem)`
+  margin-bottom: 16px;
+`;
 
 export function AppInfoView() {
   const { pop } = useHistory();
@@ -30,16 +37,18 @@ export function AppInfoView() {
               <SettingsHeader>
                 <HeaderTitle>{messages.pgettext('app-info-view', 'App info')}</HeaderTitle>
               </SettingsHeader>
-              <SettingsContainer>
-                <SettingsStack>
-                  {showUpdateAvailable && <UpdateAvailableListItem />}
-                  <Flex $flexDirection="column">
-                    <VersionListItem />
-                    <ChangelogListItem />
-                  </Flex>
-                  <BetaListItem />
-                </SettingsStack>
-              </SettingsContainer>
+              <Animate
+                present={showUpdateAvailable}
+                animations={[{ type: 'fade' }, { type: 'wipe', direction: 'vertical' }]}>
+                <StyledUpdateAvailableListItem />
+              </Animate>
+              <Flex $flexDirection="column" $gap="medium">
+                <Flex $flexDirection="column">
+                  <VersionListItem />
+                  <ChangelogListItem />
+                </Flex>
+                <BetaListItem />
+              </Flex>
             </NavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
