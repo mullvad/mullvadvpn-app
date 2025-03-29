@@ -20,6 +20,7 @@ import {
   useAppUpgradeEventType,
   useHasAppUpgradeError,
   useIsAppUpgradeInProgress,
+  useShouldAppUpgradeInstallManually,
 } from '../hooks';
 import useActions from '../lib/actionsHook';
 import { Button } from '../lib/components';
@@ -27,6 +28,7 @@ import { TransitionType, useHistory } from '../lib/history';
 import {
   AppUpgradeErrorNotificationProvider,
   AppUpgradeProgressNotificationProvider,
+  AppUpgradeReadyNotificationProvider,
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
   NoOpenVpnServerAvailableNotificationProvider,
@@ -36,7 +38,7 @@ import {
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
-import { useAppUpgradeError } from '../redux/hooks';
+import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
@@ -104,6 +106,10 @@ export default function NotificationArea(props: IProps) {
   const restartAppUpgrade = useCallback(() => {
     appUpgrade();
   }, [appUpgrade]);
+
+  const shouldAppUpgradeInstallManually = useShouldAppUpgradeInstallManually();
+  const { suggestedUpgrade } = useVersionSuggestedUpgrade();
+
   const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
   const appUpgradeEventType = useAppUpgradeEventType();
   const isAppUpgradeInProgress = useIsAppUpgradeInProgress();
@@ -120,6 +126,10 @@ export default function NotificationArea(props: IProps) {
       hasAppUpgradeError,
       appUpgradeError,
       restartAppUpgrade,
+    }),
+    new AppUpgradeReadyNotificationProvider({
+      shouldAppUpgradeInstallManually,
+      suggestedUpgradeVersion: suggestedUpgrade?.version,
     }),
     new AppUpgradeProgressNotificationProvider({
       isAppUpgradeInProgress,
