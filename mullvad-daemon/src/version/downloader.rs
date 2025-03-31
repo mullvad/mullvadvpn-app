@@ -1,3 +1,4 @@
+#![cfg(update)]
 // TODO:
 /*
 If a new upgrade version becomes available during an app upgrade it should not affect the suggested upgrade version in the SuggestedUpgrade message if the upgrade is still in progress. That is, if the current state is one of
