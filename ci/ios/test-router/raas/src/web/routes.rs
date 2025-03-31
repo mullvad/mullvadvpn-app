@@ -6,7 +6,6 @@ use axum::{
 use ipnetwork::IpNetwork;
 use mnl::mnl_sys::libc;
 use std::collections::{BTreeMap, BTreeSet};
-use std::sync::MutexGuard;
 use uuid::Uuid;
 
 use crate::block_list::{BlockList, BlockRule, Endpoints};
@@ -22,9 +21,10 @@ pub struct NewRule {
     pub label: Uuid,
 }
 
-#[derive(serde::Deserialize, serde::Serialize, PartialOrd, Ord, PartialEq, Eq, Clone, Copy)]
+#[derive(
+    PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Debug, serde::Deserialize, serde::Serialize,
+)]
 #[serde(rename_all = "snake_case")]
-#[derive(Debug)]
 pub enum TransportProtocol {
     Tcp,
     Udp,
@@ -47,7 +47,7 @@ pub async fn add_rule(
     State(state): State<super::State>,
     Json(json): Json<NewRule>,
 ) -> impl IntoResponse {
-    let result = access_firewall(state, move |mut fw| {
+    let result = access_firewall(state, move |fw| {
         let label = json.label;
         let src = json.src;
         let dst = json.dst;
@@ -76,7 +76,7 @@ pub async fn delete_rules(
     Path(label): Path<Uuid>,
     State(state): State<super::State>,
 ) -> impl IntoResponse {
-    let result = access_firewall(state, move |mut fw| {
+    let result = access_firewall(state, move |fw| {
         fw.clear_rules_with_label(&label)?;
         log::info!("Successfully removed all rules for test {label}");
         Ok(())
@@ -88,13 +88,13 @@ pub async fn delete_rules(
 
 pub async fn access_firewall<F>(state: web::State, run: F) -> anyhow::Result<()>
 where
-    F: FnOnce(MutexGuard<BlockList>) -> anyhow::Result<()> + Send + 'static,
+    F: FnOnce(&mut BlockList) -> anyhow::Result<()> + Send + 'static,
 {
     tokio::task::spawn_blocking(move || -> anyhow::Result<()> {
-        let Ok(fw) = state.block_list.lock() else {
+        let Ok(mut fw) = state.block_list.lock() else {
             return Err(anyhow::anyhow!("Firewall thread panicked"));
         };
-        run(fw)
+        run(&mut fw)
     })
     .await
     .expect("failed to join blocking task")
