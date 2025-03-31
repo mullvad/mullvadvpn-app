@@ -252,6 +252,7 @@ impl VersionRouter {
         if new_state == prev_state {
             return;
         }
+        self.beta_program = new_state;
 
         match &self.state {
             // Emit version event if suggested upgrade changes
