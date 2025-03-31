@@ -652,10 +652,15 @@ export default class AppRenderer {
 
     if (
       verifiedInstallerPath &&
-      windowFocused &&
       appUpgradeEvent?.type === 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER'
     ) {
-      this.appUpgradeInstallerStart();
+      // Only trigger the installer if the window is focused
+      if (windowFocused) {
+        this.appUpgradeInstallerStart();
+      } else {
+        // Otherwise, flag this as a failed automatic start (even though we haven't really attempted a start)
+        this.reduxActions.appUpgrade.setAppUpgradeError('START_INSTALLER_AUTOMATIC_FAILED');
+      }
     }
   }
 
