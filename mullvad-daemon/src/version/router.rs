@@ -208,6 +208,10 @@ impl VersionRouter {
                 Some(new_version) = self.new_version_rx.next() => {
                     self.on_new_version(new_version);
                 }
+                // Received upgrade event from `downloader`
+                Some(update_event) = self.update_event_rx.next() => {
+                    self.handle_update_event(update_event);
+                }
                 Some(message) = self.rx.next() => self.handle_message(message).await,
                 else => break,
             }
@@ -420,6 +424,38 @@ impl VersionRouter {
 
         // Notfify callers of `get_latest_version`
         self.notify_version_requesters();
+    }
+
+    fn handle_update_event(&mut self, event: downloader::UpdateEvent) {
+        use downloader::UpdateEvent;
+
+        match event {
+            UpdateEvent::Downloading {
+                server,
+                complete_frac: f32,
+                time_left,
+            } => {
+                // TODO: emit version event to clients
+            }
+            UpdateEvent::DownloadFailed => {
+                // TODO: transition to HasVersion state
+                // TODO: emit version event to clients
+            }
+            UpdateEvent::Verifying => {
+                // TODO: emit version event to clients
+            }
+            UpdateEvent::VerificationFailed => {
+                // TODO: transition to HasVersion state
+                // TODO: emit version event to clients
+            }
+            /// There is a downloaded and verified installer available
+            UpdateEvent::Verified {
+                verified_installer_path,
+            } => {
+                // TODO: transition to Downloaded state
+                // TODO: emit version event to clients
+            }
+        }
     }
 
     /// Notify clients requesting a version
