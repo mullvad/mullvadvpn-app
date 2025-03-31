@@ -8,7 +8,7 @@ use futures::future::{Fuse, FusedFuture};
 use futures::stream::StreamExt;
 use futures::FutureExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
-use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
+use mullvad_types::version::{AppUpgradeEvent, AppVersionInfo, SuggestedUpgrade};
 use talpid_core::mpsc::Sender;
 
 use crate::DaemonEventSender;
@@ -61,11 +61,11 @@ impl VersionRouterHandle {
     pub fn new_upgrade_event_listener(
         &self,
     ) -> Result<mpsc::UnboundedReceiver<mullvad_types::version::AppUpgradeEvent>> {
-        let (result_tx, result_rx) = mpsc::unbounded();
+        let (event_tx, event_rx) = mpsc::unbounded();
         self.tx
-            .send(Message::NewUpgradeEventListener { result_tx })
+            .send(Message::NewUpgradeEventListener { event_tx })
             .map_err(|_| Error::VersionRouterClosed)?;
-        Ok(result_rx)
+        Ok(event_rx)
     }
 }
 
@@ -84,8 +84,12 @@ pub struct VersionRouter {
     version_check: check::VersionUpdaterHandle,
     /// Channel used to receive updates from `version_check`
     new_version_rx: mpsc::UnboundedReceiver<VersionCache>,
+    /// Future that resolves when `get_latest_version` resolves
     version_request: Fuse<Pin<Box<dyn Future<Output = Result<VersionCache>> + Send>>>,
+    /// Channels that receive responses to `get_latest_version`
     version_request_channels: Vec<oneshot::Sender<Result<mullvad_types::version::AppVersionInfo>>>,
+    /// Upgrade event receivers
+    upgrade_listeners: Vec<mpsc::UnboundedSender<AppUpgradeEvent>>,
 }
 
 enum Message {
@@ -103,7 +107,7 @@ enum Message {
     /// Listen for events
     NewUpgradeEventListener {
         /// Channel for receiving update events
-        result_tx: mpsc::UnboundedSender<mullvad_types::version::AppUpgradeEvent>,
+        event_tx: mpsc::UnboundedSender<AppUpgradeEvent>,
     },
 }
 
@@ -148,6 +152,7 @@ impl VersionRouter {
                 new_version_rx,
                 version_request: Fuse::terminated(),
                 version_request_channels: vec![],
+                upgrade_listeners: vec![],
             }
             .run()
             .await;
@@ -208,8 +213,10 @@ impl VersionRouter {
                 self.cancel_upgrade();
                 let _ = result_tx.send(());
             }
-            Message::NewUpgradeEventListener { result_tx } => {
-                todo!();
+            Message::NewUpgradeEventListener {
+                event_tx: result_tx,
+            } => {
+                self.upgrade_listeners.push(result_tx);
             }
         }
     }
@@ -220,7 +227,8 @@ impl VersionRouter {
     ) {
         match &self.state {
             // When not upgrading, potentially fetch new version info, and append `result_tx` to
-            // list of channels to notify
+            // list of channels to notify.
+            // We don't wait on `get_version_info` so that we don't block user commands.
             RoutingState::NoVersion | RoutingState::HasVersion { .. } => {
                 // Start a version request unless already in progress
                 if self.version_request.is_terminated() {
