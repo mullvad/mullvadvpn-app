@@ -164,11 +164,12 @@ impl VersionRouter {
                     // Suggested upgrade might change with beta status even if the version is the same
                     self.on_new_version(new_version);
                 }
-                result_tx.send(()).unwrap();
+                let _ = result_tx.send(());
 
                 // TODO: figure out suggested upgrade. if it changed, send AppVersionInfo to `version_event_sender`
             }
             Message::GetLatestVersion(result_tx) => {
+                // TODO: Don't wait for get_version_info here
                 let res = match self.version_check.get_version_info().await {
                     Ok(version) => {
                         self.on_new_version(version.clone());
@@ -177,11 +178,11 @@ impl VersionRouter {
                     Err(e) => Err(e),
                 };
 
-                result_tx.send(res).unwrap();
+                let _ = result_tx.send(res);
             }
             Message::UpdateApplication { result_tx } => {
                 let RoutingState::Forwarding = self.state else {
-                    result_tx.send(()).unwrap();
+                    let _ = result_tx.send(());
                     return;
                 };
                 self.state = RoutingState::Paused { new_version: None };
@@ -194,22 +195,20 @@ impl VersionRouter {
                             .await
                             .expect("Failed to get version info");
                         let app_version_info = to_app_version_info(new_version, self.beta_program);
-                        self.version_event_sender
-                            .send(app_version_info.clone())
-                            .unwrap();
+                        let _ = self.version_event_sender.send(app_version_info.clone());
                         self.latest_notified_version = Some(app_version_info);
                         self.latest_notified_version.as_ref().unwrap()
                     }
                 };
 
                 // TODO: start update
-                result_tx.send(()).unwrap();
+                let _ = result_tx.send(());
             }
             Message::CancelUpdate { result_tx } => {
                 self.transition_to_forwarding();
 
                 // TODO: Cancel update
-                result_tx.send(()).unwrap();
+                let _ = result_tx.send(());
             }
             Message::NewUpgradeEventListener { result_tx } => {
                 todo!();
@@ -238,7 +237,7 @@ impl VersionRouter {
                 let app_version_info = to_app_version_info(version, self.beta_program);
                 if self.latest_notified_version.as_ref() != Some(&app_version_info) {
                     self.latest_notified_version = Some(app_version_info.clone());
-                    self.version_event_sender.send(app_version_info).unwrap(); // TODO: handle error
+                    let _ = self.version_event_sender.send(app_version_info); // TODO: handle error
                 }
             }
             RoutingState::Paused {
