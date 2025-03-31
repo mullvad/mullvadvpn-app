@@ -1,8 +1,12 @@
+use std::future::Future;
 use std::mem;
 use std::path::PathBuf;
+use std::pin::Pin;
 
 use futures::channel::{mpsc, oneshot};
+use futures::future::{Fuse, FusedFuture};
 use futures::stream::StreamExt;
+use futures::FutureExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
 use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
 use talpid_core::mpsc::Sender;
@@ -81,6 +85,8 @@ pub struct VersionRouter {
     /// Channel used to receive updates from `version_check`
     new_version_rx: mpsc::UnboundedReceiver<VersionCache>,
     latest_notified_version: Option<AppVersionInfo>,
+    version_request: Fuse<Pin<Box<dyn Future<Output = Result<VersionCache>> + Send>>>,
+    version_request_channels: Vec<oneshot::Sender<Result<mullvad_types::version::AppVersionInfo>>>,
 }
 
 enum Message {
@@ -137,6 +143,8 @@ impl VersionRouter {
                 version_event_sender,
                 new_version_rx,
                 latest_notified_version: None,
+                version_request: Fuse::terminated(),
+                version_request_channels: vec![],
             }
             .run()
             .await;
@@ -147,7 +155,34 @@ impl VersionRouter {
     async fn run(mut self) {
         loop {
             tokio::select! {
-                Some(new_version) = self.new_version_rx.next() => self.on_new_version(new_version),
+                // Respond to version info requests
+                update_result = &mut self.version_request => {
+                    if self.version_request.is_terminated() {
+                        log::trace!("Version info future is terminated");
+                        continue;
+                    }
+                    match update_result {
+                        Ok(new_version) => {
+                            self.on_new_version(new_version.clone());
+                            self.notify_version_requesters();
+                        }
+                        Err(error) => {
+                            log::error!("Failed to retrieve version: {error}");
+                            for tx in self.version_request_channels.drain(..) {
+                                // TODO: More appropriate error? But Error isn't Clone
+                                let _ = tx.send(Err(Error::UpdateAborted));
+                            }
+                        }
+                    }
+                }
+                // Received version event from `check`
+                Some(new_version) = self.new_version_rx.next() => {
+                    self.on_new_version(new_version);
+                    self.notify_version_requesters();
+
+                    // Cancel update notifications
+                    self.version_request = Fuse::terminated();
+                }
                 Some(message) = self.rx.next() => self.handle_message(message).await,
                 else => break,
             }
@@ -160,25 +195,19 @@ impl VersionRouter {
         match message {
             Message::SetBetaProgram { state, result_tx } => {
                 self.beta_program = state;
-                if let Ok(new_version) = self.version_check.get_version_info().await {
-                    // Suggested upgrade might change with beta status even if the version is the same
-                    self.on_new_version(new_version);
-                }
+                // We're happy as soon as the internal state has changed; no need to wait for version update
                 let _ = result_tx.send(());
-
-                // TODO: figure out suggested upgrade. if it changed, send AppVersionInfo to `version_event_sender`
             }
             Message::GetLatestVersion(result_tx) => {
-                // TODO: Don't wait for get_version_info here
-                let res = match self.version_check.get_version_info().await {
-                    Ok(version) => {
-                        self.on_new_version(version.clone());
-                        Ok(to_app_version_info(version, self.beta_program))
-                    }
-                    Err(e) => Err(e),
-                };
-
-                let _ = result_tx.send(res);
+                // Start a version request unless already in progress
+                if self.version_request.is_terminated() {
+                    let check = self.version_check.clone();
+                    let check_fut: Pin<Box<dyn Future<Output = Result<VersionCache>> + Send>> =
+                        Box::pin(async move { check.get_version_info().await });
+                    self.version_request = check_fut.fuse();
+                }
+                // Append to response channels
+                self.version_request_channels.push(result_tx);
             }
             Message::UpdateApplication { result_tx } => {
                 let RoutingState::Forwarding = self.state else {
@@ -245,6 +274,18 @@ impl VersionRouter {
             } => {
                 *new_version = Some(version);
             }
+        }
+    }
+
+    /// Notify clients potentially requesting a version
+    fn notify_version_requesters(&mut self) {
+        if let Some(version) = &self.latest_notified_version {
+            for tx in self.version_request_channels.drain(..) {
+                let _ = tx.send(Ok(version.clone()));
+            }
+        } else {
+            log::trace!("Dropping version request channels since we're paused");
+            self.version_request_channels.clear();
         }
     }
 }
