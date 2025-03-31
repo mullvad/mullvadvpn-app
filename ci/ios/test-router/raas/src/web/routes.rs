@@ -1,27 +1,29 @@
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    net::IpAddr,
-};
-
 use axum::{
     extract::{Json, Path, State},
     http::StatusCode,
     response::IntoResponse,
 };
+use ipnetwork::IpNetwork;
 use mnl::mnl_sys::libc;
+use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
-use crate::block_list::BlockRule;
+use crate::block_list::{BlockList, BlockRule, Endpoints};
+use crate::web;
 
 #[derive(serde::Deserialize, Clone)]
 pub struct NewRule {
-    pub src: IpAddr,
-    pub dst: IpAddr,
+    pub src: IpNetwork,
+    pub dst: IpNetwork,
     pub protocols: Option<BTreeSet<TransportProtocol>>,
+    #[serde(default)]
+    pub block_wireguard: bool,
     pub label: Uuid,
 }
 
-#[derive(serde::Deserialize, serde::Serialize, PartialOrd, Ord, PartialEq, Eq, Clone, Copy)]
+#[derive(
+    PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Debug, serde::Deserialize, serde::Serialize,
+)]
 #[serde(rename_all = "snake_case")]
 pub enum TransportProtocol {
     Tcp,
@@ -43,30 +45,29 @@ impl TransportProtocol {
 
 pub async fn add_rule(
     State(state): State<super::State>,
-    Json(rule): Json<NewRule>,
+    Json(json): Json<NewRule>,
 ) -> impl IntoResponse {
-    let result = tokio::task::spawn_blocking(move || -> anyhow::Result<()> {
-        let label = rule.label;
-        let rule = BlockRule {
-            src: rule.src,
-            dst: rule.dst,
-            protocols: rule.protocols.unwrap_or_default(),
-        };
-        let Ok(mut fw) = state.block_list.lock() else {
-            return Err(anyhow::anyhow!("Firewall thread panicked"));
+    let result = access_firewall(state, move |fw| {
+        let label = json.label;
+        let src = json.src;
+        let dst = json.dst;
+
+        let rule = if json.block_wireguard {
+            BlockRule::WireGuard {
+                endpoints: Endpoints { src, dst },
+            }
+        } else {
+            BlockRule::Host {
+                endpoints: Endpoints { src, dst },
+                protocols: json.protocols.unwrap_or_default(),
+            }
         };
 
         fw.add_rule(rule.clone(), label)?;
-        log::info!(
-            "Successfully added a rule to block {} from {} for test {}",
-            rule.src,
-            rule.dst,
-            label,
-        );
+        log_rule(&rule, &label);
         Ok(())
     })
-    .await
-    .expect("failed to join blocking task");
+    .await;
 
     respond_with_result(result, StatusCode::CREATED)
 }
@@ -75,18 +76,28 @@ pub async fn delete_rules(
     Path(label): Path<Uuid>,
     State(state): State<super::State>,
 ) -> impl IntoResponse {
-    let result = tokio::task::spawn_blocking(move || -> anyhow::Result<()> {
+    let result = access_firewall(state, move |fw| {
+        fw.clear_rules_with_label(&label)?;
+        log::info!("Successfully removed all rules for test {label}");
+        Ok(())
+    })
+    .await;
+
+    respond_with_result(result, StatusCode::OK)
+}
+
+pub async fn access_firewall<F>(state: web::State, run: F) -> anyhow::Result<()>
+where
+    F: FnOnce(&mut BlockList) -> anyhow::Result<()> + Send + 'static,
+{
+    tokio::task::spawn_blocking(move || -> anyhow::Result<()> {
         let Ok(mut fw) = state.block_list.lock() else {
             return Err(anyhow::anyhow!("Firewall thread panicked"));
         };
-
-        fw.clear_rules_with_label(&label)?;
-        log::info!("Successfully removed all rules for test {label}",);
-        Ok(())
+        run(&mut fw)
     })
     .await
-    .expect("failed to join blocking task");
-    respond_with_result(result, StatusCode::OK)
+    .expect("failed to join blocking task")
 }
 
 fn respond_with_result(result: anyhow::Result<()>, success_code: StatusCode) -> impl IntoResponse {
@@ -108,7 +119,25 @@ pub async fn list_all_rules(State(state): State<super::State>) -> impl IntoRespo
     .expect("failed to join blocking task");
 
     match all_rules {
-        Ok(all_rules) => axum::Json(all_rules).into_response(),
+        Ok(all_rules) => Json(all_rules).into_response(),
         Err(err) => (StatusCode::SERVICE_UNAVAILABLE, format!("{err}\n")).into_response(),
+    }
+}
+
+fn log_rule(rule: &BlockRule, label: &Uuid) {
+    match rule {
+        BlockRule::Host {
+            protocols,
+            endpoints: Endpoints { src, dst },
+        } => {
+            log::info!(
+                "Successfully added a rule to block {src} from {dst} for test {label} for protocols {protocols:?}",
+            );
+        }
+        BlockRule::WireGuard {
+            endpoints: Endpoints { src, dst },
+        } => {
+            log::info!("Successfully added a rule to block {src} from {dst} WireGuard traffic for test {label}",);
+        }
     }
 }

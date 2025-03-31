@@ -53,7 +53,7 @@ impl PacketCodec for CloneCodec {
     }
 }
 
-const RAAS_TMP_DIR: &'static str = "raas";
+const RAAS_TMP_DIR: &str = "raas";
 
 impl Capture {
     fn capture_file_path(label: &uuid::Uuid) -> PathBuf {
@@ -94,8 +94,11 @@ impl Capture {
         let mut stream = capture.stream(CloneCodec).map_err(Error::CreateStream)?;
 
         let capture = tokio::spawn(async move {
-            let (pcap_tx, pcap_rx): (_, sync_mpsc::Receiver<(PacketHeader, Box<[u8]>)>) =
-                sync_mpsc::channel();
+            #[allow(clippy::type_complexity)]
+            let (pcap_tx, pcap_rx): (
+                _,
+                sync_mpsc::Receiver<(PacketHeader, Box<[u8]>)>,
+            ) = sync_mpsc::channel();
             tokio::task::spawn_blocking(move || {
                 while let Ok((header, data)) = pcap_rx.recv() {
                     let packet = Packet {
