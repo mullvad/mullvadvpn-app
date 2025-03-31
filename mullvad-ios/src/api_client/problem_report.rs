@@ -53,7 +53,7 @@ pub unsafe extern "C" fn mullvad_api_send_problem_report(
     };
 
     let task: JoinHandle<()> = tokio_handle.spawn(async move {
-        match mullvad_api_send_problem_report_inner(
+        match do_request(
             api_context.rest_handle(),
             retry_strategy,
             problem_report_request,
@@ -71,7 +71,7 @@ pub unsafe extern "C" fn mullvad_api_send_problem_report(
     RequestCancelHandle::new(task, completion_handler.clone()).into_swift()
 }
 
-async fn mullvad_api_send_problem_report_inner(
+async fn do_request(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     problem_report_request: ProblemReportRequest,
@@ -93,7 +93,7 @@ async fn mullvad_api_send_problem_report_inner(
     };
 
     retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
-    SwiftMullvadApiResponse::ok().await
+    SwiftMullvadApiResponse::ok()
 }
 
 #[repr(C)]

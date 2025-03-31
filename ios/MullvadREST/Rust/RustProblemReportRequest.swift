@@ -16,9 +16,9 @@ final public class RustProblemReportRequest {
     private let messagePointer: StringPointer
     private let logPointer: StringPointer
     public init(from request: REST.ProblemReportRequest) {
-        addressPointer = request.address.toUnsafePointer()
-        messagePointer = request.message.toUnsafePointer()
-        logPointer = request.log.toUnsafePointer()
+        addressPointer = request.address.withCStringPointer()
+        messagePointer = request.message.withCStringPointer()
+        logPointer = request.log.withCStringPointer()
 
         self.problemReportMetaData = swift_problem_report_meta_data_new()
 
@@ -50,8 +50,5 @@ final public class RustProblemReportRequest {
 
     deinit {
         swift_problem_report_meta_data_free(problemReportMetaData)
-        addressPointer?.pointer?.deallocate()
-        messagePointer?.pointer?.deallocate()
-        logPointer?.pointer?.deallocate()
     }
 }
