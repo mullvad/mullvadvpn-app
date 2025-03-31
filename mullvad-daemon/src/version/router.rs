@@ -427,6 +427,12 @@ impl VersionRouter {
     }
 
     fn handle_update_event(&mut self, event: downloader::UpdateEvent) {
+        debug_assert!(
+            matches!(self.state, RoutingState::Downloading { .. }),
+            "unexpected routing state: {:?}",
+            self.state
+        );
+
         use downloader::UpdateEvent;
 
         match event {
@@ -448,7 +454,6 @@ impl VersionRouter {
                 // TODO: transition to HasVersion state
                 // TODO: emit version event to clients
             }
-            /// There is a downloaded and verified installer available
             UpdateEvent::Verified {
                 verified_installer_path,
             } => {
