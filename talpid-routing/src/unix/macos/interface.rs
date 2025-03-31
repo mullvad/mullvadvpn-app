@@ -66,7 +66,7 @@ impl Family {
 
 #[derive(Debug)]
 pub struct NetworkServiceDetails {
-    pub name: String,
+    pub interface_name: String,
     pub router_ip: IpAddr,
     pub first_ip: IpAddr,
 }
@@ -79,6 +79,7 @@ pub struct PrimaryInterfaceMonitor {
 // FIXME: Implement Send on SCDynamicStore, if it's safe
 unsafe impl Send for PrimaryInterfaceMonitor {}
 
+#[derive(Clone)]
 pub struct PrimaryInterfaceDetails {
     pub name: String,
     pub service_id: String,
@@ -105,6 +106,14 @@ pub enum InterfaceEvent {
         /// The updated [NetworkServiceDetails].
         new_value: Option<NetworkServiceDetails>,
     },
+}
+impl InterfaceEvent {
+    pub fn family(&self) -> Family {
+        match self {
+            &InterfaceEvent::PrimaryInterfaceUpdate { family, .. } => family,
+            &InterfaceEvent::NetworkServiceUpdate { family, .. } => family,
+        }
+    }
 }
 
 /// Default interface/route
@@ -220,32 +229,39 @@ impl PrimaryInterfaceMonitor {
     /// Retrieve the best current default route. This is based on the primary interface, or else
     /// the first active interface in the network service order.
     pub fn get_route(&self, family: Family) -> Option<DefaultRoute> {
-        let ifaces = self
-            .get_primary_interface_service(family)
-            .map(|iface| {
+        self.get_primary_interface_service(family)
+            .map(|service| {
                 log::debug!("Found primary interface for {family}");
-                vec![iface]
+                vec![service]
             })
-            .unwrap_or_else(|| self.network_services(family));
-
-        let (iface, index) = ifaces
+            .unwrap_or_else(|| self.network_services(family))
             .into_iter()
-            .filter_map(|iface| {
-                let index = if_nametoindex(iface.name.as_str())
-                    .inspect_err(|error| {
-                        log::error!(
-                            "Failed to retrieve interface index for \"{}\": {error}",
-                            iface.name
-                        );
-                    })
-                    .ok()?;
-                Some((iface, index))
+            .filter_map(|service| self.route_from_service(&service))
+            .next()
+    }
+
+    /// Iterate through active interfaces in network service order and return a suggested route for
+    /// the first one with a valid IP and gateway.
+    pub fn get_route_by_service_order(&self, family: Family) -> Option<DefaultRoute> {
+        self.network_services(family)
+            .into_iter()
+            .filter_map(|service| self.route_from_service(&service))
+            .next()
+    }
+
+    pub fn route_from_service(&self, service: &NetworkServiceDetails) -> Option<DefaultRoute> {
+        let index = if_nametoindex(service.interface_name.as_str())
+            .inspect_err(|error| {
+                log::error!(
+                    "Failed to retrieve interface index for \"{}\": {error}",
+                    service.interface_name
+                );
             })
-            .next()?;
+            .ok()?;
 
         let index = u16::try_from(index).unwrap();
 
-        let mut router_ip = iface.router_ip;
+        let mut router_ip = service.router_ip;
         if let IpAddr::V6(addr) = &mut router_ip {
             if is_link_local_v6(addr) {
                 // The second pair of octets should be set to the scope id
@@ -263,10 +279,10 @@ impl PrimaryInterfaceMonitor {
         }
 
         Some(DefaultRoute {
-            interface: iface.name,
+            interface: service.interface_name.clone(),
             interface_index: index,
             router_ip,
-            ip: iface.first_ip,
+            ip: service.first_ip,
         })
     }
 
@@ -274,7 +290,7 @@ impl PrimaryInterfaceMonitor {
         get_primary_interface_service(&self.store, family)
     }
 
-    fn get_network_service(
+    pub fn get_network_service(
         &self,
         service_id: &str,
         family: Family,
@@ -403,23 +419,25 @@ fn get_network_service(
         .get(CFString::new(&service_key))
         .and_then(|v| v.downcast_into::<CFDictionary>())?;
 
-    let name = get_dict_elem_as_string(&service_dict, schema_definition!(kSCPropInterfaceName))
-        .or_else(|| {
-            log::debug!("Missing name for service {service_key} ({family})");
-            None
-        })?;
+    let interface_name =
+        get_dict_elem_as_string(&service_dict, schema_definition!(kSCPropInterfaceName)).or_else(
+            || {
+                log::debug!("Missing name for service {service_key} ({family})");
+                None
+            },
+        )?;
     let router_ip = get_service_router_ip(&service_dict, family).or_else(|| {
-        log::debug!("Missing router IP for {service_key} ({name}, {family})");
+        log::debug!("Missing router IP for {service_key} ({interface_name}, {family})");
         log::debug!("{service_key} {service_dict:?}");
         None
     })?;
     let first_ip = get_service_first_ip(&service_dict, family).or_else(|| {
-        log::debug!("Missing IP for \"{service_key}\" ({name}, {family})");
+        log::debug!("Missing IP for \"{service_key}\" ({interface_name}, {family})");
         None
     })?;
 
     Some(NetworkServiceDetails {
-        name,
+        interface_name,
         router_ip,
         first_ip,
     })
