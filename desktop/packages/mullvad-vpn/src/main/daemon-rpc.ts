@@ -49,7 +49,9 @@ import {
 } from './grpc-type-convertions';
 
 const DAEMON_RPC_PATH =
-  process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
+  process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
+const DAEMON_RPC_PATH_PREFIX = 'unix://';
+const DAEMON_RPC_PATH_PREFIXED = `${DAEMON_RPC_PATH_PREFIX}${DAEMON_RPC_PATH}`;
 
 export class SubscriptionListener<T> {
   // Only meant to be used by DaemonRpc
@@ -82,7 +84,7 @@ export class DaemonRpc extends GrpcClient {
   > = new Map();
 
   public constructor(connectionObserver?: ConnectionObserver) {
-    super(DAEMON_RPC_PATH, connectionObserver);
+    super(DAEMON_RPC_PATH_PREFIXED, connectionObserver);
   }
 
   public disconnect() {
