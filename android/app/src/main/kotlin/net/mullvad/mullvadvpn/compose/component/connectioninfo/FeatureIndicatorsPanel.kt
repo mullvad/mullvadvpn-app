@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package net.mullvad.mullvadvpn.compose.component.connectioninfo
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ContextualFlowRow
 import androidx.compose.foundation.layout.ContextualFlowRowOverflow
@@ -15,6 +18,8 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.MullvadFeatureChip
 import net.mullvad.mullvadvpn.compose.component.MullvadMoreChip
 import net.mullvad.mullvadvpn.compose.component.textResource
+import net.mullvad.mullvadvpn.compose.screen.LocalNavAnimatedVisibilityScope
+import net.mullvad.mullvadvpn.compose.screen.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
@@ -23,6 +28,7 @@ fun FeatureIndicatorsPanel(
     featureIndicators: List<FeatureIndicator>,
     expanded: Boolean,
     onToggleExpand: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
     if (featureIndicators.isNotEmpty()) {
         if (expanded) {
@@ -31,7 +37,7 @@ fun FeatureIndicatorsPanel(
                 Modifier.fillMaxWidth(),
             )
         }
-        FeatureIndicators(featureIndicators, expanded, onToggleExpand)
+        FeatureIndicators(featureIndicators, expanded, onToggleExpand, onNavigateToFeature)
     }
 }
 
@@ -41,6 +47,7 @@ fun FeatureIndicators(
     features: List<FeatureIndicator>,
     expanded: Boolean,
     onToggleExpand: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
     ContextualFlowRow(
         modifier = Modifier.fillMaxWidth(),
@@ -67,7 +74,28 @@ fun FeatureIndicators(
                 collapseIndicator = {},
             ),
     ) { index ->
-        MullvadFeatureChip(text = features[index].text())
+        val featureIndicator = features[index]
+
+        val sharedTransitionScope = LocalSharedTransitionScope.current
+        val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
+
+        with(sharedTransitionScope) {
+            MullvadFeatureChip(
+                modifier =
+                    Modifier.let {
+                        if (this@with != null && animatedVisibilityScope != null) {
+                            it.sharedBounds(
+                                rememberSharedContentState(key = featureIndicator),
+                                animatedVisibilityScope = animatedVisibilityScope,
+                            )
+                        } else {
+                            it
+                        }
+                    },
+                text = featureIndicator.text(),
+                onClick = { onNavigateToFeature(featureIndicator) },
+            )
+        }
     }
 
     // Spacing are added to compensate for when there are no feature indicators, since each feature

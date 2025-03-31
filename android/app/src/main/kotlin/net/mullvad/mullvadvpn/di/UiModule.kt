@@ -122,7 +122,7 @@ val uiModule = module {
         ComponentName(androidContext(), BootCompletedReceiver::class.java)
     }
 
-    viewModel { SplitTunnelingViewModel(get(), get(), Dispatchers.Default) }
+    viewModel { SplitTunnelingViewModel(get(), get(), get(), Dispatchers.Default) }
 
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
     scope<MainActivity> { scoped { ServiceConnectionManager(androidContext()) } }
@@ -233,7 +233,7 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
@@ -246,7 +246,7 @@ val uiModule = module {
     viewModel { EditCustomListNameDialogViewModel(get(), get()) }
     viewModel { CustomListsViewModel(get(), get()) }
     viewModel { DeleteCustomListConfirmationViewModel(get(), get()) }
-    viewModel { ServerIpOverridesViewModel(get(), get()) }
+    viewModel { ServerIpOverridesViewModel(get(), get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
     viewModel { ApiAccessListViewModel(get()) }
     viewModel { EditApiAccessMethodViewModel(get(), get(), get()) }
@@ -256,7 +256,7 @@ val uiModule = module {
     viewModel { Udp2TcpSettingsViewModel(get()) }
     viewModel { ShadowsocksSettingsViewModel(get(), get()) }
     viewModel { ShadowsocksCustomPortDialogViewModel(get()) }
-    viewModel { MultihopViewModel(get()) }
+    viewModel { MultihopViewModel(get(), get()) }
     viewModel {
         SearchLocationViewModel(
             get(),
@@ -275,7 +275,7 @@ val uiModule = module {
     viewModel { (relayListType: RelayListType) ->
         SelectLocationListViewModel(relayListType, get(), get(), get(), get(), get(), get(), get())
     }
-    viewModel { DaitaViewModel(get()) }
+    viewModel { DaitaViewModel(get(), get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { MullvadAppViewModel(get(), get()) }

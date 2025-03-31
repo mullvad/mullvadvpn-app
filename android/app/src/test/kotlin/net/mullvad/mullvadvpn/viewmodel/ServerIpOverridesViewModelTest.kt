@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -18,6 +19,7 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.screen.ServerIpOverridesNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.RelayOverride
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
@@ -46,6 +48,7 @@ class ServerIpOverridesViewModelTest {
             ServerIpOverridesViewModel(
                 relayOverridesRepository = mockRelayOverridesRepository,
                 contentResolver = mockContentResolver,
+                savedStateHandle = ServerIpOverridesNavArgs().toSavedStateHandle(),
             )
     }
 
@@ -57,13 +60,13 @@ class ServerIpOverridesViewModelTest {
 
     @Test
     fun `ensure state is loading by default`() = runTest {
-        viewModel.uiState.test { assertEquals(ServerIpOverridesUiState.Loading, awaitItem()) }
+        viewModel.uiState.test { assertEquals(ServerIpOverridesUiState.Loading(), awaitItem()) }
     }
 
     @Test
     fun `when server ip overrides are empty ui state overrides should be inactive`() = runTest {
         viewModel.uiState.test {
-            assertEquals(ServerIpOverridesUiState.Loading, awaitItem())
+            assertEquals(ServerIpOverridesUiState.Loading(), awaitItem())
             relayOverrides.emit(emptyList())
             assertEquals(ServerIpOverridesUiState.Loaded(false), awaitItem())
         }

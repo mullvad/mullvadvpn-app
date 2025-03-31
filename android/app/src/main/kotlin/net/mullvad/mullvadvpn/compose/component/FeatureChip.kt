@@ -1,12 +1,12 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -16,18 +16,21 @@ import net.mullvad.mullvadvpn.lib.theme.shape.chipShape
 @Preview
 @Composable
 private fun PreviewMullvadFeatureChip() {
-    AppTheme { Row { MullvadFeatureChip(text = "DAITA") } }
+    AppTheme { Row { MullvadFeatureChip(text = "DAITA", onClick = {}) } }
 }
 
 @Composable
 fun MullvadFeatureChip(
+    modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLowest,
     borderColor: Color = MaterialTheme.colorScheme.primary,
     labelColor: Color = MaterialTheme.colorScheme.onPrimary,
     iconColor: Color = MaterialTheme.colorScheme.onPrimary,
+    onClick: () -> Unit,
     text: String,
 ) {
     FilterChip(
+        modifier = modifier,
         shape = MaterialTheme.shapes.chipShape,
         colors =
             FilterChipDefaults.filterChipColors(
@@ -43,8 +46,7 @@ fun MullvadFeatureChip(
                 selected = false,
             ),
         selected = false,
-        onClick = {},
-        enabled = false,
+        onClick = onClick,
         label = {
             Text(
                 text = text,

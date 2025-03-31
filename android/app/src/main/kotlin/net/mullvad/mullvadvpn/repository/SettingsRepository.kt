@@ -32,17 +32,20 @@ class SettingsRepository(
         )
 
     suspend fun setDnsOptions(
-        isCustomDnsEnabled: Boolean,
+        state: DnsState,
         dnsList: List<InetAddress>,
         contentBlockersOptions: DefaultDnsOptions,
     ) =
         managementService.setDnsOptions(
             DnsOptions(
-                state = if (isCustomDnsEnabled) DnsState.Custom else DnsState.Default,
+                state = state,
                 customOptions = CustomDnsOptions(ArrayList(dnsList)),
                 defaultOptions = contentBlockersOptions,
             )
         )
+
+    suspend fun updateContentBlockers(update: (DefaultDnsOptions) -> DefaultDnsOptions) =
+        managementService.updateDnsContentBlockers(update)
 
     suspend fun setDnsState(state: DnsState) = managementService.setDnsState(state)
 

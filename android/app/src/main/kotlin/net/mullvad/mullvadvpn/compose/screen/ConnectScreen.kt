@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.screen
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -31,6 +32,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -60,10 +62,15 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
+import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
+import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.generated.destinations.SelectLocationDestination
+import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
+import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
+import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
@@ -81,6 +88,7 @@ import net.mullvad.mullvadvpn.compose.component.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
 import net.mullvad.mullvadvpn.compose.preview.ConnectUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
@@ -152,15 +160,17 @@ private fun PreviewAccountScreen(
             {},
             {},
             {},
+            {},
         )
     }
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @Destination<RootGraph>(style = HomeTransition::class)
 @Composable
 fun Connect(
     navigator: DestinationsNavigator,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     selectLocationResultRecipient: ResultRecipient<SelectLocationDestination, Boolean>,
 ) {
     val connectViewModel: ConnectViewModel = koinViewModel()
@@ -246,23 +256,49 @@ fun Connect(
         }
     }
 
-    ConnectScreen(
-        state = state,
-        snackbarHostState = snackbarHostState,
-        onDisconnectClick = connectViewModel::onDisconnectClick,
-        onReconnectClick = connectViewModel::onReconnectClick,
-        onConnectClick = connectViewModel::onConnectClick,
-        onCancelClick = connectViewModel::onCancelClick,
-        onSwitchLocationClick = dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
-        onOpenAppListing = connectViewModel::openAppListing,
-        onManageAccountClick = connectViewModel::onManageAccountClick,
-        onChangelogClick =
-            dropUnlessResumed { navigator.navigate(ChangelogDestination(ChangelogNavArgs(true))) },
-        onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
-        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
-        onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
-        onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
-    )
+    CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides animatedVisibilityScope) {
+        ConnectScreen(
+            state = state,
+            snackbarHostState = snackbarHostState,
+            onDisconnectClick = connectViewModel::onDisconnectClick,
+            onReconnectClick = connectViewModel::onReconnectClick,
+            onConnectClick = connectViewModel::onConnectClick,
+            onCancelClick = connectViewModel::onCancelClick,
+            onSwitchLocationClick =
+                dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
+            onOpenAppListing = connectViewModel::openAppListing,
+            onManageAccountClick = connectViewModel::onManageAccountClick,
+            onChangelogClick =
+                dropUnlessResumed {
+                    navigator.navigate(ChangelogDestination(ChangelogNavArgs(true)))
+                },
+            onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
+            onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
+            onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
+            onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
+            onNavigateToFeature =
+                dropUnlessResumed { feature: FeatureIndicator ->
+                    val destination =
+                        when (feature) {
+                            FeatureIndicator.DAITA -> DaitaDestination(isModal = true)
+                            FeatureIndicator.MULTIHOP -> MultihopDestination(isModal = true)
+                            FeatureIndicator.SPLIT_TUNNELING ->
+                                SplitTunnelingDestination(isModal = true)
+                            FeatureIndicator.SERVER_IP_OVERRIDE ->
+                                ServerIpOverridesDestination(isModal = true)
+                            FeatureIndicator.QUANTUM_RESISTANCE,
+                            FeatureIndicator.UDP_2_TCP,
+                            FeatureIndicator.SHADOWSOCKS,
+                            FeatureIndicator.LAN_SHARING,
+                            FeatureIndicator.DNS_CONTENT_BLOCKERS,
+                            FeatureIndicator.CUSTOM_DNS,
+                            FeatureIndicator.CUSTOM_MTU ->
+                                VpnSettingsDestination(scrollToFeature = feature, isModal = true)
+                        }
+                    navigator.navigate(destination)
+                },
+        )
+    }
 }
 
 @Composable
@@ -281,6 +317,7 @@ fun ConnectScreen(
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
     val content =
         @Composable { padding: PaddingValues ->
@@ -297,6 +334,7 @@ fun ConnectScreen(
                 onChangelogClick,
                 onDismissChangelogClick,
                 onDismissNewDeviceClick,
+                onNavigateToFeature,
             )
         }
 
@@ -347,6 +385,7 @@ private fun Content(
     onChangelogClick: () -> Unit,
     onDismissChangelogClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -405,6 +444,7 @@ private fun Content(
                 onReconnectClick = onReconnectClick,
                 onCancelClick = onCancelClick,
                 onConnectClick = onConnectClick,
+                onNavigateToFeature = onNavigateToFeature,
             )
         }
     }
@@ -447,6 +487,7 @@ private fun ConnectionCard(
     onReconnectClick: () -> Unit,
     onCancelClick: () -> Unit,
     onConnectClick: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
     var expanded by rememberSaveable(state.tunnelState::class) { mutableStateOf(false) }
     val containerColor =
@@ -476,6 +517,7 @@ private fun ConnectionCard(
                         (state.tunnelState as? TunnelState.Connected)?.toConnectionsDetails(),
                         exp,
                         onToggleExpand = { expanded = !exp },
+                        onNavigateToFeature = onNavigateToFeature,
                     )
                 } else {
                     Spacer(Modifier.height(Dimens.smallSpacer))
@@ -573,6 +615,7 @@ private fun ConnectionInfo(
     connectionDetails: ConnectionDetails?,
     expanded: Boolean,
     onToggleExpand: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
     val scrollState = rememberScrollState()
     Column {
@@ -591,7 +634,7 @@ private fun ConnectionInfo(
                     )
                     .verticalScroll(scrollState)
         ) {
-            FeatureIndicatorsPanel(featureIndicators, expanded, onToggleExpand)
+            FeatureIndicatorsPanel(featureIndicators, expanded, onToggleExpand, onNavigateToFeature)
 
             if (expanded && connectionDetails != null) {
                 ConnectionDetailPanel(connectionDetails)
