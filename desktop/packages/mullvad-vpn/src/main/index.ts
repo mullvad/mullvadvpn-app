@@ -523,6 +523,10 @@ class ApplicationMain
 
     log.info('Connected to the daemon');
 
+    await this.daemonRpc.verifyDaemonOwnership();
+
+    log.info('Verified daemon ownership');
+
     this.notificationController.closeNotificationsInCategory(
       SystemNotificationCategory.tunnelState,
     );
