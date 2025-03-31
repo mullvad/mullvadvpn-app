@@ -1,3 +1,4 @@
+/* eslint-disable simple-import-sort/imports */
 import * as grpc from '@grpc/grpc-js';
 import fs from 'fs';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb.js';
@@ -49,6 +50,13 @@ import {
   convertToRelayConstraints,
   ensureExists,
 } from './grpc-type-convertions';
+
+// TODO: REMOVE THIS BEFORE MERGE
+import {
+  mockAppUpgrade,
+  mockAppUpgradeAbort,
+  mockSubscribeAppUpgradeEventListenerMock,
+} from './REMOVE_ME_mock_daemon_implementation';
 
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
@@ -119,36 +127,39 @@ export class DaemonRpc extends GrpcClient {
   }
 
   public subscribeAppUpgradeEventListener(listener: SubscriptionListener<DaemonAppUpgradeEvent>) {
-    const call = this.isConnected && this.client.appUpgradeEventsListen(new Empty());
-    if (!call) {
-      throw noConnectionError;
-    }
-    const subscriptionId = this.subscriptionId();
-    listener.subscriptionId = subscriptionId;
-    this.subscriptions.set(subscriptionId, call);
+    void mockSubscribeAppUpgradeEventListenerMock(listener);
+    // const call = this.isConnected && this.client.appUpgradeEventsListen(new Empty());
+    // if (!call) {
+    //   throw noConnectionError;
+    // }
+    // const subscriptionId = this.subscriptionId();
+    // listener.subscriptionId = subscriptionId;
+    // this.subscriptions.set(subscriptionId, call);
 
-    call.on('data', (data: grpcTypes.AppUpgradeEvent) => {
-      try {
-        const appUpgradeEvent = convertFromAppUpgradeEvent(data);
-        listener.onEvent(appUpgradeEvent);
-      } catch (e) {
-        const error = e as Error;
-        listener.onError(error);
-      }
-    });
+    // call.on('data', (data: grpcTypes.AppUpgradeEvent) => {
+    //   try {
+    //     const appUpgradeEvent = convertFromAppUpgradeEvent(data);
+    //     listener.onEvent(appUpgradeEvent);
+    //   } catch (e) {
+    //     const error = e as Error;
+    //     listener.onError(error);
+    //   }
+    // });
 
-    call.on('error', (error) => {
-      listener.onError(error);
-      this.removeSubscription(subscriptionId);
-    });
+    // call.on('error', (error) => {
+    //   listener.onError(error);
+    //   this.removeSubscription(subscriptionId);
+    // });
   }
 
   public appUpgrade() {
-    void this.callEmpty(this.client.appUpgrade);
+    // void this.callEmpty(this.client.appUpgrade);
+    mockAppUpgrade();
   }
 
   public appUpgradeAbort() {
-    void this.callEmpty(this.client.appUpgradeAbort);
+    // void this.callEmpty(this.client.appUpgradeAbort);
+    mockAppUpgradeAbort();
   }
 
   public unsubscribeAppUpgradeEventListener(listener: SubscriptionListener<DaemonAppUpgradeEvent>) {

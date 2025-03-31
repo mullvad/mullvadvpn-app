@@ -1021,7 +1021,18 @@ export default class AppRenderer {
   }
 
   private setUpgradeVersion(upgradeVersion: IAppVersionInfo) {
-    this.reduxActions.version.updateLatest(upgradeVersion);
+    this.reduxActions.version.updateLatest({
+      supported: true,
+      suggestedIsBeta: false,
+      suggestedUpgrade: {
+        version: '2100.1',
+        changelog: [
+          'This is a changelog.',
+          'Every newline should be a new item.',
+          'There are three items.',
+        ],
+      },
+    });
   }
 
   private setGuiSettings(guiSettings: IGuiSettingsState) {
