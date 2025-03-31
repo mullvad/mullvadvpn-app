@@ -119,7 +119,10 @@ enum RoutingState {
     HasVersion { version_info: AppVersionInfo },
     /// Upgrade is in progress, so we don't forward version checks
     Upgrading {
-        version_info: AppVersionInfo,
+        /// Whether the installed version is supported
+        current_supported: bool,
+        /// The version being upgraded to (derived from `suggested_upgrade`)
+        upgrading_to_version: SuggestedUpgrade,
         /// Version check update received while paused
         new_version: Option<VersionCache>,
         //update_progress: mullvad_types::version::UpdateProgress,
@@ -242,10 +245,15 @@ impl VersionRouter {
             }
             // During upgrades, just pass on the last known version
             RoutingState::Upgrading {
-                ref version_info,
+                current_supported,
+                upgrading_to_version,
                 new_version: _,
             } => {
-                let _ = result_tx.send(Ok(version_info.to_owned()));
+                let info = AppVersionInfo {
+                    current_version_supported: *current_supported,
+                    suggested_upgrade: Some(upgrading_to_version.clone()),
+                };
+                let _ = result_tx.send(Ok(info));
             }
         }
     }
@@ -256,9 +264,17 @@ impl VersionRouter {
             RoutingState::HasVersion { version_info } => {
                 // TODO: actually start update
                 // TODO: check suggested upgrade
+
+                let Some(suggested_upgrade) = version_info.suggested_upgrade else {
+                    log::trace!("Cannot upgrade as suggested upgrade is None");
+                    self.state = RoutingState::HasVersion { version_info };
+                    return;
+                };
+
                 log::debug!("Starting upgrade");
                 self.state = RoutingState::Upgrading {
-                    version_info,
+                    current_supported: version_info.current_version_supported,
+                    upgrading_to_version: suggested_upgrade,
                     new_version: None,
                 };
 
@@ -280,11 +296,19 @@ impl VersionRouter {
                 self.state = state;
             }
             // If we're upgrading, emit an event if a version was received during the upgrade
+            // Otherwise, just reset suggested upgrade to last known state
             RoutingState::Upgrading {
-                version_info,
+                current_supported,
+                upgrading_to_version,
                 new_version,
             } => {
-                self.state = RoutingState::HasVersion { version_info };
+                // Reset app version info to last known state
+                self.state = RoutingState::HasVersion {
+                    version_info: AppVersionInfo {
+                        current_version_supported: current_supported,
+                        suggested_upgrade: Some(upgrading_to_version),
+                    },
+                };
 
                 // If we also received an upgrade, emit new version event
                 if let Some(version) = new_version {
@@ -345,9 +369,16 @@ impl VersionRouter {
                 return;
             }
             // Update app version info
-            RoutingState::HasVersion { version_info } => version_info,
-            // If we're upgrading, remember the new version, but don't update app version info
-            RoutingState::Upgrading { version_info, .. } => version_info,
+            RoutingState::HasVersion { version_info } => version_info.clone(),
+            // If we're upgrading, emit the version we're currently upgrading to
+            RoutingState::Upgrading {
+                current_supported,
+                upgrading_to_version,
+                ..
+            } => AppVersionInfo {
+                current_version_supported: *current_supported,
+                suggested_upgrade: Some(upgrading_to_version.clone()),
+            },
         };
 
         // Notify all requesters
