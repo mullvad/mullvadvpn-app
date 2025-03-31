@@ -62,6 +62,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.DeleteDeviceError
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -71,6 +72,7 @@ import net.mullvad.mullvadvpn.lib.model.DeviceUpdateError
 import net.mullvad.mullvadvpn.lib.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState as ModelDnsState
+import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
@@ -124,7 +126,7 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
-import net.mullvad.mullvadvpn.lib.model.enabled
+import net.mullvad.mullvadvpn.lib.model.defaultOptions
 import net.mullvad.mullvadvpn.lib.model.entryLocation
 import net.mullvad.mullvadvpn.lib.model.ipVersion
 import net.mullvad.mullvadvpn.lib.model.isMultihopEnabled
@@ -139,7 +141,7 @@ import net.mullvad.mullvadvpn.lib.model.state
 import net.mullvad.mullvadvpn.lib.model.udp2tcp
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LargeClass")
 class ManagementService(
     rpcSocketFile: File,
     private val extensiveLogging: Boolean,
@@ -389,6 +391,19 @@ class ManagementService(
             .onLeft { Logger.e("Create account error") }
             .mapLeft(CreateAccountError::Unknown)
 
+    suspend fun updateDnsContentBlockers(
+        update: (DefaultDnsOptions) -> DefaultDnsOptions
+    ): Either<SetDnsOptionsError, Unit> =
+        Either.catch {
+                val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+                val newDefaultDnsOptions = update(currentDnsOptions.defaultOptions)
+                val updated = DnsOptions.defaultOptions.set(currentDnsOptions, newDefaultDnsOptions)
+                grpc.setDnsOptions(updated.fromDomain())
+            }
+            .onLeft { Logger.e("Set dns state error") }
+            .mapLeft(SetDnsOptionsError::Unknown)
+            .mapEmpty()
+
     suspend fun setDnsOptions(dnsOptions: ModelDnsOptions): Either<SetDnsOptionsError, Unit> =
         Either.catch { grpc.setDnsOptions(dnsOptions.fromDomain()) }
             .onLeft { Logger.e("Set dns options error") }
@@ -423,7 +438,14 @@ class ManagementService(
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
                 val updatedDnsOptions =
-                    DnsOptions.customOptions.addresses.modify(currentDnsOptions) { it + address }
+                    currentDnsOptions.copy {
+                        DnsOptions.customOptions.addresses set
+                            currentDnsOptions.customOptions.addresses + address
+                        // If it is the first address, then turn on Custom Dns
+                        DnsOptions.state set
+                            if (currentDnsOptions.customOptions.addresses.isEmpty()) DnsState.Custom
+                            else currentDnsOptions.state
+                    }
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
                 updatedDnsOptions.customOptions.addresses.lastIndex
             }
@@ -433,11 +455,16 @@ class ManagementService(
     suspend fun deleteCustomDns(index: Int): Either<SetDnsOptionsError, Unit> =
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+                val mutableAddresses = currentDnsOptions.customOptions.addresses.toMutableList()
+                mutableAddresses.removeAt(index)
+
                 val updatedDnsOptions =
-                    DnsOptions.customOptions.addresses.modify(currentDnsOptions) {
-                        val mutableAddresses = it.toMutableList()
-                        mutableAddresses.removeAt(index)
-                        mutableAddresses.toList()
+                    currentDnsOptions.copy {
+                        DnsOptions.customOptions.addresses set mutableAddresses.toList()
+                        // If it is the last address, then turn off Custom Dns
+                        DnsOptions.state set
+                            if (mutableAddresses.isEmpty()) DnsState.Default
+                            else currentDnsOptions.state
                     }
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
             }

@@ -60,6 +60,7 @@ fun CustomPortCell(
     title: String,
     isSelected: Boolean,
     port: Port?,
+    modifier: Modifier = Modifier,
     mainTestTag: String = "",
     numberTestTag: String = "",
     isEnabled: Boolean = true,
@@ -69,7 +70,7 @@ fun CustomPortCell(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.height(Dimens.cellHeight).fillMaxWidth(),
+        modifier = modifier.height(Dimens.cellHeight).fillMaxWidth(),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

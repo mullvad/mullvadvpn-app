@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -10,7 +12,12 @@ import net.mullvad.mullvadvpn.compose.state.DaitaUiState
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 
-class DaitaViewModel(private val settingsRepository: SettingsRepository) : ViewModel() {
+class DaitaViewModel(
+    private val settingsRepository: SettingsRepository,
+    savedStateHandle: SavedStateHandle,
+) : ViewModel() {
+
+    private val navArgs = DaitaDestination.argsFrom(savedStateHandle)
 
     val uiState =
         settingsRepository.settingsUpdates
@@ -18,6 +25,7 @@ class DaitaViewModel(private val settingsRepository: SettingsRepository) : ViewM
                 DaitaUiState(
                     daitaEnabled = settings?.daitaSettings()?.enabled == true,
                     directOnly = settings?.daitaSettings()?.directOnly == true,
+                    navArgs.isModal,
                 )
             }
             .stateIn(

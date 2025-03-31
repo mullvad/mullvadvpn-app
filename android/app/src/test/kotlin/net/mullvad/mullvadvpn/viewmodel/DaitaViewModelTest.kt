@@ -2,12 +2,14 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
 import arrow.core.right
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.screen.DaitaNavArgs
 import net.mullvad.mullvadvpn.compose.state.DaitaUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Settings
@@ -27,7 +29,11 @@ class DaitaViewModelTest {
     @BeforeEach
     fun setUp() {
         every { mockSettingsRepository.settingsUpdates } returns settings
-        viewModel = DaitaViewModel(mockSettingsRepository)
+        viewModel =
+            DaitaViewModel(
+                mockSettingsRepository,
+                savedStateHandle = DaitaNavArgs().toSavedStateHandle(),
+            )
     }
 
     @Test

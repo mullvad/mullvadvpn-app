@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
@@ -20,13 +21,20 @@ private fun PreviewMtuComposeCell() {
 }
 
 @Composable
-fun MtuComposeCell(mtuValue: Mtu?, onEditMtu: () -> Unit) {
+fun MtuComposeCell(
+    mtuValue: Mtu?,
+    onEditMtu: () -> Unit,
+    modifier: Modifier = Modifier,
+    background: Color = MaterialTheme.colorScheme.primary,
+) {
     val titleModifier = Modifier
 
     BaseCell(
+        modifier = modifier,
         headlineContent = { MtuTitle(modifier = titleModifier.weight(1f, true)) },
         bodyView = { MtuBodyView(mtuValue = mtuValue, modifier = titleModifier) },
         onCellClicked = { onEditMtu.invoke() },
+        background = background,
     )
 }
 

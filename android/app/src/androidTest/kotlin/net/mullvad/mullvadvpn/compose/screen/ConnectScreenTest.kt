@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.compose.test.TOP_BAR_ACCOUNT_BUTTON
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
@@ -70,6 +71,7 @@ class ConnectScreenTest {
         onDismissNewDeviceClick: () -> Unit = {},
         onChangelogClick: () -> Unit = {},
         onDismissChangelogClick: () -> Unit = {},
+        onNavigateToFeature: (FeatureIndicator) -> Unit = {},
     ) {
         setContentWithTheme {
             ConnectScreen(
@@ -86,6 +88,7 @@ class ConnectScreenTest {
                 onDismissNewDeviceClick = onDismissNewDeviceClick,
                 onChangelogClick = onChangelogClick,
                 onDismissChangelogClick = onDismissChangelogClick,
+                onNavigateToFeature = onNavigateToFeature,
             )
         }
     }
@@ -799,6 +802,49 @@ class ConnectScreenTest {
 
             onNodeWithText("Out IPv6").assertExists()
             onNodeWithText(outIpv6).assertExists()
+        }
+    }
+
+    @Test
+    fun clickOnFeatureIndicator() {
+        composeExtension.use {
+            // Arrange
+            val mockLocation: GeoIpLocation = mockk(relaxed = true)
+            val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
+            val mockHostName = "Host-Name"
+            every { mockLocation.hostname } returns mockHostName
+            every { mockLocation.entryHostname } returns null
+
+            // In
+            every { mockTunnelEndpoint.obfuscation } returns null
+
+            val mockClickHandler = mockk<(FeatureIndicator) -> Unit>(relaxed = true)
+
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = mockLocation,
+                        selectedRelayItemTitle = null,
+                        tunnelState =
+                            TunnelState.Connected(
+                                mockTunnelEndpoint,
+                                mockLocation,
+                                listOf(FeatureIndicator.MULTIHOP),
+                            ),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    ),
+                onNavigateToFeature = mockClickHandler,
+            )
+
+            // Act
+            onNodeWithText("Multihop").performClick()
+
+            // Assert
+            verify(exactly = 1) { mockClickHandler.invoke(FeatureIndicator.MULTIHOP) }
         }
     }
 }

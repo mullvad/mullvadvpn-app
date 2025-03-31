@@ -148,7 +148,6 @@ fun BaseSubtitleCell(
                     start = Dimens.cellStartPadding,
                     top = Dimens.cellFooterTopPadding,
                     end = Dimens.cellEndPadding,
-                    bottom = Dimens.cellVerticalSpacing,
                 )
                 .fillMaxWidth()
                 .wrapContentHeight(),

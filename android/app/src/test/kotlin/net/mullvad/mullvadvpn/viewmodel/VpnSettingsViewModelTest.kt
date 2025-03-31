@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.Awaits
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -13,24 +14,31 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.screen.VpnSettingsNavArgs
+import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
+import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.RelayConstraints
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.ShadowsocksSettings
+import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions
+import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
@@ -41,6 +49,7 @@ import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExperimentalCoroutinesApi
@@ -70,12 +79,13 @@ class VpnSettingsViewModelTest {
 
         viewModel =
             VpnSettingsViewModel(
-                repository = mockSettingsRepository,
+                settingsRepository = mockSettingsRepository,
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
                 relayListRepository = mockRelayListRepository,
                 dispatcher = UnconfinedTestDispatcher(),
                 autoStartAndConnectOnBootRepository = mockAutoStartAndConnectOnBootRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
+                savedStateHandle = VpnSettingsNavArgs().toSavedStateHandle(),
             )
     }
 
@@ -83,6 +93,11 @@ class VpnSettingsViewModelTest {
     fun tearDown() {
         viewModel.viewModelScope.coroutineContext.cancel()
         unmockkAll()
+    }
+
+    @Test
+    fun `initial state should be loading`() = runTest {
+        viewModel.uiState.test { assertEquals(VpnSettingsUiState.Loading(), awaitItem()) }
     }
 
     @Test
@@ -112,20 +127,8 @@ class VpnSettingsViewModelTest {
         }
 
     @Test
-    fun `quantumResistant should be Off in uiState in initial state`() = runTest {
-        // Arrange
-        val expectedResistantState = QuantumResistantState.Off
-
-        // Act, Assert
-        viewModel.uiState.test {
-            assertEquals(expectedResistantState, awaitItem().quantumResistant)
-        }
-    }
-
-    @Test
     fun `when SettingsRepository emits quantumResistant On uiState should emit quantumResistant On`() =
         runTest {
-            val defaultResistantState = QuantumResistantState.Off
             val expectedResistantState = QuantumResistantState.On
             val mockSettings: Settings = mockk(relaxed = true)
             val mockTunnelOptions: TunnelOptions = mockk(relaxed = true)
@@ -144,9 +147,17 @@ class VpnSettingsViewModelTest {
                 Constraint.Any
 
             viewModel.uiState.test {
-                assertEquals(defaultResistantState, awaitItem().quantumResistant)
+                assertEquals(VpnSettingsUiState.Loading(), awaitItem())
                 mockSettingsUpdate.value = mockSettings
-                assertEquals(expectedResistantState, awaitItem().quantumResistant)
+                val content = awaitItem()
+                assertInstanceOf<VpnSettingsUiState.Content>(content)
+
+                assertTrue(
+                    content.settings
+                        .filterIsInstance<VpnSettingItem.QuantumItem>()
+                        .first { it.quantumResistantState == QuantumResistantState.On }
+                        .selected
+                )
             }
         }
 
@@ -179,10 +190,23 @@ class VpnSettingsViewModelTest {
 
             // Act, Assert
             viewModel.uiState.test {
-                assertIs<Constraint.Any>(awaitItem().selectedWireguardPort)
+                assertInstanceOf<VpnSettingsUiState.Loading>(awaitItem())
+
                 mockSettingsUpdate.value = mockSettings
-                assertEquals(expectedPort.value, awaitItem().customWireguardPort)
-                assertEquals(expectedPort, awaitItem().selectedWireguardPort)
+
+                with(awaitItem()) {
+                    assertInstanceOf<VpnSettingsUiState.Content>(this)
+                    val customPortSetting =
+                        settings
+                            .filterIsInstance<
+                                VpnSettingItem.WireguardPortItem.WireguardPortCustom
+                            >()
+                            .first()
+
+                    // Port should be what we expect and be selected
+                    assertEquals(expectedPort.value.value, customPortSetting.customPort!!.value)
+                    assertTrue(customPortSetting.selected)
+                }
             }
         }
 
@@ -218,7 +242,14 @@ class VpnSettingsViewModelTest {
             every { mockSystemVpnSettingsUseCase() } returns systemVpnSettingsAvailable
 
             viewModel.uiState.test {
-                assertEquals(systemVpnSettingsAvailable, awaitItem().systemVpnSettingsAvailable)
+                assertInstanceOf<VpnSettingsUiState.Loading>(awaitItem())
+                mockSettingsUpdate.value = dummySettings
+
+                val content = awaitItem()
+                assertInstanceOf<VpnSettingsUiState.Content>(content)
+                assertTrue(
+                    content.settings.any { it is VpnSettingItem.AutoConnectAndLockdownModeHeader }
+                )
             }
         }
 
@@ -232,7 +263,12 @@ class VpnSettingsViewModelTest {
 
         // Assert
         viewModel.uiState.test {
-            assertEquals(connectOnStart, awaitItem().autoStartAndConnectOnBoot)
+            assertInstanceOf<VpnSettingsUiState.Loading>(awaitItem())
+
+            mockSettingsUpdate.value = dummySettings
+            val content = awaitItem()
+            assertInstanceOf<VpnSettingsUiState.Content>(content)
+            assertTrue(content.settings.any { it is VpnSettingItem.ConnectDeviceOnStartUpHeader })
         }
     }
 
@@ -263,7 +299,7 @@ class VpnSettingsViewModelTest {
             ipVersion
         every { mockSettings.tunnelOptions.wireguard } returns
             WireguardTunnelOptions(
-                mtu = Mtu(0),
+                mtu = null,
                 quantumResistant = QuantumResistantState.Off,
                 daitaSettings = DaitaSettings(enabled = false, directOnly = false),
             )
@@ -272,10 +308,18 @@ class VpnSettingsViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
-            // Default value
+            // Loading value
             awaitItem()
             mockSettingsUpdate.value = mockSettings
-            assertEquals(ipVersion, awaitItem().deviceIpVersion)
+            val content = awaitItem()
+            assertInstanceOf<VpnSettingsUiState.Content>(content)
+            assertEquals(
+                ipVersion,
+                content.settings
+                    .filterIsInstance<VpnSettingItem.DeviceIpVersionItem>()
+                    .first { it.selected }
+                    .constraint,
+            )
         }
     }
 
@@ -290,5 +334,51 @@ class VpnSettingsViewModelTest {
 
         // Assert
         coVerify(exactly = 1) { mockWireguardConstraintsRepository.setDeviceIpVersion(targetState) }
+    }
+
+    companion object {
+        val dummySettings: Settings =
+            Settings(
+                relaySettings =
+                    RelaySettings(
+                        relayConstraints =
+                            RelayConstraints(
+                                wireguardConstraints =
+                                    WireguardConstraints(
+                                        port = Constraint.Any,
+                                        isMultihopEnabled = false,
+                                        entryLocation = Constraint.Any,
+                                        ipVersion = Constraint.Any,
+                                    ),
+                                providers = Constraint.Any,
+                                ownership = Constraint.Any,
+                                location = Constraint.Any,
+                            )
+                    ),
+                obfuscationSettings =
+                    ObfuscationSettings(
+                        selectedObfuscationMode = ObfuscationMode.Auto,
+                        udp2tcp = Udp2TcpObfuscationSettings(Constraint.Any),
+                        shadowsocks = ShadowsocksSettings(Constraint.Any),
+                    ),
+                customLists = emptyList(),
+                allowLan = false,
+                tunnelOptions =
+                    TunnelOptions(
+                        wireguard =
+                            WireguardTunnelOptions(
+                                mtu = null,
+                                quantumResistant = QuantumResistantState.Auto,
+                                daitaSettings = DaitaSettings(enabled = false, directOnly = false),
+                            ),
+                        dnsOptions = mockk(relaxed = true),
+                        genericOptions = mockk(relaxed = true),
+                    ),
+                relayOverrides = emptyList(),
+                showBetaReleases = false,
+                splitTunnelSettings =
+                    SplitTunnelSettings(enabled = false, excludedApps = emptySet()),
+                apiAccessMethodSettings = emptyList(),
+            )
     }
 }
