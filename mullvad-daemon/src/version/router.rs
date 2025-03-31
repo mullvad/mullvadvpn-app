@@ -84,7 +84,6 @@ pub struct VersionRouter {
     version_check: check::VersionUpdaterHandle,
     /// Channel used to receive updates from `version_check`
     new_version_rx: mpsc::UnboundedReceiver<VersionCache>,
-    latest_notified_version: Option<AppVersionInfo>,
     version_request: Fuse<Pin<Box<dyn Future<Output = Result<VersionCache>> + Send>>>,
     version_request_channels: Vec<oneshot::Sender<Result<mullvad_types::version::AppVersionInfo>>>,
 }
@@ -110,8 +109,13 @@ enum Message {
 
 #[derive(Debug, Clone, PartialEq)]
 enum RoutingState {
-    Forwarding,
-    Paused {
+    /// There is no version available yet
+    NoVersion,
+    /// Running version checker, no upgrade in progress
+    HasVersion { version_info: AppVersionInfo },
+    /// Upgrade is in progress, so we don't forward version checks
+    Upgrading {
+        version_info: AppVersionInfo,
         /// Version check update received while paused
         new_version: Option<VersionCache>,
         //update_progress: mullvad_types::version::UpdateProgress,
@@ -137,12 +141,11 @@ impl VersionRouter {
             // TODO: tokio::join! here?
             Self {
                 rx,
-                state: RoutingState::Forwarding,
+                state: RoutingState::NoVersion,
                 beta_program,
                 version_check,
                 version_event_sender,
                 new_version_rx,
-                latest_notified_version: None,
                 version_request: Fuse::terminated(),
                 version_request_channels: vec![],
             }
@@ -164,7 +167,6 @@ impl VersionRouter {
                     match update_result {
                         Ok(new_version) => {
                             self.on_new_version(new_version.clone());
-                            self.notify_version_requesters();
                         }
                         Err(error) => {
                             log::error!("Failed to retrieve version: {error}");
@@ -178,10 +180,6 @@ impl VersionRouter {
                 // Received version event from `check`
                 Some(new_version) = self.new_version_rx.next() => {
                     self.on_new_version(new_version);
-                    self.notify_version_requesters();
-
-                    // Cancel update notifications
-                    self.version_request = Fuse::terminated();
                 }
                 Some(message) = self.rx.next() => self.handle_message(message).await,
                 else => break,
@@ -195,7 +193,8 @@ impl VersionRouter {
         match message {
             Message::SetBetaProgram { state, result_tx } => {
                 self.beta_program = state;
-                // We're happy as soon as the internal state has changed; no need to wait for version update
+                // We're happy as soon as the internal state has changed; no need to wait for
+                // version update
                 let _ = result_tx.send(());
             }
             Message::GetLatestVersion(result_tx) => {
@@ -210,33 +209,11 @@ impl VersionRouter {
                 self.version_request_channels.push(result_tx);
             }
             Message::UpdateApplication { result_tx } => {
-                let RoutingState::Forwarding = self.state else {
-                    let _ = result_tx.send(());
-                    return;
-                };
-                self.state = RoutingState::Paused { new_version: None };
-                let version_to_update = match &self.latest_notified_version {
-                    Some(version) => version,
-                    None => {
-                        let new_version = self
-                            .version_check
-                            .get_version_info()
-                            .await
-                            .expect("Failed to get version info");
-                        let app_version_info = to_app_version_info(new_version, self.beta_program);
-                        let _ = self.version_event_sender.send(app_version_info.clone());
-                        self.latest_notified_version = Some(app_version_info);
-                        self.latest_notified_version.as_ref().unwrap()
-                    }
-                };
-
-                // TODO: start update
+                self.update_application();
                 let _ = result_tx.send(());
             }
             Message::CancelUpdate { result_tx } => {
-                self.transition_to_forwarding();
-
-                // TODO: Cancel update
+                self.cancel_upgrade();
                 let _ = result_tx.send(());
             }
             Message::NewUpgradeEventListener { result_tx } => {
@@ -245,47 +222,104 @@ impl VersionRouter {
         }
     }
 
-    fn transition_to_forwarding(&mut self) {
-        let state = mem::replace(&mut self.state, RoutingState::Forwarding);
-        if let RoutingState::Paused {
-            new_version: Some(new_version),
-        } = state
-        {
-            self.on_new_version(new_version);
+    fn update_application(&mut self) {
+        match mem::replace(&mut self.state, RoutingState::NoVersion) {
+            // Checking state: start upgrade, if upgrade is available
+            RoutingState::HasVersion { version_info } => {
+                // TODO: actually start update
+                // TODO: check suggested upgrade
+                log::debug!("Starting upgrade");
+                self.state = RoutingState::Upgrading {
+                    version_info,
+                    new_version: None,
+                };
+            }
+            // Already upgrading or no version: do nothing
+            state => {
+                self.state = state;
+            }
         }
+    }
+
+    fn cancel_upgrade(&mut self) {
+        match mem::replace(&mut self.state, RoutingState::NoVersion) {
+            // No-op unless we're upgrading
+            state @ RoutingState::NoVersion | state @ RoutingState::HasVersion { .. } => {
+                self.state = state;
+            }
+            // If we're upgrading, emit an event if a version was received during the upgrade
+            RoutingState::Upgrading {
+                version_info,
+                new_version,
+            } => {
+                self.state = RoutingState::HasVersion { version_info };
+
+                // If we also received an upgrade, emit new version event
+                if let Some(version) = new_version {
+                    self.on_new_version(version);
+                }
+            }
+        };
     }
 
     /// Handle new version info
     ///
-    /// If the router is forwarding and the version is newer than the last, it will propagate the
-    /// version info. If the router is paused, it will store the new version info until the router
-    /// is resumed.
+    /// If the router is in the process of upgrading, it will send not propagate versions, but only
+    /// remember it for when it transitions back into the "idle" (version check) state.
     fn on_new_version(&mut self, version: VersionCache) {
-        match self.state {
-            RoutingState::Forwarding => {
+        match &mut self.state {
+            // Set app version info
+            RoutingState::NoVersion => {
                 let app_version_info = to_app_version_info(version, self.beta_program);
-                if self.latest_notified_version.as_ref() != Some(&app_version_info) {
-                    self.latest_notified_version = Some(app_version_info.clone());
-                    let _ = self.version_event_sender.send(app_version_info); // TODO: handle error
+                // Initial version is propagated
+                let _ = self.version_event_sender.send(app_version_info.clone());
+                self.state = RoutingState::HasVersion {
+                    version_info: app_version_info,
+                };
+            }
+            // Update app version info
+            RoutingState::HasVersion {
+                ref mut version_info,
+            } => {
+                let new_version = to_app_version_info(version, self.beta_program);
+                // If the version changed, notify channel
+                if &new_version != version_info {
+                    let _ = self.version_event_sender.send(new_version.clone());
+                    *version_info = new_version;
                 }
             }
-            RoutingState::Paused {
+            // If we're upgrading, remember the new version, but don't send any notification
+            RoutingState::Upgrading {
                 ref mut new_version,
+                ..
             } => {
                 *new_version = Some(version);
             }
         }
+
+        self.notify_version_requesters();
     }
 
-    /// Notify clients potentially requesting a version
+    /// Notify clients requesting a version
     fn notify_version_requesters(&mut self) {
-        if let Some(version) = &self.latest_notified_version {
-            for tx in self.version_request_channels.drain(..) {
-                let _ = tx.send(Ok(version.clone()));
+        // Cancel update notifications
+        self.version_request = Fuse::terminated();
+
+        let version_info = match &self.state {
+            RoutingState::NoVersion => {
+                log::error!("Dropping version request channels since there's no version");
+                self.version_request_channels.clear();
+                return;
             }
-        } else {
-            log::trace!("Dropping version request channels since we're paused");
-            self.version_request_channels.clear();
+            // Update app version info
+            RoutingState::HasVersion { version_info } => version_info,
+            // If we're upgrading, remember the new version, but don't update app version info
+            RoutingState::Upgrading { version_info, .. } => version_info,
+        };
+
+        // Notify all requesters
+        for tx in self.version_request_channels.drain(..) {
+            let _ = tx.send(Ok(version_info.clone()));
         }
     }
 }
