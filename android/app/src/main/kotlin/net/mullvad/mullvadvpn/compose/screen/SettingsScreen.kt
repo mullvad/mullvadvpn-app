@@ -69,15 +69,15 @@ fun Settings(navigator: DestinationsNavigator) {
     val state by vm.uiState.collectAsStateWithLifecycle()
     SettingsScreen(
         state = state,
-        onVpnSettingCellClick = dropUnlessResumed { navigator.navigate(VpnSettingsDestination) },
+        onVpnSettingCellClick = dropUnlessResumed { navigator.navigate(VpnSettingsDestination()) },
         onSplitTunnelingCellClick =
-            dropUnlessResumed { navigator.navigate(SplitTunnelingDestination) },
+            dropUnlessResumed { navigator.navigate(SplitTunnelingDestination()) },
         onAppInfoClick = dropUnlessResumed { navigator.navigate(AppInfoDestination) },
         onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessListDestination) },
         onReportProblemCellClick =
             dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
-        onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopDestination) },
-        onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaDestination) },
+        onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopDestination()) },
+        onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaDestination()) },
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }

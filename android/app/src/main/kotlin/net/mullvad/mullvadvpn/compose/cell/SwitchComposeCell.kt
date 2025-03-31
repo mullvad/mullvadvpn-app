@@ -56,6 +56,7 @@ private fun PreviewSwitchComposeCell() {
 fun NormalSwitchComposeCell(
     title: String,
     isToggled: Boolean,
+    modifier: Modifier = Modifier,
     startPadding: Dp = Dimens.indentedCellStartPadding,
     isEnabled: Boolean = true,
     background: Color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -79,6 +80,7 @@ fun NormalSwitchComposeCell(
         onBackground = onBackground,
         onCellClicked = onCellClicked,
         onInfoClicked = onInfoClicked,
+        modifier = modifier,
     )
 }
 

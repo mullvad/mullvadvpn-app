@@ -60,11 +60,13 @@ fun ObfuscationModeCell(
     isSelected: Boolean,
     onSelected: (ObfuscationMode) -> Unit,
     onNavigate: () -> Unit,
+    modifier: Modifier = Modifier,
     testTag: String? = null,
 ) {
     Row(
         modifier =
-            Modifier.height(IntrinsicSize.Min)
+            modifier
+                .height(IntrinsicSize.Min)
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceContainerLow)
                 .let { if (testTag != null) it.testTag(testTag) else it }
