@@ -1,13 +1,12 @@
 use std::path::PathBuf;
 
 use crate::types::proto;
-// TODO: Isn't this reasonable?
 use mullvad_types::version::*;
 
 use super::FromProtobufTypeError;
 
-impl From<mullvad_types::version::AppVersionInfo> for proto::AppVersionInfo {
-    fn from(version_info: mullvad_types::version::AppVersionInfo) -> Self {
+impl From<AppVersionInfo> for proto::AppVersionInfo {
+    fn from(version_info: AppVersionInfo) -> Self {
         Self {
             supported: version_info.current_version_supported,
             suggested_upgrade: version_info
@@ -17,7 +16,7 @@ impl From<mullvad_types::version::AppVersionInfo> for proto::AppVersionInfo {
     }
 }
 
-impl TryFrom<proto::AppVersionInfo> for mullvad_types::version::AppVersionInfo {
+impl TryFrom<proto::AppVersionInfo> for AppVersionInfo {
     type Error = FromProtobufTypeError;
 
     fn try_from(version_info: proto::AppVersionInfo) -> Result<Self, Self::Error> {
@@ -25,14 +24,14 @@ impl TryFrom<proto::AppVersionInfo> for mullvad_types::version::AppVersionInfo {
             current_version_supported: version_info.supported,
             suggested_upgrade: version_info
                 .suggested_upgrade
-                .map(mullvad_types::version::SuggestedUpgrade::try_from)
+                .map(SuggestedUpgrade::try_from)
                 .transpose()?,
         })
     }
 }
 
-impl From<mullvad_types::version::SuggestedUpgrade> for proto::SuggestedUpgrade {
-    fn from(suggested_upgrade: mullvad_types::version::SuggestedUpgrade) -> Self {
+impl From<SuggestedUpgrade> for proto::SuggestedUpgrade {
+    fn from(suggested_upgrade: SuggestedUpgrade) -> Self {
         Self {
             version: suggested_upgrade.version.to_string(),
             changelog: suggested_upgrade.changelog,
@@ -43,7 +42,7 @@ impl From<mullvad_types::version::SuggestedUpgrade> for proto::SuggestedUpgrade 
     }
 }
 
-impl TryFrom<proto::SuggestedUpgrade> for mullvad_types::version::SuggestedUpgrade {
+impl TryFrom<proto::SuggestedUpgrade> for SuggestedUpgrade {
     type Error = FromProtobufTypeError;
 
     fn try_from(suggested_upgrade: proto::SuggestedUpgrade) -> Result<Self, Self::Error> {
@@ -63,34 +62,36 @@ impl TryFrom<proto::SuggestedUpgrade> for mullvad_types::version::SuggestedUpgra
     }
 }
 
-impl From<mullvad_types::version::AppUpgradeEvent> for proto::AppUpgradeEvent {
-    fn from(upgrade_event: mullvad_types::version::AppUpgradeEvent) -> Self {
-        type Event = AppUpgradeEvent;
+impl From<AppUpgradeEvent> for proto::AppUpgradeEvent {
+    fn from(upgrade_event: AppUpgradeEvent) -> Self {
         type ProtoEvent = proto::app_upgrade_event::Event;
 
         let event = match upgrade_event {
-            Event::DownloadStarting => {
+            AppUpgradeEvent::DownloadStarting => {
                 ProtoEvent::DownloadStarting(proto::AppUpgradeDownloadStarting {})
             }
-            Event::DownloadProgress(progress) => ProtoEvent::DownloadProgress(progress.into()),
-            Event::VerifyingInstaller => {
+            AppUpgradeEvent::DownloadProgress(progress) => {
+                ProtoEvent::DownloadProgress(progress.into())
+            }
+            AppUpgradeEvent::VerifyingInstaller => {
                 ProtoEvent::VerifyingInstaller(proto::AppUpgradeVerifyingInstaller {})
             }
-            Event::VerifiedInstaller => {
+            AppUpgradeEvent::VerifiedInstaller => {
                 ProtoEvent::VerifiedInstaller(proto::AppUpgradeVerifiedInstaller {})
             }
-            Event::Aborted => ProtoEvent::UpgradeAborted(proto::AppUpgradeAborted {}),
-            Event::Error(app_upgrade_error) => ProtoEvent::Error(app_upgrade_error.into()),
+            AppUpgradeEvent::Aborted => ProtoEvent::UpgradeAborted(proto::AppUpgradeAborted {}),
+            AppUpgradeEvent::Error(app_upgrade_error) => {
+                ProtoEvent::Error(app_upgrade_error.into())
+            }
         };
         Self { event: Some(event) }
     }
 }
 
-impl TryFrom<proto::AppUpgradeEvent> for mullvad_types::version::AppUpgradeEvent {
+impl TryFrom<proto::AppUpgradeEvent> for AppUpgradeEvent {
     type Error = FromProtobufTypeError;
 
     fn try_from(upgrade_event: proto::AppUpgradeEvent) -> Result<Self, FromProtobufTypeError> {
-        type Event = AppUpgradeEvent;
         type ProtoEvent = proto::app_upgrade_event::Event;
 
         let event = upgrade_event
@@ -100,27 +101,25 @@ impl TryFrom<proto::AppUpgradeEvent> for mullvad_types::version::AppUpgradeEvent
             ))?;
 
         let event = match event {
-            ProtoEvent::DownloadStarting(_starting) => Event::DownloadStarting,
+            ProtoEvent::DownloadStarting(_starting) => AppUpgradeEvent::DownloadStarting,
             ProtoEvent::DownloadProgress(progress) => {
                 let progress = AppUpgradeDownloadProgress::try_from(progress)?;
-                Event::DownloadProgress(progress)
+                AppUpgradeEvent::DownloadProgress(progress)
             }
-            ProtoEvent::VerifyingInstaller(_verifying) => Event::VerifyingInstaller,
-            ProtoEvent::VerifiedInstaller(_verified) => Event::VerifiedInstaller,
-            ProtoEvent::UpgradeAborted(_aborted) => Event::Aborted,
+            ProtoEvent::VerifyingInstaller(_verifying) => AppUpgradeEvent::VerifyingInstaller,
+            ProtoEvent::VerifiedInstaller(_verified) => AppUpgradeEvent::VerifiedInstaller,
+            ProtoEvent::UpgradeAborted(_aborted) => AppUpgradeEvent::Aborted,
             ProtoEvent::Error(error) => {
                 let error = AppUpgradeError::try_from(error)?;
-                Event::Error(error)
+                AppUpgradeEvent::Error(error)
             }
         };
         Ok(event)
     }
 }
 
-impl From<mullvad_types::version::AppUpgradeDownloadProgress>
-    for proto::AppUpgradeDownloadProgress
-{
-    fn from(value: mullvad_types::version::AppUpgradeDownloadProgress) -> Self {
+impl From<AppUpgradeDownloadProgress> for proto::AppUpgradeDownloadProgress {
+    fn from(value: AppUpgradeDownloadProgress) -> Self {
         // TODO: Is it acceptable to unwrap in this case?
         // From the docs: Converts a std::time::Duration to a Duration, failing if the duration is too large.
         let time_left = prost_types::Duration::try_from(value.time_left).unwrap();
