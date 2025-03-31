@@ -1459,7 +1459,7 @@ impl Daemon {
             ApplyJsonSettings(tx, blob) => self.on_apply_json_settings(tx, blob).await,
             ExportJsonSettings(tx) => self.on_export_json_settings(tx),
             GetFeatureIndicators(tx) => self.on_get_feature_indicators(tx),
-            AppUpgrade(sender) => todo!("Implement `on_app_upgrade`"),
+            AppUpgrade(tx) => self.on_app_upgrade(tx),
             AppUpgradeAbort(sender) => todo!("Implement `on_app_upgrade_abort`"),
         }
     }
@@ -3152,6 +3152,13 @@ impl Daemon {
         };
         Self::oneshot_send(tx, feature_indicators, "get_feature_indicators response");
     }
+
+    fn on_app_upgrade(&self, tx: ResponseTx<(), Error>) {
+        // TODO: Call the Downloader
+        let result = Ok(());
+        Self::oneshot_send(tx, result, "on_app_upgrade response");
+    }
+
 
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
