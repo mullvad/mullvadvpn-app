@@ -3,7 +3,6 @@ use std::io;
 pub mod check;
 pub mod downloader;
 pub mod router;
-pub mod updater;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
