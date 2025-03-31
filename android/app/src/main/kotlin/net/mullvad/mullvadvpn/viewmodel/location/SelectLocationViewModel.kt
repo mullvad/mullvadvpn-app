@@ -36,10 +36,9 @@ class SelectLocationViewModel(
     private val relayListRepository: RelayListRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val filterChipUseCase: FilterChipUseCase,
-    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
     private val _relayListType: MutableStateFlow<RelayListType> =
-        MutableStateFlow(initialRelayListSelection())
+        MutableStateFlow(RelayListType.EXIT)
 
     val uiState =
         combine(
@@ -57,15 +56,6 @@ class SelectLocationViewModel(
 
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
-
-    private fun initialRelayListSelection() =
-        when {
-            settingsRepository.settingsUpdates.value?.daitaWithoutDirectOnly() == true ->
-                RelayListType.EXIT
-            wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled == true ->
-                RelayListType.ENTRY
-            else -> RelayListType.EXIT
-        }
 
     private fun filterChips() = _relayListType.flatMapLatest { filterChipUseCase(it) }
 
@@ -130,10 +120,6 @@ class SelectLocationViewModel(
     fun removeProviderFilter() {
         viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
     }
-
-    private fun Settings.daitaWithoutDirectOnly() =
-        tunnelOptions.wireguard.daitaSettings.enabled &&
-            !tunnelOptions.wireguard.daitaSettings.directOnly
 }
 
 sealed interface SelectLocationSideEffect {
