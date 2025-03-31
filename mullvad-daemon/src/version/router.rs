@@ -387,7 +387,7 @@ impl VersionRouter {
 
     /// Handle new version info
     ///
-    /// If the router is in the process of upgrading, it will send not propagate versions, but only
+    /// If the router is in the process of upgrading, it will not propagate versions, but only
     /// remember it for when it transitions back into the "idle" (version check) state.
     fn on_new_version(&mut self, version: VersionCache) {
         match &mut self.state {
@@ -434,7 +434,7 @@ impl VersionRouter {
             }
         }
 
-        // Notfify callers of `get_latest_version`
+        // Notify callers of `get_latest_version`
         self.notify_version_requesters();
     }
 
