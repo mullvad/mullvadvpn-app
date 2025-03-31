@@ -261,19 +261,18 @@ impl VersionRouter {
     fn update_application(&mut self) {
         match mem::replace(&mut self.state, RoutingState::NoVersion) {
             // Checking state: start upgrade, if upgrade is available
-            RoutingState::HasVersion { version_info } => {
+            RoutingState::HasVersion {
+                version_info:
+                    AppVersionInfo {
+                        current_version_supported,
+                        suggested_upgrade: Some(suggested_upgrade),
+                    },
+            } => {
                 // TODO: actually start update
                 // TODO: check suggested upgrade
-
-                let Some(suggested_upgrade) = version_info.suggested_upgrade else {
-                    log::trace!("Cannot upgrade as suggested upgrade is None");
-                    self.state = RoutingState::HasVersion { version_info };
-                    return;
-                };
-
                 log::debug!("Starting upgrade");
                 self.state = RoutingState::Upgrading {
-                    current_supported: version_info.current_version_supported,
+                    current_supported: current_version_supported,
                     upgrading_to_version: suggested_upgrade,
                     new_version: None,
                 };
@@ -282,7 +281,7 @@ impl VersionRouter {
                 // advertise the last known version as latest
                 self.notify_version_requesters();
             }
-            // Already upgrading or no version: do nothing
+            // Already upgrading or no version or no suggested upgrade: do nothing
             state => {
                 self.state = state;
             }
