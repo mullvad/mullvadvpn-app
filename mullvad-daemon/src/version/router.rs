@@ -198,15 +198,7 @@ impl VersionRouter {
                 let _ = result_tx.send(());
             }
             Message::GetLatestVersion(result_tx) => {
-                // Start a version request unless already in progress
-                if self.version_request.is_terminated() {
-                    let check = self.version_check.clone();
-                    let check_fut: Pin<Box<dyn Future<Output = Result<VersionCache>> + Send>> =
-                        Box::pin(async move { check.get_version_info().await });
-                    self.version_request = check_fut.fuse();
-                }
-                // Append to response channels
-                self.version_request_channels.push(result_tx);
+                self.get_latest_version(result_tx);
             }
             Message::UpdateApplication { result_tx } => {
                 self.update_application();
@@ -222,6 +214,34 @@ impl VersionRouter {
         }
     }
 
+    fn get_latest_version(
+        &mut self,
+        result_tx: oneshot::Sender<std::result::Result<AppVersionInfo, Error>>,
+    ) {
+        match &self.state {
+            // When not upgrading, potentially fetch new version info, and append `result_tx` to
+            // list of channels to notify
+            RoutingState::NoVersion | RoutingState::HasVersion { .. } => {
+                // Start a version request unless already in progress
+                if self.version_request.is_terminated() {
+                    let check = self.version_check.clone();
+                    let check_fut: Pin<Box<dyn Future<Output = Result<VersionCache>> + Send>> =
+                        Box::pin(async move { check.get_version_info().await });
+                    self.version_request = check_fut.fuse();
+                }
+                // Append to response channels
+                self.version_request_channels.push(result_tx);
+            }
+            // During upgrades, just pass on the last known version
+            RoutingState::Upgrading {
+                ref version_info,
+                new_version: _,
+            } => {
+                let _ = result_tx.send(Ok(version_info.to_owned()));
+            }
+        }
+    }
+
     fn update_application(&mut self) {
         match mem::replace(&mut self.state, RoutingState::NoVersion) {
             // Checking state: start upgrade, if upgrade is available
@@ -233,6 +253,10 @@ impl VersionRouter {
                     version_info,
                     new_version: None,
                 };
+
+                // Notfify callers of `get_latest_version`: cancel the version check and
+                // advertise the last known version as latest
+                self.notify_version_requesters();
             }
             // Already upgrading or no version: do nothing
             state => {
@@ -297,6 +321,7 @@ impl VersionRouter {
             }
         }
 
+        // Notfify callers of `get_latest_version`
         self.notify_version_requesters();
     }
 
