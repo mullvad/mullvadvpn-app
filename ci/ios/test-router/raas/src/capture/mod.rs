@@ -95,8 +95,10 @@ impl Capture {
 
         let capture = tokio::spawn(async move {
             #[allow(clippy::type_complexity)]
-            let (pcap_tx, pcap_rx): (_, sync_mpsc::Receiver<(PacketHeader, Box<[u8]>)>) =
-                sync_mpsc::channel();
+            let (pcap_tx, pcap_rx): (
+                _,
+                sync_mpsc::Receiver<(PacketHeader, Box<[u8]>)>,
+            ) = sync_mpsc::channel();
             tokio::task::spawn_blocking(move || {
                 while let Ok((header, data)) = pcap_rx.recv() {
                     let packet = Packet {
