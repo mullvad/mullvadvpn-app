@@ -512,6 +512,8 @@ impl VersionRouter {
     }
 }
 
+/// Extract [`AppVersionInfo`], containing upgrade version and `current_version_supported`
+/// from [VersionCache] and beta program state.
 fn to_app_version_info(cache: &VersionCache, beta_program: bool) -> AppVersionInfo {
     let current_version_supported = cache.current_version_supported;
     let suggested_upgrade = suggested_upgrade(&cache.latest_version, beta_program)
