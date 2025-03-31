@@ -408,16 +408,18 @@ impl VersionRouter {
                 version_info: prev_version,
                 ..
             } => {
+                if prev_version != &version {
+                    // Note: If we're in the `Downloaded` state, this resets the state to `HasVersion`
+                    self.state = RoutingState::HasVersion {
+                        version_info: version.clone(),
+                    };
+                }
+
                 // If the version changed, notify channel
                 let prev_version = to_app_version_info(prev_version, self.beta_program);
                 let new_version = to_app_version_info(&version, self.beta_program);
                 if new_version != prev_version {
                     let _ = self.version_event_sender.send(new_version.clone());
-
-                    // Note: If we're in the `Downloaded` state, this resets the state to `HasVersion`
-                    self.state = RoutingState::HasVersion {
-                        version_info: version,
-                    };
                 }
             }
             // If we're upgrading, remember the new version, but don't send any notification
