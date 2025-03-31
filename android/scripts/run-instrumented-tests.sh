@@ -209,6 +209,10 @@ if [[ "$USE_ORCHESTRATOR" == "true" ]]; then
 fi
 echo ""
 
+echo "### Start logging ###"
+adb logcat > "$LOGCAT_FILE_PATH" &
+running_pid=$!
+
 echo "### Run instrumented test command ###"
 if [[ "$USE_ORCHESTRATOR" == "true" ]]; then
     INSTRUMENTATION_COMMAND="\
@@ -227,6 +231,9 @@ else
 fi
 adb shell "$GRADLE_ENVIRONMENT_VARIABLES $INSTRUMENTATION_COMMAND" | tee "$INSTRUMENTATION_LOG_FILE_PATH"
 echo ""
+
+echo "### Stop logging ###"
+kill $running_pid
 
 echo "### Ensure that packages are uninstalled ###"
 adb uninstall "$PACKAGE_NAME" || echo "App package not installed"
