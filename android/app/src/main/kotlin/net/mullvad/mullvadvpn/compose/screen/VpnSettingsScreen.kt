@@ -1,18 +1,20 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
+import android.os.Parcelable
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +51,7 @@ import com.ramcosta.composedestinations.generated.destinations.WireguardPortInfo
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitle
@@ -93,6 +96,7 @@ import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
@@ -113,6 +117,7 @@ private fun PreviewVpnSettings(
     AppTheme {
         VpnSettingsScreen(
             state = state,
+            initialScrollToFeature = null,
             snackbarHostState = SnackbarHostState(),
             onToggleBlockTrackers = {},
             onToggleBlockAds = {},
@@ -147,11 +152,18 @@ private fun PreviewVpnSettings(
     }
 }
 
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+@Parcelize
+data class VpnSettingsNavArgs(val scrollToFeature: FeatureIndicator? = null) : Parcelable
+
+@Destination<RootGraph>(
+    style = SlideInFromRightTransition::class,
+    navArgs = VpnSettingsNavArgs::class,
+)
 @Composable
 @Suppress("LongMethod")
 fun VpnSettings(
     navigator: DestinationsNavigator,
+    navArgs: VpnSettingsNavArgs,
     dnsDialogResult: ResultRecipient<DnsDestination, DnsDialogResult>,
     customWgPortResult: ResultRecipient<WireguardCustomPortDestination, Port?>,
     mtuDialogResult: ResultRecipient<MtuDestination, Boolean>,
@@ -213,6 +225,7 @@ fun VpnSettings(
 
     VpnSettingsScreen(
         state = state,
+        initialScrollToFeature = navArgs.scrollToFeature,
         snackbarHostState = snackbarHostState,
         navigateToContentBlockersInfo =
             dropUnlessResumed { navigator.navigate(ContentBlockersInfoDestination) },
@@ -277,10 +290,10 @@ fun VpnSettings(
 }
 
 @Suppress("LongMethod", "LongParameterList")
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VpnSettingsScreen(
     state: VpnSettingsUiState,
+    initialScrollToFeature: FeatureIndicator?,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     navigateToContentBlockersInfo: () -> Unit,
     navigateToAutoConnectScreen: () -> Unit,
@@ -319,6 +332,20 @@ fun VpnSettingsScreen(
         appBarTitle = stringResource(id = R.string.settings_vpn),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         snackbarHostState = snackbarHostState,
+        lazyListState =
+            rememberLazyListState(
+                initialFirstVisibleItemIndex =
+                    when (initialScrollToFeature) {
+                        FeatureIndicator.UDP_2_TCP -> 18
+                        FeatureIndicator.SHADOWSOCKS -> 18
+                        FeatureIndicator.LAN_SHARING -> 3
+                        FeatureIndicator.QUANTUM_RESISTANCE -> 13
+                        FeatureIndicator.DNS_CONTENT_BLOCKERS -> 4
+                        FeatureIndicator.CUSTOM_DNS -> 5
+                        FeatureIndicator.CUSTOM_MTU -> 20
+                        else -> 0
+                    }
+            ),
     ) { modifier, lazyListState ->
         LazyColumn(
             modifier = modifier.testTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG).animateContentSize(),

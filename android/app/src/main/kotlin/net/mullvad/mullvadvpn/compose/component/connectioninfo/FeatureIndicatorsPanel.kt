@@ -23,6 +23,7 @@ fun FeatureIndicatorsPanel(
     featureIndicators: List<FeatureIndicator>,
     expanded: Boolean,
     onToggleExpand: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
     if (featureIndicators.isNotEmpty()) {
         if (expanded) {
@@ -31,7 +32,7 @@ fun FeatureIndicatorsPanel(
                 Modifier.fillMaxWidth(),
             )
         }
-        FeatureIndicators(featureIndicators, expanded, onToggleExpand)
+        FeatureIndicators(featureIndicators, expanded, onToggleExpand, onNavigateToFeature)
     }
 }
 
@@ -41,6 +42,7 @@ fun FeatureIndicators(
     features: List<FeatureIndicator>,
     expanded: Boolean,
     onToggleExpand: () -> Unit,
+    onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
     ContextualFlowRow(
         modifier = Modifier.fillMaxWidth(),
@@ -67,7 +69,11 @@ fun FeatureIndicators(
                 collapseIndicator = {},
             ),
     ) { index ->
-        MullvadFeatureChip(text = features[index].text())
+        val featureIndicator = features[index]
+        MullvadFeatureChip(
+            text = featureIndicator.text(),
+            onClick = { onNavigateToFeature(featureIndicator) },
+        )
     }
 
     // Spacing are added to compensate for when there are no feature indicators, since each feature

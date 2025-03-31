@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.theme.shape.chipShape
 @Preview
 @Composable
 private fun PreviewMullvadFeatureChip() {
-    AppTheme { Row { MullvadFeatureChip(text = "DAITA") } }
+    AppTheme { Row { MullvadFeatureChip(text = "DAITA", onClick = {}) } }
 }
 
 @Composable
@@ -25,6 +25,7 @@ fun MullvadFeatureChip(
     borderColor: Color = MaterialTheme.colorScheme.primary,
     labelColor: Color = MaterialTheme.colorScheme.onPrimary,
     iconColor: Color = MaterialTheme.colorScheme.onPrimary,
+    onClick: () -> Unit,
     text: String,
 ) {
     FilterChip(
@@ -43,8 +44,7 @@ fun MullvadFeatureChip(
                 selected = false,
             ),
         selected = false,
-        onClick = {},
-        enabled = false,
+        onClick = onClick,
         label = {
             Text(
                 text = text,
