@@ -115,7 +115,7 @@ enum Message {
     },
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug)]
 enum RoutingState {
     /// There is no version available yet
     NoVersion,
@@ -131,7 +131,8 @@ enum RoutingState {
         /// Version check update received while paused
         /// When transitioning out of `Upgrading`, this will cause `version_info` to be updated
         new_version: Option<VersionCache>,
-        //update_progress: mullvad_types::version::UpdateProgress,
+        /// Tokio task for the downloader handle
+        downloader_handle: tokio::task::JoinHandle<()>,
     },
 }
 
@@ -223,7 +224,7 @@ impl VersionRouter {
                 let _ = result_tx.send(());
             }
             Message::CancelUpdate { result_tx } => {
-                self.cancel_upgrade();
+                self.cancel_upgrade().await;
                 let _ = result_tx.send(());
             }
             Message::NewUpgradeEventListener {
@@ -279,6 +280,7 @@ impl VersionRouter {
                 version_info,
                 upgrading_to_version,
                 new_version: _,
+                downloader_handle: _,
             } => {
                 let suggested_upgrade = suggested_upgrade_for_version(upgrading_to_version);
                 let info = AppVersionInfo {
@@ -303,18 +305,21 @@ impl VersionRouter {
                     return;
                 };
 
-                let downloader_fut = downloader::Downloader::start(
-                    suggested_upgrade.clone(),
-                    self.update_event_tx.clone(),
-                )
-                .await
-                .expect("TODO: handle err");
+                let downloader_handle = tokio::spawn(
+                    downloader::Downloader::start(
+                        suggested_upgrade.clone(),
+                        self.update_event_tx.clone(),
+                    )
+                    .await
+                    .expect("TODO: handle err"),
+                );
 
                 log::debug!("Starting upgrade");
                 self.state = RoutingState::Upgrading {
                     version_info,
                     upgrading_to_version: suggested_upgrade,
                     new_version: None,
+                    downloader_handle,
                 };
 
                 // Notify callers of `get_latest_version`: cancel the version check and
@@ -328,7 +333,7 @@ impl VersionRouter {
         }
     }
 
-    fn cancel_upgrade(&mut self) {
+    async fn cancel_upgrade(&mut self) {
         match mem::replace(&mut self.state, RoutingState::NoVersion) {
             // No-op unless we're upgrading
             state @ RoutingState::NoVersion | state @ RoutingState::HasVersion { .. } => {
@@ -340,7 +345,12 @@ impl VersionRouter {
                 version_info,
                 upgrading_to_version: _,
                 new_version,
+                downloader_handle,
             } => {
+                // Abort download
+                downloader_handle.abort();
+                let _ = downloader_handle.await;
+
                 // Reset app version info to last known state
                 self.state = RoutingState::HasVersion { version_info };
 
