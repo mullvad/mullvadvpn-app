@@ -13,11 +13,6 @@ import Operations
 import WireGuardKitTypes
 
 public protocol APIQuerying: Sendable {
-    func mullvadApiGetAddressList(
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
-    ) -> Cancellable
-
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
@@ -60,30 +55,6 @@ extension REST {
                 ),
                 responseDecoder: Coding.makeJSONDecoder()
             )
-        }
-
-        public func mullvadApiGetAddressList(
-            retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
-        ) -> Cancellable {
-            let responseHandler = rustResponseHandler(
-                decoding: [AnyIPEndpoint].self,
-                with: responseDecoder
-            )
-
-            let networkOperation = MullvadApiNetworkOperation(
-                name: "get-api-addrs",
-                dispatchQueue: dispatchQueue,
-                request: .getAddressList(retryStrategy),
-                transportProvider: configuration.apiTransportProvider,
-                responseDecoder: responseDecoder,
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
-            )
-
-            operationQueue.addOperation(networkOperation)
-
-            return networkOperation
         }
 
         public func getAddressList(
@@ -314,62 +285,13 @@ extension REST {
 
     // MARK: - Response types
 
-    public enum ServerRelaysCacheResponse: Sendable {
-        case notModified
-        case newContent(_ etag: String?, _ rawData: Data)
-    }
-
     private struct CreateApplePaymentRequest: Encodable, Sendable {
         let receiptString: Data
-    }
-
-    public enum CreateApplePaymentResponse: Sendable {
-        case noTimeAdded(_ expiry: Date)
-        case timeAdded(_ timeAdded: Int, _ newExpiry: Date)
-
-        public var newExpiry: Date {
-            switch self {
-            case let .noTimeAdded(expiry), let .timeAdded(_, expiry):
-                return expiry
-            }
-        }
-
-        public var timeAdded: TimeInterval {
-            switch self {
-            case .noTimeAdded:
-                return 0
-            case let .timeAdded(timeAdded, _):
-                return TimeInterval(timeAdded)
-            }
-        }
-
-        /// Returns a formatted string for the `timeAdded` interval, i.e "30 days"
-        public var formattedTimeAdded: String? {
-            let formatter = DateComponentsFormatter()
-            formatter.allowedUnits = [.day, .hour]
-            formatter.unitsStyle = .full
-
-            return formatter.string(from: self.timeAdded)
-        }
     }
 
     private struct CreateApplePaymentRawResponse: Decodable, Sendable {
         let timeAdded: Int
         let newExpiry: Date
-    }
-
-    public struct ProblemReportRequest: Encodable, Sendable {
-        public let address: String
-        public let message: String
-        public let log: String
-        public let metadata: [String: String]
-
-        public init(address: String, message: String, log: String, metadata: [String: String]) {
-            self.address = address
-            self.message = message
-            self.log = log
-            self.metadata = metadata
-        }
     }
 
     private struct SubmitVoucherRequest: Encodable, Sendable {
