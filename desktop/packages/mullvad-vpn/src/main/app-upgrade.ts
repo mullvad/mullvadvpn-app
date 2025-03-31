@@ -1,13 +1,10 @@
-import { execFile } from 'child_process';
+import { shell } from 'electron';
 import fs from 'fs/promises';
-import { promisify } from 'util';
 
 import { DaemonAppUpgradeEvent } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
 import { DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import { IpcMainEventChannel } from './ipc-event-channel';
-
-const execFilePromise = promisify(execFile);
 
 export default class AppUpgrade {
   public constructor(private daemonRpc: DaemonRpc) {}
@@ -27,8 +24,11 @@ export default class AppUpgrade {
         IpcMainEventChannel.app.notifyUpgradeEvent?.({
           type: 'APP_UPGRADE_STATUS_STARTED_INSTALLER',
         });
-      } catch {
+      } catch (e) {
         IpcMainEventChannel.app.notifyUpgradeError?.('START_INSTALLER_FAILED');
+
+        const error = e as Error;
+        log.error(`Could not start installer: ${error.message}`);
       }
     });
   }
@@ -59,7 +59,7 @@ export default class AppUpgrade {
 
   private async executeInstaller(verifiedInstallerPath: string) {
     try {
-      await execFilePromise(verifiedInstallerPath);
+      await shell.openPath(verifiedInstallerPath);
     } catch {
       throw new Error(`Could not start installer at path: ${verifiedInstallerPath}`);
     }
