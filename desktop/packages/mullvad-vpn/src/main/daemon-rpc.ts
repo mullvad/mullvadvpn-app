@@ -1,4 +1,5 @@
 import * as grpc from '@grpc/grpc-js';
+import fs from 'fs';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb.js';
 import { BoolValue, StringValue } from 'google-protobuf/google/protobuf/wrappers_pb.js';
 import { types as grpcTypes } from 'management-interface';
@@ -93,6 +94,23 @@ export class DaemonRpc extends GrpcClient {
     }
 
     super.disconnect();
+  }
+
+  public async verifyDaemonOwnership() {
+    if (process.platform === 'win32') {
+      try {
+        const { pipeIsAdminOwned } = await import('windows-utils');
+        pipeIsAdminOwned(DAEMON_RPC_PATH);
+      } catch {
+        throw new Error('Failed to verify admin ownership of named pipe');
+      }
+    } else {
+      const stat = fs.statSync(DAEMON_RPC_PATH);
+      // We assume the uid/gid for root is 0
+      if (stat.uid !== 0 || stat.gid !== 0) {
+        throw new Error('Failed to verify root ownership of socket');
+      }
+    }
   }
 
   public subscribeAppUpgradeEventListener(listener: SubscriptionListener<DaemonAppUpgradeEvent>) {
