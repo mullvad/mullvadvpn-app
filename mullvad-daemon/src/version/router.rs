@@ -135,6 +135,13 @@ enum RoutingState {
         /// Tokio task for the downloader handle
         downloader_handle: tokio::task::JoinHandle<()>,
     },
+    /// Download is complete. We have a verified binary
+    Downloaded {
+        /// Version info received from `HasVersion`
+        version_info: VersionCache,
+        /// Path to verified installer
+        verified_installer_path: PathBuf,
+    },
 }
 
 impl VersionRouter {
@@ -244,7 +251,8 @@ impl VersionRouter {
 
         match &self.state {
             // Emit version event if suggested upgrade changes
-            RoutingState::HasVersion { version_info } => {
+            RoutingState::HasVersion { version_info }
+            | RoutingState::Downloaded { version_info, .. } => {
                 let prev_app_version_info = to_app_version_info(version_info, prev_state);
                 let new_app_version_info = to_app_version_info(version_info, new_state);
 
@@ -265,7 +273,9 @@ impl VersionRouter {
             // When not upgrading, potentially fetch new version info, and append `result_tx` to
             // list of channels to notify.
             // We don't wait on `get_version_info` so that we don't block user commands.
-            RoutingState::NoVersion | RoutingState::HasVersion { .. } => {
+            RoutingState::NoVersion
+            | RoutingState::HasVersion { .. }
+            | RoutingState::Downloaded { .. } => {
                 // Start a version request unless already in progress
                 if self.version_request.is_terminated() {
                     let check = self.version_check.clone();
@@ -327,7 +337,7 @@ impl VersionRouter {
                 // advertise the last known version as latest
                 self.notify_version_requesters();
             }
-            // Already upgrading or no version: do nothing
+            // Already downloading/downloaded or there is no version: do nothing
             state => {
                 self.state = state;
             }
@@ -336,10 +346,6 @@ impl VersionRouter {
 
     async fn cancel_upgrade(&mut self) {
         match mem::replace(&mut self.state, RoutingState::NoVersion) {
-            // No-op unless we're upgrading
-            state @ RoutingState::NoVersion | state @ RoutingState::HasVersion { .. } => {
-                self.state = state;
-            }
             // If we're upgrading, emit an event if a version was received during the upgrade
             // Otherwise, just reset upgrade info to last known state
             RoutingState::Downloading {
@@ -360,6 +366,9 @@ impl VersionRouter {
                     self.on_new_version(version);
                 }
             }
+            // No-op unless we're downloading something right now
+            // In the `Downloaded` state, we also do nothing
+            state => self.state = state,
         };
     }
 
@@ -380,16 +389,17 @@ impl VersionRouter {
                 let _ = self.version_event_sender.send(app_version_info);
             }
             // Update app version info
-            RoutingState::HasVersion {
-                ref mut version_info,
-            } => {
-                *version_info = version.clone();
-
+            RoutingState::HasVersion { .. } | RoutingState::Downloaded { .. } => {
+                // If the version changed, notify channel
                 let prev_version = to_app_version_info(&version, self.beta_program);
                 let new_version = to_app_version_info(&version, self.beta_program);
-                // If the version changed, notify channel
                 if new_version != prev_version {
                     let _ = self.version_event_sender.send(new_version.clone());
+
+                    // Note: If we're in the `Downloaded` state, this resets the state to `HasVersion`
+                    self.state = RoutingState::HasVersion {
+                        version_info: version,
+                    };
                 }
             }
             // If we're upgrading, remember the new version, but don't send any notification
@@ -417,7 +427,8 @@ impl VersionRouter {
                 return;
             }
             // Update app version info
-            RoutingState::HasVersion { version_info } => {
+            RoutingState::HasVersion { version_info }
+            | RoutingState::Downloaded { version_info, .. } => {
                 to_app_version_info(version_info, self.beta_program)
             }
             // If we're upgrading, emit the version we're currently upgrading to
