@@ -50,7 +50,7 @@ impl SwiftMullvadApiResponse {
         })
     }
 
-    pub async fn ok() -> Result<Self, rest::Error> {
+    pub fn ok() -> Result<Self, rest::Error> {
         Ok(Self {
             success: true,
             error_description: null_mut(),

@@ -16,7 +16,6 @@ use super::{
 
 use mullvad_api::rest::Error;
 use std::collections::BTreeMap;
-use std::slice;
 use tokio::task::JoinHandle;
 
 #[no_mangle]
@@ -53,7 +52,7 @@ pub unsafe extern "C" fn mullvad_api_send_problem_report(
     };
 
     let task: JoinHandle<()> = tokio_handle.spawn(async move {
-        match mullvad_api_send_problem_report_inner(
+        match do_request(
             api_context.rest_handle(),
             retry_strategy,
             problem_report_request,
@@ -71,7 +70,7 @@ pub unsafe extern "C" fn mullvad_api_send_problem_report(
     RequestCancelHandle::new(task, completion_handler.clone()).into_swift()
 }
 
-async fn mullvad_api_send_problem_report_inner(
+async fn do_request(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     problem_report_request: ProblemReportRequest,
@@ -93,17 +92,14 @@ async fn mullvad_api_send_problem_report_inner(
     };
 
     retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
-    SwiftMullvadApiResponse::ok().await
+    SwiftMullvadApiResponse::ok()
 }
 
 #[repr(C)]
 pub struct SwiftProblemReportRequest {
     address: *const u8,
-    address_len: usize,
     message: *const u8,
-    message_len: usize,
     log: *const u8,
-    log_len: usize,
     meta_data: ProblemReportMetadata,
 }
 
@@ -118,13 +114,22 @@ unsafe impl Send for SwiftProblemReportRequest {}
 
 impl ProblemReportRequest {
     unsafe fn from_swift_parameters(request: SwiftProblemReportRequest) -> Option<Self> {
-        let address_slice = slice::from_raw_parts(request.address, request.address_len);
-        let message_slice = slice::from_raw_parts(request.message, request.message_len);
-        let log_slice = slice::from_raw_parts(request.log, request.log_len);
+        fn get_string(ptr: *const u8) -> String {
+            if ptr.is_null() {
+                return String::new();
+            }
 
-        let address = String::from_utf8(address_slice.to_vec()).ok()?;
-        let message = String::from_utf8(message_slice.to_vec()).ok()?;
-        let log = log_slice.to_vec();
+            unsafe {
+                CStr::from_ptr(ptr.cast())
+                    .to_str()
+                    .map(ToOwned::to_owned)
+                    .unwrap_or_default()
+            }
+        }
+
+        let address = get_string(request.address);
+        let message = get_string(request.message);
+        let log = get_string(request.log).into();
 
         let meta_data = if request.meta_data.inner.is_null() {
             BTreeMap::new()
