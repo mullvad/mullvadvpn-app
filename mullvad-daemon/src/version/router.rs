@@ -350,7 +350,7 @@ impl VersionRouter {
 }
 
 fn to_app_version_info(cache: VersionCache, beta_program: bool) -> AppVersionInfo {
-    let version = if beta_program {
+    let version_details = if beta_program {
         cache
             .latest_version
             .beta
@@ -359,15 +359,18 @@ fn to_app_version_info(cache: VersionCache, beta_program: bool) -> AppVersionInf
         cache.latest_version.stable
     };
 
-    // TODO: if the current version is up to date, set suggested_upgrade to None
+    // Set suggested upgrade if the received version is newer than the current version
+    let current_version = mullvad_version::VERSION.parse().unwrap();
+    let suggested_upgrade =
+        (version_details.version > current_version).then_some(SuggestedUpgrade {
+            version: version_details.version,
+            changelog: Some(version_details.changelog),
+            // TODO: This should return the downloaded & verified path, if it exists
+            verified_installer_path: None,
+        });
 
     mullvad_types::version::AppVersionInfo {
         current_version_supported: cache.current_version_supported,
-        suggested_upgrade: Some(SuggestedUpgrade {
-            version: version.version,
-            changelog: Some(version.changelog),
-            // TODO: This should return the downloaded & verified path, if it exists
-            verified_installer_path: None,
-        }),
+        suggested_upgrade,
     }
 }
