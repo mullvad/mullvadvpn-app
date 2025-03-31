@@ -122,8 +122,8 @@ enum RoutingState {
     NoVersion,
     /// Running version checker, no upgrade in progress
     HasVersion { version_info: VersionCache },
-    /// Upgrade is in progress, so we don't forward version checks
-    Upgrading {
+    /// Download is in progress, so we don't forward version checks
+    Downloading {
         /// Version info received from `HasVersion`
         version_info: VersionCache,
         /// The version being upgraded to (derived from `suggested_upgrade`).
@@ -253,7 +253,7 @@ impl VersionRouter {
                 }
             }
             // If there's no version or upgrading, do nothing
-            RoutingState::NoVersion | RoutingState::Upgrading { .. } => (),
+            RoutingState::NoVersion | RoutingState::Downloading { .. } => (),
         }
     }
 
@@ -277,7 +277,7 @@ impl VersionRouter {
                 self.version_request_channels.push(result_tx);
             }
             // During upgrades, just pass on the last known version
-            RoutingState::Upgrading {
+            RoutingState::Downloading {
                 version_info,
                 upgrading_to_version,
                 new_version: _,
@@ -316,7 +316,7 @@ impl VersionRouter {
                 );
 
                 log::debug!("Starting upgrade");
-                self.state = RoutingState::Upgrading {
+                self.state = RoutingState::Downloading {
                     version_info,
                     upgrading_to_version: suggested_upgrade,
                     new_version: None,
@@ -342,7 +342,7 @@ impl VersionRouter {
             }
             // If we're upgrading, emit an event if a version was received during the upgrade
             // Otherwise, just reset upgrade info to last known state
-            RoutingState::Upgrading {
+            RoutingState::Downloading {
                 version_info,
                 upgrading_to_version: _,
                 new_version,
@@ -393,7 +393,7 @@ impl VersionRouter {
                 }
             }
             // If we're upgrading, remember the new version, but don't send any notification
-            RoutingState::Upgrading {
+            RoutingState::Downloading {
                 ref mut new_version,
                 ..
             } => {
@@ -421,7 +421,7 @@ impl VersionRouter {
                 to_app_version_info(version_info, self.beta_program)
             }
             // If we're upgrading, emit the version we're currently upgrading to
-            RoutingState::Upgrading {
+            RoutingState::Downloading {
                 version_info,
                 upgrading_to_version,
                 ..
