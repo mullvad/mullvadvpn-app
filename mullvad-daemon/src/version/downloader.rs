@@ -118,7 +118,7 @@ impl mullvad_update::fetch::ProgressUpdater for ProgressUpdater {
 
         self.complete_frac = fraction_complete;
 
-        let _ = self.event_tx.send(UpdateEvent::Downloading {
+        let _ = self.event_tx.unbounded_send(UpdateEvent::Downloading {
             server: self.server.clone(),
             complete_frac: fraction_complete,
             // TODO: estimate time left based on how much was downloaded (maybe in last n seconds)
@@ -129,7 +129,7 @@ impl mullvad_update::fetch::ProgressUpdater for ProgressUpdater {
     fn clear_progress(&mut self) {
         self.complete_frac = 0.;
 
-        let _ = self.event_tx.send(UpdateEvent::Downloading {
+        let _ = self.event_tx.unbounded_send(UpdateEvent::Downloading {
             server: self.server.clone(),
             complete_frac: 0.,
             // TODO: Check if this is reasonable
