@@ -374,7 +374,8 @@ impl VersionRouter {
 
                 // If we also received an upgrade, emit new version event
                 if let Some(version) = new_version {
-                    self.on_new_version(version);
+                    let app_version = to_app_version_info(&version, self.beta_program);
+                    let _ = self.version_event_sender.send(app_version);
                 }
             }
             // No-op unless we're downloading something right now
