@@ -15,5 +15,6 @@
         <![CDATA[<ul><li>10.0.0.0/8</li><li>172.16.0.0/12</li><li>192.168.0.0/16</li><li>169.254.0.0/16</li><li>fe80::/10</li><li>fc00::/7</li></ul>]]>
     </string>
     <string name="daita">DAITA</string>
+    <string name="daita_multihop">DAITA: Multihop</string>
     <string name="daita_full">Defence against AI-guided Traffic Analysis</string>
 </resources>

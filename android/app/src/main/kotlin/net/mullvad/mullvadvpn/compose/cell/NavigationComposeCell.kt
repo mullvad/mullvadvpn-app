@@ -76,11 +76,12 @@ fun NavigationComposeCell(
     testTag: String = "",
 ) {
     BaseCell(
+        modifier = modifier,
         onCellClicked = onClick,
         headlineContent = {
             NavigationTitleView(
                 title = title,
-                modifier = modifier.weight(1f, true),
+                modifier = Modifier.weight(1f, true),
                 showWarning = showWarning,
             )
         },

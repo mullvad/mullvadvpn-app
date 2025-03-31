@@ -9,6 +9,6 @@ class ServerIpOverridesUiStatePreviewParameterProvider :
         sequenceOf(
             ServerIpOverridesUiState.Loaded(overridesActive = true),
             ServerIpOverridesUiState.Loaded(overridesActive = false),
-            ServerIpOverridesUiState.Loading,
+            ServerIpOverridesUiState.Loading(),
         )
 }
