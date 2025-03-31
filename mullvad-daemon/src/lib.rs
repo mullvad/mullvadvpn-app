@@ -2295,10 +2295,11 @@ impl Daemon {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_show_beta_releases response");
                 if settings_changed {
-                    self.version_handle
-                        .set_show_beta_releases(enabled)
-                        .await
-                        .unwrap(); // TODO: Handle error
+                    let version_handle = self.version_handle.clone();
+                    tokio::spawn(async move {
+                        // TODO: notify `tx` here instead?
+                        let _ = version_handle.set_show_beta_releases(enabled).await;
+                    });
                 }
             }
             Err(e) => {
@@ -3003,10 +3004,16 @@ impl Daemon {
         let dns = dns::addresses_from_options(&self.settings.tunnel_options.dns_options);
         self.send_tunnel_command(TunnelCommand::Dns(dns, tx));
 
-        self.version_handle
-            .set_show_beta_releases(self.settings.show_beta_releases)
-            .await
-            .unwrap(); // TODO: Handle error????
+        let version_handle = self.version_handle.clone();
+        let show_beta_releases = self.settings.show_beta_releases;
+        tokio::spawn(async move {
+            if let Err(error) = version_handle
+                .set_show_beta_releases(show_beta_releases)
+                .await
+            {
+                log::error!("Failed to reset beta releases state: {error}");
+            }
+        });
         let access_mode_handler = self.access_mode_handler.clone();
         tokio::spawn(async move {
             if let Err(error) = access_mode_handler.rotate().await {
