@@ -9,6 +9,7 @@ use futures::stream::StreamExt;
 use futures::FutureExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
 use mullvad_types::version::{AppUpgradeEvent, AppVersionInfo, SuggestedUpgrade};
+use mullvad_update::version::VersionInfo;
 use talpid_core::mpsc::Sender;
 
 use crate::DaemonEventSender;
@@ -244,8 +245,8 @@ impl VersionRouter {
         match &self.state {
             // Emit version event if suggested upgrade changes
             RoutingState::HasVersion { version_info } => {
-                let prev_app_version_info = to_app_version_info(version_info.clone(), prev_state);
-                let new_app_version_info = to_app_version_info(version_info.clone(), new_state);
+                let prev_app_version_info = to_app_version_info(version_info, prev_state);
+                let new_app_version_info = to_app_version_info(version_info, new_state);
 
                 if new_app_version_info != prev_app_version_info {
                     self.on_new_version(version_info.clone());
@@ -297,7 +298,7 @@ impl VersionRouter {
             // Checking state: start upgrade, if upgrade is available
             RoutingState::HasVersion { version_info } => {
                 let Some(suggested_upgrade) =
-                    suggested_upgrade(version_info.clone(), self.beta_program)
+                    suggested_upgrade(&version_info.latest_version, self.beta_program)
                 else {
                     // If there's no suggested upgrade, do nothing
                     log::trace!("Received update request without suggested upgrade");
@@ -375,7 +376,7 @@ impl VersionRouter {
                 };
 
                 // Initial version is propagated
-                let app_version_info = to_app_version_info(version, self.beta_program);
+                let app_version_info = to_app_version_info(&version, self.beta_program);
                 let _ = self.version_event_sender.send(app_version_info);
             }
             // Update app version info
@@ -384,8 +385,8 @@ impl VersionRouter {
             } => {
                 *version_info = version.clone();
 
-                let prev_version = to_app_version_info(version.clone(), self.beta_program);
-                let new_version = to_app_version_info(version, self.beta_program);
+                let prev_version = to_app_version_info(&version, self.beta_program);
+                let new_version = to_app_version_info(&version, self.beta_program);
                 // If the version changed, notify channel
                 if new_version != prev_version {
                     let _ = self.version_event_sender.send(new_version.clone());
@@ -417,7 +418,7 @@ impl VersionRouter {
             }
             // Update app version info
             RoutingState::HasVersion { version_info } => {
-                to_app_version_info(version_info.clone(), self.beta_program)
+                to_app_version_info(version_info, self.beta_program)
             }
             // If we're upgrading, emit the version we're currently upgrading to
             RoutingState::Upgrading {
@@ -440,9 +441,9 @@ impl VersionRouter {
     }
 }
 
-fn to_app_version_info(cache: VersionCache, beta_program: bool) -> AppVersionInfo {
+fn to_app_version_info(cache: &VersionCache, beta_program: bool) -> AppVersionInfo {
     let current_version_supported = cache.current_version_supported;
-    let suggested_upgrade = suggested_upgrade(cache, beta_program)
+    let suggested_upgrade = suggested_upgrade(&cache.latest_version, beta_program)
         .as_ref()
         .map(suggested_upgrade_for_version);
     AppVersionInfo {
@@ -453,22 +454,19 @@ fn to_app_version_info(cache: VersionCache, beta_program: bool) -> AppVersionInf
 
 /// Extract upgrade version from [VersionCache] based on `beta_program`
 fn suggested_upgrade(
-    cache: VersionCache,
+    version_info: &VersionInfo,
     beta_program: bool,
 ) -> Option<mullvad_update::version::Version> {
     let version_details = if beta_program {
-        cache
-            .latest_version
-            .beta
-            .unwrap_or(cache.latest_version.stable)
+        version_info.beta.as_ref().unwrap_or(&version_info.stable)
     } else {
-        cache.latest_version.stable
+        &version_info.stable
     };
 
     // Set suggested upgrade if the received version is newer than the current version
     let current_version = mullvad_version::VERSION.parse().unwrap();
     if version_details.version > current_version {
-        Some(version_details)
+        Some(version_details.to_owned())
     } else {
         None
     }
