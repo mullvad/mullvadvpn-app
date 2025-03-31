@@ -257,7 +257,14 @@ impl VersionRouter {
                 let new_app_version_info = to_app_version_info(version_info, new_state);
 
                 if new_app_version_info != prev_app_version_info {
-                    self.on_new_version(version_info.clone());
+                    let _ = self.version_event_sender.send(new_app_version_info);
+
+                    // Note: If we're in the `Downloaded` state, this resets the state to `HasVersion`
+                    self.state = RoutingState::HasVersion {
+                        version_info: version_info.clone(),
+                    };
+
+                    self.notify_version_requesters();
                 }
             }
             // If there's no version or upgrading, do nothing
