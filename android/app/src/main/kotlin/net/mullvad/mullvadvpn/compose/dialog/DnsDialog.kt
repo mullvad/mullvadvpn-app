@@ -64,8 +64,7 @@ fun Dns(resultNavigator: ResultBackNavigator<DnsDialogResult>) {
         viewModel::onDnsInputChange,
         onSaveDnsClick = viewModel::onSaveDnsClick,
         onRemoveDnsClick = viewModel::onRemoveDnsClick,
-        onDismiss =
-            dropUnlessResumed { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) },
+        onDismiss = dropUnlessResumed { resultNavigator.navigateBack() },
     )
 }
 

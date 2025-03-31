@@ -2,12 +2,14 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
 import arrow.core.Either
+import com.ramcosta.composedestinations.generated.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.screen.MultihopNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
@@ -32,7 +34,10 @@ class MultihopViewModelTest {
             wireguardConstraints
 
         multihopViewModel =
-            MultihopViewModel(wireguardConstraintsRepository = mockWireguardConstraintsRepository)
+            MultihopViewModel(
+                wireguardConstraintsRepository = mockWireguardConstraintsRepository,
+                savedStateHandle = MultihopNavArgs().toSavedStateHandle(),
+            )
     }
 
     @Test
