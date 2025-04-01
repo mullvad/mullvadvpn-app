@@ -73,11 +73,11 @@ impl StringResource {
     /// Create a new Android string resource entry.
     ///
     /// The name is the resource ID, and the value will be properly escaped.
-    pub fn new(name: String, value: &str) -> Self {
+    pub fn new(name: String, value: &str, arg_ordering: &Option<Vec<i8>>) -> Self {
         StringResource {
             name,
             translatable: true,
-            value: StringValue::from_unescaped(value),
+            value: StringValue::from_unescaped(value, arg_ordering),
         }
     }
 }

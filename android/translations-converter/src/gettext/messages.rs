@@ -22,7 +22,7 @@ pub struct MsgEntry {
 /// A message string or plural set in a gettext translation file.
 #[derive(Clone, Debug)]
 pub enum MsgValue {
-    Invariant(MsgString),
+    Invariant(MsgString, Option<Vec<i8>>),
     Plural {
         plural_id: MsgString,
         values: Vec<MsgString>,
@@ -57,8 +57,8 @@ impl Messages {
     /// The plural form for the messages is left unconfigured.
     pub fn starting_with(id: MsgString, msg_str: MsgString) -> Self {
         let first_entry = MsgEntry {
-            id,
-            value: MsgValue::Invariant(msg_str),
+            id: id.clone(),
+            value: MsgValue::Invariant(msg_str.clone(), argument_ordering(id, msg_str)),
         };
 
         Messages {
@@ -70,8 +70,8 @@ impl Messages {
     /// Add a non-plural entry.
     pub fn add(&mut self, id: MsgString, msg_str: MsgString) {
         let entry = MsgEntry {
-            id,
-            value: MsgValue::Invariant(msg_str),
+            id: id.clone(),
+            value: MsgValue::Invariant(msg_str.clone(), argument_ordering(id, msg_str)),
         };
 
         self.entries.push(entry);
@@ -99,8 +99,55 @@ impl IntoIterator for Messages {
 
 impl From<MsgString> for MsgValue {
     fn from(string: MsgString) -> Self {
-        MsgValue::Invariant(string)
+        MsgValue::Invariant(string, None)
     }
+}
+
+fn argument_ordering(id: MsgString, msg_str: MsgString) -> Option<Vec<i8>> {
+    if id.contains("%") && msg_str.contains("%") {
+        // Extract arguments in id
+        let id_args = extract_arguments(id);
+        // Extract arguments in translation
+        let value_args = extract_arguments(msg_str);
+        // If args are exactly the same we should just return None,
+        // it will be handled by its default behaviour
+        if id_args == value_args {
+            None
+        } else {
+            // Set index as id order and value as translation order
+            Some(
+                id_args
+                    .iter()
+                    .map(|id_arg| {
+                        value_args
+                            .clone()
+                            .into_iter()
+                            .position(|value_arg| value_arg.eq(id_arg))
+                    })
+                    .map(|f| f.unwrap() as i8 + 1)
+                    .collect(),
+            )
+        }
+    } else {
+        None
+    }
+}
+
+fn extract_arguments(msg: MsgString) -> Vec<String> {
+    msg.split("%")
+        .filter_map(|s| {
+            if s.starts_with("(") {
+                // Remove everything after ')'
+                let mut msg = s;
+                if let Some((m, _)) = msg.split_once(")") {
+                    msg = m;
+                }
+                Some(String::from(msg))
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
 #[derive(Debug, thiserror::Error)]
