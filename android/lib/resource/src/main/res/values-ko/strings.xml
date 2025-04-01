@@ -390,5 +390,5 @@
     <string name="wireguard_port_title">WireGuard 포트</string>
     <string name="x_entry">%1$s(진입)</string>
     <string name="x_exit">%1$s(종료)</string>
-    <string name="x_via_x">%1$s을(를) 통한 %2$s</string>
+    <string name="x_via_x">%2$s을(를) 통한 %1$s</string>
 </resources>
