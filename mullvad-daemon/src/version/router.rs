@@ -1,5 +1,4 @@
 use std::future::Future;
-use std::mem;
 use std::path::PathBuf;
 use std::pin::Pin;
 
@@ -8,7 +7,7 @@ use futures::future::{Fuse, FusedFuture};
 use futures::stream::StreamExt;
 use futures::FutureExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
-use mullvad_types::version::{AppUpgradeEvent, AppVersionInfo, SuggestedUpgrade};
+use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
 use mullvad_update::version::VersionInfo;
 use talpid_core::mpsc::Sender;
 
@@ -16,8 +15,15 @@ use crate::DaemonEventSender;
 
 use super::{
     check::{self, VersionCache, VersionUpdater},
-    downloader, Error,
+    Error,
 };
+
+#[cfg(update)]
+use super::downloader;
+#[cfg(update)]
+use mullvad_types::version::AppUpgradeEvent;
+#[cfg(update)]
+use std::mem;
 
 type Result<T> = std::result::Result<T, Error>;
 
@@ -43,6 +49,7 @@ impl VersionRouterHandle {
         result_rx.await.map_err(|_| Error::VersionRouterClosed)?
     }
 
+    #[cfg(update)]
     pub async fn update_application(&self) -> Result<()> {
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
@@ -51,6 +58,7 @@ impl VersionRouterHandle {
         result_rx.await.map_err(|_| Error::VersionRouterClosed)
     }
 
+    #[cfg(update)]
     pub async fn cancel_update(&self) -> Result<()> {
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
@@ -59,6 +67,7 @@ impl VersionRouterHandle {
         result_rx.await.map_err(|_| Error::VersionRouterClosed)
     }
 
+    #[cfg(update)]
     pub fn new_upgrade_event_listener(
         &self,
     ) -> Result<mpsc::UnboundedReceiver<mullvad_types::version::AppUpgradeEvent>> {
@@ -89,12 +98,30 @@ pub struct VersionRouter {
     version_request: Fuse<Pin<Box<dyn Future<Output = Result<VersionCache>> + Send>>>,
     /// Channels that receive responses to `get_latest_version`
     version_request_channels: Vec<oneshot::Sender<Result<mullvad_types::version::AppVersionInfo>>>,
+    #[cfg(update)]
+    update: Update,
+}
+
+#[cfg(update)]
+struct Update {
     /// Channel used to send upgrade events from [downloader::Downloader]
     update_event_tx: mpsc::UnboundedSender<downloader::UpdateEvent>,
     /// Channel used to receive upgrade events from [downloader::Downloader]
     update_event_rx: mpsc::UnboundedReceiver<downloader::UpdateEvent>,
     /// Clients that will also receive events
     upgrade_listeners: Vec<mpsc::UnboundedSender<AppUpgradeEvent>>,
+}
+
+#[cfg(update)]
+impl Update {
+    fn new() -> Self {
+        let (update_event_tx, update_event_rx) = mpsc::unbounded();
+        Self {
+            update_event_tx,
+            update_event_rx,
+            upgrade_listeners: Vec::default(),
+        }
+    }
 }
 
 enum Message {
@@ -106,10 +133,13 @@ enum Message {
     /// Check for updates
     GetLatestVersion(oneshot::Sender<Result<mullvad_types::version::AppVersionInfo>>),
     /// Update the application
+    #[cfg(update)]
     UpdateApplication { result_tx: oneshot::Sender<()> },
     /// Cancel the ongoing update
+    #[cfg(update)]
     CancelUpdate { result_tx: oneshot::Sender<()> },
     /// Listen for events
+    #[cfg(update)]
     NewUpgradeEventListener {
         /// Channel for receiving update events
         event_tx: mpsc::UnboundedSender<AppUpgradeEvent>,
@@ -160,8 +190,6 @@ impl VersionRouter {
                 VersionUpdater::spawn(api_handle, availability_handle, cache_dir, new_version_tx)
                     .await;
 
-            let (update_event_tx, update_event_rx) = mpsc::unbounded();
-
             // TODO: tokio::join! here?
             Self {
                 rx,
@@ -172,9 +200,8 @@ impl VersionRouter {
                 new_version_rx,
                 version_request: Fuse::terminated(),
                 version_request_channels: vec![],
-                update_event_tx,
-                update_event_rx,
-                upgrade_listeners: vec![],
+                #[cfg(update)]
+                update: Update::new(),
             }
             .run()
             .await;
@@ -183,6 +210,22 @@ impl VersionRouter {
     }
 
     async fn run(mut self) {
+        // HACK: We can (should) only handle upgrade events on some targets.
+        // Trying to cfg a branch in `tokio::select!` will not work, so creating
+        // a closure for conditionally responding to upgrade events will have to do.
+        #[cfg(update)]
+        let fut = || async {
+            // Received upgrade event from `downloader`
+            if let Some(update_event) = self.update.update_event_rx.next().await {
+                self.handle_update_event(update_event);
+            };
+        };
+
+        #[cfg(not(update))]
+        let fut = || async {
+            let () = std::future::pending().await;
+        };
+
         loop {
             tokio::select! {
                 // Respond to version info requests
@@ -204,10 +247,8 @@ impl VersionRouter {
                 Some(new_version) = self.new_version_rx.next() => {
                     self.on_new_version(new_version);
                 }
-                // Received upgrade event from `downloader`
-                Some(update_event) = self.update_event_rx.next() => {
-                    self.handle_update_event(update_event);
-                }
+                // Received & handled upgrade event from `downloader`
+                () = fut() => { },
                 Some(message) = self.rx.next() => self.handle_message(message).await,
                 else => break,
             }
@@ -216,6 +257,7 @@ impl VersionRouter {
     }
 
     /// Handle [Message] sent by user
+    #[cfg_attr(not(update), allow(clippy::unused_async))]
     async fn handle_message(&mut self, message: Message) {
         match message {
             Message::SetBetaProgram { state, result_tx } => {
@@ -227,18 +269,21 @@ impl VersionRouter {
             Message::GetLatestVersion(result_tx) => {
                 self.get_latest_version(result_tx);
             }
+            #[cfg(update)]
             Message::UpdateApplication { result_tx } => {
                 self.update_application().await;
                 let _ = result_tx.send(());
             }
+            #[cfg(update)]
             Message::CancelUpdate { result_tx } => {
                 self.cancel_upgrade().await;
                 let _ = result_tx.send(());
             }
+            #[cfg(update)]
             Message::NewUpgradeEventListener {
                 event_tx: result_tx,
             } => {
-                self.upgrade_listeners.push(result_tx);
+                self.update.upgrade_listeners.push(result_tx);
             }
         }
     }
@@ -311,6 +356,7 @@ impl VersionRouter {
         }
     }
 
+    #[cfg(update)]
     async fn update_application(&mut self) {
         match mem::replace(&mut self.state, RoutingState::NoVersion) {
             // Checking state: start upgrade, if upgrade is available
@@ -352,6 +398,7 @@ impl VersionRouter {
         }
     }
 
+    #[cfg(update)]
     async fn cancel_upgrade(&mut self) {
         match mem::replace(&mut self.state, RoutingState::NoVersion) {
             // If we're upgrading, emit an event if a version was received during the upgrade
@@ -434,6 +481,7 @@ impl VersionRouter {
         self.notify_version_requesters();
     }
 
+    #[cfg(update)]
     fn handle_update_event(&mut self, event: downloader::UpdateEvent) {
         debug_assert!(
             matches!(self.state, RoutingState::Downloading { .. }),
