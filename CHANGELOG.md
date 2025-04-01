@@ -39,6 +39,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix node native module being unpacked to a temporary folder.
 - Fix BSOD caused by routing loop in wireguard-nt.
 
+#### macOS
+- Fix bug in parsing of network services from SCDynamicStore.
+
 
 ## [2025.5] - 2025-03-26
 This release is identical to 2025.5-beta1
