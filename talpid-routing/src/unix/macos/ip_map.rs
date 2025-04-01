@@ -1,5 +1,6 @@
 use super::interface::Family;
 
+#[derive(Clone, Debug)]
 pub struct IpMap<T> {
     v4: Option<T>,
     v6: Option<T>,
@@ -44,10 +45,16 @@ impl<T> IpMap<T> {
     }
 
     pub fn len(&self) -> usize {
-        [&self.v4, &self.v6].into_iter().flatten().count()
+        self.iter().count()
     }
 
     pub fn is_empty(&self) -> bool {
         self.len() == 0
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (Family, &T)> {
+        [(Family::V4, &self.v4), (Family::V6, &self.v6)]
+            .into_iter()
+            .flat_map(|(family, elem)| Some((family, elem.as_ref()?)))
     }
 }
