@@ -9,21 +9,6 @@
 import Foundation
 import MullvadTypes
 
-public protocol RESTAccountHandling: Sendable {
-    func createAccount(
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<REST.NewAccountData>
-    ) -> Cancellable
-
-    func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account>
-
-    func deleteAccount(
-        accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Void>
-    ) -> Cancellable
-}
-
 extension REST {
     public final class AccountsProxy: Proxy<AuthProxyConfiguration>, RESTAccountHandling, @unchecked Sendable {
         public init(configuration: AuthProxyConfiguration) {
@@ -64,7 +49,11 @@ extension REST {
             return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
         }
 
-        public func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account> {
+        public func getAccountData(
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy,
+            completion: @escaping ProxyCompletionHandler<Account>
+        ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
                     var requestBuilder = try self.requestFactory.createRequestBuilder(
@@ -85,11 +74,13 @@ extension REST {
                 with: responseDecoder
             )
 
-            return makeRequestExecutor(
+            let executor = makeRequestExecutor(
                 name: "get-my-account",
                 requestHandler: requestHandler,
                 responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
         }
 
         public func deleteAccount(
@@ -133,29 +124,5 @@ extension REST {
 
             return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
         }
-    }
-
-    public struct NewAccountData: Decodable, Sendable {
-        public let id: String
-        public let expiry: Date
-        public let maxPorts: Int
-        public let canAddPorts: Bool
-        public let maxDevices: Int
-        public let canAddDevices: Bool
-        public let number: String
-    }
-}
-
-extension REST.NewAccountData {
-    public static func mockValue() -> REST.NewAccountData {
-        return REST.NewAccountData(
-            id: UUID().uuidString,
-            expiry: Date().addingTimeInterval(3600),
-            maxPorts: 2,
-            canAddPorts: false,
-            maxDevices: 5,
-            canAddDevices: false,
-            number: "1234567890123456"
-        )
     }
 }

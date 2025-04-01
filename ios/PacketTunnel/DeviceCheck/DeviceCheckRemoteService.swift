@@ -25,7 +25,11 @@ struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
         accountNumber: String,
         completion: @escaping @Sendable (Result<Account, Error>) -> Void
     ) -> Cancellable {
-        accountsProxy.getAccountData(accountNumber: accountNumber).execute(completionHandler: completion)
+        accountsProxy.getAccountData(
+            accountNumber: accountNumber,
+            retryStrategy: .noRetry,
+            completion: completion
+        )
     }
 
     func getDevice(

@@ -36,13 +36,15 @@ class UpdateAccountDataOperation: ResultOperation<Void>, @unchecked Sendable {
             return
         }
 
-        task = accountsProxy.getAccountData(accountNumber: accountData.number).execute(
-            retryStrategy: .default
-        ) { result in
-            self.dispatchQueue.async {
-                self.didReceiveAccountData(result: result)
+        task = accountsProxy.getAccountData(
+            accountNumber: accountData.number,
+            retryStrategy: .default,
+            completion: { result in
+                self.dispatchQueue.async {
+                    self.didReceiveAccountData(result: result)
+                }
             }
-        }
+        )
     }
 
     override func operationDidCancel() {
