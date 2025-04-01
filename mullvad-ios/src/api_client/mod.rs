@@ -1,8 +1,4 @@
-use std::{
-    ffi::{c_char, CStr},
-    future::Future,
-    sync::Arc,
-};
+use std::{ffi::c_char, future::Future, sync::Arc};
 
 use access_method_resolver::SwiftAccessMethodResolver;
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
@@ -12,6 +8,7 @@ use mullvad_api::{
     rest::{self, MullvadRestHandle},
     ApiEndpoint, Runtime,
 };
+use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::{Id, Settings};
 use response::SwiftMullvadApiResponse;
 use retry_strategy::RetryStrategy;
@@ -101,19 +98,18 @@ pub unsafe extern "C" fn mullvad_api_use_access_method(
 /// This function is safe.
 #[no_mangle]
 pub extern "C" fn mullvad_api_init_new(
-    host: *const u8,
-    address: *const u8,
+    host: *const c_char,
+    address: *const c_char,
+    domain: *const c_char,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
 ) -> SwiftApiContext {
-    let host = unsafe { CStr::from_ptr(host.cast()) };
-    let address = unsafe { CStr::from_ptr(address.cast()) };
-
-    let host = host.to_str().unwrap();
-    let address = address.to_str().unwrap();
+    let host = unsafe { convert_c_string(host) };
+    let address = unsafe { convert_c_string(address) };
+    let domain = unsafe { convert_c_string(domain) };
 
     let endpoint = ApiEndpoint {
-        host: Some(String::from(host)),
+        host: Some(host),
         address: Some(address.parse().unwrap()),
     };
 
@@ -121,9 +117,15 @@ pub extern "C" fn mullvad_api_init_new(
 
     let settings_context = unsafe { settings_provider.into_rust_context() };
     let access_method_settings = settings_context.convert_access_method().unwrap();
+    let encrypted_dns_proxy_state = EncryptedDnsProxyState::default();
 
     let method_resolver = unsafe {
-        SwiftAccessMethodResolver::new(endpoint.clone(), *bridge_provider.into_rust_context())
+        SwiftAccessMethodResolver::new(
+            endpoint.clone(),
+            domain,
+            encrypted_dns_proxy_state,
+            *bridge_provider.into_rust_context(),
+        )
     };
     println!(
         "{:?}, {:?}, {:?}",
