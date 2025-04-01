@@ -3,7 +3,7 @@
 use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
 use ipnetwork::IpNetwork;
 use nix::{
-    net::if_::{if_nametoindex, InterfaceFlags},
+    net::if_::if_nametoindex,
     sys::socket::{AddressFamily, SockaddrLike, SockaddrStorage},
 };
 use std::{
@@ -480,38 +480,4 @@ fn get_dict_elem_as_string(dict: &CFDictionary, key: CFStringRef) -> Option<Stri
         .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
         .and_then(|s| s.downcast::<CFString>())
         .map(|s| s.to_string())
-}
-
-/// Return the first assigned (unicast) IP address for the given interface
-fn fallback_find_first_ip(interface_name: &str, family: Family) -> Option<IpAddr> {
-    let required_link_flags: InterfaceFlags = InterfaceFlags::IFF_UP | InterfaceFlags::IFF_RUNNING;
-    nix::ifaddrs::getifaddrs()
-        .ok()?
-        .filter(|addr| (addr.flags & required_link_flags) == required_link_flags)
-        .filter(|addr| addr.interface_name == interface_name)
-        .filter_map(|addr| addr.address)
-        .find_map(|addr| match family {
-            Family::V4 => addr
-                .as_sockaddr_in()
-                .map(|addr_in| IpAddr::from(addr_in.ip())),
-            Family::V6 => addr
-                .as_sockaddr_in6()
-                .map(|addr_in| IpAddr::from(addr_in.ip())),
-        })
-        .filter(is_routable)
-}
-
-fn is_routable(addr: &IpAddr) -> bool {
-    match addr {
-        IpAddr::V4(ip) => is_routable_v4(ip),
-        IpAddr::V6(ip) => is_routable_v6(ip),
-    }
-}
-
-fn is_routable_v4(addr: &Ipv4Addr) -> bool {
-    !addr.is_unspecified() && !addr.is_loopback() && !addr.is_link_local()
-}
-
-fn is_routable_v6(addr: &Ipv6Addr) -> bool {
-    !addr.is_unspecified() && !addr.is_loopback() && !is_link_local_v6(addr)
 }
