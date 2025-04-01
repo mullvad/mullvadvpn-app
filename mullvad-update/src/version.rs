@@ -178,7 +178,7 @@ mod test {
     /// Test version info response handler (rollout 1, x86)
     #[test]
     fn test_version_info_parser_x86() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_and_verify_insecure(include_bytes!(
+        let response = format::SignedResponse::deserialize_insecure(include_bytes!(
             "../test-version-response.json"
         ))?;
 
@@ -199,7 +199,7 @@ mod test {
     /// Test version info response handler (rollout 0.01, arm64)
     #[test]
     fn test_version_info_parser_arm64() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_and_verify_insecure(include_bytes!(
+        let response = format::SignedResponse::deserialize_insecure(include_bytes!(
             "../test-version-response.json"
         ))?;
 
