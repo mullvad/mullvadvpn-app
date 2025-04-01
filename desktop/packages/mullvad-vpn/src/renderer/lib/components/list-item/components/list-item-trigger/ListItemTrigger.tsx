@@ -1,9 +1,9 @@
 import styled, { css } from 'styled-components';
 
-import { Colors } from '../../../foundations';
-import { ButtonBase } from '../../button';
-import { useListItem } from '../ListItemContext';
-import { StyledFlex } from './ListItemContent';
+import { Colors } from '../../../../foundations';
+import { ButtonBase } from '../../../button';
+import { useListItem } from '../../ListItemContext';
+import { StyledFlex } from '../list-item-content';
 
 // TODO: Colors should be replace with
 // with new color tokens once they are implemented.
