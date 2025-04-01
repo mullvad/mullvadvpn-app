@@ -181,6 +181,10 @@ pub async fn spawn(
     });
 
     // Spawn a worker that pre-computes McEliece key pairs for PQ tunnels
+    //
+    // On Android we have a different lifecycle of the daemon and creating new keys on start up 
+    // comes at a high cost, thus we let the generator be created lazily.
+    #[cfg(not(target_os = "android"))]
     spawn_keypair_generator();
 
     Ok(TunnelStateMachineHandle {
