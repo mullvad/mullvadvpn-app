@@ -52,3 +52,9 @@ reason = "wireguard-go does not use the affected code"
 id = "CVE-2025-22866" # GO-2025-3447
 ignoreUntil = 2025-06-12
 reason = "wireguard-go does not use the affected code"
+
+# HTTP Proxy bypass using IPv6 Zone IDs in golang.org/x/net
+[[IgnoredVulns]]
+id = "CVE-2025-22870" # GO-2025-3503
+ignoreUntil = 2025-07-01
+reason = "wireguard-go does not use x/net/proxy nor x/net/http/httpproxy"
