@@ -12,37 +12,6 @@ import MullvadTypes
 import Operations
 import WireGuardKitTypes
 
-public protocol APIQuerying: Sendable {
-    func getAddressList(
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
-    ) -> Cancellable
-
-    func getRelays(
-        etag: String?,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
-    ) -> Cancellable
-
-    func createApplePayment(
-        accountNumber: String,
-        receiptString: Data
-    ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse>
-
-    func sendProblemReport(
-        _ body: REST.ProblemReportRequest,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
-    ) -> Cancellable
-
-    func submitVoucher(
-        voucherCode: String,
-        accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.SubmitVoucherResponse>
-    ) -> Cancellable
-}
-
 extension REST {
     public final class APIProxy: Proxy<AuthProxyConfiguration>, APIQuerying, @unchecked Sendable {
         public init(configuration: AuthProxyConfiguration) {

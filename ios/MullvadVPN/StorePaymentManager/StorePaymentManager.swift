@@ -225,10 +225,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
         completionHandler: @escaping @Sendable (StorePaymentManagerError?) -> Void
     ) {
         let accountOperation = ResultBlockOperation<Account>(dispatchQueue: .main) { finish in
-            self.accountsProxy.getAccountData(accountNumber: accountNumber).execute(
-                retryStrategy: .default,
-                completionHandler: finish
-            )
+            self.accountsProxy.getAccountData(accountNumber: accountNumber, retryStrategy: .default, completion: finish)
         }
 
         accountOperation.addObserver(BackgroundObserver(
