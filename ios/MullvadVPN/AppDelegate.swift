@@ -57,6 +57,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private var shadowsocksBridgeProvider: SwiftShadowsocksBridgeProvider!
     private var shadowsocksBridgeProviderWrapper: SwiftShadowsocksLoaderWrapper!
     var apiContext: MullvadApiContext!
+    var accessMethodReceiver: MullvadAccessMethodReceiver!
 
     // MARK: - Application lifecycle
 
@@ -115,6 +116,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             shadowsocksProvider: shadowsocksBridgeProviderWrapper,
             accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper
         )
+
+        accessMethodReceiver = MullvadAccessMethodReceiver(
+            apiContext: apiContext,
+            accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
+            lastReachableDataSource: accessMethodRepository.lastReachableAccessMethodPublisher
+        )
+
         setUpProxies(containerURL: containerURL)
         let backgroundTaskProvider = BackgroundTaskProvider(
             backgroundTimeRemaining: application.backgroundTimeRemaining,
