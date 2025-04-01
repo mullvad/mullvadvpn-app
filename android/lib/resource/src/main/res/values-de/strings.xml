@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">Durch den Einsatz hochentwickelter KI ist es möglich, den Traffic von Datenpaketen zu analysieren, die auf Ihrem Gerät ein- und ausgehen (selbst wenn der Verkehr verschlüsselt ist).</string>
     <string name="daita_description_slide_2_first_paragraph">Wenn ein Beobachter diese Datenpakete überwacht, macht %1$s es für ihn wesentlich schwieriger zu erkennen, welche Websites Sie besuchen oder mit wem Sie kommunizieren.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s tut dies, indem es Netzwerkrauschen gezielt hinzufügt und alle Netzwerkpakete gleich groß macht.</string>
-    <string name="daita_description_slide_2_third_paragraph">Nicht alle unsere Server sind %1$s-fähig. Daher verwenden wir automatisch Multihop, um %2$s mit jedem Server zu aktivieren.</string>
+    <string name="daita_description_slide_2_third_paragraph">Nicht alle unsere Server sind %1$s-fähig. Daher verwenden wir automatisch Multihop, um %1$s mit jedem Server zu aktivieren.</string>
     <string name="daita_info">Wenn Sie „%1$s“ aktivieren, müssen Sie manuell einen Server auswählen, der %2$s-fähig ist. Dies kann dazu führen, dass Sie in einem blockierten Zustand landen, bis Sie einen kompatiblen Server in der Ansicht „Standort auswählen“ ausgewählt haben.</string>
     <string name="delete">Löschen</string>
     <string name="delete_custom_list_confirmation_description">„%1$s“ löschen?</string>
@@ -236,7 +236,7 @@
     <string name="mullvad_owned_only">Nur im Besitz von Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop leitet Ihren Traffic in einen WireGuard-Server hinein und aus einem anderen heraus, so dass er schwerer zu verfolgen ist. Dies führt zu einer erhöhten Latenzzeit, erhöht aber die Anonymität im Internet.</string>
-    <string name="multihop_entry_disabled_description">Der Eingangsserver für %1$s wird derzeit von %2$s überschrieben. Um einen Eingangsserver zu wählen, aktivieren Sie bitte zunächst „%3$s“ oder deaktivieren Sie „%4$s“ in den Einstellungen.</string>
+    <string name="multihop_entry_disabled_description">Der Eingangsserver für %1$s wird derzeit von %2$s überschrieben. Um einen Eingangsserver zu wählen, aktivieren Sie bitte zunächst „%3$s“ oder deaktivieren Sie „%2$s“ in den Einstellungen.</string>
     <string name="name">Name</string>
     <string name="name_was_changed_to">Name wurde geändert in %1$s</string>
     <string name="new_changelog_notification_message">Klicken Sie hier, um die Änderungen zu sehen.</string>
