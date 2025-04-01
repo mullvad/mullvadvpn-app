@@ -25,6 +25,7 @@ use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "macos")]
 use talpid_tunnel::TunnelMetadata;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelEvent};
+#[cfg(not(target_os = "android"))]
 use talpid_tunnel_config_client::classic_mceliece::spawn_keypair_generator;
 #[cfg(target_os = "macos")]
 use talpid_types::ErrorExt;
@@ -181,6 +182,10 @@ pub async fn spawn(
     });
 
     // Spawn a worker that pre-computes McEliece key pairs for PQ tunnels
+    //
+    // On Android we have a different lifecycle of the daemon and creating new keys on start up
+    // comes at a high cost, thus we let the generator be created lazily.
+    #[cfg(not(target_os = "android"))]
     spawn_keypair_generator();
 
     Ok(TunnelStateMachineHandle {
