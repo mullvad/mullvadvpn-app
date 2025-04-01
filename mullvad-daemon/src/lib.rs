@@ -1460,7 +1460,7 @@ impl Daemon {
             ExportJsonSettings(tx) => self.on_export_json_settings(tx),
             GetFeatureIndicators(tx) => self.on_get_feature_indicators(tx),
             AppUpgrade(tx) => self.on_app_upgrade(tx),
-            AppUpgradeAbort(sender) => todo!("Implement `on_app_upgrade_abort`"),
+            AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx),
         }
     }
 
@@ -3159,6 +3159,11 @@ impl Daemon {
         Self::oneshot_send(tx, result, "on_app_upgrade response");
     }
 
+    fn on_app_upgrade_abort(&self, tx: ResponseTx<(), Error>) {
+        // TODO: Abort the Downloader
+        let result = Ok(());
+        Self::oneshot_send(tx, result, "on_app_upgrade_abort response");
+    }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
