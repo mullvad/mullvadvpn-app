@@ -187,10 +187,6 @@ impl VersionRouter {
             tokio::select! {
                 // Respond to version info requests
                 update_result = &mut self.version_request => {
-                    if self.version_request.is_terminated() {
-                        log::trace!("Version info future is terminated");
-                        continue;
-                    }
                     match update_result {
                         Ok(new_version) => {
                             self.on_new_version(new_version.clone());
