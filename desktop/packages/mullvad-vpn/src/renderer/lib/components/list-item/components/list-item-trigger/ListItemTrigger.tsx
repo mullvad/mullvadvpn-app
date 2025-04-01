@@ -1,9 +1,9 @@
 import styled, { css } from 'styled-components';
 
-import { colors } from '../../../foundations';
-import { ButtonBase } from '../../button';
-import { useListItem } from '../ListItemContext';
-import { StyledFlex } from './ListItemContent';
+import { colors } from '../../../../foundations';
+import { ButtonBase } from '../../../button';
+import { useListItem } from '../../ListItemContext';
+import { StyledFlex } from '../list-item-content';
 
 const StyledButton = styled(ButtonBase)<{ $disabled?: boolean }>`
   display: flex;
