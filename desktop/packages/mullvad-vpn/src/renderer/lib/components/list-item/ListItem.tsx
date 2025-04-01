@@ -26,7 +26,7 @@ const StyledFlex = styled(Flex)`
 const ListItem = ({ level = 0, disabled, children }: ListItemProps) => {
   return (
     <ListItemProvider level={level} disabled={disabled}>
-      <StyledFlex $flexDirection="column" $gap="tiny">
+      <StyledFlex $flexDirection="column" $gap="tiny" $flex={1}>
         {children}
       </StyledFlex>
     </ListItemProvider>
