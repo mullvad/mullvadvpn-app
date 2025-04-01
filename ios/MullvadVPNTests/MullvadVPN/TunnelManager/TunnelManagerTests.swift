@@ -84,7 +84,7 @@ class TunnelManagerTests: XCTestCase {
     }
 
     func testLogInStartsKeyRotations() async throws {
-        accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
+        accountProxy.createAccountResult = .success(NewAccountData.mockValue())
 
         let tunnelManager = TunnelManager(
             backgroundTaskProvider: application,
@@ -102,7 +102,7 @@ class TunnelManagerTests: XCTestCase {
     }
 
     func testLogOutStopsKeyRotations() async throws {
-        accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
+        accountProxy.createAccountResult = .success(NewAccountData.mockValue())
 
         let tunnelManager = TunnelManager(
             backgroundTaskProvider: application,
@@ -125,7 +125,7 @@ class TunnelManagerTests: XCTestCase {
         let blockedExpectation = expectation(description: "Relay constraints aren't satisfied!")
         let connectedExpectation = expectation(description: "Connected!")
 
-        accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
+        accountProxy.createAccountResult = .success(NewAccountData.mockValue())
 
         let relaySelector = RelaySelectorStub { _ in
             try RelaySelectorStub.unsatisfied().selectRelays(
@@ -196,7 +196,7 @@ class TunnelManagerTests: XCTestCase {
         var connectedExpectation = expectation(description: "Connected!")
         let disconnectedExpectation = expectation(description: "Disconnected!")
 
-        accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
+        accountProxy.createAccountResult = .success(NewAccountData.mockValue())
 
         let relaySelector = RelaySelectorStub { _ in
             try RelaySelectorStub.nonFallible().selectRelays(

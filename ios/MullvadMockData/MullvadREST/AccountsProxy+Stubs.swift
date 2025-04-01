@@ -13,25 +13,28 @@ import MullvadTypes
 struct AccountProxyStubError: Error {}
 
 struct AccountsProxyStub: RESTAccountHandling {
-    var createAccountResult: Result<REST.NewAccountData, Error> = .failure(AccountProxyStubError())
+    var createAccountResult: Result<NewAccountData, Error> = .failure(AccountProxyStubError())
     var deleteAccountResult: Result<Void, Error> = .failure(AccountProxyStubError())
     func createAccount(
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<REST.NewAccountData>
+        completion: @escaping ProxyCompletionHandler<NewAccountData>
     ) -> Cancellable {
         completion(createAccountResult)
         return AnyCancellable()
     }
 
-    func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account> {
-        RESTRequestExecutorStub<Account>(success: {
-            Account(
-                id: accountNumber,
-                expiry: Calendar.current.date(byAdding: .day, value: 38, to: Date())!,
-                maxDevices: 1,
-                canAddDevices: true
-            )
-        })
+    func getAccountData(
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy,
+        completion: @escaping ProxyCompletionHandler<Account>
+    ) -> Cancellable {
+        completion(.success(Account(
+            id: accountNumber,
+            expiry: Calendar.current.date(byAdding: .day, value: 38, to: Date())!,
+            maxDevices: 1,
+            canAddDevices: true
+        )))
+        return AnyCancellable()
     }
 
     func deleteAccount(
