@@ -150,7 +150,7 @@ fn main() {
 
     for message in template {
         match message.value {
-            MsgValue::Invariant(_) => missing_translations.remove(&message.id.normalize()),
+            MsgValue::Invariant(_, _) => missing_translations.remove(&message.id.normalize()),
             MsgValue::Plural { .. } => missing_plurals.remove(&message.id.normalize()),
         };
     }
@@ -235,11 +235,12 @@ fn main() {
     let mut localized_strings = android::StringResources::new();
     for translation in default_translations {
         match translation.value {
-            MsgValue::Invariant(_) => {
+            MsgValue::Invariant(_, arg_ordering) => {
                 if !translation.id.is_empty() {
                     localized_strings.push(android::StringResource::new(
                         translation.id.normalize(),
                         &translation.id.normalize(),
+                        &arg_ordering,
                     ));
                 }
             }
@@ -326,10 +327,11 @@ fn generate_relay_translations(
 
     for translation in translations {
         match translation.value {
-            MsgValue::Invariant(translation_value) => {
+            MsgValue::Invariant(translation_value, arg_ordering) => {
                 localized_strings.push(android::StringResource::new(
                     translation.id.normalize(),
                     &translation_value.normalize(),
+                    &arg_ordering,
                 ));
             }
             MsgValue::Plural { .. } => {}
@@ -369,11 +371,12 @@ fn generate_translations(
 
     for translation in translations {
         match translation.value {
-            MsgValue::Invariant(translation_value) => {
+            MsgValue::Invariant(translation_value, arg_ordering) => {
                 if let Some(android_key) = known_strings.remove(&translation.id.normalize()) {
                     localized_strings.push(android::StringResource::new(
                         android_key,
                         &translation_value.normalize(),
+                        &arg_ordering,
                     ));
                 }
             }

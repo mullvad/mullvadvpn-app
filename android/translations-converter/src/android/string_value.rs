@@ -17,14 +17,14 @@ impl StringValue {
     /// they don't have any. Indices are assigned sequentially starting from the previously
     /// specified index plus one, or starting from one if there aren't any previously specified
     /// indices.
-    pub fn from_unescaped(string: &str) -> Self {
+    pub fn from_unescaped(string: &str, arg_ordering: &Option<Vec<i8>>) -> Self {
         let value_with_parameters = htmlize::escape_text(string)
             .replace('\\', r"\\")
             .replace('\"', "\\\"")
             .replace('\'', r"\'");
 
         let value_without_line_breaks = Self::collapse_line_breaks(value_with_parameters);
-        let value = Self::ensure_parameters_are_indexed(value_without_line_breaks);
+        let value = Self::ensure_parameters_are_indexed(value_without_line_breaks, arg_ordering);
 
         StringValue(value)
     }
@@ -42,7 +42,7 @@ impl StringValue {
     /// A typical input would be something like `Things are %d, %3$s and %s`, and this method
     /// would update the string so that all parameters have indices: `Things are %1$d, %3$s and
     /// %4$s`.
-    fn ensure_parameters_are_indexed(original: String) -> String {
+    fn ensure_parameters_are_indexed(original: String, arg_ordering: &Option<Vec<i8>>) -> String {
         static PARAMETER_INDEX: LazyLock<Regex> =
             LazyLock::new(|| Regex::new(r"^(\d+)\$").unwrap());
 
@@ -70,7 +70,14 @@ impl StringValue {
                 output.push('%');
             } else {
                 // String doesn't have a parameter index, so it is added
-                write!(&mut output, "%{}$", index + offset).expect("formatting failed");
+                // If we have a specific arg_ordering, we will use this,
+                // if not we will fall back on index + offset
+                let paramter_index = if arg_ordering.is_some() {
+                    arg_ordering.clone().unwrap()[index as usize] as isize
+                } else {
+                    index + offset
+                };
+                write!(&mut output, "%{}$", paramter_index).expect("formatting failed");
             }
 
             output.push_str(part);
@@ -109,11 +116,14 @@ mod tests {
 
     #[test]
     fn android_escaping() {
-        let input = StringValue::from_unescaped(concat!(
-            r"A backslash \",
-            r#""Inside double quotes""#,
-            "'Inside single quotes'",
-        ));
+        let input = StringValue::from_unescaped(
+            concat!(
+                r"A backslash \",
+                r#""Inside double quotes""#,
+                "'Inside single quotes'",
+            ),
+            &None,
+        );
 
         let expected = concat!(
             r"A backslash \\",
@@ -131,6 +141,7 @@ mod tests {
             a multi-line string		
             that should be  
             	collapsed into a single line",
+            &None,
         );
 
         let expected = "This is a multi-line string that should be collapsed into a single line";
@@ -140,10 +151,10 @@ mod tests {
 
     #[test]
     fn xml_escaping() {
-        let input = StringValue::from_unescaped(concat!(
-            "An ampersand: &",
-            "<tag>A dummy fake XML tag</tag>",
-        ));
+        let input = StringValue::from_unescaped(
+            concat!("An ampersand: &", "<tag>A dummy fake XML tag</tag>",),
+            &None,
+        );
 
         let expected = concat!(
             "An ampersand: &amp;",
@@ -157,14 +168,14 @@ mod tests {
     fn doesnt_change_parameter_indices() {
         let original = "%1$d %3$s %9$s %6$d %7$d";
 
-        let input = StringValue::from_unescaped(original);
+        let input = StringValue::from_unescaped(original, &None);
 
         assert_eq!(input.to_string(), original);
     }
 
     #[test]
     fn adds_parameter_indices() {
-        let input = StringValue::from_unescaped("%d %s %s %d");
+        let input = StringValue::from_unescaped("%d %s %s %d", &None);
 
         let expected = "%1$d %2$s %3$s %4$d";
 
@@ -173,7 +184,7 @@ mod tests {
 
     #[test]
     fn correctly_updates_generated_index_offset_based_on_existing_indices() {
-        let input = StringValue::from_unescaped("%d %4$s %d %2$s %d");
+        let input = StringValue::from_unescaped("%d %4$s %d %2$s %d", &None);
 
         let expected = "%1$d %4$s %5$d %2$s %3$d";
 
