@@ -5,7 +5,7 @@ use std::{
 
 use mullvad_api::{
     rest::{self, Response},
-    RelayListProxy,
+    RelayListProxy, StatusCode,
 };
 
 #[repr(C)]
@@ -46,6 +46,18 @@ impl SwiftMullvadApiResponse {
             error_description: null_mut(),
             server_response_code: null_mut(),
             success: true,
+        })
+    }
+
+    pub fn ok() -> Result<Self, rest::Error> {
+        Ok(Self {
+            success: true,
+            error_description: null_mut(),
+            body: null_mut(),
+            body_size: 0,
+            etag: null_mut(),
+            status_code: StatusCode::NO_CONTENT.as_u16(),
+            server_response_code: null_mut(),
         })
     }
 

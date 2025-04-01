@@ -57,15 +57,19 @@ final class RedeemVoucherInteractor: @unchecked Sendable {
     }
 
     private func verifyVoucherAsAccount(code: String) {
-        let executer = accountsProxy.getAccountData(accountNumber: code)
-        tasks.append(executer.execute { [weak self] result in
+        let task = accountsProxy.getAccountData(
+            accountNumber: code,
+            retryStrategy: .noRetry
+        ) { [weak self] result in
             guard let self,
                   case .success = result else {
                 return
             }
             showLogoutDialog?()
             preferredAccountNumber = code
-        })
+        }
+
+        tasks.append(task)
     }
 }
 
