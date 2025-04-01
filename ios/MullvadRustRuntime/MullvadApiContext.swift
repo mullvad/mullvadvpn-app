@@ -21,6 +21,7 @@ public struct MullvadApiContext: Sendable {
         context = mullvad_api_init_new(
             host,
             address,
+            domain,
             shadowsocksProvider,
             accessMethodWrapper
         )
