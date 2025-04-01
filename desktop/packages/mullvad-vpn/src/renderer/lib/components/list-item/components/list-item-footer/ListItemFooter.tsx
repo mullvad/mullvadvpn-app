@@ -1,4 +1,4 @@
-import { Flex, FlexProps } from '../../flex';
+import { Flex, FlexProps } from '../../../flex';
 
 export type ListItemFooterProps = FlexProps;
 
