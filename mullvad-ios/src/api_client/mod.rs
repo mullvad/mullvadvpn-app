@@ -1,9 +1,22 @@
-use std::{ffi::CStr, sync::Arc};
+use std::{
+    ffi::{c_char, CStr},
+    future::Future,
+    sync::Arc,
+};
 
 use access_method_resolver::SwiftAccessMethodResolver;
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
-use mullvad_api::{access_mode::AccessModeSelector, rest::MullvadRestHandle, ApiEndpoint, Runtime};
+use helpers::convert_c_string;
+use mullvad_api::{
+    access_mode::{AccessModeSelector, AccessModeSelectorHandle},
+    rest::{self, MullvadRestHandle},
+    ApiEndpoint, Runtime,
+};
+use mullvad_types::access_method::{Id, Settings};
+use response::SwiftMullvadApiResponse;
+use retry_strategy::RetryStrategy;
 use shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
+use talpid_future::retry::retry_future;
 
 mod access_method_resolver;
 mod access_method_settings;
@@ -32,11 +45,46 @@ impl SwiftApiContext {
 pub struct ApiContext {
     _api_client: Runtime,
     rest_client: MullvadRestHandle,
+    access_mode_handler: AccessModeSelectorHandle,
 }
 impl ApiContext {
     pub fn rest_handle(&self) -> MullvadRestHandle {
         self.rest_client.clone()
     }
+
+    pub fn use_access_method(&self, id: Id) {
+        _ = self.access_mode_handler.use_access_method(id);
+    }
+
+    pub fn update_access_methods(&self, access_methods: Settings) {
+        _ = self
+            .access_mode_handler
+            .update_access_methods(access_methods)
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn mullvad_api_update_access_methods(
+    api_context: SwiftApiContext,
+    settings_wrapper: SwiftAccessMethodSettingsWrapper,
+) {
+    let access_methods = settings_wrapper.into_rust_context().settings;
+    api_context
+        .into_rust_context()
+        .update_access_methods(access_methods);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn mullvad_api_use_access_method(
+    api_context: SwiftApiContext,
+    access_method_id: *const c_char,
+) {
+    let id = match Id::from_string(unsafe { convert_c_string(access_method_id) }) {
+        Some(id) => id,
+        None => return,
+    };
+
+    unsafe { api_context.into_rust_context().use_access_method(id) };
 }
 
 /// # Safety
@@ -108,6 +156,7 @@ pub extern "C" fn mullvad_api_init_new(
         ApiContext {
             _api_client: api_client,
             rest_client,
+            access_mode_handler,
         }
     });
 
