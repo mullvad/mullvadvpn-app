@@ -141,8 +141,9 @@ void mullvad_api_use_access_method(struct SwiftApiContext api_context,
  *
  * This function is safe.
  */
-struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
-                                            const uint8_t *address,
+struct SwiftApiContext mullvad_api_init_new(const char *host,
+                                            const char *address,
+                                            const char *domain,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                             struct SwiftAccessMethodSettingsWrapper settings_provider);
 
