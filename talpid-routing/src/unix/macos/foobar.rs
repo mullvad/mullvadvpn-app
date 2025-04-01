@@ -84,6 +84,8 @@ fn delay_no_route_events(
                         };
 
                     } else if no_route_grace_timeout.is_none() {
+                        // FIXME: remove this log
+                        log::debug!("New route is None, starting grace timer.");
                         no_route_grace_timeout = Some(Instant::now() + NO_ROUTE_GRACE_TIME);
                     }
                 }
