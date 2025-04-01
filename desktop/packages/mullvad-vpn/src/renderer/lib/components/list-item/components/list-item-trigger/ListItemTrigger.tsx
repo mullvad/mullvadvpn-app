@@ -10,22 +10,32 @@ import { StyledFlex } from '../list-item-content';
 const StyledButton = styled(ButtonBase)<{ $disabled?: boolean }>`
   display: flex;
   width: 100%;
-  ${({ $disabled }) =>
-    !$disabled &&
-    css`
-      &:hover ${StyledFlex} {
-        background-color: rgba(56, 86, 116, 1);
+  ${({ $disabled }) => {
+    return css`
+      --background: transparent;
+      background-color: var(--background);
+      ${!$disabled &&
+      css`
+        --background: rgba(41, 77, 115, 1);
+        &:hover {
+          --background: rgba(62, 95, 129, 1);
+          background-color: var(--background);
+        }
+        &:active {
+          --background: rgba(84, 113, 143, 1);
+          background-color: var(--background);
+        }
+      `}
+      &&:focus-visible {
+        outline: 2px solid ${Colors.white};
+        outline-offset: -2px;
+        z-index: 10;
       }
       &:active ${StyledFlex} {
         background-color: rgba(62, 95, 129, 1);
       }
-    `}
-
-  &&:focus-visible {
-    outline: 2px solid ${Colors.white};
-    outline-offset: -1px;
-    z-index: 10;
-  }
+    `;
+  }}
 `;
 
 export type ListItemTriggerProps = React.HtmlHTMLAttributes<HTMLButtonElement>;
