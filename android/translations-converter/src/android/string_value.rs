@@ -72,12 +72,12 @@ impl StringValue {
                 // String doesn't have a parameter index, so it is added
                 // If we have a specific arg_ordering, we will use this,
                 // if not we will fall back on index + offset
-                let paramter_index = if arg_ordering.is_some() {
+                let parameter_index = if arg_ordering.is_some() {
                     arg_ordering.clone().unwrap()[index as usize] as isize
                 } else {
                     index + offset
                 };
-                write!(&mut output, "%{}$", paramter_index).expect("formatting failed");
+                write!(&mut output, "%{}$", parameter_index).expect("formatting failed");
             }
 
             output.push_str(part);

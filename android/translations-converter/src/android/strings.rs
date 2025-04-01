@@ -135,12 +135,12 @@ mod tests {
             StringResource {
                 name: "first".to_owned(),
                 translatable: true,
-                value: StringValue::from_unescaped("First string"),
+                value: StringValue::from_unescaped("First string", &None),
             },
             StringResource {
                 name: "second".to_owned(),
                 translatable: false,
-                value: StringValue::from_unescaped("Second string"),
+                value: StringValue::from_unescaped("Second string", &None),
             },
         ]);
 
@@ -171,7 +171,7 @@ mod tests {
             StringResource {
                 name: "first".to_owned(),
                 translatable: true,
-                value: StringValue::from_unescaped("First string is split in two lines"),
+                value: StringValue::from_unescaped("First string is split in two lines", &None),
             },
             StringResource {
                 name: "second".to_owned(),
@@ -179,7 +179,7 @@ mod tests {
                 value: StringValue::from_unescaped(concat!(
                     "Second string is also split but it also has some weird whitespace inside the ",
                     "tags and some indentation",
-                )),
+                ), &None),
             },
         ]);
 
