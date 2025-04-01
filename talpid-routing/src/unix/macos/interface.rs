@@ -109,9 +109,9 @@ pub enum InterfaceEvent {
 }
 impl InterfaceEvent {
     pub fn family(&self) -> Family {
-        match self {
-            &InterfaceEvent::PrimaryInterfaceUpdate { family, .. } => family,
-            &InterfaceEvent::NetworkServiceUpdate { family, .. } => family,
+        match *self {
+            InterfaceEvent::PrimaryInterfaceUpdate { family, .. } => family,
+            InterfaceEvent::NetworkServiceUpdate { family, .. } => family,
         }
     }
 }
@@ -219,7 +219,7 @@ impl PrimaryInterfaceMonitor {
 
                 // TODO: distinguish between errors and None?
                 let new_value = get_primary_interface(&store, family);
-                return Some(InterfaceEvent::PrimaryInterfaceUpdate { family, new_value });
+                Some(InterfaceEvent::PrimaryInterfaceUpdate { family, new_value })
             })
             .collect();
 
