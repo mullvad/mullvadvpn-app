@@ -392,5 +392,5 @@
     <string name="wireguard_port_title">WireGuard ပေါ့တ်</string>
     <string name="x_entry">%1$s (အဝင်)</string>
     <string name="x_exit">%1$s (အထွက်)</string>
-    <string name="x_via_x">%1$s မှတစ်ဆင့် %2$s</string>
+    <string name="x_via_x">%2$s မှတစ်ဆင့် %1$s</string>
 </resources>
