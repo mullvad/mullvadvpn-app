@@ -126,10 +126,6 @@ pub extern "C" fn mullvad_api_init_new(
             *bridge_provider.into_rust_context(),
         )
     };
-    println!(
-        "{:?}, {:?}, {:?}",
-        method_resolver, settings_context, access_method_settings
-    );
     // TODO: Handle #[cfg(feature = "api-override")]
 
     let api_context = tokio_handle.clone().block_on(async move {
