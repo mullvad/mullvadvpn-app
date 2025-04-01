@@ -113,6 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
+            domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksBridgeProviderWrapper,
             accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper
         )

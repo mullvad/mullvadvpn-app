@@ -34,7 +34,7 @@ pub unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<IpAddr> 
 pub unsafe fn convert_c_string(c_str: *const c_char) -> String {
     // SAFETY: domain_name points to a valid region of memory and contains a null terminator.
     let str = unsafe { CStr::from_ptr(c_str) };
-    return String::from_utf8_lossy(str.to_bytes()).into_owned();
+    String::from_utf8_lossy(str.to_bytes()).into_owned()
 }
 
 #[no_mangle]
@@ -60,7 +60,7 @@ pub unsafe extern "C" fn convert_shadowsocks(
         cipher,
     };
 
-    return Box::into_raw(Box::new(shadowsocks_configuration)) as *mut c_void;
+    Box::into_raw(Box::new(shadowsocks_configuration)) as *mut c_void
 }
 
 #[repr(C)]
@@ -138,5 +138,5 @@ pub unsafe extern "C" fn convert_socks5(
     }
 
     let socks5_configuration = Socks5Remote { endpoint, auth };
-    return Box::into_raw(Box::new(socks5_configuration)) as *mut c_void;
+    Box::into_raw(Box::new(socks5_configuration)) as *mut c_void
 }
