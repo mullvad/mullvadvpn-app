@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
-import { Flex, FlexProps } from '../../flex';
-import { levels } from '../levels';
-import { useListItem } from '../ListItemContext';
+import { Flex, FlexProps } from '../../../flex';
+import { levels } from '../../levels';
+import { useListItem } from '../../ListItemContext';
 
 const sizes = {
   full: '100%',
