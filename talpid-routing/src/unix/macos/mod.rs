@@ -79,19 +79,11 @@ pub struct RouteManagerImpl {
     /// Routes that use the default non-tunnel interface.
     non_tunnel_routes: HashSet<IpNetwork>,
 
-    /// The IPv4 route that we will add that points at the tun interface.
+    /// The IPv4 and IPv6 routes that we will add that points at the tun interface.
     ///
     /// This is populated by [Self::add_required_routes]
     /// and used by [Self::apply_tunnel_default_routes].
-    // TODO: why do we need this?
-    v4_tunnel_default_route: Option<data::RouteMessage>,
-
-    /// The IPv6 route that we will add that points at the tun interface.
-    ///
-    /// This is populated by [Self::add_required_routes]
-    /// and used by [Self::apply_tunnel_default_routes].
-    // TODO: why do we need this?
-    v6_tunnel_default_route: Option<data::RouteMessage>,
+    tunnel_default_routes: IpMap<data::RouteMessage>,
 
     /// The list of routes we have added to macOSs routing table in [Self::add_route_with_record].
     applied_routes: BTreeMap<RouteDestination, RouteMessage>,
@@ -143,8 +135,7 @@ impl RouteManagerImpl {
         Ok(Self {
             routing_table,
             non_tunnel_routes: HashSet::new(),
-            v4_tunnel_default_route: None,
-            v6_tunnel_default_route: None,
+            tunnel_default_routes: IpMap::new(),
             applied_routes: BTreeMap::new(),
             best_route: IpMap::new(),
             best_route_rx_v4,
@@ -378,11 +369,12 @@ impl RouteManagerImpl {
             // Default routes are a special case: We must apply it after replacing the current
             // default route with an ifscope route.
             if route.prefix.prefix() == 0 {
-                if route.prefix.is_ipv4() {
-                    self.v4_tunnel_default_route = Some(message);
+                let family = if route.prefix.is_ipv4() {
+                    interface::Family::V4
                 } else {
-                    self.v6_tunnel_default_route = Some(message);
-                }
+                    interface::Family::V6
+                };
+                self.tunnel_default_routes.insert(family, message);
                 continue;
             }
 
@@ -577,20 +569,7 @@ impl RouteManagerImpl {
             return Ok(());
         }
 
-        for tunnel_route in [
-            self.v4_tunnel_default_route.clone(),
-            self.v6_tunnel_default_route.clone(),
-        ] {
-            let Some(tunnel_route) = tunnel_route else {
-                continue;
-            };
-
-            let family = if tunnel_route.is_ipv4() {
-                interface::Family::V4
-            } else {
-                interface::Family::V6
-            };
-
+        for (family, tunnel_route) in self.tunnel_default_routes.clone().iter() {
             // Replace the default route with an ifscope route
             self.replace_with_scoped_route(family).await?;
 
@@ -618,7 +597,7 @@ impl RouteManagerImpl {
             }
 
             log::debug!("Adding default route for tunnel");
-            self.add_route_with_record(tunnel_route).await?;
+            self.add_route_with_record(tunnel_route.clone()).await?;
         }
 
         Ok(())
@@ -700,8 +679,8 @@ impl RouteManagerImpl {
         self.remove_applied_routes(|_| true).await;
 
         // We have already removed the applied default routes
-        self.v4_tunnel_default_route = None;
-        self.v6_tunnel_default_route = None;
+        self.tunnel_default_routes.remove(interface::Family::V4);
+        self.tunnel_default_routes.remove(interface::Family::V6);
 
         self.try_restore_default_routes().await;
 
@@ -822,12 +801,7 @@ impl RouteManagerImpl {
             return Ok(false);
         };
 
-        let tunnel_route = match family {
-            interface::Family::V4 => self.v4_tunnel_default_route.as_ref(),
-            interface::Family::V6 => self.v6_tunnel_default_route.as_ref(),
-        };
-
-        let Some(tunnel_route) = tunnel_route else {
+        let Some(tunnel_route) = self.tunnel_default_routes.get(family) else {
             return Ok(false);
         };
 
