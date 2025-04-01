@@ -12,9 +12,9 @@ use talpid_future::retry::retry_future;
 mod api;
 mod cancellation;
 mod completion;
+mod problem_report;
 mod response;
 mod retry_strategy;
-mod send_problem_report;
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);
@@ -102,4 +102,22 @@ where
     let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
 
     SwiftMullvadApiResponse::with_body(response).await
+}
+
+async fn do_request_with_empty_body<F, T>(
+    retry_strategy: RetryStrategy,
+    future_factory: F,
+) -> Result<SwiftMullvadApiResponse, rest::Error>
+where
+    F: Fn() -> T,
+    T: Future<Output = Result<(), rest::Error>>,
+{
+    let should_retry = |result: &Result<_, rest::Error>| match result {
+        Err(err) => err.is_network_error(),
+        Ok(_) => false,
+    };
+
+    retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
+
+    SwiftMullvadApiResponse::ok()
 }
