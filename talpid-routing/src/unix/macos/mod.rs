@@ -198,23 +198,13 @@ impl RouteManagerImpl {
                 }
 
                 new_best_route = self.best_route_rx_v4.next() => {
-                    let new_best_route = new_best_route.unwrap(); // TODO
-                    log::trace!("Best route (IPv4): {new_best_route:?}");
-                    let changed = new_best_route.is_some();
-                    self.notify_default_route_listeners(interface::Family::V4, changed);
-                    self.best_route.set(interface::Family::V4, new_best_route);
-                    self.unhandled_default_route_changes = true;
-                    self.update_trigger.trigger();
+                    let Some(new_best_route)= new_best_route else { continue };
+                    self.handle_new_best_route(interface::Family::V4, new_best_route);
                 }
 
                 new_best_route = self.best_route_rx_v6.next() => {
-                    let new_best_route = new_best_route.unwrap(); // TODO
-                    log::trace!("Best route (IPv6): {new_best_route:?}");
-                    let changed = new_best_route.is_some();
-                    self.notify_default_route_listeners(interface::Family::V6, changed);
-                    self.best_route.set(interface::Family::V6, new_best_route);
-                    self.unhandled_default_route_changes = true;
-                    self.update_trigger.trigger();
+                    let Some(new_best_route)= new_best_route else { continue };
+                    self.handle_new_best_route(interface::Family::V6, new_best_route);
                 }
 
                 //event = self.interface_change_rx.next() => {
@@ -538,6 +528,19 @@ impl RouteManagerImpl {
         Ok(true)
     }
     */
+
+    fn handle_new_best_route(
+        &mut self,
+        family: interface::Family,
+        new_best_route: Option<DefaultRoute>,
+    ) {
+        log::trace!("Best route (IPv4): {new_best_route:?}");
+        let changed = new_best_route.is_some();
+        self.notify_default_route_listeners(family, changed);
+        self.best_route.set(family, new_best_route);
+        self.unhandled_default_route_changes = true;
+        self.update_trigger.trigger();
+    }
 
     fn notify_default_route_listeners(&mut self, family: interface::Family, changed: bool) {
         // Notify default route listeners
