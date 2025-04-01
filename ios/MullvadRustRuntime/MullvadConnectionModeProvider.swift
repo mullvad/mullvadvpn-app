@@ -8,10 +8,8 @@
 
 import MullvadTypes
 
-public func initAccessMethodSettingsWrapper(provider: SwiftConnectionModeProviderProxy)
+public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
     -> SwiftAccessMethodSettingsWrapper {
-    let methods = provider.accessMethods()
-
     // 1. Get all the built in access methods
     let directMethod = methods.first(where: { $0.proxyConfiguration == .direct })!
     let bridgesMethod = methods.first(where: { $0.proxyConfiguration == .bridges })!

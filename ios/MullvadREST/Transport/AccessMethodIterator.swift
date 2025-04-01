@@ -50,20 +50,12 @@ final class AccessMethodIterator: @unchecked Sendable, SwiftConnectionModeProvid
         dataSource.saveLastReachable(pick())
     }
 
-    func initial() {
-        // TODO: Implement this
-    }
-
-    func pickMethod() -> PersistentProxyConfiguration {
-        // TODO: Implement this
-        pick().proxyConfiguration
-    }
-
     // TODO: Only one should decide who rotates, either Swift or Rust. For now, Swift dictates when the methods are rotated
     func rotate() {
         let (partial, isOverflow) = index.addingReportingOverflow(1)
         index = isOverflow ? 0 : partial
         dataSource.saveLastReachable(pick())
+        // TODO: Call here the mullvadAPI for using a current access method
     }
 
     func pick() -> PersistentAccessMethod {

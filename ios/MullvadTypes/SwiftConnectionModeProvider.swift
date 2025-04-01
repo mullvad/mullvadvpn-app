@@ -11,10 +11,6 @@ import Foundation
 public protocol SwiftConnectionModeProviding: Sendable {
     var domainName: String { get }
 
-    func initial()
-    func pickMethod() -> PersistentProxyConfiguration
-    func rotate()
-
     func accessMethods() -> [PersistentAccessMethod]
 }
 
@@ -25,18 +21,6 @@ public final class SwiftConnectionModeProviderProxy: SwiftConnectionModeProvidin
     public init(provider: SwiftConnectionModeProviding, domainName: String) {
         self.provider = provider
         self.domainName = domainName
-    }
-
-    public func initial() {
-        provider.initial()
-    }
-
-    public func pickMethod() -> PersistentProxyConfiguration {
-        provider.pickMethod()
-    }
-
-    public func rotate() {
-        provider.rotate()
     }
 
     public func accessMethods() -> [PersistentAccessMethod] {

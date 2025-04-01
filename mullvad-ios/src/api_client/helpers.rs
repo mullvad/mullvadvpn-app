@@ -63,22 +63,52 @@ pub unsafe extern "C" fn convert_shadowsocks(
     return Box::into_raw(Box::new(shadowsocks_configuration)) as *mut c_void;
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn access_method_settings_vector(capacity: usize) -> *const c_void {
-    let vector: Vec<AccessMethodSetting> = Vec::with_capacity(capacity);
+#[repr(C)]
+pub struct RustAccessMethodSettingVector {
+    inner: *mut RustAccessMethodSettingVectorContext,
+}
 
-    Box::into_raw(Box::new(vector)) as *mut c_void
+impl RustAccessMethodSettingVector {
+    pub unsafe fn into_rust_context(self) -> Box<RustAccessMethodSettingVectorContext> {
+        Box::from_raw(self.inner)
+    }
+
+    pub unsafe fn push(&mut self, setting: AccessMethodSetting) {
+        if let Some(inner) = unsafe { self.inner.as_mut() } {
+            inner.push(setting);
+        }
+    }
+}
+
+pub struct RustAccessMethodSettingVectorContext {
+    pub vector: Vec<AccessMethodSetting>,
+}
+
+impl RustAccessMethodSettingVectorContext {
+    pub unsafe fn push(&mut self, setting: AccessMethodSetting) {
+        self.vector.push(setting);
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn access_method_settings_vector(
+    capacity: usize,
+) -> RustAccessMethodSettingVector {
+    let vector: Vec<AccessMethodSetting> = Vec::with_capacity(capacity);
+    let context = Box::new(RustAccessMethodSettingVectorContext { vector });
+    RustAccessMethodSettingVector {
+        inner: Box::into_raw(context),
+    }
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn vector_add_access_method_setting(
-    vector: *const c_void,
+    vector_raw: RustAccessMethodSettingVector,
     access_method: *const c_void,
 ) {
-    if (vector.is_null() && access_method.is_null()) == false {
-        let mut vector: Vec<AccessMethodSetting> = unsafe { *Box::from_raw(vector as *mut _) };
+    if access_method.is_null() == false {
         let access_method: AccessMethodSetting = unsafe { *Box::from_raw(access_method as *mut _) };
-
+        let mut vector = vector_raw;
         vector.push(access_method);
     }
 }

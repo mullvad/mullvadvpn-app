@@ -10,7 +10,7 @@ use mullvad_types::access_method::{
 };
 use talpid_types::net::proxy::{self, Shadowsocks, Socks5Remote};
 
-use super::helpers::convert_c_string;
+use super::helpers::{convert_c_string, RustAccessMethodSettingVector};
 
 #[no_mangle]
 unsafe extern "C" fn convert_builtin_access_method_setting(
@@ -108,19 +108,15 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
     direct_method_raw: *const c_void,
     bridges_method_raw: *const c_void,
     encrypted_dns_method_raw: *const c_void,
-    custom_methods_raw: *const c_void,
+    custom_methods_raw: RustAccessMethodSettingVector,
 ) -> SwiftAccessMethodSettingsWrapper {
-    let custom: Vec<AccessMethodSetting> = match custom_methods_raw.is_null() {
-        true => vec![],
-        false => unsafe { *Box::from_raw(custom_methods_raw as *mut _) },
-    };
-
     let direct: AccessMethodSetting = unsafe { *Box::from_raw(direct_method_raw as *mut _) };
     let mullvad_bridges: AccessMethodSetting =
         unsafe { *Box::from_raw(bridges_method_raw as *mut _) };
     let encrypted_dns_proxy: AccessMethodSetting =
         unsafe { *Box::from_raw(encrypted_dns_method_raw as *mut _) };
 
+    let custom = custom_methods_raw.into_rust_context().vector;
     let settings = Settings::new(direct, mullvad_bridges, encrypted_dns_proxy, custom);
     let context = SwiftAccessMethodSettingsContext { settings };
     SwiftAccessMethodSettingsWrapper::new(context)

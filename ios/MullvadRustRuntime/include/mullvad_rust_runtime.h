@@ -37,6 +37,8 @@ typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
 
+typedef struct RustAccessMethodSettingVectorContext RustAccessMethodSettingVectorContext;
+
 typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
 
 typedef struct SwiftShadowsocksLoaderWrapperContext SwiftShadowsocksLoaderWrapperContext;
@@ -45,13 +47,17 @@ typedef struct SwiftApiContext {
   const struct ApiContext *_0;
 } SwiftApiContext;
 
+typedef struct SwiftAccessMethodSettingsWrapper {
+  struct SwiftAccessMethodSettingsContext *_0;
+} SwiftAccessMethodSettingsWrapper;
+
 typedef struct SwiftShadowsocksLoaderWrapper {
   struct SwiftShadowsocksLoaderWrapperContext *_0;
 } SwiftShadowsocksLoaderWrapper;
 
-typedef struct SwiftAccessMethodSettingsWrapper {
-  struct SwiftAccessMethodSettingsContext *_0;
-} SwiftAccessMethodSettingsWrapper;
+typedef struct RustAccessMethodSettingVector {
+  struct RustAccessMethodSettingVectorContext *inner;
+} RustAccessMethodSettingVector;
 
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
@@ -102,6 +108,12 @@ typedef struct EphemeralPeerParameters {
 
 extern const uint16_t CONFIG_SERVICE_PORT;
 
+void mullvad_api_update_access_methods(struct SwiftApiContext api_context,
+                                       struct SwiftAccessMethodSettingsWrapper settings_wrapper);
+
+void mullvad_api_use_access_method(struct SwiftApiContext api_context,
+                                   const char *access_method_id);
+
 /**
  * # Safety
  *
@@ -130,7 +142,7 @@ void *convert_builtin_access_method_setting(const char *unique_identifier,
 struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(const void *direct_method_raw,
                                                                             const void *bridges_method_raw,
                                                                             const void *encrypted_dns_method_raw,
-                                                                            const void *custom_methods_raw);
+                                                                            struct RustAccessMethodSettingVector custom_methods_raw);
 
 /**
  * # Safety
@@ -210,9 +222,10 @@ const void *convert_shadowsocks(const uint8_t *address,
                                 const char *c_password,
                                 const char *c_cipher);
 
-const void *access_method_settings_vector(uintptr_t capacity);
+struct RustAccessMethodSettingVector access_method_settings_vector(uintptr_t capacity);
 
-void vector_add_access_method_setting(const void *vector, const void *access_method);
+void vector_add_access_method_setting(struct RustAccessMethodSettingVector vector_raw,
+                                      const void *access_method);
 
 const void *convert_socks5(const uint8_t *address,
                            uintptr_t address_len,

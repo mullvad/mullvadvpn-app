@@ -64,7 +64,11 @@ public struct TransportStrategy: Equatable, Sendable {
             provider: accessMethodIterator,
             domainName: REST.encryptedDNSHostname
         )
-        self.opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(provider: connectionModeProviderProxy)
+        self
+            .opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
+                methods: connectionModeProviderProxy
+                    .accessMethods()
+            )
     }
 
     /// Rotating between enabled configurations by what order they were added in
