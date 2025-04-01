@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">С помощью сложных ИИ-алгоритмов можно анализировать входящий и исходящий трафик пакетов данных вашего устройства (даже если трафик зашифрован).</string>
     <string name="daita_description_slide_2_first_paragraph">В случае, если наблюдатель отслеживает пакеты данных, %1$s значительно затрудняет определение того, какие веб-сайты вы посещаете или с кем общаетесь.</string>
     <string name="daita_description_slide_2_second_paragraph">Для этого %1$s добавляет в трафик сетевой шум, а все пакеты приводятся к одному размеру.</string>
-    <string name="daita_description_slide_2_third_paragraph">%1$s поддерживается не на всех серверах. Поэтому, чтобы функция %2$s работала с любым сервером, мы автоматически используем многократный переход.</string>
+    <string name="daita_description_slide_2_third_paragraph">%1$s поддерживается не на всех серверах. Поэтому, чтобы функция %1$s работала с любым сервером, мы автоматически используем многократный переход.</string>
     <string name="daita_info">После включения параметра «%1$s» вы должны будете вручную выбрать сервер, который поддерживает %2$s. В результате вы можете оказаться заблокированы, пока не выберете совместимый сервер в окне выбора местоположения.</string>
     <string name="delete">Удалить</string>
     <string name="delete_custom_list_confirmation_description">Удалить список «%1$s»?</string>
@@ -238,7 +238,7 @@
     <string name="mullvad_owned_only">Только принадлежащие Mullvad</string>
     <string name="multihop">Многократный переход</string>
     <string name="multihop_description">Функция «Многократный переход» перенаправляет трафик с одного сервера WireGuard на другой, что затрудняет отслеживание. Это увеличивает задержку, но зато повышает анонимность в сети.</string>
-    <string name="multihop_entry_disabled_description">Сервер входа для функции «%1$s» в настоящее время переопределен функцией %2$s. Чтобы выбрать сервер входа вручную, сначала включите пункт «%3$s» или отключите %4$s в настройках.</string>
+    <string name="multihop_entry_disabled_description">Сервер входа для функции «%1$s» в настоящее время переопределен функцией %2$s. Чтобы выбрать сервер входа вручную, сначала включите пункт «%3$s» или отключите %2$s в настройках.</string>
     <string name="name">Имя</string>
     <string name="name_was_changed_to">Имя изменено на «%1$s»</string>
     <string name="new_changelog_notification_message">Нажмите здесь и узнайте, что нового.</string>

@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">โดยการใช้ AI ที่ซับซ้อน จึงเป็นไปได้ที่จะวิเคราะห์ปริมาณการรับส่งข้อมูล ที่เข้าออกอุปกรณ์ของคุณได้ (แม้ว่าการรับส่งข้อมูลจะเข้ารหัสไว้ก็ตาม)</string>
     <string name="daita_description_slide_2_first_paragraph">หากผู้สังเกตการณ์เฝ้าดูแพ็กเก็ตข้อมูลเหล่านี้ %1$s จะทำให้พวกเขาระบุเว็บไซต์ที่คุณกำลังเยี่ยมชม หรือผู้ที่คุณกำลังติดต่อสื่อสารด้วยได้ยากขึ้นอย่างมาก</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s ได้ดำเนินการนี้ ด้วยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากัน</string>
-    <string name="daita_description_slide_2_third_paragraph">ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %1$s ด้วยเหตุนี้เอง เราจึงใช้การมัลติฮอปอัตโนมัติ เพื่อเปิดใช้งาน %2$s กับทุกเซิร์ฟเวอร์</string>
+    <string name="daita_description_slide_2_third_paragraph">ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %1$s ด้วยเหตุนี้เอง เราจึงใช้การมัลติฮอปอัตโนมัติ เพื่อเปิดใช้งาน %1$s กับทุกเซิร์ฟเวอร์</string>
     <string name="daita_info">โดยการเปิดใช้งาน “%1$s” คุณจะต้องเลือกเซิร์ฟเวอร์ที่เปิดใช้งาน %2$s ด้วยตนเอง ซึ่งอาจทำให้คุณอยู่ในสถานะถูกบล็อก จนกว่าคุณจะเลือกเซิร์ฟเวอร์ที่เข้ากันได้ในมุมมอง \"เลือกตำแหน่งที่ตั้ง\"</string>
     <string name="delete">ลบ</string>
     <string name="delete_custom_list_confirmation_description">ลบ \"%1$s\" หรือไม่</string>
@@ -238,7 +238,7 @@
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
     <string name="multihop">มัลติฮอป</string>
     <string name="multihop_description">มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณ ไปยังหนึ่งในเซิร์ฟเวอร์ WireGuard และออกไปยังอีกเซิร์ฟเวอร์หนึ่ง ซึ่งทำให้ติดตามได้ยากขึ้น นี่จะส่งผลให้มีเวลาแฝงเพิ่มขึ้น แต่ก็จะช่วยปกปิดตัวตนออนไลน์ได้มากขึ้น</string>
-    <string name="multihop_entry_disabled_description">เซิร์ฟเวอร์ทางเข้าสำหรับ %1$s ถูกเขียนทับโดย %2$s ในขณะนี้ หากต้องการเลือกเซิร์ฟเวอร์ทางเข้า โปรดเปิดใช้งาน “%3$s” ก่อน หรือปิดใช้งาน “%4$s” ในการตั้งค่า</string>
+    <string name="multihop_entry_disabled_description">เซิร์ฟเวอร์ทางเข้าสำหรับ %1$s ถูกเขียนทับโดย %2$s ในขณะนี้ หากต้องการเลือกเซิร์ฟเวอร์ทางเข้า โปรดเปิดใช้งาน “%3$s” ก่อน หรือปิดใช้งาน “%2$s” ในการตั้งค่า</string>
     <string name="name">ชื่อ</string>
     <string name="name_was_changed_to">ชื่อถูกเปลี่ยนเป็น %1$s</string>
     <string name="new_changelog_notification_message">คลิกที่นี่ เพื่อดูว่ามีอะไรใหม่</string>

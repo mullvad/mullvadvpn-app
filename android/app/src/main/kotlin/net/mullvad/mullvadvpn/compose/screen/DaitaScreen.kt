@@ -239,8 +239,6 @@ private enum class DaitaPages(
             @Composable {
                 stringResource(
                     R.string.daita_description_slide_2_third_paragraph,
-                    // Duplicated argument to keep compatibility with our common string template
-                    // (messages.pot) while also keeping lint happy.
                     stringResource(id = R.string.daita),
                     stringResource(id = R.string.daita),
                 )

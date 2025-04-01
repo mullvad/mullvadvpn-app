@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">Dzięki użyciu zaawansowanej sztucznej inteligencji możliwe jest analizowanie ruchu pakietów danych przychodzących i wychodzących z Twojego urządzenia (nawet jeśli ruch jest szyfrowany).</string>
     <string name="daita_description_slide_2_first_paragraph">Jeśli obserwator monitoruje te pakiety danych, %1$s znacznie utrudnia mu zidentyfikowanie witryn internetowych, które odwiedzasz lub z którymi się komunikujesz.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s w tym celu ostrożnie dodaje szum sieciowy i nadaje ten sam rozmiar wszystkim pakietom sieciowym.</string>
-    <string name="daita_description_slide_2_third_paragraph">Nie wszystkie nasze serwery obsługują %1$s. Dlatego automatycznie używamy funkcji wielokrotnego przeskoku, aby umożliwić działanie %2$s z dowolnym serwerem.</string>
+    <string name="daita_description_slide_2_third_paragraph">Nie wszystkie nasze serwery obsługują %1$s. Dlatego automatycznie używamy funkcji wielokrotnego przeskoku, aby umożliwić działanie %1$s z dowolnym serwerem.</string>
     <string name="daita_info">Po włączeniu opcji „%1$s” trzeba ręcznie wybrać serwer, który obsługuje %2$s. Może to skutkować zablokowaniem, dopóki nie wybierzesz zgodnego serwera w widoku „Wybierz lokalizację”.</string>
     <string name="delete">Usuń</string>
     <string name="delete_custom_list_confirmation_description">Usunąć „%1$s”?</string>
@@ -238,7 +238,7 @@
     <string name="mullvad_owned_only">Wyłącznie firmy Mullvad</string>
     <string name="multihop">Wielokrotny przeskok</string>
     <string name="multihop_description">Funkcja wielokrotnego przeskoku kieruje Twój ruch przychodzący do jednego serwera WireGuard, a wychodzący wysyła z innego, co utrudnia jego śledzenie. Skutkuje to zwiększoną latencją, ale zwiększa anonimowość online.</string>
-    <string name="multihop_entry_disabled_description">Serwer wejściowy dla %1$s jest obecnie zastępowany przez %2$s. Aby wybrać serwer wejściowy, należy najpierw włączyć opcję „%3$s” lub wyłączyć opcję „%4$s” w ustawieniach.</string>
+    <string name="multihop_entry_disabled_description">Serwer wejściowy dla %1$s jest obecnie zastępowany przez %2$s. Aby wybrać serwer wejściowy, należy najpierw włączyć opcję „%3$s” lub wyłączyć opcję „%2$s” w ustawieniach.</string>
     <string name="name">Nazwa</string>
     <string name="name_was_changed_to">Nazwę zmieniono na %1$s</string>
     <string name="new_changelog_notification_message">Kliknij tutaj, aby zobaczyć, co nowego.</string>

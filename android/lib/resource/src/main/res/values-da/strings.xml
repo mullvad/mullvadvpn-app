@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">Ved at bruge sofistikeret AI er det muligt at analysere trafikken af datapakker, der går ind og ud af din enhed (selv hvis trafikken er krypteret).</string>
     <string name="daita_description_slide_2_first_paragraph">Hvis en observatør overvåger disse datapakker, gør %1$s det betydeligt sværere for dem at identificere, hvilke hjemmesider du besøger, eller hvem du kommunikerer med.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s gør dette ved omhyggeligt at tilføje netværksstøj og gøre alle netværkspakker lige store.</string>
-    <string name="daita_description_slide_2_third_paragraph">Ikke alle vores servere er %1$s-kompatible. Derfor bruger vi automatisk multihop til at aktivere %2$s med enhver server.</string>
+    <string name="daita_description_slide_2_third_paragraph">Ikke alle vores servere er %1$s-kompatible. Derfor bruger vi automatisk multihop til at aktivere %1$s med enhver server.</string>
     <string name="daita_info">Hvis du aktiverer \"%1$s\", skal du manuelt vælge en server, der er %2$s-aktiveret. Det kan medføre, at du ender i en blokeret tilstand, indtil du har valgt en kompatibel server i visningen \"Vælg placering\".</string>
     <string name="delete">Slet</string>
     <string name="delete_custom_list_confirmation_description">Vil du slette \"%1$s\"?</string>
@@ -238,7 +238,7 @@
     <string name="mullvad_owned_only">Kun ejet af Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop dirigerer din trafik ind på en WireGuard-server og ud på en anden, hvilket gør det sværere at spore den. Dette resulterer i øget ventetid, men øger anonymiteten online.</string>
-    <string name="multihop_entry_disabled_description">Indgangsserveren for %1$s tilsidesættes i øjeblikket af %2$s. Du skal først aktivere \"%3$s\" eller deaktivere \"%4$s\" i indstillingerne for at vælge en indgangsserver.</string>
+    <string name="multihop_entry_disabled_description">Indgangsserveren for %1$s tilsidesættes i øjeblikket af %2$s. Du skal først aktivere \"%3$s\" eller deaktivere \"%2$s\" i indstillingerne for at vælge en indgangsserver.</string>
     <string name="name">Navn</string>
     <string name="name_was_changed_to">Navnet blev ændret til %1$s</string>
     <string name="new_changelog_notification_message">Klik her for at se nyhederne.</string>

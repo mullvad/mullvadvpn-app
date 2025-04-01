@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">可透過精密的 AI 分析進出裝置的資料封包流量 (即使流量已加密)。</string>
     <string name="daita_description_slide_2_first_paragraph">如果有觀察者正在監控這些資料封包，%1$s 會大大增加他們的難度，讓他們很難辨識您正在瀏覽哪些網站或者在和誰通訊。</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s 會仔細加入網路噪音，讓所有網路資料封包大小皆相同，以達到此目的。</string>
-    <string name="daita_description_slide_2_third_paragraph">我們有些伺服器並未啟用 %1$s。因此，我們使用多點跳躍自動來為任意伺服器啟用 %2$s 。</string>
+    <string name="daita_description_slide_2_third_paragraph">我們有些伺服器並未啟用 %1$s。因此，我們使用多點跳躍自動來為任意伺服器啟用 %1$s 。</string>
     <string name="daita_info">啟用「%1$s」後，您必須手動選取已啟用 %2$s 的伺服器。這有可能導致您後來處於封鎖狀態，直到您在「選取位置」檢視圖中選到相容的伺服器為止。</string>
     <string name="delete">刪除</string>
     <string name="delete_custom_list_confirmation_description">要刪除「%1$s」嗎？</string>
@@ -238,7 +238,7 @@
     <string name="mullvad_owned_only">僅 Mullvad 自有</string>
     <string name="multihop">多點跳躍</string>
     <string name="multihop_description">多點跳躍可將您的流量傳入一個 WireGuard 伺服器，再傳出至另一個伺服器，使其更難以追蹤。雖然這會導致延遲時間增加，卻能提高線上的匿名程度。</string>
-    <string name="multihop_entry_disabled_description">%1$s 的入口伺服器目前已由 %2$s 覆寫。若要選擇入口伺服器，請先在設定中啟用「%3$s」或停用「%4$s」。</string>
+    <string name="multihop_entry_disabled_description">%1$s 的入口伺服器目前已由 %2$s 覆寫。若要選擇入口伺服器，請先在設定中啟用「%3$s」或停用「%2$s」。</string>
     <string name="name">名稱</string>
     <string name="name_was_changed_to">名稱已變更為「%1$s」</string>
     <string name="new_changelog_notification_message">按一下此處查看最新動態。</string>

@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">Med sofistikerad AI är det möjligt att analysera trafiken för datapaket som går in och ut från din enhet (även om trafiken är krypterad).</string>
     <string name="daita_description_slide_2_first_paragraph">Om dessa datapaket övervakas av en observatör, gör %1$s det svårare för dem att identifiera vilka webbplatser du besöker eller vem du kommunicerar med.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek.</string>
-    <string name="daita_description_slide_2_third_paragraph">Det är inte alla våra servrar som är %1$s-aktiverade. Därför använder vi multihopp automatiskt för att aktivera %2$s med alla servrar.</string>
+    <string name="daita_description_slide_2_third_paragraph">Det är inte alla våra servrar som är %1$s-aktiverade. Därför använder vi multihopp automatiskt för att aktivera %1$s med alla servrar.</string>
     <string name="daita_info">Om du aktiverar \"%1$s\" måste du manuellt välja en server som är %2$s-aktiverad. Det kan leda till ett blockerat tillstånd tills du väljer en kompatibel server i \"Välj plats\"-vyn.</string>
     <string name="delete">Ta bort</string>
     <string name="delete_custom_list_confirmation_description">Ta bort \"%1$s\"?</string>
@@ -238,7 +238,7 @@
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="multihop">Multihopp</string>
     <string name="multihop_description">Multihopp dirigerar din trafik till en WireGuard-server och ut genom en annan, vilket gör det svårare att spåra. Detta leder till ökad fördröjning men bättre anonymitet online.</string>
-    <string name="multihop_entry_disabled_description">Startservern för %1$s åsidosätts för tillfället av %2$s. Om du vill välja en startserver ska du först aktivera \"%3$s\" eller inaktivera \"%4$s\" i inställningarna.</string>
+    <string name="multihop_entry_disabled_description">Startservern för %1$s åsidosätts för tillfället av %2$s. Om du vill välja en startserver ska du först aktivera \"%3$s\" eller inaktivera \"%2$s\" i inställningarna.</string>
     <string name="name">Namn</string>
     <string name="name_was_changed_to">Namnet har ändrats till %1$s</string>
     <string name="new_changelog_notification_message">Klicka här för att se nyheterna.</string>

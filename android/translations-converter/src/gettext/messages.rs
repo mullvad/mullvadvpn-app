@@ -104,30 +104,24 @@ impl From<MsgString> for MsgValue {
 }
 
 fn argument_ordering(id: MsgString, msg_str: MsgString) -> Option<Vec<i8>> {
-    if id.contains("%") && msg_str.contains("%") {
+    if id.contains("%(") && msg_str.contains("%(") {
         // Extract arguments in id
         let id_args = extract_arguments(id);
         // Extract arguments in translation
         let value_args = extract_arguments(msg_str);
-        // If args are exactly the same we should just return None,
-        // it will be handled by its default behaviour
-        if id_args == value_args {
-            None
-        } else {
-            // Set index as id order and value as translation order
-            Some(
-                id_args
-                    .iter()
-                    .map(|id_arg| {
-                        value_args
-                            .clone()
-                            .into_iter()
-                            .position(|value_arg| value_arg.eq(id_arg))
-                    })
-                    .map(|f| f.unwrap() as i8 + 1)
-                    .collect(),
-            )
-        }
+        // Set index as id order and value as translation order
+        Some(
+            id_args
+                .iter()
+                .map(|id_arg| {
+                    value_args
+                        .clone()
+                        .into_iter()
+                        .position(|value_arg| value_arg.eq(id_arg))
+                })
+                .map(|f| f.unwrap() as i8 + 1)
+                .collect(),
+        )
     } else {
         None
     }

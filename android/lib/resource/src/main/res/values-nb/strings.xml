@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">Ved hjelp av avansert kunstig intelligens er det mulig å analysere trafikken av datapakker som går inn og ut av enheten din (selv om trafikken er kryptert).</string>
     <string name="daita_description_slide_2_first_paragraph">Hvis en observatør overvåker disse datapakkene, gjør %1$s det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker, eller hvem du kommuniserer med.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s gjør det ved å legge til nettverkstøy på en forsiktig måte og sørge for at alle nettverkspakker har den samme størrelsen.</string>
-    <string name="daita_description_slide_2_third_paragraph">Ikke alle serverne våre er %1$s-aktiverte. Derfor bruker vi automatisk multihopp for å aktivere %2$s med alle servere.</string>
+    <string name="daita_description_slide_2_third_paragraph">Ikke alle serverne våre er %1$s-aktiverte. Derfor bruker vi automatisk multihopp for å aktivere %1$s med alle servere.</string>
     <string name="daita_info">Hvis du aktiverer «%1$s», må du manuelt velge en server som har aktivert %2$s. Dette kan føre til at du havner i en blokkert tilstand inntil du har valgt en kompatibel server under «Velg plassering».</string>
     <string name="delete">Slett</string>
     <string name="delete_custom_list_confirmation_description">Slette «%1$s»?</string>
@@ -238,7 +238,7 @@
     <string name="mullvad_owned_only">Kun eid av Mullvad</string>
     <string name="multihop">Multihopp</string>
     <string name="multihop_description">Multihopp dirigerer trafikken din inn på én WireGuard-server og ut på en annen, noe som gjør det vanskeligere å spore den. Dette resulterer i økt ventetid, men øker anonymiteten på nettet.</string>
-    <string name="multihop_entry_disabled_description">Inngangsserveren for %1$s overstyres for øyeblikket av %2$s. For å velge en inngangsserver må du først aktivere «%3$s» eller deaktivere «%4$s» i innstillingene.</string>
+    <string name="multihop_entry_disabled_description">Inngangsserveren for %1$s overstyres for øyeblikket av %2$s. For å velge en inngangsserver må du først aktivere «%3$s» eller deaktivere «%2$s» i innstillingene.</string>
     <string name="name">Navn</string>
     <string name="name_was_changed_to">Navn ble endret til %1$s</string>
     <string name="new_changelog_notification_message">Klikk her for å se hva som er nytt.</string>

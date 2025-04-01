@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">Al utilizar IA sofisticada, se puede analizar el tráfico de paquetes de datos que entran y salen de su dispositivo (incluso si el tráfico está cifrado).</string>
     <string name="daita_description_slide_2_first_paragraph">Si un observador supervisa estos paquetes de datos, %1$s les dificulta notablemente la tarea de identificar qué sitios web está visitando o con quién se está comunicando.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s lo realiza añadiendo con cuidado ruido de red y haciendo que todos los paquetes de red tengan el mismo tamaño.</string>
-    <string name="daita_description_slide_2_third_paragraph">No todos nuestros servidores están habilitados para %1$s. Por lo tanto, utilizamos el salto múltiple de forma automática para habilitar %2$s con cualquier servidor.</string>
+    <string name="daita_description_slide_2_third_paragraph">No todos nuestros servidores están habilitados para %1$s. Por lo tanto, utilizamos el salto múltiple de forma automática para habilitar %1$s con cualquier servidor.</string>
     <string name="daita_info">Si habilita «%1$s», deberá seleccionar manualmente un servidor que esté habilitado para %2$s. Esto puede provocar que termine bloqueado hasta que seleccione un servidor compatible en la vista «Seleccionar ubicación».</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">¿Eliminar «%1$s»?</string>

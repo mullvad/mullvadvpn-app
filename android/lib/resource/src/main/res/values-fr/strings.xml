@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">Utiliser une IA sophistiquée peut permettre d\'analyser le trafic des paquets de données entrant et sortant de votre appareil (même si le trafic est chiffré).</string>
     <string name="daita_description_slide_2_first_paragraph">Si un observateur surveille ces paquets de données, %1$s rend beaucoup plus difficile l\'identification des sites web que vous visitez ou des personnes avec lesquelles vous communiquez.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s y parvient en ajoutant soigneusement du bruit au réseau et en faisant en sorte que tous les paquets du réseau aient la même taille.</string>
-    <string name="daita_description_slide_2_third_paragraph">Tous nos serveurs ne sont pas compatibles %1$s. C\'est pourquoi nous utilisons automatiquement le multihop pour activer %2$s avec n\'importe quel serveur.</string>
+    <string name="daita_description_slide_2_third_paragraph">Tous nos serveurs ne sont pas compatibles %1$s. C\'est pourquoi nous utilisons automatiquement le multihop pour activer %1$s avec n\'importe quel serveur.</string>
     <string name="daita_info">Si vous activez « %1$s », vous devez sélectionner manuellement un serveur avec %2$s activé. Vous risquez alors de vous retrouver dans une situation de blocage tant que vous n\'avez pas sélectionné un serveur compatible dans la vue « Sélectionner une localisation ».</string>
     <string name="delete">Supprimer</string>
     <string name="delete_custom_list_confirmation_description">Supprimer « %1$s » ?</string>
@@ -238,7 +238,7 @@
     <string name="mullvad_owned_only">Propriété de Mullvad uniquement</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Le multihop fait passer votre trafic par un serveur WireGuard et le fait sortir par un autre, ce qui le rend plus difficile à tracer. Cela se traduit par une latence accrue, mais plus d\'anonymat en ligne.</string>
-    <string name="multihop_entry_disabled_description">Le serveur d\'entrée pour %1$s est actuellement contourné par %2$s. pour sélectionner un serveur d\'entrée, veuillez d\'abord activer « %3$s » ou désactiver « %4$s » dans les paramètres.</string>
+    <string name="multihop_entry_disabled_description">Le serveur d\'entrée pour %1$s est actuellement contourné par %2$s. pour sélectionner un serveur d\'entrée, veuillez d\'abord activer « %3$s » ou désactiver « %2$s » dans les paramètres.</string>
     <string name="name">Nom</string>
     <string name="name_was_changed_to">Le nom a été changé en %1$s</string>
     <string name="new_changelog_notification_message">Cliquez ici pour voir les nouveautés.</string>

@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">Utilizando uma IA sofisticada, é possível analisar o tráfego de pacotes de dados que entram e saem do seu dispositivo (mesmo que o tráfego esteja encriptado).</string>
     <string name="daita_description_slide_2_first_paragraph">Se um observador monitorizar estes pacotes de dados, %1$s dificulta significativamente a identificação dos sites que visita ou com quem comunica.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s consegue-o ao adicionar cuidadosamente ruído de rede e ao tornar todos os pacotes de rede do mesmo tamanho.</string>
-    <string name="daita_description_slide_2_third_paragraph">Nem todos os servidores suportam %1$s. Por isso, utilizamos multihop automaticamente para ativar %2$s em qualquer servidor.</string>
+    <string name="daita_description_slide_2_third_paragraph">Nem todos os servidores suportam %1$s. Por isso, utilizamos multihop automaticamente para ativar %1$s em qualquer servidor.</string>
     <string name="daita_info">Ao ativar “%1$s”, terá de selecionar manualmente um servidor que tenha %2$s ativada, o que pode fazer com que fique num estado bloqueado até selecionar um servidor compatível na vista \"Selecionar localização\".</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">Eliminar \"%1$s\"?</string>
@@ -238,7 +238,7 @@
     <string name="mullvad_owned_only">Apenas propriedade de Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop encaminha o tráfego para entrar num servidor WireGuard e sair por outro, dificultando o seguimento. Isto resulta em maior latência, mas aumenta o anonimato online.</string>
-    <string name="multihop_entry_disabled_description">O servidor de entrada para %1$s é atualmente substituído por %2$s. Para selecionar um servidor de entrada, ative primeiro \"%3$s\", ou desative \"%4$s\" nas definições.</string>
+    <string name="multihop_entry_disabled_description">O servidor de entrada para %1$s é atualmente substituído por %2$s. Para selecionar um servidor de entrada, ative primeiro \"%3$s\", ou desative \"%2$s\" nas definições.</string>
     <string name="name">Nome</string>
     <string name="name_was_changed_to">O nome foi alterado para %1$s</string>
     <string name="new_changelog_notification_message">Clique aqui para ver as novidades.</string>
