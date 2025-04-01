@@ -110,11 +110,13 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
     encrypted_dns_method_raw: *const c_void,
     custom_methods_raw: RustAccessMethodSettingVector,
 ) -> SwiftAccessMethodSettingsWrapper {
-    let direct: AccessMethodSetting = unsafe { *Box::from_raw(direct_method_raw as *mut _) };
-    let mullvad_bridges: AccessMethodSetting =
-        unsafe { *Box::from_raw(bridges_method_raw as *mut _) };
-    let encrypted_dns_proxy: AccessMethodSetting =
-        unsafe { *Box::from_raw(encrypted_dns_method_raw as *mut _) };
+    let (direct, mullvad_bridges, encrypted_dns_proxy) = unsafe {
+        (
+            *Box::from_raw(direct_method_raw as *mut _),
+            *Box::from_raw(bridges_method_raw as *mut _),
+            *Box::from_raw(encrypted_dns_method_raw as *mut _),
+        )
+    };
 
     let custom = custom_methods_raw.into_rust_context().vector;
     let settings = Settings::new(direct, mullvad_bridges, encrypted_dns_proxy, custom);

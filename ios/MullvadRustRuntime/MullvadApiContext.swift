@@ -14,6 +14,7 @@ public struct MullvadApiContext: Sendable {
     public init(
         host: String,
         address: String,
+        domain: String,
         shadowsocksProvider: SwiftShadowsocksLoaderWrapper,
         accessMethodWrapper: SwiftAccessMethodSettingsWrapper
     ) throws {
