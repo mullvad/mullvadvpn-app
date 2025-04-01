@@ -12,7 +12,6 @@ import {
   InconsistentVersionNotificationProvider,
   ReconnectingNotificationProvider,
   UnsupportedVersionNotificationProvider,
-  UpdateAvailableNotificationProvider,
 } from '../../shared/notifications';
 import { useAppContext } from '../context';
 import {
@@ -33,6 +32,7 @@ import {
   NoOpenVpnServerAvailableNotificationProvider,
   OpenVpnSupportEndingNotificationProvider,
 } from '../lib/notifications';
+import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/app-upgrade-available';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
@@ -77,7 +77,7 @@ export default function NotificationArea(props: IProps) {
 
   const { hideNewDeviceBanner } = useActions(accountActions);
 
-  const { setDisplayedChangelog, appUpgrade } = useAppContext();
+  const { setDisplayedChangelog, setDismissedUpgrade, appUpgrade } = useAppContext();
 
   const currentVersion = useSelector((state) => state.version.current);
   const displayedForVersion = useSelector(
@@ -97,6 +97,9 @@ export default function NotificationArea(props: IProps) {
     await setSplitTunnelingState(false);
   }, [setSplitTunnelingState]);
 
+  const updateDismissedForVersion = useSelector(
+    (state) => state.settings.guiSettings.updateDismissedForVersion,
+  );
   const hasAppUpgradeError = useHasAppUpgradeError();
   const { appUpgradeError } = useAppUpgradeError();
 
@@ -166,7 +169,13 @@ export default function NotificationArea(props: IProps) {
       changelog,
       close,
     }),
-    new UpdateAvailableNotificationProvider(version),
+    new AppUpgradeAvailableNotificationProvider({
+      platform: 'linux',
+      suggestedUpgradeVersion: suggestedUpgrade?.version,
+      suggestedIsBeta: version.suggestedIsBeta,
+      updateDismissedForVersion,
+      close: setDismissedUpgrade,
+    }),
     new OpenVpnSupportEndingNotificationProvider({ tunnelProtocol }),
   );
 
