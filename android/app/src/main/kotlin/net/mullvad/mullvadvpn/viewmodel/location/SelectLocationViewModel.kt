@@ -18,11 +18,9 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
-import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -36,10 +34,9 @@ class SelectLocationViewModel(
     private val relayListRepository: RelayListRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val filterChipUseCase: FilterChipUseCase,
-    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
     private val _relayListType: MutableStateFlow<RelayListType> =
-        MutableStateFlow(initialRelayListSelection())
+        MutableStateFlow(RelayListType.EXIT)
 
     val uiState =
         combine(
@@ -57,15 +54,6 @@ class SelectLocationViewModel(
 
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
-
-    private fun initialRelayListSelection() =
-        when {
-            settingsRepository.settingsUpdates.value?.daitaWithoutDirectOnly() == true ->
-                RelayListType.EXIT
-            wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled == true ->
-                RelayListType.ENTRY
-            else -> RelayListType.EXIT
-        }
 
     private fun filterChips() = _relayListType.flatMapLatest { filterChipUseCase(it) }
 
@@ -130,10 +118,6 @@ class SelectLocationViewModel(
     fun removeProviderFilter() {
         viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
     }
-
-    private fun Settings.daitaWithoutDirectOnly() =
-        tunnelOptions.wireguard.daitaSettings.enabled &&
-            !tunnelOptions.wireguard.daitaSettings.directOnly
 }
 
 sealed interface SelectLocationSideEffect {
