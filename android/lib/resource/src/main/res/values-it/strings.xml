@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">Utilizzando un\'IA sofisticata è possibile analizzare il traffico dei pacchetti di dati in entrata e in uscita dal dispositivo (anche se il traffico è crittografato).</string>
     <string name="daita_description_slide_2_first_paragraph">Se un osservatore monitora questi pacchetti di dati, %1$s rende molto più difficile per lui identificare quali siti web stai visitando o con chi stai comunicando.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s lo fa aggiungendo con attenzione rumore di rete e rendendo tutti i pacchetti di rete della stessa dimensione.</string>
-    <string name="daita_description_slide_2_third_paragraph">Non tutti i nostri server sono abilitati per %1$s. Pertanto, utilizziamo automaticamente il multihop per abilitare %2$s con un server qualsiasi.</string>
+    <string name="daita_description_slide_2_third_paragraph">Non tutti i nostri server sono abilitati per %1$s. Pertanto, utilizziamo automaticamente il multihop per abilitare %1$s con un server qualsiasi.</string>
     <string name="daita_info">Abilitando “%1$s” dovrai selezionare manualmente un server abilitato per %2$s. Questo può comportare uno stato di blocco finché non selezioni un server compatibile nella vista “Seleziona posizione”.</string>
     <string name="delete">Elimina</string>
     <string name="delete_custom_list_confirmation_description">Eliminare \"%1$s\"?</string>
@@ -236,7 +236,7 @@
     <string name="mullvad_owned_only">Solo di proprietà di Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Il multihop instrada il tuo traffico in un server WireGuard in entrata e in un altro in uscita, rendendo più difficile il tracciamento. Questo aumenta la latenza ma aumenta anche l\'anonimato online.</string>
-    <string name="multihop_entry_disabled_description">Il server di entrata per %1$s è attualmente sovrascritto da %2$s. Per selezionare un server di entrata, prima abilita \"%3$s\" o disabilita \"%4$s\" nelle impostazioni.</string>
+    <string name="multihop_entry_disabled_description">Il server di entrata per %1$s è attualmente sovrascritto da %2$s. Per selezionare un server di entrata, prima abilita \"%3$s\" o disabilita \"%2$s\" nelle impostazioni.</string>
     <string name="name">Nome</string>
     <string name="name_was_changed_to">Il nome è stato modificato in %1$s</string>
     <string name="new_changelog_notification_message">Clicca qui per vedere le novità.</string>

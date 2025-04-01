@@ -390,11 +390,11 @@
     <string name="daita_description_slide_1_third_paragraph">By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</string>
     <string name="daita_description_slide_2_first_paragraph">If an observer monitors these data packets, %1$s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s does this by carefully adding network noise and making all network packets the same size.</string>
-    <string name="daita_description_slide_2_third_paragraph">Not all our servers are %1$s-enabled. Therefore, we use multihop automatically to enable %2$s with any server.</string>
+    <string name="daita_description_slide_2_third_paragraph">Not all our servers are %1$s-enabled. Therefore, we use multihop automatically to enable %1$s with any server.</string>
     <string name="direct_only">Direct only</string>
     <string name="enable_direct_only">Enable %1$s</string>
     <string name="direct_only_description">Not all our servers are %1$s-enabled. In order to use the internet, you might have to select a new location after enabling.</string>
-    <string name="multihop_entry_disabled_description">The entry server for %1$s is currently overridden by %2$s. To select an entry server, please first enable “%3$s” or disable \"%4$s\" in the settings.</string>
+    <string name="multihop_entry_disabled_description">The entry server for %1$s is currently overridden by %2$s. To select an entry server, please first enable “%3$s” or disable \"%2$s\" in the settings.</string>
     <string name="open_feature_settings">Open %1$s settings</string>
     <string name="search">Search</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video.</string>

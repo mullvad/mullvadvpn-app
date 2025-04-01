@@ -113,7 +113,6 @@ private fun LazyListScope.entryBlocked(openDaitaSettings: () -> Unit) {
                     stringResource(R.string.multihop).toLowerCase(Locale.current),
                     stringResource(id = R.string.daita),
                     stringResource(R.string.direct_only),
-                    stringResource(id = R.string.daita),
                 ),
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
