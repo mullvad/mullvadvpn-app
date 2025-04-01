@@ -236,7 +236,7 @@
     <string name="mullvad_owned_only">Vain Mullvadin omistamat</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop reitittää liikenteesi yhteen WireGuard-palvelimeen ja ulos toisesta palvelimesta, mikä tekee siitä hankalampaa jäljittää. Tuloksena on suurempi viive, mutta se parantaa nimettömyyttä verkossa.</string>
-    <string name="multihop_entry_disabled_description">%1$s ohittaa tällä hetkellä %2$sin tulopalvelimen. Jos haluat valita tulopalvelimen, ota ensin käyttöön \"%3$s\" tai poista \"%4$s\" käytöstä asetuksista.</string>
+    <string name="multihop_entry_disabled_description">%2$s ohittaa tällä hetkellä %1$sin tulopalvelimen. Jos haluat valita tulopalvelimen, ota ensin käyttöön \"%3$s\" tai poista \"%1$s\" käytöstä asetuksista.</string>
     <string name="name">Nimi</string>
     <string name="name_was_changed_to">Nimeksi vaihdettiin \"%1$s\"</string>
     <string name="new_changelog_notification_message">Katso uudet ominaisuudet napsauttamalla tästä.</string>

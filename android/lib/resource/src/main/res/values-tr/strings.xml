@@ -390,5 +390,5 @@
     <string name="wireguard_port_title">WireGuard portu</string>
     <string name="x_entry">%1$s (Giriş)</string>
     <string name="x_exit">%1$s (Çıkış)</string>
-    <string name="x_via_x">%1$s aracılığıyla %2$s</string>
+    <string name="x_via_x">%2$s aracılığıyla %1$s</string>
 </resources>
