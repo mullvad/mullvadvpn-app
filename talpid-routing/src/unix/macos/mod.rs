@@ -808,7 +808,7 @@ impl RouteManagerImpl {
             return Ok(false);
         };
 
-        Ok(route_matches_interface(&actual_default_route, tunnel_route))
+        Ok(actual_default_route.interface_index() == tunnel_route.interface_index())
     }
 
     /// Get the route which goes to `0.0.0.0/0`/`::/0`, if any.
