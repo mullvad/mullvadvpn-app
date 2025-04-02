@@ -12,7 +12,10 @@ import net.mullvad.mullvadvpn.compose.state.DaitaUiState
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 
-class DaitaViewModel(private val settingsRepository: SettingsRepository, savedStateHandle: SavedStateHandle) : ViewModel() {
+class DaitaViewModel(
+    private val settingsRepository: SettingsRepository,
+    savedStateHandle: SavedStateHandle,
+) : ViewModel() {
 
     private val navArgs = DaitaDestination.argsFrom(savedStateHandle)
 

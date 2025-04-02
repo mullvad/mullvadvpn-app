@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +13,7 @@ import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 
 class MultihopViewModel(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val navArgs = MultihopDestination.argsFrom(savedStateHandle)
 

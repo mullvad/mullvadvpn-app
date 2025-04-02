@@ -83,7 +83,6 @@ import net.mullvad.mullvadvpn.compose.dialog.info.WireguardPortInfoDialogArgumen
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
-import net.mullvad.mullvadvpn.compose.test.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
@@ -237,7 +236,8 @@ fun SharedTransitionScope.VpnSettings(
     VpnSettingsScreen(
         state = state,
         initialScrollToFeature = navArgs.scrollToFeature,
-        modifier = Modifier.sharedBounds(
+        modifier =
+            Modifier.sharedBounds(
                 rememberSharedContentState(key = navArgs.scrollToFeature ?: ""),
                 animatedVisibilityScope = animatedVisibilityScope,
             ),
