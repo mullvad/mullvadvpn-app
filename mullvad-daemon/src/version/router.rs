@@ -210,11 +210,11 @@ impl VersionRouter {
     }
 
     async fn run(mut self) {
-        // HACK: We can (should) only handle upgrade events on some targets.
+        // HACK: We can (should) only handle update events on some targets.
         // Trying to cfg a branch in `tokio::select!` will not work, so creating
         // a closure for conditionally responding to upgrade events will have to do.
         #[cfg(update)]
-        let fut = || async {
+        let handle_update_event = || async {
             // Received upgrade event from `downloader`
             if let Some(update_event) = self.update.update_event_rx.next().await {
                 self.handle_update_event(update_event);
@@ -222,7 +222,7 @@ impl VersionRouter {
         };
 
         #[cfg(not(update))]
-        let fut = || async {
+        let handle_update_event = || async {
             let () = std::future::pending().await;
         };
 
@@ -247,8 +247,8 @@ impl VersionRouter {
                 Some(new_version) = self.new_version_rx.next() => {
                     self.on_new_version(new_version);
                 }
-                // Received & handled upgrade event from `downloader`
-                () = fut() => { },
+                // Received & handled update event from `downloader`
+                () = handle_update_event() => { },
                 Some(message) = self.rx.next() => self.handle_message(message).await,
                 else => break,
             }
