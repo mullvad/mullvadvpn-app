@@ -1,5 +1,6 @@
 use crate::{debounce::BurstGuard, Gateway, MacAddress, NetNode, RequiredRoute, Route};
 
+use default_routes::DefaultRouteMonitor;
 use futures::{
     channel::mpsc::{self, UnboundedReceiver},
     future::FutureExt,
@@ -117,10 +118,8 @@ impl RouteManagerImpl {
         // TODO: clean these up
         let (primary_interface_monitor, interface_change_rx) =
             interface::PrimaryInterfaceMonitor::new();
-        let (best_route_rx_v4, best_route_rx_v6) = default_routes::DefaultRouteMonitor::new(
-            primary_interface_monitor,
-            interface_change_rx,
-        );
+        let (best_route_rx_v4, best_route_rx_v6) =
+            DefaultRouteMonitor::new(primary_interface_monitor, interface_change_rx);
 
         let routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
 
@@ -187,19 +186,6 @@ impl RouteManagerImpl {
                     let Some(new_best_route)= new_best_route else { continue };
                     self.handle_new_best_default_route(interface::Family::V6, new_best_route);
                 }
-
-                //event = self.interface_change_rx.next() => {
-                //    let Some(events) = event else {
-                //        continue; // TODO:
-                //    };
-
-                //    for event in events {
-                //        match event {
-                //            interface::InterfaceEvent::PrimaryInterfaceUpdate { family, new_value } => todo!(),
-                //            interface::InterfaceEvent::NetworkServiceUpdate { family, service_id, new_value } => todo!(),
-                //        }
-                //    }
-                //}
 
                 command = manage_rx.next() => {
                     match command {
@@ -438,17 +424,14 @@ impl RouteManagerImpl {
     async fn refresh_routes(&mut self) -> Result<()> {
         talpid_types::detect_flood!();
 
-        // These may set `self.unhandled_default_route_changes`
-        //self.update_best_default_route(interface::Family::V4)?;
-        //self.update_best_default_route(interface::Family::V6)?;
-
         self.debug_offline();
 
         if !self.unhandled_default_route_changes {
             self.ensure_default_tunnel_routes_exist().await?;
             return Ok(());
         }
-        log::trace!("refreshing routes");
+
+        log::trace!("Refreshing routes");
 
         // Remove any existing ifscoped default route that we've added
         self.remove_applied_routes(|route| {
@@ -473,43 +456,7 @@ impl RouteManagerImpl {
         //}
     }
 
-    /*
-    /// Figure out what the best default routes to use are, and send updates to default route change
-    /// subscribers. The "best routes" are used by the tunnel device to send packets to the VPN
-    /// relay.
-    ///
-    /// The "best route" is determined by the first interface in the network service order that has
-    /// a valid IP address and gateway.
-    ///
-    /// On success, the function returns whether the previously known best default changed.
-    fn update_best_default_route(&mut self, family: interface::Family) -> Result<bool> {
-        let new_best_route = self.primary_interface_monitor.get_route(family);
-
-        let current_best_route = get_current_best_default_route!(self, family);
-
-        log::trace!("Best route ({family:?}): {new_best_route:?}");
-        if new_best_route == *current_best_route {
-            return Ok(false);
-        }
-
-        self.unhandled_default_route_changes = true;
-
-        let old_pair = current_best_route
-            .as_ref()
-            .map(|r| (r.interface_index, r.router_ip));
-        let new_pair = new_best_route
-            .as_ref()
-            .map(|r| (r.interface_index, r.router_ip));
-
-        log::debug!("Best default route ({family}) changed from {old_pair:?} to {new_pair:?}");
-        *current_best_route = new_best_route;
-
-        let changed = current_best_route.is_some();
-        self.notify_default_route_listeners(family, changed);
-        Ok(true)
-    }
-    */
-
+    /// Handle a new [DefaultRoute] received from [DefaultRouteMonitor].
     fn handle_new_best_default_route(
         &mut self,
         family: interface::Family,
