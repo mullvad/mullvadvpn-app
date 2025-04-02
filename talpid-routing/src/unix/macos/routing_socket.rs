@@ -170,7 +170,6 @@ impl RoutingSocketInner {
 
     async fn read(&mut self, out: &mut [u8]) -> std::io::Result<usize> {
         loop {
-            // TODO: is this correct?
             let mut guard = self.socket.readable().await?;
             match guard.try_io(|sock| sock.get_ref().read(out)) {
                 Ok(result) => return result,
