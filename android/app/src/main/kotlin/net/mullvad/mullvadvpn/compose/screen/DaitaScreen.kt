@@ -240,7 +240,6 @@ private enum class DaitaPages(
                 stringResource(
                     R.string.daita_description_slide_2_third_paragraph,
                     stringResource(id = R.string.daita),
-                    stringResource(id = R.string.daita),
                 )
             },
     ),
