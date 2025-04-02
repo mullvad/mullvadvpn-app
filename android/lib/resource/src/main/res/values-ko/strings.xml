@@ -199,6 +199,7 @@
     <string name="invalid_voucher">유효하지 않은 바우처 코드입니다.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">이 기능을 활성화하면 VPN 터널에서 IPv4와 함께 IPv6을 사용하여 인터넷 서비스와 통신할 수 있습니다.</string>
     <string name="ipv6_unavailable">IPv6을 구성할 수 없습니다. 앱에서 비활성화하거나 장치에서 활성화하세요.</string>
     <string name="is_offline">장치가 오프라인 상태입니다. 장치가 다시 온라인 상태가 되면 터널이 자동으로 연결됩니다.</string>
     <string name="legacy_always_on_vpn_error_notification_content">터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 상시 접속 VPN을 비활성화하세요.</string>

@@ -405,4 +405,6 @@
     <string name="enable_ipv6">Enable IPv6</string>
     <string name="uri_market_app_not_found">No Android app store installed, could not open link</string>
     <string name="uri_browser_app_not_found">No browser app installed, could not open link</string>
+    <string name="device_ip_version_subtitle">This allows access to WireGuard for devices that only support IPv6.</string>
+    <string name="ipv6_info">When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services.</string>
 </resources>
