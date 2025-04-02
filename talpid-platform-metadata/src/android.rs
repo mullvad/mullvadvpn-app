@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
+use std::sync::{LazyLock, Mutex, RwLock};
 
 mod command;
 use command::command_stdout_lossy;
@@ -27,15 +28,26 @@ fn os_version() -> String {
     get_prop("ro.build.version.release").unwrap_or_else(|| "N/A".to_owned())
 }
 
-pub fn extra_metadata() -> HashMap<String, String> {
-    let mut metadata = HashMap::new();
+pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+    let mut metadata = BTreeMap::new();
     metadata.insert(
         "abi".to_owned(),
         get_prop("ro.product.cpu.abilist").unwrap_or_else(|| "N/A".to_owned()),
     );
-    metadata
+    let extra = EXTRA_METADATA.read().unwrap();
+    for (k, v) in extra.iter() {
+        metadata.insert(k.clone(), v.clone());
+    }
+    metadata.into_iter()
 }
 
 fn get_prop(property: &str) -> Option<String> {
     command_stdout_lossy("getprop", &[property]).ok()
 }
+
+pub fn set_extra_metadata(extra: HashMap<String, String>) {
+    *EXTRA_METADATA.write().unwrap() = extra;
+}
+
+static EXTRA_METADATA: LazyLock<RwLock<HashMap<String, String>>> =
+    LazyLock::new(|| RwLock::new(HashMap::new()));
