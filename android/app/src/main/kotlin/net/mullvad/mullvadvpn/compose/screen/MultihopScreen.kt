@@ -51,6 +51,7 @@ data class MultihopNavArgs(
     val isModal: Boolean = false,
 ): Parcelable
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Destination<RootGraph>(style = SlideInFromRightTransition::class, navArgs = MultihopNavArgs::class)
 @Composable
 fun SharedTransitionScope.Multihop(

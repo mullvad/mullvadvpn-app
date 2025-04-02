@@ -286,7 +286,7 @@ CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides animatedVisibi
                     when (feature) {
                         FeatureIndicator.DAITA -> DaitaDestination(isModal = true)
                         FeatureIndicator.MULTIHOP -> MultihopDestination(isModal = true)
-                        FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingDestination
+                        FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingDestination(isModal = true)
                         FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverridesDestination
                         FeatureIndicator.QUANTUM_RESISTANCE,
                         FeatureIndicator.UDP_2_TCP,

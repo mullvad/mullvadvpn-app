@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,8 +21,10 @@ import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 class SplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
     private val splitTunnelingRepository: SplitTunnelingRepository,
+    savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
+    private val navArgs = SplitTunnelingDestination.argsFrom(savedStateHandle)
 
     private val allApps = MutableStateFlow<List<AppData>?>(null)
     private val showSystemApps = MutableStateFlow(false)
@@ -47,11 +51,11 @@ class SplitTunnelingViewModel(
 
     val uiState =
         vmState
-            .map(SplitTunnelingViewModelState::toUiState)
+            .map { it.toUiState(navArgs.isModal) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                SplitTunnelingUiState.Loading(enabled = false),
+                SplitTunnelingUiState.Loading(enabled = false, isModal = navArgs.isModal),
             )
 
     init {

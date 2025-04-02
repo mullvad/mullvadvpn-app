@@ -122,7 +122,7 @@ val uiModule = module {
         ComponentName(androidContext(), BootCompletedReceiver::class.java)
     }
 
-    viewModel { SplitTunnelingViewModel(get(), get(), Dispatchers.Default) }
+    viewModel { SplitTunnelingViewModel(get(), get(), get(), Dispatchers.Default) }
 
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
     scope<MainActivity> { scoped { ServiceConnectionManager(androidContext()) } }

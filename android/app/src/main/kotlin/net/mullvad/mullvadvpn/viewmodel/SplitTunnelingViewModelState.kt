@@ -10,7 +10,7 @@ data class SplitTunnelingViewModelState(
     val allApps: List<AppData>? = null,
     val showSystemApps: Boolean = false,
 ) {
-    fun toUiState(): SplitTunnelingUiState {
+    fun toUiState(isModal: Boolean): SplitTunnelingUiState {
         return allApps
             ?.partition { appData ->
                 if (enabled) {
@@ -31,8 +31,9 @@ data class SplitTunnelingViewModelState(
                             }
                             .sort(),
                     showSystemApps = showSystemApps,
+                    isModal = isModal,
                 )
-            } ?: SplitTunnelingUiState.Loading(enabled = enabled)
+            } ?: SplitTunnelingUiState.Loading(enabled = enabled, isModal)
     }
 }
 

@@ -71,7 +71,7 @@ fun Settings(navigator: DestinationsNavigator) {
         state = state,
         onVpnSettingCellClick = dropUnlessResumed { navigator.navigate(VpnSettingsDestination()) },
         onSplitTunnelingCellClick =
-            dropUnlessResumed { navigator.navigate(SplitTunnelingDestination) },
+            dropUnlessResumed { navigator.navigate(SplitTunnelingDestination()) },
         onAppInfoClick = dropUnlessResumed { navigator.navigate(AppInfoDestination) },
         onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessListDestination) },
         onReportProblemCellClick =
