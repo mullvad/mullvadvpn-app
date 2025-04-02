@@ -1,4 +1,4 @@
-use std::{collections::HashMap, future::pending, time::Duration};
+use std::{collections::HashMap, convert::Infallible, future::pending, mem, time::Duration};
 
 use futures::{
     channel::mpsc::{self, UnboundedReceiver, UnboundedSender},
@@ -19,101 +19,57 @@ use super::{
 
 const NO_ROUTE_GRACE_TIME: Duration = Duration::from_secs(5);
 
-pub fn start_listener(
-    monitor: PrimaryInterfaceMonitor,
-    event_rx: UnboundedReceiver<Vec<InterfaceEvent>>,
-) -> (
-    UnboundedReceiver<Option<DefaultRoute>>,
-    UnboundedReceiver<Option<DefaultRoute>>,
-) {
-    let (route_v4_tx, route_v4_rx) = mpsc::unbounded();
-    let (route_v6_tx, route_v6_rx) = mpsc::unbounded();
-
-    let mut route_tx = IpMap::new();
-    route_tx.insert(Family::V4, route_v4_tx);
-    route_tx.insert(Family::V6, route_v6_tx);
-
-    let monitor = DefaultRouteMonitor {
-        monitor,
-        event_rx,
-        route_tx,
-        current_route: IpMap::new(),
-        primary_interfaces: IpMap::new(),
-    };
-
-    tokio::task::spawn_blocking(move || {
-        runtime::Handle::current().block_on(monitor.run());
-    });
-
-    let route_v4_rx = delay_no_route_events(route_v4_rx);
-    let route_v6_rx = delay_no_route_events(route_v6_rx);
-
-    (route_v4_rx, route_v6_rx)
-}
-
-/// Delay `None`-events by [NO_ROUTE_GRACE_TIME].
-///
-/// When receiving a `None` on the channel, a timer will start. If no `Some`s are received within
-/// the deadline, a `None` will be sent.
-///
-/// Some `None`s may be dropped, but `Some`-values are passed along immediately.
-fn delay_no_route_events(
-    mut fast_rx: UnboundedReceiver<Option<DefaultRoute>>,
-) -> UnboundedReceiver<Option<DefaultRoute>> {
-    let (slow_tx, slow_rx) = mpsc::unbounded();
-
-    tokio::task::spawn(async move {
-        let mut no_route_grace_timeout = None;
-
-        loop {
-            let no_route_grace_timer = async {
-                match no_route_grace_timeout {
-                    None => pending().await,
-                    Some(time) => sleep_until(time).await,
-                };
-            };
-
-            select_biased! {
-                route = fast_rx.next() => {
-                    let Some(route) = route else { return };
-
-                    if route.is_some() {
-                        no_route_grace_timeout = None;
-                        if slow_tx.unbounded_send(route).is_err() {
-                            return;
-                        };
-
-                    } else if no_route_grace_timeout.is_none() {
-                        // FIXME: remove this log
-                        log::debug!("New route is None, starting grace timer.");
-                        no_route_grace_timeout = Some(Instant::now() + NO_ROUTE_GRACE_TIME);
-                    }
-                }
-
-                _ = no_route_grace_timer.fuse() => {
-                    no_route_grace_timeout = None;
-                    if slow_tx.unbounded_send(None).is_err() {
-                        return;
-                    };
-                }
-            }
-        }
-    });
-
-    slow_rx
-}
-
-struct DefaultRouteMonitor {
+/// Monitors changes to the primary interface and reports [BestRoute].
+pub struct DefaultRouteMonitor {
     monitor: PrimaryInterfaceMonitor,
     event_rx: UnboundedReceiver<Vec<InterfaceEvent>>,
 
     route_tx: IpMap<UnboundedSender<Option<DefaultRoute>>>,
 
+    /// The current best routes.
     current_route: IpMap<DefaultRoute>,
+
+    /// The current primary interfaces.
     primary_interfaces: IpMap<PrimaryInterfaceDetails>,
 }
 
 impl DefaultRouteMonitor {
+    /// Start monitoring interfaces for changes to the best route.
+    ///
+    /// Returns an IPv4 and an IPv6 channel of [BestRoute] updates.
+    ///
+    pub fn new(
+        monitor: PrimaryInterfaceMonitor,
+        event_rx: UnboundedReceiver<Vec<InterfaceEvent>>,
+    ) -> (
+        UnboundedReceiver<Option<DefaultRoute>>,
+        UnboundedReceiver<Option<DefaultRoute>>,
+    ) {
+        let (route_v4_tx, route_v4_rx) = mpsc::unbounded();
+        let (route_v6_tx, route_v6_rx) = mpsc::unbounded();
+
+        let mut route_tx = IpMap::new();
+        route_tx.insert(Family::V4, route_v4_tx);
+        route_tx.insert(Family::V6, route_v6_tx);
+
+        let monitor = DefaultRouteMonitor {
+            monitor,
+            event_rx,
+            route_tx,
+            current_route: IpMap::new(),
+            primary_interfaces: IpMap::new(),
+        };
+
+        tokio::task::spawn_blocking(move || {
+            runtime::Handle::current().block_on(monitor.run());
+        });
+
+        let route_v4_rx = filter_duplicates(delay_nones(NO_ROUTE_GRACE_TIME, route_v4_rx));
+        let route_v6_rx = filter_duplicates(delay_nones(NO_ROUTE_GRACE_TIME, route_v6_rx));
+
+        (route_v4_rx, route_v6_rx)
+    }
+
     async fn run(mut self) {
         for family in [Family::V4, Family::V6] {
             let route = self.monitor.get_route(family);
@@ -230,11 +186,6 @@ impl DefaultRouteMonitor {
             _ => self.monitor.get_route_by_service_order(family),
         };
 
-        // If the new route is the same as the old one, do nohing.
-        if new_route.as_ref() == self.current_route.get(family) {
-            return;
-        }
-
         self.current_route.set(family, new_route.clone());
         if let Some(tx) = self.route_tx.get(family) {
             if tx.unbounded_send(new_route).is_err() {
@@ -242,4 +193,84 @@ impl DefaultRouteMonitor {
             }
         }
     }
+}
+
+/// Filter out duplicate messages from a channel.
+///
+/// This will always keep a clone of the last value that was sent on the channel.
+fn filter_duplicates<T: PartialEq + Clone + Send + 'static>(
+    unfiltered_rx: UnboundedReceiver<T>,
+) -> UnboundedReceiver<T> {
+    async fn do_filtering<T: PartialEq + Clone + Send + 'static>(
+        mut unfiltered_rx: UnboundedReceiver<T>,
+        filtered_tx: UnboundedSender<T>,
+    ) -> Option<Infallible> {
+        let mut last_value = unfiltered_rx.next().await?;
+        filtered_tx.unbounded_send(last_value.clone()).ok()?;
+
+        loop {
+            let prev_value = mem::replace(&mut last_value, unfiltered_rx.next().await?);
+
+            if last_value != prev_value {
+                filtered_tx.unbounded_send(last_value.clone()).ok()?;
+            }
+        }
+    }
+
+    let (filtered_tx, filtered_rx) = mpsc::unbounded();
+    tokio::task::spawn(do_filtering(unfiltered_rx, filtered_tx));
+    filtered_rx
+}
+
+/// Delay `None`-events by [NO_ROUTE_GRACE_TIME].
+///
+/// When receiving a `None` on the channel, a timer will start. If no `Some`s are received within
+/// the deadline, a `None` will be sent.
+///
+/// Some `None`s may be dropped, but `Some`-values are passed along immediately.
+fn delay_nones<T: Send + 'static>(
+    grace_time: Duration,
+    mut fast_rx: UnboundedReceiver<Option<T>>,
+) -> UnboundedReceiver<Option<T>> {
+    let (slow_tx, slow_rx) = mpsc::unbounded();
+
+    tokio::task::spawn(async move {
+        let mut no_route_grace_timeout = None;
+
+        loop {
+            let no_route_grace_timer = async {
+                match no_route_grace_timeout {
+                    None => pending().await,
+                    Some(time) => sleep_until(time).await,
+                };
+            };
+
+            select_biased! {
+                route = fast_rx.next() => {
+                    let Some(route) = route else { return };
+
+                    if route.is_some() {
+                        no_route_grace_timeout = None;
+                        if slow_tx.unbounded_send(route).is_err() {
+                            return;
+                        };
+
+                    } else if no_route_grace_timeout.is_none() {
+                        // FIXME: remove this log
+                        log::debug!("New route is None, starting grace timer.");
+                        no_route_grace_timeout = Some(Instant::now() + grace_time);
+                    }
+                }
+
+                _ = no_route_grace_timer.fuse() => {
+                    no_route_grace_timeout = None;
+                    if slow_tx.unbounded_send(None).is_err() {
+                        return;
+                    };
+                }
+            }
+        }
+    });
+
+    slow_rx
 }

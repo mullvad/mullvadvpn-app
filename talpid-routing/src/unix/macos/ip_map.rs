@@ -1,5 +1,6 @@
 use super::interface::Family;
 
+/// A map where the key is [Family].
 #[derive(Clone, Debug)]
 pub struct IpMap<T> {
     v4: Option<T>,
