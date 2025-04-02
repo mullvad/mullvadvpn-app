@@ -3,10 +3,9 @@ use std::{
     ptr::{self, null_mut},
 };
 
-use mullvad_api::StatusCode;
 use mullvad_api::{
     rest::{self, Response},
-    RelayListProxy,
+    RelayListProxy, StatusCode,
 };
 
 #[repr(C)]
@@ -50,7 +49,7 @@ impl SwiftMullvadApiResponse {
         })
     }
 
-    pub async fn ok() -> Result<Self, rest::Error> {
+    pub fn ok() -> Result<Self, rest::Error> {
         Ok(Self {
             success: true,
             error_description: null_mut(),

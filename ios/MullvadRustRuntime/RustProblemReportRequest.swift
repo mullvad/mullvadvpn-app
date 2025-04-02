@@ -6,7 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 import MullvadLogging
-import MullvadRustRuntime
+import MullvadREST
 
 final public class RustProblemReportRequest {
     private let logger = Logger(label: "RustProblemReportRequest")
