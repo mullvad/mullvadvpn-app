@@ -24,7 +24,7 @@ pub use super::DefaultRouteEvent;
 pub use interface::DefaultRoute;
 
 mod data;
-mod foobar;
+mod default_routes;
 mod interface;
 mod ip_map;
 mod routing_socket;
@@ -117,8 +117,10 @@ impl RouteManagerImpl {
         // TODO: clean these up
         let (primary_interface_monitor, interface_change_rx) =
             interface::PrimaryInterfaceMonitor::new();
-        let (best_route_rx_v4, best_route_rx_v6) =
-            foobar::DefaultRouteMonitor::new(primary_interface_monitor, interface_change_rx);
+        let (best_route_rx_v4, best_route_rx_v6) = default_routes::DefaultRouteMonitor::new(
+            primary_interface_monitor,
+            interface_change_rx,
+        );
 
         let routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
 
