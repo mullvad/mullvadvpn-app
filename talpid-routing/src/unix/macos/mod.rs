@@ -94,18 +94,28 @@ pub struct RouteManagerImpl {
     /// routing table or with the network interfaces.
     update_trigger: BurstGuard,
 
-    default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
-    check_default_routes_restored: Pin<Box<dyn FusedStream<Item = ()> + Send>>,
+    /// Indicates that `best_default_route` has changed, or that a `/0`-route in the routing table
+    /// was changed.
     unhandled_default_route_changes: bool,
+
+    check_default_routes_restored: Pin<Box<dyn FusedStream<Item = ()> + Send>>,
+
+    /// Channel that receives updates to the best [DefaultRoute] for IPv4.
+    best_default_route_rx_v4: UnboundedReceiver<Option<DefaultRoute>>,
+
+    /// Channel that receives updates to the best [DefaultRoute] for IPv6.
+    best_default_route_rx_v6: UnboundedReceiver<Option<DefaultRoute>>,
 
     /// The best IPv4 and v6 network routes suggested by macOS.
     ///
     /// Example: Interface "en0" (1) with IP 192.168.1.222, and with router_ip 192.168.1.1.
     best_default_route: IpMap<interface::DefaultRoute>,
-    best_default_route_rx_v4: UnboundedReceiver<Option<DefaultRoute>>,
-    best_default_route_rx_v6: UnboundedReceiver<Option<DefaultRoute>>,
 
-    //interface_change_rx: UnboundedReceiver<Vec<interface::InterfaceEvent>>,
+    /// Message to notify `default_route_listeners` when `best_default_route` changes.
+    best_default_route_update: IpMap<DefaultRouteEvent>,
+
+    default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
+
     interface_change_listeners: Vec<mpsc::UnboundedSender<super::InterfaceEvent>>,
 }
 
@@ -139,10 +149,11 @@ impl RouteManagerImpl {
             tunnel_default_routes: IpMap::new(),
             applied_routes: BTreeMap::new(),
             best_default_route: IpMap::new(),
+            best_default_route_update: IpMap::new(),
+            default_route_listeners: vec![],
             best_default_route_rx_v4: best_route_rx_v4,
             best_default_route_rx_v6: best_route_rx_v6,
             update_trigger,
-            default_route_listeners: vec![],
             check_default_routes_restored: Box::pin(futures::stream::pending()),
             unhandled_default_route_changes: false,
             interface_change_listeners: vec![],
@@ -424,6 +435,11 @@ impl RouteManagerImpl {
     async fn refresh_routes(&mut self) -> Result<()> {
         talpid_types::detect_flood!();
 
+        for (_, event) in self.best_default_route_update.drain() {
+            self.default_route_listeners
+                .retain(|tx| tx.unbounded_send(event).is_ok());
+        }
+
         self.debug_offline();
 
         if !self.unhandled_default_route_changes {
@@ -463,23 +479,17 @@ impl RouteManagerImpl {
         new_best_route: Option<DefaultRoute>,
     ) {
         log::trace!("Best route (IPv4): {new_best_route:?}");
-        let changed = new_best_route.is_some();
-        self.notify_default_route_listeners(family, changed);
+
+        let event = match (family, new_best_route.is_some()) {
+            (interface::Family::V4, true) => DefaultRouteEvent::AddedOrChangedV4,
+            (interface::Family::V4, false) => DefaultRouteEvent::RemovedV4,
+            (interface::Family::V6, true) => DefaultRouteEvent::AddedOrChangedV6,
+            (interface::Family::V6, false) => DefaultRouteEvent::RemovedV6,
+        };
+        self.best_default_route_update.insert(family, event);
         self.best_default_route.set(family, new_best_route);
         self.unhandled_default_route_changes = true;
         self.update_trigger.trigger();
-    }
-
-    fn notify_default_route_listeners(&mut self, family: interface::Family, changed: bool) {
-        // Notify default route listeners
-        let event = match (family, changed) {
-            (interface::Family::V4, true) => DefaultRouteEvent::AddedOrChangedV4,
-            (interface::Family::V6, true) => DefaultRouteEvent::AddedOrChangedV6,
-            (interface::Family::V4, false) => DefaultRouteEvent::RemovedV4,
-            (interface::Family::V6, false) => DefaultRouteEvent::RemovedV6,
-        };
-        self.default_route_listeners
-            .retain(|tx| tx.unbounded_send(event).is_ok());
     }
 
     /// Replace the default routes with an ifscope route, and

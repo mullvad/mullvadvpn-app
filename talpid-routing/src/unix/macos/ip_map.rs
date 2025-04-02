@@ -58,4 +58,10 @@ impl<T> IpMap<T> {
             .into_iter()
             .flat_map(|(family, elem)| Some((family, elem.as_ref()?)))
     }
+
+    pub fn drain(&mut self) -> impl Iterator<Item = (Family, T)> {
+        [(Family::V4, self.v4.take()), (Family::V6, self.v6.take())]
+            .into_iter()
+            .flat_map(|(family, elem)| Some((family, elem?)))
+    }
 }
