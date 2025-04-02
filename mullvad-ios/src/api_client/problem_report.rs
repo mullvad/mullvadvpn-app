@@ -4,11 +4,11 @@ use mullvad_api::{
 };
 use std::ffi::CStr;
 use std::os::raw::c_char;
-use talpid_future::retry::retry_future;
 
 use super::{
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
+    do_request_with_empty_body,
     response::SwiftMullvadApiResponse,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
     SwiftApiContext,
@@ -16,9 +16,20 @@ use super::{
 
 use mullvad_api::rest::Error;
 use std::collections::BTreeMap;
-use std::slice;
 use tokio::task::JoinHandle;
 
+/// # Safety
+///
+/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+/// by calling `mullvad_api_init_new`.
+///
+/// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
+/// safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
+/// type is intended to be used.
+///
+/// the string properties of `SwiftProblemReportRequest` must be pointers to a null terminated strings.
+///
+/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
 pub unsafe extern "C" fn mullvad_api_send_problem_report(
     api_context: SwiftApiContext,
@@ -87,23 +98,14 @@ async fn mullvad_api_send_problem_report_inner(
         )
     };
 
-    let should_retry = |result: &Result<_, rest::Error>| match result {
-        Err(err) => err.is_network_error(),
-        Ok(_) => false,
-    };
-
-    retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
-    SwiftMullvadApiResponse::ok().await
+    do_request_with_empty_body(retry_strategy, future_factory).await
 }
 
 #[repr(C)]
 pub struct SwiftProblemReportRequest {
     address: *const u8,
-    address_len: usize,
     message: *const u8,
-    message_len: usize,
     log: *const u8,
-    log_len: usize,
     meta_data: ProblemReportMetadata,
 }
 
@@ -118,13 +120,22 @@ unsafe impl Send for SwiftProblemReportRequest {}
 
 impl ProblemReportRequest {
     unsafe fn from_swift_parameters(request: SwiftProblemReportRequest) -> Option<Self> {
-        let address_slice = slice::from_raw_parts(request.address, request.address_len);
-        let message_slice = slice::from_raw_parts(request.message, request.message_len);
-        let log_slice = slice::from_raw_parts(request.log, request.log_len);
+        fn get_string(ptr: *const u8) -> String {
+            if ptr.is_null() {
+                return String::new();
+            }
 
-        let address = String::from_utf8(address_slice.to_vec()).ok()?;
-        let message = String::from_utf8(message_slice.to_vec()).ok()?;
-        let log = log_slice.to_vec();
+            unsafe {
+                CStr::from_ptr(ptr.cast())
+                    .to_str()
+                    .map(ToOwned::to_owned)
+                    .unwrap_or_default()
+            }
+        }
+
+        let address = get_string(request.address);
+        let message = get_string(request.message);
+        let log = get_string(request.log).into();
 
         let meta_data = if request.meta_data.inner.is_null() {
             BTreeMap::new()

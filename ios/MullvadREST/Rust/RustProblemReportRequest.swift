@@ -9,16 +9,15 @@ import MullvadLogging
 import MullvadRustRuntime
 
 final public class RustProblemReportRequest {
-    typealias StringPointer = (pointer: UnsafePointer<UInt8>?, size: UInt)?
     private let logger = Logger(label: "RustProblemReportRequest")
     private let problemReportMetaData: ProblemReportMetadata
-    private let addressPointer: StringPointer
-    private let messagePointer: StringPointer
-    private let logPointer: StringPointer
+    private let addressPointer: UnsafePointer<UInt8>?
+    private let messagePointer: UnsafePointer<UInt8>?
+    private let logPointer: UnsafePointer<UInt8>?
     public init(from request: REST.ProblemReportRequest) {
-        addressPointer = request.address.toUnsafePointer()
-        messagePointer = request.message.toUnsafePointer()
-        logPointer = request.log.toUnsafePointer()
+        addressPointer = request.address.withCStringPointer()
+        messagePointer = request.message.withCStringPointer()
+        logPointer = request.log.withCStringPointer()
 
         self.problemReportMetaData = swift_problem_report_meta_data_new()
 
@@ -38,20 +37,14 @@ final public class RustProblemReportRequest {
 
     public func toRust() -> SwiftProblemReportRequest {
         return SwiftProblemReportRequest(
-            address: addressPointer?.pointer ?? nil,
-            address_len: addressPointer?.size ?? 0,
-            message: messagePointer?.pointer ?? nil,
-            message_len: messagePointer?.size ?? 0,
-            log: logPointer?.pointer ?? nil,
-            log_len: logPointer?.size ?? 0,
+            address: addressPointer,
+            message: messagePointer,
+            log: logPointer,
             meta_data: problemReportMetaData
         )
     }
 
     deinit {
         swift_problem_report_meta_data_free(problemReportMetaData)
-        addressPointer?.pointer?.deallocate()
-        messagePointer?.pointer?.deallocate()
-        logPointer?.pointer?.deallocate()
     }
 }
