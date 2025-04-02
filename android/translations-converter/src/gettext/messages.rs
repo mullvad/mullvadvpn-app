@@ -1,4 +1,5 @@
 use super::{msg_string::MsgString, parser::Parser, plural_form::PluralForm};
+use regex::Regex;
 use std::{
     fs::File,
     io::{BufRead, BufReader},
@@ -104,7 +105,8 @@ impl From<MsgString> for MsgValue {
 }
 
 fn argument_ordering(id: MsgString, msg_str: MsgString) -> Option<Vec<i8>> {
-    if id.contains("%(") && msg_str.contains("%(") {
+    let named_argument = Regex::new(r"%\([a-zA-Z]+\)").unwrap();
+    if named_argument.is_match(&id) && named_argument.is_match(&msg_str) {
         // Extract arguments in id
         let id_args = extract_arguments(id);
         // Extract arguments in translation
@@ -128,19 +130,10 @@ fn argument_ordering(id: MsgString, msg_str: MsgString) -> Option<Vec<i8>> {
 }
 
 fn extract_arguments(msg: MsgString) -> Vec<String> {
-    msg.split("%")
-        .filter_map(|s| {
-            if s.starts_with("(") {
-                // Remove everything after ')'
-                let mut msg = s;
-                if let Some((m, _)) = msg.split_once(")") {
-                    msg = m;
-                }
-                Some(String::from(msg))
-            } else {
-                None
-            }
-        })
+    let named_argument = Regex::new(r"%\([a-zA-Z]+\)").unwrap();
+    named_argument
+        .find_iter(&msg)
+        .map(|s| String::from(s.as_str()))
         .collect()
 }
 
