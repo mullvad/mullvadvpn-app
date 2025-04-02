@@ -8,19 +8,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -70,15 +70,13 @@ import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.dialog.CustomPortNavArgs
 import net.mullvad.mullvadvpn.compose.dialog.info.WireguardPortInfoDialogArgument
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
-import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
-import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
+import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
@@ -94,7 +92,6 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.IpVersion
@@ -105,7 +102,9 @@ import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.util.indexOfFirstOrNull
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
+import net.mullvad.mullvadvpn.viewmodel.VpnSettingsUiState
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -144,10 +143,11 @@ private fun PreviewVpnSettings(
             navigateToQuantumResistanceInfo = {},
             navigateToWireguardPortInfo = {},
             navigateToLocalNetworkSharingInfo = {},
-            navigateToWireguardPortDialog = {},
+            navigateToWireguardPortDialog = { a, b -> },
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
             onToggleIpv6Toggle = {},
+            onToggleContentBlockersExpanded = {},
         )
     }
 }
@@ -250,6 +250,7 @@ fun VpnSettings(
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoDestination) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigate(ServerIpOverridesDestination) },
+        onToggleContentBlockersExpanded = vm::onToggleContentBlockersExpand,
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
         onToggleBlockAds = vm::onToggleBlockAds,
         onToggleBlockMalware = vm::onToggleBlockMalware,
@@ -264,12 +265,12 @@ fun VpnSettings(
                 navigator.navigate(DnsDestination(index, address))
             },
         navigateToWireguardPortDialog =
-            dropUnlessResumed {
+            dropUnlessResumed { customPort, availablePortRanges ->
                 navigator.navigate(
                     WireguardCustomPortDestination(
                         CustomPortNavArgs(
-                            customPort = state.customWireguardPort,
-                            allowedPortRanges = state.availablePortRanges,
+                            customPort = customPort,
+                            allowedPortRanges = availablePortRanges,
                         )
                     )
                 )
@@ -303,8 +304,10 @@ fun VpnSettingsScreen(
     navigateToQuantumResistanceInfo: () -> Unit,
     navigateToWireguardPortInfo: (availablePortRanges: List<PortRange>) -> Unit,
     navigateToLocalNetworkSharingInfo: () -> Unit,
-    navigateToWireguardPortDialog: () -> Unit,
+    navigateToWireguardPortDialog:
+        (customPort: Port?, availablePortRanges: List<PortRange>) -> Unit,
     navigateToServerIpOverrides: () -> Unit,
+    onToggleContentBlockersExpanded: () -> Unit,
     onToggleBlockTrackers: (Boolean) -> Unit,
     onToggleBlockAds: (Boolean) -> Unit,
     onToggleBlockMalware: (Boolean) -> Unit,
@@ -325,408 +328,432 @@ fun VpnSettingsScreen(
     onSelectDeviceIpVersion: (ipVersion: Constraint<IpVersion>) -> Unit,
     onToggleIpv6Toggle: (Boolean) -> Unit,
 ) {
-    var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     val topPadding = 6.dp
 
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.settings_vpn),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         snackbarHostState = snackbarHostState,
-        lazyListState =
-            rememberLazyListState(
-                initialFirstVisibleItemIndex =
+    ) {
+        when (state) {
+            VpnSettingsUiState.Loading -> CircularProgressIndicator()
+            is VpnSettingsUiState.Content -> {
+                val initialIndexFocus =
                     when (initialScrollToFeature) {
-                        FeatureIndicator.UDP_2_TCP -> 18
-                        FeatureIndicator.SHADOWSOCKS -> 18
-                        FeatureIndicator.LAN_SHARING -> 3
-                        FeatureIndicator.QUANTUM_RESISTANCE -> 13
-                        FeatureIndicator.DNS_CONTENT_BLOCKERS -> 4
-                        FeatureIndicator.CUSTOM_DNS -> 5
-                        FeatureIndicator.CUSTOM_MTU -> 20
-                        else -> 0
-                    }
-            ),
-    ) { modifier, lazyListState ->
-        LazyColumn(
-            modifier = modifier.testTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG).animateContentSize(),
-            state = lazyListState,
-        ) {
-            if (state.systemVpnSettingsAvailable) {
-                item {
-                    NavigationComposeCell(
-                        title = stringResource(id = R.string.auto_connect_and_lockdown_mode),
-                        onClick = { navigateToAutoConnectScreen() },
-                    )
-                }
-                item {
-                    SwitchComposeSubtitleCell(
-                        text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
-                    )
-                }
-            } else {
-                item {
-                    HeaderSwitchComposeCell(
-                        title = stringResource(R.string.connect_on_start),
-                        isToggled = state.autoStartAndConnectOnBoot,
-                        onCellClicked = { newValue -> onToggleAutoStartAndConnectOnBoot(newValue) },
-                    )
-                    SwitchComposeSubtitleCell(
-                        text =
-                            textResource(
-                                R.string.connect_on_start_footer,
-                                textResource(R.string.auto_connect_and_lockdown_mode),
-                            )
-                    )
-                }
-            }
+                        FeatureIndicator.UDP_2_TCP,
+                        FeatureIndicator.SHADOWSOCKS -> VpnSettingItem.ObfuscationHeader::class
+                        FeatureIndicator.LAN_SHARING ->
+                            VpnSettingItem.LocalNetworkSharingHeader::class
+                        FeatureIndicator.QUANTUM_RESISTANCE ->
+                            VpnSettingItem.QuantumResistanceHeader::class
+                        FeatureIndicator.DNS_CONTENT_BLOCKERS ->
+                            VpnSettingItem.DnsContentBlockers::class
+                        FeatureIndicator.CUSTOM_MTU -> VpnSettingItem.MtuHeader::class
+                        else -> null
+                    }?.let { clazz ->
+                        state.settings.indexOfFirstOrNull { it::class == clazz } ?: 0
+                    } ?: 0
 
-            item {
-                HeaderSwitchComposeCell(
-                    title = stringResource(R.string.local_network_sharing),
-                    isToggled = state.isLocalNetworkSharingEnabled,
-                    isEnabled = true,
-                    onCellClicked = { newValue -> onToggleLocalNetworkSharing(newValue) },
-                    onInfoClicked = navigateToLocalNetworkSharingInfo,
-                )
-                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
-            }
-
-            itemWithDivider {
-                ExpandableComposeCell(
-                    title = stringResource(R.string.dns_content_blockers),
-                    isExpanded = expandContentBlockersState,
-                    isEnabled = !state.isCustomDnsEnabled,
-                    onInfoClicked = { navigateToContentBlockersInfo() },
-                    onCellClicked = { expandContentBlockersState = !expandContentBlockersState },
-                )
-            }
-
-            if (expandContentBlockersState) {
-                itemWithDivider {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_ads_title),
-                        isToggled = state.contentBlockersOptions.blockAds,
-                        isEnabled = !state.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockAds(it) },
-                        background = MaterialTheme.colorScheme.surfaceContainerLow,
-                        startPadding = Dimens.indentedCellStartPadding,
-                    )
-                }
-                itemWithDivider {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_trackers_title),
-                        isToggled = state.contentBlockersOptions.blockTrackers,
-                        isEnabled = !state.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockTrackers(it) },
-                        background = MaterialTheme.colorScheme.surfaceContainerLow,
-                        startPadding = Dimens.indentedCellStartPadding,
-                    )
-                }
-                itemWithDivider {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_malware_title),
-                        isToggled = state.contentBlockersOptions.blockMalware,
-                        isEnabled = !state.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockMalware(it) },
-                        onInfoClicked = { navigateToMalwareInfo() },
-                        background = MaterialTheme.colorScheme.surfaceContainerLow,
-                        startPadding = Dimens.indentedCellStartPadding,
-                    )
-                }
-                itemWithDivider {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_gambling_title),
-                        isToggled = state.contentBlockersOptions.blockGambling,
-                        isEnabled = !state.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockGambling(it) },
-                        background = MaterialTheme.colorScheme.surfaceContainerLow,
-                        startPadding = Dimens.indentedCellStartPadding,
-                    )
-                }
-                itemWithDivider {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_adult_content_title),
-                        isToggled = state.contentBlockersOptions.blockAdultContent,
-                        isEnabled = !state.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockAdultContent(it) },
-                        background = MaterialTheme.colorScheme.surfaceContainerLow,
-                        startPadding = Dimens.indentedCellStartPadding,
-                    )
-                }
-
-                item {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_social_media_title),
-                        isToggled = state.contentBlockersOptions.blockSocialMedia,
-                        isEnabled = !state.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockSocialMedia(it) },
-                        background = MaterialTheme.colorScheme.surfaceContainerLow,
-                        startPadding = Dimens.indentedCellStartPadding,
-                    )
-                }
-
-                if (state.isCustomDnsEnabled) {
-                    item {
-                        ContentBlockersDisableModeCellSubtitle(
-                            Modifier.background(MaterialTheme.colorScheme.surface)
-                                .padding(
-                                    start = Dimens.cellStartPadding,
-                                    top = topPadding,
-                                    end = Dimens.cellEndPadding,
-                                    bottom = Dimens.cellVerticalSpacing,
+                LazyColumn(
+                    modifier = it.testTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG).animateContentSize(),
+                    state = rememberLazyListState(initialIndexFocus),
+                ) {
+                    items(state.settings) {
+                        when (it) {
+                            VpnSettingItem.AutoConnectAndLockdownModeHeader ->
+                                NavigationComposeCell(
+                                    title =
+                                        stringResource(
+                                            id = R.string.auto_connect_and_lockdown_mode
+                                        ),
+                                    onClick = { navigateToAutoConnectScreen() },
                                 )
-                        )
-                    }
-                }
-            }
 
-            item {
-                HeaderSwitchComposeCell(
-                    title = stringResource(R.string.enable_custom_dns),
-                    isToggled = state.isCustomDnsEnabled,
-                    isEnabled = state.contentBlockersOptions.isAnyBlockerEnabled().not(),
-                    onCellClicked = { newValue -> onToggleDnsClick(newValue) },
-                    onInfoClicked = { navigateToCustomDnsInfo() },
-                )
-            }
+                            VpnSettingItem.AutoConnectAndLockdownModeInfo ->
+                                SwitchComposeSubtitleCell(
+                                    text =
+                                        stringResource(
+                                            id = R.string.auto_connect_and_lockdown_mode_footer
+                                        )
+                                )
 
-            if (state.isCustomDnsEnabled) {
-                itemsIndexedWithDivider(state.customDnsItems) { index, item ->
-                    DnsCell(
-                        address = item.address,
-                        isUnreachableLocalDnsWarningVisible =
-                            item.isLocal && !state.isLocalNetworkSharingEnabled,
-                        isUnreachableIpv6DnsWarningVisible = item.isIpv6 && !state.isIpv6Enabled,
-                        onClick = { navigateToDns(index, item.address) },
-                        modifier = Modifier.animateItem(),
-                    )
-                }
+                            is VpnSettingItem.ConnectDeviceOnStartUpHeader ->
+                                HeaderSwitchComposeCell(
+                                    title = stringResource(R.string.connect_on_start),
+                                    isToggled = it.enabled,
+                                    onCellClicked = { newValue ->
+                                        onToggleAutoStartAndConnectOnBoot(newValue)
+                                    },
+                                )
 
-                if (state.customDnsItems.isNotEmpty()) {
-                    itemWithDivider {
-                        BaseCell(
-                            onCellClicked = { navigateToDns(null, null) },
-                            headlineContent = {
+                            VpnSettingItem.ConnectDeviceOnStartUpInfo ->
+                                SwitchComposeSubtitleCell(
+                                    text =
+                                        textResource(
+                                            R.string.connect_on_start_footer,
+                                            textResource(R.string.auto_connect_and_lockdown_mode),
+                                        )
+                                )
+
+                            VpnSettingItem.CustomDnsAdd ->
+                                BaseCell(
+                                    onCellClicked = { navigateToDns(null, null) },
+                                    headlineContent = {
+                                        Text(
+                                            text = stringResource(id = R.string.add_a_server),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        )
+                                    },
+                                    bodyView = {},
+                                    background = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    startPadding = Dimens.cellStartPaddingLarge,
+                                )
+
+                            is VpnSettingItem.CustomDnsEntry ->
+                                DnsCell(
+                                    address = it.customDnsItem.address,
+                                    isUnreachableLocalDnsWarningVisible =
+                                        it.showUnreachableLocalDnsWarning,
+                                    isUnreachableIpv6DnsWarningVisible =
+                                        it.showUnreachableIpv6DnsWarning,
+                                    onClick = { navigateToDns(it.index, it.customDnsItem.address) },
+                                    modifier = Modifier.animateItem(),
+                                )
+
+                            VpnSettingItem.CustomDnsInfo ->
+                                CustomDnsCellSubtitle(
+                                    isCellClickable = true,
+                                    modifier =
+                                        Modifier.padding(
+                                            start = Dimens.cellStartPadding,
+                                            top = topPadding,
+                                            end = Dimens.cellEndPadding,
+                                            bottom = Dimens.cellVerticalSpacing,
+                                        ),
+                                )
+
+                            is VpnSettingItem.CustomDnsServerHeader ->
+                                HeaderSwitchComposeCell(
+                                    title = stringResource(R.string.enable_custom_dns),
+                                    isToggled = it.enabled,
+                                    isEnabled = it.isOptionEnabled,
+                                    onCellClicked = { newValue -> onToggleDnsClick(newValue) },
+                                    onInfoClicked = { navigateToCustomDnsInfo() },
+                                )
+                            // TODO Merge with CustomDnsInfo
+                            VpnSettingItem.CustomDnsUnavailable ->
+                                CustomDnsCellSubtitle(
+                                    isCellClickable = false,
+                                    modifier =
+                                        Modifier.padding(
+                                            start = Dimens.cellStartPadding,
+                                            top = topPadding,
+                                            end = Dimens.cellEndPadding,
+                                            bottom = Dimens.cellVerticalSpacing,
+                                        ),
+                                )
+
+                            VpnSettingItem.DeviceIpVersionHeader ->
+                                InformationComposeCell(
+                                    title = stringResource(R.string.device_ip_version_title)
+                                )
+
+                            is VpnSettingItem.DeviceIpVersionItem ->
+                                SelectableCell(
+                                    title =
+                                        when (it.constraint) {
+                                            Constraint.Any ->
+                                                stringResource(id = R.string.automatic)
+                                            is Constraint.Only ->
+                                                when (it.constraint.value) {
+                                                    IpVersion.IPV4 ->
+                                                        stringResource(id = R.string.ipv4)
+                                                    IpVersion.IPV6 ->
+                                                        stringResource(id = R.string.ipv6)
+                                                }
+                                        },
+                                    isSelected = it.selected,
+                                    onCellClicked = { onSelectDeviceIpVersion(it.constraint) },
+                                )
+
+                            VpnSettingItem.Divider -> HorizontalDivider(color = Color.Transparent)
+                            is VpnSettingItem.DnsContentBlockerItem.Ads ->
+                                NormalSwitchComposeCell(
+                                    title = stringResource(R.string.block_ads_title),
+                                    isToggled = it.enabled,
+                                    isEnabled = it.featureEnabled,
+                                    onCellClicked = { onToggleBlockAds(it) },
+                                    background = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    startPadding = Dimens.indentedCellStartPadding,
+                                )
+
+                            is VpnSettingItem.DnsContentBlockerItem.AdultContent ->
+                                NormalSwitchComposeCell(
+                                    title = stringResource(R.string.block_adult_content_title),
+                                    isToggled = it.enabled,
+                                    isEnabled = it.featureEnabled,
+                                    onCellClicked = { onToggleBlockAdultContent(it) },
+                                    background = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    startPadding = Dimens.indentedCellStartPadding,
+                                )
+
+                            is VpnSettingItem.DnsContentBlockerItem.Gambling ->
+                                NormalSwitchComposeCell(
+                                    title = stringResource(R.string.block_gambling_title),
+                                    isToggled = it.enabled,
+                                    isEnabled = it.featureEnabled,
+                                    onCellClicked = { onToggleBlockGambling(it) },
+                                    background = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    startPadding = Dimens.indentedCellStartPadding,
+                                )
+
+                            is VpnSettingItem.DnsContentBlockerItem.Malware ->
+                                NormalSwitchComposeCell(
+                                    title = stringResource(R.string.block_malware_title),
+                                    isToggled = it.enabled,
+                                    isEnabled = it.featureEnabled,
+                                    onCellClicked = { onToggleBlockMalware(it) },
+                                    onInfoClicked = { navigateToMalwareInfo() },
+                                    background = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    startPadding = Dimens.indentedCellStartPadding,
+                                )
+
+                            is VpnSettingItem.DnsContentBlockerItem.SocialMedia ->
+                                NormalSwitchComposeCell(
+                                    title = stringResource(R.string.block_social_media_title),
+                                    isToggled = it.enabled,
+                                    isEnabled = it.featureEnabled,
+                                    onCellClicked = { onToggleBlockSocialMedia(it) },
+                                    background = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    startPadding = Dimens.indentedCellStartPadding,
+                                )
+
+                            is VpnSettingItem.DnsContentBlockerItem.Trackers ->
+                                NormalSwitchComposeCell(
+                                    title = stringResource(R.string.block_trackers_title),
+                                    isToggled = it.enabled,
+                                    isEnabled = it.featureEnabled,
+                                    onCellClicked = { onToggleBlockTrackers(it) },
+                                    background = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    startPadding = Dimens.indentedCellStartPadding,
+                                )
+
+                            is VpnSettingItem.DnsContentBlockers ->
+                                ExpandableComposeCell(
+                                    title = stringResource(R.string.dns_content_blockers),
+                                    isExpanded = it.expanded,
+                                    isEnabled = it.featureEnabled,
+                                    onInfoClicked = { navigateToContentBlockersInfo() },
+                                    onCellClicked = { onToggleContentBlockersExpanded() },
+                                )
+
+                            VpnSettingItem.DnsContentBlockersUnavailable ->
+                                ContentBlockersDisableModeCellSubtitle(
+                                    Modifier.background(MaterialTheme.colorScheme.surface)
+                                        .padding(
+                                            start = Dimens.cellStartPadding,
+                                            top = topPadding,
+                                            end = Dimens.cellEndPadding,
+                                            bottom = Dimens.cellVerticalSpacing,
+                                        )
+                                )
+
+                            is VpnSettingItem.EnableIpv6Header ->
+                                HeaderSwitchComposeCell(
+                                    title = stringResource(R.string.enable_ipv6),
+                                    isToggled = it.enabled,
+                                    isEnabled = true,
+                                    onCellClicked = { newValue -> onToggleIpv6Toggle(newValue) },
+                                )
+
+                            is VpnSettingItem.LocalNetworkSharingHeader ->
+                                HeaderSwitchComposeCell(
+                                    title = stringResource(R.string.local_network_sharing),
+                                    isToggled = it.enabled,
+                                    isEnabled = true,
+                                    onCellClicked = { newValue ->
+                                        onToggleLocalNetworkSharing(newValue)
+                                    },
+                                    onInfoClicked = navigateToLocalNetworkSharingInfo,
+                                )
+
+                            is VpnSettingItem.MtuHeader ->
+                                MtuComposeCell(
+                                    mtuValue = it.mtu,
+                                    onEditMtu = { navigateToMtuDialog(it.mtu) },
+                                )
+
+                            VpnSettingItem.MtuInfo ->
+                                MtuSubtitle(
+                                    modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)
+                                )
+
+                            VpnSettingItem.ObfuscationHeader ->
+                                InformationComposeCell(
+                                    title = stringResource(R.string.obfuscation_title),
+                                    onInfoClicked = navigateToObfuscationInfo,
+                                    onCellClicked = navigateToObfuscationInfo,
+                                    testTag = LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG,
+                                )
+
+                            is VpnSettingItem.ObfuscationItem.Automatic ->
+                                SelectableCell(
+                                    title = stringResource(id = R.string.automatic),
+                                    isSelected = it.selected,
+                                    onCellClicked = {
+                                        onSelectObfuscationMode(ObfuscationMode.Auto)
+                                    },
+                                )
+
+                            is VpnSettingItem.ObfuscationItem.Off ->
+                                SelectableCell(
+                                    title = stringResource(id = R.string.off),
+                                    isSelected = it.selected,
+                                    onCellClicked = {
+                                        onSelectObfuscationMode(ObfuscationMode.Off)
+                                    },
+                                    testTag = WIREGUARD_OBFUSCATION_OFF_CELL,
+                                )
+
+                            is VpnSettingItem.ObfuscationItem.Shadowsocks ->
+                                ObfuscationModeCell(
+                                    obfuscationMode = ObfuscationMode.Shadowsocks,
+                                    isSelected = it.selected,
+                                    port = it.port,
+                                    onSelected = onSelectObfuscationMode,
+                                    onNavigate = navigateToShadowSocksSettings,
+                                    testTag = WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL,
+                                )
+
+                            is VpnSettingItem.ObfuscationItem.UdpOverTcp ->
+                                ObfuscationModeCell(
+                                    obfuscationMode = ObfuscationMode.Udp2Tcp,
+                                    isSelected = it.selected,
+                                    port = it.port,
+                                    onSelected = onSelectObfuscationMode,
+                                    onNavigate = navigateToUdp2TcpSettings,
+                                    testTag = WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL,
+                                )
+
+                            is VpnSettingItem.QuantumItem ->
+                                SelectableCell(
+                                    title =
+                                        when (it.quantumResistantState) {
+                                            QuantumResistantState.Auto ->
+                                                stringResource(id = R.string.automatic)
+                                            QuantumResistantState.Off ->
+                                                stringResource(id = R.string.off)
+                                            QuantumResistantState.On ->
+                                                stringResource(id = R.string.on)
+                                        },
+                                    isSelected = it.selected,
+                                    onCellClicked = {
+                                        onSelectQuantumResistanceSetting(it.quantumResistantState)
+                                    },
+                                    testTag =
+                                        when (it.quantumResistantState) {
+                                            QuantumResistantState.Auto -> ""
+                                            QuantumResistantState.On ->
+                                                LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
+                                            QuantumResistantState.Off ->
+                                                LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
+                                        },
+                                )
+
+                            VpnSettingItem.QuantumResistanceHeader ->
+                                InformationComposeCell(
+                                    title = stringResource(R.string.quantum_resistant_title),
+                                    onInfoClicked = navigateToQuantumResistanceInfo,
+                                    onCellClicked = navigateToQuantumResistanceInfo,
+                                )
+
+                            VpnSettingItem.ServerIpOverridesHeader ->
+                                ServerIpOverrides(navigateToServerIpOverrides)
+
+                            VpnSettingItem.Spacer ->
+                                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
+
+                            is VpnSettingItem.WireguardPortHeader ->
+                                InformationComposeCell(
+                                    title = stringResource(id = R.string.wireguard_port_title),
+                                    onInfoClicked = {
+                                        navigateToWireguardPortInfo(it.availablePortRanges)
+                                    },
+                                    onCellClicked = {
+                                        navigateToWireguardPortInfo(it.availablePortRanges)
+                                    },
+                                    isEnabled = it.enabled,
+                                )
+                            is VpnSettingItem.WireguardPortItem.Constraint ->
+                                SelectableCell(
+                                    title =
+                                        when (it.constraint) {
+                                            is Constraint.Only -> it.constraint.value.toString()
+                                            is Constraint.Any ->
+                                                stringResource(id = R.string.automatic)
+                                        },
+                                    testTag =
+                                        when (it.constraint) {
+                                            is Constraint.Only ->
+                                                String.format(
+                                                    null,
+                                                    LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG,
+                                                    it.constraint.value.value,
+                                                )
+                                            is Constraint.Any -> ""
+                                        },
+                                    isSelected = it.selected,
+                                    onCellClicked = { onWireguardPortSelected(it.constraint) },
+                                    isEnabled = it.enabled,
+                                )
+
+                            is VpnSettingItem.WireguardPortItem.WireguardPortCustom ->
+                                CustomPortCell(
+                                    title =
+                                        stringResource(id = R.string.wireguard_custon_port_title),
+                                    isSelected = it.selected,
+                                    port = it.customPort,
+                                    onMainCellClicked = {
+                                        if (it.customPort != null) {
+                                            onWireguardPortSelected(Constraint.Only(it.customPort))
+                                        } else {
+                                            navigateToWireguardPortDialog(
+                                                it.customPort,
+                                                it.availablePortRanges,
+                                            )
+                                        }
+                                    },
+                                    onPortCellClicked = {
+                                        navigateToWireguardPortDialog(
+                                            it.customPort,
+                                            it.availablePortRanges,
+                                        )
+                                    },
+                                    isEnabled = it.enabled,
+                                    mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
+                                    numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG,
+                                )
+
+                            VpnSettingItem.WireguardPortUnavailable ->
                                 Text(
-                                    text = stringResource(id = R.string.add_a_server),
-                                    color = MaterialTheme.colorScheme.onSurface,
+                                    text =
+                                        stringResource(
+                                            id = R.string.wg_port_subtitle,
+                                            stringResource(R.string.wireguard),
+                                        ),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier =
+                                        Modifier.padding(
+                                            start = Dimens.cellStartPadding,
+                                            top = topPadding,
+                                            end = Dimens.cellEndPadding,
+                                        ),
                                 )
-                            },
-                            bodyView = {},
-                            background = MaterialTheme.colorScheme.surfaceContainerLow,
-                            startPadding = Dimens.cellStartPaddingLarge,
-                        )
+                        }
                     }
                 }
             }
-
-            item {
-                CustomDnsCellSubtitle(
-                    isCellClickable = state.contentBlockersOptions.isAnyBlockerEnabled().not(),
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.cellStartPadding,
-                            top = topPadding,
-                            end = Dimens.cellEndPadding,
-                            bottom = Dimens.cellVerticalSpacing,
-                        ),
-                )
-            }
-
-            itemWithDivider {
-                InformationComposeCell(
-                    title = stringResource(id = R.string.wireguard_port_title),
-                    onInfoClicked = { navigateToWireguardPortInfo(state.availablePortRanges) },
-                    onCellClicked = { navigateToWireguardPortInfo(state.availablePortRanges) },
-                    isEnabled = state.isWireguardPortEnabled,
-                )
-            }
-
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.automatic),
-                    isSelected = state.selectedWireguardPort == Constraint.Any,
-                    onCellClicked = { onWireguardPortSelected(Constraint.Any) },
-                    isEnabled = state.isWireguardPortEnabled,
-                )
-            }
-
-            WIREGUARD_PRESET_PORTS.forEach { port ->
-                itemWithDivider {
-                    SelectableCell(
-                        title = port.toString(),
-                        testTag =
-                            String.format(
-                                null,
-                                LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG,
-                                port.value,
-                            ),
-                        isSelected = state.selectedWireguardPort.getOrNull() == port,
-                        onCellClicked = { onWireguardPortSelected(Constraint.Only(port)) },
-                        isEnabled = state.isWireguardPortEnabled,
-                    )
-                }
-            }
-
-            itemWithDivider {
-                CustomPortCell(
-                    title = stringResource(id = R.string.wireguard_custon_port_title),
-                    isSelected = state.isCustomWireguardPort,
-                    port = state.customWireguardPort,
-                    onMainCellClicked = {
-                        if (state.customWireguardPort != null) {
-                            onWireguardPortSelected(Constraint.Only(state.customWireguardPort))
-                        } else {
-                            navigateToWireguardPortDialog()
-                        }
-                    },
-                    onPortCellClicked = navigateToWireguardPortDialog,
-                    isEnabled = state.isWireguardPortEnabled,
-                    mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
-                    numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG,
-                )
-            }
-
-            if (!state.isWireguardPortEnabled) {
-                item {
-                    Text(
-                        text =
-                            stringResource(
-                                id = R.string.wg_port_subtitle,
-                                stringResource(R.string.wireguard),
-                            ),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier =
-                            Modifier.padding(
-                                start = Dimens.cellStartPadding,
-                                top = topPadding,
-                                end = Dimens.cellEndPadding,
-                            ),
-                    )
-                }
-            }
-
-            itemWithDivider {
-                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
-                InformationComposeCell(
-                    title = stringResource(R.string.obfuscation_title),
-                    onInfoClicked = navigateToObfuscationInfo,
-                    onCellClicked = navigateToObfuscationInfo,
-                    testTag = LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG,
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.automatic),
-                    isSelected = state.obfuscationMode == ObfuscationMode.Auto,
-                    onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Auto) },
-                )
-            }
-            itemWithDivider {
-                ObfuscationModeCell(
-                    obfuscationMode = ObfuscationMode.Shadowsocks,
-                    isSelected = state.obfuscationMode == ObfuscationMode.Shadowsocks,
-                    port = state.selectedShadowsSocksObfuscationPort,
-                    onSelected = onSelectObfuscationMode,
-                    onNavigate = navigateToShadowSocksSettings,
-                    testTag = WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL,
-                )
-            }
-            itemWithDivider {
-                ObfuscationModeCell(
-                    obfuscationMode = ObfuscationMode.Udp2Tcp,
-                    isSelected = state.obfuscationMode == ObfuscationMode.Udp2Tcp,
-                    port = state.selectedUdp2TcpObfuscationPort,
-                    onSelected = onSelectObfuscationMode,
-                    onNavigate = navigateToUdp2TcpSettings,
-                    testTag = WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL,
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.off),
-                    isSelected = state.obfuscationMode == ObfuscationMode.Off,
-                    onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Off) },
-                    testTag = WIREGUARD_OBFUSCATION_OFF_CELL,
-                )
-            }
-
-            itemWithDivider {
-                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
-                InformationComposeCell(
-                    title = stringResource(R.string.quantum_resistant_title),
-                    onInfoClicked = navigateToQuantumResistanceInfo,
-                    onCellClicked = navigateToQuantumResistanceInfo,
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.automatic),
-                    isSelected = state.quantumResistant == QuantumResistantState.Auto,
-                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Auto) },
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.on),
-                    testTag = LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG,
-                    isSelected = state.quantumResistant == QuantumResistantState.On,
-                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.On) },
-                )
-            }
-            item {
-                SelectableCell(
-                    title = stringResource(id = R.string.off),
-                    testTag = LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG,
-                    isSelected = state.quantumResistant == QuantumResistantState.Off,
-                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) },
-                )
-                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
-            }
-
-            itemWithDivider {
-                InformationComposeCell(title = stringResource(R.string.device_ip_version_title))
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.automatic),
-                    isSelected = state.deviceIpVersion == Constraint.Any,
-                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Any) },
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.ipv4),
-                    isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV4,
-                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV4)) },
-                )
-            }
-            item {
-                SelectableCell(
-                    title = stringResource(id = R.string.ipv6),
-                    isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV6,
-                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV6)) },
-                )
-                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
-            }
-
-            item {
-                HeaderSwitchComposeCell(
-                    title = stringResource(R.string.enable_ipv6),
-                    isToggled = state.isIpv6Enabled,
-                    isEnabled = true,
-                    onCellClicked = { newValue -> onToggleIpv6Toggle(newValue) },
-                )
-                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
-            }
-
-            item {
-                MtuComposeCell(mtuValue = state.mtu, onEditMtu = { navigateToMtuDialog(state.mtu) })
-            }
-            item { MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)) }
-
-            item { ServerIpOverrides(navigateToServerIpOverrides) }
         }
     }
 }

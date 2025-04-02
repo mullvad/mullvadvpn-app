@@ -1,10 +1,8 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
-import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
@@ -23,22 +21,34 @@ sealed interface VpnSettingItem {
 
     data class LocalNetworkSharingHeader(val enabled: Boolean) : VpnSettingItem
 
-    data class DnsContentBlockers(val enabled: Boolean, val expanded: Boolean) : VpnSettingItem
+    data class DnsContentBlockers(val featureEnabled: Boolean, val expanded: Boolean) :
+        VpnSettingItem
 
     sealed interface DnsContentBlockerItem : VpnSettingItem {
         val enabled: Boolean
+        val featureEnabled: Boolean
 
-        data class Ads(override val enabled: Boolean) : DnsContentBlockerItem
+        data class Ads(override val enabled: Boolean, override val featureEnabled: Boolean) :
+            DnsContentBlockerItem
 
-        data class Trackers(override val enabled: Boolean) : DnsContentBlockerItem
+        data class Trackers(override val enabled: Boolean, override val featureEnabled: Boolean) :
+            DnsContentBlockerItem
 
-        data class Malware(override val enabled: Boolean) : DnsContentBlockerItem
+        data class Malware(override val enabled: Boolean, override val featureEnabled: Boolean) :
+            DnsContentBlockerItem
 
-        data class Gambling(override val enabled: Boolean) : DnsContentBlockerItem
+        data class Gambling(override val enabled: Boolean, override val featureEnabled: Boolean) :
+            DnsContentBlockerItem
 
-        data class AdultContent(override val enabled: Boolean) : DnsContentBlockerItem
+        data class AdultContent(
+            override val enabled: Boolean,
+            override val featureEnabled: Boolean,
+        ) : DnsContentBlockerItem
 
-        data class SocialMedia(override val enabled: Boolean) : DnsContentBlockerItem
+        data class SocialMedia(
+            override val enabled: Boolean,
+            override val featureEnabled: Boolean,
+        ) : DnsContentBlockerItem
     }
 
     data object DnsContentBlockersUnavailable : VpnSettingItem
@@ -56,29 +66,27 @@ sealed interface VpnSettingItem {
     data object CustomDnsAdd : VpnSettingItem
 
     data object CustomDnsUnavailable : VpnSettingItem
+
     data object CustomDnsInfo : VpnSettingItem
 
-    data class WireguardPortHeader(val enabled: Boolean, val availablePortRanges: List<PortRange>) : VpnSettingItem
+    data class WireguardPortHeader(val enabled: Boolean, val availablePortRanges: List<PortRange>) :
+        VpnSettingItem
 
     sealed interface WireguardPortItem : VpnSettingItem {
         val enabled: Boolean
         val selected: Boolean
 
-        data class Automatic(
+        data class Constraint(
             override val enabled: Boolean,
             override val selected: Boolean,
-        ) : WireguardPortItem
-
-        data class FixedPort(
-            override val enabled: Boolean,
-            override val selected: Boolean,
-            val port: Port,
+            val constraint: net.mullvad.mullvadvpn.lib.model.Constraint<Port>,
         ) : WireguardPortItem
 
         data class WireguardPortCustom(
             override val enabled: Boolean,
             override val selected: Boolean,
             val customPort: Port?,
+            val availablePortRanges: List<PortRange>,
         ) : WireguardPortItem
     }
 
@@ -89,46 +97,28 @@ sealed interface VpnSettingItem {
     sealed interface ObfuscationItem : VpnSettingItem {
         val selected: Boolean
 
-        data class Automatic(
-            override val selected: Boolean,
-        ) : ObfuscationItem
+        data class Automatic(override val selected: Boolean) : ObfuscationItem
 
-        data class Shadowsocks(
-            override val selected: Boolean,
-            val port: Constraint<Port>,
-        ) : ObfuscationItem
-
-        data class UdpOverTcp(
-            override val selected: Boolean,
-            val port: Constraint<Port>,
-        ) : ObfuscationItem
-
-        data class Off(override val selected: Boolean) :
+        data class Shadowsocks(override val selected: Boolean, val port: Constraint<Port>) :
             ObfuscationItem
+
+        data class UdpOverTcp(override val selected: Boolean, val port: Constraint<Port>) :
+            ObfuscationItem
+
+        data class Off(override val selected: Boolean) : ObfuscationItem
     }
 
     data object QuantumResistanceHeader : VpnSettingItem
 
-    sealed interface QuantumItem : VpnSettingItem {
-        val selected: Boolean
-
-        data class Automatic(override val selected: Boolean) : QuantumItem
-
-        data class On(override val selected: Boolean) : QuantumItem
-
-        data class Off(override val selected: Boolean) : QuantumItem
-    }
+    data class QuantumItem(
+        val quantumResistantState: QuantumResistantState,
+        val selected: Boolean,
+    ) : VpnSettingItem
 
     data object DeviceIpVersionHeader : VpnSettingItem
 
-    sealed interface DeviceIpVersionItem : VpnSettingItem {
-        val selected: Boolean
-
-        data class Automatic(override val selected: Boolean) : DeviceIpVersionItem
-
-        data class Ip(override val selected: Boolean, val ipVersion: IpVersion) :
-            DeviceIpVersionItem
-    }
+    data class DeviceIpVersionItem(val constraint: Constraint<IpVersion>, val selected: Boolean) :
+        VpnSettingItem
 
     data class EnableIpv6Header(val enabled: Boolean) : VpnSettingItem
 

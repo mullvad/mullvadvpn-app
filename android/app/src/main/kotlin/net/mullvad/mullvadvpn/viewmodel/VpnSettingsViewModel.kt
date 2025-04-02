@@ -56,8 +56,7 @@ class VpnSettingsViewModel(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
-
-    private val _mutableIsContentBlockersExpanded = MutableStateFlow(false)
+    private val _mutableIsContentBlockersExpanded = MutableStateFlow(true)
 
     private val _uiSideEffect = Channel<VpnSettingsSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -66,11 +65,11 @@ class VpnSettingsViewModel(
 
     private val vmState =
         combine(
-                repository.settingsUpdates,
+                repository.settingsUpdates.filterNotNull(),
                 relayListRepository.portRanges,
                 customPort,
                 autoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot,
-                _mutableIsContentBlockersExpanded,
+                _mutableIsContentBlockersExpanded.filterNotNull(),
             ) {
                 settings,
                 portRanges,
@@ -78,25 +77,23 @@ class VpnSettingsViewModel(
                 autoStartAndConnectOnBoot,
                 isContentBlockersExpanded ->
                 VpnSettingsViewModelState(
-                    mtu = settings?.tunnelOptions?.wireguard?.mtu,
-                    isLocalNetworkSharingEnabled = settings?.allowLan == true,
-                    isCustomDnsEnabled = settings?.isCustomDnsEnabled() == true,
-                    customDnsItems = settings?.addresses()?.asStringAddressList() ?: listOf(),
-                    contentBlockersOptions =
-                        settings?.contentBlockersSettings() ?: DefaultDnsOptions(),
-                    obfuscationMode = settings?.selectedObfuscationMode() ?: ObfuscationMode.Off,
-                    selectedUdp2TcpObfuscationPort =
-                        settings?.obfuscationSettings?.udp2tcp?.port ?: Constraint.Any,
+                    mtu = settings.tunnelOptions.wireguard.mtu,
+                    isLocalNetworkSharingEnabled = settings.allowLan,
+                    isCustomDnsEnabled = settings.isCustomDnsEnabled(),
+                    customDnsItems = settings.addresses().asStringAddressList(),
+                    contentBlockersOptions = settings.contentBlockersSettings(),
+                    obfuscationMode = settings.selectedObfuscationMode(),
+                    selectedUdp2TcpObfuscationPort = settings.obfuscationSettings.udp2tcp.port,
                     selectedShadowsocksObfuscationPort =
-                        settings?.obfuscationSettings?.shadowsocks?.port ?: Constraint.Any,
-                    quantumResistant = settings?.quantumResistant() ?: QuantumResistantState.Off,
-                    selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any,
+                        settings.obfuscationSettings.shadowsocks.port,
+                    quantumResistant = settings.quantumResistant(),
+                    selectedWireguardPort = settings.getWireguardPort(),
                     customWireguardPort = customWgPort,
                     availablePortRanges = portRanges,
                     systemVpnSettingsAvailable = systemVpnSettingsUseCase(),
                     autoStartAndConnectOnBoot = autoStartAndConnectOnBoot,
-                    deviceIpVersion = settings?.getDeviceIpVersion() ?: Constraint.Any,
-                    isIpv6Enabled = settings?.tunnelOptions?.genericOptions?.enableIpv6 == true,
+                    deviceIpVersion = settings.getDeviceIpVersion(),
+                    isIpv6Enabled = settings.tunnelOptions.genericOptions.enableIpv6,
                     isContentBlockersExpanded = isContentBlockersExpanded,
                 )
             }
@@ -136,6 +133,7 @@ class VpnSettingsViewModel(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), VpnSettingsUiState.Loading)
 
     init {
+        // TODO would be nice to get rid of this
         viewModelScope.launch(dispatcher) {
             val initialSettings = repository.settingsUpdates.filterNotNull().first()
             customPort.update {
@@ -145,6 +143,9 @@ class VpnSettingsViewModel(
                 } else {
                     null
                 }
+            }
+            _mutableIsContentBlockersExpanded.update {
+                initialSettings.contentBlockersSettings().isAnyBlockerEnabled()
             }
         }
     }
@@ -180,6 +181,10 @@ class VpnSettingsViewModel(
                     },
                 )
         }
+    }
+
+    fun onToggleContentBlockersExpand() {
+        _mutableIsContentBlockersExpanded.update { !_mutableIsContentBlockersExpanded.value }
     }
 
     fun onToggleBlockAds(isEnabled: Boolean) {
@@ -372,183 +377,179 @@ class VpnSettingsViewModel(
         deviceIpVersion: Constraint<IpVersion>,
         isIpv6Enabled: Boolean,
         isContentBlockersExpanded: Boolean,
-    ): List<VpnSettingItem> =
-        buildList<VpnSettingItem> {
-            if (systemVpnSettingsAvailable) {
-                add(VpnSettingItem.AutoConnectAndLockdownModeHeader)
-                add(VpnSettingItem.AutoConnectAndLockdownModeInfo)
-            } else {
-                add(VpnSettingItem.ConnectDeviceOnStartUpHeader(autoStartAndConnectOnBoot))
-                add(VpnSettingItem.ConnectDeviceOnStartUpInfo)
-            }
+    ): List<VpnSettingItem> = buildList {
+        if (systemVpnSettingsAvailable) {
+            add(VpnSettingItem.AutoConnectAndLockdownModeHeader)
+            add(VpnSettingItem.AutoConnectAndLockdownModeInfo)
+        } else {
+            add(VpnSettingItem.ConnectDeviceOnStartUpHeader(autoStartAndConnectOnBoot))
+            add(VpnSettingItem.ConnectDeviceOnStartUpInfo)
+        }
 
-            // Local network sharing
-            add(VpnSettingItem.LocalNetworkSharingHeader(isLocalNetworkSharingEnabled))
-            add(VpnSettingItem.Spacer)
+        // Local network sharing
+        add(VpnSettingItem.LocalNetworkSharingHeader(isLocalNetworkSharingEnabled))
+        add(VpnSettingItem.Spacer)
 
-            // Dns Content Blockers
-            add(VpnSettingItem.DnsContentBlockers(isCustomDnsEnabled, isContentBlockersExpanded))
-            add(VpnSettingItem.Divider)
+        // Dns Content Blockers
+        add(VpnSettingItem.DnsContentBlockers(!isCustomDnsEnabled, isContentBlockersExpanded))
+        add(VpnSettingItem.Divider)
 
-            if (isContentBlockersExpanded) {
-                with(contentBlockersOptions) {
-                    add(VpnSettingItem.DnsContentBlockerItem.Ads(blockAds))
-                    add(VpnSettingItem.Divider)
-                    add(VpnSettingItem.DnsContentBlockerItem.Trackers(blockTrackers))
-                    add(VpnSettingItem.Divider)
-                    add(VpnSettingItem.DnsContentBlockerItem.Malware(blockMalware))
-                    add(VpnSettingItem.Divider)
-                    add(VpnSettingItem.DnsContentBlockerItem.Gambling(blockGambling))
-                    add(VpnSettingItem.Divider)
-                    add(VpnSettingItem.DnsContentBlockerItem.AdultContent(blockAdultContent))
-                    add(VpnSettingItem.Divider)
-                    add(VpnSettingItem.DnsContentBlockerItem.SocialMedia(blockSocialMedia))
-                }
-                if (isCustomDnsEnabled) {
-                    add(VpnSettingItem.DnsContentBlockersUnavailable)
-                }
-            }
-
-            // Custom DNS
-            add(
-                VpnSettingItem.CustomDnsServerHeader(
-                    isCustomDnsEnabled,
-                    !contentBlockersOptions.isAnyBlockerEnabled(),
-                )
-            )
-            if (isCustomDnsEnabled) {
-                customDnsItems.forEachIndexed { index, item ->
-                    add(
-                        VpnSettingItem.CustomDnsEntry(
-                            index,
-                            item,
-                            showUnreachableLocalDnsWarning =
-                                item.isLocal && !isLocalNetworkSharingEnabled,
-                            showUnreachableIpv6DnsWarning = item.isIpv6 && !isIpv6Enabled,
-                        )
-                    )
-                    add(VpnSettingItem.Divider)
-                }
-                if (customDnsItems.isNotEmpty()) {
-                    add(VpnSettingItem.CustomDnsAdd)
-                }
-            }
-
-            if (contentBlockersOptions.isAnyBlockerEnabled()) {
-                add(VpnSettingItem.CustomDnsUnavailable)
-            } else {
-                add(VpnSettingItem.CustomDnsInfo)
-            }
-
-            add(VpnSettingItem.Spacer)
-
-            // Wireguard Port
-            val isWireguardPortEnabled =
-                obfuscationMode == ObfuscationMode.Auto || obfuscationMode == ObfuscationMode.Off
-            add(VpnSettingItem.WireguardPortHeader(isWireguardPortEnabled, availablePortRanges))
-            add(VpnSettingItem.Divider)
-
-            add(
-                VpnSettingItem.WireguardPortItem.Automatic(
-                    isWireguardPortEnabled,
-                    selectedWireguardPort == Constraint.Any,
-                )
-            )
-            add(VpnSettingItem.Divider)
-
-            WIREGUARD_PRESET_PORTS.forEach { port ->
+        if (isContentBlockersExpanded) {
+            with(contentBlockersOptions) {
+                add(VpnSettingItem.DnsContentBlockerItem.Ads(blockAds, !isCustomDnsEnabled))
+                add(VpnSettingItem.Divider)
                 add(
-                    VpnSettingItem.WireguardPortItem.FixedPort(
-                        isWireguardPortEnabled,
-                        selectedWireguardPort.getOrNull() == port,
-                        port,
+                    VpnSettingItem.DnsContentBlockerItem.Trackers(
+                        blockTrackers,
+                        !isCustomDnsEnabled,
+                    )
+                )
+                add(VpnSettingItem.Divider)
+                add(VpnSettingItem.DnsContentBlockerItem.Malware(blockMalware, !isCustomDnsEnabled))
+                add(VpnSettingItem.Divider)
+                add(
+                    VpnSettingItem.DnsContentBlockerItem.Gambling(
+                        blockGambling,
+                        !isCustomDnsEnabled,
+                    )
+                )
+                add(VpnSettingItem.Divider)
+                add(
+                    VpnSettingItem.DnsContentBlockerItem.AdultContent(
+                        blockAdultContent,
+                        !isCustomDnsEnabled,
+                    )
+                )
+                add(VpnSettingItem.Divider)
+                add(
+                    VpnSettingItem.DnsContentBlockerItem.SocialMedia(
+                        blockSocialMedia,
+                        !isCustomDnsEnabled,
+                    )
+                )
+            }
+            if (isCustomDnsEnabled) {
+                add(VpnSettingItem.DnsContentBlockersUnavailable)
+            }
+        }
+
+        // Custom DNS
+        add(
+            VpnSettingItem.CustomDnsServerHeader(
+                isCustomDnsEnabled,
+                !contentBlockersOptions.isAnyBlockerEnabled(),
+            )
+        )
+        if (isCustomDnsEnabled) {
+            customDnsItems.forEachIndexed { index, item ->
+                add(
+                    VpnSettingItem.CustomDnsEntry(
+                        index,
+                        item,
+                        showUnreachableLocalDnsWarning =
+                            item.isLocal && !isLocalNetworkSharingEnabled,
+                        showUnreachableIpv6DnsWarning = item.isIpv6 && !isIpv6Enabled,
                     )
                 )
                 add(VpnSettingItem.Divider)
             }
-            add(
-                VpnSettingItem.WireguardPortItem.WireguardPortCustom(
-                    isWireguardPortEnabled,
-                    selectedWireguardPort is Constraint.Only &&
-                        selectedWireguardPort.value == customWireguardPort,
-                    customWireguardPort,
-                )
-            )
-
-            if (!isWireguardPortEnabled) {
-                add(VpnSettingItem.WireguardPortUnavailable)
+            if (customDnsItems.isNotEmpty()) {
+                add(VpnSettingItem.CustomDnsAdd)
             }
-
-            add(VpnSettingItem.Spacer)
-
-            // Wireguard Obfuscation
-            add(VpnSettingItem.ObfuscationHeader)
-            add(VpnSettingItem.Divider)
-            add(VpnSettingItem.ObfuscationItem.Automatic(obfuscationMode == ObfuscationMode.Auto))
-            add(VpnSettingItem.Divider)
-            add(
-                VpnSettingItem.ObfuscationItem.Shadowsocks(
-                    obfuscationMode == ObfuscationMode.Shadowsocks,
-                    selectedShadowssocksObfuscationPort,
-                )
-            )
-            add(VpnSettingItem.Divider)
-            add(
-                VpnSettingItem.ObfuscationItem.UdpOverTcp(
-                    obfuscationMode == ObfuscationMode.Auto,
-                    selectedUdp2TcpObfuscationPort,
-                )
-            )
-            add(VpnSettingItem.Divider)
-            add(VpnSettingItem.ObfuscationItem.Automatic(obfuscationMode == ObfuscationMode.Off))
-
-            add(VpnSettingItem.Spacer)
-
-            // Quantum Resistance
-            add(VpnSettingItem.QuantumResistanceHeader)
-            add(VpnSettingItem.Divider)
-            add(
-                VpnSettingItem.QuantumItem.Automatic(quantumResistant == QuantumResistantState.Auto)
-            )
-            add(VpnSettingItem.Divider)
-            add(VpnSettingItem.QuantumItem.On(quantumResistant == QuantumResistantState.On))
-            add(VpnSettingItem.Divider)
-            add(VpnSettingItem.QuantumItem.Off(quantumResistant == QuantumResistantState.Off))
-
-            add(VpnSettingItem.Spacer)
-
-            // Device Ip Version
-            add(VpnSettingItem.DeviceIpVersionHeader)
-            add(VpnSettingItem.Divider)
-            add(VpnSettingItem.DeviceIpVersionItem.Automatic(deviceIpVersion == Constraint.Any))
-            add(VpnSettingItem.Divider)
-            add(
-                VpnSettingItem.DeviceIpVersionItem.Ip(
-                    deviceIpVersion.getOrNull() == IpVersion.IPV4,
-                    IpVersion.IPV4,
-                )
-            )
-            add(VpnSettingItem.Divider)
-            add(
-                VpnSettingItem.DeviceIpVersionItem.Ip(
-                    deviceIpVersion.getOrNull() == IpVersion.IPV6,
-                    IpVersion.IPV6,
-                )
-            )
-
-            add(VpnSettingItem.Spacer)
-
-            // IPv6
-            add(VpnSettingItem.EnableIpv6Header(isIpv6Enabled))
-
-            add(VpnSettingItem.Spacer)
-
-            // MTU
-            add(VpnSettingItem.MtuHeader(mtu))
-            add(VpnSettingItem.MtuInfo)
-
-            add(VpnSettingItem.ServerIpOverridesHeader)
         }
+
+        if (contentBlockersOptions.isAnyBlockerEnabled()) {
+            add(VpnSettingItem.CustomDnsUnavailable)
+        } else {
+            add(VpnSettingItem.CustomDnsInfo)
+        }
+
+        add(VpnSettingItem.Spacer)
+
+        // Wireguard Port
+        val isWireguardPortEnabled =
+            obfuscationMode == ObfuscationMode.Auto || obfuscationMode == ObfuscationMode.Off
+        add(VpnSettingItem.WireguardPortHeader(isWireguardPortEnabled, availablePortRanges))
+        (listOf(Constraint.Any) + WIREGUARD_PRESET_PORTS.map { Constraint.Only(it) }).forEach {
+            add(VpnSettingItem.Divider)
+            add(
+                VpnSettingItem.WireguardPortItem.Constraint(
+                    isWireguardPortEnabled,
+                    it == selectedWireguardPort,
+                    it,
+                )
+            )
+        }
+        add(VpnSettingItem.Divider)
+        add(
+            VpnSettingItem.WireguardPortItem.WireguardPortCustom(
+                isWireguardPortEnabled,
+                selectedWireguardPort is Constraint.Only &&
+                    selectedWireguardPort.value == customWireguardPort,
+                customWireguardPort,
+                availablePortRanges,
+            )
+        )
+
+        if (!isWireguardPortEnabled) {
+            add(VpnSettingItem.WireguardPortUnavailable)
+        }
+
+        add(VpnSettingItem.Spacer)
+
+        // Wireguard Obfuscation
+        add(VpnSettingItem.ObfuscationHeader)
+        add(VpnSettingItem.Divider)
+        add(VpnSettingItem.ObfuscationItem.Automatic(obfuscationMode == ObfuscationMode.Auto))
+        add(VpnSettingItem.Divider)
+        add(
+            VpnSettingItem.ObfuscationItem.Shadowsocks(
+                obfuscationMode == ObfuscationMode.Shadowsocks,
+                selectedShadowssocksObfuscationPort,
+            )
+        )
+        add(VpnSettingItem.Divider)
+        add(
+            VpnSettingItem.ObfuscationItem.UdpOverTcp(
+                obfuscationMode == ObfuscationMode.Udp2Tcp,
+                selectedUdp2TcpObfuscationPort,
+            )
+        )
+        add(VpnSettingItem.Divider)
+        add(VpnSettingItem.ObfuscationItem.Off(obfuscationMode == ObfuscationMode.Off))
+
+        add(VpnSettingItem.Spacer)
+
+        // Quantum Resistance
+        add(VpnSettingItem.QuantumResistanceHeader)
+        QuantumResistantState.entries.forEach {
+            add(VpnSettingItem.Divider)
+            add(VpnSettingItem.QuantumItem(it, quantumResistant == it))
+        }
+
+        add(VpnSettingItem.Spacer)
+
+        // Device Ip Version
+        add(VpnSettingItem.DeviceIpVersionHeader)
+
+        IpVersion.constraints.forEach {
+            add(VpnSettingItem.Divider)
+            add(VpnSettingItem.DeviceIpVersionItem(it, deviceIpVersion == it))
+        }
+
+        add(VpnSettingItem.Spacer)
+
+        // IPv6
+        add(VpnSettingItem.EnableIpv6Header(isIpv6Enabled))
+
+        add(VpnSettingItem.Spacer)
+
+        // MTU
+        add(VpnSettingItem.MtuHeader(mtu))
+        add(VpnSettingItem.MtuInfo)
+
+        add(VpnSettingItem.ServerIpOverridesHeader)
+    }
 
     companion object {
         private const val EMPTY_STRING = ""
