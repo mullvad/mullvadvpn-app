@@ -16,10 +16,9 @@ impl SignedResponse {
         bytes: &[u8],
         min_metadata_version: usize,
     ) -> Result<Self, anyhow::Error> {
-        Self::deserialize_and_verify_at_time(
+        Self::deserialize_and_verify_with_keys(
             &crate::defaults::TRUSTED_METADATA_SIGNING_PUBKEYS,
             bytes,
-            chrono::Utc::now(),
             min_metadata_version,
         )
     }
