@@ -2,7 +2,7 @@
 
 use anyhow::{anyhow, bail, Context};
 use mullvad_update::{
-    api::HttpVersionInfoProvider,
+    api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
     format::{self, key},
 };
 use std::{
@@ -17,10 +17,6 @@ use crate::{
     artifacts,
     io_util::{create_dir_and_write, wait_for_confirm},
 };
-
-/// Base URL for metadata found with `meta pull`.
-/// Actual JSON files should be stored at `<base url>/<platform>.json`.
-const META_REPOSITORY_URL: &str = "https://releases.mullvad.net/desktop/metadata/";
 
 #[derive(Clone, Copy)]
 pub enum Platform {
@@ -74,11 +70,6 @@ impl Platform {
         Path::new("signed").join(self.local_filename())
     }
 
-    /// URL that stores the latest published metadata
-    pub fn published_url(&self) -> String {
-        format!("{META_REPOSITORY_URL}/{}", self.published_filename())
-    }
-
     /// Expected artifacts in `artifacts/` directory
     pub fn artifact_filenames(&self, version: &mullvad_version::Version) -> Artifacts {
         let artifacts_dir = Path::new("artifacts");
@@ -98,14 +89,6 @@ impl Platform {
         }
     }
 
-    fn published_filename(&self) -> &str {
-        match self {
-            Platform::Windows => "windows.json",
-            Platform::Linux => "linux.json",
-            Platform::Macos => "macos.json",
-        }
-    }
-
     fn local_filename(&self) -> &str {
         match self {
             Platform::Windows => "windows.json",
@@ -116,12 +99,11 @@ impl Platform {
 
     /// Pull latest metadata from repository and store it in `signed/`
     pub async fn pull(&self, assume_yes: bool) -> anyhow::Result<()> {
-        let url = self.published_url();
+        let platform = MetaRepositoryPlatform::from(*self);
 
-        println!("Pulling {self} metadata from {url}...");
+        println!("Pulling {self} metadata from {}...", platform.url());
 
-        let version_provider = HttpVersionInfoProvider::new(url);
-        let response = version_provider
+        let response = HttpVersionInfoProvider::from(platform)
             .get_versions(crate::MIN_VERIFY_METADATA_VERSION)
             .await
             .context("Failed to retrieve versions")?;
@@ -410,6 +392,16 @@ impl Platform {
         };
         // Note: We don't need to verify the signature here
         format::SignedResponse::deserialize_insecure(&bytes)
+    }
+}
+
+impl From<Platform> for MetaRepositoryPlatform {
+    fn from(platform: Platform) -> Self {
+        match platform {
+            Platform::Windows => MetaRepositoryPlatform::Windows,
+            Platform::Linux => MetaRepositoryPlatform::Linux,
+            Platform::Macos => MetaRepositoryPlatform::Macos,
+        }
     }
 }
 

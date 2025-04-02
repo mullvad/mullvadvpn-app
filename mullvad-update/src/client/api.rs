@@ -6,6 +6,46 @@ use vec1::Vec1;
 use crate::format;
 use crate::version::{VersionInfo, VersionParameters};
 
+/// Available platforms in the default metadata repository
+#[derive(Debug, Clone, Copy)]
+pub enum MetaRepositoryPlatform {
+    Windows,
+    Linux,
+    Macos,
+}
+
+impl MetaRepositoryPlatform {
+    /// Return the current platform
+    pub fn current() -> Option<Self> {
+        if cfg!(target_os = "windows") {
+            Some(Self::Windows)
+        } else if cfg!(target_os = "linux") {
+            Some(Self::Linux)
+        } else if cfg!(target_os = "macos") {
+            Some(Self::Macos)
+        } else {
+            None
+        }
+    }
+
+    /// Return complete URL used for the metadata
+    pub fn url(&self) -> String {
+        format!(
+            "{}/{}",
+            crate::defaults::META_REPOSITORY_URL,
+            self.filename()
+        )
+    }
+
+    fn filename(&self) -> &str {
+        match self {
+            MetaRepositoryPlatform::Windows => "windows.json",
+            MetaRepositoryPlatform::Linux => "linux.json",
+            MetaRepositoryPlatform::Macos => "macos.json",
+        }
+    }
+}
+
 /// See [module-level](self) docs.
 #[async_trait::async_trait]
 pub trait VersionInfoProvider {
@@ -31,21 +71,23 @@ impl VersionInfoProvider for HttpVersionInfoProvider {
     }
 }
 
-impl HttpVersionInfoProvider {
-    /// Maximum size of the GET response, in bytes
-    const SIZE_LIMIT: usize = 1024 * 1024;
-
-    /// Construct an [HttpVersionInfoProvider] for `url` using reasonable defaults.
+impl From<MetaRepositoryPlatform> for HttpVersionInfoProvider {
+    /// Construct an [HttpVersionInfoProvider] for the given platform using reasonable defaults.
     ///
     /// By default, `pinned_certificate` will be set to the LE root certificate, and
     /// `verifying_keys` will be set to the keys in `trusted-metadata-signing-keys`.
-    pub fn new(url: String) -> Self {
+    fn from(platform: MetaRepositoryPlatform) -> Self {
         HttpVersionInfoProvider {
-            url,
+            url: platform.url(),
             pinned_certificate: Some(crate::defaults::PINNED_CERTIFICATE.clone()),
             verifying_keys: crate::defaults::TRUSTED_METADATA_SIGNING_PUBKEYS.clone(),
         }
     }
+}
+
+impl HttpVersionInfoProvider {
+    /// Maximum size of the GET response, in bytes
+    const SIZE_LIMIT: usize = 1024 * 1024;
 
     /// Download and verify signed data
     pub async fn get_versions(
