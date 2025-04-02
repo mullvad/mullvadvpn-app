@@ -1,83 +1,66 @@
 ---
-source: mullvad-update/src/api.rs
+source: mullvad-update/src/client/api.rs
 expression: info
 snapshot_kind: text
 ---
-stable:
-  version: "2025.2"
-  urls:
-    - "https://releases.mullvad.net/desktop/releases/2025.2/MullvadVPN-2025.2.exe"
-  size: 101384672
-  changelog: "[macos] Adding support for quicfuscator\n[windows] Less bugs"
-  sha256:
-    - 244
-    - 178
-    - 87
-    - 19
-    - 209
-    - 63
-    - 40
-    - 25
-    - 163
-    - 0
-    - 242
-    - 255
-    - 169
-    - 77
-    - 150
-    - 116
-    - 99
-    - 170
-    - 238
-    - 160
-    - 211
-    - 87
-    - 251
-    - 215
-    - 71
-    - 154
-    - 40
-    - 17
-    - 84
-    - 186
-    - 4
-    - 96
-beta:
-  version: 2025.3-beta1
-  urls:
-    - "https://releases.mullvad.net/desktop/releases/2025.3-beta1/MullvadVPN-2025.3-beta1_x64.exe"
-  size: 106297504
-  changelog: "[macos] Adding support for quicfuscator\n[windows] Less bugs"
-  sha256:
-    - 12
-    - 86
-    - 154
-    - 160
-    - 145
-    - 46
-    - 185
-    - 54
-    - 5
-    - 168
-    - 80
-    - 115
-    - 68
-    - 125
-    - 66
-    - 186
-    - 12
-    - 166
-    - 18
-    - 54
-    - 27
-    - 239
-    - 120
-    - 239
-    - 4
-    - 239
-    - 3
-    - 142
-    - 128
-    - 177
-    - 84
-    - 3
+signatures:
+  - keytype: ed25519
+    keyid: bb4ef63ffdcc6bd5a19c30cd23b9de03099407a04463418f17ae338b98aa09d4
+    sig: 253ec37846dcd909bfc5119c0e0d06535767e179eb8b4465015eaa95f4bed362c8c9186311192c987871722bf7d319d44e4f04eaf79c269820bc13ff1a901f0b
+signed:
+  metadata_version: 0
+  metadata_expiry: "2025-07-02T15:33:00Z"
+  releases:
+    - version: "2025.2"
+      changelog: "[macos] Adding support for quicfuscator\n[windows] Less bugs"
+      installers:
+        - architecture: x86
+          urls:
+            - "https://releases.mullvad.net/desktop/releases/2025.2/MullvadVPN-2025.2.exe"
+          size: 101384672
+          sha256: F4B25713D13F2819A300F2FFA94D967463AAEEA0D357FBD7479A281154BA0460
+        - architecture: arm64
+          urls:
+            - "https://releases.mullvad.net/desktop/releases/2025.2/MullvadVPN-2025.2_arm64.exe"
+          size: 104146312
+          sha256: AFD8098A1FF89D69A243EC4E2E946CF5FBF8D1C10998230D6C8FC0A5C9C39541
+    - version: "2025.3"
+      changelog: "[macos] Adding support for quicfuscator\n[windows] Less bugs"
+      installers:
+        - architecture: x86
+          urls:
+            - "https://releases.mullvad.net/desktop/releases/2025.2/MullvadVPN-2025.2.exe"
+          size: 101384672
+          sha256: F4B25713D13F2819A300F2FFA94D967463AAEEA0D357FBD7479A281154BA0460
+        - architecture: arm64
+          urls:
+            - "https://releases.mullvad.net/desktop/releases/2025.2/MullvadVPN-2025.2_arm64.exe"
+          size: 104146312
+          sha256: AFD8098A1FF89D69A243EC4E2E946CF5FBF8D1C10998230D6C8FC0A5C9C39541
+      rollout: 0.5
+    - version: 2025.1-beta1
+      changelog: "[macos] Adding support for quicfuscator\n[windows] Less bugs"
+      installers:
+        - architecture: x86
+          urls:
+            - "https://releases.mullvad.net/desktop/releases/2025.3-beta1/MullvadVPN-2025.3-beta1_x64.exe"
+          size: 106297504
+          sha256: 0c569aa0912eb93605a85073447d42ba0ca612361bef78ef04ef038e80b15403
+        - architecture: arm64
+          urls:
+            - "https://releases.mullvad.net/desktop/releases/2025.3-beta1/MullvadVPN-2025.3-beta1_arm64.exe"
+          size: 111488248
+          sha256: 82948D3DB5B869EE5F0D246DB557A81B72B68DFDDD2267872B7B8A5B19A05444
+    - version: 2025.3-beta1
+      changelog: "[macos] Adding support for quicfuscator\n[windows] Less bugs"
+      installers:
+        - architecture: x86
+          urls:
+            - "https://releases.mullvad.net/desktop/releases/2025.3-beta1/MullvadVPN-2025.3-beta1_x64.exe"
+          size: 106297504
+          sha256: 0c569aa0912eb93605a85073447d42ba0ca612361bef78ef04ef038e80b15403
+        - architecture: arm64
+          urls:
+            - "https://releases.mullvad.net/desktop/releases/2025.3-beta1/MullvadVPN-2025.3-beta1_arm64.exe"
+          size: 111488248
+          sha256: 82948D3DB5B869EE5F0D246DB557A81B72B68DFDDD2267872B7B8A5B19A05444

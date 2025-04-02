@@ -1,6 +1,7 @@
 //! This module implements fetching of information about app versions
 
 use anyhow::Context;
+#[cfg(test)]
 use vec1::Vec1;
 
 use crate::format;
@@ -59,8 +60,6 @@ pub struct HttpVersionInfoProvider {
     url: String,
     /// Accepted root certificate. Defaults are used unless specified
     pinned_certificate: Option<reqwest::Certificate>,
-    /// Key to use for verifying the response
-    verifying_keys: Vec1<format::key::VerifyingKey>,
 }
 
 #[async_trait::async_trait]
@@ -74,13 +73,11 @@ impl VersionInfoProvider for HttpVersionInfoProvider {
 impl From<MetaRepositoryPlatform> for HttpVersionInfoProvider {
     /// Construct an [HttpVersionInfoProvider] for the given platform using reasonable defaults.
     ///
-    /// By default, `pinned_certificate` will be set to the LE root certificate, and
-    /// `verifying_keys` will be set to the keys in `trusted-metadata-signing-keys`.
+    /// By default, `pinned_certificate` will be set to the LE root certificate.
     fn from(platform: MetaRepositoryPlatform) -> Self {
         HttpVersionInfoProvider {
             url: platform.url(),
             pinned_certificate: Some(crate::defaults::PINNED_CERTIFICATE.clone()),
-            verifying_keys: crate::defaults::TRUSTED_METADATA_SIGNING_PUBKEYS.clone(),
         }
     }
 }
@@ -89,18 +86,56 @@ impl HttpVersionInfoProvider {
     /// Maximum size of the GET response, in bytes
     const SIZE_LIMIT: usize = 1024 * 1024;
 
-    /// Download and verify signed data
-    pub async fn get_versions(
+    /// Retrieve version metadata for the given platform using reasonable defaults.
+    ///
+    /// By default, `pinned_certificate` will be set to the LE root certificate, and
+    /// `verifying_keys` will be set to the keys in `trusted-metadata-signing-keys`.
+    pub async fn get_versions_for_platform(
+        platform: MetaRepositoryPlatform,
+        lowest_metadata_version: usize,
+    ) -> anyhow::Result<format::SignedResponse> {
+        HttpVersionInfoProvider::from(platform)
+            .get_versions(lowest_metadata_version)
+            .await
+    }
+
+    /// Download and verify signed data with sane defaults
+    ///
+    /// By default, `pinned_certificate` will be set to the LE root certificate, and
+    /// and the keys in `trusted-metadata-signing-keys` will be used for verification.
+    async fn get_versions(
         &self,
         lowest_metadata_version: usize,
     ) -> anyhow::Result<format::SignedResponse> {
+        self.get_versions_inner(|raw_json| {
+            format::SignedResponse::deserialize_and_verify(raw_json, lowest_metadata_version)
+        })
+        .await
+    }
+
+    /// Download and verify signed data with the given keys
+    #[cfg(test)]
+    async fn get_versions_with_keys(
+        &self,
+        lowest_metadata_version: usize,
+        verifying_keys: &Vec1<format::key::VerifyingKey>,
+    ) -> anyhow::Result<format::SignedResponse> {
+        self.get_versions_inner(|raw_json| {
+            format::SignedResponse::deserialize_and_verify_with_keys(
+                verifying_keys,
+                raw_json,
+                lowest_metadata_version,
+            )
+        })
+        .await
+    }
+
+    async fn get_versions_inner(
+        &self,
+        deserialize_fn: impl FnOnce(&[u8]) -> anyhow::Result<format::SignedResponse>,
+    ) -> anyhow::Result<format::SignedResponse> {
         let raw_json = Self::get(&self.url, self.pinned_certificate.clone()).await?;
-        let response = format::SignedResponse::deserialize_and_verify_with_keys(
-            &self.verifying_keys,
-            &raw_json,
-            lowest_metadata_version,
-        )?;
-        Ok(response)
+        deserialize_fn(&raw_json)
     }
 
     /// Perform a simple GET request, with a size limit, and return it as bytes
@@ -158,8 +193,6 @@ mod test {
     use insta::assert_yaml_snapshot;
     use vec1::vec1;
 
-    use crate::version::VersionArchitecture;
-
     use super::*;
 
     // These tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
@@ -187,19 +220,13 @@ mod test {
         let url = format!("{}/version", server.url());
 
         // Construct query and provider
-        let params = VersionParameters {
-            architecture: VersionArchitecture::X86,
-            rollout: 1.,
-            lowest_metadata_version: 0,
-        };
         let info_provider = HttpVersionInfoProvider {
             url,
             pinned_certificate: None,
-            verifying_keys,
         };
 
         let info = info_provider
-            .get_version_info(params)
+            .get_versions_with_keys(0, &verifying_keys)
             .await
             .context("Expected valid version info")?;
 
