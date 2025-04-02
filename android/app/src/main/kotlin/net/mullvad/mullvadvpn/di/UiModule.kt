@@ -275,7 +275,7 @@ val uiModule = module {
     viewModel { (relayListType: RelayListType) ->
         SelectLocationListViewModel(relayListType, get(), get(), get(), get(), get(), get(), get())
     }
-    viewModel { DaitaViewModel(get()) }
+    viewModel { DaitaViewModel(get(), get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { MullvadAppViewModel(get(), get()) }

@@ -273,7 +273,7 @@ fun Connect(
             dropUnlessResumed { feature: FeatureIndicator ->
                 val destination =
                     when (feature) {
-                        FeatureIndicator.DAITA -> DaitaDestination
+                        FeatureIndicator.DAITA -> DaitaDestination(isModal = true)
                         FeatureIndicator.MULTIHOP -> MultihopDestination
                         FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingDestination
                         FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverridesDestination

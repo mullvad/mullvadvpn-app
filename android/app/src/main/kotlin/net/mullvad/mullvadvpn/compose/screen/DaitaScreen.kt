@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.os.Parcelable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,10 +36,12 @@ import com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyCo
 import com.ramcosta.composedestinations.generated.destinations.DaitaDirectOnlyInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.state.DaitaUiState
 import net.mullvad.mullvadvpn.compose.test.DAITA_SCREEN_TEST_TAG
@@ -63,7 +66,9 @@ private fun PreviewDaitaScreen() {
     }
 }
 
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+@Parcelize data class DaitaNavArgs(val isModal: Boolean = false) : Parcelable
+
+@Destination<RootGraph>(style = SlideInFromRightTransition::class, navArgs = DaitaNavArgs::class)
 @Composable
 fun Daita(
     navigator: DestinationsNavigator,
@@ -104,7 +109,13 @@ fun DaitaScreen(
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.daita),
-        navigationIcon = { NavigateBackIconButton { onBackClick() } },
+        navigationIcon = {
+            if (state.isModal) {
+                NavigateCloseIconButton { onBackClick() }
+            } else {
+                NavigateBackIconButton { onBackClick() }
+            }
+        },
         modifier = Modifier.testTag(DAITA_SCREEN_TEST_TAG),
     ) { modifier ->
         Column(modifier = modifier) {

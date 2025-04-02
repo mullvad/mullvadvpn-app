@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults

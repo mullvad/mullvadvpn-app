@@ -77,7 +77,7 @@ fun Settings(navigator: DestinationsNavigator) {
         onReportProblemCellClick =
             dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
         onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopDestination) },
-        onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaDestination) },
+        onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaDestination()) },
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }

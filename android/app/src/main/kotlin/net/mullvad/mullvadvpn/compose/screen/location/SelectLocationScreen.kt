@@ -218,7 +218,7 @@ fun SelectLocation(
                 )
             },
         onSelectRelayList = vm::selectRelayList,
-        openDaitaSettings = dropUnlessResumed { navigator.navigate(DaitaDestination) },
+        openDaitaSettings = dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
     )
 }
 
