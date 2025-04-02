@@ -42,8 +42,8 @@ impl HttpVersionInfoProvider {
     pub fn new(url: String) -> Self {
         HttpVersionInfoProvider {
             url,
-            pinned_certificate: Some(crate::keys::PINNED_CERTIFICATE.clone()),
-            verifying_keys: crate::keys::TRUSTED_METADATA_SIGNING_PUBKEYS.clone(),
+            pinned_certificate: Some(crate::defaults::PINNED_CERTIFICATE.clone()),
+            verifying_keys: crate::defaults::TRUSTED_METADATA_SIGNING_PUBKEYS.clone(),
         }
     }
 
