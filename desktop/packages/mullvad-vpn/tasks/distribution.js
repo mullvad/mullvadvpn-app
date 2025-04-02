@@ -3,6 +3,7 @@ const fs = require('fs');
 const builder = require('electron-builder');
 const { Arch } = require('electron-builder');
 const { execFileSync } = require('child_process');
+const { flipFuses, FuseVersion, FuseV1Options } = require('@electron/fuses');
 
 const noCompression = process.argv.includes('--no-compression');
 const shouldNotarize = process.argv.includes('--notarize');
@@ -18,6 +19,28 @@ function getOptionValue(option) {
   if (optionIndex !== -1) {
     return process.argv[optionIndex + 1];
   }
+}
+
+// Adapted from example usages in this Github issue:
+// https://github.com/electron-userland/electron-builder/issues/6365
+async function flipElectronFuses(context) {
+  const { arch, appOutDir, electronPlatformName } = context;
+
+  const extension = {
+    darwin: '.app',
+    linux: '',
+    win32: '.exe',
+  }[electronPlatformName];
+
+  const electronBinaryPath = path.join(appOutDir, `mullvad-vpn${extension}`);
+  const resetAdHocDarwinSignature =
+    electronPlatformName === 'darwin' && arch === builder.Arch.arm64; // necessary for building on Apple Silicon
+
+  await flipFuses(electronBinaryPath, {
+    version: FuseVersion.V1,
+    resetAdHocDarwinSignature,
+    [FuseV1Options.EnableNodeCliInspectArguments]: false,
+  });
 }
 
 function newConfig() {
@@ -61,7 +84,11 @@ function newConfig() {
     ],
 
     // Make sure that all files declared in "extraResources" exists and abort if they don't.
-    afterPack: (context) => {
+    afterPack: async (context) => {
+      if (context.electronPlatformName !== 'darwin' || context.arch === builder.Arch.universal) {
+        await flipElectronFuses(context);
+      }
+
       if (context.arch !== Arch.universal) {
         const resources = context.packager.platformSpecificBuildOptions.extraResources;
         for (const resource of resources) {
@@ -376,8 +403,8 @@ function packMac() {
         await removeNseventforwarderNativeModules();
         config.beforePack?.(context);
       },
-      afterPack: (context) => {
-        config.afterPack?.(context);
+      afterPack: async (context) => {
+        await config.afterPack?.(context);
 
         if (context.arch !== Arch.universal) {
           delete process.env.TARGET_TRIPLE;
@@ -436,7 +463,7 @@ function packLinux() {
         return true;
       },
       afterPack: async (context) => {
-        config.afterPack?.(context);
+        await config.afterPack?.(context);
 
         const sourceExecutable = path.join(context.appOutDir, 'mullvad-vpn');
         const targetExecutable = path.join(context.appOutDir, 'mullvad-gui');
