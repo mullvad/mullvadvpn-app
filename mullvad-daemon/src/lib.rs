@@ -2297,8 +2297,9 @@ impl Daemon {
                 if settings_changed {
                     let version_handle = self.version_handle.clone();
                     tokio::spawn(async move {
-                        // TODO: notify `tx` here instead?
-                        let _ = version_handle.set_show_beta_releases(enabled).await;
+                        if let Err(error) = version_handle.set_show_beta_releases(enabled).await {
+                            log::error!("Failed to reset beta releases state: {error}");
+                        }
                     });
                 }
             }
