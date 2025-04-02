@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
+import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.IpVersion
@@ -10,11 +10,16 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 
+sealed interface VpnSettingsUiState {
+    data object Loading : VpnSettingsUiState
+    data class Content(val settings: List<VpnSettingItem>): VpnSettingsUiState
+}
+
 data class VpnSettingsViewModelState(
-    val mtuValue: Mtu?,
+    val mtu: Mtu?,
     val isLocalNetworkSharingEnabled: Boolean,
     val isCustomDnsEnabled: Boolean,
-    val customDnsList: List<CustomDnsItem>,
+    val customDnsItems: List<CustomDnsItem>,
     val contentBlockersOptions: DefaultDnsOptions,
     val obfuscationMode: ObfuscationMode,
     val selectedUdp2TcpObfuscationPort: Constraint<Port>,
@@ -26,39 +31,20 @@ data class VpnSettingsViewModelState(
     val systemVpnSettingsAvailable: Boolean,
     val autoStartAndConnectOnBoot: Boolean,
     val deviceIpVersion: Constraint<IpVersion>,
-    val ipv6Enabled: Boolean,
+    val isIpv6Enabled: Boolean,
+    val isContentBlockersExpanded: Boolean
 ) {
     val isCustomWireguardPort =
         selectedWireguardPort is Constraint.Only &&
             selectedWireguardPort.value == customWireguardPort
 
-    fun toUiState(): VpnSettingsUiState =
-        VpnSettingsUiState(
-            mtuValue,
-            isLocalNetworkSharingEnabled,
-            isCustomDnsEnabled,
-            customDnsList,
-            contentBlockersOptions,
-            obfuscationMode,
-            selectedUdp2TcpObfuscationPort,
-            selectedShadowsocksObfuscationPort,
-            quantumResistant,
-            selectedWireguardPort,
-            customWireguardPort,
-            availablePortRanges,
-            systemVpnSettingsAvailable,
-            autoStartAndConnectOnBoot,
-            deviceIpVersion,
-            ipv6Enabled,
-        )
-
     companion object {
         fun default() =
             VpnSettingsViewModelState(
-                mtuValue = null,
+                mtu = null,
                 isLocalNetworkSharingEnabled = false,
                 isCustomDnsEnabled = false,
-                customDnsList = listOf(),
+                customDnsItems = listOf(),
                 contentBlockersOptions = DefaultDnsOptions(),
                 obfuscationMode = ObfuscationMode.Auto,
                 selectedUdp2TcpObfuscationPort = Constraint.Any,
@@ -70,7 +56,8 @@ data class VpnSettingsViewModelState(
                 systemVpnSettingsAvailable = false,
                 autoStartAndConnectOnBoot = false,
                 deviceIpVersion = Constraint.Any,
-                ipv6Enabled = false,
+                isIpv6Enabled = false,
+                isContentBlockersExpanded = false
             )
     }
 }
