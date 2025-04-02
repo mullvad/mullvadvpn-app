@@ -1,16 +1,6 @@
 #![cfg(update)]
-// TODO:
-/*
-If a new upgrade version becomes available during an app upgrade it should not affect the suggested upgrade version in the SuggestedUpgrade message if the upgrade is still in progress. That is, if the current state is one of
-AppUpgradeDownloadStarting
-AppUpgradeDownloadProgress
-AppUpgradeVerifyingInstaller
-*/
 
-use futures::{
-    channel::{mpsc, oneshot},
-    SinkExt,
-};
+use futures::channel::{mpsc, oneshot};
 use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
 use rand::seq::SliceRandom;
 use std::time::Duration;

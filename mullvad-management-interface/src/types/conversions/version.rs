@@ -120,9 +120,9 @@ impl TryFrom<proto::AppUpgradeEvent> for AppUpgradeEvent {
 
 impl From<AppUpgradeDownloadProgress> for proto::AppUpgradeDownloadProgress {
     fn from(value: AppUpgradeDownloadProgress) -> Self {
-        // TODO: Is it acceptable to unwrap in this case?
         // From the docs: Converts a std::time::Duration to a Duration, failing if the duration is too large.
-        let time_left = prost_types::Duration::try_from(value.time_left).unwrap();
+        let time_left = prost_types::Duration::try_from(value.time_left)
+            .expect("Failed to convert duration to protobuf");
         proto::AppUpgradeDownloadProgress {
             server: value.server,
             progress: value.progress,
@@ -140,9 +140,9 @@ impl TryFrom<proto::AppUpgradeDownloadProgress> for AppUpgradeDownloadProgress {
                 "Non-existent AppUpgradeDownloadProgress::time_left",
             ));
         };
-        // TODO: Is it acceptable to unwrap in this case?
         // From the docs: Converts a Duration to a std::time::Duration, failing if the duration is negative.
-        let time_left = std::time::Duration::try_from(time_left).unwrap();
+        let time_left = std::time::Duration::try_from(time_left)
+            .expect("Failed to convert duration to std::time::Duration");
         let progress = AppUpgradeDownloadProgress {
             server: value.server,
             progress: value.progress,
