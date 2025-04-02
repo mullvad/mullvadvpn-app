@@ -1,10 +1,11 @@
-//! Keys that may be used for verifying data
+//! Default keys and certificates that may be used for verifying data
 
 use crate::format::key::VerifyingKey;
 use std::sync::LazyLock;
 use vec1::Vec1;
 
 /// Default TLS certificate to pin to
+#[cfg(feature = "client")]
 pub static PINNED_CERTIFICATE: LazyLock<reqwest::Certificate> = LazyLock::new(|| {
     const CERT_BYTES: &[u8] = include_bytes!("../../mullvad-api/le_root_cert.pem");
     reqwest::Certificate::from_pem(CERT_BYTES).expect("invalid cert")
