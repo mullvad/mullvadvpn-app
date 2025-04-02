@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.test.common.page
 import androidx.test.uiautomator.By
 import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.extension.pressBackTwice
 
 class ConnectPage internal constructor() : Page() {
     private val disconnectSelector = By.text("Disconnect")
@@ -82,6 +83,50 @@ class ConnectPage internal constructor() : Page() {
                 VERY_LONG_TIMEOUT,
             )
             .text
+    }
+
+    fun disableObfuscation() {
+        clickSettings()
+        on<SettingsPage> { clickVpnSettings() }
+        on<VpnSettingsPage> {
+            scrollUntilWireGuardObfuscationOffCell()
+            clickWireGuardObfuscationOffCell()
+        }
+        uiDevice.pressBackTwice()
+    }
+
+    fun disablePostQuantum() {
+        clickSettings()
+        on<SettingsPage> { clickVpnSettings() }
+        on<VpnSettingsPage> {
+            scrollUntilPostQuantumOffCell()
+            clickPostQuantumOffCell()
+        }
+        uiDevice.pressBackTwice()
+    }
+
+    fun enableShadowsocks() {
+        clickSettings()
+        on<SettingsPage> { clickVpnSettings() }
+        on<VpnSettingsPage> {
+            scrollUntilWireGuardObfuscationShadowsocksCell()
+            clickWireGuardObfuscationShadowsocksCell()
+        }
+        uiDevice.pressBackTwice()
+    }
+
+    fun enableDAITA() {
+        clickSettings()
+        on<SettingsPage> { clickDaita() }
+        on<DaitaSettingsPage> { clickEnableSwitch() }
+        uiDevice.pressBackTwice()
+    }
+
+    fun enableLocalNetworkSharing() {
+        clickSettings()
+        on<SettingsPage> { clickVpnSettings() }
+        on<VpnSettingsPage> { clickLocalNetworkSharingSwitch() }
+        uiDevice.pressBackTwice()
     }
 
     companion object {

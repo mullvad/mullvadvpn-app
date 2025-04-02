@@ -5,7 +5,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.test.common.misc.Attachment
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
-import net.mullvad.mullvadvpn.test.common.page.DaitaSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.SettingsPage
 import net.mullvad.mullvadvpn.test.common.page.SystemVpnConfigurationAlert
@@ -181,9 +180,8 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         runBlocking<Unit> {
             app.launch()
             // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
-            disableObfuscation()
-            disablePostQuantum()
-
+            on<ConnectPage> { disableObfuscation() }
+            on<ConnectPage> { disablePostQuantum() }
             on<ConnectPage> { clickSelectLocation() }
 
             on<SelectLocationPage> {
@@ -207,9 +205,8 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
                         ) // Give it some time for generating traffic in tunnel before changing
                         // settings
 
-                        enableDAITA()
-                        enableShadowsocks()
-
+                        on<ConnectPage> { enableDAITA() }
+                        on<ConnectPage> { enableShadowsocks() }
                         on<ConnectPage> { waitForConnectedLabel() }
 
                         delay(
@@ -232,48 +229,4 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
                 NoTrafficToHostRule(targetIpAddress),
             )
         }
-
-    private fun disableObfuscation() {
-        on<ConnectPage> { clickSettings() }
-        on<SettingsPage> { clickVpnSettings() }
-        on<VpnSettingsPage> {
-            scrollUntilWireGuardObfuscationUdpOverTcpCell()
-            clickWireGuardObfuscationOffCell()
-        }
-
-        device.pressBack()
-        device.pressBack()
-    }
-
-    private fun disablePostQuantum() {
-        on<ConnectPage> { clickSettings() }
-        on<SettingsPage> { clickVpnSettings() }
-        on<VpnSettingsPage> {
-            scrollUntilPostQuantumOffCell()
-            clickPostQuantumOffCell()
-        }
-
-        device.pressBack()
-        device.pressBack()
-    }
-
-    private fun enableShadowsocks() {
-        on<ConnectPage> { clickSettings() }
-        on<SettingsPage> { clickVpnSettings() }
-        on<VpnSettingsPage> {
-            scrollUntilWireGuardObfuscationShadowsocksCell()
-            clickWireGuardObfuscationShadowsocksCell()
-        }
-
-        device.pressBack()
-        device.pressBack()
-    }
-
-    private fun enableDAITA() {
-        on<ConnectPage> { clickSettings() }
-        on<SettingsPage> { clickDaita() }
-        on<DaitaSettingsPage> { clickEnableSwitch() }
-        device.pressBack()
-        device.pressBack()
-    }
 }

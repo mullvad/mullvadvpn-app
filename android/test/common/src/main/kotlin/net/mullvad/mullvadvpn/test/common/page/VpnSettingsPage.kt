@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.test.common.page
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.Until
+import net.mullvad.mullvadvpn.test.common.extension.clickObjectAwaitIsChecked
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class VpnSettingsPage internal constructor() : Page() {
@@ -39,23 +40,19 @@ class VpnSettingsPage internal constructor() : Page() {
     }
 
     fun clickWireguardObfuscationUdpOverTcpCell() {
-        uiDevice
-            .findObjectWithTimeout(By.res(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG))
-            .click()
+        uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG))
     }
 
     fun clickWireGuardObfuscationOffCell() {
-        uiDevice.findObjectWithTimeout(By.res(WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG)).click()
+        uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG))
     }
 
     fun clickPostQuantumOffCell() {
-        uiDevice.findObjectWithTimeout(By.res(QUANTUM_RESISTANCE_OFF_CELL_TEST_TAG)).click()
+        uiDevice.clickObjectAwaitIsChecked(By.res(QUANTUM_RESISTANCE_OFF_CELL_TEST_TAG))
     }
 
     fun clickWireGuardObfuscationShadowsocksCell() {
-        uiDevice
-            .findObjectWithTimeout(By.res(WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG))
-            .click()
+        uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG))
     }
 
     private fun scrollUntilCell(testTag: String) {

@@ -16,10 +16,6 @@ import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaime
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
-import net.mullvad.mullvadvpn.test.common.page.ConnectPage
-import net.mullvad.mullvadvpn.test.common.page.SettingsPage
-import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
-import net.mullvad.mullvadvpn.test.common.page.on
 
 class AppInteractor(
     private val device: UiDevice,
@@ -55,17 +51,6 @@ class AppInteractor(
         attemptLogin(accountNumber)
         device.dismissChangelogDialogIfShown()
         ensureLoggedIn()
-    }
-
-    fun enableLocalNetworkSharing() {
-        on<ConnectPage> { clickSettings() }
-
-        on<SettingsPage> { clickVpnSettings() }
-
-        on<VpnSettingsPage> { clickLocalNetworkSharingSwitch() }
-
-        device.pressBack()
-        device.pressBack()
     }
 
     fun attemptLogin(accountNumber: String) {

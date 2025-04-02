@@ -71,7 +71,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @ClearFirewallRules
     fun testWireGuardObfuscationAutomatic() = runBlocking {
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-        app.enableLocalNetworkSharing()
+        on<ConnectPage> { enableLocalNetworkSharing() }
 
         on<ConnectPage> { clickSelectLocation() }
 
@@ -108,7 +108,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @ClearFirewallRules
     fun testWireGuardObfuscationOff() = runBlocking {
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-        app.enableLocalNetworkSharing()
+        on<ConnectPage> { enableLocalNetworkSharing() }
 
         on<ConnectPage> { clickSelectLocation() }
 
@@ -161,7 +161,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     fun testUDPOverTCP() =
         runBlocking<Unit> {
             app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-            app.enableLocalNetworkSharing()
+            on<ConnectPage> { enableLocalNetworkSharing() }
 
             on<ConnectPage> { clickSelectLocation() }
 
@@ -205,8 +205,44 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             }
         }
 
+    @Test
+    @HasDependencyOnLocalAPI
+    @ClearFirewallRules
+    fun testShadowsocks() =
+        runBlocking<Unit> {
+            app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+            on<ConnectPage> { enableLocalNetworkSharing() }
+
+            on<ConnectPage> { disableObfuscation() }
+
+            // Block all WireGuard traffic
+            val firewallRule = DropRule.blockWireGuardTrafficRule(ANY_IP_ADDRESS)
+            firewallClient.createRule(firewallRule)
+
+            on<ConnectPage> { clickConnect() }
+
+            on<SystemVpnConfigurationAlert> { clickOk() }
+
+            // Ensure it is not possible to connect to relay
+            on<ConnectPage> {
+                delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds)
+                waitForConnectingLabel()
+                clickCancel()
+            }
+
+            on<ConnectPage> { enableShadowsocks() }
+
+            // Ensure we can now connect with Shadowsocks enabled
+            on<ConnectPage> {
+                clickConnect()
+                waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
+                clickDisconnect()
+            }
+        }
+
     companion object {
         const val VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT = 60000L
         const val UNSUCCESSFUL_CONNECTION_TIMEOUT = 60000L
+        const val ANY_IP_ADDRESS = "0.0.0.0/0"
     }
 }
