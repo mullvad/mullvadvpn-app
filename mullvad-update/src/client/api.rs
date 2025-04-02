@@ -56,11 +56,11 @@ pub trait VersionInfoProvider {
 /// Obtain version data using a GET request
 pub struct HttpVersionInfoProvider {
     /// Endpoint for GET request
-    pub url: String,
+    url: String,
     /// Accepted root certificate. Defaults are used unless specified
-    pub pinned_certificate: Option<reqwest::Certificate>,
+    pinned_certificate: Option<reqwest::Certificate>,
     /// Key to use for verifying the response
-    pub verifying_keys: Vec1<format::key::VerifyingKey>,
+    verifying_keys: Vec1<format::key::VerifyingKey>,
 }
 
 #[async_trait::async_trait]
