@@ -164,7 +164,7 @@ impl From<AppUpgradeError> for proto::AppUpgradeError {
             },
             AppUpgradeError::VerificationFailed => proto::AppUpgradeError {
                 // TODO: Spelling mistake! Should be VerificationFailed xd
-                error: ProtoError::VerficationFailed as i32,
+                error: ProtoError::VerificationFailed as i32,
             },
         }
     }
@@ -183,7 +183,7 @@ impl TryFrom<proto::AppUpgradeError> for AppUpgradeError {
         match error {
             ProtoError::GeneralError => Ok(AppUpgradeError::GeneralError),
             ProtoError::DownloadFailed => Ok(AppUpgradeError::DownloadFailed),
-            ProtoError::VerficationFailed => Ok(AppUpgradeError::VerificationFailed),
+            ProtoError::VerificationFailed => Ok(AppUpgradeError::VerificationFailed),
         }
     }
 }
