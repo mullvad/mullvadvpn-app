@@ -96,13 +96,13 @@ pub struct RouteManagerImpl {
     default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
     check_default_routes_restored: Pin<Box<dyn FusedStream<Item = ()> + Send>>,
     unhandled_default_route_changes: bool,
-    //primary_interface_monitor: interface::PrimaryInterfaceMonitor,
+
     /// The best IPv4 and v6 network routes suggested by macOS.
     ///
     /// Example: Interface "en0" (1) with IP 192.168.1.222, and with router_ip 192.168.1.1.
-    best_route: IpMap<interface::DefaultRoute>,
-    best_route_rx_v4: UnboundedReceiver<Option<DefaultRoute>>,
-    best_route_rx_v6: UnboundedReceiver<Option<DefaultRoute>>,
+    best_default_route: IpMap<interface::DefaultRoute>,
+    best_default_route_rx_v4: UnboundedReceiver<Option<DefaultRoute>>,
+    best_default_route_rx_v6: UnboundedReceiver<Option<DefaultRoute>>,
 
     //interface_change_rx: UnboundedReceiver<Vec<interface::InterfaceEvent>>,
     interface_change_listeners: Vec<mpsc::UnboundedSender<super::InterfaceEvent>>,
@@ -118,7 +118,7 @@ impl RouteManagerImpl {
         let (primary_interface_monitor, interface_change_rx) =
             interface::PrimaryInterfaceMonitor::new();
         let (best_route_rx_v4, best_route_rx_v6) =
-            foobar::start_listener(primary_interface_monitor, interface_change_rx);
+            foobar::DefaultRouteMonitor::new(primary_interface_monitor, interface_change_rx);
 
         let routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
 
@@ -137,40 +137,19 @@ impl RouteManagerImpl {
             non_tunnel_routes: HashSet::new(),
             tunnel_default_routes: IpMap::new(),
             applied_routes: BTreeMap::new(),
-            best_route: IpMap::new(),
-            best_route_rx_v4,
-            best_route_rx_v6,
+            best_default_route: IpMap::new(),
+            best_default_route_rx_v4: best_route_rx_v4,
+            best_default_route_rx_v6: best_route_rx_v6,
             update_trigger,
             default_route_listeners: vec![],
             check_default_routes_restored: Box::pin(futures::stream::pending()),
             unhandled_default_route_changes: false,
-            //primary_interface_monitor,
-            //interface_change_rx,
             interface_change_listeners: vec![],
         })
     }
 
     pub(crate) async fn run(mut self, manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>) {
         let mut manage_rx = manage_rx.fuse();
-
-        // Initialize default routes
-        // NOTE: This isn't race-free, as we're not listening for route changes before initializing
-        //self.update_best_default_route(interface::Family::V4)
-        //    .unwrap_or_else(|error| {
-        //        log::error!(
-        //            "{}",
-        //            error.display_chain_with_msg("Failed to get initial default v4 route")
-        //        );
-        //        false
-        //    });
-        //self.update_best_default_route(interface::Family::V6)
-        //    .unwrap_or_else(|error| {
-        //        log::error!(
-        //            "{}",
-        //            error.display_chain_with_msg("Failed to get initial default v6 route")
-        //        );
-        //        false
-        //    });
 
         self.debug_offline();
 
@@ -197,14 +176,14 @@ impl RouteManagerImpl {
                     }
                 }
 
-                new_best_route = self.best_route_rx_v4.next() => {
+                new_best_route = self.best_default_route_rx_v4.next() => {
                     let Some(new_best_route)= new_best_route else { continue };
-                    self.handle_new_best_route(interface::Family::V4, new_best_route);
+                    self.handle_new_best_default_route(interface::Family::V4, new_best_route);
                 }
 
-                new_best_route = self.best_route_rx_v6.next() => {
+                new_best_route = self.best_default_route_rx_v6.next() => {
                     let Some(new_best_route)= new_best_route else { continue };
-                    self.handle_new_best_route(interface::Family::V6, new_best_route);
+                    self.handle_new_best_default_route(interface::Family::V6, new_best_route);
                 }
 
                 //event = self.interface_change_rx.next() => {
@@ -233,18 +212,18 @@ impl RouteManagerImpl {
                             let _ = tx.send(events_rx);
                         }
                         Some(RouteManagerCommand::GetDefaultRoutes(tx)) => {
-                            let v4_route = self.best_route.get(interface::Family::V4).cloned();
-                            let v6_route = self.best_route.get(interface::Family::V6).cloned();
+                            let v4_route = self.best_default_route.get(interface::Family::V4).cloned();
+                            let v6_route = self.best_default_route.get(interface::Family::V6).cloned();
                             let _ = tx.send((v4_route, v6_route));
                         }
                         Some(RouteManagerCommand::GetDefaultGateway(tx)) => {
                             let mut v4_gateway = None;
                             let mut v6_gateway = None;
 
-                            if let Some(v4_route) = self.best_route.get(interface::Family::V4) {
+                            if let Some(v4_route) = self.best_default_route.get(interface::Family::V4) {
                                 v4_gateway = self.get_gateway_link_address(v4_route.router_ip).await;
                             }
-                            if let Some(v6_route) = self.best_route.get(interface::Family::V6) {
+                            if let Some(v6_route) = self.best_default_route.get(interface::Family::V6) {
                                 v6_gateway = self.get_gateway_link_address(v6_route.router_ip).await;
                             }
                             let _ = tx.send((v4_gateway, v6_gateway));
@@ -529,7 +508,7 @@ impl RouteManagerImpl {
     }
     */
 
-    fn handle_new_best_route(
+    fn handle_new_best_default_route(
         &mut self,
         family: interface::Family,
         new_best_route: Option<DefaultRoute>,
@@ -537,7 +516,7 @@ impl RouteManagerImpl {
         log::trace!("Best route (IPv4): {new_best_route:?}");
         let changed = new_best_route.is_some();
         self.notify_default_route_listeners(family, changed);
-        self.best_route.set(family, new_best_route);
+        self.best_default_route.set(family, new_best_route);
         self.unhandled_default_route_changes = true;
         self.update_trigger.trigger();
     }
@@ -565,8 +544,8 @@ impl RouteManagerImpl {
         let v6_conn = self.non_tunnel_routes.iter().any(|r| r.is_ipv6());
 
         let relay_route_is_valid = (v4_conn
-            && self.best_route.get(interface::Family::V4).is_some())
-            || (v6_conn && self.best_route.get(interface::Family::V6).is_some());
+            && self.best_default_route.get(interface::Family::V4).is_some())
+            || (v6_conn && self.best_default_route.get(interface::Family::V6).is_some());
 
         if !relay_route_is_valid {
             return Ok(());
@@ -581,6 +560,7 @@ impl RouteManagerImpl {
             let actual_default_route = self.get_actual_default_route(family).await.unwrap_or(None);
 
             if let Some(actual_default_route) = actual_default_route {
+                // TODO: compare interface index instead?
                 let tun_gateway_link_addr =
                     tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
                 let actual_link_addr = actual_default_route
@@ -610,11 +590,11 @@ impl RouteManagerImpl {
     /// a default route, this function replaces the non-tunnel default route with an ifscope route.
     async fn apply_non_tunnel_routes(&mut self) -> Result<()> {
         let v4_gateway = self
-            .best_route
+            .best_default_route
             .get(interface::Family::V4)
             .map(|route| SocketAddr::new(route.router_ip, 0));
         let v6_gateway = self
-            .best_route
+            .best_default_route
             .get(interface::Family::V6)
             .map(|route| SocketAddr::new(route.router_ip, 0));
 
@@ -650,7 +630,7 @@ impl RouteManagerImpl {
 
     /// Replace a known default route with an ifscope route.
     async fn replace_with_scoped_route(&mut self, family: interface::Family) -> Result<()> {
-        let Some(default_route) = self.best_route.get(family) else {
+        let Some(default_route) = self.best_default_route.get(family) else {
             return Ok(());
         };
 
@@ -748,7 +728,7 @@ impl RouteManagerImpl {
     /// Add back unscoped default route for the given `family`, if it is still missing. This
     /// function returns true when no route had to be added.
     async fn restore_default_route(&mut self, family: interface::Family) -> bool {
-        let Some(desired_default_route) = self.best_route.get(family).cloned() else {
+        let Some(desired_default_route) = self.best_default_route.get(family).cloned() else {
             return true;
         };
         let desired_default_route = RouteMessage::from(desired_default_route);
