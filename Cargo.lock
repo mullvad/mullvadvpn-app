@@ -2479,25 +2479,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "meta"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "chrono",
- "clap",
- "hex",
- "mullvad-update",
- "mullvad-version",
- "rand 0.8.5",
- "reqwest",
- "serde",
- "serde_json",
- "sha2",
- "tokio",
- "toml 0.8.19",
-]
-
-[[package]]
 name = "mime"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2888,6 +2869,25 @@ dependencies = [
  "serde_json",
  "talpid-types",
  "thiserror 2.0.9",
+]
+
+[[package]]
+name = "mullvad-release"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "hex",
+ "mullvad-update",
+ "mullvad-version",
+ "rand 0.8.5",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tokio",
+ "toml 0.8.19",
 ]
 
 [[package]]

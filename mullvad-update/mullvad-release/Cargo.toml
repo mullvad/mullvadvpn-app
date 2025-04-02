@@ -1,6 +1,6 @@
 [package]
-name = "meta"
-description = "Tools for managing Mullvad version metadata"
+name = "mullvad-release"
+description = "Tools for managing Mullvad release metadata"
 authors.workspace = true
 repository.workspace = true
 license.workspace = true

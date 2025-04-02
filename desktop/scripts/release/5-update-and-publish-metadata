@@ -43,7 +43,7 @@ function publish_metadata {
     rm -rf currently_published/
 
     echo ">>> Fetching current version metadata"
-    meta pull --assume-yes "${platforms[@]}"
+    mullvad-release pull --assume-yes "${platforms[@]}"
     echo ""
 
     echo ">>> Backing up released data"
@@ -55,15 +55,15 @@ function publish_metadata {
     echo ""
 
     echo ">>> Adding new release $PRODUCT_VERSION (rollout = 1)"
-    meta add-release "$PRODUCT_VERSION" "${platforms[@]}" 1
+    mullvad-release add-release "$PRODUCT_VERSION" "${platforms[@]}" 1
     echo ""
 
     echo ">>> Signing $PRODUCT_VERSION metadata"
-    meta sign "${platforms[@]}"
+    mullvad-release sign "${platforms[@]}"
     echo ""
 
     echo ">>> Verifying signed metadata"
-    meta verify "${platforms[@]}"
+    mullvad-release verify "${platforms[@]}"
     echo ""
 
     echo ">>> New metadata including $$PRODUCT_VERSION"

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use tokio::{fs, io};
 
 /// Path to the configuration file. Currently a file in the working directory.
-const CONFIG_FILENAME: &str = "meta.toml";
+const CONFIG_FILENAME: &str = "mullvad-release.toml";
 
 #[derive(Default, Deserialize, Serialize)]
 pub struct Config {
