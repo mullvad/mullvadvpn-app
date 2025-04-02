@@ -652,9 +652,13 @@ impl Daemon {
         macos::bump_filehandle_limit();
 
         let command_sender = daemon_command_channel.sender();
-        let management_interface =
-            ManagementInterfaceServer::start(command_sender, config.rpc_socket_path)
-                .map_err(Error::ManagementInterfaceError)?;
+        let app_upgrade_broadcast = tokio::sync::broadcast::channel(128).0; // TODO: look over bufsize
+        let management_interface = ManagementInterfaceServer::start(
+            command_sender,
+            config.rpc_socket_path,
+            app_upgrade_broadcast.clone(),
+        )
+        .map_err(Error::ManagementInterfaceError)?;
 
         let (internal_event_tx, internal_event_rx) = daemon_command_channel.destructure();
 
@@ -895,6 +899,7 @@ impl Daemon {
             config.cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
+            app_upgrade_broadcast,
         );
 
         // Attempt to download a fresh relay list

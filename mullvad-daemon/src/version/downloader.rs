@@ -1,11 +1,27 @@
 #![cfg(update)]
 
-use futures::channel::{mpsc, oneshot};
-use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
+use futures::channel::oneshot;
+use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpgradeEvent};
+use mullvad_update::app::{
+    AppDownloader, AppDownloaderParameters, DownloadError, HttpAppDownloader,
+};
 use rand::seq::SliceRandom;
 use std::time::Duration;
 use std::{future::Future, path::PathBuf};
 use tokio::fs;
+use tokio::sync::broadcast;
+
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("Failed to get download directory")]
+    GetDownloadDir(#[from] mullvad_paths::Error),
+
+    #[error("Failed to create download directory")]
+    CreateDownloadDir(#[source] std::io::Error),
+
+    #[error("Could not select URL for app update")]
+    NoUrlFound,
+}
 
 type Result<T> = std::result::Result<T, Error>;
 
@@ -13,44 +29,12 @@ pub struct Downloader(());
 
 pub type AbortHandle = oneshot::Sender<()>;
 
-/// App updater event
-pub enum UpdateEvent {
-    /// Download progress update
-    Downloading {
-        /// Server that the app is being downloaded from
-        server: String,
-        /// A fraction in `[0,1]` that describes how much of the installer has been downloaded
-        complete_frac: f32,
-        /// Estimated time left
-        time_left: Duration,
-    },
-    /// Download failed due to some error
-    DownloadFailed,
-    /// Download completed, so verifying now
-    Verifying,
-    /// The verification failed due to some error
-    VerificationFailed,
-    /// There is a downloaded and verified installer available
-    Verified { verified_installer_path: PathBuf },
-}
-
-pub enum Error {
-    #[error("Failed to get download directory")]
-    GetDownloadDir(#[from] mullvad_paths::Error),
-
-    #[error("Failed to create download directory")]
-    CreateDownloadDir(#[source] io::Error),
-
-    #[error("Could not select URL for app update")]
-    NoUrlFound,
-}
-
 impl Downloader {
     /// Begin or resume download of `version`
     pub async fn start(
         version: mullvad_update::version::Version,
-        event_tx: mpsc::UnboundedSender<UpdateEvent>,
-    ) -> Result<impl Future<Output = ()>> {
+        event_tx: broadcast::Sender<AppUpgradeEvent>,
+    ) -> Result<impl Future<Output = std::result::Result<PathBuf, DownloadError>>> {
         let url = select_cdn_url(&version.urls)
             .ok_or(Error::NoUrlFound)?
             .to_owned();
@@ -71,33 +55,30 @@ impl Downloader {
         let mut downloader = HttpAppDownloader::from(params);
 
         Ok(async move {
-            if let Err(_error) = downloader.download_executable().await {
-                let _ = event_tx.unbounded_send(UpdateEvent::DownloadFailed);
-                return;
-            }
+            downloader.download_executable().await.inspect_err(|_| {
+                let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed));
+            })?;
 
-            let _ = event_tx.unbounded_send(UpdateEvent::Verifying);
+            let _ = event_tx.send(AppUpgradeEvent::VerifyingInstaller);
 
-            if let Err(_error) = downloader.verify().await {
-                let _ = event_tx.unbounded_send(UpdateEvent::VerificationFailed);
-                return;
-            }
+            downloader.verify().await.inspect_err(|_| {
+                let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::VerificationFailed));
+            })?;
 
-            let _ = event_tx.unbounded_send(UpdateEvent::Verified {
-                verified_installer_path: downloader.bin_path(),
-            });
+            let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
+            Ok(downloader.bin_path())
         })
     }
 }
 
 struct ProgressUpdater {
     server: String,
-    event_tx: mpsc::UnboundedSender<UpdateEvent>,
+    event_tx: broadcast::Sender<AppUpgradeEvent>,
     complete_frac: f32,
 }
 
 impl ProgressUpdater {
-    fn new(server: String, event_tx: mpsc::UnboundedSender<UpdateEvent>) -> Self {
+    fn new(server: String, event_tx: broadcast::Sender<AppUpgradeEvent>) -> Self {
         Self {
             server,
             event_tx,
@@ -118,23 +99,27 @@ impl mullvad_update::fetch::ProgressUpdater for ProgressUpdater {
 
         self.complete_frac = fraction_complete;
 
-        let _ = self.event_tx.unbounded_send(UpdateEvent::Downloading {
-            server: self.server.clone(),
-            complete_frac: fraction_complete,
-            // TODO: estimate time left based on how much was downloaded (maybe in last n seconds)
-            time_left: Duration::ZERO,
-        });
+        let _ = self.event_tx.send(AppUpgradeEvent::DownloadProgress(
+            AppUpgradeDownloadProgress {
+                server: self.server.clone(),
+                progress: (fraction_complete * 100.0) as u32,
+                // TODO: estimate time left based on how much was downloaded (maybe in last n seconds)
+                time_left: Duration::ZERO,
+            },
+        ));
     }
 
     fn clear_progress(&mut self) {
         self.complete_frac = 0.;
 
-        let _ = self.event_tx.unbounded_send(UpdateEvent::Downloading {
-            server: self.server.clone(),
-            complete_frac: 0.,
-            // TODO: Check if this is reasonable
-            time_left: Duration::ZERO,
-        });
+        let _ = self.event_tx.send(AppUpgradeEvent::DownloadProgress(
+            AppUpgradeDownloadProgress {
+                server: self.server.clone(),
+                progress: 0,
+                // TODO: Check if this is reasonable
+                time_left: Duration::ZERO,
+            },
+        ));
     }
 }
 

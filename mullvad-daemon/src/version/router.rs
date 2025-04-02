@@ -8,9 +8,11 @@ use futures::stream::StreamExt;
 use futures::FutureExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
 use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
+use mullvad_update::app::DownloadError;
 use mullvad_update::version::VersionInfo;
 use talpid_core::mpsc::Sender;
 
+use crate::management_interface::AppUpgradeBroadcast;
 use crate::DaemonEventSender;
 
 use super::{
@@ -20,8 +22,6 @@ use super::{
 
 #[cfg(update)]
 use super::downloader;
-#[cfg(update)]
-use mullvad_types::version::AppUpgradeEvent;
 #[cfg(update)]
 use std::mem;
 
@@ -41,7 +41,7 @@ impl VersionRouterHandle {
         result_rx.await.map_err(|_| Error::VersionRouterClosed)
     }
 
-    pub async fn get_latest_version(&self) -> Result<mullvad_types::version::AppVersionInfo> {
+    pub async fn get_latest_version(&self) -> Result<AppVersionInfo> {
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
             .send(Message::GetLatestVersion(result_tx))
@@ -66,17 +66,6 @@ impl VersionRouterHandle {
             .map_err(|_| Error::VersionRouterClosed)?;
         result_rx.await.map_err(|_| Error::VersionRouterClosed)
     }
-
-    #[cfg(update)]
-    pub fn new_upgrade_event_listener(
-        &self,
-    ) -> Result<mpsc::UnboundedReceiver<mullvad_types::version::AppUpgradeEvent>> {
-        let (event_tx, event_rx) = mpsc::unbounded();
-        self.tx
-            .send(Message::NewUpgradeEventListener { event_tx })
-            .map_err(|_| Error::VersionRouterClosed)?;
-        Ok(event_rx)
-    }
 }
 
 /// Router of version updates and update requests.
@@ -89,7 +78,7 @@ pub struct VersionRouter {
     rx: mpsc::UnboundedReceiver<Message>,
     state: RoutingState,
     beta_program: bool,
-    version_event_sender: DaemonEventSender<mullvad_types::version::AppVersionInfo>,
+    version_event_sender: DaemonEventSender<AppVersionInfo>,
     /// Version updater
     version_check: check::VersionUpdaterHandle,
     /// Channel used to receive updates from `version_check`
@@ -97,31 +86,10 @@ pub struct VersionRouter {
     /// Future that resolves when `get_latest_version` resolves
     version_request: Fuse<Pin<Box<dyn Future<Output = Result<VersionCache>> + Send>>>,
     /// Channels that receive responses to `get_latest_version`
-    version_request_channels: Vec<oneshot::Sender<Result<mullvad_types::version::AppVersionInfo>>>,
-    #[cfg(update)]
-    update: Update,
-}
+    version_request_channels: Vec<oneshot::Sender<Result<AppVersionInfo>>>,
 
-#[cfg(update)]
-struct Update {
-    /// Channel used to send upgrade events from [downloader::Downloader]
-    update_event_tx: mpsc::UnboundedSender<downloader::UpdateEvent>,
-    /// Channel used to receive upgrade events from [downloader::Downloader]
-    update_event_rx: mpsc::UnboundedReceiver<downloader::UpdateEvent>,
-    /// Clients that will also receive events
-    upgrade_listeners: Vec<mpsc::UnboundedSender<AppUpgradeEvent>>,
-}
-
-#[cfg(update)]
-impl Update {
-    fn new() -> Self {
-        let (update_event_tx, update_event_rx) = mpsc::unbounded();
-        Self {
-            update_event_tx,
-            update_event_rx,
-            upgrade_listeners: Vec::default(),
-        }
-    }
+    /// Broadcast channel for app upgrade events
+    app_upgrade_broadcast: AppUpgradeBroadcast,
 }
 
 enum Message {
@@ -131,19 +99,13 @@ enum Message {
         result_tx: oneshot::Sender<()>,
     },
     /// Check for updates
-    GetLatestVersion(oneshot::Sender<Result<mullvad_types::version::AppVersionInfo>>),
+    GetLatestVersion(oneshot::Sender<Result<AppVersionInfo>>),
     /// Update the application
     #[cfg(update)]
     UpdateApplication { result_tx: oneshot::Sender<()> },
     /// Cancel the ongoing update
     #[cfg(update)]
     CancelUpdate { result_tx: oneshot::Sender<()> },
-    /// Listen for events
-    #[cfg(update)]
-    NewUpgradeEventListener {
-        /// Channel for receiving update events
-        event_tx: mpsc::UnboundedSender<AppUpgradeEvent>,
-    },
 }
 
 #[derive(Debug)]
@@ -163,7 +125,8 @@ enum RoutingState {
         /// When transitioning out of `Upgrading`, this will cause `version_info` to be updated
         new_version: Option<VersionCache>,
         /// Tokio task for the downloader handle
-        downloader_handle: tokio::task::JoinHandle<()>,
+        downloader_handle:
+            tokio::task::JoinHandle<std::result::Result<std::path::PathBuf, DownloadError>>,
     },
     /// Download is complete. We have a verified binary
     Downloaded {
@@ -179,8 +142,9 @@ impl VersionRouter {
         api_handle: MullvadRestHandle,
         availability_handle: ApiAvailability,
         cache_dir: PathBuf,
-        version_event_sender: DaemonEventSender<mullvad_types::version::AppVersionInfo>,
+        version_event_sender: DaemonEventSender<AppVersionInfo>,
         beta_program: bool,
+        app_upgrade_broadcast: AppUpgradeBroadcast,
     ) -> VersionRouterHandle {
         let (tx, rx) = mpsc::unbounded();
 
@@ -200,8 +164,7 @@ impl VersionRouter {
                 new_version_rx,
                 version_request: Fuse::terminated(),
                 version_request_channels: vec![],
-                #[cfg(update)]
-                update: Update::new(),
+                app_upgrade_broadcast,
             }
             .run()
             .await;
@@ -213,18 +176,52 @@ impl VersionRouter {
         // HACK: We can (should) only handle update events on some targets.
         // Trying to cfg a branch in `tokio::select!` will not work, so creating
         // a closure for conditionally responding to upgrade events will have to do.
-        #[cfg(update)]
-        let handle_update_event = || async {
-            // Received upgrade event from `downloader`
-            if let Some(update_event) = self.update.update_event_rx.next().await {
-                self.handle_update_event(update_event);
-            };
-        };
-
-        #[cfg(not(update))]
-        let handle_update_event = || async {
-            let () = std::future::pending().await;
-        };
+        #[allow(clippy::unused_async, unused_variables)]
+        async fn wait_for_update(
+            state: &mut RoutingState,
+            version_event_sender: &DaemonEventSender<AppVersionInfo>,
+        ) {
+            #[cfg(update)]
+            if let RoutingState::Downloading {
+                version_info,
+                downloader_handle,
+                upgrading_to_version,
+                new_version,
+                ..
+            } = state
+            {
+                match downloader_handle.await {
+                    Ok(Ok(download_path)) => {
+                        let app_update_info = AppVersionInfo {
+                            current_version_supported: version_info.current_version_supported,
+                            suggested_upgrade: Some(SuggestedUpgrade {
+                                version: upgrading_to_version.version.clone(),
+                                changelog: Some(upgrading_to_version.changelog.clone()),
+                                verified_installer_path: Some(download_path.clone()),
+                            }),
+                        };
+                        let _ = version_event_sender.send(app_update_info);
+                        *state = RoutingState::Downloaded {
+                            version_info: version_info.clone(),
+                            verified_installer_path: download_path,
+                        };
+                    }
+                    Ok(Err(download_err)) => {
+                        log::error!("Failed to download app: {download_err}");
+                        let version_info = new_version.as_ref().unwrap_or(version_info).clone();
+                        *state = RoutingState::HasVersion { version_info };
+                    }
+                    Err(join_err) => {
+                        log::error!("Failed to join downloader task: {join_err}");
+                        *state = RoutingState::HasVersion {
+                            version_info: version_info.clone(),
+                        };
+                        // TODO: Send AppUpgradeEvent::aborted?
+                        todo!()
+                    }
+                }
+            }
+        }
 
         loop {
             tokio::select! {
@@ -247,8 +244,7 @@ impl VersionRouter {
                 Some(new_version) = self.new_version_rx.next() => {
                     self.on_new_version(new_version);
                 }
-                // Received & handled update event from `downloader`
-                () = handle_update_event() => { },
+                () = wait_for_update(&mut self.state, &self.version_event_sender) => { },
                 Some(message) = self.rx.next() => self.handle_message(message).await,
                 else => break,
             }
@@ -278,12 +274,6 @@ impl VersionRouter {
             Message::CancelUpdate { result_tx } => {
                 self.cancel_upgrade().await;
                 let _ = result_tx.send(());
-            }
-            #[cfg(update)]
-            Message::NewUpgradeEventListener {
-                event_tx: result_tx,
-            } => {
-                self.update.upgrade_listeners.push(result_tx);
             }
         }
     }
@@ -373,10 +363,10 @@ impl VersionRouter {
                 let downloader_handle = tokio::spawn(
                     downloader::Downloader::start(
                         suggested_upgrade.clone(),
-                        self.update_event_tx.clone(),
+                        self.app_upgrade_broadcast.clone(),
                     )
                     .await
-                    .expect("TODO: handle err"),
+                    .expect("Failed to start downloader"), // TODO: Handle error
                 );
 
                 log::debug!("Starting upgrade");
@@ -479,44 +469,6 @@ impl VersionRouter {
 
         // Notify callers of `get_latest_version`
         self.notify_version_requesters();
-    }
-
-    #[cfg(update)]
-    fn handle_update_event(&mut self, event: downloader::UpdateEvent) {
-        debug_assert!(
-            matches!(self.state, RoutingState::Downloading { .. }),
-            "unexpected routing state: {:?}",
-            self.state
-        );
-
-        use downloader::UpdateEvent;
-
-        match event {
-            UpdateEvent::Downloading {
-                server,
-                complete_frac: f32,
-                time_left,
-            } => {
-                // TODO: emit version event to clients
-            }
-            UpdateEvent::DownloadFailed => {
-                // TODO: transition to HasVersion state
-                // TODO: emit version event to clients
-            }
-            UpdateEvent::Verifying => {
-                // TODO: emit version event to clients
-            }
-            UpdateEvent::VerificationFailed => {
-                // TODO: transition to HasVersion state
-                // TODO: emit version event to clients
-            }
-            UpdateEvent::Verified {
-                verified_installer_path,
-            } => {
-                // TODO: transition to Downloaded state
-                // TODO: emit version event to clients
-            }
-        }
     }
 
     /// Notify clients requesting a version
