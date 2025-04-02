@@ -7,7 +7,7 @@ use futures::future::{Fuse, FusedFuture};
 use futures::stream::StreamExt;
 use futures::FutureExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
-use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
+use mullvad_types::version::{AppUpgradeError, AppUpgradeEvent, AppVersionInfo, SuggestedUpgrade};
 use mullvad_update::app::DownloadError;
 use mullvad_update::version::VersionInfo;
 use talpid_core::mpsc::Sender;
@@ -179,46 +179,54 @@ impl VersionRouter {
         #[allow(clippy::unused_async, unused_variables)]
         async fn wait_for_update(
             state: &mut RoutingState,
-            version_event_sender: &DaemonEventSender<AppVersionInfo>,
-        ) {
+        ) -> Option<std::result::Result<AppVersionInfo, AppUpgradeEvent>> {
             #[cfg(update)]
-            if let RoutingState::Downloading {
-                version_info,
-                downloader_handle,
-                upgrading_to_version,
-                new_version,
-                ..
-            } = state
-            {
-                match downloader_handle.await {
-                    Ok(Ok(download_path)) => {
+            match mem::replace(state, RoutingState::NoVersion) {
+                RoutingState::Downloading {
+                    version_info,
+                    downloader_handle,
+                    upgrading_to_version,
+                    new_version,
+                    ..
+                } => match downloader_handle.await {
+                    Ok(Ok(verified_installer_path)) => {
                         let app_update_info = AppVersionInfo {
                             current_version_supported: version_info.current_version_supported,
                             suggested_upgrade: Some(SuggestedUpgrade {
-                                version: upgrading_to_version.version.clone(),
-                                changelog: Some(upgrading_to_version.changelog.clone()),
-                                verified_installer_path: Some(download_path.clone()),
+                                version: upgrading_to_version.version,
+                                changelog: Some(upgrading_to_version.changelog),
+                                verified_installer_path: Some(verified_installer_path.clone()),
                             }),
                         };
-                        let _ = version_event_sender.send(app_update_info);
                         *state = RoutingState::Downloaded {
-                            version_info: version_info.clone(),
-                            verified_installer_path: download_path,
+                            version_info,
+                            verified_installer_path,
                         };
+                        Some(Ok(app_update_info))
                     }
                     Ok(Err(download_err)) => {
                         log::error!("Failed to download app: {download_err}");
-                        let version_info = new_version.as_ref().unwrap_or(version_info).clone();
+                        let version_info = new_version.unwrap_or(version_info);
                         *state = RoutingState::HasVersion { version_info };
+                        // TODO: attach `download_err` to the event?
+                        Some(Err(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed)))
                     }
                     Err(join_err) => {
-                        log::error!("Failed to join downloader task: {join_err}");
-                        *state = RoutingState::HasVersion {
-                            version_info: version_info.clone(),
-                        };
-                        // TODO: Send AppUpgradeEvent::aborted?
-                        todo!()
+                        if join_err.is_panic() {
+                            log::error!("Downloader task panicked: {join_err}");
+                            *state = RoutingState::HasVersion { version_info };
+                        } else if join_err.is_cancelled() {
+                            unreachable!(
+                                "Downloader task was cancelled while state was `Downloading`"
+                            );
+                        }
+                        Some(Err(AppUpgradeEvent::Aborted))
                     }
+                },
+                other_state => {
+                    // Revert to original state
+                    *state = other_state;
+                    None
                 }
             }
         }
@@ -244,7 +252,19 @@ impl VersionRouter {
                 Some(new_version) = self.new_version_rx.next() => {
                     self.on_new_version(new_version);
                 }
-                () = wait_for_update(&mut self.state, &self.version_event_sender) => { },
+                res = wait_for_update(&mut self.state), if matches!(self.state, RoutingState::Downloading{..}) => {
+                    match res {
+                        // If the download was successful, we have a new version
+                        Some(Ok(app_update_info)) => {
+                            let _ = self.version_event_sender.send(app_update_info);
+                        },
+                        // If the download failed, we send the error on the upgrade event channel
+                        Some(Err(app_upgrade_event)) => {
+                            let _ = self.app_upgrade_broadcast.send(app_upgrade_event);
+                        },
+                        None => {} // No upgrade in progress
+                    }
+                },
                 Some(message) = self.rx.next() => self.handle_message(message).await,
                 else => break,
             }
