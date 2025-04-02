@@ -10,7 +10,7 @@ use super::{PartialSignedResponse, ResponseSignature, SignedResponse};
 impl SignedResponse {
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
     /// If successful, the deserialized data is returned.
-    pub fn deserialize_and_verify(
+    pub fn deserialize_and_verify_with_keys(
         keys: &Vec1<VerifyingKey>,
         bytes: &[u8],
         min_metadata_version: usize,

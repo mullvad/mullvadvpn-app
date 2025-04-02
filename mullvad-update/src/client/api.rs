@@ -41,7 +41,7 @@ impl HttpVersionInfoProvider {
         lowest_metadata_version: usize,
     ) -> anyhow::Result<format::SignedResponse> {
         let raw_json = Self::get(&self.url, self.pinned_certificate.clone()).await?;
-        let response = format::SignedResponse::deserialize_and_verify(
+        let response = format::SignedResponse::deserialize_and_verify_with_keys(
             &self.verifying_keys,
             &raw_json,
             lowest_metadata_version,

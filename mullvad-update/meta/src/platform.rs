@@ -231,7 +231,7 @@ impl Platform {
         println!("Verifying signature of {}...", signed_path.display());
         let bytes = fs::read(signed_path).await.context("Failed to read file")?;
 
-        format::SignedResponse::deserialize_and_verify(
+        format::SignedResponse::deserialize_and_verify_with_keys(
             &mullvad_update::keys::TRUSTED_METADATA_SIGNING_PUBKEYS,
             &bytes,
             crate::MIN_VERIFY_METADATA_VERSION,
