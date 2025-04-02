@@ -7,8 +7,7 @@ use futures::future::{Fuse, FusedFuture};
 use futures::stream::StreamExt;
 use futures::FutureExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
-use mullvad_types::version::{AppUpgradeError, AppUpgradeEvent, AppVersionInfo, SuggestedUpgrade};
-use mullvad_update::app::DownloadError;
+use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
 use mullvad_update::version::VersionInfo;
 use talpid_core::mpsc::Sender;
 
@@ -126,7 +125,7 @@ enum RoutingState {
         new_version: Option<VersionCache>,
         /// Tokio task for the downloader handle
         downloader_handle:
-            tokio::task::JoinHandle<std::result::Result<std::path::PathBuf, DownloadError>>,
+            tokio::task::JoinHandle<std::result::Result<std::path::PathBuf, downloader::Error>>,
     },
     /// Download is complete. We have a verified binary
     Downloaded {
@@ -173,64 +172,6 @@ impl VersionRouter {
     }
 
     async fn run(mut self) {
-        // HACK: We can (should) only handle update events on some targets.
-        // Trying to cfg a branch in `tokio::select!` will not work, so creating
-        // a closure for conditionally responding to upgrade events will have to do.
-        #[allow(clippy::unused_async, unused_variables)]
-        async fn wait_for_update(
-            state: &mut RoutingState,
-        ) -> Option<std::result::Result<AppVersionInfo, AppUpgradeEvent>> {
-            #[cfg(update)]
-            match mem::replace(state, RoutingState::NoVersion) {
-                RoutingState::Downloading {
-                    version_info,
-                    downloader_handle,
-                    upgrading_to_version,
-                    new_version,
-                    ..
-                } => match downloader_handle.await {
-                    Ok(Ok(verified_installer_path)) => {
-                        let app_update_info = AppVersionInfo {
-                            current_version_supported: version_info.current_version_supported,
-                            suggested_upgrade: Some(SuggestedUpgrade {
-                                version: upgrading_to_version.version,
-                                changelog: Some(upgrading_to_version.changelog),
-                                verified_installer_path: Some(verified_installer_path.clone()),
-                            }),
-                        };
-                        *state = RoutingState::Downloaded {
-                            version_info,
-                            verified_installer_path,
-                        };
-                        Some(Ok(app_update_info))
-                    }
-                    Ok(Err(download_err)) => {
-                        log::error!("Failed to download app: {download_err}");
-                        let version_info = new_version.unwrap_or(version_info);
-                        *state = RoutingState::HasVersion { version_info };
-                        // TODO: attach `download_err` to the event?
-                        Some(Err(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed)))
-                    }
-                    Err(join_err) => {
-                        if join_err.is_panic() {
-                            log::error!("Downloader task panicked: {join_err}");
-                            *state = RoutingState::HasVersion { version_info };
-                        } else if join_err.is_cancelled() {
-                            unreachable!(
-                                "Downloader task was cancelled while state was `Downloading`"
-                            );
-                        }
-                        Some(Err(AppUpgradeEvent::Aborted))
-                    }
-                },
-                other_state => {
-                    // Revert to original state
-                    *state = other_state;
-                    None
-                }
-            }
-        }
-
         loop {
             tokio::select! {
                 // Respond to version info requests
@@ -252,17 +193,10 @@ impl VersionRouter {
                 Some(new_version) = self.new_version_rx.next() => {
                     self.on_new_version(new_version);
                 }
-                res = wait_for_update(&mut self.state), if matches!(self.state, RoutingState::Downloading{..}) => {
-                    match res {
-                        // If the download was successful, we have a new version
-                        Some(Ok(app_update_info)) => {
-                            let _ = self.version_event_sender.send(app_update_info);
-                        },
-                        // If the download failed, we send the error on the upgrade event channel
-                        Some(Err(app_upgrade_event)) => {
-                            let _ = self.app_upgrade_broadcast.send(app_upgrade_event);
-                        },
-                        None => {} // No upgrade in progress
+                res = wait_for_update(&mut self.state) => {
+                    // If the download was successful, we send the new version
+                    if let Some(app_update_info) =  res {
+                        let _ = self.version_event_sender.send(app_update_info);
                     }
                 },
                 Some(message) = self.rx.next() => self.handle_message(message).await,
@@ -287,7 +221,7 @@ impl VersionRouter {
             }
             #[cfg(update)]
             Message::UpdateApplication { result_tx } => {
-                self.update_application().await;
+                self.update_application();
                 let _ = result_tx.send(());
             }
             #[cfg(update)]
@@ -367,7 +301,7 @@ impl VersionRouter {
     }
 
     #[cfg(update)]
-    async fn update_application(&mut self) {
+    fn update_application(&mut self) {
         match mem::replace(&mut self.state, RoutingState::NoVersion) {
             // Checking state: start upgrade, if upgrade is available
             RoutingState::HasVersion { version_info } => {
@@ -380,14 +314,10 @@ impl VersionRouter {
                     return;
                 };
 
-                let downloader_handle = tokio::spawn(
-                    downloader::Downloader::start(
-                        suggested_upgrade.clone(),
-                        self.app_upgrade_broadcast.clone(),
-                    )
-                    .await
-                    .expect("Failed to start downloader"), // TODO: Handle error
-                );
+                let downloader_handle = tokio::spawn(downloader::Downloader::start(
+                    suggested_upgrade.clone(),
+                    self.app_upgrade_broadcast.clone(),
+                ));
 
                 log::debug!("Starting upgrade");
                 self.state = RoutingState::Downloading {
@@ -525,6 +455,62 @@ impl VersionRouter {
         for tx in self.version_request_channels.drain(..) {
             let _ = tx.send(Ok(version_info.clone()));
         }
+    }
+}
+
+/// Wait for the update to finish
+#[allow(clippy::unused_async, unused_variables)]
+async fn wait_for_update(state: &mut RoutingState) -> Option<AppVersionInfo> {
+    #[cfg(update)]
+    match mem::replace(state, RoutingState::NoVersion) {
+        RoutingState::Downloading {
+            version_info,
+            downloader_handle,
+            upgrading_to_version,
+            new_version,
+            ..
+        } => match downloader_handle.await {
+            Ok(Ok(verified_installer_path)) => {
+                let app_update_info = AppVersionInfo {
+                    current_version_supported: version_info.current_version_supported,
+                    suggested_upgrade: Some(SuggestedUpgrade {
+                        version: upgrading_to_version.version,
+                        changelog: Some(upgrading_to_version.changelog),
+                        verified_installer_path: Some(verified_installer_path.clone()),
+                    }),
+                };
+                *state = RoutingState::Downloaded {
+                    version_info,
+                    verified_installer_path,
+                };
+                Some(app_update_info)
+            }
+            Ok(Err(_err)) => {
+                let version_info = new_version.unwrap_or(version_info);
+                *state = RoutingState::HasVersion { version_info };
+                None
+            }
+            Err(join_err) => {
+                if join_err.is_panic() {
+                    log::error!("Downloader task panicked: {join_err}");
+                } else if join_err.is_cancelled() {
+                    unreachable!("Downloader task was cancelled while state was `Downloading`");
+                }
+                *state = RoutingState::HasVersion { version_info };
+                None
+            }
+        },
+        other_state => {
+            // Revert to original state
+            *state = other_state;
+            let () = std::future::pending().await;
+            unreachable!()
+        }
+    }
+    #[cfg(not(update))]
+    {
+        let () = std::future::pending().await;
+        unreachable!()
     }
 }
 

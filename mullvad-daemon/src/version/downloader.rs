@@ -6,8 +6,8 @@ use mullvad_update::app::{
     AppDownloader, AppDownloaderParameters, DownloadError, HttpAppDownloader,
 };
 use rand::seq::SliceRandom;
+use std::path::PathBuf;
 use std::time::Duration;
-use std::{future::Future, path::PathBuf};
 use tokio::fs;
 use tokio::sync::broadcast;
 
@@ -18,6 +18,9 @@ pub enum Error {
 
     #[error("Failed to create download directory")]
     CreateDownloadDir(#[source] std::io::Error),
+
+    #[error("Failed to download app")]
+    Download(#[from] DownloadError),
 
     #[error("Could not select URL for app update")]
     NoUrlFound,
@@ -34,7 +37,7 @@ impl Downloader {
     pub async fn start(
         version: mullvad_update::version::Version,
         event_tx: broadcast::Sender<AppUpgradeEvent>,
-    ) -> Result<impl Future<Output = std::result::Result<PathBuf, DownloadError>>> {
+    ) -> Result<PathBuf> {
         let url = select_cdn_url(&version.urls)
             .ok_or(Error::NoUrlFound)?
             .to_owned();
@@ -54,20 +57,22 @@ impl Downloader {
         };
         let mut downloader = HttpAppDownloader::from(params);
 
-        Ok(async move {
-            downloader.download_executable().await.inspect_err(|_| {
-                let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed));
-            })?;
+        if let Err(download_err) = downloader.download_executable().await {
+            log::error!("Failed to download app: {download_err}");
+            let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed));
+            return Err(download_err.into());
+        };
 
-            let _ = event_tx.send(AppUpgradeEvent::VerifyingInstaller);
+        let _ = event_tx.send(AppUpgradeEvent::VerifyingInstaller);
 
-            downloader.verify().await.inspect_err(|_| {
-                let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::VerificationFailed));
-            })?;
+        if let Err(verify_err) = downloader.verify().await {
+            log::error!("Failed to verify downloaded app: {verify_err}");
+            let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::VerificationFailed));
+            return Err(verify_err.into());
+        };
 
-            let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
-            Ok(downloader.bin_path())
-        })
+        let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
+        Ok(downloader.bin_path())
     }
 }
 
