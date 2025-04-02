@@ -163,7 +163,6 @@ impl From<AppUpgradeError> for proto::AppUpgradeError {
                 error: ProtoError::DownloadFailed as i32,
             },
             AppUpgradeError::VerificationFailed => proto::AppUpgradeError {
-                // TODO: Spelling mistake! Should be VerificationFailed xd
                 error: ProtoError::VerificationFailed as i32,
             },
         }
