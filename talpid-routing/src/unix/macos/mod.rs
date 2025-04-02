@@ -766,8 +766,7 @@ impl RouteManagerImpl {
     }
 
     async fn ensure_default_tunnel_routes_exist(&mut self) -> Result<()> {
-        // TODO: ignore ipv6 if disabled?
-        for family in [interface::Family::V4, interface::Family::V6] {
+        for (family, _) in self.tunnel_default_routes.clone().iter() {
             if !self.default_route_is_tunnel_route(family).await? {
                 return self.apply_tunnel_default_routes().await;
             }
