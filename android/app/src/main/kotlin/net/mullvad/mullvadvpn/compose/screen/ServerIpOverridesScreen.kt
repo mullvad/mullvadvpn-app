@@ -1,8 +1,12 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
+import android.os.Parcelable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -53,6 +57,7 @@ import com.ramcosta.composedestinations.generated.destinations.ServerIpOverrides
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.InfoIconButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
@@ -62,6 +67,7 @@ import net.mullvad.mullvadvpn.compose.cell.ServerIpOverridesCell
 import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.preview.ServerIpOverridesUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG
@@ -74,6 +80,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -97,15 +104,22 @@ private fun PreviewServerIpOverridesScreen(
             onResetOverridesClick = {},
             onImportByFile = {},
             onImportByText = {},
-            SnackbarHostState(),
+            snackbarHostState = SnackbarHostState(),
         )
     }
 }
 
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+@Parcelize data class ServerIpOverridesNavArgs(val isModal: Boolean = false) : Parcelable
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Destination<RootGraph>(
+    style = SlideInFromRightTransition::class,
+    navArgs = ServerIpOverridesNavArgs::class,
+)
 @Composable
-fun ServerIpOverrides(
+fun SharedTransitionScope.ServerIpOverrides(
     navigator: DestinationsNavigator,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     importByTextResult: ResultRecipient<ImportOverridesByTextDestination, String>,
     clearOverridesResult: ResultRecipient<ResetServerIpOverridesConfirmationDestination, Boolean>,
 ) {
@@ -159,7 +173,12 @@ fun ServerIpOverrides(
             dropUnlessResumed { navigator.navigate(ResetServerIpOverridesConfirmationDestination) },
         onImportByFile = dropUnlessResumed { openFileLauncher.launch("application/json") },
         onImportByText = dropUnlessResumed { navigator.navigate(ImportOverridesByTextDestination) },
-        snackbarHostState,
+        snackbarHostState = snackbarHostState,
+        modifier =
+            Modifier.sharedBounds(
+                rememberSharedContentState(key = FeatureIndicator.SERVER_IP_OVERRIDE),
+                animatedVisibilityScope = animatedVisibilityScope,
+            ),
     )
 }
 
@@ -172,6 +191,7 @@ fun ServerIpOverridesScreen(
     onResetOverridesClick: () -> Unit,
     onImportByFile: () -> Unit,
     onImportByText: () -> Unit,
+    modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
 
@@ -180,7 +200,14 @@ fun ServerIpOverridesScreen(
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.server_ip_override),
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        modifier = modifier,
+        navigationIcon = {
+            if (state.isModal) {
+                NavigateCloseIconButton(onBackClick)
+            } else {
+                NavigateBackIconButton(onNavigateBack = onBackClick)
+            }
+        },
         actions = {
             TopBarActions(
                 overridesActive = state.overridesActive,

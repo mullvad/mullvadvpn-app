@@ -2,8 +2,10 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import android.content.ContentResolver
 import android.net.Uri
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.ServerIpOverridesDestination
 import java.io.InputStreamReader
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,7 +22,9 @@ import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 class ServerIpOverridesViewModel(
     private val relayOverridesRepository: RelayOverridesRepository,
     private val contentResolver: ContentResolver,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+    private val navArgs = ServerIpOverridesDestination.argsFrom(savedStateHandle)
 
     private val _uiSideEffect = Channel<ServerIpOverridesUiSideEffect>()
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow())
@@ -28,11 +32,16 @@ class ServerIpOverridesViewModel(
     val uiState: StateFlow<ServerIpOverridesUiState> =
         relayOverridesRepository.relayOverrides
             .filterNotNull()
-            .map { ServerIpOverridesUiState.Loaded(overridesActive = it.isNotEmpty()) }
+            .map {
+                ServerIpOverridesUiState.Loaded(
+                    overridesActive = it.isNotEmpty(),
+                    isModal = navArgs.isModal,
+                )
+            }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                ServerIpOverridesUiState.Loading,
+                ServerIpOverridesUiState.Loading(navArgs.isModal),
             )
 
     fun importFile(uri: Uri) =
@@ -70,7 +79,12 @@ sealed interface ServerIpOverridesUiState {
     val overridesActive: Boolean?
         get() = (this as? Loaded)?.overridesActive
 
-    data object Loading : ServerIpOverridesUiState
+    val isModal: Boolean
 
-    data class Loaded(override val overridesActive: Boolean) : ServerIpOverridesUiState
+    data class Loading(override val isModal: Boolean = false) : ServerIpOverridesUiState
+
+    data class Loaded(
+        override val overridesActive: Boolean,
+        override val isModal: Boolean = false,
+    ) : ServerIpOverridesUiState
 }

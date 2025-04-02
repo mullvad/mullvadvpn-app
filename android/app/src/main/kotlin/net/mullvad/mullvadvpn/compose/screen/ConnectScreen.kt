@@ -142,7 +142,8 @@ private val SCREEN_HEIGHT_THRESHOLD = 700.dp
 private const val SHORT_SCREEN_INDICATOR_BIAS = 0.2f
 private const val TALL_SCREEN_INDICATOR_BIAS = 0.3f
 
-@OptIn(ExperimentalSharedTransitionApi::class) val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
+@OptIn(ExperimentalSharedTransitionApi::class)
+val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
 
 @Preview("Initial|Connected|Disconnected|Connecting|Error.VpnPermissionDenied")
 @Composable
@@ -263,45 +264,49 @@ fun Connect(
         }
     }
 
-CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides animatedVisibilityScope) {
-    ConnectScreen(
-        state = state,
-        snackbarHostState = snackbarHostState,
-        onDisconnectClick = connectViewModel::onDisconnectClick,
-        onReconnectClick = connectViewModel::onReconnectClick,
-        onConnectClick = connectViewModel::onConnectClick,
-        onCancelClick = connectViewModel::onCancelClick,
-        onSwitchLocationClick = dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
-        onOpenAppListing = connectViewModel::openAppListing,
-        onManageAccountClick = connectViewModel::onManageAccountClick,
-        onChangelogClick =
-            dropUnlessResumed { navigator.navigate(ChangelogDestination(ChangelogNavArgs(true))) },
-        onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
-        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
-        onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
-        onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
-        onNavigateToFeature =
-            dropUnlessResumed { feature: FeatureIndicator ->
-                val destination =
-                    when (feature) {
-                        FeatureIndicator.DAITA -> DaitaDestination(isModal = true)
-                        FeatureIndicator.MULTIHOP -> MultihopDestination(isModal = true)
-                        FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingDestination(isModal = true)
-                        FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverridesDestination
-                        FeatureIndicator.QUANTUM_RESISTANCE,
-                        FeatureIndicator.UDP_2_TCP,
-                        FeatureIndicator.SHADOWSOCKS,
-                        FeatureIndicator.LAN_SHARING,
-                        FeatureIndicator.DNS_CONTENT_BLOCKERS,
-                        FeatureIndicator.CUSTOM_DNS,
-                        FeatureIndicator.CUSTOM_MTU ->
-                            VpnSettingsDestination(scrollToFeature = feature, isModal = true)
-                    }
-                navigator.navigate(destination)
-            },
-    )
-
-}
+    CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides animatedVisibilityScope) {
+        ConnectScreen(
+            state = state,
+            snackbarHostState = snackbarHostState,
+            onDisconnectClick = connectViewModel::onDisconnectClick,
+            onReconnectClick = connectViewModel::onReconnectClick,
+            onConnectClick = connectViewModel::onConnectClick,
+            onCancelClick = connectViewModel::onCancelClick,
+            onSwitchLocationClick =
+                dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
+            onOpenAppListing = connectViewModel::openAppListing,
+            onManageAccountClick = connectViewModel::onManageAccountClick,
+            onChangelogClick =
+                dropUnlessResumed {
+                    navigator.navigate(ChangelogDestination(ChangelogNavArgs(true)))
+                },
+            onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
+            onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
+            onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
+            onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
+            onNavigateToFeature =
+                dropUnlessResumed { feature: FeatureIndicator ->
+                    val destination =
+                        when (feature) {
+                            FeatureIndicator.DAITA -> DaitaDestination(isModal = true)
+                            FeatureIndicator.MULTIHOP -> MultihopDestination(isModal = true)
+                            FeatureIndicator.SPLIT_TUNNELING ->
+                                SplitTunnelingDestination(isModal = true)
+                            FeatureIndicator.SERVER_IP_OVERRIDE ->
+                                ServerIpOverridesDestination(isModal = true)
+                            FeatureIndicator.QUANTUM_RESISTANCE,
+                            FeatureIndicator.UDP_2_TCP,
+                            FeatureIndicator.SHADOWSOCKS,
+                            FeatureIndicator.LAN_SHARING,
+                            FeatureIndicator.DNS_CONTENT_BLOCKERS,
+                            FeatureIndicator.CUSTOM_DNS,
+                            FeatureIndicator.CUSTOM_MTU ->
+                                VpnSettingsDestination(scrollToFeature = feature, isModal = true)
+                        }
+                    navigator.navigate(destination)
+                },
+        )
+    }
 }
 
 @Composable

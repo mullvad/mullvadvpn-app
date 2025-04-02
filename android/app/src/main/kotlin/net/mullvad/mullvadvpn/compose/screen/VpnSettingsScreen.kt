@@ -264,7 +264,7 @@ fun SharedTransitionScope.VpnSettings(
         navigateToLocalNetworkSharingInfo =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoDestination) },
         navigateToServerIpOverrides =
-            dropUnlessResumed { navigator.navigate(ServerIpOverridesDestination) },
+            dropUnlessResumed { navigator.navigate(ServerIpOverridesDestination()) },
         onToggleContentBlockersExpanded = vm::onToggleContentBlockersExpand,
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
         onToggleBlockAds = vm::onToggleBlockAds,
