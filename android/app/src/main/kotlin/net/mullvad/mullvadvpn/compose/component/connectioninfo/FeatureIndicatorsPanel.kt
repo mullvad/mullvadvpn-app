@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package net.mullvad.mullvadvpn.compose.component.connectioninfo
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ContextualFlowRow
 import androidx.compose.foundation.layout.ContextualFlowRowOverflow
@@ -15,6 +18,8 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.MullvadFeatureChip
 import net.mullvad.mullvadvpn.compose.component.MullvadMoreChip
 import net.mullvad.mullvadvpn.compose.component.textResource
+import net.mullvad.mullvadvpn.compose.screen.LocalNavAnimatedVisibilityScope
+import net.mullvad.mullvadvpn.compose.screen.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
@@ -70,10 +75,22 @@ fun FeatureIndicators(
             ),
     ) { index ->
         val featureIndicator = features[index]
-        MullvadFeatureChip(
-            text = featureIndicator.text(),
-            onClick = { onNavigateToFeature(featureIndicator) },
-        )
+
+        // Now we can access the scopes in any nested composables as follows:
+        val sharedTransitionScope = LocalSharedTransitionScope.current!!
+        val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current!!
+
+        with(sharedTransitionScope) {
+            MullvadFeatureChip(
+                modifier =
+                    Modifier.sharedBounds(
+                        rememberSharedContentState(key = featureIndicator),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    ),
+                text = featureIndicator.text(),
+                onClick = { onNavigateToFeature(featureIndicator) },
+            )
+        }
     }
 
     // Spacing are added to compensate for when there are no feature indicators, since each feature

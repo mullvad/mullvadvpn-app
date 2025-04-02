@@ -11,7 +11,7 @@ private const val MTU = 1337
 class VpnSettingsUiStatePreviewParameterProvider : PreviewParameterProvider<VpnSettingsUiState> {
     override val values =
         sequenceOf(
-            VpnSettingsUiState.Loading,
+            VpnSettingsUiState.Loading(),
             VpnSettingsUiState.Content(
                 emptyList()
                 //                mtu = Mtu(MTU),

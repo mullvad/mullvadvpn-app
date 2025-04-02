@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.os.Parcelable
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +50,7 @@ import net.mullvad.mullvadvpn.compose.state.DaitaUiState
 import net.mullvad.mullvadvpn.compose.test.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.DaitaViewModel
@@ -68,10 +72,12 @@ private fun PreviewDaitaScreen() {
 
 @Parcelize data class DaitaNavArgs(val isModal: Boolean = false) : Parcelable
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Destination<RootGraph>(style = SlideInFromRightTransition::class, navArgs = DaitaNavArgs::class)
 @Composable
-fun Daita(
+fun SharedTransitionScope.Daita(
     navigator: DestinationsNavigator,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     daitaConfirmationDialogResult: ResultRecipient<DaitaDirectOnlyConfirmationDestination, Boolean>,
 ) {
     val viewModel = koinViewModel<DaitaViewModel>()
@@ -85,6 +91,12 @@ fun Daita(
 
     DaitaScreen(
         state = state,
+        modifier =
+            Modifier.testTag(DAITA_SCREEN_TEST_TAG)
+                .sharedBounds(
+                    rememberSharedContentState(key = FeatureIndicator.DAITA),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                ),
         onDaitaEnabled = viewModel::setDaita,
         onDirectOnlyClick = { enable ->
             if (enable) {
@@ -106,9 +118,11 @@ fun DaitaScreen(
     onDirectOnlyClick: (enable: Boolean) -> Unit,
     onDirectOnlyInfoClick: () -> Unit,
     onBackClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.daita),
+        modifier = modifier,
         navigationIcon = {
             if (state.isModal) {
                 NavigateCloseIconButton { onBackClick() }
@@ -116,7 +130,6 @@ fun DaitaScreen(
                 NavigateBackIconButton { onBackClick() }
             }
         },
-        modifier = Modifier.testTag(DAITA_SCREEN_TEST_TAG),
     ) { modifier ->
         Column(modifier = modifier) {
             val pagerState = rememberPagerState(pageCount = { DaitaPages.entries.size })

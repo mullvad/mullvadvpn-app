@@ -1,5 +1,11 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.os.Parcelable
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,12 +25,15 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.test.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.MultihopUiState
@@ -36,13 +46,28 @@ private fun PreviewMultihopScreen() {
     AppTheme { MultihopScreen(state = MultihopUiState(false), {}, {}) }
 }
 
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+@Parcelize
+data class MultihopNavArgs(
+    val isModal: Boolean = false,
+): Parcelable
+
+@Destination<RootGraph>(style = SlideInFromRightTransition::class, navArgs = MultihopNavArgs::class)
 @Composable
-fun Multihop(navigator: DestinationsNavigator) {
+fun SharedTransitionScope.Multihop(
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    navigator: DestinationsNavigator,
+) {
     val viewModel = koinViewModel<MultihopViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
     MultihopScreen(
         state = state,
+        modifier =
+            Modifier.testTag(DAITA_SCREEN_TEST_TAG)
+                .sharedBounds(
+                    rememberSharedContentState(key = FeatureIndicator.MULTIHOP),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                ),
         onMultihopClick = viewModel::setMultihop,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
@@ -53,8 +78,10 @@ fun MultihopScreen(
     state: MultihopUiState,
     onMultihopClick: (enable: Boolean) -> Unit,
     onBackClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     ScaffoldWithMediumTopBar(
+        modifier = modifier,
         appBarTitle = stringResource(id = R.string.multihop),
         navigationIcon = { NavigateBackIconButton { onBackClick() } },
     ) { modifier ->

@@ -1,8 +1,10 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
+import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
 import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.UnknownHostException
@@ -54,8 +56,10 @@ class VpnSettingsViewModel(
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
+    savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
+    private val navArgs = VpnSettingsDestination.argsFrom(savedStateHandle)
     private val _mutableIsContentBlockersExpanded = MutableStateFlow(true)
 
     private val _uiSideEffect = Channel<VpnSettingsSideEffect>()
@@ -127,10 +131,15 @@ class VpnSettingsViewModel(
                             isIpv6Enabled,
                             isContentBlockersExpanded,
                         )
-                    }
+                    },
+                    isModal = navArgs.isModal,
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), VpnSettingsUiState.Loading)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                VpnSettingsUiState.Loading(navArgs.isModal),
+            )
 
     init {
         // TODO would be nice to get rid of this

@@ -3,6 +3,9 @@ package net.mullvad.mullvadvpn.compose.screen
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -31,6 +34,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -137,6 +142,8 @@ private val SCREEN_HEIGHT_THRESHOLD = 700.dp
 private const val SHORT_SCREEN_INDICATOR_BIAS = 0.2f
 private const val TALL_SCREEN_INDICATOR_BIAS = 0.3f
 
+@OptIn(ExperimentalSharedTransitionApi::class) val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
+
 @Preview("Initial|Connected|Disconnected|Connecting|Error.VpnPermissionDenied")
 @Composable
 private fun PreviewAccountScreen(
@@ -163,11 +170,14 @@ private fun PreviewAccountScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("LongMethod")
 @Destination<RootGraph>(style = HomeTransition::class)
 @Composable
 fun Connect(
     navigator: DestinationsNavigator,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     selectLocationResultRecipient: ResultRecipient<SelectLocationDestination, Boolean>,
 ) {
     val connectViewModel: ConnectViewModel = koinViewModel()
@@ -253,6 +263,7 @@ fun Connect(
         }
     }
 
+CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides animatedVisibilityScope) {
     ConnectScreen(
         state = state,
         snackbarHostState = snackbarHostState,
@@ -274,7 +285,7 @@ fun Connect(
                 val destination =
                     when (feature) {
                         FeatureIndicator.DAITA -> DaitaDestination(isModal = true)
-                        FeatureIndicator.MULTIHOP -> MultihopDestination
+                        FeatureIndicator.MULTIHOP -> MultihopDestination(isModal = true)
                         FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingDestination
                         FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverridesDestination
                         FeatureIndicator.QUANTUM_RESISTANCE,
@@ -284,11 +295,13 @@ fun Connect(
                         FeatureIndicator.DNS_CONTENT_BLOCKERS,
                         FeatureIndicator.CUSTOM_DNS,
                         FeatureIndicator.CUSTOM_MTU ->
-                            VpnSettingsDestination(scrollToFeature = feature)
+                            VpnSettingsDestination(scrollToFeature = feature, isModal = true)
                     }
                 navigator.navigate(destination)
             },
     )
+
+}
 }
 
 @Composable

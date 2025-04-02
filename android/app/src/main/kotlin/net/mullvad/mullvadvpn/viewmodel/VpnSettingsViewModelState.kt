@@ -11,8 +11,12 @@ import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 
 sealed interface VpnSettingsUiState {
-    data object Loading : VpnSettingsUiState
-    data class Content(val settings: List<VpnSettingItem>): VpnSettingsUiState
+    val isModal: Boolean
+
+    data class Loading(override val isModal: Boolean = false) : VpnSettingsUiState
+
+    data class Content(val settings: List<VpnSettingItem>, override val isModal: Boolean = false) :
+        VpnSettingsUiState
 }
 
 data class VpnSettingsViewModelState(
@@ -32,7 +36,7 @@ data class VpnSettingsViewModelState(
     val autoStartAndConnectOnBoot: Boolean,
     val deviceIpVersion: Constraint<IpVersion>,
     val isIpv6Enabled: Boolean,
-    val isContentBlockersExpanded: Boolean
+    val isContentBlockersExpanded: Boolean,
 ) {
     val isCustomWireguardPort =
         selectedWireguardPort is Constraint.Only &&
@@ -57,7 +61,7 @@ data class VpnSettingsViewModelState(
                 autoStartAndConnectOnBoot = false,
                 deviceIpVersion = Constraint.Any,
                 isIpv6Enabled = false,
-                isContentBlockersExpanded = false
+                isContentBlockersExpanded = false,
             )
     }
 }

@@ -1,7 +1,12 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
 import android.os.Parcelable
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
@@ -70,6 +75,7 @@ import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.dialog.CustomPortNavArgs
@@ -77,6 +83,7 @@ import net.mullvad.mullvadvpn.compose.dialog.info.WireguardPortInfoDialogArgumen
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
+import net.mullvad.mullvadvpn.compose.test.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
@@ -153,7 +160,10 @@ private fun PreviewVpnSettings(
 }
 
 @Parcelize
-data class VpnSettingsNavArgs(val scrollToFeature: FeatureIndicator? = null) : Parcelable
+data class VpnSettingsNavArgs(
+    val scrollToFeature: FeatureIndicator? = null,
+    val isModal: Boolean = false,
+) : Parcelable
 
 @Destination<RootGraph>(
     style = SlideInFromRightTransition::class,
@@ -161,8 +171,9 @@ data class VpnSettingsNavArgs(val scrollToFeature: FeatureIndicator? = null) : P
 )
 @Composable
 @Suppress("LongMethod")
-fun VpnSettings(
+fun SharedTransitionScope.VpnSettings(
     navigator: DestinationsNavigator,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     navArgs: VpnSettingsNavArgs,
     dnsDialogResult: ResultRecipient<DnsDestination, DnsDialogResult>,
     customWgPortResult: ResultRecipient<WireguardCustomPortDestination, Port?>,
@@ -226,6 +237,10 @@ fun VpnSettings(
     VpnSettingsScreen(
         state = state,
         initialScrollToFeature = navArgs.scrollToFeature,
+        modifier = Modifier.sharedBounds(
+                rememberSharedContentState(key = navArgs.scrollToFeature ?: ""),
+                animatedVisibilityScope = animatedVisibilityScope,
+            ),
         snackbarHostState = snackbarHostState,
         navigateToContentBlockersInfo =
             dropUnlessResumed { navigator.navigate(ContentBlockersInfoDestination) },
@@ -295,6 +310,7 @@ fun VpnSettings(
 fun VpnSettingsScreen(
     state: VpnSettingsUiState,
     initialScrollToFeature: FeatureIndicator?,
+    modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     navigateToContentBlockersInfo: () -> Unit,
     navigateToAutoConnectScreen: () -> Unit,
@@ -332,11 +348,18 @@ fun VpnSettingsScreen(
 
     ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.settings_vpn),
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        modifier = modifier,
+        navigationIcon = {
+            if (state.isModal) {
+                NavigateCloseIconButton(onNavigateClose = onBackClick)
+            } else {
+                NavigateBackIconButton(onNavigateBack = onBackClick)
+            }
+        },
         snackbarHostState = snackbarHostState,
     ) {
         when (state) {
-            VpnSettingsUiState.Loading -> CircularProgressIndicator()
+            is VpnSettingsUiState.Loading -> CircularProgressIndicator()
             is VpnSettingsUiState.Content -> {
                 val initialIndexFocus =
                     when (initialScrollToFeature) {
