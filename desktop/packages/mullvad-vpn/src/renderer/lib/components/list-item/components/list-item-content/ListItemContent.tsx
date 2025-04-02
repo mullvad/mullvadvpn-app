@@ -1,40 +1,40 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { Flex, FlexProps } from '../../../flex';
-import { levels } from '../../levels';
-import { useListItem } from '../../ListItemContext';
 
 const sizes = {
   full: '100%',
-  small: '44px',
+  small: '56px',
 };
 
-export const StyledFlex = styled(Flex)<{
-  $level: keyof typeof levels;
-  $disabled?: boolean;
-  $size: 'full' | 'small';
+type Size = keyof typeof sizes;
+
+const StyledFlex = styled(Flex)<{
+  $size: Size;
 }>`
-  width: ${({ $size }) => sizes[$size]};
-  height: 100%;
-  background-color: ${({ $disabled, $level }) =>
-    $disabled ? levels[$level].disabled : levels[$level].enabled};
-  &&:has(> :last-child:nth-child(1)) {
-    &&:has(img) {
-      justify-content: center;
-    }
-  }
+  ${({ $size }) => {
+    const size = sizes[$size];
+    return css`
+      --size: ${size};
+      width: var(--size);
+      height: 100%;
+      &&:has(> :last-child:nth-child(1)) {
+        &&:has(img) {
+          justify-content: center;
+        }
+      }
+    `;
+  }}
 `;
 
-export interface ListItemContainerProps extends FlexProps {
-  size?: 'full' | 'small';
+export interface ListItemContentProps extends FlexProps {
+  size?: Size;
 }
 
-export const ListItemContent = ({ size = 'full', ...props }: ListItemContainerProps) => {
-  const { level } = useListItem();
+export const ListItemContent = ({ size = 'full', ...props }: ListItemContentProps) => {
   return (
     <StyledFlex
       $size={size}
-      $level={level}
       $alignItems="center"
       $justifyContent="space-between"
       $gap="small"
