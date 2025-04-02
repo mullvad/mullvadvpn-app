@@ -40,6 +40,7 @@ macro_rules! schema_definition {
     };
 }
 
+// TODO: replace with IpVersion from talpid-types?
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Family {
     V4,
@@ -64,13 +65,6 @@ impl Family {
     }
 }
 
-#[derive(Debug)]
-pub struct NetworkServiceDetails {
-    pub interface_name: String,
-    pub router_ip: IpAddr,
-    pub first_ip: IpAddr,
-}
-
 pub struct PrimaryInterfaceMonitor {
     store: SCDynamicStore,
     prefs: SCPreferences,
@@ -79,7 +73,16 @@ pub struct PrimaryInterfaceMonitor {
 // FIXME: Implement Send on SCDynamicStore, if it's safe
 unsafe impl Send for PrimaryInterfaceMonitor {}
 
-#[derive(Clone)]
+/// Contents of a `/Network/Service/<service_id>/IPvX` key in the [SCDynamicStore].
+#[derive(Clone, Debug)]
+pub struct NetworkServiceDetails {
+    pub interface_name: String,
+    pub router_ip: IpAddr,
+    pub first_ip: IpAddr,
+}
+
+/// Contents of the `/Network/Global/IPvX` key in the [SCDynamicStore].
+#[derive(Clone, Debug)]
 pub struct PrimaryInterfaceDetails {
     pub name: String,
     pub service_id: String,
@@ -116,17 +119,21 @@ impl InterfaceEvent {
     }
 }
 
-/// Default interface/route
+/// The best network route. Either suggested by macOS, or inferred by looking at the available
+/// network interfaces.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DefaultRoute {
-    /// Default interface name
+    /// Interface name.
     pub interface: String,
-    /// Default interface index
+
+    /// Interface index.
     pub interface_index: u16,
-    /// Router/Gateway IP
-    pub router_ip: IpAddr,
-    /// Default interface IP address
+
+    /// IP address of the interface.
     pub ip: IpAddr,
+
+    /// Router IP.
+    pub router_ip: IpAddr,
 }
 
 impl From<DefaultRoute> for RouteMessage {
