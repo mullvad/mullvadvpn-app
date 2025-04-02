@@ -471,7 +471,7 @@ async fn try_load_cache(cache_dir: &Path) -> Result<(VersionCache, SystemTime), 
 
     let cache: VersionCache = serde_json::from_str(&content).map_err(Error::Deserialize)?;
 
-    if cache_is_old(&cache.latest_version, &*APP_VERSION) {
+    if cache_is_old(&cache.latest_version, &APP_VERSION) {
         return Err(Error::OutdatedVersion);
     }
 
