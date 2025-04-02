@@ -66,8 +66,7 @@ impl AppVersionProxy {
             let response = service.request(request).await?;
             let bytes = response.body_with_max_size(Self::SIZE_LIMIT).await?;
 
-            let response = mullvad_update::format::SignedResponse::deserialize_and_verify_with_keys(
-                &mullvad_update::keys::TRUSTED_METADATA_SIGNING_PUBKEYS,
+            let response = mullvad_update::format::SignedResponse::deserialize_and_verify(
                 &bytes,
                 lowest_metadata_version,
             )

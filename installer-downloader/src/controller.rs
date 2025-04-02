@@ -20,9 +20,6 @@ use tokio::{
     task::JoinHandle,
 };
 
-/// Pinned root certificate used when fetching version metadata
-const PINNED_CERTIFICATE: &[u8] = include_bytes!("../../mullvad-api/le_root_cert.pem");
-
 /// Base URL for pulling metadata. Actual JSON files should be stored at `<base
 /// url>/<platform>.json`
 const META_REPOSITORY_URL: &str = "https://api.mullvad.net/app/releases/";
@@ -49,12 +46,7 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     // Directory provider to use
     type DirProvider = crate::temp::TempDirProvider;
 
-    let cert = reqwest::Certificate::from_pem(PINNED_CERTIFICATE).expect("invalid cert");
-    let version_provider = HttpVersionInfoProvider {
-        url: get_metadata_url(),
-        pinned_certificate: Some(cert),
-        verifying_keys: mullvad_update::keys::TRUSTED_METADATA_SIGNING_PUBKEYS.clone(),
-    };
+    let version_provider = HttpVersionInfoProvider::new(get_metadata_url());
 
     AppController::initialize::<_, Downloader<T>, _, DirProvider>(
         delegate,

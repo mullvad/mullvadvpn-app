@@ -4,6 +4,12 @@ use crate::format::key::VerifyingKey;
 use std::sync::LazyLock;
 use vec1::Vec1;
 
+/// Default TLS certificate to pin to
+pub static PINNED_CERTIFICATE: LazyLock<reqwest::Certificate> = LazyLock::new(|| {
+    const CERT_BYTES: &[u8] = include_bytes!("../../mullvad-api/le_root_cert.pem");
+    reqwest::Certificate::from_pem(CERT_BYTES).expect("invalid cert")
+});
+
 /// Pubkeys used to verify metadata from the Mullvad API (production)
 pub static TRUSTED_METADATA_SIGNING_PUBKEYS: LazyLock<Vec1<VerifyingKey>> =
     LazyLock::new(|| parse_keys(include_str!("../trusted-metadata-signing-pubkeys")));

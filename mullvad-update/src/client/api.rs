@@ -35,6 +35,18 @@ impl HttpVersionInfoProvider {
     /// Maximum size of the GET response, in bytes
     const SIZE_LIMIT: usize = 1024 * 1024;
 
+    /// Construct an [HttpVersionInfoProvider] for `url` using reasonable defaults.
+    ///
+    /// By default, `pinned_certificate` will be set to the LE root certificate, and
+    /// `verifying_keys` will be set to the keys in `trusted-metadata-signing-keys`.
+    pub fn new(url: String) -> Self {
+        HttpVersionInfoProvider {
+            url,
+            pinned_certificate: Some(crate::keys::PINNED_CERTIFICATE.clone()),
+            verifying_keys: crate::keys::TRUSTED_METADATA_SIGNING_PUBKEYS.clone(),
+        }
+    }
+
     /// Download and verify signed data
     pub async fn get_versions(
         &self,

@@ -10,6 +10,21 @@ use super::{PartialSignedResponse, ResponseSignature, SignedResponse};
 impl SignedResponse {
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
     /// If successful, the deserialized data is returned.
+    ///
+    /// This uses the keys in `trusted-metadata-signing-pubkeys`
+    pub fn deserialize_and_verify(
+        bytes: &[u8],
+        min_metadata_version: usize,
+    ) -> Result<Self, anyhow::Error> {
+        Self::deserialize_and_verify_with_keys(
+            &crate::keys::TRUSTED_METADATA_SIGNING_PUBKEYS,
+            bytes,
+            min_metadata_version,
+        )
+    }
+
+    /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
+    /// If successful, the deserialized data is returned.
     pub fn deserialize_and_verify_with_keys(
         keys: &Vec1<VerifyingKey>,
         bytes: &[u8],
