@@ -706,7 +706,7 @@ function convertFromAppUpgradeError(error: grpcTypes.AppUpgradeError.Error): Dae
   switch (error) {
     case grpcTypes.AppUpgradeError.Error.DOWNLOAD_FAILED:
       return 'DOWNLOAD_FAILED';
-    case grpcTypes.AppUpgradeError.Error.VERFICATION_FAILED:
+    case grpcTypes.AppUpgradeError.Error.VERIFICATION_FAILED:
       return 'VERIFICATION_FAILED';
     default:
       return 'GENERAL_ERROR';
