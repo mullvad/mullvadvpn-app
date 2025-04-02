@@ -4,6 +4,10 @@ use crate::format::key::VerifyingKey;
 use std::sync::LazyLock;
 use vec1::Vec1;
 
+/// Default repository URL for version metadata
+#[cfg(feature = "client")]
+pub const META_REPOSITORY_URL: &str = "https://api.mullvad.net/app/releases/";
+
 /// Default TLS certificate to pin to
 #[cfg(feature = "client")]
 pub static PINNED_CERTIFICATE: LazyLock<reqwest::Certificate> = LazyLock::new(|| {
