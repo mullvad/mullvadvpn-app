@@ -37,7 +37,6 @@ impl DefaultRouteMonitor {
     /// Start monitoring interfaces for changes to the best route.
     ///
     /// Returns an IPv4 and an IPv6 channel of [BestRoute] updates.
-    ///
     pub fn new(
         monitor: PrimaryInterfaceMonitor,
         event_rx: UnboundedReceiver<Vec<InterfaceEvent>>,
@@ -222,7 +221,7 @@ fn filter_duplicates<T: PartialEq + Clone + Send + 'static>(
     filtered_rx
 }
 
-/// Delay `None`-events by [NO_ROUTE_GRACE_TIME].
+/// Delay `None`-events by `grace_time`.
 ///
 /// When receiving a `None` on the channel, a timer will start. If no `Some`s are received within
 /// the deadline, a `None` will be sent.
