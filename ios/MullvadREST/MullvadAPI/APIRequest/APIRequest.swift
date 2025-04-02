@@ -5,11 +5,12 @@
 //  Created by Jon Petersson on 2025-02-24.
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
+import MullvadTypes
 
 public enum APIRequest: Codable, Sendable {
     case getAddressList(_ retryStrategy: REST.RetryStrategy)
     case getRelayList(_ retryStrategy: REST.RetryStrategy, etag: String?)
-    case sendProblemReport(_ retryStrategy: REST.RetryStrategy, problemReportRequest: REST.ProblemReportRequest)
+    case sendProblemReport(_ retryStrategy: REST.RetryStrategy, problemReportRequest: ProblemReportRequest)
 
     var name: String {
         switch self {
