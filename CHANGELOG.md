@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add a notification for notifying users about the sunsetting of OpenVPN.
+
 ### Changed
 #### Windows
 - Rename `win-shortcuts` native module to `windows-utils`.
