@@ -147,3 +147,64 @@ pub enum Error {
     #[error("Failed to read from the input file")]
     Io(#[from] std::io::Error),
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::gettext::messages::argument_ordering;
+    use crate::gettext::MsgString;
+
+    #[test]
+    fn if_message_has_no_argument_should_have_no_argument_ordering() {
+        let msg_id = MsgString::from_escaped("This is a text");
+        let msg_str = MsgString::from_escaped("Det här är en text");
+        let argument_ordering = argument_ordering(msg_id, msg_str);
+
+        let expected = None;
+
+        assert_eq!(argument_ordering, expected);
+    }
+
+    #[test]
+    fn if_message_has_no_translation_should_have_no_argument_ordering() {
+        let msg_id = MsgString::from_escaped("This is a %(text)");
+        let msg_str = MsgString::from_escaped("");
+        let argument_ordering = argument_ordering(msg_id, msg_str);
+
+        let expected = None;
+
+        assert_eq!(argument_ordering, expected);
+    }
+
+    #[test]
+    fn if_argument_ordering_is_same_should_have_sequential_ordering() {
+        let msg_id = MsgString::from_escaped("This is a %(text) and %(star)");
+        let msg_str = MsgString::from_escaped("Det här är en %(text) och %(star)");
+        let argument_ordering = argument_ordering(msg_id, msg_str);
+
+        let expected = Some([1, 2].to_vec());
+
+        assert_eq!(argument_ordering, expected);
+    }
+
+    #[test]
+    fn if_argument_ordering_is_reversed_should_have_reversed_ordering() {
+        let msg_id = MsgString::from_escaped("This is a %(text) and %(star)");
+        let msg_str = MsgString::from_escaped("Det här är en %(star) och %(text)");
+        let argument_ordering = argument_ordering(msg_id, msg_str);
+
+        let expected = Some([2, 1].to_vec());
+
+        assert_eq!(argument_ordering, expected);
+    }
+
+    #[test]
+    fn if_argument_is_repeated_should_have_repeated_ordering() {
+        let msg_id = MsgString::from_escaped("This is a %(text) and %(text)");
+        let msg_str = MsgString::from_escaped("Det här är en %(text) och %(text)");
+        let argument_ordering = argument_ordering(msg_id, msg_str);
+
+        let expected = Some([1, 1].to_vec());
+
+        assert_eq!(argument_ordering, expected);
+    }
+}

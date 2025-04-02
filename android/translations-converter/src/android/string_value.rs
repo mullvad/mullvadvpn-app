@@ -212,4 +212,34 @@ mod tests {
 
         assert_eq!(deserialized.value, expected);
     }
+
+    #[test]
+    fn if_argument_ordering_is_none_should_use_sequential_order_of_arguments() {
+        let input = StringValue::from_unescaped("%s again %s", &None);
+
+        let expected = "%1$s again %2$s";
+
+        assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
+    fn if_argument_ordering_is_reversed_should_use_argument_ordering() {
+        let input = StringValue::from_unescaped("%s almost %s", &Some([2, 1].to_vec()));
+
+        let expected = "%2$s almost %1$s";
+
+        assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
+    fn if_argument_is_repeated_should_use_argument_ordering() {
+        let input = StringValue::from_unescaped(
+            "%s was a %s and a %s and almost a %s",
+            &Some([1, 2, 3, 1].to_vec()),
+        );
+
+        let expected = "%1$s was a %2$s and a %3$s and almost a %1$s";
+
+        assert_eq!(input.to_string(), expected);
+    }
 }

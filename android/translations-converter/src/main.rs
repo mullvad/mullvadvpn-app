@@ -11,11 +11,6 @@
 //! the message parameters are changed so that they are in a common format, and there is also a
 //! small workaround for having different apostrophe characters in the GUI in some messages.
 //!
-//! One dangerous assumption for the normalization is that the named parameters for the GUI are
-//! supplied in the declared order on Android. This is because it's not possible to figure out the
-//! order when only named parameters are used, and Android strings only supported numbered
-//! parameters.
-//!
 //! Android's plural resources are also translated using the same principle. It's important to note
 //! that the singular quantity item (i.e., the item where `quantity="one"`) for each Android plural
 //! resource will be used as the `msgid` to be search for in the gettext translations file.
