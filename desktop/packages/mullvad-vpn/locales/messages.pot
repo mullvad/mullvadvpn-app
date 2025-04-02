@@ -2779,6 +2779,9 @@ msgstr ""
 msgid "This address has already been entered."
 msgstr ""
 
+msgid "This allows access to WireGuard for devices that only support IPv6."
+msgstr ""
+
 msgid "This field is required"
 msgstr ""
 

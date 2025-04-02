@@ -199,6 +199,7 @@
     <string name="invalid_voucher">Código do voucher inválido.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">Quando esta funcionalidade está ativada, o IPv6 pode ser utilizado juntamente com o IPv4 no túnel VPN para comunicar com os serviços Internet.</string>
     <string name="ipv6_unavailable">Não foi possível configurar o IPv6. Desative-o ou ative-o no seu dispositivo.</string>
     <string name="is_offline">O seu dispositivo está offline. O túnel irá ligar-se automaticamente assim que o seu dispositivo estiver novamente online.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Não foi possível iniciar a ligação de túnel. Desative a opção \"VPN sempre ligada\" antes de utilizar a Mullvad VPN.</string>

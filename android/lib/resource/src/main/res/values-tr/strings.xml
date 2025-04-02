@@ -199,6 +199,7 @@
     <string name="invalid_voucher">Kupon kodu geçersiz.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">Bu özellik etkinleştirildiğinde IPv6, internet hizmetleriyle iletişim kurmak için VPN tünelinde IPv4 ile birlikte kullanılabilir.</string>
     <string name="ipv6_unavailable">IPv6 yapılandırılamadı. IPv6\'yı uygulamada devre dışı bırakın veya cihazınızda etkinleştirin.</string>
     <string name="is_offline">Cihazınız çevrimdışı. Cihazınız tekrar çevrimiçi olduğunda tünel otomatik olarak bağlanacak.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen \"Her zaman açık VPN\"i devre dışı bırakın.</string>

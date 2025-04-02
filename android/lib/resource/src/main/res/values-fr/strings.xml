@@ -199,6 +199,7 @@
     <string name="invalid_voucher">Le code du bon n\'est pas valide.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">Lorsque cette fonctionnalité est activée, IPv6 peut être utilisé parallèlement à IPv4 dans le tunnel VPN pour communiquer avec les services internet.</string>
     <string name="ipv6_unavailable">Impossible de configurer IPv6. Désactivez le protocole dans l\'application ou activez-le dans votre appareil.</string>
     <string name="is_offline">Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver Toujours exiger un VPN avant d\'utiliser Mullvad VPN.</string>

@@ -199,6 +199,7 @@
     <string name="invalid_voucher">ဘောက်ချာကုဒ် မှားနေပါသည်။</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">ဤလုပ်ဆောင်ချက်ကို ဖွင့်လိုက်သည့်အခါ အင်တာနက် ဝန်ဆောင်မှုများနှင့် ဆက်သွယ်ရန် IPv6 ကို IPv4 နှင့်အတူ VPN Tunnel တွင် အသုံးပြုနိုင်ပါသည်။</string>
     <string name="ipv6_unavailable">IPv6 ကို သတ်မှတ်ချိန်ညှိ၍ မရနိုင်ပါ။ အက်ပ်တွင် ၎င်းကို ပိတ်ပါ သို့မဟုတ် သင့်စက်တွင် ၎င်းကို ဖွင့်ပါ။</string>
     <string name="is_offline">သင့်စက်သည် အော့ဖ်လိုင်း ဖြစ်နေပါသည်။ သင့်စက် အွန်လိုင်း ပြန်ဖြစ်သည်နှင့် Tunnel သည် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ Mullvad VPN ကို မသုံးမီ အတွက် VPN အမြဲဖွင့်ထားမှုကို ပိတ်ပေးပါ။</string>

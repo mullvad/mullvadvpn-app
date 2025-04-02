@@ -199,6 +199,7 @@
     <string name="invalid_voucher">Kuponkode er ugyldig.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">Når denne funktion er aktiveret, kan IPv6 bruges sammen med IPv4 i VPN-tunnelen til at kommunikere med internettjenester.</string>
     <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6. Deaktiver det i appen, eller aktiver det på din enhed.</string>
     <string name="is_offline">Din enhed er offline. Tunnelen vil oprette forbindelse automatisk, når din enhed er online igen.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN før brug af Mullvad VPN.</string>

@@ -199,6 +199,7 @@
     <string name="invalid_voucher">Код ваучера недействителен.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">Когда эта функция включена, IPv6 может использоваться наряду с IPv4 для связи с интернет-сервисами через VPN-туннель.</string>
     <string name="ipv6_unavailable">Не удается сконфигурировать IPv6. Отключите этот протокол в приложении или включите на устройстве.</string>
     <string name="is_offline">Устройство отключено от Интернета. Туннельное подключение автоматически запустится, как только ваше устройство подключится к Интернету.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Не удалось запустить туннельное соединение. Перед использованием Mullvad VPN отключите опцию «Постоянная VPN».</string>

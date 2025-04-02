@@ -199,6 +199,7 @@
     <string name="invalid_voucher">Nieprawidłowy kod kuponu.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">Gdy ta funkcja jest włączona, protokołu IPv6 można używać wraz z protokołem IPv4 w tunelu VPN do komunikacji z usługami internetowymi.</string>
     <string name="ipv6_unavailable">Nie można skonfigurować protokołu IPv6. Wyłącz go w aplikacji lub włącz na urządzeniu.</string>
     <string name="is_offline">Twoje urządzenie jest offline. Tunel zostanie automatycznie połączony, gdy urządzenie ponownie przejdzie w tryb online.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN”.</string>
