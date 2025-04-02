@@ -3,11 +3,15 @@ package net.mullvad.mullvadvpn.test.common.extension
 import android.os.Build
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
+import androidx.test.uiautomator.UiObject2Condition
 import androidx.test.uiautomator.Until
+import co.touchlab.kermit.Logger
 import java.util.regex.Pattern
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
 
 fun UiDevice.findObjectByCaseInsensitiveText(text: String): UiObject2 {
     return findObjectWithTimeout(By.text(Pattern.compile(text, Pattern.CASE_INSENSITIVE)))
@@ -29,9 +33,43 @@ fun UiDevice.findObjectWithTimeout(
 
     val foundObject = findObject(selector)
 
-    require(foundObject != null) { "No matches for selector within timeout ($timeout): $selector" }
+    require(foundObject != null) {
+        "No matches for selector within timeout ($timeout ms): $selector"
+    }
 
     return foundObject
+}
+
+fun UiDevice.clickObjectAwaitCondition(
+    selector: BySelector,
+    condition: UiObject2Condition<Boolean>,
+    timeout: Long = LONG_TIMEOUT,
+) {
+    var foundObject = findObjectWithTimeout(selector, timeout)
+    foundObject.click()
+
+    val retryCount = 3
+    repeat(retryCount) {
+        try {
+            val wasChecked = foundObject.wait(condition, timeout)
+            require(wasChecked) {
+                "UiObject2 did not become match condition within timeout $timeout ms"
+            }
+            return
+        } catch (_: StaleObjectException) {
+            Logger.e("Caught StaleObjectException - retrying")
+            foundObject = findObjectWithTimeout(selector, timeout)
+        }
+    }
+    error("Exceeded maximum StaleObjectException count ($retryCount)")
+}
+
+fun UiDevice.clickObjectAwaitIsChecked(selector: BySelector, timeout: Long = LONG_TIMEOUT) {
+    clickObjectAwaitCondition(
+        selector = selector,
+        condition = Until.checked(true),
+        timeout = timeout,
+    )
 }
 
 fun UiDevice.clickAgreeOnPrivacyDisclaimer() {
@@ -63,9 +101,14 @@ fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
         findObjectWithTimeout(selector).click()
     } catch (e: IllegalArgumentException) {
         throw IllegalArgumentException(
-            "Failed to allow notification permission within timeout ($timeout)"
+            "Failed to allow notification permission within timeout ($timeout ms)"
         )
     }
+}
+
+fun UiDevice.pressBackTwice() {
+    pressBack()
+    pressBack()
 }
 
 fun UiObject2.findObjectWithTimeout(
@@ -79,7 +122,7 @@ fun UiObject2.findObjectWithTimeout(
         findObject(selector)
     } catch (e: NullPointerException) {
         throw IllegalArgumentException(
-            "No matches for selector within timeout ($timeout): $selector"
+            "No matches for selector within timeout ($timeout ms): $selector"
         )
     }
 }

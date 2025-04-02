@@ -4,7 +4,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 
 sealed class Page {
-    protected val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     abstract fun assertIsDisplayed()
 }
