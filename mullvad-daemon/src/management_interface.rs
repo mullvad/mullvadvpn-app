@@ -1250,6 +1250,7 @@ impl ManagementInterfaceEventBroadcaster {
         subscriptions.retain(|tx| tx.send(Ok(value.clone())).is_ok());
     }
 
+    #[cfg_attr(not(update), allow(unused))]
     pub(crate) fn notify_upgrade_event(&self, value: version::AppUpgradeEvent) {
         let mut subscriptions = self.app_upgrade_event_subscriptions.lock().unwrap();
         subscriptions.retain(|tx| tx.send(Ok(value.clone().into())).is_ok());
