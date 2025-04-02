@@ -103,10 +103,12 @@ impl Platform {
 
         println!("Pulling {self} metadata from {}...", platform.url());
 
-        let response = HttpVersionInfoProvider::from(platform)
-            .get_versions(crate::MIN_VERIFY_METADATA_VERSION)
-            .await
-            .context("Failed to retrieve versions")?;
+        let response = HttpVersionInfoProvider::get_versions_for_platform(
+            platform,
+            crate::MIN_VERIFY_METADATA_VERSION,
+        )
+        .await
+        .context("Failed to retrieve versions")?;
 
         let json = serde_json::to_string_pretty(&response)
             .context("Failed to serialize updated metadata")?;
