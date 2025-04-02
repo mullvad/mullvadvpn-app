@@ -1,13 +1,14 @@
 import styled, { css } from 'styled-components';
 
 import { Colors } from '../../../../foundations';
+import { TransientProps } from '../../../../types';
 import { ButtonBase } from '../../../button';
+import { ListItemProps } from '../../ListItem';
 import { useListItem } from '../../ListItemContext';
-import { StyledFlex } from '../list-item-content';
 
 // TODO: Colors should be replace with
 // with new color tokens once they are implemented.
-const StyledButton = styled(ButtonBase)<{ $disabled?: boolean }>`
+const StyledButton = styled(ButtonBase)<TransientProps<Pick<ListItemProps, 'disabled'>>>`
   display: flex;
   width: 100%;
   ${({ $disabled }) => {
@@ -31,20 +32,13 @@ const StyledButton = styled(ButtonBase)<{ $disabled?: boolean }>`
         outline-offset: -2px;
         z-index: 10;
       }
-      &:active ${StyledFlex} {
-        background-color: rgba(62, 95, 129, 1);
-      }
     `;
   }}
 `;
 
 export type ListItemTriggerProps = React.HtmlHTMLAttributes<HTMLButtonElement>;
 
-export const ListItemTrigger = ({ children, ...props }: ListItemTriggerProps) => {
+export const ListItemTrigger = (props: ListItemTriggerProps) => {
   const { disabled } = useListItem();
-  return (
-    <StyledButton $disabled={disabled} {...props}>
-      {children}
-    </StyledButton>
-  );
+  return <StyledButton $disabled={disabled} disabled={disabled} {...props} />;
 };
