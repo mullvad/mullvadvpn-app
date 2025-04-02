@@ -4,6 +4,7 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
 import android.os.Parcelable
+import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -22,6 +23,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -377,6 +379,18 @@ fun VpnSettingsScreen(
                         state.settings.indexOfFirstOrNull { it::class == clazz } ?: 0
                     } ?: 0
 
+                val animatable = remember { androidx.compose.animation.core.Animatable(1f) }
+                if (initialScrollToFeature != null) {
+                    LaunchedEffect(Unit) {
+                        animatable.animateTo(0f)
+                        animatable.animateTo(1f)
+                        animatable.animateTo(0f)
+                        animatable.animateTo(1f)
+                        animatable.animateTo(0f)
+                        animatable.animateTo(1f)
+                    }
+                }
+
                 LazyColumn(
                     modifier = it.testTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG).animateContentSize(),
                     state = rememberLazyListState(initialIndexFocus),
@@ -564,6 +578,17 @@ fun VpnSettingsScreen(
                             is VpnSettingItem.DnsContentBlockers ->
                                 ExpandableComposeCell(
                                     title = stringResource(R.string.dns_content_blockers),
+                                    background =
+                                        if (
+                                            initialScrollToFeature ==
+                                                FeatureIndicator.DNS_CONTENT_BLOCKERS
+                                        ) {
+                                            MaterialTheme.colorScheme.primary.copy(
+                                                alpha = animatable.value
+                                            )
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        },
                                     isExpanded = it.expanded,
                                     isEnabled = it.featureEnabled,
                                     onInfoClicked = { navigateToContentBlockersInfo() },
