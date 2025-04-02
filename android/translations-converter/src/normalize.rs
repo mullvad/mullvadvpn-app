@@ -61,11 +61,14 @@ mod tests {
     fn normalize_android_string_value() {
         use crate::android::StringValue;
 
-        let input = StringValue::from_unescaped(concat!(
-            "'Inside single quotes'",
-            r#""Inside double quotes""#,
-            "With parameters: %1$d, %2$s",
-        ));
+        let input = StringValue::from_unescaped(
+            concat!(
+                "'Inside single quotes'",
+                r#""Inside double quotes""#,
+                "With parameters: %1$d, %2$s",
+            ),
+            &None,
+        );
 
         let expected = concat!(
             "'Inside single quotes'",

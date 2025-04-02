@@ -176,10 +176,13 @@ mod tests {
             StringResource {
                 name: "second".to_owned(),
                 translatable: false,
-                value: StringValue::from_unescaped(concat!(
+                value: StringValue::from_unescaped(
+                    concat!(
                     "Second string is also split but it also has some weird whitespace inside the ",
                     "tags and some indentation",
-                ), &None),
+                ),
+                    &None,
+                ),
             },
         ]);
 
