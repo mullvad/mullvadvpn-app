@@ -122,7 +122,7 @@ impl HttpVersionInfoProvider {
     ) -> anyhow::Result<format::SignedResponse> {
         self.get_versions_inner(|raw_json| {
             format::SignedResponse::deserialize_and_verify_with_keys(
-                &verifying_keys,
+                verifying_keys,
                 raw_json,
                 lowest_metadata_version,
             )
