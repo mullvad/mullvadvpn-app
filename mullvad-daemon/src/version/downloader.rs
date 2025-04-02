@@ -7,7 +7,6 @@ use std::time::Duration;
 use std::{future::Future, path::PathBuf};
 use tokio::fs;
 
-use super::Error;
 type Result<T> = std::result::Result<T, Error>;
 
 pub struct Downloader(());
@@ -33,6 +32,17 @@ pub enum UpdateEvent {
     VerificationFailed,
     /// There is a downloaded and verified installer available
     Verified { verified_installer_path: PathBuf },
+}
+
+pub enum Error {
+    #[error("Failed to get download directory")]
+    GetDownloadDir(#[from] mullvad_paths::Error),
+
+    #[error("Failed to create download directory")]
+    CreateDownloadDir(#[source] io::Error),
+
+    #[error("Could not select URL for app update")]
+    NoUrlFound,
 }
 
 impl Downloader {
