@@ -8,7 +8,7 @@ export type ExternalLinkProps = Omit<LinkProps<'a'>, 'href' | 'as'> & {
   to: Url;
 };
 
-export function ExternalLink({ to, onClick, ...props }: ExternalLinkProps) {
+function ExternalLink({ to, onClick, ...props }: ExternalLinkProps) {
   const { openUrl } = useAppContext();
   const navigate = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -22,3 +22,9 @@ export function ExternalLink({ to, onClick, ...props }: ExternalLinkProps) {
   );
   return <Link href="" onClick={navigate} {...props} />;
 }
+
+const ExternalLinkNamespace = Object.assign(ExternalLink, {
+  Icon: Link.Icon,
+});
+
+export { ExternalLinkNamespace as ExternalLink };
