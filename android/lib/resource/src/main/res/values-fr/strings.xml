@@ -124,6 +124,7 @@
     <string name="device_inactive_description">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</string>
     <string name="device_inactive_title">L\'appareil est inactif</string>
     <string name="device_inactive_unblock_warning">Aller à la connexion débloquera la connexion Internet sur cet appareil.</string>
+    <string name="device_ip_version_title">Version IP</string>
     <string name="device_name">Nom de l\'appareil</string>
     <string name="device_name_info_first_paragraph">Il s\'agit du nom attribué à l\'appareil. Chaque appareil connecté à un compte Mullvad reçoit un nom unique qui vous aide à l\'identifier lorsque vous gérez vos appareils dans l\'application ou sur le site Web.</string>
     <string name="device_name_info_second_paragraph">Vous pouvez connecter jusqu\'à 5 appareils au même compte Mullvad.</string>
@@ -199,6 +200,7 @@
     <string name="invalid_voucher">Le code du bon n\'est pas valide.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">Lorsque cette fonctionnalité est activée, IPv6 peut être utilisé parallèlement à IPv4 dans le tunnel VPN pour communiquer avec les services internet.</string>
     <string name="ipv6_unavailable">Impossible de configurer IPv6. Désactivez le protocole dans l\'application ou activez-le dans votre appareil.</string>
     <string name="is_offline">Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver Toujours exiger un VPN avant d\'utiliser Mullvad VPN.</string>

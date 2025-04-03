@@ -36,6 +36,7 @@ import com.ramcosta.composedestinations.generated.destinations.AutoConnectAndLoc
 import com.ramcosta.composedestinations.generated.destinations.ContentBlockersInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomDnsInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.DnsDestination
+import com.ramcosta.composedestinations.generated.destinations.Ipv6InfoDestination
 import com.ramcosta.composedestinations.generated.destinations.LocalNetworkSharingInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.MalwareInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.MtuDestination
@@ -142,7 +143,8 @@ private fun PreviewVpnSettings(
             navigateToWireguardPortDialog = {},
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
-            onToggleIpv6Toggle = {},
+            onToggleIpv6 = {},
+            navigateToIpv6Info = {},
         )
     }
 }
@@ -272,7 +274,8 @@ fun VpnSettings(
             dropUnlessResumed { navigator.navigate(Udp2TcpSettingsDestination) },
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
-        onToggleIpv6Toggle = vm::setIpv6Enabled,
+        onToggleIpv6 = vm::setIpv6Enabled,
+        navigateToIpv6Info = dropUnlessResumed { navigator.navigate(Ipv6InfoDestination) },
     )
 }
 
@@ -310,7 +313,8 @@ fun VpnSettingsScreen(
     navigateToUdp2TcpSettings: () -> Unit,
     onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit,
     onSelectDeviceIpVersion: (ipVersion: Constraint<IpVersion>) -> Unit,
-    onToggleIpv6Toggle: (Boolean) -> Unit,
+    onToggleIpv6: (Boolean) -> Unit,
+    navigateToIpv6Info: () -> Unit,
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     val topPadding = 6.dp
@@ -506,6 +510,17 @@ fun VpnSettingsScreen(
                 )
             }
 
+            item {
+                HeaderSwitchComposeCell(
+                    title = stringResource(R.string.enable_ipv6),
+                    isToggled = state.isIpv6Enabled,
+                    isEnabled = true,
+                    onCellClicked = onToggleIpv6,
+                    onInfoClicked = navigateToIpv6Info,
+                )
+                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
+            }
+
             itemWithDivider {
                 InformationComposeCell(
                     title = stringResource(id = R.string.wireguard_port_title),
@@ -681,15 +696,18 @@ fun VpnSettingsScreen(
                     isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV6,
                     onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV6)) },
                 )
-                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
             }
-
             item {
-                HeaderSwitchComposeCell(
-                    title = stringResource(R.string.enable_ipv6),
-                    isToggled = state.isIpv6Enabled,
-                    isEnabled = true,
-                    onCellClicked = { newValue -> onToggleIpv6Toggle(newValue) },
+                Text(
+                    text = stringResource(R.string.device_ip_version_subtitle),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier =
+                        Modifier.padding(
+                            start = Dimens.cellStartPadding,
+                            top = topPadding,
+                            end = Dimens.cellEndPadding,
+                        ),
                 )
                 Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
             }

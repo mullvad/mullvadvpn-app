@@ -124,6 +124,7 @@
     <string name="device_inactive_description">이 장치를 제거했습니다. 다시 연결하려면 다시 로그인해야 합니다.</string>
     <string name="device_inactive_title">장치가 비활성 상태입니다.</string>
     <string name="device_inactive_unblock_warning">로그인하면 이 장치에서 인터넷 차단이 해제됩니다.</string>
+    <string name="device_ip_version_title">IP 버전</string>
     <string name="device_name">장치 이름</string>
     <string name="device_name_info_first_paragraph">이것은 장치에 할당된 이름입니다. Mullvad 계정에 로그인된 각 장치에는 앱이나 웹사이트에서 장치를 관리할 때 장치를 보다 쉽게 식별할 수 있는 고유한 이름이 부여됩니다.</string>
     <string name="device_name_info_second_paragraph">최대 5개의 장치에서 하나의 Mullvad 계정에 로그인할 수 있습니다.</string>
@@ -199,6 +200,7 @@
     <string name="invalid_voucher">유효하지 않은 바우처 코드입니다.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">이 기능을 활성화하면 VPN 터널에서 IPv4와 함께 IPv6을 사용하여 인터넷 서비스와 통신할 수 있습니다.</string>
     <string name="ipv6_unavailable">IPv6을 구성할 수 없습니다. 앱에서 비활성화하거나 장치에서 활성화하세요.</string>
     <string name="is_offline">장치가 오프라인 상태입니다. 장치가 다시 온라인 상태가 되면 터널이 자동으로 연결됩니다.</string>
     <string name="legacy_always_on_vpn_error_notification_content">터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 상시 접속 VPN을 비활성화하세요.</string>

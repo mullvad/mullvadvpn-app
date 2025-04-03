@@ -2512,9 +2512,6 @@ msgstr ""
 msgid "Delete method?"
 msgstr ""
 
-msgid "Device IP version"
-msgstr ""
-
 msgid "Disable \"%s\" below to activate these settings."
 msgstr ""
 
@@ -2777,6 +2774,9 @@ msgid "The local DNS server will not work unless you enable \"Local Network Shar
 msgstr ""
 
 msgid "This address has already been entered."
+msgstr ""
+
+msgid "This allows access to WireGuard for devices that only support IPv6."
 msgstr ""
 
 msgid "This field is required"

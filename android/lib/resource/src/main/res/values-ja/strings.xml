@@ -124,6 +124,7 @@
     <string name="device_inactive_description">このデバイスを削除しました。再度接続するには、ログインし直す必要があります。</string>
     <string name="device_inactive_title">デバイスが無効です</string>
     <string name="device_inactive_unblock_warning">ログインに進むと、このデバイスのインターネットのブロックが解除されます。</string>
+    <string name="device_ip_version_title">IPバージョン</string>
     <string name="device_name">デバイス名</string>
     <string name="device_name_info_first_paragraph">これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。</string>
     <string name="device_name_info_second_paragraph">1つのMullvadアカウントで最大5台のデバイスにログインできます。</string>
@@ -199,6 +200,7 @@
     <string name="invalid_voucher">バウチャーコードが無効です。</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">この機能が有効である場合、VPNトンネルにIPv6とIPv4を併用してインターネットサービスと通信できます。</string>
     <string name="ipv6_unavailable">IPv6を設定できませんでした。アプリで無効にするか、デバイスで有効にしてください。</string>
     <string name="is_offline">デバイスがオフラインになっています。トンネルはデバイスがオンラインに戻ると自動的に接続されます。</string>
     <string name="legacy_always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前にAlways-on VPNを無効にしてください。</string>

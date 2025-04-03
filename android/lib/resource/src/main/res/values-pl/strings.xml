@@ -124,6 +124,7 @@
     <string name="device_inactive_description">Urządzenie usunięto. Aby połączyć się ponownie, musisz się ponownie zalogować.</string>
     <string name="device_inactive_title">Urządzenie nieaktywne</string>
     <string name="device_inactive_unblock_warning">Przejście do logowania odblokuje Internet na tym urządzeniu.</string>
+    <string name="device_ip_version_title">Wersja IP</string>
     <string name="device_name">Nazwa urządzenia</string>
     <string name="device_name_info_first_paragraph">Jest to nazwa przypisana do urządzenia. Każde urządzenie zalogowane na koncie Mullvad otrzymuje unikalną nazwę, która pozwala zidentyfikować je podczas zarządzania urządzeniami w aplikacji lub za pośrednictwem witryny internetowej.</string>
     <string name="device_name_info_second_paragraph">Na jednym koncie Mullvad może być zalogowanych maksymalnie 5 urządzeń.</string>
@@ -199,6 +200,7 @@
     <string name="invalid_voucher">Nieprawidłowy kod kuponu.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
+    <string name="ipv6_info">Gdy ta funkcja jest włączona, protokołu IPv6 można używać wraz z protokołem IPv4 w tunelu VPN do komunikacji z usługami internetowymi.</string>
     <string name="ipv6_unavailable">Nie można skonfigurować protokołu IPv6. Wyłącz go w aplikacji lub włącz na urządzeniu.</string>
     <string name="is_offline">Twoje urządzenie jest offline. Tunel zostanie automatycznie połączony, gdy urządzenie ponownie przejdzie w tryb online.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN”.</string>
