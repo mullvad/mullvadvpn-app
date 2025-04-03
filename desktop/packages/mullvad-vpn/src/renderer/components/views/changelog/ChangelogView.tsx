@@ -9,14 +9,13 @@ import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { NoChangelogUpdates } from './components';
-import { useChangelog, useShowChangelogList, useShowNoChangelogUpdates } from './hooks';
+import { useChangelog, useShowChangelogList } from './hooks';
 
 export const ChangelogView = () => {
   const { pop } = useHistory();
   const { current } = useVersionCurrent();
   const changelog = useChangelog();
   const showChangelogList = useShowChangelogList();
-  const showNoChangelogUpdates = useShowNoChangelogUpdates();
 
   return (
     <BackAction action={pop}>
@@ -47,8 +46,11 @@ export const ChangelogView = () => {
                     <TitleLarge as="h2">{current}</TitleLarge>
                   </Container>
                   <Container size="3" $flexDirection="column">
-                    {showChangelogList && <ChangelogList changelog={changelog} />}
-                    {showNoChangelogUpdates && <NoChangelogUpdates />}
+                    {showChangelogList ? (
+                      <ChangelogList changelog={changelog} />
+                    ) : (
+                      <NoChangelogUpdates />
+                    )}
                   </Container>
                 </Flex>
               </Flex>
