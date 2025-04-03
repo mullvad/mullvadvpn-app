@@ -517,7 +517,7 @@ async fn wait_for_update(state: &mut RoutingState) -> Option<AppVersionInfo> {
                     suggested_upgrade: Some({
                         SuggestedUpgrade {
                             version: upgrading_to_version.version.clone(),
-                            changelog: Some(upgrading_to_version.changelog.clone()),
+                            changelog: upgrading_to_version.changelog.clone(),
                             verified_installer_path: Some(verified_installer_path.clone()),
                         }
                     }),
@@ -597,7 +597,7 @@ fn suggested_upgrade_for_version(
 ) -> SuggestedUpgrade {
     SuggestedUpgrade {
         version: version_details.version.clone(),
-        changelog: Some(version_details.changelog.clone()),
+        changelog: version_details.changelog.clone(),
         verified_installer_path,
     }
 }
