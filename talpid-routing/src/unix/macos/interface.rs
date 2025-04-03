@@ -377,7 +377,6 @@ fn get_primary_interface(
     };
     let global_dict = store
         .get(key)
-        .inspect(|v| log::debug!("{key} is type {:?}", v.as_CFType()))
         .or_else(|| {
             log::debug!("{key} is missing!");
             None
