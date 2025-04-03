@@ -29,12 +29,24 @@ export const ChangelogView = () => {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <AppNavigationHeader title={messages.pgettext('changelog-view', 'What’s new')} />
+            <AppNavigationHeader
+              title={
+                // TRANSLATORS: Heading for the view of the changes and updates in the
+                // TRANSLATORS: current version compared to the old version.
+                messages.pgettext('changelog-view', 'What’s new')
+              }
+            />
 
             <NavigationScrollbars>
               <Flex $flexDirection="column" $gap="large">
                 <Container size="4">
-                  <TitleBig as={'h1'}>{messages.pgettext('changelog-view', 'What’s new')}</TitleBig>
+                  <TitleBig as="h1">
+                    {
+                      // TRANSLATORS: Heading for the view of the changes and updates in the
+                      // TRANSLATORS: current version compared to the old version.
+                      messages.pgettext('changelog-view', 'What’s new')
+                    }
+                  </TitleBig>
                 </Container>
                 <Flex $flexDirection="column" $gap="small">
                   <Container size="4">
