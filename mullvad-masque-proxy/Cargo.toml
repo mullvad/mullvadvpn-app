@@ -11,9 +11,9 @@ description = "A limited functionality UDP over HTTP3 proxy"
 [dependencies]
 quinn = "0.11"
 tokio = { workspace = true, features = [ "macros", "io-util" ] }
-h3 = { git = "https://github.com/mullvad/h3", rev = "01ae01192300d29abaf6a3233d862e40c9f92bac" }
-h3-datagram = { git = "https://github.com/mullvad/h3", rev = "01ae01192300d29abaf6a3233d862e40c9f92bac" }
-h3-quinn = { git = "https://github.com/mullvad/h3", rev = "01ae01192300d29abaf6a3233d862e40c9f92bac", features = [ "datagram" ]}
+h3 = "0.0.7"
+h3-datagram = "0.0.1"
+h3-quinn = { version = "0.0.9", features = [ "datagram" ]}
 http = "1"
 rustls = { version = "0.23", default-features = false }
 rustls-pemfile = "2.1.3"
