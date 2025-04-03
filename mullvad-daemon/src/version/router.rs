@@ -499,7 +499,8 @@ impl VersionRouter {
     }
 }
 
-/// Wait for the update to finish
+/// Wait for the update to finish. In case no update is in progress (or the platform does not
+/// support in-app upgrades), then the future will never resolve as to not escape the select statement.
 #[allow(clippy::unused_async, unused_variables)]
 async fn wait_for_update(state: &mut RoutingState) -> Option<AppVersionInfo> {
     #[cfg(update)]
