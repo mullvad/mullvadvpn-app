@@ -8,7 +8,7 @@ export type InternalLinkProps = Omit<LinkProps<'a'>, 'href' | 'as'> & {
   to: RoutePath;
 };
 
-export const InternalLink = ({ to, onClick, ...props }: InternalLinkProps) => {
+export function InternalLink({ to, onClick, ...props }: InternalLinkProps) {
   const history = useHistory();
   const navigate = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -18,7 +18,7 @@ export const InternalLink = ({ to, onClick, ...props }: InternalLinkProps) => {
       }
       return history.push(to);
     },
-    [history, to, onClick],
+    [history, to, onClick]
   );
   return <Link href="" onClick={navigate} {...props} />;
-};
+}
