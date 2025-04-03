@@ -24,7 +24,7 @@ pub struct MsgEntry {
 /// A message string or plural set in a gettext translation file.
 #[derive(Clone, Debug)]
 pub enum MsgValue {
-    Invariant(MsgString, Option<Vec<i8>>),
+    Invariant(MsgString, Option<Vec<u8>>),
     Plural {
         plural_id: MsgString,
         values: Vec<MsgString>,
@@ -107,7 +107,7 @@ impl From<MsgString> for MsgValue {
 
 static NAMED_ARGUMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"%\([a-zA-Z]+\)").unwrap());
 
-fn argument_ordering(id: MsgString, msg_str: MsgString) -> Option<Vec<i8>> {
+fn argument_ordering(id: MsgString, msg_str: MsgString) -> Option<Vec<u8>> {
     if NAMED_ARGUMENT.is_match(&id) && NAMED_ARGUMENT.is_match(&msg_str) {
         // Extract arguments in id
         let id_args = extract_arguments(id);
@@ -118,7 +118,7 @@ fn argument_ordering(id: MsgString, msg_str: MsgString) -> Option<Vec<i8>> {
             id_args
                 .iter()
                 .map(|id_arg| value_args.iter().position(|value_arg| value_arg == id_arg))
-                .map(|f| f.unwrap() as i8 + 1)
+                .map(|f| f.unwrap() as u8 + 1)
                 .collect(),
         )
     } else {
