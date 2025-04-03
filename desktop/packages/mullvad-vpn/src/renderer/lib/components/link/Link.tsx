@@ -15,8 +15,7 @@ const StyledText = styled(Text)<{
   background: 'transparent',
   cursor: 'default',
   textDecoration: 'none',
-  display: 'inline-flex',
-  alignItems: 'center',
+  display: 'inline',
 
   '&&:hover': {
     textDecorationLine: 'underline',
