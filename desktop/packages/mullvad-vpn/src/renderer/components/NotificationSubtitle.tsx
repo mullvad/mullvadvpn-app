@@ -1,20 +1,19 @@
 import React from 'react';
-import styled from 'styled-components';
 
 import { InAppNotificationSubtitle } from '../../shared/notifications';
-import { Icon, LabelTiny } from '../lib/components';
+import { LabelTiny } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
 import { ExternalLink } from './ExternalLink';
 import { InternalLink } from './InternalLink';
+import styled from 'styled-components';
 
 export type NotificationSubtitleProps = {
   subtitle?: string | InAppNotificationSubtitle[];
 };
 
-const StyledIcon = styled(Icon)`
-  display: inline-flex;
-  vertical-align: middle;
+const StyledExternalLink = styled(ExternalLink)`
+  display: flex;
 `;
 
 const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
@@ -29,10 +28,10 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
         );
       case 'navigate-external':
         return (
-          <ExternalLink variant="labelTiny" {...subtitle.action.link}>
+          <StyledExternalLink variant="labelTiny" {...subtitle.action.link}>
             {content}
-            <StyledIcon icon="external" size="small" />
-          </ExternalLink>
+            <ExternalLink.Icon icon="external" size="small" />
+          </StyledExternalLink>
         );
       default:
         break;
