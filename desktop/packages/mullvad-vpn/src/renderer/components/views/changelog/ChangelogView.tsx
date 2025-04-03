@@ -1,28 +1,22 @@
-import styled from 'styled-components';
-
 import { messages } from '../../../../shared/gettext';
-import { BodySmall, Container, Flex, TitleBig, TitleLarge } from '../../../lib/components';
-import { Colors } from '../../../lib/foundations';
+import { Container, Flex, TitleBig, TitleLarge } from '../../../lib/components';
 import { useHistory } from '../../../lib/history';
-import { useSelector } from '../../../redux/store';
+import { useVersionCurrent } from '../../../redux/hooks';
 import { AppNavigationHeader } from '../../';
+import { ChangelogList } from '../../changelog-list';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-
-const StyledList = styled(Flex)({
-  listStyleType: 'disc',
-  paddingLeft: 0,
-  li: {
-    marginLeft: '1.5em',
-  },
-});
+import { NoChangelogUpdates } from './components';
+import { useChangelog, useShowChangelogList, useShowNoChangelogUpdates } from './hooks';
 
 export const ChangelogView = () => {
   const { pop } = useHistory();
-  const changelog = useSelector((state) => state.userInterface.changelog);
-  const version = useSelector((state) => state.version.current);
+  const { current } = useVersionCurrent();
+  const changelog = useChangelog();
+  const showChangelogList = useShowChangelogList();
+  const showNoChangelogUpdates = useShowNoChangelogUpdates();
 
   return (
     <BackAction action={pop}>
@@ -50,25 +44,11 @@ export const ChangelogView = () => {
                 </Container>
                 <Flex $flexDirection="column" $gap="small">
                   <Container size="4">
-                    <TitleLarge as="h2">{version}</TitleLarge>
+                    <TitleLarge as="h2">{current}</TitleLarge>
                   </Container>
                   <Container size="3" $flexDirection="column">
-                    {changelog.length ? (
-                      <StyledList as="ul" $flexDirection="column" $gap="medium">
-                        {changelog.map((item, i) => (
-                          <BodySmall as="li" key={i} color={Colors.white60}>
-                            {item}
-                          </BodySmall>
-                        ))}
-                      </StyledList>
-                    ) : (
-                      <BodySmall color={Colors.white60}>
-                        {messages.pgettext(
-                          'changelog-view',
-                          'No updates or changes were made in this release for this platform.',
-                        )}
-                      </BodySmall>
-                    )}
+                    {showChangelogList && <ChangelogList changelog={changelog} />}
+                    {showNoChangelogUpdates && <NoChangelogUpdates />}
                   </Container>
                 </Flex>
               </Flex>
