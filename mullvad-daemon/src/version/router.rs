@@ -243,8 +243,8 @@ impl VersionRouter {
             // Emit version event if suggested upgrade changes
             RoutingState::HasVersion { version_info }
             | RoutingState::Downloaded { version_info, .. } => {
-                let prev_app_version_info = to_app_version_info(version_info, prev_state);
-                let new_app_version_info = to_app_version_info(version_info, new_state);
+                let prev_app_version_info = to_app_version_info(version_info, prev_state, None);
+                let new_app_version_info = to_app_version_info(version_info, new_state, None);
 
                 if new_app_version_info != prev_app_version_info {
                     let _ = self.version_event_sender.send(new_app_version_info);
@@ -290,7 +290,7 @@ impl VersionRouter {
                 new_version: _,
                 downloader_handle: _,
             } => {
-                let suggested_upgrade = suggested_upgrade_for_version(upgrading_to_version);
+                let suggested_upgrade = suggested_upgrade_for_version(upgrading_to_version, None);
                 let info = AppVersionInfo {
                     current_version_supported: version_info.current_version_supported,
                     suggested_upgrade: Some(suggested_upgrade),
@@ -306,7 +306,7 @@ impl VersionRouter {
             // Checking state: start upgrade, if upgrade is available
             RoutingState::HasVersion { version_info } => {
                 let Some(suggested_upgrade) =
-                    suggested_upgrade(&version_info.latest_version, self.beta_program)
+                    recommended_version_upgrade(&version_info.latest_version, self.beta_program)
                 else {
                     // If there's no suggested upgrade, do nothing
                     log::trace!("Received update request without suggested upgrade");
@@ -358,7 +358,7 @@ impl VersionRouter {
 
                 // If we also received an upgrade, emit new version event
                 if let Some(version) = new_version {
-                    let app_version = to_app_version_info(&version, self.beta_program);
+                    let app_version = to_app_version_info(&version, self.beta_program, None);
                     let _ = self.version_event_sender.send(app_version);
                 }
             }
@@ -381,7 +381,7 @@ impl VersionRouter {
                 };
 
                 // Initial version is propagated
-                let app_version_info = to_app_version_info(&version, self.beta_program);
+                let app_version_info = to_app_version_info(&version, self.beta_program, None);
                 let _ = self.version_event_sender.send(app_version_info);
             }
             // Update app version info
@@ -394,9 +394,10 @@ impl VersionRouter {
                 ..
             } => {
                 // If the version changed, notify channel
-                // Note: Must account for beta program state
-                let prev_app_version = to_app_version_info(prev_version, self.beta_program);
-                let new_app_version = to_app_version_info(&version, self.beta_program);
+                // Note: The same version cache can yield different app versions
+                // if the beta program state changed
+                let prev_app_version = to_app_version_info(prev_version, self.beta_program, None);
+                let new_app_version = to_app_version_info(&version, self.beta_program, None);
                 if new_app_version != prev_app_version {
                     let _ = self.version_event_sender.send(new_app_version);
                 }
@@ -433,17 +434,24 @@ impl VersionRouter {
                 return;
             }
             // Update app version info
-            RoutingState::HasVersion { version_info }
-            | RoutingState::Downloaded { version_info, .. } => {
-                to_app_version_info(version_info, self.beta_program)
+            RoutingState::HasVersion { version_info } => {
+                to_app_version_info(version_info, self.beta_program, None)
             }
+            RoutingState::Downloaded {
+                version_info,
+                verified_installer_path,
+            } => to_app_version_info(
+                version_info,
+                self.beta_program,
+                Some(verified_installer_path.clone()),
+            ),
             // If we're upgrading, emit the version we're currently upgrading to
             RoutingState::Downloading {
                 version_info,
                 upgrading_to_version,
                 ..
             } => {
-                let suggested_upgrade = suggested_upgrade_for_version(upgrading_to_version);
+                let suggested_upgrade = suggested_upgrade_for_version(upgrading_to_version, None);
                 AppVersionInfo {
                     current_version_supported: version_info.current_version_supported,
                     suggested_upgrade: Some(suggested_upgrade),
@@ -516,11 +524,15 @@ async fn wait_for_update(state: &mut RoutingState) -> Option<AppVersionInfo> {
 
 /// Extract [`AppVersionInfo`], containing upgrade version and `current_version_supported`
 /// from [VersionCache] and beta program state.
-fn to_app_version_info(cache: &VersionCache, beta_program: bool) -> AppVersionInfo {
+fn to_app_version_info(
+    cache: &VersionCache,
+    beta_program: bool,
+    verified_installer_path: Option<PathBuf>,
+) -> AppVersionInfo {
     let current_version_supported = cache.current_version_supported;
-    let suggested_upgrade = suggested_upgrade(&cache.latest_version, beta_program)
+    let suggested_upgrade = recommended_version_upgrade(&cache.latest_version, beta_program)
         .as_ref()
-        .map(suggested_upgrade_for_version);
+        .map(|version| suggested_upgrade_for_version(version, verified_installer_path));
     AppVersionInfo {
         current_version_supported,
         suggested_upgrade,
@@ -528,7 +540,7 @@ fn to_app_version_info(cache: &VersionCache, beta_program: bool) -> AppVersionIn
 }
 
 /// Extract upgrade version from [VersionCache] based on `beta_program`
-fn suggested_upgrade(
+fn recommended_version_upgrade(
     version_info: &VersionInfo,
     beta_program: bool,
 ) -> Option<mullvad_update::version::Version> {
@@ -550,11 +562,11 @@ fn suggested_upgrade(
 /// Convert [mullvad_update::version::Version] to [SuggestedUpgrade]
 fn suggested_upgrade_for_version(
     version_details: &mullvad_update::version::Version,
+    verified_installer_path: Option<PathBuf>,
 ) -> SuggestedUpgrade {
     SuggestedUpgrade {
         version: version_details.version.clone(),
         changelog: Some(version_details.changelog.clone()),
-        // TODO: This should return the downloaded & verified path, if it exists
-        verified_installer_path: None,
+        verified_installer_path,
     }
 }
