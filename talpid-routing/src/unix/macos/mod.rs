@@ -478,7 +478,7 @@ impl RouteManagerImpl {
         family: interface::Family,
         new_best_route: Option<DefaultRoute>,
     ) {
-        log::trace!("Best route (IPv4): {new_best_route:?}");
+        log::trace!("Best route ({family:?}): {new_best_route:?}");
 
         let event = match (family, new_best_route.is_some()) {
             (interface::Family::V4, true) => DefaultRouteEvent::AddedOrChangedV4,
