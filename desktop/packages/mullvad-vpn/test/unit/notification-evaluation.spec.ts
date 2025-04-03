@@ -69,6 +69,7 @@ describe('System notifications', () => {
     const controller2 = createController();
     const notification = new UpdateAvailableNotificationProvider({
       suggestedUpgrade: {
+        changelog: [],
         version: '2100.1',
       },
       suggestedIsBeta: false,
