@@ -235,55 +235,7 @@ impl VersionRouter {
         if new_state == prev_state {
             return;
         }
-        self.beta_program = new_state;
-
-        match &self.state {
-            // Emit version event if suggested upgrade changes
-            RoutingState::HasVersion { version_info } => {
-                // If the version changed, notify channel
-                // Note: The same version cache can yield different app versions
-                // when the beta program state changed
-                let prev_app_version = to_app_version_info(version_info, prev_state, None);
-                let new_app_version = to_app_version_info(version_info, new_state, None);
-                if new_app_version != prev_app_version {
-                    let _ = self.version_event_sender.send(new_app_version);
-                }
-
-                self.notify_version_requesters();
-            }
-            RoutingState::Downloading {
-                version_info,
-                upgrading_to_version,
-                ..
-            }
-            | RoutingState::Downloaded {
-                version_info,
-                upgrading_to_version,
-                ..
-            } => {
-                match recommended_version_upgrade(&version_info.latest_version, self.beta_program) {
-                    Some(suggested_version) if suggested_version == *upgrading_to_version => {
-                        let _ = self
-                            .app_upgrade_broadcast
-                            .send(mullvad_types::version::AppUpgradeEvent::Aborted); // Or should we send `Error`?
-                        let _ = self.version_event_sender.send(AppVersionInfo {
-                            current_version_supported: version_info.current_version_supported,
-                            suggested_upgrade: Some(suggested_upgrade_for_version(
-                                &suggested_version,
-                                None,
-                            )),
-                        });
-                        self.state = RoutingState::HasVersion {
-                            version_info: version_info.clone(),
-                        };
-                    }
-                    None => todo!(), // Is this case possible?
-                    _ => {}
-                }
-            }
-            // If there's no version or upgrading, do nothing
-            RoutingState::NoVersion => (),
-        }
+        self.on_version_or_beta_change(None, new_state);
     }
 
     fn get_latest_version(
@@ -387,66 +339,96 @@ impl VersionRouter {
     ///
     /// If the router is in the process of upgrading, it will not propagate versions, but only
     /// remember it for when it transitions back into the "idle" (version check) state.
-    fn on_new_version(&mut self, version: VersionCache) {
+    fn on_new_version(&mut self, new_version: VersionCache) {
+        self.on_version_or_beta_change(Some(new_version), self.beta_program);
+
+        // Notify callers of `get_latest_version`
+        self.notify_version_requesters();
+    }
+
+    fn on_version_or_beta_change(
+        &mut self,
+        new_version: Option<VersionCache>,
+        new_beta_state: bool,
+    ) {
         match &mut self.state {
             // Set app version info
             RoutingState::NoVersion => {
-                // Initial version is propagated
-                let app_version_info = to_app_version_info(&version, self.beta_program, None);
-                let _ = self.version_event_sender.send(app_version_info);
-                self.state = RoutingState::HasVersion {
-                    version_info: version,
-                };
+                self.beta_program = new_beta_state;
+                if let Some(new_version) = new_version {
+                    // Initial version is propagated
+                    let app_version_info =
+                        to_app_version_info(&new_version, self.beta_program, None);
+                    let _ = self.version_event_sender.send(app_version_info);
+                    self.state = RoutingState::HasVersion {
+                        version_info: new_version,
+                    };
+                }
             }
             // Update app version info
             RoutingState::HasVersion {
                 version_info: prev_version,
                 ..
             } => {
+                let new_version = new_version.as_ref().unwrap_or(prev_version);
                 // If the version changed, notify channel
                 // Note: The same version cache can yield different app versions
                 // if the beta program state changed
                 let prev_app_version = to_app_version_info(prev_version, self.beta_program, None);
-                let new_app_version = to_app_version_info(&version, self.beta_program, None);
+                let new_app_version = to_app_version_info(new_version, new_beta_state, None);
                 if new_app_version != prev_app_version {
                     let _ = self.version_event_sender.send(new_app_version);
                 }
+                // Update version info
+                *prev_version = new_version.clone();
 
-                *prev_version = version;
+                // TODO: Previously we called self.notify_version_requesters() for beta updates here, is it necessary?
             }
             // If we're upgrading, abort if the recommended version changes
             RoutingState::Downloading {
                 upgrading_to_version,
+                version_info: prev_version,
                 ..
             }
             | RoutingState::Downloaded {
                 upgrading_to_version,
+                version_info: prev_version,
                 ..
             } => {
-                match recommended_version_upgrade(&version.latest_version, self.beta_program) {
+                let new_version = new_version.as_ref().unwrap_or(prev_version);
+                match recommended_version_upgrade(&new_version.latest_version, new_beta_state) {
                     Some(suggested_version) if suggested_version == *upgrading_to_version => {
+                        log::warn!(
+                            "Received new version while upgrading: {suggested_version:?}, aborting"
+                        );
                         let _ = self
                             .app_upgrade_broadcast
                             .send(mullvad_types::version::AppUpgradeEvent::Aborted); // Or should we send `Error`?
                         let _ = self.version_event_sender.send(AppVersionInfo {
-                            current_version_supported: version.current_version_supported,
+                            current_version_supported: new_version.current_version_supported,
                             suggested_upgrade: Some(suggested_upgrade_for_version(
                                 &suggested_version,
                                 None,
                             )),
                         });
                         self.state = RoutingState::HasVersion {
-                            version_info: version,
+                            version_info: new_version.clone(),
                         };
                     }
-                    None => todo!(), // Is this case possible?
+                    None => {
+                        log::warn!("New version or beta state no longer has an upgrade, aborting");
+                        let _ = self
+                            .app_upgrade_broadcast
+                            .send(mullvad_types::version::AppUpgradeEvent::Aborted);
+                        let _ = self.version_event_sender.send(AppVersionInfo {
+                            current_version_supported: new_version.current_version_supported,
+                            suggested_upgrade: None,
+                        });
+                    }
                     _ => {}
                 }
             }
         }
-
-        // Notify callers of `get_latest_version`
-        self.notify_version_requesters();
     }
 
     /// Notify clients requesting a version
