@@ -8,8 +8,8 @@
 
 import Testing
 
-@testable import MullvadREST
 @testable import MullvadRustRuntime
+@testable import MullvadTypes
 
 struct RustProblemReportRequestTests {
     @Test(
@@ -23,7 +23,7 @@ struct RustProblemReportRequestTests {
         ]
     )
     func testMetadataInsertion(metadata: [String: String]) {
-        let request = REST.ProblemReportRequest(
+        let request = ProblemReportRequest(
             address: "127.0.0.1",
             message: "Test message",
             log: "Log data",
