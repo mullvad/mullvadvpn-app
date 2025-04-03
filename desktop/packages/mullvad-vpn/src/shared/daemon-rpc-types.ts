@@ -426,7 +426,7 @@ export interface IDnsOptions {
 }
 
 export type AppVersionInfoSuggestedUpgrade = {
-  changelog?: IChangelog;
+  changelog: IChangelog;
   verifiedInstallerPath?: string;
   version: string;
 };
