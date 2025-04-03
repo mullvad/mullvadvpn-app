@@ -91,7 +91,11 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>
         ) -> Cancellable {
-            AnyCancellable()
+            createNetworkOperation(
+                request: .sendProblemReport(retryStrategy, problemReportRequest: body),
+                responseHandler: rustEmptyResponseHandler(),
+                completionHandler: completionHandler
+            )
         }
 
         public func submitVoucher(
@@ -103,7 +107,7 @@ extension REST {
             AnyCancellable()
         }
 
-        private func createNetworkOperation<Success: Decodable>(
+        private func createNetworkOperation<Success: Any>(
             request: APIRequest,
             responseHandler: RustResponseHandler<Success>,
             completionHandler: @escaping @Sendable ProxyCompletionHandler<Success>
@@ -168,20 +172,6 @@ extension REST {
     private struct CreateApplePaymentRawResponse: Decodable, Sendable {
         let timeAdded: Int
         let newExpiry: Date
-    }
-
-    public struct ProblemReportRequest: Codable, Sendable {
-        public let address: String
-        public let message: String
-        public let log: String
-        public let metadata: [String: String]
-
-        public init(address: String, message: String, log: String, metadata: [String: String]) {
-            self.address = address
-            self.message = message
-            self.log = log
-            self.metadata = metadata
-        }
     }
 }
 
