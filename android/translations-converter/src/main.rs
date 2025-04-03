@@ -235,7 +235,7 @@ fn main() {
                     localized_strings.push(android::StringResource::new(
                         translation.id.normalize(),
                         &translation.id.normalize(),
-                        &arg_ordering,
+                        arg_ordering.as_ref(),
                     ));
                 }
             }
@@ -326,7 +326,7 @@ fn generate_relay_translations(
                 localized_strings.push(android::StringResource::new(
                     translation.id.normalize(),
                     &translation_value.normalize(),
-                    &arg_ordering,
+                    arg_ordering.as_ref(),
                 ));
             }
             MsgValue::Plural { .. } => {}
@@ -371,7 +371,7 @@ fn generate_translations(
                     localized_strings.push(android::StringResource::new(
                         android_key,
                         &translation_value.normalize(),
-                        &arg_ordering,
+                        arg_ordering.as_ref(),
                     ));
                 }
             }

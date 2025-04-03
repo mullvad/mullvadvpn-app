@@ -67,7 +67,7 @@ mod tests {
                 r#""Inside double quotes""#,
                 "With parameters: %1$d, %2$s",
             ),
-            &None,
+            None,
         );
 
         let expected = concat!(

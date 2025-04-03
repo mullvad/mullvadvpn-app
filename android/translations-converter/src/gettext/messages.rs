@@ -4,6 +4,7 @@ use std::{
     fs::File,
     io::{BufRead, BufReader},
     path::Path,
+    sync::LazyLock,
 };
 
 /// A parsed gettext messages file.
@@ -104,9 +105,10 @@ impl From<MsgString> for MsgValue {
     }
 }
 
+static NAMED_ARGUMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"%\([a-zA-Z]+\)").unwrap());
+
 fn argument_ordering(id: MsgString, msg_str: MsgString) -> Option<Vec<i8>> {
-    let named_argument = Regex::new(r"%\([a-zA-Z]+\)").unwrap();
-    if named_argument.is_match(&id) && named_argument.is_match(&msg_str) {
+    if NAMED_ARGUMENT.is_match(&id) && NAMED_ARGUMENT.is_match(&msg_str) {
         // Extract arguments in id
         let id_args = extract_arguments(id);
         // Extract arguments in translation
@@ -115,12 +117,7 @@ fn argument_ordering(id: MsgString, msg_str: MsgString) -> Option<Vec<i8>> {
         Some(
             id_args
                 .iter()
-                .map(|id_arg| {
-                    value_args
-                        .clone()
-                        .into_iter()
-                        .position(|value_arg| value_arg.eq(id_arg))
-                })
+                .map(|id_arg| value_args.iter().position(|value_arg| value_arg == id_arg))
                 .map(|f| f.unwrap() as i8 + 1)
                 .collect(),
         )
@@ -130,8 +127,7 @@ fn argument_ordering(id: MsgString, msg_str: MsgString) -> Option<Vec<i8>> {
 }
 
 fn extract_arguments(msg: MsgString) -> Vec<String> {
-    let named_argument = Regex::new(r"%\([a-zA-Z]+\)").unwrap();
-    named_argument
+    NAMED_ARGUMENT
         .find_iter(&msg)
         .map(|s| String::from(s.as_str()))
         .collect()
