@@ -1,3 +1,5 @@
+import { IChangelog } from './ipc-types';
+
 export interface IAccountData {
   expiry: string;
 }
@@ -421,7 +423,7 @@ export interface IDnsOptions {
 }
 
 export type AppVersionInfoSuggestedUpgrade = {
-  changelog?: string;
+  changelog?: IChangelog;
   verifiedInstallerPath?: string;
   version: string;
 };
