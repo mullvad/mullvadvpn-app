@@ -638,10 +638,7 @@ fun VpnSettingsScreen(
                                     mtuValue = it.mtu,
                                     onEditMtu = { navigateToMtuDialog(it.mtu) },
                                     background =
-                                        if (
-                                            initialScrollToFeature ==
-                                            FeatureIndicator.CUSTOM_MTU
-                                        ) {
+                                        if (initialScrollToFeature == FeatureIndicator.CUSTOM_MTU) {
                                             MaterialTheme.colorScheme.primary.copy(
                                                 alpha = animatable.value
                                             )
@@ -745,7 +742,7 @@ fun VpnSettingsScreen(
                                     background =
                                         if (
                                             initialScrollToFeature ==
-                                            FeatureIndicator.QUANTUM_RESISTANCE
+                                                FeatureIndicator.QUANTUM_RESISTANCE
                                         ) {
                                             MaterialTheme.colorScheme.primary.copy(
                                                 alpha = animatable.value

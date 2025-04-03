@@ -21,14 +21,18 @@ private fun PreviewMtuComposeCell() {
 }
 
 @Composable
-fun MtuComposeCell(mtuValue: Mtu?, onEditMtu: () -> Unit, background: Color = MaterialTheme.colorScheme.primary) {
+fun MtuComposeCell(
+    mtuValue: Mtu?,
+    onEditMtu: () -> Unit,
+    background: Color = MaterialTheme.colorScheme.primary,
+) {
     val titleModifier = Modifier
 
     BaseCell(
         headlineContent = { MtuTitle(modifier = titleModifier.weight(1f, true)) },
         bodyView = { MtuBodyView(mtuValue = mtuValue, modifier = titleModifier) },
         onCellClicked = { onEditMtu.invoke() },
-        background = background
+        background = background,
     )
 }
 
