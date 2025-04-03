@@ -17,7 +17,7 @@ impl StringValue {
     /// they don't have any. Indices are assigned sequentially starting from the previously
     /// specified index plus one, or starting from one if there aren't any previously specified
     /// indices.
-    pub fn from_unescaped(string: &str, arg_ordering: Option<&Vec<i8>>) -> Self {
+    pub fn from_unescaped(string: &str, arg_ordering: Option<&Vec<u8>>) -> Self {
         let value_with_parameters = htmlize::escape_text(string)
             .replace('\\', r"\\")
             .replace('\"', "\\\"")
@@ -42,7 +42,7 @@ impl StringValue {
     /// A typical input would be something like `Things are %d, %3$s and %s`, and this method
     /// would update the string so that all parameters have indices: `Things are %1$d, %3$s and
     /// %4$s`.
-    fn ensure_parameters_are_indexed(original: String, arg_ordering: Option<&Vec<i8>>) -> String {
+    fn ensure_parameters_are_indexed(original: String, arg_ordering: Option<&Vec<u8>>) -> String {
         static PARAMETER_INDEX: LazyLock<Regex> =
             LazyLock::new(|| Regex::new(r"^(\d+)\$").unwrap());
 
@@ -50,10 +50,27 @@ impl StringValue {
         let mut output = parts.next().unwrap().to_owned();
         let mut offset = 1;
 
+        match arg_ordering {
+            Some(ordering) => {
+                // Check for mismatch between number of args in original and arg_ordering
+                if ordering.len() != parts.clone().enumerate().count() {
+                    panic!("Input string has different number of parameters to arg_ordering")
+                }
+                // Check if any parameter index in arg_ordering is higher than
+                // the total number of args
+                if ordering.iter().any(|i| *i > ordering.len() as u8) {
+                    panic!("arg_ordering contains parameter that is too large")
+                }
+            }
+            None => {}
+        }
+
         for (index, part) in parts.enumerate() {
+            let index = index as isize;
+
             if let Some(captures) = PARAMETER_INDEX.captures(part) {
                 // String already has a parameter index
-                let specified_index: usize = captures
+                let specified_index: isize = captures
                     .get(1)
                     .expect("Regex has at least one capture group")
                     .as_str()
@@ -71,9 +88,14 @@ impl StringValue {
                 // If we have a specific arg_ordering, we will use this,
                 // if not we will fall back on index + offset
                 let parameter_index = match arg_ordering {
-                    Some(ordering) => ordering[index] as usize,
+                    Some(ordering) => ordering[index as usize] as isize,
                     None => index + offset,
                 };
+
+                // Check for illegal parameter index
+                if parameter_index == 0 {
+                    panic!("Parameter index is less than 1")
+                }
 
                 write!(&mut output, "%{}$", parameter_index).expect("formatting failed");
             }
@@ -233,11 +255,53 @@ mod tests {
     fn if_argument_is_repeated_should_use_argument_ordering() {
         let input = StringValue::from_unescaped(
             "%s was a %s and a %s and almost a %s",
-            &Some([1, 2, 3, 1].to_vec()),
+            Some([1, 2, 3, 1].to_vec().as_ref()),
         );
 
         let expected = "%1$s was a %2$s and a %3$s and almost a %1$s";
 
         assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
+    #[should_panic]
+    fn if_arg_ordering_has_one_args_and_string_has_zero_arg_should_panic() {
+        StringValue::from_unescaped("", Some([1].to_vec().as_ref()));
+    }
+
+    #[test]
+    #[should_panic]
+    fn if_arg_ordering_has_zero_args_and_string_has_one_argument_should_panic() {
+        StringValue::from_unescaped("%s", Some([].to_vec().as_ref()));
+    }
+
+    #[test]
+    #[should_panic]
+    fn if_arg_ordering_has_zero_args_and_text_has_args_should_panic() {
+        StringValue::from_unescaped("%s", Some([].to_vec().as_ref()));
+    }
+
+    #[test]
+    #[should_panic]
+    fn if_arg_ordering_has_more_args_should_throw_should_panic() {
+        StringValue::from_unescaped("%s", Some([1, 2].to_vec().as_ref()));
+    }
+
+    #[test]
+    #[should_panic]
+    fn if_arg_ordering_has_less_args_should_panic() {
+        StringValue::from_unescaped("%s %s", Some([1].to_vec().as_ref()));
+    }
+
+    #[test]
+    #[should_panic]
+    fn if_arg_ordering_has_zero_as_arg_should_panic() {
+        StringValue::from_unescaped("%s", Some([0].to_vec().as_ref()));
+    }
+
+    #[test]
+    #[should_panic]
+    fn if_arg_ordering_has_no_1_as_arg_should_should_panic() {
+        StringValue::from_unescaped("%s", Some([2].to_vec().as_ref()));
     }
 }
