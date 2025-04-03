@@ -114,7 +114,6 @@ impl Server {
 
                     Err(err) => {
                         println!("error on accept {}", err);
-                        return;
                     }
                 }
             }

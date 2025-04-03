@@ -22,10 +22,10 @@ pub struct ServerArgs {
     key_path: PathBuf,
 
     /// Allowed IPs
-    #[arg(long = "alloewd-ip", short = 'a', required = false)]
+    #[arg(long = "allowed-ip", short = 'a', required = false)]
     allowed_ips: Vec<IpAddr>,
     /// Maximums packet size
-    #[arg(long = "maximum-packet-size", short = 'm', default_value = "1700")]
+    #[arg(long, short = 'm', default_value = "1700")]
     maximum_packet_size: u16,
 }
 
