@@ -400,7 +400,7 @@
     <string name="obfuscation_info_shadowsocks_batteryusage">Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video.</string>
     <string name="changelog_empty">No changelog was added for this version</string>
     <string name="wg_port_subtitle">Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting.</string>
-    <string name="device_ip_version_title">Device IP version</string>
+    <string name="device_ip_version_title">IP version</string>
     <string name="confirm_ipv6_dns">The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings.</string>
     <string name="enable_ipv6">Enable IPv6</string>
     <string name="uri_market_app_not_found">No Android app store installed, could not open link</string>

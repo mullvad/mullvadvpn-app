@@ -124,6 +124,7 @@
     <string name="device_inactive_description">Bu cihazı kaldırdın. Tekrar bağlanmak için yeniden giriş yapmanız gerekecek.</string>
     <string name="device_inactive_title">Cihaz etkin değil</string>
     <string name="device_inactive_unblock_warning">Giriş yapmak bu cihazdaki internet engelini kaldıracaktır.</string>
+    <string name="device_ip_version_title">IP sürümü</string>
     <string name="device_name">Cihaz adı</string>
     <string name="device_name_info_first_paragraph">Bu, cihaza atanan addır. Mullvad hesabında oturum açan her cihaza, uygulamadaki veya web sitesindeki cihazlarınızı yönetirken tanımlamanıza yardımcı olacak benzersiz bir ad verilir.</string>
     <string name="device_name_info_second_paragraph">Bir Mullvad hesabı ile en fazla 5 cihazda oturum açabilirsiniz.</string>

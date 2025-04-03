@@ -124,6 +124,7 @@
     <string name="device_inactive_description">Hai rimosso questo dispositivo. Per riconnetterti, dovrai effettuare nuovamente il login.</string>
     <string name="device_inactive_title">Il dispositivo è inattivo</string>
     <string name="device_inactive_unblock_warning">Andare al login sbloccherà Internet su questo dispositivo.</string>
+    <string name="device_ip_version_title">Versione IP</string>
     <string name="device_name">Nome dispositivo</string>
     <string name="device_name_info_first_paragraph">Questo è il nome assegnato al dispositivo. Ogni dispositivo connesso a un account Mullvad riceve un nome univoco che ti aiuta a identificarlo quando gestisci i tuoi dispositivi nell\'app o sul sito web.</string>
     <string name="device_name_info_second_paragraph">Puoi avere fino a 5 dispositivi registrati su un account Mullvad.</string>
