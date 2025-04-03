@@ -7,7 +7,6 @@ import { IDnsOptions, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
-import { Flex, Icon } from '../lib/components';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { Colors, spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
@@ -759,14 +758,12 @@ function TunnelProtocolSetting() {
             </Cell.CellFooterText>
           </AriaDescription>
           <ExternalLink variant="labelTiny" to={urls.removingOpenVpnBlog}>
-            <Flex>
               {sprintf(
                 // TRANSLATORS: Link in tunnel protocol selector footer to blog post
                 // TRANSLATORS: about OpenVPN support ending.
                 messages.pgettext('vpn-settings-view', 'Read more'),
               )}
-              <Icon icon="external" size="small" />
-            </Flex>
+              <ExternalLink.Icon icon="external" size="small" />
           </ExternalLink>
         </Cell.CellFooter>
       )}
