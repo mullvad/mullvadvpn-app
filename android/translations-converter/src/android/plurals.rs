@@ -92,7 +92,7 @@ impl PluralResource {
         let items = values
             .map(|(quantity, string)| PluralVariant {
                 quantity,
-                string: StringValue::from_unescaped(&string, &None),
+                string: StringValue::from_unescaped(&string, None),
             })
             .collect();
 

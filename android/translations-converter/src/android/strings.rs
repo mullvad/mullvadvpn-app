@@ -73,7 +73,7 @@ impl StringResource {
     /// Create a new Android string resource entry.
     ///
     /// The name is the resource ID, and the value will be properly escaped.
-    pub fn new(name: String, value: &str, arg_ordering: &Option<Vec<i8>>) -> Self {
+    pub fn new(name: String, value: &str, arg_ordering: Option<&Vec<i8>>) -> Self {
         StringResource {
             name,
             translatable: true,
@@ -135,12 +135,12 @@ mod tests {
             StringResource {
                 name: "first".to_owned(),
                 translatable: true,
-                value: StringValue::from_unescaped("First string", &None),
+                value: StringValue::from_unescaped("First string", None),
             },
             StringResource {
                 name: "second".to_owned(),
                 translatable: false,
-                value: StringValue::from_unescaped("Second string", &None),
+                value: StringValue::from_unescaped("Second string", None),
             },
         ]);
 
@@ -171,7 +171,7 @@ mod tests {
             StringResource {
                 name: "first".to_owned(),
                 translatable: true,
-                value: StringValue::from_unescaped("First string is split in two lines", &None),
+                value: StringValue::from_unescaped("First string is split in two lines", None),
             },
             StringResource {
                 name: "second".to_owned(),
@@ -181,7 +181,7 @@ mod tests {
                     "Second string is also split but it also has some weird whitespace inside the ",
                     "tags and some indentation",
                 ),
-                    &None,
+                    None,
                 ),
             },
         ]);
