@@ -808,7 +808,7 @@ export function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent
 
   const versionInfo = data.getVersionInfo();
   if (versionInfo !== undefined) {
-    return { appVersionInfo: versionInfo.toObject() };
+    return { appVersionInfo: convertFromAppVersionInfo(versionInfo) };
   }
 
   const newAccessMethod = data.getNewAccessMethod();
