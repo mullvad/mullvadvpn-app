@@ -38,11 +38,11 @@ const getHoverColor = (color: Colors | undefined) => {
   }
 };
 
-const Link = <T extends React.ElementType = 'a'>({
+function Link<T extends React.ElementType = 'a'>({
   as: forwardedAs,
   color,
   ...props
-}: LinkProps<T>) => {
+}: LinkProps<T>) {
   // If `as` is provided we need to pass it as `forwardedAs` for it to
   // be correctly passed to the `Text` component.
   const componentProps = forwardedAs ? { ...props, forwardedAs } : props;
@@ -54,7 +54,7 @@ const Link = <T extends React.ElementType = 'a'>({
       {...componentProps}
     />
   );
-};
+}
 
 const LinkNamespace = Object.assign(Link, {
   Icon: LinkIcon,
