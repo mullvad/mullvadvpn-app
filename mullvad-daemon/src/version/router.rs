@@ -117,12 +117,8 @@ enum RoutingState {
     Downloading {
         /// Version info received from `HasVersion`
         version_info: VersionCache,
-        /// The version being upgraded to (derived from `suggested_upgrade`).
-        /// Should be one of the versions in `version_info`.
+        /// The version being upgraded to, derived from `version_info` and beta program state
         upgrading_to_version: mullvad_update::version::Version,
-        /// Version check update received while paused
-        /// When transitioning out of `Upgrading`, this will cause `version_info` to be updated
-        new_version: Option<VersionCache>,
         /// Tokio task for the downloader handle
         downloader_handle:
             tokio::task::JoinHandle<std::result::Result<std::path::PathBuf, downloader::Error>>,
@@ -131,6 +127,8 @@ enum RoutingState {
     Downloaded {
         /// Version info received from `HasVersion`
         version_info: VersionCache,
+        /// The version being upgraded to, derived from `version_info` and beta program state
+        upgrading_to_version: mullvad_update::version::Version,
         /// Path to verified installer
         verified_installer_path: PathBuf,
     },
@@ -241,24 +239,50 @@ impl VersionRouter {
 
         match &self.state {
             // Emit version event if suggested upgrade changes
-            RoutingState::HasVersion { version_info }
-            | RoutingState::Downloaded { version_info, .. } => {
-                let prev_app_version_info = to_app_version_info(version_info, prev_state, None);
-                let new_app_version_info = to_app_version_info(version_info, new_state, None);
+            RoutingState::HasVersion { version_info } => {
+                // If the version changed, notify channel
+                // Note: The same version cache can yield different app versions
+                // when the beta program state changed
+                let prev_app_version = to_app_version_info(version_info, prev_state, None);
+                let new_app_version = to_app_version_info(version_info, new_state, None);
+                if new_app_version != prev_app_version {
+                    let _ = self.version_event_sender.send(new_app_version);
+                }
 
-                if new_app_version_info != prev_app_version_info {
-                    let _ = self.version_event_sender.send(new_app_version_info);
-
-                    // Note: If we're in the `Downloaded` state, this resets the state to `HasVersion`
-                    self.state = RoutingState::HasVersion {
-                        version_info: version_info.clone(),
-                    };
-
-                    self.notify_version_requesters();
+                self.notify_version_requesters();
+            }
+            RoutingState::Downloading {
+                version_info,
+                upgrading_to_version,
+                ..
+            }
+            | RoutingState::Downloaded {
+                version_info,
+                upgrading_to_version,
+                ..
+            } => {
+                match recommended_version_upgrade(&version_info.latest_version, self.beta_program) {
+                    Some(suggested_version) if suggested_version == *upgrading_to_version => {
+                        let _ = self
+                            .app_upgrade_broadcast
+                            .send(mullvad_types::version::AppUpgradeEvent::Aborted); // Or should we send `Error`?
+                        let _ = self.version_event_sender.send(AppVersionInfo {
+                            current_version_supported: version_info.current_version_supported,
+                            suggested_upgrade: Some(suggested_upgrade_for_version(
+                                &suggested_version,
+                                None,
+                            )),
+                        });
+                        self.state = RoutingState::HasVersion {
+                            version_info: version_info.clone(),
+                        };
+                    }
+                    None => todo!(), // Is this case possible?
+                    _ => {}
                 }
             }
             // If there's no version or upgrading, do nothing
-            RoutingState::NoVersion | RoutingState::Downloading { .. } => (),
+            RoutingState::NoVersion => (),
         }
     }
 
@@ -287,7 +311,6 @@ impl VersionRouter {
             RoutingState::Downloading {
                 version_info,
                 upgrading_to_version,
-                new_version: _,
                 downloader_handle: _,
             } => {
                 let suggested_upgrade = suggested_upgrade_for_version(upgrading_to_version, None);
@@ -323,7 +346,6 @@ impl VersionRouter {
                 self.state = RoutingState::Downloading {
                     version_info,
                     upgrading_to_version: suggested_upgrade,
-                    new_version: None,
                     downloader_handle,
                 };
 
@@ -346,7 +368,6 @@ impl VersionRouter {
             RoutingState::Downloading {
                 version_info,
                 upgrading_to_version: _,
-                new_version,
                 downloader_handle,
             } => {
                 // Abort download
@@ -355,12 +376,6 @@ impl VersionRouter {
 
                 // Reset app version info to last known state
                 self.state = RoutingState::HasVersion { version_info };
-
-                // If we also received an upgrade, emit new version event
-                if let Some(version) = new_version {
-                    let app_version = to_app_version_info(&version, self.beta_program, None);
-                    let _ = self.version_event_sender.send(app_version);
-                }
             }
             // No-op unless we're downloading something right now
             // In the `Downloaded` state, we also do nothing
@@ -376,20 +391,15 @@ impl VersionRouter {
         match &mut self.state {
             // Set app version info
             RoutingState::NoVersion => {
-                self.state = RoutingState::HasVersion {
-                    version_info: version.clone(),
-                };
-
                 // Initial version is propagated
                 let app_version_info = to_app_version_info(&version, self.beta_program, None);
                 let _ = self.version_event_sender.send(app_version_info);
+                self.state = RoutingState::HasVersion {
+                    version_info: version,
+                };
             }
             // Update app version info
             RoutingState::HasVersion {
-                version_info: prev_version,
-                ..
-            }
-            | RoutingState::Downloaded {
                 version_info: prev_version,
                 ..
             } => {
@@ -402,19 +412,36 @@ impl VersionRouter {
                     let _ = self.version_event_sender.send(new_app_version);
                 }
 
-                // Note: If we're in the `Downloaded` state, this resets the state to `HasVersion`
-                if prev_version != &version {
-                    self.state = RoutingState::HasVersion {
-                        version_info: version,
-                    };
-                }
+                *prev_version = version;
             }
-            // If we're upgrading, remember the new version, but don't send any notification
+            // If we're upgrading, abort if the recommended version changes
             RoutingState::Downloading {
-                ref mut new_version,
+                upgrading_to_version,
+                ..
+            }
+            | RoutingState::Downloaded {
+                upgrading_to_version,
                 ..
             } => {
-                *new_version = Some(version);
+                match recommended_version_upgrade(&version.latest_version, self.beta_program) {
+                    Some(suggested_version) if suggested_version == *upgrading_to_version => {
+                        let _ = self
+                            .app_upgrade_broadcast
+                            .send(mullvad_types::version::AppUpgradeEvent::Aborted); // Or should we send `Error`?
+                        let _ = self.version_event_sender.send(AppVersionInfo {
+                            current_version_supported: version.current_version_supported,
+                            suggested_upgrade: Some(suggested_upgrade_for_version(
+                                &suggested_version,
+                                None,
+                            )),
+                        });
+                        self.state = RoutingState::HasVersion {
+                            version_info: version,
+                        };
+                    }
+                    None => todo!(), // Is this case possible?
+                    _ => {}
+                }
             }
         }
 
@@ -440,11 +467,17 @@ impl VersionRouter {
             RoutingState::Downloaded {
                 version_info,
                 verified_installer_path,
-            } => to_app_version_info(
-                version_info,
-                self.beta_program,
-                Some(verified_installer_path.clone()),
-            ),
+                upgrading_to_version,
+            } => {
+                let suggested_upgrade = suggested_upgrade_for_version(
+                    upgrading_to_version,
+                    Some(verified_installer_path.clone()),
+                );
+                AppVersionInfo {
+                    current_version_supported: version_info.current_version_supported,
+                    suggested_upgrade: Some(suggested_upgrade),
+                }
+            }
             // If we're upgrading, emit the version we're currently upgrading to
             RoutingState::Downloading {
                 version_info,
@@ -475,35 +508,32 @@ async fn wait_for_update(state: &mut RoutingState) -> Option<AppVersionInfo> {
             version_info,
             downloader_handle,
             upgrading_to_version,
-            new_version,
             ..
         } => match downloader_handle.await {
             Ok(Ok(verified_installer_path)) => {
                 let app_update_info = AppVersionInfo {
                     current_version_supported: version_info.current_version_supported,
-                    suggested_upgrade: Some(SuggestedUpgrade {
-                        version: upgrading_to_version.version,
-                        changelog: Some(upgrading_to_version.changelog),
-                        verified_installer_path: Some(verified_installer_path.clone()),
+                    suggested_upgrade: Some({
+                        SuggestedUpgrade {
+                            version: upgrading_to_version.version.clone(),
+                            changelog: Some(upgrading_to_version.changelog.clone()),
+                            verified_installer_path: Some(verified_installer_path.clone()),
+                        }
                     }),
                 };
                 *state = RoutingState::Downloaded {
                     version_info,
                     verified_installer_path,
+                    upgrading_to_version,
                 };
                 Some(app_update_info)
             }
             Ok(Err(_err)) => {
-                let version_info = new_version.unwrap_or(version_info);
                 *state = RoutingState::HasVersion { version_info };
                 None
             }
             Err(join_err) => {
-                if join_err.is_panic() {
-                    log::error!("Downloader task panicked: {join_err}");
-                } else if join_err.is_cancelled() {
-                    unreachable!("Downloader task was cancelled while state was `Downloading`");
-                }
+                log::error!("Downloader task ended unexpectedly: {join_err}");
                 *state = RoutingState::HasVersion { version_info };
                 None
             }
