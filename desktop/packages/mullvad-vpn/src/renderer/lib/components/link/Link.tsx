@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { Colors, Radius } from '../../foundations';
 import { Text, TextProps } from '../typography';
+import { LinkIcon } from './components';
 
 export type LinkProps<T extends React.ElementType = 'a'> = TextProps<T> & {
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
@@ -38,7 +39,7 @@ const getHoverColor = (color: Colors | undefined) => {
   }
 };
 
-export const Link = <T extends React.ElementType = 'a'>({
+const Link = <T extends React.ElementType = 'a'>({
   as: forwardedAs,
   color,
   ...props
@@ -55,3 +56,9 @@ export const Link = <T extends React.ElementType = 'a'>({
     />
   );
 };
+
+const LinkNamespace = Object.assign(Link, {
+  Icon: LinkIcon,
+});
+
+export { LinkNamespace as Link };
