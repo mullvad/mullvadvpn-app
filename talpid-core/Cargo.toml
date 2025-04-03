@@ -104,4 +104,4 @@ tonic-build = { workspace = true, default-features = false, features = ["transpo
 
 
 [dev-dependencies]
-tokio = { workspace = true, features = [ "io-util", "test-util", "time" ] }
+tokio = { workspace = true, features = ["io-util", "test-util", "time"] }

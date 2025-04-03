@@ -15,6 +15,8 @@ mod imp;
 #[path = "android.rs"]
 mod imp;
 
+#[cfg(target_os = "android")]
+pub use self::imp::set_extra_metadata;
 #[cfg(target_os = "macos")]
 pub use self::imp::MacosVersion;
 #[cfg(windows)]

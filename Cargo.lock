@@ -2198,9 +2198,9 @@ checksum = "8eaf4bc02d17cbdd7ff4c7438cafcdf7fb9a4613313ad11b4f8fefe7d3fa0130"
 
 [[package]]
 name = "jnix"
-version = "0.5.2"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "542b2072131a62ec940ee161ff0a01e7a1c2a129796b30143efc952cb6e0f28f"
+checksum = "63c460f1b7afbfcb0810208d3b0efc6ac1d7574f5e379fa2c19fb957bb57678a"
 dependencies = [
  "jni",
  "jnix-macros",
@@ -2783,6 +2783,7 @@ dependencies = [
  "mullvad-types",
  "nix 0.23.2",
  "rand 0.8.5",
+ "talpid-platform-metadata",
  "talpid-tunnel",
  "talpid-types",
  "thiserror 2.0.9",
