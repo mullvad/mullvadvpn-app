@@ -351,7 +351,7 @@ impl VersionRouter {
         new_version: Option<VersionCache>,
         new_beta_state: bool,
     ) {
-        match &mut self.state {
+        let new_app_version_info: Option<AppVersionInfo> = match &mut self.state {
             // Set app version info
             RoutingState::NoVersion => {
                 self.beta_program = new_beta_state;
@@ -359,10 +359,12 @@ impl VersionRouter {
                     // Initial version is propagated
                     let app_version_info =
                         to_app_version_info(&new_version, self.beta_program, None);
-                    let _ = self.version_event_sender.send(app_version_info);
                     self.state = RoutingState::HasVersion {
                         version_info: new_version,
                     };
+                    Some(app_version_info)
+                } else {
+                    None
                 }
             }
             // Update app version info
@@ -376,12 +378,14 @@ impl VersionRouter {
                 // if the beta program state changed
                 let prev_app_version = to_app_version_info(prev_version, self.beta_program, None);
                 let new_app_version = to_app_version_info(new_version, new_beta_state, None);
-                if new_app_version != prev_app_version {
-                    let _ = self.version_event_sender.send(new_app_version);
-                }
+
                 // Update version info
                 *prev_version = new_version.clone();
-
+                if new_app_version != prev_app_version {
+                    Some(new_app_version)
+                } else {
+                    None
+                }
                 // TODO: Previously we called self.notify_version_requesters() for beta updates here, is it necessary?
             }
             // If we're upgrading, abort if the recommended version changes
@@ -404,30 +408,39 @@ impl VersionRouter {
                         let _ = self
                             .app_upgrade_broadcast
                             .send(mullvad_types::version::AppUpgradeEvent::Aborted); // Or should we send `Error`?
-                        let _ = self.version_event_sender.send(AppVersionInfo {
+                        let version_info = AppVersionInfo {
                             current_version_supported: new_version.current_version_supported,
                             suggested_upgrade: Some(suggested_upgrade_for_version(
                                 &suggested_version,
                                 None,
                             )),
-                        });
+                        };
                         self.state = RoutingState::HasVersion {
                             version_info: new_version.clone(),
                         };
+                        Some(version_info)
                     }
                     None => {
                         log::warn!("New version or beta state no longer has an upgrade, aborting");
+
                         let _ = self
                             .app_upgrade_broadcast
                             .send(mullvad_types::version::AppUpgradeEvent::Aborted);
-                        let _ = self.version_event_sender.send(AppVersionInfo {
+                        let version_info = AppVersionInfo {
                             current_version_supported: new_version.current_version_supported,
                             suggested_upgrade: None,
-                        });
+                        };
+                        self.state = RoutingState::HasVersion {
+                            version_info: new_version.clone(),
+                        };
+                        Some(version_info)
                     }
-                    _ => {}
+                    _ => None,
                 }
             }
+        };
+        if let Some(version_info) = new_app_version_info {
+            let _ = self.version_event_sender.send(version_info);
         }
     }
 
