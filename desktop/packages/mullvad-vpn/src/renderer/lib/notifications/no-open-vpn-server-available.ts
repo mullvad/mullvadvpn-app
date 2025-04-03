@@ -26,8 +26,9 @@ export class NoOpenVpnServerAvailableNotificationProvider implements InAppNotifi
   public constructor(private context: NoOpenVpnServerAvailableNotificationContext) {}
 
   public mayDisplay = () => {
-    const { tunnelState } = this.context;
+    const { tunnelState, tunnelProtocol } = this.context;
     return (
+      tunnelProtocol === 'openvpn' &&
       tunnelState.state === 'error' &&
       tunnelState.details.cause === ErrorStateCause.tunnelParameterError &&
       tunnelState.details.parameterError === TunnelParameterError.noMatchingRelay
@@ -88,7 +89,7 @@ export class NoOpenVpnServerAvailableNotificationProvider implements InAppNotifi
         // TRANSLATORS: Will navigate the user to the VPN settings.
         // TRANSLATORS: Available placeholders:
         // TRANSLATORS: %(wireGuard)s - Will be replaced with WireGuard
-        messages.pgettext('in-app-notifications', 'change tunnel protocol to %(wireGuard)s'),
+        messages.pgettext('in-app-notifications', 'change tunnel protocol to %(wireGuard)s.'),
         { wireGuard: strings.wireguard },
       ),
       action: {
