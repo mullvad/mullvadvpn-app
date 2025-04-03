@@ -34,6 +34,7 @@ import { ConnectionObserver, GrpcClient, noConnectionError } from './grpc-client
 import {
   convertFromApiAccessMethodSetting,
   convertFromAppUpgradeEvent,
+  convertFromAppVersionInfo,
   convertFromDaemonEvent,
   convertFromDevice,
   convertFromDeviceState,
@@ -488,7 +489,9 @@ export class DaemonRpc extends GrpcClient {
 
   public async getVersionInfo(): Promise<IAppVersionInfo> {
     const response = await this.callEmpty<grpcTypes.AppVersionInfo>(this.client.getVersionInfo);
-    return response.toObject();
+    const versionInfo = convertFromAppVersionInfo(response);
+
+    return versionInfo;
   }
 
   public async addSplitTunnelingApplication(path: string): Promise<void> {
