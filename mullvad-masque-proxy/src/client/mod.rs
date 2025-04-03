@@ -15,7 +15,10 @@ use tokio::{
 use h3::{client, ext::Protocol, proto::varint::VarInt, quic::StreamId};
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
 use http::{header, uri::Scheme, Response, StatusCode};
-use quinn::{crypto::rustls::QuicClientConfig, ClientConfig, Endpoint, TransportConfig};
+use quinn::{
+    crypto::rustls::QuicClientConfig, ClientConfig, Endpoint, EndpointConfig, TokioRuntime,
+    TransportConfig,
+};
 
 use crate::{
     fragment::{self, Fragments},
@@ -58,6 +61,8 @@ pub enum Error {
     Connect(#[from] quinn::ConnectError),
     #[error("Failed to connect to QUIC endpoint")]
     Connection(#[from] quinn::ConnectionError),
+    #[error("Invalid max_udp_payload_size")]
+    InvalidMaxUdpPayload(#[source] quinn::ConfigError),
     #[error("Connection closed while sending request to initiate proxying")]
     ConnectionClosedPrematurely,
     #[error("QUIC connection failed while sending request to initiate proxying")]
@@ -149,8 +154,7 @@ impl Client {
         client_config: ClientConfig,
         maximum_packet_size: u16,
     ) -> Result<Self> {
-        // TODO: Set EndpointConfig::max_udp_payload_size instead of using X-Mullvad-Uplink-Mtu
-        let endpoint = Endpoint::client(local_addr).map_err(Error::Bind)?;
+        let endpoint = Self::setup_quic_endpoint(local_addr, maximum_packet_size)?;
 
         let connecting = endpoint.connect_with(client_config, server_addr, server_host)?;
 
@@ -168,6 +172,18 @@ impl Client {
             maximum_packet_size,
             stats: Arc::default(),
         })
+    }
+
+    fn setup_quic_endpoint(local_addr: SocketAddr, maximum_packet_size: u16) -> Result<Endpoint> {
+        let local_socket = std::net::UdpSocket::bind(local_addr).map_err(Error::Bind)?;
+
+        let mut endpoint_config = EndpointConfig::default();
+        endpoint_config
+            .max_udp_payload_size(maximum_packet_size)
+            .map_err(Error::InvalidMaxUdpPayload)?;
+
+        Endpoint::new(endpoint_config, None, local_socket, Arc::new(TokioRuntime))
+            .map_err(Error::Bind)
     }
 
     // Returns an h3 connection that is ready to be used for sending UDP datagrams.
@@ -413,6 +429,7 @@ fn new_connect_request(
         .header(b"Capsule-Protocol".as_slice(), b"?1".as_slice())
         .header(header::AUTHORIZATION, b"Bearer test".as_slice())
         .header(header::HOST, authority.as_ref())
+        // TODO: Not needed since we set the max_udp_payload_size transport param
         .header(
             b"X-Mullvad-Uplink-Mtu".as_slice(),
             format!("{maximum_packet_size}"),
