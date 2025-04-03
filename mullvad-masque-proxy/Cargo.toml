@@ -9,7 +9,7 @@ rust-version.workspace = true
 description = "A limited functionality UDP over HTTP3 proxy"
 
 [dependencies]
-quinn = "0.11"
+quinn = { version = "0.11", default-features = false, features = ["log", "runtime-tokio", "rustls-ring"] }
 tokio = { workspace = true, features = [ "macros", "io-util" ] }
 h3 = "0.0.7"
 h3-datagram = "0.0.1"
