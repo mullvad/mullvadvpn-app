@@ -6,7 +6,7 @@ mod client;
 #[cfg(feature = "client")]
 pub use client::*;
 
-pub mod keys;
+mod defaults;
 
 pub mod version;
 

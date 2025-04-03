@@ -2,7 +2,7 @@
 
 use anyhow::{anyhow, bail, Context};
 use mullvad_update::{
-    api::HttpVersionInfoProvider,
+    api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
     format::{self, key},
 };
 use std::{
@@ -10,7 +10,6 @@ use std::{
     fmt,
     path::{Path, PathBuf},
     str::FromStr,
-    sync::LazyLock,
 };
 use tokio::{fs, io};
 
@@ -18,16 +17,6 @@ use crate::{
     artifacts,
     io_util::{create_dir_and_write, wait_for_confirm},
 };
-
-/// Base URL for metadata found with `meta pull`.
-/// Actual JSON files should be stored at `<base url>/<platform>.json`.
-const META_REPOSITORY_URL: &str = "https://releases.mullvad.net/desktop/metadata/";
-
-/// TLS certificate to pin to for `meta pull`.
-static PINNED_CERTIFICATE: LazyLock<reqwest::Certificate> = LazyLock::new(|| {
-    const CERT_BYTES: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
-    reqwest::Certificate::from_pem(CERT_BYTES).expect("invalid cert")
-});
 
 #[derive(Clone, Copy)]
 pub enum Platform {
@@ -81,11 +70,6 @@ impl Platform {
         Path::new("signed").join(self.local_filename())
     }
 
-    /// URL that stores the latest published metadata
-    pub fn published_url(&self) -> String {
-        format!("{META_REPOSITORY_URL}/{}", self.published_filename())
-    }
-
     /// Expected artifacts in `artifacts/` directory
     pub fn artifact_filenames(&self, version: &mullvad_version::Version) -> Artifacts {
         let artifacts_dir = Path::new("artifacts");
@@ -105,14 +89,6 @@ impl Platform {
         }
     }
 
-    fn published_filename(&self) -> &str {
-        match self {
-            Platform::Windows => "windows.json",
-            Platform::Linux => "linux.json",
-            Platform::Macos => "macos.json",
-        }
-    }
-
     fn local_filename(&self) -> &str {
         match self {
             Platform::Windows => "windows.json",
@@ -123,19 +99,16 @@ impl Platform {
 
     /// Pull latest metadata from repository and store it in `signed/`
     pub async fn pull(&self, assume_yes: bool) -> anyhow::Result<()> {
-        let url = self.published_url();
+        let platform = MetaRepositoryPlatform::from(*self);
 
-        println!("Pulling {self} metadata from {url}...");
+        println!("Pulling {self} metadata from {}...", platform.url());
 
-        let version_provider = HttpVersionInfoProvider {
-            pinned_certificate: Some(PINNED_CERTIFICATE.clone()),
-            url,
-            verifying_keys: mullvad_update::keys::TRUSTED_METADATA_SIGNING_PUBKEYS.clone(),
-        };
-        let response = version_provider
-            .get_versions(crate::MIN_VERIFY_METADATA_VERSION)
-            .await
-            .context("Failed to retrieve versions")?;
+        let response = HttpVersionInfoProvider::get_versions_for_platform(
+            platform,
+            crate::MIN_VERIFY_METADATA_VERSION,
+        )
+        .await
+        .context("Failed to retrieve versions")?;
 
         let json = serde_json::to_string_pretty(&response)
             .context("Failed to serialize updated metadata")?;
@@ -231,12 +204,8 @@ impl Platform {
         println!("Verifying signature of {}...", signed_path.display());
         let bytes = fs::read(signed_path).await.context("Failed to read file")?;
 
-        format::SignedResponse::deserialize_and_verify(
-            &mullvad_update::keys::TRUSTED_METADATA_SIGNING_PUBKEYS,
-            &bytes,
-            crate::MIN_VERIFY_METADATA_VERSION,
-        )
-        .context("Failed to verify metadata for {platform}: {error}")?;
+        format::SignedResponse::deserialize_and_verify(&bytes, crate::MIN_VERIFY_METADATA_VERSION)
+            .context("Failed to verify metadata for {platform}: {error}")?;
 
         Ok(())
     }
@@ -425,6 +394,16 @@ impl Platform {
         };
         // Note: We don't need to verify the signature here
         format::SignedResponse::deserialize_insecure(&bytes)
+    }
+}
+
+impl From<Platform> for MetaRepositoryPlatform {
+    fn from(platform: Platform) -> Self {
+        match platform {
+            Platform::Windows => MetaRepositoryPlatform::Windows,
+            Platform::Linux => MetaRepositoryPlatform::Linux,
+            Platform::Macos => MetaRepositoryPlatform::Macos,
+        }
     }
 }
 
