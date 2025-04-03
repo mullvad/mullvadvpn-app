@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Colors, Radius } from '../../foundations';
-import { Text, TextProps } from './Text';
+import { Text, TextProps } from '../typography';
 
 export type LinkProps<T extends React.ElementType = 'a'> = TextProps<T> & {
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
