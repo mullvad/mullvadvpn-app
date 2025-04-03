@@ -27,6 +27,7 @@ import {
   FeatureIndicator,
   FirewallPolicyError,
   FirewallPolicyErrorType,
+  IAppVersionInfo,
   IBridgeConstraints,
   ICustomList,
   IDevice,
@@ -62,6 +63,7 @@ import {
   TunnelType,
   wrapConstraint,
 } from '../shared/daemon-rpc-types';
+import { parseChangelog } from './changelog';
 
 export class ResponseParseError extends Error {
   constructor(message: string) {
@@ -759,6 +761,23 @@ export function convertFromAppUpgradeEvent(data: grpcTypes.AppUpgradeEvent): Dae
     .filter(([, value]) => value !== undefined)
     .map(([key]) => key);
   throw new Error(`Unknown app upgrade event received containing ${keys}`);
+}
+
+export function convertFromAppVersionInfo(data: grpcTypes.AppVersionInfo): IAppVersionInfo {
+  const { suggestedUpgrade, ...appVersionInfo } = data.toObject();
+  const changelog = suggestedUpgrade?.changelog ? parseChangelog(suggestedUpgrade?.changelog) : [];
+
+  if (suggestedUpgrade) {
+    return {
+      ...appVersionInfo,
+      suggestedUpgrade: {
+        ...suggestedUpgrade,
+        changelog,
+      },
+    };
+  }
+
+  return appVersionInfo;
 }
 
 export function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
