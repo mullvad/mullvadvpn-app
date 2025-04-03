@@ -30,6 +30,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.test.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -81,7 +82,13 @@ fun MultihopScreen(
     ScaffoldWithMediumTopBar(
         modifier = modifier,
         appBarTitle = stringResource(id = R.string.multihop),
-        navigationIcon = { NavigateBackIconButton { onBackClick() } },
+        navigationIcon = {
+            if (state.isModal) {
+                NavigateCloseIconButton(onBackClick)
+            } else {
+                NavigateBackIconButton(onNavigateBack = onBackClick)
+            }
+        },
     ) { modifier ->
         Column(modifier = modifier) {
             // Scale image to fit width up to certain width

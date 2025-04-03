@@ -382,12 +382,10 @@ fun VpnSettingsScreen(
                 val animatable = remember { androidx.compose.animation.core.Animatable(1f) }
                 if (initialScrollToFeature != null) {
                     LaunchedEffect(Unit) {
-                        animatable.animateTo(0f)
-                        animatable.animateTo(1f)
-                        animatable.animateTo(0f)
-                        animatable.animateTo(1f)
-                        animatable.animateTo(0f)
-                        animatable.animateTo(1f)
+                        for (i in 0..2) {
+                            animatable.animateTo(0f)
+                            animatable.animateTo(1f)
+                        }
                     }
                 }
 
@@ -616,6 +614,16 @@ fun VpnSettingsScreen(
 
                             is VpnSettingItem.LocalNetworkSharingHeader ->
                                 HeaderSwitchComposeCell(
+                                    background =
+                                        if (
+                                            initialScrollToFeature == FeatureIndicator.LAN_SHARING
+                                        ) {
+                                            MaterialTheme.colorScheme.primary.copy(
+                                                alpha = animatable.value
+                                            )
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        },
                                     title = stringResource(R.string.local_network_sharing),
                                     isToggled = it.enabled,
                                     isEnabled = true,
@@ -629,6 +637,17 @@ fun VpnSettingsScreen(
                                 MtuComposeCell(
                                     mtuValue = it.mtu,
                                     onEditMtu = { navigateToMtuDialog(it.mtu) },
+                                    background =
+                                        if (
+                                            initialScrollToFeature ==
+                                            FeatureIndicator.CUSTOM_MTU
+                                        ) {
+                                            MaterialTheme.colorScheme.primary.copy(
+                                                alpha = animatable.value
+                                            )
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        },
                                 )
 
                             VpnSettingItem.MtuInfo ->
@@ -641,6 +660,18 @@ fun VpnSettingsScreen(
                                     title = stringResource(R.string.obfuscation_title),
                                     onInfoClicked = navigateToObfuscationInfo,
                                     onCellClicked = navigateToObfuscationInfo,
+                                    background =
+                                        if (
+                                            initialScrollToFeature == FeatureIndicator.UDP_2_TCP ||
+                                                initialScrollToFeature ==
+                                                    FeatureIndicator.SHADOWSOCKS
+                                        ) {
+                                            MaterialTheme.colorScheme.primary.copy(
+                                                alpha = animatable.value
+                                            )
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        },
                                     testTag = LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG,
                                 )
 
@@ -711,6 +742,17 @@ fun VpnSettingsScreen(
                             VpnSettingItem.QuantumResistanceHeader ->
                                 InformationComposeCell(
                                     title = stringResource(R.string.quantum_resistant_title),
+                                    background =
+                                        if (
+                                            initialScrollToFeature ==
+                                            FeatureIndicator.QUANTUM_RESISTANCE
+                                        ) {
+                                            MaterialTheme.colorScheme.primary.copy(
+                                                alpha = animatable.value
+                                            )
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        },
                                     onInfoClicked = navigateToQuantumResistanceInfo,
                                     onCellClicked = navigateToQuantumResistanceInfo,
                                 )
