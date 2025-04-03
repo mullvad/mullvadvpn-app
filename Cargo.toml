@@ -22,6 +22,7 @@ members = [
   "mullvad-jni",
   "mullvad-leak-checker",
   "mullvad-management-interface",
+  "mullvad-masque-proxy",
   "mullvad-nsis",
   "mullvad-paths",
   "mullvad-problem-report",
@@ -46,7 +47,7 @@ members = [
   "talpid-wireguard",
   "tunnel-obfuscation",
   "wireguard-go-rs",
-  "windows-installer", "mullvad-masque-proxy",
+  "windows-installer",
 ]
 # Default members dictate what is built when running `cargo build` in the root directory.
 # This is set to a minimal set of packages to speed up the build process and avoid building
