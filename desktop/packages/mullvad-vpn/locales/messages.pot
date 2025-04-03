@@ -669,10 +669,13 @@ msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr ""
 
+#. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
 msgstr ""
 
+#. Heading for the view of the changes and updates in the
+#. current version compared to the old version.
 msgctxt "changelog-view"
 msgid "What’s new"
 msgstr ""
