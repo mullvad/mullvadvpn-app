@@ -19,16 +19,6 @@ if [ $# -ne 3 ]; then
     exit 1
 fi
 
-# Duplicated from /scripts/utils/gh-ready-check
-if ! command -v gh > /dev/null; then
-    echo "gh (GitHub CLI) is required to run this script"
-    exit 1
-fi
-if ! gh auth status > /dev/null; then
-    echo "Authentication through gh (GitHub CLI) is required to run this script"
-    exit 1
-fi
-
 PRODUCT_VERSION=$1
 BUILDSERVER_HOST=$2
 METADATA_SERVER_HOST=$3
