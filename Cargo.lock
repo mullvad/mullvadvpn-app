@@ -2881,6 +2881,7 @@ dependencies = [
  "rand 0.8.5",
  "rustls 0.23.18",
  "rustls-pemfile 2.1.3",
+ "thiserror 2.0.9",
  "tokio",
 ]
 

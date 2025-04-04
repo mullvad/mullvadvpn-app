@@ -10,10 +10,11 @@ description = "A limited functionality UDP over HTTP3 proxy"
 
 [dependencies]
 quinn = { version = "0.11", default-features = false, features = ["log", "runtime-tokio", "rustls-ring"] }
-tokio = { workspace = true, features = [ "macros", "io-util" ] }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["fs",  "macros", "io-util"] }
 h3 = "0.0.7"
 h3-datagram = "0.0.1"
-h3-quinn = { version = "0.0.9", features = [ "datagram" ]}
+h3-quinn = { version = "0.0.9", features = ["datagram"] }
 http = "1"
 rustls = { version = "0.23", default-features = false }
 rustls-pemfile = "2.1.3"
