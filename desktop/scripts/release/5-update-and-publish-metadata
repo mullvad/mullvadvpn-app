@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 # This script downloads the build artifacts along with the signatures, verifies the signatures and
-# publishes new version metadata to Mullvads API. This should be run after `4-make-release`.
+# publishes new version metadata to Mullvads API.
+# * This should be run after `4-make-release`.
+# * You need to put the private ed25519 signing key in the clipboard before running this script.
 
 set -eu
 
@@ -49,8 +51,8 @@ function publish_metadata {
     mullvad-release add-release "$PRODUCT_VERSION" --rollout 1 "${platforms[@]}"
     echo ""
 
-    echo ">>> Signing $PRODUCT_VERSION metadata"
-    mullvad-release sign "${platforms[@]}"
+    echo ">>> Signing $PRODUCT_VERSION metadata. Reading signing key from clipboard"
+    xclip -sensitive | mullvad-release sign "${platforms[@]}"
     echo ""
 
     echo ">>> Verifying signed metadata"
