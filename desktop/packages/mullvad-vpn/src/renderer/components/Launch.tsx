@@ -3,12 +3,12 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
+import { Button } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
-import * as AppButton from './AppButton';
 import { measurements, tinyText } from './common-styles';
 import ErrorView from './ErrorView';
 import { Footer } from './Layout';
@@ -61,9 +61,14 @@ function MacOsPermissionFooter() {
             'Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting.',
           )}
         </StyledFooterMessage>
-        <AppButton.BlueButton onClick={openSettings}>
-          {messages.gettext('Go to System Settings')}
-        </AppButton.BlueButton>
+        <Button onClick={openSettings}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for system settings.
+              messages.gettext('Go to System Settings')
+            }
+          </Button.Text>
+        </Button>
       </StyledFooterInner>
     </StyledFooter>
   );
@@ -88,9 +93,9 @@ function DefaultFooter() {
               'Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button.',
             )}
           </StyledFooterMessage>
-          <AppButton.BlueButton onClick={showDialog}>
-            {messages.gettext('Learn more')}
-          </AppButton.BlueButton>
+          <Button onClick={showDialog}>
+            <Button.Text>{messages.gettext('Learn more')}</Button.Text>
+          </Button>
         </StyledFooterInner>
       </StyledFooter>
       <ModalAlert
@@ -98,12 +103,17 @@ function DefaultFooter() {
         type={ModalAlertType.info}
         close={hideDialog}
         buttons={[
-          <AppButton.GreenButton key="problem-report" onClick={openSendProblemReport}>
-            {messages.pgettext('launch-view', 'Send problem report')}
-          </AppButton.GreenButton>,
-          <AppButton.BlueButton key="back" onClick={hideDialog}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
+          <Button variant="success" key="problem-report" onClick={openSendProblemReport}>
+            <Button.Text>
+              {
+                // TRANSLATORS: Button label for problem report view.
+                messages.pgettext('launch-view', 'Send problem report')
+              }
+            </Button.Text>
+          </Button>,
+          <Button key="back" onClick={hideDialog}>
+            <Button.Text>{messages.gettext('Back')}</Button.Text>
+          </Button>,
         ]}>
         <ModalMessage>
           {messages.pgettext(
