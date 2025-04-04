@@ -8,6 +8,14 @@ export const resetAppUpgrade = (): AppUpgradeActionReset => ({
   type: 'APP_UPGRADE_RESET',
 });
 
+export type AppUpgradeActionResetError = {
+  type: 'APP_UPGRADE_RESET_ERROR';
+};
+
+export const resetAppUpgradeError = (): AppUpgradeActionResetError => ({
+  type: 'APP_UPGRADE_RESET_ERROR',
+});
+
 export type AppUpgradeActionSetError = {
   type: 'APP_UPGRADE_SET_ERROR';
   error: AppUpgradeError;
@@ -30,11 +38,13 @@ export const setAppUpgradeEvent = (event: AppUpgradeEvent): AppUpgradeActionSetE
 
 export const appUpgradeActions = {
   resetAppUpgrade,
+  resetAppUpgradeError,
   setAppUpgradeError,
   setAppUpgradeEvent,
 };
 
 export type AppUpgradeAction =
   | AppUpgradeActionReset
+  | AppUpgradeActionResetError
   | AppUpgradeActionSetError
   | AppUpgradeActionSetEvent;
