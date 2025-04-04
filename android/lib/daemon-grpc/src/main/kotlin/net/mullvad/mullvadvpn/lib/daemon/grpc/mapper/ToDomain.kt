@@ -176,16 +176,15 @@ internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
 internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
     TunnelEndpoint(
         endpoint =
-            with(address) {
-                val indexOfSeparator = indexOfLast { it == ':' }
-                val ipPart =
-                    address.substring(0, indexOfSeparator).filter { it !in listOf('[', ']') }
-                val portPart = address.substring(indexOfSeparator + 1)
-
+            Endpoint(address = address.toInetSocketAddress(), protocol = protocol.toDomain()),
+        entryEndpoint =
+            if (hasEntryEndpoint()) {
                 Endpoint(
-                    address = InetSocketAddress(InetAddress.getByName(ipPart), portPart.toInt()),
-                    protocol = protocol.toDomain(),
+                    address = entryEndpoint.address.toInetSocketAddress(),
+                    protocol = entryEndpoint.protocol.toDomain(),
                 )
+            } else {
+                null
             },
         quantumResistant = quantumResistant,
         obfuscation =
@@ -203,6 +202,13 @@ internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndp
             Endpoint(address = InetSocketAddress(address, port), protocol = protocol.toDomain()),
         obfuscationType = obfuscationType.toDomain(),
     )
+
+private fun String.toInetSocketAddress(): InetSocketAddress {
+    val indexOfSeparator = indexOfLast { it == ':' }
+    val ipPart = substring(0, indexOfSeparator).filter { it !in listOf('[', ']') }
+    val portPart = substring(indexOfSeparator + 1)
+    return InetSocketAddress(InetAddress.getByName(ipPart), portPart.toInt())
+}
 
 internal fun ManagementInterface.ObfuscationEndpoint.ObfuscationType.toDomain(): ObfuscationType =
     when (this) {

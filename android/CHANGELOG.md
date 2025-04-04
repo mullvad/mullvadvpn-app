@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Will no longer try to connect using an IP version if that IP version is not available.
+- Fix connection details showing in IP from exit server instead of entry when using multihop.
 
 
 ## [android/2025.1] - 2025-03-20
