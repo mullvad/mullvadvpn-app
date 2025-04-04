@@ -8,8 +8,8 @@ export interface DotProps {
 }
 
 const StyledDiv = styled.div<{ $size: string; $color: string }>`
-  width: ${({ $size }) => $size};
-  height: ${({ $size }) => $size};
+  min-width: ${({ $size }) => $size};
+  min-height: ${({ $size }) => $size};
   border-radius: 50%;
   background-color: ${({ $color }) => $color};
 `;
