@@ -1,10 +1,10 @@
 import { usePushAppUpgrade } from '../../../../../../history/hooks';
-import { useIsLinux } from './useIsLinux';
+import { useIsPlatformLinux } from '../../../../../../hooks';
 import { useOpenDownloadUrl } from './useOpenDownloadUrl';
 
 export const useHandleClick = () => {
   const openDownloadUrl = useOpenDownloadUrl();
   const pushAppUpgrade = usePushAppUpgrade();
-  const isLinux = useIsLinux();
+  const isLinux = useIsPlatformLinux();
   return isLinux ? openDownloadUrl : pushAppUpgrade;
 };
