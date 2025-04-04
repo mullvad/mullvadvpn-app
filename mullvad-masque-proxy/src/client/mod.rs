@@ -134,6 +134,7 @@ impl Client {
         client_config: ClientConfig,
         maximum_packet_size: u16,
     ) -> Result<Self> {
+        // TODO: Set EndpointConfig::max_udp_payload_size instead of using X-Mullvad-Uplink-Mtu
         let endpoint = Endpoint::client(local_addr).map_err(Error::Bind)?;
 
         let connecting = endpoint
