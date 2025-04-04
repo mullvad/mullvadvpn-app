@@ -20,5 +20,7 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+## [0.2.0] - 2025-04-08
 - Initial support for downloading and installing the latest version of the Mullvad VPN app on
   Windows and macOS.
