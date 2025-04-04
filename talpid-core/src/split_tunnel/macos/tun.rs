@@ -818,7 +818,7 @@ fn fix_ipv6_checksums(
 ///   exist, the function will not fail, but the stream will never return anything.
 fn capture_outbound_packets(
     utun_iface: &str,
-) -> Result<impl Stream<Item = Result<PktapPacket, Error>> + Send, Error> {
+) -> Result<impl Stream<Item = Result<PktapPacket, Error>> + Send + use<>, Error> {
     // We want to create a pktap "pseudo-device" and capture data on it using a bpf device.
     // This provides packet data plus a pktap header including process information.
     // libpcap will do the heavy lifting for us if we simply request a "pktap" device.
