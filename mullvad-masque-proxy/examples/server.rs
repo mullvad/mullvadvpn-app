@@ -10,6 +10,7 @@ use std::{
 
 #[derive(Parser, Debug)]
 pub struct ServerArgs {
+    /// Bind address
     #[arg(long, short = 'b', default_value = "0.0.0.0:0")]
     bind_addr: SocketAddr,
 
@@ -24,7 +25,8 @@ pub struct ServerArgs {
     /// Allowed IPs
     #[arg(long = "allowed-ip", short = 'a', required = false)]
     allowed_ips: Vec<IpAddr>,
-    /// Maximums packet size
+
+    /// Maximum packet size
     #[arg(long, short = 'm', default_value = "1700")]
     maximum_packet_size: u16,
 }
