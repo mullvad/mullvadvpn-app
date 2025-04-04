@@ -482,6 +482,7 @@ class ConnectScreenTest {
 
             // In
             every { mockTunnelEndpoint.obfuscation } returns null
+            every { mockTunnelEndpoint.entryEndpoint } returns null
             every { mockTunnelEndpoint.endpoint.address.address.hostAddress } returns inHost
             every { mockTunnelEndpoint.endpoint.address.port } returns inPort
             every { mockTunnelEndpoint.endpoint.protocol } returns inProtocol
@@ -681,6 +682,123 @@ class ConnectScreenTest {
             onNodeWithTag(TOP_BAR_ACCOUNT_BUTTON).performClick()
 
             verify(exactly = 1) { onAccountClickMockk() }
+        }
+    }
+
+    @Test
+    fun showConnectionDetailsObfuscation() {
+        composeExtension.use {
+            // Arrange
+            val mockLocation: GeoIpLocation = mockk(relaxed = true)
+            val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
+            val mockHostName = "Host-Name"
+            val inHost = "1.1.1.1"
+            val inPort = 99
+            val inProtocol = TransportProtocol.Tcp
+            every { mockLocation.hostname } returns mockHostName
+            every { mockLocation.entryHostname } returns null
+
+            // In
+            every {
+                mockTunnelEndpoint.obfuscation?.endpoint?.address?.address?.hostAddress
+            } returns inHost
+            every { mockTunnelEndpoint.obfuscation?.endpoint?.address?.port } returns inPort
+            every { mockTunnelEndpoint.obfuscation?.endpoint?.protocol } returns inProtocol
+
+            // Out Ipv4
+            val outIpv4 = "ipv4address"
+            every { mockLocation.ipv4?.hostAddress } returns outIpv4
+
+            // Out Ipv6
+            val outIpv6 = "ipv6address"
+            every { mockLocation.ipv6?.hostAddress } returns outIpv6
+
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = mockLocation,
+                        selectedRelayItemTitle = null,
+                        tunnelState =
+                            TunnelState.Connected(mockTunnelEndpoint, mockLocation, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    )
+            )
+
+            // Act
+            onNodeWithTag(CONNECT_CARD_HEADER_TEST_TAG).performClick()
+
+            // Assert
+            onNodeWithText(mockHostName).assertExists()
+            onNodeWithText("In").assertExists()
+            onNodeWithText("$inHost:$inPort TCP").assertExists()
+
+            onNodeWithText("Out IPv4").assertExists()
+            onNodeWithText(outIpv4).assertExists()
+
+            onNodeWithText("Out IPv6").assertExists()
+            onNodeWithText(outIpv6).assertExists()
+        }
+    }
+
+    @Test
+    fun showConnectionDetailsMultihop() {
+        composeExtension.use {
+            // Arrange
+            val mockLocation: GeoIpLocation = mockk(relaxed = true)
+            val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
+            val mockHostName = "Host-Name"
+            val inHost = "8.8.8.8"
+            val inPort = 55
+            val inProtocol = TransportProtocol.Udp
+            every { mockLocation.hostname } returns mockHostName
+            every { mockLocation.entryHostname } returns null
+
+            // In
+            every { mockTunnelEndpoint.obfuscation } returns null
+            every { mockTunnelEndpoint.entryEndpoint?.address?.address?.hostAddress } returns inHost
+            every { mockTunnelEndpoint.entryEndpoint?.address?.port } returns inPort
+            every { mockTunnelEndpoint.entryEndpoint?.protocol } returns inProtocol
+
+            // Out Ipv4
+            val outIpv4 = "ipv4address"
+            every { mockLocation.ipv4?.hostAddress } returns outIpv4
+
+            // Out Ipv6
+            val outIpv6 = "ipv6address"
+            every { mockLocation.ipv6?.hostAddress } returns outIpv6
+
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = mockLocation,
+                        selectedRelayItemTitle = null,
+                        tunnelState =
+                            TunnelState.Connected(mockTunnelEndpoint, mockLocation, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    )
+            )
+
+            // Act
+            onNodeWithTag(CONNECT_CARD_HEADER_TEST_TAG).performClick()
+
+            // Assert
+            onNodeWithText(mockHostName).assertExists()
+            onNodeWithText("In").assertExists()
+            onNodeWithText("$inHost:$inPort UDP").assertExists()
+
+            onNodeWithText("Out IPv4").assertExists()
+            onNodeWithText(outIpv4).assertExists()
+
+            onNodeWithText("Out IPv6").assertExists()
+            onNodeWithText(outIpv6).assertExists()
         }
     }
 }
