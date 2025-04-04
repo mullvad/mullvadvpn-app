@@ -45,6 +45,7 @@ function build_ref() {
     run_git reset --hard
     run_git checkout "$tag"
     run_git submodule update
+    run_git submodule update --init ios/wireguard-apple || true
     run_git clean -df
 
     local app_build_version="";
@@ -91,7 +92,7 @@ function run_build_loop() {
         # Delete all tags. So when fetching we only get the ones existing on the remote
         run_git tag | xargs git tag -d > /dev/null
 
-        run_git fetch --prune --tags 2> /dev/null || continue
+        run_git fetch --prune --tags --recurse-submodules=no 2> /dev/null || true
         local tags
 
         # shellcheck disable=SC2207
