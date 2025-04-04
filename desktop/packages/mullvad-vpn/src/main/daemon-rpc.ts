@@ -105,9 +105,13 @@ export class DaemonRpc extends GrpcClient {
       } catch {
         throw new Error('Failed to verify admin ownership of named pipe');
       }
-    } else {
+    } else if (process.platform === 'darwin') {
       const stat = fs.statSync(DAEMON_RPC_PATH);
-      // We assume the uid/gid for root is 0
+      if (stat.uid !== 0 || stat.gid !== 1) {
+        throw new Error('Failed to verify root ownership of socket');
+      }
+    } else if (process.platform === 'linux') {
+      const stat = fs.statSync(DAEMON_RPC_PATH);
       if (stat.uid !== 0 || stat.gid !== 0) {
         throw new Error('Failed to verify root ownership of socket');
       }
