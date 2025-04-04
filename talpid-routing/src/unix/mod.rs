@@ -265,7 +265,7 @@ impl RouteManagerHandle {
     #[cfg(target_os = "macos")]
     pub async fn default_route_listener(
         &self,
-    ) -> Result<impl Stream<Item = DefaultRouteEvent>, Error> {
+    ) -> Result<impl Stream<Item = DefaultRouteEvent> + use<>, Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::NewDefaultRouteListener(response_tx))

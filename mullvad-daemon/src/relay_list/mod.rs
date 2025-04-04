@@ -167,14 +167,19 @@ impl RelayListUpdater {
         proxy: RelayListProxy,
         tag: Option<String>,
     ) -> impl Future<Output = Result<Option<RelayList>, mullvad_api::Error>> + use<> {
-        let download_futures = move || {
+        async fn download_future(
+            api_handle: ApiAvailability,
+            proxy: RelayListProxy,
+            tag: Option<String>,
+        ) -> Result<Option<RelayList>, mullvad_api::Error> {
             let available = api_handle.wait_background();
-            let req = proxy.relay_list(tag.clone());
-            async move {
-                available.await?;
-                req.await.map_err(mullvad_api::Error::from)
-            }
-        };
+            let req = proxy.relay_list(tag);
+            available.await?;
+            req.await.map_err(mullvad_api::Error::from)
+        }
+
+        let download_futures =
+            move || download_future(api_handle.clone(), proxy.clone(), tag.clone());
 
         retry_future(
             download_futures,
