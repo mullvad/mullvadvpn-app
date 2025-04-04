@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import styled from 'styled-components';
 
 import { Url } from '../../shared/constants';
 import { useAppContext } from '../context';
@@ -8,7 +9,12 @@ export type ExternalLinkProps = Omit<LinkProps<'a'>, 'href' | 'as'> & {
   to: Url;
 };
 
-export const ExternalLink = ({ to, onClick, ...props }: ExternalLinkProps) => {
+const StyledLink = styled(Link)`
+  display: inline-flex;
+  width: fit-content;
+`;
+
+function ExternalLink({ to, onClick, ...props }: ExternalLinkProps) {
   const { openUrl } = useAppContext();
   const navigate = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -20,5 +26,11 @@ export const ExternalLink = ({ to, onClick, ...props }: ExternalLinkProps) => {
     },
     [onClick, openUrl, to],
   );
-  return <Link href="" onClick={navigate} {...props} />;
-};
+  return <StyledLink href="" onClick={navigate} {...props} />;
+}
+
+const ExternalLinkNamespace = Object.assign(ExternalLink, {
+  Icon: Link.Icon,
+});
+
+export { ExternalLinkNamespace as ExternalLink };

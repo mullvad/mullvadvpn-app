@@ -955,7 +955,7 @@ msgstr ""
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "in-app-notifications"
-msgid "change tunnel protocol to %(wireGuard)s"
+msgid "change tunnel protocol to %(wireGuard)s."
 msgstr ""
 
 msgctxt "in-app-notifications"

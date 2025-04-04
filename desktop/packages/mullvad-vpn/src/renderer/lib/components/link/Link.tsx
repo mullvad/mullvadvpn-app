@@ -2,7 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Colors, Radius } from '../../foundations';
-import { Text, TextProps } from './Text';
+import { Text, TextProps } from '../typography';
+import { LinkIcon } from './components';
 
 export type LinkProps<T extends React.ElementType = 'a'> = TextProps<T> & {
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
@@ -14,8 +15,7 @@ const StyledText = styled(Text)<{
   background: 'transparent',
   cursor: 'default',
   textDecoration: 'none',
-  display: 'inline-flex',
-  alignItems: 'center',
+  display: 'inline',
 
   '&&:hover': {
     textDecorationLine: 'underline',
@@ -38,11 +38,11 @@ const getHoverColor = (color: Colors | undefined) => {
   }
 };
 
-export const Link = <T extends React.ElementType = 'a'>({
+function Link<T extends React.ElementType = 'a'>({
   as: forwardedAs,
   color,
   ...props
-}: LinkProps<T>) => {
+}: LinkProps<T>) {
   // If `as` is provided we need to pass it as `forwardedAs` for it to
   // be correctly passed to the `Text` component.
   const componentProps = forwardedAs ? { ...props, forwardedAs } : props;
@@ -54,4 +54,10 @@ export const Link = <T extends React.ElementType = 'a'>({
       {...componentProps}
     />
   );
-};
+}
+
+const LinkNamespace = Object.assign(Link, {
+  Icon: LinkIcon,
+});
+
+export { LinkNamespace as Link };
