@@ -6,4 +6,5 @@ export * from './useHasAppUpgradeInitiated';
 export * from './useHasAppUpgradeVerifiedInstallerPath';
 export * from './useIsAppUpgradeInProgress';
 export * from './useIsAppUpgradePending';
+export * from './useIsPlatformLinux';
 export * from './useShouldAppUpgradeInstallManually';
