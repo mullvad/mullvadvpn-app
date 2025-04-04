@@ -124,7 +124,6 @@
     <string name="device_inactive_description">Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход.</string>
     <string name="device_inactive_title">Устройство неактивно</string>
     <string name="device_inactive_unblock_warning">Вход в профиль разблокирует Интернет на этом устройстве.</string>
-    <string name="device_ip_version_title">Версия IP</string>
     <string name="device_name">Имя устройства</string>
     <string name="device_name_info_first_paragraph">Это имя, присвоенное устройству. Каждое устройство, подключенное к учетной записи Mullvad, получает уникальное имя, которое помогает вам идентифицировать его при управлении устройствами в приложении или на сайте.</string>
     <string name="device_name_info_second_paragraph">К одной учетной записи Mullvad можно подключить до 5 устройств.</string>
@@ -156,7 +155,6 @@
     <string name="enable_anyway">Всё равно включить</string>
     <string name="enable_custom_dns">Пользовательский DNS-сервер</string>
     <string name="enable_direct_only">Включить параметр «%1$s»</string>
-    <string name="enable_ipv6">Включить IPv6</string>
     <string name="enable_method">Включить метод</string>
     <string name="encrypted_dns_proxy_info_message_part1">При использовании метода «Прокси через зашифрованный DNS» приложение будет взаимодействовать с API Mullvad через прокси-адрес. Полученный от сервера «DNS по HTTPS» (DoH) адрес будет использоваться для доступа к нашим серверам API.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Если вы не подключены к нашему VPN, функция «Зашифрованный DNS-прокси» при подключении будет использовать ваш IP-адрес, не относящийся к VPN. Серверы DoH размещаются у одного из следующих провайдеров: Quad9 или CloudFlare.</string>

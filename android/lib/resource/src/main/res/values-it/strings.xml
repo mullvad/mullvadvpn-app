@@ -124,7 +124,6 @@
     <string name="device_inactive_description">Hai rimosso questo dispositivo. Per riconnetterti, dovrai effettuare nuovamente il login.</string>
     <string name="device_inactive_title">Il dispositivo è inattivo</string>
     <string name="device_inactive_unblock_warning">Andare al login sbloccherà Internet su questo dispositivo.</string>
-    <string name="device_ip_version_title">Versione IP</string>
     <string name="device_name">Nome dispositivo</string>
     <string name="device_name_info_first_paragraph">Questo è il nome assegnato al dispositivo. Ogni dispositivo connesso a un account Mullvad riceve un nome univoco che ti aiuta a identificarlo quando gestisci i tuoi dispositivi nell\'app o sul sito web.</string>
     <string name="device_name_info_second_paragraph">Puoi avere fino a 5 dispositivi registrati su un account Mullvad.</string>
@@ -156,7 +155,6 @@
     <string name="enable_anyway">Abilita comunque</string>
     <string name="enable_custom_dns">Usa un server DNS personalizzato</string>
     <string name="enable_direct_only">Abilita %1$s</string>
-    <string name="enable_ipv6">Abilita IPv6</string>
     <string name="enable_method">Abilita metodo</string>
     <string name="encrypted_dns_proxy_info_message_part1">Con il metodo \"Proxy DNS crittografato\", l\'app comunicherà con la nostra API Mullvad tramite un indirizzo proxy. Lo fa recuperando un indirizzo da un server DNS over HTTPS (DoH) e quindi utilizzandolo per raggiungere i nostri server API.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Se non sei connesso alla nostra VPN, il proxy DNS crittografato utilizzerà il tuo IP non VPN durante la connessione. I server DoH sono ospitati da uno dei seguenti provider: Quad9 o CloudFlare.</string>

@@ -124,7 +124,6 @@
     <string name="device_inactive_description">ဤစက်ကို ဖယ်ရှားပြီး ဖြစ်သည်။ ထပ်မံချိတ်ဆက်ရန်အတွက် ပြန်လည် ဝင်ရောက်ရန် လိုပါသည်။</string>
     <string name="device_inactive_title">စက်သည် သက်ဝင်လုပ်ဆောင်မှု မရှိပါ</string>
     <string name="device_inactive_unblock_warning">ဝင်ရောက်ရန်သွားခြင်းဖြင့် ဤစက်တွင် အင်တာနက်ကို ပိတ်ဆို့ထားမှုမှ ဖယ်ရှားပါလိမ့်မည်။</string>
-    <string name="device_ip_version_title">IP ဗားရှင်း</string>
     <string name="device_name">စက်အမည်</string>
     <string name="device_name_info_first_paragraph">ဤအမည်မှာ စက်အတွက် သတ်မှတ်ထားသော အမည် ဖြစ်ပါသည်။ Mullvad အကောင့်တစ်ခုတွင် ဝင်ရောက်ထားသည့် စက်တစ်ခုစီသည် တစ်မူထူးခြားသည့် အမည်တစ်ခု ရရှိမည်ဖြစ်ပြီး အက်ပ် သို့မဟုတ် ဝက်ဘ်ဆိုက်ပေါ်တွင် သင့်စက်များကို စီမံသည့်အခါ သင်အနေဖြင့် ကွဲကွဲပြားပြားသိရှိအောင် ကူညီပေးပါသည်။</string>
     <string name="device_name_info_second_paragraph">Mullvad အကောင့်တစ်ခုတွင် စက် 5 ခုအထိ ဝင်ရောက်ထားနိုင်ပါသည်။</string>
@@ -156,7 +155,6 @@
     <string name="enable_anyway">မည်သို့ပင်ဖြစ်စေ ဖွင့်ရန်</string>
     <string name="enable_custom_dns">စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်</string>
     <string name="enable_direct_only">%1$s ကို ဖွင့်ရန်</string>
-    <string name="enable_ipv6">IPv6 ကို ဖွင့်ရန်</string>
     <string name="enable_method">နည်းလမ်းကို ဖွင့်ရန်</string>
     <string name="encrypted_dns_proxy_info_message_part1">ထိုအက်ပ်သည် “ကုဒ်ဝှက်ထားသော DNS ပရောက်စီ” နည်းလမ်းအားဖြင့် ကျွန်ုပ်တို့၏ Mullvad API ထံသို့ ပရောက်စီလိပ်စာမှတစ်ဆင့် ဆက်သွယ်ပေးမည်ဖြစ်သည်။ HTTPS (DoH) ဆာဗာရှိ DNS မှ လိပ်စာတစ်ခုကို ပြန်လည်ရယူခြင်းအားဖြင့် ထိုသို့လုပ်ဆောင်ပြီးနောက် ကျွန်ုပ်တို့၏ API ဆာဗာများသို့ရောက်ရှိရန် ၎င်းကို အသုံးပြုသည်။</string>
     <string name="encrypted_dns_proxy_info_message_part2">အကယ်၍ သင်သည် ကျွန်ုပ်တို့၏ VPN သို့ ချိတ်ဆက်ထားခြင်းမရှိပါက ကုဒ်ဝှက်ထားသော DNS ပရောက်စီသည် ချိတ်ဆက်ရာတွင် သင်၏ကိုယ်ပိုင် VPN မဟုတ်သော IP ကို ​​အသုံးပြုပါမည်။ DoH ဆာဗာများကို အောက်ပါဝန်ဆောင်မှုပေးသူများထဲမှ တစ်ခုမှ လက်ခံဆောင်ရွက်ပေးသည်- Quad 9 သို့မဟုတ် CloudFlare ။</string>

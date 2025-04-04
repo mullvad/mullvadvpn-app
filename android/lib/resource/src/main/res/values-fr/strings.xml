@@ -124,7 +124,6 @@
     <string name="device_inactive_description">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</string>
     <string name="device_inactive_title">L\'appareil est inactif</string>
     <string name="device_inactive_unblock_warning">Aller à la connexion débloquera la connexion Internet sur cet appareil.</string>
-    <string name="device_ip_version_title">Version IP</string>
     <string name="device_name">Nom de l\'appareil</string>
     <string name="device_name_info_first_paragraph">Il s\'agit du nom attribué à l\'appareil. Chaque appareil connecté à un compte Mullvad reçoit un nom unique qui vous aide à l\'identifier lorsque vous gérez vos appareils dans l\'application ou sur le site Web.</string>
     <string name="device_name_info_second_paragraph">Vous pouvez connecter jusqu\'à 5 appareils au même compte Mullvad.</string>
@@ -156,7 +155,6 @@
     <string name="enable_anyway">Activer quand même</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
     <string name="enable_direct_only">Activer %1$s</string>
-    <string name="enable_ipv6">Activer IPv6</string>
     <string name="enable_method">Activer la méthode</string>
     <string name="encrypted_dns_proxy_info_message_part1">Avec la méthode « proxy DNS chiffré », l\'application communiquera avec notre API Mullvad par le biais d\'une adresse proxy. Pour ce faire, elle récupère une adresse auprès d\'un serveur DNS over HTTPS (DoH) et l\'utilise pour atteindre nos serveurs API.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Si vous n\'êtes pas connecté à notre VPN, le proxy DNS chiffré utilisera votre propre IP non VPN lors de la connexion. Les serveurs DoH sont hébergés par l\'un des fournisseurs suivants : Quad 9 ou CloudFlare.</string>

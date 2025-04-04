@@ -124,7 +124,6 @@
     <string name="device_inactive_description">您已移除此裝置。若要重新連線，您需要重新登入。</string>
     <string name="device_inactive_title">裝置處於非活動狀態</string>
     <string name="device_inactive_unblock_warning">若前往登入，則會在此裝置上解除對網際網路的封鎖。</string>
-    <string name="device_ip_version_title">IP 版本</string>
     <string name="device_name">裝置名稱</string>
     <string name="device_name_info_first_paragraph">這是系統指派給裝置的名稱。每台登入 Mulvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。</string>
     <string name="device_name_info_second_paragraph">一個 Mulvad 帳戶最多可以登入 5 台裝置。</string>
@@ -156,7 +155,6 @@
     <string name="enable_anyway">仍然啟用</string>
     <string name="enable_custom_dns">使用自訂 DNS 伺服器</string>
     <string name="enable_direct_only">啟用 %1$s</string>
-    <string name="enable_ipv6">啟用 IPv6</string>
     <string name="enable_method">啟用方式</string>
     <string name="encrypted_dns_proxy_info_message_part1">使用「加密 DNS 代理伺服器」方法時，應用程式會透過代理伺服器位址和我們的 Mullvad API 通訊。應用程式會先從 DNS over HTTPS (DoH) 伺服器取得一個位址，再利用該位址連線至我們的 API 伺服器。</string>
     <string name="encrypted_dns_proxy_info_message_part2">如果您未連線至我們的 VPN 服務，則加密 DNS 代理伺服器將在連線時使用您本人的非 VPN IP。DoH 伺服器由下列供應商之一負責託管：Quad9 或 CloudFlare。</string>

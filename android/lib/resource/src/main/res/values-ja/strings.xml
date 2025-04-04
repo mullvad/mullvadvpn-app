@@ -124,7 +124,6 @@
     <string name="device_inactive_description">このデバイスを削除しました。再度接続するには、ログインし直す必要があります。</string>
     <string name="device_inactive_title">デバイスが無効です</string>
     <string name="device_inactive_unblock_warning">ログインに進むと、このデバイスのインターネットのブロックが解除されます。</string>
-    <string name="device_ip_version_title">IPバージョン</string>
     <string name="device_name">デバイス名</string>
     <string name="device_name_info_first_paragraph">これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。</string>
     <string name="device_name_info_second_paragraph">1つのMullvadアカウントで最大5台のデバイスにログインできます。</string>
@@ -156,7 +155,6 @@
     <string name="enable_anyway">それでも有効にする</string>
     <string name="enable_custom_dns">カスタムDNSサーバーを使う</string>
     <string name="enable_direct_only">%1$sを有効にする</string>
-    <string name="enable_ipv6">IPv6を有効にする</string>
     <string name="enable_method">方法を有効化する</string>
     <string name="encrypted_dns_proxy_info_message_part1">[暗号化DNSプロキシ] 方式を使用すると、アプリはプロキシアドレスを通じてMullvad APIと通信します。これはDNS over HTTPS (DoH) サーバーからアドレスを取得し、APIサーバーへのアクセスに利用することで行われます。</string>
     <string name="encrypted_dns_proxy_info_message_part2">当社のVPNに接続していない場合、暗号化DNSプロキシは接続時に独自の非VPN IPを使用します。DoHサーバーは、Quad9またはCloudFlareのいずれかによってホストされます。</string>
