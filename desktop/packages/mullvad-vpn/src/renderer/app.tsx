@@ -407,7 +407,7 @@ export default class AppRenderer {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
   public appUpgrade = () => {
-    this.reduxActions.appUpgrade.resetAppUpgrade();
+    this.reduxActions.appUpgrade.resetAppUpgradeError();
     IpcRendererEventChannel.app.upgrade();
   };
   public appUpgradeAbort = () => IpcRendererEventChannel.app.upgradeAbort();
