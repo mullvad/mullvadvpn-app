@@ -56,7 +56,7 @@ configuration.
    vim ios/Configurations/Screenshots.xcconfig
    ```
 
-### Prerequisitives
+### Prerequisites
 
 1. Make sure you have [rvm](https://rvm.io) installed.
 1. Install Ruby 2.5.1 or later using `rvm install <VERSION>`.
