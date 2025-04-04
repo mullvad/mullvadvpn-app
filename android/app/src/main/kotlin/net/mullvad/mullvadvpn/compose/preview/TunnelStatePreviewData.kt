@@ -40,6 +40,7 @@ object TunnelStatePreviewData {
 
     private fun generateTunnelEndpoint(quantumResistant: Boolean, daita: Boolean): TunnelEndpoint =
         TunnelEndpoint(
+            entryEndpoint = null,
             endpoint = generateEndpoint(TransportProtocol.Udp),
             quantumResistant = quantumResistant,
             obfuscation =

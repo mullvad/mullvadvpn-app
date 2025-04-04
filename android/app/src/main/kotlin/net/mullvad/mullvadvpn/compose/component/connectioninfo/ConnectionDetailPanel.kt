@@ -192,7 +192,11 @@ fun ConnectionDetails(
 
 @Composable
 fun TunnelEndpoint.toInAddress(): String {
-    val relayEndpoint = this.obfuscation?.endpoint ?: this.endpoint
+    // Order is important
+    // First we check for obfuscation (Shadowsocks, UDP-Over-UDP)
+    // Then we check for entry if we have multihop
+    // Finally we check for exit endpoint
+    val relayEndpoint = obfuscation?.endpoint ?: entryEndpoint ?: endpoint
 
     val host = relayEndpoint.address.address.hostAddress ?: ""
     val port = relayEndpoint.address.port
