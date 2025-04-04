@@ -15,6 +15,8 @@ import {
 import { messages } from '../../shared/gettext';
 import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
+import { usePushAppUpgrade } from '../history/hooks';
+import { useIsPlatformLinux } from '../hooks';
 import useActions from '../lib/actionsHook';
 import { Button, Flex, Spinner } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
@@ -336,6 +338,7 @@ function OutdatedVersionWarningDialog() {
   const isOffline = useSelector((state) => state.connection.isBlocked);
   const suggestedIsBeta = useSelector((state) => state.version.suggestedIsBeta ?? false);
   const outdatedVersion = useSelector((state) => !!state.version.suggestedUpgrade);
+  const pushAppUpgrade = usePushAppUpgrade();
 
   const [showOutdatedVersionWarning, setShowOutdatedVersionWarning] = useState(outdatedVersion);
 
@@ -347,6 +350,16 @@ function OutdatedVersionWarningDialog() {
     await openUrl(getDownloadUrl(suggestedIsBeta));
   }, [openUrl, suggestedIsBeta]);
 
+  const isLinux = useIsPlatformLinux();
+  const upgradeAction = useCallback(async () => {
+    if (isLinux) {
+      await openDownloadLink();
+    } else {
+      acknowledgeOutdatedVersion();
+      pushAppUpgrade();
+    }
+  }, [isLinux, openDownloadLink, pushAppUpgrade, acknowledgeOutdatedVersion]);
+
   const outdatedVersionCancel = useCallback(() => {
     acknowledgeOutdatedVersion();
     pop();
@@ -357,37 +370,35 @@ function OutdatedVersionWarningDialog() {
     'You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report.',
   );
 
+  const disabled = isLinux && isOffline;
+
   return (
     <ModalAlert
       isOpen={showOutdatedVersionWarning}
       type={ModalAlertType.warning}
       message={message}
       buttons={[
-        <Button
-          key="upgrade"
-          variant="success"
-          disabled={isOffline}
-          onClick={openDownloadLink}
-          aria-description={messages.pgettext('accessibility', 'Opens externally')}>
-          <Button.Text>
-            {
-              // TRANSLATORS: Button label for upgrading the app to the latest version.
-              messages.pgettext('support-view', 'Upgrade app')
-            }
-          </Button.Text>
-          <Button.Icon icon="external" />
-        </Button>,
-        <Button variant="destructive" key="proceed" onClick={acknowledgeOutdatedVersion}>
-          <Button.Text>
-            {
-              // TRANSLATORS: Button label for continuing problem report submission with an outdated app version.
-              messages.pgettext('support-view', 'Continue anyway')
-            }
-          </Button.Text>
-        </Button>,
-        <Button key="cancel" onClick={outdatedVersionCancel}>
-          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-        </Button>,
+        <AriaDescriptionGroup key="upgrade">
+          <AriaDescribed>
+            <AppButton.GreenButton disabled={disabled} onClick={upgradeAction}>
+              <AppButton.Label>{messages.pgettext('support-view', 'Upgrade app')}</AppButton.Label>
+              {isLinux && (
+                <AriaDescription>
+                  <Icon
+                    icon="external"
+                    aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                  />
+                </AriaDescription>
+              )}
+            </AppButton.GreenButton>
+          </AriaDescribed>
+        </AriaDescriptionGroup>,
+        <AppButton.RedButton key="proceed" onClick={acknowledgeOutdatedVersion}>
+          {messages.pgettext('support-view', 'Continue anyway')}
+        </AppButton.RedButton>,
+        <AppButton.BlueButton key="cancel" onClick={outdatedVersionCancel}>
+          {messages.gettext('Cancel')}
+        </AppButton.BlueButton>,
       ]}
       close={pop}
     />
