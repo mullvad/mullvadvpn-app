@@ -10,6 +10,9 @@ import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.SettingsPage
 import net.mullvad.mullvadvpn.test.common.page.SystemVpnConfigurationAlert
 import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
+import net.mullvad.mullvadvpn.test.common.page.disableObfuscationStory
+import net.mullvad.mullvadvpn.test.common.page.enableLocalNetworkSharingStory
+import net.mullvad.mullvadvpn.test.common.page.enableShadowsocksStory
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
@@ -71,7 +74,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @ClearFirewallRules
     fun testWireGuardObfuscationAutomatic() = runBlocking {
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-        on<ConnectPage> { enableLocalNetworkSharing() }
+        on<ConnectPage> { enableLocalNetworkSharingStory() }
 
         on<ConnectPage> { clickSelectLocation() }
 
@@ -108,7 +111,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @ClearFirewallRules
     fun testWireGuardObfuscationOff() = runBlocking {
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-        on<ConnectPage> { enableLocalNetworkSharing() }
+        on<ConnectPage> { enableLocalNetworkSharingStory() }
 
         on<ConnectPage> { clickSelectLocation() }
 
@@ -161,7 +164,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     fun testUDPOverTCP() =
         runBlocking<Unit> {
             app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-            on<ConnectPage> { enableLocalNetworkSharing() }
+            on<ConnectPage> { enableLocalNetworkSharingStory() }
 
             on<ConnectPage> { clickSelectLocation() }
 
@@ -211,9 +214,9 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     fun testShadowsocks() =
         runBlocking<Unit> {
             app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-            on<ConnectPage> { enableLocalNetworkSharing() }
+            on<ConnectPage> { enableLocalNetworkSharingStory() }
 
-            on<ConnectPage> { disableObfuscation() }
+            on<ConnectPage> { disableObfuscationStory() }
 
             // Block all WireGuard traffic
             val firewallRule = DropRule.blockWireGuardTrafficRule(ANY_IP_ADDRESS)
@@ -230,7 +233,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
                 clickCancel()
             }
 
-            on<ConnectPage> { enableShadowsocks() }
+            on<ConnectPage> { enableShadowsocksStory() }
 
             // Ensure we can now connect with Shadowsocks enabled
             on<ConnectPage> {
