@@ -46,7 +46,7 @@ function publish_metadata {
     echo ""
 
     echo ">>> Adding new release $PRODUCT_VERSION (rollout = 1)"
-    mullvad-release add-release "$PRODUCT_VERSION" "${platforms[@]}" 1
+    mullvad-release add-release "$PRODUCT_VERSION" --rollout 1 "${platforms[@]}"
     echo ""
 
     echo ">>> Signing $PRODUCT_VERSION metadata"
