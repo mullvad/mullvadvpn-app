@@ -1,8 +1,10 @@
 use super::{msg_string::MsgString, parser::Parser, plural_form::PluralForm};
+use regex::Regex;
 use std::{
     fs::File,
     io::{BufRead, BufReader},
     path::Path,
+    sync::LazyLock,
 };
 
 /// A parsed gettext messages file.
@@ -22,7 +24,7 @@ pub struct MsgEntry {
 /// A message string or plural set in a gettext translation file.
 #[derive(Clone, Debug)]
 pub enum MsgValue {
-    Invariant(MsgString),
+    Invariant(MsgString, Option<Vec<u8>>),
     Plural {
         plural_id: MsgString,
         values: Vec<MsgString>,
@@ -57,8 +59,8 @@ impl Messages {
     /// The plural form for the messages is left unconfigured.
     pub fn starting_with(id: MsgString, msg_str: MsgString) -> Self {
         let first_entry = MsgEntry {
-            id,
-            value: MsgValue::Invariant(msg_str),
+            id: id.clone(),
+            value: MsgValue::Invariant(msg_str.clone(), argument_ordering(id, msg_str)),
         };
 
         Messages {
@@ -70,8 +72,8 @@ impl Messages {
     /// Add a non-plural entry.
     pub fn add(&mut self, id: MsgString, msg_str: MsgString) {
         let entry = MsgEntry {
-            id,
-            value: MsgValue::Invariant(msg_str),
+            id: id.clone(),
+            value: MsgValue::Invariant(msg_str.clone(), argument_ordering(id, msg_str)),
         };
 
         self.entries.push(entry);
@@ -99,8 +101,36 @@ impl IntoIterator for Messages {
 
 impl From<MsgString> for MsgValue {
     fn from(string: MsgString) -> Self {
-        MsgValue::Invariant(string)
+        MsgValue::Invariant(string, None)
     }
+}
+
+static NAMED_ARGUMENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"%\([a-zA-Z]+\)").unwrap());
+
+fn argument_ordering(id: MsgString, msg_str: MsgString) -> Option<Vec<u8>> {
+    if NAMED_ARGUMENT.is_match(&id) && NAMED_ARGUMENT.is_match(&msg_str) {
+        // Extract arguments in id
+        let id_args = extract_arguments(id);
+        // Extract arguments in translation
+        let value_args = extract_arguments(msg_str);
+        // Set index as id order and value as translation order
+        Some(
+            id_args
+                .iter()
+                .map(|id_arg| value_args.iter().position(|value_arg| value_arg == id_arg))
+                .map(|f| f.unwrap() as u8 + 1)
+                .collect(),
+        )
+    } else {
+        None
+    }
+}
+
+fn extract_arguments(msg: MsgString) -> Vec<String> {
+    NAMED_ARGUMENT
+        .find_iter(&msg)
+        .map(|s| String::from(s.as_str()))
+        .collect()
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -112,4 +142,65 @@ pub enum Error {
     /// IO error while reading input file.
     #[error("Failed to read from the input file")]
     Io(#[from] std::io::Error),
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::gettext::messages::argument_ordering;
+    use crate::gettext::MsgString;
+
+    #[test]
+    fn if_message_has_no_argument_should_have_no_argument_ordering() {
+        let msg_id = MsgString::from_escaped("This is a text");
+        let msg_str = MsgString::from_escaped("Det här är en text");
+        let argument_ordering = argument_ordering(msg_id, msg_str);
+
+        let expected = None;
+
+        assert_eq!(argument_ordering, expected);
+    }
+
+    #[test]
+    fn if_message_has_no_translation_should_have_no_argument_ordering() {
+        let msg_id = MsgString::from_escaped("This is a %(text)");
+        let msg_str = MsgString::from_escaped("");
+        let argument_ordering = argument_ordering(msg_id, msg_str);
+
+        let expected = None;
+
+        assert_eq!(argument_ordering, expected);
+    }
+
+    #[test]
+    fn if_argument_ordering_is_same_should_have_sequential_ordering() {
+        let msg_id = MsgString::from_escaped("This is a %(text) and %(star)");
+        let msg_str = MsgString::from_escaped("Det här är en %(text) och %(star)");
+        let argument_ordering = argument_ordering(msg_id, msg_str);
+
+        let expected = Some([1, 2].to_vec());
+
+        assert_eq!(argument_ordering, expected);
+    }
+
+    #[test]
+    fn if_argument_ordering_is_reversed_should_have_reversed_ordering() {
+        let msg_id = MsgString::from_escaped("This is a %(text) and %(star)");
+        let msg_str = MsgString::from_escaped("Det här är en %(star) och %(text)");
+        let argument_ordering = argument_ordering(msg_id, msg_str);
+
+        let expected = Some([2, 1].to_vec());
+
+        assert_eq!(argument_ordering, expected);
+    }
+
+    #[test]
+    fn if_argument_is_repeated_should_have_repeated_ordering() {
+        let msg_id = MsgString::from_escaped("This is a %(text) and %(text)");
+        let msg_str = MsgString::from_escaped("Det här är en %(text) och %(text)");
+        let argument_ordering = argument_ordering(msg_id, msg_str);
+
+        let expected = Some([1, 1].to_vec());
+
+        assert_eq!(argument_ordering, expected);
+    }
 }

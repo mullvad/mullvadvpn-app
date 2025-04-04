@@ -11,11 +11,6 @@
 //! the message parameters are changed so that they are in a common format, and there is also a
 //! small workaround for having different apostrophe characters in the GUI in some messages.
 //!
-//! One dangerous assumption for the normalization is that the named parameters for the GUI are
-//! supplied in the declared order on Android. This is because it's not possible to figure out the
-//! order when only named parameters are used, and Android strings only supported numbered
-//! parameters.
-//!
 //! Android's plural resources are also translated using the same principle. It's important to note
 //! that the singular quantity item (i.e., the item where `quantity="one"`) for each Android plural
 //! resource will be used as the `msgid` to be search for in the gettext translations file.
@@ -150,7 +145,7 @@ fn main() {
 
     for message in template {
         match message.value {
-            MsgValue::Invariant(_) => missing_translations.remove(&message.id.normalize()),
+            MsgValue::Invariant(_, _) => missing_translations.remove(&message.id.normalize()),
             MsgValue::Plural { .. } => missing_plurals.remove(&message.id.normalize()),
         };
     }
@@ -235,11 +230,12 @@ fn main() {
     let mut localized_strings = android::StringResources::new();
     for translation in default_translations {
         match translation.value {
-            MsgValue::Invariant(_) => {
+            MsgValue::Invariant(_, arg_ordering) => {
                 if !translation.id.is_empty() {
                     localized_strings.push(android::StringResource::new(
                         translation.id.normalize(),
                         &translation.id.normalize(),
+                        arg_ordering.as_ref(),
                     ));
                 }
             }
@@ -326,10 +322,11 @@ fn generate_relay_translations(
 
     for translation in translations {
         match translation.value {
-            MsgValue::Invariant(translation_value) => {
+            MsgValue::Invariant(translation_value, arg_ordering) => {
                 localized_strings.push(android::StringResource::new(
                     translation.id.normalize(),
                     &translation_value.normalize(),
+                    arg_ordering.as_ref(),
                 ));
             }
             MsgValue::Plural { .. } => {}
@@ -369,11 +366,12 @@ fn generate_translations(
 
     for translation in translations {
         match translation.value {
-            MsgValue::Invariant(translation_value) => {
+            MsgValue::Invariant(translation_value, arg_ordering) => {
                 if let Some(android_key) = known_strings.remove(&translation.id.normalize()) {
                     localized_strings.push(android::StringResource::new(
                         android_key,
                         &translation_value.normalize(),
+                        arg_ordering.as_ref(),
                     ));
                 }
             }
