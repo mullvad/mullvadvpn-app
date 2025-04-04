@@ -72,6 +72,10 @@ impl Server {
         })
     }
 
+    pub fn local_addr(&self) -> io::Result<SocketAddr> {
+        self.endpoint.local_addr()
+    }
+
     pub async fn run(self) -> Result<()> {
         while let Some(new_connection) = self.endpoint.accept().await {
             tokio::spawn(Self::handle_incoming_connection(
