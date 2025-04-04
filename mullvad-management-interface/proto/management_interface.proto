@@ -656,7 +656,7 @@ message ExcludedProcessList { repeated ExcludedProcess processes = 1; }
 
 message SuggestedUpgrade {
   string version = 1;
-  optional string changelog = 2;
+  string changelog = 2;
   optional string verified_installer_path = 3;
 }
 

@@ -23,7 +23,7 @@ pub struct SuggestedUpgrade {
     /// Version available for update
     pub version: mullvad_version::Version,
     /// Changelog
-    pub changelog: Option<String>,
+    pub changelog: String,
     /// Path to the available installer, iff it has been verified
     pub verified_installer_path: Option<PathBuf>,
 }
