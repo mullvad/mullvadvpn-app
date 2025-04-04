@@ -27,10 +27,10 @@ fi
 
 PRODUCT_VERSION=$1
 
-ARTIFACT_DIR="./artifacts"
+# shellcheck source=desktop/scripts/release/release-config.sh
+source "$SCRIPT_DIR/release-config.sh"
 
-rm -rf $ARTIFACT_DIR
-mkdir -p $ARTIFACT_DIR
+rm -rf "$ARTIFACT_DIR" && mkdir -p "$ARTIFACT_DIR" || exit 1
 
 function publish_release {
     echo ">>> Downloading changelog"
@@ -85,5 +85,5 @@ function publish_release {
     echo "The above URL contains the text \"untagged\", but don't worry it is tagged properly and everything will look correct once it's published."
 }
 
-./download-release-artifacts "$PRODUCT_VERSION"
+./download-release-artifacts "$PRODUCT_VERSION" "$ARTIFACT_DIR"
 publish_release
