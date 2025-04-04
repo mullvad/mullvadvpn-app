@@ -66,6 +66,9 @@ This release is identical to 2025.5-beta1
   Full Disk Access to `mullvad-daemon`. This could only ever be accomplished from the CLI.
 - Fix routing issue caused by upgrading `tun`.
 
+#### Windows
+- Attempt to reinstall split tunnel driver if it cannot be started.
+
 
 ## [2025.4] - 2025-02-12
 This release is identical to 2025.4-beta1
