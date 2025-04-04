@@ -80,8 +80,7 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
     }
 
     async fn default_connection_mode(&self) -> AllowedEndpoint {
-        // TODO: What should happen here, should we call the address cache ?
-        // TODO: Check the settings to see which access method should be used
+        // TODO: Call the iOS Address cache implementation instead of returning the default endpoint
         let endpoint = ApiConnectionMode::Direct.get_endpoint().unwrap();
         return AllowedEndpoint {
             endpoint,

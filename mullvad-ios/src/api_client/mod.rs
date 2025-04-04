@@ -50,13 +50,18 @@ impl ApiContext {
     }
 
     pub fn use_access_method(&self, id: Id) {
-        _ = self.access_mode_handler.use_access_method(id);
+        _ = self
+            ._api_client
+            .handle()
+            .block_on(async { self.access_mode_handler.use_access_method(id).await });
     }
 
     pub fn update_access_methods(&self, access_methods: Settings) {
-        _ = self
-            .access_mode_handler
-            .update_access_methods(access_methods)
+        _ = self._api_client.handle().block_on(async {
+            self.access_mode_handler
+                .update_access_methods(access_methods)
+                .await
+        });
     }
 }
 
@@ -108,9 +113,16 @@ pub extern "C" fn mullvad_api_init_new(
     let address = unsafe { convert_c_string(address) };
     let domain = unsafe { convert_c_string(domain) };
 
+    // The iOS client provides a default different endpoint based on its configuration
+    // Debug and Release builds use the standard endpoints
+    // Staging builds will use the staging endpoint
     let endpoint = ApiEndpoint {
         host: Some(host),
         address: Some(address.parse().unwrap()),
+        #[cfg(feature = "api-override")]
+        disable_tls: false,
+        #[cfg(feature = "api-override")]
+        force_direct: true,
     };
 
     let tokio_handle = crate::mullvad_ios_runtime().unwrap();
@@ -119,6 +131,8 @@ pub extern "C" fn mullvad_api_init_new(
     let access_method_settings = settings_context.convert_access_method().unwrap();
     let encrypted_dns_proxy_state = EncryptedDnsProxyState::default();
 
+    // TODO: Add a wrapper around the iOS AddressCache in SwiftAccessMethodResolver
+    // So that it can be used in the `default_connection_mode` implementation
     let method_resolver = unsafe {
         SwiftAccessMethodResolver::new(
             endpoint.clone(),
@@ -127,29 +141,21 @@ pub extern "C" fn mullvad_api_init_new(
             *bridge_provider.into_rust_context(),
         )
     };
-    // TODO: Handle #[cfg(feature = "api-override")]
 
     let api_context = tokio_handle.clone().block_on(async move {
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.
-
-        let (access_mode_handler, access_mode_provider) =
-            AccessModeSelector::spawn(method_resolver, access_method_settings)
-                .await
-                .expect("no errors here, move along");
-
-        // TODO: Send the `access_mode_handler` back to swift to invoke update on access methods
-        // TODO: Call `use_access_method` when the user manually switches access methods
-        // TODO: Call `update_access_methods` when the user changes a method configuration
+        let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
+            method_resolver,
+            access_method_settings,
+            #[cfg(feature = "api-override")]
+            endpoint.clone(),
+        )
+        .await
+        .expect("no errors here, move along");
 
         let api_client = mullvad_api::Runtime::new(tokio_handle, &endpoint);
         let rest_client = api_client.mullvad_rest_handle(access_mode_provider);
-
-        // tokio::spawn(async move {
-        //     let _ = access_mode_handler
-        //         .update_access_methods(access_method_settings)
-        //         .await;
-        // });
 
         ApiContext {
             _api_client: api_client,

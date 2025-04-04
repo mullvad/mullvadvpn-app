@@ -32,11 +32,12 @@ pub unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<IpAddr> 
 }
 
 pub unsafe fn convert_c_string(c_str: *const c_char) -> String {
-    // SAFETY: domain_name points to a valid region of memory and contains a null terminator.
+    // SAFETY: c_str points to a valid region of memory and contains a null terminator.
     let str = unsafe { CStr::from_ptr(c_str) };
     String::from_utf8_lossy(str.to_bytes()).into_owned()
 }
 
+// TODO: Include SAFETY comments
 #[no_mangle]
 pub unsafe extern "C" fn convert_shadowsocks(
     address: *const u8,
