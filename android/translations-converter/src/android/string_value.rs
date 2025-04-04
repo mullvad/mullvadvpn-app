@@ -50,19 +50,16 @@ impl StringValue {
         let mut output = parts.next().unwrap().to_owned();
         let mut offset = 1;
 
-        match arg_ordering {
-            Some(ordering) => {
-                // Check for mismatch between number of args in original and arg_ordering
-                if ordering.len() != parts.clone().enumerate().count() {
-                    panic!("Input string has different number of parameters to arg_ordering")
-                }
-                // Check if any parameter index in arg_ordering is higher than
-                // the total number of args
-                if ordering.iter().any(|i| *i > ordering.len() as u8) {
-                    panic!("arg_ordering contains parameter that is too large")
-                }
+        if let Some(ordering) = arg_ordering {
+            // Check for mismatch between number of args in original and arg_ordering
+            if ordering.len() != parts.clone().enumerate().count() {
+                panic!("Input string has different number of parameters to arg_ordering")
             }
-            None => {}
+            // Check if any parameter index in arg_ordering is higher than
+            // the total number of args
+            if ordering.iter().any(|i| *i > ordering.len() as u8) {
+                panic!("arg_ordering contains parameter that is too large")
+            }
         }
 
         for (index, part) in parts.enumerate() {
