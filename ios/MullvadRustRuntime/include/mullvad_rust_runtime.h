@@ -24,6 +24,8 @@ typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
+typedef struct Map Map;
+
 typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
@@ -53,6 +55,17 @@ typedef struct SwiftMullvadApiResponse {
 typedef struct CompletionCookie {
   void *_0;
 } CompletionCookie;
+
+typedef struct ProblemReportMetadata {
+  struct Map *inner;
+} ProblemReportMetadata;
+
+typedef struct SwiftProblemReportRequest {
+  const char *address;
+  const char *message;
+  const char *log;
+  struct ProblemReportMetadata meta_data;
+} SwiftProblemReportRequest;
 
 typedef struct ProxyHandle {
   void *context;
@@ -169,6 +182,33 @@ void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
  */
 extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse response,
                                           struct CompletionCookie completion_cookie);
+
+/**
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
+ * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
+ * type is intended to be used.
+ *
+ * the string properties of `SwiftProblemReportRequest` must be pointers to a null terminated strings.
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_api_send_problem_report(struct SwiftApiContext api_context,
+                                                         void *completion_cookie,
+                                                         struct SwiftRetryStrategy retry_strategy,
+                                                         struct SwiftProblemReportRequest request);
+
+struct ProblemReportMetadata swift_problem_report_meta_data_new(void);
+
+bool swift_problem_report_meta_data_add(struct ProblemReportMetadata map,
+                                        const char *key,
+                                        const char *value);
+
+void swift_problem_report_meta_data_free(struct ProblemReportMetadata map);
 
 /**
  * Called by the Swift side to signal that the Rust `SwiftMullvadApiResponse` can be safely

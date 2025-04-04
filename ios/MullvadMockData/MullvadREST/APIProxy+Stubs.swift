@@ -37,7 +37,7 @@ struct APIProxyStub: APIQuerying {
     }
 
     func sendProblemReport(
-        _ body: REST.ProblemReportRequest,
+        _ body: ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<Void>
     ) -> Cancellable {
