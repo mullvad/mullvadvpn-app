@@ -1,0 +1,3 @@
+- Added setting for which IP version to use when connecting.
+- Added setting for disabling IPv6 in the tunnel.
+- Improved TV experience.
