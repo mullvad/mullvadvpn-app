@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Will no longer try to connect using an IP version if that IP version is not available.
+- Show the correct the in-address when using multihop.
 
 
 ## [android/2025.1] - 2025-03-20
