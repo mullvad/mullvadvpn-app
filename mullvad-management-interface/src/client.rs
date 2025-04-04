@@ -768,6 +768,17 @@ impl MullvadProxyClient {
             .map(|response| response.into_inner())
             .map(FeatureIndicators::from)
     }
+
+    // Debug features
+    pub async fn disable_relay(&mut self, relay: String) -> Result<()> {
+        self.0.disable_relay(relay).await.map_err(Error::Rpc)?;
+        Ok(())
+    }
+
+    pub async fn enable_relay(&mut self, relay: String) -> Result<()> {
+        self.0.enable_relay(relay).await.map_err(Error::Rpc)?;
+        Ok(())
+    }
 }
 
 #[cfg(not(target_os = "android"))]
