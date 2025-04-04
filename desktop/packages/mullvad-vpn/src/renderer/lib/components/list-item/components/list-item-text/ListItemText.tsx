@@ -1,6 +1,6 @@
-import { Colors } from '../../../foundations';
-import { Text, TextProps } from '../../typography';
-import { useListItem } from '../ListItemContext';
+import { Colors } from '../../../../foundations';
+import { Text, TextProps } from '../../../typography';
+import { useListItem } from '../../ListItemContext';
 
 export type ListItemTextProps<E extends React.ElementType = 'span'> = TextProps<E>;
 
