@@ -11,8 +11,10 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useLocation } from 'react-router';
 
 import { messages } from '../../shared/gettext';
+import { LocationState } from '../../shared/ipc-types';
 import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
 import { usePushAppUpgrade } from '../history/hooks';
@@ -324,7 +326,15 @@ function OutdatedVersionWarningDialog() {
   const outdatedVersion = useSelector((state) => !!state.version.suggestedUpgrade);
   const pushAppUpgrade = usePushAppUpgrade();
 
-  const [showOutdatedVersionWarning, setShowOutdatedVersionWarning] = useState(outdatedVersion);
+  const { state } = useLocation<LocationState>();
+  const hasSuppressOutdatedVersionWarning = state?.options?.includes(
+    'suppress-outdated-version-warning',
+  );
+  const showOutdatedVersionWarningInitial = outdatedVersion && !hasSuppressOutdatedVersionWarning;
+
+  const [showOutdatedVersionWarning, setShowOutdatedVersionWarning] = useState(
+    showOutdatedVersionWarningInitial,
+  );
 
   const acknowledgeOutdatedVersion = useCallback(() => {
     setShowOutdatedVersionWarning(false);
