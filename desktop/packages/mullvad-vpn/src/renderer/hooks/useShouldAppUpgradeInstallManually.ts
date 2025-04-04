@@ -13,7 +13,10 @@ export const useShouldAppUpgradeInstallManually = () => {
 
   if (hasAppUpgradeVerifiedInstallerPath) {
     if (hasAppUpgradeError) {
-      if (appUpgradeError === 'START_INSTALLER_FAILED') {
+      if (
+        appUpgradeError === 'START_INSTALLER_AUTOMATIC_FAILED' ||
+        appUpgradeError === 'START_INSTALLER_FAILED'
+      ) {
         return true;
       }
     } else {
