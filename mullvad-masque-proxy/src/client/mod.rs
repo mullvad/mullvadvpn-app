@@ -38,39 +38,42 @@ pub struct Client {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    Bind(io::Error),
-    Connect(quinn::ConnectError),
-    Connection(quinn::ConnectionError),
-    /// Connection closed while sending request to initiate proxying
+    #[error("Failed to bind local socket")]
+    Bind(#[source] io::Error),
+    #[error("Failed to begin connecting to QUIC endpoint")]
+    Connect(#[from] quinn::ConnectError),
+    #[error("Failed to connect to QUIC endpoint")]
+    Connection(#[from] quinn::ConnectionError),
+    #[error("Connection closed while sending request to initiate proxying")]
     ConnectionClosedPrematurely,
-    /// QUIC connection failed while sending request to initiate proxying
-    ConnectionFailed(h3::Error),
-    /// Request failed to illicit a response.
-    RequestError(h3::Error),
-    /// Received response was not a 200.
+    #[error("QUIC connection failed while sending request to initiate proxying")]
+    ConnectionFailed(#[source] h3::Error),
+    #[error("Request failed to illicit a response.")]
+    RequestError(#[source] h3::Error),
+    #[error("Received response was not a 200: {}", .0)]
     UnexpectedStatus(http::StatusCode),
-    /// Failed to receive data from client socket
-    ClientRead(io::Error),
-    /// Failed to send data to client socket
-    ClientWrite(io::Error),
-    /// Failed to receive data from server socket
-    ServerRead(h3::Error),
-    /// Failed to create a client
-    CreateClient(h3::Error),
-    /// Failed to receive good response from proxy
-    ProxyResponse(h3::Error),
-    /// Failed to construct a URI
-    Uri(http::Error),
-    /// Failed to send datagram to proxy
-    SendDatagram(h3::Error),
-    /// Failed to read certificates
-    ReadCerts(io::Error),
-    /// Failed to parse certificates
+    #[error("Failed to receive data from client socket")]
+    ClientRead(#[source] io::Error),
+    #[error("Failed to send data to client socket")]
+    ClientWrite(#[source] io::Error),
+    #[error("Failed to receive data from server socket")]
+    ServerRead(#[source] h3::Error),
+    #[error("Failed to create a client")]
+    CreateClient(#[source] h3::Error),
+    #[error("Failed to receive good response from proxy")]
+    ProxyResponse(#[source] h3::Error),
+    #[error("Failed to construct a URI")]
+    Uri(#[source] http::Error),
+    #[error("Failed to send datagram to proxy")]
+    SendDatagram(#[source] h3::Error),
+    #[error("Failed to read certificates")]
+    ReadCerts(#[source] io::Error),
+    #[error("Failed to parse certificates")]
     ParseCerts,
-    /// Failed to fragment a packet - it is too large
-    PacketTooLarge(fragment::PacketTooLarge),
+    #[error("Failed to fragment a packet - it is too large")]
+    PacketTooLarge(#[from] fragment::PacketTooLarge),
 }
 
 impl Client {
@@ -137,11 +140,9 @@ impl Client {
         // TODO: Set EndpointConfig::max_udp_payload_size instead of using X-Mullvad-Uplink-Mtu
         let endpoint = Endpoint::client(local_addr).map_err(Error::Bind)?;
 
-        let connecting = endpoint
-            .connect_with(client_config, server_addr, server_host)
-            .map_err(Error::Connect)?;
+        let connecting = endpoint.connect_with(client_config, server_addr, server_host)?;
 
-        let connection = connecting.await.map_err(Error::Connection)?;
+        let connection = connecting.await?;
 
         let (connection, send_stream, request_stream) =
             Self::setup_h3_connection(connection, target_addr, server_host, maximum_packet_size)
@@ -229,7 +230,6 @@ impl Client {
                                 self.maximum_packet_size,
                                 &mut send_buf,
                                 fragment_id)
-                            .map_err(Error::PacketTooLarge)
                             ? {
                                 self.connection.send_datagram(stream_id, fragment).map_err(Error::SendDatagram)?;
                             }

@@ -19,11 +19,14 @@ use tokio::{net::UdpSocket, time::interval};
 
 use crate::fragment::{self, Fragments};
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    BadTlsConfig(quinn::crypto::rustls::NoInitialCipherSuite),
-    BindSocket(io::Error),
-    SendNegotiationResponse(h3::Error),
+    #[error("Bad TLS config")]
+    BadTlsConfig(#[source] quinn::crypto::rustls::NoInitialCipherSuite),
+    #[error("Failed to bind server socket")]
+    BindSocket(#[source] io::Error),
+    #[error("Failed to send negotiation response")]
+    SendNegotiationResponse(#[source] h3::Error),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -67,6 +70,10 @@ impl Server {
             },
             max_packet_size,
         })
+    }
+
+    pub fn local_addr(&self) -> io::Result<SocketAddr> {
+        self.endpoint.local_addr()
     }
 
     pub async fn run(self) -> Result<()> {

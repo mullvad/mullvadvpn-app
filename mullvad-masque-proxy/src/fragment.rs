@@ -20,7 +20,8 @@ pub enum DefragError {
 }
 
 // When a packet is larger than u16::MAX, it can't be fragmented.
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
+#[error("Packet is too large to fragment")]
 pub struct PacketTooLarge(pub usize);
 
 impl Fragments {
