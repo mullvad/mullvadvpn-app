@@ -22,7 +22,9 @@ if [ $# -ne 3 ]; then
 fi
 
 PRODUCT_VERSION=$1
+# The hostname (can be the alias in your ~/.ssh/config) of the build server
 BUILDSERVER_HOST=$2
+# The server to upload the metadata to *from* the build server (argument above)
 METADATA_SERVER_HOST=$3
 
 # shellcheck source=desktop/scripts/release/release-config.sh
