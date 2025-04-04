@@ -30,7 +30,7 @@ export function UpdateAvailableListItem() {
                   messages.pgettext('app-info-view', 'Update available')
                 }
               </ListItem.Label>
-              <StyledText variant="footnoteMini">{suggestedUpgrade}</StyledText>
+              <StyledText variant="footnoteMini">{suggestedUpgrade?.version}</StyledText>
             </Flex>
             <ListItem.Group>
               <Dot variant="warning" size="small" />
