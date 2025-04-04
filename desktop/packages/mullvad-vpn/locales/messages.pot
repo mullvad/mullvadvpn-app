@@ -2512,6 +2512,9 @@ msgstr ""
 msgid "Delete method?"
 msgstr ""
 
+msgid "Device IP version"
+msgstr ""
+
 msgid "Disable \"%s\" below to activate these settings."
 msgstr ""
 
@@ -2606,6 +2609,9 @@ msgid "Import successful, overrides active"
 msgstr ""
 
 msgid "Importing new overrides might replace some previously imported overrides."
+msgstr ""
+
+msgid "In-tunnel IPv6"
 msgstr ""
 
 msgid "Invalid or missing value \"%s\""

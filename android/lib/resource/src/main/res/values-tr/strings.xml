@@ -124,7 +124,6 @@
     <string name="device_inactive_description">Bu cihazı kaldırdın. Tekrar bağlanmak için yeniden giriş yapmanız gerekecek.</string>
     <string name="device_inactive_title">Cihaz etkin değil</string>
     <string name="device_inactive_unblock_warning">Giriş yapmak bu cihazdaki internet engelini kaldıracaktır.</string>
-    <string name="device_ip_version_title">IP sürümü</string>
     <string name="device_name">Cihaz adı</string>
     <string name="device_name_info_first_paragraph">Bu, cihaza atanan addır. Mullvad hesabında oturum açan her cihaza, uygulamadaki veya web sitesindeki cihazlarınızı yönetirken tanımlamanıza yardımcı olacak benzersiz bir ad verilir.</string>
     <string name="device_name_info_second_paragraph">Bir Mullvad hesabı ile en fazla 5 cihazda oturum açabilirsiniz.</string>
@@ -156,7 +155,6 @@
     <string name="enable_anyway">Yine de etkinleştir</string>
     <string name="enable_custom_dns">Özel DNS sunucusu kullanın</string>
     <string name="enable_direct_only">%1$s ayarını etkinleştir</string>
-    <string name="enable_ipv6">IPv6\'yı etkinleştir</string>
     <string name="enable_method">Yöntemi etkinleştir</string>
     <string name="encrypted_dns_proxy_info_message_part1">\"Şifreli DNS proxy\'si\" yönteminde, uygulama bir proxy adresi üzerinden Mullvad API ile iletişim kurar. Bunun için bir DNS over HTTPS (DoH) sunucusundan bir adres alır ve bu adresi kullanarak API sunucularımıza bağlanır.</string>
     <string name="encrypted_dns_proxy_info_message_part2">VPN\'imize bağlı değilseniz Şifreli DNS proxy\'si bağlanırken VPN dışı IP\'nizi kullanır. DoH sunucuları şu sağlayıcılardan birinde barındırılır: Quad9 veya CloudFlare.</string>
