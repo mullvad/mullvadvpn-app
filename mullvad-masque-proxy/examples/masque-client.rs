@@ -9,6 +9,7 @@ use std::{
 
 #[derive(Parser, Debug)]
 pub struct ClientArgs {
+    /// Destination to forward to
     #[arg(long, short = 't')]
     target_addr: SocketAddr,
 
@@ -20,12 +21,15 @@ pub struct ClientArgs {
     #[arg(long, short = 's')]
     server_addr: SocketAddr,
 
+    /// Server hostname/authority
     #[arg(long, short = 'H')]
     server_hostname: String,
 
+    /// Local bind port
     #[arg(long, short = 'p', default_value = "0")]
     bind_port: u16,
 
+    /// Maximum packet size
     #[arg(long, short = 'S', default_value = "1280")]
     maximum_packet_size: u16,
 }
