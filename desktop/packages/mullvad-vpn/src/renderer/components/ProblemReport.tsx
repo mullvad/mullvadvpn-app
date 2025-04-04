@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useLocation } from 'react-router';
 
 import { messages } from '../../shared/gettext';
 import { getDownloadUrl } from '../../shared/version';
@@ -324,7 +325,14 @@ function OutdatedVersionWarningDialog() {
   const outdatedVersion = useSelector((state) => !!state.version.suggestedUpgrade);
   const pushAppUpgrade = usePushAppUpgrade();
 
-  const [showOutdatedVersionWarning, setShowOutdatedVersionWarning] = useState(outdatedVersion);
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const hasSuppressOutdatedVersionWarning = query.has('suppress-outdated-version-warning');
+  const showOutdatedVersionWarningInitial = outdatedVersion && !hasSuppressOutdatedVersionWarning;
+
+  const [showOutdatedVersionWarning, setShowOutdatedVersionWarning] = useState(
+    showOutdatedVersionWarningInitial,
+  );
 
   const acknowledgeOutdatedVersion = useCallback(() => {
     setShowOutdatedVersionWarning(false);
