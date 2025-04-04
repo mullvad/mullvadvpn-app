@@ -1,11 +1,12 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
+import { useIsPlatformLinux } from '../../../../../hooks';
 import { Flex, Icon } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
 import { ListItem } from '../../../../../lib/components/list-item';
 import { useConnectionIsBlocked, useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
-import { useHandleClick, useIsLinux } from './hooks';
+import { useHandleClick } from './hooks';
 
 const StyledText = styled(ListItem.Text)`
   margin-top: -4px;
@@ -15,7 +16,7 @@ export function UpdateAvailableListItem() {
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
   const { isBlocked } = useConnectionIsBlocked();
 
-  const isLinux = useIsLinux();
+  const isLinux = useIsPlatformLinux();
   const handleClick = useHandleClick();
 
   return (
