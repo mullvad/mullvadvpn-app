@@ -33,7 +33,16 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completion: @escaping ProxyCompletionHandler<Device>
         ) -> Cancellable {
-            AnyCancellable()
+            let responseHandler = rustResponseHandler(
+                decoding: Device.self,
+                with: responseDecoder
+            )
+
+            return createNetworkOperation(
+                request: .getDevice(retryStrategy, accountNumber: accountNumber, identifier: identifier),
+                responseHandler: responseHandler,
+                completionHandler: completion
+            )
         }
 
         func getDevices(
@@ -70,6 +79,26 @@ extension REST {
             completion: @escaping ProxyCompletionHandler<Device>
         ) -> Cancellable {
             AnyCancellable()
+        }
+
+        private func createNetworkOperation<Success: Any>(
+            request: APIRequest,
+            responseHandler: RustResponseHandler<Success>,
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<Success>
+        ) -> MullvadApiNetworkOperation<Success> {
+            let networkOperation = MullvadApiNetworkOperation(
+                name: request.name,
+                dispatchQueue: dispatchQueue,
+                request: request,
+                transportProvider: transportProvider,
+                responseDecoder: responseDecoder,
+                responseHandler: responseHandler,
+                completionHandler: completionHandler
+            )
+
+            operationQueue.addOperation(networkOperation)
+
+            return networkOperation
         }
     }
 }

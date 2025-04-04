@@ -1,5 +1,3 @@
-use std::{ffi::CStr, future::Future, sync::Arc};
-
 use mullvad_api::{
     proxy::{ApiConnectionMode, StaticConnectionModeProvider},
     rest::{self, MullvadRestHandle},
@@ -7,11 +5,14 @@ use mullvad_api::{
 };
 use response::SwiftMullvadApiResponse;
 use retry_strategy::RetryStrategy;
+use std::os::raw::c_char;
+use std::{ffi::CStr, future::Future, sync::Arc};
 use talpid_future::retry::retry_future;
 
 mod api;
 mod cancellation;
 mod completion;
+mod device;
 mod response;
 mod retry_strategy;
 
@@ -93,12 +94,35 @@ where
     F: Fn() -> T,
     T: Future<Output = Result<rest::Response<hyper::body::Incoming>, rest::Error>>,
 {
+    let response = retry_request(retry_strategy, future_factory).await?;
+    SwiftMullvadApiResponse::with_body(response).await
+}
+
+async fn retry_request<F, T, U>(
+    retry_strategy: RetryStrategy,
+    future_factory: F,
+) -> Result<U, rest::Error>
+where
+    F: Fn() -> T,
+    T: Future<Output = Result<U, rest::Error>>,
+{
     let should_retry = |result: &Result<_, rest::Error>| match result {
         Err(err) => err.is_network_error(),
         Ok(_) => false,
     };
 
-    let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
+    retry_future(future_factory, should_retry, retry_strategy.delays()).await
+}
 
-    SwiftMullvadApiResponse::with_body(response).await
+fn get_string(ptr: *const c_char) -> String {
+    if ptr.is_null() {
+        return String::new();
+    }
+    // Safety: `ptr` must be a valid, null-terminated C string.
+    unsafe {
+        CStr::from_ptr(ptr.cast())
+            .to_str()
+            .map(ToOwned::to_owned)
+            .unwrap_or_default()
+    }
 }

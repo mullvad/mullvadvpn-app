@@ -39,6 +39,14 @@ public struct MullvadApiRequestFactory: Sendable {
                     retryStrategy.toRustStrategy(),
                     etag
                 ))
+            case let .getDevice(retryStrategy, accountNumber: accountNumber, identifier):
+                MullvadApiCancellable(handle: mullvad_api_get_device(
+                    apiContext.context,
+                    rawCompletionPointer,
+                    retryStrategy.toRustStrategy(),
+                    accountNumber,
+                    identifier
+                ))
             }
         }
     }

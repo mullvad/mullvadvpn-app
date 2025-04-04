@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use http::StatusCode;
+use hyper::body::Incoming;
 use mullvad_types::{
     account::AccountNumber,
     device::{Device, DeviceId, DeviceName},
@@ -91,14 +92,27 @@ impl DevicesProxy {
         account: AccountNumber,
         id: DeviceId,
     ) -> impl Future<Output = Result<Device, rest::Error>> + use<> {
+        let request = self.get_response(account, id);
+        async move {
+            let data = request.await?.deserialize().await?;
+            Ok(data)
+        }
+    }
+
+    pub fn get_response(
+        &self,
+        account: AccountNumber,
+        id: DeviceId,
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
+
         async move {
             let request = factory
                 .get(&format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"))?
                 .expected_status(&[StatusCode::OK])
                 .account(account)?;
-            service.request(request).await?.deserialize().await
+            service.request(request).await
         }
     }
 
