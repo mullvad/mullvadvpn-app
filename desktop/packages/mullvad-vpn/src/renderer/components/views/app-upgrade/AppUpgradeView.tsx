@@ -10,6 +10,7 @@ import {
   DownloadProgress,
   InstallButton,
   ReportProblemButton,
+  RetryUpgradeButton,
   UpgradeButton,
   UpgradeDetails,
   UpgradeLabel,
@@ -20,6 +21,7 @@ import {
   useShowDownloadProgress,
   useShowInstallButton,
   useShowReportProblemButton,
+  useShowRetryUpgradeButton,
   useShowUpgradeButton,
   useShowUpgradeLabel,
 } from './hooks';
@@ -39,6 +41,7 @@ export const AppUpgradeView = () => {
   const showDownloadProgress = useShowDownloadProgress();
   const showInstallButton = useShowInstallButton();
   const showReportProblemButton = useShowReportProblemButton();
+  const showRetryUpgradeButton = useShowRetryUpgradeButton();
   const showUpgradeButton = useShowUpgradeButton();
   const showUpgradeLabel = useShowUpgradeLabel();
 
@@ -58,6 +61,7 @@ export const AppUpgradeView = () => {
             </Animate>
             <Flex $gap="medium" $flexDirection="column">
               {showReportProblemButton && <ReportProblemButton />}
+              {showRetryUpgradeButton && <RetryUpgradeButton />}
               {showUpgradeButton && <UpgradeButton />}
               {showInstallButton && <InstallButton />}
               {showCancelButton && <CancelButton />}
