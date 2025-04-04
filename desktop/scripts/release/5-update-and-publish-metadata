@@ -23,7 +23,8 @@ PRODUCT_VERSION=$1
 BUILDSERVER_HOST=$2
 METADATA_SERVER_HOST=$3
 
-ARTIFACT_DIR="./artifacts"
+# shellcheck source=desktop/scripts/release/release-config.sh
+source "$SCRIPT_DIR/release-config.sh"
 
 function publish_metadata {
     local platforms
@@ -69,6 +70,6 @@ function remove_release_artifacts {
     rm -r "$ARTIFACT_DIR"
 }
 
-./download-release-artifacts "$PRODUCT_VERSION"
+./download-release-artifacts "$PRODUCT_VERSION" "$ARTIFACT_DIR"
 publish_metadata
 remove_release_artifacts
