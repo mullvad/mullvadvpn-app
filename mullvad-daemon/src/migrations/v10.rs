@@ -62,7 +62,7 @@ fn migrate_tunnel_type_inner(normal: &mut serde_json::Value) -> Result<()> {
         }
         // Migrate '"only": { "tunnel_protocol": $tunnel_protocol }'
         // to '"tunnel_protocol": $tunnel_protocol'
-        Some(serde_json::Value::Object(ref mut constraint)) => {
+        Some(serde_json::Value::Object(constraint)) => {
             if let Some(tunnel_type) = constraint.get("only") {
                 let tunnel_type: TunnelType = serde_json::from_value(tunnel_type.clone())
                     .map_err(|_| Error::InvalidSettingsContent)?;
