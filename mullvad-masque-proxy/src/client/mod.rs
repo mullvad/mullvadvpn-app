@@ -205,7 +205,7 @@ impl Client {
         crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut client_read_buf);
 
         let mut return_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0);
-        let mut fragment_id = 1u16;
+        let mut fragment_id = 0u16;
         let mut interval = interval(Duration::from_secs(3));
 
         loop {
