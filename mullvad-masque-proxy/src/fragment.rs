@@ -14,6 +14,7 @@ pub struct Fragments {
 // When a packet that arrives is too small to be decoded.
 #[derive(Debug)]
 pub enum DefragError {
+    #[allow(dead_code)] // TODO: use this error or remove it.
     BadContextId(Result<VarInt, h3::proto::coding::UnexpectedEnd>),
     PayloadTooSmall,
 }
