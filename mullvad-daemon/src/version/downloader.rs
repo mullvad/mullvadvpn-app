@@ -1,6 +1,5 @@
 #![cfg(update)]
 
-use futures::channel::oneshot;
 use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpgradeEvent};
 use mullvad_update::app::{
     AppDownloader, AppDownloaderParameters, DownloadError, HttpAppDownloader,
@@ -22,58 +21,83 @@ pub enum Error {
     #[error("Failed to download app")]
     Download(#[from] DownloadError),
 
+    #[error("Download was cancelled or panicked")]
+    JoinError(#[from] tokio::task::JoinError),
+
     #[error("Could not select URL for app update")]
     NoUrlFound,
 }
 
 type Result<T> = std::result::Result<T, Error>;
 
-pub struct Downloader(());
+#[derive(Debug)]
+pub struct DownloaderHandle {
+    /// Handle to the downloader task
+    task: tokio::task::JoinHandle<std::result::Result<PathBuf, Error>>,
+}
 
-pub type AbortHandle = oneshot::Sender<()>;
-
-impl Downloader {
-    /// Begin or resume download of `version`
-    pub async fn start(
-        version: mullvad_update::version::Version,
-        event_tx: broadcast::Sender<AppUpgradeEvent>,
-    ) -> Result<PathBuf> {
-        let url = select_cdn_url(&version.urls)
-            .ok_or(Error::NoUrlFound)?
-            .to_owned();
-
-        let download_dir = mullvad_paths::cache_dir()?.join("mullvad-update");
-        fs::create_dir_all(&download_dir)
-            .await
-            .map_err(Error::CreateDownloadDir)?;
-
-        let params = AppDownloaderParameters {
-            app_version: version.version,
-            app_url: url.clone(),
-            app_size: version.size,
-            app_progress: ProgressUpdater::new(server_from_url(&url), event_tx.clone()),
-            app_sha256: version.sha256,
-            cache_dir: download_dir,
-        };
-        let mut downloader = HttpAppDownloader::from(params);
-
-        if let Err(download_err) = downloader.download_executable().await {
-            log::error!("Failed to download app: {download_err}");
-            let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed));
-            return Err(download_err.into());
-        };
-
-        let _ = event_tx.send(AppUpgradeEvent::VerifyingInstaller);
-
-        if let Err(verify_err) = downloader.verify().await {
-            log::error!("Failed to verify downloaded app: {verify_err}");
-            let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::VerificationFailed));
-            return Err(verify_err.into());
-        };
-
-        let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
-        Ok(downloader.bin_path())
+impl Drop for DownloaderHandle {
+    fn drop(&mut self) {
+        self.task.abort();
     }
+}
+
+impl DownloaderHandle {
+    /// Wait for the downloader to finish
+    pub async fn wait(&mut self) -> Result<PathBuf> {
+        (&mut self.task).await?
+    }
+}
+
+pub fn spawn_downloader(
+    version: mullvad_update::version::Version,
+    event_tx: broadcast::Sender<AppUpgradeEvent>,
+) -> DownloaderHandle {
+    DownloaderHandle {
+        task: tokio::spawn(start(version, event_tx)),
+    }
+}
+
+/// Begin or resume download of `version`
+async fn start(
+    version: mullvad_update::version::Version,
+    event_tx: broadcast::Sender<AppUpgradeEvent>,
+) -> Result<PathBuf> {
+    let url = select_cdn_url(&version.urls)
+        .ok_or(Error::NoUrlFound)?
+        .to_owned();
+
+    let download_dir = mullvad_paths::cache_dir()?.join("mullvad-update");
+    fs::create_dir_all(&download_dir)
+        .await
+        .map_err(Error::CreateDownloadDir)?;
+
+    let params = AppDownloaderParameters {
+        app_version: version.version,
+        app_url: url.clone(),
+        app_size: version.size,
+        app_progress: ProgressUpdater::new(server_from_url(&url), event_tx.clone()),
+        app_sha256: version.sha256,
+        cache_dir: download_dir,
+    };
+    let mut downloader = HttpAppDownloader::from(params);
+
+    if let Err(download_err) = downloader.download_executable().await {
+        log::error!("Failed to download app: {download_err}");
+        let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed));
+        return Err(download_err.into());
+    };
+
+    let _ = event_tx.send(AppUpgradeEvent::VerifyingInstaller);
+
+    if let Err(verify_err) = downloader.verify().await {
+        log::error!("Failed to verify downloaded app: {verify_err}");
+        let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::VerificationFailed));
+        return Err(verify_err.into());
+    };
+
+    let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
+    Ok(downloader.bin_path())
 }
 
 struct ProgressUpdater {

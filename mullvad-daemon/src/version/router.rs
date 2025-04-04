@@ -120,7 +120,7 @@ enum RoutingState {
         /// The version being upgraded to, derived from `version_info` and beta program state
         upgrading_to_version: mullvad_update::version::Version,
         /// Tokio task for the downloader handle
-        downloader_handle: tokio::task::JoinHandle<std::result::Result<PathBuf, downloader::Error>>,
+        downloader_handle: downloader::DownloaderHandle,
     },
     /// Download is complete. We have a verified binary
     Downloaded {
@@ -215,7 +215,7 @@ impl VersionRouter {
                         let _ = self.version_event_sender.send(app_update_info);
                     }
                 },
-                Some(message) = self.rx.next() => self.handle_message(message).await,
+                Some(message) = self.rx.next() => self.handle_message(message),
                 else => break,
             }
         }
@@ -224,7 +224,7 @@ impl VersionRouter {
 
     /// Handle [Message] sent by user
     #[cfg_attr(not(update), allow(clippy::unused_async))]
-    async fn handle_message(&mut self, message: Message) {
+    fn handle_message(&mut self, message: Message) {
         match message {
             Message::SetBetaProgram { state, result_tx } => {
                 self.set_beta_program(state);
@@ -242,7 +242,7 @@ impl VersionRouter {
             }
             #[cfg(update)]
             Message::CancelUpdate { result_tx } => {
-                self.cancel_upgrade().await;
+                self.cancel_upgrade();
                 let _ = result_tx.send(());
             }
         }
@@ -274,9 +274,12 @@ impl VersionRouter {
                 }
                 self.state = RoutingState::HasVersion { version_cache };
             }
-            RoutingState::Downloading {
+            RoutingState::Downloaded {
                 version_cache: ref mut prev_cache,
-                downloader_handle,
+                ..
+            }
+            | RoutingState::Downloading {
+                version_cache: ref mut prev_cache,
                 ..
             } => {
                 // If version changed, cancel download
@@ -286,30 +289,6 @@ impl VersionRouter {
                     self.beta_program,
                 ) {
                     log::warn!("Received new version while upgrading: {version_info:?}, aborting");
-                    downloader_handle.abort();
-
-                    let _ = self.version_event_sender.send(version_info.clone());
-                    let _ = self
-                        .app_upgrade_broadcast
-                        .send(mullvad_types::version::AppUpgradeEvent::Aborted);
-                    self.state = RoutingState::HasVersion { version_cache };
-                } else {
-                    *prev_cache = version_cache;
-                }
-            }
-            RoutingState::Downloaded {
-                version_cache: ref mut prev_cache,
-                ..
-            } => {
-                // If version changed, cancel download
-                if let Some(version_info) = updated_app_version_info_on_new_version_cache(
-                    prev_cache,
-                    &version_cache,
-                    self.beta_program,
-                ) {
-                    log::warn!(
-                        "Received new version after downloading upgrade: {version_info:?}, aborting"
-                    );
 
                     let _ = self.version_event_sender.send(version_info.clone());
                     let _ = self
@@ -356,25 +335,15 @@ impl VersionRouter {
         // Always cancel download if the suggested upgrade changes
 
         let version_cache = match mem::replace(&mut self.state, RoutingState::NoVersion) {
-            RoutingState::Downloading {
-                version_cache,
-                downloader_handle,
-                ..
-            } => {
+            RoutingState::Downloaded { version_cache, .. }
+            | RoutingState::Downloading { version_cache, .. } => {
                 log::warn!("Switching beta after while updating resulted in new suggested upgrade: {:?}, aborting", new_app_version_info.suggested_upgrade);
-                downloader_handle.abort();
                 let _ = self
                     .app_upgrade_broadcast
                     .send(mullvad_types::version::AppUpgradeEvent::Aborted);
                 version_cache
             }
-            RoutingState::Downloaded { version_cache, .. } => {
-                log::warn!("Switching beta after completed update resulted in new suggested upgrade: {:?}, aborting", new_app_version_info.suggested_upgrade);
-                let _ = self
-                    .app_upgrade_broadcast
-                    .send(mullvad_types::version::AppUpgradeEvent::Aborted);
-                version_cache
-            }
+
             RoutingState::HasVersion { version_cache } => version_cache,
             RoutingState::NoVersion => {
                 unreachable!("Can't get recommended upgrade on beta change without version")
@@ -404,6 +373,8 @@ impl VersionRouter {
 
     #[cfg(update)]
     fn update_application(&mut self) {
+        use crate::version::downloader::spawn_downloader;
+
         match mem::replace(&mut self.state, RoutingState::NoVersion) {
             // Checking state: start upgrade, if upgrade is available
             RoutingState::HasVersion {
@@ -420,10 +391,10 @@ impl VersionRouter {
                     return;
                 };
 
-                let downloader_handle = tokio::spawn(downloader::Downloader::start(
+                let downloader_handle = spawn_downloader(
                     upgrading_to_version.clone(),
                     self.app_upgrade_broadcast.clone(),
-                ));
+                );
 
                 log::debug!("Starting upgrade");
                 self.state = RoutingState::Downloading {
@@ -440,23 +411,17 @@ impl VersionRouter {
     }
 
     #[cfg(update)]
-    async fn cancel_upgrade(&mut self) {
+    fn cancel_upgrade(&mut self) {
         match mem::replace(&mut self.state, RoutingState::NoVersion) {
             // If we're upgrading, emit an event if a version was received during the upgrade
             // Otherwise, just reset upgrade info to last known state
-            RoutingState::Downloading {
-                version_cache: version_info,
-                upgrading_to_version: _,
-                downloader_handle,
-            } => {
-                // Abort download
-                downloader_handle.abort();
-                let _ = downloader_handle.await;
-
+            RoutingState::Downloaded { version_cache, .. }
+            | RoutingState::Downloading { version_cache, .. } => {
                 // Reset app version info to last known state
-                self.state = RoutingState::HasVersion {
-                    version_cache: version_info,
-                };
+                self.state = RoutingState::HasVersion { version_cache };
+                let _ = self
+                    .app_upgrade_broadcast
+                    .send(mullvad_types::version::AppUpgradeEvent::Aborted);
             }
             // No-op unless we're downloading something right now
             // In the `Downloaded` state, we also do nothing
@@ -505,11 +470,11 @@ async fn wait_for_update(state: &mut RoutingState) -> Option<AppVersionInfo> {
     match mem::replace(state, RoutingState::NoVersion) {
         RoutingState::Downloading {
             version_cache,
-            downloader_handle,
+            ref mut downloader_handle,
             upgrading_to_version,
             ..
-        } => match downloader_handle.await {
-            Ok(Ok(verified_installer_path)) => {
+        } => match downloader_handle.wait().await {
+            Ok(verified_installer_path) => {
                 let app_update_info = AppVersionInfo {
                     current_version_supported: version_cache.current_version_supported,
                     suggested_upgrade: Some({
@@ -527,12 +492,8 @@ async fn wait_for_update(state: &mut RoutingState) -> Option<AppVersionInfo> {
                 // TODO: send version info + version checks + upgrade event
                 Some(app_update_info)
             }
-            Ok(Err(_err)) => {
-                *state = RoutingState::HasVersion { version_cache };
-                None
-            }
-            Err(join_err) => {
-                log::error!("Downloader task ended unexpectedly: {join_err}");
+            Err(err) => {
+                log::trace!("Downloader task ended: {err}");
                 *state = RoutingState::HasVersion { version_cache };
                 None
             }
