@@ -15,6 +15,8 @@ import {
 import { messages } from '../../shared/gettext';
 import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
+import { usePushAppUpgrade } from '../history/hooks';
+import { useIsPlatformLinux } from '../hooks';
 import useActions from '../lib/actionsHook';
 import { Flex, Icon, Spinner } from '../lib/components';
 import { useHistory } from '../lib/history';
@@ -320,6 +322,7 @@ function OutdatedVersionWarningDialog() {
   const isOffline = useSelector((state) => state.connection.isBlocked);
   const suggestedIsBeta = useSelector((state) => state.version.suggestedIsBeta ?? false);
   const outdatedVersion = useSelector((state) => !!state.version.suggestedUpgrade);
+  const pushAppUpgrade = usePushAppUpgrade();
 
   const [showOutdatedVersionWarning, setShowOutdatedVersionWarning] = useState(outdatedVersion);
 
@@ -331,6 +334,16 @@ function OutdatedVersionWarningDialog() {
     await openUrl(getDownloadUrl(suggestedIsBeta));
   }, [openUrl, suggestedIsBeta]);
 
+  const isLinux = useIsPlatformLinux();
+  const upgradeAction = useCallback(async () => {
+    if (isLinux) {
+      await openDownloadLink();
+    } else {
+      acknowledgeOutdatedVersion();
+      pushAppUpgrade();
+    }
+  }, [isLinux, openDownloadLink, pushAppUpgrade, acknowledgeOutdatedVersion]);
+
   const outdatedVersionCancel = useCallback(() => {
     acknowledgeOutdatedVersion();
     pop();
@@ -341,6 +354,8 @@ function OutdatedVersionWarningDialog() {
     'You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report.',
   );
 
+  const disabled = isLinux && isOffline;
+
   return (
     <ModalAlert
       isOpen={showOutdatedVersionWarning}
@@ -349,14 +364,16 @@ function OutdatedVersionWarningDialog() {
       buttons={[
         <AriaDescriptionGroup key="upgrade">
           <AriaDescribed>
-            <AppButton.GreenButton disabled={isOffline} onClick={openDownloadLink}>
+            <AppButton.GreenButton disabled={disabled} onClick={upgradeAction}>
               <AppButton.Label>{messages.pgettext('support-view', 'Upgrade app')}</AppButton.Label>
-              <AriaDescription>
-                <Icon
-                  icon="external"
-                  aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                />
-              </AriaDescription>
+              {isLinux && (
+                <AriaDescription>
+                  <Icon
+                    icon="external"
+                    aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                  />
+                </AriaDescription>
+              )}
             </AppButton.GreenButton>
           </AriaDescribed>
         </AriaDescriptionGroup>,
