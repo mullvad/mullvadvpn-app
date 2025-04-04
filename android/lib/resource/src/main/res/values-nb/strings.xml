@@ -124,7 +124,6 @@
     <string name="device_inactive_description">Du har fjernet denne enheten. For å koble til igjen, må du logge inn på nytt.</string>
     <string name="device_inactive_title">Enheten er inaktiv</string>
     <string name="device_inactive_unblock_warning">Å gå til pålogging vil oppheve blokkeringen av internettet på denne enheten.</string>
-    <string name="device_ip_version_title">IP-versjon</string>
     <string name="device_name">Enhetsnavn</string>
     <string name="device_name_info_first_paragraph">Dette er navnet som er tildelt enheten. Enhver enhet som er logget inn på en Mullvad-konto, får et unikt navn som gjør det enklere for deg å identifisere den når du administrerer enheten i appen eller på nettsiden.</string>
     <string name="device_name_info_second_paragraph">Du kan ha opptil fem enheter logget inn på samme Mullvad-konto.</string>
@@ -156,7 +155,6 @@
     <string name="enable_anyway">Aktiver uansett</string>
     <string name="enable_custom_dns">Bruk egendefinert DNS-server</string>
     <string name="enable_direct_only">Aktiver %1$s</string>
-    <string name="enable_ipv6">Aktiver IPv6</string>
     <string name="enable_method">Aktiver metoden</string>
     <string name="encrypted_dns_proxy_info_message_part1">Med metoden «Kryptert DNS-proxy» vil appen kommunisere med Mullvad API gjennom en proxy-adresse. Dette gjøres ved å hente en adresse fra en DNS over HTTPS-server (DoH) og deretter bruke den til å nå API-serverne våre.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Hvis du ikke er koblet til VPN-tjenesten vår, vil den krypterte DNS-proxyen bruke din egen ikke-VPN-IP når du kobler til. En av følgende leverandører er vert for DoH-serverne: Quad9 eller CloudFlare.</string>
