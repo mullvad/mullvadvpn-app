@@ -4,4 +4,5 @@ export * from './useHasAppUpgradeError';
 export * from './useHasAppUpgradeEvent';
 export * from './useHasAppUpgradeVerifiedInstallerPath';
 export * from './useIsAppUpgradeInProgress';
+export * from './useIsPlatformLinux';
 export * from './useShouldAppUpgradeInstallManually';
