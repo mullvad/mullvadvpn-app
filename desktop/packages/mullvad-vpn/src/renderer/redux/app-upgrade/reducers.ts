@@ -26,6 +26,11 @@ export function appUpgradeReducer(
         ...state,
         error: action.error,
       };
+    case 'APP_UPGRADE_RESET_ERROR':
+      return {
+        ...state,
+        error: initialState.error,
+      };
     case 'APP_UPGRADE_RESET':
       return {
         ...initialState,

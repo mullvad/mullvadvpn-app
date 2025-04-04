@@ -407,7 +407,7 @@ export default class AppRenderer {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
   public appUpgrade = () => {
-    this.reduxActions.appUpgrade.resetAppUpgrade();
+    this.reduxActions.appUpgrade.resetAppUpgradeError();
     IpcRendererEventChannel.app.upgrade();
   };
   public appUpgradeAbort = () => IpcRendererEventChannel.app.upgradeAbort();
@@ -652,10 +652,15 @@ export default class AppRenderer {
 
     if (
       verifiedInstallerPath &&
-      windowFocused &&
       appUpgradeEvent?.type === 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER'
     ) {
-      this.appUpgradeInstallerStart();
+      // Only trigger the installer if the window is focused
+      if (windowFocused) {
+        this.appUpgradeInstallerStart();
+      } else {
+        // Otherwise, flag this as a failed automatic start (even though we haven't really attempted a start)
+        this.reduxActions.appUpgrade.setAppUpgradeError('START_INSTALLER_AUTOMATIC_FAILED');
+      }
     }
   }
 
@@ -1016,7 +1021,18 @@ export default class AppRenderer {
   }
 
   private setUpgradeVersion(upgradeVersion: IAppVersionInfo) {
-    this.reduxActions.version.updateLatest(upgradeVersion);
+    this.reduxActions.version.updateLatest({
+      supported: true,
+      suggestedIsBeta: false,
+      suggestedUpgrade: {
+        version: '2100.1',
+        changelog: [
+          'This is a changelog.',
+          'Every newline should be a new item.',
+          'There are three items.',
+        ],
+      },
+    });
   }
 
   private setGuiSettings(guiSettings: IGuiSettingsState) {

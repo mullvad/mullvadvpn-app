@@ -1,23 +1,11 @@
-import { useAppUpgradeEventType } from './useAppUpgradeEventType';
 import { useHasAppUpgradeError } from './useHasAppUpgradeError';
+import { useIsAppUpgradePending } from './useIsAppUpgradePending';
 
 export const useIsAppUpgradeInProgress = () => {
-  const appUpgradeEventType = useAppUpgradeEventType();
   const hasAppUpgradeError = useHasAppUpgradeError();
+  const isAppUpgradePending = useIsAppUpgradePending();
 
-  if (hasAppUpgradeError) {
-    return false;
-  }
+  const isAppUpgradeInProgress = isAppUpgradePending && !hasAppUpgradeError;
 
-  switch (appUpgradeEventType) {
-    case 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS':
-    case 'APP_UPGRADE_STATUS_DOWNLOAD_STARTED':
-    case 'APP_UPGRADE_STATUS_STARTED_INSTALLER':
-    case 'APP_UPGRADE_STATUS_STARTING_INSTALLER':
-    case 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER':
-    case 'APP_UPGRADE_STATUS_VERIFYING_INSTALLER':
-      return true;
-    default:
-      return false;
-  }
+  return isAppUpgradeInProgress;
 };
