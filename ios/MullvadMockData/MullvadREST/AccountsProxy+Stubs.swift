@@ -23,15 +23,18 @@ struct AccountsProxyStub: RESTAccountHandling {
         return AnyCancellable()
     }
 
-    func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account> {
-        RESTRequestExecutorStub<Account>(success: {
-            Account(
-                id: accountNumber,
-                expiry: Calendar.current.date(byAdding: .day, value: 38, to: Date())!,
-                maxDevices: 1,
-                canAddDevices: true
-            )
-        })
+    func getAccountData(
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy,
+        completion: @escaping ProxyCompletionHandler<Account>
+    ) -> Cancellable {
+        completion(.success(Account(
+            id: accountNumber,
+            expiry: Calendar.current.date(byAdding: .day, value: 38, to: Date())!,
+            maxDevices: 1,
+            canAddDevices: true
+        )))
+        return AnyCancellable()
     }
 
     func deleteAccount(

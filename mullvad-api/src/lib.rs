@@ -506,15 +506,27 @@ impl AccountsProxy {
         &self,
         account: AccountNumber,
     ) -> impl Future<Output = Result<AccountData, rest::Error>> + use<> {
+        let request = self.get_data_response(account);
+
+        async move {
+            let data = request.await?.deserialize().await?;
+            Ok(data)
+        }
+    }
+
+    pub fn get_data_response(
+        &self,
+        account: AccountNumber,
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
+
         async move {
             let request = factory
                 .get(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"))?
                 .expected_status(&[StatusCode::OK])
                 .account(account)?;
-            let response = service.request(request).await?;
-            response.deserialize().await
+            service.request(request).await
         }
     }
 
@@ -526,6 +538,17 @@ impl AccountsProxy {
             number: AccountNumber,
         }
 
+        let request = self.create_account_response();
+
+        async move {
+            let account: AccountCreationResponse = request.await?.deserialize().await?;
+            Ok(account.number)
+        }
+    }
+
+    pub fn create_account_response(
+        &self,
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -533,9 +556,7 @@ impl AccountsProxy {
             let request = factory
                 .post(&format!("{ACCOUNTS_URL_PREFIX}/accounts"))?
                 .expected_status(&[StatusCode::CREATED]);
-            let response = service.request(request).await?;
-            let account: AccountCreationResponse = response.deserialize().await?;
-            Ok(account.number)
+            service.request(request).await
         }
     }
 

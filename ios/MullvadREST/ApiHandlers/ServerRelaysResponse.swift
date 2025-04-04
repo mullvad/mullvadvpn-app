@@ -138,7 +138,11 @@ extension REST {
         public let wireguard: ServerWireguardTunnels
         public let bridge: ServerBridges
 
-        public init(locations: [String: ServerLocation], wireguard: ServerWireguardTunnels, bridge: ServerBridges) {
+        public init(
+            locations: [String: ServerLocation],
+            wireguard: ServerWireguardTunnels,
+            bridge: ServerBridges
+        ) {
             self.locations = locations
             self.wireguard = wireguard
             self.bridge = bridge

@@ -267,7 +267,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     ) {
         logger.debug("Request account data...")
 
-        let task = accountsProxy.getAccountData(accountNumber: accountNumber).execute(
+        let task = accountsProxy.getAccountData(
+            accountNumber: accountNumber,
             retryStrategy: .default
         ) { [self] result in
             dispatchQueue.async { [self] in

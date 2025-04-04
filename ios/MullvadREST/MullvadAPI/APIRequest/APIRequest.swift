@@ -9,6 +9,9 @@
 public enum APIRequest: Codable, Sendable {
     case getAddressList(_ retryStrategy: REST.RetryStrategy)
     case getRelayList(_ retryStrategy: REST.RetryStrategy, etag: String?)
+    case createAccount(_ retryStrategy: REST.RetryStrategy)
+    case getAccount(_ retryStrategy: REST.RetryStrategy, accountNumber: String)
+    case deleteAccount(_ retryStrategy: REST.RetryStrategy, accountNumber: String)
 
     var name: String {
         switch self {
@@ -16,12 +19,23 @@ public enum APIRequest: Codable, Sendable {
             "get-address-list"
         case .getRelayList:
             "get-relay-list"
+        case .createAccount:
+            "create-account"
+        case .getAccount:
+            "get-account"
+        case .deleteAccount:
+            "delete-account"
         }
     }
 
     var retryStrategy: REST.RetryStrategy {
         switch self {
-        case let .getAddressList(strategy), let .getRelayList(strategy, _):
+        case
+            let .getAddressList(strategy),
+            let .getRelayList(strategy, _),
+            let .createAccount(strategy),
+            let .getAccount(strategy, _),
+            let .deleteAccount(strategy, _):
             strategy
         }
     }
