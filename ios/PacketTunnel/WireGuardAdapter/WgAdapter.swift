@@ -111,21 +111,45 @@ extension WgAdapter: TunnelDeviceInfoProtocol {
         return adapter.interfaceName
     }
 
-    func getStats() throws -> WgStats {
-        var result: String?
-
-        let dispatchGroup = DispatchGroup()
-        dispatchGroup.enter()
-        adapter.getRuntimeConfiguration { string in
-            result = string
-            dispatchGroup.leave()
+    /// Returns the number of bytes sent and read by the WireGuard device
+    ///
+    /// This methods gets the current WireGuard configuration
+    /// and parses the `rx_bytes` and `tx_bytes` found there if any.
+    /// - Returns: A structure containing the number of bytes read and sent by the WireGuard device
+    func getStats() async throws -> WgStats {
+        /// Run `configurationTask` and `timeoutTask` in parallel.
+        /// Whichever finishes first cancels the other one
+        let configurationTask = Task {
+            let configuration = await getConfiguration()
+            try Task.checkCancellation()
+            return configuration
         }
+        let timeoutTask = Task.detached {
+            try await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
+            configurationTask.cancel()
+        }
+        do {
+            guard let configuration = try await configurationTask.value else {
+                throw StatsError.nilValue
+            }
 
-        guard case .success = dispatchGroup.wait(wallTimeout: .now() + 1) else { throw StatsError.timeout }
-        guard let result else { throw StatsError.nilValue }
-        guard let newStats = WgStats(from: result) else { throw StatsError.parse }
+            timeoutTask.cancel()
+            guard let stats = WgStats(from: configuration) else {
+                throw StatsError.parse
+            }
+            return stats
 
-        return newStats
+        } catch is CancellationError {
+            throw StatsError.timeout
+        }
+    }
+
+    func getConfiguration() async -> String? {
+        await withCheckedContinuation { continuation in
+            adapter.getRuntimeConfiguration { configuration in
+                continuation.resume(returning: configuration)
+            }
+        }
     }
 
     enum StatsError: LocalizedError {
