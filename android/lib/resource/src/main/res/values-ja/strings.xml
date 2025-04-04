@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">高度なAIを使用することで、(トラフィックが暗号化されている場合でも) デバイスが送受信するデータパケットのトラフィックを分析することは可能です。</string>
     <string name="daita_description_slide_2_first_paragraph">%1$sはこのようなデータパケットが監視されている場合でも、訪問先ウェブサイトや通信相手を特定するのを極めて困難にします。</string>
     <string name="daita_description_slide_2_second_paragraph">%1$sはネットワークノイズを入念に追加し、すべてのネットワークパケットを同じサイズにすることによってこれを実現しています。</string>
-    <string name="daita_description_slide_2_third_paragraph">すべてのサーバーが%1$sに対応しているわけではないため、どのサーバーでも%2$sが有効になるようにマルチホップを自動的に使用しています。</string>
+    <string name="daita_description_slide_2_third_paragraph">すべてのサーバーが%1$sに対応しているわけではないため、どのサーバーでも%1$sが有効になるようにマルチホップを自動的に使用しています。</string>
     <string name="daita_info">“%1$s” を有効化した場合、%2$s対応のサーバーを手動で選択する必要があります。これにより、“場所を選択する” で互換性のあるサーバーを選択するまでブロック状態となる可能性があります。</string>
     <string name="delete">削除</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" を削除しますか？</string>
@@ -236,7 +236,7 @@
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="multihop">マルチホップ</string>
     <string name="multihop_description">マルチホップはトラフィックをあるWireGuardサーバーにルーティングし、別サーバーに送出することで追跡を困難にします。これによって遅延が増加しますが、オンラインの匿名性は高まります。</string>
-    <string name="multihop_entry_disabled_description">%1$sの入口サーバーは現在、%2$sによってオーバーライドされています。入口サーバーを選択するには、設定で [%3$s] を有効にするか、[%4$s] を無効にしてください。</string>
+    <string name="multihop_entry_disabled_description">%1$sの入口サーバーは現在、%2$sによってオーバーライドされています。入口サーバーを選択するには、設定で [%3$s] を有効にするか、[%2$s] を無効にしてください。</string>
     <string name="name">名前</string>
     <string name="name_was_changed_to">名前が %1$s に変更されました</string>
     <string name="new_changelog_notification_message">新機能を確認するにはここをクリックしてください。</string>

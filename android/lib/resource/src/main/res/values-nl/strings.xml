@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">Door gebruik te maken van geavanceerde AI is het mogelijk om het verkeer van datapakketten te analyseren die uw apparaat in- en uitgaan (zelfs als het verkeer versleuteld is).</string>
     <string name="daita_description_slide_2_first_paragraph">Als een waarnemer deze gegevenspakketten in de gaten houdt, maakt %1$s het aanzienlijk moeilijker voor diegene om vast te stellen welke websites u bezoekt of met wie u communiceert.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s doet dit door zorgvuldig netwerkruis toe te voegen en alle netwerkpakketten even groot te maken.</string>
-    <string name="daita_description_slide_2_third_paragraph">Niet al onze servers zijn geschikt voor %1$s. Daarom gebruiken we automatisch multihop om %2$s in te schakelen bij elke server.</string>
+    <string name="daita_description_slide_2_third_paragraph">Niet al onze servers zijn geschikt voor %1$s. Daarom gebruiken we automatisch multihop om %1$s in te schakelen bij elke server.</string>
     <string name="daita_info">Als u \"%1$s\" inschakelt, moet u handmatig een server selecteren die %2$s ondersteunt. Hierdoor kunt u in een geblokkeerde toestand terechtkomen totdat u een compatibele server hebt geselecteerd in het dialoogvenster \"Locatie selecteren\".</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" verwijderen?</string>
@@ -236,7 +236,7 @@
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop leidt uw verkeer de ene WireGuard-server in en de andere uit, waardoor het moeilijker te traceren is. Dit leidt tot een hogere latentie, maar verhoogt de online anonimiteit.</string>
-    <string name="multihop_entry_disabled_description">De ingangsserver voor %1$s is momenteel overschreven door %2$s. Om een ingangsserver te selecteren, moet u eerst \"%3$s\" inschakelen of \"%4$s\" uitschakelen in de instellingen.</string>
+    <string name="multihop_entry_disabled_description">De ingangsserver voor %1$s is momenteel overschreven door %2$s. Om een ingangsserver te selecteren, moet u eerst \"%3$s\" inschakelen of \"%2$s\" uitschakelen in de instellingen.</string>
     <string name="name">Naam</string>
     <string name="name_was_changed_to">Naam is gewijzigd in %1$s</string>
     <string name="new_changelog_notification_message">Klik hier om te zien wat er nieuw is.</string>

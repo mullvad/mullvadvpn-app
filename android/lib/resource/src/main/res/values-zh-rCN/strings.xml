@@ -113,7 +113,7 @@
     <string name="daita_description_slide_1_third_paragraph">通过使用复杂 AI，可以分析传入和传出您的设备的数据包流量（即使流量已加密）。</string>
     <string name="daita_description_slide_2_first_paragraph">如果某个观察者监视这些数据包，%1$s 会大大提高他们识别您所访问的网站或您沟通对象的难度。</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s 的实现方法是精心添加网络噪声并将所有网络数据包处理为相同的大小。</string>
-    <string name="daita_description_slide_2_third_paragraph">我们的部分服务器未启用 %1$s。因此，我们使用多跳自动为任何服务器启用 %2$s。</string>
+    <string name="daita_description_slide_2_third_paragraph">我们的部分服务器未启用 %1$s。因此，我们使用多跳自动为任何服务器启用 %1$s。</string>
     <string name="daita_info">启用“%1$s”后，您需要手动选择启用了 %2$s 的服务器。这可能导致您在“选择位置”视图中选择兼容服务器之前处于阻止状态。</string>
     <string name="delete">删除</string>
     <string name="delete_custom_list_confirmation_description">删除“%1$s”？</string>
@@ -236,7 +236,7 @@
     <string name="mullvad_owned_only">仅 Mullvad 自有</string>
     <string name="multihop">多跳</string>
     <string name="multihop_description">多跳技术会将您的流量传输到一个 WireGuard 服务器并从另一个服务器传出，从而提高追踪的难度。这会导致延迟增加，但会提高在线匿名性。</string>
-    <string name="multihop_entry_disabled_description">%1$s的入口服务器目前被 %2$s 覆盖。要选择入口服务器，请先在设置中启用“%3$s”或禁用“%4$s”。</string>
+    <string name="multihop_entry_disabled_description">%1$s的入口服务器目前被 %2$s 覆盖。要选择入口服务器，请先在设置中启用“%3$s”或禁用“%2$s”。</string>
     <string name="name">名称</string>
     <string name="name_was_changed_to">名称已更改为“%1$s”</string>
     <string name="new_changelog_notification_message">点击此处查看最新变化。</string>
