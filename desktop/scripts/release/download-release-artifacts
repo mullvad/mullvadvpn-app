@@ -14,12 +14,14 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+# The app version to download
 PRODUCT_VERSION=$1
+# The directory where the artifacts will be downloaded to
+ARTIFACT_DIR=$2
 
-ARTIFACT_DIR="./artifacts"
 URL_BASE="https://releases.mullvad.net/desktop/releases"
 
-mkdir -p $ARTIFACT_DIR
+mkdir -p "$ARTIFACT_DIR"
 
 # The signer key file "mullvad-code-signing-key.asc" is expected to exist in the current working directory.
 SIGNER_KEY_FILE="./mullvad-code-signing-key.asc"
