@@ -1,13 +1,14 @@
 ---
 source: installer-downloader/tests/controller.rs
 expression: delegate.state
+snapshot_kind: text
 ---
-status_text: Loading version details...
+status_text: "Version: 2025.1"
 download_text: ""
 download_button_visible: true
 cancel_button_visible: false
 cancel_button_enabled: false
-download_button_enabled: false
+download_button_enabled: true
 download_progress: 0
 download_progress_visible: false
 beta_text_visible: false
@@ -32,3 +33,5 @@ call_log:
   - show_download_button
   - "set_status_text: Loading version details..."
   - hide_error_message
+  - "set_status_text: Version: 2025.1"
+  - enable_download_button
