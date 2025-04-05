@@ -184,7 +184,7 @@ impl Server {
 
                             let mut received_packet = proxy_recv_buf.split().freeze();
 
-                            if proxy_recv_buf.len() < maximum_packet_size.into() {
+                            if received_packet.len() < maximum_packet_size.into() {
                                 if connection.send_datagram(stream_id, received_packet).is_err() {
                                     return;
                                 }
