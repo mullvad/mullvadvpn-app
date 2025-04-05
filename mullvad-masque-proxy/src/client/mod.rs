@@ -246,25 +246,12 @@ impl Client {
                                 // log::trace!("Received datagram with an unexpected stream ID");
                                 continue;
                             }
-                            let mut payload = response.into_payload();
-                            let context = VarInt::decode(&mut payload);
-                            match  context {
-                                Ok(crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID) => {
-                                    self.client_socket
-                                        .send_to(payload.as_ref(), return_addr)
-                                        .await
-                                        .map_err(Error::ClientWrite)?;
-                                }
-                                Ok(crate::HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID) => {
-                                    if let Ok(Some(payload)) = self.fragments.handle_incoming_packet(payload) {
-                                        self.client_socket
-                                            .send_to(payload.chunk(), return_addr)
-                                            .await
-                                            .map_err(Error::ClientWrite)?;
-                                    }
-                                },
-                                _ => (),
-
+                            let payload = response.into_payload();
+                            if let Ok(Some(payload)) = self.fragments.handle_incoming_packet(payload) {
+                                self.client_socket
+                                    .send_to(payload.chunk(), return_addr)
+                                    .await
+                                    .map_err(Error::ClientWrite)?;
                             }
                         }
                         Ok(None) => {
