@@ -21,12 +21,23 @@ class AccountContentView: UIView {
         return button
     }()
 
-    let storeKit2Button: AppButton = {
+    let storeKit2PurchaseButton: AppButton = {
         let button = AppButton(style: .success)
         button.setTitle(NSLocalizedString(
             "BUY_SUBSCRIPTION_STOREKIT_2",
             tableName: "Account",
             value: "Make a purchase with StoreKit2",
+            comment: ""
+        ), for: .normal)
+        return button
+    }()
+
+    let storeKit2RefundButton: AppButton = {
+        let button = AppButton(style: .success)
+        button.setTitle(NSLocalizedString(
+            "BUY_SUBSCRIPTION_STOREKIT_2",
+            tableName: "Account",
+            value: "Refund last purchase with StoreKit2",
             comment: ""
         ), for: .normal)
         return button
@@ -102,7 +113,8 @@ class AccountContentView: UIView {
         var arrangedSubviews = [UIView]()
         #if DEBUG
         arrangedSubviews.append(redeemVoucherButton)
-        arrangedSubviews.append(storeKit2Button)
+        arrangedSubviews.append(storeKit2PurchaseButton)
+        arrangedSubviews.append(storeKit2RefundButton)
         #endif
         arrangedSubviews.append(contentsOf: [
             purchaseButton,

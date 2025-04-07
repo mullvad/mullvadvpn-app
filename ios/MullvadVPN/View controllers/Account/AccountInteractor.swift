@@ -50,7 +50,7 @@ final class AccountInteractor: Sendable {
     }
 
     func sendStoreKitReceipt(_ transaction: VerificationResult<Transaction>, for accountNumber: String) async throws {
-        try await apiProxy.createApplePayment(
+        _ = try await apiProxy.createApplePayment(
             accountNumber: accountNumber,
             receiptString: transaction.jwsRepresentation.data(using: .utf8)!
         ).execute()
