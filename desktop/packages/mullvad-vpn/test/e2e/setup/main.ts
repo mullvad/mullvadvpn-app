@@ -17,7 +17,7 @@ import { IGuiSettingsState } from '../../../src/shared/gui-settings-state';
 import { ITranslations, MacOsScrollbarVisibility } from '../../../src/shared/ipc-schema';
 import { ICurrentAppVersionInfo } from '../../../src/shared/ipc-types';
 
-const DEBUG = false;
+const DEBUG = true;
 
 class ApplicationMain {
   private guiSettings: IGuiSettingsState = {
