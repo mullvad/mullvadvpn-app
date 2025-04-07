@@ -419,7 +419,7 @@ export default class AppRenderer {
     // Ensure we have a the path to the verified installer and that we are not already trying
     // to start the installer.
     if (
-      verifiedInstallerPath &&
+      typeof verifiedInstallerPath === 'string' &&
       appUpgradeEvent?.type !== 'APP_UPGRADE_STATUS_STARTING_INSTALLER'
     ) {
       // Ensure we don't try to start the installer multiple times by setting the status
@@ -651,7 +651,7 @@ export default class AppRenderer {
     const windowFocused = reduxState.userInterface.windowFocused;
 
     if (
-      verifiedInstallerPath &&
+      typeof verifiedInstallerPath === 'string' &&
       appUpgradeEvent?.type === 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER'
     ) {
       // Only trigger the installer if the window is focused
