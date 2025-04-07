@@ -160,7 +160,7 @@ impl Server {
         let max_udp_payload_size = compute_udp_payload_size(mtu, target_addr);
 
         let stream_id = stream.id();
-        let mut proxy_recv_buf = BytesMut::with_capacity(crate::PACKET_BUFFER_SIZE);
+        let mut proxy_recv_buf = BytesMut::with_capacity(100 * crate::PACKET_BUFFER_SIZE);
 
         let mut fragments = Fragments::default();
         let mut fragment_id = 0u16;
