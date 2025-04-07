@@ -107,7 +107,7 @@ where
     T: Future<Output = Result<(), rest::Error>>,
 {
     retry_request(retry_strategy, future_factory).await?;
-    SwiftMullvadApiResponse::ok()
+    Ok(SwiftMullvadApiResponse::ok())
 }
 
 async fn retry_request<F, T, U>(

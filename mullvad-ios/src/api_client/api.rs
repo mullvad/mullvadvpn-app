@@ -1,4 +1,5 @@
 use std::ffi::CStr;
+use std::os::raw::c_char;
 
 use mullvad_api::{
     rest::{self, MullvadRestHandle},
@@ -30,7 +31,7 @@ pub unsafe extern "C" fn mullvad_api_get_addresses(
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
+    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -71,9 +72,9 @@ pub unsafe extern "C" fn mullvad_api_get_relays(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
-    etag: *const u8,
+    etag: *const c_char,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
+    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());

@@ -20,8 +20,15 @@ extern "C" {
 }
 
 #[repr(C)]
-pub struct CompletionCookie(pub *mut std::ffi::c_void);
+pub struct CompletionCookie {
+    inner: *mut std::ffi::c_void,
+}
 unsafe impl Send for CompletionCookie {}
+impl CompletionCookie {
+    pub unsafe fn new(inner: *mut std::ffi::c_void) -> Self {
+        Self { inner }
+    }
+}
 
 #[derive(Clone)]
 pub struct SwiftCompletionHandler {

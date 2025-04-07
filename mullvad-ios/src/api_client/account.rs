@@ -1,4 +1,5 @@
 use std::ffi::CStr;
+use std::os::raw::c_char;
 
 use mullvad_api::{
     rest::{self, MullvadRestHandle},
@@ -19,9 +20,9 @@ use super::{
 /// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
 /// by calling `mullvad_api_init_new`.
 ///
-/// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
-/// safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
-/// type is intended to be used.
+/// This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+/// object `MullvadApiCompletion`. The pointer must be freed by calling `mullvad_api_completion_finish`
+/// when completion finishes (in completion.finish).
 ///
 /// `account_number` must be a pointer to a null terminated string.
 ///
@@ -31,9 +32,9 @@ pub unsafe extern "C" fn mullvad_api_get_account(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
-    account_number: *const u8,
+    account_number: *const c_char,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
+    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -83,7 +84,7 @@ pub unsafe extern "C" fn mullvad_api_create_account(
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
+    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -124,9 +125,9 @@ pub unsafe extern "C" fn mullvad_api_delete_account(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
-    account_number: *const u8,
+    account_number: *const c_char,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
+    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
