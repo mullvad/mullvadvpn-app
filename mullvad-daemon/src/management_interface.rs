@@ -1151,6 +1151,7 @@ impl ManagementService for ManagementServiceImpl {
         &self,
         _: Request<()>,
     ) -> ServiceResult<Self::AppUpgradeEventsListenStream> {
+        log::debug!("app_upgrade_events_listen");
         let rx = self.app_upgrade_broadcast.subscribe();
         let upgrade_event_stream =
             tokio_stream::wrappers::BroadcastStream::new(rx).map(|result| match result {
