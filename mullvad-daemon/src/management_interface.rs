@@ -43,7 +43,6 @@ pub type AppUpgradeBroadcast = tokio::sync::broadcast::Sender<version::AppUpgrad
 struct ManagementServiceImpl {
     daemon_tx: DaemonCommandSender,
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
-    // app_upgrade_event_subscribers: Arc<Mutex<Vec<AppUpgradeEventListenerSender>>>,
     pub app_upgrade_broadcast: AppUpgradeBroadcast,
 }
 
