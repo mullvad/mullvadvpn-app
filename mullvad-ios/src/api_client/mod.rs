@@ -65,7 +65,8 @@ impl ApiContext {
     }
 }
 
-#[no_mangle]
+/// Called by Swift to set the available access methods
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_update_access_methods(
     api_context: SwiftApiContext,
     settings_wrapper: SwiftAccessMethodSettingsWrapper,
@@ -76,7 +77,12 @@ pub unsafe extern "C" fn mullvad_api_update_access_methods(
         .update_access_methods(access_methods);
 }
 
-#[no_mangle]
+/// Called by Swift to update the currently used access methods
+///
+/// # SAFETY
+/// `access_method_id` must point to a null terminated string in a UUID format
+///
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_use_access_method(
     api_context: SwiftApiContext,
     access_method_id: *const c_char,
@@ -101,7 +107,7 @@ pub unsafe extern "C" fn mullvad_api_use_access_method(
 /// to proceed in a meaningful way anyway.
 ///
 /// This function is safe.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_init_new(
     host: *const c_char,
     address: *const c_char,
@@ -143,8 +149,6 @@ pub extern "C" fn mullvad_api_init_new(
     };
 
     let api_context = tokio_handle.clone().block_on(async move {
-        // It is imperative that the REST runtime is created within an async context, otherwise
-        // ApiAvailability panics.
         let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
             method_resolver,
             access_method_settings,
@@ -152,8 +156,10 @@ pub extern "C" fn mullvad_api_init_new(
             endpoint.clone(),
         )
         .await
-        .expect("no errors here, move along");
+        .expect("Could now spawn AccessModeSelector");
 
+        // It is imperative that the REST runtime is created within an async context, otherwise
+        // ApiAvailability panics.
         let api_client = mullvad_api::Runtime::new(tokio_handle, &endpoint);
         let rest_client = api_client.mullvad_rest_handle(access_mode_provider);
 

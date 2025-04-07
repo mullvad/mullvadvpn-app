@@ -31,14 +31,23 @@ pub unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<IpAddr> 
     }
 }
 
+/// Converts a pointer to a C style string into an owned Rust `String`
+///
+/// # SAFETY
+/// `c_str` must point to a valid, null terminated C string.
 pub unsafe fn convert_c_string(c_str: *const c_char) -> String {
     // SAFETY: c_str points to a valid region of memory and contains a null terminator.
     let str = unsafe { CStr::from_ptr(c_str) };
     String::from_utf8_lossy(str.to_bytes()).into_owned()
 }
 
-// TODO: Include SAFETY comments
-#[no_mangle]
+/// Converts parameters into a boxed `Shadowsocks` configuration that is safe
+/// to send across the FFI boundary
+///
+/// # SAFETY
+/// `address` must be a pointer to at least `address_len` bytes.
+/// `c_password` and `c_cipher` must be pointers to null terminated strings
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn convert_shadowsocks(
     address: *const u8,
     address_len: usize,
@@ -91,7 +100,8 @@ impl RustAccessMethodSettingVectorContext {
     }
 }
 
-#[no_mangle]
+/// Creates a wrapper around a Rust `Vec` type that can be safely sent across the FFI boundary.
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn access_method_settings_vector(
     capacity: usize,
 ) -> RustAccessMethodSettingVector {
@@ -102,19 +112,30 @@ pub unsafe extern "C" fn access_method_settings_vector(
     }
 }
 
-#[no_mangle]
+/// Adds an `AccessMethodSetting` to the inner vector contained in `vector_raw`
+///
+/// # SAFETY
+/// `access_method` must be a pointer gotten through a call to `convert_builtin_access_method_setting`
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn vector_add_access_method_setting(
     vector_raw: RustAccessMethodSettingVector,
     access_method: *const c_void,
 ) {
-    if access_method.is_null() == false {
+    if !access_method.is_null() {
+        // SAFETY: see `vector_add_access_method_setting`
         let access_method: AccessMethodSetting = unsafe { *Box::from_raw(access_method as *mut _) };
         let mut vector = vector_raw;
         vector.push(access_method);
     }
 }
 
-#[no_mangle]
+/// Converts parameters into a boxed `Socks5Remote` configuration that is safe
+/// to send across the FFI boundary
+///
+/// # SAFETY
+/// `address` must be a pointer to at least `address_len` bytes.
+/// `c_username` and `c_password` must be a pointer to null terminated strings
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn convert_socks5(
     address: *const u8,
     address_len: usize,
