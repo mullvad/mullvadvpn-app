@@ -8,6 +8,7 @@
 
 import Combine
 @testable import MullvadSettings
+@testable import MullvadTypes
 import XCTest
 
 final class APIAccessMethodsTests: XCTestCase {

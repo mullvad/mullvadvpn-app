@@ -54,8 +54,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var relaySelector: RelaySelectorWrapper!
     private var launchArguments = LaunchArguments()
     private var encryptedDNSTransport: EncryptedDNSTransport!
-    private var shadowsocksBridgeProvider: SwiftShadowsocksBridgeProvider!
-    private var shadowsocksBridgeProviderWrapper: SwiftShadowsocksLoaderWrapper!
     var apiContext: MullvadApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
 
@@ -105,16 +103,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             shadowsocksLoader: shadowsocksLoader
         )
 
-        /// TODO: Consider the lifetime of `shadowsocksBridgeProvider` and `shadowsocksBridgeProviderWrapper`
-        ///  is it necessary for those to live that long ?
-        shadowsocksBridgeProvider = SwiftShadowsocksBridgeProvider(provider: shadowsocksLoader)
-        shadowsocksBridgeProviderWrapper = initMullvadShadowsocksBridgeProvider(provider: shadowsocksBridgeProvider)
-
+        // swiftlint:disable:next force_try
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
-            shadowsocksProvider: shadowsocksBridgeProviderWrapper,
+            shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper
         )
 

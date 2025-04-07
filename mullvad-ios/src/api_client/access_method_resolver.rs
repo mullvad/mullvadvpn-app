@@ -10,14 +10,14 @@ use talpid_types::net::{
 };
 use tonic::async_trait;
 
-use super::shadowsocks_loader::SwiftShadowsocksLoaderWrapperContext;
+use super::shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
 
 #[derive(Debug)]
 pub struct SwiftAccessMethodResolver {
     endpoint: ApiEndpoint,
     domain: String,
     state: EncryptedDnsProxyState,
-    bridge_provider: SwiftShadowsocksLoaderWrapperContext,
+    bridge_provider: SwiftShadowsocksLoaderWrapper,
 }
 
 impl SwiftAccessMethodResolver {
@@ -25,7 +25,7 @@ impl SwiftAccessMethodResolver {
         endpoint: ApiEndpoint,
         domain: String,
         state: EncryptedDnsProxyState,
-        bridge_provider: SwiftShadowsocksLoaderWrapperContext,
+        bridge_provider: SwiftShadowsocksLoaderWrapper,
     ) -> Self {
         Self {
             endpoint,
@@ -64,27 +64,26 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
             }
         };
 
-        Some((
-            AllowedEndpoint {
-                endpoint: match connection_mode.get_endpoint() {
-                    Some(endpoint) => endpoint,
-                    None => Endpoint::from_socket_address(
-                        self.endpoint.address.unwrap(),
-                        TransportProtocol::Tcp,
-                    ),
-                },
-                clients: AllowedClients::All,
-            },
-            connection_mode,
-        ))
+        let allowed_endpoint = {
+            let endpoint = connection_mode.get_endpoint().unwrap_or_else(|| {
+                Endpoint::from_socket_address(
+                    self.endpoint.address.unwrap(),
+                    TransportProtocol::Tcp,
+                )
+            });
+            let clients = AllowedClients::All;
+            AllowedEndpoint { endpoint, clients }
+        };
+
+        Some((allowed_endpoint, connection_mode))
     }
 
     async fn default_connection_mode(&self) -> AllowedEndpoint {
         // TODO: Call the iOS Address cache implementation instead of returning the default endpoint
         let endpoint = ApiConnectionMode::Direct.get_endpoint().unwrap();
-        return AllowedEndpoint {
+        AllowedEndpoint {
             endpoint,
             clients: AllowedClients::All,
-        };
+        }
     }
 }

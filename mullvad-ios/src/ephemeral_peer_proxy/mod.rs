@@ -17,7 +17,7 @@ pub struct PacketTunnelBridge {
 
 impl PacketTunnelBridge {
     fn fail_exchange(self) {
-        // # Safety
+        // # Safety:
         // Call is safe as long as the `packet_tunnel` pointer is valid. Since a valid instance of
         // `PacketTunnelBridge` requires the packet tunnel pointer to be valid, it is assumed this
         // call is safe.
@@ -42,7 +42,7 @@ impl PacketTunnelBridge {
             .as_ref()
             .map(|params| params as *const _)
             .unwrap_or(ptr::null());
-        // # Safety
+        // # Safety:
         // The `packet_tunnel` pointer must be valid, much like the call in `fail_exchange`, but
         // since the other arguments here are non-null, these pointers (`preshared_ptr`,
         // `ephmerela_ptr` and `daita_ptr`) have to be valid too. Since they point to local
@@ -53,6 +53,7 @@ impl PacketTunnelBridge {
     }
 }
 
+// SAFETY: See notes for `EphemeralPeerExchange`
 unsafe impl Send for PacketTunnelBridge {}
 
 #[repr(C)]
@@ -85,7 +86,7 @@ impl DaitaParameters {
 
 impl Drop for DaitaParameters {
     fn drop(&mut self) {
-        // # Safety
+        // # Safety:
         // `machines` pointer must be a valid pointer to a CString. This can be achieved by
         // ensuring that `DaitaParameters` are constructed via `DaitaParameters::new` and the
         // `machines` pointer is never written to.
@@ -122,6 +123,7 @@ extern "C" {
 pub unsafe extern "C" fn cancel_ephemeral_peer_exchange(
     sender: *mut peer_exchange::ExchangeCancelToken,
 ) {
+    // SAFETY: See notes above
     let sender = unsafe { Box::from_raw(sender) };
     sender.cancel();
 }
@@ -136,6 +138,7 @@ pub unsafe extern "C" fn cancel_ephemeral_peer_exchange(
 pub unsafe extern "C" fn drop_ephemeral_peer_exchange_token(
     sender: *mut peer_exchange::ExchangeCancelToken,
 ) {
+    // SAFETY: See notes above
     // drop the cancel token
     let _sender = unsafe { Box::from_raw(sender) };
 }
@@ -162,10 +165,10 @@ pub unsafe extern "C" fn request_ephemeral_peer(
             .init();
     });
 
-    // # Safety
+    // # Safety:
     // `public_key` pointer must be a valid pointer to 32 unsigned bytes.
     let pub_key: [u8; 32] = unsafe { ptr::read(public_key as *const [u8; 32]) };
-    // # Safety
+    // # Safety:
     // `ephemeral_key` pointer must be a valid pointer to 32 unsigned bytes.
     let eph_key: [u8; 32] = unsafe { ptr::read(ephemeral_key as *const [u8; 32]) };
 

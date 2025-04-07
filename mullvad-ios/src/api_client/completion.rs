@@ -23,6 +23,8 @@ extern "C" {
 pub struct CompletionCookie {
     inner: *mut std::ffi::c_void,
 }
+/// SAFETY: Access to `CompletionCookie` should always be done through a `SwiftCompletionHandler`
+/// Swift only stores this pointer and does not write to it.
 unsafe impl Send for CompletionCookie {}
 impl CompletionCookie {
     /// `inner` must be pointing to a valid instance of Swift object `MullvadApiCompletion`.
@@ -54,6 +56,7 @@ impl SwiftCompletionHandler {
             return;
         };
 
+        // SAFETY: See safety notes for `mullvad_api_completion_finish`
         unsafe { mullvad_api_completion_finish(response, cookie) };
     }
 }
