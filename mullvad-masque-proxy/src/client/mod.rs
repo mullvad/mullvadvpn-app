@@ -4,8 +4,11 @@ use std::{
     fs, future, io,
     net::{Ipv4Addr, SocketAddr},
     path::Path,
-    sync::{Arc, LazyLock},
-    time::Duration,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc, LazyLock,
+    },
+    time::{Duration, Instant},
 };
 use tokio::{net::UdpSocket, time::interval};
 
@@ -34,6 +37,19 @@ pub struct Client {
     fragments: Fragments,
     /// Maximum packet size
     maximum_packet_size: u16,
+    stats: Arc<Stats>,
+}
+
+#[derive(Debug, Default)]
+struct Stats {
+    rx_bytes: AtomicUsize,
+    tx_bytes: AtomicUsize,
+}
+
+impl Drop for Stats {
+    fn drop(&mut self) {
+        println!("stats: {:?}", self);
+    }
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -155,6 +171,7 @@ impl Client {
             fragments: Fragments::default(),
             _send_stream: send_stream,
             maximum_packet_size,
+            stats: Arc::default(),
         })
     }
 
@@ -210,11 +227,20 @@ impl Client {
         let mut fragment_id = 1u16;
         let mut interval = interval(Duration::from_secs(3));
 
+        let mut prev_stats = Instant::now();
+
         loop {
             tokio::select! {
                 client_read = self.client_socket.recv_buf_from(&mut client_read_buf) => {
-                    let (_bytes_received, recv_addr) = client_read.map_err(Error::ClientRead)?;
+                    let (bytes_received, recv_addr) = client_read.map_err(Error::ClientRead)?;
                     return_addr = recv_addr;
+
+                    self.stats.tx_bytes.fetch_add(bytes_received, Ordering::Relaxed);
+
+                    /*if prev_stats.elapsed() >= Duration::from_secs(3) {
+                        prev_stats = Instant::now();
+                        println!("stats: {:?}", self.stats);
+                    }*/
 
                     let mut send_buf = client_read_buf.split().freeze();
                     if send_buf.len() < (Into::<usize>::into(self.maximum_packet_size) - 100usize) {
@@ -247,6 +273,13 @@ impl Client {
                                 continue;
                             }
                             let payload = response.into_payload();
+
+                            self.stats.rx_bytes.fetch_add(payload.len(), Ordering::Relaxed);
+                            /*if prev_stats.elapsed() >= Duration::from_secs(3) {
+                                prev_stats = Instant::now();
+                                println!("stats: {:?}", self.stats);
+                            }*/
+
                             if let Ok(Some(payload)) = self.fragments.handle_incoming_packet(payload) {
                                 self.client_socket
                                     .send_to(payload.chunk(), return_addr)
