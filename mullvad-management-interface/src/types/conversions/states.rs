@@ -1,4 +1,6 @@
 use crate::types::{proto, FromProtobufTypeError};
+use std::net::IpAddr;
+use talpid_types::net::IpVersion;
 
 impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
     fn from(state: mullvad_types::states::TunnelState) -> Self {
@@ -190,9 +192,12 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 talpid_tunnel::ParameterGenerationError::CustomTunnelHostResolutionError => {
                                     i32::from(GenerationError::CustomTunnelHostResolutionError)
                                 }
-                                talpid_tunnel::ParameterGenerationError::IpVersionUnavailable => {
-                                    i32::from(GenerationError::IpVersionUnavailable)
+                                talpid_tunnel::ParameterGenerationError::IpVersionUnavailable(IpVersion::V4) => {
+                                    i32::from(GenerationError::NetworkIpv4Unavailable)
                                 }
+                                    talpid_tunnel::ParameterGenerationError::IpVersionUnavailable(IpVersion::V6) => {
+                                        i32::from(GenerationError::NetworkIpv6Unavailable)
+                                    }
                             }
                             } else {
                                 0

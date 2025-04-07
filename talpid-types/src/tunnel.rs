@@ -1,4 +1,4 @@
-use crate::net::TunnelEndpoint;
+use crate::net::{IpVersion, TunnelEndpoint};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 #[cfg(target_os = "android")]
@@ -133,9 +133,9 @@ pub enum ParameterGenerationError {
     /// Failure to resolve the hostname of a custom tunnel configuration
     #[error("Can't resolve hostname for custom tunnel host")]
     CustomTunnelHostResolutionError,
-    /// User has selected a IP version that is not available on the network
+    /// User has selected an IP version that is not available on the network
     #[error("The requested IP version is not available")]
-    IpVersionUnavailable,
+    IpVersionUnavailable(IpVersion),
 }
 
 /// Application that prevents setting the firewall policy.

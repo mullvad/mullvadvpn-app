@@ -20,12 +20,6 @@ use crate::{
     },
 };
 
-use std::{
-    path::Path,
-    sync::{Arc, LazyLock, Mutex},
-    time::SystemTime,
-};
-
 use chrono::{DateTime, Local};
 use itertools::Itertools;
 use mullvad_types::{
@@ -42,6 +36,12 @@ use mullvad_types::{
     settings::Settings,
     wireguard::QuantumResistantState,
     CustomTunnelEndpoint, Intersection,
+};
+use std::net::IpAddr;
+use std::{
+    path::Path,
+    sync::{Arc, LazyLock, Mutex},
+    time::SystemTime,
 };
 use talpid_types::{
     net::{
@@ -1161,7 +1161,9 @@ fn apply_ip_availability(
             ip_version,
             ..Default::default()
         })
-        .ok_or(Error::IpVersionUnavailable)?;
+        .ok_or(Error::IpVersionUnavailable {
+            family: user_query.wireguard_constraints().ip_version.unwrap(),
+        })?;
     user_query.set_wireguard_constraints(wireguard_constraints)?;
     Ok(())
 }

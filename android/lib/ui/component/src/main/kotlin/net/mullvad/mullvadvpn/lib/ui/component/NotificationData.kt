@@ -239,7 +239,8 @@ private fun ParameterGenerationError.errorMessageId(): Int =
         ParameterGenerationError.NoWireguardKey -> R.string.no_wireguard_key
         ParameterGenerationError.CustomTunnelHostResolutionError ->
             R.string.custom_tunnel_host_resolution_error
-        ParameterGenerationError.IpVersionUnavailable -> R.string.ip_version_unavailable
+        ParameterGenerationError.Ipv4_Unavailable -> R.string.ip_version_v4_unavailable
+        ParameterGenerationError.Ipv6_Unavailable -> R.string.ip_version_v6_unavailable
     }
 
 private fun InetAddress.addressString(): String {
