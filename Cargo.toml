@@ -86,7 +86,7 @@ implicit_clone = "warn"
 hickory-proto = "0.24.3"
 hickory-resolver = "0.24.3"
 hickory-server = { version = "0.24.3", features = ["resolver"] }
-tokio = { version = "1.42" }
+tokio = { version = "1.44" }
 parity-tokio-ipc = "0.9"
 futures = "0.3.15"
 
