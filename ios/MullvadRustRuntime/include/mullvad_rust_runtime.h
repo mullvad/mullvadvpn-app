@@ -51,7 +51,7 @@ typedef struct SwiftMullvadApiResponse {
 } SwiftMullvadApiResponse;
 
 typedef struct CompletionCookie {
-  void *_0;
+  void *inner;
 } CompletionCookie;
 
 typedef struct ProxyHandle {
@@ -104,9 +104,9 @@ struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
- * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
- * type is intended to be used.
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
  *
  * `account_number` must be a pointer to a null terminated string.
  *
@@ -115,7 +115,7 @@ struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
 struct SwiftCancelHandle mullvad_api_get_account(struct SwiftApiContext api_context,
                                                  void *completion_cookie,
                                                  struct SwiftRetryStrategy retry_strategy,
-                                                 const uint8_t *account_number);
+                                                 const char *account_number);
 
 /**
  * # Safety
@@ -123,9 +123,9 @@ struct SwiftCancelHandle mullvad_api_get_account(struct SwiftApiContext api_cont
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
- * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
- * type is intended to be used.
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
@@ -139,9 +139,9 @@ struct SwiftCancelHandle mullvad_api_create_account(struct SwiftApiContext api_c
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
- * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
- * type is intended to be used.
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
  *
  * `account_number` must be a pointer to a null terminated string.
  *
@@ -150,7 +150,7 @@ struct SwiftCancelHandle mullvad_api_create_account(struct SwiftApiContext api_c
 struct SwiftCancelHandle mullvad_api_delete_account(struct SwiftApiContext api_context,
                                                     void *completion_cookie,
                                                     struct SwiftRetryStrategy retry_strategy,
-                                                    const uint8_t *account_number);
+                                                    const char *account_number);
 
 /**
  * # Safety
@@ -158,9 +158,9 @@ struct SwiftCancelHandle mullvad_api_delete_account(struct SwiftApiContext api_c
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
- * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
- * type is intended to be used.
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
@@ -174,9 +174,9 @@ struct SwiftCancelHandle mullvad_api_get_addresses(struct SwiftApiContext api_co
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
- * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
- * type is intended to be used.
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
  *
  * `etag` must be a pointer to a null terminated string.
  *
@@ -185,7 +185,7 @@ struct SwiftCancelHandle mullvad_api_get_addresses(struct SwiftApiContext api_co
 struct SwiftCancelHandle mullvad_api_get_relays(struct SwiftApiContext api_context,
                                                 void *completion_cookie,
                                                 struct SwiftRetryStrategy retry_strategy,
-                                                const uint8_t *etag);
+                                                const char *etag);
 
 /**
  * Called by the Swift side to signal that a Mullvad API call should be cancelled.

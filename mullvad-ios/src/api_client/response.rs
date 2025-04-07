@@ -49,8 +49,8 @@ impl SwiftMullvadApiResponse {
         })
     }
 
-    pub fn ok() -> Result<Self, rest::Error> {
-        Ok(Self {
+    pub fn ok() -> Self {
+        Self {
             success: true,
             error_description: null_mut(),
             body: null_mut(),
@@ -58,7 +58,7 @@ impl SwiftMullvadApiResponse {
             etag: null_mut(),
             status_code: StatusCode::NO_CONTENT.as_u16(),
             server_response_code: null_mut(),
-        })
+        }
     }
 
     pub fn rest_error(err: mullvad_api::rest::Error) -> Self {

@@ -1,4 +1,5 @@
 use std::ffi::CStr;
+use std::os::raw::c_char;
 
 use mullvad_api::{
     rest::{self, MullvadRestHandle},
@@ -19,9 +20,9 @@ use super::{
 /// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
 /// by calling `mullvad_api_init_new`.
 ///
-/// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
-/// safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
-/// type is intended to be used.
+/// This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift 
+/// object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish` 
+/// when completion finishes (in completion.finish).
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
@@ -30,7 +31,7 @@ pub unsafe extern "C" fn mullvad_api_get_addresses(
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
+    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -59,9 +60,9 @@ pub unsafe extern "C" fn mullvad_api_get_addresses(
 /// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
 /// by calling `mullvad_api_init_new`.
 ///
-/// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
-/// safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
-/// type is intended to be used.
+/// This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift 
+/// object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish` 
+/// when completion finishes (in completion.finish).
 ///
 /// `etag` must be a pointer to a null terminated string.
 ///
@@ -71,9 +72,9 @@ pub unsafe extern "C" fn mullvad_api_get_relays(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
-    etag: *const u8,
+    etag: *const c_char,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
+    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -85,6 +86,7 @@ pub unsafe extern "C" fn mullvad_api_get_relays(
 
     let mut maybe_etag: Option<String> = None;
     if !etag.is_null() {
+        // SAFETY: See param documentation for `etag`.
         let unwrapped_tag = unsafe { CStr::from_ptr(etag.cast()) }.to_str().unwrap();
         maybe_etag = Some(String::from(unwrapped_tag));
     }

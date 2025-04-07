@@ -508,10 +508,7 @@ impl AccountsProxy {
     ) -> impl Future<Output = Result<AccountData, rest::Error>> + use<> {
         let request = self.get_data_response(account);
 
-        async move {
-            let data = request.await?.deserialize().await?;
-            Ok(data)
-        }
+        async move { request.await?.deserialize().await }
     }
 
     pub fn get_data_response(
