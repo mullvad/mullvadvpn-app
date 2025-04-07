@@ -7,6 +7,4 @@ interface DnsDialogResult : Parcelable {
     @Parcelize data class Success(val isDnsListEmpty: Boolean) : DnsDialogResult
 
     @Parcelize data object Error : DnsDialogResult
-
-    @Parcelize data object Cancel : DnsDialogResult
 }

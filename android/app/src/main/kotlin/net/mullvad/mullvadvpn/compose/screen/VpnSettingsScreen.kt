@@ -160,7 +160,7 @@ private fun PreviewVpnSettings(
             navigateToQuantumResistanceInfo = {},
             navigateToWireguardPortInfo = {},
             navigateToLocalNetworkSharingInfo = {},
-            navigateToWireguardPortDialog = { a, b -> },
+            navigateToWireguardPortDialog = { _, _ -> },
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
             onToggleIpv6 = {},
@@ -197,9 +197,6 @@ fun SharedTransitionScope.VpnSettings(
         when (result) {
             is DnsDialogResult.Success -> {
                 vm.showApplySettingChangesWarningToast()
-            }
-            DnsDialogResult.Cancel -> {
-                // Do nothing
             }
             DnsDialogResult.Error -> {
                 vm.showGenericErrorToast()

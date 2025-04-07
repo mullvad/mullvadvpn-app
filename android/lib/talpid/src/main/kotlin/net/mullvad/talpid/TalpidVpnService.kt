@@ -76,8 +76,6 @@ open class TalpidVpnService : LifecycleVpnService() {
     ): Either<CreateTunResult.Error, CreateTunResult.Success> = either {
         prepareVpnSafe().mapLeft { it.toCreateTunError() }.bind()
 
-        Logger.d("TunConfig: $config")
-
         val builder = Builder()
         builder.setMtu(config.mtu)
         builder.setBlocking(false)

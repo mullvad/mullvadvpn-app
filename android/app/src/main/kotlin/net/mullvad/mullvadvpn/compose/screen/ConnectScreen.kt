@@ -165,7 +165,7 @@ private fun PreviewAccountScreen(
     }
 }
 
-@Suppress("LongMethod", "CyclomaticComplexMethod")
+@Suppress("LongMethod")
 @Destination<RootGraph>(style = HomeTransition::class)
 @Composable
 fun Connect(
@@ -278,24 +278,7 @@ fun Connect(
             onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
             onNavigateToFeature =
                 dropUnlessResumed { feature: FeatureIndicator ->
-                    val destination =
-                        when (feature) {
-                            FeatureIndicator.DAITA -> DaitaDestination(isModal = true)
-                            FeatureIndicator.MULTIHOP -> MultihopDestination(isModal = true)
-                            FeatureIndicator.SPLIT_TUNNELING ->
-                                SplitTunnelingDestination(isModal = true)
-                            FeatureIndicator.SERVER_IP_OVERRIDE ->
-                                ServerIpOverridesDestination(isModal = true)
-                            FeatureIndicator.QUANTUM_RESISTANCE,
-                            FeatureIndicator.UDP_2_TCP,
-                            FeatureIndicator.SHADOWSOCKS,
-                            FeatureIndicator.LAN_SHARING,
-                            FeatureIndicator.DNS_CONTENT_BLOCKERS,
-                            FeatureIndicator.CUSTOM_DNS,
-                            FeatureIndicator.CUSTOM_MTU ->
-                                VpnSettingsDestination(scrollToFeature = feature, isModal = true)
-                        }
-                    navigator.navigate(destination)
+                    navigator.navigate(feature.destination())
                 },
         )
     }
@@ -747,3 +730,21 @@ private fun PrepareError.OtherLegacyAlwaysOnVpn.toMessage(context: Context) =
 
 private fun PrepareError.OtherAlwaysOnApp.toMessage(context: Context) =
     context.getString(R.string.always_on_vpn_error_notification_content, appName).removeHtmlTags()
+
+private fun FeatureIndicator.destination() =
+    when (this) {
+        FeatureIndicator.DAITA -> DaitaDestination(isModal = true)
+        FeatureIndicator.MULTIHOP -> MultihopDestination(isModal = true)
+        FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingDestination(isModal = true)
+
+        FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverridesDestination(isModal = true)
+
+        FeatureIndicator.QUANTUM_RESISTANCE,
+        FeatureIndicator.UDP_2_TCP,
+        FeatureIndicator.SHADOWSOCKS,
+        FeatureIndicator.LAN_SHARING,
+        FeatureIndicator.DNS_CONTENT_BLOCKERS,
+        FeatureIndicator.CUSTOM_DNS,
+        FeatureIndicator.CUSTOM_MTU ->
+            VpnSettingsDestination(scrollToFeature = this, isModal = true)
+    }
