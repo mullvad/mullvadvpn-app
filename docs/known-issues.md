@@ -93,13 +93,14 @@ This affects all versions of the iOS app on all versions of iOS.
 [blog about TunnelVision]: https://mullvad.net/blog/evaluating-the-impact-of-tunnelvision
 
 
-### DNS requests for excluded applications can go inside the tunnel
+### Excluded application traffic can sometimes go inside the tunnel
 
 Ideally DNS requests from excluded apps would always go outside the tunnel. However, this
-is not really possible, or hard to implement on some operating systems. See the
-[split tunneling documentation] for details.
+is not really possible, or hard to implement on some operating systems. There are also other
+limitations that are mostly related to IPC. See the [split tunneling documentation] for
+details.
 
-[split tunneling documentation]: ./split-tunneling.md#dns
+[split tunneling documentation]: ./split-tunneling.md
 
 
 ### Temporary leaks while tunnel is being reconfigured on Android
