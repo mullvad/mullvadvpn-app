@@ -133,6 +133,9 @@ pub enum ParameterGenerationError {
     /// Failure to resolve the hostname of a custom tunnel configuration
     #[error("Can't resolve hostname for custom tunnel host")]
     CustomTunnelHostResultionError,
+    /// User has selected a IP version that is not available on the network
+    #[error("The requested IP version is not available")]
+    IpVersionUnavailable,
 }
 
 /// Application that prevents setting the firewall policy.

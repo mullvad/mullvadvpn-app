@@ -2731,6 +2731,9 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
+msgid "Selected Device IP Version is not available"
+msgstr ""
+
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr ""
 

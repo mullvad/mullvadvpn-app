@@ -190,6 +190,9 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 talpid_tunnel::ParameterGenerationError::CustomTunnelHostResultionError => {
                                     i32::from(GenerationError::CustomTunnelHostResolutionError)
                                 }
+                                    talpid_tunnel::ParameterGenerationError::IpVersionUnavailable => {
+                                    i32::from(GenerationError::IpVersionUnavailable)
+                                    }
                             }
                             } else {
                                 0

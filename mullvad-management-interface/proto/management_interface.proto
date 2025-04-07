@@ -187,6 +187,7 @@ message ErrorState {
     NO_MATCHING_BRIDGE_RELAY = 1;
     NO_WIREGUARD_KEY = 2;
     CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR = 3;
+    IP_VERSION_UNAVAILABLE = 4;
   }
 
   message FirewallPolicyError {

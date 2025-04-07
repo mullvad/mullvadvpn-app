@@ -303,6 +303,8 @@ internal fun ManagementInterface.ErrorState.GenerationError.toDomain(): Paramete
             ParameterGenerationError.NoWireguardKey
         ManagementInterface.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR ->
             ParameterGenerationError.CustomTunnelHostResultionError
+        ManagementInterface.ErrorState.GenerationError.IP_VERSION_UNAVAILABLE ->
+            ParameterGenerationError.IpVersionUnavailable
         ManagementInterface.ErrorState.GenerationError.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized parameter generation error")
     }
