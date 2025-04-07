@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+/**
+ * Used by Swift to instruct which access method kind it is trying to convert
+ */
 enum SwiftAccessMethodKind {
   KindDirect = 0,
   KindBridge,
@@ -39,11 +42,7 @@ typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
 
-typedef struct RustAccessMethodSettingVectorContext RustAccessMethodSettingVectorContext;
-
 typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
-
-typedef struct SwiftShadowsocksLoaderWrapperContext SwiftShadowsocksLoaderWrapperContext;
 
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
@@ -53,13 +52,13 @@ typedef struct SwiftAccessMethodSettingsWrapper {
   struct SwiftAccessMethodSettingsContext *_0;
 } SwiftAccessMethodSettingsWrapper;
 
-typedef struct SwiftShadowsocksLoaderWrapper {
-  struct SwiftShadowsocksLoaderWrapperContext *_0;
-} SwiftShadowsocksLoaderWrapper;
+typedef struct SwiftShadowsocksLoaderWrapperContext {
+  const void *shadowsocks_loader;
+} SwiftShadowsocksLoaderWrapperContext;
 
-typedef struct RustAccessMethodSettingVector {
-  struct RustAccessMethodSettingVectorContext *inner;
-} RustAccessMethodSettingVector;
+typedef struct SwiftShadowsocksLoaderWrapper {
+  struct SwiftShadowsocksLoaderWrapperContext _0;
+} SwiftShadowsocksLoaderWrapper;
 
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
@@ -121,9 +120,19 @@ typedef struct EphemeralPeerParameters {
 
 extern const uint16_t CONFIG_SERVICE_PORT;
 
+/**
+ * Called by Swift to set the available access methods
+ */
 void mullvad_api_update_access_methods(struct SwiftApiContext api_context,
                                        struct SwiftAccessMethodSettingsWrapper settings_wrapper);
 
+/**
+ * Called by Swift to update the currently used access methods
+ *
+ * # SAFETY
+ * `access_method_id` must point to a null terminated string in a UUID format
+ *
+ */
 void mullvad_api_use_access_method(struct SwiftApiContext api_context,
                                    const char *access_method_id);
 
@@ -147,16 +156,36 @@ struct SwiftApiContext mullvad_api_init_new(const char *host,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                             struct SwiftAccessMethodSettingsWrapper settings_provider);
 
+/**
+ * Converts parameters into a `Box<AccessMethodSetting>` raw representation that
+ * can be passed across the FFI boundary
+ *
+ * # SAFETY:
+ * `unique_identifier` and `name` must point to valid memory regions and contain NULL terminators.
+ * They are only valid for the duration of this call.
+ *
+ * `proxy_configuration` can be NULL, or must be a pointer gotten through
+ * either the `convert_shadowsocks` or `convert_socks5` methods.
+ */
 void *convert_builtin_access_method_setting(const char *unique_identifier,
                                             const char *name,
                                             bool is_enabled,
                                             SwiftAccessMethodKind method_kind,
                                             const void *proxy_configuration);
 
+/**
+ * Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
+ *
+ * # SAFETY
+ * `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
+ * resulting from a call to `convert_builtin_access_method_setting`
+ * `custom_methods_raw` is a raw pointer to an array of `AccessMethodSetting`
+ */
 struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(const void *direct_method_raw,
                                                                             const void *bridges_method_raw,
                                                                             const void *encrypted_dns_method_raw,
-                                                                            struct RustAccessMethodSettingVector custom_methods_raw);
+                                                                            const void *custom_methods_raw,
+                                                                            uintptr_t custom_method_count);
 
 /**
  * # Safety
@@ -284,22 +313,34 @@ void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
 extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse response,
                                           struct CompletionCookie completion_cookie);
 
-const void *convert_shadowsocks(const uint8_t *address,
-                                uintptr_t address_len,
-                                uint16_t port,
-                                const char *c_password,
-                                const char *c_cipher);
+/**
+ * Converts parameters into a boxed `Shadowsocks` configuration that is safe
+ * to send across the FFI boundary
+ *
+ * # SAFETY
+ * `address` must be a pointer to at least `address_len` bytes.
+ * `c_password` and `c_cipher` must be pointers to null terminated strings
+ */
+const void *new_shadowsocks_access_method_setting(const uint8_t *address,
+                                                  uintptr_t address_len,
+                                                  uint16_t port,
+                                                  const char *c_password,
+                                                  const char *c_cipher);
 
-struct RustAccessMethodSettingVector access_method_settings_vector(uintptr_t capacity);
-
-void vector_add_access_method_setting(struct RustAccessMethodSettingVector vector_raw,
-                                      const void *access_method);
-
-const void *convert_socks5(const uint8_t *address,
-                           uintptr_t address_len,
-                           uint16_t port,
-                           const char *c_username,
-                           const char *c_password);
+/**
+ * Converts parameters into a boxed `Socks5Remote` configuration that is safe
+ *
+ * to send across the FFI boundary
+ *
+ * # SAFETY
+ * `address` must be a pointer to at least `address_len` bytes.
+ * `c_username` and `c_password` must be pointers to null terminated strings, or null
+ */
+const void *new_socks5_access_method_setting(const uint8_t *address,
+                                             uintptr_t address_len,
+                                             uint16_t port,
+                                             const char *c_username,
+                                             const char *c_password);
 
 /**
  * Send a problem report via the Mullvad API client.
@@ -373,8 +414,24 @@ struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_r
                                                                  uint32_t factor,
                                                                  uint64_t max_delay_sec);
 
+/**
+ * Creates a `Shadowsocks` configuration.
+ *
+ * # SAFETY
+ * `rawBridgeProvider` **must** be provided by a call to `init_swift_shadowsocks_loader_wrapper`
+ * It is okay to persist it, and use it across multiple threads.
+ */
 extern const void *swift_get_shadowsocks_bridges(const void *rawBridgeProvider);
 
+/**
+ * Called by the Swift side in order to provide an object to rust that can create
+ * Shadowsocks configurations
+ *
+ * # SAFETY
+ * `shadowsocks_loader` **must be** pointing to a valid instance of a `SwiftShadowsocksBridgeProvider`
+ * That instance's lifetime has to be equivalent to a `'static` lifetime in Rust
+ * This function does not take ownership of `shadowsocks_loader`
+ */
 struct SwiftShadowsocksLoaderWrapper init_swift_shadowsocks_loader_wrapper(const void *shadowsocks_loader);
 
 /**
