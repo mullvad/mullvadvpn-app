@@ -405,9 +405,9 @@ pub enum DaemonCommand {
     /// Prompt the daemon to start an app version upgrade.
     ///
     /// If an upgrade had previously been started but not completed the daemon should continue the upgrade process at the appropriate step. The client need not be notified about this detail.
-    AppUpgrade(ResponseTx<(), Error>),
+    AppUpgrade(ResponseTx<(), version::Error>),
     /// Prompt the daemon to abort the current upgrade.
-    AppUpgradeAbort(ResponseTx<(), Error>),
+    AppUpgradeAbort(ResponseTx<(), version::Error>),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -1476,8 +1476,8 @@ impl Daemon {
             GetFeatureIndicators(tx) => self.on_get_feature_indicators(tx),
             DisableRelay { relay, tx } => self.on_toggle_relay(relay, false, tx),
             EnableRelay { relay, tx } => self.on_toggle_relay(relay, true, tx),
-            AppUpgrade(tx) => self.on_app_upgrade(tx),
-            AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx),
+            AppUpgrade(tx) => self.on_app_upgrade(tx).await,
+            AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx).await,
         }
     }
 
@@ -3221,15 +3221,13 @@ impl Daemon {
         Self::oneshot_send(tx, (), "on_toggle_relay response");
     }
 
-    fn on_app_upgrade(&self, tx: ResponseTx<(), Error>) {
-        // TODO: Call the Downloader
-        let result = Ok(());
+    async fn on_app_upgrade(&self, tx: ResponseTx<(), version::Error>) {
+        let result = self.version_handle.update_application().await;
         Self::oneshot_send(tx, result, "on_app_upgrade response");
     }
 
-    fn on_app_upgrade_abort(&self, tx: ResponseTx<(), Error>) {
-        // TODO: Abort the Downloader
-        let result = Ok(());
+    async fn on_app_upgrade_abort(&self, tx: ResponseTx<(), version::Error>) {
+        let result = self.version_handle.cancel_update().await;
         Self::oneshot_send(tx, result, "on_app_upgrade_abort response");
     }
 
