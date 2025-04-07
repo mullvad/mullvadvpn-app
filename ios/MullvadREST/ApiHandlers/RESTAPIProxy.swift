@@ -30,7 +30,7 @@ public protocol APIQuerying: Sendable {
     ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse>
 
     func sendProblemReport(
-        _ body: REST.ProblemReportRequest,
+        _ body: ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
     ) -> Cancellable
