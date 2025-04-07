@@ -341,7 +341,7 @@ async fn client_socket_rx_task(
     client_tx: mpsc::Sender<Bytes>,
     return_addr_tx: broadcast::Sender<SocketAddr>,
 ) -> Result<()> {
-    let mut client_read_buf = BytesMut::with_capacity(crate::PACKET_BUFFER_SIZE * 1024);
+    let mut client_read_buf = BytesMut::with_capacity(100 * crate::PACKET_BUFFER_SIZE);
     let mut return_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0);
 
     loop {
