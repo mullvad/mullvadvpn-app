@@ -237,16 +237,8 @@ async fn handle_client_packet(
         return;
     }
 
-    match fragments.handle_incoming_packet(received_packet.into_payload()) {
-        Ok(Some(payload)) => {
-            if let Err(err) = proxy_socket.send(&payload).await {
-                eprintln!("proxy_socket.send() failed: {err}");
-            }
-        }
-        Ok(None) => (),
-        Err(err) => {
-            eprintln!("Packet reassembly failed: {err}");
-        }
+    if let Ok(Some(payload)) = fragments.handle_incoming_packet(received_packet.into_payload()) {
+        let _ = proxy_socket.send(&payload).await;
     }
 }
 
