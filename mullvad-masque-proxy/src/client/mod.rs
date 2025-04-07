@@ -230,7 +230,7 @@ impl Client {
             server_rx,
             return_addr_rx,
             self.client_socket.clone(),
-            self.stats.clone(),
+            Arc::clone(&self.stats),
         ));
 
         let mut server_socket_task = tokio::task::spawn(server_socket_task(
@@ -379,9 +379,8 @@ async fn client_socket_tx_task(
         }
         let payload = response.into_payload();
 
-        let fragment_len = payload.len();
         if let Ok(Some(payload)) = fragments.handle_incoming_packet(payload) {
-            stats.rx(payload.len(), fragment_len != payload.len());
+            stats.rx(payload.len(), false /* TODO */);
 
             client_socket
                 .send_to(payload.chunk(), return_addr)
