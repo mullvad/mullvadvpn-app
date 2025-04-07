@@ -12,7 +12,14 @@ use talpid_types::net::proxy::{self, Shadowsocks, Socks5Remote};
 
 use super::helpers::{convert_c_string, RustAccessMethodSettingVector};
 
-#[no_mangle]
+/// Converts parameters into a `Box<AccessMethodSetting>` raw representation that
+/// can be passed across the FFI boundary
+///
+/// # SAFETY:
+/// `unique_identifier` and `name` must point to valid memory regions and contain NULL terminators.
+/// `proxy_configuration` can be NULL, or must be a pointer gotten through
+/// either the `convert_shadowsocks` or `convert_socks5` methods.
+#[unsafe(no_mangle)]
 unsafe extern "C" fn convert_builtin_access_method_setting(
     unique_identifier: *const c_char,
     name: *const c_char,
@@ -20,7 +27,7 @@ unsafe extern "C" fn convert_builtin_access_method_setting(
     method_kind: SwiftAccessMethodKind,
     proxy_configuration: *const c_void,
 ) -> *mut c_void {
-    match unsafe {
+    match {
         convert_builtin_access_method_setting_inner(
             unique_identifier,
             name,
@@ -34,15 +41,18 @@ unsafe extern "C" fn convert_builtin_access_method_setting(
     }
 }
 
-unsafe fn convert_builtin_access_method_setting_inner(
+/// Converts parameters into an `AccessMethodSetting`
+fn convert_builtin_access_method_setting_inner(
     unique_identifier: *const c_char,
     name: *const c_char,
     enabled: bool,
     method_kind: SwiftAccessMethodKind,
     proxy_configuration: *const c_void,
 ) -> Option<AccessMethodSetting> {
-    let id = Id::from_string(convert_c_string(unique_identifier))?;
-    let name = convert_c_string(name);
+    // SAFETY: See `convert_builtin_access_method_setting`
+    let id = Id::from_string(unsafe { convert_c_string(unique_identifier) })?;
+    // SAFETY: See `convert_builtin_access_method_setting`
+    let name = unsafe { convert_c_string(name) };
     match method_kind {
         SwiftAccessMethodKind::KindDirect => Some(AccessMethodSetting::with_id(
             id,
@@ -67,6 +77,7 @@ unsafe fn convert_builtin_access_method_setting_inner(
         SwiftAccessMethodKind::KindShadowsocks => match proxy_configuration.is_null() {
             true => None,
             false => {
+                // SAFETY: See `convert_builtin_access_method_setting`
                 let configuration: Shadowsocks =
                     unsafe { *Box::from_raw(proxy_configuration as *mut _) };
                 Some(AccessMethodSetting::with_id(
@@ -80,6 +91,7 @@ unsafe fn convert_builtin_access_method_setting_inner(
         SwiftAccessMethodKind::KindSocks5Local => match proxy_configuration.is_null() {
             true => None,
             false => {
+                // SAFETY: See `convert_builtin_access_method_setting`
                 let configuration: Socks5Remote =
                     unsafe { *Box::from_raw(proxy_configuration as *mut _) };
                 Some(AccessMethodSetting::with_id(
@@ -93,6 +105,7 @@ unsafe fn convert_builtin_access_method_setting_inner(
     }
 }
 
+/// Used by Swift to instruct which access method kind it is trying to convert
 #[allow(dead_code)]
 #[repr(u8)]
 pub enum SwiftAccessMethodKind {
@@ -103,13 +116,19 @@ pub enum SwiftAccessMethodKind {
     KindSocks5Local,
 }
 
-#[no_mangle]
+/// Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
+///
+/// # SAFETY
+/// `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
+/// resulting from a call to `convert_builtin_access_method_setting`
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn init_access_method_settings_wrapper(
     direct_method_raw: *const c_void,
     bridges_method_raw: *const c_void,
     encrypted_dns_method_raw: *const c_void,
     custom_methods_raw: RustAccessMethodSettingVector,
 ) -> SwiftAccessMethodSettingsWrapper {
+    // SAFETY: See `init_access_method_settings_wrapper`
     let (direct, mullvad_bridges, encrypted_dns_proxy) = unsafe {
         (
             *Box::from_raw(direct_method_raw as *mut _),
