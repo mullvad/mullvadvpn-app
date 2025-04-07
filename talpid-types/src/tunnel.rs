@@ -132,7 +132,7 @@ pub enum ParameterGenerationError {
     NoWireguardKey,
     /// Failure to resolve the hostname of a custom tunnel configuration
     #[error("Can't resolve hostname for custom tunnel host")]
-    CustomTunnelHostResultionError,
+    CustomTunnelHostResolutionError,
     /// User has selected a IP version that is not available on the network
     #[error("The requested IP version is not available")]
     IpVersionUnavailable,

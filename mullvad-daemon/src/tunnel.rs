@@ -325,7 +325,7 @@ impl From<Error> for ParameterGenerationError {
                 ParameterGenerationError::NoMatchingBridgeRelay
             }
             Error::ResolveCustomHostname => {
-                ParameterGenerationError::CustomTunnelHostResultionError
+                ParameterGenerationError::CustomTunnelHostResolutionError
             }
             Error::SelectRelay(mullvad_relay_selector::Error::IpVersionUnavailable) => {
                 ParameterGenerationError::IpVersionUnavailable

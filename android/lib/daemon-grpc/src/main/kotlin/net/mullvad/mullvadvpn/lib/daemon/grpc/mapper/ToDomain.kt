@@ -302,7 +302,7 @@ internal fun ManagementInterface.ErrorState.GenerationError.toDomain(): Paramete
         ManagementInterface.ErrorState.GenerationError.NO_WIREGUARD_KEY ->
             ParameterGenerationError.NoWireguardKey
         ManagementInterface.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR ->
-            ParameterGenerationError.CustomTunnelHostResultionError
+            ParameterGenerationError.CustomTunnelHostResolutionError
         ManagementInterface.ErrorState.GenerationError.IP_VERSION_UNAVAILABLE ->
             ParameterGenerationError.IpVersionUnavailable
         ManagementInterface.ErrorState.GenerationError.UNRECOGNIZED ->

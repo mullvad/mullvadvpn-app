@@ -237,7 +237,7 @@ private fun ParameterGenerationError.errorMessageId(): Int =
             R.string.no_matching_relay
         }
         ParameterGenerationError.NoWireguardKey -> R.string.no_wireguard_key
-        ParameterGenerationError.CustomTunnelHostResultionError ->
+        ParameterGenerationError.CustomTunnelHostResolutionError ->
             R.string.custom_tunnel_host_resolution_error
         ParameterGenerationError.IpVersionUnavailable -> R.string.ip_version_unavailable
     }
