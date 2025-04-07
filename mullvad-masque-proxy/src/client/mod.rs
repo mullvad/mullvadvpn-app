@@ -4,10 +4,7 @@ use std::{
     fs, future, io,
     net::{Ipv4Addr, SocketAddr},
     path::Path,
-    sync::{
-        atomic::{AtomicUsize, Ordering},
-        Arc, LazyLock,
-    },
+    sync::{Arc, LazyLock},
     time::{Duration, Instant},
 };
 use tokio::{net::UdpSocket, time::interval};
@@ -17,7 +14,10 @@ use h3_datagram::datagram_traits::HandleDatagramsExt;
 use http::{header, uri::Scheme, Response, StatusCode};
 use quinn::{crypto::rustls::QuicClientConfig, ClientConfig, Endpoint, TransportConfig};
 
-use crate::fragment::{self, Fragments};
+use crate::{
+    fragment::{self, Fragments},
+    stats::Stats,
+};
 
 const MAX_HEADER_SIZE: u64 = 8192;
 
@@ -37,19 +37,8 @@ pub struct Client {
     fragments: Fragments,
     /// Maximum packet size
     maximum_packet_size: u16,
+
     stats: Arc<Stats>,
-}
-
-#[derive(Debug, Default)]
-struct Stats {
-    rx_bytes: AtomicUsize,
-    tx_bytes: AtomicUsize,
-}
-
-impl Drop for Stats {
-    fn drop(&mut self) {
-        println!("stats: {:?}", self);
-    }
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -235,8 +224,6 @@ impl Client {
                     let (bytes_received, recv_addr) = client_read.map_err(Error::ClientRead)?;
                     return_addr = recv_addr;
 
-                    self.stats.tx_bytes.fetch_add(bytes_received, Ordering::Relaxed);
-
                     /*if prev_stats.elapsed() >= Duration::from_secs(3) {
                         prev_stats = Instant::now();
                         println!("stats: {:?}", self.stats);
@@ -244,6 +231,7 @@ impl Client {
 
                     let mut send_buf = client_read_buf.split().freeze();
                     if send_buf.len() < (Into::<usize>::into(self.maximum_packet_size) - 100usize) {
+                        self.stats.tx(bytes_received, false);
                         self.connection
                             .send_datagram(stream_id, send_buf)
                             .map_err(Error::SendDatagram)?;
@@ -257,6 +245,7 @@ impl Client {
                                 &mut send_buf,
                                 fragment_id)
                             ? {
+                                self.stats.tx(fragment.len(), true);
                                 self.connection.send_datagram(stream_id, fragment).map_err(Error::SendDatagram)?;
                             }
                         fragment_id = fragment_id.wrapping_add(1);
@@ -274,13 +263,15 @@ impl Client {
                             }
                             let payload = response.into_payload();
 
-                            self.stats.rx_bytes.fetch_add(payload.len(), Ordering::Relaxed);
                             /*if prev_stats.elapsed() >= Duration::from_secs(3) {
                                 prev_stats = Instant::now();
                                 println!("stats: {:?}", self.stats);
                             }*/
 
+                            let fragment_len = payload.len();
                             if let Ok(Some(payload)) = self.fragments.handle_incoming_packet(payload) {
+                                self.stats.rx(payload.len(), fragment_len != payload.len());
+
                                 self.client_socket
                                     .send_to(payload.chunk(), return_addr)
                                     .await
