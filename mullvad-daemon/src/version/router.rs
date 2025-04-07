@@ -21,7 +21,6 @@ use super::{
 
 #[cfg(update)]
 use super::downloader;
-#[cfg(update)]
 use std::mem;
 
 type Result<T> = std::result::Result<T, Error>;
@@ -75,7 +74,7 @@ impl VersionRouterHandle {
 /// in case new version info is received while the update is in progress.
 pub struct VersionRouter {
     rx: mpsc::UnboundedReceiver<Message>,
-    state: RoutingState,
+    state: DownloadState,
     beta_program: bool,
     version_event_sender: DaemonEventSender<AppVersionInfo>,
     /// Version updater
@@ -88,6 +87,7 @@ pub struct VersionRouter {
     version_request_channels: Vec<oneshot::Sender<Result<AppVersionInfo>>>,
 
     /// Broadcast channel for app upgrade events
+    #[cfg(update)]
     app_upgrade_broadcast: AppUpgradeBroadcast,
 }
 
@@ -108,12 +108,13 @@ enum Message {
 }
 
 #[derive(Debug)]
-enum RoutingState {
+enum DownloadState {
     /// There is no version available yet
     NoVersion,
     /// Running version checker, no upgrade in progress
     HasVersion { version_cache: VersionCache },
     /// Download is in progress, so we don't forward version checks
+    #[cfg(update)]
     Downloading {
         /// Version info received from `HasVersion`
         version_cache: VersionCache,
@@ -123,6 +124,7 @@ enum RoutingState {
         downloader_handle: downloader::DownloaderHandle,
     },
     /// Download is complete. We have a verified binary
+    #[cfg(update)]
     Downloaded {
         /// Version info received from `HasVersion`
         version_cache: VersionCache,
@@ -131,19 +133,21 @@ enum RoutingState {
     },
 }
 
-impl RoutingState {
+impl DownloadState {
     fn get_version_cache(&self) -> Option<&VersionCache> {
         match self {
-            RoutingState::NoVersion => None,
-            RoutingState::HasVersion { version_cache, .. }
-            | RoutingState::Downloading { version_cache, .. }
-            | RoutingState::Downloaded { version_cache, .. } => Some(version_cache),
+            DownloadState::NoVersion => None,
+            DownloadState::HasVersion { version_cache, .. } => Some(version_cache),
+            #[cfg(update)]
+            DownloadState::Downloading { version_cache, .. }
+            | DownloadState::Downloaded { version_cache, .. } => Some(version_cache),
         }
     }
 
     fn get_verified_installer_path(&self) -> Option<&PathBuf> {
         match self {
-            RoutingState::Downloaded {
+            #[cfg(update)]
+            DownloadState::Downloaded {
                 verified_installer_path,
                 ..
             } => Some(verified_installer_path),
@@ -153,6 +157,7 @@ impl RoutingState {
 }
 
 impl VersionRouter {
+    #[cfg_attr(not(update), allow(unused_variables))]
     pub(crate) fn spawn(
         api_handle: MullvadRestHandle,
         availability_handle: ApiAvailability,
@@ -169,16 +174,16 @@ impl VersionRouter {
                 VersionUpdater::spawn(api_handle, availability_handle, cache_dir, new_version_tx)
                     .await;
 
-            // TODO: tokio::join! here?
             Self {
                 rx,
-                state: RoutingState::NoVersion,
+                state: DownloadState::NoVersion,
                 beta_program,
                 version_check,
                 version_event_sender,
                 new_version_rx,
                 version_request: Fuse::terminated(),
                 version_request_channels: vec![],
+                #[cfg(update)]
                 app_upgrade_broadcast,
             }
             .run()
@@ -223,7 +228,6 @@ impl VersionRouter {
     }
 
     /// Handle [Message] sent by user
-    #[cfg_attr(not(update), allow(clippy::unused_async))]
     fn handle_message(&mut self, message: Message) {
         match message {
             Message::SetBetaProgram { state, result_tx } => {
@@ -254,14 +258,14 @@ impl VersionRouter {
     /// remember it for when it transitions back into the "idle" (version check) state.
     fn on_new_version(&mut self, version_cache: VersionCache) {
         match &mut self.state {
-            RoutingState::NoVersion => {
+            DownloadState::NoVersion => {
                 // Receive first version
                 let app_version_info = to_app_version_info(&version_cache, self.beta_program, None);
                 let _ = self.version_event_sender.send(app_version_info.clone());
-                self.state = RoutingState::HasVersion { version_cache };
+                self.state = DownloadState::HasVersion { version_cache };
             }
             // Already have version info, just update it
-            RoutingState::HasVersion {
+            DownloadState::HasVersion {
                 version_cache: prev_cache,
             } => {
                 if let Some(version_info) = updated_app_version_info_on_new_version_cache(
@@ -272,13 +276,14 @@ impl VersionRouter {
                     // New version available
                     let _ = self.version_event_sender.send(version_info.clone());
                 }
-                self.state = RoutingState::HasVersion { version_cache };
+                self.state = DownloadState::HasVersion { version_cache };
             }
-            RoutingState::Downloaded {
+            #[cfg(update)]
+            DownloadState::Downloaded {
                 version_cache: ref mut prev_cache,
                 ..
             }
-            | RoutingState::Downloading {
+            | DownloadState::Downloading {
                 version_cache: ref mut prev_cache,
                 ..
             } => {
@@ -294,7 +299,7 @@ impl VersionRouter {
                     let _ = self
                         .app_upgrade_broadcast
                         .send(mullvad_types::version::AppUpgradeEvent::Aborted);
-                    self.state = RoutingState::HasVersion { version_cache };
+                    self.state = DownloadState::HasVersion { version_cache };
                 } else {
                     *prev_cache = version_cache;
                 }
@@ -334,23 +339,23 @@ impl VersionRouter {
 
         // Always cancel download if the suggested upgrade changes
 
-        let version_cache = match mem::replace(&mut self.state, RoutingState::NoVersion) {
-            RoutingState::Downloaded { version_cache, .. }
-            | RoutingState::Downloading { version_cache, .. } => {
+        let version_cache = match mem::replace(&mut self.state, DownloadState::NoVersion) {
+            #[cfg(update)]
+            DownloadState::Downloaded { version_cache, .. }
+            | DownloadState::Downloading { version_cache, .. } => {
                 log::warn!("Switching beta after while updating resulted in new suggested upgrade: {:?}, aborting", new_app_version_info.suggested_upgrade);
                 let _ = self
                     .app_upgrade_broadcast
                     .send(mullvad_types::version::AppUpgradeEvent::Aborted);
                 version_cache
             }
-
-            RoutingState::HasVersion { version_cache } => version_cache,
-            RoutingState::NoVersion => {
+            DownloadState::HasVersion { version_cache } => version_cache,
+            DownloadState::NoVersion => {
                 unreachable!("Can't get recommended upgrade on beta change without version")
             }
         };
 
-        self.state = RoutingState::HasVersion { version_cache };
+        self.state = DownloadState::HasVersion { version_cache };
         let _ = self.version_event_sender.send(new_app_version_info.clone());
 
         self.notify_version_requesters(new_app_version_info);
@@ -375,9 +380,9 @@ impl VersionRouter {
     fn update_application(&mut self) {
         use crate::version::downloader::spawn_downloader;
 
-        match mem::replace(&mut self.state, RoutingState::NoVersion) {
+        match mem::replace(&mut self.state, DownloadState::NoVersion) {
             // Checking state: start upgrade, if upgrade is available
-            RoutingState::HasVersion {
+            DownloadState::HasVersion {
                 version_cache: version_info,
             } => {
                 let Some(upgrading_to_version) =
@@ -385,7 +390,7 @@ impl VersionRouter {
                 else {
                     // If there's no suggested upgrade, do nothing
                     log::trace!("Received update request without suggested upgrade");
-                    self.state = RoutingState::HasVersion {
+                    self.state = DownloadState::HasVersion {
                         version_cache: version_info,
                     };
                     return;
@@ -397,7 +402,7 @@ impl VersionRouter {
                 );
 
                 log::debug!("Starting upgrade");
-                self.state = RoutingState::Downloading {
+                self.state = DownloadState::Downloading {
                     version_cache: version_info,
                     upgrading_to_version,
                     downloader_handle,
@@ -412,13 +417,13 @@ impl VersionRouter {
 
     #[cfg(update)]
     fn cancel_upgrade(&mut self) {
-        match mem::replace(&mut self.state, RoutingState::NoVersion) {
+        match mem::replace(&mut self.state, DownloadState::NoVersion) {
             // If we're upgrading, emit an event if a version was received during the upgrade
             // Otherwise, just reset upgrade info to last known state
-            RoutingState::Downloaded { version_cache, .. }
-            | RoutingState::Downloading { version_cache, .. } => {
+            DownloadState::Downloaded { version_cache, .. }
+            | DownloadState::Downloading { version_cache, .. } => {
                 // Reset app version info to last known state
-                self.state = RoutingState::HasVersion { version_cache };
+                self.state = DownloadState::HasVersion { version_cache };
                 let _ = self
                     .app_upgrade_broadcast
                     .send(mullvad_types::version::AppUpgradeEvent::Aborted);
@@ -465,10 +470,10 @@ fn updated_app_version_info_on_new_beta(
 /// Wait for the update to finish. In case no update is in progress (or the platform does not
 /// support in-app upgrades), then the future will never resolve as to not escape the select statement.
 #[allow(clippy::unused_async, unused_variables)]
-async fn wait_for_update(state: &mut RoutingState) -> Option<AppVersionInfo> {
+async fn wait_for_update(state: &mut DownloadState) -> Option<AppVersionInfo> {
     #[cfg(update)]
-    match mem::replace(state, RoutingState::NoVersion) {
-        RoutingState::Downloading {
+    match mem::replace(state, DownloadState::NoVersion) {
+        DownloadState::Downloading {
             version_cache,
             ref mut downloader_handle,
             upgrading_to_version,
@@ -485,7 +490,7 @@ async fn wait_for_update(state: &mut RoutingState) -> Option<AppVersionInfo> {
                         }
                     }),
                 };
-                *state = RoutingState::Downloaded {
+                *state = DownloadState::Downloaded {
                     version_cache,
                     verified_installer_path,
                 };
@@ -494,7 +499,7 @@ async fn wait_for_update(state: &mut RoutingState) -> Option<AppVersionInfo> {
             }
             Err(err) => {
                 log::trace!("Downloader task ended: {err}");
-                *state = RoutingState::HasVersion { version_cache };
+                *state = DownloadState::HasVersion { version_cache };
                 None
             }
         },
