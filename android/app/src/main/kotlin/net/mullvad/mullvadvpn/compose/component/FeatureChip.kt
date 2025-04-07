@@ -21,13 +21,13 @@ private fun PreviewMullvadFeatureChip() {
 
 @Composable
 fun MullvadFeatureChip(
+    text: String,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLowest,
     borderColor: Color = MaterialTheme.colorScheme.primary,
     labelColor: Color = MaterialTheme.colorScheme.onPrimary,
     iconColor: Color = MaterialTheme.colorScheme.onPrimary,
-    onClick: () -> Unit,
-    text: String,
 ) {
     FilterChip(
         modifier = modifier,

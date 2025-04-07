@@ -81,6 +81,8 @@ fun FeatureIndicators(
 
         with(sharedTransitionScope) {
             MullvadFeatureChip(
+                text = featureIndicator.text(),
+                onClick = { onNavigateToFeature(featureIndicator) },
                 modifier =
                     Modifier.let {
                         if (this@with != null && animatedVisibilityScope != null) {
@@ -92,8 +94,6 @@ fun FeatureIndicators(
                             it
                         }
                     },
-                text = featureIndicator.text(),
-                onClick = { onNavigateToFeature(featureIndicator) },
             )
         }
     }
