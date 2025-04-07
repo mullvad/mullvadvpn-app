@@ -1131,7 +1131,9 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::AppUpgrade(tx))?;
 
-        self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_version_check_error)?;
 
         Ok(Response::new(()))
     }
@@ -1142,7 +1144,9 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::AppUpgradeAbort(tx))?;
 
-        self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_version_check_error)?;
 
         Ok(Response::new(()))
     }
