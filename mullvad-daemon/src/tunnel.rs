@@ -220,12 +220,12 @@ impl InnerParametersGenerator {
             GetRelay::Custom(custom_relay) => {
                 self.last_generated_relays = None;
                 custom_relay
-                     // TODO: generate proxy settings for custom tunnels
-                     .to_tunnel_parameters(self.tunnel_options.clone(), None)
-                     .map_err(|e| {
-                         log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
-                         Error::ResolveCustomHostname
-                     })
+                    // TODO: generate proxy settings for custom tunnels
+                    .to_tunnel_parameters(self.tunnel_options.clone(), None)
+                    .map_err(|e| {
+                        log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
+                        Error::ResolveCustomHostname
+                    })
             }
         }
     }
@@ -325,7 +325,10 @@ impl From<Error> for ParameterGenerationError {
                 ParameterGenerationError::NoMatchingBridgeRelay
             }
             Error::ResolveCustomHostname => {
-                ParameterGenerationError::CustomTunnelHostResultionError
+                ParameterGenerationError::CustomTunnelHostResolutionError
+            }
+            Error::SelectRelay(mullvad_relay_selector::Error::IpVersionUnavailable { family }) => {
+                ParameterGenerationError::IpVersionUnavailable { family }
             }
             Error::NoAuthDetails | Error::SelectRelay(_) | Error::Device(_) => {
                 ParameterGenerationError::NoMatchingRelay

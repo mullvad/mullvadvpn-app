@@ -302,7 +302,11 @@ internal fun ManagementInterface.ErrorState.GenerationError.toDomain(): Paramete
         ManagementInterface.ErrorState.GenerationError.NO_WIREGUARD_KEY ->
             ParameterGenerationError.NoWireguardKey
         ManagementInterface.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR ->
-            ParameterGenerationError.CustomTunnelHostResultionError
+            ParameterGenerationError.CustomTunnelHostResolutionError
+        ManagementInterface.ErrorState.GenerationError.NETWORK_IPV4_UNAVAILABLE ->
+            ParameterGenerationError.Ipv4_Unavailable
+        ManagementInterface.ErrorState.GenerationError.NETWORK_IPV6_UNAVAILABLE ->
+            ParameterGenerationError.Ipv6_Unavailable
         ManagementInterface.ErrorState.GenerationError.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized parameter generation error")
     }

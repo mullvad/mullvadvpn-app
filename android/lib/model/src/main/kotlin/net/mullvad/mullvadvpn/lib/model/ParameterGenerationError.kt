@@ -4,5 +4,7 @@ enum class ParameterGenerationError {
     NoMatchingRelay,
     NoMatchingBridgeRelay,
     NoWireguardKey,
-    CustomTunnelHostResultionError,
+    CustomTunnelHostResolutionError,
+    Ipv4_Unavailable,
+    Ipv6_Unavailable,
 }
