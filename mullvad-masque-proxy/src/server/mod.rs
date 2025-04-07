@@ -19,11 +19,14 @@ use tokio::{net::UdpSocket, time::interval};
 
 use crate::fragment::{self, Fragments};
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    BadTlsConfig(quinn::crypto::rustls::NoInitialCipherSuite),
-    BindSocket(io::Error),
-    SendNegotiationResponse(h3::Error),
+    #[error("Bad TLS config")]
+    BadTlsConfig(#[source] quinn::crypto::rustls::NoInitialCipherSuite),
+    #[error("Failed to bind server socket")]
+    BindSocket(#[source] io::Error),
+    #[error("Failed to send negotiation response")]
+    SendNegotiationResponse(#[source] h3::Error),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -67,6 +70,10 @@ impl Server {
             },
             maximum_packet_size,
         })
+    }
+
+    pub fn local_addr(&self) -> io::Result<SocketAddr> {
+        self.endpoint.local_addr()
     }
 
     pub async fn run(self) -> Result<()> {
@@ -164,7 +171,7 @@ impl Server {
                 client_send = connection.read_datagram() => {
                     match client_send {
                             Ok(Some(received_packet)) => {
-                                handle_client_packet(received_packet, stream_id, &mut fragments, &udp_socket, target_addr).await;
+                                handle_client_packet(received_packet, stream_id, &mut fragments, &udp_socket).await;
                             },
                             Ok(None) => {
                                 return;
@@ -224,7 +231,6 @@ async fn handle_client_packet(
     stream_id: StreamId,
     fragments: &mut Fragments,
     proxy_socket: &UdpSocket,
-    target_addr: SocketAddr,
 ) {
     if received_packet.stream_id() != stream_id {
         // log::trace!("Received unexpected stream ID from server");
@@ -232,7 +238,7 @@ async fn handle_client_packet(
     }
 
     if let Ok(Some(payload)) = fragments.handle_incoming_packet(received_packet.into_payload()) {
-        let _ = proxy_socket.send_to(&payload, target_addr).await;
+        let _ = proxy_socket.send(&payload).await;
     }
 }
 

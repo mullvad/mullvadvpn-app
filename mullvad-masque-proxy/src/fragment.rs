@@ -12,15 +12,19 @@ pub struct Fragments {
 }
 
 // When a packet that arrives is too small to be decoded.
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum DefragError {
+    #[error("Bad context id: {:?}", .0)]
     #[allow(dead_code)] // TODO: use this error or remove it.
     BadContextId(Result<VarInt, h3::proto::coding::UnexpectedEnd>),
+
+    #[error("Payload is too small")]
     PayloadTooSmall,
 }
 
 // When a packet is larger than u16::MAX, it can't be fragmented.
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
+#[error("Packet is too large to fragment")]
 pub struct PacketTooLarge(pub usize);
 
 impl Fragments {
