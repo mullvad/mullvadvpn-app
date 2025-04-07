@@ -171,7 +171,7 @@ impl Server {
                 client_send = connection.read_datagram() => {
                     match client_send {
                             Ok(Some(received_packet)) => {
-                                handle_client_packet(received_packet, stream_id, &mut fragments, &udp_socket, target_addr).await;
+                                handle_client_packet(received_packet, stream_id, &mut fragments, &udp_socket).await;
                             },
                             Ok(None) => {
                                 return;
@@ -231,7 +231,6 @@ async fn handle_client_packet(
     stream_id: StreamId,
     fragments: &mut Fragments,
     proxy_socket: &UdpSocket,
-    target_addr: SocketAddr,
 ) {
     if received_packet.stream_id() != stream_id {
         // log::trace!("Received unexpected stream ID from server");
@@ -239,7 +238,7 @@ async fn handle_client_packet(
     }
 
     if let Ok(Some(payload)) = fragments.handle_incoming_packet(received_packet.into_payload()) {
-        let _ = proxy_socket.send_to(&payload, target_addr).await;
+        let _ = proxy_socket.send(&payload).await;
     }
 }
 
