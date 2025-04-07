@@ -479,8 +479,8 @@ impl Runtime {
         )
     }
 
-    pub fn handle(&mut self) -> &mut tokio::runtime::Handle {
-        &mut self.handle
+    pub fn handle(&self) -> &tokio::runtime::Handle {
+        &self.handle
     }
 
     pub fn availability_handle(&self) -> ApiAvailability {
