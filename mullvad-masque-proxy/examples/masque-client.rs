@@ -26,7 +26,7 @@ pub struct ClientArgs {
     #[arg(long, short = 'p', default_value = "0")]
     bind_port: u16,
 
-    #[arg(long, short = 'S', default_value = "1000")]
+    #[arg(long, short = 'S', default_value = "1280")]
     maximum_packet_size: u16,
 }
 
