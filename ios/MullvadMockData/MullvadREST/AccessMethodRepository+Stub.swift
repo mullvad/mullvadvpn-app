@@ -37,4 +37,27 @@ public struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource, @unc
     public func infoHeaderConfig(for id: UUID) -> InfoHeaderConfig? {
         nil
     }
+
+    public static var stub: AccessMethodRepositoryStub {
+        AccessMethodRepositoryStub(accessMethods: [
+            PersistentAccessMethod(
+                id: UUID(),
+                name: "direct",
+                isEnabled: true,
+                proxyConfiguration: .direct
+            ),
+            PersistentAccessMethod(
+                id: UUID(),
+                name: "bridges",
+                isEnabled: true,
+                proxyConfiguration: .bridges
+            ),
+            PersistentAccessMethod(
+                id: UUID(),
+                name: "Encrypted DNS",
+                isEnabled: true,
+                proxyConfiguration: .encryptedDNS
+            ),
+        ])
+    }
 }

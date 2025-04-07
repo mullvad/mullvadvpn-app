@@ -8,26 +8,36 @@
 
 import MullvadTypes
 
-public struct MullvadApiContext: Sendable {
+public struct MullvadApiContext: @unchecked Sendable {
+    enum MullvadApiContextError: Error {
+        case failedToConstructApiClient
+    }
+
     public let context: SwiftApiContext
+    private let shadowsocksBridgeProvider: SwiftShadowsocksBridgeProviding!
+    private let shadowsocksBridgeProviderWrapper: SwiftShadowsocksLoaderWrapper!
 
     public init(
         host: String,
         address: String,
         domain: String,
-        shadowsocksProvider: SwiftShadowsocksLoaderWrapper,
+        shadowsocksProvider: SwiftShadowsocksBridgeProviding,
         accessMethodWrapper: SwiftAccessMethodSettingsWrapper
     ) throws {
+        let bridgeProvider = SwiftShadowsocksBridgeProvider(provider: shadowsocksProvider)
+        self.shadowsocksBridgeProvider = bridgeProvider
+        self.shadowsocksBridgeProviderWrapper = initMullvadShadowsocksBridgeProvider(provider: bridgeProvider)
+
         context = mullvad_api_init_new(
             host,
             address,
             domain,
-            shadowsocksProvider,
+            shadowsocksBridgeProviderWrapper,
             accessMethodWrapper
         )
 
         if context._0 == nil {
-            throw NSError(domain: "", code: 0)
+            throw MullvadApiContextError.failedToConstructApiClient
         }
     }
 }

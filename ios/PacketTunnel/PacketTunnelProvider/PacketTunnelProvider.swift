@@ -31,8 +31,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var encryptedDNSTransport: EncryptedDNSTransport!
     private var migrationManager: MigrationManager!
     let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
-    private var shadowsocksBridgeProvider: SwiftShadowsocksBridgeProvider!
-    private var shadowsocksBridgeProviderWrapper: SwiftShadowsocksLoaderWrapper!
 
     private let tunnelSettingsListener = TunnelSettingsListener()
     private lazy var ephemeralPeerReceiver = {
@@ -259,16 +257,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             shadowsocksLoader: shadowsocksLoader
         )
 
-        /// TODO: Consider the lifetime of `shadowsocksBridgeProvider` and `shadowsocksBridgeProviderWrapper`
-        ///  is it necessary for those to live that long ?
-        shadowsocksBridgeProvider = SwiftShadowsocksBridgeProvider(provider: shadowsocksLoader)
-        shadowsocksBridgeProviderWrapper = initMullvadShadowsocksBridgeProvider(provider: shadowsocksBridgeProvider)
-
+        // swiftlint:disable:next force_try
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
-            shadowsocksProvider: shadowsocksBridgeProviderWrapper,
+            shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper
         )
 
