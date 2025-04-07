@@ -533,10 +533,6 @@ async function removeNseventforwarderNativeModules() {
   }
 }
 
-packWin.displayName = 'builder-win';
-packMac.displayName = 'builder-mac';
-packLinux.displayName = 'builder-linux';
-
 exports.packWin = packWin;
 exports.packMac = packMac;
 exports.packLinux = packLinux;
