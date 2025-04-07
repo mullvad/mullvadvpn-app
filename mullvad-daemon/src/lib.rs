@@ -731,7 +731,6 @@ impl Daemon {
                 settings.api_access_methods.clone(),
                 #[cfg(feature = "api-override")]
                 config.endpoint.clone(),
-                #[cfg(not(target_os = "ios"))]
                 internal_event_tx.to_unbounded_sender(),
             )
             .await

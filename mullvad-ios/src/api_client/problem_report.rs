@@ -47,9 +47,11 @@ pub unsafe extern "C" fn mullvad_ios_send_problem_report(
         return SwiftCancelHandle::empty();
     };
 
-    let api_context = api_context.into_rust_context();
+    let api_context = api_context.rust_context();
+    // SAFETY: See safety notes for `into_rust`
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
+    // SAFETY: See safety notes for `from_swift_parameters`
     let result = unsafe { ProblemReportRequest::from_swift_parameters(request) };
     let Some(problem_report_request) = result else {
         let err = Error::ApiError(
@@ -114,6 +116,7 @@ struct ProblemReportRequest {
     metadata: BTreeMap<String, String>,
 }
 
+// SAFETY: Swift does not write to, or use this type from different threads
 unsafe impl Send for SwiftProblemReportRequest {}
 
 impl ProblemReportRequest {
@@ -183,8 +186,8 @@ impl Map {
             "value must not be null (violates safety contract)"
         );
 
-        let key = unsafe { CStr::from_ptr(key) };
-        let value = unsafe { CStr::from_ptr(value) };
+        // SAFETY: See notes above
+        let (key, value) = unsafe { (CStr::from_ptr(key), CStr::from_ptr(value)) };
 
         match key.to_str() {
             Ok(key_str) => match value.to_str() {
