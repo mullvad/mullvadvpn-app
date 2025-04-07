@@ -19,6 +19,7 @@ export interface LocationState {
   scrollPosition: [number, number];
   expandedSections: Record<string, boolean>;
   transition: TransitionType;
+  options?: Array<string>;
 }
 
 export interface IHistoryObject {
