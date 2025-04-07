@@ -149,7 +149,6 @@ where
             lowest_metadata_version: 0,
         };
 
-        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
         let err = match version_provider.get_version_info(version_params).await {
             Ok(version_info) => {
                 return version_info;
