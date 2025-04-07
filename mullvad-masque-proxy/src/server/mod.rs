@@ -33,7 +33,7 @@ const MASQUE_WELL_KNOWN_PATH: &str = "/.well-known/masque/udp/";
 pub struct Server {
     endpoint: Endpoint,
     allowed_hosts: AllowedIps,
-    max_packet_size: u16,
+    maximum_packet_size: u16,
 }
 
 #[derive(Clone)]
@@ -52,7 +52,7 @@ impl Server {
         bind_addr: SocketAddr,
         allowed_hosts: HashSet<IpAddr>,
         tls_config: Arc<rustls::ServerConfig>,
-        max_packet_size: u16,
+        maximum_packet_size: u16,
     ) -> Result<Self> {
         let server_config = quinn::ServerConfig::with_crypto(Arc::new(
             QuicServerConfig::try_from(tls_config).map_err(Error::BadTlsConfig)?,
@@ -65,7 +65,7 @@ impl Server {
             allowed_hosts: AllowedIps {
                 hosts: Arc::new(allowed_hosts),
             },
-            max_packet_size,
+            maximum_packet_size,
         })
     }
 
@@ -74,7 +74,7 @@ impl Server {
             tokio::spawn(Self::handle_incoming_connection(
                 new_connection,
                 self.allowed_hosts.clone(),
-                self.max_packet_size,
+                self.maximum_packet_size,
             ));
         }
         Ok(())
@@ -184,7 +184,7 @@ impl Server {
 
                             let mut received_packet = proxy_recv_buf.split().freeze();
 
-                            if proxy_recv_buf.len() < maximum_packet_size.into() {
+                            if received_packet.len() < maximum_packet_size.into() {
                                 if connection.send_datagram(stream_id, received_packet).is_err() {
                                     return;
                                 }
