@@ -4,7 +4,9 @@ import { Button } from '../../../../../lib/components';
 
 export function ReportProblemButton() {
   const pushProblemReport = usePushProblemReport({
-    search: '?suppress-outdated-version-warning=true',
+    state: {
+      options: ['suppress-outdated-version-warning'],
+    },
   });
 
   return (
