@@ -482,6 +482,15 @@ fun VpnSettingsContent(
         }
     }
 
+    val highlightBackground: @Composable (featureIndicators: FeatureIndicator) -> Color =
+        { featureIndicator: FeatureIndicator ->
+            if (initialScrollToFeature == featureIndicator) {
+                MaterialTheme.colorScheme.primary.copy(alpha = highlightAnimation.value)
+            } else {
+                MaterialTheme.colorScheme.primary
+            }
+        }
+
     val lazyListState = rememberLazyListState(initialIndexFocus)
     canScroll.value = lazyListState.canScrollForward || lazyListState.canScrollBackward
     LazyColumn(
@@ -586,14 +595,7 @@ fun VpnSettingsContent(
                             isEnabled = it.isOptionEnabled,
                             onCellClicked = { newValue -> onToggleDnsClick(newValue) },
                             onInfoClicked = { navigateToCustomDnsInfo() },
-                            background =
-                                if (initialScrollToFeature == FeatureIndicator.CUSTOM_DNS) {
-                                    MaterialTheme.colorScheme.primary.copy(
-                                        alpha = highlightAnimation.value
-                                    )
-                                } else {
-                                    MaterialTheme.colorScheme.primary
-                                },
+                            background = highlightBackground(FeatureIndicator.CUSTOM_DNS),
                             modifier = Modifier.animateItem(),
                         )
                     }
@@ -742,16 +744,7 @@ fun VpnSettingsContent(
                         ExpandableComposeCell(
                             modifier = Modifier.animateItem(),
                             title = stringResource(R.string.dns_content_blockers),
-                            background =
-                                if (
-                                    initialScrollToFeature == FeatureIndicator.DNS_CONTENT_BLOCKERS
-                                ) {
-                                    MaterialTheme.colorScheme.primary.copy(
-                                        alpha = highlightAnimation.value
-                                    )
-                                } else {
-                                    MaterialTheme.colorScheme.primary
-                                },
+                            background = highlightBackground(FeatureIndicator.DNS_CONTENT_BLOCKERS),
                             isExpanded = it.expanded,
                             isEnabled = it.featureEnabled,
                             onInfoClicked = { navigateToContentBlockersInfo() },
@@ -779,14 +772,7 @@ fun VpnSettingsContent(
                 is VpnSettingItem.LocalNetworkSharingHeader ->
                     item(key = it.javaClass.simpleName) {
                         HeaderSwitchComposeCell(
-                            background =
-                                if (initialScrollToFeature == FeatureIndicator.LAN_SHARING) {
-                                    MaterialTheme.colorScheme.primary.copy(
-                                        alpha = highlightAnimation.value
-                                    )
-                                } else {
-                                    MaterialTheme.colorScheme.primary
-                                },
+                            background = highlightBackground(FeatureIndicator.LAN_SHARING),
                             title = stringResource(R.string.local_network_sharing),
                             isToggled = it.enabled,
                             isEnabled = true,
@@ -802,14 +788,7 @@ fun VpnSettingsContent(
                             mtuValue = it.mtu,
                             onEditMtu = { navigateToMtuDialog(it.mtu) },
                             modifier = Modifier.animateItem(),
-                            background =
-                                if (initialScrollToFeature == FeatureIndicator.CUSTOM_MTU) {
-                                    MaterialTheme.colorScheme.primary.copy(
-                                        alpha = highlightAnimation.value
-                                    )
-                                } else {
-                                    MaterialTheme.colorScheme.primary
-                                },
+                            background = highlightBackground(FeatureIndicator.CUSTOM_MTU),
                         )
                     }
 
@@ -920,14 +899,7 @@ fun VpnSettingsContent(
                     item(key = it.javaClass.simpleName) {
                         InformationComposeCell(
                             title = stringResource(R.string.quantum_resistant_title),
-                            background =
-                                if (initialScrollToFeature == FeatureIndicator.QUANTUM_RESISTANCE) {
-                                    MaterialTheme.colorScheme.primary.copy(
-                                        alpha = highlightAnimation.value
-                                    )
-                                } else {
-                                    MaterialTheme.colorScheme.primary
-                                },
+                            background = highlightBackground(FeatureIndicator.QUANTUM_RESISTANCE),
                             onInfoClicked = navigateToQuantumResistanceInfo,
                             onCellClicked = navigateToQuantumResistanceInfo,
                             modifier = Modifier.animateItem(),
