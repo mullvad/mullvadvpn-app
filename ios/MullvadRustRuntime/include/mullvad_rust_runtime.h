@@ -206,10 +206,24 @@ extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse respons
  *
  * This function is safe.
  */
-struct SwiftServerMock mullvad_api_mock_server_response(const uint8_t *method,
-                                                        const uint8_t *path,
-                                                        uintptr_t response_code,
-                                                        const uint8_t *response_body);
+struct SwiftServerMock mullvad_api_mock_get(const uint8_t *path,
+                                            uintptr_t response_code,
+                                            const uint8_t *response_body);
+
+/**
+ * # Safety
+ *
+ * `path` must be a pointer to a null terminated string representing the url path.
+ *
+ * `response_code` must be a usize representing the http response code.
+ *
+ * `match_body` must be a pointer to a null terminated string representing the body the server expects.
+ *
+ * This function is safe.
+ */
+struct SwiftServerMock mullvad_api_mock_post(const uint8_t *path,
+                                             uintptr_t response_code,
+                                             const uint8_t *match_body);
 
 /**
  * Called by the Swift side to signal that the Rust `SwiftServerMock` can be safely

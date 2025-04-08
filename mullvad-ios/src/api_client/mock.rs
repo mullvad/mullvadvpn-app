@@ -34,15 +34,11 @@ impl SwiftServerMock {
 ///
 /// This function is safe.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_api_mock_server_response(
-    method: *const u8,
+pub unsafe extern "C" fn mullvad_api_mock_get(
     path: *const u8,
     response_code: usize,
     response_body: *const u8,
 ) -> SwiftServerMock {
-    let method = unsafe { std::ffi::CStr::from_ptr(method.cast()) }
-        .to_str()
-        .unwrap();
     let path = unsafe { std::ffi::CStr::from_ptr(path.cast()) }
         .to_str()
         .unwrap();
@@ -51,10 +47,41 @@ pub unsafe extern "C" fn mullvad_api_mock_server_response(
         .unwrap();
     let mut server = mockito::Server::new();
     let mock = server
-        .mock(method, path)
+        .mock("GET", path)
         .with_header("content-type", "application/json")
         .with_status(response_code)
         .with_body(response_body)
+        .create();
+    SwiftServerMock::new(server, mock)
+}
+
+/// # Safety
+///
+/// `path` must be a pointer to a null terminated string representing the url path.
+///
+/// `response_code` must be a usize representing the http response code.
+///
+/// `match_body` must be a pointer to a null terminated string representing the body the server expects.
+///
+/// This function is safe.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn mullvad_api_mock_post(
+    path: *const u8,
+    response_code: usize,
+    match_body: *const u8,
+) -> SwiftServerMock {
+    let path = unsafe { std::ffi::CStr::from_ptr(path.cast()) }
+        .to_str()
+        .unwrap();
+    let match_body = unsafe { std::ffi::CStr::from_ptr(match_body.cast()) }
+        .to_str()
+        .unwrap();
+    let mut server = mockito::Server::new();
+    let mock = server
+        .mock("POST", path)
+        .with_header("content-type", "application/json")
+        .with_status(response_code)
+        .match_body(mockito::Matcher::JsonString(match_body.to_string()))
         .create();
     SwiftServerMock::new(server, mock)
 }

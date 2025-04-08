@@ -6,7 +6,6 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadMockData
 @testable import MullvadREST
 import MullvadRustRuntime
 import MullvadTypes
@@ -14,30 +13,24 @@ import XCTest
 
 /// This tests main purpose is to test the functionallity of the FFI rather than every function of the proxy itself.
 /// It makes sure the response and errors are parsed correctly.
-///  TODO: Once a POST request is implemented, a test should be added to ensure the rust side receives the correct body.
+
 class MullvadApiTests: XCTestCase {
     let encoder = JSONEncoder()
 
     func makeApiProxy(port: UInt16) -> APIQuerying {
-        let addressCache = REST.AddressCache(canWriteToCache: false, fileCache: MemoryCache())
-        // This transport provider will never be used in these tests.
-        let transportProvider = REST.AnyTransportProvider {
-            AnyTransport {
-                Response(delay: 1, statusCode: 500, value: TimeResponse(dateTime: Date()))
-            }
-        }
-
         // swiftlint:disable:next force_try
         let context = try! MullvadApiContext(host: "localhost", address: .ipv4(
             .init(ip: .init("127.0.0.1")!, port: port)
         ), disable_tls: true)
-        let proxyFactory = MockProxyFactory.makeProxyFactory(
-            transportProvider: transportProvider,
-            addressCache: addressCache,
-            apiContext: context
+        let proxy = REST.MullvadAPIProxy(
+            transportProvider: APITransportProvider(
+                requestFactory: .init(apiContext: context)
+            ),
+            dispatchQueue: .global(),
+            responseDecoder: REST.Coding.makeJSONDecoder()
         )
 
-        return proxyFactory.createAPIProxy()
+        return proxy
     }
 
     func testSuccessfulResponse() async throws {
@@ -46,8 +39,7 @@ class MullvadApiTests: XCTestCase {
         let bodyData = try encoder.encode(expectedEndpoints)
         let body = String(data: bodyData, encoding: .utf8)!
         let responseCode: UInt = 200
-        let mock = mullvad_api_mock_server_response(
-            "GET",
+        let mock = mullvad_api_mock_get(
             "/app/v1/api-addrs",
             UInt(responseCode),
             body
@@ -57,7 +49,7 @@ class MullvadApiTests: XCTestCase {
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { c in
             _ = apiProxy
-                .mullvadApiGetAddressList(
+                .getAddressList(
                     retryStrategy: .noRetry
                 ) { result in
                     c.resume(returning: result)
@@ -74,8 +66,7 @@ class MullvadApiTests: XCTestCase {
 
     func testHTTPError() async throws {
         let expectedResponseCode = 500
-        let mock = mullvad_api_mock_server_response(
-            "GET",
+        let mock = mullvad_api_mock_get(
             "/app/v1/api-addrs",
             UInt(expectedResponseCode),
             ""
@@ -85,7 +76,7 @@ class MullvadApiTests: XCTestCase {
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { c in
             _ = apiProxy
-                .mullvadApiGetAddressList(
+                .getAddressList(
                     retryStrategy: .noRetry
                 ) { result in
                     c.resume(returning: result)
@@ -106,8 +97,7 @@ class MullvadApiTests: XCTestCase {
 
     func testInvalidBody() async throws {
         let expectedResponseCode = 200
-        let mock = mullvad_api_mock_server_response(
-            "GET",
+        let mock = mullvad_api_mock_get(
             "/app/v1/api-addrs",
             UInt(expectedResponseCode),
             "This is an invalid JSON"
@@ -117,7 +107,7 @@ class MullvadApiTests: XCTestCase {
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { c in
             _ = apiProxy
-                .mullvadApiGetAddressList(
+                .getAddressList(
                     retryStrategy: .noRetry
                 ) { result in
                     c.resume(returning: result)
@@ -129,9 +119,8 @@ class MullvadApiTests: XCTestCase {
             return
         }
         switch error {
-        case let .unhandledResponse(responseCode, response):
-            XCTAssertNil(response)
-            XCTAssertEqual(responseCode, expectedResponseCode)
+        case let .unhandledResponse(_, response):
+            XCTAssertEqual(response?.code, REST.ServerResponseCode.parsingError)
         default:
             XCTFail("GetAddressList failed with the wrong error: \(error)")
         }
@@ -140,8 +129,7 @@ class MullvadApiTests: XCTestCase {
     func testCustomErrorCode() async throws {
         let expectedResponseCode = 400
         let expectedErrorCode = 123
-        let mock = mullvad_api_mock_server_response(
-            "GET",
+        let mock = mullvad_api_mock_get(
             "/app/v1/api-addrs",
             UInt(expectedResponseCode),
             """
@@ -155,7 +143,7 @@ class MullvadApiTests: XCTestCase {
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { c in
             _ = apiProxy
-                .mullvadApiGetAddressList(
+                .getAddressList(
                     retryStrategy: .noRetry
                 ) { result in
                     c.resume(returning: result)
@@ -177,5 +165,40 @@ class MullvadApiTests: XCTestCase {
         default:
             XCTFail("GetAddressList failed with the wrong error: \(error)")
         }
+    }
+
+    func testSuccessfulPostRequest() async throws {
+        let skipReason = """
+        Problem report is not yet using mullvad api. This test should be enabled once it does.
+        """
+        try XCTSkipIf(true, skipReason)
+        let matchBody = REST.ProblemReportRequest(
+            address: "test@email.com",
+            message: "This test should succeed",
+            log: "A long log string",
+            metadata: .init()
+        )
+        let matchBodyString = String(data: try encoder.encode(matchBody), encoding: .utf8)!
+        let expectedResponseCode: UInt = 204
+        let mock = mullvad_api_mock_post(
+            "/app/v1/problem-report",
+            UInt(expectedResponseCode),
+            matchBodyString
+        )
+        defer { mullvad_api_mock_drop(mock) }
+        let apiProxy = makeApiProxy(port: mock.port)
+
+        let result: Result<Void, Error> = await withCheckedContinuation { c in
+            _ = apiProxy
+                .sendProblemReport(
+                    matchBody,
+                    retryStrategy:
+                    .noRetry
+                ) { result in
+                    c.resume(returning: result)
+                }
+        }
+
+        XCTAssertNil(result.error)
     }
 }
