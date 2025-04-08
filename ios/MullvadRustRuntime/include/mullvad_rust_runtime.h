@@ -61,12 +61,9 @@ typedef struct ProblemReportMetadata {
 } ProblemReportMetadata;
 
 typedef struct SwiftProblemReportRequest {
-  const uint8_t *address;
-  uintptr_t address_len;
-  const uint8_t *message;
-  uintptr_t message_len;
-  const uint8_t *log;
-  uintptr_t log_len;
+  const char *address;
+  const char *message;
+  const char *log;
   struct ProblemReportMetadata meta_data;
 } SwiftProblemReportRequest;
 
@@ -187,6 +184,45 @@ extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse respons
                                           struct CompletionCookie completion_cookie);
 
 /**
+ * Send a problem report via the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
+ * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
+ * type is intended to be used.
+ *
+ * the string properties of `SwiftProblemReportRequest` must be pointers to a null terminated strings.
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_api_send_problem_report(struct SwiftApiContext api_context,
+                                                         void *completion_cookie,
+                                                         struct SwiftRetryStrategy retry_strategy,
+                                                         struct SwiftProblemReportRequest request);
+
+struct ProblemReportMetadata swift_problem_report_meta_data_new(void);
+
+/**
+ * Add key and value pair to the `ProblemReportMetadata`
+ *
+ * # Safety
+ *
+ * `self` must be a valid, exclusive pointer to `ProblemReportMetadata`, initialized
+ * - `key` must be a null-terminated UTF-8 string, containing LF-separated machines.
+ * - `value` must be a valid pointer to some valid and aligned pointer-sized memory.
+ * - The pointer written to `out` is NOT safe to be used concurrently.
+ */
+bool swift_problem_report_meta_data_add(struct ProblemReportMetadata map,
+                                        const char *key,
+                                        const char *value);
+
+void swift_problem_report_meta_data_free(struct ProblemReportMetadata map);
+
+/**
  * Called by the Swift side to signal that the Rust `SwiftMullvadApiResponse` can be safely
  * dropped from memory.
  *
@@ -219,19 +255,6 @@ struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_r
                                                                  uint64_t initial_sec,
                                                                  uint32_t factor,
                                                                  uint64_t max_delay_sec);
-
-struct SwiftCancelHandle mullvad_api_send_problem_report(struct SwiftApiContext api_context,
-                                                         void *completion_cookie,
-                                                         struct SwiftRetryStrategy retry_strategy,
-                                                         struct SwiftProblemReportRequest request);
-
-struct ProblemReportMetadata swift_problem_report_meta_data_new(void);
-
-bool swift_problem_report_meta_data_add(struct ProblemReportMetadata map,
-                                        const char *key,
-                                        const char *value);
-
-void swift_problem_report_meta_data_free(struct ProblemReportMetadata map);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
