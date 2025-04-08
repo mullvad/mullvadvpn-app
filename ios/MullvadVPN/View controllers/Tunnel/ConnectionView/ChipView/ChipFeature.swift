@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 import MullvadSettings
+import PacketTunnelCore
 import SwiftUI
 
 // Opting to use NSLocalizedString instead of LocalizedStringKey here in order
@@ -69,12 +70,26 @@ struct MultihopFeature: ChipFeature {
 
 struct ObfuscationFeature: ChipFeature {
     let settings: LatestTunnelSettings
+    let state: ObservedState
+
+    var actualObfuscationMethod: WireGuardObfuscationState {
+        state.connectionState.map { $0.obfuscationMethod } ?? .off
+    }
 
     var isEnabled: Bool {
-        settings.wireGuardObfuscation.state.isEnabled
+        actualObfuscationMethod != .off
+    }
+
+    var isAutomatic: Bool {
+        settings.wireGuardObfuscation.state == .automatic
     }
 
     var name: String {
+        // This just currently says "Obfuscation".
+        // To add an automaticity indicator (a trailing " (automatic)"
+        // or a colour/border style or whatever), use the `isAutomatic` field.
+        // To say what type of obfuscation it is,
+        // we can look at `actualObfuscationMethod`
         NSLocalizedString(
             "FEATURE_INDICATORS_CHIP_OBFUSCATION",
             tableName: "FeatureIndicatorsChip",
