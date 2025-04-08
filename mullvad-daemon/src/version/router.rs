@@ -442,6 +442,10 @@ impl VersionRouter {
             // In the `Downloaded` state, we also do nothing
             state => self.state = state,
         };
+        debug_assert!(!matches!(
+            self.state,
+            DownloadState::Downloading { .. } | DownloadState::NoVersion
+        ));
     }
 }
 
@@ -482,7 +486,7 @@ fn updated_app_version_info_on_new_beta(
 #[allow(clippy::unused_async, unused_variables)]
 async fn wait_for_update(state: &mut DownloadState) -> Option<AppVersionInfo> {
     #[cfg(update)]
-    match mem::replace(state, DownloadState::NoVersion) {
+    match state {
         DownloadState::Downloading {
             version_cache,
             ref mut downloader_handle,
@@ -501,21 +505,20 @@ async fn wait_for_update(state: &mut DownloadState) -> Option<AppVersionInfo> {
                     }),
                 };
                 *state = DownloadState::Downloaded {
-                    version_cache,
+                    version_cache: version_cache.clone(),
                     verified_installer_path,
                 };
-                // TODO: send version info + version checks + upgrade event
                 Some(app_update_info)
             }
             Err(err) => {
                 log::trace!("Downloader task ended: {err}");
-                *state = DownloadState::HasVersion { version_cache };
+                *state = DownloadState::HasVersion {
+                    version_cache: version_cache.clone(),
+                };
                 None
             }
         },
-        other_state => {
-            // Revert to original state
-            *state = other_state;
+        _ => {
             let () = std::future::pending().await;
             unreachable!()
         }
