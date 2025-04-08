@@ -60,7 +60,7 @@ export class AppUpgradeAvailableNotificationProvider implements InAppNotificatio
             : {
                 type: 'navigate-internal',
                 link: {
-                  to: RoutePath.changelog,
+                  to: RoutePath.appUpgrade,
                   // TRANSLATORS: Accessbility label for link to go to upgrade view.
                   'aria-label': messages.pgettext(
                     'accessibility',
