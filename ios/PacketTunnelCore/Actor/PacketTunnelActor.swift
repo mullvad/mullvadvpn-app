@@ -402,7 +402,8 @@ extension PacketTunnelActor {
                 transportLayer: .udp,
                 remotePort: connectedRelay.endpoint.ipv4Relay.port,
                 isPostQuantum: settings.quantumResistance.isEnabled,
-                isDaitaEnabled: settings.daita.daitaState.isEnabled
+                isDaitaEnabled: settings.daita.daitaState.isEnabled,
+                obfuscationMethod: .off
             )
         case .disconnecting, .disconnected:
             return nil
@@ -426,7 +427,7 @@ extension PacketTunnelActor {
         guard let connectionState = try makeConnectionState(nextRelays: nextRelays, settings: settings, reason: reason)
         else { return nil }
 
-        let obfuscatedEndpoint = protocolObfuscator.obfuscate(
+        let obfuscated = protocolObfuscator.obfuscate(
             connectionState.connectedEndpoint,
             settings: settings.tunnelSettings,
             retryAttempts: connectionState.selectedRelays.retryAttempt
@@ -441,11 +442,12 @@ extension PacketTunnelActor {
             networkReachability: connectionState.networkReachability,
             connectionAttemptCount: connectionState.connectionAttemptCount,
             lastKeyRotation: connectionState.lastKeyRotation,
-            connectedEndpoint: obfuscatedEndpoint,
+            connectedEndpoint: obfuscated.endpoint,
             transportLayer: transportLayer,
             remotePort: protocolObfuscator.remotePort,
             isPostQuantum: settings.quantumResistance.isEnabled,
-            isDaitaEnabled: settings.daita.daitaState.isEnabled
+            isDaitaEnabled: settings.daita.daitaState.isEnabled,
+            obfuscationMethod: obfuscated.method
         )
     }
 
