@@ -42,7 +42,7 @@ const StyledButton = styled(ButtonBase)<Pick<ListItemProps, 'disabled'>>`
 
 export type ListItemTriggerProps = React.HtmlHTMLAttributes<HTMLButtonElement>;
 
-export const ListItemTrigger = (props: ListItemTriggerProps) => {
+export function ListItemTrigger(props: ListItemTriggerProps) {
   const { disabled } = useListItem();
   return <StyledButton disabled={disabled} {...props} />;
-};
+}
