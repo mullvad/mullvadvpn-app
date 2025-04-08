@@ -20,16 +20,18 @@ pub struct AppVersionInfo {
 
 impl Display for AppVersionInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "Suggested upgrade: {}, current version supported: {}",
-            self.suggested_upgrade
-                .as_ref()
-                .map_or("None".to_string(), |upgrade| {
-                    format!("{}", upgrade.version)
-                }),
-            self.current_version_supported,
-        )
+        if let Some(suggested_upgrade) = &self.suggested_upgrade {
+            writeln!(f, "Suggested upgrade: {}", suggested_upgrade.version)?;
+            if let Some(path) = &suggested_upgrade.verified_installer_path {
+                writeln!(f, "verified installer path: '{}'", path.display())?;
+            }
+        }
+        if self.current_version_supported {
+            write!(f, "Current version supported")?;
+        } else {
+            write!(f, "Current version not supported")?;
+        }
+        Ok(())
     }
 }
 

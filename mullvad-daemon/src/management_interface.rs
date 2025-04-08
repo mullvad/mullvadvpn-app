@@ -1315,7 +1315,7 @@ impl ManagementInterfaceEventBroadcaster {
     /// Notify that info about the latest available app version changed.
     /// Or some flag about the currently running version is changed.
     pub(crate) fn notify_app_version(&self, app_version_info: version::AppVersionInfo) {
-        log::debug!("Broadcasting app version info: '{app_version_info}'");
+        log::debug!("Broadcasting app version info:\n{app_version_info}");
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::VersionInfo(
                 types::AppVersionInfo::from(app_version_info),
