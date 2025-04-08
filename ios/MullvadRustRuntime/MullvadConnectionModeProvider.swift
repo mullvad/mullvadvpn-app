@@ -8,9 +8,10 @@
 
 import MullvadTypes
 
+// swiftlint:disable:next function_body_length
 public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
     -> SwiftAccessMethodSettingsWrapper {
-    // 1. Get all the built in access methods
+    // 1. Get all the built in access methods, it is expected that they are always available
     let directMethod = methods.first(where: { $0.proxyConfiguration == .direct })!
     let bridgesMethod = methods.first(where: { $0.proxyConfiguration == .bridges })!
     let encryptedDNSMethod = methods.first(where: { $0.proxyConfiguration == .encryptedDNS })!
