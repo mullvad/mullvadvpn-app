@@ -23,7 +23,7 @@ const StyledDiv = styled.div<{ $backgroundColor: string }>`
   }}
 `;
 
-export const ListItemItem = ({ children }: ListItemItemProps) => {
+export function ListItemItem({ children }: ListItemItemProps) {
   const backgroundColor = useBackgroundColor();
   return <StyledDiv $backgroundColor={backgroundColor}>{children}</StyledDiv>;
-};
+}
