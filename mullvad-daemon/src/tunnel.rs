@@ -328,7 +328,7 @@ impl From<Error> for ParameterGenerationError {
                 ParameterGenerationError::CustomTunnelHostResolutionError
             }
             Error::SelectRelay(mullvad_relay_selector::Error::IpVersionUnavailable { family }) => {
-                ParameterGenerationError::IpVersionUnavailable(family)
+                ParameterGenerationError::IpVersionUnavailable { family }
             }
             Error::NoAuthDetails | Error::SelectRelay(_) | Error::Device(_) => {
                 ParameterGenerationError::NoMatchingRelay

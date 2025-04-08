@@ -191,10 +191,10 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 talpid_tunnel::ParameterGenerationError::CustomTunnelHostResolutionError => {
                                     i32::from(GenerationError::CustomTunnelHostResolutionError)
                                 }
-                                talpid_tunnel::ParameterGenerationError::IpVersionUnavailable(IpVersion::V4) => {
+                                talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V4 } => {
                                     i32::from(GenerationError::NetworkIpv4Unavailable)
                                 }
-                                    talpid_tunnel::ParameterGenerationError::IpVersionUnavailable(IpVersion::V6) => {
+                                    talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V6 } => {
                                         i32::from(GenerationError::NetworkIpv6Unavailable)
                                     }
                             }
