@@ -142,7 +142,6 @@ import net.mullvad.mullvadvpn.lib.model.udp2tcp
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
 
 @Suppress("TooManyFunctions", "LargeClass")
-
 class ManagementService(
     rpcSocketFile: File,
     private val extensiveLogging: Boolean,
