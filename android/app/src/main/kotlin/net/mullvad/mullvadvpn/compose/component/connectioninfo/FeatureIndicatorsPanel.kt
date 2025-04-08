@@ -3,6 +3,16 @@
 package net.mullvad.mullvadvpn.compose.component.connectioninfo
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseInQuad
+import androidx.compose.animation.core.EaseInQuart
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.EaseOutQuad
+import androidx.compose.animation.core.EaseOutQuart
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ContextualFlowRow
 import androidx.compose.foundation.layout.ContextualFlowRowOverflow
@@ -89,6 +99,8 @@ fun FeatureIndicators(
                             it.sharedBounds(
                                 rememberSharedContentState(key = featureIndicator),
                                 animatedVisibilityScope = animatedVisibilityScope,
+                                enter = fadeIn(tween(easing = EaseInQuart)),
+                                exit = fadeOut(tween(easing = EaseOutQuad))
                             )
                         } else {
                             it
