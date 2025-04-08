@@ -44,8 +44,7 @@ export class AppUpgradeReadyNotificationProvider implements InAppNotificationPro
           action: {
             type: 'navigate-internal',
             link: {
-              // TODO: Change route
-              to: RoutePath.changelog,
+              to: RoutePath.appUpgrade,
               'aria-label':
                 // TRANSLATORS: Accessibility label for link to app upgrade view.
                 messages.pgettext('accessibility', 'Go to app update page'),
