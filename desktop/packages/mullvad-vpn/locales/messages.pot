@@ -2617,6 +2617,9 @@ msgstr ""
 msgid "Invalid or missing value \"%s\""
 msgstr ""
 
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr ""
+
 msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr ""
 
@@ -2782,7 +2785,7 @@ msgstr ""
 msgid "This address has already been entered."
 msgstr ""
 
-msgid "This allows access to WireGuard for devices that only support IPv6."
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
 msgstr ""
 
 msgid "This field is required"
