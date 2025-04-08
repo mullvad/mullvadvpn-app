@@ -12,8 +12,17 @@ import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 
+public struct ProtocolObfuscationResult {
+    let endpoint: MullvadEndpoint
+    let method: WireGuardObfuscationState
+}
+
 public protocol ProtocolObfuscation {
-    func obfuscate(_ endpoint: MullvadEndpoint, settings: LatestTunnelSettings, retryAttempts: UInt) -> MullvadEndpoint
+    func obfuscate(
+        _ endpoint: MullvadEndpoint,
+        settings: LatestTunnelSettings,
+        retryAttempts: UInt
+    ) -> ProtocolObfuscationResult
     var transportLayer: TransportLayer? { get }
     var remotePort: UInt16 { get }
 }
@@ -38,7 +47,7 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
         _ endpoint: MullvadEndpoint,
         settings: LatestTunnelSettings,
         retryAttempts: UInt = 0
-    ) -> MullvadEndpoint {
+    ) -> ProtocolObfuscationResult {
         let obfuscationMethod = ObfuscationMethodSelector.obfuscationMethodBy(
             connectionAttemptCount: retryAttempts,
             tunnelSettings: settings
@@ -48,7 +57,7 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
 
         guard obfuscationMethod != .off else {
             tunnelObfuscator = nil
-            return endpoint
+            return .init(endpoint: endpoint, method: .off)
         }
 
         // At this point, the only possible obfuscation methods should be either `.udpOverTcp` or `.shadowsocks`
@@ -61,11 +70,14 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
         obfuscator.start()
         tunnelObfuscator = obfuscator
 
-        return MullvadEndpoint(
-            ipv4Relay: IPv4Endpoint(ip: .loopback, port: obfuscator.localUdpPort),
-            ipv4Gateway: endpoint.ipv4Gateway,
-            ipv6Gateway: endpoint.ipv6Gateway,
-            publicKey: endpoint.publicKey
+        return .init(
+            endpoint: MullvadEndpoint(
+                ipv4Relay: IPv4Endpoint(ip: .loopback, port: obfuscator.localUdpPort),
+                ipv4Gateway: endpoint.ipv4Gateway,
+                ipv6Gateway: endpoint.ipv6Gateway,
+                publicKey: endpoint.publicKey
+            ),
+            method: obfuscationMethod
         )
     }
 }
