@@ -170,7 +170,7 @@ export default function NotificationArea(props: IProps) {
       close,
     }),
     new AppUpgradeAvailableNotificationProvider({
-      platform: 'linux',
+      platform: window.env.platform,
       suggestedUpgradeVersion: suggestedUpgrade?.version,
       suggestedIsBeta: version.suggestedIsBeta,
       updateDismissedForVersion,
