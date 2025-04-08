@@ -1161,8 +1161,11 @@ fn apply_ip_availability(
             ..Default::default()
         })
         .ok_or_else(|| {
-            // It is safe to call `unwrap` on `ip_version` here because this error will only happen
-            // when ip_version is Constraint::Only
+            // It is safe to call `unwrap` on `wireguard_constraints().ip_version` here
+            // because this will only be called if intersection returns None
+            // and the only way None can be returned is if both
+            // ip_version and wireguard_constraints.ip_version are Constraint::Only and thus
+            // guarantees that wireguard_constraints.ip_version is Constraint::Only
             let family = user_query.wireguard_constraints().ip_version.unwrap();
             Error::IpVersionUnavailable { family }
         })?;
