@@ -25,7 +25,8 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
                 "VPN_SETTINGS_LOCAL_NETWORK_SHARING",
                 tableName: "LocalNetworkSharing",
                 value: """
-                This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.
+                This feature allows access to other devices on the local network, such as for sharing, printing, \
+                streaming, etc.
                 Attention: toggling “Local network sharing” requires restarting the VPN connection.
                 """,
                 comment: ""

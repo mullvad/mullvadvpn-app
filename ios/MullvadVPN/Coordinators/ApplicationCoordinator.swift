@@ -839,4 +839,4 @@ extension DeviceState {
     var splitViewMode: UISplitViewController.DisplayMode {
         isLoggedIn ? UISplitViewController.DisplayMode.oneBesideSecondary : .secondaryOnly
     }
-}
+} // swiftlint:disable:this file_length

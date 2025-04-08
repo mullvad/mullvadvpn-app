@@ -9,6 +9,7 @@ use response::SwiftMullvadApiResponse;
 use retry_strategy::RetryStrategy;
 use talpid_future::retry::retry_future;
 
+mod account;
 mod api;
 mod cancellation;
 mod completion;
@@ -93,12 +94,34 @@ where
     F: Fn() -> T,
     T: Future<Output = Result<rest::Response<hyper::body::Incoming>, rest::Error>>,
 {
+    let response = retry_request(retry_strategy, future_factory).await?;
+    SwiftMullvadApiResponse::with_body(response).await
+}
+
+async fn do_request_with_empty_body<F, T>(
+    retry_strategy: RetryStrategy,
+    future_factory: F,
+) -> Result<SwiftMullvadApiResponse, rest::Error>
+where
+    F: Fn() -> T,
+    T: Future<Output = Result<(), rest::Error>>,
+{
+    retry_request(retry_strategy, future_factory).await?;
+    Ok(SwiftMullvadApiResponse::ok())
+}
+
+async fn retry_request<F, T, U>(
+    retry_strategy: RetryStrategy,
+    future_factory: F,
+) -> Result<U, rest::Error>
+where
+    F: Fn() -> T,
+    T: Future<Output = Result<U, rest::Error>>,
+{
     let should_retry = |result: &Result<_, rest::Error>| match result {
         Err(err) => err.is_network_error(),
         Ok(_) => false,
     };
 
-    let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
-
-    SwiftMullvadApiResponse::with_body(response).await
+    retry_future(future_factory, should_retry, retry_strategy.delays()).await
 }
