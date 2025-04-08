@@ -34,11 +34,13 @@ type Result<T> = std::result::Result<T, Error>;
 pub struct DownloaderHandle {
     /// Handle to the downloader task
     task: tokio::task::JoinHandle<std::result::Result<PathBuf, Error>>,
+    event_tx: broadcast::Sender<AppUpgradeEvent>,
 }
 
 impl Drop for DownloaderHandle {
     fn drop(&mut self) {
         self.task.abort();
+        let _ = self.event_tx.send(AppUpgradeEvent::Aborted);
     }
 }
 
@@ -54,7 +56,8 @@ pub fn spawn_downloader(
     event_tx: broadcast::Sender<AppUpgradeEvent>,
 ) -> DownloaderHandle {
     DownloaderHandle {
-        task: tokio::spawn(start(version, event_tx)),
+        task: tokio::spawn(start(version, event_tx.clone())),
+        event_tx,
     }
 }
 
@@ -67,7 +70,10 @@ async fn start(
         .ok_or(Error::NoUrlFound)?
         .to_owned();
 
+    log::info!("Downloading app version '{}' from {url}", version.version);
+
     let download_dir = mullvad_paths::cache_dir()?.join("mullvad-update");
+    log::debug!("Download directory: {download_dir:?}");
     fs::create_dir_all(&download_dir)
         .await
         .map_err(Error::CreateDownloadDir)?;

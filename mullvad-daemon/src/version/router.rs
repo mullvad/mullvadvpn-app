@@ -296,9 +296,6 @@ impl VersionRouter {
                     log::warn!("Received new version while upgrading: {version_info:?}, aborting");
 
                     let _ = self.version_event_sender.send(version_info.clone());
-                    let _ = self
-                        .app_upgrade_broadcast
-                        .send(mullvad_types::version::AppUpgradeEvent::Aborted);
                     self.state = DownloadState::HasVersion { version_cache };
                 } else {
                     *prev_cache = version_cache;
@@ -344,9 +341,6 @@ impl VersionRouter {
             DownloadState::Downloaded { version_cache, .. }
             | DownloadState::Downloading { version_cache, .. } => {
                 log::warn!("Switching beta after while updating resulted in new suggested upgrade: {:?}, aborting", new_app_version_info.suggested_upgrade);
-                let _ = self
-                    .app_upgrade_broadcast
-                    .send(mullvad_types::version::AppUpgradeEvent::Aborted);
                 version_cache
             }
             DownloadState::HasVersion { version_cache } => version_cache,
@@ -378,6 +372,7 @@ impl VersionRouter {
 
     #[cfg(update)]
     fn update_application(&mut self) {
+        log::debug!("Received update request");
         use crate::version::downloader::spawn_downloader;
 
         match mem::replace(&mut self.state, DownloadState::NoVersion) {
@@ -422,11 +417,7 @@ impl VersionRouter {
             // Otherwise, just reset upgrade info to last known state
             DownloadState::Downloaded { version_cache, .. }
             | DownloadState::Downloading { version_cache, .. } => {
-                // Reset app version info to last known state
                 self.state = DownloadState::HasVersion { version_cache };
-                let _ = self
-                    .app_upgrade_broadcast
-                    .send(mullvad_types::version::AppUpgradeEvent::Aborted);
             }
             // No-op unless we're downloading something right now
             // In the `Downloaded` state, we also do nothing
