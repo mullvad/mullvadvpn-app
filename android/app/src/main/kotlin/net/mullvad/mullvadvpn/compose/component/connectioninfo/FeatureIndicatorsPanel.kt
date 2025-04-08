@@ -3,13 +3,8 @@
 package net.mullvad.mullvadvpn.compose.component.connectioninfo
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.core.EaseIn
-import androidx.compose.animation.core.EaseInQuad
 import androidx.compose.animation.core.EaseInQuart
-import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.EaseOutQuad
-import androidx.compose.animation.core.EaseOutQuart
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -51,7 +46,7 @@ fun FeatureIndicatorsPanel(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun FeatureIndicators(
     features: List<FeatureIndicator>,
@@ -100,7 +95,7 @@ fun FeatureIndicators(
                                 rememberSharedContentState(key = featureIndicator),
                                 animatedVisibilityScope = animatedVisibilityScope,
                                 enter = fadeIn(tween(easing = EaseInQuart)),
-                                exit = fadeOut(tween(easing = EaseOutQuad))
+                                exit = fadeOut(tween(easing = EaseOutQuad)),
                             )
                         } else {
                             it
