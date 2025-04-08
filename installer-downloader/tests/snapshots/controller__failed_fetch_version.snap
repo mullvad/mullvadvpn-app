@@ -13,10 +13,7 @@ download_progress_visible: false
 beta_text_visible: false
 stable_text_visible: false
 error_message_visible: true
-error_message:
-  status_text: "Failed to load version details, please try again or make sure you have the latest installer downloader."
-  cancel_button_text: Cancel
-  retry_button_text: Try again
+error_message: "Failed to load version details, please try again or make sure you have the latest installer downloader."
 quit: false
 call_log:
   - hide_download_progress
@@ -36,4 +33,4 @@ call_log:
   - clear_status_text
   - on_error_message_retry
   - on_error_message_cancel
-  - "show_error_message: Failed to load version details, please try again or make sure you have the latest installer downloader.. retry: Try again. cancel: Cancel"
+  - "show_error_message: Failed to load version details, please try again or make sure you have the latest installer downloader."

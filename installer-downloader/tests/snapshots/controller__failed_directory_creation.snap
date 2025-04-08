@@ -13,10 +13,7 @@ download_progress_visible: false
 beta_text_visible: false
 stable_text_visible: false
 error_message_visible: true
-error_message:
-  status_text: "Download failed, please check your internet connection or if you have enough space on your hard drive and try downloading again."
-  cancel_button_text: Cancel
-  retry_button_text: Try again
+error_message: "Download failed, please check your internet connection or if you have enough space on your hard drive and try downloading again."
 quit: false
 call_log:
   - hide_download_progress
@@ -41,4 +38,4 @@ call_log:
   - hide_download_button
   - hide_beta_text
   - hide_stable_text
-  - "show_error_message: Download failed, please check your internet connection or if you have enough space on your hard drive and try downloading again.. retry: Try again. cancel: Cancel"
+  - "show_error_message: Download failed, please check your internet connection or if you have enough space on your hard drive and try downloading again."
