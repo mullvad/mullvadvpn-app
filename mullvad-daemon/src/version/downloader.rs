@@ -6,7 +6,7 @@ use mullvad_update::app::{
 };
 use rand::seq::SliceRandom;
 use std::path::PathBuf;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use tokio::fs;
 use tokio::sync::broadcast;
 
@@ -116,6 +116,7 @@ struct ProgressUpdater {
     server: String,
     event_tx: broadcast::Sender<AppUpgradeEvent>,
     complete_frac: f32,
+    start_time: Instant,
 }
 
 impl ProgressUpdater {
@@ -124,6 +125,7 @@ impl ProgressUpdater {
             server,
             event_tx,
             complete_frac: 0.,
+            start_time: Instant::now(),
         }
     }
 }
@@ -144,8 +146,7 @@ impl mullvad_update::fetch::ProgressUpdater for ProgressUpdater {
             AppUpgradeDownloadProgress {
                 server: self.server.clone(),
                 progress: (fraction_complete * 100.0) as u32,
-                // TODO: estimate time left based on how much was downloaded (maybe in last n seconds)
-                time_left: Duration::ZERO,
+                time_left: estimate_time_left(self.start_time, fraction_complete),
             },
         ));
     }
@@ -162,6 +163,15 @@ impl mullvad_update::fetch::ProgressUpdater for ProgressUpdater {
             },
         ));
     }
+}
+
+fn estimate_time_left(start_time: Instant, fraction_complete: f32) -> Duration {
+    if fraction_complete == 0.0 {
+        return Duration::ZERO;
+    }
+
+    let elapsed = start_time.elapsed();
+    elapsed.mul_f32((1.0 - fraction_complete) / fraction_complete)
 }
 
 /// Select a mirror to download from
