@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 # This script downloads the build artifacts along with the signatures, verifies the signatures and
-# publishes new version metadata to Mullvads API. This should be run after `4-make-release`.
+# publishes new version metadata to Mullvads API.
+# * This should be run after `4-make-release`.
+# * You need to put the private ed25519 signing key in the clipboard before running this script.
 
 set -eu
 
@@ -19,21 +21,14 @@ if [ $# -ne 3 ]; then
     exit 1
 fi
 
-# Duplicated from /scripts/utils/gh-ready-check
-if ! command -v gh > /dev/null; then
-    echo "gh (GitHub CLI) is required to run this script"
-    exit 1
-fi
-if ! gh auth status > /dev/null; then
-    echo "Authentication through gh (GitHub CLI) is required to run this script"
-    exit 1
-fi
-
 PRODUCT_VERSION=$1
+# The hostname (can be the alias in your ~/.ssh/config) of the build server
 BUILDSERVER_HOST=$2
+# The server to upload the metadata to *from* the build server (argument above)
 METADATA_SERVER_HOST=$3
 
-ARTIFACT_DIR="./artifacts"
+# shellcheck source=desktop/scripts/release/release-config.sh
+source "$SCRIPT_DIR/release-config.sh"
 
 function publish_metadata {
     local platforms
@@ -55,11 +50,11 @@ function publish_metadata {
     echo ""
 
     echo ">>> Adding new release $PRODUCT_VERSION (rollout = 1)"
-    mullvad-release add-release "$PRODUCT_VERSION" "${platforms[@]}" 1
+    mullvad-release add-release "$PRODUCT_VERSION" --rollout 1 "${platforms[@]}"
     echo ""
 
-    echo ">>> Signing $PRODUCT_VERSION metadata"
-    mullvad-release sign "${platforms[@]}"
+    echo ">>> Signing $PRODUCT_VERSION metadata. Reading signing key from clipboard"
+    xclip -sensitive | mullvad-release sign "${platforms[@]}"
     echo ""
 
     echo ">>> Verifying signed metadata"
@@ -79,6 +74,6 @@ function remove_release_artifacts {
     rm -r "$ARTIFACT_DIR"
 }
 
-./download-release-artifacts "$PRODUCT_VERSION"
+./download-release-artifacts "$PRODUCT_VERSION" "$ARTIFACT_DIR"
 publish_metadata
 remove_release_artifacts
