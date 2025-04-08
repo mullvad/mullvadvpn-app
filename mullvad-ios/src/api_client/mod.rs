@@ -51,6 +51,7 @@ impl ApiContext {
 /// to proceed in a meaningful way anyway.
 ///
 /// This function is safe.
+#[cfg(feature = "api-override")]
 #[no_mangle]
 pub extern "C" fn mullvad_api_init_new_tls_disabled(
     host: *const u8,
@@ -73,13 +74,16 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
 /// This function is safe.
 #[no_mangle]
 pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> SwiftApiContext {
-    mullvad_api_init_inner(host, address, false)
+    #[cfg(feature = "api-override")]
+    return mullvad_api_init_inner(host, address, false);
+    #[cfg(not(feature = "api-override"))]
+    return mullvad_api_init_inner(host, address);
 }
 
 fn mullvad_api_init_inner(
     host: *const u8,
     address: *const u8,
-    disable_tls: bool,
+    #[cfg(feature = "api-override")] disable_tls: bool,
 ) -> SwiftApiContext {
     let host = unsafe { CStr::from_ptr(host.cast()) };
     let address = unsafe { CStr::from_ptr(address.cast()) };
