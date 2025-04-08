@@ -414,13 +414,17 @@ export default class AppRenderer {
   public appUpgradeInstallerStart = () => {
     const reduxState = this.reduxStore.getState();
     const appUpgradeEvent = reduxState.appUpgrade.event;
+    const appUpgradeError = reduxState.appUpgrade.error;
     const verifiedInstallerPath = reduxState.version.suggestedUpgrade?.verifiedInstallerPath;
 
     // Ensure we have a the path to the verified installer and that we are not already trying
     // to start the installer.
     if (
       typeof verifiedInstallerPath === 'string' &&
-      appUpgradeEvent?.type !== 'APP_UPGRADE_STATUS_STARTING_INSTALLER'
+      verifiedInstallerPath.length > 0 &&
+      (appUpgradeEvent?.type !== 'APP_UPGRADE_STATUS_STARTING_INSTALLER' ||
+        (appUpgradeEvent?.type === 'APP_UPGRADE_STATUS_STARTING_INSTALLER' &&
+          appUpgradeError === 'START_INSTALLER_FAILED'))
     ) {
       // Ensure we don't try to start the installer multiple times by setting the status
       // as starting
@@ -652,6 +656,7 @@ export default class AppRenderer {
 
     if (
       typeof verifiedInstallerPath === 'string' &&
+      verifiedInstallerPath.length > 0 &&
       appUpgradeEvent?.type === 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER'
     ) {
       // Only trigger the installer if the window is focused
