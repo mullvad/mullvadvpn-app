@@ -74,7 +74,8 @@ class TunnelViewController: UIViewController, RootContainment {
         indicatorsViewViewModel = FeatureIndicatorsViewModel(
             tunnelSettings: interactor.tunnelSettings,
             ipOverrides: interactor.ipOverrides,
-            tunnelState: tunnelState
+            tunnelState: tunnelState,
+            observedState: interactor.tunnelStatus.observedState
         )
 
         connectionView = ConnectionView(
@@ -100,6 +101,7 @@ class TunnelViewController: UIViewController, RootContainment {
             self?.connectionViewViewModel.update(tunnelStatus: tunnelStatus)
             self?.setTunnelState(tunnelStatus.state, animated: true)
             self?.indicatorsViewViewModel.tunnelState = tunnelStatus.state
+            self?.indicatorsViewViewModel.observedState = tunnelStatus.observedState
             self?.view.setNeedsLayout()
         }
 
