@@ -37,7 +37,6 @@ use mullvad_types::{
     wireguard::QuantumResistantState,
     CustomTunnelEndpoint, Intersection,
 };
-use std::net::IpAddr;
 use std::{
     path::Path,
     sync::{Arc, LazyLock, Mutex},

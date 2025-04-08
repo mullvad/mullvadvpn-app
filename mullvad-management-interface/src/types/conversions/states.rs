@@ -1,5 +1,4 @@
 use crate::types::{proto, FromProtobufTypeError};
-use std::net::IpAddr;
 use talpid_types::net::IpVersion;
 
 impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
