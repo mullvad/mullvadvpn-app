@@ -128,7 +128,7 @@ impl AppDelegate for AppWindow {
         self.stable_link.set_hidden(true);
     }
 
-    fn show_error_message(&mut self, message: installer_downloader::delegate::ErrorMessage) {
+    fn show_error_message(&mut self, message: String) {
         let on_cancel = self.error_cancel_callback.clone().map(|callback| {
             move || {
                 let callback = callback.clone();
@@ -145,16 +145,11 @@ impl AppDelegate for AppWindow {
             }
         });
 
-        self.error_view = Some(ErrorView::new(
-            &self.main_view,
-            message,
-            on_retry,
-            on_cancel,
-        ));
+        self.error_view.show(message, on_retry, on_cancel);
     }
 
     fn hide_error_message(&mut self) {
-        self.error_view.take();
+        self.error_view.hide();
     }
 
     fn on_error_message_retry<F>(&mut self, callback: F)

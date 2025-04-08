@@ -179,11 +179,7 @@ where
             self_.on_error_message_cancel(move || {
                 let _ = cancel_tx.try_send(Action::Cancel);
             });
-            self_.show_error_message(crate::delegate::ErrorMessage {
-                status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
-                cancel_button_text: resource::FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT.to_owned(),
-                retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
-            });
+            self_.show_error_message(resource::FETCH_VERSION_ERROR_DESC.to_owned());
         });
 
         // wait for user to press either button
@@ -305,6 +301,22 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
                 let _ = cancel_tx.try_send(TaskMessage::Cancel);
             });
         });
+        self.queue.queue_main(move |self_| {
+            self_.clear_status_text();
+            self_.hide_download_button();
+            self_.hide_beta_text();
+            self_.hide_stable_text();
+
+            self_.show_error_message(resource::DOWNLOAD_FAILED_DESC.to_owned());
+        });
+        self.queue.queue_main(move |self_| {
+            self_.clear_status_text();
+            self_.hide_download_button();
+            self_.hide_beta_text();
+            self_.hide_stable_text();
+
+            self_.show_error_message(resource::DOWNLOAD_FAILED_DESC.to_owned());
+        });
 
         // Create temporary dir
         let download_dir = match &self.temp_dir {
@@ -318,11 +330,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
                     self_.hide_beta_text();
                     self_.hide_stable_text();
 
-                    self_.show_error_message(crate::delegate::ErrorMessage {
-                        status_text: resource::DOWNLOAD_FAILED_DESC.to_owned(),
-                        cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT.to_owned(),
-                        retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT.to_owned(),
-                    });
+                    self_.show_error_message(resource::DOWNLOAD_FAILED_DESC.to_owned());
                 });
                 return;
             }

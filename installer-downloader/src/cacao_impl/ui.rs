@@ -15,10 +15,9 @@ use cacao::text::Label;
 use cacao::view::View;
 use objc_id::Id;
 
-use crate::delegate::ErrorMessage;
 use crate::resource::{
     BANNER_DESC, BETA_LINK_TEXT, BETA_PREFACE_DESC, CANCEL_BUTTON_TEXT, DOWNLOAD_BUTTON_TEXT,
-    STABLE_LINK_TEXT, WINDOW_HEIGHT, WINDOW_TITLE, WINDOW_WIDTH,
+    DOWNLOAD_FAILED_RETRY_BUTTON_TEXT, STABLE_LINK_TEXT, WINDOW_HEIGHT, WINDOW_TITLE, WINDOW_WIDTH,
 };
 
 /// Logo render in the banner
@@ -146,7 +145,7 @@ pub struct AppWindow {
     /// This exists because we need to shift it up when download_text is revealed.
     pub status_text_position_y: Option<LayoutConstraint>,
 
-    pub error_view: Option<ErrorView>,
+    pub error_view: ErrorView,
     pub error_retry_callback: Option<Arc<Mutex<ErrorViewClickCallback>>>,
     pub error_cancel_callback: Option<Arc<Mutex<ErrorViewClickCallback>>>,
 
@@ -158,12 +157,13 @@ pub struct AppWindow {
     pub stable_link: LinkToStable,
 }
 
+#[derive(Default)]
 pub struct ErrorView {
     pub view: View,
     pub text: Label,
     pub circle: ImageView,
-    pub retry_button: Button,
-    pub cancel_button: Button,
+    pub retry_button: RetryButton,
+    pub cancel_button: CancelButton,
 }
 
 pub type ErrorViewClickCallback = Box<dyn Fn() + Send>;
@@ -218,6 +218,8 @@ button_wrapper!(LinkToBeta, BETA_LINK_TEXT);
 button_wrapper!(LinkToStable, format!("← {STABLE_LINK_TEXT}"));
 button_wrapper!(DownloadButton, DOWNLOAD_BUTTON_TEXT);
 button_wrapper!(CancelButton, CANCEL_BUTTON_TEXT);
+// TODO: generic text
+button_wrapper!(RetryButton, DOWNLOAD_FAILED_RETRY_BUTTON_TEXT);
 
 impl AppWindow {
     pub fn layout(&mut self) {
@@ -325,6 +327,8 @@ impl AppWindow {
                 .constraint_equal_to(&self.main_view.top)
                 .offset(59.)
         });
+
+        self.error_view.layout(&self.main_view);
 
         LayoutConstraint::activate(&[
             status_text_position_y.clone(),
@@ -438,92 +442,89 @@ impl WindowDelegate for AppWindowWrapper {
 }
 
 impl ErrorView {
-    pub fn new(
-        main_view: &View,
-        message: ErrorMessage,
-        on_retry: Option<impl Fn() + Send + Sync + 'static>,
-        on_cancel: Option<impl Fn() + Send + Sync + 'static>,
-    ) -> Self {
-        let mut error_view = ErrorView {
-            view: Default::default(),
-            text: Default::default(),
-            circle: Default::default(),
-            retry_button: Button::new(&message.retry_button_text),
-            cancel_button: Button::new(&message.cancel_button_text),
-        };
+    pub fn layout(&mut self, main_view: &View) {
+        self.circle.set_image(&ALERT_CIRCLE);
 
-        let ErrorView {
-            view,
-            text,
-            circle,
-            retry_button,
-            cancel_button,
-        } = &mut error_view;
+        self.view.add_subview(&self.text);
+        self.view.add_subview(&self.circle);
 
-        text.set_text(message.status_text);
-        circle.set_image(&ALERT_CIRCLE);
-
-        if let Some(on_cancel) = on_cancel {
-            cancel_button.set_action(on_cancel);
-        }
-        if let Some(on_retry) = on_retry {
-            retry_button.set_action(on_retry);
-        }
-
-        view.add_subview(text);
-        view.add_subview(circle);
-        main_view.add_subview(view);
-        main_view.add_subview(retry_button);
-        main_view.add_subview(cancel_button);
+        main_view.add_subview(&self.view);
+        main_view.add_subview(&self.retry_button.button);
+        main_view.add_subview(&self.cancel_button.button);
 
         LayoutConstraint::activate(&[
-            view.center_x.constraint_equal_to(&main_view.center_x),
-            view.center_y
+            self.view.center_x.constraint_equal_to(&main_view.center_x),
+            self.view
+                .center_y
                 .constraint_equal_to(&main_view.top)
                 .offset(74.),
-            view.width.constraint_equal_to_constant(536.),
-            text.center_y.constraint_equal_to(&view.center_y),
-            text.left.constraint_equal_to(&circle.right).offset(16.),
-            text.right.constraint_equal_to(&view.right),
-            circle.left.constraint_equal_to(&view.left),
-            circle.center_y.constraint_equal_to(&text.center_y),
-            retry_button
-                .top
-                .constraint_equal_to(&text.bottom)
-                .offset(24.),
-            cancel_button
-                .top
-                .constraint_equal_to(&text.bottom)
-                .offset(24.),
-            retry_button
+            self.view.width.constraint_equal_to_constant(536.),
+            self.text.center_y.constraint_equal_to(&self.view.center_y),
+            self.text
                 .left
-                .constraint_equal_to(&view.center_x)
+                .constraint_equal_to(&self.circle.right)
+                .offset(16.),
+            self.text.right.constraint_equal_to(&self.view.right),
+            self.circle.left.constraint_equal_to(&self.view.left),
+            self.circle
+                .center_y
+                .constraint_equal_to(&self.text.center_y),
+            self.retry_button
+                .button
+                .top
+                .constraint_equal_to(&self.text.bottom)
+                .offset(24.),
+            self.cancel_button
+                .top
+                .constraint_equal_to(&self.text.bottom)
+                .offset(24.),
+            self.retry_button
+                .left
+                .constraint_equal_to(&self.view.center_x)
                 .offset(8.),
-            cancel_button
+            self.cancel_button
+                .button
                 .right
-                .constraint_equal_to(&view.center_x)
+                .constraint_equal_to(&self.view.center_x)
                 .offset(-8.),
-            retry_button.width.constraint_equal_to_constant(213.),
-            cancel_button.width.constraint_equal_to_constant(213.),
+            self.retry_button
+                .button
+                .width
+                .constraint_equal_to_constant(213.),
+            self.cancel_button
+                .button
+                .width
+                .constraint_equal_to_constant(213.),
         ]);
-
-        error_view
     }
-}
 
-impl Drop for ErrorView {
-    fn drop(&mut self) {
-        let ErrorView {
-            view,
-            text,
-            circle,
-            retry_button,
-            cancel_button,
-        } = self;
-        view.remove_from_superview();
-        text.remove_from_superview();
-        circle.remove_from_superview();
-        retry_button.remove_from_superview();
-        cancel_button.remove_from_superview();
+    pub fn show(
+        &mut self,
+        status_text: String,
+        on_retry: Option<impl Fn() + Send + Sync + 'static>,
+        on_cancel: Option<impl Fn() + Send + Sync + 'static>,
+    ) {
+        self.text.set_text(status_text);
+
+        if let Some(on_cancel) = on_cancel {
+            self.cancel_button.set_action(on_cancel);
+        } else {
+            self.cancel_button.set_action(|| {});
+        }
+        if let Some(on_retry) = on_retry {
+            self.retry_button.set_action(on_retry);
+        } else {
+            self.retry_button.set_action(|| {});
+        }
+
+        self.retry_button.set_hidden(false);
+        self.cancel_button.set_hidden(false);
+        self.view.set_hidden(false);
+    }
+
+    pub fn hide(&mut self) {
+        self.retry_button.set_hidden(true);
+        self.cancel_button.set_hidden(true);
+        self.view.set_hidden(true);
     }
 }

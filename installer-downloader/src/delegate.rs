@@ -88,7 +88,7 @@ pub trait AppDelegate {
     fn hide_stable_text(&mut self);
 
     /// Show error message
-    fn show_error_message(&mut self, message: ErrorMessage);
+    fn show_error_message(&mut self, status: String);
 
     /// Hide error message
     fn hide_error_message(&mut self);
@@ -108,13 +108,6 @@ pub trait AppDelegate {
 
     /// Create queue for scheduling actions on UI (main) thread
     fn queue(&self) -> Self::Queue;
-}
-
-#[derive(Default, serde::Serialize)]
-pub struct ErrorMessage {
-    pub status_text: String,
-    pub cancel_button_text: String,
-    pub retry_button_text: String,
 }
 
 /// Schedules actions on the UI (main) thread from other threads
