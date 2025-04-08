@@ -6,11 +6,7 @@ export const useShowUpgradeLabel = () => {
   const hasAppUpgradeError = useHasAppUpgradeError();
   const isAppUpgradePending = useIsAppUpgradePending();
 
-  if (isBlocked || hasAppUpgradeError) {
-    return true;
-  }
-
-  const showUpgradeLabel = isAppUpgradePending;
+  const showUpgradeLabel = isBlocked || hasAppUpgradeError || isAppUpgradePending;
 
   return showUpgradeLabel;
 };
