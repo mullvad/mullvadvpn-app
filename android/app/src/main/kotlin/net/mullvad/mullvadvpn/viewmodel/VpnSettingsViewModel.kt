@@ -19,13 +19,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
-import mullvad_daemon.management_interface.settings
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
@@ -40,6 +37,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
+import net.mullvad.mullvadvpn.util.onFirst
 
 sealed interface VpnSettingsSideEffect {
     sealed interface ShowToast : VpnSettingsSideEffect {
@@ -71,25 +69,20 @@ class VpnSettingsViewModel(
 
     val uiState =
         combine(
-                settingsRepository.settingsUpdates
-                    .filterNotNull()
-                    .withIndex()
-                    .onEach {
-                        if (it.index == 0) {
-                            val initialPort = it.value.getWireguardPort().getOrNull()
-                            customPort.value =
-                                Some(
-                                    if (initialPort !in WIREGUARD_PRESET_PORTS) {
-                                        initialPort
-                                    } else {
-                                        null
-                                    }
-                                )
-                            _mutableIsContentBlockersExpanded.value =
-                                Some(it.value.contentBlockersSettings().isAnyBlockerEnabled())
-                        }
-                    }
-                    .map { it.value },
+                settingsRepository.settingsUpdates.filterNotNull().onFirst {
+                    // Initialize wg port and content blockers state expand state
+                    val initialPort = it.getWireguardPort().getOrNull()
+                    customPort.value =
+                        Some(
+                            if (initialPort !in WIREGUARD_PRESET_PORTS) {
+                                initialPort
+                            } else {
+                                null
+                            }
+                        )
+                    _mutableIsContentBlockersExpanded.value =
+                        Some(it.contentBlockersSettings().isAnyBlockerEnabled())
+                },
                 relayListRepository.portRanges,
                 customPort.filterIsInstance<Some<Port?>>().map { it.value },
                 autoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot,
