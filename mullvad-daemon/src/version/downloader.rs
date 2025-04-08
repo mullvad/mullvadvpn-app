@@ -34,20 +34,26 @@ type Result<T> = std::result::Result<T, Error>;
 pub struct DownloaderHandle {
     /// Handle to the downloader task
     task: tokio::task::JoinHandle<std::result::Result<PathBuf, Error>>,
-    event_tx: broadcast::Sender<AppUpgradeEvent>,
+    /// Handle to send `AppUpgradeEvent::Aborted` when the downloader is dropped
+    dropped_tx: Option<broadcast::Sender<AppUpgradeEvent>>,
 }
 
 impl Drop for DownloaderHandle {
     fn drop(&mut self) {
         self.task.abort();
-        let _ = self.event_tx.send(AppUpgradeEvent::Aborted);
+        if let Some(dropped_tx) = self.dropped_tx.take() {
+            // If the downloader is dropped, send an event to notify that it was aborted
+            let _ = dropped_tx.send(AppUpgradeEvent::Aborted);
+        }
     }
 }
 
 impl DownloaderHandle {
     /// Wait for the downloader to finish
     pub async fn wait(&mut self) -> Result<PathBuf> {
-        (&mut self.task).await?
+        let path = (&mut self.task).await?;
+        self.dropped_tx = None; // Prevent sending the aborted event after successful download
+        path
     }
 }
 
@@ -57,7 +63,7 @@ pub fn spawn_downloader(
 ) -> DownloaderHandle {
     DownloaderHandle {
         task: tokio::spawn(start(version, event_tx.clone())),
-        event_tx,
+        dropped_tx: Some(event_tx),
     }
 }
 
