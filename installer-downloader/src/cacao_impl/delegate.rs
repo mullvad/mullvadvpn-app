@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use cacao::{control::Control, layout::Layout};
 
-use super::ui::{Action, AppWindow, ErrorView};
+use super::ui::{Action, AppWindow};
 use crate::delegate::{AppDelegate, AppDelegateQueue};
 
 impl AppDelegate for AppWindow {

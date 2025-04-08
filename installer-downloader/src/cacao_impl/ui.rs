@@ -17,7 +17,7 @@ use objc_id::Id;
 
 use crate::resource::{
     BANNER_DESC, BETA_LINK_TEXT, BETA_PREFACE_DESC, CANCEL_BUTTON_TEXT, DOWNLOAD_BUTTON_TEXT,
-    DOWNLOAD_FAILED_RETRY_BUTTON_TEXT, STABLE_LINK_TEXT, WINDOW_HEIGHT, WINDOW_TITLE, WINDOW_WIDTH,
+    RETRY_BUTTON_TEXT, STABLE_LINK_TEXT, WINDOW_HEIGHT, WINDOW_TITLE, WINDOW_WIDTH,
 };
 
 /// Logo render in the banner
@@ -198,6 +198,7 @@ macro_rules! button_wrapper {
 
         impl $name {
             /// Register a callback to be executed on the main thread when this button is pressed.
+            #[allow(dead_code)]
             pub fn set_callback(&mut self, callback: impl Fn() + Send + 'static) {
                 // Wrap it in an Arc<Mutex> to make it Sync.
                 // We need this because Dispatcher demands sync, but the AppDelegate trait does not
@@ -218,8 +219,7 @@ button_wrapper!(LinkToBeta, BETA_LINK_TEXT);
 button_wrapper!(LinkToStable, format!("← {STABLE_LINK_TEXT}"));
 button_wrapper!(DownloadButton, DOWNLOAD_BUTTON_TEXT);
 button_wrapper!(CancelButton, CANCEL_BUTTON_TEXT);
-// TODO: generic text
-button_wrapper!(RetryButton, DOWNLOAD_FAILED_RETRY_BUTTON_TEXT);
+button_wrapper!(RetryButton, RETRY_BUTTON_TEXT);
 
 impl AppWindow {
     pub fn layout(&mut self) {
@@ -451,6 +451,10 @@ impl ErrorView {
         main_view.add_subview(&self.view);
         main_view.add_subview(&self.retry_button.button);
         main_view.add_subview(&self.cancel_button.button);
+
+        self.retry_button.set_hidden(true);
+        self.cancel_button.set_hidden(true);
+        self.view.set_hidden(true);
 
         LayoutConstraint::activate(&[
             self.view.center_x.constraint_equal_to(&main_view.center_x),

@@ -2,7 +2,7 @@
 
 //! This module contains fake/mock implementations of different updater/installer traits
 
-use installer_downloader::delegate::{AppDelegate, AppDelegateQueue, ErrorMessage};
+use installer_downloader::delegate::{AppDelegate, AppDelegateQueue};
 use installer_downloader::environment::{Architecture, Environment};
 use installer_downloader::temp::DirectoryProvider;
 use installer_downloader::ui_downloader::UiAppDownloaderParameters;
@@ -185,7 +185,7 @@ pub struct DelegateState {
     pub beta_text_visible: bool,
     pub stable_text_visible: bool,
     pub error_message_visible: bool,
-    pub error_message: ErrorMessage,
+    pub error_message: String,
     pub quit: bool,
     /// Record of method calls.
     pub call_log: Vec<String>,
@@ -332,10 +332,10 @@ impl AppDelegate for FakeAppDelegate {
         self.state.stable_text_visible = false;
     }
 
-    fn show_error_message(&mut self, message: ErrorMessage) {
+    fn show_error_message(&mut self, message: String) {
         self.state.call_log.push(format!(
-            "show_error_message: {}. retry: {}. cancel: {}",
-            message.status_text, message.retry_button_text, message.cancel_button_text
+            "show_error_message: {}",
+            message,
         ));
         self.state.error_message = message;
         self.state.error_message_visible = true;

@@ -15,7 +15,7 @@ use windows_sys::Win32::UI::WindowsAndMessaging::WM_CTLCOLORSTATIC;
 use crate::resource::{
     BANNER_DESC, BETA_LINK_TEXT, BETA_PREFACE_DESC, CANCEL_BUTTON_SIZE, CANCEL_BUTTON_TEXT,
     DOWNLOAD_BUTTON_SIZE, DOWNLOAD_BUTTON_TEXT, STABLE_LINK_TEXT, WINDOW_HEIGHT, WINDOW_TITLE,
-    WINDOW_WIDTH,
+    WINDOW_WIDTH, RETRY_BUTTON_TEXT,
 };
 
 use super::delegate::QueueContext;
@@ -115,12 +115,14 @@ impl ErrorView {
             .parent(&self.error_frame)
             .position((304, button_y))
             .size((232, 32))
+            .text(&CANCEL_BUTTON_TEXT)
             .build(&mut self.error_cancel_button)?;
 
         nwg::Button::builder()
             .parent(&self.error_frame)
             .position((64, button_y))
             .size((232, 32))
+            .text(&RETRY_BUTTON_TEXT)
             .build(&mut self.error_retry_button)?;
 
         self.load_error_icon()?;

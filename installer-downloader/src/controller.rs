@@ -301,22 +301,6 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
                 let _ = cancel_tx.try_send(TaskMessage::Cancel);
             });
         });
-        self.queue.queue_main(move |self_| {
-            self_.clear_status_text();
-            self_.hide_download_button();
-            self_.hide_beta_text();
-            self_.hide_stable_text();
-
-            self_.show_error_message(resource::DOWNLOAD_FAILED_DESC.to_owned());
-        });
-        self.queue.queue_main(move |self_| {
-            self_.clear_status_text();
-            self_.hide_download_button();
-            self_.hide_beta_text();
-            self_.hide_stable_text();
-
-            self_.show_error_message(resource::DOWNLOAD_FAILED_DESC.to_owned());
-        });
 
         // Create temporary dir
         let download_dir = match &self.temp_dir {

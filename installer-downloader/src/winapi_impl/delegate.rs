@@ -125,15 +125,8 @@ impl AppDelegate for AppWindow {
         self.stable_message_frame.set_visible(false);
     }
 
-    fn show_error_message(&mut self, error: ErrorMessage) {
-        self.error_view.error_text.set_text(&error.status_text);
-        self.error_view
-            .error_retry_button
-            .set_text(&error.retry_button_text);
-        self.error_view
-            .error_cancel_button
-            .set_text(&error.cancel_button_text);
-
+    fn show_error_message(&mut self, status_text: String) {
+        self.error_view.error_text.set_text(&status_text);
         self.error_view.error_frame.set_visible(true);
     }
 
