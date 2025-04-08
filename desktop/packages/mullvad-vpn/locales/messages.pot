@@ -2782,7 +2782,7 @@ msgstr ""
 msgid "This address has already been entered."
 msgstr ""
 
-msgid "This allows access to WireGuard for devices that only support IPv6."
+msgid "This feature is used to force the app to use a specific ip version to connect to a relay. This can improve how fast the app connects to a relay under some circumstances."
 msgstr ""
 
 msgid "This field is required"
