@@ -31,7 +31,7 @@ export interface ListItemContentProps extends FlexProps {
   size?: Size;
 }
 
-export const ListItemContent = ({ size = 'full', ...props }: ListItemContentProps) => {
+export function ListItemContent({ size = 'full', ...props }: ListItemContentProps) {
   return (
     <StyledFlex
       $size={size}
@@ -44,4 +44,4 @@ export const ListItemContent = ({ size = 'full', ...props }: ListItemContentProp
       {...props}
     />
   );
-};
+}
