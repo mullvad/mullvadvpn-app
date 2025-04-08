@@ -457,7 +457,7 @@ fn updated_app_version_info_on_new_version_cache(
     let new_app_version = to_app_version_info(new_version_cache, beta_program, None);
 
     // Update version info
-    if new_app_version != prev_app_version {
+    if true {
         Some(new_app_version)
     } else {
         None
@@ -473,7 +473,7 @@ fn updated_app_version_info_on_new_beta(
     let new_app_version = to_app_version_info(version_cache, new_beta_state, None);
 
     // Update version info
-    if new_app_version != prev_app_version {
+    if true {
         Some(new_app_version)
     } else {
         None
@@ -564,8 +564,8 @@ fn recommended_version_upgrade(
     };
 
     // Set suggested upgrade if the received version is newer than the current version
-    let current_version = mullvad_version::VERSION.parse().unwrap();
-    if version_details.version > current_version {
+    // let current_version = mullvad_version::VERSION.parse().unwrap();
+    if true {
         Some(version_details.to_owned())
     } else {
         None
