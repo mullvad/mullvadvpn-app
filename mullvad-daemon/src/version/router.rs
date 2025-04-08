@@ -133,6 +133,25 @@ enum DownloadState {
     },
 }
 
+impl std::fmt::Display for DownloadState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DownloadState::NoVersion => write!(f, "NoVersion"),
+            DownloadState::HasVersion { .. } => write!(f, "HasVersion"),
+            #[cfg(update)]
+            DownloadState::Downloading {
+                upgrading_to_version,
+                ..
+            } => write!(f, "Downloading '{}'", upgrading_to_version.version),
+            #[cfg(update)]
+            DownloadState::Downloaded {
+                verified_installer_path,
+                ..
+            } => write!(f, "Downloaded '{}'", verified_installer_path.display()),
+        }
+    }
+}
+
 impl DownloadState {
     fn get_version_cache(&self) -> Option<&VersionCache> {
         match self {
@@ -372,7 +391,6 @@ impl VersionRouter {
 
     #[cfg(update)]
     fn update_application(&mut self) {
-        log::debug!("Received update request");
         use crate::version::downloader::spawn_downloader;
 
         match mem::replace(&mut self.state, DownloadState::NoVersion) {
@@ -384,19 +402,22 @@ impl VersionRouter {
                     recommended_version_upgrade(&version_info.latest_version, self.beta_program)
                 else {
                     // If there's no suggested upgrade, do nothing
-                    log::trace!("Received update request without suggested upgrade");
+                    log::debug!("Received update request without suggested upgrade");
                     self.state = DownloadState::HasVersion {
                         version_cache: version_info,
                     };
                     return;
                 };
+                log::info!(
+                    "Starting upgrade to version {}",
+                    upgrading_to_version.version
+                );
 
                 let downloader_handle = spawn_downloader(
                     upgrading_to_version.clone(),
                     self.app_upgrade_broadcast.clone(),
                 );
 
-                log::debug!("Starting upgrade");
                 self.state = DownloadState::Downloading {
                     version_cache: version_info,
                     upgrading_to_version,
@@ -405,6 +426,7 @@ impl VersionRouter {
             }
             // Already downloading/downloaded or there is no version: do nothing
             state => {
+                log::debug!("Ignoring update request while in state {:?}", state);
                 self.state = state;
             }
         }
