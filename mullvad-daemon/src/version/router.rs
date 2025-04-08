@@ -394,18 +394,15 @@ impl VersionRouter {
         use crate::version::downloader::spawn_downloader;
 
         match mem::replace(&mut self.state, DownloadState::NoVersion) {
-            // Checking state: start upgrade, if upgrade is available
-            DownloadState::HasVersion {
-                version_cache: version_info,
-            } => {
+            // If we're already downloading or have a version, do nothing
+            DownloadState::Downloaded { version_cache, .. }
+            | DownloadState::HasVersion { version_cache } => {
                 let Some(upgrading_to_version) =
-                    recommended_version_upgrade(&version_info.latest_version, self.beta_program)
+                    recommended_version_upgrade(&version_cache.latest_version, self.beta_program)
                 else {
                     // If there's no suggested upgrade, do nothing
                     log::debug!("Received update request without suggested upgrade");
-                    self.state = DownloadState::HasVersion {
-                        version_cache: version_info,
-                    };
+                    self.state = DownloadState::HasVersion { version_cache };
                     return;
                 };
                 log::info!(
@@ -419,7 +416,7 @@ impl VersionRouter {
                 );
 
                 self.state = DownloadState::Downloading {
-                    version_cache: version_info,
+                    version_cache,
                     upgrading_to_version,
                     downloader_handle,
                 };
