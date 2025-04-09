@@ -417,6 +417,7 @@ fun VpnSettingsScreen(
                             onSelectDeviceIpVersion,
                             onToggleIpv6,
                             navigateToIpv6Info,
+                            navigateToDeviceIpInfo,
                         )
                 }
             }
@@ -461,6 +462,7 @@ fun VpnSettingsContent(
     onSelectDeviceIpVersion: (ipVersion: Constraint<IpVersion>) -> Unit,
     onToggleIpv6: (Boolean) -> Unit,
     navigateToIpv6Info: () -> Unit,
+    navigateToDeviceIpInfo: () -> Unit,
 ) {
     val initialIndexFocus =
         when (initialScrollToFeature) {
@@ -616,6 +618,7 @@ fun VpnSettingsContent(
                     item(key = it::class.simpleName) {
                         InformationComposeCell(
                             title = stringResource(R.string.device_ip_version_title),
+                            onInfoClicked = navigateToDeviceIpInfo,
                             modifier = Modifier.animateItem(),
                         )
                     }
@@ -639,17 +642,6 @@ fun VpnSettingsContent(
                             onCellClicked = { onSelectDeviceIpVersion(it.constraint) },
                         )
                     }
-
-                VpnSettingItem.DeviceIpVersionInfo -> {
-                    item(key = it::class.simpleName) {
-                        BaseSubtitleCell(
-                            text = stringResource(R.string.device_ip_version_subtitle),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.animateItem(),
-                        )
-                    }
-                }
 
                 VpnSettingItem.Divider -> {
                     item(contentType = it::class.simpleName) {
@@ -685,84 +677,6 @@ fun VpnSettingsContent(
                             modifier = Modifier.animateItem(),
                         )
                     }
-
-<<<<<<< HEAD
-            itemWithDivider {
-                InformationComposeCell(
-                    title = stringResource(R.string.device_ip_version_title),
-                    onInfoClicked = navigateToDeviceIpInfo,
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.automatic),
-                    isSelected = state.deviceIpVersion == Constraint.Any,
-                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Any) },
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.ipv4),
-                    isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV4,
-                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV4)) },
-                )
-            }
-            item {
-                SelectableCell(
-                    title = stringResource(id = R.string.ipv6),
-                    isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV6,
-                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV6)) },
-                )
-            }
-            item {
-                MtuComposeCell(mtuValue = state.mtu, onEditMtu = { navigateToMtuDialog(state.mtu) })
-            }
-            item { MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)) }
-||||||| parent of f714aa727f (Implement quick access to active features)
-            itemWithDivider {
-                InformationComposeCell(title = stringResource(R.string.device_ip_version_title))
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.automatic),
-                    isSelected = state.deviceIpVersion == Constraint.Any,
-                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Any) },
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.ipv4),
-                    isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV4,
-                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV4)) },
-                )
-            }
-            item {
-                SelectableCell(
-                    title = stringResource(id = R.string.ipv6),
-                    isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV6,
-                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV6)) },
-                )
-            }
-            item {
-                Text(
-                    text = stringResource(R.string.device_ip_version_subtitle),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.cellStartPadding,
-                            top = topPadding,
-                            end = Dimens.cellEndPadding,
-                        ),
-                )
-                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
-            }
-
-            item {
-                MtuComposeCell(mtuValue = state.mtu, onEditMtu = { navigateToMtuDialog(state.mtu) })
-            }
-            item { MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)) }
-=======
                 is VpnSettingItem.DnsContentBlockerItem.Gambling ->
                     item(key = it::class.simpleName) {
                         NormalSwitchComposeCell(
@@ -789,7 +703,6 @@ fun VpnSettingsContent(
                             startPadding = Dimens.indentedCellStartPadding,
                         )
                     }
->>>>>>> f714aa727f (Implement quick access to active features)
 
                 is VpnSettingItem.DnsContentBlockerItem.SocialMedia ->
                     item(key = it::class.simpleName) {

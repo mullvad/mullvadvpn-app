@@ -650,6 +650,14 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr ""
 
+#. This is used as a feature indicator to show that DAITA is enabled through
+#. multihop.
+#. Available placeholders:
+#. %(DAITA)s - Is a non-translatable feature "DAITA"
+msgctxt "connect-view"
+msgid "%(DAITA)s: Multihop"
+msgstr ""
+
 msgctxt "connect-view"
 msgid "Active features"
 msgstr ""

@@ -410,4 +410,5 @@
     <string name="ip_version_v6_unavailable">IPv6 is not available</string>
     <string name="device_ip_info_first_paragraph">This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server.</string>
     <string name="device_ip_info_second_paragraph">It can be useful when you are aware of problems caused by a certain IP version.</string>
+    <string name="daita_multihop">%s: Multihop</string>
 </resources>

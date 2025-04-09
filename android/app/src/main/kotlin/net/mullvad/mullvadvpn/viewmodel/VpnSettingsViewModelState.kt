@@ -144,7 +144,7 @@ sealed interface VpnSettingsUiState {
 
                         if (contentBlockersOptions.isAnyBlockerEnabled()) {
                             add(VpnSettingItem.CustomDnsUnavailable)
-                        } else if(customDnsItems.isEmpty()) {
+                        } else if (customDnsItems.isEmpty()) {
                             add(VpnSettingItem.CustomDnsInfo)
                         } else {
                             add(VpnSettingItem.Spacer)
@@ -242,7 +242,7 @@ sealed interface VpnSettingsUiState {
                             add(VpnSettingItem.DeviceIpVersionItem(it, deviceIpVersion == it))
                         }
 
-                        add(VpnSettingItem.DeviceIpVersionInfo)
+                        add(VpnSettingItem.Spacer)
 
                         // MTU
                         add(VpnSettingItem.Mtu(mtu))

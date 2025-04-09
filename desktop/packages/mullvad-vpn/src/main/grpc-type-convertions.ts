@@ -382,6 +382,8 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.customMssFix;
     case grpcTypes.FeatureIndicator.DAITA:
       return FeatureIndicator.daita;
+    case grpcTypes.FeatureIndicator.DAITA_MULTIHOP:
+      return FeatureIndicator.daitaMultihop;
     case grpcTypes.FeatureIndicator.SHADOWSOCKS:
       return FeatureIndicator.shadowsocks;
   }
