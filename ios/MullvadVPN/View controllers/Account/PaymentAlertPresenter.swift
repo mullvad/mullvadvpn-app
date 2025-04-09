@@ -13,6 +13,36 @@ import Routing
 struct PaymentAlertPresenter {
     let alertContext: any Presenting
 
+    func showAlertForRefund(completion: (@MainActor @Sendable () -> Void)? = nil) {
+        let presentation = AlertPresentation(
+            id: "payment-refund-alert",
+            title: NSLocalizedString(
+                "PAYMENT_REFUND_ALERT_TITLE",
+                tableName: "Payment",
+                value: "Refund successful",
+                comment: ""
+            ),
+            message: NSLocalizedString(
+                "PAYMENT_REFUND_ALERT_MESSAGE",
+                tableName: "Payment",
+                value: "Your purchase was successfully refunded.",
+                comment: ""
+            ),
+            buttons: [
+                AlertAction(
+                    title: okButtonTextForKey("PAYMENT_REFUND_ALERT_OK_ACTION"),
+                    style: .default,
+                    handler: {
+                        completion?()
+                    }
+                ),
+            ]
+        )
+
+        let presenter = AlertPresenter(context: alertContext)
+        presenter.showAlert(presentation: presentation, animated: true)
+    }
+
     func showAlertForError(
         _ error: StorePaymentManagerError,
         context: REST.CreateApplePaymentResponse.Context,
