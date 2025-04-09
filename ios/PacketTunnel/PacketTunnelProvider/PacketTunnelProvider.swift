@@ -65,7 +65,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
 
         let apiTransportProvider = APITransportProvider(
-            requestFactory: MullvadApiRequestFactory(apiContext: REST.apiContext)
+            requestFactory: MullvadApiRequestFactory(
+                apiContext: REST.apiContext,
+                encoder: REST.Coding.makeJSONEncoder()
+            )
         )
 
         adapter = WgAdapter(packetTunnelProvider: self)

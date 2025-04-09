@@ -225,6 +225,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         actionHandler?(.showRestorePurchases)
     }
 
+    // This function is for testing only
     @objc private func handleStoreKit2Purchase() {
         guard let accountData = interactor.deviceState.accountData else {
             return
@@ -234,13 +235,31 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
         Task {
             do {
-                let product = try await Product.products(for: [storeKit2TestProduct]).first!
-                let result = try await product.purchase()
+                let product = try await Product.products(
+                    for: [
+                        StoreSubscription
+                            .thirtyDays.rawValue,
+                    ]
+                ).first!
+                let token = switch await interactor
+                    .getPaymentToken(for: accountData.number) {
+                case let .success(token):
+                    UUID(uuidString: token)!
+                case let .failure(error):
+                    throw error
+                }
+
+                let result = try await product.purchase(
+                    options: [.appAccountToken(token)]
+                )
 
                 switch result {
                 case let .success(verification):
                     let transaction = try checkVerified(verification)
-                    await sendReceiptToAPI(accountNumber: accountData.identifier, receipt: verification)
+                    await sendReceiptToAPI(
+                        accountNumber: accountData.number,
+                        receipt: verification
+                    )
                     await transaction.finish()
                 case .userCancelled:
                     print("User cancelled the purchase")
@@ -303,10 +322,10 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     }
 
     private func sendReceiptToAPI(accountNumber: String, receipt: VerificationResult<Transaction>) async {
-        do {
-            try await interactor.sendStoreKitReceipt(receipt, for: accountNumber)
+        switch await interactor.sendStoreKitReceipt(receipt, for: accountNumber) {
+        case .success:
             print("Receipt sent successfully")
-        } catch {
+        case let .failure(error):
             print("Error sending receipt: \(error)")
             errorPresenter.showAlertForStoreKitError(error, context: .purchase)
         }
