@@ -176,39 +176,39 @@ impl State {
     }
 }
 
-    #[cfg_attr(not(update), allow(unused_variables))]
+#[cfg_attr(not(update), allow(unused_variables))]
 pub(crate) fn spawn_version_router(
-        api_handle: MullvadRestHandle,
-        availability_handle: ApiAvailability,
-        cache_dir: PathBuf,
-        version_event_sender: DaemonEventSender<AppVersionInfo>,
-        beta_program: bool,
-        app_upgrade_broadcast: AppUpgradeBroadcast,
-    ) -> VersionRouterHandle {
-        let (tx, rx) = mpsc::unbounded();
+    api_handle: MullvadRestHandle,
+    availability_handle: ApiAvailability,
+    cache_dir: PathBuf,
+    version_event_sender: DaemonEventSender<AppVersionInfo>,
+    beta_program: bool,
+    app_upgrade_broadcast: AppUpgradeBroadcast,
+) -> VersionRouterHandle {
+    let (tx, rx) = mpsc::unbounded();
 
-        tokio::spawn(async move {
-            let (new_version_tx, new_version_rx) = mpsc::unbounded();
-            let version_check =
+    tokio::spawn(async move {
+        let (new_version_tx, new_version_rx) = mpsc::unbounded();
+        let version_check =
             VersionUpdater::spawn(api_handle, availability_handle, cache_dir, new_version_tx).await;
 
         VersionRouter {
-                daemon_rx: rx,
-                state: State::NoVersion,
-                beta_program,
-                version_check,
-                version_event_sender,
-                new_version_rx,
-                version_request: Fuse::terminated(),
-                version_request_channels: vec![],
-                #[cfg(update)]
-                app_upgrade_broadcast,
-            }
-            .run()
-            .await;
-        });
-        VersionRouterHandle { tx }
-    }
+            daemon_rx: rx,
+            state: State::NoVersion,
+            beta_program,
+            version_check,
+            version_event_sender,
+            new_version_rx,
+            version_request: Fuse::terminated(),
+            version_request_channels: vec![],
+            #[cfg(update)]
+            app_upgrade_broadcast,
+        }
+        .run()
+        .await;
+    });
+    VersionRouterHandle { tx }
+}
 
 impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
     async fn run(mut self) {
@@ -566,5 +566,53 @@ fn recommended_version_upgrade(
         Some(version_details.to_owned())
     } else {
         None
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use futures::channel::mpsc::unbounded;
+
+    use super::*;
+
+    struct VersionRouterChannels {
+        version_event_sender: futures::channel::mpsc::UnboundedSender<AppVersionInfo>,
+        daemon_tx: futures::channel::mpsc::UnboundedSender<Message>,
+    }
+
+    fn make_version_router() -> (
+        VersionRouter<futures::channel::mpsc::UnboundedSender<AppVersionInfo>>,
+        VersionRouterChannels,
+    ) {
+        let (version_event_sender, version_event_receiver) = unbounded();
+        let (daemon_tx, daemon_rx) = unbounded();
+        let (app_upgrade_broadcast, _) = tokio::sync::broadcast::channel(1);
+        (
+            VersionRouter {
+                daemon_rx,
+                state: State::NoVersion,
+                beta_program: false,
+                version_event_sender,
+                version_check: todo!(),
+                new_version_rx: todo!(),
+                version_request: Fuse::terminated(),
+                version_request_channels: vec![],
+                app_upgrade_broadcast,
+            },
+            VersionRouterChannels {
+                version_event_sender,
+                daemon_tx,
+            },
+        )
+    }
+
+    #[test]
+    fn test_upgrade_with_no_version() {
+        let (mut version_router, channels) = make_version_router();
+        let upgrade_events = version_router.app_upgrade_broadcast.subscribe();
+        version_router.update_application();
+        assert!(matches!(version_router.state, State::NoVersion));
+        assert!(version_router.version_request.is_terminated());
+        assert!(version_router.version_request_channels.is_empty());
     }
 }
