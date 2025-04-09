@@ -45,7 +45,6 @@ fun MullvadApp() {
         onDispose { navHostController.removeOnDestinationChangedListener(mullvadAppViewModel) }
     }
 
-    // This could also be your top-level NavHost as this provides an AnimatedContentScope
     SharedTransitionLayout {
         CompositionLocalProvider(LocalSharedTransitionScope provides this@SharedTransitionLayout) {
             DestinationsNavHost(
