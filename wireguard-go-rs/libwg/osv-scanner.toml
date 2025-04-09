@@ -58,3 +58,9 @@ reason = "wireguard-go does not use the affected code"
 id = "CVE-2025-22870" # GO-2025-3503
 ignoreUntil = 2025-07-01
 reason = "wireguard-go does not use x/net/proxy nor x/net/http/httpproxy"
+
+# Request smuggling due to acceptance of invalid chunked data in net/http
+[[IgnoredVulns]]
+id = "CVE-2025-22871" # GO-2025-3563
+ignoreUntil = 2025-07-08
+reason = "wireguard-go does not use net/http"
