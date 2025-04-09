@@ -654,6 +654,11 @@ msgid "What’s new"
 msgstr ""
 
 #. Status text displayed below a progress bar when the update is being downloaded
+msgctxt "app-upgrade-view"
+msgid "A few seconds remaining..."
+msgstr ""
+
+#. Status text displayed below a progress bar when the update is being downloaded
 #. Available placeholders:
 #. %(minutes)s - Will be replaced with remaining minutes until download is complete
 msgctxt "app-upgrade-view"
@@ -690,7 +695,7 @@ msgstr ""
 
 #. Button text to download and install an update
 msgctxt "app-upgrade-view"
-msgid "Download and install"
+msgid "Download & install"
 msgstr ""
 
 #. Status text displayed below a progress bar when the download of an update is complete
@@ -714,9 +719,24 @@ msgctxt "app-upgrade-view"
 msgid "Downloading..."
 msgstr ""
 
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Having problems? Try downloading the update from our website. If this problem persists, please contact support."
+msgstr ""
+
 #. Button text to install an update
 msgctxt "app-upgrade-view"
 msgid "Install update"
+msgstr ""
+
+#. Label displayed when an error occurred within the installer
+msgctxt "app-upgrade-view"
+msgid "Installer encountered an error. Try again. If this problem persists, please contact support."
+msgstr ""
+
+#. Button text to manually download the update
+msgctxt "app-upgrade-view"
+msgid "Manual download"
 msgstr ""
 
 #. Text displayed when there are no updates for this platform in the next app version
@@ -729,9 +749,9 @@ msgctxt "app-upgrade-view"
 msgid "Report a problem"
 msgstr ""
 
-#. Button text to retry download of an update
+#. Button text to retry updating
 msgctxt "app-upgrade-view"
-msgid "Retry download"
+msgid "Retry"
 msgstr ""
 
 #. Status text displayed below a progress bar when the download of an update is starting
