@@ -58,10 +58,9 @@ export default class AppUpgrade {
   }
 
   private async executeInstaller(verifiedInstallerPath: string) {
-    try {
-      await shell.openPath(verifiedInstallerPath);
-    } catch {
-      throw new Error(`Could not start installer at path: ${verifiedInstallerPath}`);
+    const errorMessage = await shell.openPath(verifiedInstallerPath);
+    if (errorMessage) {
+      throw new Error(`An error occurred after starting the installer: ${errorMessage}`);
     }
   }
 
