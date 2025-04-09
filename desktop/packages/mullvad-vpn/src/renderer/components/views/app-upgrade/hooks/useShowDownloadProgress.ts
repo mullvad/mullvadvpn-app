@@ -17,7 +17,11 @@ export const useShowDownloadProgress = () => {
   }
 
   if (hasAppUpgradeError) {
-    if (appUpgradeError === 'VERIFICATION_FAILED') {
+    if (
+      appUpgradeError === 'START_INSTALLER_AUTOMATIC_FAILED' ||
+      appUpgradeError === 'START_INSTALLER_FAILED' ||
+      appUpgradeError === 'VERIFICATION_FAILED'
+    ) {
       return true;
     }
 
