@@ -663,6 +663,10 @@ msgid "Connection details"
 msgstr ""
 
 msgctxt "connect-view"
+msgid "DAITA: Multihop"
+msgstr ""
+
+msgctxt "connect-view"
 msgid "Disconnect"
 msgstr ""
 

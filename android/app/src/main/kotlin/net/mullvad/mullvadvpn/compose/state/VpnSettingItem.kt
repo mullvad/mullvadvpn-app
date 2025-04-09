@@ -122,8 +122,6 @@ sealed interface VpnSettingItem {
     data class DeviceIpVersionItem(val constraint: Constraint<IpVersion>, val selected: Boolean) :
         VpnSettingItem
 
-    data object DeviceIpVersionInfo : VpnSettingItem
-
     data class Mtu(val mtu: net.mullvad.mullvadvpn.lib.model.Mtu?) : VpnSettingItem
 
     data object MtuInfo : VpnSettingItem

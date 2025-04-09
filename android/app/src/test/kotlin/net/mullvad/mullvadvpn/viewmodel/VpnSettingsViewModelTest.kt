@@ -247,9 +247,7 @@ class VpnSettingsViewModelTest {
 
                 val content = awaitItem()
                 assertInstanceOf<VpnSettingsUiState.Content>(content)
-                assertTrue(
-                    content.settings.any { it is VpnSettingItem.AutoConnectAndLockdownMode }
-                )
+                assertTrue(content.settings.any { it is VpnSettingItem.AutoConnectAndLockdownMode })
             }
         }
 
