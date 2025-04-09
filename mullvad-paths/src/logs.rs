@@ -1,4 +1,6 @@
-use crate::{windows, Result};
+#[cfg(target_os = "windows")]
+use crate::windows;
+use crate::Result;
 use std::{env, path::PathBuf};
 
 /// Creates and returns the logging directory pointed to by `MULLVAD_LOG_DIR`, or the default
