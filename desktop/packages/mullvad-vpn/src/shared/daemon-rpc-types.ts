@@ -63,6 +63,8 @@ export enum TunnelParameterError {
   noMatchingBridgeRelay,
   noWireguardKey,
   customTunnelHostResolutionError,
+  ipv4Unavailable,
+  ipv6Unavailable,
 }
 
 export type ErrorStateDetails =

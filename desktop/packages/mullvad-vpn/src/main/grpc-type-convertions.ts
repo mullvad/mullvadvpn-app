@@ -320,6 +320,10 @@ function convertFromParameterError(
       return TunnelParameterError.noWireguardKey;
     case grpcTypes.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR:
       return TunnelParameterError.customTunnelHostResolutionError;
+    case grpcTypes.ErrorState.GenerationError.NETWORK_IPV4_UNAVAILABLE:
+      return TunnelParameterError.ipv4Unavailable;
+    case grpcTypes.ErrorState.GenerationError.NETWORK_IPV6_UNAVAILABLE:
+      return TunnelParameterError.ipv6Unavailable;
   }
 }
 
