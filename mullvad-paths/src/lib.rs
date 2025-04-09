@@ -46,6 +46,23 @@ pub enum Error {
     NoDataDir,
 }
 
+#[derive(Clone, Copy)]
+pub struct UserPermissions {
+    pub read: bool,
+    pub write: bool,
+    pub execute: bool,
+}
+
+impl UserPermissions {
+    pub fn read_only() -> Self {
+        UserPermissions {
+            read: true,
+            write: false,
+            execute: false,
+        }
+    }
+}
+
 #[cfg(unix)]
 use unix::create_dir;
 

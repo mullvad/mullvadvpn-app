@@ -4,14 +4,14 @@ use std::{env, path::PathBuf};
 /// Creates and returns the logging directory pointed to by `MULLVAD_LOG_DIR`, or the default
 /// one if that variable is unset.
 pub fn log_dir() -> Result<PathBuf> {
-    #[cfg(unix)]
-    {
-        crate::create_dir(get_log_dir()?, crate::unix::Permissions::ReadExecOnly)
-    }
-    #[cfg(target_os = "windows")]
-    {
-        crate::create_dir(get_log_dir()?, true)
-    }
+    let permissions = Some(crate::UserPermissions {
+        read: true,
+        write: false,
+        // Unix: Make directory contents readable
+        execute: cfg!(unix),
+    });
+
+    crate::create_dir(get_log_dir()?, permissions)
 }
 
 /// Get the logging directory, but don't try to create it.

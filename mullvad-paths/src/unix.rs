@@ -4,35 +4,29 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{Error, Result};
+use crate::{Error, Result, UserPermissions};
 
 pub const PRODUCT_NAME: &str = "mullvad-vpn";
 
-#[derive(Clone, Copy, PartialEq)]
-pub enum Permissions {
-    /// Do not set any particular permissions. They will be inherited instead.
-    Any,
-    /// Only root should have write access. Other users will have
-    /// read and execute permissions (0o755).
-    ReadExecOnly,
-}
+impl UserPermissions {
+    fn fs_permissions(self) -> fs::Permissions {
+        const OWNER_BITS: u32 = 0o700;
 
-impl Permissions {
-    fn fs_permissions(self) -> Option<fs::Permissions> {
-        match self {
-            Permissions::Any => None,
-            Permissions::ReadExecOnly => Some(std::os::unix::fs::PermissionsExt::from_mode(0o755)),
-        }
+        let rbits = if self.read { 0o044 } else { 0 };
+        let wbits = if self.write { 0o022 } else { 0 };
+        let ebits = if self.execute { 0o011 } else { 0 };
+
+        std::os::unix::fs::PermissionsExt::from_mode(OWNER_BITS | rbits | wbits | ebits)
     }
 }
 
 /// Create a directory at `dir`, setting the permissions given by `permissions`, unless it exists.
 /// If the directory already exists, but the permissions are not at least as strict as expected,
 /// then it will be deleted and recreated.
-pub fn create_dir(dir: PathBuf, permissions: Permissions) -> Result<PathBuf> {
+pub fn create_dir(dir: PathBuf, permissions: Option<UserPermissions>) -> Result<PathBuf> {
     let mut dir_builder = fs::DirBuilder::new();
-    let fs_perms = permissions.fs_permissions();
-    if let Some(fs_perms) = fs_perms.as_ref() {
+    let fs_perms = permissions.as_ref().map(|perms| perms.fs_permissions());
+    if let Some(fs_perms) = &fs_perms {
         dir_builder.mode(fs_perms.mode());
     }
     match dir_builder.create(&dir) {

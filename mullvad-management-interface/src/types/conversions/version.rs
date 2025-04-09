@@ -121,12 +121,15 @@ impl TryFrom<proto::AppUpgradeEvent> for AppUpgradeEvent {
 impl From<AppUpgradeDownloadProgress> for proto::AppUpgradeDownloadProgress {
     fn from(value: AppUpgradeDownloadProgress) -> Self {
         // From the docs: Converts a std::time::Duration to a Duration, failing if the duration is too large.
-        let time_left = prost_types::Duration::try_from(value.time_left)
-            .expect("Failed to convert duration to protobuf");
+        let time_left = value
+            .time_left
+            .map(prost_types::Duration::try_from)
+            .transpose()
+            .expect("Failed to convert duration to protobuf, duration is too large");
         proto::AppUpgradeDownloadProgress {
             server: value.server,
             progress: value.progress,
-            time_left: Some(time_left),
+            time_left,
         }
     }
 }
@@ -135,14 +138,13 @@ impl TryFrom<proto::AppUpgradeDownloadProgress> for AppUpgradeDownloadProgress {
     type Error = FromProtobufTypeError;
 
     fn try_from(value: proto::AppUpgradeDownloadProgress) -> Result<Self, Self::Error> {
-        let Some(time_left) = value.time_left else {
-            return Err(FromProtobufTypeError::InvalidArgument(
-                "Non-existent AppUpgradeDownloadProgress::time_left",
-            ));
-        };
         // From the docs: Converts a Duration to a std::time::Duration, failing if the duration is negative.
-        let time_left = std::time::Duration::try_from(time_left)
+        let time_left = value
+            .time_left
+            .map(std::time::Duration::try_from)
+            .transpose()
             .expect("Failed to convert duration to std::time::Duration");
+
         let progress = AppUpgradeDownloadProgress {
             server: value.server,
             progress: value.progress,
