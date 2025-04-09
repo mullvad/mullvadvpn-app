@@ -15,7 +15,7 @@ export const useAppUpgradeDownloadProgressValue = () => {
     return getValueError();
   }
 
-  if (hasAppUpgradeVerifiedInstallerPath) {
+  if (hasAppUpgradeVerifiedInstallerPath && !appUpgradeEventType) {
     return DOWNLOAD_COMPLETE_VALUE;
   }
 
