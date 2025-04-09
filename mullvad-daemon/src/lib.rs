@@ -405,9 +405,9 @@ pub enum DaemonCommand {
     /// Prompt the daemon to start an app version upgrade.
     ///
     /// If an upgrade had previously been started but not completed the daemon should continue the upgrade process at the appropriate step. The client need not be notified about this detail.
-    AppUpgrade(ResponseTx<(), Error>),
+    AppUpgrade(ResponseTx<(), version::Error>),
     /// Prompt the daemon to abort the current upgrade.
-    AppUpgradeAbort(ResponseTx<(), Error>),
+    AppUpgradeAbort(ResponseTx<(), version::Error>),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -662,9 +662,13 @@ impl Daemon {
         macos::bump_filehandle_limit();
 
         let command_sender = daemon_command_channel.sender();
-        let management_interface =
-            ManagementInterfaceServer::start(command_sender, config.rpc_socket_path)
-                .map_err(Error::ManagementInterfaceError)?;
+        let app_upgrade_broadcast = tokio::sync::broadcast::channel(128).0; // TODO: look over bufsize
+        let management_interface = ManagementInterfaceServer::start(
+            command_sender,
+            config.rpc_socket_path,
+            app_upgrade_broadcast.clone(),
+        )
+        .map_err(Error::ManagementInterfaceError)?;
 
         let (internal_event_tx, internal_event_rx) = daemon_command_channel.destructure();
 
@@ -905,6 +909,7 @@ impl Daemon {
             config.cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
+            app_upgrade_broadcast,
         );
 
         // Attempt to download a fresh relay list
@@ -1481,8 +1486,8 @@ impl Daemon {
             GetFeatureIndicators(tx) => self.on_get_feature_indicators(tx),
             DisableRelay { relay, tx } => self.on_toggle_relay(relay, false, tx),
             EnableRelay { relay, tx } => self.on_toggle_relay(relay, true, tx),
-            AppUpgrade(tx) => self.on_app_upgrade(tx),
-            AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx),
+            AppUpgrade(tx) => self.on_app_upgrade(tx).await,
+            AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx).await,
         }
     }
 
@@ -3226,15 +3231,13 @@ impl Daemon {
         Self::oneshot_send(tx, (), "on_toggle_relay response");
     }
 
-    fn on_app_upgrade(&self, tx: ResponseTx<(), Error>) {
-        // TODO: Call the Downloader
-        let result = Ok(());
+    async fn on_app_upgrade(&self, tx: ResponseTx<(), version::Error>) {
+        let result = self.version_handle.update_application().await;
         Self::oneshot_send(tx, result, "on_app_upgrade response");
     }
 
-    fn on_app_upgrade_abort(&self, tx: ResponseTx<(), Error>) {
-        // TODO: Abort the Downloader
-        let result = Ok(());
+    async fn on_app_upgrade_abort(&self, tx: ResponseTx<(), version::Error>) {
+        let result = self.version_handle.cancel_update().await;
         Self::oneshot_send(tx, result, "on_app_upgrade_abort response");
     }
 

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{fmt::Display, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 
@@ -18,12 +18,29 @@ pub struct AppVersionInfo {
     pub suggested_upgrade: Option<SuggestedUpgrade>,
 }
 
+impl Display for AppVersionInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(suggested_upgrade) = &self.suggested_upgrade {
+            writeln!(f, "Suggested upgrade: {}", suggested_upgrade.version)?;
+            if let Some(path) = &suggested_upgrade.verified_installer_path {
+                writeln!(f, "verified installer path: '{}'", path.display())?;
+            }
+        }
+        if self.current_version_supported {
+            write!(f, "Current version supported")?;
+        } else {
+            write!(f, "Current version not supported")?;
+        }
+        Ok(())
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct SuggestedUpgrade {
     /// Version available for update
     pub version: mullvad_version::Version,
     /// Changelog
-    pub changelog: Option<String>,
+    pub changelog: String,
     /// Path to the available installer, iff it has been verified
     pub verified_installer_path: Option<PathBuf>,
 }
@@ -32,7 +49,7 @@ pub struct SuggestedUpgrade {
 pub struct AppUpgradeDownloadProgress {
     pub server: String,
     pub progress: u32,
-    pub time_left: std::time::Duration,
+    pub time_left: Option<std::time::Duration>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

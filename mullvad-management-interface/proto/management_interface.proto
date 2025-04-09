@@ -153,7 +153,7 @@ message AppUpgradeDownloadStarting {}
 message AppUpgradeDownloadProgress {
   string server = 1;
   uint32 progress = 2;
-  google.protobuf.Duration time_left = 3;
+  optional google.protobuf.Duration time_left = 3;
 }
 message AppUpgradeAborted {}
 message AppUpgradeVerifyingInstaller {}
@@ -663,7 +663,7 @@ message ExcludedProcessList { repeated ExcludedProcess processes = 1; }
 
 message SuggestedUpgrade {
   string version = 1;
-  optional string changelog = 2;
+  string changelog = 2;
   optional string verified_installer_path = 3;
 }
 
