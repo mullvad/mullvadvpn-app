@@ -142,6 +142,21 @@ class ApplicationMain {
 
     this.registerIpcListeners();
 
+    const {
+      default: installer,
+      REACT_DEVELOPER_TOOLS,
+      REDUX_DEVTOOLS,
+    } = await import('electron-devtools-installer');
+    const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
+    const options = { forceDownload, loadExtensionOptions: { allowFileAccess: true } };
+    try {
+      await installer(REACT_DEVELOPER_TOOLS, options);
+      await installer(REDUX_DEVTOOLS, options);
+    } catch (e) {
+      const error = e as Error;
+      console.error(`Error installing extension: ${error.message}`);
+    }
+
     await window.loadFile(path.join(__dirname, 'index.html'));
 
     if (DEBUG) {

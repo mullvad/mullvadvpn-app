@@ -70,7 +70,7 @@ function composeEnhancers(): StoreEnhancer {
     ...userInterfaceActions,
   };
 
-  if (window.env.development) {
+  if (window.env.development || window.env.e2e) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const devtoolsCompose = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__?.({
       actionCreators,
