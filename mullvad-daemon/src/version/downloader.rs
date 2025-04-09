@@ -176,13 +176,15 @@ fn estimate_time_left(
     fraction_complete: f32,
     complete_frac_at_start: f32,
 ) -> Option<Duration> {
-    let completion_progress = fraction_complete - complete_frac_at_start;
-    if completion_progress <= 0.0 {
+    let completed_frac_since_start = fraction_complete - complete_frac_at_start;
+    // Don't estimate time left if the progress is less than 1%, to avoid division numerical instability
+    if completed_frac_since_start <= 0.01 {
         return None;
     }
+    let remaining_frac = 1.0 - fraction_complete;
 
     let elapsed = start_time.elapsed();
-    Some(elapsed.mul_f32((1.0 - completion_progress) / completion_progress))
+    Some(elapsed.mul_f32(remaining_frac / completed_frac_since_start))
 }
 
 /// Select a mirror to download from
