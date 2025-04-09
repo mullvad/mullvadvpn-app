@@ -131,8 +131,11 @@ class VpnSettingsViewModel(
 
     fun onToggleCustomDns(enable: Boolean) {
         viewModelScope.launch {
-            // TODO show error?
-            val settings = settingsRepository.settingsUpdates.value ?: return@launch
+            val settings = settingsRepository.settingsUpdates.value
+            if (settings == null) {
+                showGenericErrorToast()
+                return@launch
+            }
 
             val hasDnsEntries = settings.addresses().isNotEmpty()
 
