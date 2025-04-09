@@ -117,6 +117,7 @@ struct ProgressUpdater {
     event_tx: broadcast::Sender<AppUpgradeEvent>,
     complete_frac: f32,
     start_time: Instant,
+    complete_frac_at_start: Option<f32>,
 }
 
 impl ProgressUpdater {
@@ -126,6 +127,7 @@ impl ProgressUpdater {
             event_tx,
             complete_frac: 0.,
             start_time: Instant::now(),
+            complete_frac_at_start: None,
         }
     }
 }
@@ -139,6 +141,7 @@ impl mullvad_update::fetch::ProgressUpdater for ProgressUpdater {
         if (self.complete_frac - fraction_complete).abs() < 0.01 {
             return;
         }
+        let complete_frac_at_start = self.complete_frac_at_start.get_or_insert(fraction_complete);
 
         self.complete_frac = fraction_complete;
 
@@ -146,7 +149,11 @@ impl mullvad_update::fetch::ProgressUpdater for ProgressUpdater {
             AppUpgradeDownloadProgress {
                 server: self.server.clone(),
                 progress: (fraction_complete * 100.0) as u32,
-                time_left: estimate_time_left(self.start_time, fraction_complete),
+                time_left: estimate_time_left(
+                    self.start_time,
+                    fraction_complete,
+                    *complete_frac_at_start,
+                ),
             },
         ));
     }
@@ -165,13 +172,20 @@ impl mullvad_update::fetch::ProgressUpdater for ProgressUpdater {
     }
 }
 
-fn estimate_time_left(start_time: Instant, fraction_complete: f32) -> Duration {
-    if fraction_complete == 0.0 {
-        return Duration::ZERO;
+fn estimate_time_left(
+    start_time: Instant,
+    fraction_complete: f32,
+    complete_frac_at_start: f32,
+) -> Option<Duration> {
+    let completed_frac_since_start = fraction_complete - complete_frac_at_start;
+    // Don't estimate time left if the progress is less than 1%, to avoid division numerical instability
+    if completed_frac_since_start <= 0.01 {
+        return None;
     }
+    let remaining_frac = 1.0 - fraction_complete;
 
     let elapsed = start_time.elapsed();
-    elapsed.mul_f32((1.0 - fraction_complete) / fraction_complete)
+    Some(elapsed.mul_f32(remaining_frac / completed_frac_since_start))
 }
 
 /// Select a mirror to download from
