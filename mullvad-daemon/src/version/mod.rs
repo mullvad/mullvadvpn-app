@@ -38,9 +38,6 @@ pub enum Error {
 
     #[error("Version cache update was aborted")]
     UpdateAborted,
-
-    #[cfg(update)]
-    Update(#[transparent] downloader::Error),
 }
 
 /// Contains the date of the git commit this was built from
