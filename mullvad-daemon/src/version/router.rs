@@ -1,11 +1,7 @@
-use std::future::Future;
 use std::path::PathBuf;
-use std::pin::Pin;
 
 use futures::channel::{mpsc, oneshot};
-use futures::future::{Fuse, FusedFuture};
 use futures::stream::StreamExt;
-use futures::FutureExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
 use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
 use mullvad_update::version::VersionInfo;
@@ -15,7 +11,7 @@ use crate::management_interface::AppUpgradeBroadcast;
 use crate::DaemonEventSender;
 
 use super::{
-    check::{self, VersionCache, VersionUpdater},
+    check::{VersionCache, VersionUpdater},
     Error,
 };
 
@@ -78,7 +74,7 @@ struct VersionRouter<S = DaemonEventSender<AppVersionInfo>> {
     beta_program: bool,
     version_event_sender: S,
     /// Version updater
-    version_check: check::VersionUpdaterHandle,
+    refresh_version_check_tx: mpsc::UnboundedSender<()>,
     /// Channel used to receive updates from `version_check`
     new_version_rx: mpsc::UnboundedReceiver<VersionCache>,
     /// Channels that receive responses to `get_latest_version`
@@ -131,6 +127,11 @@ enum State {
     },
 }
 
+struct AppVersionInfoEvent {
+    app_version_info: AppVersionInfo,
+    is_new: bool,
+}
+
 impl std::fmt::Display for State {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -161,17 +162,6 @@ impl State {
             }
         }
     }
-
-    fn get_verified_installer_path(&self) -> Option<&PathBuf> {
-        match self {
-            #[cfg(update)]
-            State::Downloaded {
-                verified_installer_path,
-                ..
-            } => Some(verified_installer_path),
-            _ => None,
-        }
-    }
 }
 
 #[cfg_attr(not(update), allow(unused_variables))]
@@ -187,19 +177,26 @@ pub(crate) fn spawn_version_router(
 
     tokio::spawn(async move {
         let (new_version_tx, new_version_rx) = mpsc::unbounded();
-        let version_check =
-            VersionUpdater::spawn(api_handle, availability_handle, cache_dir, new_version_tx).await;
+        let (refresh_version_check_tx, refresh_version_check_rx) = mpsc::unbounded();
+        VersionUpdater::spawn(
+            api_handle,
+            availability_handle,
+            cache_dir,
+            new_version_tx,
+            refresh_version_check_rx,
+        )
+        .await;
 
         VersionRouter {
             daemon_rx: rx,
             state: State::NoVersion,
             beta_program,
-            version_check,
             version_event_sender,
             new_version_rx,
             version_request_channels: vec![],
             #[cfg(update)]
             app_upgrade_broadcast,
+            refresh_version_check_tx,
         }
         .run()
         .await;
@@ -213,7 +210,13 @@ impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
             tokio::select! {
                 // Received version event from `check`
                 Some(new_version) = self.new_version_rx.next() => {
-                    self.on_new_version(new_version);
+                    let AppVersionInfoEvent { app_version_info, is_new }= self.on_new_version(new_version);
+                    self.notify_version_requesters(app_version_info.clone());
+                    if is_new {
+                        // Notify the daemon about new version
+                        let _ = self.version_event_sender.send(app_version_info);
+                    }
+
                 }
                 res = wait_for_update(&mut self.state) => {
                     // If the download was successful, we send the new version
@@ -257,27 +260,30 @@ impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
     ///
     /// If the router is in the process of upgrading, it will not propagate versions, but only
     /// remember it for when it transitions back into the "idle" (version check) state.
-    fn on_new_version(&mut self, version_cache: VersionCache) {
+    fn on_new_version(&mut self, version_cache: VersionCache) -> AppVersionInfoEvent {
         match &mut self.state {
             State::NoVersion => {
                 // Receive first version
                 let app_version_info = to_app_version_info(&version_cache, self.beta_program, None);
-                let _ = self.version_event_sender.send(app_version_info.clone());
                 self.state = State::HasVersion { version_cache };
+                AppVersionInfoEvent {
+                    app_version_info,
+                    is_new: true,
+                }
             }
             // Already have version info, just update it
             State::HasVersion {
                 version_cache: prev_cache,
             } => {
-                if let Some(version_info) = updated_app_version_info_on_new_version_cache(
-                    prev_cache,
-                    &version_cache,
-                    self.beta_program,
-                ) {
-                    // New version available
-                    let _ = self.version_event_sender.send(version_info.clone());
-                }
+                let prev_app_version = to_app_version_info(prev_cache, self.beta_program, None);
+                let new_app_version = to_app_version_info(&version_cache, self.beta_program, None);
+
                 self.state = State::HasVersion { version_cache };
+
+                AppVersionInfoEvent {
+                    is_new: new_app_version != prev_app_version,
+                    app_version_info: new_app_version,
+                }
             }
             #[cfg(update)]
             State::Downloaded {
@@ -288,35 +294,26 @@ impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
                 version_cache: ref mut prev_cache,
                 ..
             } => {
-                // If version changed, cancel download
-                if let Some(version_info) = updated_app_version_info_on_new_version_cache(
-                    prev_cache,
-                    &version_cache,
-                    self.beta_program,
-                ) {
-                    log::warn!("Received new version while upgrading: {version_info:?}, aborting");
+                let prev_app_version = to_app_version_info(prev_cache, self.beta_program, None);
+                let new_app_version = to_app_version_info(&version_cache, self.beta_program, None);
 
-                    let _ = self.version_event_sender.send(version_info.clone());
+                let is_new = new_app_version != prev_app_version;
+                // If version changed, cancel download by switching state
+                if is_new {
+                    log::warn!("Received new version while upgrading: {new_app_version:?}");
                     self.state = State::HasVersion { version_cache };
                 } else {
                     *prev_cache = version_cache;
+                };
+                AppVersionInfoEvent {
+                    app_version_info: new_app_version,
+                    is_new,
                 }
             }
-        }
-
-        // Notify version requesters
-        if let Some(cache) = self.state.get_version_cache() {
-            self.notify_version_requesters(to_app_version_info(
-                cache,
-                self.beta_program,
-                self.state.get_verified_installer_path().cloned(),
-            ));
         }
     }
 
     fn notify_version_requesters(&mut self, new_app_version_info: AppVersionInfo) {
-        // Cancel update notifications
-        self.version_request = Fuse::terminated();
         // Notify all requesters
         for tx in self.version_request_channels.drain(..) {
             let _ = tx.send(Ok(new_app_version_info.clone()));
@@ -329,14 +326,22 @@ impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
         }
         let previous_state = self.beta_program;
         self.beta_program = new_state;
-        let Some(new_app_version_info) = self.state.get_version_cache().and_then(|version_cache| {
-            updated_app_version_info_on_new_beta(version_cache, previous_state, new_state)
-        }) else {
-            return;
+        let new_app_version_info = match self.state.get_version_cache() {
+            Some(version_cache) => {
+                let prev_app_version = to_app_version_info(version_cache, previous_state, None);
+                let new_app_version = to_app_version_info(version_cache, new_state, None);
+
+                // Update version info
+                if new_app_version != prev_app_version {
+                    new_app_version
+                } else {
+                    return;
+                }
+            }
+            None => return,
         };
 
         // Always cancel download if the suggested upgrade changes
-
         let version_cache = match mem::replace(&mut self.state, State::NoVersion) {
             #[cfg(update)]
             State::Downloaded { version_cache, .. } | State::Downloading { version_cache, .. } => {
@@ -360,13 +365,13 @@ impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
         result_tx: oneshot::Sender<std::result::Result<AppVersionInfo, Error>>,
     ) {
         // Start a version request unless already in progress
-        if let Err(e) = self.version_check.get_version_info() {
+        if let Err(_e) = self.refresh_version_check_tx.unbounded_send(()) {
             result_tx
-                .send(Err(e))
+                .send(Err(Error::VersionRouterClosed))
                 .unwrap_or_else(|e| log::warn!("Failed to send version request result: {e:?}"));
         } else {
-        // Append to response channels
-        self.version_request_channels.push(result_tx);
+            // Append to response channels
+            self.version_request_channels.push(result_tx);
         }
     }
 
@@ -425,38 +430,6 @@ impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
             self.state,
             State::Downloading { .. } | State::NoVersion
         ));
-    }
-}
-
-fn updated_app_version_info_on_new_version_cache(
-    version_cache: &VersionCache,
-    new_version_cache: &VersionCache,
-    beta_program: bool,
-) -> Option<AppVersionInfo> {
-    let prev_app_version = to_app_version_info(version_cache, beta_program, None);
-    let new_app_version = to_app_version_info(new_version_cache, beta_program, None);
-
-    // Update version info
-    if new_app_version != prev_app_version {
-        Some(new_app_version)
-    } else {
-        None
-    }
-}
-
-fn updated_app_version_info_on_new_beta(
-    version_cache: &VersionCache,
-    previous_beta_state: bool,
-    new_beta_state: bool,
-) -> Option<AppVersionInfo> {
-    let prev_app_version = to_app_version_info(version_cache, previous_beta_state, None);
-    let new_app_version = to_app_version_info(version_cache, new_beta_state, None);
-
-    // Update version info
-    if new_app_version != prev_app_version {
-        Some(new_app_version)
-    } else {
-        None
     }
 }
 
@@ -551,15 +524,17 @@ fn recommended_version_upgrade(
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, update))]
 mod test {
     use futures::channel::mpsc::unbounded;
 
     use super::*;
 
     struct VersionRouterChannels {
-        version_event_sender: futures::channel::mpsc::UnboundedSender<AppVersionInfo>,
         daemon_tx: futures::channel::mpsc::UnboundedSender<Message>,
+        new_version_tx: futures::channel::mpsc::UnboundedSender<VersionCache>,
+        refresh_version_check_rx: futures::channel::mpsc::UnboundedReceiver<()>,
+        version_event_receiver: futures::channel::mpsc::UnboundedReceiver<AppVersionInfo>,
     }
 
     fn make_version_router() -> (
@@ -569,20 +544,24 @@ mod test {
         let (version_event_sender, version_event_receiver) = unbounded();
         let (daemon_tx, daemon_rx) = unbounded();
         let (app_upgrade_broadcast, _) = tokio::sync::broadcast::channel(1);
+        let (refresh_version_check_tx, refresh_version_check_rx) = unbounded();
+        let (new_version_tx, new_version_rx) = unbounded();
         (
             VersionRouter {
                 daemon_rx,
                 state: State::NoVersion,
                 beta_program: false,
                 version_event_sender,
-                version_check: todo!(),
-                new_version_rx: todo!(),
+                new_version_rx,
                 version_request_channels: vec![],
                 app_upgrade_broadcast,
+                refresh_version_check_tx,
             },
             VersionRouterChannels {
-                version_event_sender,
                 daemon_tx,
+                new_version_tx,
+                refresh_version_check_rx,
+                version_event_receiver,
             },
         )
     }

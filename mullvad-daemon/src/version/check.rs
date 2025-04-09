@@ -67,36 +67,16 @@ struct VersionUpdaterInner {
     get_version_info_responders: Vec<oneshot::Sender<VersionCache>>,
 }
 
-#[derive(Clone)]
-pub(crate) struct VersionUpdaterHandle {
-    refresh_tx: mpsc::UnboundedSender<()>,
-}
-
-impl VersionUpdaterHandle {
-    /// Get the latest cached [AppVersionInfo].
-    ///
-    /// If the cache is stale or missing, this will immediately query the API for the latest
-    /// version. This may take a few seconds.
-    pub(super) fn get_version_info(&self) -> Result<(), Error> {
-        if self.refresh_tx.unbounded_send(()).is_err() {
-            Err(Error::VersionUpdaterDown)
-        } else {
-            Ok(())
-        }
-    }
-}
-
 impl VersionUpdater {
     pub(super) async fn spawn(
         mut api_handle: MullvadRestHandle,
         availability_handle: ApiAvailability,
         cache_dir: PathBuf,
         update_sender: mpsc::UnboundedSender<VersionCache>,
-    ) -> VersionUpdaterHandle {
+        refresh_rx: mpsc::UnboundedReceiver<()>,
+    ) {
         // load the last known AppVersionInfo from cache
         let last_app_version_info = load_cache(&cache_dir).await;
-
-        let (tx, rx) = mpsc::unbounded();
 
         api_handle.factory = api_handle.factory.default_timeout(DOWNLOAD_TIMEOUT);
         let version_proxy = AppVersionProxy::new(api_handle);
@@ -109,7 +89,7 @@ impl VersionUpdater {
                 get_version_info_responders: vec![],
             }
             .run(
-                rx,
+                refresh_rx,
                 UpdateContext {
                     cache_path,
                     update_sender,
@@ -121,8 +101,6 @@ impl VersionUpdater {
                 },
             ),
         );
-
-        VersionUpdaterHandle { refresh_tx: tx }
     }
 }
 
@@ -687,6 +665,7 @@ mod test {
 
         updated.store(false, Ordering::SeqCst);
 
+        // TODO: Check that the version is actually not updated
         // The next request should trigger an update, even if the version has not changed
         send_version_request(&mut tx).await.unwrap();
         talpid_time::sleep(Duration::from_secs(1)).await;
