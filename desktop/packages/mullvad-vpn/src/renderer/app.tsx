@@ -407,7 +407,17 @@ export default class AppRenderer {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
   public appUpgrade = () => {
-    this.reduxActions.appUpgrade.resetAppUpgradeError();
+    const reduxState = this.reduxStore.getState();
+    const appUpgradeError = reduxState.appUpgrade.error;
+
+    if (appUpgradeError) {
+      this.reduxActions.appUpgrade.resetAppUpgradeError();
+    }
+
+    this.reduxActions.appUpgrade.setAppUpgradeEvent({
+      type: 'APP_UPGRADE_STATUS_DOWNLOAD_INITIATED',
+    });
+
     IpcRendererEventChannel.app.upgrade();
   };
   public appUpgradeAbort = () => IpcRendererEventChannel.app.upgradeAbort();
