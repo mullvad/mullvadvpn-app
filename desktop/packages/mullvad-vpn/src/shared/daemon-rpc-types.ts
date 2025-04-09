@@ -185,7 +185,7 @@ export type DaemonAppUpgradeEventStatusDownloadProgress = {
   type: 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS';
   progress: number;
   server: string;
-  timeLeft: number;
+  timeLeft?: number;
 };
 
 export type DaemonAppUpgradeEventStatusAborted = {
