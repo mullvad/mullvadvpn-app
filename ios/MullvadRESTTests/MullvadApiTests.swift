@@ -43,7 +43,10 @@ class MullvadApiTests: XCTestCase {
 
         let proxy = REST.MullvadAPIProxy(
             transportProvider: APITransportProvider(
-                requestFactory: .init(apiContext: context)
+                requestFactory: .init(
+                    apiContext: context,
+                    encoder: JSONEncoder()
+                )
             ),
             dispatchQueue: .main,
             responseDecoder: REST.Coding.makeJSONDecoder()
