@@ -175,7 +175,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             encryptedDNSTransport: encryptedDNSTransport
         )
 
-        let apiRequestFactory = MullvadApiRequestFactory(apiContext: apiContext)
+        let apiRequestFactory = MullvadApiRequestFactory(
+            apiContext: apiContext,
+            encoder: REST.Coding.makeJSONEncoder()
+        )
         let apiTransportProvider = APITransportProvider(requestFactory: apiRequestFactory)
 
         apiTransportMonitor = APITransportMonitor(
