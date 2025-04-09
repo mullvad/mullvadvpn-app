@@ -729,7 +729,7 @@ export function convertFromAppUpgradeEvent(data: grpcTypes.AppUpgradeEvent): Dae
       downloadProgressData.getTimeLeft(),
     ];
 
-    const timeLeft = timeLeftDuration?.getSeconds() || 0;
+    const timeLeft = timeLeftDuration?.getSeconds();
 
     return { type: 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS', server, progress, timeLeft };
   }
