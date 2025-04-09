@@ -7,17 +7,24 @@
 //
 
 import MullvadSettings
+import PacketTunnelCore
 import SwiftUI
 
 class FeatureIndicatorsViewModel: ChipViewModelProtocol {
     @Published var tunnelSettings: LatestTunnelSettings
     @Published var ipOverrides: [IPOverride]
     @Published var tunnelState: TunnelState
+    @Published var observedState: ObservedState
 
-    init(tunnelSettings: LatestTunnelSettings, ipOverrides: [IPOverride], tunnelState: TunnelState) {
+    init(
+        tunnelSettings: LatestTunnelSettings,
+        ipOverrides: [IPOverride],
+        tunnelStatus: TunnelStatus
+    ) {
         self.tunnelSettings = tunnelSettings
         self.ipOverrides = ipOverrides
-        self.tunnelState = tunnelState
+        self.tunnelState = tunnelStatus.state
+        self.observedState = tunnelStatus.observedState
     }
 
     var chips: [ChipModel] {
@@ -30,7 +37,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
                 DaitaFeature(settings: tunnelSettings),
                 QuantumResistanceFeature(settings: tunnelSettings),
                 MultihopFeature(settings: tunnelSettings, state: tunnelState),
-                ObfuscationFeature(settings: tunnelSettings),
+                ObfuscationFeature(settings: tunnelSettings, state: observedState),
                 DNSFeature(settings: tunnelSettings),
                 IPOverrideFeature(overrides: ipOverrides),
             ]

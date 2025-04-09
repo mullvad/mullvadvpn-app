@@ -70,7 +70,7 @@ struct ConnectionViewComponentPreview<Content: View>: View {
             FeatureIndicatorsViewModel(
                 tunnelSettings: tunnelSettings,
                 ipOverrides: [],
-                tunnelState: connectedTunnelStatus.state
+                tunnelStatus: connectedTunnelStatus
             ),
             viewModel,
             $isExpanded

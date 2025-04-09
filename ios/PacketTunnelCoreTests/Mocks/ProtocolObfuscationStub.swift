@@ -18,8 +18,8 @@ struct ProtocolObfuscationStub: ProtocolObfuscation {
         _ endpoint: MullvadEndpoint,
         settings: LatestTunnelSettings,
         retryAttempts: UInt
-    ) -> MullvadEndpoint {
-        endpoint
+    ) -> ProtocolObfuscationResult {
+        .init(endpoint: endpoint, method: .off)
     }
 
     var transportLayer: TransportLayer? { .udp }

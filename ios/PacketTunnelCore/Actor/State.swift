@@ -9,6 +9,7 @@
 import Foundation
 import MullvadREST
 import MullvadRustRuntime
+import MullvadSettings
 import MullvadTypes
 @preconcurrency import WireGuardKitTypes
 
@@ -153,6 +154,9 @@ extension State {
 
         /// True if Daita is enabled
         public let isDaitaEnabled: Bool
+
+        /// The obfuscation method in force on the connection
+        public let obfuscationMethod: WireGuardObfuscationState
     }
 
     /// Data associated with error state.
