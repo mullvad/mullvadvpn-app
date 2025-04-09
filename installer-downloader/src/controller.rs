@@ -328,7 +328,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
             }
         };
 
-        log::debug!("Download directory: {}", download_dir.display());
+        log::trace!("Download directory: {}", download_dir.display());
 
         // Begin download
         let (tx, rx) = oneshot::channel();
