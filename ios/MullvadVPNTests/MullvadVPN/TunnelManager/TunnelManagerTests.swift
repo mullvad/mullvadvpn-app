@@ -149,7 +149,10 @@ class TunnelManagerTests: XCTestCase {
             relaySelector: relaySelector,
             transportProvider: transportProvider,
             apiTransportProvider: APITransportProvider(
-                requestFactory: MullvadApiRequestFactory(apiContext: REST.apiContext)
+                requestFactory: MullvadApiRequestFactory(
+                    apiContext: REST.apiContext,
+                    encoder: REST.Coding.makeJSONEncoder()
+                )
             )
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
@@ -220,7 +223,8 @@ class TunnelManagerTests: XCTestCase {
             relaySelector: relaySelector,
             transportProvider: transportProvider,
             apiTransportProvider: APITransportProvider(
-                requestFactory: MullvadApiRequestFactory(apiContext: REST.apiContext)
+                requestFactory: MullvadApiRequestFactory(apiContext: REST.apiContext,
+                                                         encoder: REST.Coding.makeJSONEncoder())
             )
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost

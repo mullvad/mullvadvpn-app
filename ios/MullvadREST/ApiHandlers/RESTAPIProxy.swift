@@ -250,6 +250,25 @@ extension REST {
 
             return executor.execute(retryStrategy: retryStrategy, completionHandler: completionHandler)
         }
+
+        /// Not implemented. Use `MullvadAPIProxy` instead.
+        public func initStorekitPayment(
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping ProxyCompletionHandler<String>
+        ) -> any MullvadTypes.Cancellable {
+            AnyCancellable()
+        }
+
+        /// Not implemented. Use `MullvadAPIProxy` instead.
+        public func checkStorekitPayment(
+            accountNumber: String,
+            transaction: MullvadTypes.StorekitTransaction,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping ProxyCompletionHandler<Void>
+        ) -> any MullvadTypes.Cancellable {
+            AnyCancellable()
+        }
     }
 
     // MARK: - Response types
