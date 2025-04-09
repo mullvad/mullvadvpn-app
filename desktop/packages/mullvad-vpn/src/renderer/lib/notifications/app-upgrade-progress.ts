@@ -19,10 +19,7 @@ export class AppUpgradeProgressNotificationProvider implements InAppNotification
 
   public getInAppNotification(): InAppNotification {
     const { appUpgradeDownloadProgressValue, appUpgradeEventType } = this.context;
-    if (
-      appUpgradeEventType === 'APP_UPGRADE_STATUS_DOWNLOAD_STARTED' ||
-      appUpgradeEventType === 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS'
-    ) {
+    if (appUpgradeEventType === 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS') {
       return {
         indicator: 'warning',
         title: sprintf(
