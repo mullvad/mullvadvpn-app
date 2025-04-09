@@ -687,21 +687,6 @@ impl ProblemReportProxy {
         log: &str,
         metadata: &BTreeMap<String, String>,
     ) -> impl Future<Output = Result<(), rest::Error>> {
-        let future = self.porblem_report_response(email, message, log, metadata);
-
-        async move {
-            future.await?;
-            Ok(())
-        }
-    }
-
-    pub fn porblem_report_response(
-        &self,
-        email: &str,
-        message: &str,
-        log: &str,
-        metadata: &BTreeMap<String, String>,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
         #[derive(serde::Serialize)]
         struct ProblemReport {
             address: String,

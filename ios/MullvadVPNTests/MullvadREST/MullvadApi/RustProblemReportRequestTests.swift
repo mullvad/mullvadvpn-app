@@ -8,8 +8,8 @@
 
 import Testing
 
-@testable import MullvadREST
 @testable import MullvadRustRuntime
+@testable import MullvadTypes
 
 struct RustProblemReportRequestTests {
     @Test(
@@ -23,7 +23,7 @@ struct RustProblemReportRequestTests {
         ]
     )
     func testMetadataInsertion(metadata: [String: String]) {
-        let request = REST.ProblemReportRequest(
+        let request = ProblemReportRequest(
             address: "127.0.0.1",
             message: "Test message",
             log: "Log data",
@@ -34,26 +34,22 @@ struct RustProblemReportRequestTests {
         #expect(rustStruct.meta_data != nil, "Metadata should not be for \(metadata)")
     }
 
-    @Test(
-        "Test invalid metadata insertion for SendProblemReport"
-    )
+    @Test("Test invalid metadata insertion for SendProblemReport")
     func testInvalidMetadataHandling() {
-        let invalidMetadata: [[UInt8]] = [
-            [0xC0, 0x80], // Incomplete UTF-8 byte sequence
-            [0x80], // Invalid start byte in UTF-8
-            [0xE0, 0x80], // Malformed UTF-8 multibyte sequence
+        let invalidMetadata: [[UInt8]: [UInt8]] = [
+            [0xC0, 0x80]: [0xC0, 0x80], // // Incomplete UTF-8 byte sequence for key an value
+            [0x7E]: [0x80], // Valid key , but invalid start byte in UTF-8
+            [0xE0, 0x80]: [0xC2, 0x80], // Malformed UTF-8 multibyte sequence for key and valid value
         ]
-
         let metadata = swift_problem_report_meta_data_new()
-
-        for byteArray in invalidMetadata {
-            byteArray.withUnsafeBytes { (keyPtr: UnsafeRawBufferPointer) in
-                byteArray.withUnsafeBytes { (valuePtr: UnsafeRawBufferPointer) in
-
+        for (keyBytes, valueBytes) in invalidMetadata {
+            keyBytes.withUnsafeBytes { (keyPtr: UnsafeRawBufferPointer) in
+                valueBytes.withUnsafeBytes { (valuePtr: UnsafeRawBufferPointer) in
                     guard let keyBaseAddress = keyPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
                           let valueBaseAddress = valuePtr.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
                         return
                     }
+
                     let result = swift_problem_report_meta_data_add(
                         metadata,
                         keyBaseAddress,
@@ -62,7 +58,7 @@ struct RustProblemReportRequestTests {
 
                     #expect(
                         result == false,
-                        "Metadata with invalid UTF-8 should not be added. Key/Value: \(byteArray)"
+                        "Metadata with invalid UTF-8 should not be added. Key/Value: [\(keyBytes): \(valueBytes)]"
                     )
                 }
             }

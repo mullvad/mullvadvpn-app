@@ -73,7 +73,7 @@ final class ProblemReportInteractor: @unchecked Sendable {
             output[entry.key.rawValue] = entry.value
         }
 
-        let request = REST.ProblemReportRequest(
+        let request = ProblemReportRequest(
             address: email,
             message: message,
             log: logString,

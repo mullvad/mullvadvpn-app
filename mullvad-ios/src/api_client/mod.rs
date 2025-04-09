@@ -13,9 +13,9 @@ mod account;
 mod api;
 mod cancellation;
 mod completion;
+mod problem_report;
 mod response;
 mod retry_strategy;
-mod send_problem_report;
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);
