@@ -52,4 +52,21 @@ struct APIProxyStub: APIQuerying {
     ) -> Cancellable {
         AnyCancellable()
     }
+
+    func initStorekitPayment(
+        accountNumber: String,
+        retryStrategy: MullvadREST.REST.RetryStrategy,
+        completionHandler: @escaping MullvadREST.ProxyCompletionHandler<String>
+    ) -> any MullvadTypes.Cancellable {
+        AnyCancellable()
+    }
+
+    func checkStorekitPayment(
+        accountNumber: String,
+        transaction: MullvadTypes.StorekitTransaction,
+        retryStrategy: MullvadREST.REST.RetryStrategy,
+        completionHandler: @escaping MullvadREST.ProxyCompletionHandler<Void>
+    ) -> any MullvadTypes.Cancellable {
+        AnyCancellable()
+    }
 }
