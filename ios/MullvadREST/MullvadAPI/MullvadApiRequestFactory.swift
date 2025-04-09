@@ -11,11 +11,14 @@ import MullvadTypes
 
 public struct MullvadApiRequestFactory: Sendable {
     public let apiContext: MullvadApiContext
+    private let encoder: JSONEncoder
 
-    public init(apiContext: MullvadApiContext) {
+    public init(apiContext: MullvadApiContext, encoder: JSONEncoder) {
         self.apiContext = apiContext
+        self.encoder = encoder
     }
 
+    // swiftlint:disable:next function_body_length
     public func makeRequest(_ request: APIRequest) -> REST.MullvadApiRequestHandler {
         { completion in
             let completionPointer = MullvadApiCompletion { apiResponse in
@@ -111,11 +114,31 @@ public struct MullvadApiRequestFactory: Sendable {
                     accountNumber,
                     request.publicKey.rawValue.map { $0 }
                 ))
+            case let .initStorekitPayment(
+                retryStrategy: retryStrategy,
+                accountNumber: accountNumber
+            ):
+                return MullvadApiCancellable(handle: mullvad_ios_init_storekit_payment(
+                    apiContext.context,
+                    rawCompletionPointer,
+                    retryStrategy.toRustStrategy(),
+                    accountNumber
+                ))
+            case let .checkStorekitPayment(
+                retryStrategy: retryStrategy,
+                accountNumber: accountNumber,
+                transaction: transaction
+            ):
+                let body = try encoder.encode(transaction)
+                return MullvadApiCancellable(handle: mullvad_ios_check_storekit_payment(
+                    body.map { $0 },
+                    UInt(body.count)
+                ))
             }
         }
     }
 }
 
 extension REST {
-    public typealias MullvadApiRequestHandler = (((MullvadApiResponse) throws -> Void)?) -> MullvadApiCancellable
+    public typealias MullvadApiRequestHandler = (((MullvadApiResponse) throws -> Void)?) throws -> MullvadApiCancellable
 }
