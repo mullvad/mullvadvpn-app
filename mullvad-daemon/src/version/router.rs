@@ -73,7 +73,7 @@ impl VersionRouterHandle {
 /// This is done to prevent frontends from confusing which version is currently being installed,
 /// in case new version info is received while the update is in progress.
 pub struct VersionRouter {
-    rx: mpsc::UnboundedReceiver<Message>,
+    daemon_rx: mpsc::UnboundedReceiver<Message>,
     state: State,
     beta_program: bool,
     version_event_sender: DaemonEventSender<AppVersionInfo>,
@@ -195,7 +195,7 @@ impl VersionRouter {
                     .await;
 
             Self {
-                rx,
+                daemon_rx: rx,
                 state: State::NoVersion,
                 beta_program,
                 version_check,
@@ -240,7 +240,7 @@ impl VersionRouter {
                         let _ = self.version_event_sender.send(app_update_info);
                     }
                 },
-                Some(message) = self.rx.next() => self.handle_message(message),
+                Some(message) = self.daemon_rx.next() => self.handle_message(message),
                 else => break,
             }
         }
