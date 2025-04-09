@@ -49,6 +49,9 @@ Line wrap the file at 100 chars.                                              Th
 ## [2025.5] - 2025-03-26
 This release is identical to 2025.5-beta1
 
+#### Linux
+- Fix syntax error in Apparmor profile.
+
 
 ## [2025.5-beta1] - 2025-03-11
 ### Added
