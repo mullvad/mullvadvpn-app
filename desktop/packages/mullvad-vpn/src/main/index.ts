@@ -523,9 +523,16 @@ class ApplicationMain
 
     log.info('Connected to the daemon');
 
-    await this.daemonRpc.verifyDaemonOwnership();
+    // verify daemon ownership
+    try {
+      await this.daemonRpc.verifyDaemonOwnership();
+      log.info('Verified daemon ownership');
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to verify daemon ownership: ${error.message}`);
 
-    log.info('Verified daemon ownership');
+      return;
+    }
 
     this.notificationController.closeNotificationsInCategory(
       SystemNotificationCategory.tunnelState,
