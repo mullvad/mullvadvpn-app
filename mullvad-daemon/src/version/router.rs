@@ -72,11 +72,11 @@ impl VersionRouterHandle {
 /// If an update is in progress, these events are paused until the update is completed or canceled.
 /// This is done to prevent frontends from confusing which version is currently being installed,
 /// in case new version info is received while the update is in progress.
-pub struct VersionRouter {
+struct VersionRouter<S = DaemonEventSender<AppVersionInfo>> {
     daemon_rx: mpsc::UnboundedReceiver<Message>,
     state: State,
     beta_program: bool,
-    version_event_sender: DaemonEventSender<AppVersionInfo>,
+    version_event_sender: S,
     /// Version updater
     version_check: check::VersionUpdaterHandle,
     /// Channel used to receive updates from `version_check`
@@ -176,9 +176,8 @@ impl State {
     }
 }
 
-impl VersionRouter {
     #[cfg_attr(not(update), allow(unused_variables))]
-    pub(crate) fn spawn(
+pub(crate) fn spawn_version_router(
         api_handle: MullvadRestHandle,
         availability_handle: ApiAvailability,
         cache_dir: PathBuf,
@@ -191,10 +190,9 @@ impl VersionRouter {
         tokio::spawn(async move {
             let (new_version_tx, new_version_rx) = mpsc::unbounded();
             let version_check =
-                VersionUpdater::spawn(api_handle, availability_handle, cache_dir, new_version_tx)
-                    .await;
+            VersionUpdater::spawn(api_handle, availability_handle, cache_dir, new_version_tx).await;
 
-            Self {
+        VersionRouter {
                 daemon_rx: rx,
                 state: State::NoVersion,
                 beta_program,
@@ -212,6 +210,7 @@ impl VersionRouter {
         VersionRouterHandle { tx }
     }
 
+impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
     async fn run(mut self) {
         loop {
             tokio::select! {

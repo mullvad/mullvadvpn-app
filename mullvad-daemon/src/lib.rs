@@ -903,7 +903,7 @@ impl Daemon {
             on_relay_list_update,
         );
 
-        let version_handle = version::router::VersionRouter::spawn(
+        let version_handle = version::router::spawn_version_router(
             api_handle.clone(),
             api_handle.availability.clone(),
             config.cache_dir.clone(),
