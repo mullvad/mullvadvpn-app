@@ -81,8 +81,6 @@ struct VersionRouter<S = DaemonEventSender<AppVersionInfo>> {
     version_check: check::VersionUpdaterHandle,
     /// Channel used to receive updates from `version_check`
     new_version_rx: mpsc::UnboundedReceiver<VersionCache>,
-    /// Future that resolves when `get_latest_version` resolves
-    version_request: Fuse<Pin<Box<dyn Future<Output = Result<VersionCache>> + Send>>>,
     /// Channels that receive responses to `get_latest_version`
     version_request_channels: Vec<oneshot::Sender<Result<AppVersionInfo>>>,
 
@@ -199,7 +197,6 @@ pub(crate) fn spawn_version_router(
             version_check,
             version_event_sender,
             new_version_rx,
-            version_request: Fuse::terminated(),
             version_request_channels: vec![],
             #[cfg(update)]
             app_upgrade_broadcast,
@@ -214,21 +211,6 @@ impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
     async fn run(mut self) {
         loop {
             tokio::select! {
-                // Respond to version info requests
-                update_result = &mut self.version_request => {
-                    match update_result {
-                        Ok(new_version) => {
-                            self.on_new_version(new_version.clone());
-                        }
-                        Err(error) => {
-                            log::error!("Failed to retrieve version: {error}");
-                            for tx in self.version_request_channels.drain(..) {
-                                // TODO: More appropriate error? But Error isn't Clone
-                                let _ = tx.send(Err(Error::UpdateAborted));
-                            }
-                        }
-                    }
-                }
                 // Received version event from `check`
                 Some(new_version) = self.new_version_rx.next() => {
                     self.on_new_version(new_version);
@@ -378,14 +360,14 @@ impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
         result_tx: oneshot::Sender<std::result::Result<AppVersionInfo, Error>>,
     ) {
         // Start a version request unless already in progress
-        if self.version_request.is_terminated() {
-            let check = self.version_check.clone();
-            let check_fut: Pin<Box<dyn Future<Output = Result<VersionCache>> + Send>> =
-                Box::pin(async move { check.get_version_info().await });
-            self.version_request = check_fut.fuse();
-        }
+        if let Err(e) = self.version_check.get_version_info() {
+            result_tx
+                .send(Err(e))
+                .unwrap_or_else(|e| log::warn!("Failed to send version request result: {e:?}"));
+        } else {
         // Append to response channels
         self.version_request_channels.push(result_tx);
+        }
     }
 
     #[cfg(update)]
@@ -595,7 +577,6 @@ mod test {
                 version_event_sender,
                 version_check: todo!(),
                 new_version_rx: todo!(),
-                version_request: Fuse::terminated(),
                 version_request_channels: vec![],
                 app_upgrade_broadcast,
             },
@@ -612,7 +593,6 @@ mod test {
         let upgrade_events = version_router.app_upgrade_broadcast.subscribe();
         version_router.update_application();
         assert!(matches!(version_router.state, State::NoVersion));
-        assert!(version_router.version_request.is_terminated());
         assert!(version_router.version_request_channels.is_empty());
     }
 }

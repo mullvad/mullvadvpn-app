@@ -67,11 +67,9 @@ struct VersionUpdaterInner {
     get_version_info_responders: Vec<oneshot::Sender<VersionCache>>,
 }
 
-type VersionUpdateCommand = oneshot::Sender<VersionCache>;
-
 #[derive(Clone)]
 pub(crate) struct VersionUpdaterHandle {
-    tx: mpsc::UnboundedSender<VersionUpdateCommand>,
+    refresh_tx: mpsc::UnboundedSender<()>,
 }
 
 impl VersionUpdaterHandle {
@@ -79,12 +77,11 @@ impl VersionUpdaterHandle {
     ///
     /// If the cache is stale or missing, this will immediately query the API for the latest
     /// version. This may take a few seconds.
-    pub(super) async fn get_version_info(&self) -> Result<VersionCache, Error> {
-        let (done_tx, done_rx) = oneshot::channel();
-        if self.tx.unbounded_send(done_tx).is_err() {
+    pub(super) fn get_version_info(&self) -> Result<(), Error> {
+        if self.refresh_tx.unbounded_send(()).is_err() {
             Err(Error::VersionUpdaterDown)
         } else {
-            done_rx.await.map_err(|_| Error::UpdateAborted)
+            Ok(())
         }
     }
 }
@@ -125,7 +122,7 @@ impl VersionUpdater {
             ),
         );
 
-        VersionUpdaterHandle { tx }
+        VersionUpdaterHandle { refresh_tx: tx }
     }
 }
 
@@ -191,16 +188,15 @@ impl VersionUpdaterInner {
 
     async fn run(
         self,
-        mut rx: mpsc::UnboundedReceiver<VersionUpdateCommand>,
+        mut refresh_rx: mpsc::UnboundedReceiver<()>,
         update: UpdateContext,
         api: ApiContext,
     ) {
         // If this is a dev build, there's no need to pester the API for version checks.
         if *IS_DEV_BUILD {
             log::warn!("Not checking for updates because this is a development build");
-            while let Some(done_tx) = rx.next().await {
+            while let Some(()) = refresh_rx.next().await {
                 log::info!("Version check is disabled in dev builds");
-                let _ = done_tx.send(dev_version_cache());
             }
             return;
         }
@@ -209,13 +205,18 @@ impl VersionUpdaterInner {
         let do_version_check = || do_version_check(api.clone());
         let do_version_check_in_background = || do_version_check_in_background(api.clone());
 
-        self.run_inner(rx, update, do_version_check, do_version_check_in_background)
-            .await
+        self.run_inner(
+            refresh_rx,
+            update,
+            do_version_check,
+            do_version_check_in_background,
+        )
+        .await
     }
 
     async fn run_inner(
         mut self,
-        mut rx: mpsc::UnboundedReceiver<VersionUpdateCommand>,
+        mut refresh_rx: mpsc::UnboundedReceiver<()>,
         update: impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
         do_version_check: impl Fn() -> BoxFuture<'static, Result<VersionCache, Error>>,
         do_version_check_in_background: impl Fn() -> BoxFuture<'static, Result<VersionCache, Error>>,
@@ -225,21 +226,23 @@ impl VersionUpdaterInner {
 
         loop {
             futures::select! {
-                command = rx.next() => match command {
+                command = refresh_rx.next() => match command {
 
-                    Some(done_tx) => {
+                    Some(()) => {
                         match (self.version_is_stale(), self.last_app_version_info()) {
                             (false, Some(version_info)) => {
                                 // if the version_info isn't stale, return it immediately.
-                                let _ = done_tx.send(version_info.clone());
+                                // TODO: don't write to disk if the version is the same
+                                if let Err(err) = update(version_info.clone()).await {
+                                    log::error!("Failed to save version cache to disk: {}", err);
+                                }
                             }
                             _ => {
                                 // otherwise, start a foreground query to get the latest version_info.
                                 if !self.is_running_version_check() {
                                     version_check = do_version_check().fuse();
                                 }
-                                self.get_version_info_responders.retain(|r| !r.is_canceled());
-                                self.get_version_info_responders.push(done_tx);
+
                             }
                         }
                     }
@@ -260,17 +263,11 @@ impl VersionUpdaterInner {
                 response = version_check => {
                     match response {
                         Ok(version_info) => {
-                            // Respond to all pending GetVersionInfo commands
-                            for done_tx in self.get_version_info_responders.drain(..) {
-                                let _ = done_tx.send(version_info.clone());
-                            }
-
                             self.update_version_info(&update, version_info).await;
 
                         }
                         Err(err) => {
                             log::error!("Failed to fetch version info: {err:#}");
-                            self.get_version_info_responders.clear();
                         }
                     }
 
@@ -690,17 +687,17 @@ mod test {
 
         updated.store(false, Ordering::SeqCst);
 
-        // The next request should do nothing
+        // The next request should trigger an update, even if the version has not changed
         send_version_request(&mut tx).await.unwrap();
         talpid_time::sleep(Duration::from_secs(1)).await;
-        assert!(!updated.load(Ordering::SeqCst), "expected cached version");
+        assert!(updated.load(Ordering::SeqCst), "expected cached version");
     }
 
     async fn send_version_request(
-        tx: &mut mpsc::UnboundedSender<VersionUpdateCommand>,
+        tx: &mut mpsc::UnboundedSender<()>,
     ) -> Result<(), futures::channel::mpsc::SendError> {
-        let (done_tx, _done_rx) = oneshot::channel();
-        tx.send(done_tx).await
+        tx.send(()).await?;
+        Ok(())
     }
 
     fn fake_updater(
