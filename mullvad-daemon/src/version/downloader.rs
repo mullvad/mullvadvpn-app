@@ -165,8 +165,7 @@ impl mullvad_update::fetch::ProgressUpdater for ProgressUpdater {
             AppUpgradeDownloadProgress {
                 server: self.server.clone(),
                 progress: 0,
-                // TODO: Check if this is reasonable
-                time_left: Duration::ZERO,
+                time_left: None,
             },
         ));
     }
@@ -176,14 +175,14 @@ fn estimate_time_left(
     start_time: Instant,
     fraction_complete: f32,
     complete_frac_at_start: f32,
-) -> Duration {
+) -> Option<Duration> {
     let completion_progress = fraction_complete - complete_frac_at_start;
     if completion_progress <= 0.0 {
-        return Duration::ZERO;
+        return None;
     }
 
     let elapsed = start_time.elapsed();
-    elapsed.mul_f32((1.0 - completion_progress) / completion_progress)
+    Some(elapsed.mul_f32((1.0 - completion_progress) / completion_progress))
 }
 
 /// Select a mirror to download from
