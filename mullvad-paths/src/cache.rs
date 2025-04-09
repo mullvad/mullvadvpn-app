@@ -8,8 +8,14 @@ pub fn cache_dir() -> Result<PathBuf> {
     let permissions = None;
     #[cfg(target_os = "macos")]
     let permissions = Some(std::os::unix::fs::PermissionsExt::from_mode(0o755));
+
     #[cfg(target_os = "windows")]
-    let permissions = true;
+    let permissions = Some(crate::windows::UserPermissions {
+        read: true,
+        write: false,
+        execute: true,
+    });
+
     crate::create_and_return(get_cache_dir, permissions)
 }
 
