@@ -49,7 +49,7 @@ pub struct SuggestedUpgrade {
 pub struct AppUpgradeDownloadProgress {
     pub server: String,
     pub progress: u32,
-    pub time_left: std::time::Duration,
+    pub time_left: Option<std::time::Duration>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

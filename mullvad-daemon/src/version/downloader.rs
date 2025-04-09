@@ -165,8 +165,7 @@ impl mullvad_update::fetch::ProgressUpdater for ProgressUpdater {
             AppUpgradeDownloadProgress {
                 server: self.server.clone(),
                 progress: 0,
-                // TODO: Check if this is reasonable
-                time_left: Duration::ZERO,
+                time_left: None,
             },
         ));
     }
