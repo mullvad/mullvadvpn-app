@@ -19,13 +19,12 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
     init(
         tunnelSettings: LatestTunnelSettings,
         ipOverrides: [IPOverride],
-        tunnelState: TunnelState,
-        observedState: ObservedState
+        tunnelStatus: TunnelStatus
     ) {
         self.tunnelSettings = tunnelSettings
         self.ipOverrides = ipOverrides
-        self.tunnelState = tunnelState
-        self.observedState = observedState
+        self.tunnelState = tunnelStatus.state
+        self.observedState = tunnelStatus.observedState
     }
 
     var chips: [ChipModel] {
