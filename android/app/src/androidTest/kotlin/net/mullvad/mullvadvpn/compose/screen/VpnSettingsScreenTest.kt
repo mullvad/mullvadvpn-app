@@ -76,6 +76,7 @@ class VpnSettingsScreenTest {
         onSelectDeviceIpVersion: (Constraint<IpVersion>) -> Unit = {},
         onToggleIpv6: (Boolean) -> Unit = {},
         navigateToIpv6Info: () -> Unit = {},
+        navigateToDeviceIpInfo: () -> Unit = {},
     ) {
         setContentWithTheme {
             VpnSettingsScreen(
@@ -110,6 +111,7 @@ class VpnSettingsScreenTest {
                 onSelectDeviceIpVersion = onSelectDeviceIpVersion,
                 onToggleIpv6 = onToggleIpv6,
                 navigateToIpv6Info = navigateToIpv6Info,
+                navigateToDeviceIpInfo = navigateToDeviceIpInfo,
             )
         }
     }

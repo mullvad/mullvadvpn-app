@@ -35,6 +35,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AutoConnectAndLockdownModeDestination
 import com.ramcosta.composedestinations.generated.destinations.ContentBlockersInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomDnsInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.DeviceIpInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.DnsDestination
 import com.ramcosta.composedestinations.generated.destinations.Ipv6InfoDestination
 import com.ramcosta.composedestinations.generated.destinations.LocalNetworkSharingInfoDestination
@@ -145,6 +146,7 @@ private fun PreviewVpnSettings(
             onSelectDeviceIpVersion = {},
             onToggleIpv6 = {},
             navigateToIpv6Info = {},
+            navigateToDeviceIpInfo = {},
         )
     }
 }
@@ -276,6 +278,7 @@ fun VpnSettings(
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
         onToggleIpv6 = vm::setIpv6Enabled,
         navigateToIpv6Info = dropUnlessResumed { navigator.navigate(Ipv6InfoDestination) },
+        navigateToDeviceIpInfo = dropUnlessResumed { navigator.navigate(DeviceIpInfoDestination) },
     )
 }
 
@@ -315,6 +318,7 @@ fun VpnSettingsScreen(
     onSelectDeviceIpVersion: (ipVersion: Constraint<IpVersion>) -> Unit,
     onToggleIpv6: (Boolean) -> Unit,
     navigateToIpv6Info: () -> Unit,
+    navigateToDeviceIpInfo: () -> Unit,
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     val topPadding = 6.dp
@@ -674,7 +678,10 @@ fun VpnSettingsScreen(
             }
 
             itemWithDivider {
-                InformationComposeCell(title = stringResource(R.string.device_ip_version_title))
+                InformationComposeCell(
+                    title = stringResource(R.string.device_ip_version_title),
+                    onInfoClicked = navigateToDeviceIpInfo,
+                )
             }
             itemWithDivider {
                 SelectableCell(
@@ -697,21 +704,6 @@ fun VpnSettingsScreen(
                     onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV6)) },
                 )
             }
-            item {
-                Text(
-                    text = stringResource(R.string.device_ip_version_subtitle),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.cellStartPadding,
-                            top = topPadding,
-                            end = Dimens.cellEndPadding,
-                        ),
-                )
-                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
-            }
-
             item {
                 MtuComposeCell(mtuValue = state.mtu, onEditMtu = { navigateToMtuDialog(state.mtu) })
             }
