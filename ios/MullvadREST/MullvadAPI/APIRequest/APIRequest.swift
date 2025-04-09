@@ -18,6 +18,12 @@ public enum APIRequest: Codable, Sendable {
     case createAccount(_ retryStrategy: REST.RetryStrategy)
     case getAccount(_ retryStrategy: REST.RetryStrategy, accountNumber: String)
     case deleteAccount(_ retryStrategy: REST.RetryStrategy, accountNumber: String)
+    case initStorekitPayment(retryStrategy: REST.RetryStrategy, accountNumber: String)
+    case checkStorekitPayment(
+        retryStrategy: REST.RetryStrategy,
+        accountNumber: String,
+        transaction: StorekitTransaction
+    )
 
     // Device Proxy
     case getDevice(_ retryStrategy: REST.RetryStrategy, accountNumber: String, identifier: String)
@@ -55,6 +61,10 @@ public enum APIRequest: Codable, Sendable {
             "rotate-device-key"
         case .createDevice:
             "create-device"
+        case .initStorekitPayment:
+            "init-storekit-payment"
+        case .checkStorekitPayment:
+            "check-storekit-payment"
         }
     }
 
@@ -70,8 +80,10 @@ public enum APIRequest: Codable, Sendable {
              let .getDevice(strategy, _, _),
              let .getDevices(strategy, _),
              let .deleteDevice(strategy, _, _),
-             let .rotateDeviceKey(strategy, _, _, _):
-            return strategy
+             let .rotateDeviceKey(strategy, _, _, _),
+             let .initStorekitPayment(strategy, _),
+             let .checkStorekitPayment(strategy, _, _):
+            strategy
         }
     }
 }
