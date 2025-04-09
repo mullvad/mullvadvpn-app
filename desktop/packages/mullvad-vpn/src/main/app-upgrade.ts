@@ -28,7 +28,9 @@ export default class AppUpgrade {
         IpcMainEventChannel.app.notifyUpgradeError?.('START_INSTALLER_FAILED');
 
         const error = e as Error;
-        log.error(`Could not start installer: ${error.message}`);
+        log.error(
+          `An error occurred when starting installer at path: ${verifiedInstallerPath}. Error: ${error.message}`,
+        );
       }
     });
   }
@@ -60,7 +62,7 @@ export default class AppUpgrade {
   private async executeInstaller(verifiedInstallerPath: string) {
     const errorMessage = await shell.openPath(verifiedInstallerPath);
     if (errorMessage) {
-      throw new Error(`An error occurred after starting the installer: ${errorMessage}`);
+      throw new Error(`An error occurred when starting the installer: ${errorMessage}`);
     }
   }
 
@@ -68,7 +70,7 @@ export default class AppUpgrade {
     try {
       await fs.access(verifiedInstallerPath, fs.constants.X_OK);
     } catch {
-      throw new Error(`An executable installer is not available at path: ${verifiedInstallerPath}`);
+      throw new Error('The path to the installer is not executable.');
     }
   }
 }
