@@ -1,4 +1,5 @@
 use crate::types::{proto, FromProtobufTypeError};
+use talpid_types::net::IpVersion;
 
 impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
     fn from(state: mullvad_types::states::TunnelState) -> Self {
@@ -187,8 +188,14 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 talpid_tunnel::ParameterGenerationError::NoWireguardKey => {
                                     i32::from(GenerationError::NoWireguardKey)
                                 }
-                                talpid_tunnel::ParameterGenerationError::CustomTunnelHostResultionError => {
+                                talpid_tunnel::ParameterGenerationError::CustomTunnelHostResolutionError => {
                                     i32::from(GenerationError::CustomTunnelHostResolutionError)
+                                }
+                                talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V4 } => {
+                                    i32::from(GenerationError::NetworkIpv4Unavailable)
+                                }
+                                talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V6 } => {
+                                    i32::from(GenerationError::NetworkIpv6Unavailable)
                                 }
                             }
                             } else {
@@ -382,7 +389,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                     }
                     Ok(proto::error_state::Cause::TunnelParameterError) => {
                         let parameter_error = match proto::error_state::GenerationError::try_from(parameter_error) {
-                            Ok(proto::error_state::GenerationError::CustomTunnelHostResolutionError) => talpid_tunnel::ParameterGenerationError::CustomTunnelHostResultionError,
+                            Ok(proto::error_state::GenerationError::CustomTunnelHostResolutionError) => talpid_tunnel::ParameterGenerationError::CustomTunnelHostResolutionError,
                             Ok(proto::error_state::GenerationError::NoMatchingBridgeRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay,
                             Ok(proto::error_state::GenerationError::NoMatchingRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingRelay,
                             Ok(proto::error_state::GenerationError::NoWireguardKey) => talpid_tunnel::ParameterGenerationError::NoWireguardKey,

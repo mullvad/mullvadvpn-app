@@ -20,12 +20,6 @@ use crate::{
     },
 };
 
-use std::{
-    path::Path,
-    sync::{Arc, LazyLock, Mutex},
-    time::SystemTime,
-};
-
 use chrono::{DateTime, Local};
 use itertools::Itertools;
 use mullvad_types::{
@@ -42,6 +36,11 @@ use mullvad_types::{
     settings::Settings,
     wireguard::QuantumResistantState,
     CustomTunnelEndpoint, Intersection,
+};
+use std::{
+    path::Path,
+    sync::{Arc, LazyLock, Mutex},
+    time::SystemTime,
 };
 use talpid_types::{
     net::{
@@ -1161,7 +1160,15 @@ fn apply_ip_availability(
             ip_version,
             ..Default::default()
         })
-        .ok_or(Error::IpVersionUnavailable)?;
+        .ok_or_else(|| {
+            // It is safe to call `unwrap` on `wireguard_constraints().ip_version` here
+            // because this will only be called if intersection returns None
+            // and the only way None can be returned is if both
+            // ip_version and wireguard_constraints.ip_version are Constraint::Only and thus
+            // guarantees that wireguard_constraints.ip_version is Constraint::Only
+            let family = user_query.wireguard_constraints().ip_version.unwrap();
+            Error::IpVersionUnavailable { family }
+        })?;
     user_query.set_wireguard_constraints(wireguard_constraints)?;
     Ok(())
 }

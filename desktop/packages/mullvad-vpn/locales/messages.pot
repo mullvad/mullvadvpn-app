@@ -2599,6 +2599,12 @@ msgstr ""
 msgid "Google Play unavailable"
 msgstr ""
 
+msgid "IPv4 is not available"
+msgstr ""
+
+msgid "IPv6 is not available"
+msgstr ""
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr ""
 
