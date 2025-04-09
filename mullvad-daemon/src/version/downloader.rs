@@ -79,7 +79,7 @@ async fn start(
     log::info!("Downloading app version '{}' from {url}", version.version);
 
     let download_dir = mullvad_paths::cache_dir()?.join("mullvad-update");
-    log::debug!("Download directory: {download_dir:?}");
+    log::trace!("Download directory: {download_dir:?}");
     fs::create_dir_all(&download_dir)
         .await
         .map_err(Error::CreateDownloadDir)?;
