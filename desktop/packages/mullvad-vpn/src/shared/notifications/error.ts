@@ -229,15 +229,9 @@ export class ErrorNotificationProvider
           'Unable to resolve host of custom tunnel. Try changing your settings.',
         );
       case TunnelParameterError.ipv4Unavailable:
-        return messages.pgettext(
-          'notifications',
-          'IPv4 is not available',
-        );
-        case TunnelParameterError.ipv6Unavailable:
-          return messages.pgettext(
-            'notifications',
-            'IPv6 is not available',
-          );
+        return messages.pgettext('notifications', 'IPv4 is not available');
+      case TunnelParameterError.ipv6Unavailable:
+        return messages.pgettext('notifications', 'IPv6 is not available');
     }
   }
 
