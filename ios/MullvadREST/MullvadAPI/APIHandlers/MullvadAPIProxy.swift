@@ -40,6 +40,19 @@ public protocol APIQuerying: Sendable {
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.SubmitVoucherResponse>
     ) -> Cancellable
+
+    func initStorekitPayment(
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<String>
+    ) -> Cancellable
+
+    func checkStorekitPayment(
+        accountNumber: String,
+        transaction: StorekitTransaction,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
+    ) -> Cancellable
 }
 
 extension REST {
@@ -138,7 +151,49 @@ extension REST {
             AnyCancellable()
         }
 
-        private func createNetworkOperation<Success: Any>(
+        public func initStorekitPayment(
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping ProxyCompletionHandler<String>
+        ) -> any MullvadTypes.Cancellable {
+            struct InitStorekitPaymentResponse: Codable {
+                let paymentToken: String
+            }
+
+            let responseHandler = rustResponseHandler(
+                decoding: InitStorekitPaymentResponse.self,
+                with: responseDecoder
+            )
+
+            return createNetworkOperation(
+                request:
+                .initStorekitPayment(retryStrategy: retryStrategy, accountNumber: accountNumber),
+                responseHandler: responseHandler,
+                completionHandler: { completionHandler($0.map { $0.paymentToken }) }
+            )
+        }
+
+        public func checkStorekitPayment(
+            accountNumber: String,
+            transaction: StorekitTransaction,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping ProxyCompletionHandler<Void>
+        ) -> any MullvadTypes.Cancellable {
+            let responseHandler = rustEmptyResponseHandler()
+
+            return createNetworkOperation(
+                request:
+                .checkStorekitPayment(
+                    retryStrategy: retryStrategy,
+                    accountNumber: accountNumber,
+                    transaction: transaction
+                ),
+                responseHandler: responseHandler,
+                completionHandler: completionHandler
+            )
+        }
+
+        private func createNetworkOperation<Success>(
             request: APIRequest,
             responseHandler: RustResponseHandler<Success>,
             completionHandler: @escaping @Sendable ProxyCompletionHandler<Success>

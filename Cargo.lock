@@ -2792,6 +2792,7 @@ dependencies = [
  "log",
  "mullvad-api",
  "mullvad-encrypted-dns-proxy",
+ "mullvad-types",
  "oslog",
  "serde_json",
  "shadowsocks-service",
