@@ -27,11 +27,21 @@ export const useGetMessageTimeLeft = () => {
           );
         }
 
+        if (timeLeft > 5) {
+          return sprintf(
+            // TRANSLATORS: Status text displayed below a progress bar when the update is being downloaded
+            // TRANSLATORS: Available placeholders:
+            // TRANSLATORS: %(second)s - Will be replaced with remaining seconds until download is complete
+            messages.pgettext('app-upgrade-view', 'About %(seconds)s seconds remaining...'),
+            {
+              seconds: timeLeft,
+            },
+          );
+        }
+
         return sprintf(
           // TRANSLATORS: Status text displayed below a progress bar when the update is being downloaded
-          // TRANSLATORS: Available placeholders:
-          // TRANSLATORS: %(second)s - Will be replaced with remaining seconds until download is complete
-          messages.pgettext('app-upgrade-view', 'About %(seconds)s seconds remaining...'),
+          messages.pgettext('app-upgrade-view', 'A few seconds remaining...'),
           {
             seconds: timeLeft,
           },
