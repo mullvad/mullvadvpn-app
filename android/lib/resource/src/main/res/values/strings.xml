@@ -409,4 +409,5 @@
     <string name="ipv6_info">When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services.</string>
     <string name="ip_version_v4_unavailable">IPv4 is not available</string>
     <string name="ip_version_v6_unavailable">IPv6 is not available</string>
+    <string name="daita_multihop">DAITA: Multihop</string>
 </resources>
