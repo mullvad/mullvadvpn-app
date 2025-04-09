@@ -140,11 +140,9 @@ class VpnSettingsViewModel(
             val hasDnsEntries = settings.addresses().isNotEmpty()
 
             if (hasDnsEntries) {
-                settingsRepository.setDnsState(if (enable) DnsState.Custom else DnsState.Default).fold({
-                    showGenericErrorToast()
-                },{
-                    showApplySettingChangesWarningToast()
-                })
+                settingsRepository
+                    .setDnsState(if (enable) DnsState.Custom else DnsState.Default)
+                    .fold({ showGenericErrorToast() }, { showApplySettingChangesWarningToast() })
             } else {
                 // If they enable custom DNS and has no current entries we show the dialog
                 // to add one.
