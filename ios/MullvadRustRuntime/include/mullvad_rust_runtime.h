@@ -259,6 +259,50 @@ struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_r
                                                                  uint64_t max_delay_sec);
 
 /**
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_ios_init_new`.
+ *
+ * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
+ * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
+ * type is intended to be used.
+ *
+ * `account` must be a pointer to a null terminated string to the account number
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_ios_init_storekit_payment(struct SwiftApiContext api_context,
+                                                           void *completion_cookie,
+                                                           struct SwiftRetryStrategy retry_strategy,
+                                                           const char *account);
+
+/**
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_ios_init_new`.
+ *
+ * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
+ * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
+ * type is intended to be used.
+ *
+ * `account` must be a pointer to a null terminated string to the account number
+ *
+ * `body` must be a pointer to the body content
+ *
+ * `body_size` must be the size of the body
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_ios_check_storekit_payment(struct SwiftApiContext api_context,
+                                                            void *completion_cookie,
+                                                            struct SwiftRetryStrategy retry_strategy,
+                                                            const char *account,
+                                                            const uint8_t *body,
+                                                            uintptr_t body_size);
+
+/**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
  *
  * # Safety

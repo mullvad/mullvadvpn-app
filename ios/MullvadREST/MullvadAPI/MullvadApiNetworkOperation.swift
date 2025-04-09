@@ -70,28 +70,32 @@ extension REST {
             }
 
             let transport = transportProvider.makeTransport()
-            networkTask = transport?.sendRequest(request) { [weak self] response in
-                guard let self else { return }
+            do {
+                networkTask = try transport?.sendRequest(request) { [weak self] response in
+                    guard let self else { return }
 
-                if let apiError = response.error {
-                    finish(result: .failure(restError(apiError: apiError)))
-                    return
-                }
-
-                let decodedResponse = responseHandler.handleResponse(response)
-
-                switch decodedResponse {
-                case let .success(value):
-                    finish(result: .success(value))
-                case let .decoding(block):
-                    do {
-                        finish(result: .success(try block()))
-                    } catch {
-                        finish(result: .failure(REST.Error.unhandledResponse(0, nil)))
+                    if let apiError = response.error {
+                        finish(result: .failure(restError(apiError: apiError)))
+                        return
                     }
-                case let .unhandledResponse(error):
-                    finish(result: .failure(REST.Error.unhandledResponse(0, error)))
+
+                    let decodedResponse = responseHandler.handleResponse(response)
+
+                    switch decodedResponse {
+                    case let .success(value):
+                        finish(result: .success(value))
+                    case let .decoding(block):
+                        do {
+                            finish(result: .success(try block()))
+                        } catch {
+                            finish(result: .failure(REST.Error.unhandledResponse(0, nil)))
+                        }
+                    case let .unhandledResponse(error):
+                        finish(result: .failure(REST.Error.unhandledResponse(0, error)))
+                    }
                 }
+            } catch {
+                finish(result: .failure(error))
             }
         }
 
