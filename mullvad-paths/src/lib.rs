@@ -5,7 +5,7 @@ use std::fs;
 use std::{io, path::PathBuf};
 
 #[cfg(windows)]
-use crate::windows::create_dir_recursive;
+use crate::windows::create_dir_recursive_with_permissions;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -61,13 +61,25 @@ fn create_and_return(
     Ok(dir)
 }
 
+/// Create a directory Windows. If `user_permissions` is `None`, the directory will be created
+/// without modifying permissions, using [`std::fs::create_dir_all`]. If `user_permissions` is
+/// `Some`, the directory will be created with the specified permissions.
 #[cfg(windows)]
 fn create_and_return(
     dir_fn: fn() -> Result<PathBuf>,
-    set_security_permissions: bool,
+    user_permissions: Option<windows::UserPermissions>,
 ) -> Result<PathBuf> {
     let dir = dir_fn()?;
-    create_dir_recursive(&dir, set_security_permissions)?;
+    if let Some(user_permissions) = user_permissions {
+        create_dir_recursive_with_permissions(&dir, user_permissions)?;
+    } else {
+        std::fs::create_dir_all(&dir).map_err(|e| {
+            Error::CreateDirFailed(
+                format!("Could not create directory at {}", dir.display()),
+                e,
+            )
+        })?;
+    }
     Ok(dir)
 }
 
