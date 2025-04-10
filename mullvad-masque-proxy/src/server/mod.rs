@@ -96,6 +96,8 @@ impl Server {
             Ok(conn) => {
                 println!("new connection established");
 
+                let quinn_conn = conn.clone();
+
                 let Ok(mut connection) = server::builder()
                     .enable_datagram(true)
                     .build(h3_quinn::Connection::new(conn))
@@ -109,6 +111,7 @@ impl Server {
                     Ok(Some((req, stream))) => {
                         tokio::spawn(Self::handle_proxy_request(
                             connection,
+                            quinn_conn,
                             req,
                             stream,
                             allowed_hosts.clone(),
@@ -132,6 +135,7 @@ impl Server {
 
     async fn handle_proxy_request<T: BidiStream<Bytes>>(
         mut connection: Connection<h3_quinn::Connection, Bytes>,
+        quinn_conn: quinn::Connection,
         request: Request<()>,
         mut stream: RequestStream<T, Bytes>,
         allowed_hosts: AllowedIps,
@@ -194,7 +198,11 @@ impl Server {
                             let mut received_packet = proxy_recv_buf.split().freeze();
 
                             // Maximum QUIC payload (including fragmentation headers)
-                            let maximum_packet_size = max_udp_payload_size - QUIC_HEADER_SIZE;
+                            let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
+                                max_datagram_size as u16 - 1
+                            } else {
+                                max_udp_payload_size - QUIC_HEADER_SIZE
+                            };
 
                             if received_packet.len() <= usize::from(maximum_packet_size) {
                                 if connection.send_datagram(stream_id, received_packet).is_err() {
