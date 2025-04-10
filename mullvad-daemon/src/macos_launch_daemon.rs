@@ -15,7 +15,7 @@ type Id = *mut AnyObject;
 
 // Framework that contains `SMAppService`.
 #[link(name = "ServiceManagement", kind = "framework")]
-extern "C" {}
+unsafe extern "C" {}
 
 /// Returned by `[NSProcessInfo operatingSystemVersion]`. Contains the current
 #[repr(C)]
