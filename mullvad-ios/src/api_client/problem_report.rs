@@ -37,7 +37,7 @@ use tokio::task::JoinHandle;
 /// After this call, the pointer must be considered invalid and must not be reused or accessed in any way.
 /// Calling this function again with the same cookie, either sequentially or concurrently, results in undefined behavior.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_api_send_problem_report(
+pub unsafe extern "C" fn mullvad_ios_send_problem_report(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
@@ -66,7 +66,7 @@ pub unsafe extern "C" fn mullvad_api_send_problem_report(
     };
 
     let task: JoinHandle<()> = tokio_handle.spawn(async move {
-        match mullvad_api_send_problem_report_inner(
+        match mullvad_ios_send_problem_report_inner(
             api_context.rest_handle(),
             retry_strategy,
             problem_report_request,
@@ -84,7 +84,7 @@ pub unsafe extern "C" fn mullvad_api_send_problem_report(
     RequestCancelHandle::new(task, completion_handler.clone()).into_swift()
 }
 
-async fn mullvad_api_send_problem_report_inner(
+async fn mullvad_ios_send_problem_report_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     problem_report_request: ProblemReportRequest,
@@ -242,7 +242,7 @@ pub unsafe extern "C" fn swift_problem_report_metadata_add(
 }
 
 #[no_mangle]
-pub extern "C" fn swift_problem_report_metadata_free(mut map: ProblemReportMetadata) {
+pub extern "C" fn swift_problem_report_metadata_free(map: ProblemReportMetadata) {
     if !map.inner.is_null() {
         // SAFETY: `map.inner` must be properly aligned and non-null
         // The caller must guarantee that `map.inner` is not null and has not been freed

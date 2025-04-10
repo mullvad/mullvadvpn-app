@@ -31,7 +31,7 @@ struct RustProblemReportRequestTests {
         )
         let rustRequest = RustProblemReportRequest(from: request)
         let rustStruct = rustRequest.toRust()
-        #expect(rustStruct.meta_data != nil, "Metadata should not be for \(metadata)")
+        #expect(rustStruct.metadata != nil, "Metadata should not be for \(metadata)")
     }
 
     @Test("Test invalid metadata insertion for SendProblemReport")
@@ -41,7 +41,7 @@ struct RustProblemReportRequestTests {
             [0x7E]: [0x80], // Valid key , but invalid start byte in UTF-8
             [0xE0, 0x80]: [0xC2, 0x80], // Malformed UTF-8 multibyte sequence for key and valid value
         ]
-        let metadata = swift_problem_report_meta_data_new()
+        let metadata = swift_problem_report_metadata_new()
         for (keyBytes, valueBytes) in invalidMetadata {
             keyBytes.withUnsafeBytes { (keyPtr: UnsafeRawBufferPointer) in
                 valueBytes.withUnsafeBytes { (valuePtr: UnsafeRawBufferPointer) in
@@ -50,7 +50,7 @@ struct RustProblemReportRequestTests {
                         return
                     }
 
-                    let result = swift_problem_report_meta_data_add(
+                    let result = swift_problem_report_metadata_add(
                         metadata,
                         keyBaseAddress,
                         valueBaseAddress
