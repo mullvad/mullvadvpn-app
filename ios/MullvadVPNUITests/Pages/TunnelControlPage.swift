@@ -133,6 +133,7 @@ class TunnelControlPage: Page {
     @discardableResult func verifyConnectingOverTCPAfterUDPAttempts() -> Self {
         let connectionAttempts = waitForConnectionAttempts(4, timeout: 30)
 
+        // TODO: Revisit this when QUIC obfuscation is added
         // Should do four connection attempts but due to UI bug sometimes only two are displayed, sometimes all four
         if connectionAttempts.count == 4 { // Expected retries flow
             for (attemptIndex, attempt) in connectionAttempts.enumerated() {

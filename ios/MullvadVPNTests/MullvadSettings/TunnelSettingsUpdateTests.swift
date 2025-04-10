@@ -48,6 +48,38 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         ))
     }
 
+    func testApplyShadowsocksObfuscation() {
+        // Given:
+        var settings = LatestTunnelSettings()
+
+        // When:
+        let update = TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
+            state: .shadowsocks
+        ))
+        update.apply(to: &settings)
+
+        // Then:
+        XCTAssertEqual(settings.wireGuardObfuscation, WireGuardObfuscationSettings(
+            state: .shadowsocks
+        ))
+    }
+
+    func testApplyQuicObfuscation() {
+        // Given:
+        var settings = LatestTunnelSettings()
+
+        // When:
+        let update = TunnelSettingsUpdate.obfuscation(WireGuardObfuscationSettings(
+            state: .quic
+        ))
+        update.apply(to: &settings)
+
+        // Then:
+        XCTAssertEqual(settings.wireGuardObfuscation, WireGuardObfuscationSettings(
+            state: .quic
+        ))
+    }
+
     func testApplyRelayConstraints() {
         // Given:
         var settings = LatestTunnelSettings()
