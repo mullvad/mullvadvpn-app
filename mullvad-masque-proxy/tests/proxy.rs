@@ -12,7 +12,7 @@ use tokio::net::UdpSocket;
 /// Set up a MASQUE proxy and test that it can be used to communicate with some UDP destination
 #[tokio::test]
 async fn test_server_and_client_forwarding() -> anyhow::Result<()> {
-    const MAXIMUM_PACKET_SIZE: u16 = 1700;
+    const MTU: u16 = 1500;
     const HOST: &str = "test.test";
 
     let any_localhost_addr: SocketAddr = "127.0.0.1:0".parse().unwrap();
@@ -29,7 +29,7 @@ async fn test_server_and_client_forwarding() -> anyhow::Result<()> {
         any_localhost_addr,
         Default::default(),
         Arc::new(server_tls_config),
-        MAXIMUM_PACKET_SIZE,
+        MTU,
     )
     .context("Failed to start MASQUE server")?;
 
@@ -51,7 +51,7 @@ async fn test_server_and_client_forwarding() -> anyhow::Result<()> {
         target_udp_addr,
         HOST,
         client::default_tls_config(),
-        MAXIMUM_PACKET_SIZE,
+        MTU,
     )
     .await
     .context("Failed to start MASQUE client")?;

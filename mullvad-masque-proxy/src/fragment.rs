@@ -6,6 +6,8 @@ use std::{
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use h3::proto::varint::VarInt;
 
+use crate::FRAGMENT_HEADER_SIZE_FRAGMENTED;
+
 #[derive(Default)]
 pub struct Fragments {
     fragment_map: BTreeMap<u16, Vec<Fragment>>,
@@ -102,19 +104,27 @@ struct Fragment {
     time_received: Instant,
 }
 
+/// Fragment packet using the given maximum fragment size (including headers).
+///
+/// `payload` must not contain any fragmentation headers.
+/// `fragment_payload_size` is the maximum fragment size EXCLUDING headers.
 pub fn fragment_packet(
-    maximum_packet_size: u16,
+    fragment_payload_size: u16,
     payload: &'_ mut Bytes,
     packet_id: u16,
 ) -> Result<impl Iterator<Item = Bytes> + '_, PacketTooLarge> {
-    let num_fragments: usize = payload.chunks(maximum_packet_size.into()).count();
+    let num_fragments: usize = payload.chunks(fragment_payload_size.into()).count();
     let Ok(fragment_count): std::result::Result<u8, _> = num_fragments.try_into() else {
         return Err(PacketTooLarge(payload.len()));
     };
 
-    let iterator = payload.chunks(maximum_packet_size.into()).enumerate().map(
-        move |(fragment_index, fragment_payload)| {
-            let mut fragment = BytesMut::with_capacity((maximum_packet_size + 1).into());
+    let iterator = payload
+        .chunks(fragment_payload_size.into())
+        .enumerate()
+        .map(move |(fragment_index, fragment_payload)| {
+            let mut fragment = BytesMut::with_capacity(
+                usize::from(fragment_payload_size) + FRAGMENT_HEADER_SIZE_FRAGMENTED,
+            );
             crate::HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID.encode(&mut fragment);
             fragment.put_u16(packet_id);
             fragment.put_u8(
@@ -123,36 +133,44 @@ pub fn fragment_packet(
                     .expect("fragment index must fit in an u8, since num_fragments fits is an u8"),
             );
             fragment.put_u8(fragment_count);
+
+            debug_assert!(fragment.len() == FRAGMENT_HEADER_SIZE_FRAGMENTED);
+
             fragment.extend_from_slice(fragment_payload);
             fragment.freeze()
-        },
-    );
+        });
     Ok(iterator)
 }
 
-#[test]
-fn test_fragment_reconstruction() {
-    use rand::{seq::SliceRandom, thread_rng};
+#[cfg(test)]
+mod test {
+    use super::*;
 
-    let payload = (0..255).collect::<Vec<u8>>();
-    let max_payload_size = 50;
-    let packet_id = 76;
+    #[test]
+    fn test_fragment_reconstruction() {
+        use rand::{seq::SliceRandom, thread_rng};
 
-    let mut fragments = Fragments::default();
+        let payload = (0..255).collect::<Vec<u8>>();
+        let max_payload_size = 50;
+        let packet_id = 76;
 
-    let mut payload_clone = Bytes::from(payload.clone());
-    let mut fragment_buf = fragment_packet(max_payload_size, &mut payload_clone, packet_id)
-        .unwrap()
-        .collect::<Vec<_>>();
+        let mut fragments = Fragments::default();
 
-    fragment_buf.shuffle(&mut thread_rng());
+        let mut payload_clone = Bytes::from(payload.clone());
+        let mut fragment_buf = fragment_packet(max_payload_size, &mut payload_clone, packet_id)
+            .unwrap()
+            .collect::<Vec<_>>();
 
-    for fragment in fragment_buf {
-        if let Some(reconstructed_packet) = fragments.handle_incoming_packet(fragment).unwrap() {
-            assert_eq!(payload.as_slice(), reconstructed_packet.as_ref());
-            return;
+        fragment_buf.shuffle(&mut thread_rng());
+
+        for fragment in fragment_buf {
+            if let Some(reconstructed_packet) = fragments.handle_incoming_packet(fragment).unwrap()
+            {
+                assert_eq!(payload.as_slice(), reconstructed_packet.as_ref());
+                return;
+            }
         }
-    }
 
-    panic!("Failed to reconstruct packet");
+        panic!("Failed to reconstruct packet");
+    }
 }

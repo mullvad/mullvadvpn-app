@@ -31,7 +31,7 @@ pub struct ClientArgs {
 
     /// Maximum packet size
     #[arg(long, short = 'S', default_value = "1280")]
-    maximum_packet_size: u16,
+    mtu: u16,
 }
 
 #[tokio::main]
@@ -42,7 +42,7 @@ async fn main() {
         root_cert_path,
         server_hostname,
         bind_port,
-        maximum_packet_size,
+        mtu,
     } = ClientArgs::parse();
 
     let tls_config = match root_cert_path {
@@ -67,7 +67,7 @@ async fn main() {
         target_addr,
         &server_hostname,
         tls_config,
-        maximum_packet_size,
+        mtu,
     )
     .await;
     if let Err(err) = &client {
