@@ -24,7 +24,7 @@ use crate::{
     compute_udp_payload_size,
     fragment::{self, Fragments},
     stats::Stats,
-    FRAGMENT_HEADER_SIZE_FRAGMENTED, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
+    MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
 };
 
 const MAX_HEADER_SIZE: u64 = 8192;
@@ -349,10 +349,8 @@ async fn server_socket_task(
             // drop the added context ID, since packet will have to be fragmented.
             let _ = VarInt::decode(&mut packet);
 
-            let fragment_payload_size = maximum_packet_size - FRAGMENT_HEADER_SIZE_FRAGMENTED;
-
             for fragment in
-                fragment::fragment_packet(fragment_payload_size, &mut packet, fragment_id)
+                fragment::fragment_packet(maximum_packet_size, &mut packet, fragment_id)
                     .map_err(Error::PacketTooLarge)?
             {
                 stats.tx(fragment.len(), true);

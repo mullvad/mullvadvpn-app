@@ -107,12 +107,14 @@ struct Fragment {
 /// Fragment packet using the given maximum fragment size (including headers).
 ///
 /// `payload` must not contain any fragmentation headers.
-/// `fragment_payload_size` is the maximum fragment size EXCLUDING headers.
+/// `maximum_packet_size` is the maximum fragment size including headers.
 pub fn fragment_packet(
-    fragment_payload_size: u16,
+    maximum_packet_size: u16,
     payload: &'_ mut Bytes,
     packet_id: u16,
 ) -> Result<impl Iterator<Item = Bytes> + '_, PacketTooLarge> {
+    let fragment_payload_size = maximum_packet_size - FRAGMENT_HEADER_SIZE_FRAGMENTED;
+
     let num_fragments: usize = payload.chunks(fragment_payload_size.into()).count();
     let Ok(fragment_count): std::result::Result<u8, _> = num_fragments.try_into() else {
         return Err(PacketTooLarge(payload.len()));
