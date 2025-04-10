@@ -28,7 +28,7 @@ pub struct ServerArgs {
 
     /// Maximum packet size
     #[arg(long, short = 'm', default_value = "1700")]
-    maximum_packet_size: u16,
+    mtu: u16,
 }
 
 #[tokio::main]
@@ -42,7 +42,7 @@ async fn main() {
         args.bind_addr,
         args.allowed_ips.iter().cloned().collect(),
         tls_config.into(),
-        args.maximum_packet_size,
+        args.mtu,
     )
     .expect("Failed to initialize server");
     println!("Listening on {}", args.bind_addr);
