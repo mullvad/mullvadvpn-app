@@ -5,17 +5,7 @@ import { TransientProps } from '../../types';
 import { useMounted } from '../../utility-hooks';
 import { AnimateProvider } from './AnimateContext';
 import { useAnimations, useHandleAnimationEnd, useShow } from './hooks';
-
-export type Animation = FadeAnimation | WipeAnimation;
-
-export type FadeAnimation = {
-  type: 'fade';
-};
-
-export type WipeAnimation = {
-  type: 'wipe';
-  direction: 'vertical';
-};
+import { Animation } from './types';
 
 type AnimateBaseProps = {
   initial?: boolean;
