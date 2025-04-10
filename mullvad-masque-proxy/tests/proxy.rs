@@ -1,9 +1,12 @@
+use std::iter;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 
+use anyhow::anyhow;
 use anyhow::Context;
 use bytes::BytesMut;
+use mullvad_masque_proxy::MIN_IPV4_MTU;
 use rand::RngCore;
 use tokio::fs;
 
@@ -47,20 +50,32 @@ async fn test_server_and_client_forwarding() -> anyhow::Result<()> {
 /// reach their destinations when fragmentation *should* be present.
 #[tokio::test]
 async fn test_server_and_client_fragmentation() -> anyhow::Result<()> {
-    timeout(Duration::from_secs(1), async {
-        const MTU: u16 = 1500;
-        const SEND_PACKET_SIZE: usize = 2500;
+    let mut valid_send_packet_sizes = vec![0, 1, 10, 100, 1280, 5000];
 
-        let (client, server) = setup_masque(MTU).await?;
+    // Maximum packet size sans UDP and QUIC headers, sans 1 byte context ID.
+    //
+    // NOTE: On macOS, the maximum UDP packet size is equal to the value set by
+    // `sysctl net.inet.udp.maxdgram`
+    #[cfg(not(target_os = "macos"))]
+    valid_send_packet_sizes.push(u16::MAX - 8 - 41 - 1);
+
+    let valid_mtus = [MIN_IPV4_MTU, 1280, 1500, 1700, 5000, 20000, u16::MAX];
+
+    let params = valid_mtus
+        .into_iter()
+        .flat_map(|mtu| iter::repeat(mtu).zip(&valid_send_packet_sizes));
+
+    async fn run_test(mtu: u16, send_packet_size: usize) -> anyhow::Result<()> {
+        let (client, server) = setup_masque(mtu).await?;
 
         // Proxy client -> destination
         // Send a random packet, large enough to be fragmented
-        let mut fragment_me = vec![0u8; SEND_PACKET_SIZE];
+        let mut fragment_me = vec![0u8; send_packet_size];
         rand::thread_rng().fill_bytes(&mut fragment_me);
 
         client.send(&fragment_me).await?;
 
-        let mut rx_buf = BytesMut::with_capacity(SEND_PACKET_SIZE + 100);
+        let mut rx_buf = BytesMut::with_capacity(send_packet_size + 100);
         let (_, proxy_addr) = server
             .recv_buf_from(&mut rx_buf)
             .await
@@ -73,12 +88,12 @@ async fn test_server_and_client_fragmentation() -> anyhow::Result<()> {
 
         // Destination -> proxy client
         // Send a random packet, large enough to be fragmented
-        let mut fragment_me = vec![0u8; SEND_PACKET_SIZE];
+        let mut fragment_me = vec![0u8; send_packet_size];
         rand::thread_rng().fill_bytes(&mut fragment_me);
 
         server.send_to(&fragment_me, proxy_addr).await?;
 
-        let mut rx_buf = BytesMut::with_capacity(SEND_PACKET_SIZE + 100);
+        let mut rx_buf = BytesMut::with_capacity(send_packet_size + 100);
         let blen = client
             .recv_buf(&mut rx_buf)
             .await
@@ -97,8 +112,18 @@ async fn test_server_and_client_fragmentation() -> anyhow::Result<()> {
         );
 
         Ok(())
-    })
-    .await?
+    }
+
+    for (mtu, &send_packet_size) in params {
+        timeout(
+            Duration::from_secs(1),
+            run_test(mtu, send_packet_size.into()),
+        )
+        .await?
+        .context(anyhow!("mtu={mtu}, send_packet_size={send_packet_size}"))?;
+    }
+
+    Ok(())
 }
 
 /// Set up a client and server connected by a MASQUE proxy.
