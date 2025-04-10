@@ -24,14 +24,12 @@ use crate::{
     compute_udp_payload_size,
     fragment::{self, Fragments},
     stats::Stats,
-    MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
+    MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
 };
 
 const MAX_HEADER_SIZE: u64 = 8192;
 
 const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
-
-const MAX_INFLIGHT_PACKETS: usize = 100;
 
 pub struct Client {
     client_socket: Arc<UdpSocket>,
