@@ -22,7 +22,7 @@ export const useAnimations = (values: Animation[]) => {
     ${inAnimations.map((animation) => animation.rule)}
     ${outAnimations.map((animation) => animation.rule)}
     ${createAnimationDeclaration(outAnimations)}
-    &&[data-show='true'] {
+    &&[data-present='true'] {
       ${createAnimationDeclaration(inAnimations)}
     }
   `;
