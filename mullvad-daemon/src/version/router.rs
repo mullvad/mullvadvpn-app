@@ -1,3 +1,4 @@
+use std::future::Future;
 use std::path::PathBuf;
 
 use futures::channel::{mpsc, oneshot};
@@ -19,7 +20,7 @@ use super::{
 use super::downloader;
 use std::mem;
 
-type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Clone)]
 pub struct VersionRouterHandle {
@@ -73,13 +74,13 @@ struct VersionRouter<S = DaemonEventSender<AppVersionInfo>> {
     state: State,
     beta_program: bool,
     version_event_sender: S,
-    /// Version updater
+    /// Channel used to trigger a version check. The result will always be sent to the
+    /// `new_version_rx` channel.
     refresh_version_check_tx: mpsc::UnboundedSender<()>,
     /// Channel used to receive updates from `version_check`
     new_version_rx: mpsc::UnboundedReceiver<VersionCache>,
     /// Channels that receive responses to `get_latest_version`
     version_request_channels: Vec<oneshot::Sender<Result<AppVersionInfo>>>,
-
     /// Broadcast channel for app upgrade events
     #[cfg(update)]
     app_upgrade_broadcast: AppUpgradeBroadcast,
@@ -102,7 +103,7 @@ enum Message {
 }
 
 #[derive(Debug)]
-enum State {
+enum State<D: Future<Output = downloader::Result<PathBuf>> = downloader::DownloaderHandle> {
     /// There is no version available yet
     NoVersion,
     /// Running version checker, no upgrade in progress
@@ -115,7 +116,7 @@ enum State {
         /// The version being upgraded to, derived from `version_info` and beta program state
         upgrading_to_version: mullvad_update::version::Version,
         /// Tokio task for the downloader handle
-        downloader_handle: downloader::DownloaderHandle,
+        downloader_handle: D,
     },
     /// Download is complete. We have a verified binary
     #[cfg(update)]
@@ -444,7 +445,7 @@ async fn wait_for_update(state: &mut State) -> Option<AppVersionInfo> {
             ref mut downloader_handle,
             upgrading_to_version,
             ..
-        } => match downloader_handle.wait().await {
+        } => match downloader_handle.await {
             Ok(verified_installer_path) => {
                 let app_update_info = AppVersionInfo {
                     current_version_supported: version_cache.current_version_supported,
@@ -568,10 +569,16 @@ mod test {
 
     #[test]
     fn test_upgrade_with_no_version() {
-        let (mut version_router, channels) = make_version_router();
+        let (mut version_router, _channels) = make_version_router();
         let upgrade_events = version_router.app_upgrade_broadcast.subscribe();
         version_router.update_application();
-        assert!(matches!(version_router.state, State::NoVersion));
-        assert!(version_router.version_request_channels.is_empty());
+        assert!(
+            matches!(version_router.state, State::NoVersion),
+            "State should be not transition to downloading"
+        );
+        assert!(
+            upgrade_events.is_empty(),
+            "No upgrade events should be sent"
+        );
     }
 }
