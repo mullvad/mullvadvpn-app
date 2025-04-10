@@ -36,6 +36,9 @@ const MAX_INFLIGHT_PACKETS: usize = 100;
 pub struct Client {
     client_socket: Arc<UdpSocket>,
 
+    /// QUIC endpoint
+    quinn_conn: quinn::Connection,
+
     /// QUIC connection, used to send the actual HTTP datagrams
     connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
 
@@ -164,12 +167,17 @@ impl Client {
 
         let connection = connecting.await?;
 
-        let (connection, send_stream, request_stream) =
-            Self::setup_h3_connection(connection, target_addr, server_host, max_udp_payload_size)
-                .await?;
+        let (h3_connection, send_stream, request_stream) = Self::setup_h3_connection(
+            connection.clone(),
+            target_addr,
+            server_host,
+            max_udp_payload_size,
+        )
+        .await?;
 
         Ok(Self {
-            connection,
+            quinn_conn: connection,
+            connection: h3_connection,
             client_socket: Arc::new(client_socket),
             request_stream,
             _send_stream: send_stream,
@@ -256,6 +264,7 @@ impl Client {
         let mut server_socket_task = tokio::task::spawn(server_socket_task(
             stream_id,
             self.max_udp_payload_size,
+            self.quinn_conn,
             self.connection,
             server_tx,
             client_rx,
@@ -279,6 +288,7 @@ impl Client {
 async fn server_socket_task(
     stream_id: StreamId,
     max_udp_payload_size: u16,
+    quinn_conn: quinn::Connection,
     mut connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
     server_tx: mpsc::Sender<Datagram>,
     mut client_rx: mpsc::Receiver<Bytes>,
@@ -307,7 +317,11 @@ async fn server_socket_task(
         let Some(mut packet) = packet else { break };
 
         // Maximum QUIC payload (including fragmentation headers)
-        let maximum_packet_size = max_udp_payload_size - QUIC_HEADER_SIZE;
+        let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
+            max_datagram_size as u16 - 1
+        } else {
+            max_udp_payload_size - QUIC_HEADER_SIZE
+        };
 
         if packet.len() <= usize::from(maximum_packet_size) {
             stats.tx(packet.len(), false);
