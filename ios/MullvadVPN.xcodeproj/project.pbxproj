@@ -647,6 +647,7 @@
 		7AB3BEB52BD7A6CB00E34384 /* LocationViewControllerWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB3BEB42BD7A6CB00E34384 /* LocationViewControllerWrapper.swift */; };
 		7AB401852DA53D5300522E17 /* NewAccountData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB401842DA53D4E00522E17 /* NewAccountData.swift */; };
 		7AB401872DA53DA300522E17 /* NewAccountDataMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB401862DA53D9B00522E17 /* NewAccountDataMock.swift */; };
+		7AB4018D2DA790DA00522E17 /* SelectLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4018C2DA790CE00522E17 /* SelectLocationTests.swift */; };
 		7AB4CCB92B69097E006037F5 /* IPOverrideTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4CCB82B69097E006037F5 /* IPOverrideTests.swift */; };
 		7AB4CCBB2B691BBB006037F5 /* IPOverrideInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */; };
 		7AB73F6E2D9AAD0A00DA5E1D /* MullvadAccountProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB73F6D2D9AAD0400DA5E1D /* MullvadAccountProxy.swift */; };
@@ -2174,6 +2175,7 @@
 		7AB3BEB42BD7A6CB00E34384 /* LocationViewControllerWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationViewControllerWrapper.swift; sourceTree = "<group>"; };
 		7AB401842DA53D4E00522E17 /* NewAccountData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAccountData.swift; sourceTree = "<group>"; };
 		7AB401862DA53D9B00522E17 /* NewAccountDataMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAccountDataMock.swift; sourceTree = "<group>"; };
+		7AB4018C2DA790CE00522E17 /* SelectLocationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationTests.swift; sourceTree = "<group>"; };
 		7AB4CCB82B69097E006037F5 /* IPOverrideTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideTests.swift; sourceTree = "<group>"; };
 		7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideInteractor.swift; sourceTree = "<group>"; };
 		7AB73F6D2D9AAD0400DA5E1D /* MullvadAccountProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAccountProxy.swift; sourceTree = "<group>"; };
@@ -4410,6 +4412,7 @@
 				A9BFAFFE2BD004ED00F2BCA1 /* CustomListsTests.swift */,
 				85F1E17D2C0A256200DB8F55 /* LeakTests.swift */,
 				850201DA2B503D7700EF8C96 /* RelayTests.swift */,
+				7AB4018C2DA790CE00522E17 /* SelectLocationTests.swift */,
 				85D039972BA4711800940E7F /* SettingsMigrationTests.swift */,
 				85C7A2E82B89024B00035D5A /* SettingsTests.swift */,
 				856952E12BD6B04C008C1F84 /* XCUIElement+Extensions.swift */,
@@ -6774,6 +6777,7 @@
 				85139B2D2B84B4A700734217 /* OutOfTimePage.swift in Sources */,
 				852969362B4E9724007EAD4C /* AccessbilityIdentifier.swift in Sources */,
 				4495ECD52D131A4800A7358B /* ShadowsocksObfuscationSettingsPage.swift in Sources */,
+				7AB4018D2DA790DA00522E17 /* SelectLocationTests.swift in Sources */,
 				85E3BDE52B70E18C00FA71FD /* Networking.swift in Sources */,
 				856952E22BD6B04C008C1F84 /* XCUIElement+Extensions.swift in Sources */,
 				85C7A2E92B89024B00035D5A /* SettingsTests.swift in Sources */,
