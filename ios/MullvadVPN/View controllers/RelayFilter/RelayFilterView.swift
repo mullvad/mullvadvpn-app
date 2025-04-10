@@ -71,6 +71,21 @@ class RelayFilterView: UIView {
         hideIfNeeded()
     }
 
+    func setObfuscation(_ enabled: Bool) {
+        let text = NSLocalizedString(
+            "RELAY_FILTER_APPLIED_OBFUSCATION",
+            tableName: "RelayFilter",
+            value: "Setting: Obfuscation",
+            comment: ""
+        )
+        chips.removeAll(where: { $0.title.contains(text) })
+        if enabled {
+            chips.insert(ChipConfiguration(group: .settings, title: text, didTapButton: nil), at: 0)
+        }
+        chipsView.setChips(chips)
+        hideIfNeeded()
+    }
+
     // MARK: - Private
 
     private func setUpViews() {
@@ -79,10 +94,9 @@ class RelayFilterView: UIView {
 
         let contentContainer = UIStackView(arrangedSubviews: [dummyView, chipsView])
         contentContainer.distribution = .fill
-        contentContainer.alignment = .firstBaseline
 
         collectionViewHeightConstraint = chipsView.collectionView.heightAnchor
-            .constraint(equalToConstant: 8.0)
+            .constraint(equalToConstant: 8)
         collectionViewHeightConstraint.isActive = true
 
         dummyView.addConstrainedSubviews([titleLabel]) {
@@ -90,7 +104,7 @@ class RelayFilterView: UIView {
         }
 
         addConstrainedSubviews([contentContainer]) {
-            contentContainer.pinEdgesToSuperview(PinnableEdges([.top(8.0), .bottom(8.0), .leading(4), .trailing(4)]))
+            contentContainer.pinEdgesToSuperview(PinnableEdges([.top(8), .bottom(8), .leading(4), .trailing(4)]))
         }
 
         // Add KVO for observing collectionView's contentSize changes

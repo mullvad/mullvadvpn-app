@@ -1,0 +1,53 @@
+//
+//  SelectLocationTests.swift
+//  MullvadVPN
+//
+//  Created by Jon Petersson on 2025-04-10.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//
+
+import XCTest
+
+class SelectLocationTests: LoggedInWithTimeUITestCase {
+    func testEnableDAITA() {
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapDAITACell()
+
+        DAITAPage(app)
+            .tapEnableSwitch()
+            .tapDirectOnlySwitch()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        XCTAssertTrue(app.staticTexts["Setting: DAITA"].exists)
+    }
+
+    func testEnableShadowsocksObfuscation() {
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapWireGuardObfuscationExpandButton()
+            .tapWireGuardObfuscationShadowsocksCell()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        XCTAssertTrue(app.staticTexts["Setting: Obfuscation"].exists)
+    }
+}
