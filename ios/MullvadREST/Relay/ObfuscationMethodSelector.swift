@@ -15,6 +15,7 @@ public struct ObfuscationMethodSelector {
         connectionAttemptCount: UInt,
         tunnelSettings: LatestTunnelSettings
     ) -> WireGuardObfuscationState {
+        // TODO: Revisit this when QUIC obfuscation is added
         if tunnelSettings.wireGuardObfuscation.state == .automatic {
             if connectionAttemptCount.isOrdered(nth: 3, forEverySetOf: 4) {
                 .shadowsocks
