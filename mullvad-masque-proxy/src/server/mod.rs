@@ -17,7 +17,11 @@ use http::{Request, StatusCode};
 use quinn::{crypto::rustls::QuicServerConfig, Endpoint, Incoming};
 use tokio::{net::UdpSocket, time::interval};
 
-use crate::fragment::{self, Fragments};
+use crate::{
+    compute_udp_payload_size,
+    fragment::{self, Fragments},
+    MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
+};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -27,6 +31,8 @@ pub enum Error {
     BindSocket(#[source] io::Error),
     #[error("Failed to send negotiation response")]
     SendNegotiationResponse(#[source] h3::Error),
+    #[error("Invalid MTU: must be at least {min_mtu}")]
+    InvalidMtu { min_mtu: u16 },
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -36,7 +42,7 @@ const MASQUE_WELL_KNOWN_PATH: &str = "/.well-known/masque/udp/";
 pub struct Server {
     endpoint: Endpoint,
     allowed_hosts: AllowedIps,
-    maximum_packet_size: u16,
+    mtu: u16,
 }
 
 #[derive(Clone)]
@@ -55,8 +61,10 @@ impl Server {
         bind_addr: SocketAddr,
         allowed_hosts: HashSet<IpAddr>,
         tls_config: Arc<rustls::ServerConfig>,
-        maximum_packet_size: u16,
+        mtu: u16,
     ) -> Result<Self> {
+        Self::validate_mtu(mtu, bind_addr)?;
+
         let server_config = quinn::ServerConfig::with_crypto(Arc::new(
             QuicServerConfig::try_from(tls_config).map_err(Error::BadTlsConfig)?,
         ));
@@ -68,8 +76,21 @@ impl Server {
             allowed_hosts: AllowedIps {
                 hosts: Arc::new(allowed_hosts),
             },
-            maximum_packet_size,
+            mtu,
         })
+    }
+
+    const fn validate_mtu(mtu: u16, bind_addr: SocketAddr) -> Result<()> {
+        let min_mtu = if bind_addr.is_ipv4() {
+            MIN_IPV4_MTU
+        } else {
+            MIN_IPV6_MTU
+        };
+        if mtu >= min_mtu {
+            Ok(())
+        } else {
+            Err(Error::InvalidMtu { min_mtu })
+        }
     }
 
     pub fn local_addr(&self) -> io::Result<SocketAddr> {
@@ -81,20 +102,18 @@ impl Server {
             tokio::spawn(Self::handle_incoming_connection(
                 new_connection,
                 self.allowed_hosts.clone(),
-                self.maximum_packet_size,
+                self.mtu,
             ));
         }
         Ok(())
     }
 
-    async fn handle_incoming_connection(
-        connection: Incoming,
-        allowed_hosts: AllowedIps,
-        maximum_packet_size: u16,
-    ) {
+    async fn handle_incoming_connection(connection: Incoming, allowed_hosts: AllowedIps, mtu: u16) {
         match connection.await {
             Ok(conn) => {
                 println!("new connection established");
+
+                let quinn_conn = conn.clone();
 
                 let Ok(mut connection) = server::builder()
                     .enable_datagram(true)
@@ -109,10 +128,11 @@ impl Server {
                     Ok(Some((req, stream))) => {
                         tokio::spawn(Self::handle_proxy_request(
                             connection,
+                            quinn_conn,
                             req,
                             stream,
                             allowed_hosts.clone(),
-                            maximum_packet_size,
+                            mtu,
                         ));
                     }
 
@@ -132,10 +152,11 @@ impl Server {
 
     async fn handle_proxy_request<T: BidiStream<Bytes>>(
         mut connection: Connection<h3_quinn::Connection, Bytes>,
+        quinn_conn: quinn::Connection,
         request: Request<()>,
         mut stream: RequestStream<T, Bytes>,
         allowed_hosts: AllowedIps,
-        maximum_packet_size: u16,
+        mtu: u16,
     ) {
         let Some(target_addr) = get_target_socketaddr(request.uri().path()) else {
             return;
@@ -157,8 +178,11 @@ impl Server {
             return;
         }
 
+        let max_udp_payload_size = compute_udp_payload_size(mtu, target_addr);
+
         let stream_id = stream.id();
-        let mut proxy_recv_buf = BytesMut::with_capacity(crate::PACKET_BUFFER_SIZE);
+        let stream_id_size = VarInt::from(stream_id).size() as u16;
+        let mut proxy_recv_buf = BytesMut::with_capacity(100 * crate::PACKET_BUFFER_SIZE);
 
         let mut fragments = Fragments::default();
         let mut fragment_id = 0u16;
@@ -191,12 +215,20 @@ impl Server {
 
                             let mut received_packet = proxy_recv_buf.split().freeze();
 
-                            if received_packet.len() < maximum_packet_size.into() {
+                            // Maximum QUIC payload (including fragmentation headers)
+                            let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
+                               max_datagram_size as u16 - stream_id_size
+                            } else {
+                                max_udp_payload_size - QUIC_HEADER_SIZE - stream_id_size
+                            };
+
+                            if received_packet.len() <= usize::from(maximum_packet_size) {
                                 if connection.send_datagram(stream_id, received_packet).is_err() {
                                     return;
                                 }
                             } else {
                                 let _ = VarInt::decode(&mut received_packet);
+
                                 let Ok(fragments) = fragment::fragment_packet(maximum_packet_size, &mut received_packet, fragment_id) else { continue; };
                                 fragment_id += 1;
                                 for payload in fragments {
@@ -296,21 +328,26 @@ fn unspecified_addr(addr: IpAddr) -> IpAddr {
     }
 }
 
-#[test]
-fn test_get_good_slashy_ocketaddr() {
-    let addr: IpAddr = "192.168.1.1".parse().unwrap();
-    let port: u16 = 7979;
-    let expected_addr = SocketAddr::new(addr, port);
-    let good_path = format!("{MASQUE_WELL_KNOWN_PATH}///{addr}/{port}////");
+#[cfg(test)]
+mod test {
+    use super::*;
 
-    assert_eq!(get_target_socketaddr(&good_path).unwrap(), expected_addr)
-}
+    #[test]
+    fn test_get_good_slashy_ocketaddr() {
+        let addr: IpAddr = "192.168.1.1".parse().unwrap();
+        let port: u16 = 7979;
+        let expected_addr = SocketAddr::new(addr, port);
+        let good_path = format!("{MASQUE_WELL_KNOWN_PATH}///{addr}/{port}////");
 
-#[test]
-fn test_get_bad_socketaddr() {
-    let addr: IpAddr = "192.168.1.1".parse().unwrap();
-    let port: u16 = 7979;
-    let good_path = format!("{MASQUE_WELL_KNOWN_PATH}{addr}adsfasd/asdfasdf/{port}");
+        assert_eq!(get_target_socketaddr(&good_path).unwrap(), expected_addr)
+    }
 
-    assert_eq!(get_target_socketaddr(&good_path), None)
+    #[test]
+    fn test_get_bad_socketaddr() {
+        let addr: IpAddr = "192.168.1.1".parse().unwrap();
+        let port: u16 = 7979;
+        let good_path = format!("{MASQUE_WELL_KNOWN_PATH}{addr}adsfasd/asdfasdf/{port}");
+
+        assert_eq!(get_target_socketaddr(&good_path), None)
+    }
 }
