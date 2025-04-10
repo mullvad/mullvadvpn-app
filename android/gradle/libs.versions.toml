@@ -41,8 +41,8 @@ grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
 
 # Koin
-koin = "4.0.3"
-koin-compose = "4.0.3"
+koin = "4.0.4"
+koin-compose = "4.0.4"
 
 # Ktor
 # Bumping to 3.1.0 causes an AbstractMethodError in the serialization logic (DROID-1820).
