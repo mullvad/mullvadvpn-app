@@ -75,7 +75,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
                 value: """
                 Obfuscation hides the WireGuard traffic inside another protocol. \
                 It can be used to help circumvent censorship and other types of filtering, \
-                where a plain WireGuard connect would be blocked.
+                where a plain WireGuard connection would be blocked.
                 """,
                 comment: ""
             )
