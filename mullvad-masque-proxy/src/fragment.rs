@@ -1,7 +1,4 @@
-use std::{
-    collections::{BTreeMap, VecDeque},
-    time::{Duration, Instant},
-};
+use std::collections::{BTreeMap, VecDeque};
 
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use h3::proto::varint::VarInt;
@@ -79,11 +76,7 @@ impl Fragments {
         let fragment_count = payload
             .try_get_u8()
             .map_err(|_| DefragError::PayloadTooSmall)?;
-        let fragment = Fragment {
-            index,
-            payload,
-            time_received: Instant::now(),
-        };
+        let fragment = Fragment { index, payload };
 
         // ensure that the fifo has capacity before pushing the new fragment id
         if self.fragment_index_fifo.len() >= FRAGMENT_BUFFER_CAP {
@@ -140,20 +133,11 @@ impl Fragments {
 
         Some(payload)
     }
-
-    pub fn clear_old_fragments(&mut self, max_age: Duration) {
-        self.fragment_map.retain(|_, fragments| {
-            fragments
-                .iter()
-                .any(|fragment| fragment.time_received.elapsed() <= max_age)
-        });
-    }
 }
 
 struct Fragment {
     index: u8,
     payload: Bytes,
-    time_received: Instant,
 }
 
 /// Fragment packet using the given maximum fragment size (including headers).
