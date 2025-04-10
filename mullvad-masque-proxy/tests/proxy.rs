@@ -1,5 +1,6 @@
 use std::net::SocketAddr;
 use std::sync::Arc;
+use std::time::Duration;
 
 use anyhow::Context;
 use bytes::BytesMut;
@@ -9,32 +10,36 @@ use tokio::fs;
 use mullvad_masque_proxy::client;
 use mullvad_masque_proxy::server;
 use tokio::net::UdpSocket;
+use tokio::time::timeout;
 
 /// Set up a MASQUE proxy and test that it can be used to communicate with some UDP destination
 #[tokio::test]
 async fn test_server_and_client_forwarding() -> anyhow::Result<()> {
-    const MTU: u16 = 1700;
-    let (client, server) = setup_masque(MTU).await?;
+    timeout(Duration::from_secs(1), async {
+        const MTU: u16 = 1700;
+        let (client, server) = setup_masque(MTU).await?;
 
-    // Proxy client -> destination
-    let mut rx_buf = BytesMut::with_capacity(128);
-    client.send(b"abc").await?;
-    let (_, proxy_addr) = server
-        .recv_buf_from(&mut rx_buf)
-        .await
-        .context("Expected to receive message")?;
-    assert_eq!(&*rx_buf, b"abc", "Expected to receive message from client");
+        // Proxy client -> destination
+        let mut rx_buf = BytesMut::with_capacity(128);
+        client.send(b"abc").await?;
+        let (_, proxy_addr) = server
+            .recv_buf_from(&mut rx_buf)
+            .await
+            .context("Expected to receive message")?;
+        assert_eq!(&*rx_buf, b"abc", "Expected to receive message from client");
 
-    // Destination -> proxy client
-    let mut rx_buf = BytesMut::with_capacity(128);
-    server.send_to(b"def", proxy_addr).await?;
-    client
-        .recv_buf(&mut rx_buf)
-        .await
-        .context("Expected to receive message")?;
-    assert_eq!(&*rx_buf, b"def", "Expected to receive message from server");
+        // Destination -> proxy client
+        let mut rx_buf = BytesMut::with_capacity(128);
+        server.send_to(b"def", proxy_addr).await?;
+        client
+            .recv_buf(&mut rx_buf)
+            .await
+            .context("Expected to receive message")?;
+        assert_eq!(&*rx_buf, b"def", "Expected to receive message from server");
 
-    Ok(())
+        Ok(())
+    })
+    .await?
 }
 
 /// End to end test with fragmentation.
@@ -42,55 +47,58 @@ async fn test_server_and_client_forwarding() -> anyhow::Result<()> {
 /// reach their destinations when fragmentation *should* be present.
 #[tokio::test]
 async fn test_server_and_client_fragmentation() -> anyhow::Result<()> {
-    const MTU: u16 = 1400;
-    const SEND_PACKET_SIZE: usize = 2500;
+    timeout(Duration::from_secs(1), async {
+        const MTU: u16 = 1500;
+        const SEND_PACKET_SIZE: usize = 2500;
 
-    let (client, server) = setup_masque(MTU).await?;
+        let (client, server) = setup_masque(MTU).await?;
 
-    // Proxy client -> destination
-    // Send a random packet, large enough to be fragmented
-    let mut fragment_me = vec![0u8; SEND_PACKET_SIZE];
-    rand::thread_rng().fill_bytes(&mut fragment_me);
+        // Proxy client -> destination
+        // Send a random packet, large enough to be fragmented
+        let mut fragment_me = vec![0u8; SEND_PACKET_SIZE];
+        rand::thread_rng().fill_bytes(&mut fragment_me);
 
-    client.send(&fragment_me).await?;
+        client.send(&fragment_me).await?;
 
-    let mut rx_buf = BytesMut::with_capacity(SEND_PACKET_SIZE + 100);
-    let (_, proxy_addr) = server
-        .recv_buf_from(&mut rx_buf)
-        .await
-        .context("Expected to receive message")?;
-    let read = rx_buf.split();
-    assert_eq!(
-        &*read, &fragment_me,
-        "Expected to receive reassembled message from client"
-    );
+        let mut rx_buf = BytesMut::with_capacity(SEND_PACKET_SIZE + 100);
+        let (_, proxy_addr) = server
+            .recv_buf_from(&mut rx_buf)
+            .await
+            .context("Expected to receive message")?;
+        let read = rx_buf.split();
+        assert_eq!(
+            &*read, &fragment_me,
+            "Expected to receive reassembled message from client"
+        );
 
-    // Destination -> proxy client
-    // Send a random packet, large enough to be fragmented
-    let mut fragment_me = vec![0u8; SEND_PACKET_SIZE];
-    rand::thread_rng().fill_bytes(&mut fragment_me);
+        // Destination -> proxy client
+        // Send a random packet, large enough to be fragmented
+        let mut fragment_me = vec![0u8; SEND_PACKET_SIZE];
+        rand::thread_rng().fill_bytes(&mut fragment_me);
 
-    server.send_to(&fragment_me, proxy_addr).await?;
+        server.send_to(&fragment_me, proxy_addr).await?;
 
-    let mut rx_buf = BytesMut::with_capacity(SEND_PACKET_SIZE + 100);
-    let blen = client
-        .recv_buf(&mut rx_buf)
-        .await
-        .context("Expected to receive message")?;
+        let mut rx_buf = BytesMut::with_capacity(SEND_PACKET_SIZE + 100);
+        let blen = client
+            .recv_buf(&mut rx_buf)
+            .await
+            .context("Expected to receive message")?;
 
-    let read = rx_buf.split();
-    eprintln!(
-        "from server: {}, {}, {}",
-        fragment_me.len(),
-        read.len(),
-        blen
-    );
-    assert_eq!(
-        &*read, &fragment_me,
-        "Expected to receive reassembled message from server"
-    );
+        let read = rx_buf.split();
+        eprintln!(
+            "from server: {}, {}, {}",
+            fragment_me.len(),
+            read.len(),
+            blen
+        );
+        assert_eq!(
+            &*read, &fragment_me,
+            "Expected to receive reassembled message from server"
+        );
 
-    Ok(())
+        Ok(())
+    })
+    .await?
 }
 
 /// Set up a client and server connected by a MASQUE proxy.
