@@ -18,6 +18,7 @@ import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
 import java.io.File
 import java.net.InetAddress
+import java.util.logging.Level
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -41,6 +42,7 @@ import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.fromDomain
 import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.toDomain
+import net.mullvad.mullvadvpn.lib.daemon.grpc.util.AndroidLoggingHandler
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.connectivityFlow
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -201,6 +203,13 @@ class ManagementService(
     private val _mutableCurrentAccessMethod = MutableStateFlow<ApiAccessMethodSetting?>(null)
     val currentAccessMethod: Flow<ApiAccessMethodSetting> =
         _mutableCurrentAccessMethod.filterNotNull()
+
+    init {
+        if (extensiveLogging && ENABLE_TRACE_LOGGING) {
+            AndroidLoggingHandler.reset(AndroidLoggingHandler())
+            java.util.logging.Logger.getLogger("io.grpc").level = Level.FINEST
+        }
+    }
 
     fun start() {
         // Just to ensure that connection is set up since the connection won't be setup without a
@@ -817,6 +826,10 @@ class ManagementService(
         } else {
             throw it
         }
+    }
+
+    companion object {
+        const val ENABLE_TRACE_LOGGING = false
     }
 }
 
