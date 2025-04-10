@@ -230,10 +230,16 @@ export class ErrorNotificationProvider
         );
       case TunnelParameterError.ipv4Unavailable:
         // TRANSLATORS: Label for notification when IPv4 is not available.
-        return messages.pgettext('notifications', 'IPv4 is not available, please try changing Device IP version.');
+        return messages.pgettext(
+          'notifications',
+          'IPv4 is not available, please try changing Device IP version.',
+        );
       case TunnelParameterError.ipv6Unavailable:
         // TRANSLATORS: Label for notification when IPv6 is not available.
-        return messages.pgettext('notifications', 'IPv6 is not available, please try changing Device IP version.');
+        return messages.pgettext(
+          'notifications',
+          'IPv6 is not available, please try changing Device IP version.',
+        );
     }
   }
 
