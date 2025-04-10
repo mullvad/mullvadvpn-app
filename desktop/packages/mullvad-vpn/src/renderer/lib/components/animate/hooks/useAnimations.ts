@@ -1,7 +1,7 @@
 import { css, RuleSet } from 'styled-components';
 
-import { Animation } from '../Animate';
 import { animations } from '../animations';
+import { Animation } from '../types';
 import { createAnimationDeclaration } from '../utils';
 
 export const useAnimations = (values: Animation[]) => {
