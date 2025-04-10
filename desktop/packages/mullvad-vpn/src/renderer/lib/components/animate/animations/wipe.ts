@@ -7,11 +7,11 @@ export const wipeDownIn = createAnimation(
   css`
     from {
       display: none;
-      height: 0;
+      max-height: 0;
     }
     to {
       display: block;
-      height: min-content;
+      max-height: min-content;
     }
   `,
 );
@@ -21,11 +21,11 @@ export const wipeVerticalOut = createAnimation(
   css`
     from {
       display: block;
-      height: min-content;
+      max-height: min-content;
     }
     to {
       display: none;
-      height: 0;
+      max-height: 0;
     }
   `,
 );
