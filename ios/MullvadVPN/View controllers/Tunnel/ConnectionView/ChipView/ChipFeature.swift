@@ -19,10 +19,10 @@ protocol ChipFeature {
 }
 
 struct DaitaFeature: ChipFeature {
-    let settings: LatestTunnelSettings
+    let state: TunnelState
 
     var isEnabled: Bool {
-        settings.daita.daitaState.isEnabled
+        state.isDaita ?? false
     }
 
     var name: String {
@@ -36,9 +36,10 @@ struct DaitaFeature: ChipFeature {
 }
 
 struct QuantumResistanceFeature: ChipFeature {
-    let settings: LatestTunnelSettings
+    let state: TunnelState
+
     var isEnabled: Bool {
-        settings.tunnelQuantumResistance.isEnabled
+        state.isPostQuantum ?? false
     }
 
     var name: String {
