@@ -9,6 +9,10 @@
 import MullvadTypes
 
 public struct MullvadApiContext: @unchecked Sendable {
+    enum MullvadApiContextError: Error {
+        case failedToConstructApiClient
+    }
+
     public let context: SwiftApiContext
     private let shadowsocksBridgeProvider: SwiftShadowsocksBridgeProviding!
     private let shadowsocksBridgeProviderWrapper: SwiftShadowsocksLoaderWrapper!
@@ -33,7 +37,7 @@ public struct MullvadApiContext: @unchecked Sendable {
         )
 
         if context._0 == nil {
-            throw NSError(domain: "", code: 0)
+            throw MullvadApiContextError.failedToConstructApiClient
         }
     }
 }

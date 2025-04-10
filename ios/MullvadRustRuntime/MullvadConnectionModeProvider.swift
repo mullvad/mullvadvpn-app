@@ -17,8 +17,8 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
     let encryptedDNSMethod = methods.first(where: { $0.proxyConfiguration == .encryptedDNS })!
 
     // 2. Get the custom access methods
-    let filter: [PersistentProxyConfiguration] = [.direct, .bridges, .encryptedDNS]
-    let customMethods = methods.filter { filter.contains($0.proxyConfiguration) == false }
+    let defaultMethods: [PersistentProxyConfiguration] = [.direct, .bridges, .encryptedDNS]
+    let customMethods = methods.filter { defaultMethods.contains($0.proxyConfiguration) == false }
 
     // 3. Convert the builtin access methods
     let directMethodRaw = convert_builtin_access_method_setting(
