@@ -28,7 +28,7 @@ pub enum Error {
     NoUrlFound,
 }
 
-type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub struct DownloaderHandle {
@@ -48,12 +48,17 @@ impl Drop for DownloaderHandle {
     }
 }
 
-impl DownloaderHandle {
-    /// Wait for the downloader to finish
-    pub async fn wait(&mut self) -> Result<PathBuf> {
-        let path = (&mut self.task).await?;
+impl std::future::Future for DownloaderHandle {
+    type Output = Result<PathBuf>;
+
+    fn poll(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Self::Output> {
+        let task = std::pin::Pin::new(&mut self.task);
+        let ready = futures::ready!(task.poll(cx))?;
         self.dropped_tx = None; // Prevent sending the aborted event after successful download
-        path
+        std::task::Poll::Ready(ready)
     }
 }
 
