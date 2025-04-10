@@ -27,11 +27,13 @@ const fn compute_udp_payload_size(mtu: u16, target_addr: SocketAddr) -> u16 {
 }
 
 /// Minimum allowed MTU (IPv6) is the overhead of all headers, plus 1 byte for actual data.
+/// QUIC defines that clients must support UDP payloads of at least 1200 bytes.
+/// <https://datatracker.ietf.org/doc/html/rfc9000#section-8.1>
 // 20 = IPv4 header (without optional fields)
-const MIN_IPV4_MTU: u16 =
-    20 + UDP_HEADER_SIZE + QUIC_HEADER_SIZE + FRAGMENT_HEADER_SIZE_FRAGMENTED + 1;
+pub const MIN_IPV4_MTU: u16 = 20 + UDP_HEADER_SIZE + 1200;
 
 /// Minimum allowed MTU (IPv6) is the overhead of all headers, plus 1 byte for actual data.
+/// QUIC defines that clients must support UDP payloads of at least 1200 bytes.
+/// <https://datatracker.ietf.org/doc/html/rfc9000#section-8.1>
 // 40 = IPv6 header (without optional fields)
-const MIN_IPV6_MTU: u16 =
-    40 + UDP_HEADER_SIZE + QUIC_HEADER_SIZE + FRAGMENT_HEADER_SIZE_FRAGMENTED + 1;
+pub const MIN_IPV6_MTU: u16 = 40 + UDP_HEADER_SIZE + 1200;
