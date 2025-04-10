@@ -28,8 +28,10 @@ const fn compute_udp_payload_size(mtu: u16, target_addr: SocketAddr) -> u16 {
 
 /// Minimum allowed MTU (IPv6) is the overhead of all headers, plus 1 byte for actual data.
 // 20 = IPv4 header (without optional fields)
-const MIN_IPV4_MTU: u16 = 20 + UDP_HEADER_SIZE + QUIC_HEADER_SIZE + FRAGMENT_HEADER_SIZE_FRAGMENTED + 1;
+const MIN_IPV4_MTU: u16 =
+    20 + UDP_HEADER_SIZE + QUIC_HEADER_SIZE + FRAGMENT_HEADER_SIZE_FRAGMENTED + 1;
 
 /// Minimum allowed MTU (IPv6) is the overhead of all headers, plus 1 byte for actual data.
 // 40 = IPv6 header (without optional fields)
-const MIN_IPV6_MTU: u16 = 40 + UDP_HEADER_SIZE + QUIC_HEADER_SIZE + FRAGMENT_HEADER_SIZE_FRAGMENTED + 1;
+const MIN_IPV6_MTU: u16 =
+    40 + UDP_HEADER_SIZE + QUIC_HEADER_SIZE + FRAGMENT_HEADER_SIZE_FRAGMENTED + 1;
