@@ -205,6 +205,7 @@ export class ErrorNotificationProvider
   }
 
   private getTunnelParameterMessage(error: TunnelParameterError): string {
+    const ipVersion = messages.pgettext('wireguard-settings-view', 'IP version');
     switch (error) {
       /// TODO: once bridge constraints can be set, add a more descriptive error message
       case TunnelParameterError.noMatchingBridgeRelay:
@@ -227,6 +228,24 @@ export class ErrorNotificationProvider
         return messages.pgettext(
           'notifications',
           'Unable to resolve host of custom tunnel. Try changing your settings.',
+        );
+      case TunnelParameterError.ipv4Unavailable:
+        return sprintf(
+          // TRANSLATORS: Label for notification when IPv4 is not available.
+          messages.pgettext(
+            'notifications',
+            'IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting.',
+          ),
+          { ipVersionFeatureName: ipVersion },
+        );
+      case TunnelParameterError.ipv6Unavailable:
+        return sprintf(
+          // TRANSLATORS: Label for notification when IPv6 is not available.
+          messages.pgettext(
+            'notifications',
+            'IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting.',
+          ),
+          { ipVersionFeatureName: ipVersion },
         );
     }
   }
