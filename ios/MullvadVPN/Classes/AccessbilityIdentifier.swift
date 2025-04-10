@@ -64,6 +64,7 @@ public enum AccessibilityIdentifier: Equatable {
     case openPortSelectorMenuButton
     case cancelPurchaseListButton
     case acceptLocalNetworkSharingButton
+
     // Cells
     case deviceCell
     case accessMethodDirectCell
@@ -99,6 +100,8 @@ public enum AccessibilityIdentifier: Equatable {
     case daitaConfirmAlertEnableButton
     case multihopCell
     case daitaCell
+    case daitaFilterPill
+    case obfuscationFilterPill
 
     // Labels
     case accountPageDeviceNameLabel

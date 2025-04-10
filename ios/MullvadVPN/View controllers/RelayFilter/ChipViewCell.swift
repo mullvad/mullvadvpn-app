@@ -93,6 +93,7 @@ class ChipViewCell: UIView, UIContentView {
         titleLabel.textColor = chipConfiguration.textColor
         titleLabel.font = chipConfiguration.font
         closeButton.isHidden = chipConfiguration.didTapButton == nil
+        titleLabel.accessibilityIdentifier = chipConfiguration.accessibilityId?.asString
         if chipConfiguration.didTapButton != nil {
             closeButton.addAction(closeButtonActionHandler, for: .touchUpInside)
         } else {
@@ -109,6 +110,7 @@ struct ChipConfiguration: UIContentConfiguration {
 
     var group: Group
     var title: String
+    var accessibilityId: AccessibilityIdentifier? = nil
     var textColor: UIColor = .white
     var font = UIFont.preferredFont(forTextStyle: .caption1)
     var backgroundColor: UIColor = .primaryColor
