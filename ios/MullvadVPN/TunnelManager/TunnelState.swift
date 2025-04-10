@@ -146,6 +146,31 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
         }
     }
 
+    // the two accessors below return a Bool?, to differentiate known
+    // truth values from undefined/meaningless values, which the caller
+    // may want to interpret differently
+    var isPostQuantum: Bool? {
+        switch self {
+        case let .connecting(_, isPostQuantum: isPostQuantum, isDaita: _),
+             let .connected(_, isPostQuantum: isPostQuantum, isDaita: _),
+             let .reconnecting(_, isPostQuantum: isPostQuantum, isDaita: _):
+            isPostQuantum
+        default:
+            nil
+        }
+    }
+
+    var isDaita: Bool? {
+        switch self {
+        case let .connecting(_, isPostQuantum: _, isDaita: isDaita),
+             let .connected(_, isPostQuantum: _, isDaita: isDaita),
+             let .reconnecting(_, isPostQuantum: _, isDaita: isDaita):
+            isDaita
+        default:
+            nil
+        }
+    }
+
     var isMultihop: Bool {
         relays?.entry != nil
     }
