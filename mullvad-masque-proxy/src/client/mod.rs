@@ -24,7 +24,7 @@ use crate::{
     compute_udp_payload_size,
     fragment::{self, Fragments},
     stats::Stats,
-    FRAGMENT_HEADER_SIZE_FRAGMENTED, QUIC_HEADER_SIZE,
+    FRAGMENT_HEADER_SIZE_FRAGMENTED, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
 };
 
 const MAX_HEADER_SIZE: u64 = 8192;
@@ -66,6 +66,8 @@ pub enum Error {
     Connect(#[from] quinn::ConnectError),
     #[error("Failed to connect to QUIC endpoint")]
     Connection(#[from] quinn::ConnectionError),
+    #[error("Invalid MTU: must be at least {min_mtu}")]
+    InvalidMtu { min_mtu: u16 },
     #[error("Invalid max_udp_payload_size")]
     InvalidMaxUdpPayload(#[source] quinn::ConfigError),
     #[error("Connection closed while sending request to initiate proxying")]
@@ -159,6 +161,8 @@ impl Client {
         client_config: ClientConfig,
         mtu: u16,
     ) -> Result<Self> {
+        Self::validate_mtu(mtu, target_addr)?;
+
         let max_udp_payload_size = compute_udp_payload_size(mtu, target_addr);
 
         let endpoint = Self::setup_quic_endpoint(local_addr, max_udp_payload_size)?;
@@ -184,6 +188,19 @@ impl Client {
             max_udp_payload_size,
             stats: Arc::default(),
         })
+    }
+
+    const fn validate_mtu(mtu: u16, target_addr: SocketAddr) -> Result<()> {
+        let min_mtu = if target_addr.is_ipv4() {
+            MIN_IPV4_MTU
+        } else {
+            MIN_IPV6_MTU
+        };
+        if mtu >= min_mtu {
+            Ok(())
+        } else {
+            Err(Error::InvalidMtu { min_mtu })
+        }
     }
 
     fn setup_quic_endpoint(local_addr: SocketAddr, max_udp_payload_size: u16) -> Result<Endpoint> {

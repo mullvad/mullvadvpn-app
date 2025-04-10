@@ -20,7 +20,7 @@ use tokio::{net::UdpSocket, time::interval};
 use crate::{
     compute_udp_payload_size,
     fragment::{self, Fragments},
-    FRAGMENT_HEADER_SIZE_FRAGMENTED, QUIC_HEADER_SIZE,
+    FRAGMENT_HEADER_SIZE_FRAGMENTED, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -31,6 +31,8 @@ pub enum Error {
     BindSocket(#[source] io::Error),
     #[error("Failed to send negotiation response")]
     SendNegotiationResponse(#[source] h3::Error),
+    #[error("Invalid MTU: must be at least {min_mtu}")]
+    InvalidMtu { min_mtu: u16 },
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -61,6 +63,8 @@ impl Server {
         tls_config: Arc<rustls::ServerConfig>,
         mtu: u16,
     ) -> Result<Self> {
+        Self::validate_mtu(mtu, bind_addr)?;
+
         let server_config = quinn::ServerConfig::with_crypto(Arc::new(
             QuicServerConfig::try_from(tls_config).map_err(Error::BadTlsConfig)?,
         ));
@@ -74,6 +78,19 @@ impl Server {
             },
             mtu,
         })
+    }
+
+    const fn validate_mtu(mtu: u16, bind_addr: SocketAddr) -> Result<()> {
+        let min_mtu = if bind_addr.is_ipv4() {
+            MIN_IPV4_MTU
+        } else {
+            MIN_IPV6_MTU
+        };
+        if mtu >= min_mtu {
+            Ok(())
+        } else {
+            Err(Error::InvalidMtu { min_mtu })
+        }
     }
 
     pub fn local_addr(&self) -> io::Result<SocketAddr> {

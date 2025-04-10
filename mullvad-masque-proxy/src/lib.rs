@@ -25,3 +25,9 @@ const fn compute_udp_payload_size(mtu: u16, target_addr: SocketAddr) -> u16 {
     let ip_overhead = if target_addr.is_ipv4() { 20 } else { 40 };
     mtu - ip_overhead - UDP_HEADER_SIZE
 }
+
+/// Minimum allowed MTU (IPv4)
+const MIN_IPV4_MTU: u16 = 576;
+
+/// Minimum allowed MTU (IPv6)
+const MIN_IPV6_MTU: u16 = 1280;
