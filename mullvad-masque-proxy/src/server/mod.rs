@@ -181,6 +181,7 @@ impl Server {
         let max_udp_payload_size = compute_udp_payload_size(mtu, target_addr);
 
         let stream_id = stream.id();
+        let stream_id_size = VarInt::from(stream_id).size() as u16;
         let mut proxy_recv_buf = BytesMut::with_capacity(100 * crate::PACKET_BUFFER_SIZE);
 
         let mut fragments = Fragments::default();
@@ -216,9 +217,9 @@ impl Server {
 
                             // Maximum QUIC payload (including fragmentation headers)
                             let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
-                                max_datagram_size as u16 - 1
+                               max_datagram_size as u16 - stream_id_size
                             } else {
-                                max_udp_payload_size - QUIC_HEADER_SIZE
+                                max_udp_payload_size - QUIC_HEADER_SIZE - stream_id_size
                             };
 
                             if received_packet.len() <= usize::from(maximum_packet_size) {
@@ -227,9 +228,8 @@ impl Server {
                                 }
                             } else {
                                 let _ = VarInt::decode(&mut received_packet);
-                                let fragment_payload_size = maximum_packet_size - FRAGMENT_HEADER_SIZE_FRAGMENTED;
 
-                                let Ok(fragments) = fragment::fragment_packet(fragment_payload_size, &mut received_packet, fragment_id) else { continue; };
+                                let Ok(fragments) = fragment::fragment_packet(maximum_packet_size, &mut received_packet, fragment_id) else { continue; };
                                 fragment_id += 1;
                                 for payload in fragments {
                                     if connection.send_datagram(stream_id, payload).is_err() {

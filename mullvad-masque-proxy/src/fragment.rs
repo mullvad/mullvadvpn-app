@@ -124,9 +124,9 @@ pub fn fragment_packet(
         .chunks(fragment_payload_size.into())
         .enumerate()
         .map(move |(fragment_index, fragment_payload)| {
-            let mut fragment = BytesMut::with_capacity(
-                usize::from(fragment_payload_size) + usize::from(FRAGMENT_HEADER_SIZE_FRAGMENTED),
-            );
+            let mut fragment = BytesMut::with_capacity(usize::from(
+                fragment_payload_size + FRAGMENT_HEADER_SIZE_FRAGMENTED,
+            ));
             crate::HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID.encode(&mut fragment);
             fragment.put_u16(packet_id);
             fragment.put_u8(
