@@ -1,25 +1,28 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.None
+import arrow.core.Option
+import arrow.core.Some
 import co.touchlab.kermit.Logger
+import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestination
 import java.net.Inet6Address
 import java.net.InetAddress
-import java.net.UnknownHostException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
@@ -34,6 +37,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
+import net.mullvad.mullvadvpn.util.onFirst
 
 sealed interface VpnSettingsSideEffect {
     sealed interface ShowToast : VpnSettingsSideEffect {
@@ -47,177 +51,149 @@ sealed interface VpnSettingsSideEffect {
 
 @Suppress("TooManyFunctions")
 class VpnSettingsViewModel(
-    private val repository: SettingsRepository,
+    private val settingsRepository: SettingsRepository,
     relayListRepository: RelayListRepository,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
+    savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
+    private val navArgs = VpnSettingsDestination.argsFrom(savedStateHandle)
+    private val _mutableIsContentBlockersExpanded = MutableStateFlow<Option<Boolean>>(None)
 
     private val _uiSideEffect = Channel<VpnSettingsSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val customPort = MutableStateFlow<Port?>(null)
+    private val customPort = MutableStateFlow<Option<Port?>>(None)
 
-    private val vmState =
+    val uiState =
         combine(
-                repository.settingsUpdates,
+                settingsRepository.settingsUpdates.filterNotNull().onFirst {
+                    // Initialize wg port and content blockers state expand state
+                    val initialPort = it.getWireguardPort().getOrNull()
+                    customPort.value =
+                        Some(
+                            if (initialPort !in WIREGUARD_PRESET_PORTS) {
+                                initialPort
+                            } else {
+                                null
+                            }
+                        )
+                    _mutableIsContentBlockersExpanded.value =
+                        Some(it.contentBlockersSettings().isAnyBlockerEnabled())
+                },
                 relayListRepository.portRanges,
-                customPort,
+                customPort.filterIsInstance<Some<Port?>>().map { it.value },
                 autoStartAndConnectOnBootRepository.autoStartAndConnectOnBoot,
-            ) { settings, portRanges, customWgPort, autoStartAndConnectOnBoot ->
-                VpnSettingsViewModelState(
-                    mtuValue = settings?.tunnelOptions?.wireguard?.mtu,
-                    isLocalNetworkSharingEnabled = settings?.allowLan == true,
-                    isCustomDnsEnabled = settings?.isCustomDnsEnabled() == true,
-                    customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
-                    contentBlockersOptions =
-                        settings?.contentBlockersSettings() ?: DefaultDnsOptions(),
-                    obfuscationMode = settings?.selectedObfuscationMode() ?: ObfuscationMode.Off,
-                    selectedUdp2TcpObfuscationPort =
-                        settings?.obfuscationSettings?.udp2tcp?.port ?: Constraint.Any,
+                _mutableIsContentBlockersExpanded.filterIsInstance<Some<Boolean>>().map { it.value },
+            ) {
+                settings,
+                portRanges,
+                customWgPort,
+                autoStartAndConnectOnBoot,
+                isContentBlockersExpanded ->
+                VpnSettingsUiState.Content.from(
+                    mtu = settings.tunnelOptions.wireguard.mtu,
+                    isLocalNetworkSharingEnabled = settings.allowLan,
+                    isCustomDnsEnabled = settings.isCustomDnsEnabled(),
+                    customDnsItems = settings.addresses().asStringAddressList(),
+                    contentBlockersOptions = settings.contentBlockersSettings(),
+                    obfuscationMode = settings.selectedObfuscationMode(),
+                    selectedUdp2TcpObfuscationPort = settings.obfuscationSettings.udp2tcp.port,
                     selectedShadowsocksObfuscationPort =
-                        settings?.obfuscationSettings?.shadowsocks?.port ?: Constraint.Any,
-                    quantumResistant = settings?.quantumResistant() ?: QuantumResistantState.Off,
-                    selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any,
+                        settings.obfuscationSettings.shadowsocks.port,
+                    quantumResistant = settings.quantumResistant(),
+                    selectedWireguardPort = settings.getWireguardPort(),
                     customWireguardPort = customWgPort,
                     availablePortRanges = portRanges,
                     systemVpnSettingsAvailable = systemVpnSettingsUseCase(),
                     autoStartAndConnectOnBoot = autoStartAndConnectOnBoot,
-                    deviceIpVersion = settings?.getDeviceIpVersion() ?: Constraint.Any,
-                    ipv6Enabled = settings?.tunnelOptions?.genericOptions?.enableIpv6 == true,
+                    deviceIpVersion = settings.getDeviceIpVersion(),
+                    isIpv6Enabled = settings.tunnelOptions.genericOptions.enableIpv6,
+                    isContentBlockersExpanded = isContentBlockersExpanded,
+                    isModal = navArgs.isModal,
                 )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                VpnSettingsViewModelState.default(),
+                VpnSettingsUiState.Loading(navArgs.isModal),
             )
-
-    val uiState =
-        vmState
-            .map(VpnSettingsViewModelState::toUiState)
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(),
-                VpnSettingsUiState.createDefault(),
-            )
-
-    init {
-        viewModelScope.launch(dispatcher) {
-            val initialSettings = repository.settingsUpdates.filterNotNull().first()
-            customPort.update {
-                val initialPort = initialSettings.getWireguardPort()
-                if (initialPort.getOrNull() !in WIREGUARD_PRESET_PORTS) {
-                    initialPort.getOrNull()
-                } else {
-                    null
-                }
-            }
-        }
-    }
 
     fun onToggleLocalNetworkSharing(isEnabled: Boolean) {
         viewModelScope.launch(dispatcher) {
-            repository.setLocalNetworkSharing(isEnabled).onLeft {
+            settingsRepository.setLocalNetworkSharing(isEnabled).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
     }
 
-    fun onDnsDialogDismissed() {
-        if (vmState.value.customDnsList.isEmpty()) {
-            onToggleCustomDns(enable = false)
-        }
-    }
-
-    fun onToggleCustomDns(enable: Boolean) {
+    fun onToggleCustomDns(enable: Boolean) =
         viewModelScope.launch {
-            repository
-                .setDnsState(if (enable) DnsState.Custom else DnsState.Default)
-                .fold(
-                    { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) },
-                    {
-                        if (enable && vmState.value.customDnsList.isEmpty()) {
-                            viewModelScope.launch {
-                                _uiSideEffect.send(VpnSettingsSideEffect.NavigateToDnsDialog)
-                            }
-                        } else if (vmState.value.customDnsList.isNotEmpty()) {
-                            showApplySettingChangesWarningToast()
-                        }
-                    },
-                )
-        }
-    }
+            val settings = settingsRepository.settingsUpdates.value
+            if (settings == null) {
+                showGenericErrorToast()
+                return@launch
+            }
 
-    fun onToggleBlockAds(isEnabled: Boolean) {
-        updateDefaultDnsOptionsViaRepository(
-            vmState.value.contentBlockersOptions.copy(blockAds = isEnabled)
-        )
-        showApplySettingChangesWarningToast()
-    }
+            val hasDnsEntries = settings.addresses().isNotEmpty()
 
-    fun onToggleBlockTrackers(isEnabled: Boolean) {
-        updateDefaultDnsOptionsViaRepository(
-            vmState.value.contentBlockersOptions.copy(blockTrackers = isEnabled)
-        )
-        showApplySettingChangesWarningToast()
-    }
-
-    fun onToggleBlockMalware(isEnabled: Boolean) {
-        updateDefaultDnsOptionsViaRepository(
-            vmState.value.contentBlockersOptions.copy(blockMalware = isEnabled)
-        )
-        showApplySettingChangesWarningToast()
-    }
-
-    fun onToggleBlockAdultContent(isEnabled: Boolean) {
-        updateDefaultDnsOptionsViaRepository(
-            vmState.value.contentBlockersOptions.copy(blockAdultContent = isEnabled)
-        )
-        showApplySettingChangesWarningToast()
-    }
-
-    fun onToggleBlockGambling(isEnabled: Boolean) {
-        updateDefaultDnsOptionsViaRepository(
-            vmState.value.contentBlockersOptions.copy(blockGambling = isEnabled)
-        )
-        showApplySettingChangesWarningToast()
-    }
-
-    fun onToggleBlockSocialMedia(isEnabled: Boolean) {
-        updateDefaultDnsOptionsViaRepository(
-            vmState.value.contentBlockersOptions.copy(blockSocialMedia = isEnabled)
-        )
-        showApplySettingChangesWarningToast()
-    }
-
-    fun onStopEvent() {
-        viewModelScope.launch {
-            if (vmState.value.customDnsList.isEmpty()) {
-                repository.setDnsState(DnsState.Default).onLeft {
-                    _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+            if (hasDnsEntries) {
+                settingsRepository
+                    .setDnsState(if (enable) DnsState.Custom else DnsState.Default)
+                    .fold({ showGenericErrorToast() }, { showApplySettingChangesWarningToast() })
+            } else {
+                // If they enable custom DNS and has no current entries we show the dialog
+                // to add one.
+                viewModelScope.launch {
+                    _uiSideEffect.send(VpnSettingsSideEffect.NavigateToDnsDialog)
                 }
             }
         }
+
+    fun onToggleContentBlockersExpand() =
+        _mutableIsContentBlockersExpanded.update { it.map { expand -> !expand } }
+
+    fun onToggleBlockAds(isEnabled: Boolean) = updateContentBlockersAndNotify {
+        it.copy(blockAds = isEnabled)
+    }
+
+    fun onToggleBlockTrackers(isEnabled: Boolean) = updateContentBlockersAndNotify {
+        it.copy(blockTrackers = isEnabled)
+    }
+
+    fun onToggleBlockMalware(isEnabled: Boolean) = updateContentBlockersAndNotify {
+        it.copy(blockMalware = isEnabled)
+    }
+
+    fun onToggleBlockAdultContent(isEnabled: Boolean) = updateContentBlockersAndNotify {
+        it.copy(blockAdultContent = isEnabled)
+    }
+
+    fun onToggleBlockGambling(isEnabled: Boolean) = updateContentBlockersAndNotify {
+        it.copy(blockGambling = isEnabled)
+    }
+
+    fun onToggleBlockSocialMedia(isEnabled: Boolean) = updateContentBlockersAndNotify {
+        it.copy(blockSocialMedia = isEnabled)
     }
 
     fun onSelectObfuscationMode(obfuscationMode: ObfuscationMode) {
         viewModelScope.launch(dispatcher) {
-            repository.setObfuscation(obfuscationMode).onLeft {
+            settingsRepository.setObfuscation(obfuscationMode).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
     }
 
     fun onObfuscationPortSelected(port: Constraint<Port>) {
-        viewModelScope.launch { repository.setCustomUdp2TcpObfuscationPort(port) }
+        viewModelScope.launch { settingsRepository.setCustomUdp2TcpObfuscationPort(port) }
     }
 
     fun onSelectQuantumResistanceSetting(quantumResistant: QuantumResistantState) {
         viewModelScope.launch(dispatcher) {
-            repository.setWireguardQuantumResistant(quantumResistant).onLeft {
+            settingsRepository.setWireguardQuantumResistant(quantumResistant).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
@@ -225,72 +201,60 @@ class VpnSettingsViewModel(
 
     fun onWireguardPortSelected(port: Constraint<Port>) {
         if (port is Constraint.Only && port.value !in WIREGUARD_PRESET_PORTS) {
-            customPort.update { port.value }
+            customPort.update { Some(port.value) }
         }
-        viewModelScope.launch { wireguardConstraintsRepository.setWireguardPort(port = port) }
-    }
-
-    fun resetCustomPort() {
-        val isCustom = vmState.value.isCustomWireguardPort
-        customPort.update { null }
-        // If custom port was selected, update selection to be any.
-        if (isCustom) {
-            viewModelScope.launch {
-                wireguardConstraintsRepository.setWireguardPort(port = Constraint.Any)
+        viewModelScope.launch {
+            wireguardConstraintsRepository.setWireguardPort(port = port).onLeft {
+                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
     }
 
-    fun onToggleAutoStartAndConnectOnBoot(autoStartAndConnect: Boolean) {
-        viewModelScope.launch(dispatcher) {
-            autoStartAndConnectOnBootRepository.setAutoStartAndConnectOnBoot(autoStartAndConnect)
+    fun resetCustomPort() {
+        customPort.update { Some(null) }
+        viewModelScope.launch {
+            wireguardConstraintsRepository.setWireguardPort(port = Constraint.Any)
         }
     }
 
-    fun onDeviceIpVersionSelected(ipVersion: Constraint<IpVersion>) {
+    fun onToggleAutoStartAndConnectOnBoot(autoStartAndConnect: Boolean) =
+        viewModelScope.launch(dispatcher) {
+            autoStartAndConnectOnBootRepository.setAutoStartAndConnectOnBoot(autoStartAndConnect)
+        }
+
+    fun onDeviceIpVersionSelected(ipVersion: Constraint<IpVersion>) =
         viewModelScope.launch(dispatcher) {
             wireguardConstraintsRepository.setDeviceIpVersion(ipVersion).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
-    }
 
-    fun setIpv6Enabled(enable: Boolean) {
+    fun setIpv6Enabled(enable: Boolean) =
         viewModelScope.launch(dispatcher) {
-            repository.setIpv6Enabled(enable).onLeft {
+            settingsRepository.setIpv6Enabled(enable).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
-    }
 
-    private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
+    private fun updateContentBlockersAndNotify(update: (DefaultDnsOptions) -> DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
-            repository
-                .setDnsOptions(
-                    isCustomDnsEnabled = vmState.value.isCustomDnsEnabled,
-                    dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList(),
-                    contentBlockersOptions = contentBlockersOption,
+            settingsRepository
+                .updateContentBlockers(update)
+                .fold(
+                    {
+                        Logger.e("Failed to update content blockers")
+                        _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+                    },
+                    { showApplySettingChangesWarningToast() },
                 )
-                .onLeft { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
         }
 
-    private fun List<String>.asInetAddressList(): List<InetAddress> {
-        return try {
-            map { InetAddress.getByName(it) }
-        } catch (_: UnknownHostException) {
-            Logger.e("Error parsing the DNS address list.")
-            emptyList()
-        }
-    }
-
-    private fun List<InetAddress>.asStringAddressList(): List<CustomDnsItem> {
-        return map {
-            CustomDnsItem(
-                address = it.hostAddress ?: EMPTY_STRING,
-                isLocal = it.isLocalAddress(),
-                isIpv6 = it is Inet6Address,
-            )
-        }
+    private fun List<InetAddress>.asStringAddressList(): List<CustomDnsItem> = map {
+        CustomDnsItem(
+            address = it.hostAddress ?: EMPTY_STRING,
+            isLocal = it.isLocalAddress(),
+            isIpv6 = it is Inet6Address,
+        )
     }
 
     private fun Settings.quantumResistant() = tunnelOptions.wireguard.quantumResistant
@@ -309,19 +273,15 @@ class VpnSettingsViewModel(
     private fun Settings.getDeviceIpVersion() =
         relaySettings.relayConstraints.wireguardConstraints.ipVersion
 
-    private fun InetAddress.isLocalAddress(): Boolean {
-        return isLinkLocalAddress || isSiteLocalAddress
-    }
+    private fun InetAddress.isLocalAddress(): Boolean = isLinkLocalAddress || isSiteLocalAddress
 
-    fun showApplySettingChangesWarningToast() {
+    fun showApplySettingChangesWarningToast() =
         viewModelScope.launch {
             _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.ApplySettingsWarning)
         }
-    }
 
-    fun showGenericErrorToast() {
+    fun showGenericErrorToast() =
         viewModelScope.launch { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
-    }
 
     companion object {
         private const val EMPTY_STRING = ""

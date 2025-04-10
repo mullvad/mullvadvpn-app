@@ -241,6 +241,17 @@ function getFeatureIndicatorLabel(indicator: FeatureIndicator) {
   switch (indicator) {
     case FeatureIndicator.daita:
       return strings.daita;
+    case FeatureIndicator.daitaMultihop:
+      return sprintf(
+        // TRANSLATORS: This is used as a feature indicator to show that DAITA is enabled through
+        // TRANSLATORS: multihop.
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(DAITA)s - Is a non-translatable feature "DAITA"
+        messages.pgettext('connect-view', '%(DAITA)s: Multihop'),
+        {
+          DAITA: strings.daita,
+        },
+      );
     case FeatureIndicator.udp2tcp:
     case FeatureIndicator.shadowsocks:
       return messages.pgettext('wireguard-settings-view', 'Obfuscation');

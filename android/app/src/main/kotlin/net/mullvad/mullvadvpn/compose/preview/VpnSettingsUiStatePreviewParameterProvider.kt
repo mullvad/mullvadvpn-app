@@ -1,13 +1,14 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
+import net.mullvad.mullvadvpn.viewmodel.VpnSettingsUiState
 
 private const val MTU = 1337
 @Suppress("MagicNumber") private val PORT1 = Port(9001)
@@ -16,8 +17,8 @@ private const val MTU = 1337
 class VpnSettingsUiStatePreviewParameterProvider : PreviewParameterProvider<VpnSettingsUiState> {
     override val values =
         sequenceOf(
-            VpnSettingsUiState.createDefault(),
-            VpnSettingsUiState.createDefault(
+            VpnSettingsUiState.Loading(),
+            VpnSettingsUiState.Content.from(
                 mtu = Mtu(MTU),
                 isLocalNetworkSharingEnabled = true,
                 isCustomDnsEnabled = true,
@@ -37,6 +38,13 @@ class VpnSettingsUiStatePreviewParameterProvider : PreviewParameterProvider<VpnS
                 availablePortRanges = listOf(PORT1..PORT2),
                 systemVpnSettingsAvailable = true,
                 autoStartAndConnectOnBoot = true,
+                isIpv6Enabled = true,
+                obfuscationMode = ObfuscationMode.Udp2Tcp,
+                selectedUdp2TcpObfuscationPort = Constraint.Any,
+                selectedShadowsocksObfuscationPort = Constraint.Any,
+                isContentBlockersExpanded = true,
+                deviceIpVersion = Constraint.Any,
+                isModal = false,
             ),
         )
 }
