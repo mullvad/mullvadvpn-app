@@ -406,8 +406,8 @@
     <string name="uri_market_app_not_found">No Android app store installed, could not open link</string>
     <string name="uri_browser_app_not_found">No browser app installed, could not open link</string>
     <string name="ipv6_info">When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services.</string>
-    <string name="ip_version_v4_unavailable">IPv4 is not available, please try changing Device IP version.</string>
-    <string name="ip_version_v6_unavailable">IPv6 is not available, please try changing Device IP version.</string>
+    <string name="ip_version_v4_unavailable">IPv4 is not available, please try changing \"Device IP version\" setting.</string>
+    <string name="ip_version_v6_unavailable">IPv6 is not available, please try changing \"Device IP version\" setting.</string>
     <string name="device_ip_info_first_paragraph">This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server.</string>
     <string name="device_ip_info_second_paragraph">It can be useful when you are aware of problems caused by a certain IP version.</string>
 </resources>
