@@ -128,6 +128,11 @@ class VPNSettingsPage: Page {
         return self
     }
 
+    @discardableResult func tapWireGuardObufscationQuicCell() -> Self {
+        app.cells[AccessibilityIdentifier.wireGuardObfuscationQuic].tap()
+        return self
+    }
+
     @discardableResult func tapWireGuardObfuscationOffCell() -> Self {
         app.cells[AccessibilityIdentifier.wireGuardObfuscationOff].tap()
 
