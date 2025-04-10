@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc.util
 
-import android.util.Log
+import co.touchlab.kermit.Logger
+import co.touchlab.kermit.Severity
 import java.util.logging.Handler
 import java.util.logging.Level
 import java.util.logging.LogManager
@@ -15,29 +16,24 @@ class AndroidLoggingHandler : Handler() {
         if (!super.isLoggable(record)) return
 
         val name = record.loggerName
-        val maxLength = 30
+        val maxLength = MAX_LENGTH
         val tag = if (name.length > maxLength) name.substring(name.length - maxLength) else name
 
-        try {
-            val level: Int = getAndroidLevel(record.getLevel())
-            Log.println(level, tag, record.getMessage())
-            if (record.thrown != null) {
-                Log.println(level, tag, Log.getStackTraceString(record.getThrown()))
-            }
-        } catch (e: RuntimeException) {
-            Log.e("AndroidLoggingHandler", "Error logging message.", e)
-        }
+        val level = getAndroidLevel(record.level)
+        Logger.log(severity = level, tag = tag, message = record.message, throwable = record.thrown)
     }
 
     override fun flush() {
-        TODO("Not yet implemented")
+        // Do nothing
     }
 
     override fun close() {
-        TODO("Not yet implemented")
+        // No-op, not required since we have nothing to close
     }
 
     companion object {
+        const val MAX_LENGTH = 30
+
         fun reset(rootHandler: Handler) {
             val rootLogger = LogManager.getLogManager().getLogger("")
             val handlers = rootLogger.handlers
@@ -47,17 +43,17 @@ class AndroidLoggingHandler : Handler() {
             rootLogger.addHandler(rootHandler)
         }
 
-        fun getAndroidLevel(level: Level): Int {
+        fun getAndroidLevel(level: Level): Severity {
             val value = level.intValue()
 
             return if (value >= Level.SEVERE.intValue()) {
-                Log.ERROR
+                Severity.Error
             } else if (value >= Level.WARNING.intValue()) {
-                Log.WARN
+                Severity.Warn
             } else if (value >= Level.INFO.intValue()) {
-                Log.INFO
+                Severity.Info
             } else {
-                Log.DEBUG
+                Severity.Debug
             }
         }
     }
