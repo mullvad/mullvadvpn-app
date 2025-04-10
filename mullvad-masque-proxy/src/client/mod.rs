@@ -21,8 +21,10 @@ use quinn::{
 };
 
 use crate::{
+    compute_udp_payload_size,
     fragment::{self, Fragments},
     stats::Stats,
+    MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
 };
 
 const MAX_HEADER_SIZE: u64 = 8192;
@@ -33,6 +35,9 @@ const MAX_INFLIGHT_PACKETS: usize = 100;
 
 pub struct Client {
     client_socket: Arc<UdpSocket>,
+
+    /// QUIC endpoint
+    quinn_conn: quinn::Connection,
 
     /// QUIC connection, used to send the actual HTTP datagrams
     connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
@@ -45,8 +50,8 @@ pub struct Client {
     /// connection is terminated
     request_stream: client::RequestStream<h3_quinn::BidiStream<bytes::Bytes>, bytes::Bytes>,
 
-    /// Maximum packet size
-    maximum_packet_size: u16,
+    /// Maximum UDP payload size (packet size including QUIC overhead)
+    max_udp_payload_size: u16,
 
     stats: Arc<Stats>,
 }
@@ -61,6 +66,8 @@ pub enum Error {
     Connect(#[from] quinn::ConnectError),
     #[error("Failed to connect to QUIC endpoint")]
     Connection(#[from] quinn::ConnectionError),
+    #[error("Invalid MTU: must be at least {min_mtu}")]
+    InvalidMtu { min_mtu: u16 },
     #[error("Invalid max_udp_payload_size")]
     InvalidMaxUdpPayload(#[source] quinn::ConfigError),
     #[error("Connection closed while sending request to initiate proxying")]
@@ -100,7 +107,7 @@ impl Client {
         local_addr: SocketAddr,
         target_addr: SocketAddr,
         server_host: &str,
-        maximum_packet_size: u16,
+        mtu: u16,
     ) -> Result<Self> {
         Self::connect_with_tls_config(
             client_socket,
@@ -109,7 +116,7 @@ impl Client {
             target_addr,
             server_host,
             default_tls_config(),
-            maximum_packet_size,
+            mtu,
         )
         .await
     }
@@ -121,7 +128,7 @@ impl Client {
         target_addr: SocketAddr,
         server_host: &str,
         tls_config: Arc<rustls::ClientConfig>,
-        maximum_packet_size: u16,
+        mtu: u16,
     ) -> Result<Self> {
         let quic_client_config = QuicClientConfig::try_from(tls_config)
             .expect("Failed to construct a valid TLS configuration");
@@ -140,7 +147,7 @@ impl Client {
             target_addr,
             server_host,
             client_config,
-            maximum_packet_size,
+            mtu,
         )
         .await
     }
@@ -152,34 +159,56 @@ impl Client {
         target_addr: SocketAddr,
         server_host: &str,
         client_config: ClientConfig,
-        maximum_packet_size: u16,
+        mtu: u16,
     ) -> Result<Self> {
-        let endpoint = Self::setup_quic_endpoint(local_addr, maximum_packet_size)?;
+        Self::validate_mtu(mtu, target_addr)?;
+
+        let max_udp_payload_size = compute_udp_payload_size(mtu, target_addr);
+
+        let endpoint = Self::setup_quic_endpoint(local_addr, max_udp_payload_size)?;
 
         let connecting = endpoint.connect_with(client_config, server_addr, server_host)?;
 
         let connection = connecting.await?;
 
-        let (connection, send_stream, request_stream) =
-            Self::setup_h3_connection(connection, target_addr, server_host, maximum_packet_size)
-                .await?;
+        let (h3_connection, send_stream, request_stream) = Self::setup_h3_connection(
+            connection.clone(),
+            target_addr,
+            server_host,
+            max_udp_payload_size,
+        )
+        .await?;
 
         Ok(Self {
-            connection,
+            quinn_conn: connection,
+            connection: h3_connection,
             client_socket: Arc::new(client_socket),
             request_stream,
             _send_stream: send_stream,
-            maximum_packet_size,
+            max_udp_payload_size,
             stats: Arc::default(),
         })
     }
 
-    fn setup_quic_endpoint(local_addr: SocketAddr, maximum_packet_size: u16) -> Result<Endpoint> {
+    const fn validate_mtu(mtu: u16, target_addr: SocketAddr) -> Result<()> {
+        let min_mtu = if target_addr.is_ipv4() {
+            MIN_IPV4_MTU
+        } else {
+            MIN_IPV6_MTU
+        };
+        if mtu >= min_mtu {
+            Ok(())
+        } else {
+            Err(Error::InvalidMtu { min_mtu })
+        }
+    }
+
+    fn setup_quic_endpoint(local_addr: SocketAddr, max_udp_payload_size: u16) -> Result<Endpoint> {
         let local_socket = std::net::UdpSocket::bind(local_addr).map_err(Error::Bind)?;
 
         let mut endpoint_config = EndpointConfig::default();
         endpoint_config
-            .max_udp_payload_size(maximum_packet_size)
+            .max_udp_payload_size(max_udp_payload_size)
             .map_err(Error::InvalidMaxUdpPayload)?;
 
         Endpoint::new(endpoint_config, None, local_socket, Arc::new(TokioRuntime))
@@ -191,7 +220,7 @@ impl Client {
         connection: quinn::Connection,
         target: SocketAddr,
         server_host: &str,
-        maximum_packet_size: u16,
+        mtu: u16,
     ) -> Result<(
         client::Connection<h3_quinn::Connection, bytes::Bytes>,
         client::SendRequest<h3_quinn::OpenStreams, bytes::Bytes>,
@@ -205,7 +234,7 @@ impl Client {
             .await
             .map_err(Error::CreateClient)?;
 
-        let request = new_connect_request(target, &server_host, maximum_packet_size)?;
+        let request = new_connect_request(target, &server_host, mtu)?;
 
         let request_future = async move {
             let mut request_stream = send_stream.send_request(request).await?;
@@ -251,7 +280,8 @@ impl Client {
 
         let mut server_socket_task = tokio::task::spawn(server_socket_task(
             stream_id,
-            self.maximum_packet_size,
+            self.max_udp_payload_size,
+            self.quinn_conn,
             self.connection,
             server_tx,
             client_rx,
@@ -274,7 +304,8 @@ impl Client {
 
 async fn server_socket_task(
     stream_id: StreamId,
-    maximum_packet_size: u16,
+    max_udp_payload_size: u16,
+    quinn_conn: quinn::Connection,
     mut connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
     server_tx: mpsc::Sender<Datagram>,
     mut client_rx: mpsc::Receiver<Bytes>,
@@ -302,7 +333,14 @@ async fn server_socket_task(
 
         let Some(mut packet) = packet else { break };
 
-        if packet.len() < (Into::<usize>::into(maximum_packet_size) - 100usize) {
+        // Maximum QUIC payload (including fragmentation headers)
+        let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
+            max_datagram_size as u16 - 1
+        } else {
+            max_udp_payload_size - QUIC_HEADER_SIZE
+        };
+
+        if packet.len() <= usize::from(maximum_packet_size) {
             stats.tx(packet.len(), false);
             connection
                 .send_datagram(stream_id, packet)
@@ -311,8 +349,9 @@ async fn server_socket_task(
             // drop the added context ID, since packet will have to be fragmented.
             let _ = VarInt::decode(&mut packet);
 
-            for fragment in fragment::fragment_packet(maximum_packet_size, &mut packet, fragment_id)
-                .map_err(Error::PacketTooLarge)?
+            for fragment in
+                fragment::fragment_packet(maximum_packet_size, &mut packet, fragment_id)
+                    .map_err(Error::PacketTooLarge)?
             {
                 stats.tx(fragment.len(), true);
                 connection
@@ -331,7 +370,7 @@ async fn client_socket_rx_task(
     client_tx: mpsc::Sender<Bytes>,
     return_addr_tx: broadcast::Sender<SocketAddr>,
 ) -> Result<()> {
-    let mut client_read_buf = BytesMut::with_capacity(crate::PACKET_BUFFER_SIZE * 1024);
+    let mut client_read_buf = BytesMut::with_capacity(100 * crate::PACKET_BUFFER_SIZE);
     let mut return_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0);
 
     loop {
@@ -411,7 +450,7 @@ async fn client_socket_tx_task(
 fn new_connect_request(
     socket_addr: SocketAddr,
     authority: &dyn AsRef<str>,
-    maximum_packet_size: u16,
+    mtu: u16,
 ) -> Result<http::Request<()>> {
     let host = socket_addr.ip();
     let port = socket_addr.port();
@@ -432,7 +471,7 @@ fn new_connect_request(
         // TODO: Not needed since we set the max_udp_payload_size transport param
         .header(
             b"X-Mullvad-Uplink-Mtu".as_slice(),
-            format!("{maximum_packet_size}"),
+            format!("{mtu}"),
         )
         .body(())
         .expect("failed to construct a body");
@@ -503,9 +542,12 @@ fn read_cert_store_from_reader(reader: &mut dyn io::BufRead) -> Result<rustls::R
     Ok(cert_store)
 }
 
-#[test]
-fn test_zero_stream_id() {
-    h3::quic::StreamId::try_from(0).expect("need to be able to create stream IDs with 0, no?");
+#[cfg(test)]
+mod test {
+    #[test]
+    fn test_zero_stream_id() {
+        h3::quic::StreamId::try_from(0).expect("need to be able to create stream IDs with 0, no?");
+    }
 }
 
 #[derive(Debug)]
