@@ -312,6 +312,7 @@ async fn server_socket_task(
     stats: Arc<Stats>,
 ) -> Result<()> {
     let mut fragment_id = 1u16;
+    let stream_id_size = VarInt::from(stream_id).size() as u16;
 
     loop {
         let packet = select! {
@@ -335,9 +336,9 @@ async fn server_socket_task(
 
         // Maximum QUIC payload (including fragmentation headers)
         let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
-            max_datagram_size as u16 - 1
+            max_datagram_size as u16 - stream_id_size
         } else {
-            max_udp_payload_size - QUIC_HEADER_SIZE
+            max_udp_payload_size - QUIC_HEADER_SIZE - stream_id_size
         };
 
         if packet.len() <= usize::from(maximum_packet_size) {
@@ -349,10 +350,11 @@ async fn server_socket_task(
             // drop the added context ID, since packet will have to be fragmented.
             let _ = VarInt::decode(&mut packet);
 
-            for fragment in
-                fragment::fragment_packet(maximum_packet_size, &mut packet, fragment_id)
-                    .map_err(Error::PacketTooLarge)?
+            for fragment in fragment::fragment_packet(maximum_packet_size, &mut packet, fragment_id)
+                .map_err(Error::PacketTooLarge)?
             {
+                debug_assert!(fragment.len() <= maximum_packet_size as usize);
+
                 stats.tx(fragment.len(), true);
                 connection
                     .send_datagram(stream_id, fragment)
