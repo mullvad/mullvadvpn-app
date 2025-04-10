@@ -6,9 +6,15 @@ mod fragment;
 pub mod server;
 mod stats;
 
-const PACKET_BUFFER_SIZE: usize = 64 * 1024;
 pub const HTTP_MASQUE_DATAGRAM_CONTEXT_ID: VarInt = VarInt::from_u32(0);
 pub const HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID: VarInt = VarInt::from_u32(1);
+
+/// Minimum size of buffer used to hold UDP packets.
+// 1 byte for size of HTTP_MASQUE_DATAGRAM_CONTEXT_ID
+const PACKET_BUFFER_SIZE: usize = (u16::MAX - UDP_HEADER_SIZE + 1) as usize;
+
+/// Maximum number of inflight packets, in both directions.
+const MAX_INFLIGHT_PACKETS: usize = 100;
 
 /// Fragment headers size for fragmented packets
 const FRAGMENT_HEADER_SIZE_FRAGMENTED: u16 = 5;
