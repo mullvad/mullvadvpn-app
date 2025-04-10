@@ -16,11 +16,15 @@ class AndroidLoggingHandler : Handler() {
         if (!super.isLoggable(record)) return
 
         val name = record.loggerName
-        val maxLength = MAX_LENGTH
-        val tag = if (name.length > maxLength) name.substring(name.length - maxLength) else name
+        val tag = name.take(MAX_TAG_LENGTH)
 
-        val level = getAndroidLevel(record.level)
-        Logger.log(severity = level, tag = tag, message = record.message, throwable = record.thrown)
+        val severity = record.level.toSeverity()
+        Logger.log(
+            severity = severity,
+            tag = tag,
+            message = record.message,
+            throwable = record.thrown,
+        )
     }
 
     override fun flush() {
@@ -32,29 +36,22 @@ class AndroidLoggingHandler : Handler() {
     }
 
     companion object {
-        const val MAX_LENGTH = 30
+        const val MAX_TAG_LENGTH = 30
 
         fun reset(rootHandler: Handler) {
             val rootLogger = LogManager.getLogManager().getLogger("")
-            val handlers = rootLogger.handlers
-            for (handler in handlers) {
+            for (handler in rootLogger.handlers) {
                 rootLogger.removeHandler(handler)
             }
             rootLogger.addHandler(rootHandler)
         }
-
-        fun getAndroidLevel(level: Level): Severity {
-            val value = level.intValue()
-
-            return if (value >= Level.SEVERE.intValue()) {
-                Severity.Error
-            } else if (value >= Level.WARNING.intValue()) {
-                Severity.Warn
-            } else if (value >= Level.INFO.intValue()) {
-                Severity.Info
-            } else {
-                Severity.Debug
-            }
-        }
     }
 }
+
+private fun Level.toSeverity(): Severity =
+    when (this) {
+        Level.SEVERE -> Severity.Error
+        Level.WARNING -> Severity.Warn
+        Level.INFO -> Severity.Info
+        else -> Severity.Debug
+    }

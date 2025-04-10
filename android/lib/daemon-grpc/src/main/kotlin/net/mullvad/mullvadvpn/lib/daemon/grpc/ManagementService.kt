@@ -19,6 +19,7 @@ import io.grpc.android.UdsChannelBuilder
 import java.io.File
 import java.net.InetAddress
 import java.util.logging.Level
+import java.util.logging.Logger as JavaLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -207,7 +208,7 @@ class ManagementService(
     init {
         if (extensiveLogging && ENABLE_TRACE_LOGGING) {
             AndroidLoggingHandler.reset(AndroidLoggingHandler())
-            java.util.logging.Logger.getLogger("io.grpc").level = Level.FINEST
+            JavaLogger.getLogger("io.grpc").level = Level.FINEST
         }
     }
 
