@@ -172,7 +172,7 @@ impl<AppProgress> HttpAppDownloader<AppProgress> {
 
         #[cfg(target_os = "macos")]
         {
-            vec![self.bin_path().into()]
+            vec![bin_path(&self.params.app_version, &self.params.cache_dir).into()]
         }
     }
 
