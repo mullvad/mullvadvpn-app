@@ -1,8 +1,18 @@
 import { messages } from '../../../../../../../../../shared/gettext';
 import { useAppUpgradeError } from '../../../../../../../../redux/hooks';
+import { useErrorCountExceeded } from '../../../../../hooks';
 
 export const useMessage = () => {
   const { error } = useAppUpgradeError();
+  const errorCountExceeded = useErrorCountExceeded();
+
+  if (errorCountExceeded) {
+    // TRANSLATORS: Label displayed when an error occurred due to the download failing
+    return messages.pgettext(
+      'app-upgrade-view',
+      'Having problems? Try downloading the update from our website. If this problem persists, please contact support.',
+    );
+  }
 
   switch (error) {
     case 'DOWNLOAD_FAILED':
