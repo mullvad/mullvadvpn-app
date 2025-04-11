@@ -176,6 +176,8 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         HOST,
         client::default_tls_config(),
         mtu,
+        #[cfg(target_os = "linux")]
+        None,
     )
     .await
     .context("Failed to start MASQUE client")?;
