@@ -3,7 +3,7 @@ import { setAppUpgradeError } from '../actions';
 
 export const useAppUpgradeError = () => {
   return {
-    appUpgradeError: useSelector((state) => state.appUpgrade.error),
+    error: useSelector((state) => state.appUpgrade.error),
     setAppUpgradeError,
   };
 };
