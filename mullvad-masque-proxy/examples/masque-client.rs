@@ -1,3 +1,4 @@
+use anyhow::Context;
 use clap::Parser;
 use mullvad_masque_proxy::client::{ClientConfig, Error};
 use tokio::net::UdpSocket;
@@ -5,6 +6,7 @@ use tokio::net::UdpSocket;
 use std::{
     net::{Ipv4Addr, SocketAddr},
     path::PathBuf,
+    time::Duration,
 };
 
 #[derive(Parser, Debug)]
@@ -25,9 +27,9 @@ pub struct ClientArgs {
     #[arg(long, short = 'H')]
     server_hostname: String,
 
-    /// Local bind port
-    #[arg(long, short = 'p', default_value = "0")]
-    bind_port: u16,
+    /// Bind address
+    #[arg(long, short = 'b', default_value = "127.0.0.1:0")]
+    bind_addr: SocketAddr,
 
     /// Maximum packet size
     #[arg(long, short = 'S', default_value = "1280")]
@@ -37,6 +39,17 @@ pub struct ClientArgs {
     #[cfg(target_os = "linux")]
     #[arg(long)]
     fwmark: Option<u16>,
+
+    /// Maximum duration of inactivity (in seconds) until the tunnel times out.
+    /// Inactivity happens when no data is sent over the proxy.
+    #[arg(long, short = 'i', value_parser = duration_from_seconds)]
+    idle_timeout: Option<Duration>,
+}
+
+/// Parse a duration from a decimal number of seconds
+fn duration_from_seconds(s: &str) -> anyhow::Result<Duration> {
+    let seconds: f64 = s.parse().context("Expected a decimal number, e.g. 1.0")?;
+    Ok(Duration::from_secs_f64(seconds))
 }
 
 #[tokio::main]
@@ -51,10 +64,11 @@ async fn main() {
         target_addr,
         root_cert_path,
         server_hostname,
-        bind_port,
+        bind_addr,
         mtu,
         #[cfg(target_os = "linux")]
         fwmark,
+        idle_timeout,
     } = ClientArgs::parse();
 
     let tls_config = match root_cert_path {
@@ -65,8 +79,7 @@ async fn main() {
 
     let _keylog = rustls::KeyLogFile::new();
 
-    let unbound_local_addr: SocketAddr = (Ipv4Addr::UNSPECIFIED, bind_port).into();
-    let local_socket = UdpSocket::bind(unbound_local_addr)
+    let local_socket = UdpSocket::bind(bind_addr)
         .await
         .expect("Failed to bind address");
     let local_addr = local_socket.local_addr().unwrap();
@@ -80,7 +93,8 @@ async fn main() {
         .server_host(server_hostname)
         .target_addr(target_addr)
         .mtu(mtu)
-        .tls_config(tls_config);
+        .tls_config(tls_config)
+        .idle_timeout(idle_timeout);
 
     #[cfg(target_os = "linux")]
     let config = config.fwmark(fwmark);
