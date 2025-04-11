@@ -558,18 +558,20 @@ fn recommended_version_upgrade(
 
 #[cfg(all(test, update))]
 mod test {
+    use super::downloader::ProgressUpdater;
     use futures::channel::mpsc::unbounded;
     use mullvad_types::version::AppUpgradeEvent;
-    use mullvad_update::app::DownloadError;
+    use mullvad_update::{app::DownloadError, fetch::ProgressUpdater as _};
 
     use super::*;
 
-    struct TestAppDownloader;
+    struct TestAppDownloader(AppDownloaderParameters<ProgressUpdater>);
 
     // TODO: Can we use normal async traits?
     #[async_trait::async_trait]
     impl AppDownloader for TestAppDownloader {
         async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
+            self.0.app_progress.set_progress(1.0);
             Ok(())
         }
 
@@ -583,8 +585,8 @@ mod test {
     }
 
     impl From<AppDownloaderParameters<ProgressUpdater>> for TestAppDownloader {
-        fn from(_parameters: AppDownloaderParameters<ProgressUpdater>) -> Self {
-            TestAppDownloader
+        fn from(parameters: AppDownloaderParameters<ProgressUpdater>) -> Self {
+            Self(parameters)
         }
     }
 
@@ -691,6 +693,7 @@ mod test {
             matches!(version_router.state, State::Downloading { .. }),
             "State should be Downloading"
         );
+        version_router.run_step().await;
         assert_eq!(
             upgrade_events.recv().await.unwrap(),
             AppUpgradeEvent::DownloadStarting,
