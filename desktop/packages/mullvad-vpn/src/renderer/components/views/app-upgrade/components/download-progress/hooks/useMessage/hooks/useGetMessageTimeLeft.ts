@@ -5,11 +5,11 @@ import { isNumber } from '../../../../../../../../../shared/utils';
 import { useAppUpgradeEvent } from '../../../../../../../../redux/hooks';
 
 export const useGetMessageTimeLeft = () => {
-  const { appUpgradeEvent } = useAppUpgradeEvent();
+  const { event } = useAppUpgradeEvent();
 
   const getMessageTimeLeft = () => {
-    if (appUpgradeEvent?.type === 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS') {
-      const { timeLeft } = appUpgradeEvent;
+    if (event?.type === 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS') {
+      const { timeLeft } = event;
       const isTimeLeftNumeric = isNumber(timeLeft);
 
       if (isTimeLeftNumeric) {
