@@ -30,7 +30,6 @@ pub struct Fragments {
 #[derive(Debug, thiserror::Error)]
 pub enum DefragError {
     #[error("Bad context id: {:?}", .0)]
-    #[allow(dead_code)] // TODO: use this error or remove it.
     BadContextId(Result<VarInt, h3::proto::coding::UnexpectedEnd>),
 
     #[error("Payload is too small")]
@@ -82,7 +81,7 @@ impl Fragments {
         if self.fragment_index_fifo.len() >= FRAGMENT_BUFFER_CAP {
             let id = self.fragment_index_fifo.pop_front().expect("fifo is full");
             if self.fragment_map.remove(&id).is_some() && cfg!(debug_assertions) {
-                println!("Fragment was discarded before reassembly");
+                log::debug!("Fragment was discarded before reassembly");
             };
         }
         self.fragment_index_fifo.push_back(id);
@@ -119,7 +118,7 @@ impl Fragments {
             .any(|(expected_index, fragment)| fragment.index != expected_index);
         if fragments_missing {
             if cfg!(debug_assertions) {
-                println!("Discarding unordered fragment set");
+                log::debug!("Discarding unordered fragment set");
             }
             return None;
         }
