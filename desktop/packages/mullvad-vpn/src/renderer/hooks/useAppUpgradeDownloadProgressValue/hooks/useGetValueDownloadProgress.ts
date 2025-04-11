@@ -4,17 +4,17 @@ import { useAppUpgradeEvent } from '../../../redux/hooks';
 import { FALLBACK_VALUE } from '../constants';
 
 export const useGetValueDownloadProgress = () => {
-  const { appUpgradeEvent } = useAppUpgradeEvent();
+  const { event } = useAppUpgradeEvent();
 
   const getValueDownloadProgress = useCallback(() => {
-    if (appUpgradeEvent?.type === 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS') {
-      const { progress } = appUpgradeEvent;
+    if (event?.type === 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS') {
+      const { progress } = event;
 
       return progress;
     }
 
     return FALLBACK_VALUE;
-  }, [appUpgradeEvent]);
+  }, [event]);
 
   return getValueDownloadProgress;
 };

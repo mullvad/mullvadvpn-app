@@ -1,9 +1,9 @@
 import { useAppUpgradeEvent } from '../redux/hooks';
 
 export const useAppUpgradeEventType = () => {
-  const { appUpgradeEvent } = useAppUpgradeEvent();
+  const { event } = useAppUpgradeEvent();
 
-  const appUpgradeEventType = appUpgradeEvent?.type;
+  const appUpgradeEventType = event?.type;
 
   return appUpgradeEventType;
 };
