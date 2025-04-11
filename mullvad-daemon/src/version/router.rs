@@ -214,24 +214,24 @@ impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
     }
 
     async fn run_step(&mut self) -> bool {
-            tokio::select! {
-                // Received version event from `check`
-                Some(new_version) = self.new_version_rx.next() => {
-                    let AppVersionInfoEvent { app_version_info, is_new }= self.on_new_version(new_version);
-                    self.notify_version_requesters(app_version_info.clone());
-                    if is_new {
-                        // Notify the daemon about new version
-                        let _ = self.version_event_sender.send(app_version_info);
-                    }
-
+        tokio::select! {
+            // Received version event from `check`
+            Some(new_version) = self.new_version_rx.next() => {
+                let AppVersionInfoEvent { app_version_info, is_new }= self.on_new_version(new_version);
+                self.notify_version_requesters(app_version_info.clone());
+                if is_new {
+                    // Notify the daemon about new version
+                    let _ = self.version_event_sender.send(app_version_info);
                 }
-                res = wait_for_update(&mut self.state) => {
-                    // If the download was successful, we send the new version
-                    if let Some(app_update_info) =  res {
-                        let _ = self.version_event_sender.send(app_update_info);
-                    }
-                },
-                Some(message) = self.daemon_rx.next() => self.handle_message(message),
+
+            }
+            res = wait_for_update(&mut self.state) => {
+                // If the download was successful, we send the new version
+                if let Some(app_update_info) =  res {
+                    let _ = self.version_event_sender.send(app_update_info);
+                }
+            },
+            Some(message) = self.daemon_rx.next() => self.handle_message(message),
             else => return false,
         }
         true
@@ -533,6 +533,7 @@ fn recommended_version_upgrade(
 #[cfg(all(test, update))]
 mod test {
     use futures::channel::mpsc::unbounded;
+    use mullvad_types::version::AppUpgradeEvent;
 
     use super::*;
 
@@ -572,6 +573,28 @@ mod test {
         )
     }
 
+    // TODO: make it always count as newer than the current version?
+    fn get_test_version_info() -> VersionCache {
+        VersionCache {
+            current_version_supported: true,
+            latest_version: VersionInfo {
+                beta: None,
+                stable: mullvad_update::version::Version {
+                    version: mullvad_version::Version {
+                        year: 2025,
+                        incremental: 19,
+                        pre_stable: None,
+                        dev: None,
+                    },
+                    urls: vec!["https://example.com".to_string()],
+                    size: 123456,
+                    changelog: "Changelog".to_string(),
+                    sha256: [0; 32],
+                },
+            },
+        }
+    }
+
     #[test]
     fn test_upgrade_with_no_version() {
         let (mut version_router, _channels) = make_version_router();
@@ -584,6 +607,42 @@ mod test {
         assert!(
             upgrade_events.is_empty(),
             "No upgrade events should be sent"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_upgrade() {
+        let (mut version_router, channels) = make_version_router();
+        let mut upgrade_events = version_router.app_upgrade_broadcast.subscribe();
+        let version_cache = get_test_version_info();
+        channels
+            .new_version_tx
+            .unbounded_send(version_cache)
+            .unwrap();
+        version_router.run_step().await;
+        assert!(
+            matches!(version_router.state, State::HasVersion { .. }),
+            "State should be HasVersion"
+        );
+        assert!(
+            upgrade_events.is_empty(),
+            "No upgrade events should be sent"
+        );
+        channels
+            .daemon_tx
+            .unbounded_send(Message::UpdateApplication {
+                result_tx: oneshot::channel().0,
+            })
+            .unwrap();
+        version_router.run_step().await;
+        assert!(
+            matches!(version_router.state, State::Downloading { .. }),
+            "State should be Downloading"
+        );
+        assert_eq!(
+            upgrade_events.recv().await.unwrap(),
+            AppUpgradeEvent::DownloadStarting,
+            "Download starting event should be sent"
         );
     }
 }
