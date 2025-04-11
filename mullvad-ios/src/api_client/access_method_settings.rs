@@ -27,15 +27,13 @@ unsafe extern "C" fn convert_builtin_access_method_setting(
     method_kind: SwiftAccessMethodKind,
     proxy_configuration: *const c_void,
 ) -> *mut c_void {
-    match {
-        convert_builtin_access_method_setting_inner(
-            unique_identifier,
-            name,
-            is_enabled,
-            method_kind,
-            proxy_configuration,
-        )
-    } {
+    match convert_builtin_access_method_setting_inner(
+        unique_identifier,
+        name,
+        is_enabled,
+        method_kind,
+        proxy_configuration,
+    ) {
         Some(access_method) => Box::into_raw(Box::new(access_method)) as *mut c_void,
         None => null_mut(),
     }
