@@ -67,6 +67,7 @@
     <string name="clear_input">Limpar entrada</string>
     <string name="close">Fechar</string>
     <string name="collapse">Colapsar</string>
+    <string name="confirm_ipv6_dns">O servidor DNS IPv6 não funcionará a menos que ative a \"IPv6\" nas definições de VPN.</string>
     <string name="confirm_local_dns">O servidor DNS local não funcionará a menos que ative a \"Partilha de rede local\" nas definições de VPN.</string>
     <string name="confirm_no_email">Está prestes a enviar o relatório de problema sem que tenhamos uma forma de lhe responder. Se pretender uma resposta ao seu relatório, tem de introduzir um endereço de email.</string>
     <string name="confirm_removal">Sim, desligar o dispositivo</string>
@@ -124,6 +125,7 @@
     <string name="device_inactive_description">Removeu este dispositivo. Para voltar a ligar o dispositivo, terá de voltar a iniciar a sessão.</string>
     <string name="device_inactive_title">O dispositivo está desativado</string>
     <string name="device_inactive_unblock_warning">Ir para a ligação irá desbloquear a Internet neste dispositivo.</string>
+    <string name="device_ip_version_title">Versão do IP do dispositivo</string>
     <string name="device_name">Nome do dispositivo</string>
     <string name="device_name_info_first_paragraph">Este é o nome atribuído ao dispositivo. Cada dispositivo com sessão iniciada numa conta Mullvad recebe um nome único que lhe ajuda a identificá-lo quando gere os seus dispositivos na app ou no site.</string>
     <string name="device_name_info_second_paragraph">Pode ter até 5 dispositivos com sessão iniciada numa só conta Mullvad.</string>
@@ -155,6 +157,7 @@
     <string name="enable_anyway">Ativar mesmo assim</string>
     <string name="enable_custom_dns">Usar servidor DNS personalizado</string>
     <string name="enable_direct_only">Ativar %1$s</string>
+    <string name="enable_ipv6">In-tunnel IPv6</string>
     <string name="enable_method">Ativar método</string>
     <string name="encrypted_dns_proxy_info_message_part1">Com o método \"Proxy DNS encriptado\", a aplicação irá comunicar com a nossa API Mullvad através de um endereço proxy. Para tal, obtém um endereço de um servidor DNS sobre HTTPS (DoH) e utiliza-o para aceder aos nossos servidores de API.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Se não estiver ligado à nossa VPN, o proxy DNS encriptado utiliza o seu próprio IP e não a VPN ao estabelecer a ligação. Os servidores DoH são alojados por um dos seguintes fornecedores: Quad9 ou CloudFlare.</string>
@@ -251,6 +254,7 @@
     <string name="no_wireguard_key">Chave WireGuard válida em falta. Faça a gestão das chaves em Definições Avançadas.</string>
     <string name="not_found">Não encontrada</string>
     <string name="number_of_providers">Fornecedores: %1$d</string>
+    <string name="obfuscation_info">A ofuscação oculta o tráfego do WireGuard dentro de outro protocolo. Pode ser utilizado para ajudar a contornar a censura e outros tipos de filtragem, onde uma simples ligação WireGuard seria bloqueada.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Atenção: Shadowsocks pode aumentar o consumo da bateria dependendo da utilização de dados, como a transmissão de um vídeo.</string>
     <string name="obfuscation_title">Ofuscação WireGuard</string>
     <string name="off">Desligado</string>
@@ -366,6 +370,8 @@
     <string name="upd_over_tcp">UDP sobre TCP</string>
     <string name="update_dns_server_dialog_title">Atualizar servidor DNS</string>
     <string name="update_list_name">Atualizar nome da lista</string>
+    <string name="uri_browser_app_not_found">Nenhuma aplicação de navegador Android instalada. Não foi possível abrir a ligação</string>
+    <string name="uri_market_app_not_found">Nenhuma loja de aplicações Android instalada. Não foi possível abrir a ligação</string>
     <string name="use_method">Utilizar método</string>
     <string name="user_email_hint">O seu email (opcional)</string>
     <string name="user_message_hint">Para o ajudar melhor, escreva em inglês ou sueco e indique o país de onde está a efetuar a ligação.</string>
@@ -378,6 +384,7 @@
     <string name="voucher_already_used">O código do voucher já foi utilizado.</string>
     <string name="voucher_is_account_number">Parece que introduziu um número de conta em vez de um código de voucher. Se pretender alterar a conta ativa, termine a sessão primeiro.</string>
     <string name="voucher_success_title">O voucher foi reclamado com sucesso.</string>
+    <string name="vpn_permission_denied_error">A permissão de VPN foi negada, ou outra aplicação tem a opção \"VPN sempre ligada\" ativada</string>
     <string name="vpn_permission_error_notification_message">Prima \"ligar\" para solicitar a permissão de VPN</string>
     <string name="vpn_permission_error_notification_title">Erro de permissão da VPN</string>
     <string name="we_will_look_into_this">Vamos analisar esta situação.</string>

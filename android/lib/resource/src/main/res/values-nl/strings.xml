@@ -67,6 +67,7 @@
     <string name="clear_input">Invoer wissen</string>
     <string name="close">Sluiten</string>
     <string name="collapse">Samenvouwen</string>
+    <string name="confirm_ipv6_dns">De IPv6-DNS-server werkt niet, tenzij u \"IPv6\" inschakelt in de VPN-instellingen.</string>
     <string name="confirm_local_dns">De lokale DNS-server werkt niet, tenzij u \"Delen via lokaal netwerk\" inschakelt bij de VPN-instellingen.</string>
     <string name="confirm_no_email">U staat op het punt om het probleemrapport te verzenden zonder een contactmethode op te geven. Voer een e-mailadres in als u een antwoord wenst op het rapport.</string>
     <string name="confirm_removal">Ja, apparaat afmelden</string>
@@ -124,6 +125,7 @@
     <string name="device_inactive_description">U hebt dit apparaat verwijderd. U moet zich opnieuw aanmelden om het opnieuw te verbinden.</string>
     <string name="device_inactive_title">Apparaat is niet actief</string>
     <string name="device_inactive_unblock_warning">Als u naar aanmelden gaat, wordt het blokkeren van internet op dit apparaat opgeheven.</string>
+    <string name="device_ip_version_title">IP-versie apparaat</string>
     <string name="device_name">Apparaatnaam</string>
     <string name="device_name_info_first_paragraph">Dit is de naam die aan het apparaat is toegewezen. Elk apparaat dat is aangemeld op een Mullvad-account, krijgt een unieke naam waarmee u het kunt identificeren wanneer u uw apparaten beheert in de app of op de website.</string>
     <string name="device_name_info_second_paragraph">U kunt maximaal 5 apparaten aangemeld hebben op één Mullvad-account.</string>
@@ -155,6 +157,7 @@
     <string name="enable_anyway">Toch inschakelen</string>
     <string name="enable_custom_dns">Aangepaste DNS-server gebruiken</string>
     <string name="enable_direct_only">%1$s inschakelen</string>
+    <string name="enable_ipv6">In-tunnel IPv6</string>
     <string name="enable_method">Methode inschakelen</string>
     <string name="encrypted_dns_proxy_info_message_part1">Met de methode \"Versleutelde DNS-proxy\" communiceert de app met onze Mullvad-API via een proxyadres. De app doet dit door een adres op te halen van een DoH-server (DNS over HTTPS) en dat te gebruiken om onze API-servers te bereiken.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Als u niet verbonden bent met onze VPN, gebruikt de versleutelde DNS-proxy uw eigen niet-VPN IP-adres bij het verbinden. De DoH-servers worden gehost door een van de volgende aanbieders: Quad9 of CloudFlare.</string>
@@ -251,6 +254,7 @@
     <string name="no_wireguard_key">Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen.</string>
     <string name="not_found">Niet gevonden</string>
     <string name="number_of_providers">Providers: %1$d</string>
+    <string name="obfuscation_info">Obfuscatie verbergt het WireGuard-verkeer in een ander protocol. Het kan worden gebruikt om censuur en andere soorten filtering te omzeilen, waar een gewone WireGuard-verbinding zou worden geblokkeerd.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Let op: Shadowsocks kan het batterijverbruik verhogen afhankelijk van het gegevensgebruik, zoals het streamen van een video.</string>
     <string name="obfuscation_title">WireGuard-obfuscatie</string>
     <string name="off">Uit</string>
@@ -366,6 +370,8 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">DNS-server bijwerken</string>
     <string name="update_list_name">Lijstnaam bijwerken</string>
+    <string name="uri_browser_app_not_found">Er is geen browserapp geïnstalleerd of de link kan niet worden geopend</string>
+    <string name="uri_market_app_not_found">Er is geen Android-appstore geïnstalleerd of de link kan niet worden geopend</string>
     <string name="use_method">Methode gebruiken</string>
     <string name="user_email_hint">Uw e-mailadres (optioneel)</string>
     <string name="user_message_hint">Om u beter te kunnen helpen, kunt u in het Engels of Zweeds schrijven. Vermeld uit welk land u komt.</string>
@@ -378,6 +384,7 @@
     <string name="voucher_already_used">Vouchercode is al gebruikt.</string>
     <string name="voucher_is_account_number">Het lijkt erop dat u een accountnummer hebt ingevoerd in plaats van een vouchercode. Als u het actieve account wilt wijzigen, meld u dan eerst af.</string>
     <string name="voucher_success_title">Voucher is ingewisseld.</string>
+    <string name="vpn_permission_denied_error">VPN-toegang is geweigerd of \"VPN altijd aan\" is geactiveerd in een andere app</string>
     <string name="vpn_permission_error_notification_message">Druk op Verbinding maken om VPN-toestemming te verzoeken</string>
     <string name="vpn_permission_error_notification_title">VPN-machtigingsfout</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
