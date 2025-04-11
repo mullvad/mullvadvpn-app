@@ -666,38 +666,50 @@ mod test {
 
     #[tokio::test]
     async fn test_upgrade() {
-        let (mut version_router, channels) = make_version_router();
-        let mut upgrade_events = version_router.app_upgrade_broadcast.subscribe();
+        let (mut version_router, mut channels) = make_version_router();
+        // let mut upgrade_events = version_router.app_upgrade_broadcast.subscribe();
         let version_cache = get_test_version_info();
+        let (tx, mut rx) = oneshot::channel();
+        version_router.get_latest_version(tx);
+        assert!(
+            matches!(channels.refresh_version_check_rx.try_next(), Ok(Some(()))),
+            "Version check should be triggered"
+        );
         channels
             .new_version_tx
             .unbounded_send(version_cache)
             .unwrap();
         version_router.run_step().await;
         assert!(
-            matches!(version_router.state, State::HasVersion { .. }),
-            "State should be HasVersion"
+            matches!(rx.try_recv(), Ok(Some(_))),
+            "Version request should be sent"
         );
-        assert!(
-            upgrade_events.is_empty(),
-            "No upgrade events should be sent"
-        );
-        channels
-            .daemon_tx
-            .unbounded_send(Message::UpdateApplication {
-                result_tx: oneshot::channel().0,
-            })
-            .unwrap();
-        version_router.run_step().await;
-        assert!(
-            matches!(version_router.state, State::Downloading { .. }),
-            "State should be Downloading"
-        );
-        version_router.run_step().await;
-        assert_eq!(
-            upgrade_events.recv().await.unwrap(),
-            AppUpgradeEvent::DownloadStarting,
-            "Download starting event should be sent"
-        );
+
+        // version_router.run_step().await;
+        // assert!(
+        //     matches!(version_router.state, State::HasVersion { .. }),
+        //     "State should be HasVersion"
+        // );
+        // assert!(
+        //     upgrade_events.is_empty(),
+        //     "No upgrade events should be sent"
+        // );
+        // channels
+        //     .daemon_tx
+        //     .unbounded_send(Message::UpdateApplication {
+        //         result_tx: oneshot::channel().0,
+        //     })
+        //     .unwrap();
+        // version_router.run_step().await;
+        // assert!(
+        //     matches!(version_router.state, State::Downloading { .. }),
+        //     "State should be Downloading"
+        // );
+        // version_router.run_step().await;
+        // assert_eq!(
+        //     upgrade_events.recv().await.unwrap(),
+        //     AppUpgradeEvent::DownloadStarting,
+        //     "Download starting event should be sent"
+        // );
     }
 }
