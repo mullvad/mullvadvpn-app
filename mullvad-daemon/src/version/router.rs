@@ -1,16 +1,17 @@
-use std::future::Future;
 use std::path::PathBuf;
 
 use futures::channel::{mpsc, oneshot};
 use futures::stream::StreamExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
 use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
+use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
 use mullvad_update::version::VersionInfo;
 use talpid_core::mpsc::Sender;
 
 use crate::management_interface::AppUpgradeBroadcast;
 use crate::DaemonEventSender;
 
+use super::downloader::ProgressUpdater;
 use super::{
     check::{VersionCache, VersionUpdater},
     Error,
@@ -69,7 +70,8 @@ impl VersionRouterHandle {
 /// If an update is in progress, these events are paused until the update is completed or canceled.
 /// This is done to prevent frontends from confusing which version is currently being installed,
 /// in case new version info is received while the update is in progress.
-struct VersionRouter<S = DaemonEventSender<AppVersionInfo>> {
+struct VersionRouter<S = DaemonEventSender<AppVersionInfo>, D = HttpAppDownloader<ProgressUpdater>>
+{
     daemon_rx: mpsc::UnboundedReceiver<Message>,
     state: State,
     beta_program: bool,
@@ -84,6 +86,7 @@ struct VersionRouter<S = DaemonEventSender<AppVersionInfo>> {
     /// Broadcast channel for app upgrade events
     #[cfg(update)]
     app_upgrade_broadcast: AppUpgradeBroadcast,
+    phantom: std::marker::PhantomData<D>, // Can we get around this?
 }
 
 enum Message {
@@ -103,7 +106,7 @@ enum Message {
 }
 
 #[derive(Debug)]
-enum State<D: Future<Output = downloader::Result<PathBuf>> = downloader::DownloaderHandle> {
+enum State {
     /// There is no version available yet
     NoVersion,
     /// Running version checker, no upgrade in progress
@@ -116,7 +119,7 @@ enum State<D: Future<Output = downloader::Result<PathBuf>> = downloader::Downloa
         /// The version being upgraded to, derived from `version_info` and beta program state
         upgrading_to_version: mullvad_update::version::Version,
         /// Tokio task for the downloader handle
-        downloader_handle: D,
+        downloader_handle: downloader::DownloaderHandle,
     },
     /// Download is complete. We have a verified binary
     #[cfg(update)]
@@ -198,6 +201,7 @@ pub(crate) fn spawn_version_router(
             #[cfg(update)]
             app_upgrade_broadcast,
             refresh_version_check_tx,
+            phantom: std::marker::PhantomData::<HttpAppDownloader<ProgressUpdater>>,
         }
         .run()
         .await;
@@ -205,7 +209,12 @@ pub(crate) fn spawn_version_router(
     VersionRouterHandle { tx }
 }
 
-impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
+impl<S, D> VersionRouter<S, D>
+where
+    S: Sender<AppVersionInfo> + Send + 'static,
+    D: AppDownloader + Send + 'static,
+    D: From<AppDownloaderParameters<ProgressUpdater>>,
+{
     async fn run(mut self) {
         log::info!("Version router started");
         // Loop until the router is closed
@@ -401,7 +410,7 @@ impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
                     upgrading_to_version.version
                 );
 
-                let downloader_handle = spawn_downloader(
+                let downloader_handle = spawn_downloader::<D>(
                     upgrading_to_version.clone(),
                     self.app_upgrade_broadcast.clone(),
                 );
@@ -534,8 +543,33 @@ fn recommended_version_upgrade(
 mod test {
     use futures::channel::mpsc::unbounded;
     use mullvad_types::version::AppUpgradeEvent;
+    use mullvad_update::app::DownloadError;
 
     use super::*;
+
+    struct TestAppDownloader;
+
+    // TODO: Can we use normal async traits?
+    #[async_trait::async_trait]
+    impl AppDownloader for TestAppDownloader {
+        async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
+            Ok(())
+        }
+
+        async fn verify(&mut self) -> std::result::Result<(), DownloadError> {
+            Ok(())
+        }
+
+        async fn install(&mut self) -> std::result::Result<(), DownloadError> {
+            Ok(())
+        }
+    }
+
+    impl From<AppDownloaderParameters<ProgressUpdater>> for TestAppDownloader {
+        fn from(_parameters: AppDownloaderParameters<ProgressUpdater>) -> Self {
+            TestAppDownloader
+        }
+    }
 
     struct VersionRouterChannels {
         daemon_tx: futures::channel::mpsc::UnboundedSender<Message>,
@@ -545,7 +579,7 @@ mod test {
     }
 
     fn make_version_router() -> (
-        VersionRouter<futures::channel::mpsc::UnboundedSender<AppVersionInfo>>,
+        VersionRouter<futures::channel::mpsc::UnboundedSender<AppVersionInfo>, TestAppDownloader>,
         VersionRouterChannels,
     ) {
         let (version_event_sender, version_event_receiver) = unbounded();
@@ -563,6 +597,7 @@ mod test {
                 version_request_channels: vec![],
                 app_upgrade_broadcast,
                 refresh_version_check_tx,
+                phantom: std::marker::PhantomData::<TestAppDownloader>,
             },
             VersionRouterChannels {
                 daemon_tx,
