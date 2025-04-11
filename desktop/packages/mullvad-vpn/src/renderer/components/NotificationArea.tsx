@@ -101,7 +101,7 @@ export default function NotificationArea(props: IProps) {
     (state) => state.settings.guiSettings.updateDismissedForVersion,
   );
   const hasAppUpgradeError = useHasAppUpgradeError();
-  const { appUpgradeError } = useAppUpgradeError();
+  const { error } = useAppUpgradeError();
 
   const restartAppUpgrade = useCallback(() => {
     appUpgrade();
@@ -124,7 +124,7 @@ export default function NotificationArea(props: IProps) {
     }),
     new AppUpgradeErrorNotificationProvider({
       hasAppUpgradeError,
-      appUpgradeError,
+      appUpgradeError: error,
       restartAppUpgrade,
     }),
     new AppUpgradeReadyNotificationProvider({
