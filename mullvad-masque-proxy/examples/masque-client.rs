@@ -37,7 +37,7 @@ pub struct ClientArgs {
 #[tokio::main]
 async fn main() {
     env_logger::builder()
-        .filter_level(log::LevelFilter::Debug)
+        .filter_level(log::LevelFilter::Info)
         .parse_default_env()
         .init();
 
@@ -63,7 +63,8 @@ async fn main() {
         .await
         .expect("Failed to bind address");
     let local_addr = local_socket.local_addr().unwrap();
-    log::debug!("Listening on {local_addr}");
+
+    log::info!("Listening on {local_addr}");
 
     let client = mullvad_masque_proxy::client::Client::connect_with_tls_config(
         local_socket,
