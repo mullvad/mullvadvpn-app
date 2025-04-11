@@ -103,15 +103,30 @@ pub enum Error {
 
 #[derive(TypedBuilder)]
 pub struct ClientConfig {
+    /// Socket that accepts proxy clients
     pub client_socket: UdpSocket,
-    pub server_addr: SocketAddr,
+
+    /// Socket address to bind the QUIC endpoint socket to
     pub local_addr: SocketAddr,
+
+    /// Destination to which traffic is forwarded
     pub target_addr: SocketAddr,
+
+    /// Remote QUIC endpoint address
+    pub server_addr: SocketAddr,
+
+    /// Remote QUIC endpoint hostname
     pub server_host: String,
+
+    /// MTU (includes IP header)
     #[builder(default = 1500)]
     pub mtu: u16,
+
+    /// QUIC TLS config
     #[builder(default = default_tls_config())]
     pub tls_config: Arc<rustls::ClientConfig>,
+
+    /// Optional fwmark to set on the QUIC endpoint socket
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u16>,
 }
