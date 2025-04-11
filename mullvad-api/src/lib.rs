@@ -604,32 +604,40 @@ impl AccountsProxy {
     }
 
     #[cfg(target_os = "ios")]
-    pub async fn init_storekit_payment(
+    pub fn init_storekit_payment(
         &self,
         account: AccountNumber,
-    ) -> Result<rest::Response<Incoming>, rest::Error> {
-        let request = self
-            .handle
-            .factory
-            .post(&format!("{APPLE_PAYMENT_URL_PREFIX}/init"))?
-            .expected_status(&[StatusCode::OK])
-            .account(account)?;
-        self.handle.service.request(request).await
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
+        let service = self.handle.service.clone();
+        let factory = self.handle.factory.clone();
+
+        async move {
+            let request = factory
+                .post(&format!("{APPLE_PAYMENT_URL_PREFIX}/init"))?
+                .expected_status(&[StatusCode::OK])
+                .account(account)?;
+            let result = service.request(request).await?;
+            Ok(result)
+        }
     }
 
     #[cfg(target_os = "ios")]
-    pub async fn check_storekit_payment(
+    pub fn check_storekit_payment(
         &self,
         account: AccountNumber,
         body: Vec<u8>,
-    ) -> Result<rest::Response<Incoming>, rest::Error> {
-        let request = self
-            .handle
-            .factory
-            .post_json_bytes(&format!("{APPLE_PAYMENT_URL_PREFIX}/check"), body)?
-            .expected_status(&[StatusCode::OK])
-            .account(account)?;
-        self.handle.service.request(request).await
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
+        let service = self.handle.service.clone();
+        let factory = self.handle.factory.clone();
+
+        async move {
+            let request = factory
+                .post_json_bytes(&format!("{APPLE_PAYMENT_URL_PREFIX}/check"), body)?
+                .expected_status(&[StatusCode::OK])
+                .account(account)?;
+            let result = service.request(request).await?;
+            Ok(result)
+        }
     }
 
     #[cfg(target_os = "android")]
