@@ -2,7 +2,11 @@
 
 //! This module implements the flow of downloading and verifying the app.
 
-use std::{ffi::OsString, path::PathBuf, time::Duration};
+use std::{
+    ffi::OsString,
+    path::{Path, PathBuf},
+    time::Duration,
+};
 
 use tokio::{process::Command, time::timeout};
 
@@ -83,7 +87,7 @@ impl<AppProgress: ProgressUpdater> From<AppDownloaderParameters<AppProgress>>
 #[async_trait::async_trait]
 impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgress> {
     async fn download_executable(&mut self) -> Result<(), DownloadError> {
-        let bin_path = self.bin_path();
+        let bin_path = bin_path(&self.params.app_version, &self.params.cache_dir);
         fetch::get_to_file(
             bin_path,
             &self.params.app_url,
@@ -95,7 +99,7 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
     }
 
     async fn verify(&mut self) -> Result<(), DownloadError> {
-        let bin_path = self.bin_path();
+        let bin_path = bin_path(&self.params.app_version, &self.params.cache_dir);
         let hash = self.hash_sha256();
 
         match Sha256Verifier::verify(&bin_path, *hash)
@@ -135,21 +139,21 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
     }
 }
 
+pub fn bin_path(app_version: &mullvad_version::Version, cache_dir: &Path) -> PathBuf {
+    #[cfg(windows)]
+    let bin_filename = format!("mullvad-{}.exe", app_version);
+
+    #[cfg(target_os = "macos")]
+    let bin_filename = format!("mullvad-{}.pkg", app_version);
+
+    cache_dir.join(bin_filename)
+}
+
 impl<AppProgress> HttpAppDownloader<AppProgress> {
-    pub fn bin_path(&self) -> PathBuf {
-        #[cfg(windows)]
-        let bin_filename = format!("mullvad-{}.exe", self.params.app_version);
-
-        #[cfg(target_os = "macos")]
-        let bin_filename = format!("mullvad-{}.pkg", self.params.app_version);
-
-        self.params.cache_dir.join(bin_filename)
-    }
-
     fn launch_path(&self) -> PathBuf {
         #[cfg(target_os = "windows")]
         {
-            self.bin_path()
+            bin_path(&self.params.app_version, &self.params.cache_dir)
         }
 
         #[cfg(target_os = "macos")]

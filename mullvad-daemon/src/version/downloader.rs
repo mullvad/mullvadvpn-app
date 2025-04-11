@@ -2,7 +2,7 @@
 
 use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpgradeEvent};
 use mullvad_update::app::{
-    AppDownloader, AppDownloaderParameters, DownloadError, HttpAppDownloader,
+    bin_path, AppDownloader, AppDownloaderParameters, DownloadError, HttpAppDownloader,
 };
 use rand::seq::SliceRandom;
 use std::path::PathBuf;
@@ -66,21 +66,29 @@ impl std::future::Future for DownloaderHandle {
     }
 }
 
-pub fn spawn_downloader(
+pub fn spawn_downloader<D>(
     version: mullvad_update::version::Version,
     event_tx: broadcast::Sender<AppUpgradeEvent>,
-) -> DownloaderHandle {
+) -> DownloaderHandle
+where
+    D: AppDownloader + Send + 'static,
+    D: From<AppDownloaderParameters<ProgressUpdater>>,
+{
     DownloaderHandle {
-        task: tokio::spawn(start(version, event_tx.clone())),
+        task: tokio::spawn(start::<D>(version, event_tx.clone())),
         dropped_tx: Some(event_tx),
     }
 }
 
 /// Begin or resume download of `version`
-async fn start(
+async fn start<D>(
     version: mullvad_update::version::Version,
     event_tx: broadcast::Sender<AppUpgradeEvent>,
-) -> Result<PathBuf> {
+) -> Result<PathBuf>
+where
+    D: AppDownloader + Send + 'static,
+    D: From<AppDownloaderParameters<ProgressUpdater>>,
+{
     let url = select_cdn_url(&version.urls)
         .ok_or(Error::NoUrlFound)?
         .to_owned();
@@ -93,6 +101,7 @@ async fn start(
         .await
         .map_err(Error::CreateDownloadDir)?;
 
+    let bin_path = bin_path(&version.version, &download_dir);
     let params = AppDownloaderParameters {
         app_version: version.version,
         app_url: url.clone(),
@@ -101,27 +110,27 @@ async fn start(
         app_sha256: version.sha256,
         cache_dir: download_dir,
     };
-    let mut downloader = HttpAppDownloader::from(params);
+    let mut downloader = D::from(params);
 
-    if let Err(download_err) = downloader.download_executable().await {
-        log::error!("Failed to download app: {download_err}");
+    downloader.download_executable().await.inspect_err(|err| {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed));
-        return Err(download_err.into());
-    };
-
+        log::error!("{}", err.display_chain());
+        log::info!("Cleaning up download at '{bin_path:?}'",);
+        std::fs::remove_file(&bin_path).expect("Failed to remove file");
+    })?;
     let _ = event_tx.send(AppUpgradeEvent::VerifyingInstaller);
-
-    if let Err(verify_err) = downloader.verify().await {
-        log::error!("Failed to verify downloaded app: {verify_err}");
+    downloader.verify().await.inspect_err(|err| {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::VerificationFailed));
-        return Err(verify_err.into());
-    };
-
+        log::error!("{}", err.display_chain());
+        log::info!("Cleaning up download at '{:?}'", bin_path);
+        std::fs::remove_file(&bin_path).expect("Failed to remove file");
+    })?;
     let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
-    Ok(downloader.bin_path())
+
+    Ok(bin_path)
 }
 
-struct ProgressUpdater {
+pub struct ProgressUpdater {
     server: String,
     event_tx: broadcast::Sender<AppUpgradeEvent>,
     complete_frac: f32,
