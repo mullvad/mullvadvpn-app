@@ -5,6 +5,7 @@ use std::{
     net::{Ipv4Addr, SocketAddr},
     path::Path,
     sync::{Arc, LazyLock},
+    time::Duration,
 };
 use tokio::{
     net::UdpSocket,
@@ -16,8 +17,8 @@ use h3::{client, ext::Protocol, proto::varint::VarInt, quic::StreamId};
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
 use http::{header, uri::Scheme, Response, StatusCode};
 use quinn::{
-    crypto::rustls::QuicClientConfig, ClientConfig, Endpoint, EndpointConfig, TokioRuntime,
-    TransportConfig,
+    crypto::rustls::QuicClientConfig, ClientConfig, Endpoint, EndpointConfig, IdleTimeout,
+    TokioRuntime, TransportConfig,
 };
 
 use crate::{
@@ -96,6 +97,8 @@ pub enum Error {
     ParseCerts,
     #[error("Failed to fragment a packet - it is too large")]
     PacketTooLarge(#[from] fragment::PacketTooLarge),
+    #[error("The provided idle timeout was invalid")]
+    InvalidIdleTimeout(quinn::VarIntBoundsExceeded),
 }
 
 impl Client {
@@ -106,6 +109,7 @@ impl Client {
         target_addr: SocketAddr,
         server_host: &str,
         mtu: u16,
+        idle_timeout: Option<Duration>,
     ) -> Result<Self> {
         Self::connect_with_tls_config(
             client_socket,
@@ -115,6 +119,7 @@ impl Client {
             server_host,
             default_tls_config(),
             mtu,
+            idle_timeout,
         )
         .await
     }
@@ -127,12 +132,19 @@ impl Client {
         server_host: &str,
         tls_config: Arc<rustls::ClientConfig>,
         mtu: u16,
+        idle_timeout: Option<Duration>,
     ) -> Result<Self> {
         let quic_client_config = QuicClientConfig::try_from(tls_config)
             .expect("Failed to construct a valid TLS configuration");
 
         let mut client_config = ClientConfig::new(Arc::new(quic_client_config));
-        let transport_config = TransportConfig::default();
+        let mut transport_config = TransportConfig::default();
+        transport_config.max_idle_timeout(
+            idle_timeout
+                .map(IdleTimeout::try_from)
+                .transpose()
+                .map_err(Error::InvalidIdleTimeout)?,
+        );
         // TODO: Set datagram_receive_buffer_size  if needed
         // TODO: Set datagram_send_buffer_size if needed
         // When would it be needed? If we need to buffer more packets or buffer less packets for
