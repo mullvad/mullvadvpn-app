@@ -60,6 +60,9 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error("Failed to bind local socket")]
     Bind(#[source] io::Error),
+    #[cfg(target_os = "linux")]
+    #[error("Failed to set fwmark on remote socket")]
+    Fwmark(#[source] io::Error),
     #[error("Failed to begin connecting to QUIC endpoint")]
     Connect(#[from] quinn::ConnectError),
     #[error("Failed to connect to QUIC endpoint")]
@@ -99,6 +102,7 @@ pub enum Error {
 }
 
 impl Client {
+    #[allow(clippy::too_many_arguments)]
     pub async fn connect(
         client_socket: UdpSocket,
         server_addr: SocketAddr,
@@ -106,6 +110,7 @@ impl Client {
         target_addr: SocketAddr,
         server_host: &str,
         mtu: u16,
+        #[cfg(target_os = "linux")] fwmark: Option<u16>,
     ) -> Result<Self> {
         Self::connect_with_tls_config(
             client_socket,
@@ -115,10 +120,13 @@ impl Client {
             server_host,
             default_tls_config(),
             mtu,
+            #[cfg(target_os = "linux")]
+            fwmark,
         )
         .await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn connect_with_tls_config(
         client_socket: UdpSocket,
         server_addr: SocketAddr,
@@ -127,6 +135,7 @@ impl Client {
         server_host: &str,
         tls_config: Arc<rustls::ClientConfig>,
         mtu: u16,
+        #[cfg(target_os = "linux")] fwmark: Option<u16>,
     ) -> Result<Self> {
         let quic_client_config = QuicClientConfig::try_from(tls_config)
             .expect("Failed to construct a valid TLS configuration");
@@ -146,10 +155,13 @@ impl Client {
             server_host,
             client_config,
             mtu,
+            #[cfg(target_os = "linux")]
+            fwmark,
         )
         .await
     }
 
+    #[allow(clippy::too_many_arguments)]
     async fn connect_with_local_addr(
         client_socket: UdpSocket,
         server_addr: SocketAddr,
@@ -158,12 +170,18 @@ impl Client {
         server_host: &str,
         client_config: ClientConfig,
         mtu: u16,
+        #[cfg(target_os = "linux")] fwmark: Option<u16>,
     ) -> Result<Self> {
         Self::validate_mtu(mtu, target_addr)?;
 
         let max_udp_payload_size = compute_udp_payload_size(mtu, target_addr);
 
-        let endpoint = Self::setup_quic_endpoint(local_addr, max_udp_payload_size)?;
+        let endpoint = Self::setup_quic_endpoint(
+            local_addr,
+            max_udp_payload_size,
+            #[cfg(target_os = "linux")]
+            fwmark,
+        )?;
 
         let connecting = endpoint.connect_with(client_config, server_addr, server_host)?;
 
@@ -201,16 +219,39 @@ impl Client {
         }
     }
 
-    fn setup_quic_endpoint(local_addr: SocketAddr, max_udp_payload_size: u16) -> Result<Endpoint> {
-        let local_socket = std::net::UdpSocket::bind(local_addr).map_err(Error::Bind)?;
+    fn setup_quic_endpoint(
+        local_addr: SocketAddr,
+        max_udp_payload_size: u16,
+        #[cfg(target_os = "linux")] fwmark: Option<u16>,
+    ) -> Result<Endpoint> {
+        let local_socket = socket2::Socket::new(
+            socket2::Domain::IPV4,
+            socket2::Type::DGRAM,
+            Some(socket2::Protocol::UDP),
+        )
+        .map_err(Error::Bind)?;
+
+        #[cfg(target_os = "linux")]
+        if let Some(fwmark) = fwmark {
+            local_socket
+                .set_mark(u32::from(fwmark))
+                .map_err(Error::Fwmark)?;
+        }
+
+        local_socket.bind(&local_addr.into()).map_err(Error::Bind)?;
 
         let mut endpoint_config = EndpointConfig::default();
         endpoint_config
             .max_udp_payload_size(max_udp_payload_size)
             .map_err(Error::InvalidMaxUdpPayload)?;
 
-        Endpoint::new(endpoint_config, None, local_socket, Arc::new(TokioRuntime))
-            .map_err(Error::Bind)
+        Endpoint::new(
+            endpoint_config,
+            None,
+            local_socket.into(),
+            Arc::new(TokioRuntime),
+        )
+        .map_err(Error::Bind)
     }
 
     // Returns an h3 connection that is ready to be used for sending UDP datagrams.

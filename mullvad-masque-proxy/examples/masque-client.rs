@@ -32,6 +32,11 @@ pub struct ClientArgs {
     /// Maximum packet size
     #[arg(long, short = 'S', default_value = "1280")]
     mtu: u16,
+
+    /// fwmark to use for the `server_addr` connection
+    #[cfg(target_os = "linux")]
+    #[arg(long)]
+    fwmark: Option<u16>,
 }
 
 #[tokio::main]
@@ -48,6 +53,8 @@ async fn main() {
         server_hostname,
         bind_port,
         mtu,
+        #[cfg(target_os = "linux")]
+        fwmark,
     } = ClientArgs::parse();
 
     let tls_config = match root_cert_path {
@@ -74,6 +81,8 @@ async fn main() {
         &server_hostname,
         tls_config,
         mtu,
+        #[cfg(target_os = "linux")]
+        fwmark,
     )
     .await;
     if let Err(err) = &client {
