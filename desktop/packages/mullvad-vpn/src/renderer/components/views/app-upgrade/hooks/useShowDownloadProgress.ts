@@ -1,6 +1,7 @@
 import {
   useHasAppUpgradeError,
   useHasAppUpgradeInitiated,
+  useHasAppUpgradeVerifiedInstallerPath,
   useIsAppUpgradePending,
 } from '../../../../hooks';
 import { useAppUpgradeError, useConnectionIsBlocked } from '../../../../redux/hooks';
@@ -11,6 +12,7 @@ export const useShowDownloadProgress = () => {
   const hasAppUpgradeInitiated = useHasAppUpgradeInitiated();
   const hasAppUpgradeError = useHasAppUpgradeError();
   const isAppUpgradePending = useIsAppUpgradePending();
+  const hasAppUpgradeVerifiedInstallerPath = useHasAppUpgradeVerifiedInstallerPath();
 
   if (isBlocked && hasAppUpgradeInitiated) {
     return true;
@@ -28,5 +30,7 @@ export const useShowDownloadProgress = () => {
     return false;
   }
 
-  return isAppUpgradePending;
+  const showDownloadProgress = isAppUpgradePending || hasAppUpgradeVerifiedInstallerPath;
+
+  return showDownloadProgress;
 };
