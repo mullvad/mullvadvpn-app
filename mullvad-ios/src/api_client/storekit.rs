@@ -5,11 +5,11 @@ use mullvad_api::{
     AccountsProxy,
 };
 use mullvad_types::account::AccountNumber;
-use talpid_future::retry::retry_future;
 
 use super::{
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
+    do_request,
     response::SwiftMullvadApiResponse,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
     SwiftApiContext,
@@ -83,14 +83,7 @@ async fn mullvad_ios_init_storekit_payment_inner(
 
     let future_factory = || account_proxy.init_storekit_payment(account.clone());
 
-    let should_retry = |result: &Result<_, rest::Error>| match result {
-        Err(err) => err.is_network_error(),
-        Ok(_) => false,
-    };
-
-    let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
-
-    SwiftMullvadApiResponse::with_body(response).await
+    do_request(retry_strategy, future_factory).await
 }
 
 /// # Safety
@@ -170,12 +163,5 @@ async fn mullvad_ios_check_storekit_payment_inner(
 
     let future_factory = || account_proxy.check_storekit_payment(account.clone(), body.clone());
 
-    let should_retry = |result: &Result<_, rest::Error>| match result {
-        Err(err) => err.is_network_error(),
-        Ok(_) => false,
-    };
-
-    let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
-
-    SwiftMullvadApiResponse::with_body(response).await
+    do_request(retry_strategy, future_factory).await
 }
