@@ -33,6 +33,11 @@ pub struct ServerArgs {
 
 #[tokio::main]
 async fn main() {
+    env_logger::builder()
+        .filter_level(log::LevelFilter::Info)
+        .parse_default_env()
+        .init();
+
     let args = ServerArgs::parse();
     let _keylog = rustls::KeyLogFile::new();
 
@@ -45,7 +50,7 @@ async fn main() {
         args.mtu,
     )
     .expect("Failed to initialize server");
-    println!("Listening on {}", args.bind_addr);
+    log::info!("Listening on {}", args.bind_addr);
     server.run().await.expect("Server failed.")
 }
 

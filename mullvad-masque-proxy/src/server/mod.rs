@@ -111,7 +111,7 @@ impl Server {
     async fn handle_incoming_connection(connection: Incoming, allowed_hosts: AllowedIps, mtu: u16) {
         match connection.await {
             Ok(conn) => {
-                println!("new connection established");
+                log::debug!("new connection established");
 
                 let quinn_conn = conn.clone();
 
@@ -120,7 +120,7 @@ impl Server {
                     .build(h3_quinn::Connection::new(conn))
                     .await
                 else {
-                    println!("Failed to construct a new H3 server connection");
+                    log::error!("Failed to construct a new H3 server connection");
                     return;
                 };
 
@@ -140,12 +140,12 @@ impl Server {
                     Ok(None) => {}
 
                     Err(err) => {
-                        println!("error on accept {}", err);
+                        log::error!("error on accept {}", err);
                     }
                 }
             }
             Err(err) => {
-                println!("accepting connection failed: {:?}", err);
+                log::error!("accepting connection failed: {:?}", err);
             }
         }
     }
@@ -170,7 +170,7 @@ impl Server {
             return handle_failed_socket(stream).await;
         };
         if let Err(err) = udp_socket.connect(target_addr).await {
-            println!("Failed to set destination for UDP socket: {err}");
+            log::error!("Failed to set destination for UDP socket: {err}");
             return handle_failed_socket(stream).await;
         };
 
@@ -263,14 +263,14 @@ async fn proxy_tx_task(udp_socket: impl AsRef<UdpSocket>, mut client_rx: mpsc::R
         let packet = match fragments.handle_incoming_packet(quic_payload) {
             Ok(Some(packet)) => packet,
             Ok(None) => continue,
-            Err(_defrag_err) => {
-                // TODO: log::trace!()
+            Err(err) => {
+                log::trace!("Failed to reassemble incoming packet: {err}");
                 continue;
             }
         };
 
-        if let Err(_err) = udp_socket.send(&packet).await {
-            // TODO: log::trace!()
+        if let Err(err) = udp_socket.send(&packet).await {
+            log::trace!("Failed to forward packet to UDP socket {err}");
         }
     }
 }
@@ -297,7 +297,7 @@ async fn proxy_rx_task(
         let (_n, sender_addr) = match udp_socket.recv_buf_from(&mut proxy_recv_buf).await {
             Ok(recv) => recv,
             Err(err) => {
-                println!("Failed to receive packet from proxy socket: {err}");
+                log::error!("Failed to receive packet from proxy socket: {err}");
                 continue;
             }
         };

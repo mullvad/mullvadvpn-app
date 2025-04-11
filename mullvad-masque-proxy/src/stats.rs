@@ -19,7 +19,7 @@ const ORD: Ordering = Ordering::Relaxed;
 
 impl Drop for Stats {
     fn drop(&mut self) {
-        println!("stats: {:?}", self);
+        log::debug!("stats: {:?}", self);
     }
 }
 
