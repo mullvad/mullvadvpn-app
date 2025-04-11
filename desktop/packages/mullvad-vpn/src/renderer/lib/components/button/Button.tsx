@@ -101,29 +101,28 @@ const StyledFlex = styled(Flex)`
   }
 `;
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, disabled = false, style, ...props }, ref) => {
-    return (
-      <ButtonProvider disabled={disabled}>
-        <StyledButton ref={ref} disabled={disabled} {...props}>
-          <StyledFlex
-            $flex={1}
-            $gap="small"
-            $alignItems="center"
-            $padding={{
-              horizontal: 'small',
-            }}>
-            {children}
-          </StyledFlex>
-        </StyledButton>
-      </ButtonProvider>
-    );
-  },
-);
+const ForwardedButton = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { children, disabled = false, style, ...props },
+  ref,
+) {
+  return (
+    <ButtonProvider disabled={disabled}>
+      <StyledButton ref={ref} disabled={disabled} {...props}>
+        <StyledFlex
+          $flex={1}
+          $gap="small"
+          $alignItems="center"
+          $padding={{
+            horizontal: 'small',
+          }}>
+          {children}
+        </StyledFlex>
+      </StyledButton>
+    </ButtonProvider>
+  );
+});
 
-Button.displayName = 'Button';
-
-const ButtonNamespace = Object.assign(Button, {
+const ButtonNamespace = Object.assign(ForwardedButton, {
   Text: ButtonText,
   Icon: ButtonIcon,
 });

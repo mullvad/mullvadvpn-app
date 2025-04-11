@@ -8,7 +8,7 @@ type ButtonIconProps = Omit<IconProps, 'size'>;
 
 export const StyledIcon = styled(Icon)({});
 
-export const ButtonIcon = ({ ...props }: ButtonIconProps) => {
+export function ButtonIcon({ ...props }: ButtonIconProps) {
   const { disabled } = useButtonContext();
   return (
     <StyledIcon
@@ -18,4 +18,4 @@ export const ButtonIcon = ({ ...props }: ButtonIconProps) => {
       {...props}
     />
   );
-};
+}
