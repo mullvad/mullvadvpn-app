@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2025-03-25 14:23\n"
+"PO-Revision-Date: 2025-04-11 07:48\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -327,6 +327,17 @@ msgstr "%(location)sを展開する"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "アカウント番号 %(accountNumber)s との連携を解除します"
+
+#. Accessibility label for link to blog post about OpenVPN support ending.
+msgctxt "accessibility"
+msgid "Go to blog post to read more, opens externally"
+msgstr "ブログ記事を開いて続きを読む (外部ブラウザで開きます)"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change tunnel protocol.
+msgctxt "accessibility"
+msgid "Go to VPN settings to change tunnel protocol"
+msgstr "VPN設定に移動してトンネルのプロトコルを変更"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -904,6 +915,29 @@ msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr "%(duration)s。追加クレジットを購入してください。"
 
+#. First part of notification subtitle when there are no openVPN servers available.
+#. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support has ended. Please update the app or"
+msgstr "%(openVpn)sのサポートが終了しました。アプリを更新するか、"
+
+#. Notification title indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s SUPPORT IS ENDING"
+msgstr "%(openVpn)sのサポートが終了します"
+
+#. First part of notification subtitle when there are no openVPN servers
+#. matching current settings. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support is ending. Switch location or"
+msgstr "%(openVpn)sのサポートが終了します。場所を切り替えるか、"
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "アカウントのクレジットがもうすぐ無効になります。"
@@ -919,6 +953,14 @@ msgstr "ベータ版のアップデートを入手できます"
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "インターネットをブロック中"
+
+#. Link following the first part of the notification subtitle.
+#. Will navigate the user to the VPN settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "change tunnel protocol to %(wireGuard)s."
+msgstr "トンネルのプロトコルを%(wireGuard)sに変更してください。"
 
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
@@ -941,9 +983,36 @@ msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "新バージョンがインストールされました"
 
+#. Notification title when there are no openVPN servers
+#. matching current settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVER AVAILABLE"
+msgstr "利用可能な%(openVpn)sサーバーはありません"
+
+#. Notification title when there are no openVPN servers available.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVERS AVAILABLE"
+msgstr "利用可能な%(openVpn)sサーバーはありません"
+
+#. Notification subtitle indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "Please change tunnel protocol to %(wireGuard)s."
+msgstr "トンネルのプロトコルを%(wireGuard)sに変更してください。"
+
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "アプリをいったん終了して、再起動してください。"
+
+#. Link in notication to a blog post about OpenVPN support ending.
+msgctxt "in-app-notifications"
+msgid "Read more"
+msgstr "続きを読む"
 
 msgctxt "in-app-notifications"
 msgid "Send problem report"
@@ -1316,8 +1385,8 @@ msgstr "%(openvpn)s MSSの値を設定します。有効範囲: %(min)d ～ %(ma
 #. available.
 #. Available placeholders:
 #. %(transportProtocol)s - the name of the transport protocol setting
-#. %(automat)s - the translation of "Automatic"
-#. %(openvpn)s - will be replaced with OpenVPN
+#. %(automatic)s - the translation of "Automatic"
+#. %(tcp)s - the translation of "TCP"
 msgctxt "openvpn-settings-view"
 msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
 msgstr "ブリッジモードを有効にするには、<b>%(transportProtocol)s</b>を<b>%(automatic)s</b>または<b>%(tcp)s</b>に変更してください。"
@@ -1950,6 +2019,13 @@ msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "注意: この設定を「<b>%(customDnsFeatureName)s</b>」と一緒に使用することはできません"
 
+#. Footer text for tunnel protocol selector when OpenVPN is selected.
+#. Available placeholders:
+#. %(openvpn)s - Will be replaced with OpenVPN
+msgctxt "vpn-settings-view"
+msgid "Attention: We are removing support for %(openVpn)s."
+msgstr "注意: %(openVpn)sのサポートは終了します。"
+
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
 msgstr "自動接続"
@@ -2023,6 +2099,12 @@ msgstr "ロックダウンモード"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "マルウェア"
+
+#. Link in tunnel protocol selector footer to blog post
+#. about OpenVPN support ending.
+msgctxt "vpn-settings-view"
+msgid "Read more"
+msgstr "続きを読む"
 
 msgctxt "vpn-settings-view"
 msgid "Server IP override"
@@ -2131,8 +2213,8 @@ msgid "%(wireguard)s settings"
 msgstr "%(wireguard)sの設定"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
-msgstr "注意: この機能はネットワークトラフィックの総数を増加させるため、上限のあるデータプランをご利用の場合にはご注意ください。この機能は%(wireguard)sでのみ使用できます。"
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s."
+msgstr "注意: これによりネットワークトラフィックが増加し、速度、遅延、およびバッテリー使用率に悪影響を及ぼします。上限付きプランでは注意して使用してください。%(wireguard)sでのみ機能します。"
 
 msgctxt "wireguard-settings-view"
 msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
@@ -2183,8 +2265,10 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "難読化"
 
+#. Describes what WireGuard obfuscation does, how it works and when
+#. it would be useful to enable it.
 msgctxt "wireguard-settings-view"
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。"
 
 msgctxt "wireguard-settings-view"
@@ -2219,8 +2303,8 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "%(setting)sを使用可能にするには、設定 > %(tunnelProtocol)sで “%(wireguard)s” または “%(automatic)s” に切り替えてください。"
+msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
+msgstr "%(setting)sを使用可能にするには、設定 > %(tunnelProtocol)sで「%(wireguard)s」に切り替えてください。"
 
 msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
@@ -2432,6 +2516,9 @@ msgstr "方法を削除"
 msgid "Delete method?"
 msgstr "方法を削除しますか？"
 
+msgid "Device IP version"
+msgstr "デバイスのIPバージョン"
+
 msgid "Disable \"%s\" below to activate these settings."
 msgstr "これらの設定を有効にするには、下の [%s] を無効にしてください。"
 
@@ -2528,6 +2615,9 @@ msgstr "インポートが正常に完了しました。オーバーライドは
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "新しいオーバーライドをインポートすると、以前インポートしたオーバーライドが置き換えられる可能性があります。"
 
+msgid "In-tunnel IPv6"
+msgstr "トンネル内のIPv6"
+
 msgid "Invalid or missing value \"%s\""
 msgstr "値 \"%s\" は無効であるか、または見つかりません"
 
@@ -2560,6 +2650,12 @@ msgstr "名前が %s に変更されました"
 
 msgid "New list"
 msgstr "新規リスト"
+
+msgid "No Android app store installed, could not open link"
+msgstr "Androidアプリストアがインストールされていないため、リンクを開けませんでした"
+
+msgid "No browser app installed, could not open link"
+msgstr "ブラウザアプリがインストールされていないため、リンクを開けませんでした"
 
 msgid "No changelog was added for this version"
 msgstr "このバージョンに追加された変更履歴はありません。"
@@ -2639,9 +2735,6 @@ msgstr "デフォルトにリセット"
 msgid "Search"
 msgstr "検索"
 
-msgid "See full changelog"
-msgstr "すべての変更履歴を見る"
-
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "この設定を有効化するには、以下の%sの難読化を「自動」または「オフ」に設定してください。"
 
@@ -2663,9 +2756,6 @@ msgstr "現在のVPNトンネルのステータスを表示します"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "アカウントの期限切れが迫っているときにリマインダーを表示します"
 
-msgid "Split tunneling"
-msgstr "スプリットトンネリング"
-
 msgid "Submit"
 msgstr "送信"
 
@@ -2681,6 +2771,9 @@ msgstr "テキスト"
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "自動接続とロックダウンモードの設定はAndroidシステム設定にあります。どちらか、または両方をこのガイドに従って有効にしてください。"
 
+msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
+msgstr "VPN設定で [IPv6] を有効にしない限り、IPv6 DNSサーバーは機能しません。"
+
 msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
 msgstr "このロックダウンモードは、Androidのシステム設定では [VPN以外の接続のブロック] と呼ばれています。情報漏洩の可能性を低減することが可能ですが、既知の制限がいくつかあります。制限については、"
 
@@ -2692,6 +2785,9 @@ msgstr "VPN設定で [ローカルネットワーク共有] を有効にしな�
 
 msgid "This address has already been entered."
 msgstr "このアドレスは入力済みです。"
+
+msgid "This allows access to WireGuard for devices that only support IPv6."
+msgstr "これにより、IPv6のみをサポートするデバイスでもWireGuardにアクセスできるようになります。"
 
 msgid "This field is required"
 msgstr "このフィールドは必須です"
@@ -2744,8 +2840,8 @@ msgstr "この方法を使用する"
 msgid "VPN permission error"
 msgstr "VPN許可エラー"
 
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr "トンネルを作成中にVPNへのアクセスが拒否されました。もう一度接続してみてください。"
+msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
+msgstr "VPNへのアクセス許可が拒否されたか、別のアプリで「Always-on VPN」が有効になっています"
 
 msgid "VPN tunnel status"
 msgstr "VPNトンネルのステータス"

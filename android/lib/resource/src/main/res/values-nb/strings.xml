@@ -67,6 +67,7 @@
     <string name="clear_input">Fjern inndata</string>
     <string name="close">Lukk</string>
     <string name="collapse">Skjul</string>
+    <string name="confirm_ipv6_dns">IPv6 DNS-serveren fungerer ikke med mindre du aktiverer «IPv6» under VPN-innstillinger.</string>
     <string name="confirm_local_dns">Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling av lokalt nettverk» under VPN-innstillinger.</string>
     <string name="confirm_no_email">Problemrapporten blir nå sendt uten en måte for oss å kontakte deg på. Hvis du ønsker svar på rapporten, må du oppgi en e-postadresse.</string>
     <string name="confirm_removal">Ja, logg av enhet</string>
@@ -124,6 +125,7 @@
     <string name="device_inactive_description">Du har fjernet denne enheten. For å koble til igjen, må du logge inn på nytt.</string>
     <string name="device_inactive_title">Enheten er inaktiv</string>
     <string name="device_inactive_unblock_warning">Å gå til pålogging vil oppheve blokkeringen av internettet på denne enheten.</string>
+    <string name="device_ip_version_title">Enhets-IP-versjon</string>
     <string name="device_name">Enhetsnavn</string>
     <string name="device_name_info_first_paragraph">Dette er navnet som er tildelt enheten. Enhver enhet som er logget inn på en Mullvad-konto, får et unikt navn som gjør det enklere for deg å identifisere den når du administrerer enheten i appen eller på nettsiden.</string>
     <string name="device_name_info_second_paragraph">Du kan ha opptil fem enheter logget inn på samme Mullvad-konto.</string>
@@ -155,6 +157,7 @@
     <string name="enable_anyway">Aktiver uansett</string>
     <string name="enable_custom_dns">Bruk egendefinert DNS-server</string>
     <string name="enable_direct_only">Aktiver %1$s</string>
+    <string name="enable_ipv6">IPv6 i tunnel</string>
     <string name="enable_method">Aktiver metoden</string>
     <string name="encrypted_dns_proxy_info_message_part1">Med metoden «Kryptert DNS-proxy» vil appen kommunisere med Mullvad API gjennom en proxy-adresse. Dette gjøres ved å hente en adresse fra en DNS over HTTPS-server (DoH) og deretter bruke den til å nå API-serverne våre.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Hvis du ikke er koblet til VPN-tjenesten vår, vil den krypterte DNS-proxyen bruke din egen ikke-VPN-IP når du kobler til. En av følgende leverandører er vert for DoH-serverne: Quad9 eller CloudFlare.</string>
@@ -251,6 +254,7 @@
     <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>
     <string name="not_found">Ikke funnet</string>
     <string name="number_of_providers">Leverandører: %1$d</string>
+    <string name="obfuscation_info">Tilsløring skjuler WireGuard-trafikken i en annen protokoll. Man kan på den måten omgå sensur og andre typer filter der en vanlig WireGuard-tilkobling ville blitt blokkert.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Merk: Shadowsocks kan øke batteriforbruket avhengig av databruk, for eksempel ved strømming av video.</string>
     <string name="obfuscation_title">Tilsløring av WireGuard</string>
     <string name="off">Av</string>
@@ -366,6 +370,8 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Oppdater DNS-serveren</string>
     <string name="update_list_name">Oppdater listenavn</string>
+    <string name="uri_browser_app_not_found">Ingen nettleserapp installert. Kunne ikke åpne koblingen.</string>
+    <string name="uri_market_app_not_found">Ingen Android-appbutikk installert. Kunne ikke åpne koblingen.</string>
     <string name="use_method">Bruk metode</string>
     <string name="user_email_hint">E-post (valgfritt)</string>
     <string name="user_message_hint">For at vi skal kunne hjelpe deg bedre, ber vi deg om å skrive på engelsk eller svensk og fortelle hvilket land du befinner deg i.</string>
@@ -378,6 +384,7 @@
     <string name="voucher_already_used">Kupongkoden er allerede brukt.</string>
     <string name="voucher_is_account_number">Det ser ut til at du har oppgitt et kontonummer i stedet for en kupongkode. Hvis du vil endre den aktive kontoen, må du først logge ut.</string>
     <string name="voucher_success_title">Kupongkoden er løst inn.</string>
+    <string name="vpn_permission_denied_error">VPN-tillatelsen ble avslått, eller en annen app har «VPN alltid på» aktivert</string>
     <string name="vpn_permission_error_notification_message">Trykk på koble til for å be om VPN-tillatelse</string>
     <string name="vpn_permission_error_notification_title">Feil med VPN-tillatelse</string>
     <string name="we_will_look_into_this">Dette skal vi følge opp.</string>
