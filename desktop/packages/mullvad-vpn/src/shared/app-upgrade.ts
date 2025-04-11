@@ -8,12 +8,17 @@ export type AppUpgradeEventStatusStartedInstaller = {
   type: 'APP_UPGRADE_STATUS_STARTED_INSTALLER';
 };
 
+export type AppUpgradeEventStatusExitedInstaller = {
+  type: 'APP_UPGRADE_STATUS_EXITED_INSTALLER';
+};
+
 export type AppUpgradeEventStatusDownloadInitiated = {
   type: 'APP_UPGRADE_STATUS_DOWNLOAD_INITIATED';
 };
 
 export type AppUpgradeEventStatus =
   | AppUpgradeEventStatusDownloadInitiated
+  | AppUpgradeEventStatusExitedInstaller
   | AppUpgradeEventStatusStartingInstaller
   | AppUpgradeEventStatusStartedInstaller;
 
