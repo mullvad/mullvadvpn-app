@@ -1,14 +1,13 @@
-import { useAppUpgradeEventType, useIsAppUpgradeInProgress } from '../../../../hooks';
+import {
+  useHasAppUpgradeVerifiedInstallerPath,
+  useIsAppUpgradeInProgress,
+} from '../../../../hooks';
 
 export const useShowCancelButton = () => {
-  const appUpgradeEventType = useAppUpgradeEventType();
   const isAppUpgradeInProgress = useIsAppUpgradeInProgress();
+  const hasAppUpgradeVerifiedInstallerPath = useHasAppUpgradeVerifiedInstallerPath();
 
-  if (appUpgradeEventType !== 'APP_UPGRADE_STATUS_STARTED_INSTALLER') {
-    const showCancelButton = isAppUpgradeInProgress;
+  const showCancelButton = isAppUpgradeInProgress && !hasAppUpgradeVerifiedInstallerPath;
 
-    return showCancelButton;
-  }
-
-  return false;
+  return showCancelButton;
 };
