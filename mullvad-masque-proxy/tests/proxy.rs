@@ -174,6 +174,7 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         .server_host(HOST.to_owned())
         .target_addr(target_udp_addr)
         .mtu(mtu)
+        .idle_timeout(Some(Duration::from_secs(10)))
         .build();
 
     let client = client::Client::connect(client_config)

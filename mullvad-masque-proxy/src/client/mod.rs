@@ -5,6 +5,7 @@ use std::{
     net::{Ipv4Addr, SocketAddr},
     path::Path,
     sync::{Arc, LazyLock},
+    time::Duration,
 };
 use tokio::{
     net::UdpSocket,
@@ -17,7 +18,8 @@ use h3::{client, ext::Protocol, proto::varint::VarInt, quic::StreamId};
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
 use http::{header, uri::Scheme, Response, StatusCode};
 use quinn::{
-    crypto::rustls::QuicClientConfig, Endpoint, EndpointConfig, TokioRuntime, TransportConfig,
+    crypto::rustls::QuicClientConfig, Endpoint, EndpointConfig, IdleTimeout, TokioRuntime,
+    TransportConfig,
 };
 
 use crate::{
@@ -99,6 +101,8 @@ pub enum Error {
     ParseCerts,
     #[error("Failed to fragment a packet - it is too large")]
     PacketTooLarge(#[from] fragment::PacketTooLarge),
+    #[error("The provided idle timeout was invalid")]
+    InvalidIdleTimeout(quinn::VarIntBoundsExceeded),
 }
 
 #[derive(TypedBuilder)]
@@ -130,6 +134,10 @@ pub struct ClientConfig {
     #[cfg(target_os = "linux")]
     #[builder(default)]
     pub fwmark: Option<u16>,
+
+    /// Optional timeout when no data is sent in the proxy.
+    #[builder(default)]
+    pub idle_timeout: Option<Duration>,
 }
 
 impl Client {
@@ -138,7 +146,15 @@ impl Client {
             .expect("Failed to construct a valid TLS configuration");
 
         let mut client_config = quinn::ClientConfig::new(Arc::new(quic_client_config));
-        let transport_config = TransportConfig::default();
+        let mut transport_config = TransportConfig::default();
+        transport_config.max_idle_timeout(
+            config
+                .idle_timeout
+                .map(IdleTimeout::try_from)
+                .transpose()
+                .map_err(Error::InvalidIdleTimeout)?,
+        );
+
         // TODO: Set datagram_receive_buffer_size  if needed
         // TODO: Set datagram_send_buffer_size if needed
         // When would it be needed? If we need to buffer more packets or buffer less packets for
