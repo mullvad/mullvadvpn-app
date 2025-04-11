@@ -11,8 +11,8 @@ export function RetryUpgradeButton() {
     <Button disabled={disabled} onClick={appUpgrade}>
       <Button.Text>
         {
-          // TRANSLATORS: Button text to retry download of an update
-          messages.pgettext('app-upgrade-view', 'Retry download')
+          // TRANSLATORS: Button text to retry updating
+          messages.pgettext('app-upgrade-view', 'Retry')
         }
       </Button.Text>
     </Button>
