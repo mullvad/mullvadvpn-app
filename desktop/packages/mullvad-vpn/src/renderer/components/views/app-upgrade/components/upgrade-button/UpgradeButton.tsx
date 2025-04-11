@@ -12,7 +12,7 @@ export function UpgradeButton() {
       <Button.Text>
         {
           // TRANSLATORS: Button text to download and install an update
-          messages.pgettext('app-upgrade-view', 'Download and install')
+          messages.pgettext('app-upgrade-view', 'Download & install')
         }
       </Button.Text>
     </Button>
