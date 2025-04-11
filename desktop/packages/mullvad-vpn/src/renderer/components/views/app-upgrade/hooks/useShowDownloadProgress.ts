@@ -7,7 +7,7 @@ import { useAppUpgradeError, useConnectionIsBlocked } from '../../../../redux/ho
 
 export const useShowDownloadProgress = () => {
   const { isBlocked } = useConnectionIsBlocked();
-  const { appUpgradeError } = useAppUpgradeError();
+  const { error } = useAppUpgradeError();
   const hasAppUpgradeInitiated = useHasAppUpgradeInitiated();
   const hasAppUpgradeError = useHasAppUpgradeError();
   const isAppUpgradePending = useIsAppUpgradePending();
@@ -18,9 +18,9 @@ export const useShowDownloadProgress = () => {
 
   if (hasAppUpgradeError) {
     if (
-      appUpgradeError === 'START_INSTALLER_AUTOMATIC_FAILED' ||
-      appUpgradeError === 'START_INSTALLER_FAILED' ||
-      appUpgradeError === 'VERIFICATION_FAILED'
+      error === 'START_INSTALLER_AUTOMATIC_FAILED' ||
+      error === 'START_INSTALLER_FAILED' ||
+      error === 'VERIFICATION_FAILED'
     ) {
       return true;
     }

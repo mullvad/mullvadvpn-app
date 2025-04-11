@@ -1,9 +1,9 @@
 import { useAppUpgradeError } from '../../../../redux/hooks';
 
 export const useShowRetryUpgradeButton = () => {
-  const { appUpgradeError } = useAppUpgradeError();
+  const { error } = useAppUpgradeError();
 
-  switch (appUpgradeError) {
+  switch (error) {
     case 'DOWNLOAD_FAILED':
     case 'GENERAL_ERROR':
     case 'START_INSTALLER_FAILED':
