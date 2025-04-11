@@ -22,6 +22,7 @@ export const useAppUpgradeDownloadProgressValue = () => {
   switch (appUpgradeEventType) {
     case 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS':
       return getValueDownloadProgress();
+    case 'APP_UPGRADE_STATUS_EXITED_INSTALLER':
     case 'APP_UPGRADE_STATUS_STARTED_INSTALLER':
     case 'APP_UPGRADE_STATUS_STARTING_INSTALLER':
     case 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER':
