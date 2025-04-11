@@ -1,9 +1,9 @@
 import { useAppUpgradeError } from '../redux/hooks';
 
 export const useHasAppUpgradeError = () => {
-  const { appUpgradeError } = useAppUpgradeError();
+  const { error } = useAppUpgradeError();
 
-  const hasAppUpgradeError = appUpgradeError !== undefined;
+  const hasAppUpgradeError = error !== undefined;
 
   return hasAppUpgradeError;
 };

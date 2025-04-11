@@ -5,7 +5,7 @@ import { useHasAppUpgradeInitiated } from './useHasAppUpgradeInitiated';
 import { useHasAppUpgradeVerifiedInstallerPath } from './useHasAppUpgradeVerifiedInstallerPath';
 
 export const useShouldAppUpgradeInstallManually = () => {
-  const { appUpgradeError } = useAppUpgradeError();
+  const { error } = useAppUpgradeError();
   const appUpgradeEventType = useAppUpgradeEventType();
   const hasAppUpgradeError = useHasAppUpgradeError();
   const hasAppUpgradeVerifiedInstallerPath = useHasAppUpgradeVerifiedInstallerPath();
@@ -13,7 +13,7 @@ export const useShouldAppUpgradeInstallManually = () => {
 
   if (hasAppUpgradeVerifiedInstallerPath) {
     if (hasAppUpgradeError) {
-      if (appUpgradeError === 'START_INSTALLER_AUTOMATIC_FAILED') {
+      if (error === 'START_INSTALLER_AUTOMATIC_FAILED') {
         return true;
       }
     } else {

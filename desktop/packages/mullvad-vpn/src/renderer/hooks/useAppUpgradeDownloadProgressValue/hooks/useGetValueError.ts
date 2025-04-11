@@ -5,24 +5,24 @@ import { DOWNLOAD_COMPLETE_VALUE, FALLBACK_VALUE } from '../constants';
 import { useGetValueDownloadProgress } from './useGetValueDownloadProgress';
 
 export const useGetValueError = () => {
-  const { appUpgradeError } = useAppUpgradeError();
+  const { error } = useAppUpgradeError();
   const getValueDownloadProgress = useGetValueDownloadProgress();
 
   const getValueError = useCallback(() => {
-    if (appUpgradeError === 'DOWNLOAD_FAILED' || appUpgradeError === 'GENERAL_ERROR') {
+    if (error === 'DOWNLOAD_FAILED' || error === 'GENERAL_ERROR') {
       return getValueDownloadProgress();
     }
 
     if (
-      appUpgradeError === 'START_INSTALLER_AUTOMATIC_FAILED' ||
-      appUpgradeError === 'START_INSTALLER_FAILED' ||
-      appUpgradeError === 'VERIFICATION_FAILED'
+      error === 'START_INSTALLER_AUTOMATIC_FAILED' ||
+      error === 'START_INSTALLER_FAILED' ||
+      error === 'VERIFICATION_FAILED'
     ) {
       return DOWNLOAD_COMPLETE_VALUE;
     }
 
     return FALLBACK_VALUE;
-  }, [appUpgradeError, getValueDownloadProgress]);
+  }, [error, getValueDownloadProgress]);
 
   return getValueError;
 };
