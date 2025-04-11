@@ -1,11 +1,12 @@
 import { useAppUpgradeError } from '../../../../redux/hooks';
 
 export const useShowReportProblemButton = () => {
-  const { appUpgradeError } = useAppUpgradeError();
+  const { error } = useAppUpgradeError();
 
-  switch (appUpgradeError) {
+  switch (error) {
     case 'DOWNLOAD_FAILED':
     case 'GENERAL_ERROR':
+    case 'INSTALLER_FAILED':
     case 'START_INSTALLER_FAILED':
     case 'VERIFICATION_FAILED':
       return true;
