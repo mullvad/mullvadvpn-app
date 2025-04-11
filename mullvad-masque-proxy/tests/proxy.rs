@@ -167,20 +167,18 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         .context("Failed to bind address")?;
     let masque_client_addr = local_socket.local_addr().unwrap();
 
-    let client = client::Client::connect_with_tls_config(
-        local_socket,
-        masque_server_addr,
-        // Local QUIC address
-        any_localhost_addr,
-        target_udp_addr,
-        HOST,
-        client::default_tls_config(),
-        mtu,
-        #[cfg(target_os = "linux")]
-        None,
-    )
-    .await
-    .context("Failed to start MASQUE client")?;
+    let client_config = client::ClientConfig::builder()
+        .client_socket(local_socket)
+        .local_addr(any_localhost_addr)
+        .server_addr(masque_server_addr)
+        .server_host(HOST.to_owned())
+        .target_addr(target_udp_addr)
+        .mtu(mtu)
+        .build();
+
+    let client = client::Client::connect(client_config)
+        .await
+        .context("Failed to start MASQUE client")?;
 
     tokio::spawn(async move {
         if let Err(err) = client.run().await {
