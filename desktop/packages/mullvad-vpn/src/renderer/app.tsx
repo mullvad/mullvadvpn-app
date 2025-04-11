@@ -435,6 +435,7 @@ export default class AppRenderer {
       this.reduxActions.appUpgrade.setAppUpgradeEvent({
         type: 'APP_UPGRADE_STATUS_STARTING_INSTALLER',
       });
+      this.reduxActions.appUpgrade.resetAppUpgradeError();
 
       IpcRendererEventChannel.app.upgradeInstallerStart(verifiedInstallerPath);
     }
