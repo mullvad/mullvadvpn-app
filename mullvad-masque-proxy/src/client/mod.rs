@@ -429,7 +429,7 @@ async fn client_socket_tx_task(
         }
 
         if response.stream_id() != stream_id {
-            // log::trace!("Received datagram with an unexpected stream ID");
+            log::debug!("Received datagram with an unexpected stream ID");
             continue;
         }
         let payload = response.into_payload();
