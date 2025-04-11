@@ -3988,8 +3988,7 @@ dependencies = [
 [[package]]
 name = "quinn"
 version = "0.11.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3bd15a6f2967aef83887dcb9fec0014580467e33720d073560cf015a5683012"
+source = "git+https://github.com/quinn-rs/quinn?rev=41f7d2ea8f645adf630ca5712259fa34770c331e#41f7d2ea8f645adf630ca5712259fa34770c331e"
 dependencies = [
  "bytes",
  "cfg_aliases 0.2.1",
@@ -4009,8 +4008,7 @@ dependencies = [
 [[package]]
 name = "quinn-proto"
 version = "0.11.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b820744eb4dc9b57a3398183639c511b5a26d2ed702cedd3febaa1393caa22cc"
+source = "git+https://github.com/quinn-rs/quinn?rev=41f7d2ea8f645adf630ca5712259fa34770c331e#41f7d2ea8f645adf630ca5712259fa34770c331e"
 dependencies = [
  "bytes",
  "getrandom 0.3.2",
@@ -4028,16 +4026,15 @@ dependencies = [
 
 [[package]]
 name = "quinn-udp"
-version = "0.5.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c40286217b4ba3a71d644d752e6a0b71f13f1b6a2c5311acfcbe0c2418ed904"
+version = "0.5.11"
+source = "git+https://github.com/quinn-rs/quinn?rev=41f7d2ea8f645adf630ca5712259fa34770c331e#41f7d2ea8f645adf630ca5712259fa34770c331e"
 dependencies = [
  "cfg_aliases 0.2.1",
  "libc",
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
