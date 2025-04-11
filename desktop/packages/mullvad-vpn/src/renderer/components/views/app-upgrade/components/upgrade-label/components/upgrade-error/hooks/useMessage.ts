@@ -2,9 +2,9 @@ import { messages } from '../../../../../../../../../shared/gettext';
 import { useAppUpgradeError } from '../../../../../../../../redux/hooks';
 
 export const useMessage = () => {
-  const { appUpgradeError } = useAppUpgradeError();
+  const { error } = useAppUpgradeError();
 
-  switch (appUpgradeError) {
+  switch (error) {
     case 'DOWNLOAD_FAILED':
       return [
         // TRANSLATORS: Label displayed when an error occurred due to the download failing
