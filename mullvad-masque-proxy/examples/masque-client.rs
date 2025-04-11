@@ -25,9 +25,9 @@ pub struct ClientArgs {
     #[arg(long, short = 'H')]
     server_hostname: String,
 
-    /// Local bind port
-    #[arg(long, short = 'p', default_value = "0")]
-    bind_port: u16,
+    /// Bind address
+    #[arg(long, short = 'b', default_value = "127.0.0.1:0")]
+    bind_addr: SocketAddr,
 
     /// Maximum packet size
     #[arg(long, short = 'S', default_value = "1280")]
@@ -41,7 +41,7 @@ async fn main() {
         target_addr,
         root_cert_path,
         server_hostname,
-        bind_port,
+        bind_addr,
         mtu,
     } = ClientArgs::parse();
 
@@ -53,8 +53,7 @@ async fn main() {
 
     let _keylog = rustls::KeyLogFile::new();
 
-    let unbound_local_addr: SocketAddr = (Ipv4Addr::UNSPECIFIED, bind_port).into();
-    let local_socket = UdpSocket::bind(unbound_local_addr)
+    let local_socket = UdpSocket::bind(bind_addr)
         .await
         .expect("Failed to bind address");
     let local_addr = local_socket.local_addr().unwrap();
