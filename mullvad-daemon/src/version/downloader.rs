@@ -7,6 +7,7 @@ use mullvad_update::app::{
 use rand::seq::SliceRandom;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
+use talpid_types::ErrorExt;
 use tokio::fs;
 use tokio::sync::broadcast;
 
