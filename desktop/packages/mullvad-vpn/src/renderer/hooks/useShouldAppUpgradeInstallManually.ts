@@ -21,6 +21,7 @@ export const useShouldAppUpgradeInstallManually = () => {
       // has been downloaded and afterwards the app has been restarted.
       if (
         !hasAppUpgradeInitiated ||
+        appUpgradeEventType === 'APP_UPGRADE_STATUS_EXITED_INSTALLER' ||
         appUpgradeEventType === 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER'
       ) {
         return true;
