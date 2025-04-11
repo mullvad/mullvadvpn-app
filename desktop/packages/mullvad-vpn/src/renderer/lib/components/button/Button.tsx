@@ -5,7 +5,7 @@ import { Colors, Radius } from '../../foundations';
 import { Flex } from '../flex';
 import { ButtonBase } from './ButtonBase';
 import { ButtonProvider } from './ButtonContext';
-import { ButtonIcon, ButtonText, StyledIcon, StyledText } from './components';
+import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './components';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'success' | 'destructive';
@@ -74,24 +74,24 @@ const StyledButton = styled(ButtonBase)<ButtonProps>`
 
 const StyledFlex = styled(Flex)`
   justify-content: space-between;
-  &&:has(${StyledText}:only-child) {
+  &&:has(${StyledButtonText}:only-child) {
     justify-content: center;
   }
-  &&:has(${StyledText} + ${StyledIcon}) {
+  &&:has(${StyledButtonText} + ${StyledButtonIcon}) {
     &::before {
       content: ' ';
       display: inline-block;
       width: 24px;
     }
   }
-  &&:has(${StyledIcon} + ${StyledText}) {
+  &&:has(${StyledButtonIcon} + ${StyledButtonText}) {
     &::after {
       content: ' ';
       display: inline-block;
       width: 24px;
     }
   }
-  &&:has(${StyledIcon} + ${StyledText} + ${StyledIcon}) {
+  &&:has(${StyledButtonIcon} + ${StyledButtonText} + ${StyledButtonIcon}) {
     &::before {
       display: none;
     }

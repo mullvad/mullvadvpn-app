@@ -6,12 +6,12 @@ import { useButtonContext } from '../ButtonContext';
 
 type ButtonIconProps = Omit<IconProps, 'size'>;
 
-export const StyledIcon = styled(Icon)({});
+export const StyledButtonIcon = styled(Icon)({});
 
 export function ButtonIcon({ ...props }: ButtonIconProps) {
   const { disabled } = useButtonContext();
   return (
-    <StyledIcon
+    <StyledButtonIcon
       size="medium"
       aria-hidden="true"
       color={disabled ? Colors.white40 : Colors.white}
