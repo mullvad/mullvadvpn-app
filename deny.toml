@@ -112,7 +112,8 @@ unknown-git = "deny"
 #
 # But if possible, always avoid git dependencies and try to have the developers publish
 # releases to crates.io instead.
-allow-git = []
+# TODO: Remove git dependency for hickory-dns after new release
+allow-git = ["https://github.com/quinn-rs/quinn"]
 
 [sources.allow-org]
 # 1 or more github.com organizations to allow git sources for
