@@ -226,7 +226,7 @@ where
         tokio::select! {
             // Received version event from `check`
             Some(new_version) = self.new_version_rx.next() => {
-                let AppVersionInfoEvent { app_version_info, is_new }= self.on_new_version(new_version);
+                let AppVersionInfoEvent { app_version_info, is_new } = self.on_new_version(new_version);
                 self.notify_version_requesters(app_version_info.clone());
                 if is_new {
                     // Notify the daemon about new version
@@ -276,6 +276,7 @@ where
     /// If the router is in the process of upgrading, it will not propagate versions, but only
     /// remember it for when it transitions back into the "idle" (version check) state.
     fn on_new_version(&mut self, version_cache: VersionCache) -> AppVersionInfoEvent {
+        let verified_installer_path = self.get_verified_installer_path();
         match &mut self.state {
             State::NoVersion => {
                 // Receive first version
@@ -309,8 +310,13 @@ where
                 version_cache: ref mut prev_cache,
                 ..
             } => {
-                let prev_app_version = to_app_version_info(prev_cache, self.beta_program, None);
-                let new_app_version = to_app_version_info(&version_cache, self.beta_program, None);
+                let prev_app_version = to_app_version_info(
+                    prev_cache,
+                    self.beta_program,
+                    verified_installer_path.clone(),
+                );
+                let new_app_version =
+                    to_app_version_info(&version_cache, self.beta_program, verified_installer_path);
 
                 let is_new = new_app_version != prev_app_version;
                 // If version changed, cancel download by switching state
@@ -332,6 +338,17 @@ where
         // Notify all requesters
         for tx in self.version_request_channels.drain(..) {
             let _ = tx.send(Ok(new_app_version_info.clone()));
+        }
+    }
+
+    fn get_verified_installer_path(&self) -> Option<PathBuf> {
+        match &self.state {
+            #[cfg(update)]
+            State::Downloaded {
+                verified_installer_path,
+                ..
+            } => Some(verified_installer_path.clone()),
+            _ => None,
         }
     }
 
