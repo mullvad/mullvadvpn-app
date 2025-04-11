@@ -9,6 +9,7 @@ import {
   CancelButton,
   DownloadProgress,
   InstallButton,
+  ManualDownloadButton,
   ReportProblemButton,
   RetryUpgradeButton,
   UpgradeButton,
@@ -20,6 +21,7 @@ import {
   useShowCancelButton,
   useShowDownloadProgress,
   useShowInstallButton,
+  useShowManualDownloadButton,
   useShowReportProblemButton,
   useShowRetryUpgradeButton,
   useShowUpgradeButton,
@@ -40,6 +42,7 @@ export const AppUpgradeView = () => {
   const showCancelButton = useShowCancelButton();
   const showDownloadProgress = useShowDownloadProgress();
   const showInstallButton = useShowInstallButton();
+  const showManualDownloadButton = useShowManualDownloadButton();
   const showReportProblemButton = useShowReportProblemButton();
   const showRetryUpgradeButton = useShowRetryUpgradeButton();
   const showUpgradeButton = useShowUpgradeButton();
@@ -61,6 +64,7 @@ export const AppUpgradeView = () => {
             </Animate>
             <Flex $gap="medium" $flexDirection="column">
               {showReportProblemButton && <ReportProblemButton />}
+              {showManualDownloadButton && <ManualDownloadButton />}
               {showRetryUpgradeButton && <RetryUpgradeButton />}
               {showUpgradeButton && <UpgradeButton />}
               {showInstallButton && <InstallButton />}
