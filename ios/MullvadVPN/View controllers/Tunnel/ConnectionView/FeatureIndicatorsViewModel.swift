@@ -36,7 +36,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
             let features: [ChipFeature] = [
                 DaitaFeature(state: tunnelState),
                 QuantumResistanceFeature(state: tunnelState),
-                MultihopFeature(settings: tunnelSettings, state: tunnelState),
+                MultihopFeature(state: tunnelState),
                 ObfuscationFeature(settings: tunnelSettings, state: observedState),
                 DNSFeature(settings: tunnelSettings),
                 IPOverrideFeature(overrides: ipOverrides),

@@ -53,10 +53,9 @@ struct QuantumResistanceFeature: ChipFeature {
 }
 
 struct MultihopFeature: ChipFeature {
-    let settings: LatestTunnelSettings
     let state: TunnelState
     var isEnabled: Bool {
-        settings.tunnelMultihopState.isEnabled || state.isMultihop
+        state.isMultihop
     }
 
     var name: String {
