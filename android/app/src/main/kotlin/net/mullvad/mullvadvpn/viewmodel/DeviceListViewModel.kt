@@ -28,7 +28,7 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 class DeviceListViewModel(
     private val deviceRepository: DeviceRepository,
     savedStateHandle: SavedStateHandle,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val accountNumber: AccountNumber =
         DeviceListDestination.argsFrom(savedStateHandle).accountNumber
