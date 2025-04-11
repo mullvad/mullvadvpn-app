@@ -423,19 +423,13 @@ export default class AppRenderer {
   public appUpgradeAbort = () => IpcRendererEventChannel.app.upgradeAbort();
   public appUpgradeInstallerStart = () => {
     const reduxState = this.reduxStore.getState();
-    const appUpgradeEvent = reduxState.appUpgrade.event;
-    const appUpgradeError = reduxState.appUpgrade.error;
     const verifiedInstallerPath = reduxState.version.suggestedUpgrade?.verifiedInstallerPath;
     const hasVerifiedInstallerPath =
       typeof verifiedInstallerPath === 'string' && verifiedInstallerPath.length > 0;
 
     // Ensure we have a the path to the verified installer and that we are not already trying
     // to start the installer.
-    if (
-      hasVerifiedInstallerPath &&
-      (appUpgradeEvent?.type !== 'APP_UPGRADE_STATUS_STARTING_INSTALLER' ||
-        appUpgradeError === 'START_INSTALLER_FAILED')
-    ) {
+    if (hasVerifiedInstallerPath) {
       // Ensure we don't try to start the installer multiple times by setting the status
       // as starting
       this.reduxActions.appUpgrade.setAppUpgradeEvent({
