@@ -207,7 +207,13 @@ pub(crate) fn spawn_version_router(
 
 impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
     async fn run(mut self) {
-        loop {
+        log::info!("Version router started");
+        // Loop until the router is closed
+        while self.run_step().await {}
+        log::info!("Version router closed");
+    }
+
+    async fn run_step(&mut self) -> bool {
             tokio::select! {
                 // Received version event from `check`
                 Some(new_version) = self.new_version_rx.next() => {
@@ -226,10 +232,9 @@ impl<S: Sender<AppVersionInfo> + Send + 'static> VersionRouter<S> {
                     }
                 },
                 Some(message) = self.daemon_rx.next() => self.handle_message(message),
-                else => break,
-            }
+            else => return false,
         }
-        log::info!("Version router closed");
+        true
     }
 
     /// Handle [Message] sent by user
