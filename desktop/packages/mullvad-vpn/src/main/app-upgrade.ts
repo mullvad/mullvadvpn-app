@@ -1,5 +1,4 @@
-import { shell } from 'electron';
-import fs from 'fs/promises';
+import { spawn } from 'child_process';
 
 import { DaemonAppUpgradeEvent } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
@@ -18,9 +17,9 @@ export default class AppUpgrade {
       this.daemonRpc.appUpgradeAbort();
     });
 
-    IpcMainEventChannel.app.handleUpgradeInstallerStart(async (verifiedInstallerPath: string) => {
+    IpcMainEventChannel.app.handleUpgradeInstallerStart((verifiedInstallerPath: string) => {
       try {
-        await this.startInstaller(verifiedInstallerPath);
+        this.startInstaller(verifiedInstallerPath);
         IpcMainEventChannel.app.notifyUpgradeEvent?.({
           type: 'APP_UPGRADE_STATUS_STARTED_INSTALLER',
         });
@@ -54,23 +53,58 @@ export default class AppUpgrade {
     return daemonAppUpgradeEventListener;
   }
 
-  private async startInstaller(verifiedInstallerPath: string) {
-    await this.isInstallerExecutable(verifiedInstallerPath);
-    await this.executeInstaller(verifiedInstallerPath);
+  private spawnChildMac(verifiedInstallerPath: string) {
+    const child = spawn('open', [verifiedInstallerPath, '--wait-apps'], {
+      detached: true,
+    });
+
+    return child;
   }
 
-  private async executeInstaller(verifiedInstallerPath: string) {
-    const errorMessage = await shell.openPath(verifiedInstallerPath);
-    if (errorMessage) {
-      throw new Error(`An error occurred when starting the installer: ${errorMessage}`);
-    }
+  private spawnChildWindows(verifiedInstallerPath: string) {
+    const SYSTEM_ROOT_PATH = process.env.SYSTEMROOT || process.env.windir || 'C:\\Windows';
+    const POWERSHELL_PATH = `${SYSTEM_ROOT_PATH}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
+    const quotedVerifiedInstallerPath = `'${verifiedInstallerPath}'`;
+
+    const child = spawn(POWERSHELL_PATH, ['Start', '-Wait', quotedVerifiedInstallerPath], {
+      detached: true,
+    });
+
+    return child;
   }
 
-  private async isInstallerExecutable(verifiedInstallerPath: string) {
-    try {
-      await fs.access(verifiedInstallerPath, fs.constants.X_OK);
-    } catch {
-      throw new Error('The path to the installer is not executable.');
+  private spawnChild(verifiedInstallerPath: string) {
+    if (process.platform === 'darwin') {
+      return this.spawnChildMac(verifiedInstallerPath);
     }
+
+    if (process.platform === 'win32') {
+      return this.spawnChildWindows(verifiedInstallerPath);
+    }
+
+    throw new Error(`Unsupported platform: ${process.platform}`);
+  }
+
+  private startInstaller(verifiedInstallerPath: string) {
+    const child = this.spawnChild(verifiedInstallerPath);
+
+    child.on('error', (error) => {
+      log.error(`An error occurred with the installer: ${error.message}`);
+      IpcMainEventChannel.app.notifyUpgradeError?.('INSTALLER_FAILED');
+      IpcMainEventChannel.app.notifyUpgradeEvent?.({
+        type: 'APP_UPGRADE_STATUS_EXITED_INSTALLER',
+      });
+    });
+
+    child.on('exit', (code) => {
+      if (code !== 0) {
+        log.error(`The installer exited unexpectedly with exit code: ${code}`);
+        IpcMainEventChannel.app.notifyUpgradeError?.('INSTALLER_FAILED');
+      }
+
+      IpcMainEventChannel.app.notifyUpgradeEvent?.({
+        type: 'APP_UPGRADE_STATUS_EXITED_INSTALLER',
+      });
+    });
   }
 }
