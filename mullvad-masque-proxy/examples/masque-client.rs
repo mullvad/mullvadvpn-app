@@ -1,5 +1,5 @@
 use clap::Parser;
-use mullvad_masque_proxy::client::Error;
+use mullvad_masque_proxy::client::{ClientConfig, Error};
 use tokio::net::UdpSocket;
 
 use std::{
@@ -72,18 +72,19 @@ async fn main() {
     let local_addr = local_socket.local_addr().unwrap();
     log::debug!("Listening on {local_addr}");
 
-    let client = mullvad_masque_proxy::client::Client::connect_with_tls_config(
-        local_socket,
-        server_addr,
-        (Ipv4Addr::UNSPECIFIED, 0).into(),
-        target_addr,
-        &server_hostname,
-        tls_config,
-        mtu,
-        #[cfg(target_os = "linux")]
-        fwmark,
-    )
-    .await;
+    let config = ClientConfig::builder()
+        .client_socket(local_socket)
+        .local_addr((Ipv4Addr::UNSPECIFIED, 0).into())
+        .server_addr(server_addr)
+        .server_host(server_hostname)
+        .target_addr(target_addr)
+        .mtu(mtu)
+        .tls_config(tls_config);
+
+    #[cfg(target_os = "linux")]
+    let config = config.fwmark(fwmark);
+
+    let client = mullvad_masque_proxy::client::Client::connect(config.build()).await;
     if let Err(err) = &client {
         log::error!("ERROR: {:?}", err);
         if let Error::Connection(err) = err {

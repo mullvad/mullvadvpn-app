@@ -2887,6 +2887,7 @@ dependencies = [
  "socket2",
  "thiserror 2.0.9",
  "tokio",
+ "typed-builder",
 ]
 
 [[package]]
@@ -5674,6 +5675,26 @@ dependencies = [
  "thiserror 2.0.9",
  "tokio",
  "udp-over-tcp",
+]
+
+[[package]]
+name = "typed-builder"
+version = "0.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce63bcaf7e9806c206f7d7b9c1f38e0dce8bb165a80af0898161058b19248534"
+dependencies = [
+ "typed-builder-macro",
+]
+
+[[package]]
+name = "typed-builder-macro"
+version = "0.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60d8d828da2a3d759d3519cdf29a5bac49c77d039ad36d0782edadbf9cd5415b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.100",
 ]
 
 [[package]]

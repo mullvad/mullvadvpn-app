@@ -11,13 +11,13 @@ use tokio::{
     select,
     sync::{broadcast, mpsc},
 };
+use typed_builder::TypedBuilder;
 
 use h3::{client, ext::Protocol, proto::varint::VarInt, quic::StreamId};
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
 use http::{header, uri::Scheme, Response, StatusCode};
 use quinn::{
-    crypto::rustls::QuicClientConfig, ClientConfig, Endpoint, EndpointConfig, TokioRuntime,
-    TransportConfig,
+    crypto::rustls::QuicClientConfig, Endpoint, EndpointConfig, TokioRuntime, TransportConfig,
 };
 
 use crate::{
@@ -101,93 +101,54 @@ pub enum Error {
     PacketTooLarge(#[from] fragment::PacketTooLarge),
 }
 
-impl Client {
-    pub async fn connect(
-        client_socket: UdpSocket,
-        server_addr: SocketAddr,
-        local_addr: SocketAddr,
-        target_addr: SocketAddr,
-        server_host: &str,
-        mtu: u16,
-        #[cfg(target_os = "linux")] fwmark: Option<u16>,
-    ) -> Result<Self> {
-        Self::connect_with_tls_config(
-            client_socket,
-            server_addr,
-            local_addr,
-            target_addr,
-            server_host,
-            default_tls_config(),
-            mtu,
-            #[cfg(target_os = "linux")]
-            fwmark,
-        )
-        .await
-    }
+#[derive(TypedBuilder)]
+pub struct ClientConfig {
+    pub client_socket: UdpSocket,
+    pub server_addr: SocketAddr,
+    pub local_addr: SocketAddr,
+    pub target_addr: SocketAddr,
+    pub server_host: String,
+    #[builder(default = 1500)]
+    pub mtu: u16,
+    #[builder(default = default_tls_config())]
+    pub tls_config: Arc<rustls::ClientConfig>,
+    #[cfg(target_os = "linux")]
+    pub fwmark: Option<u16>,
+}
 
-    pub async fn connect_with_tls_config(
-        client_socket: UdpSocket,
-        server_addr: SocketAddr,
-        local_addr: SocketAddr,
-        target_addr: SocketAddr,
-        server_host: &str,
-        tls_config: Arc<rustls::ClientConfig>,
-        mtu: u16,
-        #[cfg(target_os = "linux")] fwmark: Option<u16>,
-    ) -> Result<Self> {
-        let quic_client_config = QuicClientConfig::try_from(tls_config)
+impl Client {
+    pub async fn connect(config: ClientConfig) -> Result<Self> {
+        let quic_client_config = QuicClientConfig::try_from(config.tls_config)
             .expect("Failed to construct a valid TLS configuration");
 
-        let mut client_config = ClientConfig::new(Arc::new(quic_client_config));
+        let mut client_config = quinn::ClientConfig::new(Arc::new(quic_client_config));
         let transport_config = TransportConfig::default();
         // TODO: Set datagram_receive_buffer_size  if needed
         // TODO: Set datagram_send_buffer_size if needed
         // When would it be needed? If we need to buffer more packets or buffer less packets for
         // better performance.
         client_config.transport_config(Arc::new(transport_config));
-        Self::connect_with_local_addr(
-            client_socket,
-            server_addr,
-            local_addr,
-            target_addr,
-            server_host,
-            client_config,
-            mtu,
-            #[cfg(target_os = "linux")]
-            fwmark,
-        )
-        .await
-    }
 
-    async fn connect_with_local_addr(
-        client_socket: UdpSocket,
-        server_addr: SocketAddr,
-        local_addr: SocketAddr,
-        target_addr: SocketAddr,
-        server_host: &str,
-        client_config: ClientConfig,
-        mtu: u16,
-        #[cfg(target_os = "linux")] fwmark: Option<u16>,
-    ) -> Result<Self> {
-        Self::validate_mtu(mtu, target_addr)?;
+        Self::validate_mtu(config.mtu, config.target_addr)?;
 
-        let max_udp_payload_size = compute_udp_payload_size(mtu, target_addr);
+        let max_udp_payload_size = compute_udp_payload_size(config.mtu, config.target_addr);
 
         let endpoint = Self::setup_quic_endpoint(
-            local_addr,
+            config.local_addr,
             max_udp_payload_size,
             #[cfg(target_os = "linux")]
-            fwmark,
+            config.fwmark,
         )?;
 
-        let connecting = endpoint.connect_with(client_config, server_addr, server_host)?;
+        let connecting =
+            endpoint.connect_with(client_config, config.server_addr, &config.server_host)?;
 
         let connection = connecting.await?;
 
         let (h3_connection, send_stream, request_stream) = Self::setup_h3_connection(
             connection.clone(),
-            target_addr,
-            server_host,
+            config.target_addr,
+            &config.server_host,
             max_udp_payload_size,
         )
         .await?;
@@ -195,7 +156,7 @@ impl Client {
         Ok(Self {
             quinn_conn: connection,
             connection: h3_connection,
-            client_socket: Arc::new(client_socket),
+            client_socket: Arc::new(config.client_socket),
             request_stream,
             _send_stream: send_stream,
             max_udp_payload_size,
