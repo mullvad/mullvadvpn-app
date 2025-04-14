@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 - Prompt password manager to store new account number on account creation.
 - Add the ability to force the ip version used to connect to a relay.
 - Add the ability to disable IPv6 in the tunnel.
+- Make feature indicators clickable, allowing for easy access to active features.
 
 ### Changed
 - Disable Wireguard port setting when a obfuscation is selected since it is not used when an
