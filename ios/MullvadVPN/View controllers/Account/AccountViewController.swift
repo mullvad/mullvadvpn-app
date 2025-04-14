@@ -237,8 +237,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             do {
                 let product = try await Product.products(
                     for: [
-                        StoreSubscription
-                            .thirtyDays.rawValue,
+                        storeKit2TestProduct,
                     ]
                 ).first!
                 let token = switch await interactor

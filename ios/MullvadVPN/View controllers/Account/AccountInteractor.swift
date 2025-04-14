@@ -51,7 +51,7 @@ final class AccountInteractor: Sendable {
 
     // This function is for testing only
     func getPaymentToken(for accountNumber: String) async -> Result<String, Error> {
-        await withCheckedContinuation { c in
+        await withCheckedContinuation { continuation in
             let proxy = REST.MullvadAPIProxy(
                 transportProvider: APITransportProvider(
                     requestFactory: .init(
@@ -67,7 +67,7 @@ final class AccountInteractor: Sendable {
                     accountNumber: accountNumber,
                     retryStrategy: .noRetry,
                     completionHandler: { result in
-                        c.resume(returning: result)
+                        continuation.resume(returning: result)
                     }
                 )
         }

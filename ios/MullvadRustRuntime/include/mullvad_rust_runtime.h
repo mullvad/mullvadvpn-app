@@ -262,32 +262,32 @@ struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_r
  * # Safety
  *
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_ios_init_new`.
+ * by calling `mullvad_api_init_new`.
  *
- * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
- * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
- * type is intended to be used.
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
  *
- * `account` must be a pointer to a null terminated string to the account number
+ * `account_number` must be a pointer to a null terminated string.
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
 struct SwiftCancelHandle mullvad_ios_init_storekit_payment(struct SwiftApiContext api_context,
                                                            void *completion_cookie,
                                                            struct SwiftRetryStrategy retry_strategy,
-                                                           const char *account);
+                                                           const char *account_number);
 
 /**
  * # Safety
  *
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_ios_init_new`.
+ * by calling `mullvad_api_init_new`.
  *
- * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
- * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
- * type is intended to be used.
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
  *
- * `account` must be a pointer to a null terminated string to the account number
+ * `account_number` must be a pointer to a null terminated string.
  *
  * `body` must be a pointer to the body content
  *
@@ -298,7 +298,7 @@ struct SwiftCancelHandle mullvad_ios_init_storekit_payment(struct SwiftApiContex
 struct SwiftCancelHandle mullvad_ios_check_storekit_payment(struct SwiftApiContext api_context,
                                                             void *completion_cookie,
                                                             struct SwiftRetryStrategy retry_strategy,
-                                                            const char *account,
+                                                            const char *account_number,
                                                             const uint8_t *body,
                                                             uintptr_t body_size);
 
