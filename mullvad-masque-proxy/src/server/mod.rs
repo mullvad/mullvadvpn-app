@@ -330,7 +330,7 @@ async fn proxy_rx_task(
             else {
                 continue;
             };
-            fragment_id += 1;
+            fragment_id = fragment_id.wrapping_add(1);
             for payload in fragments {
                 if send_tx.send(payload).await.is_err() {
                     break;

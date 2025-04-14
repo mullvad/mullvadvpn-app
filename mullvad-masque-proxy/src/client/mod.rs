@@ -340,7 +340,7 @@ async fn server_socket_task(
     mut client_rx: mpsc::Receiver<Bytes>,
     stats: Arc<Stats>,
 ) -> Result<()> {
-    let mut fragment_id = 1u16;
+    let mut fragment_id = 0u16;
     let stream_id_size = VarInt::from(stream_id).size() as u16;
 
     loop {
