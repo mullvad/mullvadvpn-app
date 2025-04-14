@@ -59,6 +59,7 @@ extension UIImage {
 
         static var close: UIImage {
             UIImage(named: "IconClose")!
+                .resized(to: CGSize(width: 24, height: 24))
         }
     }
 
