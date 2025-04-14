@@ -146,6 +146,7 @@ test.describe('App upgrade', () => {
         },
       });
 
+      await ipc.send.appUpgradeEventVerifiedInstaller();
       await ipc.send.appUpgradeError('START_INSTALLER_AUTOMATIC_FAILED');
 
       await expect(page.getByText('Verification successful! Ready to install.')).toBeVisible();
@@ -156,6 +157,7 @@ test.describe('App upgrade', () => {
 
       await resolveIpcHandle(ipc.handle.appUpgrade(), installUpdateButton.click());
 
+      await ipc.send.appUpgradeEventStartingInstaller();
       await ipc.send.appUpgradeError('START_INSTALLER_FAILED');
 
       await expect(installUpdateButton).not.toBeVisible();
