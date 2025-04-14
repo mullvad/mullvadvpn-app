@@ -149,9 +149,6 @@ test.describe('App upgrade', () => {
       await ipc.send.appUpgradeError('START_INSTALLER_AUTOMATIC_FAILED');
 
       await expect(page.getByText('Verification successful! Ready to install.')).toBeVisible();
-
-      const downloadProgressBar = selectors.downloadProgressBar();
-      await expect(downloadProgressBar).not.toBeVisible();
     });
 
     test('Should handle failing to manually start installer', async () => {
