@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { AppUpgradeError, AppUpgradeEvent } from '../../../src/shared/app-upgrade';
-import { IAppVersionInfo } from '../../../src/shared/daemon-rpc-types';
-import { MockedTestUtils, startMockedApp } from './mocked-utils';
+import { AppUpgradeError, AppUpgradeEvent } from '../../../../src/shared/app-upgrade';
+import { IAppVersionInfo } from '../../../../src/shared/daemon-rpc-types';
+import { MockedTestUtils, startMockedApp } from '../mocked-utils';
 
 let page: Page;
 let util: MockedTestUtils;
