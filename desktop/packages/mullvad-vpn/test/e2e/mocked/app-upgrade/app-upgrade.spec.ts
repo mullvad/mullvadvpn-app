@@ -11,6 +11,10 @@ let ipc: ReturnType<typeof createIpc>;
 let selectors: ReturnType<typeof createSelectors>;
 
 test.describe('App upgrade', () => {
+  if (process.platform === 'linux') {
+    test.skip();
+  }
+
   const startup = async () => {
     ({ page, util } = await startMockedApp());
 
