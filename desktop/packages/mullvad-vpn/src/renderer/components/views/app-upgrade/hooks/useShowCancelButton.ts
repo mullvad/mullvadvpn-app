@@ -1,13 +1,9 @@
-import {
-  useHasAppUpgradeVerifiedInstallerPath,
-  useIsAppUpgradeInProgress,
-} from '../../../../hooks';
+import { useIsAppUpgradePreparing } from '../../../../hooks';
 
 export const useShowCancelButton = () => {
-  const isAppUpgradeInProgress = useIsAppUpgradeInProgress();
-  const hasAppUpgradeVerifiedInstallerPath = useHasAppUpgradeVerifiedInstallerPath();
+  const isAppUpgradePreparing = useIsAppUpgradePreparing();
 
-  const showCancelButton = isAppUpgradeInProgress && !hasAppUpgradeVerifiedInstallerPath;
+  const showCancelButton = isAppUpgradePreparing;
 
   return showCancelButton;
 };
