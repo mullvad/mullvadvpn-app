@@ -39,6 +39,8 @@ test.describe('App upgrade', () => {
   });
 
   test.describe('Should display changelog', () => {
+    test.afterAll(() => helpers.testTeardown());
+
     test('Should display new version number as heading', async () => {
       const headingText = await page
         .getByRole('heading', {
@@ -60,6 +62,8 @@ test.describe('App upgrade', () => {
   });
 
   test.describe('Should download upgrade', () => {
+    test.afterAll(() => helpers.testTeardown());
+
     test('Should start upgrade when clicking Download & install button', async () => {
       await helpers.startAppUpgrade();
       const downloadAndInstallButton = selectors.downloadAndInstallButton();
@@ -108,6 +112,8 @@ test.describe('App upgrade', () => {
   });
 
   test.describe('Should handle failing to download upgrade', () => {
+    test.afterAll(() => helpers.testTeardown());
+
     test('Should handle failing to download upgrade', async () => {
       await ipc.send.appUpgradeError('DOWNLOAD_FAILED');
 
@@ -135,6 +141,8 @@ test.describe('App upgrade', () => {
   });
 
   test.describe('Should handle failing to start installer', () => {
+    test.afterAll(() => helpers.testTeardown());
+
     test('Should handle failing to automatically start installer', async () => {
       await ipc.send.upgradeVersion({
         supported: true,
@@ -188,6 +196,8 @@ test.describe('App upgrade', () => {
   });
 
   test.describe('Should cancel download', () => {
+    test.afterAll(() => helpers.testTeardown());
+
     test('Should show Cancel button after upgrade started', async () => {
       await helpers.startAppUpgrade();
       const cancelButton = selectors.cancelButton();
