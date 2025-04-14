@@ -253,14 +253,14 @@ extension LocationDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         switch sections[section] {
         case .allLocations:
-            return LocationSectionHeaderFooterView(
+            LocationSectionHeaderFooterView(
                 configuration: LocationSectionHeaderFooterView.Configuration(
                     name: LocationSection.allLocations.header,
                     style: .header
                 )
             )
         case .customLists:
-            return LocationSectionHeaderFooterView(configuration: LocationSectionHeaderFooterView.Configuration(
+            LocationSectionHeaderFooterView(configuration: LocationSectionHeaderFooterView.Configuration(
                 name: LocationSection.customLists.header,
                 style: .header,
                 primaryAction: UIAction(
@@ -281,16 +281,40 @@ extension LocationDataSource: UITableViewDelegate {
                 directionalEdgeInsets: NSDirectionalEdgeInsets(top: 24, leading: 16, bottom: 0, trailing: 16)
             ))
         case .customLists:
-            return nil
+            guard dataSources[section].nodes.isEmpty else {
+                return nil
+            }
+
+            let text = NSMutableAttributedString(string: NSLocalizedString(
+                "CUSTOM_LIST_FOOTER",
+                tableName: "SelectLocation",
+                value: "To create a custom list, tap on ",
+                comment: ""
+            ))
+
+            text.append(NSAttributedString(string: "\""))
+
+            if let image = UIImage(systemName: "ellipsis") {
+                text.append(NSAttributedString(attachment: NSTextAttachment(image: image)))
+            } else {
+                text.append(NSAttributedString(string: "..."))
+            }
+
+            text.append(NSAttributedString(string: "\""))
+
+            var contentConfiguration = UIListContentConfiguration.mullvadGroupedFooter(tableStyle: tableView.style)
+            contentConfiguration.attributedText = text
+
+            return UIListContentView(configuration: contentConfiguration)
         }
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         switch sections[section] {
         case .allLocations:
-            return dataSources[section].nodes.isEmpty ? 80 : .zero
+            dataSources[section].nodes.isEmpty ? 80 : .zero
         case .customLists:
-            return 24
+            dataSources[section].nodes.isEmpty ? UITableView.automaticDimension : 24
         }
     }
 
