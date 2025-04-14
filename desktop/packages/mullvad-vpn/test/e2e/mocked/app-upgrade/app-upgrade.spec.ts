@@ -11,7 +11,7 @@ let ipc: ReturnType<typeof createIpc>;
 let selectors: ReturnType<typeof createSelectors>;
 
 test.describe('App upgrade', () => {
-  test.beforeAll(async () => {
+  const startup = async () => {
     ({ page, util } = await startMockedApp());
 
     helpers = createHelpers(page, util);
@@ -32,6 +32,15 @@ test.describe('App upgrade', () => {
     await util.waitForNavigation(() =>
       page.getByRole('button', { name: 'Update available' }).click(),
     );
+  };
+
+  const restart = async () => {
+    await page.close();
+    await startup();
+  };
+
+  test.beforeAll(async () => {
+    await startup();
   });
 
   test.afterAll(async () => {
@@ -39,6 +48,8 @@ test.describe('App upgrade', () => {
   });
 
   test.describe('Should display changelog', () => {
+    test.afterAll(() => restart());
+
     test('Should display new version number as heading', async () => {
       const headingText = await page
         .getByRole('heading', {
@@ -60,6 +71,8 @@ test.describe('App upgrade', () => {
   });
 
   test.describe('Should download upgrade', () => {
+    test.afterAll(() => restart());
+
     test('Should start upgrade when clicking Download & install button', async () => {
       await helpers.startAppUpgrade();
       const downloadAndInstallButton = selectors.downloadAndInstallButton();
@@ -67,7 +80,6 @@ test.describe('App upgrade', () => {
     });
 
     test('Should show indeterminate download progress after upgrade started', async () => {
-      // TODO: Improve by using aria labels
       await expect(page.getByText('Downloading...')).toBeVisible();
       await expect(page.getByText('Starting download...')).toBeVisible();
 
@@ -108,6 +120,8 @@ test.describe('App upgrade', () => {
   });
 
   test.describe('Should handle failing to download upgrade', () => {
+    test.afterAll(() => restart());
+
     test('Should handle failing to download upgrade', async () => {
       await ipc.send.appUpgradeError('DOWNLOAD_FAILED');
 
@@ -117,24 +131,28 @@ test.describe('App upgrade', () => {
         ),
       ).toBeVisible();
 
-      const retryDownloadButton = selectors.retryButton();
-      await expect(retryDownloadButton).toBeVisible();
+      const retryButton = selectors.retryButton();
+      await expect(retryButton).toBeVisible();
 
       const reportProblemButton = selectors.reportProblemButton();
       await expect(reportProblemButton).toBeVisible();
     });
-    test('Should handle retrying downloading upgrade', async () => {
-      const retryDownloadButton = selectors.retryButton();
 
-      await resolveIpcHandle(ipc.handle.appUpgrade(), retryDownloadButton.click());
+    test('Should handle retrying download of upgrade', async () => {
+      const retryButton = selectors.retryButton();
+
+      await resolveIpcHandle(ipc.handle.appUpgrade(), retryButton.click());
 
       await expect(page.getByText('Downloading...')).toBeVisible();
       await expect(page.getByText('Starting download...')).toBeVisible();
+
       await helpers.expectProgress(0, true);
     });
   });
 
   test.describe('Should handle failing to start installer', () => {
+    test.afterAll(() => restart());
+
     test('Should handle failing to automatically start installer', async () => {
       await ipc.send.upgradeVersion({
         supported: true,
@@ -167,17 +185,17 @@ test.describe('App upgrade', () => {
           'Could not start the update installer, try downloading it again. If this problem persists, please contact support.',
         ),
       ).toBeVisible();
-      const retryDownloadButton = selectors.retryButton();
-      await expect(retryDownloadButton).toBeVisible();
+      const retryButton = selectors.retryButton();
+      await expect(retryButton).toBeVisible();
 
       const reportProblemButton = selectors.reportProblemButton();
       await expect(reportProblemButton).toBeVisible();
     });
 
     test('Should handle retrying upgrade', async () => {
-      const retryDownloadButton = selectors.retryButton();
+      const retryButton = selectors.retryButton();
 
-      await resolveIpcHandle(ipc.handle.appUpgrade(), retryDownloadButton.click());
+      await resolveIpcHandle(ipc.handle.appUpgrade(), retryButton.click());
 
       await ipc.send.appUpgradeEventDownloadStarted();
 
