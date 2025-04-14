@@ -18,13 +18,13 @@ use super::{
 /// # Safety
 ///
 /// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_ios_init_new`.
+/// by calling `mullvad_api_init_new`.
 ///
-/// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
-/// safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
-/// type is intended to be used.
+/// This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+/// object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+/// when completion finishes (in completion.finish).
 ///
-/// `account` must be a pointer to a null terminated string to the account number
+/// `account_number` must be a pointer to a null terminated string.
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
@@ -32,7 +32,7 @@ pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
-    account: *const c_char,
+    account_number: *const c_char,
 ) -> SwiftCancelHandle {
     let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
 
@@ -46,20 +46,21 @@ pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
 
     let completion = completion_handler.clone();
 
-    let account = unsafe { std::ffi::CStr::from_ptr(account.cast()) };
-    let Ok(account) = account.to_str() else {
+    // SAFETY: See param documentation for `account_number`.
+    let account_number = unsafe { std::ffi::CStr::from_ptr(account_number.cast()) };
+    let Ok(account_number) = account_number.to_str() else {
         completion_handler.finish(SwiftMullvadApiResponse::invalid_input(
             c"Invalid account string",
         ));
         return SwiftCancelHandle::empty();
     };
-    let account = AccountNumber::from(account);
+    let account_number = AccountNumber::from(account_number);
 
     let task = tokio_handle.clone().spawn(async move {
         match mullvad_ios_init_storekit_payment_inner(
             api_context.rest_handle(),
             retry_strategy,
-            account,
+            account_number,
         )
         .await
         {
@@ -77,11 +78,11 @@ pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
 async fn mullvad_ios_init_storekit_payment_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
-    account: AccountNumber,
+    account_number: AccountNumber,
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
     let account_proxy = AccountsProxy::new(rest_client);
 
-    let future_factory = || account_proxy.init_storekit_payment(account.clone());
+    let future_factory = || account_proxy.init_storekit_payment(account_number.clone());
 
     do_request(retry_strategy, future_factory).await
 }
@@ -89,13 +90,13 @@ async fn mullvad_ios_init_storekit_payment_inner(
 /// # Safety
 ///
 /// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_ios_init_new`.
+/// by calling `mullvad_api_init_new`.
 ///
-/// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
-/// safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
-/// type is intended to be used.
+/// This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+/// object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+/// when completion finishes (in completion.finish).
 ///
-/// `account` must be a pointer to a null terminated string to the account number
+/// `account_number` must be a pointer to a null terminated string.
 ///
 /// `body` must be a pointer to the body content
 ///
@@ -107,7 +108,7 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
-    account: *const c_char,
+    account_number: *const c_char,
     body: *const u8,
     body_size: usize,
 ) -> SwiftCancelHandle {
@@ -123,21 +124,23 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
 
     let completion = completion_handler.clone();
 
-    let account = unsafe { std::ffi::CStr::from_ptr(account.cast()) };
-    let Ok(account) = account.to_str() else {
+    // SAFETY: See param documentation for `account_number`.
+    let account_number = unsafe { std::ffi::CStr::from_ptr(account_number.cast()) };
+    let Ok(account_number) = account_number.to_str() else {
         completion_handler.finish(SwiftMullvadApiResponse::invalid_input(
             c"Invalid account string",
         ));
         return SwiftCancelHandle::empty();
     };
-    let account = AccountNumber::from(account);
+    let account_number = AccountNumber::from(account_number);
 
+    // SAFETY: See param documentation for `body`.
     let body = unsafe { std::slice::from_raw_parts(body, body_size) }.to_vec();
     let task = tokio_handle.clone().spawn(async move {
         match mullvad_ios_check_storekit_payment_inner(
             api_context.rest_handle(),
             retry_strategy,
-            account,
+            account_number,
             body,
         )
         .await
@@ -156,12 +159,13 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
 async fn mullvad_ios_check_storekit_payment_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
-    account: AccountNumber,
+    account_number: AccountNumber,
     body: Vec<u8>,
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
     let account_proxy = AccountsProxy::new(rest_client);
 
-    let future_factory = || account_proxy.check_storekit_payment(account.clone(), body.clone());
+    let future_factory =
+        || account_proxy.check_storekit_payment(account_number.clone(), body.clone());
 
     do_request(retry_strategy, future_factory).await
 }
