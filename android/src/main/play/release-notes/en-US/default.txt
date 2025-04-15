@@ -1,4 +1,2 @@
-- Added setting to force the IP version to be used when connecting.
-- Added setting for disabling IPv6 in the tunnel.
-- Improved connect screen on TV devices.
-- Fixed connection details showing wrong in IP when using multihop.
+- Fixed a focus bug on Android TV when going back from select location.
+
