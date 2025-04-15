@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"67ef9fd9-2e0e5\"",
+  "etag": "W/\"67fe1591-2d9e1\"",
   "countries": [
     {
       "name": "Albania",
@@ -1090,8 +1090,8 @@
         {
           "name": "Sofia",
           "code": "sof",
-          "latitude": 42.6833333,
-          "longitude": 23.3166667,
+          "latitude": 42.683333,
+          "longitude": 23.316667,
           "relays": [
             {
               "hostname": "bg-sof-ovpn-001",
@@ -1110,8 +1110,8 @@
                 "country_code": "bg",
                 "city": "Sofia",
                 "city_code": "sof",
-                "latitude": 42.6833333,
-                "longitude": 23.3166667
+                "latitude": 42.683333,
+                "longitude": 23.316667
               }
             },
             {
@@ -1131,8 +1131,8 @@
                 "country_code": "bg",
                 "city": "Sofia",
                 "city_code": "sof",
-                "latitude": 42.6833333,
-                "longitude": 23.3166667
+                "latitude": 42.683333,
+                "longitude": 23.316667
               }
             },
             {
@@ -1158,8 +1158,8 @@
                 "country_code": "bg",
                 "city": "Sofia",
                 "city_code": "sof",
-                "latitude": 42.6833333,
-                "longitude": 23.3166667
+                "latitude": 42.683333,
+                "longitude": 23.316667
               }
             },
             {
@@ -1185,8 +1185,8 @@
                 "country_code": "bg",
                 "city": "Sofia",
                 "city_code": "sof",
-                "latitude": 42.6833333,
-                "longitude": 23.3166667
+                "latitude": 42.683333,
+                "longitude": 23.316667
               }
             }
           ]
@@ -4092,7 +4092,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "31173",
               "weight": 100,
@@ -5174,11 +5174,11 @@
               "ipv6_addr_in": null,
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": true,
               "provider": "Creanova",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": "openvpn",
               "location": {
                 "country": "Finland",
@@ -5195,11 +5195,11 @@
               "ipv6_addr_in": null,
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": true,
               "provider": "Creanova",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": "openvpn",
               "location": {
                 "country": "Finland",
@@ -5216,11 +5216,11 @@
               "ipv6_addr_in": null,
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": true,
               "provider": "Creanova",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": "openvpn",
               "location": {
                 "country": "Finland",
@@ -5237,11 +5237,11 @@
               "ipv6_addr_in": null,
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": true,
               "provider": "Creanova",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": "openvpn",
               "location": {
                 "country": "Finland",
@@ -5258,11 +5258,11 @@
               "ipv6_addr_in": null,
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": true,
               "provider": "Creanova",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": "openvpn",
               "location": {
                 "country": "Finland",
@@ -5279,11 +5279,11 @@
               "ipv6_addr_in": null,
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": true,
               "provider": "Creanova",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": "openvpn",
               "location": {
                 "country": "Finland",
@@ -5300,11 +5300,11 @@
               "ipv6_addr_in": null,
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": true,
               "provider": "Creanova",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": "openvpn",
               "location": {
                 "country": "Finland",
@@ -7216,7 +7216,7 @@
         {
           "name": "Hong Kong",
           "code": "hkg",
-          "latitude": 22.2833333,
+          "latitude": 22.283333,
           "longitude": 114.15,
           "relays": [
             {
@@ -7236,7 +7236,7 @@
                 "country_code": "hk",
                 "city": "Hong Kong",
                 "city_code": "hkg",
-                "latitude": 22.2833333,
+                "latitude": 22.283333,
                 "longitude": 114.15
               }
             },
@@ -7257,7 +7257,7 @@
                 "country_code": "hk",
                 "city": "Hong Kong",
                 "city_code": "hkg",
-                "latitude": 22.2833333,
+                "latitude": 22.283333,
                 "longitude": 114.15
               }
             },
@@ -7278,7 +7278,7 @@
                 "country_code": "hk",
                 "city": "Hong Kong",
                 "city_code": "hkg",
-                "latitude": 22.2833333,
+                "latitude": 22.283333,
                 "longitude": 114.15
               }
             },
@@ -7299,7 +7299,7 @@
                 "country_code": "hk",
                 "city": "Hong Kong",
                 "city_code": "hkg",
-                "latitude": 22.2833333,
+                "latitude": 22.283333,
                 "longitude": 114.15
               }
             },
@@ -7326,7 +7326,7 @@
                 "country_code": "hk",
                 "city": "Hong Kong",
                 "city_code": "hkg",
-                "latitude": 22.2833333,
+                "latitude": 22.283333,
                 "longitude": 114.15
               }
             },
@@ -7353,7 +7353,7 @@
                 "country_code": "hk",
                 "city": "Hong Kong",
                 "city_code": "hkg",
-                "latitude": 22.2833333,
+                "latitude": 22.283333,
                 "longitude": 114.15
               }
             },
@@ -7380,7 +7380,7 @@
                 "country_code": "hk",
                 "city": "Hong Kong",
                 "city_code": "hkg",
-                "latitude": 22.2833333,
+                "latitude": 22.283333,
                 "longitude": 114.15
               }
             },
@@ -7407,7 +7407,7 @@
                 "country_code": "hk",
                 "city": "Hong Kong",
                 "city_code": "hkg",
-                "latitude": 22.2833333,
+                "latitude": 22.283333,
                 "longitude": 114.15
               }
             },
@@ -7428,7 +7428,7 @@
                 "country_code": "hk",
                 "city": "Hong Kong",
                 "city_code": "hkg",
-                "latitude": 22.2833333,
+                "latitude": 22.283333,
                 "longitude": 114.15
               }
             }
@@ -7857,8 +7857,8 @@
         {
           "name": "Tel Aviv",
           "code": "tlv",
-          "latitude": 32.0852999,
-          "longitude": 34.7817676,
+          "latitude": 32.0853,
+          "longitude": 34.781768,
           "relays": [
             {
               "hostname": "il-tlv-wg-101",
@@ -7883,8 +7883,8 @@
                 "country_code": "il",
                 "city": "Tel Aviv",
                 "city_code": "tlv",
-                "latitude": 32.0852999,
-                "longitude": 34.7817676
+                "latitude": 32.0853,
+                "longitude": 34.781768
               }
             },
             {
@@ -7910,8 +7910,8 @@
                 "country_code": "il",
                 "city": "Tel Aviv",
                 "city_code": "tlv",
-                "latitude": 32.0852999,
-                "longitude": 34.7817676
+                "latitude": 32.0853,
+                "longitude": 34.781768
               }
             },
             {
@@ -7937,8 +7937,8 @@
                 "country_code": "il",
                 "city": "Tel Aviv",
                 "city_code": "tlv",
-                "latitude": 32.0852999,
-                "longitude": 34.7817676
+                "latitude": 32.0853,
+                "longitude": 34.781768
               }
             }
           ]
@@ -8400,7 +8400,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "DataPacket",
               "weight": 200,
@@ -8533,8 +8533,8 @@
         {
           "name": "Queretaro",
           "code": "qro",
-          "latitude": 20.5927744,
-          "longitude": -100.3902245,
+          "latitude": 20.592774,
+          "longitude": -100.390225,
           "relays": [
             {
               "hostname": "mx-qro-wg-001",
@@ -8559,8 +8559,8 @@
                 "country_code": "mx",
                 "city": "Queretaro",
                 "city_code": "qro",
-                "latitude": 20.5927744,
-                "longitude": -100.3902245
+                "latitude": 20.592774,
+                "longitude": -100.390225
               }
             },
             {
@@ -8586,8 +8586,8 @@
                 "country_code": "mx",
                 "city": "Queretaro",
                 "city_code": "qro",
-                "latitude": 20.5927744,
-                "longitude": -100.3902245
+                "latitude": 20.592774,
+                "longitude": -100.390225
               }
             },
             {
@@ -8613,8 +8613,8 @@
                 "country_code": "mx",
                 "city": "Queretaro",
                 "city_code": "qro",
-                "latitude": 20.5927744,
-                "longitude": -100.3902245
+                "latitude": 20.592774,
+                "longitude": -100.390225
               }
             },
             {
@@ -8640,8 +8640,8 @@
                 "country_code": "mx",
                 "city": "Queretaro",
                 "city_code": "qro",
-                "latitude": 20.5927744,
-                "longitude": -100.3902245
+                "latitude": 20.592774,
+                "longitude": -100.390225
               }
             }
           ]
@@ -11739,7 +11739,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "31173",
               "weight": 100,
@@ -12269,7 +12269,7 @@
               "active": true,
               "owned": false,
               "provider": "DataPacket",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "HozGhf1OfjFEASBzjmktB9AKkIgbC+OhSabZKwT6EHc=",
@@ -12298,7 +12298,7 @@
               "active": true,
               "owned": false,
               "provider": "DataPacket",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "r3360zyxOKxUthx90sfRkLZBt1Q5alk45/H9Dkq5kFM=",
@@ -12349,8 +12349,8 @@
         {
           "name": "Singapore",
           "code": "sin",
-          "latitude": 1.2930556,
-          "longitude": 103.8558333,
+          "latitude": 1.293056,
+          "longitude": 103.855833,
           "relays": [
             {
               "hostname": "sg-sin-ovpn-101",
@@ -12369,8 +12369,8 @@
                 "country_code": "sg",
                 "city": "Singapore",
                 "city_code": "sin",
-                "latitude": 1.2930556,
-                "longitude": 103.8558333
+                "latitude": 1.293056,
+                "longitude": 103.855833
               }
             },
             {
@@ -12390,8 +12390,8 @@
                 "country_code": "sg",
                 "city": "Singapore",
                 "city_code": "sin",
-                "latitude": 1.2930556,
-                "longitude": 103.8558333
+                "latitude": 1.293056,
+                "longitude": 103.855833
               }
             },
             {
@@ -12417,8 +12417,8 @@
                 "country_code": "sg",
                 "city": "Singapore",
                 "city_code": "sin",
-                "latitude": 1.2930556,
-                "longitude": 103.8558333
+                "latitude": 1.293056,
+                "longitude": 103.855833
               }
             },
             {
@@ -12444,8 +12444,8 @@
                 "country_code": "sg",
                 "city": "Singapore",
                 "city_code": "sin",
-                "latitude": 1.2930556,
-                "longitude": 103.8558333
+                "latitude": 1.293056,
+                "longitude": 103.855833
               }
             },
             {
@@ -12471,8 +12471,8 @@
                 "country_code": "sg",
                 "city": "Singapore",
                 "city_code": "sin",
-                "latitude": 1.2930556,
-                "longitude": 103.8558333
+                "latitude": 1.293056,
+                "longitude": 103.855833
               }
             },
             {
@@ -12498,8 +12498,8 @@
                 "country_code": "sg",
                 "city": "Singapore",
                 "city_code": "sin",
-                "latitude": 1.2930556,
-                "longitude": 103.8558333
+                "latitude": 1.293056,
+                "longitude": 103.855833
               }
             },
             {
@@ -12525,8 +12525,8 @@
                 "country_code": "sg",
                 "city": "Singapore",
                 "city_code": "sin",
-                "latitude": 1.2930556,
-                "longitude": 103.8558333
+                "latitude": 1.293056,
+                "longitude": 103.855833
               }
             },
             {
@@ -12546,8 +12546,8 @@
                 "country_code": "sg",
                 "city": "Singapore",
                 "city_code": "sin",
-                "latitude": 1.2930556,
-                "longitude": 103.8558333
+                "latitude": 1.293056,
+                "longitude": 103.855833
               }
             }
           ]
@@ -14345,7 +14345,7 @@
         {
           "name": "Denver, CO",
           "code": "den",
-          "latitude": 39.7392358,
+          "latitude": 39.739236,
           "longitude": -104.990251,
           "relays": [
             {
@@ -14365,7 +14365,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14386,7 +14386,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14413,7 +14413,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14440,7 +14440,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14467,7 +14467,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14496,7 +14496,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14525,7 +14525,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14554,7 +14554,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14583,7 +14583,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14612,7 +14612,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14641,7 +14641,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14670,7 +14670,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             },
@@ -14699,7 +14699,7 @@
                 "country_code": "us",
                 "city": "Denver, CO",
                 "city_code": "den",
-                "latitude": 39.7392358,
+                "latitude": 39.739236,
                 "longitude": -104.990251
               }
             }
@@ -16133,7 +16133,7 @@
               "active": true,
               "owned": false,
               "provider": "M247",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "FMNXnFgDHNTrT9o49U8bb3Z8J90LZzVJPpRzKtJM9W8=",
@@ -17003,7 +17003,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "Tzulo",
               "weight": 1,
@@ -17024,167 +17024,11 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": true,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 1,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Raleigh, NC",
-                "city_code": "rag",
-                "latitude": 35.787743,
-                "longitude": -78.644257
-              }
-            },
-            {
-              "hostname": "us-rag-ovpn-103",
-              "ipv4_addr_in": "198.54.130.66",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
               "active": false,
               "owned": false,
               "provider": "Tzulo",
               "weight": 1,
               "endpoint_data": "openvpn",
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Raleigh, NC",
-                "city_code": "rag",
-                "latitude": 35.787743,
-                "longitude": -78.644257
-              }
-            },
-            {
-              "hostname": "us-rag-wg-101",
-              "ipv4_addr_in": "198.54.130.82",
-              "ipv6_addr_in": "2607:9000:4000:15::b83f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 0,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "tKUaUnY6dJhRx3zCMAFMa1I7baVt5QrpnmdRsW99MWk=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Raleigh, NC",
-                "city_code": "rag",
-                "latitude": 35.787743,
-                "longitude": -78.644257
-              }
-            },
-            {
-              "hostname": "us-rag-wg-102",
-              "ipv4_addr_in": "198.54.130.98",
-              "ipv6_addr_in": "2607:9000:4000:16::b84f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 0,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "XT06PnP77El1DOWfg5Kq6GiPzzfvQbTFfWlHPws/TQ0=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Raleigh, NC",
-                "city_code": "rag",
-                "latitude": 35.787743,
-                "longitude": -78.644257
-              }
-            },
-            {
-              "hostname": "us-rag-wg-103",
-              "ipv4_addr_in": "198.54.130.114",
-              "ipv6_addr_in": "2607:9000:4000:17::b85f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 0,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "4xCeK68I0TXZoy1e8VeQDCea/6Qeu57IAtCi8Lnllik=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Raleigh, NC",
-                "city_code": "rag",
-                "latitude": 35.787743,
-                "longitude": -78.644257
-              }
-            },
-            {
-              "hostname": "us-rag-wg-104",
-              "ipv4_addr_in": "198.54.130.130",
-              "ipv6_addr_in": "2607:9000:4000:18::f001",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 0,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "zSuNvGa8Zk+jc2niP1s75CLTFD/1U1Fqc6ypfzO9mB0=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Raleigh, NC",
-                "city_code": "rag",
-                "latitude": 35.787743,
-                "longitude": -78.644257
-              }
-            },
-            {
-              "hostname": "us-rag-wg-105",
-              "ipv4_addr_in": "198.54.130.146",
-              "ipv6_addr_in": "2607:9000:4000:19::f001",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 0,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "XJDcYZ6peY1cfErhLQ0AqzGTxKuKXz5M//sFvEX8dAI=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
               "location": {
                 "country": "USA",
                 "country_code": "us",
@@ -17417,27 +17261,6 @@
                   ]
                 }
               },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Raleigh, NC",
-                "city_code": "rag",
-                "latitude": 35.787743,
-                "longitude": -78.644257
-              }
-            },
-            {
-              "hostname": "us-rag-br-101",
-              "ipv4_addr_in": "198.54.130.178",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 100,
-              "endpoint_data": "bridge",
               "location": {
                 "country": "USA",
                 "country_code": "us",
@@ -17950,8 +17773,8 @@
         {
           "name": "San Jose, CA",
           "code": "sjc",
-          "latitude": 37.3382082,
-          "longitude": -121.8863286,
+          "latitude": 37.338208,
+          "longitude": -121.886329,
           "relays": [
             {
               "hostname": "us-sjc-ovpn-001",
@@ -17970,8 +17793,8 @@
                 "country_code": "us",
                 "city": "San Jose, CA",
                 "city_code": "sjc",
-                "latitude": 37.3382082,
-                "longitude": -121.8863286
+                "latitude": 37.338208,
+                "longitude": -121.886329
               }
             },
             {
@@ -17991,8 +17814,8 @@
                 "country_code": "us",
                 "city": "San Jose, CA",
                 "city_code": "sjc",
-                "latitude": 37.3382082,
-                "longitude": -121.8863286
+                "latitude": 37.338208,
+                "longitude": -121.886329
               }
             },
             {
@@ -18018,8 +17841,8 @@
                 "country_code": "us",
                 "city": "San Jose, CA",
                 "city_code": "sjc",
-                "latitude": 37.3382082,
-                "longitude": -121.8863286
+                "latitude": 37.338208,
+                "longitude": -121.886329
               }
             },
             {
@@ -18045,8 +17868,8 @@
                 "country_code": "us",
                 "city": "San Jose, CA",
                 "city_code": "sjc",
-                "latitude": 37.3382082,
-                "longitude": -121.8863286
+                "latitude": 37.338208,
+                "longitude": -121.886329
               }
             },
             {
@@ -18072,8 +17895,8 @@
                 "country_code": "us",
                 "city": "San Jose, CA",
                 "city_code": "sjc",
-                "latitude": 37.3382082,
-                "longitude": -121.8863286
+                "latitude": 37.338208,
+                "longitude": -121.886329
               }
             },
             {
@@ -18099,8 +17922,8 @@
                 "country_code": "us",
                 "city": "San Jose, CA",
                 "city_code": "sjc",
-                "latitude": 37.3382082,
-                "longitude": -121.8863286
+                "latitude": 37.338208,
+                "longitude": -121.886329
               }
             },
             {
@@ -18126,8 +17949,8 @@
                 "country_code": "us",
                 "city": "San Jose, CA",
                 "city_code": "sjc",
-                "latitude": 37.3382082,
-                "longitude": -121.8863286
+                "latitude": 37.338208,
+                "longitude": -121.886329
               }
             },
             {
@@ -18153,8 +17976,8 @@
                 "country_code": "us",
                 "city": "San Jose, CA",
                 "city_code": "sjc",
-                "latitude": 37.3382082,
-                "longitude": -121.8863286
+                "latitude": 37.338208,
+                "longitude": -121.886329
               }
             },
             {
@@ -18180,8 +18003,8 @@
                 "country_code": "us",
                 "city": "San Jose, CA",
                 "city_code": "sjc",
-                "latitude": 37.3382082,
-                "longitude": -121.8863286
+                "latitude": 37.338208,
+                "longitude": -121.886329
               }
             },
             {
@@ -18207,8 +18030,8 @@
                 "country_code": "us",
                 "city": "San Jose, CA",
                 "city_code": "sjc",
-                "latitude": 37.3382082,
-                "longitude": -121.8863286
+                "latitude": 37.338208,
+                "longitude": -121.886329
               }
             }
           ]
