@@ -26,6 +26,12 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Fix syntax error in Apparmor profile.
 
+### Security
+#### macOS
+- Fix potential local privilege escalation when app was incorrectly removed by being dropped
+  in the bin but still leaving behind a launch daemon. This fixes CVE-2025-46351 reported by
+  Egor Filatov (Positive Technologies).
+
 
 ## [2025.6-beta1] - 2025-04-15
 ### Added
@@ -50,6 +56,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Fix bug in parsing of network services from SCDynamicStore.
+- Fully uninstall the app when it is removed by being dropped in the bin.
 
 
 ## [2025.5] - 2025-03-26
