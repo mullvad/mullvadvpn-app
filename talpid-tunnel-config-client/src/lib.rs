@@ -13,6 +13,7 @@ use tower::service_fn;
 use zeroize::Zeroize;
 
 pub mod classic_mceliece;
+mod hqc;
 mod ml_kem;
 #[cfg(not(target_os = "ios"))]
 mod socket;
@@ -126,10 +127,10 @@ pub async fn request_ephemeral_peer_with(
     enable_quantum_resistant: bool,
     enable_daita: bool,
 ) -> Result<EphemeralPeer, Error> {
-    let (pq_request, kem_secrets) = if enable_quantum_resistant {
-        let (pq_request, kem_secrets) = post_quantum_secrets().await;
+    let (pq_request, kem_keypairs) = if enable_quantum_resistant {
+        let (pq_request, kem_keypairs) = post_quantum_secrets().await;
         log::debug!("Generated PQ secrets");
-        (Some(pq_request), Some(kem_secrets))
+        (Some(pq_request), Some(kem_keypairs))
     } else {
         (None, None)
     };
@@ -155,14 +156,14 @@ pub async fn request_ephemeral_peer_with(
 
     let response = response.into_inner();
 
-    let psk = if let Some((cme_kem_secret, ml_kem_secret)) = kem_secrets {
+    let psk = if let Some((ml_kem_keypair, hqc_keypair)) = kem_keypairs {
         let ciphertexts = response
             .post_quantum
             .ok_or(Error::MissingCiphertexts)?
             .ciphertexts;
 
         // Unpack the ciphertexts into one per KEM without needing to access them by index.
-        let [cme_ciphertext, ml_kem_ciphertext] = <&[Vec<u8>; 2]>::try_from(ciphertexts.as_slice())
+        let [ml_kem_ciphertext, hqc_ciphertext] = <&[Vec<u8>; 2]>::try_from(ciphertexts.as_slice())
             .map_err(|_| Error::InvalidCiphertextCount {
                 actual: ciphertexts.len(),
             })?;
@@ -171,19 +172,20 @@ pub async fn request_ephemeral_peer_with(
         // without being stored in a bunch of places on the stack.
         let mut psk_data = Box::new([0u8; 32]);
 
-        // Decapsulate Classic McEliece and mix into PSK
-        {
-            let mut shared_secret = classic_mceliece::decapsulate(&cme_kem_secret, cme_ciphertext)?;
-            xor_assign(&mut psk_data, shared_secret.as_array());
-
-            // This should happen automatically due to `SharedSecret` implementing ZeroizeOnDrop.
-            // But doing it explicitly provides a stronger guarantee that it's not
-            // accidentally removed.
-            shared_secret.zeroize();
-        }
         // Decapsulate ML-KEM and mix into PSK
         {
-            let mut shared_secret = ml_kem_secret.decapsulate(ml_kem_ciphertext)?;
+            let mut shared_secret = ml_kem_keypair.decapsulate(ml_kem_ciphertext)?;
+            xor_assign(&mut psk_data, &shared_secret);
+
+            // The shared secret is sadly stored in an array on the stack. So we can't get any
+            // guarantees that it's not copied around on the stack. The best we can do here
+            // is to zero out the version we have and hope the compiler optimizes out copies.
+            // https://github.com/Argyle-Software/kyber/issues/59
+            shared_secret.zeroize();
+        }
+        // Decapsulate HQC and mix into PSK
+        {
+            let mut shared_secret = hqc_keypair.decapsulate(hqc_ciphertext)?;
             xor_assign(&mut psk_data, &shared_secret);
 
             // The shared secret is sadly stored in an array on the stack. So we can't get any
@@ -227,27 +229,24 @@ const fn get_platform() -> proto::DaitaPlatform {
     PLATFORM
 }
 
-async fn post_quantum_secrets() -> (
-    PostQuantumRequestV1,
-    (classic_mceliece_rust::SecretKey<'static>, ml_kem::Keypair),
-) {
-    let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
+async fn post_quantum_secrets() -> (PostQuantumRequestV1, (ml_kem::Keypair, hqc::Keypair)) {
     let ml_kem_keypair = ml_kem::keypair();
+    let hqc_keypair = hqc::keypair();
 
     (
         proto::PostQuantumRequestV1 {
             kem_pubkeys: vec![
                 proto::KemPubkeyV1 {
-                    algorithm_name: classic_mceliece::ALGORITHM_NAME.to_owned(),
-                    key_data: cme_kem_pubkey.as_array().to_vec(),
-                },
-                proto::KemPubkeyV1 {
                     algorithm_name: ml_kem::ALGORITHM_NAME.to_owned(),
                     key_data: ml_kem_keypair.encapsulation_key(),
                 },
+                proto::KemPubkeyV1 {
+                    algorithm_name: hqc::ALGORITHM_NAME.to_owned(),
+                    key_data: hqc_keypair.encapsulation_key(),
+                },
             ],
         },
-        (cme_kem_secret, ml_kem_keypair),
+        (ml_kem_keypair, hqc_keypair),
     )
 }
 
