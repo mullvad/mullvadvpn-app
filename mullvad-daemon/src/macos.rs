@@ -1,9 +1,9 @@
 use std::{fmt, io, path::Path, process::Stdio, time::Duration};
 
 use anyhow::{anyhow, bail, Context};
+use notify::{RecursiveMode, Watcher};
 use std::io::Write;
 use tokio::{fs::File, process::Command};
-use notify::{Watcher, RecursiveMode};
 
 use crate::device::AccountManagerHandle;
 
@@ -52,18 +52,25 @@ pub async fn handle_app_bundle_removal(
 
     let daemon_path = std::env::current_exe().context("Failed to get daemon path")?;
 
-    let (tx, mut rx) = tokio::sync::mpsc::channel(1);
-    let mut fs_watcher = notify::recommended_watcher(move |event: notify::Result<notify::Event>| {
-        let Ok(event) = event else { return };
-        if event.kind.is_remove() {
-            _ = tx.try_send(());
-        }
-    }).context("Failed ot start file watcher")?;
+    let (fs_notify_tx, mut fs_notify_rx) = tokio::sync::mpsc::channel(1);
+    let daemon_path_2 = daemon_path.clone();
+    let mut fs_watcher =
+        notify::recommended_watcher(move |event: notify::Result<notify::Event>| {
+            _ = event;
+            if !daemon_path_2.exists() {
+                _ = fs_notify_tx.try_send(());
+            }
+        })
+        .context("Failed to start filesystem watcher")?;
 
-    fs_watcher.watch(&daemon_path, RecursiveMode::NonRecursive) // TODO: recursive?
+    fs_watcher
+        .watch(&daemon_path, RecursiveMode::NonRecursive)
         .context(anyhow!("Failed to watch {daemon_path:?}"))?;
 
-    let _a_file_was_deleted = rx.recv().await.context("File watcher stopped unexpectedly")?;
+    let _file_was_deleted = fs_notify_rx
+        .recv()
+        .await
+        .context("Filesystem watcher stopped unexpectedly")?;
     drop(fs_watcher);
 
     // Create file to log output from uninstallation process.
