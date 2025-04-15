@@ -249,32 +249,20 @@ pub async fn test_detect_app_removal(
         .await
         .context("Failed to delete Mullvad app")?;
 
-    let mut attempt = 0;
-    const MAX_ATTEMPTS: usize = 30;
+    tokio::time::sleep(Duration::from_secs(5)).await;
 
-    loop {
-        let app_traces = rpc.find_mullvad_app_traces().await?;
+    let app_traces = rpc.find_mullvad_app_traces().await?;
+    assert!(
+        app_traces.is_empty(),
+        "found files after uninstall: {app_traces:?}"
+    );
+    assert_eq!(
+        rpc.mullvad_daemon_get_status().await?,
+        ServiceStatus::NotRunning,
+        "daemon should be stopped after cleanup"
+    );
 
-        if app_traces.is_empty() {
-            tokio::time::sleep(Duration::from_secs(5)).await;
-
-            assert_eq!(
-                rpc.mullvad_daemon_get_status().await?,
-                ServiceStatus::NotRunning,
-                "daemon should be stopped after cleanup"
-            );
-
-            // Done
-            return Ok(());
-        }
-
-        attempt += 1;
-        if attempt == MAX_ATTEMPTS {
-            bail!("Failed to detect removal of app");
-        }
-
-        tokio::time::sleep(Duration::from_secs(1)).await;
-    }
+    Ok(())
 }
 
 /// Install the multiple times starting from a connected state with auto-connect
