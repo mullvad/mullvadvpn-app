@@ -635,6 +635,8 @@ pub struct Daemon {
     location_handler: GeoIpHandler,
     leak_checker: LeakChecker,
     cache_dir: PathBuf,
+    #[cfg(target_os = "macos")]
+    app_removal_detector: tokio::task::JoinHandle<()>,
 }
 pub struct DaemonConfig {
     pub log_dir: Option<PathBuf>,
@@ -926,6 +928,16 @@ impl Daemon {
             leak_checker
         };
 
+        #[cfg(target_os = "macos")]
+        let app_removal_detector = {
+            let account_manager_2 = account_manager.clone();
+            tokio::task::spawn(async {
+                if let Err(error) = macos::handle_app_bundle_removal(account_manager_2).await {
+                    log::error!("Failed to handle app removal: {error}");
+                }
+            })
+        };
+
         let daemon = Daemon {
             tunnel_state: TunnelState::Disconnected {
                 location: None,
@@ -958,19 +970,11 @@ impl Daemon {
             location_handler,
             leak_checker,
             cache_dir: config.cache_dir,
+            #[cfg(target_os = "macos")]
+            app_removal_detector,
         };
 
         api_availability.unsuspend();
-
-        #[cfg(target_os = "macos")]
-        {
-            let account_manager = daemon.account_manager.clone();
-            tokio::task::spawn(async {
-                if let Err(error) = macos::handle_app_bundle_removal(account_manager).await {
-                    log::error!("Failed to handle app removal: {error}");
-                }
-            });
-        }
 
         Ok(daemon)
     }
@@ -3051,6 +3055,10 @@ impl Daemon {
 
     #[cfg_attr(target_os = "android", allow(unused_variables))]
     fn on_trigger_shutdown(&mut self, user_init_shutdown: bool) {
+        // Do not run cleanup tasks during shutdown
+        #[cfg(target_os = "macos")]
+        self.app_removal_detector.abort();
+
         // Block all traffic before shutting down to ensure that no traffic can leak on boot or
         // shutdown.
         #[cfg(not(target_os = "android"))]
