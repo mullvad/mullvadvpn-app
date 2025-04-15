@@ -148,6 +148,10 @@
     <string name="max_devices_confirm_removal_description">
         <![CDATA[Are you sure you want to log <b>%s</b> out?]]>
     </string>
+    <string name="manage_devices">Manage devices</string>
+    <string name="manage_devices_confirm_removal_description_line1">Remove %s?</string>
+    <string name="manage_devices_confirm_removal_description_line2">The device will be removed from the list and logged out.</string>
+    <string name="manage_devices_description">View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily.</string>
     <string name="confirm_removal">Yes, log out device</string>
     <string name="continue_login">Continue with login</string>
     <string name="failed_to_fetch_devices">Failed to fetch list of devices</string>

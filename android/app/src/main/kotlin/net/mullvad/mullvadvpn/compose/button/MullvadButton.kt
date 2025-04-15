@@ -1,20 +1,25 @@
 package net.mullvad.mullvadvpn.compose.button
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorSmall
@@ -60,6 +65,18 @@ private fun PreviewPrimaryButtonEnabled() {
 @Composable
 private fun PreviewPrimaryButtonDisabled() {
     AppTheme { PrimaryButton(onClick = {}, text = "Primary Button", isEnabled = false) }
+}
+
+@Preview
+@Composable
+private fun PreviewTextButtonEnabled() {
+    AppTheme { PrimaryTextButton(onClick = {}, text = "Text Button") }
+}
+
+@Preview
+@Composable
+private fun PreviewTextButtonDisabled() {
+    AppTheme { PrimaryTextButton(onClick = {}, text = "Text Button", isEnabled = false) }
 }
 
 @Composable
@@ -147,6 +164,46 @@ fun PrimaryButton(
 }
 
 @Composable
+fun PrimaryTextButton(
+    onClick: () -> Unit,
+    text: String,
+    modifier: Modifier = Modifier,
+    colors: ButtonColors =
+        ButtonDefaults.textButtonColors(
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = Alpha20),
+        ),
+    textDecoration: TextDecoration = TextDecoration.None,
+    isEnabled: Boolean = true,
+    isLoading: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+) {
+    val hasIcon = leadingIcon != null || trailingIcon != null
+    TextButton(
+        onClick = onClick,
+        modifier = modifier.wrapContentHeight().width(IntrinsicSize.Max),
+        colors = colors,
+        enabled = isEnabled,
+        contentPadding =
+            if (hasIcon) {
+                PaddingValues(vertical = Dimens.buttonVerticalPadding)
+            } else {
+                ButtonDefaults.TextButtonContentPadding
+            },
+        shape = MaterialTheme.shapes.small,
+    ) {
+        BaseButtonContent(
+            text = text,
+            textDecoration = textDecoration,
+            isLoading = isLoading,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
+        )
+    }
+}
+
+@Composable
 private fun BaseButton(
     onClick: () -> Unit,
     colors: ButtonColors,
@@ -171,44 +228,58 @@ private fun BaseButton(
         modifier = modifier.wrapContentHeight().fillMaxWidth(),
         shape = MaterialTheme.shapes.small,
     ) {
-        // Used to center the text
-        when {
-            leadingIcon != null ->
-                Box(modifier = Modifier.padding(horizontal = Dimens.smallPadding)) { leadingIcon() }
-            trailingIcon != null ->
-                // Used to center the text
-                Box(
-                    modifier =
-                        Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
-                ) {
-                    trailingIcon()
-                }
-        }
-        if (isLoading) {
-            MullvadCircularProgressIndicatorSmall()
-        } else {
-            Text(
-                text = text,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        when {
-            trailingIcon != null ->
-                Box(modifier = Modifier.padding(horizontal = Dimens.smallPadding)) {
-                    trailingIcon()
-                }
-            leadingIcon != null ->
-                // Used to center the text
-                Box(
-                    modifier =
-                        Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
-                ) {
-                    leadingIcon()
-                }
-        }
+        BaseButtonContent(
+            text = text,
+            isLoading = isLoading,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
+        )
+    }
+}
+
+@Composable
+private fun RowScope.BaseButtonContent(
+    text: String,
+    isLoading: Boolean,
+    textDecoration: TextDecoration = TextDecoration.None,
+    leadingIcon: @Composable() (() -> Unit)?,
+    trailingIcon: @Composable() (() -> Unit)?,
+) {
+    when {
+        leadingIcon != null ->
+            Box(modifier = Modifier.padding(horizontal = Dimens.smallPadding)) { leadingIcon() }
+
+        trailingIcon != null ->
+            // Used to center the text
+            Box(
+                modifier = Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
+            ) {
+                trailingIcon()
+            }
+    }
+    if (isLoading) {
+        MullvadCircularProgressIndicatorSmall()
+    } else {
+        Text(
+            text = text,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleMedium,
+            textDecoration = textDecoration,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+    }
+    when {
+        trailingIcon != null ->
+            Box(modifier = Modifier.padding(horizontal = Dimens.smallPadding)) { trailingIcon() }
+
+        leadingIcon != null ->
+            // Used to center the text
+            Box(
+                modifier = Modifier.padding(horizontal = Dimens.smallPadding).alpha(AlphaInvisible)
+            ) {
+                leadingIcon()
+            }
     }
 }
