@@ -29,7 +29,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.DiscardChangesDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
@@ -42,6 +41,7 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
+import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.CustomListLocationUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
@@ -50,6 +50,7 @@ import net.mullvad.mullvadvpn.compose.test.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -78,20 +79,11 @@ data class CustomListLocationsNavArgs(val customListId: CustomListId, val newLis
 fun CustomListLocations(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListActionResultData>,
-    discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Boolean>,
+    discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Confirmed>,
 ) {
     val customListsViewModel = koinViewModel<CustomListLocationsViewModel>()
 
-    discardChangesResultRecipient.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> {
-                if (it.value) {
-                    backNavigator.navigateBack()
-                }
-            }
-        }
-    }
+    discardChangesResultRecipient.OnNavResultValue { backNavigator.navigateBack() }
 
     CollectSideEffectWithLifecycle(customListsViewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
