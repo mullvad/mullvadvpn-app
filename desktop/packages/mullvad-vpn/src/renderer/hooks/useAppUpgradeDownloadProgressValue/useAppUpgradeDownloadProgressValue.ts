@@ -1,3 +1,4 @@
+import { useAppUpgradeState } from '../../redux/app-upgrade/hooks/useAppUpgradeState';
 import { useAppUpgradeEventType } from '../useAppUpgradeEventType';
 import { useHasAppUpgradeError } from '../useHasAppUpgradeError';
 import { useHasAppUpgradeVerifiedInstallerPath } from '../useHasAppUpgradeVerifiedInstallerPath';
@@ -10,6 +11,7 @@ export const useAppUpgradeDownloadProgressValue = () => {
   const getValueError = useGetValueError();
   const hasAppUpgradeError = useHasAppUpgradeError();
   const hasAppUpgradeVerifiedInstallerPath = useHasAppUpgradeVerifiedInstallerPath();
+  const { progress } = useAppUpgradeState();
 
   if (hasAppUpgradeError) {
     return getValueError();
@@ -29,6 +31,6 @@ export const useAppUpgradeDownloadProgressValue = () => {
     case 'APP_UPGRADE_STATUS_VERIFYING_INSTALLER':
       return DOWNLOAD_COMPLETE_VALUE;
     default:
-      return FALLBACK_VALUE;
+      return progress ?? FALLBACK_VALUE;
   }
 };
