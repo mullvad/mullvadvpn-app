@@ -57,13 +57,7 @@ pub async fn handle_app_bundle_removal(
     let mut fs_watcher =
         notify::recommended_watcher(move |event: notify::Result<notify::Event>| {
             // Ignore access events
-            let check_daemon_path = match event {
-                Ok(notify::Event {
-                    kind: notify::EventKind::Access(_),
-                    ..
-                }) => false,
-                Ok(_) | Err(_) => true,
-            };
+            let check_daemon_path = event.map(|evt| !evt.kind.is_access()).unwrap_or(true);
 
             // Ignore event if the daemon isn't installed in the app directory
             let check_daemon_path = check_daemon_path && daemon_path.starts_with(APP_PATH);
