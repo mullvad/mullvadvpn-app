@@ -76,3 +76,7 @@ if [[ $ASSUMEYES == "y" || "$REPLY" =~ [Yy]$ ]]; then
         fi
     done
 fi
+
+# When run from a non-standard directory, like when detecting that the launch daemon is gone,
+# we must also delete the uninstall script itself
+rm -f "$0" || true
