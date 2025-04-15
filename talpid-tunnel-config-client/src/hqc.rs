@@ -2,7 +2,7 @@ use pqcrypto_hqc::hqc256;
 use pqcrypto_traits::kem::{Ciphertext as _, PublicKey as _, SharedSecret as _};
 use sha2::{Digest as _, Sha256};
 
-pub const ALGORITHM_NAME: &str = "HQC-256";
+const ALGORITHM_NAME: &str = "HQC-256";
 
 pub struct Keypair {
     public_key: hqc256::PublicKey,
@@ -17,6 +17,10 @@ impl Keypair {
         self.public_key.as_bytes().to_vec()
     }
 
+    pub fn algorithm_name(&self) -> &'static str {
+        ALGORITHM_NAME
+    }
+
     /// Decapsulates a shared secret that was encapsulated to our encapsulation key.
     ///
     // Always inline in order to try to avoid potential copies of `shared_secret` to multiple places
@@ -28,7 +32,7 @@ impl Keypair {
     pub fn decapsulate(&self, ciphertext_slice: &[u8]) -> Result<[u8; 32], super::Error> {
         let ciphertext = hqc256::Ciphertext::from_bytes(ciphertext_slice).map_err(|_| {
             super::Error::InvalidCiphertextLength {
-                algorithm: ALGORITHM_NAME,
+                algorithm: self.algorithm_name(),
                 actual: ciphertext_slice.len(),
                 expected: hqc256::ciphertext_bytes(),
             }
