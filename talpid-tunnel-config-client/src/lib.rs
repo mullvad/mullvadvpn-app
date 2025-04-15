@@ -12,7 +12,6 @@ use tonic::transport::Endpoint;
 use tower::service_fn;
 use zeroize::Zeroize;
 
-pub mod classic_mceliece;
 mod hqc;
 mod ml_kem;
 #[cfg(not(target_os = "ios"))]
