@@ -1,8 +1,9 @@
 use std::{fmt, io, path::Path, process::Stdio, time::Duration};
 
-use anyhow::Context;
+use anyhow::{anyhow, bail, Context};
 use std::io::Write;
 use tokio::{fs::File, process::Command};
+use notify::{Watcher, RecursiveMode};
 
 use crate::device::AccountManagerHandle;
 
@@ -48,15 +49,22 @@ pub async fn handle_app_bundle_removal(
 ) -> anyhow::Result<()> {
     const UNINSTALL_SCRIPT: &[u8] = include_bytes!("../../dist-assets/uninstall_macos.sh");
     const UNINSTALL_SCRIPT_PATH: &str = "/var/root/uninstall_mullvad.sh";
-    const APPLICATION_PATH: &str = "/Applications/Mullvad VPN.app";
 
-    loop {
-        // TODO: monitor files using fnotify?
-        if !Path::new(APPLICATION_PATH).exists() {
-            break;
+    let daemon_path = std::env::current_exe().context("Failed to get daemon path")?;
+
+    let (tx, mut rx) = tokio::sync::mpsc::channel(1);
+    let mut fs_watcher = notify::recommended_watcher(move |event: notify::Result<notify::Event>| {
+        let Ok(event) = event else { return };
+        if event.kind.is_remove() {
+            _ = tx.try_send(());
         }
-        tokio::time::sleep(Duration::from_secs(10)).await;
-    }
+    }).context("Failed ot start file watcher")?;
+
+    fs_watcher.watch(&daemon_path, RecursiveMode::NonRecursive) // TODO: recursive?
+        .context(anyhow!("Failed to watch {daemon_path:?}"))?;
+
+    let _a_file_was_deleted = rx.recv().await.context("File watcher stopped unexpectedly")?;
+    drop(fs_watcher);
 
     // Create file to log output from uninstallation process.
     // This is useful since the daemon will be killed during uninstallation.
@@ -81,7 +89,7 @@ pub async fn handle_app_bundle_removal(
     };
 
     log(format_args!(
-        "{APPLICATION_PATH:?} was removed. Running uninstaller."
+        "{daemon_path:?} was removed. Running uninstaller."
     ));
 
     tokio::fs::write(UNINSTALL_SCRIPT_PATH, UNINSTALL_SCRIPT).await?;

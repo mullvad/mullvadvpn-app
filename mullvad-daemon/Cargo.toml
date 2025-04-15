@@ -29,6 +29,7 @@ serde_json = { workspace = true }
 tokio = { workspace = true, features =  ["fs", "io-util", "rt-multi-thread", "sync", "time"] }
 tokio-stream = "0.1"
 socket2 = { workspace = true }
+notify = "8.0.0"
 
 mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
