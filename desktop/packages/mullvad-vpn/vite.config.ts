@@ -46,6 +46,7 @@ const viteConfig = defineConfig({
       },
     },
   },
+  mode: process.env.NODE_ENV,
   build: {
     outDir: OUT_DIR,
   },
