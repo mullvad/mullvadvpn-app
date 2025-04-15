@@ -15,8 +15,13 @@ public struct MullvadApiContext: Sendable {
 
     public let context: SwiftApiContext
 
-    public init(host: String, address: AnyIPEndpoint) throws {
-        context = mullvad_api_init_new(host, address.description)
+    public init(host: String, address: AnyIPEndpoint, disable_tls: Bool = false) throws {
+        context = switch disable_tls {
+        case true:
+            mullvad_api_init_new_tls_disabled(host, address.description)
+        case false:
+            mullvad_api_init_new(host, address.description)
+        }
 
         if context._0 == nil {
             throw MullvadApiContextError.failedToConstructApiClient
