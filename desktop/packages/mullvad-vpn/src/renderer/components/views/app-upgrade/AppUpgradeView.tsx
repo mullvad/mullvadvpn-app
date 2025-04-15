@@ -17,7 +17,6 @@ import {
   UpgradeLabel,
 } from './components';
 import {
-  usePresent,
   useShowCancelButton,
   useShowDownloadProgress,
   useShowInstallButton,
@@ -38,7 +37,6 @@ const StyledFooter = styled.div`
 
 export const AppUpgradeView = () => {
   const { pop } = useHistory();
-  const present = usePresent();
   const showCancelButton = useShowCancelButton();
   const showDownloadProgress = useShowDownloadProgress();
   const showInstallButton = useShowInstallButton();
@@ -54,14 +52,22 @@ export const AppUpgradeView = () => {
         <UpgradeDetails />
         <StyledFooter>
           <Flex $padding="large" $flexDirection="column">
-            <Animate
-              animations={[{ type: 'fade' }, { type: 'wipe', direction: 'vertical' }]}
-              present={present}>
-              <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
-                {showUpgradeLabel && <UpgradeLabel />}
-                {showDownloadProgress && <DownloadProgress />}
-              </Flex>
-            </Animate>
+            <Flex $flexDirection="column">
+              <Animate
+                animations={[{ type: 'wipe', direction: 'vertical' }]}
+                present={showUpgradeLabel}>
+                <Flex $margin={{ bottom: 'medium' }}>
+                  <UpgradeLabel />
+                </Flex>
+              </Animate>
+              <Animate
+                animations={[{ type: 'wipe', direction: 'vertical' }, { type: 'fade' }]}
+                present={showDownloadProgress}>
+                <Flex $margin={{ bottom: 'medium' }}>
+                  <DownloadProgress />
+                </Flex>
+              </Animate>
+            </Flex>
             <Flex $gap="medium" $flexDirection="column">
               {showReportProblemButton && <ReportProblemButton />}
               {showManualDownloadButton && <ManualDownloadButton />}
