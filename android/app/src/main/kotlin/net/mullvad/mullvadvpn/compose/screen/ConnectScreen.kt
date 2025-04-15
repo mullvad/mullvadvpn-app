@@ -38,8 +38,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
@@ -265,6 +270,7 @@ fun Connect(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ConnectScreen(
     state: ConnectUiState,
@@ -282,9 +288,12 @@ fun ConnectScreen(
     onAccountClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
 ) {
+    val contentFocusRequester = remember { FocusRequester() }
+
     val content =
         @Composable { padding: PaddingValues ->
             Content(
+                contentFocusRequester,
                 padding,
                 state,
                 onDisconnectClick,
@@ -302,12 +311,26 @@ fun ConnectScreen(
 
     if (isTv()) {
         Scaffold(
+            modifier =
+                Modifier.focusProperties {
+                    enter = { focusDirection ->
+                        // When we return to this screen from SelectLocationScreen the focus is
+                        // sometimes put on the TV navigation drawer, which causes it expand
+                        // (when it was previously not expanded). When returning from
+                        // SelectLocationScreen we get a FocusDirection.Down event, so we focus
+                        // on the switch location composable.
+                        // When on TV and we return from account or settings we get a
+                        // FocusDirection.Enter event, so focus remains on the navigation drawer.
+                        if (focusDirection == FocusDirection.Down) contentFocusRequester
+                        else FocusRequester.Default
+                    }
+                },
             snackbarHost = {
                 SnackbarHost(
                     snackbarHostState,
                     snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
                 )
-            }
+            },
         ) {
             NavigationDrawerTv(
                 daysLeftUntilExpiry = state.daysLeftUntilExpiry,
@@ -335,6 +358,7 @@ fun ConnectScreen(
 
 @Composable
 private fun Content(
+    focusRequester: FocusRequester,
     paddingValues: PaddingValues,
     state: ConnectUiState,
     onDisconnectClick: () -> Unit,
@@ -400,6 +424,7 @@ private fun Content(
             ConnectionCard(
                 state = state,
                 modifier = Modifier.align(Alignment.BottomCenter),
+                focusRequester = focusRequester,
                 onSwitchLocationClick = onSwitchLocationClick,
                 onDisconnectClick = onDisconnectClick,
                 onReconnectClick = onReconnectClick,
@@ -442,6 +467,7 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
 private fun ConnectionCard(
     state: ConnectUiState,
     modifier: Modifier = Modifier,
+    focusRequester: FocusRequester,
     onSwitchLocationClick: () -> Unit,
     onDisconnectClick: () -> Unit,
     onReconnectClick: () -> Unit,
@@ -486,6 +512,7 @@ private fun ConnectionCard(
 
             ButtonPanel(
                 state,
+                focusRequester,
                 onSwitchLocationClick,
                 onDisconnectClick,
                 onReconnectClick,
@@ -617,6 +644,7 @@ fun TunnelState.Connected.toConnectionsDetails(): ConnectionDetails =
 @Composable
 private fun ButtonPanel(
     state: ConnectUiState,
+    focusRequester: FocusRequester,
     onSwitchLocationClick: () -> Unit,
     onDisconnectClick: () -> Unit,
     onReconnectClick: () -> Unit,
@@ -645,7 +673,8 @@ private fun ButtonPanel(
             isReconnectButtonEnabled =
                 state.tunnelState is TunnelState.Connected ||
                     state.tunnelState is TunnelState.Connecting,
-            modifier = Modifier.testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
+            modifier =
+                Modifier.testTag(SELECT_LOCATION_BUTTON_TEST_TAG).focusRequester(focusRequester),
             reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG,
         )
         Spacer(Modifier.height(Dimens.buttonVerticalPadding))
