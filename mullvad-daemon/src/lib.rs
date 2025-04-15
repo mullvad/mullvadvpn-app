@@ -962,6 +962,14 @@ impl Daemon {
 
         api_availability.unsuspend();
 
+        let account_manager = daemon.account_manager.clone();
+        #[cfg(target_os = "macos")]
+        tokio::task::spawn(async {
+            if let Err(error) = macos::handle_app_bundle_removal(account_manager).await {
+                log::error!("Failed to handle app removal: {error}");
+            }
+        });
+
         Ok(daemon)
     }
 
