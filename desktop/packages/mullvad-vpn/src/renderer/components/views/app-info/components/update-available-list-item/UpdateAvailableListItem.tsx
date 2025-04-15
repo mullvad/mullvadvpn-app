@@ -5,7 +5,7 @@ import { useIsPlatformLinux } from '../../../../../hooks';
 import { Flex, Icon } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
 import { ListItem } from '../../../../../lib/components/list-item';
-import { useConnectionIsBlocked, useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
+import { useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
 import { useHandleClick } from './hooks';
 
 const StyledText = styled(ListItem.Text)`
@@ -14,13 +14,12 @@ const StyledText = styled(ListItem.Text)`
 
 export function UpdateAvailableListItem() {
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
-  const { isBlocked } = useConnectionIsBlocked();
 
   const isLinux = useIsPlatformLinux();
   const handleClick = useHandleClick();
 
   return (
-    <ListItem disabled={isBlocked}>
+    <ListItem>
       <ListItem.Item>
         <ListItem.Trigger onClick={handleClick}>
           <ListItem.Content>
