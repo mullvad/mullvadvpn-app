@@ -88,7 +88,15 @@ android {
                 "proguard-rules.pro",
             )
         }
-        getByName(BuildTypes.DEBUG) { packaging { jniLibs.keepDebugSymbols.add("**/*.so") } }
+        getByName(BuildTypes.DEBUG) {
+            if (
+                gradleLocalProperties(rootProject.projectDir, providers)
+                    .getProperty("KEEP_DEBUG_SYMBOLS")
+                    .toBoolean()
+            ) {
+                packaging { jniLibs.keepDebugSymbols.add("**/*.so") }
+            }
+        }
         create(BuildTypes.FDROID) {
             initWith(buildTypes.getByName(BuildTypes.RELEASE))
             signingConfig = null
