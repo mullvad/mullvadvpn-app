@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-03-25 14:23\n"
+"PO-Revision-Date: 2025-04-11 07:48\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 個..."
@@ -327,6 +327,17 @@ msgstr "展開 %(location)s"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "忘記帳號 %(accountNumber)s"
+
+#. Accessibility label for link to blog post about OpenVPN support ending.
+msgctxt "accessibility"
+msgid "Go to blog post to read more, opens externally"
+msgstr "前往部落格文章閱讀更多內容，在外部開啟"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change tunnel protocol.
+msgctxt "accessibility"
+msgid "Go to VPN settings to change tunnel protocol"
+msgstr "前往 VPN 設定變更通道通訊協定"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -904,6 +915,29 @@ msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr "%(duration)s。購買更多點數。"
 
+#. First part of notification subtitle when there are no openVPN servers available.
+#. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support has ended. Please update the app or"
+msgstr "%(openVpn)s 支援已結束。請更新應用程式或"
+
+#. Notification title indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s SUPPORT IS ENDING"
+msgstr "%(openVpn)s 支援即將結束"
+
+#. First part of notification subtitle when there are no openVPN servers
+#. matching current settings. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support is ending. Switch location or"
+msgstr "%(openVpn)s 支援即將結束。請切換位置或"
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "帳戶點數即將到期"
@@ -919,6 +953,14 @@ msgstr "有可用的 BETA 更新"
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "封鎖網際網路"
+
+#. Link following the first part of the notification subtitle.
+#. Will navigate the user to the VPN settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "change tunnel protocol to %(wireGuard)s."
+msgstr "將通道通訊協定變更為 %(wireGuard)s。"
 
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
@@ -941,9 +983,36 @@ msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "已安裝新版本"
 
+#. Notification title when there are no openVPN servers
+#. matching current settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVER AVAILABLE"
+msgstr "沒有可使用的 %(openVpn)s 伺服器"
+
+#. Notification title when there are no openVPN servers available.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVERS AVAILABLE"
+msgstr "沒有可使用的 %(openVpn)s 伺服器"
+
+#. Notification subtitle indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "Please change tunnel protocol to %(wireGuard)s."
+msgstr "請將通道通訊協定變更為 %(wireGuard)s。"
+
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "請退出應用程式並重新啟動。"
+
+#. Link in notication to a blog post about OpenVPN support ending.
+msgctxt "in-app-notifications"
+msgid "Read more"
+msgstr "閱讀更多內容"
 
 msgctxt "in-app-notifications"
 msgid "Send problem report"
@@ -1316,8 +1385,8 @@ msgstr "設定 %(openvpn)s MSS 值。有效範圍：%(min)d - %(max)d。"
 #. available.
 #. Available placeholders:
 #. %(transportProtocol)s - the name of the transport protocol setting
-#. %(automat)s - the translation of "Automatic"
-#. %(openvpn)s - will be replaced with OpenVPN
+#. %(automatic)s - the translation of "Automatic"
+#. %(tcp)s - the translation of "TCP"
 msgctxt "openvpn-settings-view"
 msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
 msgstr "若要啟動橋接模式，請將 <b>%(transportProtocol)s</b> 變更為 <b>%(automatic)s</b> 或 <b>%(tcp)s</b>。"
@@ -1950,6 +2019,13 @@ msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "注意：此設定無法與 <b>%(customDnsFeatureName)s</b> 結合使用"
 
+#. Footer text for tunnel protocol selector when OpenVPN is selected.
+#. Available placeholders:
+#. %(openvpn)s - Will be replaced with OpenVPN
+msgctxt "vpn-settings-view"
+msgid "Attention: We are removing support for %(openVpn)s."
+msgstr "請注意：我們即將移除 %(openVpn)s 的支援。"
+
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
 msgstr "自動連線"
@@ -2023,6 +2099,12 @@ msgstr "鎖定模式"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "惡意軟體"
+
+#. Link in tunnel protocol selector footer to blog post
+#. about OpenVPN support ending.
+msgctxt "vpn-settings-view"
+msgid "Read more"
+msgstr "閱讀更多內容"
 
 msgctxt "vpn-settings-view"
 msgid "Server IP override"
@@ -2131,8 +2213,8 @@ msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 設定"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
-msgstr "注意：如果您方案中的流量有限，請謹慎使用，因為此功能將增加您的網路流量。此功能僅可和 %(wireguard)s 一併使用。"
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s."
+msgstr "請注意：這會耗用更多的網路流量，並對速度、延遲與電池耗電產生負面影響。若方案流量有限，請謹慎使用。僅 %(wireguard)s 適用。"
 
 msgctxt "wireguard-settings-view"
 msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
@@ -2183,8 +2265,10 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "混淆"
 
+#. Describes what WireGuard obfuscation does, how it works and when
+#. it would be useful to enable it.
 msgctxt "wireguard-settings-view"
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。"
 
 msgctxt "wireguard-settings-view"
@@ -2219,8 +2303,8 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "在設定 > %(tunnelProtocol)s 中切換為「%(wireguard)s」或「%(automatic)s」，以啟用 %(setting)s。"
+msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
+msgstr "在設定 > %(tunnelProtocol)s 中切換為「%(wireguard)s」以啟用 %(setting)s。"
 
 msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
@@ -2432,6 +2516,9 @@ msgstr "刪除方式"
 msgid "Delete method?"
 msgstr "要刪除方式嗎？"
 
+msgid "Device IP version"
+msgstr "裝置 IP 版本"
+
 msgid "Disable \"%s\" below to activate these settings."
 msgstr "停用下方的「%s」以啟動這些設定。"
 
@@ -2528,6 +2615,9 @@ msgstr "匯入成功，覆寫設定已啟用"
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "匯入新的覆寫設定，可能會取代一部分先前已匯入的覆寫設定。"
 
+msgid "In-tunnel IPv6"
+msgstr "通道內 IPv6"
+
 msgid "Invalid or missing value \"%s\""
 msgstr "值「%s」無效或是遺失"
 
@@ -2560,6 +2650,12 @@ msgstr "名稱已變更為「%s」"
 
 msgid "New list"
 msgstr "新清單"
+
+msgid "No Android app store installed, could not open link"
+msgstr "未安裝 Android 應用程式商店，無法開啟連結"
+
+msgid "No browser app installed, could not open link"
+msgstr "未安裝瀏覽器應用程式，無法開啟連結"
 
 msgid "No changelog was added for this version"
 msgstr "尚未為此版本新增變更日誌"
@@ -2639,9 +2735,6 @@ msgstr "重設為預設值"
 msgid "Search"
 msgstr "搜尋"
 
-msgid "See full changelog"
-msgstr "查看完整變更日誌"
-
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "若要啟用此設定，請將 %s 混淆設為「自動」或「關閉」。"
 
@@ -2663,9 +2756,6 @@ msgstr "顯示目前的 VPN 通道狀態"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "在帳戶時間即將到期時顯示提醒"
 
-msgid "Split tunneling"
-msgstr "分割通道"
-
 msgid "Submit"
 msgstr "提交"
 
@@ -2681,6 +2771,9 @@ msgstr "文字"
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "自動連線和鎖定模式設定皆可在 Android 系統設定中找到，請按照本指南的指示，啟用其中一項或兩項設定。"
 
+msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
+msgstr "若要執行 IPv6 DNS 伺服器，需先在 VPN 設定下啟用「IPv6」。"
+
 msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
 msgstr "在 Android 系統設定中，鎖定模式稱為「在沒有 VPN 的情況下封鎖連線」。這有助於讓洩漏的情形降至最低。然而，也有一些已知的侷限性。如需進一步的相關資訊，請按一下"
 
@@ -2692,6 +2785,9 @@ msgstr "若要使本機 DNS 伺服器運作，需先在 VPN 設定下啟用「�
 
 msgid "This address has already been entered."
 msgstr "此地址已輸入過。"
+
+msgid "This allows access to WireGuard for devices that only support IPv6."
+msgstr "這將允許僅支援 IPv6 的裝置存取 WireGuard。"
 
 msgid "This field is required"
 msgstr "此欄位為必填項"
@@ -2744,8 +2840,8 @@ msgstr "使用方式"
 msgid "VPN permission error"
 msgstr "VPN 權限錯誤"
 
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr "建立通道時，VPN 權限被拒絕。請嘗試重新連線。"
+msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
+msgstr "VPN 權限遭到拒絕，或者已有其他應用程式啟用「一律啟用 VPN」"
 
 msgid "VPN tunnel status"
 msgstr "VPN 通道狀態"

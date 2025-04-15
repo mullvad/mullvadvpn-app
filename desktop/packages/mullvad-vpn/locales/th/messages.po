@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2025-03-25 14:23\n"
+"PO-Revision-Date: 2025-04-11 07:48\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -327,6 +327,17 @@ msgstr "ขยาย %(location)s"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "ลืมหมายเลขบัญชี %(accountNumber)s"
+
+#. Accessibility label for link to blog post about OpenVPN support ending.
+msgctxt "accessibility"
+msgid "Go to blog post to read more, opens externally"
+msgstr "ไปที่โพสต์บล็อกเพื่ออ่านเพิ่มเติม เปิดภายนอก"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change tunnel protocol.
+msgctxt "accessibility"
+msgid "Go to VPN settings to change tunnel protocol"
+msgstr "ไปที่การตั้งค่า VPN เพื่อเปลี่ยนโพรโทคอลอุโมงค์"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -904,6 +915,29 @@ msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr "%(duration)s ซื้อเครดิตเพิ่ม"
 
+#. First part of notification subtitle when there are no openVPN servers available.
+#. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support has ended. Please update the app or"
+msgstr "การสนับสนุน %(openVpn)s สิ้นสุดลงแล้ว กรุณาอัปเดตแอป หรือ"
+
+#. Notification title indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s SUPPORT IS ENDING"
+msgstr "การสนับสนุน %(openVpn)s กำลังจะสิ้นสุดลง"
+
+#. First part of notification subtitle when there are no openVPN servers
+#. matching current settings. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support is ending. Switch location or"
+msgstr "การสนับสนุน %(openVpn)s กำลังจะสิ้นสุดลง เปลี่ยนตำแหน่งที่ตั้ง หรือ"
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "เครดิตในบัญชีจะหมดอายุในเร็ว ๆ นี้"
@@ -919,6 +953,14 @@ msgstr "มีการอัปเดตเบต้าให้ใช้งา
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "กำลังบล็อกอินเทอร์เน็ต"
+
+#. Link following the first part of the notification subtitle.
+#. Will navigate the user to the VPN settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "change tunnel protocol to %(wireGuard)s."
+msgstr "เปลี่ยนโพรโทคอลอุโมงค์เป็น %(wireGuard)s"
 
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
@@ -941,9 +983,36 @@ msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "ติดตั้งเวอร์ชันใหม่แล้ว"
 
+#. Notification title when there are no openVPN servers
+#. matching current settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVER AVAILABLE"
+msgstr "ไม่มีเซิร์ฟเวอร์ %(openVpn)s"
+
+#. Notification title when there are no openVPN servers available.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVERS AVAILABLE"
+msgstr "ไม่มีเซิร์ฟเวอร์ %(openVpn)s"
+
+#. Notification subtitle indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "Please change tunnel protocol to %(wireGuard)s."
+msgstr "กรุณาเปลี่ยนโพรโทคอลอุโมงค์เป็น %(wireGuard)s"
+
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "โปรดออกและเปิดแอปขึ้นมาใหม่"
+
+#. Link in notication to a blog post about OpenVPN support ending.
+msgctxt "in-app-notifications"
+msgid "Read more"
+msgstr "อ่านเพิ่มเติม"
 
 msgctxt "in-app-notifications"
 msgid "Send problem report"
@@ -1316,8 +1385,8 @@ msgstr "ตั้งค่า %(openvpn)s MSS ช่วงที่ใช้ไ�
 #. available.
 #. Available placeholders:
 #. %(transportProtocol)s - the name of the transport protocol setting
-#. %(automat)s - the translation of "Automatic"
-#. %(openvpn)s - will be replaced with OpenVPN
+#. %(automatic)s - the translation of "Automatic"
+#. %(tcp)s - the translation of "TCP"
 msgctxt "openvpn-settings-view"
 msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
 msgstr "ในการเปิดใช้โหมด บริดจ์ ให้เปลี่ยน <b>%(transportProtocol)s</b> เป็น <b>%(automatic)s</b> หรือ <b>%(tcp)s</b>"
@@ -1950,6 +2019,13 @@ msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ<b>%(customDnsFeatureName)s</b>ได้"
 
+#. Footer text for tunnel protocol selector when OpenVPN is selected.
+#. Available placeholders:
+#. %(openvpn)s - Will be replaced with OpenVPN
+msgctxt "vpn-settings-view"
+msgid "Attention: We are removing support for %(openVpn)s."
+msgstr "โปรดทราบ: เรากำลังลบการสนับสนุนสำหรับ %(openVpn)s"
+
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
 msgstr "เชื่อมต่ออัตโนมัติ"
@@ -2023,6 +2099,12 @@ msgstr "โหมดล็อกดาวน์"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "มัลแวร์"
+
+#. Link in tunnel protocol selector footer to blog post
+#. about OpenVPN support ending.
+msgctxt "vpn-settings-view"
+msgid "Read more"
+msgstr "อ่านเพิ่มเติม"
 
 msgctxt "vpn-settings-view"
 msgid "Server IP override"
@@ -2131,8 +2213,8 @@ msgid "%(wireguard)s settings"
 msgstr "การตั้งค่า %(wireguard)s"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
-msgstr "โปรดทราบ: โปรดใช้ความระมัดระวัง หากคุณมีแผนข้อมูลจำกัด เนื่องจากคุณลักษณะนี้จะเพิ่มปริมาณการรับส่งข้อมูลในเครือข่ายของคุณ และคุณลักษณะนี้ใช้ได้กับ %(wireguard)s เท่านั้น"
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s."
+msgstr "โปรดทราบ: การกระทำดังกล่าวจะเพิ่มปริมาณการใช้งานเครือข่าย และส่งผลเสียต่อความเร็ว ความหน่วงแฝง และการใช้งานแบตเตอรี่ ควรใช้ด้วยความระมัดระวังกับแผนบริการแบบจำกัด ใช้งานได้กับ %(wireguard)s เท่านั้น"
 
 msgctxt "wireguard-settings-view"
 msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
@@ -2183,9 +2265,11 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "การทำให้ข้อมูลยุ่งเหยิง"
 
+#. Describes what WireGuard obfuscation does, how it works and when
+#. it would be useful to enable it.
 msgctxt "wireguard-settings-view"
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
-msgstr "การทำให้ข้อมูลยุ่งเหยิง จะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้"
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
+msgstr "การทำให้ข้อมูลยุ่งเหยิงจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้"
 
 msgctxt "wireguard-settings-view"
 msgid "Port"
@@ -2219,8 +2303,8 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "สลับไปเป็น “%(wireguard)s” หรือ “%(automatic)s” ใน การตั้งค่า > %(tunnelProtocol)s เพื่อทำให้ %(setting)s พร้อมใช้งาน"
+msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
+msgstr "เปลี่ยนเป็น “%(wireguard)s” ใน การตั้งค่า > %(tunnelProtocol)s เพื่อทำให้ %(setting)s พร้อมใช้งาน"
 
 msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
@@ -2432,6 +2516,9 @@ msgstr "ลบวิธีการ"
 msgid "Delete method?"
 msgstr "ลบวิธีการหรือไม่"
 
+msgid "Device IP version"
+msgstr "เวอร์ชัน IP ของอุปกรณ์"
+
 msgid "Disable \"%s\" below to activate these settings."
 msgstr "ปิดใช้งาน \"%s\" ด้านล่าง เพื่อเปิดใช้การตั้งค่าเหล่านี้"
 
@@ -2528,6 +2615,9 @@ msgstr "นำเข้าสำเร็จ เปิดใช้โอเว�
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "การนำเข้าโอเวอร์ไรด์ใหม่ อาจแทนที่โอเวอร์ไรด์ที่นำเข้าก่อนหน้านี้"
 
+msgid "In-tunnel IPv6"
+msgstr "IPv6 แบบภายในอุโมงค์"
+
 msgid "Invalid or missing value \"%s\""
 msgstr "ค่า \"%s\" ไม่ถูกต้องหรือหายไป"
 
@@ -2560,6 +2650,12 @@ msgstr "ชื่อถูกเปลี่ยนเป็น %s"
 
 msgid "New list"
 msgstr "รายการใหม่"
+
+msgid "No Android app store installed, could not open link"
+msgstr "ไม่มีการติดตั้ง App Store ของ Android ไม่สามารถเปิดลิงก์ได้"
+
+msgid "No browser app installed, could not open link"
+msgstr "ไม่ได้ติดตั้งแอปเบราว์เซอร์ ไม่สามารถเปิดลิงก์ได้"
 
 msgid "No changelog was added for this version"
 msgstr "ไม่มีการเพิ่มบันทึกการเปลี่ยนแปลงสำหรับเวอร์ชันนี้"
@@ -2639,9 +2735,6 @@ msgstr "รีเซ็ตเป็นค่าเริ่มต้น"
 msgid "Search"
 msgstr "ค้นหา"
 
-msgid "See full changelog"
-msgstr "ดูบันทึกการเปลี่ยนแปลงทั้งหมด"
-
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "ตั้งค่าการทำให้ข้อมูลยุ่งเหยิง %s ให้เป็น \"อัตโนมัติ\" หรือ \"ปิด\" ที่ด้านล่าง เพื่อเปิดใช้งานการตั้งค่านี้"
 
@@ -2663,9 +2756,6 @@ msgstr "แสดงสถานะอุโมงค์ VPN ในปัจจ�
 msgid "Shows reminders when the account time is about to expire"
 msgstr "แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ"
 
-msgid "Split tunneling"
-msgstr "การแยกอุโมงค์"
-
 msgid "Submit"
 msgstr "ส่ง"
 
@@ -2681,6 +2771,9 @@ msgstr "ข้อความ"
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "การตั้งค่าการเชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์ อยู่ในการตั้งค่าระบบ Android โปรดทำตามคำแนะนำนี้ เพื่อเปิดใช้งานโหมดใดโหมดหนึ่ง หรือทั้งสองโหมด"
 
+msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
+msgstr "เซิร์ฟเวอร์ DNS IPv6 จะไม่ทำงาน เว้นแต่คุณจะเปิดใช้งาน \"IPv6\" ภายใต้การตั้งค่า VPN"
+
 msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
 msgstr "โหมดล็อกดาวน์ถูกเรียกว่า \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\" ในการตั้งค่าระบบ Android ซึ่งจะช่วยลดการรั่วไหล แต่ก็มีข้อจำกัดบางประการ ซึ่งคุณสามารถอ่านข้อมูลเพิ่มเติมเกี่ยวกับเรื่องดังกล่าวได้"
 
@@ -2692,6 +2785,9 @@ msgstr "เซิร์ฟเวอร์ DNS ท้องถิ่นจะไ�
 
 msgid "This address has already been entered."
 msgstr "ที่อยู่นี้ได้รับการป้อนไปแล้ว"
+
+msgid "This allows access to WireGuard for devices that only support IPv6."
+msgstr "นี่จะช่วยให้อุปกรณ์ที่รองรับเฉพาะ IPv6 สามารถเข้าถึง WireGuard ได้"
 
 msgid "This field is required"
 msgstr "จำเป็นต้องกรอกช่องนี้"
@@ -2744,8 +2840,8 @@ msgstr "ใช้วิธีการ"
 msgid "VPN permission error"
 msgstr "เกิดข้อผิดพลาดในการอนุญาต VPN"
 
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr "การให้สิทธิ์ VPN ถูกปฏิเสธ ในขณะที่สร้างอุโมงค์ โปรดลองเชื่อมต่อใหม่อีกครั้ง"
+msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
+msgstr "สิทธิ์ VPN ถูกปฏิเสธ หรือไม่ก็แอปอื่นเปิดใช้งาน \"เปิด VPN เสมอ\""
 
 msgid "VPN tunnel status"
 msgstr "สถานะอุโมงค์ VPN"

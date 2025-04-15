@@ -67,6 +67,7 @@
     <string name="clear_input">Eingabe löschen</string>
     <string name="close">Schließen</string>
     <string name="collapse">Zuklappen</string>
+    <string name="confirm_ipv6_dns">Der IPv6-DNS-Server wird nicht funktionieren, solange „IPv6“ nicht in den VPN-Einstellungen aktiviert ist.</string>
     <string name="confirm_local_dns">Der lokale DNS-Server wird nicht funktionieren, solange „Teilen im lokalen Netzwerk“ nicht in den VPN-Einstellungen aktiviert ist.</string>
     <string name="confirm_no_email">Sie wollen einen Problembericht senden, ohne uns die Möglichkeit zu geben, Sie zu erreichen. Wenn Sie sich eine Antwort zu Ihrem Problem wünschen, müssen Sie eine E-Mail-Adresse eingeben.</string>
     <string name="confirm_removal">Ja, von Gerät abmelden</string>
@@ -124,6 +125,7 @@
     <string name="device_inactive_description">Sie haben dieses Gerät entfernt. Um sich erneut zu verbinden, müssen Sie sich erneut anmelden.</string>
     <string name="device_inactive_title">Gerät ist inaktiv</string>
     <string name="device_inactive_unblock_warning">Wenn Sie mit der Anmeldung fortfahren, wird die Internetsperre auf diesem Gerät aufgehoben.</string>
+    <string name="device_ip_version_title">Geräte-IP-Version</string>
     <string name="device_name">Gerätename</string>
     <string name="device_name_info_first_paragraph">Dies ist der dem Gerät zugewiesene Name. Jedes Gerät, das in einem Mullvad-Konto angemeldet ist, erhält einen eindeutigen Namen, mit dem Sie es identifizieren können, wenn Sie Ihre Geräte in der App oder auf der Website verwalten.</string>
     <string name="device_name_info_second_paragraph">Es sind pro Mullvad-Konto bis zu 5 angemeldete Geräte möglich.</string>
@@ -155,6 +157,7 @@
     <string name="enable_anyway">Trotzdem aktivieren</string>
     <string name="enable_custom_dns">Benutzerdefinierten DNS-Server verwenden</string>
     <string name="enable_direct_only">%1$s aktivieren</string>
+    <string name="enable_ipv6">In-Tunnel-IPv6</string>
     <string name="enable_method">Methode aktivieren</string>
     <string name="encrypted_dns_proxy_info_message_part1">Mit der Methode „Verschlüsseltes-DNS-Proxy“ kommuniziert die App mit unserer Mullvad-API über eine Proxy-Adresse. Sie tut dies, indem sie eine Adresse von einem DNS-over-HTTPS-Server (DoH) abruft und dann diese verwendet, um unsere API-Server zu erreichen.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Wenn Sie nicht mit unserem VPN verbunden sind, verwendet der Verschlüsseltes-DNS-Proxy bei der Verbindung Ihre eigene Nicht-VPN-IP. Die DoH-Server werden von einem der folgenden Anbieter gehostet: Quad9 oder CloudFlare.</string>
@@ -251,6 +254,7 @@
     <string name="no_wireguard_key">Gültiger WireGuard-Schlüssel fehlt. Sie können Ihre Schlüssel in den erweiterten Einstellungen verwalten.</string>
     <string name="not_found">Nicht gefunden</string>
     <string name="number_of_providers">Provider: %1$d</string>
+    <string name="obfuscation_info">Bei der Verschleierung wird der WireGuard-Datenverkehr in einem anderen Protokoll versteckt. Sie kann dazu verwendet werden, Zensur und andere Arten von Filtern zu umgehen, bei denen eine reine WireGuard-Verbindung blockiert würde.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Achtung! Shadowsocks kann den Akkuverbrauch je nach Datennutzung erhöhen, z. B. beim Streaming eines Videos.</string>
     <string name="obfuscation_title">WireGuard-Verschleierung</string>
     <string name="off">Aus</string>
@@ -366,6 +370,8 @@
     <string name="upd_over_tcp">UDP über TCP</string>
     <string name="update_dns_server_dialog_title">DNS-Server aktualisieren</string>
     <string name="update_list_name">Name der Liste ändern</string>
+    <string name="uri_browser_app_not_found">Keine Browser-App installiert, Link konnte nicht geöffnet werden</string>
+    <string name="uri_market_app_not_found">Kein Android-App-Store installiert, Link konnte nicht geöffnet werden</string>
     <string name="use_method">Methode verwenden</string>
     <string name="user_email_hint">Ihre E-Mail-Adresse (optional)</string>
     <string name="user_message_hint">Um Ihnen besser weiterhelfen zu können, schreiben Sie uns bitte auf Englisch oder Schwedisch und geben Sie an, aus welchem Land Sie die Verbindung herstellen.</string>
@@ -378,6 +384,7 @@
     <string name="voucher_already_used">Der Gutscheincode wurde bereits verwendet.</string>
     <string name="voucher_is_account_number">Anscheinend haben Sie eine Kontonummer statt eines Gutscheincodes eingegeben. Wenn Sie das aktive Konto wechseln möchten, melden Sie sich bitte zuerst ab.</string>
     <string name="voucher_success_title">Der Gutschein wurde erfolgreich eingelöst.</string>
+    <string name="vpn_permission_denied_error">VPN-Berechtigung wurde abgelehnt oder bei einer anderen App ist „Alway-on VPN“ aktiviert</string>
     <string name="vpn_permission_error_notification_message">Drücken Sie auf „Verbinden“, um die VPN-Berechtigung anzufordern</string>
     <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>

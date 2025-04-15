@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2025-03-25 14:23\n"
+"PO-Revision-Date: 2025-04-11 07:48\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -333,6 +333,17 @@ msgstr "Näytä enemmän: %(location)s"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "Pyyhi tilin numero %(accountNumber)s"
+
+#. Accessibility label for link to blog post about OpenVPN support ending.
+msgctxt "accessibility"
+msgid "Go to blog post to read more, opens externally"
+msgstr "Lue lisää blogiartikkelista (avautuu toiselle sivustolle)"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change tunnel protocol.
+msgctxt "accessibility"
+msgid "Go to VPN settings to change tunnel protocol"
+msgstr "Vaihda tunneliprotokolla VPN-asetuksissa"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -910,6 +921,29 @@ msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr "%(duration)s. Osta lisää käyttöaikaa."
 
+#. First part of notification subtitle when there are no openVPN servers available.
+#. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support has ended. Please update the app or"
+msgstr "%(openVpn)s:n tuki on päättynyt. Päivitä sovellus tai"
+
+#. Notification title indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s SUPPORT IS ENDING"
+msgstr "%(openVpn)s:N TUKI PÄÄTTYY"
+
+#. First part of notification subtitle when there are no openVPN servers
+#. matching current settings. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support is ending. Switch location or"
+msgstr "%(openVpn)s:n tuki päättyy. Vaihda sijainti tai"
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "TILIN KÄYTTÖAIKA PÄÄTTYY PIAN"
@@ -925,6 +959,14 @@ msgstr "BEETAPÄIVITYS SAATAVILLA"
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "VERKKOYHTEYS ESTETTY"
+
+#. Link following the first part of the notification subtitle.
+#. Will navigate the user to the VPN settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "change tunnel protocol to %(wireGuard)s."
+msgstr "vaihda tunneliprotokolla %(wireGuard)siin."
 
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
@@ -947,9 +989,36 @@ msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "UUSI VERSIO ASENNETTIIN"
 
+#. Notification title when there are no openVPN servers
+#. matching current settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVER AVAILABLE"
+msgstr "%(openVpn)s-PALVELINTA EI OLE KÄYTETTÄVISSÄ"
+
+#. Notification title when there are no openVPN servers available.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVERS AVAILABLE"
+msgstr "%(openVpn)s-PALVELIMIA EI OLE KÄYTETTÄVISSÄ"
+
+#. Notification subtitle indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "Please change tunnel protocol to %(wireGuard)s."
+msgstr "Vaihda tunneliprotokolla %(wireGuard)siin."
+
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Sammuta sovellus ja käynnistä se uudelleen."
+
+#. Link in notication to a blog post about OpenVPN support ending.
+msgctxt "in-app-notifications"
+msgid "Read more"
+msgstr "Lue lisää"
 
 msgctxt "in-app-notifications"
 msgid "Send problem report"
@@ -1322,8 +1391,8 @@ msgstr "Aseta %(openvpn)s MSS -arvo asteikolla %(min)d–%(max)d."
 #. available.
 #. Available placeholders:
 #. %(transportProtocol)s - the name of the transport protocol setting
-#. %(automat)s - the translation of "Automatic"
-#. %(openvpn)s - will be replaced with OpenVPN
+#. %(automatic)s - the translation of "Automatic"
+#. %(tcp)s - the translation of "TCP"
 msgctxt "openvpn-settings-view"
 msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
 msgstr "Aktivoi siltaustila muuttamalla <b>%(transportProtocol)s</b>-asetukseksi <b>%(automatic)s</b> tai <b>%(tcp)s</b>."
@@ -1956,6 +2025,13 @@ msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "Huomio: <b>%(customDnsFeatureName)s</b> ja tämä asetus eivät voi olla käytössä samanaikaisesti."
 
+#. Footer text for tunnel protocol selector when OpenVPN is selected.
+#. Available placeholders:
+#. %(openvpn)s - Will be replaced with OpenVPN
+msgctxt "vpn-settings-view"
+msgid "Attention: We are removing support for %(openVpn)s."
+msgstr "Huomio: poistamme %(openVpn)s:n tuen."
+
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
 msgstr "Automaattinen yhteys"
@@ -2029,6 +2105,12 @@ msgstr "Lukitustila"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "Haittaohjelmat"
+
+#. Link in tunnel protocol selector footer to blog post
+#. about OpenVPN support ending.
+msgctxt "vpn-settings-view"
+msgid "Read more"
+msgstr "Lue lisää"
 
 msgctxt "vpn-settings-view"
 msgid "Server IP override"
@@ -2137,8 +2219,8 @@ msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s-asetukset"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
-msgstr "Huomio: Ole varovainen, jos sinulla on rajoitettu datasopimus, koska tämä ominaisuus kasvattaa verkkoliikennettäsi. Tätä ominaisuutta voidaan käyttää vain %(wireguard)sin kanssa."
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s."
+msgstr "Huomio: Toiminto kasvattaa verkkoliikennettä ja vaikuttaa sen vuoksi negatiivisesti sekä nopeuteen, viiveeseen että akun kulumiseen. Käytä harkiten, kun datasopimuksesi on rajoitettu. Toimii vain %(wireguard)sin kanssa."
 
 msgctxt "wireguard-settings-view"
 msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
@@ -2189,8 +2271,10 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "Hämäysteknologia"
 
+#. Describes what WireGuard obfuscation does, how it works and when
+#. it would be useful to enable it.
 msgctxt "wireguard-settings-view"
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "Hämäysteknologian käyttäminen piilottaa WireGuard-liikenteen toisen protokollan sisään. Sitä voidaan käyttää kiertämään sensuuria ja muita suodatuksia niissä tapauksissa, kun tavallinen WireGuard-yhteys muutoin estettäisi."
 
 msgctxt "wireguard-settings-view"
@@ -2225,8 +2309,8 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "Vaihda arvoon \"%(wireguard)s\" tai \"%(automatic)s\" kohdasta Asetukset > %(tunnelProtocol)s saadaksesi asetuksen %(setting)s käyttöön."
+msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
+msgstr "Ota %(setting)s käyttöön vaihtamalla arvoon \"%(wireguard)s\" kohdassa Asetukset > %(tunnelProtocol)s."
 
 msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
@@ -2438,6 +2522,9 @@ msgstr "Poista menetelmä"
 msgid "Delete method?"
 msgstr "Poista menetelmä?"
 
+msgid "Device IP version"
+msgstr "Laitteen IP-versio"
+
 msgid "Disable \"%s\" below to activate these settings."
 msgstr "Ota nämä asetukset käyttöön poistamalla \"%s\" käytöstä alta."
 
@@ -2534,6 +2621,9 @@ msgstr "Tuonti onnistui ja ohituksia on käytössä"
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "Uusien ohitusten tuonti saattaa korvata joitain aiemmin tuotuja ohituksia."
 
+msgid "In-tunnel IPv6"
+msgstr "Tunnelin IPv6"
+
 msgid "Invalid or missing value \"%s\""
 msgstr "Arvo \"%s\" puuttuu tai on virheellinen"
 
@@ -2566,6 +2656,12 @@ msgstr "Nimeksi vaihdettiin \"%s\""
 
 msgid "New list"
 msgstr "Uusi luettelo"
+
+msgid "No Android app store installed, could not open link"
+msgstr "Androidin sovelluskauppaa ei ole asennettu, joten linkin avaaminen ei onnistu"
+
+msgid "No browser app installed, could not open link"
+msgstr "Selainsovellusta ei ole asennettu, joten linkin avaaminen ei onnistu"
 
 msgid "No changelog was added for this version"
 msgstr "Tälle versiolle ei lisätty muutoslokia"
@@ -2645,9 +2741,6 @@ msgstr "Palauta oletusarvo"
 msgid "Search"
 msgstr "Haku"
 
-msgid "See full changelog"
-msgstr "Avaa koko muutosloki"
-
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "Jotta voit käyttää tätä asetusta, poista %s-hämäysteknologia käytöstä tai säädä sen asetukseksi \"Automaattinen\" alta."
 
@@ -2669,9 +2762,6 @@ msgstr "Näyttää VPN-tunnelin nykyisen tilan"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa"
 
-msgid "Split tunneling"
-msgstr "Sovelluskohtainen yhdistäminen"
-
 msgid "Submit"
 msgstr "Lähetä"
 
@@ -2687,6 +2777,9 @@ msgstr "Teksti"
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Automaattisen yhdistämisen ja lukitustilan asetukset löytyvät Androidin järjestelmäasetuksista. Voit ottaa jommankumman tai molemmat käyttöön tämän oppaan ohjeilla."
 
+msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
+msgstr "IPv6-DNS-palvelin ei toimi, ellet ota IPv6:ta käyttöön VPN-asetuksista."
+
 msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
 msgstr "Lukitustila löytyy Android-järjestelmäasetuksista nimellä \"Estä yhteydet ilman VPN:ää\". Lukitustila auttaa minimoimaan vuodot, mutta siihen liittyy myös muutamia tunnettuja rajoituksia. Voit lukea niistä lisää"
 
@@ -2698,6 +2791,9 @@ msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamist
 
 msgid "This address has already been entered."
 msgstr "Tämä osoite on annettu jo."
+
+msgid "This allows access to WireGuard for devices that only support IPv6."
+msgstr "Tämä mahdollistaa pääsyn WireGuardiin laitteille, jotka tukevat vain IPv6-protokollaa."
 
 msgid "This field is required"
 msgstr "Tämä kenttä on pakollinen"
@@ -2750,8 +2846,8 @@ msgstr "Käytä menetelmä"
 msgid "VPN permission error"
 msgstr "VPN-lupavirhe"
 
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr "VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen."
+msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
+msgstr "VPN:n käyttöoikeus evättiin tai toisella sovelluksella on aina päällä oleva VPN käytössä"
 
 msgid "VPN tunnel status"
 msgstr "VPN-tunnelin tila"
