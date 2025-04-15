@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,6 +33,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.DeviceNameInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.LoginDestination
+import com.ramcosta.composedestinations.generated.destinations.ManageDevicesDestination
 import com.ramcosta.composedestinations.generated.destinations.PaymentDestination
 import com.ramcosta.composedestinations.generated.destinations.RedeemVoucherDestination
 import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDestination
@@ -43,6 +45,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ExternalButton
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
+import net.mullvad.mullvadvpn.compose.button.PrimaryTextButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
@@ -72,7 +75,9 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewAccountScreen(
     @PreviewParameter(AccountUiStatePreviewParameterProvider::class) state: AccountUiState
 ) {
-    AppTheme { AccountScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}, {}, {}, {}) }
+    AppTheme {
+        AccountScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}, {}, {}, {}, {})
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -122,6 +127,10 @@ fun Account(
         state = state,
         snackbarHostState = snackbarHostState,
         onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
+        onManageDevicesClick =
+            dropUnlessResumed {
+                state.accountNumber?.let { navigator.navigate(ManageDevicesDestination(it)) }
+            },
         onManageAccountClick = vm::onManageAccountClick,
         onLogoutClick = vm::onLogoutClick,
         onCopyAccountNumber = vm::onCopyAccountNumber,
@@ -142,6 +151,7 @@ fun AccountScreen(
     onCopyAccountNumber: (String) -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onManageAccountClick: () -> Unit,
+    onManageDevicesClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
     navigateToDeviceInfo: () -> Unit,
@@ -171,6 +181,7 @@ fun AccountScreen(
                 DeviceNameRow(
                     deviceName = state.deviceName ?: "",
                     onInfoClick = navigateToDeviceInfo,
+                    onManageDevicesClick = onManageDevicesClick,
                 )
 
                 AccountNumberRow(
@@ -219,7 +230,11 @@ fun AccountScreen(
 }
 
 @Composable
-private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
+private fun DeviceNameRow(
+    deviceName: String,
+    onInfoClick: () -> Unit,
+    onManageDevicesClick: () -> Unit,
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             style = MaterialTheme.typography.labelMedium,
@@ -236,6 +251,12 @@ private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
+            Spacer(modifier = Modifier.weight(1f))
+            PrimaryTextButton(
+                onClick = onManageDevicesClick,
+                text = stringResource(R.string.manage_devices),
+                textDecoration = TextDecoration.Underline,
+            )
         }
     }
 }

@@ -44,6 +44,7 @@ class AccountScreenTest {
         navigateToDeviceInfo: () -> Unit = {},
         navigateToVerificationPendingDialog: () -> Unit = {},
         onBackClick: () -> Unit = {},
+        onManageDevicesClick: () -> Unit = {},
     ) {
         setContentWithTheme {
             AccountScreen(
@@ -56,6 +57,7 @@ class AccountScreenTest {
                 navigateToDeviceInfo = navigateToDeviceInfo,
                 navigateToVerificationPendingDialog = navigateToVerificationPendingDialog,
                 onBackClick = onBackClick,
+                onManageDevicesClick = onManageDevicesClick,
             )
         }
     }
