@@ -236,11 +236,11 @@ fn post_quantum_secrets() -> (PostQuantumRequestV1, (ml_kem::Keypair, hqc::Keypa
         proto::PostQuantumRequestV1 {
             kem_pubkeys: vec![
                 proto::KemPubkeyV1 {
-                    algorithm_name: ml_kem::ALGORITHM_NAME.to_owned(),
+                    algorithm_name: ml_kem_keypair.algorithm_name().to_owned(),
                     key_data: ml_kem_keypair.encapsulation_key(),
                 },
                 proto::KemPubkeyV1 {
-                    algorithm_name: hqc::ALGORITHM_NAME.to_owned(),
+                    algorithm_name: hqc_keypair.algorithm_name().to_owned(),
                     key_data: hqc_keypair.encapsulation_key(),
                 },
             ],
