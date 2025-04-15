@@ -19,12 +19,13 @@ tower = { workspace = true }
 prost = { workspace = true }
 hyper-util = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
-classic-mceliece-rust = { version = "2.0.0", features = [
-    "mceliece460896f",
-    "zeroize",
-] }
 
 ml-kem = { version = "0.2.1", features = ["zeroize"] }
+pqcrypto-traits = "0.3.5"
+# This is a wrapper to the C implementation of HQC in PQClean.
+# Keep eyes open for alternatives, preferably pure Rust implementations.
+pqcrypto-hqc = { version = "0.2.1", default-features = false }
+sha2 = { workspace = true }
 zeroize = "1.5.7"
 
 [target.'cfg(unix)'.dependencies]
