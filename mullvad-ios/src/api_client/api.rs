@@ -26,7 +26,7 @@ use super::{
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
-pub unsafe extern "C" fn mullvad_api_get_addresses(
+pub unsafe extern "C" fn mullvad_ios_get_addresses(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
@@ -43,7 +43,7 @@ pub unsafe extern "C" fn mullvad_api_get_addresses(
 
     let completion = completion_handler.clone();
     let task = tokio_handle.clone().spawn(async move {
-        match mullvad_api_get_addresses_inner(api_context.rest_handle(), retry_strategy).await {
+        match mullvad_ios_get_addresses_inner(api_context.rest_handle(), retry_strategy).await {
             Ok(response) => completion.finish(response),
             Err(err) => {
                 log::error!("{err:?}");
@@ -68,7 +68,7 @@ pub unsafe extern "C" fn mullvad_api_get_addresses(
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
-pub unsafe extern "C" fn mullvad_api_get_relays(
+pub unsafe extern "C" fn mullvad_ios_get_relays(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
@@ -93,7 +93,7 @@ pub unsafe extern "C" fn mullvad_api_get_relays(
 
     let completion = completion_handler.clone();
     let task = tokio_handle.clone().spawn(async move {
-        match mullvad_api_get_relays_inner(api_context.rest_handle(), retry_strategy, maybe_etag)
+        match mullvad_ios_get_relays_inner(api_context.rest_handle(), retry_strategy, maybe_etag)
             .await
         {
             Ok(response) => completion.finish(response),
@@ -107,7 +107,7 @@ pub unsafe extern "C" fn mullvad_api_get_relays(
     RequestCancelHandle::new(task, completion_handler.clone()).into_swift()
 }
 
-async fn mullvad_api_get_addresses_inner(
+async fn mullvad_ios_get_addresses_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
@@ -118,7 +118,7 @@ async fn mullvad_api_get_addresses_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-async fn mullvad_api_get_relays_inner(
+async fn mullvad_ios_get_relays_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     etag: Option<String>,
