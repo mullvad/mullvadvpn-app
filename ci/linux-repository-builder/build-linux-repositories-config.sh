@@ -15,7 +15,7 @@ SUPPORTED_DEB_CODENAMES+=("noble" "jammy" "focal")
 # ... + latest non-LTS Ubuntu. We officially only support the latest non-LTS.
 # But to not cause too much disturbance just when Ubuntu is released, we keep
 # the last two codenames working in the repository.
-SUPPORTED_DEB_CODENAMES+=("oracular" "mantic")
+SUPPORTED_DEB_CODENAMES+=("plucky" "oracular")
 export SUPPORTED_DEB_CODENAMES
 
 export SUPPORTED_RPM_ARCHITECTURES=("x86_64" "aarch64")
