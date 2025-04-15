@@ -10,14 +10,14 @@ use talpid_types::net::{
 };
 use tonic::async_trait;
 
-use super::shadowsocks_loader::SwiftShadowsocksLoaderWrapperContext;
+use super::shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
 
 #[derive(Debug)]
 pub struct SwiftAccessMethodResolver {
     endpoint: ApiEndpoint,
     domain: String,
     state: EncryptedDnsProxyState,
-    bridge_provider: SwiftShadowsocksLoaderWrapperContext,
+    bridge_provider: SwiftShadowsocksLoaderWrapper,
 }
 
 impl SwiftAccessMethodResolver {
@@ -25,7 +25,7 @@ impl SwiftAccessMethodResolver {
         endpoint: ApiEndpoint,
         domain: String,
         state: EncryptedDnsProxyState,
-        bridge_provider: SwiftShadowsocksLoaderWrapperContext,
+        bridge_provider: SwiftShadowsocksLoaderWrapper,
     ) -> Self {
         Self {
             endpoint,

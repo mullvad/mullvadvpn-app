@@ -10,15 +10,20 @@ extern "C" {
     pub fn swift_get_shadowsocks_bridges(rawBridgeProvider: *const c_void) -> *const c_void;
 }
 
+#[derive(Debug)]
 #[repr(C)]
-pub struct SwiftShadowsocksLoaderWrapper(*mut SwiftShadowsocksLoaderWrapperContext);
+pub struct SwiftShadowsocksLoaderWrapper(SwiftShadowsocksLoaderWrapperContext);
 impl SwiftShadowsocksLoaderWrapper {
     pub fn new(context: SwiftShadowsocksLoaderWrapperContext) -> SwiftShadowsocksLoaderWrapper {
-        SwiftShadowsocksLoaderWrapper(Box::into_raw(Box::new(context)))
+        SwiftShadowsocksLoaderWrapper(context)
     }
 
-    pub unsafe fn into_rust_context(self) -> Box<SwiftShadowsocksLoaderWrapperContext> {
-        Box::from_raw(self.0)
+    pub fn get_bridges(&self) -> Option<Shadowsocks> {
+        self.context_ref().get_bridges()
+    }
+
+    fn context_ref(&self) -> &SwiftShadowsocksLoaderWrapperContext {
+        &self.0
     }
 }
 
@@ -28,7 +33,10 @@ unsafe impl Sync for SwiftShadowsocksLoaderWrapper {}
 unsafe impl Send for SwiftShadowsocksLoaderWrapper {}
 
 #[derive(Debug)]
+#[repr(C)]
 pub struct SwiftShadowsocksLoaderWrapperContext {
+    // This pointer is a reference to a Swift object, and is only ever read by Rust.
+    // It is used to call that Swift object across the FFI
     shadowsocks_loader: *const c_void,
 }
 
@@ -56,6 +64,8 @@ impl SwiftShadowsocksLoaderWrapperContext {
 ///
 /// # SAFETY
 /// `shadowsocks_loader` **must be** pointing to a valid instance of a `SwiftShadowsocksBridgeProvider`
+/// That instance's lifetime has to be equivalent to a `'static` lifetime in Rust
+/// This function does not take ownership of `shadowsocks_loader`
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn init_swift_shadowsocks_loader_wrapper(
     shadowsocks_loader: *const c_void,

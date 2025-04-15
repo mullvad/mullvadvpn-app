@@ -44,8 +44,6 @@ typedef struct RustAccessMethodSettingVectorContext RustAccessMethodSettingVecto
 
 typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
 
-typedef struct SwiftShadowsocksLoaderWrapperContext SwiftShadowsocksLoaderWrapperContext;
-
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
 } SwiftApiContext;
@@ -54,8 +52,12 @@ typedef struct SwiftAccessMethodSettingsWrapper {
   struct SwiftAccessMethodSettingsContext *_0;
 } SwiftAccessMethodSettingsWrapper;
 
+typedef struct SwiftShadowsocksLoaderWrapperContext {
+  const void *shadowsocks_loader;
+} SwiftShadowsocksLoaderWrapperContext;
+
 typedef struct SwiftShadowsocksLoaderWrapper {
-  struct SwiftShadowsocksLoaderWrapperContext *_0;
+  struct SwiftShadowsocksLoaderWrapperContext _0;
 } SwiftShadowsocksLoaderWrapper;
 
 typedef struct RustAccessMethodSettingVector {
@@ -391,6 +393,8 @@ extern const void *swift_get_shadowsocks_bridges(const void *rawBridgeProvider);
  *
  * # SAFETY
  * `shadowsocks_loader` **must be** pointing to a valid instance of a `SwiftShadowsocksBridgeProvider`
+ * That instance's lifetime has to be equivalent to a `'static` lifetime in Rust
+ * This function does not take ownership of `shadowsocks_loader`
  */
 struct SwiftShadowsocksLoaderWrapper init_swift_shadowsocks_loader_wrapper(const void *shadowsocks_loader);
 
