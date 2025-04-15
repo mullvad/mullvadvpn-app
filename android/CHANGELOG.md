@@ -23,10 +23,19 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Make feature indicators clickable, allowing for easy access to active features.
+
+
+## [android/2025.2-beta2] - 2025-04-15
+### Fixed
+- Fix focus on TV devices when returning to connect screen from select location.
+
+
+## [android/2025.2-beta1] - 2025-04-04
+### Added
 - Prompt password manager to store new account number on account creation.
 - Add the ability to force the ip version used to connect to a relay.
 - Add the ability to disable IPv6 in the tunnel.
-- Make feature indicators clickable, allowing for easy access to active features.
 
 ### Changed
 - Disable Wireguard port setting when a obfuscation is selected since it is not used when an
