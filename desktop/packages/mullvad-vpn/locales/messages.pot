@@ -2665,6 +2665,9 @@ msgstr ""
 msgid "Manage account"
 msgstr ""
 
+msgid "Manage devices"
+msgstr ""
+
 msgid "Mullvad services unavailable"
 msgstr ""
 
@@ -2740,6 +2743,9 @@ msgstr ""
 msgid "Remove %s from %s"
 msgstr ""
 
+msgid "Remove %s?"
+msgstr ""
+
 msgid "Remove custom port"
 msgstr ""
 
@@ -2801,6 +2807,9 @@ msgid "The Lockdown mode is called \"Block connections without VPN\" in the Andr
 msgstr ""
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
+msgstr ""
+
+msgid "The device will be removed from the list and logged out."
 msgstr ""
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
@@ -2888,6 +2897,9 @@ msgid "Verifying voucher…"
 msgstr ""
 
 msgid "Version"
+msgstr ""
+
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr ""
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
