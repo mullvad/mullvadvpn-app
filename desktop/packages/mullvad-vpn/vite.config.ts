@@ -68,6 +68,11 @@ const viteConfig = defineConfig({
           await startup(['.']);
         },
         vite: {
+          // We define process.env.NODE_ENV here in order for vite to statically
+          // replace the references in the production build with the string value.
+          define: {
+            'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+          },
           build: {
             outDir: OUT_DIR,
             commonjsOptions: {
