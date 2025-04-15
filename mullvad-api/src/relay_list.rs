@@ -36,7 +36,7 @@ impl RelayListProxy {
         let request = self.relay_list_response(etag.clone());
 
         async move {
-            let response = request.await.map_err(rest::Error::from)?;
+            let response = request.await?;
 
             if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
                 return Ok(None);
