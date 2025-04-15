@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+import { Animation } from './types';
 
 interface AnimateContextProps {
-  present?: boolean;
+  animations: Animation[];
+  animate: boolean;
+  animatePresent: boolean;
+  present: boolean;
   initial?: boolean;
-  show: boolean;
-  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  setAnimate: React.Dispatch<React.SetStateAction<boolean>>;
+  setAnimatePresent: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AnimateContext = React.createContext<AnimateContextProps | undefined>(undefined);
@@ -18,15 +23,32 @@ export const useAnimateContext = (): AnimateContextProps => {
 };
 
 interface AnimateProviderProps {
-  present?: boolean;
+  animations: Animation[];
+  present: boolean;
   initial?: boolean;
   children: React.ReactNode;
 }
 
-export const AnimateProvider = ({ present, initial, children }: AnimateProviderProps) => {
-  const [show, setShow] = React.useState<boolean>(present || false);
+export const AnimateProvider = ({
+  animations,
+  present,
+  initial,
+  children,
+}: AnimateProviderProps) => {
+  const [animate, setAnimate] = React.useState<boolean>((initial && present) || false);
+  const [animatePresent, setAnimatePresent] = useState<boolean>(present);
+
   return (
-    <AnimateContext.Provider value={{ present, initial, show, setShow }}>
+    <AnimateContext.Provider
+      value={{
+        animate,
+        animatePresent,
+        animations,
+        initial,
+        present,
+        setAnimate,
+        setAnimatePresent,
+      }}>
       {children}
     </AnimateContext.Provider>
   );
