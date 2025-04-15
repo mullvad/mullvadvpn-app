@@ -13,6 +13,7 @@ mod account;
 mod api;
 mod cancellation;
 mod completion;
+mod problem_report;
 mod response;
 mod retry_strategy;
 

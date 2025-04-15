@@ -73,20 +73,17 @@ final class ProblemReportInteractor: @unchecked Sendable {
             output[entry.key.rawValue] = entry.value
         }
 
-        let request = REST.ProblemReportRequest(
+        let request = ProblemReportRequest(
             address: email,
             message: message,
             log: logString,
             metadata: metadataDict
         )
 
-        _ = self.apiProxy.sendProblemReport(
-            request,
-            retryStrategy: .default
-        ) { result in
+        _ = self.apiProxy.sendProblemReport(request, retryStrategy: .default, completionHandler: { result in
             DispatchQueue.main.async {
                 completion(result)
             }
-        }
+        })
     }
 }

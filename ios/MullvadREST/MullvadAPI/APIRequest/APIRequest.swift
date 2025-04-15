@@ -5,10 +5,13 @@
 //  Created by Jon Petersson on 2025-02-24.
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
+import MullvadTypes
 
 public enum APIRequest: Codable, Sendable {
     case getAddressList(_ retryStrategy: REST.RetryStrategy)
     case getRelayList(_ retryStrategy: REST.RetryStrategy, etag: String?)
+    case sendProblemReport(_ retryStrategy: REST.RetryStrategy, problemReportRequest: ProblemReportRequest)
+
     case createAccount(_ retryStrategy: REST.RetryStrategy)
     case getAccount(_ retryStrategy: REST.RetryStrategy, accountNumber: String)
     case deleteAccount(_ retryStrategy: REST.RetryStrategy, accountNumber: String)
@@ -19,6 +22,8 @@ public enum APIRequest: Codable, Sendable {
             "get-address-list"
         case .getRelayList:
             "get-relay-list"
+        case .sendProblemReport:
+            "send-problem-report"
         case .createAccount:
             "create-account"
         case .getAccount:
@@ -33,6 +38,7 @@ public enum APIRequest: Codable, Sendable {
         case
             let .getAddressList(strategy),
             let .getRelayList(strategy, _),
+            let .sendProblemReport(strategy, _),
             let .createAccount(strategy),
             let .getAccount(strategy, _),
             let .deleteAccount(strategy, _):

@@ -24,6 +24,8 @@ typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
+typedef struct Map Map;
+
 typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
@@ -53,6 +55,17 @@ typedef struct SwiftMullvadApiResponse {
 typedef struct CompletionCookie {
   void *inner;
 } CompletionCookie;
+
+typedef struct ProblemReportMetadata {
+  struct Map *inner;
+} ProblemReportMetadata;
+
+typedef struct SwiftProblemReportRequest {
+  const char *address;
+  const char *message;
+  const char *log;
+  struct ProblemReportMetadata metadata;
+} SwiftProblemReportRequest;
 
 typedef struct ProxyHandle {
   void *context;
@@ -112,7 +125,7 @@ struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-struct SwiftCancelHandle mullvad_api_get_account(struct SwiftApiContext api_context,
+struct SwiftCancelHandle mullvad_ios_get_account(struct SwiftApiContext api_context,
                                                  void *completion_cookie,
                                                  struct SwiftRetryStrategy retry_strategy,
                                                  const char *account_number);
@@ -129,7 +142,7 @@ struct SwiftCancelHandle mullvad_api_get_account(struct SwiftApiContext api_cont
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-struct SwiftCancelHandle mullvad_api_create_account(struct SwiftApiContext api_context,
+struct SwiftCancelHandle mullvad_ios_create_account(struct SwiftApiContext api_context,
                                                     void *completion_cookie,
                                                     struct SwiftRetryStrategy retry_strategy);
 
@@ -147,7 +160,7 @@ struct SwiftCancelHandle mullvad_api_create_account(struct SwiftApiContext api_c
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-struct SwiftCancelHandle mullvad_api_delete_account(struct SwiftApiContext api_context,
+struct SwiftCancelHandle mullvad_ios_delete_account(struct SwiftApiContext api_context,
                                                     void *completion_cookie,
                                                     struct SwiftRetryStrategy retry_strategy,
                                                     const char *account_number);
@@ -164,7 +177,7 @@ struct SwiftCancelHandle mullvad_api_delete_account(struct SwiftApiContext api_c
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-struct SwiftCancelHandle mullvad_api_get_addresses(struct SwiftApiContext api_context,
+struct SwiftCancelHandle mullvad_ios_get_addresses(struct SwiftApiContext api_context,
                                                    void *completion_cookie,
                                                    struct SwiftRetryStrategy retry_strategy);
 
@@ -182,7 +195,7 @@ struct SwiftCancelHandle mullvad_api_get_addresses(struct SwiftApiContext api_co
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-struct SwiftCancelHandle mullvad_api_get_relays(struct SwiftApiContext api_context,
+struct SwiftCancelHandle mullvad_ios_get_relays(struct SwiftApiContext api_context,
                                                 void *completion_cookie,
                                                 struct SwiftRetryStrategy retry_strategy,
                                                 const char *etag);
@@ -223,6 +236,44 @@ void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
  */
 extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse response,
                                           struct CompletionCookie completion_cookie);
+
+/**
+ * Send a problem report via the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
+ *
+ * the string properties of `SwiftProblemReportRequest` must be pointers to a null terminated strings.
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_ios_send_problem_report(struct SwiftApiContext api_context,
+                                                         void *completion_cookie,
+                                                         struct SwiftRetryStrategy retry_strategy,
+                                                         struct SwiftProblemReportRequest request);
+
+struct ProblemReportMetadata swift_problem_report_metadata_new(void);
+
+/**
+ * Add key and value pair to the `ProblemReportMetadata`
+ *
+ * # Safety
+ *
+ * `map.inner` must be non-null and point to a valid
+ * - `key` must be a null-terminated UTF-8 string, containing LF-separated machines.
+ * - `value` must be a valid pointer to some valid and aligned pointer-sized memory.
+ */
+bool swift_problem_report_metadata_add(struct ProblemReportMetadata map,
+                                       const char *key,
+                                       const char *value);
+
+void swift_problem_report_metadata_free(struct ProblemReportMetadata map);
 
 /**
  * Called by the Swift side to signal that the Rust `SwiftMullvadApiResponse` can be safely
