@@ -44,12 +44,13 @@ message EphemeralPeerRequestV1 {
   DaitaRequestV2 daita_v2 = 5;
 }
 
-// The v1 request supports these three algorithms.
+// The v1 request supports these four algorithms.
 // The algorithms can appear soletary or mixed. Kyber1024 and ML-KEM-1024 cannot be used in the
 // same request as they are just different versions of the same kem.
 // - "Classic-McEliece-460896f", but explicitly identified as "Classic-McEliece-460896f-round3"
 // - "Kyber1024", this is round3 of the Kyber KEM
 // - "ML-KEM-1024". This is the standardized version of ML-KEM (FIPS 203) at the highest strength
+// - "HQC-256". This is the standardized version of HQC at the highest strength
 message PostQuantumRequestV1 { repeated KemPubkeyV1 kem_pubkeys = 1; }
 
 message KemPubkeyV1 {
@@ -110,8 +111,8 @@ message EphemeralPeerResponseV1 {
   // the entropy in the PSK is uniformly distributed. The actual keys used for encrypting the
   // data channel will have uniformly distributed entropy anyway, thanks to the HKDF.
   //
-  // If we later want to support another type of KEM that produce longer or shorter output,
-  // we can hash that secret into a 32 byte hash before proceeding to the XOR step.
+  // KEMs that produce shared secrets of other lengths than 32 bytes, should hash the shared
+  // secret with sha256 to generate the 32 bytes used in the the XOR step.
   //
   // Mixing with XOR (A = B ^ C) is fine since nothing about A is revealed even if one of B or C
   // is known. Both B *and* C must be known to compute any bit in A. This means all involved
