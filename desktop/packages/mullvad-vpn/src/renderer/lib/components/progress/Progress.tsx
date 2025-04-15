@@ -23,7 +23,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
     const percent = ((normalizedValue - min) / (max - min)) * 100;
     return (
       <ProgressProvider value={value} min={min} max={max} percent={percent} disabled={disabled}>
-        <Flex $flexDirection="column" $gap="small" ref={ref} {...props}>
+        <Flex $flexDirection="column" $gap="small" ref={ref} $flex={1} {...props}>
           {children}
         </Flex>
       </ProgressProvider>
