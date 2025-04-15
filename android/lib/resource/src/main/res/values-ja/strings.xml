@@ -67,6 +67,7 @@
     <string name="clear_input">入力をクリア</string>
     <string name="close">閉じる</string>
     <string name="collapse">折りたたむ</string>
+    <string name="confirm_ipv6_dns">VPN設定で [IPv6] を有効にしない限り、IPv6 DNSサーバーは機能しません。</string>
     <string name="confirm_local_dns">VPN設定で [ローカルネットワーク共有] を有効にしない限り、ローカルDNSサーバーは機能しません。</string>
     <string name="confirm_no_email">お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。</string>
     <string name="confirm_removal">はい。デバイスをログアウトさせます</string>
@@ -124,6 +125,7 @@
     <string name="device_inactive_description">このデバイスを削除しました。再度接続するには、ログインし直す必要があります。</string>
     <string name="device_inactive_title">デバイスが無効です</string>
     <string name="device_inactive_unblock_warning">ログインに進むと、このデバイスのインターネットのブロックが解除されます。</string>
+    <string name="device_ip_version_title">デバイスのIPバージョン</string>
     <string name="device_name">デバイス名</string>
     <string name="device_name_info_first_paragraph">これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。</string>
     <string name="device_name_info_second_paragraph">1つのMullvadアカウントで最大5台のデバイスにログインできます。</string>
@@ -155,6 +157,7 @@
     <string name="enable_anyway">それでも有効にする</string>
     <string name="enable_custom_dns">カスタムDNSサーバーを使う</string>
     <string name="enable_direct_only">%1$sを有効にする</string>
+    <string name="enable_ipv6">トンネル内のIPv6</string>
     <string name="enable_method">方法を有効化する</string>
     <string name="encrypted_dns_proxy_info_message_part1">[暗号化DNSプロキシ] 方式を使用すると、アプリはプロキシアドレスを通じてMullvad APIと通信します。これはDNS over HTTPS (DoH) サーバーからアドレスを取得し、APIサーバーへのアクセスに利用することで行われます。</string>
     <string name="encrypted_dns_proxy_info_message_part2">当社のVPNに接続していない場合、暗号化DNSプロキシは接続時に独自の非VPN IPを使用します。DoHサーバーは、Quad9またはCloudFlareのいずれかによってホストされます。</string>
@@ -251,6 +254,7 @@
     <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
     <string name="not_found">見つかりませんでした</string>
     <string name="number_of_providers">プロバイダ数: %1$d</string>
+    <string name="obfuscation_info">難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">注意: Shadowsocksの場合、データ通信の使い方 (動画配信など) によってはバッテリー消費量が増加する可能性があります。</string>
     <string name="obfuscation_title">WireGuardの難読化</string>
     <string name="off">オフ</string>
@@ -366,6 +370,8 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">DNS サーバーを更新</string>
     <string name="update_list_name">リスト名の更新</string>
+    <string name="uri_browser_app_not_found">ブラウザアプリがインストールされていないため、リンクを開けませんでした</string>
+    <string name="uri_market_app_not_found">Androidアプリストアがインストールされていないため、リンクを開けませんでした</string>
     <string name="use_method">この方法を使用する</string>
     <string name="user_email_hint">あなたのメールアドレス (任意)</string>
     <string name="user_message_hint">最適なサポートを提供するため、英語またはスウェーデン語でご入力ください。また、接続元の国をお知らせください。</string>
@@ -378,6 +384,7 @@
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>
     <string name="voucher_is_account_number">バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。</string>
     <string name="voucher_success_title">バウチャーを正常に使用しました。</string>
+    <string name="vpn_permission_denied_error">VPNへのアクセス許可が拒否されたか、別のアプリで「Always-on VPN」が有効になっています</string>
     <string name="vpn_permission_error_notification_message">[接続] を押してVPNへのアクセス許可をリクエストしてください</string>
     <string name="vpn_permission_error_notification_title">VPN許可エラー</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>

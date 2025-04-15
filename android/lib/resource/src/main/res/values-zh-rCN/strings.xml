@@ -67,6 +67,7 @@
     <string name="clear_input">清除输入</string>
     <string name="close">关闭</string>
     <string name="collapse">收起</string>
+    <string name="confirm_ipv6_dns">除非您在 VPN 设置中启用“IPv6”，否则 IPv6 DNS 服务器将不会运行。</string>
     <string name="confirm_local_dns">除非您在 VPN 设置下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。</string>
     <string name="confirm_no_email">您即将发送问题报告，但没有提供让我们可以联系到您的方式。如果您希望获得回复，必须输入您的电子邮件地址。</string>
     <string name="confirm_removal">是，退出设备</string>
@@ -124,6 +125,7 @@
     <string name="device_inactive_description">您已移除此设备。要重新连接，您需要重新登录。</string>
     <string name="device_inactive_title">设备处于非活动状态</string>
     <string name="device_inactive_unblock_warning">前往登录将在此设备上解除阻止互联网。</string>
+    <string name="device_ip_version_title">设备 IP 版本</string>
     <string name="device_name">设备名称</string>
     <string name="device_name_info_first_paragraph">这是为设备分配的名称。每台登录 Mulvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。</string>
     <string name="device_name_info_second_paragraph">一个 Mulvad 帐户最多可以登录 5 台设备。</string>
@@ -155,6 +157,7 @@
     <string name="enable_anyway">仍然启用</string>
     <string name="enable_custom_dns">使用自定义 DNS 服务器</string>
     <string name="enable_direct_only">启用“%1$s”</string>
+    <string name="enable_ipv6">隧道内 IPv6</string>
     <string name="enable_method">启用方法</string>
     <string name="encrypted_dns_proxy_info_message_part1">利用“加密 DNS 代理”方法，应用将通过代理地址与我们的 Mullvad API 进行通信。通信时，应用从 DNS over HTTPS (DoH) 服务器获取地址，然后使用该地址连接我们的 API 服务器。</string>
     <string name="encrypted_dns_proxy_info_message_part2">如果您未连接到我们的 VPN，加密 DNS 代理将在连接时使用您自己的非 VPN IP。DoH 服务器由下列提供商之一托管：Quad9 或 CloudFlare。</string>
@@ -251,6 +254,7 @@
     <string name="no_wireguard_key">缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥。</string>
     <string name="not_found">找不到</string>
     <string name="number_of_providers">提供商：%1$d</string>
+    <string name="obfuscation_info">混淆会将 WireGuard 流量隐藏在其他协议中。这有助于规避审查和其他类型的过滤，在这些过滤中，普通 WireGuard 连接将被阻止。</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">注意：根据数据使用情况（例如流式传输视频），Shadowsocks 可能会增加电量消耗。</string>
     <string name="obfuscation_title">WireGuard 混淆</string>
     <string name="off">关</string>
@@ -366,6 +370,8 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">更新 DNS 服务器</string>
     <string name="update_list_name">更新列表名称</string>
+    <string name="uri_browser_app_not_found">未安装浏览器应用，无法打开链接</string>
+    <string name="uri_market_app_not_found">未安装 Android 应用商店，无法打开链接</string>
     <string name="use_method">使用方法</string>
     <string name="user_email_hint">您的电子邮件（可选）</string>
     <string name="user_message_hint">为了更好地帮助您，请用英语或瑞典语书写，并包含您连接时所在的国家/地区。</string>
@@ -378,6 +384,7 @@
     <string name="voucher_already_used">该优惠券码已被使用。</string>
     <string name="voucher_is_account_number">您输入的似乎是帐号，而不是代金券码。如果您想更改有效帐户，请先退出登录。</string>
     <string name="voucher_success_title">优惠券已成功兑换。</string>
+    <string name="vpn_permission_denied_error">VPN 权限被拒绝，或其他应用已启用“始终开启 VPN”</string>
     <string name="vpn_permission_error_notification_message">请按“连接”以请求 VPN 权限</string>
     <string name="vpn_permission_error_notification_title">VPN 权限错误</string>
     <string name="we_will_look_into_this">我们将对此进行调查。</string>
