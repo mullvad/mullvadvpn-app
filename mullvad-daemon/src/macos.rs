@@ -1,6 +1,6 @@
-use std::{fmt, io, path::Path, process::Stdio, time::Duration};
+use std::{fmt, io, path::Path, process::Stdio};
 
-use anyhow::{anyhow, bail, Context};
+use anyhow::{anyhow, Context};
 use notify::{RecursiveMode, Watcher};
 use std::io::Write;
 use tokio::{fs::File, process::Command};
@@ -49,23 +49,35 @@ pub async fn handle_app_bundle_removal(
 ) -> anyhow::Result<()> {
     const UNINSTALL_SCRIPT: &[u8] = include_bytes!("../../dist-assets/uninstall_macos.sh");
     const UNINSTALL_SCRIPT_PATH: &str = "/var/root/uninstall_mullvad.sh";
+    const APP_PATH: &str = "/Applications/Mullvad VPN.app";
 
     let daemon_path = std::env::current_exe().context("Failed to get daemon path")?;
 
     let (fs_notify_tx, mut fs_notify_rx) = tokio::sync::mpsc::channel(1);
-    let daemon_path_2 = daemon_path.clone();
     let mut fs_watcher =
         notify::recommended_watcher(move |event: notify::Result<notify::Event>| {
-            _ = event;
-            if !daemon_path_2.exists() {
+            // Ignore access events
+            let check_daemon_path = match event {
+                Ok(notify::Event {
+                    kind: notify::EventKind::Access(_),
+                    ..
+                }) => false,
+                Ok(_) | Err(_) => true,
+            };
+
+            // Ignore event if the daemon isn't installed in the app directory
+            let check_daemon_path = check_daemon_path && daemon_path.starts_with(APP_PATH);
+
+            // Check if the daemon binary still exists
+            if check_daemon_path && !daemon_path.exists() {
                 _ = fs_notify_tx.try_send(());
             }
         })
         .context("Failed to start filesystem watcher")?;
 
     fs_watcher
-        .watch(&daemon_path, RecursiveMode::NonRecursive)
-        .context(anyhow!("Failed to watch {daemon_path:?}"))?;
+        .watch(Path::new(APP_PATH), RecursiveMode::NonRecursive)
+        .context(anyhow!("Failed to watch {APP_PATH}"))?;
 
     let _file_was_deleted = fs_notify_rx
         .recv()
@@ -95,9 +107,7 @@ pub async fn handle_app_bundle_removal(
         }
     };
 
-    log(format_args!(
-        "{daemon_path:?} was removed. Running uninstaller."
-    ));
+    log(format_args!("{APP_PATH} was removed. Running uninstaller."));
 
     tokio::fs::write(UNINSTALL_SCRIPT_PATH, UNINSTALL_SCRIPT).await?;
 
