@@ -67,6 +67,7 @@
     <string name="clear_input">Cancella inserimento</string>
     <string name="close">Chiudi</string>
     <string name="collapse">Comprimi</string>
+    <string name="confirm_ipv6_dns">Il server DNS IPv6 non funzionerà a meno che non abiliti \"IPv6\" nelle impostazioni VPN.</string>
     <string name="confirm_local_dns">Il server DNS locale non funzionerà a meno che non abiliti \"Condivisione rete locale\" nelle impostazioni VPN.</string>
     <string name="confirm_no_email">Stai inviando la segnalazione di un problema senza averci indicato un modo per ricontattarti. Se desideri ricevere risposta, inserisci un indirizzo e-mail.</string>
     <string name="confirm_removal">Sì, disconnetti dal dispositivo</string>
@@ -124,6 +125,7 @@
     <string name="device_inactive_description">Hai rimosso questo dispositivo. Per riconnetterti, dovrai effettuare nuovamente il login.</string>
     <string name="device_inactive_title">Il dispositivo è inattivo</string>
     <string name="device_inactive_unblock_warning">Andare al login sbloccherà Internet su questo dispositivo.</string>
+    <string name="device_ip_version_title">Versione IP dispositivo</string>
     <string name="device_name">Nome dispositivo</string>
     <string name="device_name_info_first_paragraph">Questo è il nome assegnato al dispositivo. Ogni dispositivo connesso a un account Mullvad riceve un nome univoco che ti aiuta a identificarlo quando gestisci i tuoi dispositivi nell\'app o sul sito web.</string>
     <string name="device_name_info_second_paragraph">Puoi avere fino a 5 dispositivi registrati su un account Mullvad.</string>
@@ -155,6 +157,7 @@
     <string name="enable_anyway">Abilita comunque</string>
     <string name="enable_custom_dns">Usa un server DNS personalizzato</string>
     <string name="enable_direct_only">Abilita %1$s</string>
+    <string name="enable_ipv6">In-tunnel IPv6</string>
     <string name="enable_method">Abilita metodo</string>
     <string name="encrypted_dns_proxy_info_message_part1">Con il metodo \"Proxy DNS crittografato\", l\'app comunicherà con la nostra API Mullvad tramite un indirizzo proxy. Lo fa recuperando un indirizzo da un server DNS over HTTPS (DoH) e quindi utilizzandolo per raggiungere i nostri server API.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Se non sei connesso alla nostra VPN, il proxy DNS crittografato utilizzerà il tuo IP non VPN durante la connessione. I server DoH sono ospitati da uno dei seguenti provider: Quad9 o CloudFlare.</string>
@@ -251,6 +254,7 @@
     <string name="no_wireguard_key">Manca una chiave WireGuard valida. Gestisci le chiavi da Impostazioni avanzate.</string>
     <string name="not_found">Non trovato</string>
     <string name="number_of_providers">Fornitori: %1$d</string>
+    <string name="obfuscation_info">L\'offuscamento nasconde il traffico WireGuard all\'interno di un altro protocollo. Può essere utilizzato per aggirare la censura e altri tipi di filtraggio, in cui una semplice connessione WireGuard verrebbe bloccata.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Attenzione: Shadowsocks può aumentare il consumo della batteria a seconda dell\'utilizzo dei dati, ad esempio durante lo streaming di un video.</string>
     <string name="obfuscation_title">Offuscamento WireGuard</string>
     <string name="off">Off</string>
@@ -366,6 +370,8 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Aggiorna server DNS</string>
     <string name="update_list_name">Aggiorna nome elenco</string>
+    <string name="uri_browser_app_not_found">Nessuna app browser installata, impossibile aprire il link</string>
+    <string name="uri_market_app_not_found">Nessun app store Android installato, impossibile aprire il link</string>
     <string name="use_method">Usa metodo</string>
     <string name="user_email_hint">La tua e-mail (opzionale)</string>
     <string name="user_message_hint">Per consentirci di assisterti meglio, scrivi in ​​inglese o in svedese e indica da quale Paese ti stai connettendo.</string>
@@ -378,6 +384,7 @@
     <string name="voucher_already_used">Il codice voucher è già stato utilizzato.</string>
     <string name="voucher_is_account_number">Sembra che tu abbia inserito un numero di account anziché un codice voucher. Se desideri modificare l\'account attivo, effettua prima la disconnessione.</string>
     <string name="voucher_success_title">Il voucher è stato riscattato correttamente.</string>
+    <string name="vpn_permission_denied_error">L\'autorizzazione VPN è stata negata o un\'altra app ha abilitato \"VPN sempre attiva\"</string>
     <string name="vpn_permission_error_notification_message">Premi Connetti per richiedere l\'autorizzazione VPN</string>
     <string name="vpn_permission_error_notification_title">Errore di autorizzazione VPN</string>
     <string name="we_will_look_into_this">Verificheremo.</string>
