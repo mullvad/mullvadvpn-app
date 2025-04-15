@@ -164,14 +164,12 @@ pub extern "C" fn mullvad_api_init_new(
 
     // TODO: Add a wrapper around the iOS AddressCache in SwiftAccessMethodResolver
     // So that it can be used in the `default_connection_mode` implementation
-    let method_resolver = unsafe {
-        SwiftAccessMethodResolver::new(
-            endpoint.clone(),
-            domain,
-            encrypted_dns_proxy_state,
-            *bridge_provider.into_rust_context(),
-        )
-    };
+    let method_resolver = SwiftAccessMethodResolver::new(
+        endpoint.clone(),
+        domain,
+        encrypted_dns_proxy_state,
+        bridge_provider,
+    );
 
     let api_context = tokio_handle.clone().block_on(async move {
         let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
