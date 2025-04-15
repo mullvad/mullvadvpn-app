@@ -245,6 +245,15 @@ pub async fn test_detect_app_removal(
     rpc: ServiceClient,
     _mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    let uninstalled_device = mullvad_client
+        .get_device()
+        .await
+        .context("failed to get device data")?
+        .logged_in()
+        .context("Client is not logged in to a valid account")?
+        .device
+        .id;
+
     rpc.exec("/bin/rm", ["-rf", "/Applications/Mullvad VPN.app"])
         .await
         .context("Failed to delete Mullvad app")?;
@@ -262,6 +271,12 @@ pub async fn test_detect_app_removal(
                 rpc.mullvad_daemon_get_status().await?,
                 ServiceStatus::NotRunning,
                 "daemon should be stopped after cleanup"
+            );
+
+            assert!(
+                !devices.iter().any(|device| device.id == uninstalled_device),
+                "device id {} still exists after uninstall",
+                uninstalled_device,
             );
 
             return Ok(());
