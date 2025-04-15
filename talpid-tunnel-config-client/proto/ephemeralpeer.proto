@@ -112,7 +112,7 @@ message EphemeralPeerResponseV1 {
   // data channel will have uniformly distributed entropy anyway, thanks to the HKDF.
   //
   // KEMs that produce shared secrets of other lengths than 32 bytes, should hash the shared
-  // secret with sha256 to generate the 32 bytes used in the the XOR step.
+  // secret with sha256 to generate the 32 bytes used in the XOR step.
   //
   // Mixing with XOR (A = B ^ C) is fine since nothing about A is revealed even if one of B or C
   // is known. Both B *and* C must be known to compute any bit in A. This means all involved

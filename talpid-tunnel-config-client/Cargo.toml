@@ -25,6 +25,9 @@ classic-mceliece-rust = { version = "2.0.0", features = [
 ] }
 
 ml-kem = { version = "0.2.1", features = ["zeroize"] }
+pqcrypto-traits = "0.3.5"
+pqcrypto-hqc = { version = "0.2.1", default-features = false }
+sha2 = { workspace = true }
 zeroize = "1.5.7"
 
 [target.'cfg(unix)'.dependencies]
