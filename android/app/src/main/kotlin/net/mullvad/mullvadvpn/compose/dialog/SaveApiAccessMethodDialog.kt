@@ -106,7 +106,9 @@ fun SaveApiAccessMethodDialog(
                     )
             }
         },
-        title = { Text(text = state.text(), style = MaterialTheme.typography.headlineSmall) },
+        title = {
+            Text(text = state.descriptionText(), style = MaterialTheme.typography.headlineSmall)
+        },
         onDismissRequest = { /*Should not be able to dismiss*/ },
         confirmButton = {
             PrimaryButton(
@@ -134,7 +136,7 @@ fun SaveApiAccessMethodDialog(
 }
 
 @Composable
-private fun SaveApiAccessMethodUiState.text() =
+private fun SaveApiAccessMethodUiState.descriptionText() =
     stringResource(
         id =
             when (testingState) {

@@ -46,6 +46,7 @@ import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.state.DaitaUiState
 import net.mullvad.mullvadvpn.compose.test.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -78,16 +79,13 @@ private fun PreviewDaitaScreen() {
 fun SharedTransitionScope.Daita(
     navigator: DestinationsNavigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    daitaConfirmationDialogResult: ResultRecipient<DaitaDirectOnlyConfirmationDestination, Boolean>,
+    daitaConfirmationDialogResult:
+        ResultRecipient<DaitaDirectOnlyConfirmationDestination, Confirmed>,
 ) {
     val viewModel = koinViewModel<DaitaViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    daitaConfirmationDialogResult.OnNavResultValue {
-        if (it) {
-            viewModel.setDirectOnly(true)
-        }
-    }
+    daitaConfirmationDialogResult.OnNavResultValue { viewModel.setDirectOnly(true) }
 
     DaitaScreen(
         state = state,
