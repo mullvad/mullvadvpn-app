@@ -610,17 +610,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "98cc8fbded0c607b7ba9dd60cd98df59af97e84d24e49c8557331cfc26d301ce"
 
 [[package]]
-name = "classic-mceliece-rust"
-version = "2.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45ce62f72a15a9071f83c5084bdf0af4e8cbf31431e79eb4a5509a2f7fe7fe5d"
-dependencies = [
- "rand 0.8.5",
- "sha3",
- "zeroize",
-]
-
-[[package]]
 name = "colorchoice"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5207,7 +5196,6 @@ dependencies = [
 name = "talpid-tunnel-config-client"
 version = "0.0.0"
 dependencies = [
- "classic-mceliece-rust",
  "hyper-util",
  "libc",
  "log",
