@@ -21,7 +21,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [Unreleased]
+## [android/2025.2-beta2] - 2025-04-15
+### Fixed
+- Fix focus on TV devices when returning to connect screen from select location.
+
+
+## [android/2025.2-beta1] - 2025-04-04
 ### Added
 - Prompt password manager to store new account number on account creation.
 - Add the ability to force the ip version used to connect to a relay.
