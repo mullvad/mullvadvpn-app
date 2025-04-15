@@ -25,19 +25,15 @@ use tokio::task::JoinHandle;
 /// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
 /// by calling `mullvad_api_init_new`.
 ///
-/// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
-/// safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
-/// type is intended to be used.
+/// This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+/// object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+/// when completion finishes (in completion.finish).
 ///
 /// the string properties of `SwiftProblemReportRequest` must be pointers to a null terminated strings.
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-///
-/// Ownership of the `CompletionCookie` is transferred to the Rust side upon calling this function.
-/// After this call, the pointer must be considered invalid and must not be reused or accessed in any way.
-/// Calling this function again with the same cookie, either sequentially or concurrently, results in undefined behavior.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_api_send_problem_report(
+pub unsafe extern "C" fn mullvad_ios_send_problem_report(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
@@ -66,7 +62,7 @@ pub unsafe extern "C" fn mullvad_api_send_problem_report(
     };
 
     let task: JoinHandle<()> = tokio_handle.spawn(async move {
-        match mullvad_api_send_problem_report_inner(
+        match mullvad_ios_send_problem_report_inner(
             api_context.rest_handle(),
             retry_strategy,
             problem_report_request,
@@ -84,7 +80,7 @@ pub unsafe extern "C" fn mullvad_api_send_problem_report(
     RequestCancelHandle::new(task, completion_handler.clone()).into_swift()
 }
 
-async fn mullvad_api_send_problem_report_inner(
+async fn mullvad_ios_send_problem_report_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     problem_report_request: ProblemReportRequest,
@@ -175,7 +171,6 @@ impl Map {
     ///
     /// # Safety
     ///
-    /// `self` must be a valid, exclusive pointer to `Map`, initialized
     /// - `key` must be a null-terminated UTF-8 string, containing LF-separated machines.
     /// - `value` must be a valid pointer to some valid and aligned pointer-sized memory.
     unsafe fn add(&mut self, key: *const c_char, value: *const c_char) -> bool {
@@ -222,7 +217,7 @@ pub extern "C" fn swift_problem_report_metadata_new() -> ProblemReportMetadata {
 ///
 /// # Safety
 ///
-/// `self` must be a valid, exclusive pointer to `ProblemReportMetadata`, initialized
+/// `map.inner` must be non-null and point to a valid
 /// - `key` must be a null-terminated UTF-8 string, containing LF-separated machines.
 /// - `value` must be a valid pointer to some valid and aligned pointer-sized memory.
 #[unsafe(no_mangle)]
@@ -242,7 +237,7 @@ pub unsafe extern "C" fn swift_problem_report_metadata_add(
 }
 
 #[no_mangle]
-pub extern "C" fn swift_problem_report_metadata_free(mut map: ProblemReportMetadata) {
+pub extern "C" fn swift_problem_report_metadata_free(map: ProblemReportMetadata) {
     if !map.inner.is_null() {
         // SAFETY: `map.inner` must be properly aligned and non-null
         // The caller must guarantee that `map.inner` is not null and has not been freed

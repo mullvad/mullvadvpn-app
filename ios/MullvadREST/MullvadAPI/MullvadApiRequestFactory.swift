@@ -26,14 +26,14 @@ public struct MullvadApiRequestFactory: Sendable {
 
             switch request {
             case let .getAddressList(retryStrategy):
-                return MullvadApiCancellable(handle: mullvad_api_get_addresses(
+                return MullvadApiCancellable(handle: mullvad_ios_get_addresses(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy()
                 ))
 
             case let .getRelayList(retryStrategy, etag: etag):
-                return MullvadApiCancellable(handle: mullvad_api_get_relays(
+                return MullvadApiCancellable(handle: mullvad_ios_get_relays(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy(),
@@ -41,27 +41,27 @@ public struct MullvadApiRequestFactory: Sendable {
                 ))
             case let .sendProblemReport(retryStrategy, problemReportRequest):
                 let rustRequest = RustProblemReportRequest(from: problemReportRequest)
-                return MullvadApiCancellable(handle: mullvad_api_send_problem_report(
+                return MullvadApiCancellable(handle: mullvad_ios_send_problem_report(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy(),
                     rustRequest.toRust()
                 ))
             case let .getAccount(retryStrategy, accountNumber: accountNumber):
-                return MullvadApiCancellable(handle: mullvad_api_get_account(
+                return MullvadApiCancellable(handle: mullvad_ios_get_account(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy(),
                     accountNumber
                 ))
             case let .createAccount(retryStrategy):
-                return MullvadApiCancellable(handle: mullvad_api_create_account(
+                return MullvadApiCancellable(handle: mullvad_ios_create_account(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy()
                 ))
             case let .deleteAccount(retryStrategy, accountNumber: accountNumber):
-                return MullvadApiCancellable(handle: mullvad_api_delete_account(
+                return MullvadApiCancellable(handle: mullvad_ios_delete_account(
                     apiContext.context,
                     rawCompletionPointer,
                     retryStrategy.toRustStrategy(),

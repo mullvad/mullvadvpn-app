@@ -28,7 +28,7 @@ use super::{
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
-pub unsafe extern "C" fn mullvad_api_get_account(
+pub unsafe extern "C" fn mullvad_ios_get_account(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
@@ -51,7 +51,7 @@ pub unsafe extern "C" fn mullvad_api_get_account(
 
     let completion = completion_handler.clone();
     let task = tokio_handle.clone().spawn(async move {
-        match mullvad_api_get_account_inner(
+        match mullvad_ios_get_account_inner(
             api_context.rest_handle(),
             retry_strategy,
             account_number,
@@ -80,7 +80,7 @@ pub unsafe extern "C" fn mullvad_api_get_account(
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
-pub unsafe extern "C" fn mullvad_api_create_account(
+pub unsafe extern "C" fn mullvad_ios_create_account(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
@@ -97,7 +97,7 @@ pub unsafe extern "C" fn mullvad_api_create_account(
 
     let completion = completion_handler.clone();
     let task = tokio_handle.clone().spawn(async move {
-        match mullvad_api_create_account_inner(api_context.rest_handle(), retry_strategy).await {
+        match mullvad_ios_create_account_inner(api_context.rest_handle(), retry_strategy).await {
             Ok(response) => completion.finish(response),
             Err(err) => {
                 log::error!("{err:?}");
@@ -122,7 +122,7 @@ pub unsafe extern "C" fn mullvad_api_create_account(
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
-pub unsafe extern "C" fn mullvad_api_delete_account(
+pub unsafe extern "C" fn mullvad_ios_delete_account(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
@@ -145,7 +145,7 @@ pub unsafe extern "C" fn mullvad_api_delete_account(
 
     let completion = completion_handler.clone();
     let task = tokio_handle.clone().spawn(async move {
-        match mullvad_api_delete_account_inner(
+        match mullvad_ios_delete_account_inner(
             api_context.rest_handle(),
             retry_strategy,
             account_number,
@@ -163,7 +163,7 @@ pub unsafe extern "C" fn mullvad_api_delete_account(
     RequestCancelHandle::new(task, completion_handler.clone()).into_swift()
 }
 
-async fn mullvad_api_get_account_inner(
+async fn mullvad_ios_get_account_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
@@ -174,7 +174,7 @@ async fn mullvad_api_get_account_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-async fn mullvad_api_create_account_inner(
+async fn mullvad_ios_create_account_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
@@ -184,7 +184,7 @@ async fn mullvad_api_create_account_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-async fn mullvad_api_delete_account_inner(
+async fn mullvad_ios_delete_account_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
