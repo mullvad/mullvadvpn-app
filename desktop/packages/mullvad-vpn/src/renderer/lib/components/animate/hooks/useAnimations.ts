@@ -1,10 +1,12 @@
 import { css, RuleSet } from 'styled-components';
 
+import { useAnimateContext } from '../AnimateContext';
 import { animations } from '../animations';
-import { Animation } from '../types';
 import { createAnimationDeclaration } from '../utils';
 
-export const useAnimations = (values: Animation[]) => {
+export const useAnimations = () => {
+  const { animations: values } = useAnimateContext();
+
   const inAnimations: Array<{ name: string; rule: RuleSet }> = [];
   const outAnimations: Array<{ name: string; rule: RuleSet }> = [];
 
