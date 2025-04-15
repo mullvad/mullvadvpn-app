@@ -22,9 +22,14 @@ exec > $LOG_DIR/preinstall.log 2>&1
 
 echo "Running preinstall at $(date)"
 
-# We need to run this is after extracting the new files and running "mullvad" in postinstall rather
-# than in preinstall.
-cp "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" "$TMPDIR/" || echo "Failed to copy mullvad-setup"
+# Stop the existing daemon
+"$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" prepare-restart &>/dev/null || \
+    echo "Failed to send 'prepare-restart' command to old mullvad-daemon"
+
+# NOTE: This path must be kept in sync with the path defined
+# in mullvad-daemon/src/macos_launch_daemon.rs and postinstall
+DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
+launchctl unload -w $DAEMON_PLIST_PATH || echo "Failed to unload old mullvad-daemon"
 
 # Migrate cache files from <=2020.8-beta2 paths
 OLD_CACHE_DIR="/var/root/Library/Caches/mullvad-vpn"
