@@ -265,8 +265,6 @@ pub async fn test_detect_app_removal(
         let app_traces = rpc.find_mullvad_app_traces().await?;
 
         if app_traces.is_empty() {
-            tokio::time::sleep(Duration::from_secs(5)).await;
-
             assert_eq!(
                 rpc.mullvad_daemon_get_status().await?,
                 ServiceStatus::NotRunning,
