@@ -137,3 +137,7 @@ insta = { version = "1.42", features = ["yaml"] }
 opt-level = "s"
 lto = true
 strip = true
+
+# Selectively optimize packages where we know it makes a difference
+[profile.release.package."pqcrypto-hqc"]
+opt-level = 3
