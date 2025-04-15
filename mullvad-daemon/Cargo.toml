@@ -67,6 +67,7 @@ talpid-dbus = { path = "../talpid-dbus" }
 
 [target.'cfg(target_os="macos")'.dependencies]
 objc2 = { version = "0.5.2", features = ["exception"] }
+notify = "8.0.0"
 
 [target.'cfg(windows)'.dependencies]
 ctrlc = "3.0"
