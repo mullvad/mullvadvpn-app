@@ -35,7 +35,13 @@ impl SwiftApiContext {
         SwiftApiContext(Arc::into_raw(Arc::new(context)))
     }
 
-    pub unsafe fn into_rust_context(self) -> Arc<ApiContext> {
+    /// Extracts an `ApiContext` from `self`
+    ///
+    /// # Safety
+    ///
+    /// The `ApiContext` extracted is meant to live as long as the process it's used in.
+    /// This should always be safe to call.
+    pub unsafe fn rust_context(self) -> Arc<ApiContext> {
         Arc::increment_strong_count(self.0);
         Arc::from_raw(self.0)
     }
@@ -51,6 +57,10 @@ impl ApiContext {
         self.rest_client.clone()
     }
 
+    /// Sets the access method referenced by `id` as currently in use.
+    ///
+    /// This function will block the current thread until it is complete,
+    /// make sure to not call this from a UI Thread if possible.
     pub fn use_access_method(&self, id: Id) {
         _ = self
             ._api_client
@@ -58,6 +68,10 @@ impl ApiContext {
             .block_on(async { self.access_mode_handler.use_access_method(id).await });
     }
 
+    /// Replaces the current set of access methods with `access_methods.
+    ///
+    /// This function will block the current thread until it is complete,
+    /// make sure to not call this from a UI Thread if possible.
     pub fn update_access_methods(&self, access_methods: Settings) {
         _ = self._api_client.handle().block_on(async {
             self.access_mode_handler
@@ -75,7 +89,7 @@ pub unsafe extern "C" fn mullvad_api_update_access_methods(
 ) {
     let access_methods = settings_wrapper.into_rust_context().settings;
     api_context
-        .into_rust_context()
+        .rust_context()
         .update_access_methods(access_methods);
 }
 
@@ -89,12 +103,15 @@ pub unsafe extern "C" fn mullvad_api_use_access_method(
     api_context: SwiftApiContext,
     access_method_id: *const c_char,
 ) {
-    let id = match Id::from_string(unsafe { convert_c_string(access_method_id) }) {
-        Some(id) => id,
-        None => return,
-    };
+    // SAFETY: See notes for `rust_context`
+    let api_context = unsafe { api_context.rust_context() };
+    // SAFETY: See Safety notes for `convert_c_string`
+    let id = unsafe { convert_c_string(access_method_id) };
 
-    unsafe { api_context.into_rust_context().use_access_method(id) };
+    let Some(id) = Id::from_string(id) else {
+        return;
+    };
+    api_context.use_access_method(id);
 }
 
 /// # Safety
@@ -117,11 +134,16 @@ pub extern "C" fn mullvad_api_init_new(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
 ) -> SwiftApiContext {
-    let host = unsafe { convert_c_string(host) };
-    let address = unsafe { convert_c_string(address) };
-    let domain = unsafe { convert_c_string(domain) };
+    // Safety: See notes for `convert_c_string`
+    let (host, address, domain) = unsafe {
+        (
+            convert_c_string(host),
+            convert_c_string(address),
+            convert_c_string(domain),
+        )
+    };
 
-    // The iOS client provides a default different endpoint based on its configuration
+    // The iOS client provides a different default endpoint based on its configuration
     // Debug and Release builds use the standard endpoints
     // Staging builds will use the staging endpoint
     let endpoint = ApiEndpoint {
@@ -135,6 +157,7 @@ pub extern "C" fn mullvad_api_init_new(
 
     let tokio_handle = crate::mullvad_ios_runtime().unwrap();
 
+    // SAFETY: See notes for `into_rust_context`
     let settings_context = unsafe { settings_provider.into_rust_context() };
     let access_method_settings = settings_context.convert_access_method().unwrap();
     let encrypted_dns_proxy_state = EncryptedDnsProxyState::default();
