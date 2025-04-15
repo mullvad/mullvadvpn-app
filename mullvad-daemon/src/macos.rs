@@ -76,7 +76,7 @@ pub async fn handle_app_bundle_removal(
         .context("Failed to start filesystem watcher")?;
 
     fs_watcher
-        .watch(Path::new(APP_PATH), RecursiveMode::NonRecursive)
+        .watch(Path::new(APP_PATH), RecursiveMode::Recursive)
         .context(anyhow!("Failed to watch {APP_PATH}"))?;
 
     let _file_was_deleted = fs_notify_rx
