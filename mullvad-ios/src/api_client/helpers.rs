@@ -12,12 +12,12 @@ use talpid_types::net::proxy::{Shadowsocks, Socks5Remote, SocksAuth};
 pub unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<IpAddr> {
     match addr_len {
         4 => {
-            // SAFETY: addr pointer must point to at least addr_len bytes
+            // SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
             let bytes = unsafe { std::slice::from_raw_parts(addr, addr_len) };
             Some(Ipv4Addr::new(bytes[0], bytes[1], bytes[2], bytes[3]).into())
         }
         16 => {
-            // SAFETY: addr pointer must point to at least addr_len bytes
+            // SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
             let bytes = unsafe { std::slice::from_raw_parts(addr, addr_len) };
             let mut addr_arr = [0u8; 16];
             addr_arr.as_mut_slice().copy_from_slice(bytes);
@@ -95,7 +95,7 @@ pub struct RustAccessMethodSettingVectorContext {
 }
 
 impl RustAccessMethodSettingVectorContext {
-    pub unsafe fn push(&mut self, setting: AccessMethodSetting) {
+    pub fn push(&mut self, setting: AccessMethodSetting) {
         self.vector.push(setting);
     }
 }
@@ -134,7 +134,7 @@ pub unsafe extern "C" fn vector_add_access_method_setting(
 ///
 /// # SAFETY
 /// `address` must be a pointer to at least `address_len` bytes.
-/// `c_username` and `c_password` must be a pointer to null terminated strings
+/// `c_username` and `c_password` must be pointers to null terminated strings, or null
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn convert_socks5(
     address: *const u8,
@@ -149,15 +149,15 @@ pub unsafe extern "C" fn convert_socks5(
         return std::ptr::null();
     };
 
-    let mut auth: Option<SocksAuth> = None;
-    if !c_username.is_null() && !c_password.is_null() {
-        let username = convert_c_string(c_username);
-        let password = convert_c_string(c_password);
-        auth = match SocksAuth::new(username, password) {
-            Ok(auth) => Some(auth),
-            Err(_) => None,
+    let auth = {
+        if c_username.is_null() || c_password.is_null() {
+            None
+        } else {
+            let username = convert_c_string(c_username);
+            let password = convert_c_string(c_password);
+            SocksAuth::new(username, password).ok()
         }
-    }
+    };
 
     let socks5_configuration = Socks5Remote { endpoint, auth };
     Box::into_raw(Box::new(socks5_configuration)) as *mut c_void

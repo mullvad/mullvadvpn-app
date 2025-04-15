@@ -38,7 +38,7 @@ pub unsafe extern "C" fn mullvad_api_get_addresses(
         return SwiftCancelHandle::empty();
     };
 
-    let api_context = api_context.into_rust_context();
+    let api_context = api_context.rust_context();
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
     let completion = completion_handler.clone();
@@ -81,7 +81,7 @@ pub unsafe extern "C" fn mullvad_api_get_relays(
         return SwiftCancelHandle::empty();
     };
 
-    let api_context = api_context.into_rust_context();
+    let api_context = api_context.rust_context();
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
     let mut maybe_etag: Option<String> = None;

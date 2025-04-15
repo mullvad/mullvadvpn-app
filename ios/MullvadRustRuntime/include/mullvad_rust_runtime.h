@@ -334,7 +334,7 @@ void vector_add_access_method_setting(struct RustAccessMethodSettingVector vecto
  *
  * # SAFETY
  * `address` must be a pointer to at least `address_len` bytes.
- * `c_username` and `c_password` must be a pointer to null terminated strings
+ * `c_username` and `c_password` must be pointers to null terminated strings, or null
  */
 const void *convert_socks5(const uint8_t *address,
                            uintptr_t address_len,

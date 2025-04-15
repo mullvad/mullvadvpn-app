@@ -24,6 +24,7 @@ impl SwiftShadowsocksLoaderWrapper {
 
 // SAFETY: The context stored inside `SwiftShadowsocksLoaderWrapper` points to an object that is guaranteed to be thread safe
 unsafe impl Sync for SwiftShadowsocksLoaderWrapper {}
+// SAFETY: The context stored inside `SwiftShadowsocksLoaderWrapper` points to an object that is guaranteed to be Sendable
 unsafe impl Send for SwiftShadowsocksLoaderWrapper {}
 
 #[derive(Debug)]
@@ -31,7 +32,9 @@ pub struct SwiftShadowsocksLoaderWrapperContext {
     shadowsocks_loader: *const c_void,
 }
 
+// SAFETY: `shadowsocks_loader` inside the `SwiftShadowsocksLoaderWrapperContext ` points to an object that is guaranteed to be thread safe
 unsafe impl Sync for SwiftShadowsocksLoaderWrapperContext {}
+// SAFETY: `shadowsocks_loader` inside the `SwiftShadowsocksLoaderWrapperContext ` points to an object that is guaranteed to be Sendable
 unsafe impl Send for SwiftShadowsocksLoaderWrapperContext {}
 
 impl SwiftShadowsocksLoaderWrapperContext {
