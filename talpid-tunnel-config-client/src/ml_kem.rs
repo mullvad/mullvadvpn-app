@@ -4,7 +4,7 @@ use ml_kem::{Ciphertext, EncodedSizeUser, KemCore, MlKem1024, MlKem1024Params};
 
 /// Use the strongest variant of ML-KEM. It is fast and the keys are small, so there is no practical
 /// benefit of going with anything lower. The servers also only supports the strongest variant.
-pub const ALGORITHM_NAME: &str = "ML-KEM-1024";
+const ALGORITHM_NAME: &str = "ML-KEM-1024";
 
 /// The number of bytes in an ML-KEM 1024 ciphertext.
 const CIPHERTEXT_LEN: usize = <MlKem1024 as KemCore>::CiphertextSize::USIZE;
@@ -22,6 +22,10 @@ impl Keypair {
         self.encapsulation_key.as_bytes().as_slice().to_vec()
     }
 
+    pub fn algorithm_name(&self) -> &'static str {
+        ALGORITHM_NAME
+    }
+
     /// Decapsulates a shared secret that was encapsulated to our encapsulation key.
     ///
     // Always inline in order to try to avoid potential copies of `shared_secret` to multiple places
@@ -36,7 +40,7 @@ impl Keypair {
         let ciphertext_array =
             <Ciphertext<MlKem1024>>::try_from(ciphertext_slice).map_err(|_| {
                 super::Error::InvalidCiphertextLength {
-                    algorithm: ALGORITHM_NAME,
+                    algorithm: self.algorithm_name(),
                     actual: ciphertext_slice.len(),
                     expected: CIPHERTEXT_LEN,
                 }
