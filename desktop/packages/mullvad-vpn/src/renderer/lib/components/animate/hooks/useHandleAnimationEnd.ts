@@ -1,19 +1,23 @@
-import React from 'react';
+import { useCallback, useRef } from 'react';
 
-import { AnimateProps } from '../Animate';
 import { useAnimateContext } from '../AnimateContext';
 
-export const useHandleAnimationEnd = (onAnimationEnd: AnimateProps['onAnimationEnd']) => {
-  const { present, show, setShow } = useAnimateContext();
-  return React.useCallback(
-    (e: React.AnimationEvent<HTMLDivElement>) => {
-      if (!present && show) {
-        setShow(false);
-      }
-      if (onAnimationEnd) {
-        onAnimationEnd(e);
-      }
-    },
-    [onAnimationEnd, present, setShow, show],
-  );
+export const useHandleAnimationEnd = () => {
+  const { animations, present, setAnimate, setAnimatePresent } = useAnimateContext();
+  const animationsCount = animations.length;
+  const animationsFinishedCount = useRef(0);
+
+  const handleAnimationEnd = useCallback(() => {
+    const nextAnimationsFinishedCount = animationsFinishedCount.current + 1;
+
+    if (nextAnimationsFinishedCount === animationsCount) {
+      animationsFinishedCount.current = 0;
+      setAnimate(false);
+      setAnimatePresent(present);
+    } else {
+      animationsFinishedCount.current = nextAnimationsFinishedCount;
+    }
+  }, [animationsCount, animationsFinishedCount, present, setAnimate, setAnimatePresent]);
+
+  return handleAnimationEnd;
 };
