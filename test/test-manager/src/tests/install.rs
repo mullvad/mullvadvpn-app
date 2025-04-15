@@ -237,6 +237,46 @@ pub async fn test_uninstall_app(
     Ok(())
 }
 
+/// Test that the Mullvad daemon cleans itself up when deleted by being dragged and dropped into the
+/// bin.
+#[test_function(priority = -160, target_os = "macos")]
+pub async fn test_detect_app_removal(
+    _ctx: TestContext,
+    rpc: ServiceClient,
+    _mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    rpc.exec("/bin/rm", ["-f", "/Applications/Mullvad VPN.app"])
+        .await
+        .context("Failed to delete Mullvad app")?;
+
+    let mut attempt = 0;
+    const MAX_ATTEMPTS: usize = 30;
+
+    loop {
+        let app_traces = rpc.find_mullvad_app_traces().await?;
+
+        if app_traces.is_empty() {
+            tokio::time::sleep(Duration::from_secs(5)).await;
+
+            assert_eq!(
+                rpc.mullvad_daemon_get_status().await?,
+                ServiceStatus::NotRunning,
+                "daemon should be stopped after cleanup"
+            );
+
+            // Done
+            return Ok(());
+        }
+
+        attempt += 1;
+        if attempt == MAX_ATTEMPTS {
+            bail!("Failed to detect removal of app");
+        }
+
+        tokio::time::sleep(Duration::from_secs(1)).await;
+    }
+}
+
 /// Install the multiple times starting from a connected state with auto-connect
 /// disabled, failing if the app starts in a disconnected state.
 ///
