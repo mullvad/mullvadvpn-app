@@ -8,7 +8,7 @@ import { Animation } from './types';
 
 type AnimateBaseProps = {
   initial?: boolean;
-  present: boolean;
+  present?: boolean;
   duration?: React.CSSProperties['animationDuration'];
   timingFunction?: React.CSSProperties['animationTimingFunction'];
   direction?: React.CSSProperties['animationDirection'];
@@ -36,13 +36,12 @@ const StyledDiv = styled.div<
     return css`
       // If the user prefers reduced motion, visibility still needs
       // to be toggled, otherwise this is handled by animations
-      &&[data-is-present-animation='true'] {
-        display: none;
+      display: none;
 
-        &&[data-present='true'] {
-          display: block;
-        }
+      &&[data-present='true'] {
+        display: block;
       }
+
       @media (prefers-reduced-motion: no-preference) {
         &&[data-animate='true'] {
           --duration: ${$duration};
@@ -68,7 +67,7 @@ const StyledDiv = styled.div<
  * @param present - Whether element is present, i.e rendered or not.
  * @param animations - List of animations to apply.
  */
-export function Animate({ animations, initial, present, children, ...props }: AnimateProps) {
+export function Animate({ animations, initial, present = true, children, ...props }: AnimateProps) {
   return (
     <AnimateProvider animations={animations} initial={initial} present={present}>
       <AnimateImpl {...props}>{children}</AnimateImpl>
@@ -95,7 +94,6 @@ function AnimateImpl({
     <StyledDiv
       data-animate={animate}
       data-present={animatePresent}
-      data-is-present-animation={true}
       onAnimationEnd={handleAnimationEnd}
       $animations={animations}
       $duration={duration}
