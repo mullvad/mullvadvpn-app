@@ -9,18 +9,44 @@ on:
     # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
     - cron: '20 6 * * 1'
   workflow_dispatch:
+    inputs:
+      commit_hash:
+        type: string
+        required: false
 
 permissions: {}
 
 jobs:
+  set-up-env:
+    name: Setup commit hash
+    runs-on: ubuntu-latest
+    steps:
+      - id: hash
+        name: Set commit hash or default to github.sha
+        run: |
+          # If the input has a value, it is filled by that value; otherwise, use github.sha
+          if [ -n "${{ inputs.commit_hash }}" ]; then
+            echo "commit_hash=${{ inputs.commit_hash }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "commit_hash=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
+    outputs:
+      COMMIT_HASH: ${{ steps.hash.outputs.commit_hash }}
+
   build-fdroid-app:
     name: Build fdroid container
     runs-on: ubuntu-latest
+    needs: set-up-env
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: true
+          ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
+
+      - name: Fetch submodules and tags
+        run: |
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+          git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
       - name: Build app
         run: ./building/containerized-build.sh android --fdroid
@@ -36,6 +62,7 @@ jobs:
   build-fdroid-app-server:
     name: Build fdroid with fdroid server
     runs-on: ubuntu-latest
+    needs: set-up-env
     steps:
       - name: Install fdroidserver
         run: |
@@ -65,12 +92,12 @@ jobs:
         run: |
           mkdir metadata
           cp app-repo/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
-          sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
+          sed -i 's/commit-hash/${{ needs.set-up-env.outputs.COMMIT_HASH }}/' metadata/net.mullvad.mullvadvpn.yml
 
       - name: Build app
         run: |
           export PATH=$PATH:/opt/gradle/gradle-8.13/bin
-          fdroid build net.mullvad.mullvadvpn:1 -v
+          fdroid build net.mullvad.mullvadvpn:1
 
       - name: Upload apks
         uses: actions/upload-artifact@v4
