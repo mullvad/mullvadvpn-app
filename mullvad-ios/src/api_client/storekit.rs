@@ -42,6 +42,8 @@ pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
     };
 
     let api_context = api_context.into_rust_context();
+
+    // SAFETY: See SwiftRetryStrategy::into_rust.
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
     let completion = completion_handler.clone();
@@ -120,6 +122,7 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
     };
 
     let api_context = api_context.into_rust_context();
+    // SAFETY: See SwiftRetryStrategy::into_rust.
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
     let completion = completion_handler.clone();

@@ -48,6 +48,7 @@ pub unsafe extern "C" fn mullvad_ios_send_problem_report(
     };
 
     let api_context = api_context.into_rust_context();
+    // SAFETY: See SwiftRetryStrategy::into_rust.
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
     let result = unsafe { ProblemReportRequest::from_swift_parameters(request) };

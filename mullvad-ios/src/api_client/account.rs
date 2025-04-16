@@ -42,6 +42,7 @@ pub unsafe extern "C" fn mullvad_ios_get_account(
     };
 
     let api_context = api_context.into_rust_context();
+    // SAFETY: See SwiftRetryStrategy::into_rust.
     let retry_strategy = unsafe { retry_strategy.into_rust() };
     // SAFETY: See param documentation for `account_number`.
     let account_number = unsafe { CStr::from_ptr(account_number.cast()) }
@@ -93,6 +94,7 @@ pub unsafe extern "C" fn mullvad_ios_create_account(
     };
 
     let api_context = api_context.into_rust_context();
+    // SAFETY: See SwiftRetryStrategy::into_rust.
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
     let completion = completion_handler.clone();
@@ -136,6 +138,7 @@ pub unsafe extern "C" fn mullvad_ios_delete_account(
     };
 
     let api_context = api_context.into_rust_context();
+    // SAFETY: See SwiftRetryStrategy::into_rust.
     let retry_strategy = unsafe { retry_strategy.into_rust() };
     // SAFETY: See param documentation for `account_number`.
     let account_number = unsafe { CStr::from_ptr(account_number.cast()) }
