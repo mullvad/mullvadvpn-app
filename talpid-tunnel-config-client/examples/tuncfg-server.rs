@@ -43,10 +43,8 @@ impl EphemeralPeer for EphemeralPeerImpl {
             for kem_pubkey in post_quantum.kem_pubkeys {
                 println!("\tKEM algorithm: {}", kem_pubkey.algorithm_name);
                 let (ciphertext, shared_secret) = match kem_pubkey.algorithm_name.as_str() {
-                    "Classic-McEliece-460896f-round3" => {
-                        encapsulate_classic_mceliece(kem_pubkey.key_data.as_slice(), &mut rng)
-                    }
                     "ML-KEM-1024" => encapsulate_ml_kem(kem_pubkey.key_data.as_slice(), &mut rng),
+                    "HQC-256" => encapsulate_hqc(kem_pubkey.key_data.as_slice()),
                     name => panic!("Unsupported KEM algorithm: {name}"),
                 };
 
@@ -77,21 +75,6 @@ impl EphemeralPeer for EphemeralPeerImpl {
 /// Generate a random shared secret and encapsulate it with the given
 /// public key/encapsulation key. Returns the ciphertext to return
 /// to the owner of the public key, along with the shared secret.
-fn encapsulate_classic_mceliece<R: RngCore + CryptoRng>(
-    public_key: &[u8],
-    rng: &mut R,
-) -> (Vec<u8>, [u8; 32]) {
-    use classic_mceliece_rust::{PublicKey, CRYPTO_PUBLICKEYBYTES};
-
-    let public_key_array = <[u8; CRYPTO_PUBLICKEYBYTES]>::try_from(public_key).unwrap();
-    let public_key = PublicKey::from(&public_key_array);
-    let (ciphertext, shared_secret) = classic_mceliece_rust::encapsulate_boxed(&public_key, rng);
-    (ciphertext.as_array().to_vec(), *shared_secret.as_array())
-}
-
-/// Generate a random shared secret and encapsulate it with the given
-/// public key/encapsulation key. Returns the ciphertext to return
-/// to the owner of the public key, along with the shared secret.
 fn encapsulate_ml_kem<R: RngCore + CryptoRng>(
     public_key: &[u8],
     rng: &mut R,
@@ -106,6 +89,20 @@ fn encapsulate_ml_kem<R: RngCore + CryptoRng>(
     let (ciphertext, shared_secret) = encapsulation_key.encapsulate(rng).unwrap();
 
     (ciphertext.to_vec(), shared_secret.into())
+}
+
+/// Generate a random shared secret and encapsulate it with the given
+/// public key/encapsulation key. Returns the ciphertext to return
+/// to the owner of the public key, along with the shared secret.
+fn encapsulate_hqc(public_key_data: &[u8]) -> (Vec<u8>, [u8; 32]) {
+    use pqcrypto_hqc::hqc256;
+    use pqcrypto_traits::kem::{Ciphertext, PublicKey, SharedSecret};
+
+    let public_key = hqc256::PublicKey::from_bytes(public_key_data).unwrap();
+    let (shared_secret, ciphertext) = hqc256::encapsulate(&public_key);
+
+    let shared_secret_array = <[u8; 32]>::try_from(shared_secret.as_bytes()).unwrap();
+    (ciphertext.as_bytes().to_vec(), shared_secret_array)
 }
 
 #[tokio::main]
