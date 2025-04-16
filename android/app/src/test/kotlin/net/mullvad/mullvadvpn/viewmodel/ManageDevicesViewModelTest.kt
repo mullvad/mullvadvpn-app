@@ -38,38 +38,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class ManageDevicesViewModelTest {
 
-    companion object {
-        private val testAccountNumber = AccountNumber("1234567890123456")
-        private val testDeviceId1 = DeviceId.fromString("12345678-1234-5678-1234-567812345678")
-        private val testDeviceId2 = DeviceId.fromString("87654321-1234-5678-1234-567812345678")
-        private val testDeviceId3 = DeviceId.fromString("87654321-4321-5678-1234-567812345678")
-
-        private val testDevice1 =
-            Device(
-                id = testDeviceId1,
-                name = "Device 1",
-                creationDate = ZonedDateTime.now().minusSeconds(100),
-            )
-
-        private val testDevice2 =
-            Device(
-                id = testDeviceId2,
-                name = "Device 2",
-                creationDate = ZonedDateTime.now().minusSeconds(200),
-            )
-
-        private val testDevice3 =
-            Device(
-                id = testDeviceId3,
-                name = "Device 3",
-                creationDate = ZonedDateTime.now().minusSeconds(300),
-            )
-        private val testDeviceList = listOf(testDevice1, testDevice2, testDevice3)
-
-        private val deviceState =
-            DeviceState.LoggedIn(accountNumber = testAccountNumber, device = testDevice2)
-    }
-
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockSavedStateHandle: SavedStateHandle = mockk(relaxed = true)
 
@@ -142,5 +110,37 @@ class ManageDevicesViewModelTest {
             assertFalse(devices[1].isCurrentDevice)
             assertFalse(devices[2].isCurrentDevice)
         }
+    }
+
+    companion object {
+        private val testAccountNumber = AccountNumber("1234567890123456")
+        private val testDeviceId1 = DeviceId.fromString("12345678-1234-5678-1234-567812345678")
+        private val testDeviceId2 = DeviceId.fromString("87654321-1234-5678-1234-567812345678")
+        private val testDeviceId3 = DeviceId.fromString("87654321-4321-5678-1234-567812345678")
+
+        private val testDevice1 =
+            Device(
+                id = testDeviceId1,
+                name = "Device 1",
+                creationDate = ZonedDateTime.now().minusSeconds(100),
+            )
+
+        private val testDevice2 =
+            Device(
+                id = testDeviceId2,
+                name = "Device 2",
+                creationDate = ZonedDateTime.now().minusSeconds(200),
+            )
+
+        private val testDevice3 =
+            Device(
+                id = testDeviceId3,
+                name = "Device 3",
+                creationDate = ZonedDateTime.now().minusSeconds(300),
+            )
+        private val testDeviceList = listOf(testDevice1, testDevice2, testDevice3)
+
+        private val deviceState =
+            DeviceState.LoggedIn(accountNumber = testAccountNumber, device = testDevice2)
     }
 }

@@ -55,30 +55,30 @@ class ManageDevicesViewModel(
 
     fun removeDevice(deviceIdToRemove: DeviceId) =
         deviceListViewModel.removeDevice(deviceIdToRemove)
+
+    private fun List<DeviceItemUiState>.toManageDevicesItemUiState(
+        currentDevice: Device
+    ): List<ManageDevicesItemUiState> {
+        // Put the current device first in the list, but otherwise keep the sort order.
+        val devices = toMutableList()
+        devices
+            .indexOfFirst { it.device == currentDevice }
+            .let { index ->
+                if (index > 0) {
+                    devices.add(0, devices.removeAt(index))
+                }
+            }
+
+        return devices.map {
+            ManageDevicesItemUiState(
+                device = it.device,
+                isLoading = it.isLoading,
+                isCurrentDevice = it.device == currentDevice,
+            )
+        }
+    }
 }
 
 sealed interface ManageDevicesSideEffect {
     data object FailedToRemoveDevice : ManageDevicesSideEffect
-}
-
-private fun List<DeviceItemUiState>.toManageDevicesItemUiState(
-    currentDevice: Device
-): List<ManageDevicesItemUiState> {
-    // Put the current device first in the list, but otherwise keep the sort order.
-    val devices = toMutableList()
-    devices
-        .indexOfFirst { it.device == currentDevice }
-        .let { index ->
-            if (index > 0) {
-                devices.add(0, devices.removeAt(index))
-            }
-        }
-
-    return devices.map {
-        ManageDevicesItemUiState(
-            device = it.device,
-            isLoading = it.isLoading,
-            isCurrentDevice = it.device == currentDevice,
-        )
-    }
 }
