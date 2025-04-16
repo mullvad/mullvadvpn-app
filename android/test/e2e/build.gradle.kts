@@ -145,7 +145,6 @@ dependencies {
     implementation(libs.androidx.test.runner)
     implementation(libs.androidx.test.rules)
     implementation(libs.androidx.test.uiautomator)
-    implementation(libs.android.volley)
     implementation(libs.kermit)
     implementation(Dependencies.junitJupiterApi)
     implementation(Dependencies.junit5AndroidTestExtensions)
@@ -153,8 +152,11 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.auth)
+    implementation(libs.ktor.client.logging)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.resources)
 
     androidTestUtil(libs.androidx.test.orchestrator)
 

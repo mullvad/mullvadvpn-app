@@ -6,18 +6,9 @@ import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaime
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_1
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_3
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_4
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_5
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_6
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_1
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_3
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_4
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_5
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_6
+import net.mullvad.mullvadvpn.test.mockapi.constant.FULL_DEVICE_LIST
 import org.junit.jupiter.api.Test
 
 class TooManyDevicesMockApiTest : MockApiTest() {
@@ -28,14 +19,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         apiDispatcher.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = ZonedDateTime.now().plusMonths(1)
-            devices =
-                mutableMapOf(
-                    DUMMY_ID_1 to DUMMY_DEVICE_NAME_1,
-                    DUMMY_ID_2 to DUMMY_DEVICE_NAME_2,
-                    DUMMY_ID_3 to DUMMY_DEVICE_NAME_3,
-                    DUMMY_ID_4 to DUMMY_DEVICE_NAME_4,
-                    DUMMY_ID_5 to DUMMY_DEVICE_NAME_5,
-                )
+            devices = FULL_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_6 to DUMMY_DEVICE_NAME_6
         }
 
