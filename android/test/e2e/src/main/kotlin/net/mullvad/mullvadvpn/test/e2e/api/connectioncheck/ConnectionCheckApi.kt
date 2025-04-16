@@ -29,7 +29,7 @@ class ConnectionCheckApi {
             }
             defaultRequest {
                 url {
-                    protocol = PROTOCOL
+                    protocol = HTTPS
                     host = BASE_URL
                 }
                 contentType(ContentType.Application.Json)
@@ -44,7 +44,6 @@ class ConnectionCheckApi {
 
     companion object {
         // Connection check
-        private val PROTOCOL = HTTPS
         private const val BASE_URL = "am.i.${BuildConfig.INFRASTRUCTURE_BASE_DOMAIN}"
         private const val JSON_PATH = "json"
     }
