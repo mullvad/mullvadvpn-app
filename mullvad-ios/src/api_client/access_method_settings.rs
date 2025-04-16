@@ -10,7 +10,7 @@ use mullvad_types::access_method::{
 };
 use talpid_types::net::proxy::{self, Shadowsocks, Socks5Remote};
 
-use super::helpers::{convert_c_string, RustAccessMethodSettingVector};
+use super::helpers::convert_c_string;
 
 /// Converts parameters into a `Box<AccessMethodSetting>` raw representation that
 /// can be passed across the FFI boundary
@@ -124,7 +124,8 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
     direct_method_raw: *const c_void,
     bridges_method_raw: *const c_void,
     encrypted_dns_method_raw: *const c_void,
-    custom_methods_raw: RustAccessMethodSettingVector,
+    custom_methods_raw: *const c_void,
+    count: isize,
 ) -> SwiftAccessMethodSettingsWrapper {
     // SAFETY: See `init_access_method_settings_wrapper`
     let (direct, mullvad_bridges, encrypted_dns_proxy) = unsafe {
@@ -135,10 +136,26 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
         )
     };
 
-    let custom = custom_methods_raw.into_rust_context().vector;
+    let custom = access_methods_from_raw_vector(custom_methods_raw, count);
     let settings = Settings::new(direct, mullvad_bridges, encrypted_dns_proxy, custom);
     let context = SwiftAccessMethodSettingsContext { settings };
     SwiftAccessMethodSettingsWrapper::new(context)
+}
+
+unsafe fn access_methods_from_raw_vector(
+    vector_raw: *const c_void,
+    count: isize,
+) -> Vec<AccessMethodSetting> {
+    let mut custom: Vec<AccessMethodSetting> = usize::try_from(count)
+        .map(Vec::with_capacity)
+        .unwrap_or_default();
+    let vector_raw: *mut *mut AccessMethodSetting = vector_raw as _;
+    for i in 0..count {
+        let ptr: *mut AccessMethodSetting = *vector_raw.offset(i);
+        let setting = Box::from_raw(ptr);
+        custom.push(*setting);
+    }
+    custom
 }
 
 #[repr(C)]
