@@ -105,7 +105,7 @@ deny = [
 unknown-registry = "deny"
 unknown-git = "deny"
 
-# We should never depend on git repositories outside our own github organization.
+# We must never depend on git repositories outside our own github organization.
 # We can't say anything about their availability. They might go away at any point
 # in time. Instead of using third party git repositories, always fork the repository
 # into our github organization and depend on that.
