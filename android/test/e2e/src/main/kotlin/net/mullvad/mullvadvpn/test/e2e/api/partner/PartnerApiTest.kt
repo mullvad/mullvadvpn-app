@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 
-@Disabled
+@Disabled("Only used developing the PartnerApi")
 class PartnerApiTest {
     private val partnerApi =
         PartnerApi(InstrumentationRegistry.getArguments().getString(PARTNER_AUTH, null))

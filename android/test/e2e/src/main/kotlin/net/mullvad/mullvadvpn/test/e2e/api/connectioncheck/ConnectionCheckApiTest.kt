@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
 
-@Disabled
+@Disabled("Only used developing the ConnectionCheckApi")
 class ConnectionCheckApiTest {
     private val connCheckApi = ConnectionCheckApi()
 
