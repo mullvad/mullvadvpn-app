@@ -47,8 +47,14 @@ pub fn bump_filehandle_limit() {
 pub async fn handle_app_bundle_removal(
     account_manager_handle: AccountManagerHandle,
 ) -> anyhow::Result<()> {
+    /// Uninstall script to run if the .app disappears
     const UNINSTALL_SCRIPT: &[u8] = include_bytes!("../../dist-assets/uninstall_macos.sh");
+
+    /// Path to extract the uninstall script to.
+    /// This directory must be owned by root to prevent privilege escalation.
     const UNINSTALL_SCRIPT_PATH: &str = "/var/root/uninstall_mullvad.sh";
+
+    /// Mullvad app install path
     const APP_PATH: &str = "/Applications/Mullvad VPN.app";
 
     let daemon_path = std::env::current_exe().context("Failed to get daemon path")?;
