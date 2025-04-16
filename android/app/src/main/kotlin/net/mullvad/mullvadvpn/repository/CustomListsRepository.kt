@@ -32,7 +32,7 @@ class CustomListsRepository(
 
     suspend fun deleteCustomList(id: CustomListId) = managementService.deleteCustomList(id)
 
-    private suspend fun updateCustomList(customList: CustomList) =
+    suspend fun updateCustomList(customList: CustomList) =
         managementService.updateCustomList(customList)
 
     suspend fun updateCustomListName(
@@ -57,10 +57,9 @@ class CustomListsRepository(
 
     suspend fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> =
         either {
-                customLists
-                    .mapNotNull { it?.find { customList -> customList.id == id } }
-                    .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)
-                    ?: raise(GetCustomListError(id))
+                customLists.firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)?.find { customList ->
+                    customList.id == id
+                } ?: raise(GetCustomListError(id))
             }
             .mapLeft { GetCustomListError(id) }
 
