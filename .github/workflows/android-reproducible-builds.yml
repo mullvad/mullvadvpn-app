@@ -30,7 +30,6 @@ jobs:
           else
             echo "commit_hash=${{ github.sha }}" >> "$GITHUB_OUTPUT"
           fi
-          echo $GITHUB_ENV
     outputs:
       COMMIT_HASH: ${{ steps.hash.outputs.commit_hash }}
 
