@@ -96,7 +96,7 @@ export default class AppUpgrade {
   private startInstaller(verifiedInstallerPath: string) {
     const child = this.spawnChild(verifiedInstallerPath);
 
-    child.on('error', (error) => {
+    child.once('error', (error) => {
       log.error(`An error occurred with the installer: ${error.message}`);
       IpcMainEventChannel.app.notifyUpgradeError?.('INSTALLER_FAILED');
       IpcMainEventChannel.app.notifyUpgradeEvent?.({
@@ -104,7 +104,7 @@ export default class AppUpgrade {
       });
     });
 
-    child.on('exit', (code) => {
+    child.once('exit', (code) => {
       if (code !== 0) {
         log.error(`The installer exited unexpectedly with exit code: ${code}`);
         IpcMainEventChannel.app.notifyUpgradeError?.('INSTALLER_FAILED');
