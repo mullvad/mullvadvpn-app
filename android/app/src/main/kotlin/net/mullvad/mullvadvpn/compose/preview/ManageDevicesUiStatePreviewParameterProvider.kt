@@ -13,16 +13,14 @@ class ManageDevicesUiStatePreviewParameterProvider :
         sequenceOf(
             Lce.Content(
                 ManageDevicesUiState(
-                    toManageDevicesState(
-                        DevicePreviewData.generateDevices(NUMBER_OF_DEVICES_NORMAL)
-                    )
+                    DevicePreviewData.generateDevices(NUMBER_OF_DEVICES_NORMAL)
+                        .toManageDevicesState()
                 )
             ),
             Lce.Content(
                 ManageDevicesUiState(
-                    toManageDevicesState(
-                        DevicePreviewData.generateDevices(NUMBER_OF_DEVICES_TOO_MANY)
-                    )
+                    DevicePreviewData.generateDevices(NUMBER_OF_DEVICES_TOO_MANY)
+                        .toManageDevicesState()
                 )
             ),
             Lce.Content(ManageDevicesUiState(emptyList())),
@@ -30,14 +28,13 @@ class ManageDevicesUiStatePreviewParameterProvider :
             Lce.Error(GetDeviceListError.Unknown(IllegalStateException("Error"))),
         )
 
-    private fun toManageDevicesState(items: List<DeviceItemUiState>) =
-        items.mapIndexed { index, state ->
-            ManageDevicesItemUiState(
-                device = state.device,
-                isLoading = state.isLoading,
-                isCurrentDevice = index == 0,
-            )
-        }
+    private fun List<DeviceItemUiState>.toManageDevicesState() = mapIndexed { index, state ->
+        ManageDevicesItemUiState(
+            device = state.device,
+            isLoading = state.isLoading,
+            isCurrentDevice = index == 0,
+        )
+    }
 }
 
 private const val NUMBER_OF_DEVICES_NORMAL = 4
