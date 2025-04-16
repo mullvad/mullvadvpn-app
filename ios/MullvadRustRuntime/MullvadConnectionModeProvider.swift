@@ -43,12 +43,12 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
         nil
     )
 
+    var rawCustomMethods = ContiguousArray<UnsafeRawPointer?>([])
     // 4. Convert the custom access methods (all takes different parameters)
-    let customMethodsVector = access_method_settings_vector(UInt(customMethods.count))
     for method in customMethods {
         if case let .shadowsocks(config) = method.proxyConfiguration {
             let serverAddress = config.server.rawValue.map { $0 }
-            let shadowsocksConfiguration = convert_shadowsocks(
+            let shadowsocksConfiguration = new_shadowsocks_access_method_setting(
                 serverAddress,
                 UInt(serverAddress.count),
                 config.port,
@@ -62,11 +62,11 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
                 UInt8(KindShadowsocks.rawValue),
                 shadowsocksConfiguration
             )
-            vector_add_access_method_setting(customMethodsVector, shadowsocksMethodRaw)
+            rawCustomMethods.append(shadowsocksMethodRaw)
         }
         if case let .socks5(config) = method.proxyConfiguration {
             let serverAddress = config.server.rawValue.map { $0 }
-            let socks5Configuration = convert_socks5(
+            let socks5Configuration = new_socks5_access_method_setting(
                 serverAddress,
                 UInt(serverAddress.count),
                 config.port,
@@ -80,14 +80,20 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
                 UInt8(KindSocks5Local.rawValue),
                 socks5Configuration
             )
-            vector_add_access_method_setting(customMethodsVector, socks5MethodRaw)
+            rawCustomMethods.append(socks5MethodRaw)
         }
     }
+
     // 5. Reunite them all in one, and pass it to rust
-    return init_access_method_settings_wrapper(
-        directMethodRaw,
-        bridgesMethodRaw,
-        encryptedDNSMethodRaw,
-        customMethodsVector
+    return rawCustomMethods.withUnsafeMutableBufferPointer(
+        {
+            init_access_method_settings_wrapper(
+                directMethodRaw,
+                bridgesMethodRaw,
+                encryptedDNSMethodRaw,
+                $0.baseAddress!,
+                customMethods.count
+            )
+        }
     )
 }

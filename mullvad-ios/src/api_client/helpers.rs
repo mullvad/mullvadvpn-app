@@ -3,7 +3,6 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
-use mullvad_types::access_method::AccessMethodSetting;
 use talpid_types::net::proxy::{Shadowsocks, Socks5Remote, SocksAuth};
 
 /// Constructs a new IP address from a pointer containing bytes representing an IP address.
@@ -48,7 +47,7 @@ pub unsafe fn convert_c_string(c_str: *const c_char) -> String {
 /// `address` must be a pointer to at least `address_len` bytes.
 /// `c_password` and `c_cipher` must be pointers to null terminated strings
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn convert_shadowsocks(
+pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
     address: *const u8,
     address_len: usize,
     port: u16,
@@ -73,70 +72,15 @@ pub unsafe extern "C" fn convert_shadowsocks(
     Box::into_raw(Box::new(shadowsocks_configuration)) as *mut c_void
 }
 
-#[repr(C)]
-pub struct RustAccessMethodSettingVector {
-    inner: *mut RustAccessMethodSettingVectorContext,
-}
-
-impl RustAccessMethodSettingVector {
-    pub unsafe fn into_rust_context(self) -> Box<RustAccessMethodSettingVectorContext> {
-        Box::from_raw(self.inner)
-    }
-
-    pub unsafe fn push(&mut self, setting: AccessMethodSetting) {
-        if let Some(inner) = unsafe { self.inner.as_mut() } {
-            inner.push(setting);
-        }
-    }
-}
-
-pub struct RustAccessMethodSettingVectorContext {
-    pub vector: Vec<AccessMethodSetting>,
-}
-
-impl RustAccessMethodSettingVectorContext {
-    pub fn push(&mut self, setting: AccessMethodSetting) {
-        self.vector.push(setting);
-    }
-}
-
-/// Creates a wrapper around a Rust `Vec` type that can be safely sent across the FFI boundary.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn access_method_settings_vector(
-    capacity: usize,
-) -> RustAccessMethodSettingVector {
-    let vector: Vec<AccessMethodSetting> = Vec::with_capacity(capacity);
-    let context = Box::new(RustAccessMethodSettingVectorContext { vector });
-    RustAccessMethodSettingVector {
-        inner: Box::into_raw(context),
-    }
-}
-
-/// Adds an `AccessMethodSetting` to the inner vector contained in `vector_raw`
-///
-/// # SAFETY
-/// `access_method` must be a pointer gotten through a call to `convert_builtin_access_method_setting`
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn vector_add_access_method_setting(
-    vector_raw: RustAccessMethodSettingVector,
-    access_method: *const c_void,
-) {
-    if !access_method.is_null() {
-        // SAFETY: see `vector_add_access_method_setting`
-        let access_method: AccessMethodSetting = unsafe { *Box::from_raw(access_method as *mut _) };
-        let mut vector = vector_raw;
-        vector.push(access_method);
-    }
-}
-
 /// Converts parameters into a boxed `Socks5Remote` configuration that is safe
+///
 /// to send across the FFI boundary
 ///
 /// # SAFETY
 /// `address` must be a pointer to at least `address_len` bytes.
 /// `c_username` and `c_password` must be pointers to null terminated strings, or null
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn convert_socks5(
+pub unsafe extern "C" fn new_socks5_access_method_setting(
     address: *const u8,
     address_len: usize,
     port: u16,

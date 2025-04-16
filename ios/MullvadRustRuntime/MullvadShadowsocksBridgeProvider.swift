@@ -19,7 +19,7 @@ func getShadowsocksBridges(rawBridgeProvider: UnsafeMutableRawPointer) -> Unsafe
     let bridgeProvider = Unmanaged<SwiftShadowsocksBridgeProvider>.fromOpaque(rawBridgeProvider).takeUnretainedValue()
     guard let bridge = bridgeProvider.bridge() else { return nil }
     let bridgeAddress = bridge.address.rawValue.map { $0 }
-    return convert_shadowsocks(
+    return new_shadowsocks_access_method_setting(
         bridgeAddress,
         UInt(bridgeAddress.count),
         bridge.port,

@@ -42,8 +42,6 @@ typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
 
-typedef struct RustAccessMethodSettingVectorContext RustAccessMethodSettingVectorContext;
-
 typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
 
 typedef struct SwiftApiContext {
@@ -61,10 +59,6 @@ typedef struct SwiftShadowsocksLoaderWrapperContext {
 typedef struct SwiftShadowsocksLoaderWrapper {
   struct SwiftShadowsocksLoaderWrapperContext _0;
 } SwiftShadowsocksLoaderWrapper;
-
-typedef struct RustAccessMethodSettingVector {
-  struct RustAccessMethodSettingVectorContext *inner;
-} RustAccessMethodSettingVector;
 
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
@@ -187,7 +181,8 @@ void *convert_builtin_access_method_setting(const char *unique_identifier,
 struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(const void *direct_method_raw,
                                                                             const void *bridges_method_raw,
                                                                             const void *encrypted_dns_method_raw,
-                                                                            struct RustAccessMethodSettingVector custom_methods_raw);
+                                                                            const void *custom_methods_raw,
+                                                                            intptr_t count);
 
 /**
  * # Safety
@@ -323,39 +318,26 @@ extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse respons
  * `address` must be a pointer to at least `address_len` bytes.
  * `c_password` and `c_cipher` must be pointers to null terminated strings
  */
-const void *convert_shadowsocks(const uint8_t *address,
-                                uintptr_t address_len,
-                                uint16_t port,
-                                const char *c_password,
-                                const char *c_cipher);
-
-/**
- * Creates a wrapper around a Rust `Vec` type that can be safely sent across the FFI boundary.
- */
-struct RustAccessMethodSettingVector access_method_settings_vector(uintptr_t capacity);
-
-/**
- * Adds an `AccessMethodSetting` to the inner vector contained in `vector_raw`
- *
- * # SAFETY
- * `access_method` must be a pointer gotten through a call to `convert_builtin_access_method_setting`
- */
-void vector_add_access_method_setting(struct RustAccessMethodSettingVector vector_raw,
-                                      const void *access_method);
+const void *new_shadowsocks_access_method_setting(const uint8_t *address,
+                                                  uintptr_t address_len,
+                                                  uint16_t port,
+                                                  const char *c_password,
+                                                  const char *c_cipher);
 
 /**
  * Converts parameters into a boxed `Socks5Remote` configuration that is safe
+ *
  * to send across the FFI boundary
  *
  * # SAFETY
  * `address` must be a pointer to at least `address_len` bytes.
  * `c_username` and `c_password` must be pointers to null terminated strings, or null
  */
-const void *convert_socks5(const uint8_t *address,
-                           uintptr_t address_len,
-                           uint16_t port,
-                           const char *c_username,
-                           const char *c_password);
+const void *new_socks5_access_method_setting(const uint8_t *address,
+                                             uintptr_t address_len,
+                                             uint16_t port,
+                                             const char *c_username,
+                                             const char *c_password);
 
 /**
  * Send a problem report via the Mullvad API client.
