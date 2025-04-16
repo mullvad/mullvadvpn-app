@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import { tmpdir } from 'os';
 
 import { DaemonAppUpgradeEvent } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
@@ -66,11 +67,15 @@ export default class AppUpgrade {
 
   private spawnChildWindows(verifiedInstallerPath: string) {
     const SYSTEM_ROOT_PATH = process.env.SYSTEMROOT || process.env.windir || 'C:\\Windows';
-    const POWERSHELL_PATH = `${SYSTEM_ROOT_PATH}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
-    const quotedVerifiedInstallerPath = `'${verifiedInstallerPath}'`;
+    const CMD_PATH = `${SYSTEM_ROOT_PATH}\\System32\\cmd.exe`;
+    const quotedVerifiedInstallerPath = `"${verifiedInstallerPath}"`;
 
-    const child = spawn(POWERSHELL_PATH, ['Start', '-Wait', quotedVerifiedInstallerPath], {
+    const cwd = tmpdir();
+    const child = spawn(CMD_PATH, ['/C', 'start', '""', quotedVerifiedInstallerPath], {
+      cwd,
       detached: true,
+      stdio: 'ignore',
+      windowsVerbatimArguments: true,
     });
 
     return child;
