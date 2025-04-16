@@ -61,7 +61,7 @@ function publish_metadata {
     mullvad-release verify "${platforms[@]}"
     echo ""
 
-    echo ">>> New metadata including $$PRODUCT_VERSION"
+    echo ">>> New metadata including $PRODUCT_VERSION"
     git --no-pager diff --no-index -- currently_published/ $signed_dir || true
     echo ""
 
