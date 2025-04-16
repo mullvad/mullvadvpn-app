@@ -8,7 +8,7 @@ use std::os::raw::c_char;
 use super::{
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
-    do_request_with_empty_body,
+    do_request_with_empty_body, get_string,
     response::SwiftMullvadApiResponse,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
     SwiftApiContext,
@@ -119,15 +119,6 @@ unsafe impl Send for SwiftProblemReportRequest {}
 impl ProblemReportRequest {
     // SAFETY: the members of `SwiftProblemReportRequest` must point to null-terminated strings
     unsafe fn from_swift_parameters(request: SwiftProblemReportRequest) -> Option<Self> {
-        fn get_string(ptr: *const c_char) -> String {
-            if ptr.is_null() {
-                return String::new();
-            }
-            // Safety: `ptr` must be a valid, null-terminated C string.
-            let cstr = unsafe { CStr::from_ptr(ptr) };
-            cstr.to_str().map(ToOwned::to_owned).unwrap_or_default()
-        }
-
         let address = get_string(request.address);
         let message = get_string(request.message);
         let log = get_string(request.log).into();
