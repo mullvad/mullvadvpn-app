@@ -29,16 +29,16 @@ class ManageDevicesUiStatePreviewParameterProvider :
             Lce.Loading,
             Lce.Error(GetDeviceListError.Unknown(IllegalStateException("Error"))),
         )
+
+    private fun toManageDevicesState(items: List<DeviceItemUiState>) =
+        items.mapIndexed { index, state ->
+            ManageDevicesItemUiState(
+                device = state.device,
+                isLoading = state.isLoading,
+                isCurrentDevice = index == 0,
+            )
+        }
 }
 
 private const val NUMBER_OF_DEVICES_NORMAL = 4
 private const val NUMBER_OF_DEVICES_TOO_MANY = 5
-
-private fun toManageDevicesState(items: List<DeviceItemUiState>) =
-    items.mapIndexed { index, state ->
-        ManageDevicesItemUiState(
-            device = state.device,
-            isLoading = state.isLoading,
-            isCurrentDevice = index == 0,
-        )
-    }
