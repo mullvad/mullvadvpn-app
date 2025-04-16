@@ -11,13 +11,14 @@ import UIKit
 class CheckboxView: UIView {
     private let backgroundView: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
+        view.layer.borderColor = UIColor.white.cgColor
+        view.layer.borderWidth = 2
         view.layer.cornerRadius = 4
         return view
     }()
 
     private let checkmarkView: UIImageView = {
-        let imageView = UIImageView(image: UIImage.tick)
+        let imageView = UIImageView(image: UIImage.tickSmall)
         imageView.tintColor = .successColor
         imageView.contentMode = .scaleAspectFit
         imageView.alpha = 0
@@ -26,18 +27,16 @@ class CheckboxView: UIView {
 
     var isChecked = false {
         didSet {
+            backgroundView.backgroundColor = isChecked ? .white : .clear
             checkmarkView.alpha = isChecked ? 1 : 0
         }
     }
 
     init() {
         super.init(frame: .zero)
-
-        directionalLayoutMargins = .init(top: 4, leading: 4, bottom: 4, trailing: 4)
-
         addConstrainedSubviews([backgroundView, checkmarkView]) {
             backgroundView.pinEdgesToSuperview()
-            checkmarkView.pinEdgesToSuperviewMargins()
+            checkmarkView.pinEdgesToSuperview()
         }
     }
 

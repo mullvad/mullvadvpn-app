@@ -79,7 +79,7 @@ enum UIMetrics {
         static let layoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 12)
         static let inputCellTextFieldLayoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         static let selectableSettingsCellLeftViewSpacing: CGFloat = 12
-        static let checkableSettingsCellLeftViewSpacing: CGFloat = 20
+        static let checkableSettingsCellLeftViewSpacing: CGFloat = 12
 
         /// Cell layout margins used in table views that use inset style.
         static let insetLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)

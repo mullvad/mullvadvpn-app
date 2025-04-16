@@ -102,4 +102,8 @@ extension UIImage {
     static var tick: UIImage {
         UIImage(named: "IconTickSml")!
     }
+
+    static var tickSmall: UIImage {
+        UIImage(named: "IconTickSmallest")!
+    }
 }
