@@ -307,12 +307,13 @@ impl Client {
             Arc::clone(&self.stats),
         ));
 
-        let mut server_socket_task = tokio::task::spawn(server_socket_task(
+        let mut server_socket_rx_task =
+            tokio::task::spawn(server_socket_rx_task(self.connection, server_tx));
+
+        let mut server_socket_tx_task = tokio::task::spawn(server_socket_tx_task(
             stream_id,
             self.max_udp_payload_size,
             self.quinn_conn,
-            self.connection,
-            server_tx,
             client_rx,
             Arc::clone(&self.stats),
         ));
@@ -320,23 +321,44 @@ impl Client {
         let result = select! {
             result = &mut client_socket_tx_task => result,
             result = &mut client_socket_rx_task => result,
-            result = &mut server_socket_task => result,
+            result = &mut server_socket_tx_task => result,
+            result = &mut server_socket_rx_task => result,
         };
 
         client_socket_tx_task.abort();
         client_socket_rx_task.abort();
-        server_socket_task.abort();
+        server_socket_tx_task.abort();
+        server_socket_rx_task.abort();
 
         result.expect("proxy routine panicked")
     }
 }
 
-async fn server_socket_task(
+async fn server_socket_rx_task(
+    mut connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
+    server_tx: mpsc::Sender<Datagram>,
+) -> Result<()> {
+    loop {
+        // TODO: split into two tasks
+        let datagram = connection.read_datagram().await;
+        match datagram {
+            Ok(Some(response)) => {
+                if server_tx.send(response).await.is_err() {
+                    break;
+                }
+            }
+            Ok(None) => break,
+            Err(err) => return Err(Error::ProxyResponse(err)),
+        }
+    }
+
+    Ok(())
+}
+
+async fn server_socket_tx_task(
     stream_id: StreamId,
     max_udp_payload_size: u16,
     quinn_conn: quinn::Connection,
-    mut connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
-    server_tx: mpsc::Sender<Datagram>,
     mut client_rx: mpsc::Receiver<Bytes>,
     stats: Arc<Stats>,
 ) -> Result<()> {
@@ -344,24 +366,7 @@ async fn server_socket_task(
     let stream_id_size = VarInt::from(stream_id).size() as u16;
 
     loop {
-        // TODO: split into two tasks
-        let packet = select! {
-            datagram = connection.read_datagram() => {
-                match datagram {
-                    Ok(Some(response)) => {
-                        if server_tx.send(response).await.is_err() {
-                            break;
-                        }
-                    }
-                    Ok(None) => break,
-                    Err(err) => return Err(Error::ProxyResponse(err)),
-                }
-
-                continue;
-            }
-            packet = client_rx.recv() => packet,
-        };
-
+        let packet = client_rx.recv().await;
         let Some(mut packet) = packet else { break };
 
         // Maximum QUIC payload (including fragmentation headers)
