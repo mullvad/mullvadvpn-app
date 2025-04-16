@@ -1,4 +1,4 @@
-use bytes::{Buf, Bytes, BytesMut};
+use bytes::{Buf, BufMut as _, Bytes, BytesMut};
 use rustls::client::danger::ServerCertVerified;
 use std::{
     fs, future, io,
@@ -94,7 +94,7 @@ pub enum Error {
     #[error("Failed to construct a URI")]
     Uri(#[source] http::Error),
     #[error("Failed to send datagram to proxy")]
-    SendDatagram(#[source] h3::Error),
+    SendDatagram(#[source] quinn::SendDatagramError),
     #[error("Failed to read certificates")]
     ReadCerts(#[source] io::Error),
     #[error("Failed to parse certificates")]
@@ -344,6 +344,7 @@ async fn server_socket_task(
     let stream_id_size = VarInt::from(stream_id).size() as u16;
 
     loop {
+        // TODO: split into two tasks
         let packet = select! {
             datagram = connection.read_datagram() => {
                 match datagram {
@@ -372,9 +373,18 @@ async fn server_socket_task(
 
         if packet.len() <= usize::from(maximum_packet_size) {
             stats.tx(packet.len(), false);
-            connection
-                .send_datagram(stream_id, packet)
+            // TODO: prepend stream_id as a varint before data
+            let mut buf = BytesMut::new();
+            (VarInt::from(stream_id) / 4).encode(&mut buf);
+            buf.put(packet);
+            quinn_conn
+                .send_datagram_wait(buf.freeze())
+                .await
                 .map_err(Error::SendDatagram)?;
+
+            //connection
+            //    .send_datagram(stream_id, packet)
+            //    .map_err(Error::SendDatagram)?;
         } else {
             // drop the added context ID, since packet will have to be fragmented.
             let _ = VarInt::decode(&mut packet);
@@ -385,9 +395,17 @@ async fn server_socket_task(
                 debug_assert!(fragment.len() <= maximum_packet_size as usize);
 
                 stats.tx(fragment.len(), true);
-                connection
-                    .send_datagram(stream_id, fragment)
+
+                let mut buf = BytesMut::new();
+                (VarInt::from(stream_id) / 4).encode(&mut buf);
+                buf.put(fragment);
+                quinn_conn
+                    .send_datagram_wait(buf.freeze())
+                    .await
                     .map_err(Error::SendDatagram)?;
+                //connection
+                //    .send_datagram(stream_id, fragment)
+                //    .map_err(Error::SendDatagram)?;
             }
             fragment_id = fragment_id.wrapping_add(1);
         }

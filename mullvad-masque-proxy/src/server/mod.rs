@@ -6,7 +6,7 @@ use std::{
 };
 
 use anyhow::{ensure, Context};
-use bytes::{Bytes, BytesMut};
+use bytes::{BufMut as _, Bytes, BytesMut};
 use h3::{
     proto::varint::VarInt,
     quic::{BidiStream, StreamId},
@@ -183,8 +183,13 @@ impl Server {
         let (client_tx, client_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
         let (send_tx, send_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
 
-        let mut connection_task =
-            task::spawn(connection_task(stream_id, connection, send_rx, client_tx));
+        let mut connection_task = task::spawn(connection_task(
+            stream_id,
+            connection,
+            quinn_conn.clone(),
+            send_rx,
+            client_tx,
+        ));
         let mut proxy_rx_task = task::spawn(proxy_rx_task(
             stream_id,
             quinn_conn,
@@ -213,18 +218,24 @@ impl Server {
 async fn connection_task(
     stream_id: StreamId,
     mut connection: Connection<h3_quinn::Connection, Bytes>,
+    quinn_conn: quinn::Connection,
     mut send_rx: mpsc::Receiver<Bytes>,
     client_tx: mpsc::Sender<Datagram>,
 ) -> anyhow::Result<()> {
     loop {
+        // TODO: split into two tasks
         tokio::select! {
             outgoing_packet = send_rx.recv() => {
                 let Some(outgoing_packet) = outgoing_packet else {
                     break; // sender is gone
                 };
 
-                // TODO: is this blocking?
-                connection.send_datagram(stream_id, outgoing_packet)
+                let mut buf = BytesMut::new();
+                (VarInt::from(stream_id) / 4).encode(&mut buf);
+                buf.put(outgoing_packet);
+                quinn_conn
+                    .send_datagram_wait(buf.freeze())
+                    .await
                     .context("Error sending QUIC datagram to client")?;
             }
             incoming_packet = connection.read_datagram() => match incoming_packet {
