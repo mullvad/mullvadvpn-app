@@ -112,7 +112,9 @@ pub async fn handle_app_bundle_removal(
 
     log(format_args!("{APP_PATH} was removed. Running uninstaller."));
 
-    tokio::fs::write(UNINSTALL_SCRIPT_PATH, UNINSTALL_SCRIPT).await?;
+    tokio::fs::write(UNINSTALL_SCRIPT_PATH, UNINSTALL_SCRIPT)
+        .await
+        .context("Failed to write uninstall script")?;
 
     // If reset_firewall errors, log the error and continue anyway.
     log(format_args!("Resetting firewall"));
