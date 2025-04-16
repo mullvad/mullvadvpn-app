@@ -12,6 +12,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.URLProtocol.Companion.HTTPS
 import io.ktor.http.contentType
 import io.ktor.http.path
@@ -30,11 +31,12 @@ class PartnerApi(base64AuthCredentials: String) {
             install(Logging) {
                 logger = KermitLogger()
                 level = LogLevel.INFO
+                sanitizeHeader { header -> header == HttpHeaders.Authorization }
             }
 
             defaultRequest {
                 url {
-                    protocol = PROTOCOL
+                    protocol = HTTPS
                     host = BASE_URL
                 }
                 contentType(ContentType.Application.Json)
@@ -61,7 +63,6 @@ class PartnerApi(base64AuthCredentials: String) {
         }
 
     companion object {
-        private val PROTOCOL = HTTPS
         private const val BASE_URL = "partner.${BuildConfig.INFRASTRUCTURE_BASE_DOMAIN}"
         private const val ACCOUNT_PATH = "${BuildConfig.API_VERSION}/accounts"
     }
