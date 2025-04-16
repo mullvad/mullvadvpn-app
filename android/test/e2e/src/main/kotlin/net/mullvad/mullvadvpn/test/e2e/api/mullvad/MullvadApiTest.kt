@@ -15,7 +15,7 @@ class MullvadApiTest {
     fun testLogin() = runTest {
         val validAccountNumber = AccountProvider.getValidAccountNumber()
         val accessToken = assertDoesNotThrow { mullvadApi.login(validAccountNumber) }
-        assert(accessToken.isNotEmpty())
+        assertTrue(accessToken.isNotBlank())
     }
 
     @Test
@@ -23,7 +23,6 @@ class MullvadApiTest {
         val validAccountNumber = AccountProvider.getValidAccountNumber()
         val accessToken = assertDoesNotThrow { mullvadApi.login(validAccountNumber) }
         assertTrue(accessToken.isNotBlank())
-
         assertDoesNotThrow { mullvadApi.getDeviceList(accessToken) }
     }
 }
