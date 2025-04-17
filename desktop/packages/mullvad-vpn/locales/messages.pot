@@ -934,14 +934,6 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s SUPPORT IS ENDING"
 msgstr ""
 
-#. First part of notification subtitle when there are no openVPN servers
-#. matching current settings. Will be followed by a link to VPN settings.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OpenVPN
-msgctxt "in-app-notifications"
-msgid "%(openVpn)s support is ending. Switch location or"
-msgstr ""
-
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr ""
@@ -993,13 +985,6 @@ msgstr ""
 #. %(openVpn)s - Will be replaced with OPENVPN
 msgctxt "in-app-notifications"
 msgid "NO %(openVpn)s SERVER AVAILABLE"
-msgstr ""
-
-#. Notification title when there are no openVPN servers available.
-#. Available placeholders:
-#. %(openVpn)s - Will be replaced with OPENVPN
-msgctxt "in-app-notifications"
-msgid "NO %(openVpn)s SERVERS AVAILABLE"
 msgstr ""
 
 #. Notification subtitle indicating that OpenVPN support is ending.
