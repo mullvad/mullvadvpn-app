@@ -49,6 +49,7 @@ import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.textResource
+import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
@@ -110,7 +111,7 @@ fun EditApiAccessMethod(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<Boolean>,
     saveApiAccessMethodResultRecipient: ResultRecipient<SaveApiAccessMethodDestination, Boolean>,
-    discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Boolean>,
+    discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Confirmed>,
 ) {
     val viewModel = koinViewModel<EditApiAccessMethodViewModel>()
 
@@ -160,11 +161,7 @@ fun EditApiAccessMethod(
         }
     }
 
-    discardChangesResultRecipient.OnNavResultValue { discardChanges ->
-        if (discardChanges) {
-            navigator.navigateUp()
-        }
-    }
+    discardChangesResultRecipient.OnNavResultValue { navigator.navigateUp() }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

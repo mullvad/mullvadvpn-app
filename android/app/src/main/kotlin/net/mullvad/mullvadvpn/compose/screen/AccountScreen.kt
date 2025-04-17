@@ -8,11 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -23,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,8 +27,8 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.DeviceNameInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.LoginDestination
+import com.ramcosta.composedestinations.generated.destinations.ManageDevicesDestination
 import com.ramcosta.composedestinations.generated.destinations.PaymentDestination
 import com.ramcosta.composedestinations.generated.destinations.RedeemVoucherDestination
 import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDestination
@@ -43,6 +40,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ExternalButton
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
+import net.mullvad.mullvadvpn.compose.button.PrimaryTextButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
@@ -122,11 +120,14 @@ fun Account(
         state = state,
         snackbarHostState = snackbarHostState,
         onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
+        onManageDevicesClick =
+            dropUnlessResumed {
+                state.accountNumber?.let { navigator.navigate(ManageDevicesDestination(it)) }
+            },
         onManageAccountClick = vm::onManageAccountClick,
         onLogoutClick = vm::onLogoutClick,
         onCopyAccountNumber = vm::onCopyAccountNumber,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        navigateToDeviceInfo = dropUnlessResumed { navigator.navigate(DeviceNameInfoDestination) },
         onPurchaseBillingProductClick =
             dropUnlessResumed { productId -> navigator.navigate(PaymentDestination(productId)) },
         navigateToVerificationPendingDialog =
@@ -142,9 +143,9 @@ fun AccountScreen(
     onCopyAccountNumber: (String) -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onManageAccountClick: () -> Unit,
+    onManageDevicesClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
-    navigateToDeviceInfo: () -> Unit,
     navigateToVerificationPendingDialog: () -> Unit,
     onBackClick: () -> Unit,
 ) {
@@ -170,7 +171,7 @@ fun AccountScreen(
             ) {
                 DeviceNameRow(
                     deviceName = state.deviceName ?: "",
-                    onInfoClick = navigateToDeviceInfo,
+                    onManageDevicesClick = onManageDevicesClick,
                 )
 
                 AccountNumberRow(
@@ -219,7 +220,7 @@ fun AccountScreen(
 }
 
 @Composable
-private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
+private fun DeviceNameRow(deviceName: String, onManageDevicesClick: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             style = MaterialTheme.typography.labelMedium,
@@ -229,13 +230,12 @@ private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             InformationView(content = deviceName, whenMissing = MissingPolicy.SHOW_SPINNER)
-            IconButton(onClick = onInfoClick) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = stringResource(id = R.string.more_information),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
-            }
+            Spacer(modifier = Modifier.weight(1f))
+            PrimaryTextButton(
+                onClick = onManageDevicesClick,
+                text = stringResource(R.string.manage_devices),
+                textDecoration = TextDecoration.Underline,
+            )
         }
     }
 }

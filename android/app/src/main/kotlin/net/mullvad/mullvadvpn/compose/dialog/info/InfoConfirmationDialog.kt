@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.dialog.info
 
+import android.os.Parcelable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
@@ -64,9 +66,30 @@ sealed interface InfoConfirmationDialogTitleType {
     data class IconAndTitle(val title: String) : InfoConfirmationDialogTitleType
 }
 
+@Parcelize data object Confirmed : Parcelable
+
 @Composable
 fun InfoConfirmationDialog(
-    navigator: ResultBackNavigator<Boolean>,
+    navigator: ResultBackNavigator<Confirmed>,
+    titleType: InfoConfirmationDialogTitleType,
+    confirmButtonTitle: String,
+    cancelButtonTitle: String,
+    content: @Composable (() -> Unit)? = null,
+) {
+    InfoConfirmationDialog(
+        navigator = navigator,
+        confirmValue = Confirmed,
+        titleType = titleType,
+        confirmButtonTitle = confirmButtonTitle,
+        cancelButtonTitle = cancelButtonTitle,
+        content = content,
+    )
+}
+
+@Composable
+fun <T> InfoConfirmationDialog(
+    navigator: ResultBackNavigator<T>,
+    confirmValue: T,
     titleType: InfoConfirmationDialogTitleType,
     confirmButtonTitle: String,
     cancelButtonTitle: String,
@@ -87,7 +110,7 @@ fun InfoConfirmationDialog(
         }
 
     AlertDialog(
-        onDismissRequest = { navigator.navigateBack(false) },
+        onDismissRequest = { navigator.navigateBack() },
         title =
             if (title != null) {
                 @Composable { Text(title) }
@@ -126,17 +149,17 @@ fun InfoConfirmationDialog(
                 null
             },
         confirmButton = {
-            Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonVerticalPadding)) {
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = confirmButtonTitle,
-                    onClick = { navigator.navigateBack(true) },
+                    onClick = { navigator.navigateBack(confirmValue) },
                 )
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = cancelButtonTitle,
-                    onClick = { navigator.navigateBack(false) },
+                    onClick = { navigator.navigateBack() },
                 )
             }
         },

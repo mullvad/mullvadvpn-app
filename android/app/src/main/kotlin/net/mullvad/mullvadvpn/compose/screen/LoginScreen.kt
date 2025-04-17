@@ -68,6 +68,7 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.preview.LoginUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
@@ -108,7 +109,7 @@ fun Login(
     accountNumber: String? = null,
     vm: LoginViewModel = koinViewModel(),
     createAccountConfirmationDialogResult:
-        ResultRecipient<CreateAccountConfirmationDestination, Boolean>,
+        ResultRecipient<CreateAccountConfirmationDestination, Confirmed>,
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -120,11 +121,7 @@ fun Login(
         }
     }
 
-    createAccountConfirmationDialogResult.OnNavResultValue { createAccount ->
-        if (createAccount) {
-            vm.onCreateAccountConfirmed()
-        }
-    }
+    createAccountConfirmationDialogResult.OnNavResultValue { vm.onCreateAccountConfirmed() }
 
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }

@@ -97,7 +97,6 @@ import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
 import net.mullvad.mullvadvpn.compose.preview.ConnectUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.CONNECT_CARD_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
@@ -425,8 +424,7 @@ private fun Content(
                             )
                         }
                     }
-                    .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible)
-                    .testTag(CIRCULAR_PROGRESS_INDICATOR),
+                    .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible),
         )
 
         Box(
