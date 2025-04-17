@@ -141,3 +141,8 @@ strip = true
 opt-level = 3
 [profile.release.package."classic-mceliece-rust"]
 opt-level = 3
+
+[patch.crates-io]
+# TODO: The latest release sometimes panics due to a bug: https://github.com/quinn-rs/quinn/issues/2127
+#       The fix is not yet part of a release. Switch to crates.io when it's available
+quinn = { git = "https://github.com/mullvad/quinn", rev = "c7687f7e0c5340168a29c348a4b794b66beee814" }
