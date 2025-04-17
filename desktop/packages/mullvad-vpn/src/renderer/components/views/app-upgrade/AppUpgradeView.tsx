@@ -19,13 +19,11 @@ import {
 import {
   usePresent,
   useShowCancelButton,
-  useShowDownloadProgress,
   useShowInstallButton,
   useShowManualDownloadButton,
   useShowReportProblemButton,
   useShowRetryUpgradeButton,
   useShowUpgradeButton,
-  useShowUpgradeLabel,
 } from './hooks';
 
 const StyledFooter = styled.div`
@@ -40,13 +38,11 @@ export const AppUpgradeView = () => {
   const { pop } = useHistory();
   const present = usePresent();
   const showCancelButton = useShowCancelButton();
-  const showDownloadProgress = useShowDownloadProgress();
   const showInstallButton = useShowInstallButton();
   const showManualDownloadButton = useShowManualDownloadButton();
   const showReportProblemButton = useShowReportProblemButton();
   const showRetryUpgradeButton = useShowRetryUpgradeButton();
   const showUpgradeButton = useShowUpgradeButton();
-  const showUpgradeLabel = useShowUpgradeLabel();
 
   return (
     <BackAction action={pop}>
@@ -54,12 +50,10 @@ export const AppUpgradeView = () => {
         <UpgradeDetails />
         <StyledFooter>
           <Flex $padding="large" $flexDirection="column">
-            <Animate
-              animations={[{ type: 'fade' }, { type: 'wipe', direction: 'vertical' }]}
-              present={present}>
+            <Animate animations={[{ type: 'wipe', direction: 'vertical' }]} present={present}>
               <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
-                {showUpgradeLabel && <UpgradeLabel />}
-                {showDownloadProgress && <DownloadProgress />}
+                <UpgradeLabel />
+                <DownloadProgress />
               </Flex>
             </Animate>
             <Flex $gap="medium" $flexDirection="column">
