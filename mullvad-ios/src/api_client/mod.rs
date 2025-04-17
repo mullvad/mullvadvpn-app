@@ -36,18 +36,18 @@ impl SwiftApiContext {
 
     /// Extracts an `ApiContext` from `self`
     ///
-    /// # Safety
-    ///
     /// The `ApiContext` extracted is meant to live as long as the process it's used in.
-    /// This should always be safe to call.
-    pub unsafe fn rust_context(self) -> Arc<ApiContext> {
-        Arc::increment_strong_count(self.0);
-        Arc::from_raw(self.0)
+    pub fn rust_context(self) -> Arc<ApiContext> {
+        // SAFETY: This will never be deallocated
+        unsafe {
+            Arc::increment_strong_count(self.0);
+            Arc::from_raw(self.0)
+        }
     }
 }
 
 pub struct ApiContext {
-    _api_client: Runtime,
+    api_client: Runtime,
     rest_client: MullvadRestHandle,
     access_mode_handler: AccessModeSelectorHandle,
 }
@@ -62,7 +62,7 @@ impl ApiContext {
     /// make sure to not call this from a UI Thread if possible.
     pub fn use_access_method(&self, id: Id) {
         _ = self
-            ._api_client
+            .api_client
             .handle()
             .block_on(async { self.access_mode_handler.use_access_method(id).await });
     }
@@ -72,7 +72,7 @@ impl ApiContext {
     /// This function will block the current thread until it is complete,
     /// make sure to not call this from a UI Thread if possible.
     pub fn update_access_methods(&self, access_methods: Settings) {
-        _ = self._api_client.handle().block_on(async {
+        _ = self.api_client.handle().block_on(async {
             self.access_mode_handler
                 .update_access_methods(access_methods)
                 .await
@@ -102,8 +102,7 @@ pub unsafe extern "C" fn mullvad_api_use_access_method(
     api_context: SwiftApiContext,
     access_method_id: *const c_char,
 ) {
-    // SAFETY: See notes for `rust_context`
-    let api_context = unsafe { api_context.rust_context() };
+    let api_context = api_context.rust_context();
     // SAFETY: See Safety notes for `convert_c_string`
     let id = unsafe { convert_c_string(access_method_id) };
 
@@ -186,7 +185,7 @@ pub extern "C" fn mullvad_api_init_new(
         let rest_client = api_client.mullvad_rest_handle(access_mode_provider);
 
         ApiContext {
-            _api_client: api_client,
+            api_client,
             rest_client,
             access_mode_handler,
         }
