@@ -237,6 +237,65 @@ pub async fn test_uninstall_app(
     Ok(())
 }
 
+/// Test that the Mullvad daemon cleans itself up when deleted by being dragged and dropped into the
+/// bin.
+#[test_function(priority = -160, target_os = "macos")]
+pub async fn test_detect_app_removal(
+    _ctx: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    let uninstalled_device = mullvad_client
+        .get_device()
+        .await
+        .context("failed to get device data")?
+        .logged_in()
+        .context("Client is not logged in to a valid account")?
+        .device
+        .id;
+
+    rpc.exec("/bin/rm", ["-rf", "/Applications/Mullvad VPN.app"])
+        .await
+        .context("Failed to delete Mullvad app")?;
+
+    let mut attempt = 0;
+    const MAX_ATTEMPTS: usize = 30;
+
+    loop {
+        let app_traces = rpc.find_mullvad_app_traces().await?;
+
+        if app_traces.is_empty() {
+            assert_eq!(
+                rpc.mullvad_daemon_get_status().await?,
+                ServiceStatus::NotRunning,
+                "daemon should be stopped after cleanup"
+            );
+
+            // verify that device was removed
+            let device_client = super::account::new_device_client()
+                .await
+                .context("Failed to create device client")?;
+            let devices = super::account::list_devices_with_retries(&device_client)
+                .await
+                .expect("failed to list devices");
+            assert!(
+                !devices.iter().any(|device| device.id == uninstalled_device),
+                "device id {} still exists after uninstall",
+                uninstalled_device,
+            );
+
+            return Ok(());
+        }
+
+        attempt += 1;
+        if attempt == MAX_ATTEMPTS {
+            bail!("Uninstall script didn't run when app was removed");
+        }
+
+        tokio::time::sleep(Duration::from_secs(1)).await;
+    }
+}
+
 /// Install the multiple times starting from a connected state with auto-connect
 /// disabled, failing if the app starts in a disconnected state.
 ///

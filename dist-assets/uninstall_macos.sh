@@ -2,8 +2,21 @@
 
 set -ue
 
-read -r -p "Are you sure you want to stop and uninstall Mullvad VPN? (y/n) "
-if [[ "$REPLY" =~ [Yy]$ ]]; then
+ASSUMEYES="n"
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --yes) ASSUMEYES="y";;
+        *)
+            echo "Unknown parameter: $1"
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+[[ $ASSUMEYES == "y" ]] || read -r -p "Are you sure you want to stop and uninstall Mullvad VPN? (y/n) "
+if [[ $ASSUMEYES == "y" || "$REPLY" =~ [Yy]$ ]]; then
     echo "Uninstalling Mullvad VPN ..."
 else
     echo "Aborting uninstall"
@@ -40,8 +53,8 @@ sudo pkgutil --forget net.mullvad.vpn || true
 echo "Removing login item ..."
 osascript -e 'tell application "System Events" to delete login item "Mullvad VPN"' 2>/dev/null || true
 
-read -r -p "Do you want to delete the log and cache files the app has created? (y/n) "
-if [[ "$REPLY" =~ [Yy]$ ]]; then
+[[ $ASSUMEYES == "y" ]] || read -r -p "Do you want to delete the log and cache files the app has created? (y/n) "
+if [[ $ASSUMEYES == "y" || "$REPLY" =~ [Yy]$ ]]; then
     sudo rm -rf /var/log/mullvad-vpn /var/root/Library/Caches/mullvad-vpn /Library/Caches/mullvad-vpn
     for user in /Users/*; do
         user_log_dir="$user/Library/Logs/Mullvad VPN"
@@ -52,8 +65,8 @@ if [[ "$REPLY" =~ [Yy]$ ]]; then
     done
 fi
 
-read -r -p "Do you want to delete the Mullvad VPN settings? (y/n) "
-if [[ "$REPLY" =~ [Yy]$ ]]; then
+[[ $ASSUMEYES == "y" ]] || read -r -p "Do you want to delete the Mullvad VPN settings? (y/n) "
+if [[ $ASSUMEYES == "y" || "$REPLY" =~ [Yy]$ ]]; then
     sudo rm -rf /etc/mullvad-vpn
     for user in /Users/*; do
         user_settings_dir="$user/Library/Application Support/Mullvad VPN"
@@ -63,3 +76,7 @@ if [[ "$REPLY" =~ [Yy]$ ]]; then
         fi
     done
 fi
+
+# When run from a non-standard directory, like when detecting that the app bundle is gone,
+# we must also delete the uninstall script itself
+rm -f "$0" || true

@@ -11,5 +11,5 @@ rust-version.workspace = true
 workspace = true
 
 [target.'cfg(target_os="macos")'.dependencies]
-libc = "0.2"
+libc = "0.2.172"
 log = { workspace = true }
