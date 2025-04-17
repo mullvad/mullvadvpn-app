@@ -4,7 +4,7 @@ import { Colors } from '../../../../../../../lib/foundations';
 
 export function StartingInstaller() {
   return (
-    <Flex $gap="small">
+    <Flex $gap="tiny" $alignItems="center">
       <Icon icon="checkmark" color={Colors.green} size="small" />
       <LabelTiny>
         {
