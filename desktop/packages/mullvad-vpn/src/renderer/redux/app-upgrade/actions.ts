@@ -21,6 +21,11 @@ export type AppUpgradeActionSetError = {
   error: AppUpgradeError;
 };
 
+export type AppUpgradeActionSetLastProgress = {
+  type: 'APP_UPGRADE_SET_LAST_PROGRESS';
+  lastProgress: number;
+};
+
 export const setAppUpgradeError = (error: AppUpgradeError): AppUpgradeActionSetError => ({
   type: 'APP_UPGRADE_SET_ERROR',
   error,
@@ -36,15 +41,22 @@ export const setAppUpgradeEvent = (event: AppUpgradeEvent): AppUpgradeActionSetE
   event,
 });
 
+export const setLastProgress = (lastProgress: number): AppUpgradeActionSetLastProgress => ({
+  type: 'APP_UPGRADE_SET_LAST_PROGRESS',
+  lastProgress,
+});
+
 export const appUpgradeActions = {
   resetAppUpgrade,
   resetAppUpgradeError,
   setAppUpgradeError,
   setAppUpgradeEvent,
+  setLastProgress,
 };
 
 export type AppUpgradeAction =
   | AppUpgradeActionReset
   | AppUpgradeActionResetError
   | AppUpgradeActionSetError
-  | AppUpgradeActionSetEvent;
+  | AppUpgradeActionSetEvent
+  | AppUpgradeActionSetLastProgress;
