@@ -35,17 +35,16 @@ pub unsafe extern "C" fn start_shadowsocks_proxy(
             .init();
     });
 
-    let forward_ip = if let Some(forward_address) =
-        unsafe { parse_ip_addr(forward_address, forward_address_len) }
-    {
-        forward_address
-    } else {
-        return -1;
-    };
+    let forward_ip =
+        if let Some(forward_address) = { parse_ip_addr(forward_address, forward_address_len) } {
+            forward_address
+        } else {
+            return -1;
+        };
 
     let forward_socket_addr = SocketAddr::new(forward_ip, forward_port);
 
-    let bridge_ip = if let Some(addr) = unsafe { parse_ip_addr(addr, addr_len) } {
+    let bridge_ip = if let Some(addr) = { parse_ip_addr(addr, addr_len) } {
         addr
     } else {
         return -1;
@@ -53,12 +52,14 @@ pub unsafe extern "C" fn start_shadowsocks_proxy(
 
     let bridge_socket_addr = SocketAddr::new(bridge_ip, port);
 
+    // SAFETY: See notes for `parse_str`
     let password = if let Some(password) = unsafe { parse_str(password, password_len) } {
         password
     } else {
         return -1;
     };
 
+    // SAFETY: See notes for `parse_str`
     let cipher = if let Some(cipher) = unsafe { parse_str(cipher, cipher_len) } {
         cipher
     } else {
@@ -75,6 +76,8 @@ pub unsafe extern "C" fn start_shadowsocks_proxy(
         };
     let handle = Box::new(handle);
 
+    // SAFETY: `proxy_config` is guaranteed to be writeable for the duration of this call.
+    // It does not overlap with `handle`
     unsafe {
         std::ptr::write(
             proxy_config,
@@ -92,20 +95,23 @@ pub unsafe extern "C" fn start_shadowsocks_proxy(
 /// `start_shadowsocks_proxy`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn stop_shadowsocks_proxy(proxy_config: *mut ProxyHandle) -> i32 {
+    // SAFETY: `proxy_config` is guaranteed to be a valid pointer
     let context_ptr = unsafe { (*proxy_config).context };
     if context_ptr.is_null() {
         return -1;
     }
 
+    // SAFETY: `context_ptr` is guaranteed to be a valid, non-null pointer
     let proxy_handle: Box<ShadowsocksHandle> = unsafe { Box::from_raw(context_ptr as *mut _) };
     proxy_handle.stop();
+    // SAFETY: `proxy_config` is guaranteed to be a valid pointer
     unsafe { (*proxy_config).context = std::ptr::null_mut() };
     0
 }
 /// Constructs a new IP address from a pointer containing bytes representing an IP address.
 ///
 /// SAFETY: `addr` must be a pointer to at least `addr_len` bytes.
-unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<IpAddr> {
+fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<IpAddr> {
     match addr_len {
         4 => {
             // SAFETY: addr pointer must point to at least addr_len bytes

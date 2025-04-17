@@ -58,14 +58,17 @@ pub unsafe extern "C" fn start_tunnel_obfuscator_proxy(
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn stop_tunnel_obfuscator_proxy(proxy_handle: *mut ProxyHandle) -> i32 {
+    // SAFETY: `proxy_config` is guaranteed to be a valid pointer
     let context_ptr = unsafe { (*proxy_handle).context };
     if context_ptr.is_null() {
         return -1;
     }
 
+    // SAFETY: `context_ptr` is guaranteed to be a valid, non-null pointer
     let obfuscator_handle: Box<TunnelObfuscatorHandle> =
         unsafe { Box::from_raw(context_ptr as *mut _) };
     obfuscator_handle.stop();
+    // SAFETY: `proxy_config` is guaranteed to be a valid pointer
     unsafe { (*proxy_handle).context = std::ptr::null_mut() };
     0
 }
