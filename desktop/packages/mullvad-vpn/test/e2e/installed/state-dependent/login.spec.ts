@@ -25,7 +25,7 @@ test.afterAll(async () => {
 });
 
 test('App should fail to login', async () => {
-  expect(await util.currentRoute()).toEqual(RoutePath.login);
+  await util.waitForRoute(RoutePath.login);
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
@@ -44,19 +44,17 @@ test('App should fail to login', async () => {
 });
 
 test('App should create account', async () => {
-  expect(await util.currentRoute()).toEqual(RoutePath.login);
+  await util.waitForRoute(RoutePath.login);
+
+  await page.getByText('Create account').click();
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
 
-  expect(
-    await util.waitForNavigation(async () => {
-      await page.getByText('Create account').click();
+  await expect(title).toHaveText('Account created');
+  await expect(subtitle).toHaveText('Logged in');
 
-      await expect(title).toHaveText('Account created');
-      await expect(subtitle).toHaveText('Logged in');
-    }),
-  ).toEqual(RoutePath.expired);
+  await util.waitForRoute(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
   await expect(outOfTimeTitle).toHaveText('Congrats!');
@@ -67,15 +65,12 @@ test('App should create account', async () => {
 });
 
 test('App should become logged out', async () => {
-  expect(
-    await util.waitForNavigation(() => {
-      exec('mullvad account logout');
-    }),
-  ).toEqual(RoutePath.login);
+  exec('mullvad account logout');
+  await util.waitForRoute(RoutePath.login);
 });
 
 test('App should log in', async () => {
-  expect(await util.currentRoute()).toEqual(RoutePath.login);
+  await util.waitForRoute(RoutePath.login);
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
@@ -85,30 +80,23 @@ test('App should log in', async () => {
   await expect(subtitle).toHaveText('Enter your account number');
 
   await loginInput.fill(process.env.ACCOUNT_NUMBER!);
+  await loginInput.press('Enter');
 
-  expect(
-    await util.waitForNavigation(async () => {
-      await loginInput.press('Enter');
+  await expect(title).toHaveText('Logged in');
+  await expect(subtitle).toHaveText('Valid account number');
 
-      await expect(title).toHaveText('Logged in');
-      await expect(subtitle).toHaveText('Valid account number');
-    }),
-  ).toEqual(RoutePath.main);
+  await util.waitForRoute(RoutePath.main);
+
   await expectDisconnected(page);
 });
 
 test('App should log out', async () => {
-  expect(
-    await util.waitForNavigation(() => {
-      void page.getByTestId('account-button').click();
-    }),
-  ).toEqual(RoutePath.account);
+  await page.getByTestId('account-button').click();
 
-  expect(
-    await util.waitForNavigation(() => {
-      void page.getByText('Log out').click();
-    }),
-  ).toEqual(RoutePath.login);
+  await util.waitForRoute(RoutePath.account);
+
+  await page.getByText('Log out').click();
+  await util.waitForRoute(RoutePath.login);
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
@@ -117,7 +105,7 @@ test('App should log out', async () => {
 });
 
 test('App should log in to expired account', async () => {
-  expect(await util.currentRoute()).toEqual(RoutePath.login);
+  await util.waitForRoute(RoutePath.login);
 
   const title = page.locator('h1');
   const subtitle = page.getByTestId('subtitle');
@@ -128,11 +116,8 @@ test('App should log in to expired account', async () => {
 
   await loginInput.fill(accountNumber);
 
-  expect(
-    await util.waitForNavigation(async () => {
-      await loginInput.press('Enter');
-    }),
-  ).toEqual(RoutePath.expired);
+  await loginInput.press('Enter');
+  await util.waitForRoute(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
   await expect(outOfTimeTitle).toHaveText('Out of time');
