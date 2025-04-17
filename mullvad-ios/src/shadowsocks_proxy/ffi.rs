@@ -1,7 +1,7 @@
 use super::{run_forwarding_proxy, ShadowsocksHandle};
+use crate::api_client::helpers::parse_ip_addr;
 use crate::ProxyHandle;
-
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::net::SocketAddr;
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 use std::sync::Once;
 
@@ -107,30 +107,6 @@ pub unsafe extern "C" fn stop_shadowsocks_proxy(proxy_config: *mut ProxyHandle) 
     // SAFETY: `proxy_config` is guaranteed to be a valid pointer
     unsafe { (*proxy_config).context = std::ptr::null_mut() };
     0
-}
-/// Constructs a new IP address from a pointer containing bytes representing an IP address.
-///
-/// SAFETY: `addr` must be a pointer to at least `addr_len` bytes.
-fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<IpAddr> {
-    match addr_len {
-        4 => {
-            // SAFETY: addr pointer must point to at least addr_len bytes
-            let bytes = unsafe { std::slice::from_raw_parts(addr, addr_len) };
-            Some(Ipv4Addr::new(bytes[0], bytes[1], bytes[2], bytes[3]).into())
-        }
-        16 => {
-            // SAFETY: addr pointer must point to at least addr_len bytes
-            let bytes = unsafe { std::slice::from_raw_parts(addr, addr_len) };
-            let mut addr_arr = [0u8; 16];
-            addr_arr.as_mut_slice().copy_from_slice(bytes);
-
-            Some(Ipv6Addr::from(addr_arr).into())
-        }
-        anything_else => {
-            log::error!("Bad IP address length {anything_else}");
-            None
-        }
-    }
 }
 
 /// Allocates a new string with the contents of `data` if it contains only valid UTF-8 bytes.

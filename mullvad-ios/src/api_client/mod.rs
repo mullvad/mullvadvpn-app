@@ -21,7 +21,7 @@ mod account;
 mod api;
 mod cancellation;
 mod completion;
-mod helpers;
+pub(super) mod helpers;
 mod problem_report;
 mod response;
 mod retry_strategy;

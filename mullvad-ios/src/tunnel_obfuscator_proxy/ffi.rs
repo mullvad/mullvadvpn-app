@@ -1,9 +1,8 @@
 use super::{TunnelObfuscatorHandle, TunnelObfuscatorRuntime};
 use crate::ProxyHandle;
-use std::{
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
-    sync::Once,
-};
+use std::{net::SocketAddr, sync::Once};
+
+use crate::api_client::helpers::parse_ip_addr;
 
 static INIT_LOGGING: Once = Once::new();
 
@@ -71,26 +70,4 @@ pub unsafe extern "C" fn stop_tunnel_obfuscator_proxy(proxy_handle: *mut ProxyHa
     // SAFETY: `proxy_config` is guaranteed to be a valid pointer
     unsafe { (*proxy_handle).context = std::ptr::null_mut() };
     0
-}
-
-/// Constructs a new IP address from a pointer containing bytes representing an IP address.
-///
-/// SAFETY: `addr` must be a pointer to at least `addr_len` bytes.
-unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<IpAddr> {
-    match addr_len {
-        4 => {
-            // SAFETY: addr pointer must point to at least addr_len bytes
-            let bytes = unsafe { std::slice::from_raw_parts(addr, addr_len) };
-            Some(Ipv4Addr::new(bytes[0], bytes[1], bytes[2], bytes[3]).into())
-        }
-        16 => {
-            // SAFETY: addr pointer must point to at least addr_len bytes
-            let bytes = unsafe { std::slice::from_raw_parts(addr, addr_len) };
-            let mut addr_arr = [0u8; 16];
-            addr_arr.as_mut_slice().copy_from_slice(bytes);
-
-            Some(Ipv6Addr::from(addr_arr).into())
-        }
-        _ => None,
-    }
 }

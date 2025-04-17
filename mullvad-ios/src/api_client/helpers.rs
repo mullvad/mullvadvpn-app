@@ -7,8 +7,8 @@ use talpid_types::net::proxy::{Shadowsocks, Socks5Remote, SocksAuth};
 
 /// Constructs a new IP address from a pointer containing bytes representing an IP address.
 ///
-/// SAFETY: `addr` must be a pointer to at least `addr_len` bytes.
-pub unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<IpAddr> {
+/// SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
+pub(crate) unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<IpAddr> {
     match addr_len {
         4 => {
             // SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
