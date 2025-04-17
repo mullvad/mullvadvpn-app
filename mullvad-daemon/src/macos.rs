@@ -116,22 +116,7 @@ pub async fn handle_app_bundle_removal(
 
     log(format_args!("{APP_PATH} was removed."));
 
-    let found_installer_process = if let Ok(pids) = list_pids() {
-        pids
-            .into_iter()
-            // Ignore non-root processes
-            .filter(|&pid| {
-                matches!(process_bsdinfo(pid), Ok(bsd_info) if bsd_info.pbi_uid == 0)
-            })
-            // Find process that refers to a Mullvad installer
-            .any(|pid| process_has_mullvad_installer(pid).unwrap_or(false))
-    } else {
-        // We proceed to uninstall the app if we fail to iterate processes
-        log(format_args!("Failed to list pids"));
-        false
-    };
-
-    if found_installer_process {
+    if mullvad_installer_is_running() {
         log(format_args!(
             "Found installer process. Ignoring app removal"
         ));
@@ -188,12 +173,24 @@ fn reset_firewall() -> anyhow::Result<()> {
         .context("Failed to reset firewall policy")
 }
 
-/// Figure out if the 'pid' process has a file open that matches a Mullvad pkg
-///
-/// # Note
-///
-/// Since the name is spoofable, make sure the process is running as root first.
+/// Figure out if a Mullvad installer is active
+fn mullvad_installer_is_running() -> bool {
+    let Ok(pids) = list_pids() else {
+        // If we can't retrieve any PIDs, assume installer isn't running
+        return false;
+    };
+    pids.into_iter()
+        .any(|pid| process_has_mullvad_installer(pid).unwrap_or(false))
+}
+
+/// Figure out if the 'pid' process is privileged and has a file open that matches a Mullvad pkg
 fn process_has_mullvad_installer(pid: pid_t) -> io::Result<bool> {
+    // Ignore process if it isn't running as root
+    // This is because the filename is easily spoofable
+    if process_bsdinfo(pid)?.pbi_uid != 0 {
+        return Ok(false);
+    }
+
     // Figure out if one of the file descriptors refers to a Mullvad installer
     for fd in process_file_descriptors(pid)? {
         // Only check vnodes
