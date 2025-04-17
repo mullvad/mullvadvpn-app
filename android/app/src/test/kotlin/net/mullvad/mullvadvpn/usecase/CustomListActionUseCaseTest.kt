@@ -64,7 +64,9 @@ class CustomListActionUseCaseTest {
                 .right()
         coEvery { mockCustomListsRepository.createCustomList(name) } returns createdId.right()
         coEvery {
-            mockCustomListsRepository.updateCustomListLocations(createdId, listOf(locationId))
+            mockCustomListsRepository.updateCustomList(
+                CustomList(createdId, name, listOf(locationId))
+            )
         } returns Unit.right()
         relayListFlow.value =
             listOf(
