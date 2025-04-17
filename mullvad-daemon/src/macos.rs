@@ -1,11 +1,11 @@
-use std::{fmt, io, path::Path, process::Stdio};
+use std::{ffi::OsStr, fmt, io, path::Path, process::Stdio};
 
 use anyhow::{anyhow, Context};
 use libc::{pid_t, PROX_FDTYPE_VNODE};
 use notify::{RecursiveMode, Watcher};
 use std::io::Write;
 use talpid_macos::process::{
-    get_file_desc_vnode_path, list_pids, process_bsdinfo, process_file_descriptors,
+    get_file_desc_vnode_path, list_pids, process_bsdinfo, process_file_descriptors, process_path,
 };
 use tokio::{fs::File, process::Command};
 
@@ -188,6 +188,14 @@ fn process_has_mullvad_installer(pid: pid_t) -> io::Result<bool> {
     // Ignore process if it isn't running as root
     // This is because the filename is easily spoofable
     if process_bsdinfo(pid)?.pbi_uid != 0 {
+        return Ok(false);
+    }
+
+    // We're only interested in installer processes
+    let process_path = process_path(pid)?;
+    if !process_path.starts_with("/System")
+        || process_path.file_name() != Some(OsStr::new("installd"))
+    {
         return Ok(false);
     }
 
