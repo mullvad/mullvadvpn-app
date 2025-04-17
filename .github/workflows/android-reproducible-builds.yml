@@ -43,10 +43,10 @@ jobs:
         with:
           ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
 
-      - name: Fetch wireguard-go and tags
+      - name: Fetch submodules and tags
         run: |
           git submodule update --init wireguard-go-rs/libwg/wireguard-go
-          git fetch origin 'refs/tags/*:refs/tags/*'
+          git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
       - name: Build app
         run: ./building/containerized-build.sh android --fdroid
