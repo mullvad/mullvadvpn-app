@@ -10,7 +10,7 @@ export const useMessage = () => {
   const getMessageTimeLeft = useGetMessageTimeLeft();
   const hasAppUpgradeError = useHasAppUpgradeError();
 
-  if (isBlocked) {
+  if (isBlocked || appUpgradeEventType === 'APP_UPGRADE_STATUS_ABORTED') {
     // TRANSLATORS: Status text displayed below a progress bar when the download of an update has been paused
     return messages.pgettext('app-upgrade-view', 'Download paused');
   }
