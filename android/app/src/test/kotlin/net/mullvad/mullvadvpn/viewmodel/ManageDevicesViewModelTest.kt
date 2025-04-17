@@ -30,6 +30,7 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -106,7 +107,7 @@ class ManageDevicesViewModelTest {
 
             val devices = contentState.value.devices
             assertEquals(testDeviceId2, devices[0].device.id)
-            assert(devices[0].isCurrentDevice)
+            assertTrue(devices[0].isCurrentDevice)
             assertFalse(devices[1].isCurrentDevice)
             assertFalse(devices[2].isCurrentDevice)
         }
