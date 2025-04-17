@@ -6,7 +6,7 @@ export function UpgradeError() {
   const message = useMessage();
 
   return (
-    <Flex $gap="small" $flexDirection="row">
+    <Flex $gap="tiny" $flexDirection="row">
       <div>
         <Icon size="small" icon="alert-circle" color={Colors.red} />
       </div>
