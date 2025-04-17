@@ -3,7 +3,7 @@ import { Flex, LabelTiny, Spinner } from '../../../../../../../lib/components';
 
 export function VerifyingInstaller() {
   return (
-    <Flex $gap="small">
+    <Flex $gap="tiny" $alignItems="center">
       <Spinner size="small" />
       <LabelTiny>
         {
