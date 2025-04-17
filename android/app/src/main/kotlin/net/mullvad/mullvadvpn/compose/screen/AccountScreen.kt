@@ -8,11 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -31,7 +27,6 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.DeviceNameInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.LoginDestination
 import com.ramcosta.composedestinations.generated.destinations.ManageDevicesDestination
 import com.ramcosta.composedestinations.generated.destinations.PaymentDestination
@@ -75,9 +70,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewAccountScreen(
     @PreviewParameter(AccountUiStatePreviewParameterProvider::class) state: AccountUiState
 ) {
-    AppTheme {
-        AccountScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}, {}, {}, {}, {})
-    }
+    AppTheme { AccountScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}, {}, {}, {}) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -135,7 +128,6 @@ fun Account(
         onLogoutClick = vm::onLogoutClick,
         onCopyAccountNumber = vm::onCopyAccountNumber,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        navigateToDeviceInfo = dropUnlessResumed { navigator.navigate(DeviceNameInfoDestination) },
         onPurchaseBillingProductClick =
             dropUnlessResumed { productId -> navigator.navigate(PaymentDestination(productId)) },
         navigateToVerificationPendingDialog =
@@ -154,7 +146,6 @@ fun AccountScreen(
     onManageDevicesClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
-    navigateToDeviceInfo: () -> Unit,
     navigateToVerificationPendingDialog: () -> Unit,
     onBackClick: () -> Unit,
 ) {
@@ -180,7 +171,6 @@ fun AccountScreen(
             ) {
                 DeviceNameRow(
                     deviceName = state.deviceName ?: "",
-                    onInfoClick = navigateToDeviceInfo,
                     onManageDevicesClick = onManageDevicesClick,
                 )
 
@@ -230,11 +220,7 @@ fun AccountScreen(
 }
 
 @Composable
-private fun DeviceNameRow(
-    deviceName: String,
-    onInfoClick: () -> Unit,
-    onManageDevicesClick: () -> Unit,
-) {
+private fun DeviceNameRow(deviceName: String, onManageDevicesClick: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             style = MaterialTheme.typography.labelMedium,
@@ -244,13 +230,6 @@ private fun DeviceNameRow(
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             InformationView(content = deviceName, whenMissing = MissingPolicy.SHOW_SPINNER)
-            IconButton(onClick = onInfoClick) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = stringResource(id = R.string.more_information),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
-            }
             Spacer(modifier = Modifier.weight(1f))
             PrimaryTextButton(
                 onClick = onManageDevicesClick,
