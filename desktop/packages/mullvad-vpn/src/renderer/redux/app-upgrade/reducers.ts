@@ -5,12 +5,14 @@ export interface AppUpgradeReduxState {
   error?: AppUpgradeError;
   errorCount: number;
   event?: AppUpgradeEvent;
+  lastProgress?: number;
 }
 
 const initialState: AppUpgradeReduxState = {
   error: undefined,
   errorCount: 0,
   event: undefined,
+  lastProgress: undefined,
 };
 
 export function appUpgradeReducer(
@@ -22,6 +24,11 @@ export function appUpgradeReducer(
       return {
         ...state,
         event: action.event,
+      };
+    case 'APP_UPGRADE_SET_LAST_PROGRESS':
+      return {
+        ...state,
+        lastProgress: action.lastProgress,
       };
     case 'APP_UPGRADE_SET_ERROR':
       if (action.error === 'START_INSTALLER_AUTOMATIC_FAILED') {
