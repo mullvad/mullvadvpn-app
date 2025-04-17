@@ -1,8 +1,12 @@
 use std::{fmt, io, path::Path, process::Stdio};
 
 use anyhow::{anyhow, Context};
+use libc::{pid_t, PROX_FDTYPE_VNODE};
 use notify::{RecursiveMode, Watcher};
 use std::io::Write;
+use talpid_macos::process::{
+    get_file_desc_vnode_path, list_pids, process_bsdinfo, process_file_descriptors,
+};
 use tokio::{fs::File, process::Command};
 
 use crate::device::AccountManagerHandle;
@@ -110,7 +114,33 @@ pub async fn handle_app_bundle_removal(
         }
     };
 
-    log(format_args!("{APP_PATH} was removed. Running uninstaller."));
+    log(format_args!("{APP_PATH} was removed."));
+
+    let found_installer_process = if let Ok(pids) = list_pids() {
+        pids
+            .into_iter()
+            // Ignore non-root processes
+            .filter(|&pid| {
+                matches!(process_bsdinfo(pid), Ok(bsd_info) if bsd_info.pbi_uid == 0)
+            })
+            // Find process that refers to a Mullvad installer
+            .any(|pid| process_has_mullvad_installer(pid).unwrap_or(false))
+    } else {
+        // We proceed to uninstall the app if we fail to iterate processes
+        log(format_args!("Failed to list pids"));
+        false
+    };
+
+    if found_installer_process {
+        log(format_args!(
+            "Found installer process. Ignoring app removal"
+        ));
+        return Ok(());
+    } else {
+        log(format_args!(
+            "Did not find installer process. Running uninstaller"
+        ));
+    }
 
     tokio::fs::write(UNINSTALL_SCRIPT_PATH, UNINSTALL_SCRIPT)
         .await
@@ -156,4 +186,37 @@ fn reset_firewall() -> anyhow::Result<()> {
         .context("Failed to create firewall instance")?
         .reset_policy()
         .context("Failed to reset firewall policy")
+}
+
+/// Figure out if the 'pid' process has a file open that matches a Mullvad pkg
+///
+/// # Note
+///
+/// Since the name is spoofable, make sure the process is running as root first.
+fn process_has_mullvad_installer(pid: pid_t) -> io::Result<bool> {
+    // Figure out if one of the file descriptors refers to a Mullvad installer
+    for fd in process_file_descriptors(pid)? {
+        // Only check vnodes
+        if fd.proc_fdtype != PROX_FDTYPE_VNODE as u32 {
+            continue;
+        }
+
+        let Ok(path) = get_file_desc_vnode_path(pid, &fd) else {
+            continue;
+        };
+
+        // Check if file refers to a Mullvad .pkg
+        let lower_path = path.to_bytes().to_ascii_lowercase();
+        let is_pkg = lower_path.ends_with(b".pkg");
+        let seq_to_find = b"mullvad";
+
+        if is_pkg
+            && lower_path
+                .windows(seq_to_find.len())
+                .any(|seq| seq == &seq_to_find[..])
+        {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
