@@ -4,6 +4,7 @@ use std::fmt;
 use std::net::SocketAddr;
 #[cfg(not(target_os = "ios"))]
 use std::net::{IpAddr, Ipv4Addr};
+use std::time::Instant;
 use talpid_types::net::wireguard::{PresharedKey, PublicKey};
 use tonic::transport::Channel;
 #[cfg(not(target_os = "ios"))]
@@ -127,8 +128,12 @@ pub async fn request_ephemeral_peer_with(
     enable_daita: bool,
 ) -> Result<EphemeralPeer, Error> {
     let (pq_request, kem_keypairs) = if enable_quantum_resistant {
+        let start = Instant::now();
         let (pq_request, kem_keypairs) = post_quantum_secrets();
-        log::debug!("Generated PQ secrets");
+        log::debug!(
+            "Generated quantum-resistant key exchange material in {} ms",
+            start.elapsed().as_millis()
+        );
         (Some(pq_request), Some(kem_keypairs))
     } else {
         (None, None)
