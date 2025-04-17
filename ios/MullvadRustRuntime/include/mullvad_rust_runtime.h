@@ -238,6 +238,119 @@ extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse respons
                                           struct CompletionCookie completion_cookie);
 
 /**
+ * Get device info via the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_ios_init_new`.
+ *
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_ios_completion_finish`
+ * when completion finishes (in completion.finish).
+ *
+ * the `account_number` must be pointers to a null terminated string.
+ * the `identifier` must be pointers to a null terminated string.
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_ios_get_device(struct SwiftApiContext api_context,
+                                                void *completion_cookie,
+                                                struct SwiftRetryStrategy retry_strategy,
+                                                const char *account_number,
+                                                const char *identifier);
+
+/**
+ * Get devices info via the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
+ *
+ * the `account_number` must be pointers to a null terminated string.
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_ios_get_devices(struct SwiftApiContext api_context,
+                                                 void *completion_cookie,
+                                                 struct SwiftRetryStrategy retry_strategy,
+                                                 const char *account_number);
+
+/**
+ * create device via the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
+ *
+ * the `account_number` must be pointers to a null terminated string.
+ * the `identifier` must be pointers to a null terminated string.
+ * the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_ios_create_device(struct SwiftApiContext api_context,
+                                                   void *completion_cookie,
+                                                   struct SwiftRetryStrategy retry_strategy,
+                                                   const char *account_number,
+                                                   const uint8_t *public_key);
+
+/**
+ * delete device via the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
+ *
+ * the `account_number` must be pointers to a null terminated string.
+ * the `identifier` must be pointers to a null terminated string.
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_ios_delete_device(struct SwiftApiContext api_context,
+                                                   void *completion_cookie,
+                                                   struct SwiftRetryStrategy retry_strategy,
+                                                   const char *account_number,
+                                                   const char *identifier);
+
+/**
+ * rotate device key via the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
+ *
+ * the `account_number` must be pointers to a null terminated string.
+ * the `identifier` must be pointers to a null terminated string.
+ * the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_ios_rotate_device_key(struct SwiftApiContext api_context,
+                                                       void *completion_cookie,
+                                                       struct SwiftRetryStrategy retry_strategy,
+                                                       const char *account_number,
+                                                       const char *identifier,
+                                                       const uint8_t *public_key);
+
+/**
  * Send a problem report via the Mullvad API client.
  *
  * # Safety

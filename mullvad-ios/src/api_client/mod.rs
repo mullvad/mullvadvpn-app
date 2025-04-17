@@ -1,5 +1,3 @@
-use std::{ffi::CStr, future::Future, sync::Arc};
-
 use mullvad_api::{
     proxy::{ApiConnectionMode, StaticConnectionModeProvider},
     rest::{self, MullvadRestHandle},
@@ -7,12 +5,15 @@ use mullvad_api::{
 };
 use response::SwiftMullvadApiResponse;
 use retry_strategy::RetryStrategy;
+use std::os::raw::c_char;
+use std::{ffi::CStr, future::Future, sync::Arc};
 use talpid_future::retry::retry_future;
 
 mod account;
 mod api;
 mod cancellation;
 mod completion;
+mod device;
 mod problem_report;
 mod response;
 mod retry_strategy;
@@ -125,4 +126,13 @@ where
     };
 
     retry_future(future_factory, should_retry, retry_strategy.delays()).await
+}
+
+fn get_string(ptr: *const c_char) -> String {
+    if ptr.is_null() {
+        return String::new();
+    }
+    // Safety: `ptr` must be a valid, null-terminated C string.
+    let cstr = unsafe { CStr::from_ptr(ptr) };
+    cstr.to_str().map(ToOwned::to_owned).unwrap_or_default()
 }
