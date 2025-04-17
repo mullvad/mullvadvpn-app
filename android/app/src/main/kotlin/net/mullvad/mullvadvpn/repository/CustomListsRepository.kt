@@ -32,7 +32,7 @@ class CustomListsRepository(
 
     suspend fun deleteCustomList(id: CustomListId) = managementService.deleteCustomList(id)
 
-    private suspend fun updateCustomList(customList: CustomList) =
+    suspend fun updateCustomList(customList: CustomList) =
         managementService.updateCustomList(customList)
 
     suspend fun updateCustomListName(
