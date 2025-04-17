@@ -83,6 +83,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardObfuscationAutomatic
         case wireGuardObfuscationUdpOverTcp
         case wireGuardObfuscationShadowsocks
+        #if DEBUG
+        case wireGuardObfuscationQuic
+        #endif
         case wireGuardObfuscationOff
         case wireGuardObfuscationPort(_ port: WireGuardObfuscationUdpOverTcpPort)
         case quantumResistanceAutomatic
@@ -96,6 +99,17 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             return [.wireGuardPort(nil)] + defaultPorts + [.wireGuardCustomPort]
         }
 
+        #if DEBUG
+        static var wireGuardObfuscation: [Item] {
+            [
+                .wireGuardObfuscationAutomatic,
+                .wireGuardObfuscationShadowsocks,
+                .wireGuardObfuscationUdpOverTcp,
+                .wireGuardObfuscationQuic,
+                .wireGuardObfuscationOff,
+            ]
+        }
+        #else
         static var wireGuardObfuscation: [Item] {
             [
                 .wireGuardObfuscationAutomatic,
@@ -104,7 +118,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .wireGuardObfuscationOff,
             ]
         }
-
+        #endif
         static var wireGuardObfuscationPort: [Item] {
             [
                 .wireGuardObfuscationPort(.automatic),
@@ -120,58 +134,67 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
             case .includeAllNetworks:
-                return .includeAllNetworks
+                .includeAllNetworks
             case .localNetworkSharing:
-                return .localNetworkSharing
+                .localNetworkSharing
             case .dnsSettings:
-                return .dnsSettings
+                .dnsSettings
             case .ipOverrides:
-                return .ipOverrides
+                .ipOverrides
             case let .wireGuardPort(port):
-                return .wireGuardPort(port)
+                .wireGuardPort(port)
             case .wireGuardCustomPort:
-                return .wireGuardCustomPort
+                .wireGuardCustomPort
             case .wireGuardObfuscationAutomatic:
-                return .wireGuardObfuscationAutomatic
+                .wireGuardObfuscationAutomatic
             case .wireGuardObfuscationUdpOverTcp:
-                return .wireGuardObfuscationUdpOverTcp
+                .wireGuardObfuscationUdpOverTcp
             case .wireGuardObfuscationShadowsocks:
-                return .wireGuardObfuscationShadowsocks
+                .wireGuardObfuscationShadowsocks
+            #if DEBUG
+            case .wireGuardObfuscationQuic:
+                .wireGuardObfuscationQuic
+            #endif
             case .wireGuardObfuscationOff:
-                return .wireGuardObfuscationOff
+                .wireGuardObfuscationOff
             case .wireGuardObfuscationPort:
-                return .wireGuardObfuscationPort
+                .wireGuardObfuscationPort
             case .quantumResistanceAutomatic:
-                return .quantumResistanceAutomatic
+                .quantumResistanceAutomatic
             case .quantumResistanceOn:
-                return .quantumResistanceOn
+                .quantumResistanceOn
             case .quantumResistanceOff:
-                return .quantumResistanceOff
+                .quantumResistanceOff
             }
         }
 
         var reuseIdentifier: CellReuseIdentifiers {
             switch self {
             case .includeAllNetworks:
-                return .includeAllNetworks
+                .includeAllNetworks
             case .localNetworkSharing:
-                return .localNetworkSharing
+                .localNetworkSharing
             case .dnsSettings:
-                return .dnsSettings
+                .dnsSettings
             case .ipOverrides:
-                return .ipOverrides
+                .ipOverrides
             case .wireGuardPort:
-                return .wireGuardPort
+                .wireGuardPort
             case .wireGuardCustomPort:
-                return .wireGuardCustomPort
+                .wireGuardCustomPort
+            #if DEBUG
+            case .wireGuardObfuscationAutomatic, .wireGuardObfuscationOff, .wireGuardObfuscationQuic:
+                .wireGuardObfuscation
+            #else
             case .wireGuardObfuscationAutomatic, .wireGuardObfuscationOff:
-                return .wireGuardObfuscation
+                .wireGuardObfuscation
+            #endif
             case .wireGuardObfuscationUdpOverTcp, .wireGuardObfuscationShadowsocks:
-                return .wireGuardObfuscationOption
+                .wireGuardObfuscationOption
             case .wireGuardObfuscationPort:
-                return .wireGuardObfuscationPort
+                .wireGuardObfuscationPort
             case .quantumResistanceAutomatic, .quantumResistanceOn, .quantumResistanceOff:
-                return .quantumResistance
+                .quantumResistance
             }
         }
     }
@@ -205,6 +228,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .off: .wireGuardObfuscationOff
         case .on, .udpOverTcp: .wireGuardObfuscationUdpOverTcp
         case .shadowsocks: .wireGuardObfuscationShadowsocks
+        #if DEBUG
+        case .quic: .wireGuardObfuscationQuic
+        #endif
         }
 
         let quantumResistanceItem: Item = switch viewModel.quantumResistance {
@@ -340,6 +366,11 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .wireGuardObfuscationShadowsocks:
             selectObfuscationState(.shadowsocks)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
+        #if DEBUG
+        case .wireGuardObfuscationQuic:
+            selectObfuscationState(.quic)
+            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
+        #endif
         case .wireGuardObfuscationOff:
             selectObfuscationState(.off)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
