@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.repository
 
 import arrow.core.Either
 import arrow.core.raise.either
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -9,7 +10,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.lib.common.util.firstOrNullWithTimeout
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -32,7 +32,7 @@ class CustomListsRepository(
 
     suspend fun deleteCustomList(id: CustomListId) = managementService.deleteCustomList(id)
 
-    private suspend fun updateCustomList(customList: CustomList) =
+    suspend fun updateCustomList(customList: CustomList) =
         managementService.updateCustomList(customList)
 
     suspend fun updateCustomListName(
@@ -55,16 +55,15 @@ class CustomListsRepository(
             .bind()
     }
 
-    suspend fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> =
-        either {
-                customLists
-                    .mapNotNull { it?.find { customList -> customList.id == id } }
-                    .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)
-                    ?: raise(GetCustomListError(id))
-            }
-            .mapLeft { GetCustomListError(id) }
-
-    companion object {
-        private const val GET_CUSTOM_LIST_TIMEOUT_MS = 5000L
+    /**
+     * There is no guarantee this will return a up to date custom list. E.g if you invoked
+     * updateCustomList just before this you might get an out of date value.
+     */
+    fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> = either {
+        val customLists =
+            customLists.value
+                ?: raise(GetCustomListError(id)).also { Logger.e("Custom lists never loaded") }
+        customLists.firstOrNull { customList -> customList.id == id }
+            ?: raise(GetCustomListError(id))
     }
 }

@@ -10,8 +10,10 @@ import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.communication.Renamed
 import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
+import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
+import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListLocationsError
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListNameError
 import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes
@@ -59,8 +61,14 @@ class CustomListActionUseCase(
         val locationNames =
             if (action.locations.isNotEmpty()) {
                 customListsRepository
-                    .updateCustomListLocations(customListId, action.locations)
-                    .mapLeft(CreateWithLocationsError::UpdateLocations)
+                    .updateCustomList(
+                        CustomList(
+                            id = customListId,
+                            name = action.name,
+                            locations = action.locations,
+                        )
+                    )
+                    .mapLeft(CreateWithLocationsError::UpdateCustomList)
                     .bind()
 
                 relayListRepository.relayList
@@ -121,8 +129,7 @@ sealed interface CreateWithLocationsError : CustomListActionError {
 
     data class Create(val error: CreateCustomListError) : CreateWithLocationsError
 
-    data class UpdateLocations(val error: UpdateCustomListLocationsError) :
-        CreateWithLocationsError
+    data class UpdateCustomList(val error: UpdateCustomListError) : CreateWithLocationsError
 
     data object UnableToFetchRelayList : CreateWithLocationsError
 }
