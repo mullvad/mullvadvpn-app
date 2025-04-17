@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script generates bindings for certain pcap and pktap symbols.
+# This generates new bindings from 'proc_info.h'.
 # bindgen is required: cargo install bindgen-cli
 
 set -eu
