@@ -8,6 +8,7 @@
 
 import Combine
 import MullvadSettings
+import MullvadTypes
 import Routing
 import UIKit
 

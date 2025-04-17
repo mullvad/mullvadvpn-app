@@ -48,12 +48,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     nonisolated(unsafe) private(set) var accessMethodRepository = AccessMethodRepository()
     private(set) var appPreferences = AppPreferences()
-    private(set) var shadowsocksLoader: ShadowsocksLoaderProtocol!
+    private(set) var shadowsocksLoader: ShadowsocksLoader!
     private(set) var configuredTransportProvider: ProxyConfigurationTransportProvider!
     private(set) var ipOverrideRepository = IPOverrideRepository()
     private(set) var relaySelector: RelaySelectorWrapper!
     private var launchArguments = LaunchArguments()
     private var encryptedDNSTransport: EncryptedDNSTransport!
+    var apiContext: MullvadApiContext!
+    var accessMethodReceiver: MullvadAccessMethodReceiver!
 
     // MARK: - Application lifecycle
 
@@ -77,8 +79,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         addressCache = REST.AddressCache(canWriteToCache: true, cacheDirectory: containerURL)
         addressCache.loadFromFile()
 
-        setUpProxies(containerURL: containerURL)
-
         let ipOverrideWrapper = IPOverrideWrapper(
             relayCache: RelayCache(cacheDirectory: containerURL),
             ipOverrideRepository: ipOverrideRepository
@@ -87,6 +87,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let tunnelSettingsListener = TunnelSettingsListener()
         let tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
 
+        let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
+        let shadowsocksRelaySelector = ShadowsocksRelaySelector(
+            relayCache: ipOverrideWrapper
+        )
+
+        shadowsocksLoader = ShadowsocksLoader(
+            cache: shadowsocksCache,
+            relaySelector: shadowsocksRelaySelector,
+            settingsUpdater: tunnelSettingsUpdater
+        )
+
+        let transportStrategy = TransportStrategy(
+            datasource: accessMethodRepository,
+            shadowsocksLoader: shadowsocksLoader
+        )
+
+        // swiftlint:disable:next force_try
+        apiContext = try! MullvadApiContext(
+            host: REST.defaultAPIHostname,
+            address: REST.defaultAPIEndpoint.description,
+            domain: REST.encryptedDNSHostname,
+            shadowsocksProvider: shadowsocksLoader,
+            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper
+        )
+
+        accessMethodReceiver = MullvadAccessMethodReceiver(
+            apiContext: apiContext,
+            accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
+            lastReachableDataSource: accessMethodRepository.lastReachableAccessMethodPublisher
+        )
+
+        setUpProxies(containerURL: containerURL)
         let backgroundTaskProvider = BackgroundTaskProvider(
             backgroundTimeRemaining: application.backgroundTimeRemaining,
             application: application
@@ -126,29 +158,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy,
             transactionLog: .default
         )
+
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession(addressCache: addressCache))
-        let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
-        let shadowsocksRelaySelector = ShadowsocksRelaySelector(
-            relayCache: ipOverrideWrapper
-        )
-
-        shadowsocksLoader = ShadowsocksLoader(
-            cache: shadowsocksCache,
-            relaySelector: shadowsocksRelaySelector,
-            settingsUpdater: tunnelSettingsUpdater
-        )
-
         encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSessionTransport.urlSession)
 
         configuredTransportProvider = ProxyConfigurationTransportProvider(
             shadowsocksLoader: shadowsocksLoader,
             addressCache: addressCache,
             encryptedDNSTransport: encryptedDNSTransport
-        )
-
-        let transportStrategy = TransportStrategy(
-            datasource: accessMethodRepository,
-            shadowsocksLoader: shadowsocksLoader
         )
 
         let transportProvider = TransportProvider(
@@ -158,7 +175,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             encryptedDNSTransport: encryptedDNSTransport
         )
 
-        let apiRequestFactory = MullvadApiRequestFactory(apiContext: REST.apiContext)
+        let apiRequestFactory = MullvadApiRequestFactory(apiContext: apiContext)
         let apiTransportProvider = APITransportProvider(requestFactory: apiRequestFactory)
 
         apiTransportMonitor = APITransportMonitor(
@@ -208,8 +225,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 },
                 apiTransportProvider: REST.AnyAPITransportProvider { [weak self] in
                     self?.apiTransportMonitor.makeTransport()
-                },
-                addressCache: addressCache
+                }, addressCache: addressCache
             )
         } else {
             proxyFactory = REST.ProxyFactory.makeProxyFactory(
@@ -218,8 +234,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 },
                 apiTransportProvider: REST.AnyAPITransportProvider { [weak self] in
                     self?.apiTransportMonitor.makeTransport()
-                },
-                addressCache: addressCache
+                }, addressCache: addressCache
             )
         }
         apiProxy = proxyFactory.createAPIProxy()

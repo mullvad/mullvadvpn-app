@@ -8,6 +8,7 @@
 @testable import MullvadREST
 
 @testable import MullvadMockData
+@testable import MullvadRustRuntime
 @testable import MullvadSettings
 @testable import MullvadTypes
 @testable import WireGuardKitTypes
@@ -25,8 +26,8 @@ class TunnelManagerTests: XCTestCase {
     var devicesProxy: DevicesProxyStub!
     var apiProxy: APIProxyStub!
     var addressCache: REST.AddressCache!
-
     var transportProvider: TransportProvider!
+    var apiContext: MullvadApiContext!
 
     override static func setUp() {
         SettingsManager.unitTestStore = store
@@ -43,6 +44,15 @@ class TunnelManagerTests: XCTestCase {
         accessTokenManager = AccessTokenManagerStub()
         devicesProxy = DevicesProxyStub(deviceResult: .success(Device.mock(publicKey: PrivateKey().publicKey)))
         apiProxy = APIProxyStub()
+        let shadowsocksLoader = ShadowsocksLoader(
+            cache: ShadowsocksConfigurationCacheStub(),
+            relaySelector: ShadowsocksRelaySelectorStub(relays: .mock()),
+            settingsUpdater: SettingsUpdater(listener: TunnelSettingsListener())
+        )
+        let transportStrategy = TransportStrategy(
+            datasource: AccessMethodRepositoryStub.stub,
+            shadowsocksLoader: shadowsocksLoader
+        )
         addressCache = REST.AddressCache(
             canWriteToCache: false,
             fileCache: MockFileCache(initialState: .fileNotFound)
@@ -54,19 +64,16 @@ class TunnelManagerTests: XCTestCase {
                 canWriteToCache: true,
                 cacheDirectory: FileManager.default.temporaryDirectory
             ),
-            transportStrategy: TransportStrategy(
-                datasource: AccessMethodRepositoryStub(accessMethods: [PersistentAccessMethod(
-                    id: UUID(),
-                    name: "direct",
-                    isEnabled: true,
-                    proxyConfiguration: .direct
-                )]),
-                shadowsocksLoader: ShadowsocksLoader(
-                    cache: ShadowsocksConfigurationCacheStub(),
-                    relaySelector: ShadowsocksRelaySelectorStub(relays: .mock()),
-                    settingsUpdater: SettingsUpdater(listener: TunnelSettingsListener())
-                )
-            ), encryptedDNSTransport: RESTTransportStub()
+            transportStrategy: transportStrategy,
+            encryptedDNSTransport: RESTTransportStub()
+        )
+
+        apiContext = try MullvadApiContext(
+            host: REST.defaultAPIHostname,
+            address: REST.defaultAPIEndpoint.description,
+            domain: REST.encryptedDNSHostname,
+            shadowsocksProvider: shadowsocksLoader,
+            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper
         )
 
         try SettingsManager.writeSettings(LatestTunnelSettings())
@@ -149,7 +156,7 @@ class TunnelManagerTests: XCTestCase {
             relaySelector: relaySelector,
             transportProvider: transportProvider,
             apiTransportProvider: APITransportProvider(
-                requestFactory: MullvadApiRequestFactory(apiContext: REST.apiContext)
+                requestFactory: MullvadApiRequestFactory(apiContext: apiContext)
             )
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
@@ -220,7 +227,7 @@ class TunnelManagerTests: XCTestCase {
             relaySelector: relaySelector,
             transportProvider: transportProvider,
             apiTransportProvider: APITransportProvider(
-                requestFactory: MullvadApiRequestFactory(apiContext: REST.apiContext)
+                requestFactory: MullvadApiRequestFactory(apiContext: apiContext)
             )
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost

@@ -190,7 +190,7 @@ pub struct AccessModeConnectionModeProvider {
 }
 
 impl AccessModeConnectionModeProvider {
-    fn new(
+    pub fn new(
         handle: AccessModeSelectorHandle,
         initial_connection_mode: ApiConnectionMode,
         change_rx: mpsc::UnboundedReceiver<ApiConnectionMode>,
@@ -234,6 +234,7 @@ pub struct AccessModeSelector<B: AccessMethodResolver> {
     cmd_rx: mpsc::UnboundedReceiver<Message>,
     method_resolver: B,
     access_method_settings: Settings,
+    #[cfg(not(target_os = "ios"))]
     access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
     connection_mode_provider_sender: mpsc::UnboundedSender<ApiConnectionMode>,
     current: ResolvedConnectionMode,
@@ -247,7 +248,10 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         mut access_method_settings: Settings,
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
-        access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
+        #[cfg(not(target_os = "ios"))] access_method_event_sender: mpsc::UnboundedSender<(
+            AccessMethodEvent,
+            oneshot::Sender<()>,
+        )>,
     ) -> Result<(AccessModeSelectorHandle, AccessModeConnectionModeProvider)> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
@@ -273,6 +277,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
             cmd_rx,
             method_resolver,
             access_method_settings,
+            #[cfg(not(target_os = "ios"))]
             access_method_event_sender,
             connection_mode_provider_sender: change_tx,
             current: initial_connection_mode,
@@ -380,6 +385,24 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
     async fn set_current(&mut self, access_method: AccessMethodSetting) {
         let resolved = Self::resolve_with_default(&access_method, &mut self.method_resolver).await;
 
+        #[cfg(not(target_os = "ios"))]
+        self.notify_daemon(&resolved);
+
+        // Notify REST client
+        let _ = self
+            .connection_mode_provider_sender
+            .unbounded_send(resolved.connection_mode.clone());
+
+        self.current = resolved;
+
+        log::info!(
+            "A new API access method has been selected: {name}",
+            name = self.current.setting.name
+        );
+    }
+
+    #[cfg(not(target_os = "ios"))]
+    fn notify_daemon(&mut self, resolved: &ResolvedConnectionMode) {
         // Note: If the daemon is busy waiting for a call to this function
         // to complete while we wait for the daemon to fully handle this
         // `NewAccessMethodEvent`, then we find ourselves in a deadlock.
@@ -402,18 +425,6 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
             .send(sender)
             .await;
         });
-
-        // Notify REST client
-        let _ = self
-            .connection_mode_provider_sender
-            .unbounded_send(resolved.connection_mode.clone());
-
-        self.current = resolved;
-
-        log::info!(
-            "A new API access method has been selected: {name}",
-            name = self.current.setting.name
-        );
     }
 
     /// Find the next access method to use.

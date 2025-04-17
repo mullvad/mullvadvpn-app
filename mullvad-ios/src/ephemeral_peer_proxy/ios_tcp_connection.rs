@@ -35,6 +35,7 @@ impl WgTcpConnectionFunctions {
     /// This function is safe to call so long as the function pointer is valid for its declared
     /// signature.
     pub unsafe fn open(&self, tunnel_handle: i32, address: *const u8, timeout: u64) -> i32 {
+        // SAFETY: See above
         unsafe { (self.open_fn)(tunnel_handle, address.cast(), timeout) }
     }
 
@@ -42,6 +43,7 @@ impl WgTcpConnectionFunctions {
     /// This function is safe to call so long as the function pointer is valid for its declared
     /// signature.
     pub unsafe fn close(&self, tunnel_handle: i32, socket_handle: i32) -> i32 {
+        // SAFETY: See above
         unsafe { (self.close_fn)(tunnel_handle, socket_handle) }
     }
 
@@ -54,6 +56,7 @@ impl WgTcpConnectionFunctions {
             .len()
             .try_into()
             .expect("Cannot receive a buffer larger than 2GiB");
+        // SAFETY: See notes for this function
         unsafe { (self.recv_fn)(tunnel_handle, socket_handle, ptr.cast(), len) }
     }
 
@@ -66,6 +69,7 @@ impl WgTcpConnectionFunctions {
             .len()
             .try_into()
             .expect("Cannot send a buffer larger than 2GiB");
+        // SAFETY: See notes for this function
         unsafe { (self.send_fn)(tunnel_handle, socket_handle, ptr.cast(), len) }
     }
 }
@@ -108,9 +112,9 @@ impl IosTcpProvider {
         let tunnel_handle = self.tunnel_handle;
         let timeout = self.timeout.as_secs();
         let funcs = self.funcs;
+        // SAFETY:
+        // The `open_fn` function pointer in `funcs` must be valid.
         let result = tokio::task::spawn_blocking(move || unsafe {
-            // SAFETY
-            // The `open_fn` function pointer in `funcs` must be valid.
             funcs.open(tunnel_handle, address.as_ptr() as *const _, timeout)
         })
         .await
@@ -132,7 +136,7 @@ impl IosTcpProvider {
 
 impl Drop for IosTcpConnection {
     fn drop(&mut self) {
-        // Safety
+        // Safety:
         // `funcs.close_fn` must be a valid function pointer.
         unsafe { self.funcs.close(self.tunnel_handle, self.socket_handle) };
     }
@@ -163,7 +167,7 @@ impl AsyncWrite for IosTcpConnection {
             let data = buf.to_vec();
             let funcs = self.funcs;
             let task = tokio::task::spawn_blocking(move || {
-                // Safety
+                // Safety:
                 // `funcs.send_fn` must be a valid function pointer.
                 let result = unsafe { funcs.send(tunnel_handle, socket_handle, data.as_slice()) };
                 if result < 0 {
@@ -227,7 +231,7 @@ impl AsyncRead for IosTcpConnection {
             let funcs = self.funcs;
             let mut buffer = vec![0u8; buf.remaining()];
             let task = tokio::task::spawn_blocking(move || {
-                // Safety
+                // Safety:
                 // `funcs.receive_fn` must be a valid function pointer.
                 let result =
                     unsafe { funcs.receive(tunnel_handle, socket_handle, buffer.as_mut_slice()) };

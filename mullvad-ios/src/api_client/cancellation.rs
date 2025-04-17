@@ -16,11 +16,13 @@ impl SwiftCancelHandle {
 
     /// This consumes and nulls out the pointer. The caller is responsible for the pointer being valid
     /// when calling `to_handle`.
+    ///
+    /// SAFETY:
+    /// This call is safe as long as the pointer is only ever used from a single thread and the
+    /// instance of `SwiftCancelHandle` was created with a valid pointer to
+    /// `RequestCancelHandle`.
     unsafe fn into_handle(mut self) -> RequestCancelHandle {
-        // # Safety
-        // This call is safe as long as the pointer is only ever used from a single thread and the
-        // instance of `SwiftCancelHandle` was created with a valid pointer to
-        // `RequestCancelHandle`.
+        // SAFETY: See safety notes above
         let handle = unsafe { *Box::from_raw(self.ptr) };
         self.ptr = null_mut();
 
@@ -67,6 +69,7 @@ extern "C" fn mullvad_api_cancel_task(handle_ptr: SwiftCancelHandle) {
         return;
     }
 
+    // SAFETY: See notes for `into_handle`
     let handle = unsafe { handle_ptr.into_handle() };
     handle.cancel()
 }
@@ -84,5 +87,6 @@ extern "C" fn mullvad_api_cancel_task_drop(handle_ptr: SwiftCancelHandle) {
         return;
     }
 
+    // SAFETY: See notes for `into_handle`
     let _handle = unsafe { handle_ptr.into_handle() };
 }
