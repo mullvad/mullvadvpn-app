@@ -64,3 +64,9 @@ reason = "wireguard-go does not use x/net/proxy nor x/net/http/httpproxy"
 id = "CVE-2025-22871" # GO-2025-3563
 ignoreUntil = 2025-07-08
 reason = "wireguard-go does not use net/http"
+
+# Incorrect Neutralization of Input During Web Page Generation in x/net
+[[IgnoredVulns]]
+id = "CVE-2025-22872" # GO-2025-3595
+ignoreUntil = 2025-07-17
+reason = "wireguard-go does not use x/net/html"
