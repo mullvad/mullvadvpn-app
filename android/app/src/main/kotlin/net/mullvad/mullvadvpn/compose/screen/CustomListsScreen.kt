@@ -45,7 +45,6 @@ import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.preview.CustomListsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.NEW_LIST_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
@@ -156,11 +155,7 @@ fun CustomListsScreen(
 }
 
 private fun LazyListScope.loading() {
-    item(contentType = ContentType.PROGRESS) {
-        MullvadCircularProgressIndicatorLarge(
-            modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
-        )
-    }
+    item(contentType = ContentType.PROGRESS) { MullvadCircularProgressIndicatorLarge() }
 }
 
 private fun LazyListScope.content(

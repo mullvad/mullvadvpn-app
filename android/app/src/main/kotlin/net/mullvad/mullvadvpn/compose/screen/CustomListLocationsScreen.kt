@@ -45,7 +45,6 @@ import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.CustomListLocationUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -201,9 +200,7 @@ private fun Actions(isSaveEnabled: Boolean, onSaveClick: () -> Unit) {
 
 private fun LazyListScope.loading() {
     item(key = CommonContentKey.PROGRESS, contentType = ContentType.PROGRESS) {
-        MullvadCircularProgressIndicatorLarge(
-            modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
-        )
+        MullvadCircularProgressIndicatorLarge()
     }
 }
 
