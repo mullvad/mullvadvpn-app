@@ -45,20 +45,32 @@ public final class APIRequestProxy: APIRequestProxyProtocol, @unchecked Sendable
                 completion(ProxyAPIResponse(data: nil, error: nil))
                 return
             }
+            do {
+                let cancellable = try transport.sendRequest(proxyRequest.request) { [weak self] response in
+                    guard let self else { return }
 
-            let cancellable = transport.sendRequest(proxyRequest.request) { [weak self] response in
-                guard let self else { return }
-
-                // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
-                dispatchQueue.async {
-                    _ = self.removeRequest(identifier: proxyRequest.id)
-                    completion(response)
+                    // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
+                    dispatchQueue.async {
+                        _ = self.removeRequest(identifier: proxyRequest.id)
+                        completion(response)
+                    }
                 }
-            }
 
-            // Cancel old task, if there's one scheduled.
-            let oldTask = self.addRequest(identifier: proxyRequest.id, task: cancellable)
-            oldTask?.cancel()
+                // Cancel old task, if there's one scheduled.
+                let oldTask = self.addRequest(identifier: proxyRequest.id, task: cancellable)
+                oldTask?.cancel()
+            } catch {
+                completion(
+                    ProxyAPIResponse(
+                        data: nil,
+                        error: APIError(
+                            statusCode: 0,
+                            errorDescription: error.localizedDescription,
+                            serverResponseCode: nil
+                        )
+                    )
+                )
+            }
         }
     }
 

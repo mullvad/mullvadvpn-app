@@ -15,6 +15,12 @@ public enum APIRequest: Codable, Sendable {
     case createAccount(_ retryStrategy: REST.RetryStrategy)
     case getAccount(_ retryStrategy: REST.RetryStrategy, accountNumber: String)
     case deleteAccount(_ retryStrategy: REST.RetryStrategy, accountNumber: String)
+    case initStorekitPayment(retryStrategy: REST.RetryStrategy, accountNumber: String)
+    case checkStorekitPayment(
+        retryStrategy: REST.RetryStrategy,
+        accountNumber: String,
+        transaction: StorekitTransaction
+    )
 
     var name: String {
         switch self {
@@ -30,6 +36,10 @@ public enum APIRequest: Codable, Sendable {
             "get-account"
         case .deleteAccount:
             "delete-account"
+        case .initStorekitPayment:
+            "init-storekit-payment"
+        case .checkStorekitPayment:
+            "check-storekit-payment"
         }
     }
 
@@ -41,7 +51,9 @@ public enum APIRequest: Codable, Sendable {
             let .sendProblemReport(strategy, _),
             let .createAccount(strategy),
             let .getAccount(strategy, _),
-            let .deleteAccount(strategy, _):
+            let .deleteAccount(strategy, _),
+            let .initStorekitPayment(strategy, _),
+            let .checkStorekitPayment(strategy, _, _):
             strategy
         }
     }
