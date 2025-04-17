@@ -2748,6 +2748,7 @@ dependencies = [
  "talpid-core",
  "talpid-dbus",
  "talpid-future",
+ "talpid-macos",
  "talpid-platform-metadata",
  "talpid-routing",
  "talpid-time",

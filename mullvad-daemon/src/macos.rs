@@ -1,8 +1,12 @@
-use std::{fmt, io, path::Path, process::Stdio};
+use std::{ffi::OsStr, fmt, io, path::Path, process::Stdio};
 
 use anyhow::{anyhow, Context};
+use libc::{pid_t, PROX_FDTYPE_VNODE};
 use notify::{RecursiveMode, Watcher};
 use std::io::Write;
+use talpid_macos::process::{
+    get_file_desc_vnode_path, list_pids, process_bsdinfo, process_file_descriptors, process_path,
+};
 use tokio::{fs::File, process::Command};
 
 use crate::device::AccountManagerHandle;
@@ -110,7 +114,21 @@ pub async fn handle_app_bundle_removal(
         }
     };
 
-    log(format_args!("{APP_PATH} was removed. Running uninstaller."));
+    log(format_args!("{APP_PATH} was removed."));
+
+    // TODO: This check can be removed once we no longer care about downgrades to
+    // versions that didn't unload the daemon in preinstall instead of postinstall.
+    // E.g., a year after we released version 2025.7
+    if mullvad_installer_is_running() {
+        log(format_args!(
+            "Found installer process. Ignoring app removal"
+        ));
+        return Ok(());
+    } else {
+        log(format_args!(
+            "Did not find installer process. Running uninstaller"
+        ));
+    }
 
     tokio::fs::write(UNINSTALL_SCRIPT_PATH, UNINSTALL_SCRIPT)
         .await
@@ -156,4 +174,57 @@ fn reset_firewall() -> anyhow::Result<()> {
         .context("Failed to create firewall instance")?
         .reset_policy()
         .context("Failed to reset firewall policy")
+}
+
+/// Figure out if a Mullvad installer is active
+fn mullvad_installer_is_running() -> bool {
+    let Ok(pids) = list_pids() else {
+        // If we can't retrieve any PIDs, assume installer isn't running
+        return false;
+    };
+    pids.into_iter()
+        .any(|pid| process_has_mullvad_installer(pid).unwrap_or(false))
+}
+
+/// Figure out if the 'pid' process is privileged and has a file open that matches a Mullvad pkg
+fn process_has_mullvad_installer(pid: pid_t) -> io::Result<bool> {
+    // Ignore process if it isn't running as root
+    // This is because the filename is easily spoofable
+    if process_bsdinfo(pid)?.pbi_uid != 0 {
+        return Ok(false);
+    }
+
+    // We're only interested in installer processes
+    let process_path = process_path(pid)?;
+    if !process_path.starts_with("/System")
+        || process_path.file_name() != Some(OsStr::new("installd"))
+    {
+        return Ok(false);
+    }
+
+    // Figure out if one of the file descriptors refers to a Mullvad installer
+    for fd in process_file_descriptors(pid)? {
+        // Only check vnodes
+        if fd.proc_fdtype != PROX_FDTYPE_VNODE as u32 {
+            continue;
+        }
+
+        let Ok(path) = get_file_desc_vnode_path(pid, &fd) else {
+            continue;
+        };
+
+        // Check if file refers to a Mullvad .pkg
+        let lower_path = path.to_bytes().to_ascii_lowercase();
+        let is_pkg = lower_path.ends_with(b".pkg");
+        let seq_to_find = b"mullvad";
+
+        if is_pkg
+            && lower_path
+                .windows(seq_to_find.len())
+                .any(|seq| seq == &seq_to_find[..])
+        {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
