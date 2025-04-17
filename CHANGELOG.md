@@ -26,6 +26,11 @@ Line wrap the file at 100 chars.                                              Th
 - Add a notification for notifying users about the sunsetting of OpenVPN.
 
 ### Changed
+- Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
+  mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
+  uses a lot less CPU to compute the keypair, and the public key sent to the server
+  is drastically smaller.
+
 #### Windows
 - Rename `win-shortcuts` native module to `windows-utils`.
 
