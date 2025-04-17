@@ -92,7 +92,7 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
                 bridgesMethodRaw,
                 encryptedDNSMethodRaw,
                 $0.baseAddress!,
-                customMethods.count
+                UInt(customMethods.count)
             )
         }
     )

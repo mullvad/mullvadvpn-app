@@ -1,6 +1,7 @@
 use std::{
     ffi::{c_char, c_void},
     ptr::null_mut,
+    slice,
 };
 
 use mullvad_types::access_method::{
@@ -17,6 +18,8 @@ use super::helpers::convert_c_string;
 ///
 /// # SAFETY:
 /// `unique_identifier` and `name` must point to valid memory regions and contain NULL terminators.
+/// They are only valid for the duration of this call.
+///
 /// `proxy_configuration` can be NULL, or must be a pointer gotten through
 /// either the `convert_shadowsocks` or `convert_socks5` methods.
 #[unsafe(no_mangle)]
@@ -40,6 +43,9 @@ unsafe extern "C" fn convert_builtin_access_method_setting(
 }
 
 /// Converts parameters into an `AccessMethodSetting`
+///
+/// This function assumes ownership of the following variables
+/// `unique_identifier`, `name`, `proxy_configuration`
 fn convert_builtin_access_method_setting_inner(
     unique_identifier: *const c_char,
     name: *const c_char,
@@ -119,13 +125,14 @@ pub enum SwiftAccessMethodKind {
 /// # SAFETY
 /// `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
 /// resulting from a call to `convert_builtin_access_method_setting`
+/// `custom_methods_raw` is a raw pointer to an array of `Box<AccessMethodSetting>`
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn init_access_method_settings_wrapper(
     direct_method_raw: *const c_void,
     bridges_method_raw: *const c_void,
     encrypted_dns_method_raw: *const c_void,
     custom_methods_raw: *const c_void,
-    count: isize,
+    count: usize,
 ) -> SwiftAccessMethodSettingsWrapper {
     // SAFETY: See `init_access_method_settings_wrapper`
     let (direct, mullvad_bridges, encrypted_dns_proxy) = unsafe {
@@ -142,20 +149,23 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
     SwiftAccessMethodSettingsWrapper::new(context)
 }
 
+/// Creates a vector of `AccessMethodSetting` objects from a C array
+///
+/// SAFETY: `vector_raw` must be aligned, non-null and initialized for `count` reads
 unsafe fn access_methods_from_raw_vector(
     vector_raw: *const c_void,
-    count: isize,
+    count: usize,
 ) -> Vec<AccessMethodSetting> {
-    let mut custom: Vec<AccessMethodSetting> = usize::try_from(count)
-        .map(Vec::with_capacity)
-        .unwrap_or_default();
     let vector_raw: *mut *mut AccessMethodSetting = vector_raw as _;
-    for i in 0..count {
-        let ptr: *mut AccessMethodSetting = *vector_raw.offset(i);
-        let setting = Box::from_raw(ptr);
-        custom.push(*setting);
-    }
-    custom
+    // SAFETY: See notice above
+    let slice = unsafe { slice::from_raw_parts(vector_raw, count) };
+    slice
+        .iter()
+        .map(|&ptr| {
+            // SAFETY: `slice` is a slice of pointers to `Box<AccessMethodSetting>` objects
+            *unsafe { Box::from_raw(ptr) }
+        })
+        .collect()
 }
 
 #[repr(C)]

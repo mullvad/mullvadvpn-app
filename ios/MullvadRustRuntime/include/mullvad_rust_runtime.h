@@ -162,6 +162,8 @@ struct SwiftApiContext mullvad_api_init_new(const char *host,
  *
  * # SAFETY:
  * `unique_identifier` and `name` must point to valid memory regions and contain NULL terminators.
+ * They are only valid for the duration of this call.
+ *
  * `proxy_configuration` can be NULL, or must be a pointer gotten through
  * either the `convert_shadowsocks` or `convert_socks5` methods.
  */
@@ -177,12 +179,13 @@ void *convert_builtin_access_method_setting(const char *unique_identifier,
  * # SAFETY
  * `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
  * resulting from a call to `convert_builtin_access_method_setting`
+ * `custom_methods_raw` is a raw pointer to an array of `Box<AccessMethodSetting>`
  */
 struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(const void *direct_method_raw,
                                                                             const void *bridges_method_raw,
                                                                             const void *encrypted_dns_method_raw,
                                                                             const void *custom_methods_raw,
-                                                                            intptr_t count);
+                                                                            uintptr_t count);
 
 /**
  * # Safety
