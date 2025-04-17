@@ -29,6 +29,7 @@ final class LocationViewController: UIViewController {
     private var filter = RelayFilter()
     private var selectedRelays: RelaySelection
     private var shouldFilterDaita: Bool
+    private var shouldFilterObfuscation: Bool
     weak var delegate: LocationViewControllerDelegate?
     var customListRepository: CustomListRepositoryProtocol
 
@@ -39,11 +40,13 @@ final class LocationViewController: UIViewController {
     init(
         customListRepository: CustomListRepositoryProtocol,
         selectedRelays: RelaySelection,
-        shouldFilterDaita: Bool
+        shouldFilterDaita: Bool,
+        shouldFilterObfuscation: Bool
     ) {
         self.customListRepository = customListRepository
         self.selectedRelays = selectedRelays
         self.shouldFilterDaita = shouldFilterDaita
+        self.shouldFilterObfuscation = shouldFilterObfuscation
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -89,6 +92,11 @@ final class LocationViewController: UIViewController {
     func setDaitaChip(_ isEnabled: Bool) {
         self.shouldFilterDaita = isEnabled
         filterView.setDaita(isEnabled)
+    }
+
+    func setObfuscationChip(_ isEnabled: Bool) {
+        self.shouldFilterObfuscation = isEnabled
+        filterView.setObfuscation(isEnabled)
     }
 
     func refreshCustomLists() {
@@ -175,6 +183,7 @@ final class LocationViewController: UIViewController {
         topContentView.addArrangedSubview(filterView)
         topContentView.addArrangedSubview(searchBar)
         filterView.setDaita(shouldFilterDaita)
+        filterView.setObfuscation(shouldFilterObfuscation)
 
         filterView.didUpdateFilter = { [weak self] in
             self?.delegate?.didUpdateFilter(filter: $0)

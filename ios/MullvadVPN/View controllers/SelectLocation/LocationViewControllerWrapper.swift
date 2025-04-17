@@ -78,13 +78,15 @@ final class LocationViewControllerWrapper: UIViewController {
         entryLocationViewController = LocationViewController(
             customListRepository: customListRepository,
             selectedRelays: RelaySelection(),
-            shouldFilterDaita: settings.daita.isDirectOnly
+            shouldFilterDaita: false,
+            shouldFilterObfuscation: false
         )
 
         exitLocationViewController = LocationViewController(
             customListRepository: customListRepository,
             selectedRelays: RelaySelection(),
-            shouldFilterDaita: settings.daita.isDirectOnly && !settings.daita.isAutomaticRouting
+            shouldFilterDaita: false,
+            shouldFilterObfuscation: false
         )
 
         super.init(nibName: nil, bundle: nil)
@@ -124,9 +126,21 @@ final class LocationViewControllerWrapper: UIViewController {
     private func setRelaysWithLocation() {
         let emptyResult = LocationRelays(relays: [], locations: [:])
         let relaysCandidates = try? relaySelectorWrapper.findCandidates(tunnelSettings: settings)
-        entryLocationViewController?.setDaitaChip(settings.daita.isDirectOnly)
-        exitLocationViewController.setDaitaChip(settings.daita.isDirectOnly && !settings.tunnelMultihopState.isEnabled)
-        entryLocationViewController?.toggleDaitaAutomaticRouting(isEnabled: settings.daita.isAutomaticRouting)
+
+        let isMultihop = settings.tunnelMultihopState.isEnabled
+        let isDirectOnly = settings.daita.isDirectOnly
+        let isAutomaticRouting = settings.daita.isAutomaticRouting
+        let isObfuscation = settings.wireGuardObfuscation.state.affectsRelaySelection
+
+        if isMultihop {
+            entryLocationViewController?.setObfuscationChip(isObfuscation && !isAutomaticRouting)
+            entryLocationViewController?.setDaitaChip(isDirectOnly)
+            entryLocationViewController?.toggleDaitaAutomaticRouting(isEnabled: isAutomaticRouting)
+        } else {
+            exitLocationViewController.setObfuscationChip(isObfuscation)
+            exitLocationViewController.setDaitaChip(isDirectOnly)
+        }
+
         if let entryRelays = relaysCandidates?.entryRelays {
             entryLocationViewController?.setRelaysWithLocation(entryRelays.toLocationRelays(), filter: relayFilter)
         } else {
@@ -302,5 +316,16 @@ extension LocationViewControllerWrapper: @preconcurrency LocationViewControllerD
 
     func didUpdateFilter(filter: RelayFilter) {
         delegate?.didUpdateFilter(filter)
+    }
+}
+
+private extension WireGuardObfuscationState {
+    var affectsRelaySelection: Bool {
+        switch self {
+        case .shadowsocks:
+            true
+        case .on, .off, .automatic, .udpOverTcp:
+            false
+        }
     }
 }

@@ -1,5 +1,5 @@
 //
-//  RelayFilter.swift
+//  AccessibilityIdentifier.swift
 //  MullvadVPN
 //
 //  Created by Jon Petersson on 2023-12-20.
@@ -64,6 +64,7 @@ public enum AccessibilityIdentifier: Equatable {
     case openPortSelectorMenuButton
     case cancelPurchaseListButton
     case acceptLocalNetworkSharingButton
+
     // Cells
     case deviceCell
     case accessMethodDirectCell
@@ -99,6 +100,8 @@ public enum AccessibilityIdentifier: Equatable {
     case daitaConfirmAlertEnableButton
     case multihopCell
     case daitaCell
+    case daitaFilterPill
+    case obfuscationFilterPill
 
     // Labels
     case accountPageDeviceNameLabel
