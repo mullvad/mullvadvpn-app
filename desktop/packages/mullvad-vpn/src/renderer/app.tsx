@@ -178,6 +178,10 @@ export default class AppRenderer {
     IpcRendererEventChannel.app.listenUpgradeEvent((appUpgradeEvent) => {
       this.reduxActions.appUpgrade.setAppUpgradeEvent(appUpgradeEvent);
 
+      if (appUpgradeEvent.type === 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS') {
+        this.reduxActions.appUpgrade.setLastProgress(appUpgradeEvent.progress);
+      }
+
       // Check if the installer should be started automatically
       this.maybeStartAppUpgradeInstaller();
     });
