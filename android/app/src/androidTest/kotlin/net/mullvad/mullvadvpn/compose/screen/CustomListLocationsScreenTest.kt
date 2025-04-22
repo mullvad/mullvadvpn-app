@@ -159,6 +159,7 @@ class CustomListLocationsScreenTest {
                     CustomListLocationsUiState.Content.Empty(
                         newList = false,
                         searchTerm = mockSearchString,
+                        isSearching = true,
                     ),
                 onSearchTermInput = mockedSearchTermInput,
             )
@@ -177,6 +178,7 @@ class CustomListLocationsScreenTest {
                     CustomListLocationsUiState.Content.Empty(
                         newList = false,
                         searchTerm = emptySearchString,
+                        isSearching = false,
                     )
             )
 

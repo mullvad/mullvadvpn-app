@@ -25,7 +25,6 @@ import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
 import net.mullvad.mullvadvpn.relaylist.ancestors
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
@@ -63,6 +62,7 @@ class CustomListLocationsViewModel(
                         CustomListLocationsUiState.Content.Empty(
                             newList = navArgs.newList,
                             searchTerm = searchTerm,
+                            isSearching = searchTerm.length >= MIN_SEARCH_LENGTH,
                         )
                     else ->
                         CustomListLocationsUiState.Content.Data(
@@ -309,6 +309,7 @@ class CustomListLocationsViewModel(
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
+        private const val MIN_SEARCH_LENGTH = 2
     }
 }
 

@@ -2842,9 +2842,6 @@ msgstr ""
 msgid "Toggle VPN"
 msgstr ""
 
-msgid "Type at least 2 characters to start searching."
-msgstr ""
-
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr ""
 
