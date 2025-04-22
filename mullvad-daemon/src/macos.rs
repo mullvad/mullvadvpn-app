@@ -116,6 +116,9 @@ pub async fn handle_app_bundle_removal(
 
     log(format_args!("{APP_PATH} was removed."));
 
+    // TODO: This check can be removed once we no longer care about downgrades to
+    // versions that didn't unload the daemon in preinstall instead of postinstall.
+    // E.g., a year after we released version 2025.7
     if mullvad_installer_is_running() {
         log(format_args!(
             "Found installer process. Ignoring app removal"
