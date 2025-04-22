@@ -15,7 +15,11 @@ sealed interface CustomListLocationsUiState {
     sealed interface Content : CustomListLocationsUiState {
         val searchTerm: String
 
-        data class Empty(override val newList: Boolean, override val searchTerm: String) : Content {
+        data class Empty(
+            override val newList: Boolean,
+            override val searchTerm: String,
+            val isSearching: Boolean,
+        ) : Content {
             override val saveEnabled: Boolean = false
             override val hasUnsavedChanges: Boolean = false
         }
