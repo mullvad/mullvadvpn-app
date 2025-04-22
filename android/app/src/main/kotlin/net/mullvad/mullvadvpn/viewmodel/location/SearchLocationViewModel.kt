@@ -22,7 +22,6 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -75,35 +74,32 @@ class SearchLocationViewModel(
                 selectedItem,
                 filterChips,
                 expandedItems ->
-                if (searchTerm.length >= MIN_SEARCH_LENGTH) {
-                    SearchLocationUiState.Content(
-                        searchTerm = searchTerm,
-                        relayListItems =
-                            relayListItems(
-                                searchTerm = searchTerm,
-                                relayCountries = relayCountries,
-                                relayListType = relayListType,
-                                customLists = filteredCustomLists,
-                                selectedByThisEntryExitList =
-                                    selectedItem.selectedByThisEntryExitList(relayListType),
-                                selectedByOtherEntryExitList =
-                                    selectedItem.selectedByOtherEntryExitList(
-                                        relayListType,
-                                        customLists,
-                                    ),
-                                expandedItems = expandedItems,
-                            ),
-                        customLists = customLists,
-                        filterChips = filterChips,
-                    )
-                } else {
-                    SearchLocationUiState.NoQuery(searchTerm, filterChips)
-                }
+                SearchLocationUiState.Content(
+                    searchTerm = searchTerm,
+                    relayListItems =
+                        relayListItems(
+                            searchTerm = searchTerm,
+                            isSearching = true,
+                            relayCountries = relayCountries,
+                            relayListType = relayListType,
+                            customLists = filteredCustomLists,
+                            selectedByThisEntryExitList =
+                                selectedItem.selectedByThisEntryExitList(relayListType),
+                            selectedByOtherEntryExitList =
+                                selectedItem.selectedByOtherEntryExitList(
+                                    relayListType,
+                                    customLists,
+                                ),
+                            expandedItems = expandedItems,
+                        ),
+                    customLists = customLists,
+                    filterChips = filterChips,
+                )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                SearchLocationUiState.NoQuery("", emptyList()),
+                SearchLocationUiState.Content("", emptyList(), emptyList(), emptyList()),
             )
 
     private val _uiSideEffect = Channel<SearchLocationSideEffect>()
@@ -131,8 +127,12 @@ class SearchLocationViewModel(
     private fun searchRelayListLocations() =
         combine(_searchTerm, filteredRelayListUseCase(relayListType)) { searchTerm, relayCountries
                 ->
-                val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
-                exp.map { it.expandKey() }.toSet() to filteredRelayCountries
+                if (searchTerm.isNotEmpty()) {
+                    val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
+                    exp.map { it.expandKey() }.toSet() to filteredRelayCountries
+                } else {
+                    emptySet<String>() to relayCountries
+                }
             }
             .onEach { _expandedItems.value = it.first }
             .map { it.second }

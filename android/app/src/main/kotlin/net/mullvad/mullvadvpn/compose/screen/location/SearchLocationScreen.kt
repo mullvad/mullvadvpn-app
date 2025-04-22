@@ -37,7 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,7 +57,6 @@ import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SearchLocationsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.RelayListType
@@ -77,7 +75,7 @@ import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview("Default|Not found|Results")
+@Preview("Default|No Locations|Not found|Results")
 @Composable
 private fun PreviewSearchLocationScreen(
     @PreviewParameter(SearchLocationsUiStatePreviewParameterProvider::class)
@@ -289,9 +287,6 @@ fun SearchLocationScreen(
                     onRemoveProviderFilter = onRemoveProviderFilter,
                 )
                 when (state) {
-                    is SearchLocationUiState.NoQuery -> {
-                        noQuery()
-                    }
                     is SearchLocationUiState.Content -> {
                         relayListContent(
                             backgroundColor = backgroundColor,
@@ -374,18 +369,6 @@ private fun SearchBar(
                 unfocusedTrailingIconColor = onBackgroundColor,
             ),
     )
-}
-
-private fun LazyListScope.noQuery() {
-    item(contentType = ContentType.DESCRIPTION) {
-        Text(
-            text = stringResource(R.string.search_query_empty),
-            style = MaterialTheme.typography.labelMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(Dimens.mediumPadding),
-        )
-    }
 }
 
 private fun LazyListScope.filterRow(

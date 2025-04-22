@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -118,6 +119,8 @@ fun CustomListLocationsScreen(
     onExpand: (RelayItem.Location, selected: Boolean) -> Unit,
     onBackClick: () -> Unit,
 ) {
+    BackHandler(onBack = onBackClick)
+
     ScaffoldWithSmallTopBar(
         appBarTitle =
             stringResource(
@@ -159,7 +162,7 @@ fun CustomListLocationsScreen(
                         loading()
                     }
                     is CustomListLocationsUiState.Content.Empty -> {
-                        empty(searchTerm = state.searchTerm)
+                        empty(searchTerm = state.searchTerm, isSearching = state.isSearching)
                     }
                     is CustomListLocationsUiState.Content.Data -> {
                         content(
@@ -204,9 +207,9 @@ private fun LazyListScope.loading() {
     }
 }
 
-private fun LazyListScope.empty(searchTerm: String) {
+private fun LazyListScope.empty(searchTerm: String, isSearching: Boolean) {
     item(key = CommonContentKey.EMPTY, contentType = ContentType.EMPTY_TEXT) {
-        LocationsEmptyText(searchTerm = searchTerm)
+        LocationsEmptyText(searchTerm = searchTerm, isSearching = isSearching)
     }
 }
 

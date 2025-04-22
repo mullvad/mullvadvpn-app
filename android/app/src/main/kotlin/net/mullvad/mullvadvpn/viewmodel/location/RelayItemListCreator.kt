@@ -8,12 +8,12 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
-import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 
 // Creates a relay list to be displayed by RelayListContent
 internal fun relayListItems(
     searchTerm: String = "",
+    isSearching: Boolean = false,
     relayListType: RelayListType,
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
@@ -26,7 +26,7 @@ internal fun relayListItems(
     return buildList {
         val relayItems =
             createRelayListItems(
-                isSearching = searchTerm.isSearching(),
+                isSearching = isSearching,
                 relayListType = relayListType,
                 selectedByThisEntryExitList = selectedByThisEntryExitList,
                 selectedByOtherEntryExitList = selectedByOtherEntryExitList,
@@ -35,11 +35,19 @@ internal fun relayListItems(
             ) {
                 it in expandedItems
             }
-        if (relayItems.isEmpty()) {
-            add(RelayListItem.LocationsEmptyText(searchTerm))
-        } else {
-            addAll(relayItems)
-        }
+        addAll(
+            relayItems.ifEmpty {
+                // Even though we are searching we want to show no locations found text if the
+                // search term is empty since we should get a result as long as there are any
+                // location in the list
+                listOf(
+                    RelayListItem.LocationsEmptyText(
+                        searchTerm,
+                        isSearching && searchTerm.isNotEmpty(),
+                    )
+                )
+            }
+        )
     }
 }
 
@@ -327,8 +335,6 @@ private fun RelayItemId?.singleRelayId(customLists: List<RelayItem.CustomList>):
                 ?.id as? GeoLocationId.Hostname
         else -> null
     }
-
-private fun String.isSearching() = length >= MIN_SEARCH_LENGTH
 
 private fun RelayItem.createState(
     relayListType: RelayListType,

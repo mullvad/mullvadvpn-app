@@ -305,7 +305,6 @@
     <string name="search">Recherche</string>
     <string name="search_location_empty_text">Aucun résultat pour « %1$s ». Veuillez essayer une autre recherche</string>
     <string name="search_placeholder">Rechercher...</string>
-    <string name="search_query_empty">Saisissez au moins 2 caractères pour commencer la recherche.</string>
     <string name="select_location">Sélectionner une localisation</string>
     <string name="send">Envoyer</string>
     <string name="send_anyway">Envoyer quand même</string>

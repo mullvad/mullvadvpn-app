@@ -101,7 +101,8 @@ fun LazyListScope.relayListContent(
                             },
                             { expand -> onToggleExpand(listItem.item.id, null, expand) },
                         )
-                    is RelayListItem.LocationsEmptyText -> LocationsEmptyText(listItem.searchTerm)
+                    is RelayListItem.LocationsEmptyText ->
+                        LocationsEmptyText(listItem.searchTerm, listItem.isSearching)
                 }
             }
         },

@@ -7,11 +7,6 @@ sealed interface SearchLocationUiState {
     val searchTerm: String
     val filterChips: List<FilterChip>
 
-    data class NoQuery(
-        override val searchTerm: String,
-        override val filterChips: List<FilterChip>,
-    ) : SearchLocationUiState
-
     data class Content(
         override val searchTerm: String,
         override val filterChips: List<FilterChip>,

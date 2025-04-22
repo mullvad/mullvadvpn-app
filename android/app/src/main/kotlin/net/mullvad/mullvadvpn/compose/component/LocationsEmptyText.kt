@@ -10,11 +10,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
 
 @Composable
-fun LocationsEmptyText(searchTerm: String) {
-    if (searchTerm.length >= MIN_SEARCH_LENGTH) {
+fun LocationsEmptyText(searchTerm: String, isSearching: Boolean) {
+    if (isSearching) {
         Text(
             text = textResource(R.string.search_location_empty_text, searchTerm),
             style = MaterialTheme.typography.labelMedium,

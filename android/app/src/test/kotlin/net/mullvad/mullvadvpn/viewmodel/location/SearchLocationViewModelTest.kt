@@ -96,7 +96,7 @@ class SearchLocationViewModelTest {
         // Act, Assert
         viewModel.uiState.test() {
             // Wait for first data
-            assertIs<SearchLocationUiState.NoQuery>(awaitItem())
+            awaitItem()
 
             // Update search string
             viewModel.onSearchInputUpdated(mockSearchString)
@@ -123,7 +123,7 @@ class SearchLocationViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             // Wait for first data
-            assertIs<SearchLocationUiState.NoQuery>(awaitItem())
+            awaitItem()
 
             // Update search string
             viewModel.onSearchInputUpdated(mockSearchString)
@@ -135,7 +135,7 @@ class SearchLocationViewModelTest {
             val actualState = awaitItem()
             assertIs<SearchLocationUiState.Content>(actualState)
             assertLists(
-                listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
+                listOf(RelayListItem.LocationsEmptyText(mockSearchString, true)),
                 actualState.relayListItems,
             )
         }

@@ -37,7 +37,11 @@ class CustomListLocationUiStatePreviewParameterProvider :
                 saveEnabled = true,
                 hasUnsavedChanges = true,
             ),
-            CustomListLocationsUiState.Content.Empty(newList = false, searchTerm = "searchTerm"),
+            CustomListLocationsUiState.Content.Empty(
+                newList = false,
+                searchTerm = "searchTerm",
+                isSearching = true,
+            ),
             CustomListLocationsUiState.Loading(newList = true),
         )
 }
