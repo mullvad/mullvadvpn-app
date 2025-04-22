@@ -17,6 +17,12 @@ use super::{
     DefaultRoute,
 };
 
+/// Grace time during which we don't act if the best default route dissapears.
+//
+// 5 seconds seemed to be a reasonable value when testing.
+// Increasing this value will increase the time it takes the daemon to realize when there's no
+// network connectivity. Decreasing it will increase the risk of unnecessary reconnects when the
+// best default route simply goes away for a few seconds.
 const NO_ROUTE_GRACE_TIME: Duration = Duration::from_secs(5);
 
 /// Monitors changes to the primary interface and reports [BestRoute].
