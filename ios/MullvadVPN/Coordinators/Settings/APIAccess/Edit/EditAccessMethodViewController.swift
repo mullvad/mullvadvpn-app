@@ -53,10 +53,13 @@ class EditAccessMethodViewController: UIViewController {
 
         isModalInPresentation = true
 
+        let title = createTitle()
         let headerView = createHeaderView()
-        view.addConstrainedSubviews([headerView, tableView]) {
-            headerView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(8), .trailing(8), .top(0)]))
+        view.addConstrainedSubviews([title, headerView, tableView]) {
+            title.pinEdgesToSuperviewMargins(PinnableEdges([.leading(7), .trailing(7), .top(0)]))
+            headerView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(8), .trailing(8)]))
             tableView.pinEdgesToSuperview(.all().excluding(.top))
+            headerView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 0)
             tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 20)
         }
 
@@ -67,6 +70,16 @@ class EditAccessMethodViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         interactor.cancelProxyConfigurationTest()
+    }
+
+    private func createTitle() -> UIView {
+        let label = UILabel()
+        label.font = UIFont.boldSystemFont(ofSize: 34.0)
+        label.numberOfLines = 0
+        label.text = subject.value.navigationItemTitle
+        label.textColor = UIColor.NavigationBar.titleColor
+        label.backgroundColor = .clear
+        return label
     }
 
     private func createHeaderView() -> UIView {
@@ -343,7 +356,8 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     // MARK: - Misc
 
     private func configureNavigationItem() {
-        navigationItem.title = subject.value.navigationItemTitle
+        navigationItem.largeTitleDisplayMode = .never
+        navigationItem.title = ""
     }
 
     private func onSave() {
