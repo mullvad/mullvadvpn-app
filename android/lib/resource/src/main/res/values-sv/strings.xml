@@ -305,7 +305,6 @@
     <string name="search">Sök</string>
     <string name="search_location_empty_text">Inga resultat hittades för \"%1$s\", försök med en annan sökning</string>
     <string name="search_placeholder">Sök efter …</string>
-    <string name="search_query_empty">Ange minst två tecken för att börja söka.</string>
     <string name="select_location">Välj plats</string>
     <string name="send">Skicka</string>
     <string name="send_anyway">Skicka ändå</string>

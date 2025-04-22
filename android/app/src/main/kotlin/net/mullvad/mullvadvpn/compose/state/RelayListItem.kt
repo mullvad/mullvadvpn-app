@@ -82,7 +82,8 @@ sealed interface RelayListItem {
         override val contentType = RelayListItemContentType.LOCATION_ITEM
     }
 
-    data class LocationsEmptyText(val searchTerm: String) : RelayListItem {
+    data class LocationsEmptyText(val searchTerm: String, val isSearching: Boolean) :
+        RelayListItem {
         override val key = "locations_empty_text"
         override val contentType = RelayListItemContentType.LOCATIONS_EMPTY_TEXT
     }

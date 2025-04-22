@@ -8,11 +8,28 @@ class SearchLocationsUiStatePreviewParameterProvider :
     PreviewParameterProvider<SearchLocationUiState> {
     override val values =
         sequenceOf(
-            SearchLocationUiState.NoQuery(searchTerm = "", filterChips = listOf(FilterChip.Entry)),
+            SearchLocationUiState.Content(
+                searchTerm = "",
+                filterChips = listOf(FilterChip.Entry),
+                relayListItems =
+                    RelayListItemPreviewData.generateRelayListItems(
+                        includeCustomLists = true,
+                        isSearching = true,
+                    ),
+                customLists = emptyList(),
+            ),
+            SearchLocationUiState.Content(
+                searchTerm = "",
+                filterChips = listOf(FilterChip.Entry),
+                relayListItems =
+                    RelayListItemPreviewData.generateEmptyList("", isSearching = false),
+                customLists = emptyList(),
+            ),
             SearchLocationUiState.Content(
                 searchTerm = "Mullvad",
                 filterChips = listOf(FilterChip.Entry),
-                relayListItems = RelayListItemPreviewData.generateEmptyList("Mullvad"),
+                relayListItems =
+                    RelayListItemPreviewData.generateEmptyList("Mullvad", isSearching = true),
                 customLists = emptyList(),
             ),
             SearchLocationUiState.Content(
