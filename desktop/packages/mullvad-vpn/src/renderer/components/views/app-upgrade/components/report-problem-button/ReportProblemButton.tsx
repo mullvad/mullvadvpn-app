@@ -1,16 +1,12 @@
 import { messages } from '../../../../../../shared/gettext';
-import { usePushProblemReport } from '../../../../../history/hooks';
 import { Button } from '../../../../../lib/components';
+import { useHandleClick } from './hooks';
 
 export function ReportProblemButton() {
-  const pushProblemReport = usePushProblemReport({
-    state: {
-      options: [{ type: 'suppress-outdated-version-warning' }],
-    },
-  });
+  const handleClick = useHandleClick();
 
   return (
-    <Button onClick={pushProblemReport}>
+    <Button onClick={handleClick}>
       <Button.Text>
         {
           // TRANSLATORS: Button text to report a problem
