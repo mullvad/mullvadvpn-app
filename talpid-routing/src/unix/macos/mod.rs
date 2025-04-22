@@ -126,9 +126,9 @@ impl RouteManagerImpl {
     pub(crate) async fn new(
         manage_tx: Weak<mpsc::UnboundedSender<RouteManagerCommand>>,
     ) -> Result<Self> {
-        // TODO: clean these up
         let (primary_interface_monitor, interface_change_rx) =
             interface::PrimaryInterfaceMonitor::new();
+
         let (best_route_rx_v4, best_route_rx_v6) =
             DefaultRouteMonitor::new(primary_interface_monitor, interface_change_rx);
 
