@@ -672,6 +672,12 @@ msgctxt "app-upgrade-view"
 msgid "About %(seconds)s seconds remaining..."
 msgstr ""
 
+#. Instruction to the user shown pre-filled in a form where the user
+#. is asked to add more details about a failed upgrade.
+msgctxt "app-upgrade-view"
+msgid "Add more details here:"
+msgstr ""
+
 #. Label displayed when an unknown error occurred
 msgctxt "app-upgrade-view"
 msgid "An unknown error occurred. Please try again. If this problem persists, please contact support."
@@ -768,6 +774,38 @@ msgstr ""
 #. Main title for the update available view
 msgctxt "app-upgrade-view"
 msgid "Update available"
+msgstr ""
+
+#. Description of an error which occurred in the app's upgrade process
+#. when an unknown error occurred.
+#. The description is included in form field of a form
+#. a user can submit to report the error.
+msgctxt "app-upgrade-view"
+msgid "Update downloader: An unknown error occurred."
+msgstr ""
+
+#. Description of an error which occurred in the app's upgrade process.
+#. when the download of the upgrade failed.
+#. The description is included in form field of a form
+#. a user can submit to report the error.
+msgctxt "app-upgrade-view"
+msgid "Update downloader: Download failed."
+msgstr ""
+
+#. Description of an error which occurred in the app's upgrade process
+#. when the downloaded installer failed to start.
+#. The description is included in form field of a form
+#. a user can submit to report the error.
+msgctxt "app-upgrade-view"
+msgid "Update downloader: The installer failed to start due to an unknown error."
+msgstr ""
+
+#. Description of an error which occurred in the app's upgrade process
+#. when the downloaded installer failed to install the upgrade successfully.
+#. The description is included in form field of a form
+#. a user can submit to report the error.
+msgctxt "app-upgrade-view"
+msgid "Update downloader: The installer failed with an unknown error."
 msgstr ""
 
 #. Label displayed when an error occurred due to the installer failed verification
