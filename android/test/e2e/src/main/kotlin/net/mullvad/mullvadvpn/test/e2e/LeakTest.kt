@@ -171,7 +171,6 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
     @Test
     @HasDependencyOnLocalAPI
-    @Disabled("Disabled due to problems finding: lazy_list_vpn_settings_test_tag")
     fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() = runTest {
         app.launch()
         // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
