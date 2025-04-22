@@ -130,7 +130,7 @@ impl RouteManagerImpl {
             interface::PrimaryInterfaceMonitor::new();
 
         let (best_route_rx_v4, best_route_rx_v6) =
-            DefaultRouteMonitor::new(primary_interface_monitor, interface_change_rx);
+            DefaultRouteMonitor::start(primary_interface_monitor, interface_change_rx);
 
         let routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
 

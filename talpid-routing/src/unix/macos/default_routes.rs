@@ -37,7 +37,7 @@ impl DefaultRouteMonitor {
     /// Start monitoring interfaces for changes to the best route.
     ///
     /// Returns an IPv4 and an IPv6 channel of [BestRoute] updates.
-    pub fn new(
+    pub fn start(
         monitor: PrimaryInterfaceMonitor,
         event_rx: UnboundedReceiver<Vec<InterfaceEvent>>,
     ) -> (
