@@ -8,6 +8,7 @@ use futures::{
 };
 use ip_map::IpMap;
 use ipnetwork::IpNetwork;
+use nix::net::if_::if_nametoindex;
 use std::{
     collections::{BTreeMap, HashSet},
     net::{IpAddr, SocketAddr},
@@ -314,17 +315,26 @@ impl RouteManagerImpl {
 
         // Add routes not using the default interface
         for route in routes_to_apply {
-            let mut message = if let Some(ref device) = route.node.device {
-                // If we specify route by interface name, use the link address of the given
-                // interface
-                match interface_link_addrs.get(device) {
-                    Some(link_addr) => RouteMessage::new_route(Destination::from(route.prefix))
-                        .set_gateway_sockaddr(*link_addr),
-                    None => {
-                        log::error!("Route with unknown device: {route:?}, {device}");
-                        continue;
-                    }
-                }
+            route.node.get_device();
+
+            let mut message = if let Some(device) = route.node.get_device() {
+                // Get the link-address of the provided network interface (device).
+                // We need the link address to create a route that targets the interface.
+                let Some(link_addr) = interface_link_addrs.get(device) else {
+                    log::error!("Route with unknown device: {route:?}, {device}");
+                    continue;
+                };
+
+                // Get the index of the network interface. This is not needed to create the route,
+                // but we use it to later validate that the route is correct.
+                let Ok(interface_index) = if_nametoindex(device) else {
+                    log::error!("Route with unknown device: {route:?}, {device}");
+                    continue;
+                };
+
+                RouteMessage::new_route(Destination::from(route.prefix))
+                    .set_gateway_sockaddr(*link_addr)
+                    .set_interface_index(interface_index as u16)
             } else {
                 log::error!("Specifying gateway by IP rather than device is unimplemented");
                 continue;
@@ -519,14 +529,8 @@ impl RouteManagerImpl {
             let actual_default_route = self.get_actual_default_route(family).await.unwrap_or(None);
 
             if let Some(actual_default_route) = actual_default_route {
-                // TODO: compare interface index instead?
-                let tun_gateway_link_addr =
-                    tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
-                let actual_link_addr = actual_default_route
-                    .gateway()
-                    .and_then(|addr| addr.as_link_addr());
-
-                if actual_link_addr.is_none() || actual_link_addr != tun_gateway_link_addr {
+                debug_assert!(tunnel_route.interface_index() != 0);
+                if tunnel_route.interface_index() != actual_default_route.interface_index() {
                     log::trace!("Removing existing unscoped default route");
 
                     let _ = self
