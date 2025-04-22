@@ -49,14 +49,14 @@ object RelayListItemPreviewData {
         val locations =
             listOf(
                 RelayItemPreviewData.generateRelayItemCountry(
-                    name = "A relay",
-                    cityNames = listOf("City 1", "City 2"),
+                    name = "First Country",
+                    cityNames = listOf("Capital City", "Minor City"),
                     relaysPerCity = 2,
                     active = true,
                 ),
                 RelayItemPreviewData.generateRelayItemCountry(
-                    name = "Another relay",
-                    cityNames = listOf("City X", "City Y", "City Z"),
+                    name = "Second Country",
+                    cityNames = listOf("Medium City", "Small City", "Vivec City"),
                     relaysPerCity = 1,
                     active = false,
                 ),
@@ -92,7 +92,7 @@ object RelayListItemPreviewData {
                     state = RelayListItemState.USED_AS_EXIT,
                 ),
                 RelayListItem.GeoLocationItem(
-                    item = locations[0].cities[1].relays[0],
+                    item = locations[0].cities[1].relays[1],
                     isSelected = false,
                     depth = 2,
                     expanded = false,
@@ -109,5 +109,6 @@ object RelayListItemPreviewData {
         )
     }
 
-    fun generateEmptyList(searchTerm: String) = listOf(RelayListItem.LocationsEmptyText(searchTerm))
+    fun generateEmptyList(searchTerm: String, isSearching: Boolean) =
+        listOf(RelayListItem.LocationsEmptyText(searchTerm, isSearching))
 }

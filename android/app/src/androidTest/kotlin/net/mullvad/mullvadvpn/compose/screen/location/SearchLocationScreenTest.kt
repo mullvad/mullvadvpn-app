@@ -85,7 +85,13 @@ class SearchLocationScreenTest {
             // Arrange
             val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
             initScreen(
-                state = SearchLocationUiState.NoQuery(searchTerm = "", filterChips = emptyList()),
+                state =
+                    SearchLocationUiState.Content(
+                        searchTerm = "",
+                        filterChips = emptyList(),
+                        relayListItems = emptyList(),
+                        emptyList(),
+                    ),
                 onSearchInputChanged = mockedSearchTermInput,
             )
             val mockSearchString = "SEARCH"
@@ -107,7 +113,8 @@ class SearchLocationScreenTest {
                     SearchLocationUiState.Content(
                         searchTerm = mockSearchString,
                         filterChips = emptyList(),
-                        relayListItems = listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
+                        relayListItems =
+                            listOf(RelayListItem.LocationsEmptyText(mockSearchString, true)),
                         customLists = emptyList(),
                     )
             )
