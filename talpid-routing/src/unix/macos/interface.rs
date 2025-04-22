@@ -84,6 +84,7 @@ pub struct NetworkServiceDetails {
 /// Contents of the `/Network/Global/IPvX` key in the [SCDynamicStore].
 #[derive(Clone, Debug)]
 pub struct PrimaryInterfaceDetails {
+    #[allow(dead_code)] // this field is useful for debugging
     pub name: String,
     pub service_id: String,
 }
