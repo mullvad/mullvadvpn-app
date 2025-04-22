@@ -313,19 +313,6 @@ impl PrimaryInterfaceMonitor {
             .filter_map(|service_id| self.get_network_service(&service_id.to_string(), family))
             .collect::<Vec<_>>()
     }
-
-    pub fn debug(&self) {
-        for family in [Family::V4, Family::V6] {
-            log::debug!(
-                "Primary interface ({family}): {:?}",
-                self.get_primary_interface_service(family)
-            );
-            log::debug!(
-                "Network services ({family}): {:?}",
-                self.network_services(family)
-            );
-        }
-    }
 }
 
 /// Construct the string key for a network service from its ID.

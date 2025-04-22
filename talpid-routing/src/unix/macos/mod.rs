@@ -164,8 +164,6 @@ impl RouteManagerImpl {
     pub(crate) async fn run(mut self, manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>) {
         let mut manage_rx = manage_rx.fuse();
 
-        self.debug_offline();
-
         let mut completion_tx = None;
 
         loop {
@@ -450,8 +448,6 @@ impl RouteManagerImpl {
                 .retain(|tx| tx.unbounded_send(event).is_ok());
         }
 
-        self.debug_offline();
-
         if !self.unhandled_default_route_changes {
             self.ensure_default_tunnel_routes_exist().await?;
             return Ok(());
@@ -474,12 +470,6 @@ impl RouteManagerImpl {
         self.unhandled_default_route_changes = false;
 
         Ok(())
-    }
-
-    fn debug_offline(&self) {
-        //if self.v4_best_route.is_none() && self.v6_best_route.is_none() {
-        //    self.primary_interface_monitor.debug();
-        //}
     }
 
     /// Handle a new [DefaultRoute] received from [DefaultRouteMonitor].
