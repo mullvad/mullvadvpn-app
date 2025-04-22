@@ -48,10 +48,12 @@ impl MetaRepositoryPlatform {
 }
 
 /// See [module-level](self) docs.
-#[async_trait::async_trait]
 pub trait VersionInfoProvider {
     /// Return info about the stable version
-    async fn get_version_info(&self, params: VersionParameters) -> anyhow::Result<VersionInfo>;
+    fn get_version_info(
+        &self,
+        params: VersionParameters,
+    ) -> impl std::future::Future<Output = anyhow::Result<VersionInfo>> + Send;
 }
 
 /// Obtain version data using a GET request
@@ -62,7 +64,6 @@ pub struct HttpVersionInfoProvider {
     pinned_certificate: Option<reqwest::Certificate>,
 }
 
-#[async_trait::async_trait]
 impl VersionInfoProvider for HttpVersionInfoProvider {
     async fn get_version_info(&self, params: VersionParameters) -> anyhow::Result<VersionInfo> {
         let response = self.get_versions(params.lowest_metadata_version).await?;

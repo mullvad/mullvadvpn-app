@@ -37,7 +37,6 @@ pub const FAKE_ENVIRONMENT: Environment = Environment {
     architecture: Architecture::X86,
 };
 
-#[async_trait::async_trait]
 impl VersionInfoProvider for FakeVersionInfoProvider {
     async fn get_version_info(&self, _params: VersionParameters) -> anyhow::Result<VersionInfo> {
         if self.fail_fetching.load(std::sync::atomic::Ordering::SeqCst) {
