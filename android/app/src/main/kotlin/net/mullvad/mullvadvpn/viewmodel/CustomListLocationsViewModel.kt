@@ -12,8 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -21,11 +19,11 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
 import net.mullvad.mullvadvpn.relaylist.ancestors
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
@@ -33,7 +31,9 @@ import net.mullvad.mullvadvpn.relaylist.withDescendants
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
+import net.mullvad.mullvadvpn.util.Lce
 
+@Suppress("TooManyFunctions")
 class CustomListLocationsViewModel(
     private val relayListRepository: RelayListRepository,
     private val customListRelayItemsUseCase: CustomListRelayItemsUseCase,
@@ -48,62 +48,72 @@ class CustomListLocationsViewModel(
     private val _initialLocations = MutableStateFlow<Set<RelayItem.Location>>(emptySet())
     private val _selectedLocations = MutableStateFlow<Set<RelayItem.Location>?>(null)
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
-    private val _expandedItems = MutableStateFlow<Set<RelayItemId>>(setOf())
+    private val _expandOverrides = MutableStateFlow<Map<RelayItemId, Boolean>>(mapOf())
 
     val uiState =
-        combine(searchRelayListLocations(), _searchTerm, _selectedLocations, _expandedItems) {
-                relayCountries,
+        combine(_searchTerm, relayListRepository.relayList, _selectedLocations, _expandOverrides) {
                 searchTerm,
+                relayCountries,
                 selectedLocations,
-                expandedLocations ->
+                expandOverrides ->
                 when {
                     selectedLocations == null ->
-                        CustomListLocationsUiState.Loading(newList = navArgs.newList)
+                        CustomListLocationsUiState(
+                            newList = navArgs.newList,
+                            content = Lce.Loading(Unit),
+                        )
                     relayCountries.isEmpty() ->
-                        CustomListLocationsUiState.Content.Empty(
+                        CustomListLocationsUiState(
                             newList = navArgs.newList,
-                            searchTerm = searchTerm,
+                            content = Lce.Error(Unit),
                         )
-                    else ->
-                        CustomListLocationsUiState.Content.Data(
+                    else -> {
+                        val (expandSet, filteredRelayCountries) =
+                            searchRelayListLocations(searchTerm, relayCountries)
+                        val expandedLocations = expandSet.with(expandOverrides)
+                        CustomListLocationsUiState(
                             newList = navArgs.newList,
-                            searchTerm = searchTerm,
-                            locations =
-                                relayCountries.toRelayItems(
-                                    isSelected = { it in selectedLocations },
-                                    isExpanded = { it in expandedLocations },
+                            content =
+                                Lce.Content(
+                                    CustomListLocationsData(
+                                        searchTerm = searchTerm,
+                                        locations =
+                                            filteredRelayCountries.toRelayItems(
+                                                isSelected = { it in selectedLocations },
+                                                isExpanded = { it in expandedLocations },
+                                            ),
+                                        saveEnabled =
+                                            selectedLocations.isNotEmpty() &&
+                                                selectedLocations != _initialLocations.value,
+                                        hasUnsavedChanges =
+                                            selectedLocations != _initialLocations.value,
+                                    )
                                 ),
-                            saveEnabled =
-                                selectedLocations.isNotEmpty() &&
-                                    selectedLocations != _initialLocations.value,
-                            hasUnsavedChanges = selectedLocations != _initialLocations.value,
                         )
+                    }
                 }
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                CustomListLocationsUiState.Loading(newList = navArgs.newList),
+                CustomListLocationsUiState(newList = navArgs.newList, content = Lce.Loading(Unit)),
             )
 
     init {
         viewModelScope.launch { fetchInitialSelectedLocations() }
     }
 
-    private fun searchRelayListLocations() =
-        combine(_searchTerm, relayListRepository.relayList) { searchTerm, relayCountries ->
-                val isSearching = searchTerm.length >= MIN_SEARCH_LENGTH
-                if (isSearching) {
-                    val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
-                    exp.toSet() to filteredRelayCountries
-                } else {
-                    initialExpands(
-                        _selectedLocations.value?.calculateLocationsToSave() ?: emptyList()
-                    ) to relayCountries
-                }
-            }
-            .onEach { _expandedItems.value = it.first }
-            .map { it.second }
+    private fun searchRelayListLocations(
+        searchTerm: String,
+        relayCountries: List<RelayItem.Location.Country>,
+    ) =
+        if (searchTerm.isNotEmpty()) {
+            val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
+            exp.toSet() to filteredRelayCountries
+        } else {
+            initialExpands(_selectedLocations.value?.calculateLocationsToSave() ?: emptyList()) to
+                relayCountries
+        }
 
     fun save() {
         viewModelScope.launch {
@@ -138,17 +148,14 @@ class CustomListLocationsViewModel(
     }
 
     fun onExpand(relayItem: RelayItem.Location, expand: Boolean) {
-        _expandedItems.update {
-            if (expand) {
-                it + relayItem.id
-            } else {
-                it - relayItem.id
-            }
-        }
+        _expandOverrides.update { it + (relayItem.id to expand) }
     }
 
     fun onSearchTermInput(searchTerm: String) {
-        viewModelScope.launch { _searchTerm.emit(searchTerm) }
+        viewModelScope.launch {
+            _expandOverrides.emit(emptyMap())
+            _searchTerm.emit(searchTerm)
+        }
     }
 
     private fun selectLocation(relayItem: RelayItem.Location) {
@@ -227,7 +234,7 @@ class CustomListLocationsViewModel(
         _initialLocations.value = selectedLocations
         _selectedLocations.value = selectedLocations
         // Initial expand
-        _expandedItems.value = initialExpands(locations)
+        _expandOverrides.value = initialExpands(locations).associate { it to true }
     }
 
     private fun initialExpands(locations: List<RelayItem.Location>): Set<RelayItemId> =
@@ -306,6 +313,10 @@ class CustomListLocationsViewModel(
                     )
             }
         }
+
+    private fun Set<RelayItemId>.with(overrides: Map<RelayItemId, Boolean>): Set<RelayItemId> =
+        this + overrides.filterValues { expanded -> expanded }.keys -
+            overrides.filterValues { expanded -> !expanded }.keys
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""

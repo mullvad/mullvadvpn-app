@@ -37,7 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,6 +55,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
@@ -73,15 +74,16 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview("Default|Not found|Results")
+@Preview("Loading|Default|No Locations|Not found|Results")
 @Composable
 private fun PreviewSearchLocationScreen(
     @PreviewParameter(SearchLocationsUiStatePreviewParameterProvider::class)
-    state: SearchLocationUiState
+    state: Lce<Unit, SearchLocationUiState, Unit>
 ) {
     AppTheme {
         SearchLocationScreen(
@@ -218,7 +220,7 @@ fun SearchLocation(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchLocationScreen(
-    state: SearchLocationUiState,
+    state: Lce<Unit, SearchLocationUiState, Unit>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectRelay: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
@@ -262,7 +264,8 @@ fun SearchLocationScreen(
             LaunchedEffect(Unit) { focusRequester.requestFocus() }
             SearchBar(
                 modifier = Modifier.focusRequester(focusRequester),
-                searchTerm = state.searchTerm,
+                searchTerm = state.contentOrNull()?.searchTerm ?: "",
+                enabled = state is Lce.Content,
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
                 onSearchInputChanged = onSearchInputChanged,
@@ -283,20 +286,24 @@ fun SearchLocationScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 filterRow(
-                    filters = state.filterChips,
+                    filters = state.contentOrNull()?.filterChips ?: emptyList(),
                     onBackgroundColor = onBackgroundColor,
                     onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                     onRemoveProviderFilter = onRemoveProviderFilter,
                 )
                 when (state) {
-                    is SearchLocationUiState.NoQuery -> {
-                        noQuery()
+                    is Lce.Loading -> {
+                        loading()
                     }
-                    is SearchLocationUiState.Content -> {
+                    is Lce.Error -> {
+                        // Relay list is empty
+                        item { EmptyRelayListText() }
+                    }
+                    is Lce.Content -> {
                         relayListContent(
                             backgroundColor = backgroundColor,
-                            customLists = state.customLists,
-                            relayListItems = state.relayListItems,
+                            customLists = state.value.customLists,
+                            relayListItems = state.value.relayListItems,
                             onSelectRelay = onSelectRelay,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->
@@ -326,6 +333,7 @@ fun SearchLocationScreen(
 @Composable
 private fun SearchBar(
     searchTerm: String,
+    enabled: Boolean,
     backgroundColor: Color,
     onBackgroundColor: Color,
     onSearchInputChanged: (String) -> Unit,
@@ -336,6 +344,7 @@ private fun SearchBar(
     SearchBarDefaults.InputField(
         modifier = modifier.height(Dimens.searchFieldHeightExpanded).fillMaxWidth(),
         query = searchTerm,
+        enabled = enabled,
         onQueryChange = onSearchInputChanged,
         onSearch = { hideKeyboard() },
         expanded = true,
@@ -376,18 +385,6 @@ private fun SearchBar(
     )
 }
 
-private fun LazyListScope.noQuery() {
-    item(contentType = ContentType.DESCRIPTION) {
-        Text(
-            text = stringResource(R.string.search_query_empty),
-            style = MaterialTheme.typography.labelMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(Dimens.mediumPadding),
-        )
-    }
-}
-
 private fun LazyListScope.filterRow(
     filters: List<FilterChip>,
     onBackgroundColor: Color,
@@ -419,4 +416,8 @@ private fun Title(text: String, onBackgroundColor: Color) {
                 .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
         style = MaterialTheme.typography.labelMedium,
     )
+}
+
+private fun LazyListScope.loading() {
+    item(contentType = ContentType.PROGRESS) { MullvadCircularProgressIndicatorLarge() }
 }

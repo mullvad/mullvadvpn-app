@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -96,20 +97,17 @@ class SearchLocationViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             // Wait for first data
-            assertIs<SearchLocationUiState.NoQuery>(awaitItem())
+            awaitItem()
 
             // Update search string
             viewModel.onSearchInputUpdated(mockSearchString)
 
-            // We get some unnecessary emissions for now
-            awaitItem()
-
             val actualState = awaitItem()
-            assertIs<SearchLocationUiState.Content>(actualState)
+            assertIs<Lce.Content<SearchLocationUiState>>(actualState)
             assertTrue(
-                actualState.relayListItems.filterIsInstance<RelayListItem.GeoLocationItem>().any {
-                    it.item is RelayItem.Location.City && it.item.name == "Gothenburg"
-                }
+                actualState.value.relayListItems
+                    .filterIsInstance<RelayListItem.GeoLocationItem>()
+                    .any { it.item is RelayItem.Location.City && it.item.name == "Gothenburg" }
             )
         }
     }
@@ -123,20 +121,17 @@ class SearchLocationViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             // Wait for first data
-            assertIs<SearchLocationUiState.NoQuery>(awaitItem())
+            awaitItem()
 
             // Update search string
             viewModel.onSearchInputUpdated(mockSearchString)
 
-            // We get some unnecessary emissions for now
-            awaitItem()
-
             // Assert
             val actualState = awaitItem()
-            assertIs<SearchLocationUiState.Content>(actualState)
+            assertIs<Lce.Content<SearchLocationUiState>>(actualState)
             assertLists(
                 listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
-                actualState.relayListItems,
+                actualState.value.relayListItems,
             )
         }
     }

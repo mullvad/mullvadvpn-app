@@ -305,7 +305,6 @@
     <string name="search">搜索</string>
     <string name="search_location_empty_text">“%1$s”无结果，请尝试其他搜索</string>
     <string name="search_placeholder">搜索…</string>
-    <string name="search_query_empty">至少输入 2 个字符以开始搜索。</string>
     <string name="select_location">选择位置</string>
     <string name="send">发送</string>
     <string name="send_anyway">仍然发送</string>
