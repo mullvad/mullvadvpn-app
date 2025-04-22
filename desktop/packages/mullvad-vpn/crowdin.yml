@@ -10,11 +10,19 @@
 
 files: [
   {
-    'source': '/*.pot',
+    'source': '/messages.pot',
     'translation': '/%osx_locale%/%file_name%.po',
     'translation_replace': {
       'zh-Hans': 'zh-CN',
       'zh-Hant': 'zh-TW',
     },
   },
+  {
+    'source': '/relay-locations.pot',
+    'translation': '/%osx_locale%/%file_name%.po',
+    'translation_replace': {
+      'zh-Hans': 'zh-CN',
+      'zh-Hant': 'zh-TW',
+    },
+  }
 ]

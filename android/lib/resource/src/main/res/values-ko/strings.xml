@@ -67,6 +67,7 @@
     <string name="clear_input">입력 지우기</string>
     <string name="close">닫기</string>
     <string name="collapse">접기</string>
+    <string name="confirm_ipv6_dns">VPN 설정에서 \"IPv6\"를 활성화하지 않으면 IPv6 DNS 서버가 작동하지 않습니다.</string>
     <string name="confirm_local_dns">VPN 설정에서 \"로컬 네트워크 공유\"를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다.</string>
     <string name="confirm_no_email">연락처 없이 문제 보고서를 보내려고 합니다. 보고서에 대한 답변을 원하면 이메일 주소를 입력해야 합니다.</string>
     <string name="confirm_removal">예, 장치에서 로그아웃</string>
@@ -124,6 +125,8 @@
     <string name="device_inactive_description">이 장치를 제거했습니다. 다시 연결하려면 다시 로그인해야 합니다.</string>
     <string name="device_inactive_title">장치가 비활성 상태입니다.</string>
     <string name="device_inactive_unblock_warning">로그인하면 이 장치에서 인터넷 차단이 해제됩니다.</string>
+    <string name="device_ip_version_subtitle">이를 통해 IPv6만 지원하는 장치에서 WireGuard에 액세스할 수 있습니다.</string>
+    <string name="device_ip_version_title">장치 IP 버전</string>
     <string name="device_name">장치 이름</string>
     <string name="device_name_info_first_paragraph">이것은 장치에 할당된 이름입니다. Mullvad 계정에 로그인된 각 장치에는 앱이나 웹사이트에서 장치를 관리할 때 장치를 보다 쉽게 식별할 수 있는 고유한 이름이 부여됩니다.</string>
     <string name="device_name_info_second_paragraph">최대 5개의 장치에서 하나의 Mullvad 계정에 로그인할 수 있습니다.</string>
@@ -155,6 +158,7 @@
     <string name="enable_anyway">그래도 사용</string>
     <string name="enable_custom_dns">사용자 지정 DNS 서버 사용</string>
     <string name="enable_direct_only">%1$s 활성화</string>
+    <string name="enable_ipv6">터널 내 IPv6</string>
     <string name="enable_method">방법 활성화</string>
     <string name="encrypted_dns_proxy_info_message_part1">앱은 \"암호화된 DNS 프록시\" 방식을 사용하여 프록시 주소를 통해 Mullvad API와 통신합니다. 이는 DoH(DNS over HTTPS) 서버에서 주소를 검색한 다음, 그 주소를 사용해 당사 API 서버에 도달하는 방식으로 이루어집니다.</string>
     <string name="encrypted_dns_proxy_info_message_part2">당사 VPN에 연결되지 않은 경우, 연결 시 암호화된 DNS 프록시는 사용자의 비 VPN IP를 사용합니다. DoH 서버는 Quad 9, CloudFlare 등의 제공업체에서 호스팅합니다.</string>
@@ -251,6 +255,7 @@
     <string name="no_wireguard_key">유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요.</string>
     <string name="not_found">찾을 수 없음</string>
     <string name="number_of_providers">제공업체: %1$d</string>
+    <string name="obfuscation_info">난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">주의: Shadowsocks는 비디오 스트리밍 등 데이터 사용량에 따라 배터리 소모량이 증가할 수 있습니다.</string>
     <string name="obfuscation_title">WireGuard 난독화</string>
     <string name="off">끄기</string>
@@ -366,6 +371,8 @@
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">DNS 서버 업데이트</string>
     <string name="update_list_name">목록 이름 업데이트</string>
+    <string name="uri_browser_app_not_found">설치되어 있는 브라우저 앱이 없습니다. 링크를 열 수 없습니다</string>
+    <string name="uri_market_app_not_found">설치되어 있는 Android 앱 스토어가 없습니다. 링크를 열 수 없습니다</string>
     <string name="use_method">방법 사용</string>
     <string name="user_email_hint">이메일(선택 사항)</string>
     <string name="user_message_hint">더 나은 지원을 위해 영어 또는 스웨덴어로 메시지를 작성하고 연결 국가를 포함하세요.</string>
@@ -378,6 +385,7 @@
     <string name="voucher_already_used">이미 사용된 바우처 코드입니다.</string>
     <string name="voucher_is_account_number">바우처 코드 대신 계정 번호를 입력한 것 같습니다. 활성 계정을 변경하려면 먼저 로그아웃하세요.</string>
     <string name="voucher_success_title">바우처가 성공적으로 사용되었습니다.</string>
+    <string name="vpn_permission_denied_error">VPN 권한이 거부되었거나 다른 앱에 \"상시 접속 VPN\"이 활성화되어 있을 수 있습니다</string>
     <string name="vpn_permission_error_notification_message">VPN 권한을 요청하려면 연결을 누르세요</string>
     <string name="vpn_permission_error_notification_title">VPN 권한 오류</string>
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
