@@ -149,7 +149,7 @@ pub async fn handle_app_bundle_removal(
     cmd
         .arg(UNINSTALL_SCRIPT_PATH)
         // Don't prompt for confirmation.
-        .arg("--yes") 
+        .arg("--yes")
         // Spawn as its own process group.
         // This prevents the command from being killed when the daemon is killed.
         .process_group(0)
