@@ -52,7 +52,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Security
 #### macOS
 - Fix potential local privilege escalation when app was incorrectly removed by being dropped
-  in the bin but still leaving behind a launch daemon.
+  in the bin but still leaving behind a launch daemon. This fixes [TODO: CVE ID] discovered by
+  Egor Filatov (Positive Technologies).
 
 
 ## [2025.5] - 2025-03-26
