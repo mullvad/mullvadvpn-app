@@ -26,7 +26,6 @@ import net.mullvad.mullvadvpn.test.e2e.misc.TrafficGenerator
 import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.PacketCapture
 import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.PacketCaptureResult
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -171,7 +170,6 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
     @Test
     @HasDependencyOnLocalAPI
-    @Disabled("Disabled due to problems finding: lazy_list_vpn_settings_test_tag")
     fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() = runTest {
         app.launch()
         // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
