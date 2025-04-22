@@ -2195,7 +2195,6 @@ name = "mullvad-update"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "async-trait",
  "chrono",
  "ed25519-dalek",
  "hex",
