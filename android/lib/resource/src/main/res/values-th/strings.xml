@@ -67,6 +67,7 @@
     <string name="clear_input">ล้างข้อมูลอินพุต</string>
     <string name="close">ปิด</string>
     <string name="collapse">ยุบ</string>
+    <string name="confirm_ipv6_dns">เซิร์ฟเวอร์ DNS IPv6 จะไม่ทำงาน เว้นแต่คุณจะเปิดใช้งาน \"IPv6\" ภายใต้การตั้งค่า VPN</string>
     <string name="confirm_local_dns">เซิร์ฟเวอร์ DNS ท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้งาน \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการตั้งค่า VPN</string>
     <string name="confirm_no_email">คุณกำลังจะส่งรายงานปัญหา โดยไม่มีการระบุวิธีการติดต่อกลับให้กับเรา และคุณจำเป็นต้องป้อนที่อยู่อีเมลของคุณ หากคุณอยากให้เราตอบกลับการรายงานของคุณ</string>
     <string name="confirm_removal">ใช่ นำอุปกรณ์ออกจากระบบ</string>
@@ -124,6 +125,8 @@
     <string name="device_inactive_description">คุณได้ลบอุปกรณ์เครื่องนี้แล้ว หากต้องการเชื่อมต่ออีกครั้ง คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง</string>
     <string name="device_inactive_title">อุปกรณ์ไม่ได้ใช้งาน</string>
     <string name="device_inactive_unblock_warning">การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้</string>
+    <string name="device_ip_version_subtitle">นี่จะช่วยให้อุปกรณ์ที่รองรับเฉพาะ IPv6 สามารถเข้าถึง WireGuard ได้</string>
+    <string name="device_ip_version_title">เวอร์ชัน IP ของอุปกรณ์</string>
     <string name="device_name">ชื่ออุปกรณ์</string>
     <string name="device_name_info_first_paragraph">นี่เป็นชื่อที่มอบหมายให้กับอุปกรณ์ อุปกรณ์แต่ละเครื่องที่ลงชื่อเข้าใช้บนบัญชี Mullvad จะได้รับชื่อเฉพาะ ที่จะช่วยคุณระบุอุปกรณ์ ในขณะที่คุณจัดการอุปกรณ์ของคุณในแอปหรือบนเว็บไซต์</string>
     <string name="device_name_info_second_paragraph">คุณสามารถลงชื่อเข้าใช้อุปกรณ์ได้สูงสุด 5 เครื่อง กับบัญชี Mullvad หนึ่งบัญชี</string>
@@ -155,6 +158,7 @@
     <string name="enable_anyway">เปิดใช้งานต่อไป</string>
     <string name="enable_custom_dns">ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</string>
     <string name="enable_direct_only">เปิดใช้งาน %1$s</string>
+    <string name="enable_ipv6">IPv6 แบบภายในอุโมงค์</string>
     <string name="enable_method">เปิดใช้งานวิธีการ</string>
     <string name="encrypted_dns_proxy_info_message_part1">การใช้วิธี \"พร็อกซี DNS ที่เข้ารหัส\" จะช่วยให้แอปสื่อสารกับ Mullvad API ของเราผ่านที่อยู่พร็อกซี ซึ่งทำได้โดยดึงที่อยู่จากเซิร์ฟเวอร์ DNS ผ่าน HTTPS (DoH) แล้วจึงใช้ที่อยู่ดังกล่าวเพื่อเข้าถึงเซิร์ฟเวอร์ API ของเรา</string>
     <string name="encrypted_dns_proxy_info_message_part2">หากคุณไม่ได้เชื่อมต่อกับ VPN ของเรา พร็อกซี DNS ที่เข้ารหัสจะใช้ IP ที่ไม่ใช่ VPN ของคุณในขณะที่เชื่อมต่อ เซิร์ฟเวอร์ DoH ได้รับการโฮสต์โดยผู้ให้บริการรายใดรายหนึ่งต่อไปนี้: Quad9 หรือ CloudFlare</string>
@@ -251,6 +255,7 @@
     <string name="no_wireguard_key">คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง</string>
     <string name="not_found">ไม่พบ</string>
     <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
+    <string name="obfuscation_info">การทำให้ข้อมูลยุ่งเหยิงจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">โปรดทราบ: Shadowsocks อาจเพิ่มการใช้แบตเตอรี่ โดยขึ้นอยู่กับการใช้งานข้อมูล เช่น การสตรีมวิดีโอ</string>
     <string name="obfuscation_title">การทำให้ข้อมูลยุ่งเหยิงของ WireGuard</string>
     <string name="off">ปิด</string>
@@ -366,6 +371,8 @@
     <string name="upd_over_tcp">UDP-ผ่าน-TCP</string>
     <string name="update_dns_server_dialog_title">อัปเดตเซิร์ฟเวอร์ DNS</string>
     <string name="update_list_name">อัปเดตชื่อรายการ</string>
+    <string name="uri_browser_app_not_found">ไม่ได้ติดตั้งแอปเบราว์เซอร์ ไม่สามารถเปิดลิงก์ได้</string>
+    <string name="uri_market_app_not_found">ไม่มีการติดตั้ง App Store ของ Android ไม่สามารถเปิดลิงก์ได้</string>
     <string name="use_method">ใช้วิธีการ</string>
     <string name="user_email_hint">อีเมลของคุณ (ไม่บังคับ)</string>
     <string name="user_message_hint">โปรดเขียนเป็นภาษาอังกฤษหรือสวีเดน พร้อมระบุประเทศต้นทางที่คุณเชื่อมต่อ เพื่อให้รับความช่วยเหลือได้ดียิ่งขึ้น</string>
@@ -378,6 +385,7 @@
     <string name="voucher_already_used">รหัสบัตรกำนัลถูกใช้ไปแล้ว</string>
     <string name="voucher_is_account_number">ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน</string>
     <string name="voucher_success_title">แลกบัตรกำนัลสำเร็จแล้ว</string>
+    <string name="vpn_permission_denied_error">สิทธิ์ VPN ถูกปฏิเสธ หรือไม่ก็แอปอื่นเปิดใช้งาน \"เปิด VPN เสมอ\"</string>
     <string name="vpn_permission_error_notification_message">กรุณากดเชื่อมต่อ เพื่อขออนุญาตสิทธิ์ VPN</string>
     <string name="vpn_permission_error_notification_title">เกิดข้อผิดพลาดในการอนุญาต VPN</string>
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
