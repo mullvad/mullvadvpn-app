@@ -326,8 +326,8 @@ function OutdatedVersionWarningDialog() {
 
   const { location } = useHistory();
   const { state } = location;
-  const hasSuppressOutdatedVersionWarning = state?.options?.includes(
-    'suppress-outdated-version-warning',
+  const hasSuppressOutdatedVersionWarning = state?.options?.some(
+    (option) => option.type === 'suppress-outdated-version-warning',
   );
   const showOutdatedVersionWarningInitial = outdatedVersion && !hasSuppressOutdatedVersionWarning;
 
