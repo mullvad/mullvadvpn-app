@@ -88,7 +88,6 @@ pub struct FakeAppDownloader<
     params: UiAppDownloaderParameters<FakeAppDelegate>,
 }
 
-#[async_trait::async_trait]
 impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: bool> AppDownloader
     for FakeAppDownloader<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>
 {

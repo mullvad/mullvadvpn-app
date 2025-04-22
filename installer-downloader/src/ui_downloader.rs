@@ -33,7 +33,6 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static>
     }
 }
 
-#[async_trait::async_trait]
 impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownloader
     for UiAppDownloader<Delegate, Downloader>
 {
