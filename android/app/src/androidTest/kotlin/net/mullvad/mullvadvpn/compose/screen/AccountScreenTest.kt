@@ -41,9 +41,9 @@ class AccountScreenTest {
         onManageAccountClick: () -> Unit = {},
         onLogoutClick: () -> Unit = {},
         onPurchaseBillingProductClick: (productId: ProductId) -> Unit = {},
-        navigateToDeviceInfo: () -> Unit = {},
         navigateToVerificationPendingDialog: () -> Unit = {},
         onBackClick: () -> Unit = {},
+        onManageDevicesClick: () -> Unit = {},
     ) {
         setContentWithTheme {
             AccountScreen(
@@ -53,9 +53,9 @@ class AccountScreenTest {
                 onManageAccountClick = onManageAccountClick,
                 onLogoutClick = onLogoutClick,
                 onPurchaseBillingProductClick = onPurchaseBillingProductClick,
-                navigateToDeviceInfo = navigateToDeviceInfo,
                 navigateToVerificationPendingDialog = navigateToVerificationPendingDialog,
                 onBackClick = onBackClick,
+                onManageDevicesClick = onManageDevicesClick,
             )
         }
     }

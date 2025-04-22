@@ -44,7 +44,6 @@ import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.EditCustomListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -139,9 +138,7 @@ fun EditCustomListScreen(
         SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
             when (state) {
                 EditCustomListUiState.Loading -> {
-                    MullvadCircularProgressIndicatorLarge(
-                        modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
-                    )
+                    MullvadCircularProgressIndicatorLarge()
                 }
                 EditCustomListUiState.NotFound -> {
                     Text(

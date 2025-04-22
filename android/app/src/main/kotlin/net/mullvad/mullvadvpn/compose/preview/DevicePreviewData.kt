@@ -10,7 +10,7 @@ internal object DevicePreviewData {
     fun generateDevices(count: Int) =
         List(count) { index -> generateDevice(index) }
             .mapIndexed { index, device ->
-                DeviceItemUiState(device = device, isLoading = index == 0)
+                DeviceItemUiState(device = device, isLoading = index == 1)
             }
 
     fun generateDevice(index: Int = 0, id: String = UUID, name: String? = null) =
