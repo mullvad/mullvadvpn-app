@@ -565,6 +565,7 @@ mod test {
 
     use super::*;
 
+    // TODO: check if this needs to actually wrap the downloader parameters
     struct TestAppDownloader(AppDownloaderParameters<ProgressUpdater>);
 
     // TODO: Can we use normal async traits?
@@ -591,7 +592,7 @@ mod test {
     }
 
     struct VersionRouterChannels {
-        daemon_tx: futures::channel::mpsc::UnboundedSender<Message>,
+        _daemon_tx: futures::channel::mpsc::UnboundedSender<Message>, // TODO: Test daemon commands?
         new_version_tx: futures::channel::mpsc::UnboundedSender<VersionCache>,
         refresh_version_check_rx: futures::channel::mpsc::UnboundedReceiver<()>,
         version_event_receiver: futures::channel::mpsc::UnboundedReceiver<AppVersionInfo>,
@@ -619,7 +620,7 @@ mod test {
                 phantom: std::marker::PhantomData::<TestAppDownloader>,
             },
             VersionRouterChannels {
-                daemon_tx,
+                _daemon_tx: daemon_tx,
                 new_version_tx,
                 refresh_version_check_rx,
                 version_event_receiver,
@@ -627,19 +628,16 @@ mod test {
         )
     }
 
-    // TODO: make it always count as newer than the current version?
-    fn get_test_version_info() -> VersionCache {
+    /// Create a version cache with a stable version that is newer than the current version
+    fn get_stable_version_cache() -> VersionCache {
+        let mut version: mullvad_version::Version = mullvad_version::VERSION.parse().unwrap();
+        version.incremental += 1;
         VersionCache {
             current_version_supported: true,
             latest_version: VersionInfo {
                 beta: None,
                 stable: mullvad_update::version::Version {
-                    version: mullvad_version::Version {
-                        year: 2025,
-                        incremental: 19,
-                        pre_stable: None,
-                        dev: None,
-                    },
+                    version,
                     urls: vec!["https://example.com".to_string()],
                     size: 123456,
                     changelog: "Changelog".to_string(),
@@ -668,48 +666,41 @@ mod test {
     async fn test_upgrade() {
         let (mut version_router, mut channels) = make_version_router();
         // let mut upgrade_events = version_router.app_upgrade_broadcast.subscribe();
-        let version_cache = get_test_version_info();
-        let (tx, mut rx) = oneshot::channel();
+        let version_cache_test = get_stable_version_cache();
+        let (tx, mut get_latest_version_rx) = oneshot::channel();
         version_router.get_latest_version(tx);
+
+        // Here, we play the role of `VersionUpdater`.
+        // It should receive a version check request and send a version in response
         assert!(
             matches!(channels.refresh_version_check_rx.try_next(), Ok(Some(()))),
             "Version check should be triggered"
         );
         channels
             .new_version_tx
-            .unbounded_send(version_cache)
+            .unbounded_send(version_cache_test.clone())
             .unwrap();
-        version_router.run_step().await;
-        assert!(
-            matches!(rx.try_recv(), Ok(Some(_))),
-            "Version request should be sent"
-        );
 
-        // version_router.run_step().await;
-        // assert!(
-        //     matches!(version_router.state, State::HasVersion { .. }),
-        //     "State should be HasVersion"
-        // );
-        // assert!(
-        //     upgrade_events.is_empty(),
-        //     "No upgrade events should be sent"
-        // );
-        // channels
-        //     .daemon_tx
-        //     .unbounded_send(Message::UpdateApplication {
-        //         result_tx: oneshot::channel().0,
-        //     })
-        //     .unwrap();
-        // version_router.run_step().await;
-        // assert!(
-        //     matches!(version_router.state, State::Downloading { .. }),
-        //     "State should be Downloading"
-        // );
-        // version_router.run_step().await;
-        // assert_eq!(
-        //     upgrade_events.recv().await.unwrap(),
-        //     AppUpgradeEvent::DownloadStarting,
-        //     "Download starting event should be sent"
-        // );
+        // On the next cycle, the router should receive the version info
+        // and send it to as a response to the oneshot from `get_latest_version`
+        // and to the daemon (`version_event_receiver`)
+        version_router.run_step().await;
+        let version_info = get_latest_version_rx
+            .try_recv()
+            .expect("Sender should not be dropped")
+            .expect("Version info should have been sent")
+            .expect("Version request should be successful");
+        match &version_router.state {
+            State::HasVersion { version_cache } => assert_eq!(version_cache, &version_cache_test),
+            other => panic!("State should be HasVersion, was {other:?}"),
+        }
+        assert_eq!(
+            version_info,
+            channels
+                .version_event_receiver
+                .try_next()
+                .expect("Version event sender should not be closed")
+                .expect("Version event should be sent"),
+        );
     }
 }
