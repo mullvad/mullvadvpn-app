@@ -14,7 +14,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
-import net.mullvad.mullvadvpn.compose.setContentWithTheme // Assuming this helper exists
+import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesItemUiState
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -55,7 +55,7 @@ class ManageDevicesScreenTest {
     }
 
     @Test
-    fun loadingStateShowsProgressIndicator2() {
+    fun loadingStateShowsProgressIndicator() {
         composeExtension.use {
             // Arrange
             initScreen(state = Lce.Loading)
