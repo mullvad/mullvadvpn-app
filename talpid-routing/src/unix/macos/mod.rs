@@ -313,8 +313,6 @@ impl RouteManagerImpl {
 
         // Add routes not using the default interface
         for route in routes_to_apply {
-            route.node.get_device();
-
             let mut message = if let Some(device) = route.node.get_device() {
                 // Get the link-address of the provided network interface (device).
                 // We need the link address to create a route that targets the interface.
