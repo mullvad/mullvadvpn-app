@@ -22,6 +22,8 @@ tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 
 ml-kem = { version = "0.2.1", features = ["zeroize"] }
 pqcrypto-traits = "0.3.5"
+# This is a wrapper to the C implementation of HQC in PQClean.
+# Keep eyes open for alternatives, preferably pure Rust implementations.
 pqcrypto-hqc = { version = "0.2.1", default-features = false }
 sha2 = { workspace = true }
 zeroize = "1.5.7"
