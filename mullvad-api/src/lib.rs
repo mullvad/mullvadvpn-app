@@ -514,7 +514,7 @@ impl AccountsProxy {
     pub fn get_data_response(
         &self,
         account: AccountNumber,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -545,7 +545,7 @@ impl AccountsProxy {
 
     pub fn create_account_response(
         &self,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
