@@ -6,12 +6,14 @@ use nix::{
 use std::{
     collections::BTreeMap,
     ffi::{c_int, c_uchar, c_ushort},
+    fmt::{self, Debug},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
 };
 
 /// Message that describes a route - either an added, removed, changed or plainly retrieved route.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RouteMessage {
+    // INVARIANT: The `AddressFlag` must match the variant of `RouteSocketAddress`.
     sockaddrs: BTreeMap<AddressFlag, RouteSocketAddress>,
     mtu: u32,
     route_flags: RouteFlag,
@@ -789,7 +791,7 @@ bitflags::bitflags! {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub enum RouteSocketAddress {
     /// Corresponds to RTA_DST
     Destination(Option<SockaddrStorage>),
@@ -807,6 +809,39 @@ pub enum RouteSocketAddress {
     RedirectAuthor(Option<SockaddrStorage>),
     /// RTA_BRD
     Broadcast(Option<SockaddrStorage>),
+}
+
+/// Custom Debug-impl that uses the Display-impl of [SockaddrStorage] since its Debug-impl is
+/// basically unreadable.
+impl Debug for RouteSocketAddress {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let (variant, sockaddr) = match self {
+            Self::Destination(sockaddr) => ("Destination", sockaddr),
+            Self::Gateway(sockaddr) => ("Gateway", sockaddr),
+            Self::Netmask(sockaddr) => ("Netmask", sockaddr),
+            Self::CloningMask(sockaddr) => ("CloningMask", sockaddr),
+            Self::IfName(sockaddr) => ("IfName", sockaddr),
+            Self::IfSockaddr(sockaddr) => ("IfSockaddr", sockaddr),
+            Self::RedirectAuthor(sockaddr) => ("RedirectAuthor", sockaddr),
+            Self::Broadcast(sockaddr) => ("Broadcast", sockaddr),
+        };
+
+        if let Some(sockaddr) = sockaddr {
+            if let Some(link_addr) = sockaddr.as_link_addr() {
+                // The default Display impl for LinkAddrs does not print ifindex
+                write!(f, "{variant}(")?;
+                f.debug_struct("LinkAddr")
+                    .field("addr", &link_addr.addr())
+                    .field("iface", &link_addr.ifindex())
+                    .finish()?;
+                write!(f, ")")
+            } else {
+                write!(f, "{variant}({sockaddr})")
+            }
+        } else {
+            write!(f, "{variant}(None)")
+        }
+    }
 }
 
 impl RouteSocketAddress {
@@ -953,17 +988,15 @@ struct sockaddr_hdr {
 /// routing socket message.
 pub struct RouteSockAddrIterator<'a> {
     buffer: &'a [u8],
-    flags: AddressFlag,
-    // Cursor used to iterate through address flags
-    flag_cursor: i32,
+    /// Iterator over all the set bits in the provided [AddressFlag].
+    flags_iter: bitflags::iter::Iter<AddressFlag>,
 }
 
 impl<'a> RouteSockAddrIterator<'a> {
     fn new(buffer: &'a [u8], flags: AddressFlag) -> Self {
         Self {
             buffer,
-            flags,
-            flag_cursor: AddressFlag::RTA_DST.bits(),
+            flags_iter: flags.iter(),
         }
     }
 
@@ -995,25 +1028,26 @@ impl Iterator for RouteSockAddrIterator<'_> {
     type Item = Result<RouteSocketAddress>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        loop {
-            // If address flags don't contain the current one, try the next one.
-            // Will return None if it runs out of valid flags.
-            let current_flag = AddressFlag::from_bits(self.flag_cursor)?;
-            self.flag_cursor <<= 1;
+        // Will return None if it runs out of set flags.
+        let current_flag = self.flags_iter.next()?;
 
-            if !self.flags.contains(current_flag) {
-                continue;
+        // Any undefiend flags are all returned as a clump in the final iteration.
+        let no_undefined_flags = AddressFlag::all().contains(current_flag);
+        debug_assert!(
+            no_undefined_flags,
+            "AddressFlag contained undefined bits! {current_flag:?}. \
+            Consider adding them to the definition."
+        );
+
+        match RouteSocketAddress::new(current_flag, self.buffer) {
+            Ok((next_addr, addr_len)) => {
+                self.advance_buffer(addr_len);
+                Some(Ok(next_addr))
             }
-            return match RouteSocketAddress::new(current_flag, self.buffer) {
-                Ok((next_addr, addr_len)) => {
-                    self.advance_buffer(addr_len);
-                    Some(Ok(next_addr))
-                }
-                Err(err) => {
-                    self.buffer = &[];
-                    Some(Err(err))
-                }
-            };
+            Err(err) => {
+                self.buffer = &[];
+                Some(Err(err))
+            }
         }
     }
 }
