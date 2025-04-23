@@ -568,7 +568,6 @@ mod test {
 
     struct TestAppDownloader(AppDownloaderParameters<ProgressUpdater>);
 
-    #[async_trait::async_trait]
     impl AppDownloader for TestAppDownloader {
         async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
             // self.0.app_progress.set_progress(0.0);
@@ -594,7 +593,6 @@ mod test {
 
     struct FailingDownloadTestAppDownloader;
 
-    #[async_trait::async_trait]
     impl AppDownloader for FailingDownloadTestAppDownloader {
         async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
             Err(DownloadError::FetchApp(anyhow::anyhow!("Download failed")))
@@ -617,7 +615,6 @@ mod test {
 
     struct FailingVerificationTestAppDownloader;
 
-    #[async_trait::async_trait]
     impl AppDownloader for FailingVerificationTestAppDownloader {
         async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
             Ok(())
