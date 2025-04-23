@@ -1,9 +1,7 @@
 #![cfg(update)]
 
 use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpgradeEvent};
-use mullvad_update::app::{
-    bin_path, AppDownloader, AppDownloaderParameters, DownloadError, HttpAppDownloader,
-};
+use mullvad_update::app::{bin_path, AppDownloader, AppDownloaderParameters, DownloadError};
 use rand::seq::SliceRandom;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
@@ -96,13 +94,16 @@ where
 
     log::info!("Downloading app version '{}' from {url}", version.version);
 
-    let download_dir = mullvad_paths::cache_dir()?.join("mullvad-update");
-    log::trace!("Download directory: {download_dir:?}");
-    fs::create_dir_all(&download_dir)
-        .await
-        .map_err(Error::CreateDownloadDir)?;
-
+    let download_dir = if cfg!(test) {
+        PathBuf::new()
+    } else {
+        create_download_dir().await.inspect_err(|err| {
+            log::error!("Failed to get download directory: {}", err.display_chain());
+            let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::GeneralError));
+        })?
+    };
     let bin_path = bin_path(&version.version, &download_dir);
+
     let params = AppDownloaderParameters {
         app_version: version.version,
         app_url: url.clone(),
@@ -113,22 +114,34 @@ where
     };
     let mut downloader = D::from(params);
 
+    let _ = event_tx.send(AppUpgradeEvent::DownloadStarting);
     downloader.download_executable().await.inspect_err(|err| {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed));
         log::error!("{}", err.display_chain());
         log::info!("Cleaning up download at '{bin_path:?}'",);
-        std::fs::remove_file(&bin_path).expect("Failed to remove file");
+        #[cfg(not(test))]
+        std::fs::remove_file(&bin_path).expect("Removing download file");
     })?;
     let _ = event_tx.send(AppUpgradeEvent::VerifyingInstaller);
     downloader.verify().await.inspect_err(|err| {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::VerificationFailed));
         log::error!("{}", err.display_chain());
         log::info!("Cleaning up download at '{:?}'", bin_path);
-        std::fs::remove_file(&bin_path).expect("Failed to remove file");
+        #[cfg(not(test))]
+        std::fs::remove_file(&bin_path).expect("Removing download file");
     })?;
     let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
 
     Ok(bin_path)
+}
+
+async fn create_download_dir() -> Result<PathBuf> {
+    let download_dir = mullvad_paths::cache_dir()?.join("mullvad-update");
+    log::trace!("Download directory: {download_dir:?}");
+    fs::create_dir_all(&download_dir)
+        .await
+        .map_err(Error::CreateDownloadDir)?;
+    Ok(download_dir)
 }
 
 pub struct ProgressUpdater {

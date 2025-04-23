@@ -495,7 +495,7 @@ async fn wait_for_update(state: &mut State) -> Option<AppVersionInfo> {
                 Some(app_update_info)
             }
             Err(err) => {
-                log::trace!("Downloader task ended: {err}");
+                log::warn!("Downloader task ended: {err}");
                 *state = State::HasVersion {
                     version_cache: version_cache.clone(),
                 };
@@ -560,12 +560,12 @@ fn recommended_version_upgrade(
 mod test {
     use super::downloader::ProgressUpdater;
     use futures::channel::mpsc::unbounded;
-    use mullvad_types::version::AppUpgradeEvent;
+    use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeEvent};
     use mullvad_update::{app::DownloadError, fetch::ProgressUpdater as _};
+    use tokio::sync::broadcast::error::TryRecvError;
 
     use super::*;
 
-    // TODO: check if this needs to actually wrap the downloader parameters
     struct TestAppDownloader(AppDownloaderParameters<ProgressUpdater>);
 
     // TODO: Can we use normal async traits?
@@ -590,21 +590,72 @@ mod test {
             Self(parameters)
         }
     }
+    struct FailingTestAppDownloader {
+        fail_download: bool,
+        fail_verify: bool,
+        fail_install: bool,
+    }
+
+    // TODO: Can we use normal async traits?
+    #[async_trait::async_trait]
+    impl AppDownloader for FailingTestAppDownloader {
+        async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
+            if self.fail_download {
+                self.fail_download = false;
+                Err(DownloadError::FetchApp(anyhow::anyhow!("Download failed")))
+            } else {
+                Ok(())
+            }
+        }
+
+        async fn verify(&mut self) -> std::result::Result<(), DownloadError> {
+            if self.fail_verify {
+                self.fail_verify = false;
+                Err(DownloadError::Verification(anyhow::anyhow!(
+                    "Verification failed"
+                )))
+            } else {
+                Ok(())
+            }
+        }
+
+        async fn install(&mut self) -> std::result::Result<(), DownloadError> {
+            if self.fail_install {
+                self.fail_install = false;
+                Err(DownloadError::InstallFailed(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "Install failed",
+                )))
+            } else {
+                Ok(())
+            }
+        }
+    }
+
+    impl From<AppDownloaderParameters<ProgressUpdater>> for FailingTestAppDownloader {
+        fn from(_parameters: AppDownloaderParameters<ProgressUpdater>) -> Self {
+            Self {
+                fail_download: true,
+                fail_verify: true,
+                fail_install: true,
+            }
+        }
+    }
 
     struct VersionRouterChannels {
-        _daemon_tx: futures::channel::mpsc::UnboundedSender<Message>, // TODO: Test daemon commands?
+        daemon_tx: futures::channel::mpsc::UnboundedSender<Message>, // TODO: Test daemon commands?
         new_version_tx: futures::channel::mpsc::UnboundedSender<VersionCache>,
         refresh_version_check_rx: futures::channel::mpsc::UnboundedReceiver<()>,
         version_event_receiver: futures::channel::mpsc::UnboundedReceiver<AppVersionInfo>,
     }
 
-    fn make_version_router() -> (
-        VersionRouter<futures::channel::mpsc::UnboundedSender<AppVersionInfo>, TestAppDownloader>,
+    fn make_version_router<D>() -> (
+        VersionRouter<futures::channel::mpsc::UnboundedSender<AppVersionInfo>, D>,
         VersionRouterChannels,
     ) {
         let (version_event_sender, version_event_receiver) = unbounded();
         let (daemon_tx, daemon_rx) = unbounded();
-        let (app_upgrade_broadcast, _) = tokio::sync::broadcast::channel(1);
+        let (app_upgrade_broadcast, _) = tokio::sync::broadcast::channel(10);
         let (refresh_version_check_tx, refresh_version_check_rx) = unbounded();
         let (new_version_tx, new_version_rx) = unbounded();
         (
@@ -617,10 +668,10 @@ mod test {
                 version_request_channels: vec![],
                 app_upgrade_broadcast,
                 refresh_version_check_tx,
-                phantom: std::marker::PhantomData::<TestAppDownloader>,
+                phantom: std::marker::PhantomData::<D>,
             },
             VersionRouterChannels {
-                _daemon_tx: daemon_tx,
+                daemon_tx,
                 new_version_tx,
                 refresh_version_check_rx,
                 version_event_receiver,
@@ -629,7 +680,7 @@ mod test {
     }
 
     /// Create a version cache with a stable version that is newer than the current version
-    fn get_stable_version_cache() -> VersionCache {
+    fn get_new_stable_version_cache() -> VersionCache {
         let mut version: mullvad_version::Version = mullvad_version::VERSION.parse().unwrap();
         version.incremental += 1;
         VersionCache {
@@ -828,6 +879,44 @@ mod test {
                 .unwrap()
                 .verified_installer_path,
             Some(verified_installer_path.clone())
+        );
+    }
+
+    #[tokio::test]
+    async fn test_failed_download() {
+        let (mut version_router, mut channels) = make_version_router::<FailingTestAppDownloader>();
+        let version_cache_test = get_new_stable_version_cache();
+
+        version_router.on_new_version(version_cache_test.clone());
+
+        // Start upgrading
+        let mut app_upgrade_listener = version_router.app_upgrade_broadcast.subscribe();
+        version_router.update_application();
+        // Check that the state is now downloading
+        match &version_router.state {
+            State::Downloading {
+                version_cache,
+                upgrading_to_version,
+                ..
+            } => {
+                assert_eq!(version_cache, &version_cache_test);
+                assert_eq!(
+                    upgrading_to_version.version,
+                    version_cache_test.latest_version.stable.version
+                );
+            }
+            other => panic!("State should be Downloading, was {other:?}"),
+        }
+
+        // Drive the download to completion, and get the verified installer path
+        version_router.run_step().await;
+        assert_eq!(
+            dbg!(app_upgrade_listener.try_recv().unwrap()),
+            AppUpgradeEvent::DownloadStarting
+        );
+        assert_eq!(
+            dbg!(app_upgrade_listener.try_recv().unwrap()),
+            AppUpgradeEvent::Error(mullvad_types::version::AppUpgradeError::DownloadFailed)
         );
     }
 }
