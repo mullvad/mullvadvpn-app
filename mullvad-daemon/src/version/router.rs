@@ -571,7 +571,7 @@ mod test {
 
     struct SuccessfulAppDownloader(AppDownloaderParameters<ProgressUpdater>);
 
-    impl AppDownloader for TestAppDownloader {
+    impl AppDownloader for SuccessfulAppDownloader {
         async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
             tokio::time::sleep(DOWNLOAD_DURATION).await;
             self.0.app_progress.set_progress(1.0);
@@ -587,7 +587,7 @@ mod test {
         }
     }
 
-    impl From<AppDownloaderParameters<ProgressUpdater>> for TestAppDownloader {
+    impl From<AppDownloaderParameters<ProgressUpdater>> for SuccessfulAppDownloader {
         fn from(parameters: AppDownloaderParameters<ProgressUpdater>) -> Self {
             Self(parameters)
         }
@@ -595,8 +595,7 @@ mod test {
 
     struct FailingAppDownloader;
 
-    #[async_trait::async_trait]
-    impl AppDownloader for FailingDownloadTestAppDownloader {
+    impl AppDownloader for FailingAppDownloader {
         async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
             Err(DownloadError::FetchApp(anyhow::anyhow!("Download failed")))
         }
