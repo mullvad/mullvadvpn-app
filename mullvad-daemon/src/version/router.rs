@@ -587,7 +587,7 @@ mod test {
         }
     }
 
-    impl From<AppDownloaderParameters<ProgressUpdater>> for TestAppDownloader {
+    impl From<AppDownloaderParameters<ProgressUpdater>> for SuccessfulAppDownloader {
         fn from(parameters: AppDownloaderParameters<ProgressUpdater>) -> Self {
             Self(parameters)
         }
@@ -639,6 +639,8 @@ mod test {
         }
     }
 
+    /// Channels used to communicate with the version router and receive version events.
+    /// This is used in the tests to simulate the daemon and `VersionUpdater`.
     struct VersionRouterChannels {
         daemon_tx: futures::channel::mpsc::UnboundedSender<Message>,
         new_version_tx: futures::channel::mpsc::UnboundedSender<VersionCache>,
@@ -798,9 +800,9 @@ mod test {
             .unbounded_send(version_cache_test.clone())
             .unwrap();
 
-        // On the next cycle, the router should receive the version info
-        // and send it to as a response to the oneshot from `get_latest_version`
-        // and to the daemon (`version_event_receiver`)
+        // On the next step, the router should receive the version info
+        // and send it to as a response to the oneshot from `GetLatestVersion`
+        // and to the daemon in the `version_event_receiver` channel.
         version_router.run_step().await;
         let version_info = get_latest_version_rx
             .try_recv()
@@ -818,6 +820,7 @@ mod test {
                 .try_next()
                 .expect("Version event sender should not be closed")
                 .expect("Version event should be sent"),
+            "Version event sent to the daemon should be the same as the one sent to the requester"
         );
     }
 
