@@ -1,4 +1,4 @@
-CHANGE THIS BEFORE A RELEASE
-Each line is treated as a separate change item shown in the GUI the first time it runs after install.
-Start each line with a capital letter and end each line with a period.
-Only point out the major changes.
+Add animations for connection view.
+Improve filter view to display the number of available servers based on selection.
+Improve location view to filter out servers not compatible with custom obfuscation port.
+Make account number copyable on welcome screen.
