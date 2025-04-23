@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,6 +52,7 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.AccountUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.test.MANAGE_DEVICES_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.AccountTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
@@ -232,6 +234,7 @@ private fun DeviceNameRow(deviceName: String, onManageDevicesClick: () -> Unit) 
             InformationView(content = deviceName, whenMissing = MissingPolicy.SHOW_SPINNER)
             Spacer(modifier = Modifier.weight(1f))
             PrimaryTextButton(
+                modifier = Modifier.testTag(MANAGE_DEVICES_BUTTON_TEST_TAG),
                 onClick = onManageDevicesClick,
                 text = stringResource(R.string.manage_devices),
                 textDecoration = TextDecoration.Underline,
