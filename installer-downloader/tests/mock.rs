@@ -37,7 +37,6 @@ pub const FAKE_ENVIRONMENT: Environment = Environment {
     architecture: Architecture::X86,
 };
 
-#[async_trait::async_trait]
 impl VersionInfoProvider for FakeVersionInfoProvider {
     async fn get_version_info(&self, _params: VersionParameters) -> anyhow::Result<VersionInfo> {
         if self.fail_fetching.load(std::sync::atomic::Ordering::SeqCst) {
@@ -88,7 +87,6 @@ pub struct FakeAppDownloader<
     params: UiAppDownloaderParameters<FakeAppDelegate>,
 }
 
-#[async_trait::async_trait]
 impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: bool> AppDownloader
     for FakeAppDownloader<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>
 {

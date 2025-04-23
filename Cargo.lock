@@ -3011,7 +3011,6 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "async-tempfile",
- "async-trait",
  "chrono",
  "clap",
  "ed25519-dalek",

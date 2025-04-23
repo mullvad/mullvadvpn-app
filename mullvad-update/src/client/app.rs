@@ -2,7 +2,7 @@
 
 //! This module implements the flow of downloading and verifying the app.
 
-use std::{ffi::OsString, path::PathBuf, time::Duration};
+use std::{ffi::OsString, future::Future, path::PathBuf, time::Duration};
 
 use tokio::{process::Command, time::timeout};
 
@@ -39,16 +39,15 @@ pub struct AppDownloaderParameters<AppProgress> {
 }
 
 /// See the [module-level documentation](self).
-#[async_trait::async_trait]
 pub trait AppDownloader: Send {
     /// Download the app binary.
-    async fn download_executable(&mut self) -> Result<(), DownloadError>;
+    fn download_executable(&mut self) -> impl Future<Output = Result<(), DownloadError>> + Send;
 
     /// Verify the app signature.
-    async fn verify(&mut self) -> Result<(), DownloadError>;
+    fn verify(&mut self) -> impl Future<Output = Result<(), DownloadError>> + Send;
 
     /// Execute installer.
-    async fn install(&mut self) -> Result<(), DownloadError>;
+    fn install(&mut self) -> impl Future<Output = Result<(), DownloadError>> + Send;
 }
 
 /// How long to wait for the installer to exit before returning
@@ -80,7 +79,6 @@ impl<AppProgress: ProgressUpdater> From<AppDownloaderParameters<AppProgress>>
     }
 }
 
-#[async_trait::async_trait]
 impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgress> {
     async fn download_executable(&mut self) -> Result<(), DownloadError> {
         let bin_path = self.bin_path();
