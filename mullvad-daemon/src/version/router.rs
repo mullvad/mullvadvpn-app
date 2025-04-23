@@ -638,7 +638,7 @@ mod test {
     }
 
     struct VersionRouterChannels {
-        daemon_tx: futures::channel::mpsc::UnboundedSender<Message>, // TODO: Test daemon commands?
+        daemon_tx: futures::channel::mpsc::UnboundedSender<Message>,
         new_version_tx: futures::channel::mpsc::UnboundedSender<VersionCache>,
         refresh_version_check_rx: futures::channel::mpsc::UnboundedReceiver<()>,
         version_event_receiver: futures::channel::mpsc::UnboundedReceiver<AppVersionInfo>,
@@ -733,7 +733,7 @@ mod test {
     async fn test_new_beta_when_not_in_beta_program() {
         let (mut version_router, mut channels) = make_version_router::<TestAppDownloader>();
         let version_cache = get_new_beta_version_cache();
-        version_router.set_beta_program(false); // This is default, but for clarity
+        version_router.set_beta_program(false); // This is default value, but set it for clarity
         assert!(
             matches!(version_router.state, State::NoVersion),
             "State should be not transition"
