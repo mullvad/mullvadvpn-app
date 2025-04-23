@@ -62,7 +62,7 @@ class ManageDevicesViewModel(
         // Put the current device first in the list, but otherwise keep the sort order.
         val devices = toMutableList()
         devices
-            .indexOfFirst { it.device == currentDevice }
+            .indexOfFirst { it.device.id == currentDevice.id }
             .let { index ->
                 if (index > 0) {
                     devices.add(0, devices.removeAt(index))
@@ -73,7 +73,7 @@ class ManageDevicesViewModel(
             ManageDevicesItemUiState(
                 device = it.device,
                 isLoading = it.isLoading,
-                isCurrentDevice = it.device == currentDevice,
+                isCurrentDevice = it.device.id == currentDevice.id,
             )
         }
     }

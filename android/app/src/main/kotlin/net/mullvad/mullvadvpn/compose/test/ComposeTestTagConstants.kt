@@ -33,6 +33,9 @@ const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL =
     "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
 const val QUANTUM_RESISTANCE_OFF_CELL = "quantum_resistance_off_cell_test_tag"
 
+// Account screen
+const val MANAGE_DEVICES_BUTTON_TEST_TAG = "manage_devices_button_test_tag"
+
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
 const val CIRCULAR_PROGRESS_INDICATOR = "circular_progress_indicator"
