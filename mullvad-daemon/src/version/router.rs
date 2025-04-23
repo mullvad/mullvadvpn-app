@@ -647,14 +647,34 @@ mod test {
         }
     }
 
+    /// Create a version cache with a stable version that is newer than the current version
+    fn get_new_beta_version_cache() -> VersionCache {
+        let stable = mullvad_update::version::Version {
+            version: mullvad_version::VERSION.parse().unwrap(),
+            urls: vec!["https://example.com".to_string()],
+            size: 123456,
+            changelog: "Changelog".to_string(),
+            sha256: [0; 32],
+        };
+        let mut beta = stable.clone();
+        beta.version.pre_stable = Some(mullvad_version::PreStableType::Beta(1));
+        VersionCache {
+            current_version_supported: true,
+            latest_version: VersionInfo {
+                beta: Some(beta),
+                stable,
+            },
+        }
+    }
+
     #[test]
     fn test_upgrade_with_no_version() {
-        let (mut version_router, _channels) = make_version_router();
+        let (mut version_router, _channels) = make_version_router::<TestAppDownloader>();
         let upgrade_events = version_router.app_upgrade_broadcast.subscribe();
         version_router.update_application();
         assert!(
             matches!(version_router.state, State::NoVersion),
-            "State should be not transition to downloading"
+            "State should stay as NoVersion after calling update_application"
         );
         assert!(
             upgrade_events.is_empty(),
@@ -662,13 +682,48 @@ mod test {
         );
     }
 
-    #[tokio::test]
-    async fn test_upgrade() {
-        let (mut version_router, mut channels) = make_version_router();
-        // let mut upgrade_events = version_router.app_upgrade_broadcast.subscribe();
-        let version_cache_test = get_stable_version_cache();
+    #[test]
+    fn test_new_beta_when_not_in_beta_program() {
+        crate::logging::init_logger(log::LevelFilter::Debug, None, false)
+            .expect("Failed to initialize logger");
+        let (mut version_router, mut channels) = make_version_router::<TestAppDownloader>();
+        let version_cache = get_new_beta_version_cache();
+        version_router.set_beta_program(false); // This is default, but for clarity
+        assert!(
+            matches!(version_router.state, State::NoVersion),
+            "State should not transition"
+        );
+        version_router.on_new_version(version_cache);
+        assert!(matches!(version_router.state, State::HasVersion { .. }));
+        assert!(
+            channels.version_event_receiver.try_next().is_err(),
+            "No version event should be sent on beta program change"
+        );
+        version_router.update_application();
+        assert!(
+            matches!(version_router.state, State::HasVersion { .. }),
+            "State should not transition to Downloading as the beta version is ignored"
+        );
+    }
+
+    /// Test that when the daemon calls `get_latest_version`, it will trigger a version check
+    /// and send the result back to the daemon, both on the response channel and in the
+    /// version event stream.
+    #[tokio::test(start_paused = true)]
+    async fn test_get_latest_version() {
+        let (mut version_router, mut channels) = make_version_router::<SuccessfulAppDownloader>();
+        let version_cache_test = get_new_stable_version_cache();
+
+        // Make a request to the router to get the latest version
+        // Note that we could as well call `version_router.get_latest_version()`,
+        // but this way we test the actual message passing between the router and
+        // the daemon.
         let (tx, mut get_latest_version_rx) = oneshot::channel();
-        version_router.get_latest_version(tx);
+        channels
+            .daemon_tx
+            .unbounded_send(Message::GetLatestVersion(tx))
+            .unwrap();
+        version_router.run_step().await;
 
         // Here, we play the role of `VersionUpdater`.
         // It should receive a version check request and send a version in response
@@ -701,6 +756,90 @@ mod test {
                 .try_next()
                 .expect("Version event sender should not be closed")
                 .expect("Version event should be sent"),
+        );
+    }
+
+    #[tokio::test]
+    async fn test_upgrade() {
+        let (mut version_router, mut channels) = make_version_router::<SuccessfulAppDownloader>();
+        let version_cache_test = get_new_stable_version_cache();
+
+        version_router.on_new_version(version_cache_test.clone());
+        match &version_router.state {
+            State::HasVersion { version_cache } => assert_eq!(version_cache, &version_cache_test),
+            other => panic!("State should be HasVersion, was {other:?}"),
+        }
+
+        // Start upgrading
+        let mut app_upgrade_listener = version_router.app_upgrade_broadcast.subscribe();
+        version_router.update_application();
+        // Check that the state is now downloading
+        match &version_router.state {
+            State::Downloading {
+                version_cache,
+                upgrading_to_version,
+                ..
+            } => {
+                assert_eq!(version_cache, &version_cache_test);
+                assert_eq!(
+                    upgrading_to_version.version,
+                    version_cache_test.latest_version.stable.version
+                );
+            }
+            other => panic!("State should be Downloading, was {other:?}"),
+        }
+
+        version_router.update_application();
+        assert!(
+            matches!(version_router.state, State::Downloading { .. }),
+            "Triggering an update while in the downloading shout be ignored"
+        );
+
+        // Drive the download to completion, and get the verified installer path
+        version_router.run_step().await;
+        let verified_installer_path = match &version_router.state {
+            State::Downloaded {
+                version_cache,
+                verified_installer_path,
+                ..
+            } => {
+                assert_eq!(version_cache, &version_cache_test);
+                verified_installer_path
+            }
+            other => panic!("State should be Downloading, was {other:?}"),
+        };
+
+        // Check that the app upgrade events were sent
+        let events = [
+            Ok(AppUpgradeEvent::DownloadStarting),
+            Ok(AppUpgradeEvent::DownloadProgress(
+                AppUpgradeDownloadProgress {
+                    progress: 100,
+                    server: "example.com".to_string(),
+                    time_left: None,
+                },
+            )),
+            Ok(AppUpgradeEvent::VerifyingInstaller),
+            Ok(AppUpgradeEvent::VerifiedInstaller),
+            Err(TryRecvError::Empty), // No more events should be sent
+        ];
+        for event in events {
+            assert_eq!(app_upgrade_listener.try_recv(), event);
+        }
+
+        // Check that the version event was sent with the verified installer path
+        let version_info = channels
+            .version_event_receiver
+            .try_next()
+            .expect("Version event sender should not be closed")
+            .expect("Version event should be sent");
+        assert_eq!(
+            version_info
+                .suggested_upgrade
+                .as_ref()
+                .unwrap()
+                .verified_installer_path,
+            Some(verified_installer_path.clone())
         );
     }
 }
