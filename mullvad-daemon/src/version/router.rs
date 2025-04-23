@@ -86,7 +86,8 @@ struct VersionRouter<S = DaemonEventSender<AppVersionInfo>, D = HttpAppDownloade
     /// Broadcast channel for app upgrade events
     #[cfg(update)]
     app_upgrade_broadcast: AppUpgradeBroadcast,
-    phantom: std::marker::PhantomData<D>, // Can we get around this?
+    /// Type used to spawn the downloader task, replaced when testing
+    _phantom: std::marker::PhantomData<D>,
 }
 
 enum Message {
@@ -201,7 +202,7 @@ pub(crate) fn spawn_version_router(
             #[cfg(update)]
             app_upgrade_broadcast,
             refresh_version_check_tx,
-            phantom: std::marker::PhantomData::<HttpAppDownloader<ProgressUpdater>>,
+            _phantom: std::marker::PhantomData::<HttpAppDownloader<ProgressUpdater>>,
         }
         .run()
         .await;
@@ -232,7 +233,6 @@ where
                     // Notify the daemon about new version
                     let _ = self.version_event_sender.send(app_version_info);
                 }
-
             }
             res = wait_for_update(&mut self.state) => {
                 // If the download was successful, we send the new version
@@ -412,8 +412,7 @@ where
         use crate::version::downloader::spawn_downloader;
 
         match mem::replace(&mut self.state, State::NoVersion) {
-            // If we're already downloading or have a version, do nothing
-            State::Downloaded { version_cache, .. } | State::HasVersion { version_cache } => {
+            State::HasVersion { version_cache } => {
                 let Some(upgrading_to_version) =
                     recommended_version_upgrade(&version_cache.latest_version, self.beta_program)
                 else {
@@ -438,7 +437,6 @@ where
                     downloader_handle,
                 };
             }
-            // Already downloading/downloaded or there is no version: do nothing
             state => {
                 log::debug!("Ignoring update request while in state {:?}", state);
                 self.state = state;
@@ -566,12 +564,15 @@ mod test {
 
     use super::*;
 
+    const DOWNLOAD_DURATION: std::time::Duration = std::time::Duration::from_millis(1000);
+
     struct TestAppDownloader(AppDownloaderParameters<ProgressUpdater>);
 
-    // TODO: Can we use normal async traits?
     #[async_trait::async_trait]
     impl AppDownloader for TestAppDownloader {
         async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
+            // self.0.app_progress.set_progress(0.0);
+            tokio::time::sleep(DOWNLOAD_DURATION).await;
             self.0.app_progress.set_progress(1.0);
             Ok(())
         }
@@ -590,55 +591,52 @@ mod test {
             Self(parameters)
         }
     }
-    struct FailingTestAppDownloader {
-        fail_download: bool,
-        fail_verify: bool,
-        fail_install: bool,
-    }
 
-    // TODO: Can we use normal async traits?
+    struct FailingDownloadTestAppDownloader;
+
     #[async_trait::async_trait]
-    impl AppDownloader for FailingTestAppDownloader {
+    impl AppDownloader for FailingDownloadTestAppDownloader {
         async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
-            if self.fail_download {
-                self.fail_download = false;
-                Err(DownloadError::FetchApp(anyhow::anyhow!("Download failed")))
-            } else {
-                Ok(())
-            }
+            Err(DownloadError::FetchApp(anyhow::anyhow!("Download failed")))
         }
 
         async fn verify(&mut self) -> std::result::Result<(), DownloadError> {
-            if self.fail_verify {
-                self.fail_verify = false;
-                Err(DownloadError::Verification(anyhow::anyhow!(
-                    "Verification failed"
-                )))
-            } else {
-                Ok(())
-            }
+            Ok(())
         }
 
         async fn install(&mut self) -> std::result::Result<(), DownloadError> {
-            if self.fail_install {
-                self.fail_install = false;
-                Err(DownloadError::InstallFailed(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    "Install failed",
-                )))
-            } else {
-                Ok(())
-            }
+            Ok(())
         }
     }
 
-    impl From<AppDownloaderParameters<ProgressUpdater>> for FailingTestAppDownloader {
+    impl From<AppDownloaderParameters<ProgressUpdater>> for FailingDownloadTestAppDownloader {
         fn from(_parameters: AppDownloaderParameters<ProgressUpdater>) -> Self {
-            Self {
-                fail_download: true,
-                fail_verify: true,
-                fail_install: true,
-            }
+            Self
+        }
+    }
+
+    struct FailingVerificationTestAppDownloader;
+
+    #[async_trait::async_trait]
+    impl AppDownloader for FailingVerificationTestAppDownloader {
+        async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
+            Ok(())
+        }
+
+        async fn verify(&mut self) -> std::result::Result<(), DownloadError> {
+            Err(DownloadError::Verification(anyhow::anyhow!(
+                "Verification failed"
+            )))
+        }
+
+        async fn install(&mut self) -> std::result::Result<(), DownloadError> {
+            Ok(())
+        }
+    }
+
+    impl From<AppDownloaderParameters<ProgressUpdater>> for FailingVerificationTestAppDownloader {
+        fn from(_parameters: AppDownloaderParameters<ProgressUpdater>) -> Self {
+            Self
         }
     }
 
@@ -668,7 +666,7 @@ mod test {
                 version_request_channels: vec![],
                 app_upgrade_broadcast,
                 refresh_version_check_tx,
-                phantom: std::marker::PhantomData::<D>,
+                _phantom: std::marker::PhantomData::<D>,
             },
             VersionRouterChannels {
                 daemon_tx,
@@ -698,7 +696,7 @@ mod test {
         }
     }
 
-    /// Create a version cache with a stable version that is newer than the current version
+    /// Create a version cache with a beta version that is newer than the current version
     fn get_new_beta_version_cache() -> VersionCache {
         let stable = mullvad_update::version::Version {
             version: mullvad_version::VERSION.parse().unwrap(),
@@ -709,6 +707,7 @@ mod test {
         };
         let mut beta = stable.clone();
         beta.version.pre_stable = Some(mullvad_version::PreStableType::Beta(1));
+        beta.version.incremental += 1;
         VersionCache {
             current_version_supported: true,
             latest_version: VersionInfo {
@@ -718,8 +717,8 @@ mod test {
         }
     }
 
-    #[test]
-    fn test_upgrade_with_no_version() {
+    #[tokio::test]
+    async fn test_upgrade_with_no_version() {
         let (mut version_router, _channels) = make_version_router::<TestAppDownloader>();
         let upgrade_events = version_router.app_upgrade_broadcast.subscribe();
         version_router.update_application();
@@ -733,10 +732,8 @@ mod test {
         );
     }
 
-    #[test]
-    fn test_new_beta_when_not_in_beta_program() {
-        crate::logging::init_logger(log::LevelFilter::Debug, None, false)
-            .expect("Failed to initialize logger");
+    #[tokio::test]
+    async fn test_new_beta_when_not_in_beta_program() {
         let (mut version_router, mut channels) = make_version_router::<TestAppDownloader>();
         let version_cache = get_new_beta_version_cache();
         version_router.set_beta_program(false); // This is default, but for clarity
@@ -755,6 +752,17 @@ mod test {
         assert!(
             upgrade_events.is_empty(),
             "No upgrade events should be sent"
+        );
+        version_router.set_beta_program(true);
+        assert!(
+            channels.version_event_receiver.try_next().is_ok(),
+            "Version event should be sent on beta program change"
+        );
+        version_router.update_application();
+        version_router.run_step().await;
+        assert!(
+            !upgrade_events.is_empty(),
+            "Upgrade event should be sent on beta program change"
         );
     }
 
@@ -806,7 +814,7 @@ mod test {
         );
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     async fn test_upgrade() {
         let (mut version_router, mut channels) = make_version_router::<TestAppDownloader>();
         let version_cache_test = get_new_stable_version_cache();
@@ -847,7 +855,7 @@ mod test {
                 assert_eq!(version_cache, &version_cache_test);
                 verified_installer_path
             }
-            other => panic!("State should be Downloading, was {other:?}"),
+            other => panic!("State should be Downloaded, was {other:?}"),
         };
 
         // Check that the app upgrade events were sent
@@ -880,11 +888,63 @@ mod test {
                 .verified_installer_path,
             Some(verified_installer_path.clone())
         );
+
+        // Test that triggering an update while in the downloaded state does nothing
+        version_router.update_application();
+        assert!(matches!(version_router.state, State::Downloaded { .. }));
+
+        version_router.cancel_upgrade();
+        assert!(matches!(version_router.state, State::HasVersion { .. }));
+
+        assert_eq!(
+            app_upgrade_listener.try_recv(),
+            Err(TryRecvError::Empty),
+            "The `AppUpgradeEvent::Aborted` should not be sent when cancelling a finished download"
+        );
+    }
+
+    /// Test that the update is aborted if a new version is received while downloading
+    #[tokio::test(start_paused = true)]
+    async fn test_abort_on_new_version() {
+        let (mut version_router, _channels) = make_version_router::<TestAppDownloader>();
+        let upgrade_version_cache_1 = get_new_stable_version_cache();
+        let mut upgrade_version_cache_2 = upgrade_version_cache_1.clone();
+        upgrade_version_cache_2
+            .latest_version
+            .stable
+            .version
+            .incremental += 1;
+
+        version_router.on_new_version(upgrade_version_cache_1.clone());
+
+        // Start upgrading
+        let mut app_upgrade_listener = version_router.app_upgrade_broadcast.subscribe();
+        version_router.update_application();
+        // Check that the state is now downloading
+        assert!(matches!(version_router.state, State::Downloading { .. }),);
+
+        tokio::time::sleep(DOWNLOAD_DURATION / 2).await;
+        version_router.on_new_version(upgrade_version_cache_1.clone());
+
+        assert_eq!(
+            app_upgrade_listener.try_recv().unwrap(),
+            AppUpgradeEvent::DownloadStarting
+        );
+        assert_eq!(app_upgrade_listener.try_recv(), Err(TryRecvError::Empty));
+
+        version_router.on_new_version(upgrade_version_cache_2.clone());
+
+        assert_eq!(
+            app_upgrade_listener.try_recv().unwrap(),
+            AppUpgradeEvent::Aborted
+        );
+        assert_eq!(app_upgrade_listener.try_recv(), Err(TryRecvError::Empty));
     }
 
     #[tokio::test]
     async fn test_failed_download() {
-        let (mut version_router, mut channels) = make_version_router::<FailingTestAppDownloader>();
+        let (mut version_router, _channels) =
+            make_version_router::<FailingDownloadTestAppDownloader>();
         let version_cache_test = get_new_stable_version_cache();
 
         version_router.on_new_version(version_cache_test.clone());
@@ -893,30 +953,65 @@ mod test {
         let mut app_upgrade_listener = version_router.app_upgrade_broadcast.subscribe();
         version_router.update_application();
         // Check that the state is now downloading
-        match &version_router.state {
-            State::Downloading {
-                version_cache,
-                upgrading_to_version,
-                ..
-            } => {
-                assert_eq!(version_cache, &version_cache_test);
-                assert_eq!(
-                    upgrading_to_version.version,
-                    version_cache_test.latest_version.stable.version
-                );
-            }
-            other => panic!("State should be Downloading, was {other:?}"),
-        }
+        assert!(matches!(version_router.state, State::Downloading { .. }),);
 
         // Drive the download to completion, and get the verified installer path
         version_router.run_step().await;
         assert_eq!(
-            dbg!(app_upgrade_listener.try_recv().unwrap()),
+            app_upgrade_listener.try_recv().unwrap(),
             AppUpgradeEvent::DownloadStarting
         );
         assert_eq!(
-            dbg!(app_upgrade_listener.try_recv().unwrap()),
+            app_upgrade_listener.try_recv().unwrap(),
             AppUpgradeEvent::Error(mullvad_types::version::AppUpgradeError::DownloadFailed)
+        );
+        assert_eq!(app_upgrade_listener.try_recv(), Err(TryRecvError::Empty));
+        version_router.update_application();
+
+        // Verify that we can restart the download again
+        version_router.run_step().await;
+        assert_eq!(
+            app_upgrade_listener.try_recv().unwrap(),
+            AppUpgradeEvent::DownloadStarting
+        );
+    }
+
+    #[tokio::test]
+    async fn test_failed_verification() {
+        let (mut version_router, _channels) =
+            make_version_router::<FailingVerificationTestAppDownloader>();
+        let version_cache_test = get_new_stable_version_cache();
+
+        version_router.on_new_version(version_cache_test.clone());
+
+        // Start upgrading
+        let mut app_upgrade_listener = version_router.app_upgrade_broadcast.subscribe();
+        version_router.update_application();
+        // Check that the state is now downloading
+        assert!(matches!(version_router.state, State::Downloading { .. }),);
+
+        // Drive the download to completion, and get the verified installer path
+        version_router.run_step().await;
+        assert_eq!(
+            app_upgrade_listener.try_recv().unwrap(),
+            AppUpgradeEvent::DownloadStarting
+        );
+        assert_eq!(
+            app_upgrade_listener.try_recv().unwrap(),
+            AppUpgradeEvent::VerifyingInstaller
+        );
+        assert_eq!(
+            app_upgrade_listener.try_recv().unwrap(),
+            AppUpgradeEvent::Error(mullvad_types::version::AppUpgradeError::VerificationFailed)
+        );
+        assert_eq!(app_upgrade_listener.try_recv(), Err(TryRecvError::Empty));
+        version_router.update_application();
+
+        // Verify that we can restart the download again
+        version_router.run_step().await;
+        assert_eq!(
+            app_upgrade_listener.try_recv().unwrap(),
+            AppUpgradeEvent::DownloadStarting
         );
     }
 }
