@@ -132,6 +132,9 @@ where
     })?;
     let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
 
+    // Note that we cannot call `downloader.install()` here, as it must be done by the user process.
+    // Instead, the GUI is responsible for launching the installer.
+
     Ok(bin_path)
 }
 
