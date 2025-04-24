@@ -8,7 +8,7 @@ import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './co
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'success' | 'destructive';
-  width?: 'fill' | 'auto';
+  width?: 'fill' | 'fit';
 }
 
 const styles = {
@@ -32,11 +32,11 @@ const styles = {
   },
   flex: {
     fill: '1 1 0',
-    auto: '0 0 auto',
+    fit: '0 0 auto',
   },
   widths: {
     fill: undefined,
-    auto: 'fit-content',
+    fit: 'fit-content',
   },
 };
 
