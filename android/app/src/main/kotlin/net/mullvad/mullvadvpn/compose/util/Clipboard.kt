@@ -7,8 +7,8 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.Clipboard
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.toClipEntry
 import kotlinx.coroutines.launch
 
@@ -22,7 +22,7 @@ fun createCopyToClipboardHandle(
     isSensitive: Boolean,
 ): CopyToClipboardHandle {
     val scope = rememberCoroutineScope()
-    val clipboardManager: ClipboardManager = LocalClipboardManager.current
+    val clipboard: Clipboard = LocalClipboard.current
 
     return { textToCopy: String, toastMessage: String? ->
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && toastMessage != null) {
@@ -34,14 +34,16 @@ fun createCopyToClipboardHandle(
             }
         }
 
-        val clip =
-            ClipData.newPlainText("", textToCopy)
-                .apply {
-                    description.extras =
-                        PersistableBundle().apply { putBoolean(IS_SENSITIVE_FLAG, isSensitive) }
-                }
-                .toClipEntry()
+        scope.launch {
+            val clip =
+                ClipData.newPlainText("", textToCopy)
+                    .apply {
+                        description.extras =
+                            PersistableBundle().apply { putBoolean(IS_SENSITIVE_FLAG, isSensitive) }
+                    }
+                    .toClipEntry()
 
-        clipboardManager.setClip(clip)
+            clipboard.setClipEntry(clipEntry = clip)
+        }
     }
 }

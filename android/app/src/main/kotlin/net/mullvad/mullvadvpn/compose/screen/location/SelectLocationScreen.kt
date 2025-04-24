@@ -76,6 +76,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.platform.LocalConfiguration
 
 @Preview("Loading|Default|Filters|Multihop|Multihop and Filters")
 @Composable
@@ -372,7 +373,7 @@ private fun RelayLists(
 ) {
     // This is a workaround for the HorizontalPager being broken on Android TV when it contains
     // focusable views and you navigate with the D-pad. Remove this code once DROID-1639 is fixed.
-    val configuration = LocalContext.current.resources.configuration
+    val configuration = LocalConfiguration.current
     if (configuration.navigation == Configuration.NAVIGATION_DPAD) {
         SelectLocationList(
             backgroundColor = backgroundColor,
