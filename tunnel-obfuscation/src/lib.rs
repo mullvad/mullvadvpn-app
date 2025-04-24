@@ -3,6 +3,7 @@ use std::net::SocketAddr;
 
 pub mod shadowsocks;
 pub mod udp2tcp;
+pub mod quic;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -19,6 +20,14 @@ pub enum Error {
 
     #[error("Failed to run Shadowsocks")]
     RunShadowsocksObfuscator(#[source] shadowsocks::Error),
+
+
+    #[error("Failed to initialize Quic")]
+    CreateQuicObfuscator(#[source] quic::Error),
+
+    #[error("Failed to run Quic")]
+    RunQuicObfuscator(#[source] quic::Error),
+
 }
 
 #[async_trait]
@@ -42,6 +51,7 @@ pub trait Obfuscator: Send {
 pub enum Settings {
     Udp2Tcp(udp2tcp::Settings),
     Shadowsocks(shadowsocks::Settings),
+    Quic(quic::Settings),
 }
 
 pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator>> {
@@ -54,6 +64,11 @@ pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator
             .await
             .map(box_obfuscator)
             .map_err(Error::CreateShadowsocksObfuscator),
+        Settings::Quic(s) => quic::Quic::new(s)
+            .await
+            .map(box_obfuscator)
+            .map_err(Error::CreateQuicObfuscator),
+        
     }
 }
 
