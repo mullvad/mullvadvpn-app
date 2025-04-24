@@ -11,6 +11,9 @@ use mullvad_version::PreStableType;
 
 use crate::format;
 
+/// Lowest version to accept using 'verify'
+pub const MIN_VERIFY_METADATA_VERSION: usize = 0;
+
 /// Query type for [VersionInfo]
 #[derive(Debug)]
 pub struct VersionParameters {
