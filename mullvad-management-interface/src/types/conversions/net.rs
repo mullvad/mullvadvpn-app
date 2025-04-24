@@ -39,6 +39,9 @@ impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
                         net::ObfuscationType::Shadowsocks => {
                             i32::from(proto::obfuscation_endpoint::ObfuscationType::Shadowsocks)
                         }
+                        net::ObfuscationType::Quic => {
+                            i32::from(proto::obfuscation_endpoint::ObfuscationType::Quic)
+                        }
                     },
                 }
             }),
@@ -122,6 +125,9 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                                 }
                                 Ok(proto::obfuscation_endpoint::ObfuscationType::Shadowsocks) => {
                                     talpid_net::ObfuscationType::Shadowsocks
+                                }
+                                Ok(proto::obfuscation_endpoint::ObfuscationType::Quic) => {
+                                    talpid_net::ObfuscationType::Quic
                                 }
                                 Err(_) => {
                                     return Err(FromProtobufTypeError::InvalidArgument(

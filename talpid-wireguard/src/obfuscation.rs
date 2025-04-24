@@ -13,7 +13,7 @@ use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
 
 use tunnel_obfuscation::{
-    create_obfuscator, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
+    create_obfuscator, quic, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
@@ -92,6 +92,15 @@ fn settings_from_config(
                 } else {
                     SocketAddr::from((Ipv6Addr::LOCALHOST, 51820))
                 },
+                #[cfg(target_os = "linux")]
+                fwmark,
+            })
+        }
+        ObfuscatorConfig::Quic { hostname, endpoint } => {
+            ObfuscationSettings::Quic(quic::Settings {
+                quic_endpoint: *endpoint,
+                wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
+                hostname: hostname.to_owned(),
                 #[cfg(target_os = "linux")]
                 fwmark,
             })
