@@ -1,10 +1,4 @@
-use std::{
-    future::Future,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
-    pin::Pin,
-    str::FromStr,
-    sync::Arc,
-};
+use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 
 use tokio::sync::Mutex;
 
@@ -13,7 +7,6 @@ use mullvad_types::{
     endpoint::MullvadWireguardEndpoint, location::GeoIpLocation, relay_list::Relay,
     settings::TunnelOptions,
 };
-use std::sync::LazyLock;
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::{
@@ -26,18 +19,6 @@ use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, TunnelParamete
 use talpid_types::{net::IpAvailability, tunnel::ParameterGenerationError, ErrorExt};
 
 use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
-
-/// The IP-addresses that the client uses when it connects to a server that supports the
-/// "Same IP" functionality. This means all clients have the same in-tunnel IP on these
-/// servers. This improves anonymity since the in-tunnel IP will not be unique to a specific
-/// peer.
-static SAME_IP_V4: LazyLock<IpAddr> =
-    LazyLock::new(|| Ipv4Addr::from_str("10.127.255.254").unwrap().into());
-static SAME_IP_V6: LazyLock<IpAddr> = LazyLock::new(|| {
-    Ipv6Addr::from_str("fc00:bbbb:bbbb:bb01:ffff:ffff:ffff:ffff")
-        .unwrap()
-        .into()
-});
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -260,13 +241,6 @@ impl InnerParametersGenerator {
             private_key: data.device.wg_data.private_key,
             addresses: vec![IpAddr::from(tunnel_ipv4), IpAddr::from(tunnel_ipv6)],
         };
-        // FIXME: Used for debugging purposes during the migration to same IP. Remove when
-        // the migration is over.
-        if tunnel_ipv4 == *SAME_IP_V4 || tunnel_ipv6 == *SAME_IP_V6 {
-            log::debug!("Same IP is being used");
-        } else {
-            log::debug!("Same IP is NOT being used");
-        }
 
         wireguard::TunnelParameters {
             connection: wireguard::ConnectionConfig {
