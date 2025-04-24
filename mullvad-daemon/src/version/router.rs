@@ -13,6 +13,7 @@ use talpid_core::mpsc::Sender;
 use crate::management_interface::AppUpgradeBroadcast;
 use crate::DaemonEventSender;
 
+#[cfg(update)]
 use super::downloader::ProgressUpdater;
 use super::{
     check::{VersionCache, VersionUpdater},
@@ -66,10 +67,21 @@ impl VersionRouterHandle {
     }
 }
 
+// These wrapper traits and type aliases exist to help feature gate the module
 #[cfg(update)]
-type Downloader = HttpAppDownloader<ProgressUpdater>;
+trait Downloader:
+    AppDownloader + Send + 'static + From<AppDownloaderParameters<ProgressUpdater>>
+{
+}
 #[cfg(not(update))]
-type Downloader = ();
+trait Downloader {}
+
+#[cfg(update)]
+type DefaultDownloader = HttpAppDownloader<ProgressUpdater>;
+#[cfg(not(update))]
+type DefaultDownloader = ();
+
+impl Downloader for DefaultDownloader {}
 
 /// Router of version updates and update requests.
 ///
@@ -77,7 +89,7 @@ type Downloader = ();
 /// If an update is in progress, these events are paused until the update is completed or canceled.
 /// This is done to prevent frontends from confusing which version is currently being installed,
 /// in case new version info is received while the update is in progress.
-struct VersionRouter<S = DaemonEventSender<AppVersionInfo>, D = Downloader> {
+struct VersionRouter<S = DaemonEventSender<AppVersionInfo>, D = DefaultDownloader> {
     daemon_rx: mpsc::UnboundedReceiver<Message>,
     state: State,
     beta_program: bool,
@@ -208,7 +220,7 @@ pub(crate) fn spawn_version_router(
             #[cfg(update)]
             app_upgrade_broadcast,
             refresh_version_check_tx,
-            _phantom: std::marker::PhantomData::<Downloader>,
+            _phantom: std::marker::PhantomData::<DefaultDownloader>,
         }
         .run()
         .await;
@@ -219,8 +231,7 @@ pub(crate) fn spawn_version_router(
 impl<S, D> VersionRouter<S, D>
 where
     S: Sender<AppVersionInfo> + Send + 'static,
-    D: AppDownloader + Send + 'static,
-    D: From<AppDownloaderParameters<ProgressUpdater>>,
+    D: Downloader,
 {
     async fn run(mut self) {
         log::info!("Version router started");
@@ -283,6 +294,7 @@ where
     /// If the router is in the process of upgrading, it will not propagate versions, but only
     /// remember it for when it transitions back into the "idle" (version check) state.
     fn on_new_version(&mut self, version_cache: VersionCache) -> AppVersionInfoEvent {
+        #[cfg(update)]
         let verified_installer_path = self.get_verified_installer_path();
         match &mut self.state {
             State::NoVersion => {
@@ -348,9 +360,9 @@ where
         }
     }
 
+    #[cfg(update)]
     fn get_verified_installer_path(&self) -> Option<PathBuf> {
         match &self.state {
-            #[cfg(update)]
             State::Downloaded {
                 verified_installer_path,
                 ..
