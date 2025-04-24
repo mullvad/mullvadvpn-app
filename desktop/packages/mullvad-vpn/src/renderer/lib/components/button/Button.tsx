@@ -8,7 +8,7 @@ import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './co
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'success' | 'destructive';
-  size?: 'fill' | 'auto';
+  width?: 'fill' | 'auto';
 }
 
 const styles = {
@@ -30,7 +30,7 @@ const styles = {
       disabled: Colors.red60,
     },
   },
-  sizes: {
+  flex: {
     fill: '1 1 0',
     auto: '0 0 auto',
   },
@@ -41,9 +41,9 @@ const styles = {
 };
 
 const StyledButton = styled(ButtonBase)<ButtonProps>`
-  ${({ size: sizeProp = 'fill', variant: variantProp = 'primary' }) => {
+  ${({ width: sizeProp = 'fill', variant: variantProp = 'primary' }) => {
     const variant = styles.variants[variantProp];
-    const size = styles.sizes[sizeProp];
+    const size = styles.flex[sizeProp];
     const width = styles.widths[sizeProp];
 
     return css`
