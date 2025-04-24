@@ -35,7 +35,7 @@ compose-material-tv = "1.1.0-alpha01"
 drawablepainter = "0.37.2"
 
 # Update suppression for 'InvalidPackage' in config/lint.xml
-grpc = "1.71.0"
+grpc = "1.72.0"
 grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
 
