@@ -607,6 +607,8 @@ mod test {
         }
     }
 
+    impl Downloader for SuccessfulAppDownloader {}
+
     /// Mock downloader that simulates a failed download
     struct FailingAppDownloader;
 
