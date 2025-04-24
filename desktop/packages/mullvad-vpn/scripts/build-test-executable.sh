@@ -32,7 +32,8 @@ function build_test_executable {
     local temp_dir
     temp_dir="$(mktemp -d)"
     local temp_executable="$temp_dir/temp-test-executable$bin_suffix"
-    local output="../../../dist/app-e2e-tests-$PRODUCT_VERSION-$TARGET$bin_suffix"
+    local output_name="app-e2e-tests-$PRODUCT_VERSION-$TARGET$bin_suffix"
+    local output="../../../dist/$output_name"
     local node_copy_path="$temp_dir/node$bin_suffix"
     local node_path
     node_path="$(volta which node || which node)"
@@ -62,11 +63,12 @@ function build_test_executable {
 
     mkdir -p "$(dirname "$output")"
     mv "$temp_executable" "$output"
+    echo "Test executable created: $output_name"
 
     rm -rf "$temp_dir"
 }
 
-npx gulp build-standalone
+npm run build:standalone
 
 case "$TARGET" in
     "aarch64-unknown-linux-gnu")
