@@ -2704,6 +2704,7 @@ version = "0.0.0"
 dependencies = [
  "android_logger",
  "anyhow",
+ "async-trait",
  "chrono",
  "clap",
  "ctrlc",
