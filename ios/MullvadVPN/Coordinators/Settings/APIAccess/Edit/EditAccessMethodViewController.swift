@@ -59,7 +59,7 @@ class EditAccessMethodViewController: UIViewController {
             title.pinEdgesToSuperviewMargins(PinnableEdges([.leading(7), .trailing(7), .top(0)]))
             headerView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(8), .trailing(8)]))
             tableView.pinEdgesToSuperview(.all().excluding(.top))
-            headerView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 0)
+            headerView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 4)
             tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 20)
         }
 
