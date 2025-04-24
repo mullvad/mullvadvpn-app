@@ -51,9 +51,9 @@ export default function NotificationArea(props: IProps) {
   const account = useSelector((state: IReduxState) => state.account);
   const locale = useSelector((state: IReduxState) => state.userInterface.locale);
   const tunnelState = useSelector((state: IReduxState) => state.connection.status);
+  const connection = useSelector((state: IReduxState) => state.connection);
   const version = useSelector((state: IReduxState) => state.version);
   const tunnelProtocol = useTunnelProtocol();
-  const reduxConnection = useSelector((state) => state.connection);
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
 
   const blockWhenDisconnected = useSelector(
@@ -95,8 +95,8 @@ export default function NotificationArea(props: IProps) {
       hasExcludedApps,
     }),
     new NoOpenVpnServerAvailableNotificationProvider({
+      connection,
       tunnelProtocol,
-      tunnelState: reduxConnection.status,
       relayLocations: fullRelayList,
     }),
     new ErrorNotificationProvider({

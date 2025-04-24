@@ -5,7 +5,6 @@ import {
   ErrorStateCause,
   TunnelParameterError,
   TunnelProtocol,
-  TunnelState,
 } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import {
@@ -13,12 +12,16 @@ import {
   InAppNotificationProvider,
   InAppNotificationSubtitle,
 } from '../../../shared/notifications';
-import { IRelayLocationCountryRedux } from '../../redux/settings/reducers';
+import { IConnectionReduxState } from '../../redux/connection/reducers';
+import {
+  IRelayLocationCountryRedux,
+  IRelayLocationRelayRedux,
+} from '../../redux/settings/reducers';
 import { RoutePath } from '../routes';
 
 interface NoOpenVpnServerAvailableNotificationContext {
+  connection: IConnectionReduxState;
   tunnelProtocol: TunnelProtocol;
-  tunnelState: TunnelState;
   relayLocations: IRelayLocationCountryRedux[];
 }
 
@@ -26,12 +29,20 @@ export class NoOpenVpnServerAvailableNotificationProvider implements InAppNotifi
   public constructor(private context: NoOpenVpnServerAvailableNotificationContext) {}
 
   public mayDisplay = () => {
-    const { tunnelState, tunnelProtocol } = this.context;
+    const { connection, tunnelProtocol } = this.context;
+
+    const hasNoEnabledOpenVpnRelays = !this.anyOpenVpnLocationsEnabled();
+    const isSelectedRelayOpenVpn = this.isSelectedRelayOpenVpn();
+    const isTunnelProtocolOpenVpn = tunnelProtocol === 'openvpn';
+    const hasNoMatchingRelay =
+      connection.status.state === 'error' &&
+      connection.status.details.cause === ErrorStateCause.tunnelParameterError &&
+      connection.status.details.parameterError === TunnelParameterError.noMatchingRelay;
+
     return (
-      tunnelProtocol === 'openvpn' &&
-      tunnelState.state === 'error' &&
-      tunnelState.details.cause === ErrorStateCause.tunnelParameterError &&
-      tunnelState.details.parameterError === TunnelParameterError.noMatchingRelay
+      isTunnelProtocolOpenVpn &&
+      hasNoMatchingRelay &&
+      (isSelectedRelayOpenVpn || hasNoEnabledOpenVpnRelays)
     );
   };
 
@@ -39,6 +50,7 @@ export class NoOpenVpnServerAvailableNotificationProvider implements InAppNotifi
     let title: string = '';
     const subtitle: InAppNotificationSubtitle[] = [];
     const capitalizedOpenVpn = strings.openvpn.toUpperCase();
+
     if (this.anyOpenVpnLocationsEnabled()) {
       title = sprintf(
         // TRANSLATORS: Notification title when there are no openVPN servers
@@ -109,6 +121,47 @@ export class NoOpenVpnServerAvailableNotificationProvider implements InAppNotifi
       title,
       subtitle,
     };
+  }
+
+  private isSelectedRelayOpenVpn() {
+    const selectedRelay = this.getSelectedRelay();
+
+    if (selectedRelay) {
+      // NOTE: Even though 'bridge' is not specifically OpenVPN
+      // it is only used together with OpenVPN and as such
+      // we want to target it as well.
+      return selectedRelay.endpointType === 'openvpn' || selectedRelay.endpointType === 'bridge';
+    }
+
+    return false;
+  }
+
+  private getSelectedRelay() {
+    const selectedRelay = this.context.relayLocations.reduce<IRelayLocationRelayRedux | undefined>(
+      (selectedRelay, location) => {
+        const isSelectedRelayCountry = location.name === this.context.connection.country;
+        if (isSelectedRelayCountry) {
+          const relayCity = location.cities.find(
+            (city) => city.name === this.context.connection.city,
+          );
+
+          if (relayCity) {
+            const relay = relayCity.relays.find(
+              (relay) => relay.hostname === this.context.connection.hostname,
+            );
+
+            if (relay) {
+              return relay;
+            }
+          }
+        }
+
+        return selectedRelay;
+      },
+      undefined,
+    );
+
+    return selectedRelay;
   }
 
   private anyOpenVpnLocationsEnabled() {
