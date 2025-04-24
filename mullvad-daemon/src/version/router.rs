@@ -5,6 +5,7 @@ use futures::channel::{mpsc, oneshot};
 use futures::stream::StreamExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
 use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
+#[cfg(update)]
 use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
 use mullvad_update::version::VersionInfo;
 use talpid_core::mpsc::Sender;
@@ -65,14 +66,18 @@ impl VersionRouterHandle {
     }
 }
 
+#[cfg(update)]
+type Downloader = HttpAppDownloader<ProgressUpdater>;
+#[cfg(not(update))]
+type Downloader = ();
+
 /// Router of version updates and update requests.
 ///
 /// New available app version events are forwarded from the [`VersionUpdater`].
 /// If an update is in progress, these events are paused until the update is completed or canceled.
 /// This is done to prevent frontends from confusing which version is currently being installed,
 /// in case new version info is received while the update is in progress.
-struct VersionRouter<S = DaemonEventSender<AppVersionInfo>, D = HttpAppDownloader<ProgressUpdater>>
-{
+struct VersionRouter<S = DaemonEventSender<AppVersionInfo>, D = Downloader> {
     daemon_rx: mpsc::UnboundedReceiver<Message>,
     state: State,
     beta_program: bool,
@@ -203,7 +208,7 @@ pub(crate) fn spawn_version_router(
             #[cfg(update)]
             app_upgrade_broadcast,
             refresh_version_check_tx,
-            _phantom: std::marker::PhantomData::<HttpAppDownloader<ProgressUpdater>>,
+            _phantom: std::marker::PhantomData::<Downloader>,
         }
         .run()
         .await;
