@@ -617,7 +617,7 @@ mod test {
 
     struct FailingAppVerifier;
 
-    impl AppDownloader for FailingVerificationTestAppDownloader {
+    impl AppDownloader for FailingAppVerifier {
         async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
             Ok(())
         }
