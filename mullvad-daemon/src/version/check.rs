@@ -210,7 +210,6 @@ impl VersionUpdaterInner {
                         match (self.version_is_stale(), self.last_app_version_info()) {
                             (false, Some(version_info)) => {
                                 // if the version_info isn't stale, return it immediately.
-                                // TODO: don't write to disk if the version is the same
                                 if let Err(err) = update(version_info.clone()).await {
                                     log::error!("Failed to save version cache to disk: {}", err);
                                 }
