@@ -38,7 +38,7 @@ pub struct ClientArgs {
     /// fwmark to use for the `server_addr` connection
     #[cfg(target_os = "linux")]
     #[arg(long)]
-    fwmark: Option<u16>,
+    fwmark: Option<u32>,
 
     /// Maximum duration of inactivity (in seconds) until the tunnel times out.
     /// Inactivity happens when no data is sent over the proxy.
