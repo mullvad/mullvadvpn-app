@@ -52,7 +52,6 @@ log-panics = "2.0.0"
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 
 [dev-dependencies]
-async-trait = "0.1" # TODO: make this workspace dependency
 talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features =  ["test-util"] }
 
