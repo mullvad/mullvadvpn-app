@@ -659,6 +659,8 @@ mod test {
         }
     }
 
+    impl Downloader for FailingAppVerifier {}
+
     /// Channels used to communicate with the version router and receive version events.
     /// This is used in the tests to simulate the daemon and `VersionUpdater`.
     struct VersionRouterChannels {
