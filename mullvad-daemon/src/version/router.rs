@@ -9,6 +9,8 @@ use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
 use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
 use mullvad_update::version::VersionInfo;
 use talpid_core::mpsc::Sender;
+#[cfg(update)]
+use talpid_types::ErrorExt;
 
 use crate::management_interface::AppUpgradeBroadcast;
 use crate::DaemonEventSender;
@@ -201,6 +203,15 @@ pub(crate) fn spawn_version_router(
     tokio::spawn(async move {
         let (new_version_tx, new_version_rx) = mpsc::unbounded();
         let (refresh_version_check_tx, refresh_version_check_rx) = mpsc::unbounded();
+
+        #[cfg(update)]
+        let _ = downloader::clear_download_dir().await.inspect_err(|err| {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to clean up download directory")
+            )
+        });
+
         VersionUpdater::spawn(
             api_handle,
             availability_handle,
