@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -372,7 +373,7 @@ private fun RelayLists(
 ) {
     // This is a workaround for the HorizontalPager being broken on Android TV when it contains
     // focusable views and you navigate with the D-pad. Remove this code once DROID-1639 is fixed.
-    val configuration = LocalContext.current.resources.configuration
+    val configuration = LocalConfiguration.current
     if (configuration.navigation == Configuration.NAVIGATION_DPAD) {
         SelectLocationList(
             backgroundColor = backgroundColor,

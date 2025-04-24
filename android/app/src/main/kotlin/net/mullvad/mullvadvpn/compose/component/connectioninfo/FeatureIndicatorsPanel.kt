@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalSharedTransitionApi::class)
+@file:Suppress("DEPRECATION")
 
 package net.mullvad.mullvadvpn.compose.component.connectioninfo
 
