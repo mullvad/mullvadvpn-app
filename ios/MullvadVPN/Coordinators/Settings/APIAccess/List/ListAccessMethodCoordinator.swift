@@ -8,6 +8,7 @@
 
 import MullvadSettings
 import Routing
+import SwiftUI
 import UIKit
 
 class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
@@ -30,11 +31,21 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
     }
 
     func start(animated: Bool) {
-        let listController = ListAccessMethodViewController(
-            interactor: ListAccessMethodInteractor(repository: accessMethodRepository)
+        let view = ListAccessMethodView(
+            viewModel: ListAccessViewModelBridge(interactor: ListAccessMethodInteractor(
+                repository: accessMethodRepository
+            ), delegate: self)
         )
-        listController.delegate = self
-        navigationController.pushViewController(listController, animated: animated)
+        let host = UIHostingController(rootView: view)
+        host.title = NSLocalizedString(
+            "NAVIGATION_TITLE",
+            tableName: "Settings",
+            value: "API access",
+            comment: ""
+        )
+        host.view.setAccessibilityIdentifier(.apiAccessView)
+
+        navigationController.pushViewController(host, animated: animated)
     }
 
     private func addNew() {
@@ -68,7 +79,9 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
 
     private func popToList() {
         guard let listController = navigationController.viewControllers
-            .first(where: { $0 is ListAccessMethodViewController }) else { return }
+            .first(where: { $0 is UIHostingController<ListAccessMethodView<ListAccessViewModelBridge>> }) else {
+            return
+        }
 
         navigationController.popToViewController(listController, animated: true)
     }
@@ -131,15 +144,15 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
 }
 
 extension ListAccessMethodCoordinator: @preconcurrency ListAccessMethodViewControllerDelegate {
-    func controllerShouldShowAbout(_ controller: ListAccessMethodViewController) {
+    func controllerShouldShowAbout() {
         about()
     }
 
-    func controllerShouldAddNew(_ controller: ListAccessMethodViewController) {
+    func controllerShouldAddNew() {
         addNew()
     }
 
-    func controller(_ controller: ListAccessMethodViewController, shouldEditItem item: ListAccessMethodItem) {
+    func controller(shouldEditItem item: ListAccessMethodItem) {
         edit(item: item)
     }
 }

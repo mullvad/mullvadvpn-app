@@ -235,7 +235,7 @@
 		588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */; };
 		5888AD83227B11080051EB06 /* LocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* LocationCell.swift */; };
 		5888AD87227B17950051EB06 /* LocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* LocationViewController.swift */; };
-		588D7ED62AF3903F005DF40A /* ListAccessMethodViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D7ED52AF3903F005DF40A /* ListAccessMethodViewController.swift */; };
+		588D7ED62AF3903F005DF40A /* ListAccessMethodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D7ED52AF3903F005DF40A /* ListAccessMethodView.swift */; };
 		588D7EDC2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D7EDB2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift */; };
 		588D7EDE2AF3A585005DF40A /* ListAccessMethodItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D7EDD2AF3A585005DF40A /* ListAccessMethodItem.swift */; };
 		588D7EE02AF3A595005DF40A /* ListAccessMethodInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D7EDF2AF3A595005DF40A /* ListAccessMethodInteractor.swift */; };
@@ -1112,6 +1112,13 @@
 		F924C65F2DAE4554001F4660 /* ServerRelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */; };
 		F924C4532D70692E001F4660 /* MullvadApiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C4522D706929001F4660 /* MullvadApiTests.swift */; };
 		F924C65F2DAE4554001F4660 /* ServerRelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */; };
+		F91B94A72DC9EB5E00132C28 /* MullvadInfoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91B94A62DC9EB5E00132C28 /* MullvadInfoHeaderView.swift */; };
+		F9276C622DBA2103006FE43D /* Font+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */; };
+		F9276C632DBA2103006FE43D /* Font+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */; };
+		F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
+		F9394EED2DBF56B6009595EA /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
+		F9394EF02DC0B58D009595EA /* MullvadListNavigationItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEF2DC0B58D009595EA /* MullvadListNavigationItemView.swift */; };
+		F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EF22DC21D8C009595EA /* MullvadList.swift */; };
 		F998EFF82D359C4600D88D01 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
 /* End PBXBuildFile section */
@@ -1849,7 +1856,7 @@
 		588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetAccountOperation.swift; sourceTree = "<group>"; };
 		5888AD82227B11080051EB06 /* LocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCell.swift; sourceTree = "<group>"; };
 		5888AD86227B17950051EB06 /* LocationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationViewController.swift; sourceTree = "<group>"; };
-		588D7ED52AF3903F005DF40A /* ListAccessMethodViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessMethodViewController.swift; sourceTree = "<group>"; };
+		588D7ED52AF3903F005DF40A /* ListAccessMethodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessMethodView.swift; sourceTree = "<group>"; };
 		588D7ED72AF3A533005DF40A /* AccessMethodKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodKind.swift; sourceTree = "<group>"; };
 		588D7EDB2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessMethodInteractorProtocol.swift; sourceTree = "<group>"; };
 		588D7EDD2AF3A585005DF40A /* ListAccessMethodItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessMethodItem.swift; sourceTree = "<group>"; };
@@ -2527,6 +2534,11 @@
 		F924C5A32DA65F28001F4660 /* Storekit2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storekit2.swift; sourceTree = "<group>"; };
 		F924C4522D706929001F4660 /* MullvadApiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiTests.swift; sourceTree = "<group>"; };
 		F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerRelayTests.swift; sourceTree = "<group>"; };
+		F9394EF22DC21D8C009595EA /* MullvadList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadList.swift; sourceTree = "<group>"; };
+		F9394EEF2DC0B58D009595EA /* MullvadListNavigationItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadListNavigationItemView.swift; sourceTree = "<group>"; };
+		F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Mullvad.swift"; sourceTree = "<group>"; };
+		F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Font+Mullvad.swift"; sourceTree = "<group>"; };
+		F91B94A62DC9EB5E00132C28 /* MullvadInfoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadInfoHeaderView.swift; sourceTree = "<group>"; };
 		F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Sorting.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -3315,8 +3327,10 @@
 				F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */,
 				7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */,
 				7A5869942B32E9C700640D27 /* LinkButton.swift */,
+				F9394EF12DC21D7B009595EA /* List */,
 				7AA1309A2D0048D800640DF9 /* MainButton.swift */,
 				7A0EAE992D01B41500D3EB8B /* MainButtonStyle.swift */,
+				F91B94A62DC9EB5E00132C28 /* MullvadInfoHeaderView.swift */,
 				7A8A190F2CEE3918000BCB5B /* RowSeparator.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */,
@@ -3431,6 +3445,8 @@
 		583FE02729C1ADF7006E85F9 /* UI appearance */ = {
 			isa = PBXGroup;
 			children = (
+				F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */,
+				F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */,
 				58CCA0152242560B004F3011 /* UIColor+Palette.swift */,
 				A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */,
 				585CA70E25F8C44600B47C62 /* UIMetrics.swift */,
@@ -3996,7 +4012,7 @@
 				588D7EDF2AF3A595005DF40A /* ListAccessMethodInteractor.swift */,
 				588D7EDB2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift */,
 				588D7EDD2AF3A585005DF40A /* ListAccessMethodItem.swift */,
-				588D7ED52AF3903F005DF40A /* ListAccessMethodViewController.swift */,
+				588D7ED52AF3903F005DF40A /* ListAccessMethodView.swift */,
 				5827B0AF2B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift */,
 			);
 			path = List;
@@ -4879,6 +4895,15 @@
 				F910A4392D4A2839002FF3BB /* InAppPurchaseViewController.swift */,
 			);
 			path = InAppPurchase;
+			sourceTree = "<group>";
+		};
+		F9394EF12DC21D7B009595EA /* List */ = {
+			isa = PBXGroup;
+			children = (
+				F9394EEF2DC0B58D009595EA /* MullvadListNavigationItemView.swift */,
+				F9394EF22DC21D8C009595EA /* MullvadList.swift */,
+			);
+			path = List;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -5910,6 +5935,7 @@
 				7A5869C32B5820CE00640D27 /* IPOverrideRepositoryTests.swift in Sources */,
 				A9A5FA392ACB05910083449F /* UIColor+Palette.swift in Sources */,
 				7A5468AD2C6B5E4B00590086 /* LocationRelays.swift in Sources */,
+				F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */,
 				A9A5FA3A2ACB05910083449F /* UIEdgeInsets+Extensions.swift in Sources */,
 				A9A5FA3B2ACB05910083449F /* UIMetrics.swift in Sources */,
 				58B07C182AEFDD6C00A09625 /* StoreTransactionLog.swift in Sources */,
@@ -6028,6 +6054,7 @@
 				A9A5FA232ACB05160083449F /* TunnelState.swift in Sources */,
 				A9A5FA242ACB05160083449F /* TunnelStore.swift in Sources */,
 				A9A5FA252ACB05160083449F /* UpdateAccountDataOperation.swift in Sources */,
+				F9276C632DBA2103006FE43D /* Font+Mullvad.swift in Sources */,
 				A9A5FA262ACB05160083449F /* UpdateDeviceDataOperation.swift in Sources */,
 				A9A5FA272ACB05160083449F /* VPNConnectionProtocol.swift in Sources */,
 				A9A5FA282ACB05160083449F /* WgKeyRotation.swift in Sources */,
@@ -6321,7 +6348,7 @@
 				E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */,
 				7AC8A3AE2ABC6FBB00DC4939 /* SettingsHeaderView.swift in Sources */,
 				588D7EDC2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift in Sources */,
-				588D7ED62AF3903F005DF40A /* ListAccessMethodViewController.swift in Sources */,
+				588D7ED62AF3903F005DF40A /* ListAccessMethodView.swift in Sources */,
 				7A8A190E2CEB77C1000BCB5B /* SettingsRowViewFooter.swift in Sources */,
 				7A6000FC2B628DF6001CF0D9 /* ListCellContentConfiguration.swift in Sources */,
 				582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */,
@@ -6348,6 +6375,7 @@
 				581DFAEC2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
 				F0DA874B2A9CBACB006044F1 /* AccountNumberRow.swift in Sources */,
+				F91B94A72DC9EB5E00132C28 /* MullvadInfoHeaderView.swift in Sources */,
 				7A5869C72B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift in Sources */,
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
@@ -6371,6 +6399,7 @@
 				7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */,
 				7A9CCCBF2A96302800DD6A34 /* SettingsCoordinator.swift in Sources */,
 				58F70FE52AEA707800E6890E /* StoreTransactionLog.swift in Sources */,
+				F9394EF02DC0B58D009595EA /* MullvadListNavigationItemView.swift in Sources */,
 				582AE3102440A6CA00E6733A /* InputTextFormatter.swift in Sources */,
 				7A6F2FAD2AFD3DA7006D0856 /* CustomDNSViewController.swift in Sources */,
 				5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */,
@@ -6432,6 +6461,7 @@
 				5820676426E771DB00655B05 /* TunnelManagerErrors.swift in Sources */,
 				585B4B8726D9098900555C4C /* TunnelStatusNotificationProvider.swift in Sources */,
 				7AF9BE972A41C71F00DBFEDB /* ChipViewCell.swift in Sources */,
+				F9276C622DBA2103006FE43D /* Font+Mullvad.swift in Sources */,
 				063F026628FFE11C001FA09F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				58DF28A52417CB4B00E836B0 /* StorePaymentManager.swift in Sources */,
 				583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */,
@@ -6497,6 +6527,7 @@
 				F910A43A2D4A283D002FF3BB /* InAppPurchaseViewController.swift in Sources */,
 				58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */,
 				7A8A18FD2CE4BE8D000BCB5B /* CustomToggleStyle.swift in Sources */,
+				F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */,
 				58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */,
 				58FF9FE82B07650A00E4C97D /* ButtonCellContentConfiguration.swift in Sources */,
 				7A6652B82BB44C3E0042D848 /* LocationDiffableDataSourceProtocol.swift in Sources */,
@@ -6508,6 +6539,7 @@
 				586C0D832B03D2FF00E7CDD7 /* ShadowsocksSectionHandler.swift in Sources */,
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
+				F9394EED2DBF56B6009595EA /* Color+Mullvad.swift in Sources */,
 				F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */,
 				58FF9FE42B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift in Sources */,
 				449E9A6F2D283C7400F8574A /* ButtonPanel.swift in Sources */,
