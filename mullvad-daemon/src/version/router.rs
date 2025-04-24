@@ -1,3 +1,4 @@
+use std::ops::ControlFlow;
 use std::path::PathBuf;
 
 use futures::channel::{mpsc, oneshot};
@@ -359,26 +360,20 @@ where
         }
         let previous_state = self.beta_program;
         self.beta_program = new_state;
-        let new_app_version_info = match self.state.get_version_cache() {
-            Some(version_cache) => {
-                let prev_app_version = to_app_version_info(version_cache, previous_state, None);
-                let new_app_version = to_app_version_info(version_cache, new_state, None);
-
-                // Update version info
-                if new_app_version != prev_app_version {
-                    new_app_version
-                } else {
-                    return;
-                }
-            }
-            None => return,
+        let Some(version_cache) = self.state.get_version_cache() else {
+            return;
+        };
+        let prev_app_version = to_app_version_info(version_cache, previous_state, None);
+        let new_app_version = to_app_version_info(version_cache, new_state, None);
+        if new_app_version == prev_app_version {
+            return;
         };
 
         // Always cancel download if the suggested upgrade changes
         let version_cache = match mem::replace(&mut self.state, State::NoVersion) {
             #[cfg(update)]
             State::Downloaded { version_cache, .. } | State::Downloading { version_cache, .. } => {
-                log::warn!("Switching beta after while updating resulted in new suggested upgrade: {:?}, aborting", new_app_version_info.suggested_upgrade);
+                log::warn!("Switching beta after while updating resulted in new suggested upgrade: {:?}, aborting", new_app_version.suggested_upgrade);
                 version_cache
             }
             State::HasVersion { version_cache } => version_cache,
@@ -388,9 +383,9 @@ where
         };
 
         self.state = State::HasVersion { version_cache };
-        let _ = self.version_event_sender.send(new_app_version_info.clone());
+        let _ = self.version_event_sender.send(new_app_version.clone());
 
-        self.notify_version_requesters(new_app_version_info);
+        self.notify_version_requesters(new_app_version);
     }
 
     fn get_latest_version(
