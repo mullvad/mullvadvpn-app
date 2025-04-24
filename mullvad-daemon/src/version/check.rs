@@ -55,6 +55,7 @@ pub(super) struct VersionCache {
     pub current_version_supported: bool,
     /// The latest available versions
     pub latest_version: mullvad_update::version::VersionInfo,
+    pub metadata_version: usize,
 }
 
 pub(crate) struct VersionUpdater(());
@@ -122,6 +123,16 @@ impl VersionUpdaterInner {
     /// Get the last known [AppVersionInfo]. May be stale.
     pub fn last_app_version_info(&self) -> Option<&VersionCache> {
         self.last_app_version_info.as_ref().map(|(info, _)| info)
+    }
+
+    pub fn get_min_metadata_version(&self) -> usize {
+        self.last_app_version_info
+            .as_ref()
+            // Reject version responses with a lower metadata version
+            // than the newest version we know about. This is
+            // important to prevent downgrade attacks.
+            .map(|(info, _)| info.metadata_version)
+            .unwrap_or(mullvad_update::MIN_VERIFY_METADATA_VERSION)
     }
 
     /// Update [Self::last_app_version_info] and write it to disk cache, and notify the `update`
@@ -194,8 +205,11 @@ impl VersionUpdaterInner {
         }
 
         let update = |info| Box::pin(update.update(info)) as BoxFuture<'static, _>;
-        let do_version_check = || do_version_check(api.clone());
-        let do_version_check_in_background = || do_version_check_in_background(api.clone());
+        let do_version_check =
+            |min_metadata_version| do_version_check(api.clone(), min_metadata_version);
+        let do_version_check_in_background = |min_metadata_version| {
+            do_version_check_in_background(api.clone(), min_metadata_version)
+        };
 
         self.run_inner(
             refresh_rx,
@@ -210,8 +224,11 @@ impl VersionUpdaterInner {
         mut self,
         mut refresh_rx: mpsc::UnboundedReceiver<()>,
         update: impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
-        do_version_check: impl Fn() -> BoxFuture<'static, Result<VersionCache, Error>>,
-        do_version_check_in_background: impl Fn() -> BoxFuture<'static, Result<VersionCache, Error>>,
+        do_version_check: impl Fn(usize) -> BoxFuture<'static, Result<VersionCache, Error>>,
+        do_version_check_in_background: impl Fn(
+            usize,
+        )
+            -> BoxFuture<'static, Result<VersionCache, Error>>,
     ) {
         let mut version_is_stale = self.wait_until_version_is_stale();
         let mut version_check = futures::future::Fuse::terminated();
@@ -222,16 +239,16 @@ impl VersionUpdaterInner {
 
                     Some(()) => {
                         match (self.version_is_stale(), self.last_app_version_info()) {
-                            (false, Some(version_info)) => {
+                            (false, Some(version_cache)) => {
                                 // if the version_info isn't stale, return it immediately.
-                                if let Err(err) = update(version_info.clone()).await {
+                                if let Err(err) = update(version_cache.clone()).await {
                                     log::error!("Failed to save version cache to disk: {}", err);
                                 }
                             }
                             _ => {
                                 // otherwise, start a foreground query to get the latest version_info.
                                 if !self.is_running_version_check() {
-                                    version_check = do_version_check().fuse();
+                                    version_check = do_version_check(self.get_min_metadata_version()).fuse();
                                 }
 
                             }
@@ -248,7 +265,7 @@ impl VersionUpdaterInner {
                     if self.is_running_version_check() {
                         continue;
                     }
-                    version_check = do_version_check_in_background().fuse();
+                    version_check = do_version_check_in_background(self.get_min_metadata_version()).fuse();
                 },
 
                 response = version_check => {
@@ -304,10 +321,13 @@ struct ApiContext {
 }
 
 /// Immediately query the API for the latest [AppVersionInfo].
-fn do_version_check(api: ApiContext) -> BoxFuture<'static, Result<VersionCache, Error>> {
+fn do_version_check(
+    api: ApiContext,
+    min_metadata_version: usize,
+) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let api_handle = api.api_handle.clone();
 
-    let download_future_factory = move || version_check_inner(&api);
+    let download_future_factory = move || version_check_inner(&api, min_metadata_version);
 
     // retry immediately on network errors (unless we're offline)
     let should_retry_immediate = move |result: &Result<_, Error>| {
@@ -333,10 +353,11 @@ fn do_version_check(api: ApiContext) -> BoxFuture<'static, Result<VersionCache, 
 /// On any error, this function retries repeatedly every [UPDATE_INTERVAL_ERROR] until success.
 fn do_version_check_in_background(
     api: ApiContext,
+    min_metadata_version: usize,
 ) -> BoxFuture<'static, Result<VersionCache, Error>> {
     let download_future_factory = move || {
         let when_available = api.api_handle.wait_background();
-        let version_cache = version_check_inner(&api);
+        let version_cache = version_check_inner(&api, min_metadata_version);
         async move {
             when_available.await.map_err(Error::ApiCheck)?;
             version_cache.await
@@ -352,7 +373,10 @@ fn do_version_check_in_background(
 
 /// Combine the old version and new version endpoint
 #[cfg(any(target_os = "windows", target_os = "macos"))]
-fn version_check_inner(api: &ApiContext) -> impl Future<Output = Result<VersionCache, Error>> {
+fn version_check_inner(
+    api: &ApiContext,
+    min_metadata_version: usize,
+) -> impl Future<Output = Result<VersionCache, Error>> {
     let v1_endpoint = api.version_proxy.version_check(
         mullvad_version::VERSION.to_owned(),
         PLATFORM,
@@ -363,14 +387,15 @@ fn version_check_inner(api: &ApiContext) -> impl Future<Output = Result<VersionC
         PLATFORM,
         api.architecture,
         api.rollout,
-        0, // TODO: set last known metadata version + 1
+        min_metadata_version,
     );
     async move {
         let (v1_response, v2_response) =
             tokio::try_join!(v1_endpoint, v2_endpoint).map_err(Error::Download)?;
         Ok(VersionCache {
             current_version_supported: v1_response.supported,
-            latest_version: v2_response,
+            latest_version: v2_response.0,
+            metadata_version: v2_response.1,
         })
     }
 }
@@ -498,6 +523,7 @@ fn dev_version_cache() -> VersionCache {
             },
             beta: None,
         },
+        metadata_version: 0,
     }
 }
 
@@ -700,11 +726,15 @@ mod test {
         }
     }
 
-    fn fake_version_check() -> BoxFuture<'static, Result<VersionCache, Error>> {
+    fn fake_version_check(
+        _min_metadata_version: usize,
+    ) -> BoxFuture<'static, Result<VersionCache, Error>> {
         Box::pin(async { Ok(fake_version_response()) })
     }
 
-    fn fake_version_check_err() -> BoxFuture<'static, Result<VersionCache, Error>> {
+    fn fake_version_check_err(
+        _min_metadata_version: usize,
+    ) -> BoxFuture<'static, Result<VersionCache, Error>> {
         Box::pin(retry_future(
             || async { Err(Error::Download(mullvad_api::rest::Error::TimeoutError)) },
             |_| true,
@@ -726,6 +756,7 @@ mod test {
                 },
                 beta: None,
             },
+            metadata_version: 0,
         }
     }
 }

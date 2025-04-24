@@ -146,7 +146,7 @@ where
             // For the downloader, the rollout version is always preferred
             rollout: mullvad_update::version::IGNORE,
             // The downloader allows any version
-            lowest_metadata_version: 0,
+            lowest_metadata_version: mullvad_update::MIN_VERIFY_METADATA_VERSION,
         };
 
         let err = match version_provider.get_version_info(version_params).await {

@@ -15,3 +15,6 @@ pub mod format;
 
 #[cfg(feature = "client")]
 pub mod hash;
+
+/// Lowest version to accept using 'verify'
+pub const MIN_VERIFY_METADATA_VERSION: usize = 0;

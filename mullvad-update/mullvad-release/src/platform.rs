@@ -105,7 +105,7 @@ impl Platform {
 
         let response = HttpVersionInfoProvider::get_versions_for_platform(
             platform,
-            crate::MIN_VERIFY_METADATA_VERSION,
+            mullvad_update::MIN_VERIFY_METADATA_VERSION,
         )
         .await
         .context("Failed to retrieve versions")?;
@@ -204,8 +204,11 @@ impl Platform {
         println!("Verifying signature of {}...", signed_path.display());
         let bytes = fs::read(signed_path).await.context("Failed to read file")?;
 
-        format::SignedResponse::deserialize_and_verify(&bytes, crate::MIN_VERIFY_METADATA_VERSION)
-            .context("Failed to verify metadata for {platform}: {error}")?;
+        format::SignedResponse::deserialize_and_verify(
+            &bytes,
+            mullvad_update::MIN_VERIFY_METADATA_VERSION,
+        )
+        .context("Failed to verify metadata for {platform}: {error}")?;
 
         Ok(())
     }

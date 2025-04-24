@@ -716,6 +716,7 @@ mod test {
                     sha256: [0; 32],
                 },
             },
+            metadata_version: 0, // TODO: should there be a test for metadata versions?
         }
     }
 
@@ -737,6 +738,7 @@ mod test {
                 beta: Some(beta),
                 stable,
             },
+            metadata_version: 0,
         }
     }
 
