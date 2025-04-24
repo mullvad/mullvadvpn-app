@@ -69,3 +69,43 @@ public struct ProblemReportRequest: Codable, Sendable {
         self.metadata = metadata
     }
 }
+
+public struct CreateDeviceRequest: Codable, Sendable {
+    public let publicKey: PublicKey
+    public let hijackDNS: Bool
+
+    public init(publicKey: PublicKey, hijackDNS: Bool) {
+        self.publicKey = publicKey
+        self.hijackDNS = hijackDNS
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case hijackDNS = "hijackDns"
+        case publicKey = "pubkey"
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(publicKey.base64Key, forKey: .publicKey)
+        try container.encode(hijackDNS, forKey: .hijackDNS)
+    }
+}
+
+public struct RotateDeviceKeyRequest: Codable, Sendable {
+    let publicKey: PublicKey
+
+    public init(publicKey: PublicKey) {
+        self.publicKey = publicKey
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case publicKey = "pubkey"
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(publicKey.base64Key, forKey: .publicKey)
+    }
+}

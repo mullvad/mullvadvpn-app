@@ -1,4 +1,4 @@
-use std::{ffi::c_char, future::Future, sync::Arc};
+use std::{ffi::c_char, ffi::CStr, future::Future, sync::Arc};
 
 use access_method_resolver::SwiftAccessMethodResolver;
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
@@ -21,6 +21,7 @@ mod account;
 mod api;
 mod cancellation;
 mod completion;
+mod device;
 pub(super) mod helpers;
 mod mock;
 mod problem_report;
@@ -169,7 +170,7 @@ pub extern "C" fn mullvad_api_init_new(
         host,
         address,
         domain,
-        true,
+        false,
         bridge_provider,
         settings_provider,
     );
@@ -296,4 +297,18 @@ where
     };
 
     retry_future(future_factory, should_retry, retry_strategy.delays()).await
+}
+
+/// Try to convert a C string to an owned [String]. if `ptr` is null, an empty [String] is
+/// returned.
+///
+/// # Safety
+/// - `ptr` must uphold all safety invariants as required by [CStr::from_ptr].
+fn get_string(ptr: *const c_char) -> String {
+    if ptr.is_null() {
+        return String::new();
+    }
+    // Safety: See function doc comment.
+    let cstr = unsafe { CStr::from_ptr(ptr) };
+    cstr.to_str().map(ToOwned::to_owned).unwrap_or_default()
 }

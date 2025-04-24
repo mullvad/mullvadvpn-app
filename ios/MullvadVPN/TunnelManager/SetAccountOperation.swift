@@ -392,7 +392,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         completion: @escaping @Sendable (Result<NewDevice, Error>) -> Void
     ) {
         let privateKey = PrivateKey()
-        let request = REST.CreateDeviceRequest(publicKey: privateKey.publicKey, hijackDNS: false)
+        let request = CreateDeviceRequest(publicKey: privateKey.publicKey, hijackDNS: false)
 
         logger.debug("Create device...")
 
