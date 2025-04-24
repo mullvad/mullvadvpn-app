@@ -632,6 +632,8 @@ mod test {
         }
     }
 
+    impl Downloader for FailingAppDownloader {}
+
     /// Mock downloader that simulates a failed verification, but a successful download
     struct FailingAppVerifier;
 
