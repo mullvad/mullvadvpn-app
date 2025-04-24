@@ -342,14 +342,21 @@ fn version_check_inner(api: &ApiContext) -> impl Future<Output = Result<VersionC
         PLATFORM,
         api.platform_version.clone(),
     );
+
+    let architecture = match talpid_platform_metadata::get_native_arch()
+        .expect("IO error while getting native architecture")
+        .expect("Failed to get native architecture")
+    {
+        talpid_platform_metadata::Architecture::X86 => mullvad_update::format::Architecture::X86,
+        talpid_platform_metadata::Architecture::Arm64 => {
+            mullvad_update::format::Architecture::Arm64
+        }
+    };
     let v2_endpoint = api.version_proxy.version_check_2(
         PLATFORM,
-        // TODO: get current architecture (from talpid_platform_metadata)
-        mullvad_update::format::Architecture::X86,
-        // TODO: set reasonable rollout,
-        0.,
-        // TODO: set last known metadata version + 1
-        0,
+        api.architecture,
+        api.rollout,
+        0, // TODO: set last known metadata version + 1
     );
     async move {
         let (v1_response, v2_response) =
