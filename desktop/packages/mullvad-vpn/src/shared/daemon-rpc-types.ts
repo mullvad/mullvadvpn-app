@@ -461,6 +461,7 @@ export enum ObfuscationType {
   off,
   udp2tcp,
   shadowsocks,
+  quic,
 }
 
 export type ObfuscationSettings = {
