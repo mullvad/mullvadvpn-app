@@ -5,8 +5,16 @@ use super::{Endpoint, TransportProtocol};
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
 pub enum ObfuscatorConfig {
-    Udp2Tcp { endpoint: SocketAddr },
-    Shadowsocks { endpoint: SocketAddr },
+    Udp2Tcp {
+        endpoint: SocketAddr,
+    },
+    Shadowsocks {
+        endpoint: SocketAddr,
+    },
+    Quic {
+        hostname: String,
+        endpoint: SocketAddr,
+    },
 }
 
 impl ObfuscatorConfig {
@@ -17,6 +25,13 @@ impl ObfuscatorConfig {
                 protocol: TransportProtocol::Tcp,
             },
             ObfuscatorConfig::Shadowsocks { endpoint } => Endpoint {
+                address: *endpoint,
+                protocol: TransportProtocol::Udp,
+            },
+            ObfuscatorConfig::Quic {
+                hostname: _,
+                endpoint,
+            } => Endpoint {
                 address: *endpoint,
                 protocol: TransportProtocol::Udp,
             },

@@ -239,6 +239,7 @@ pub enum ObfuscationType {
     #[serde(rename = "udp2tcp")]
     Udp2Tcp,
     Shadowsocks,
+    Quic,
 }
 
 impl fmt::Display for ObfuscationType {
@@ -246,6 +247,7 @@ impl fmt::Display for ObfuscationType {
         match self {
             ObfuscationType::Udp2Tcp => "Udp2Tcp".fmt(f),
             ObfuscationType::Shadowsocks => "Shadowsocks".fmt(f),
+            ObfuscationType::Quic => "QUIC".fmt(f),
         }
     }
 }
@@ -273,6 +275,16 @@ impl From<&ObfuscatorConfig> for ObfuscationEndpoint {
                     protocol: TransportProtocol::Udp,
                 },
                 ObfuscationType::Shadowsocks,
+            ),
+            ObfuscatorConfig::Quic {
+                hostname: _,
+                endpoint,
+            } => (
+                Endpoint {
+                    address: *endpoint,
+                    protocol: TransportProtocol::Udp,
+                },
+                ObfuscationType::Quic,
             ),
         };
 

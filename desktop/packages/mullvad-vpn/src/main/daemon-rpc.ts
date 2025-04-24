@@ -305,6 +305,11 @@ export class DaemonRpc extends GrpcClient {
           grpcTypes.ObfuscationSettings.SelectedObfuscation.UDP2TCP,
         );
         break;
+      case ObfuscationType.quic:
+        grpcObfuscationSettings.setSelectedObfuscation(
+          grpcTypes.ObfuscationSettings.SelectedObfuscation.QUIC,
+        );
+        break;
     }
 
     if (obfuscationSettings.udp2tcpSettings) {

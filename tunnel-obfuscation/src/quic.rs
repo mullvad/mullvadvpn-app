@@ -36,6 +36,9 @@ pub struct Settings {
     pub wireguard_endpoint: SocketAddr,
     /// Hostname to use for QUIC
     pub hostname: String,
+    /// fwmark to apply to use for the QUIC connection
+    #[cfg(target_os = "linux")]
+    pub fwmark: Option<u32>,
 }
 
 impl Quic {
@@ -53,6 +56,9 @@ impl Quic {
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
             .auth_header(Some(AUTH_HEADER.to_owned()));
+
+        #[cfg(target_os = "linux")]
+        let config_builder = config_builder.fwmark(settings.fwmark);
 
         let task = tokio::spawn(async move {
             let client = Client::connect(config_builder.build())
