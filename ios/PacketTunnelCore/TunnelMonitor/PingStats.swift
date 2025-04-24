@@ -9,7 +9,7 @@
 import Foundation
 
 /// Ping statistics.
-struct PingStats {
+public struct PingStats {
     /// Dictionary holding sequence and corresponding date when echo request took place.
     var requests = [UInt16: Date]()
 
@@ -18,4 +18,10 @@ struct PingStats {
 
     /// Timestamp when last echo reply was received.
     var lastReplyDate: Date?
+
+    public init(requests: [UInt16: Date] = [UInt16: Date](), lastRequestDate: Date? = nil, lastReplyDate: Date? = nil) {
+        self.requests = requests
+        self.lastRequestDate = lastRequestDate
+        self.lastReplyDate = lastReplyDate
+    }
 }

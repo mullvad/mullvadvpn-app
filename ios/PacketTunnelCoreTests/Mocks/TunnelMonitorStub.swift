@@ -32,46 +32,41 @@ class TunnelMonitorStub: TunnelMonitorProtocol, @unchecked Sendable {
     typealias EventHandler = (TunnelMonitorEvent) -> Void
     typealias SimulationHandler = (Command, Dispatcher) -> Void
 
-    private let stateLock = NSLock()
-
-    var onEvent: EventHandler? {
-        get {
-            stateLock.withLock { _onEvent }
-        }
-        set {
-            stateLock.withLock {
-                _onEvent = newValue
-            }
-        }
-    }
-
-    private var _onEvent: EventHandler?
+    private var eventHandler: AsyncStream<TunnelMonitorEvent>.Continuation?
+    let eventStream: AsyncStream<TunnelMonitorEvent>
     private let simulationBlock: SimulationHandler
 
     init(_ simulationBlock: @escaping SimulationHandler) {
         self.simulationBlock = simulationBlock
+
+        var innerContinuation: AsyncStream<TunnelMonitorEvent>.Continuation?
+        let stream = AsyncStream<TunnelMonitorEvent> { continuation in
+            innerContinuation = continuation
+        }
+        self.eventStream = stream
+        self.eventHandler = innerContinuation
     }
 
-    func start(probeAddress: IPv4Address) {
+    func start(probeAddress: IPv4Address) async {
         sendCommand(.start)
     }
 
-    func stop() {
+    func stop() async {
         sendCommand(.stop)
     }
 
-    func onWake() {}
+    func wake() async {}
 
-    func onSleep() {}
+    func sleep() async {}
 
-    func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status) {}
+    func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status) async {}
 
     func dispatch(_ event: TunnelMonitorEvent, after delay: DispatchTimeInterval = .never) {
         if case .never = delay {
-            onEvent?(event)
+            eventHandler?.yield(event)
         } else {
             DispatchQueue.main.asyncAfter(wallDeadline: .now() + delay) { [weak self] in
-                self?.onEvent?(event)
+                self?.eventHandler?.yield(event)
             }
         }
     }
