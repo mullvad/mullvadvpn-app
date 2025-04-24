@@ -36,6 +36,7 @@
          <trusted-key id="0D35D3F60078655126908E8AF3D1600878E85A3D" group="io.netty"/>
          <trusted-key id="0F06FF86BEEAF4E71866EE5232EE5355A6BC6E42">
             <trusting group="androidx.activity"/>
+            <trusting group="androidx.collection"/>
             <trusting group="androidx.constraintlayout"/>
             <trusting group="androidx.core"/>
             <trusting group="androidx.credentials"/>
@@ -104,6 +105,7 @@
          <trusted-key id="64B9B09F164AA0BF88742EB61188B69F6D6259CA" group="com.google.accompanist" name="accompanist-drawablepainter" version="0.37.2"/>
          <trusted-key id="694621A7227D8D5289699830ABE9F3126BB741C1" group="^com[.]google($|([.].*))" regex="true"/>
          <trusted-key id="696B6199A2A9D8C29CE78CC0D041CAD2E452550F" group="com.google.protobuf"/>
+         <trusted-key id="6CE63E2E1685215A995BB3020B99A4AB5DB59AA2" group="io.arrow-kt"/>
          <trusted-key id="6DD3B8C64EF75253BEB2C53AD908A43FB7EC07AC" group="jakarta.activation"/>
          <trusted-key id="6F538074CCEBF35F28AF9B066A0975F8B1127B83" group="^org[.]jetbrains[.]kotlin($|([.].*))" regex="true"/>
          <trusted-key id="7440F1F7D27BAC115F953D55EB095DA7D2F6AC0E" group="org.tensorflow" name="tensorflow-lite-metadata" version="0.2.0"/>
@@ -117,6 +119,7 @@
             <trusting group="androidx.annotation"/>
             <trusting group="androidx.collection"/>
             <trusting group="androidx.core"/>
+            <trusting group="androidx.emoji2"/>
             <trusting group="androidx.lifecycle"/>
             <trusting group="androidx.tracing"/>
             <trusting group="^androidx[.]compose($|([.].*))" regex="true"/>
