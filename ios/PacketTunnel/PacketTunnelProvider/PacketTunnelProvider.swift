@@ -37,6 +37,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         EphemeralPeerReceiver(tunnelProvider: adapter, keyReceiver: self)
     }()
 
+    var apiContext: MullvadApiContext!
+    var accessMethodReceiver: MullvadAccessMethodReceiver!
+
     // swiftlint:disable:next function_body_length
     override init() {
         Self.configureLogging()
@@ -65,7 +68,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
 
         let apiTransportProvider = APITransportProvider(
-            requestFactory: MullvadApiRequestFactory(apiContext: REST.apiContext)
+            requestFactory: MullvadApiRequestFactory(apiContext: apiContext)
         )
 
         adapter = WgAdapter(packetTunnelProvider: self)
@@ -241,13 +244,32 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             relayCache: ipOverrideWrapper
         )
 
+        let shadowsocksLoader = ShadowsocksLoader(
+            cache: shadowsocksCache,
+            relaySelector: shadowsocksRelaySelector,
+            settingsUpdater: tunnelSettingsUpdater
+        )
+
+        let accessMethodRepository = AccessMethodRepository()
+
         let transportStrategy = TransportStrategy(
-            datasource: AccessMethodRepository(),
-            shadowsocksLoader: ShadowsocksLoader(
-                cache: shadowsocksCache,
-                relaySelector: shadowsocksRelaySelector,
-                settingsUpdater: tunnelSettingsUpdater
-            )
+            datasource: accessMethodRepository,
+            shadowsocksLoader: shadowsocksLoader
+        )
+
+        // swiftlint:disable:next force_try
+        apiContext = try! MullvadApiContext(
+            host: REST.defaultAPIHostname,
+            address: REST.defaultAPIEndpoint.description,
+            domain: REST.encryptedDNSHostname,
+            shadowsocksProvider: shadowsocksLoader,
+            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper
+        )
+
+        accessMethodReceiver = MullvadAccessMethodReceiver(
+            apiContext: apiContext,
+            accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
+            lastReachableDataSource: accessMethodRepository.lastReachableAccessMethodPublisher
         )
 
         encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSession)

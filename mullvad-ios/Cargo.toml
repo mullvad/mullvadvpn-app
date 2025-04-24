@@ -15,6 +15,7 @@ workspace = true
 api-override = ["mullvad-api/api-override"]
 
 [target.'cfg(target_os = "ios")'.dependencies]
+futures = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
@@ -29,8 +30,10 @@ talpid-types = { path = "../talpid-types" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-api = { path = "../mullvad-api", default-features = false }
+mullvad-types = { path = "../mullvad-types" }
 serde_json = { workspace = true }
 mockito = "1.6.1"
+async-trait = "0.1"
 
 shadowsocks-service = { workspace = true, features = [
     "local",

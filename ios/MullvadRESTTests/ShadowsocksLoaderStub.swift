@@ -11,7 +11,11 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 
-struct ShadowsocksLoaderStub: ShadowsocksLoaderProtocol {
+struct ShadowsocksLoaderStub: ShadowsocksLoaderProtocol, SwiftShadowsocksBridgeProviding {
+    func bridge() -> ShadowsocksConfiguration? {
+        try? load()
+    }
+
     var configuration: ShadowsocksConfiguration
     var error: Error?
 

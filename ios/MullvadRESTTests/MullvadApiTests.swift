@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadMockData
 @testable import MullvadREST
 import MullvadRustRuntime
 import MullvadTypes
@@ -19,9 +20,27 @@ class MullvadApiTests: XCTestCase {
     let encoder = JSONEncoder()
 
     func makeApiProxy(port: UInt16) throws -> APIQuerying {
-        let context = try MullvadApiContext(host: "localhost", address: .ipv4(
-            .init(ip: IPv4Address.loopback, port: port)
-        ), disable_tls: true)
+        let shadowsocksLoader = ShadowsocksLoaderStub(configuration: ShadowsocksConfiguration(
+            address: .ipv4(.loopback),
+            port: 1080,
+            password: "123",
+            cipher: CipherIdentifiers.CHACHA20.description
+        ))
+
+        let accessMethodsRepository = AccessMethodRepositoryStub.stub
+
+        let context = try MullvadApiContext(
+            host: "localhost",
+            address: "\(IPv4Address.loopback.debugDescription):\(port)",
+            domain: REST.encryptedDNSHostname,
+            disableTls: true,
+            shadowsocksProvider: shadowsocksLoader,
+            accessMethodWrapper: initAccessMethodSettingsWrapper(
+                methods: accessMethodsRepository
+                    .fetchAll()
+            )
+        )
+
         let proxy = REST.MullvadAPIProxy(
             transportProvider: APITransportProvider(
                 requestFactory: .init(apiContext: context)
