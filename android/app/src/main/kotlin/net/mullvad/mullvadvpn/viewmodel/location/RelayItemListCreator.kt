@@ -23,32 +23,24 @@ internal fun relayListItems(
 ): List<RelayListItem> {
     val filteredCustomLists = customLists.filterOnSearchTerm(searchTerm)
 
-    return buildList {
-        val relayItems =
-            createRelayListItems(
-                isSearching = isSearching,
-                relayListType = relayListType,
-                selectedByThisEntryExitList = selectedByThisEntryExitList,
-                selectedByOtherEntryExitList = selectedByOtherEntryExitList,
-                customLists = filteredCustomLists,
-                countries = relayCountries,
-            ) {
-                it in expandedItems
-            }
-        addAll(
-            relayItems.ifEmpty {
-                // Even though we are searching we want to show no locations found text if the
-                // search term is empty since we should get a result as long as there are any
-                // location in the list
-                listOf(
-                    RelayListItem.LocationsEmptyText(
-                        searchTerm,
-                        isSearching && searchTerm.isNotEmpty(),
-                    )
-                )
-            }
-        )
-    }
+    return createRelayListItems(
+            isSearching = isSearching,
+            relayListType = relayListType,
+            selectedByThisEntryExitList = selectedByThisEntryExitList,
+            selectedByOtherEntryExitList = selectedByOtherEntryExitList,
+            customLists = filteredCustomLists,
+            countries = relayCountries,
+        ) {
+            it in expandedItems
+        }
+        .ifEmpty {
+            // Even though we are searching we want to show no locations found text if the
+            // search term is empty since we should get a result as long as there are any
+            // location in the list
+            listOf(
+                RelayListItem.LocationsEmptyText(searchTerm, isSearching && searchTerm.isNotEmpty())
+            )
+        }
 }
 
 private fun createRelayListItems(
