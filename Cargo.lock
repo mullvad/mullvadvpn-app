@@ -5712,6 +5712,7 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "log",
+ "mullvad-masque-proxy",
  "nix 0.23.2",
  "shadowsocks",
  "thiserror 2.0.9",

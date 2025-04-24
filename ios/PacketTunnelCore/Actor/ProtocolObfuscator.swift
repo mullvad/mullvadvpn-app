@@ -61,13 +61,15 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
         }
 
         #if DEBUG
-        // TODO: Revisit this when QUIC obfuscation is available to use, use shadowsocks over 443 for the time being
+        let obfuscationProtocol: TunnelObfuscationProtocol = switch obfuscationMethod {
+        case .shadowsocks: .shadowsocks
+        case .quic: .quic
+        default: .udpOverTcp
+        }
         let obfuscator = Obfuscator(
             remoteAddress: endpoint.ipv4Relay.ip,
             tcpPort: remotePort,
-            obfuscationProtocol: (obfuscationMethod == .shadowsocks || obfuscationMethod == .quic)
-                ? .shadowsocks
-                : .udpOverTcp
+            obfuscationProtocol: obfuscationProtocol
         )
         #else
         // At this point, the only possible obfuscation methods should be either `.udpOverTcp` or `.shadowsocks`
