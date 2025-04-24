@@ -565,6 +565,7 @@ mod test {
     /// of the tests, as set `start_paused = true`.
     const DOWNLOAD_DURATION: std::time::Duration = std::time::Duration::from_millis(1000);
 
+    /// Mock downloader that simulates a successful download
     struct SuccessfulAppDownloader(AppDownloaderParameters<ProgressUpdater>);
 
     impl AppDownloader for SuccessfulAppDownloader {
@@ -589,6 +590,9 @@ mod test {
         }
     }
 
+    impl Downloader for SuccessfulAppDownloader {}
+
+    /// Mock downloader that simulates a failed download
     struct FailingAppDownloader;
 
     impl AppDownloader for FailingAppDownloader {
@@ -611,6 +615,9 @@ mod test {
         }
     }
 
+    impl Downloader for FailingAppDownloader {}
+
+    /// Mock downloader that simulates a failed verification, but a successful download
     struct FailingAppVerifier;
 
     impl AppDownloader for FailingAppVerifier {
