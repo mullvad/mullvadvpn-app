@@ -26,7 +26,7 @@ public protocol DeviceHandling: Sendable {
 
     func createDevice(
         accountNumber: String,
-        request: REST.CreateDeviceRequest,
+        request: CreateDeviceRequest,
         retryStrategy: REST.RetryStrategy,
         completion: @escaping @Sendable ProxyCompletionHandler<Device>
     ) -> Cancellable
@@ -307,42 +307,6 @@ extension REST {
             )
 
             return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
-        }
-    }
-
-    public struct CreateDeviceRequest: Encodable, Sendable {
-        let publicKey: PublicKey
-        let hijackDNS: Bool
-
-        public init(publicKey: PublicKey, hijackDNS: Bool) {
-            self.publicKey = publicKey
-            self.hijackDNS = hijackDNS
-        }
-
-        private enum CodingKeys: String, CodingKey {
-            case hijackDNS = "hijackDns"
-            case publicKey = "pubkey"
-        }
-
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-
-            try container.encode(publicKey.base64Key, forKey: .publicKey)
-            try container.encode(hijackDNS, forKey: .hijackDNS)
-        }
-    }
-
-    private struct RotateDeviceKeyRequest: Encodable, Sendable {
-        let publicKey: PublicKey
-
-        private enum CodingKeys: String, CodingKey {
-            case publicKey = "pubkey"
-        }
-
-        func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-
-            try container.encode(publicKey.base64Key, forKey: .publicKey)
         }
     }
 }

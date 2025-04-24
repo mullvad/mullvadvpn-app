@@ -67,6 +67,50 @@ public struct MullvadApiRequestFactory: Sendable {
                     retryStrategy.toRustStrategy(),
                     accountNumber
                 ))
+
+            // Device Proxy
+            case let .getDevice(retryStrategy, accountNumber: accountNumber, identifier):
+                return MullvadApiCancellable(handle: mullvad_ios_get_device(
+                    apiContext.context,
+                    rawCompletionPointer,
+                    retryStrategy.toRustStrategy(),
+                    accountNumber,
+                    identifier
+                ))
+
+            case let .getDevices(retryStrategy, accountNumber):
+                return MullvadApiCancellable(handle: mullvad_ios_get_devices(
+                    apiContext.context,
+                    rawCompletionPointer,
+                    retryStrategy.toRustStrategy(),
+                    accountNumber
+                ))
+
+            case let .deleteDevice(retryStrategy, accountNumber, identifier):
+                return MullvadApiCancellable(handle: mullvad_ios_delete_device(
+                    apiContext.context,
+                    rawCompletionPointer,
+                    retryStrategy.toRustStrategy(),
+                    accountNumber,
+                    identifier
+                ))
+            case let .rotateDeviceKey(retryStrategy, accountNumber, identifier, publicKey):
+                return MullvadApiCancellable(handle: mullvad_ios_rotate_device_key(
+                    apiContext.context,
+                    rawCompletionPointer,
+                    retryStrategy.toRustStrategy(),
+                    accountNumber,
+                    identifier,
+                    publicKey.rawValue.map { $0 }
+                ))
+            case let .createDevice(retryStrategy, accountNumber, request):
+                return MullvadApiCancellable(handle: mullvad_ios_create_device(
+                    apiContext.context,
+                    rawCompletionPointer,
+                    retryStrategy.toRustStrategy(),
+                    accountNumber,
+                    request.publicKey.rawValue.map { $0 }
+                ))
             }
         }
     }
