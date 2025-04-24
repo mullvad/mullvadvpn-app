@@ -219,11 +219,12 @@ where
     async fn run(mut self) {
         log::info!("Version router started");
         // Loop until the router is closed
-        while self.run_step().await {}
+        while self.run_step().await.is_continue() {}
         log::info!("Version router closed");
     }
 
-    async fn run_step(&mut self) -> bool {
+    /// Run a single step of the router, handling messages from the daemon and version events
+    async fn run_step(&mut self) -> ControlFlow<()> {
         tokio::select! {
             // Received version event from `check`
             Some(new_version) = self.new_version_rx.next() => {
@@ -241,9 +242,9 @@ where
                 }
             },
             Some(message) = self.daemon_rx.next() => self.handle_message(message),
-            else => return false,
+            else => return ControlFlow::Break(()),
         }
-        true
+        ControlFlow::Continue(())
     }
 
     /// Handle [Message] sent by user
