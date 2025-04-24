@@ -17,6 +17,9 @@ pub enum Error {
     #[error("Failed to create download directory")]
     CreateDownloadDir(#[source] std::io::Error),
 
+    #[error("Failed to clean up download directory")]
+    RemoveDownloadDir(#[source] std::io::Error),
+
     #[error("Failed to download app")]
     Download(#[from] DownloadError),
 
@@ -144,6 +147,16 @@ async fn create_download_dir() -> Result<PathBuf> {
     let download_dir = mullvad_paths::cache_dir()?.join("mullvad-update");
     log::trace!("Download directory: {download_dir:?}");
     fs::create_dir_all(&download_dir)
+        .await
+        .map_err(Error::CreateDownloadDir)?;
+    Ok(download_dir)
+}
+
+/// Remove the download directory
+pub async fn clear_download_dir() -> Result<PathBuf> {
+    let download_dir = mullvad_paths::get_cache_dir()?.join("mullvad-update");
+    log::info!("Cleaning up download directory: {}", download_dir.display());
+    fs::remove_dir_all(&download_dir)
         .await
         .map_err(Error::CreateDownloadDir)?;
     Ok(download_dir)
