@@ -67,6 +67,7 @@
     <string name="clear_input">Очистить поле ввода</string>
     <string name="close">Закрыть</string>
     <string name="collapse">Свернуть</string>
+    <string name="confirm_ipv6_dns">DNS-сервер IPv6 не будет работать, если не включить IPv6 в разделе «Настройки VPN».</string>
     <string name="confirm_local_dns">Локальный DNS-сервер не будет работать, если не включить «Обмен данными в локальной сети» в разделе «Настройки VPN».</string>
     <string name="confirm_no_email">Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ, введите свой адрес электронной почты.</string>
     <string name="confirm_removal">Выйти из профиля на устройстве</string>
@@ -124,6 +125,8 @@
     <string name="device_inactive_description">Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход.</string>
     <string name="device_inactive_title">Устройство неактивно</string>
     <string name="device_inactive_unblock_warning">Вход в профиль разблокирует Интернет на этом устройстве.</string>
+    <string name="device_ip_version_subtitle">Это обеспечивает доступ к WireGuard для устройств, поддерживающих только IPv6.</string>
+    <string name="device_ip_version_title">Версия IP на устройстве</string>
     <string name="device_name">Имя устройства</string>
     <string name="device_name_info_first_paragraph">Это имя, присвоенное устройству. Каждое устройство, подключенное к учетной записи Mullvad, получает уникальное имя, которое помогает вам идентифицировать его при управлении устройствами в приложении или на сайте.</string>
     <string name="device_name_info_second_paragraph">К одной учетной записи Mullvad можно подключить до 5 устройств.</string>
@@ -155,6 +158,7 @@
     <string name="enable_anyway">Всё равно включить</string>
     <string name="enable_custom_dns">Пользовательский DNS-сервер</string>
     <string name="enable_direct_only">Включить параметр «%1$s»</string>
+    <string name="enable_ipv6">IPv6 внутри туннеля</string>
     <string name="enable_method">Включить метод</string>
     <string name="encrypted_dns_proxy_info_message_part1">При использовании метода «Прокси через зашифрованный DNS» приложение будет взаимодействовать с API Mullvad через прокси-адрес. Полученный от сервера «DNS по HTTPS» (DoH) адрес будет использоваться для доступа к нашим серверам API.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Если вы не подключены к нашему VPN, функция «Зашифрованный DNS-прокси» при подключении будет использовать ваш IP-адрес, не относящийся к VPN. Серверы DoH размещаются у одного из следующих провайдеров: Quad9 или CloudFlare.</string>
@@ -251,6 +255,7 @@
     <string name="no_wireguard_key">Не найден действительный ключ WireGuard. Управлять ключами можно в дополнительных настройках.</string>
     <string name="not_found">Не найдено</string>
     <string name="number_of_providers">провайдеры: %1$d</string>
+    <string name="obfuscation_info">Обфускация скрывает трафик WireGuard внутри другого протокола. Это может использоваться для обхода цензуры и других видов фильтрации, когда обычные соединения WireGuard блокируются.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Внимание! Функция Shadowsocks может увеличивать расход заряда аккумулятора в зависимости от использования трафика (например, при потоковой передаче видео).</string>
     <string name="obfuscation_title">Обфускация WireGuard</string>
     <string name="off">Выкл.</string>
@@ -366,6 +371,8 @@
     <string name="upd_over_tcp">UDP через TCP</string>
     <string name="update_dns_server_dialog_title">Обновить DNS-сервер</string>
     <string name="update_list_name">Обновление названия списка</string>
+    <string name="uri_browser_app_not_found">Не удалось открыть ссылку: браузер не установлен</string>
+    <string name="uri_market_app_not_found">Не удалось открыть ссылку: магазин приложений Android не установлен</string>
     <string name="use_method">Использовать метод</string>
     <string name="user_email_hint">Ваша электронная почта (необязательно)</string>
     <string name="user_message_hint">Чтобы мы могли быстрее решить проблему, напишите нам на английском или шведском и укажите, из какой страны вы подключаетесь.</string>
@@ -378,6 +385,7 @@
     <string name="voucher_already_used">Этот код ваучера уже использовался.</string>
     <string name="voucher_is_account_number">Вы ввели номер учетной записи вместо кода ваучера. Чтобы изменить активную учетную запись, сначала выйдите из системы.</string>
     <string name="voucher_success_title">Ваучер погашен.</string>
+    <string name="vpn_permission_denied_error">Нет разрешения на использование VPN или другое приложение работает в режиме «Постоянная VPN»</string>
     <string name="vpn_permission_error_notification_message">Чтобы запросить разрешение для VPN, нажмите «Подключить»</string>
     <string name="vpn_permission_error_notification_title">Ошибка разрешения для VPN</string>
     <string name="we_will_look_into_this">Мы рассмотрим эту проблему.</string>

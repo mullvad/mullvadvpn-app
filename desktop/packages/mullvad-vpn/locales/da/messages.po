@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
-"PO-Revision-Date: 2025-03-25 14:23\n"
+"PO-Revision-Date: 2025-04-11 07:48\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d mere..."
@@ -333,6 +333,17 @@ msgstr "Udvid %(location)s"
 msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "Glem kontonummer %(accountNumber)s"
+
+#. Accessibility label for link to blog post about OpenVPN support ending.
+msgctxt "accessibility"
+msgid "Go to blog post to read more, opens externally"
+msgstr "Gå til blogindlæg for at læse mere, bliver åbnet eksternt"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change tunnel protocol.
+msgctxt "accessibility"
+msgid "Go to VPN settings to change tunnel protocol"
+msgstr "Gå til VPN-indstillinger for at ændre tunnelprotokollen"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -910,6 +921,29 @@ msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr "%(duration)s. Køb mere kredit."
 
+#. First part of notification subtitle when there are no openVPN servers available.
+#. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support has ended. Please update the app or"
+msgstr "%(openVpn)s-support er ophørt. Opdater appen eller"
+
+#. Notification title indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s SUPPORT IS ENDING"
+msgstr "%(openVpn)s-SUPPORT SLUTTER SNART"
+
+#. First part of notification subtitle when there are no openVPN servers
+#. matching current settings. Will be followed by a link to VPN settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OpenVPN
+msgctxt "in-app-notifications"
+msgid "%(openVpn)s support is ending. Switch location or"
+msgstr "%(openVpn)s-support slutter snart. Skift placering eller"
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "KONTOKREDIT UDLØBER SNART"
@@ -925,6 +959,14 @@ msgstr "BETA-OPDATERING TILGÆNGELIG"
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "BLOKERER INTERNETTET"
+
+#. Link following the first part of the notification subtitle.
+#. Will navigate the user to the VPN settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "change tunnel protocol to %(wireGuard)s."
+msgstr "skift tunnelprotokol til %(wireGuard)s."
 
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
@@ -947,9 +989,36 @@ msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "NY VERSION INSTALLERET"
 
+#. Notification title when there are no openVPN servers
+#. matching current settings.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVER AVAILABLE"
+msgstr "INGEN %(openVpn)s-SERVER TILGÆNGELIG"
+
+#. Notification title when there are no openVPN servers available.
+#. Available placeholders:
+#. %(openVpn)s - Will be replaced with OPENVPN
+msgctxt "in-app-notifications"
+msgid "NO %(openVpn)s SERVERS AVAILABLE"
+msgstr "INGEN %(openVpn)s-SERVERE TILGÆNGELIGE"
+
+#. Notification subtitle indicating that OpenVPN support is ending.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "Please change tunnel protocol to %(wireGuard)s."
+msgstr "Skift tunnelprotokol til %(wireGuard)s."
+
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Afslut og genstart appen."
+
+#. Link in notication to a blog post about OpenVPN support ending.
+msgctxt "in-app-notifications"
+msgid "Read more"
+msgstr "Læs mere"
 
 msgctxt "in-app-notifications"
 msgid "Send problem report"
@@ -1322,8 +1391,8 @@ msgstr "Indstil %(openvpn)s MSS-værdi. Gyldigt område: %(min)d - %(max)d."
 #. available.
 #. Available placeholders:
 #. %(transportProtocol)s - the name of the transport protocol setting
-#. %(automat)s - the translation of "Automatic"
-#. %(openvpn)s - will be replaced with OpenVPN
+#. %(automatic)s - the translation of "Automatic"
+#. %(tcp)s - the translation of "TCP"
 msgctxt "openvpn-settings-view"
 msgid "To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>."
 msgstr "For at aktivere brotilstand skal du ændre <b>%(transportProtocol)s</b> til <b>%(automatic)s</b> eller <b>%(tcp)s</b>."
@@ -1956,6 +2025,13 @@ msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "Bemærk: denne indstilling kan ikke bruges i kombination med <b>%(customDnsFeatureName)s</b>"
 
+#. Footer text for tunnel protocol selector when OpenVPN is selected.
+#. Available placeholders:
+#. %(openvpn)s - Will be replaced with OpenVPN
+msgctxt "vpn-settings-view"
+msgid "Attention: We are removing support for %(openVpn)s."
+msgstr "Bemærk venligst: Vi ophæver understøttelsen af %(openVpn)s."
+
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
 msgstr "Auto-tilslutning"
@@ -2029,6 +2105,12 @@ msgstr "Lockdown-tilstand"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "Malware"
+
+#. Link in tunnel protocol selector footer to blog post
+#. about OpenVPN support ending.
+msgctxt "vpn-settings-view"
+msgid "Read more"
+msgstr "Læs mere"
 
 msgctxt "vpn-settings-view"
 msgid "Server IP override"
@@ -2137,8 +2219,8 @@ msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s-indstillinger"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
-msgstr "Bemærk: Vær forsigtig, hvis du har et begrænset dataabonnement, da denne funktion vil øge din netværkstrafik. Denne funktion kan kun bruges med %(wireguard)s."
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s."
+msgstr "Bemærk: Dette øger netværkstrafikken og vil også påvirke hastighed, ventetid og batteriforbrug negativt. Brug det varsomt på abonnementer med begrænsninger. Virker kun med %(wireguard)s."
 
 msgctxt "wireguard-settings-view"
 msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
@@ -2189,8 +2271,10 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "Tilsløring"
 
+#. Describes what WireGuard obfuscation does, how it works and when
+#. it would be useful to enable it.
 msgctxt "wireguard-settings-view"
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr "Tilsløring skjuler WireGuard-trafikken inden i en anden protokol. Det kan bruges til at hjælpe med at omgå censur og andre typer filtrering, hvor en almindelig WireGuard-forbindelse ville blive blokeret."
 
 msgctxt "wireguard-settings-view"
@@ -2225,8 +2309,8 @@ msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
 msgctxt "wireguard-settings-view"
-msgid "Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
-msgstr "Skift til \"%(wireguard)s\" eller \"%(automatic)s\" i Indstillinger > %(tunnelProtocol)s for at gøre %(setting)s tilgængelig."
+msgid "Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
+msgstr "Skift til \"%(wireguard)s\" i Indstillinger > %(tunnelProtocol)s for at gøre %(setting)s tilgængelig."
 
 msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
@@ -2438,6 +2522,9 @@ msgstr "Slet metode"
 msgid "Delete method?"
 msgstr "Vil du slette metoden?"
 
+msgid "Device IP version"
+msgstr "Enhedens IP-version"
+
 msgid "Disable \"%s\" below to activate these settings."
 msgstr "Deaktiver \"%s\" nedenfor for at aktivere disse indstillinger."
 
@@ -2534,6 +2621,9 @@ msgstr "Importen lykkedes, tilsidesættelser aktive"
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "Import af nye tilsidesættelser vil muligvis erstatte nogle tidligere importerede tilsidesættelser."
 
+msgid "In-tunnel IPv6"
+msgstr "IPv6 i tunnel"
+
 msgid "Invalid or missing value \"%s\""
 msgstr "Ugyldig eller manglende værdi \"%s\""
 
@@ -2566,6 +2656,12 @@ msgstr "Navnet blev ændret til %s"
 
 msgid "New list"
 msgstr "Ny liste"
+
+msgid "No Android app store installed, could not open link"
+msgstr "Der er ikke installeret nogen Android-appbutik, og linket kunne ikke åbnes"
+
+msgid "No browser app installed, could not open link"
+msgstr "Der er ikke installeret nogen browser-app, så linket kunne ikke åbnes"
 
 msgid "No changelog was added for this version"
 msgstr "Der blev ikke føjet nogen ændringslog til denne version"
@@ -2645,9 +2741,6 @@ msgstr "Nulstil til standard"
 msgid "Search"
 msgstr "Søg"
 
-msgid "See full changelog"
-msgstr "Se hele ændringsloggen"
-
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "Sæt %s-tilsløring til \"Automatisk\" eller \"Fra\" nedenfor for at aktivere denne indstilling."
 
@@ -2669,9 +2762,6 @@ msgstr "Viser den aktuelle VPN-tunnelstatus"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Viser påmindelser, når kontotiden er ved at udløbe"
 
-msgid "Split tunneling"
-msgstr "Split tunneling"
-
 msgid "Submit"
 msgstr "Indsend"
 
@@ -2687,6 +2777,9 @@ msgstr "Tekst"
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Indstillingerne for automatisk forbindelse og Lockdown-tilstand kan findes i Android- systemindstillingerne. Følg denne vejledning for at aktivere en eller begge."
 
+msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
+msgstr "IPv6 DNS-serveren fungerer ikke, medmindre du aktiverer \"IPv6\" under VPN-indstillinger."
+
 msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
 msgstr "Lockdown-tilstanden kaldes \"Bloker forbindelser uden VPN\" i Android-systemindstillingerne. Det hjælper med at minimere lækager, men det har nogle kendte begrænsninger, som du kan læse mere om"
 
@@ -2698,6 +2791,9 @@ msgstr "Den lokale DNS-server fungerer ikke, medmindre du aktiverer \"Lokal netv
 
 msgid "This address has already been entered."
 msgstr "Denne adresse er allerede blevet indtastet."
+
+msgid "This allows access to WireGuard for devices that only support IPv6."
+msgstr "Dette giver adgang til WireGuard for enheder, der kun understøtter IPv6."
 
 msgid "This field is required"
 msgstr "Dette felt er påkrævet"
@@ -2750,8 +2846,8 @@ msgstr "Brug metode"
 msgid "VPN permission error"
 msgstr "VPN-tilladelsesfejl"
 
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr "VPN-tilladelse blev nægtet, da tunnelen blev oprettet. Prøv at oprette forbindelse igen."
+msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
+msgstr "VPN-tilladelse blev afvist, eller en anden app har \"VPN altid aktiveret\""
 
 msgid "VPN tunnel status"
 msgstr "VPN-tunnelstatus"
