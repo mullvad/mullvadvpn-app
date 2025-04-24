@@ -83,6 +83,18 @@ impl VersionUpdater {
         let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         let platform_version = talpid_platform_metadata::short_version();
 
+        let architecture = match talpid_platform_metadata::get_native_arch()
+            .expect("IO error while getting native architecture")
+            .expect("Failed to get native architecture")
+        {
+            talpid_platform_metadata::Architecture::X86 => {
+                mullvad_update::format::Architecture::X86
+            }
+            talpid_platform_metadata::Architecture::Arm64 => {
+                mullvad_update::format::Architecture::Arm64
+            }
+        };
+
         tokio::spawn(
             VersionUpdaterInner {
                 last_app_version_info,
@@ -98,6 +110,8 @@ impl VersionUpdater {
                     api_handle: availability_handle,
                     version_proxy,
                     platform_version,
+                    architecture,
+                    rollout: 1.0, // TODO: set reasonable rollout,
                 },
             ),
         );
@@ -285,6 +299,8 @@ struct ApiContext {
     api_handle: ApiAvailability,
     version_proxy: AppVersionProxy,
     platform_version: String,
+    architecture: mullvad_update::format::Architecture,
+    rollout: f32,
 }
 
 /// Immediately query the API for the latest [AppVersionInfo].
@@ -342,14 +358,12 @@ fn version_check_inner(api: &ApiContext) -> impl Future<Output = Result<VersionC
         PLATFORM,
         api.platform_version.clone(),
     );
+
     let v2_endpoint = api.version_proxy.version_check_2(
         PLATFORM,
-        // TODO: get current architecture (from talpid_platform_metadata)
-        mullvad_update::format::Architecture::X86,
-        // TODO: set reasonable rollout,
-        0.,
-        // TODO: set last known metadata version + 1
-        0,
+        api.architecture,
+        api.rollout,
+        0, // TODO: set last known metadata version + 1
     );
     async move {
         let (v1_response, v2_response) =
