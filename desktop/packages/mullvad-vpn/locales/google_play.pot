@@ -1,0 +1,66 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Mullvad VPN – a service, for a monthly fee, that helps keep your online activity, identity, and location private."
+msgstr ""
+
+msgid "GET STARTED"
+msgstr ""
+
+msgid "1. Install the app."
+msgstr ""
+
+msgid "2 .Create an account."
+msgstr ""
+
+msgid "3. Add time to your account via in-app purchases or vouchers."
+msgstr ""
+    
+msgid "If you are not pleased with our service we have a refund policy and offer support via support@mullvadvpn.net."
+msgstr ""
+
+msgid "ANONYMOUS ACCOUNTS – NO ACTIVITY LOGS"
+msgstr ""
+
+msgid "Creating an account requires no personal info - not even an email address."
+msgstr ""
+
+msgid "We keep no activity logs."
+msgstr ""
+
+msgid "Bypass geographical restrictions with our global network of VPN servers."
+msgstr ""
+    
+msgid "Our app uses WireGuard, a superior VPN protocol that connects fast and doesn’t drain your battery."
+msgstr ""
+
+msgid "HOW DOES MULLVAD VPN WORK?"
+msgstr ""
+
+msgid "With Mullvad VPN, your traffic travels through an encrypted tunnel to one of our VPN servers and then onward to the website you are visiting. In this way, websites will only see our server’s identity instead of yours. Same goes for your ISP (internet service provider); they’ll see that you’re connected to Mullvad, but not your activity."
+msgstr ""
+
+msgid "It also means that all the third-party actors with technology integrated into the various websites you visit can’t sniff out your IP address and use it to track you from one site to another."
+msgstr ""
+
+msgid "Using a trustworthy VPN is a great first step to reclaim your privacy online. In combination with Mullvad Browser you make sure to block third-party cookies and other tracking technologies."
+msgstr ""
+
+msgid "FREE THE INTERNET FROM MASS SURVEILLANCE AND DATA COLLECTION"
+msgstr ""
+
+msgid "A free and open society is a society where people have the right to privacy. That’s why we fight for a free internet."
+msgstr ""
+
+msgid "Free from mass surveillance and censorship. Free from big data markets where your personal information is up for sale. Free from authorities mass monitoring every click you make. Free from an infrastructure mapping your whole life. Mullvad VPN and Mullvad Browser is our contribution to the fight."
+msgstr ""
+
+msgid "TELEMETRY AND CRASH REPORTS"
+msgstr ""
+
+msgid "The app collects a very minimal amount of telemetry, and it does not in any way tie it to an account number, IP or other identifiable information. Account numbers are used for authentication. App logs are never sent automatically but are rather explicitly sent by the user. App version checks are performed every 24 hours to tell the app if there are any upgrades available and if the currently running version is still supported."
+msgstr ""
+
+msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr ""
