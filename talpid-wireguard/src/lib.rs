@@ -665,6 +665,7 @@ impl WireguardMonitor {
         Ok(())
     }
 
+    #[allow(unused_variables)]
     #[cfg(target_os = "windows")]
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
@@ -677,16 +678,17 @@ impl WireguardMonitor {
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
-        let tunnel = runtime
-            .block_on(Self::open_boringtun_tunnel(config, log_path, tun_provider))
-            .map(Box::new)?;
-        return Ok(tunnel);
-
         let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || config.daita;
 
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
 
+            #[cfg(feature = "boringtun")]
+            let tunnel = runtime
+                .block_on(Self::open_boringtun_tunnel(config, log_path, tun_provider))
+                .map(Box::new)?;
+
+            #[cfg(not(feature = "boringtun"))]
             let tunnel = runtime
                 .block_on(Self::open_wireguard_go_tunnel(
                     config,
@@ -774,6 +776,7 @@ impl WireguardMonitor {
     }
 
     /// Configure and start a Wireguard-go tunnel.
+    #[cfg(not(feature = "boringtun"))]
     #[allow(clippy::unused_async)]
     async fn open_wireguard_go_tunnel(
         config: &Config,

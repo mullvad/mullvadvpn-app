@@ -71,7 +71,7 @@ pub struct WindowsTun(TunnelDevice);
 
 impl WindowsTun {
     /// Retrieve the tunnel interface name.
-    pub fn interface_name(&self) -> String {
+    pub fn interface_name(&self) -> Result<String, Error> {
         self.get_name()
     }
 
