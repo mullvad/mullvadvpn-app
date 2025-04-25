@@ -13,3 +13,7 @@
 [submodule "ios/wireguard-apple"]
 	path = ios/wireguard-apple
 	url = https://github.com/mullvad/wireguard-apple.git
+[submodule "ios/boringtun"]
+	path = ios/boringtun
+	url = git@github.com:mullvad/boringtun.git
+	branch = mullvad-ios
