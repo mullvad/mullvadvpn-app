@@ -25,14 +25,25 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
 
         let relayFilterCellFactory = RelayFilterCellFactory(tableView: tableView)
         self.relayFilterCellFactory = relayFilterCellFactory
+        // a hack to get around lifecycle issues with the initialiser and self
+        var selfRelay: RelayFilterDataSource?
 
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
-            relayFilterCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
+            let result = relayFilterCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
+            if itemIdentifier.type == .provider {
+                (result as? ProviderCell)?.onLongPress = {
+                    // we rely on the name being unique here, which is less than ideal, but it's hack day ¯\_(ツ)_/¯
+                    selfRelay?.selectProvidersWhere { $0.name == itemIdentifier.name }
+                    viewModel.relayFilter.providers = .only([itemIdentifier.name])
+                }
+            }
+            return result
         }
 
         registerCells()
         createDataSnapshot()
         tableView.delegate = self
+        selfRelay = self
         setupBindings()
     }
 
@@ -187,6 +198,14 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    private func selectProvidersWhere(_ criterion: (RelayFilterDataSourceItem) -> Bool) {
+        let providerItems = snapshot().itemIdentifiers(inSection: .providers)
+
+        providerItems.forEach { providerItem in
+            selectRow(criterion(providerItem), at: indexPath(for: providerItem))
+        }
+    }
+
     private func getSelectedIndexPaths(in section: Section) -> [IndexPath] {
         let sectionIndex = snapshot().indexOfSection(section)
 
@@ -288,6 +307,39 @@ extension RelayFilterDataSource: UITableViewDelegate {
     }
 }
 
+// MARK: a subclass of CheckableSettingsCell which also logs long presses
+
+extension RelayFilterDataSource {
+    class ProviderCell: CheckableSettingsCell {
+        var onLongPress: (() -> Void)?
+
+        override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+            super.init(style: style, reuseIdentifier: reuseIdentifier)
+            setGestureRecognizer()
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        override func prepareForReuse() {
+            super.prepareForReuse()
+            setGestureRecognizer()
+        }
+
+        private func setGestureRecognizer() {
+            contentView.addGestureRecognizer(UILongPressGestureRecognizer(
+                target: self,
+                action: #selector(self.handleLongPress)
+            ))
+        }
+
+        @objc func handleLongPress(_ sender: UIGestureRecognizer) {
+            onLongPress?()
+        }
+    }
+}
+
 // MARK: - Cell Identifiers
 
 extension RelayFilterDataSource {
@@ -299,7 +351,7 @@ extension RelayFilterDataSource {
         var reusableViewClass: AnyClass {
             switch self {
             case .ownershipCell: return SelectableSettingsCell.self
-            case .providerCell: return CheckableSettingsCell.self
+            case .providerCell: return ProviderCell.self
             }
         }
     }
