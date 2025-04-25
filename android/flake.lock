@@ -79,22 +79,7 @@
         "type": "github"
       }
     },
-    "nixpkgs": {
-      "locked": {
-        "lastModified": 1743252354,
-        "narHash": "sha256-GlfWG+TO05PBUiRixMOVocD5k6H5WhCSZEdaVMMdpn8=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "91b17e868dc5f3e28f42c2d9c72957718c64be63",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs-with-grpc-java": {
+    "grpc-nixpkgs-pr": {
       "locked": {
         "lastModified": 1740320947,
         "narHash": "sha256-vq9oJ3MEtMbKArvQgJcVptD0PODUibX8aaeXgYDS9GU=",
@@ -110,12 +95,27 @@
         "type": "github"
       }
     },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1743252354,
+        "narHash": "sha256-GlfWG+TO05PBUiRixMOVocD5k6H5WhCSZEdaVMMdpn8=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "91b17e868dc5f3e28f42c2d9c72957718c64be63",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "android-nixpkgs": "android-nixpkgs",
         "flake-utils": "flake-utils_2",
+        "grpc-nixpkgs-pr": "grpc-nixpkgs-pr",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-with-grpc-java": "nixpkgs-with-grpc-java",
         "rust-overlay": "rust-overlay"
       }
     },

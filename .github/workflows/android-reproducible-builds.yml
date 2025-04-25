@@ -158,7 +158,7 @@ jobs:
 
       - name: Print checksums
         working-directory: ./artifacts
-        run: sha256sum *
+        run: sha256sum */*
 
       - name: Compare files
         working-directory: ./artifacts
