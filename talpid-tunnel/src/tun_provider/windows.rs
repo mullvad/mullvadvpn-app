@@ -115,9 +115,9 @@ impl TunnelDevice {
     fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
         match ip {
             IpAddr::V4(ipv4) => self.dev.set_address(ipv4.into()).map_err(Error::SetIpv4),
-            IpAddr::V6(ipv6) => {
+            IpAddr::V6(_ipv6) => {
                 // TODO
-                Ok(())
+                todo!("ipv6 not implemented");
             }
         }
     }
