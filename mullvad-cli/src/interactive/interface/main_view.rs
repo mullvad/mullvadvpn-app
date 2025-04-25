@@ -8,12 +8,12 @@ use crate::interactive::component::{Component, Frame};
 
 use crossterm::event::{Event, KeyCode};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::{location::GeoIpLocation, states::TunnelState};
+use mullvad_types::{features::FeatureIndicators, location::GeoIpLocation, states::TunnelState};
 use parking_lot::Mutex;
 use tui::{
     layout::Rect,
     style::{Color, Style},
-    widgets::{Block, List, ListItem, Paragraph, Widget},
+    widgets::{Block, Borders, List, ListItem, Paragraph, Widget, Wrap},
 };
 
 #[derive(Clone)]
@@ -68,7 +68,7 @@ impl MainView {
             .style(Style::default().fg(Color::White).bg(color))
     }
 
-    fn connection_info(state: &TunnelState) -> impl Widget {
+    fn connection_info(state: &TunnelState, show_details: bool) -> impl Widget {
         let status_label = Self::status_label(state);
         let status_label_color = Self::status_label_color(state);
 
@@ -91,25 +91,31 @@ impl MainView {
             Self::append_location_info(location, &mut list_items);
         }
 
-        List::new(list_items)
+        let mut list = List::new(list_items);
+        if show_details {
+            list = list.block(
+                Block::default()
+                    .borders(Borders::BOTTOM)
+                    .border_style(Style::default().fg(Color::DarkGray)),
+            )
+        }
+
+        list
     }
 
     fn append_location_info(location: &GeoIpLocation, to: &mut Vec<ListItem<'_>>) {
-        to.push(ListItem::new(location.country.clone()));
-        to.push(ListItem::new(location.city.clone().unwrap_or_default()));
+        to.push(ListItem::new(format!(
+            "{}, {}",
+            location.country.clone(),
+            location.city.clone().unwrap_or_default()
+        )));
         to.push(
-            ListItem::new(
-                location
-                    .hostname
-                    .clone()
-                    .map(|hostname| format!("{} (i)", hostname))
-                    .unwrap_or_default(),
-            )
-            .style(Style::default().fg(Color::Gray)),
+            ListItem::new(location.hostname.clone().unwrap_or_default())
+                .style(Style::default().fg(Color::DarkGray)),
         );
     }
 
-    fn connection_details(state: &TunnelState) -> impl Widget {
+    fn connection_details(state: &TunnelState, show_details: bool) -> impl Widget {
         let mut list_items = Vec::new();
 
         if let TunnelState::Connected {
@@ -127,7 +133,51 @@ impl MainView {
             }
         }
 
-        List::new(list_items).style(Style::default().fg(Color::Gray))
+        let mut list = List::new(list_items).style(Style::default().fg(Color::Gray));
+
+        if show_details {
+            list = list.block(
+                Block::default()
+                    .title("Connection details")
+                    .style(Style::default().fg(Color::DarkGray)),
+            );
+        }
+
+        list
+    }
+
+    fn feature_indicators(state: &TunnelState, show_details: bool) -> Option<impl Widget> {
+        match state {
+            TunnelState::Connecting {
+                feature_indicators, ..
+            } => Some(Self::feature_indicators_impl(
+                &feature_indicators,
+                show_details,
+            )),
+            TunnelState::Connected {
+                feature_indicators, ..
+            } => Some(Self::feature_indicators_impl(
+                &feature_indicators,
+                show_details,
+            )),
+            _ => None,
+        }
+    }
+
+    fn feature_indicators_impl(indicators: &FeatureIndicators, show_details: bool) -> impl Widget {
+        let mut paragraph = Paragraph::new(indicators.to_string())
+            .wrap(Wrap { trim: true })
+            .style(Style::default().fg(Color::Gray));
+
+        if show_details {
+            paragraph = paragraph.block(
+                Block::default()
+                    .title("Active features")
+                    .style(Style::default().fg(Color::DarkGray)),
+            );
+        }
+
+        paragraph
     }
 
     fn state_color(state: &TunnelState) -> Color {
@@ -170,22 +220,45 @@ impl MainView {
 impl Component for MainView {
     fn draw(&mut self, f: &mut Frame<'_>, area: Rect) {
         let state = self.state.lock();
+        let show_details = { *self.show_details.lock() };
+        let details_offset = if show_details { 5 } else { 0 };
+        let details_height_addition = if show_details { 2 } else { 0 };
 
         let header_area = Rect::new(area.x, area.y, area.width, 3);
         f.render_widget(Self::header(&state), header_area);
 
-        if matches!(*state, TunnelState::Connecting { .. }) {
+        if matches!(*state, TunnelState::Connecting { .. }) && !show_details {
             let indicator_area = Rect::new(area.x, area.y + 5, area.width, 6);
             self.loading_indicator.draw(f, indicator_area);
         }
 
-        let info_area = Rect::new(area.x + 4, area.y + area.height / 2 - 2, area.width - 6, 4);
-        f.render_widget(Self::connection_info(&state), info_area);
+        let info_area = Rect::new(
+            area.x + 4,
+            area.y + area.height / 2 - 2 - details_offset,
+            area.width - 6,
+            4,
+        );
+        f.render_widget(Self::connection_info(&state, show_details), info_area);
 
-        if *self.show_details.lock() {
-            let details_area =
-                Rect::new(area.x + 6, area.y + area.height / 2 + 2, area.width - 8, 3);
-            f.render_widget(Self::connection_details(&state), details_area);
+        if let Some(feature_indicators) = Self::feature_indicators(&state, show_details) {
+            let feature_indicator_area = Rect::new(
+                area.x + 4,
+                area.y + area.height / 2 + 2 - details_offset,
+                area.width - 6,
+                2 + details_height_addition,
+            );
+            f.render_widget(feature_indicators, feature_indicator_area);
+        }
+
+        let details_offset = if show_details { 4 } else { 0 };
+        if show_details {
+            let details_area = Rect::new(
+                area.x + 4,
+                area.y + area.height / 2 + 5 - details_offset,
+                area.width - 6,
+                3 + details_height_addition,
+            );
+            f.render_widget(Self::connection_details(&state, show_details), details_area);
         }
 
         let control_area = Rect::new(area.x + 3, area.y + area.height - 7, area.width - 6, 6);
