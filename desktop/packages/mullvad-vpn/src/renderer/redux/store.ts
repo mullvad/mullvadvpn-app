@@ -3,7 +3,7 @@ import { combineReducers, compose, createStore, Dispatch, StoreEnhancer } from '
 
 import accountActions, { AccountAction } from './account/actions';
 import accountReducer, { IAccountReduxState } from './account/reducers';
-import { appUpgradeActions } from './app-upgrade/actions';
+import { AppUpgradeAction, appUpgradeActions } from './app-upgrade/actions';
 import { appUpgradeReducer, AppUpgradeReduxState } from './app-upgrade/reducers';
 import connectionActions, { ConnectionAction } from './connection/actions';
 import connectionReducer, { IConnectionReduxState } from './connection/reducers';
@@ -30,6 +30,7 @@ export interface IReduxState {
 }
 
 export type ReduxAction =
+  | AppUpgradeAction
   | AccountAction
   | ConnectionAction
   | SettingsAction
