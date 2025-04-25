@@ -99,36 +99,9 @@ pub struct TunnelDeviceBuilder {
 impl TunnelDeviceBuilder {
     /// Create a [`TunnelDevice`] from this builder.
     pub fn create(self) -> Result<TunnelDevice, Error> {
-        /*fn apply_async_flags(fd: RawFd) -> Result<(), nix::Error> {
-            fcntl::fcntl(fd, fcntl::FcntlArg::F_GETFL)?;
-            //let arg = fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_RDWR | fcntl::OFlag::O_NONBLOCK);
-            // FIXME
-            let arg = fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_RDWR);
-            fcntl::fcntl(fd, arg)?;
-            Ok(())
-        }*/
-
         let dev = tun::create(&self.config).map_err(Error::CreateDevice)?;
-        //apply_async_flags(dev.as_raw_fd()).map_err(Error::SetDeviceAsync)?;
         Ok(TunnelDevice { dev })
     }
-
-    /// Set a custom name for this tunnel device.
-    #[cfg(target_os = "linux")]
-    pub fn name(&mut self, name: &str) -> &mut Self {
-        self.config.name(name);
-        self
-    }
-
-    /*/// Enable packet information.
-    /// When enabled the first 4 bytes of each packet is a header with flags and protocol type.
-    #[cfg(target_os = "linux")]
-    pub fn enable_packet_information(&mut self) -> &mut Self {
-        self.config.platform(|platform_config| {
-            platform_config.packet_information(true);
-        });
-        self
-    }*/
 }
 
 impl Default for TunnelDeviceBuilder {
