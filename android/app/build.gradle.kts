@@ -107,6 +107,12 @@ android {
             applicationIdSuffix = ".leakcanary"
             matchingFallbacks += BuildTypes.DEBUG
         }
+        create(BuildTypes.BENCHMARK) {
+            initWith(buildTypes.getByName(BuildTypes.RELEASE))
+            signingConfig = signingConfigs.getByName(BuildTypes.DEBUG)
+            matchingFallbacks += listOf(BuildTypes.RELEASE)
+            isDebuggable = false
+        }
     }
 
     flavorDimensions += FlavorDimensions.BILLING

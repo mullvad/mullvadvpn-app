@@ -1,3 +1,4 @@
+import BuildTypes.BENCHMARK
 import BuildTypes.DEBUG
 import BuildTypes.FDROID
 import BuildTypes.LEAK_CANARY
@@ -13,6 +14,7 @@ object BuildTypes {
     const val RELEASE = "release"
     const val FDROID = "fdroid"
     const val LEAK_CANARY = "leakCanary"
+    const val BENCHMARK = "benchmark"
 }
 
 object SigningConfigs {
@@ -39,6 +41,7 @@ val enabledAppVariantTriples =
         Triple(OSS, PROD, RELEASE),
         Triple(OSS, PROD, FDROID),
         Triple(OSS, PROD, LEAK_CANARY),
+        Triple(OSS, PROD, BENCHMARK),
         Triple(PLAY, PROD, DEBUG),
         Triple(PLAY, PROD, RELEASE),
         Triple(PLAY, DEVMOLE, DEBUG),

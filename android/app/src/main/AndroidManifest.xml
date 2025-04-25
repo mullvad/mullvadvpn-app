@@ -34,6 +34,8 @@
                  android:roundIcon="@mipmap/ic_launcher"
                  android:theme="@style/Theme.App.Starting"
                  tools:ignore="CredManMissingDal,CredentialDependency,GoogleAppIndexingWarning">
+        <profileable android:shell="true"
+                     tools:targetApi="29" />
         <!--
             MainActivity
             Must be exported in order to be launchable.

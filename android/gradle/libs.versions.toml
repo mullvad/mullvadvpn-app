@@ -77,6 +77,8 @@ mockk = "1.13.17"
 mockwebserver = "4.12.0"
 play-publisher = "3.12.1"
 turbine = "1.2.0"
+junit4 = "1.2.1"
+benchmark-macro-junit4 = "1.4.0-alpha11"
 
 [libraries]
 # Android
@@ -86,10 +88,12 @@ android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
 # AndroidX
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
 androidx-coresplashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-coresplashscreen" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "androidx-credentials" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore" }
 androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit4" }
 androidx-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-ktx" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
@@ -122,7 +126,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-android-preview = { module = "androidx.compose.ui:ui-tooling-preview-android", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
-accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "drawablepainter"  }
+accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "drawablepainter" }
 
 # gRPC
 grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }
