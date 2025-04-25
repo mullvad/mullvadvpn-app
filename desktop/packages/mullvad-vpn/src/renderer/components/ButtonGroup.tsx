@@ -1,22 +1,40 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { Flex, FlexProps } from '../lib/components';
 import { StyledButton } from '../lib/components/button';
-import { StyledButtonText } from '../lib/components/button/components';
 
 export type WrapButtonGroupProps = FlexProps;
 
 const StyledFlex = styled(Flex)`
-  && > ${StyledButton} {
-    flex: 1 0 0;
-    min-width: auto;
-    max-width: 100%;
-    white-space: nowrap;
-    & > ${StyledButtonText} {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
+  ${({ $gap: gapProp }) => {
+    const $gap = gapProp ?? '0px';
+    return css`
+      && > ${StyledButton} {
+        flex: 1 0 auto;
+        max-width: 100%;
+      }
+      &&:has(> :nth-child(2)) {
+        & > ${StyledButton} {
+          min-width: calc((100% - ${$gap}) / 2);
+        }
+      }
+      &&:has(> :nth-child(3)) {
+        & > ${StyledButton} {
+          min-width: calc((100% - ${$gap} * 2) / 3);
+        }
+      }
+      &&:has(> :nth-child(4)) {
+        & > ${StyledButton} {
+          min-width: calc((100% - ${$gap} * 3) / 4);
+        }
+      }
+      &&:has(> :nth-child(5)) {
+        & > ${StyledButton} {
+          min-width: calc((100% - ${$gap} * 4) / 5);
+        }
+      }
+    `;
+  }}
 `;
 
 export function ButtonGroup({ $gap, children, ...props }: WrapButtonGroupProps) {
