@@ -169,7 +169,7 @@ class CustomListViewController: UIViewController {
                 value: "Do you want to delete the list **\(subject.value.name)**?",
                 comment: ""
             ),
-            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
+            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body, weight: .bold))
         )
 
         let presentation = AlertPresentation(

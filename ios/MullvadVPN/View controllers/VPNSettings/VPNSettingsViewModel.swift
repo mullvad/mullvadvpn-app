@@ -57,7 +57,7 @@ enum CustomDNSPrecondition {
                         comment:
                         "Foot note displayed if there are no DNS entries, but table view is not in editing mode."
                     ),
-                    options: MarkdownStylingOptions(font: preferredFont)
+                    options: MarkdownStylingOptions(font: preferredFont.withWeight(.bold))
                 )
             }
 

@@ -328,9 +328,7 @@ class AccountDeletionContentView: UIView {
             )
             messageLabel.attributedText = NSAttributedString(
                 markdownString: text,
-                options: MarkdownStylingOptions(
-                    font: .preferredFont(forTextStyle: .body)
-                )
+                options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body, weight: .bold))
             )
         }
     }
