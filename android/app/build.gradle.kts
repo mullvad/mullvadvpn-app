@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.protobuf.core)
     alias(libs.plugins.rust.android.gradle)
+    alias(libs.plugins.androidx.baselineprofile)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
@@ -454,4 +455,6 @@ dependencies {
     androidTestImplementation(libs.turbine)
     androidTestImplementation(Dependencies.junitJupiterApi)
     androidTestImplementation(Dependencies.junit5AndroidTestCompose)
+
+    baselineProfile(project(":test:macrobenchmark"))
 }

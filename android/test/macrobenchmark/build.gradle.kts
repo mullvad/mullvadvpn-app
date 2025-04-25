@@ -49,12 +49,13 @@ android {
     }
 }
 
+baselineProfile { useConnectedDevices = false }
+
 dependencies {
     implementation(libs.androidx.junit)
     implementation(libs.androidx.espresso)
     implementation(libs.androidx.test.uiautomator)
     implementation(libs.androidx.benchmark.macro.junit4)
-    implementation("androidx.benchmark:benchmark-baseline-profile-gradle-plugin:1.4.0-alpha11")
 }
 
 androidComponents {

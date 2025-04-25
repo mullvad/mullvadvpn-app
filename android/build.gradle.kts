@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.protobuf.core) apply false
     alias(libs.plugins.rust.android.gradle) apply false
+    alias(libs.plugins.androidx.baselineprofile) apply false
 
     alias(libs.plugins.detekt) apply true
     alias(libs.plugins.dependency.versions) apply true
