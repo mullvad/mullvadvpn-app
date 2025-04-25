@@ -773,7 +773,6 @@ impl WireguardMonitor {
     }
 
     /// Configure and start a Wireguard-go tunnel.
-    #[cfg(wireguard_go)]
     #[allow(clippy::unused_async)]
     async fn open_wireguard_go_tunnel(
         config: &Config,
