@@ -242,7 +242,14 @@ impl WireguardMonitor {
             // TODO: Make the tun crate either not use 'netsh' or make it possible to disable
             // configuration of address and DNS
             #[cfg(windows)]
-            if !(cfg!(feature = "boringtun") && userspace_wireguard) {
+            if cfg!(feature = "boringtun") && userspace_wireguard {
+                log::debug!("Waiting for tunnel IP interfaces to arrive");
+                let luid = talpid_windows::net::luid_from_alias(&iface_name).expect("FIXME");
+                talpid_windows::net::wait_for_interfaces(luid, true, config.ipv6_gateway.is_some())
+                    .await
+                    .expect("FIXME");
+                log::debug!("Waiting for tunnel IP interfaces: Done");
+            } else {
                 Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
                     .await?;
             }
