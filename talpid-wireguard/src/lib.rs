@@ -454,7 +454,8 @@ impl WireguardMonitor {
             // since we lack a firewall there.
             should_negotiate_ephemeral_peer,
             cancel_receiver,
-        ))?;
+        ))
+        .map(Box::new)? as Box<dyn Tunnel>;
 
         let iface_name = tunnel.get_interface_name();
         let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
