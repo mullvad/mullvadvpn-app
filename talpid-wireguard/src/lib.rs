@@ -238,6 +238,9 @@ impl WireguardMonitor {
             let tunnel = moved_tunnel;
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
+            // TODO: Only skip this for boringtun
+            // TODO: Make the tun crate either not use 'netsh' or make it possible to disable
+            // configuration of address and DNS
             // #[cfg(windows)]
             // Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
             // .await?;
