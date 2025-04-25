@@ -216,6 +216,10 @@ function ObfuscationSettings() {
         },
       },
       {
+        label: messages.pgettext('wireguard-settings-view', 'QUIC'),
+        value: ObfuscationType.quic,
+      },
+      {
         label: messages.gettext('Off'),
         value: ObfuscationType.off,
       },
