@@ -29,11 +29,12 @@ android {
         }
     }
 
-    flavorDimensions += listOf(FlavorDimensions.BILLING, FlavorDimensions.INFRASTRUCTURE)
-    productFlavors {
-        create(Flavors.OSS) { dimension = FlavorDimensions.BILLING }
-        create(Flavors.PROD) { dimension = FlavorDimensions.INFRASTRUCTURE }
-    }
+    //    flavorDimensions += listOf(FlavorDimensions.BILLING, FlavorDimensions.INFRASTRUCTURE)
+    //    productFlavors {
+    //        create(Flavors.OSS) { dimension = FlavorDimensions.BILLING }
+    //        create(Flavors.PLAY) { dimension = FlavorDimensions.BILLING }
+    //        create(Flavors.PROD) { dimension = FlavorDimensions.INFRASTRUCTURE }
+    //    }
 
     // Enable the benchmark to run separately from the app process
     experimentalProperties["android.experimental.self-instrumenting"] = true
@@ -59,5 +60,7 @@ dependencies {
 }
 
 androidComponents {
-    beforeVariants(selector().all()) { it.enable = it.buildType == BuildTypes.BENCHMARK }
+    beforeVariants(selector().all()) {
+        it.enable = it.name == "ossProdRelease" || it.name == "playProdRelease"
+    }
 }
