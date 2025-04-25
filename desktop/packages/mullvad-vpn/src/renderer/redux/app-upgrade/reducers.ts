@@ -1,5 +1,5 @@
 import { AppUpgradeError, AppUpgradeEvent } from '../../../shared/app-upgrade';
-import { AppUpgradeAction } from './actions';
+import { ReduxAction } from '../store';
 
 export interface AppUpgradeReduxState {
   error?: AppUpgradeError;
@@ -17,7 +17,7 @@ const initialState: AppUpgradeReduxState = {
 
 export function appUpgradeReducer(
   state: AppUpgradeReduxState = initialState,
-  action: AppUpgradeAction,
+  action: ReduxAction,
 ): AppUpgradeReduxState {
   switch (action.type) {
     case 'APP_UPGRADE_SET_EVENT':
