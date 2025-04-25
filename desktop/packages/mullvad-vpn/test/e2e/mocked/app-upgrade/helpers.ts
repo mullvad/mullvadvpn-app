@@ -50,9 +50,9 @@ export const createIpc = (util: MockedTestUtils) => {
         createMockResponseAppUpgradeEvent({
           type: 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER',
         }),
-      appUpgradeEventStartingInstaller: () =>
+      appUpgradeEventManualStartingInstaller: () =>
         createMockResponseAppUpgradeEvent({
-          type: 'APP_UPGRADE_STATUS_STARTING_INSTALLER',
+          type: 'APP_UPGRADE_STATUS_MANUAL_STARTING_INSTALLER',
         }),
       appUpgradeEventStartedInstaller: () =>
         createMockResponseAppUpgradeEvent({
@@ -71,7 +71,7 @@ export const createIpc = (util: MockedTestUtils) => {
 };
 
 export const createSelectors = (page: Page) => ({
-  downloadAndInstallButton: () =>
+  downloadAndLaunchInstallerButton: () =>
     page.getByRole('button', {
       name: 'Download & install',
     }),
@@ -79,9 +79,13 @@ export const createSelectors = (page: Page) => ({
     page.getByRole('button', {
       name: 'Install update',
     }),
-  cancelButton: () =>
+  pauseButton: () =>
     page.getByRole('button', {
-      name: 'Cancel',
+      name: 'Pause',
+    }),
+  resumeButton: () =>
+    page.getByRole('button', {
+      name: 'Resume',
     }),
   retryButton: () =>
     page.getByRole('button', {
@@ -112,9 +116,9 @@ export const createHelpers = (page: Page, util: MockedTestUtils) => {
   const ipc = createIpc(util);
 
   const startAppUpgrade = async () => {
-    const downloadAndInstallButton = selectors.downloadAndInstallButton();
+    const downloadAndLaunchInstallerButton = selectors.downloadAndLaunchInstallerButton();
 
-    await resolveIpcHandle(ipc.handle.appUpgrade(), downloadAndInstallButton.click());
+    await resolveIpcHandle(ipc.handle.appUpgrade(), downloadAndLaunchInstallerButton.click());
 
     await ipc.send.appUpgradeEventDownloadStarted();
   };

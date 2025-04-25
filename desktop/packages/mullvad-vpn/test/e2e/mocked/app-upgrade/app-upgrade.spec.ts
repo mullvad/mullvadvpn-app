@@ -81,8 +81,8 @@ test.describe('App upgrade', () => {
 
     test('Should start upgrade when clicking Download & install button', async () => {
       await helpers.startAppUpgrade();
-      const downloadAndInstallButton = selectors.downloadAndInstallButton();
-      await expect(downloadAndInstallButton).toBeHidden();
+      const downloadAndLaunchInstallerButton = selectors.downloadAndLaunchInstallerButton();
+      await expect(downloadAndLaunchInstallerButton).toBeHidden();
     });
 
     test('Should show indeterminate download progress after upgrade started', async () => {
@@ -171,9 +171,12 @@ test.describe('App upgrade', () => {
       });
 
       await ipc.send.appUpgradeEventVerifiedInstaller();
-      await ipc.send.appUpgradeError('START_INSTALLER_AUTOMATIC_FAILED');
 
-      await expect(page.getByText('Verification successful! Ready to install.')).toBeVisible();
+      const installUpdateButton = selectors.installButton();
+
+      await expect(page.getByText('Verification successful!')).toBeVisible();
+      await expect(installUpdateButton).toBeVisible();
+      await expect(installUpdateButton).toBeEnabled();
     });
 
     test('Should handle failing to manually start installer', async () => {
@@ -181,7 +184,7 @@ test.describe('App upgrade', () => {
 
       await resolveIpcHandle(ipc.handle.appUpgrade(), installUpdateButton.click());
 
-      await ipc.send.appUpgradeEventStartingInstaller();
+      await ipc.send.appUpgradeEventManualStartingInstaller();
       await ipc.send.appUpgradeError('START_INSTALLER_FAILED');
 
       await expect(installUpdateButton).not.toBeVisible();
@@ -211,34 +214,37 @@ test.describe('App upgrade', () => {
     });
   });
 
-  test.describe('Should cancel download', () => {
-    test('Should show Cancel button after upgrade started', async () => {
+  test.describe('Should pause download', () => {
+    test('Should show Pause button after upgrade started', async () => {
       await helpers.startAppUpgrade();
-      const cancelButton = selectors.cancelButton();
-      await expect(cancelButton).toBeVisible();
-      await expect(cancelButton).toBeEnabled();
+      const pauseButton = selectors.pauseButton();
+
+      await new Promise(() => {});
+      await expect(pauseButton).toBeVisible();
+      await expect(pauseButton).toBeEnabled();
     });
 
-    test('Should cancel upgrade when clicking the Cancel button', async () => {
-      const cancelButton = selectors.cancelButton();
+    test('Should pause upgrade when clicking the Pause button', async () => {
+      const pauseButton = selectors.pauseButton();
 
-      await resolveIpcHandle(ipc.handle.appUpgradeAbort(), cancelButton.click());
+      await resolveIpcHandle(ipc.handle.appUpgradeAbort(), pauseButton.click());
 
       // After the app upgrade abort RPC is sent we expect to receive an aborted
       // event.
       await ipc.send.appUpgradeEventAborted();
 
-      await expect(cancelButton).toBeHidden();
+      await expect(pauseButton).toBeHidden();
 
-      const downloadAndInstallButton = selectors.downloadAndInstallButton();
-      await expect(downloadAndInstallButton).toBeVisible();
+      const resumeButton = selectors.resumeButton();
+      await expect(resumeButton).toBeVisible();
+      await expect(resumeButton).toBeEnabled();
     });
 
     test('Should start upgrade again when clicking Download & install button', async () => {
       await helpers.startAppUpgrade();
 
-      const downloadAndInstallButton = selectors.downloadAndInstallButton();
-      await expect(downloadAndInstallButton).toBeHidden();
+      const resumeButton = selectors.resumeButton();
+      await expect(resumeButton).toBeHidden();
     });
   });
 });
