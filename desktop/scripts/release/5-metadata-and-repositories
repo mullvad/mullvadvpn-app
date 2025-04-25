@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -eu
+
+./update-and-publish-metadata "$@"
+./publish-repositories "$1" "$2"
