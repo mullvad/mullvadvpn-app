@@ -48,6 +48,8 @@ pub const SILENCED_CRATES: &[&str] = &[
     "hickory_server",
     "hickory_resolver",
     "shadowsocks::relay::udprelay",
+    "quinn_proto",
+    "quinn",
 ];
 const SLIGHTLY_SILENCED_CRATES: &[&str] = &["mnl", "nftnl", "udp_over_tcp"];
 
