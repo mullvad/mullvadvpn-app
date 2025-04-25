@@ -1,26 +1,25 @@
 //! Quic obfuscation
 
+use async_trait::async_trait;
+use mullvad_masque_proxy::client::{Client, ClientConfig};
 #[cfg(any(target_os = "android", target_os = "linux"))]
 use std::os::fd::AsRawFd;
-use async_trait::async_trait;
-use std::{io, net::{Ipv4Addr, SocketAddr}, sync::Arc};
-use tokio::{net::UdpSocket, sync::oneshot};
-use mullvad_masque_proxy::client::{ClientConfig, Client};
+use std::net::{Ipv4Addr, SocketAddr};
+use tokio::net::UdpSocket;
 
 use crate::Obfuscator;
-
 
 type Result<T> = std::result::Result<T, Error>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Masque proxy error")]
-    MasqueProxyError(#[source] mullvad_masque_proxy::client::Error)
+    MasqueProxyError(#[source] mullvad_masque_proxy::client::Error),
 }
 
 pub struct Quic {
-    pub local_endpoint: SocketAddr,
-    client: Client
+    local_endpoint: SocketAddr,
+    task: tokio::task::JoinHandle<Result<()>>,
 }
 
 #[derive(Debug)]
@@ -29,17 +28,15 @@ pub struct Settings {
     pub quic_endpoint: SocketAddr,
     /// Remote Wireguard endpoint
     pub wireguard_endpoint: SocketAddr,
-
+    /// Hostname to use for QUIC
     pub hostname: String,
-
 }
 
 impl Quic {
     pub(crate) async fn new(settings: &Settings) -> Result<Self> {
-
         let local_socket = UdpSocket::bind(SocketAddr::from((Ipv4Addr::LOCALHOST, 0)))
-        .await
-        .expect("Failed to bind address");
+            .await
+            .expect("Failed to bind address");
 
         let local_endpoint = local_socket.local_addr().unwrap();
 
@@ -50,19 +47,19 @@ impl Quic {
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint);
 
-
-        let client = Client::connect(config_builder.build()).await.map_err(Error::MasqueProxyError)?; 
-        // TODO: defer calling connect to a separate method call
+        let task = tokio::spawn(async move {
+            let client = Client::connect(config_builder.build())
+                .await
+                .map_err(Error::MasqueProxyError)?;
+            client.run().await.map_err(Error::MasqueProxyError)
+        });
 
         Ok(Quic {
             local_endpoint,
-            client
+            task,
         })
     }
-
-
 }
-
 
 #[async_trait]
 impl Obfuscator for Quic {
@@ -71,9 +68,10 @@ impl Obfuscator for Quic {
     }
 
     async fn run(self: Box<Self>) -> crate::Result<()> {
-        self.client.run().await.unwrap();
-
-        Ok(())
+        self.task
+            .await
+            .unwrap()
+            .map_err(crate::Error::RunQuicObfuscator)
     }
 
     fn packet_overhead(&self) -> u16 {
