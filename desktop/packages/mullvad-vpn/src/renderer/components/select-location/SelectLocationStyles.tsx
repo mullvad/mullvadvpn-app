@@ -4,7 +4,6 @@ import { Colors } from '../../lib/foundations';
 import * as Cell from '../cell';
 import { normalText, tinyText } from '../common-styles';
 import SearchBar from '../SearchBar';
-import { SmallButton } from '../SmallButton';
 import { ScopeBar } from './ScopeBar';
 
 export const StyledContent = styled.div({
@@ -65,9 +64,4 @@ export const StyledSelectionUnavailableText = styled(Cell.CellFooterText)({
 
 export const StyledAllLocationsTitle = styled(Cell.Label)(normalText, {
   fontWeight: 'normal',
-});
-
-export const StyledDaitaSettingsButton = styled(SmallButton)({
-  marginLeft: 0,
-  marginTop: '24px',
 });

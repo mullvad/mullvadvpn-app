@@ -4,7 +4,8 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../../shared/constants';
 import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { FilterChip, Flex, IconButton, LabelTiny } from '../../lib/components';
+import { Button, FilterChip, Flex, IconButton, LabelTiny } from '../../lib/components';
+import { FlexColumn } from '../../lib/components/flex-column';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
@@ -33,7 +34,6 @@ import { LocationType, SpecialBridgeLocationType, SpecialLocation } from './sele
 import { useSelectLocationContext } from './SelectLocationContainer';
 import {
   StyledContent,
-  StyledDaitaSettingsButton,
   StyledNavigationBarAttachment,
   StyledScopeBar,
   StyledSearchBar,
@@ -409,7 +409,7 @@ function DisabledEntrySelection() {
   }, [push]);
 
   return (
-    <StyledSelectionUnavailable>
+    <FlexColumn $gap="large" $margin={{ horizontal: 'large', bottom: 'tiny' }}>
       <StyledSelectionUnavailableText>
         {sprintf(
           messages.pgettext(
@@ -419,11 +419,13 @@ function DisabledEntrySelection() {
           { daita: strings.daita, multihop, directOnly },
         )}
       </StyledSelectionUnavailableText>
-      <StyledDaitaSettingsButton onClick={navigateToDaitaSettings}>
-        {sprintf(messages.pgettext('select-location-view', 'Open %(daita)s settings'), {
-          daita: strings.daita,
-        })}
-      </StyledDaitaSettingsButton>
-    </StyledSelectionUnavailable>
+      <Button onClick={navigateToDaitaSettings}>
+        <Button.Text>
+          {sprintf(messages.pgettext('select-location-view', 'Open %(daita)s settings'), {
+            daita: strings.daita,
+          })}
+        </Button.Text>
+      </Button>
+    </FlexColumn>
   );
 }
