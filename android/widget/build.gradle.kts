@@ -39,6 +39,7 @@ dependencies {
     implementation(projects.lib.resource)
     implementation(projects.lib.shared)
     implementation(projects.lib.talpid)
+    implementation(projects.lib.theme)
 
     implementation(libs.koin)
     implementation(libs.koin.android)

@@ -1,8 +1,7 @@
 package net.mullvad.mullvadvpn.widget
 
 enum class WidgetType(val className: String) {
-    SETTINGS(".widget.SettingsWidgetReceiver"),
-    DNS_CONTENT_BLOCKERS(".widget.DnsContentBlockersWidgetReceiver");
+    SETTINGS(".widget.SettingsWidgetReceiver");
 
     companion object {
         fun fromClass(className: String): WidgetType {

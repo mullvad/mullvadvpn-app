@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.widget
 import kotlinx.coroutines.flow.first
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.DnsState
+import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 
 class MullvadWidgetAction(private val managementService: ManagementService) {
 
@@ -87,5 +88,17 @@ class MullvadWidgetAction(private val managementService: ManagementService) {
 
     suspend fun setSplitTunneling(enabled: Boolean) {
         managementService.setSplitTunnelingState(enabled)
+    }
+
+    suspend fun setMultihop(enabled: Boolean) {
+        managementService.setMultihop(enabled)
+    }
+
+    suspend fun setInTunnelIpv6(enabled: Boolean) {
+        managementService.setIpv6Enabled(enabled)
+    }
+
+    suspend fun setQuantumResistant(quantumResistantState: QuantumResistantState) {
+        managementService.setWireguardQuantumResistant(quantumResistantState)
     }
 }

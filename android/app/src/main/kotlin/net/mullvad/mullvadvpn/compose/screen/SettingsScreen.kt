@@ -58,7 +58,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewSettingsScreen(
     @PreviewParameter(SettingsUiStatePreviewParameterProvider::class) state: SettingsUiState
 ) {
-    AppTheme { SettingsScreen(state = state, {}, {}, {}, {}, {}, {}, {}, {}, {}) }
+    AppTheme { SettingsScreen(state = state, {}, {}, {}, {}, {}, {}, {}, {}) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +78,6 @@ fun Settings(navigator: DestinationsNavigator) {
             dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
         onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopDestination()) },
         onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaDestination()) },
-        onWidgetClick = dropUnlessResumed { /*navigator.navigate(WidgetDestination)*/ },
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -93,7 +92,6 @@ fun SettingsScreen(
     onApiAccessClick: () -> Unit,
     onMultihopClick: () -> Unit,
     onDaitaClick: () -> Unit,
-    onWidgetClick: () -> Unit,
     onBackClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
@@ -123,8 +121,6 @@ fun SettingsScreen(
                 }
                 item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
                 item { SplitTunneling(onSplitTunnelingCellClick) }
-                item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
-                item { Widget(onWidgetClick) }
                 item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
             }
 
@@ -157,11 +153,6 @@ private fun SplitTunneling(onSplitTunnelingCellClick: () -> Unit) {
         title = stringResource(id = R.string.split_tunneling),
         onClick = onSplitTunnelingCellClick,
     )
-}
-
-@Composable
-private fun Widget(onWidgetClick: () -> Unit) {
-    NavigationComposeCell(title = "Widget", onClick = onWidgetClick)
 }
 
 @Composable

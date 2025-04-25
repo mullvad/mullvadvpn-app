@@ -7,3 +7,4 @@ internal const val MULLVAD_PACKAGE_NAME = "net.mullvad.mullvadvpn"
 // Classes
 const val MAIN_ACTIVITY_CLASS = "$MULLVAD_PACKAGE_NAME.ui.MainActivity"
 const val VPN_SERVICE_CLASS = "$MULLVAD_PACKAGE_NAME.service.MullvadVpnService"
+const val WIDGET_ACTION_RECEIVER = "$MULLVAD_PACKAGE_NAME.receiver.WidgetActionsReceiver"

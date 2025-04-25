@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_SET_BLOCK_DNS
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_UPDATE_SETTING
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
+import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.service.di.vpnServiceModule
@@ -162,6 +163,9 @@ class MullvadVpnService : TalpidVpnService() {
 
             intent?.action == KEY_UPDATE_SETTING -> {
                 lifecycleScope.launch {
+                    // All widget settings are called with the expectation of foreground service
+                    foregroundNotificationHandler.startForeground()
+
                     val settingAction = intent.getStringExtra("SETTING")
                     val enable = intent.getBooleanExtra("android.widget.extra.CHECKED", false)
                     when (settingAction) {
@@ -169,6 +173,24 @@ class MullvadVpnService : TalpidVpnService() {
                         "CUSTOM_DNS" -> mullvadWidgetAction.setCustomDns(enable)
                         "DAITA" -> mullvadWidgetAction.setDaita(enable)
                         "SPLIT_TUNNELING" -> mullvadWidgetAction.setSplitTunneling(enable)
+                        "MULTIHOP" -> mullvadWidgetAction.setMultihop(enable)
+                        "IN_TUNNEL_IPV6" -> mullvadWidgetAction.setInTunnelIpv6(enable)
+                        "QUANTUM_RESISTANT" -> {
+                            val state =
+                                when (intent.getStringExtra("STATE")) {
+                                    "On" -> QuantumResistantState.On
+                                    "Off" -> QuantumResistantState.Off
+                                    "Auto" -> QuantumResistantState.Auto
+                                    else -> error("Unknown quantum resistant state")
+                                }
+                            mullvadWidgetAction.setQuantumResistant(state)
+                        }
+                    }
+
+                    // After setting is changed we can go back into background again if no one is
+                    // bound
+                    if (bindCount.get() == 0) {
+                        foregroundNotificationHandler.stopForeground()
                     }
                 }
             }

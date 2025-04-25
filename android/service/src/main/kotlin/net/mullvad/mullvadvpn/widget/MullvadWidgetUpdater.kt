@@ -7,7 +7,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.shared.WidgetRepository
-import net.mullvad.mullvadvpn.lib.shared.WidgetSettingsPersister
+import net.mullvad.mullvadvpn.lib.shared.WidgetSettingsState
 
 class MullvadWidgetUpdater(
     private val context: Context,
@@ -22,7 +22,6 @@ class MullvadWidgetUpdater(
         }
 
         job = scope.launch { launchListenToSettings() }
-        job = scope.launch { launchListenToWidgetSettings() }
     }
 
     fun stop() {
@@ -37,9 +36,20 @@ class MullvadWidgetUpdater(
             .collect { MullvadAppWidget.updateAllWidgets(context) }
     }
 
-    private suspend fun launchListenToWidgetSettings() {
-        WidgetSettingsPersister.SINGLETON.widgetSettingsState.collect {
-            MullvadAppWidget.updateAllWidgets(context)
+    companion object {
+        suspend fun updateWidgetWithConfig(
+            context: Context,
+            widgetId: Int,
+            widgetSettingsState: WidgetSettingsState,
+        ) {
+            MullvadAppWidget.updateWidgetState(context, widgetId, widgetSettingsState)
+            MullvadAppWidget.updateWidget(context, widgetId)
+        }
+
+        suspend fun getWidgetConfig(context: Context, widgetId: Int): WidgetSettingsState {
+            return WidgetSettingsState.fromPrefs(
+                MullvadAppWidget.getPrefsForWidget(context, widgetId) ?: emptySet()
+            )
         }
     }
 }
