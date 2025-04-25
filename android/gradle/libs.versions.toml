@@ -10,6 +10,7 @@ android-billingclient = "7.1.1"
 # AndroidX
 androidx-activitycompose = "1.10.1"
 androidx-appcompat = "1.7.0"
+androidx-baselineprofile = "1.4.0-alpha11"
 androidx-ktx = "1.16.0"
 androidx-credentials = "1.5.0"
 androidx-coresplashscreen = "1.1.0-rc01"
@@ -183,6 +184,7 @@ android-gradle-plugin = { id = "com.android.tools.build:gradle", version.ref = "
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
 android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" }
+androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "androidx-baselineprofile" }
 
 # Compose
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

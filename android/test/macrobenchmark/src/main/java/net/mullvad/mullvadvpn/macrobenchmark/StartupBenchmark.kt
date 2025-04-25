@@ -1,9 +1,12 @@
 package net.mullvad.mullvadvpn.macrobenchmark
 
+import androidx.benchmark.macro.BaselineProfileMode
+import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,23 +24,63 @@ import org.junit.runner.RunWith
  * Run this benchmark from Studio to see startup measurements, and captured system traces for
  * investigating your app's performance.
  */
+// @RunWith(AndroidJUnit4::class)
+// class StartupBenchmark {
+//    @get:Rule val benchmarkRule = MacrobenchmarkRule()
+//
+//    @Test
+//    fun startup() =
+//        benchmarkRule.measureRepeated(
+//            packageName = "net.mullvad.mullvadvpn",
+//            metrics = listOf(StartupTimingMetric()),
+//            iterations = 5,
+//            startupMode = StartupMode.COLD,
+//            setupBlock = {
+//                // Press home button before each run to ensure the starting activity isn't
+// visible.
+//                pressHome(1000)
+//            },
+//        ) {
+//            // starts default launch activity
+//            startActivityAndWait()
+//        }
+// }
+
 @RunWith(AndroidJUnit4::class)
+@LargeTest
 class StartupBenchmark {
-    @get:Rule val benchmarkRule = MacrobenchmarkRule()
+
+    @get:Rule val rule = MacrobenchmarkRule()
+
+    @Test fun startupCompilationNone() = benchmark(CompilationMode.None())
 
     @Test
-    fun startup() =
-        benchmarkRule.measureRepeated(
+    fun startupCompilationBaselineProfiles() =
+        benchmark(CompilationMode.Partial(BaselineProfileMode.Require))
+
+    private fun benchmark(compilationMode: CompilationMode) {
+        // The application id for the running build variant is read from the instrumentation
+        // arguments.
+        rule.measureRepeated(
             packageName = "net.mullvad.mullvadvpn",
             metrics = listOf(StartupTimingMetric()),
-            iterations = 5,
+            compilationMode = compilationMode,
             startupMode = StartupMode.COLD,
-            setupBlock = {
-                // Press home button before each run to ensure the starting activity isn't visible.
-                pressHome(1000)
+            iterations = 10,
+            setupBlock = { pressHome(1000) },
+            measureBlock = {
+                startActivityAndWait()
+
+                // TODO Add interactions to wait for when your app is fully drawn.
+                // The app is fully drawn when Activity.reportFullyDrawn is called.
+                // For Jetpack Compose, you can use ReportDrawn, ReportDrawnWhen and
+                // ReportDrawnAfter
+                // from the AndroidX Activity library.
+
+                // Check the UiAutomator documentation for more information on how to
+                // interact with the app.
+                // https://d.android.com/training/testing/other-components/ui-automator
             },
-        ) {
-            // starts default launch activity
-            startActivityAndWait()
-        }
+        )
+    }
 }

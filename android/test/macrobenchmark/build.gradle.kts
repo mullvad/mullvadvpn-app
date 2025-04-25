@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.androidx.baselineprofile)
 }
 
 android {
@@ -12,6 +13,10 @@ android {
         targetSdk = 35
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Disable background work during benchmarking
+        testInstrumentationRunnerArguments["androidx.benchmark.junit4.SideEffectRunListener"] =
+            "androidx.benchmark.junit4.SideEffectRunListener"
     }
 
     targetProjectPath = ":app"
@@ -49,6 +54,7 @@ dependencies {
     implementation(libs.androidx.espresso)
     implementation(libs.androidx.test.uiautomator)
     implementation(libs.androidx.benchmark.macro.junit4)
+    implementation("androidx.benchmark:benchmark-baseline-profile-gradle-plugin:1.4.0-alpha11")
 }
 
 androidComponents {
