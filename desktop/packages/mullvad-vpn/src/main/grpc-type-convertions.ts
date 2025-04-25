@@ -426,6 +426,9 @@ function convertFromObfuscationEndpoint(
     case grpcTypes.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS:
       obfuscationType = 'shadowsocks';
       break;
+    case grpcTypes.ObfuscationEndpoint.ObfuscationType.QUIC:
+      obfuscationType = 'quic';
+      break;
     default:
       throw new Error('unsupported obfuscation protocol');
   }
@@ -692,6 +695,9 @@ function convertFromObfuscationSettings(
       break;
     case grpcTypes.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS:
       selectedObfuscationType = ObfuscationType.shadowsocks;
+      break;
+    case grpcTypes.ObfuscationSettings.SelectedObfuscation.QUIC:
+      selectedObfuscationType = ObfuscationType.quic;
       break;
   }
 
