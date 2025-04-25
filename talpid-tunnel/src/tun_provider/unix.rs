@@ -188,7 +188,7 @@ impl TunnelDevice {
     }
 
     fn get_name(&self) -> Result<String, Error> {
-        Ok(self.dev.tun_name().unwrap()) // TODO
+        self.dev.tun_name().map_err(Error::GetDeviceName)
     }
 
     pub fn into_inner(self) -> AsyncDevice {
