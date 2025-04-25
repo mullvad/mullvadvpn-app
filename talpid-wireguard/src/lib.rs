@@ -248,6 +248,9 @@ impl WireguardMonitor {
                 talpid_windows::net::wait_for_interfaces(luid, true, config.ipv6_gateway.is_some())
                     .await
                     .expect("FIXME");
+                talpid_windows::net::wait_for_addresses(luid)
+                    .await
+                    .expect("FIXME");
                 log::debug!("Waiting for tunnel IP interfaces: Done");
             } else {
                 Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
