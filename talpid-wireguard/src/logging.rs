@@ -44,12 +44,10 @@ pub fn clean_up_logging(ordinal: u64) {
     state.map.remove(&ordinal);
 }
 
+#[allow(dead_code)]
 pub enum LogLevel {
-    #[cfg_attr(windows, allow(dead_code))]
     Verbose,
-    #[cfg_attr(wireguard_go, allow(dead_code))]
     Info,
-    #[cfg_attr(wireguard_go, allow(dead_code))]
     Warning,
     Error,
 }
