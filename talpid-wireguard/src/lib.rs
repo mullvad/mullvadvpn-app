@@ -16,15 +16,13 @@ use std::{
     net::IpAddr,
     path::Path,
     pin::Pin,
-    sync::{mpsc as sync_mpsc, Arc, Mutex},
+    sync::{mpsc as sync_mpsc, Arc},
 };
 #[cfg(any(target_os = "linux", target_os = "windows"))]
 use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
-use talpid_tunnel::{
-    tun_provider, tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
-};
+use talpid_tunnel::{tun_provider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
 
 #[cfg(target_os = "android")]
 use talpid_routing::RouteManagerHandle;
@@ -39,7 +37,7 @@ use tokio::sync::Mutex as AsyncMutex;
 #[cfg(feature = "boringtun")]
 mod boringtun;
 
-//#[cfg(not(feature = "boringtun"))]
+#[cfg(not(feature = "boringtun"))]
 mod wireguard_go;
 
 /// WireGuard config data-types
@@ -189,6 +187,9 @@ impl WireguardMonitor {
             config.mtu = clamp_mtu(params, config.mtu);
         }
 
+        let userspace_wireguard =
+            *FORCE_USERSPACE_WIREGUARD || config.daita || cfg!(feature = "boringtun");
+
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
         let tunnel = Self::open_tunnel(
@@ -197,11 +198,13 @@ impl WireguardMonitor {
             log_path,
             #[cfg(target_os = "windows")]
             args.resource_dir,
+            #[cfg(not(all(target_os = "windows", not(feature = "boringtun"))))]
             args.tun_provider.clone(),
-            #[cfg(target_os = "windows")]
+            #[cfg(not(all(windows, feature = "boringtun")))]
             args.route_manager.clone(),
             #[cfg(target_os = "windows")]
             setup_done_tx,
+            userspace_wireguard,
         )?;
         let iface_name = tunnel.get_interface_name();
 
@@ -236,12 +239,13 @@ impl WireguardMonitor {
             let tunnel = moved_tunnel;
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
-            // TODO: Only skip this for boringtun
             // TODO: Make the tun crate either not use 'netsh' or make it possible to disable
             // configuration of address and DNS
-            // #[cfg(windows)]
-            // Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
-            // .await?;
+            #[cfg(windows)]
+            if !(cfg!(feature = "boringtun") && userspace_wireguard) {
+                Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
+                    .await?;
+            }
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
@@ -442,18 +446,20 @@ impl WireguardMonitor {
             .map(Box::new)? as Box<dyn Tunnel>;
 
         #[cfg(not(feature = "boringtun"))]
-        let tunnel = args.runtime.block_on(Self::open_wireguard_go_tunnel(
-            &config,
-            log_path,
-            args.tun_provider.clone(),
-            args.route_manager,
-            // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
-            // that we only allows traffic to/from the gateway. This is only needed on Android
-            // since we lack a firewall there.
-            should_negotiate_ephemeral_peer,
-            cancel_receiver,
-        ))
-        .map(Box::new)? as Box<dyn Tunnel>;
+        let tunnel = args
+            .runtime
+            .block_on(Self::open_wireguard_go_tunnel(
+                &config,
+                log_path,
+                args.tun_provider.clone(),
+                args.route_manager,
+                // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
+                // that we only allows traffic to/from the gateway. This is only needed on Android
+                // since we lack a firewall there.
+                should_negotiate_ephemeral_peer,
+                cancel_receiver,
+            ))
+            .map(Box::new)? as Box<dyn Tunnel>;
 
         let iface_name = tunnel.get_interface_name();
         let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
@@ -663,20 +669,21 @@ impl WireguardMonitor {
         Ok(())
     }
 
-    #[allow(unused_variables)]
+    #[allow(clippy::too_many_arguments)]
     #[cfg(target_os = "windows")]
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
         resource_dir: &Path,
-        tun_provider: Arc<Mutex<TunProvider>>,
-        route_manager: talpid_routing::RouteManagerHandle,
+        #[cfg(feature = "boringtun")] tun_provider: Arc<
+            std::sync::Mutex<tun_provider::TunProvider>,
+        >,
+        #[cfg(not(feature = "boringtun"))] route_manager: talpid_routing::RouteManagerHandle,
         setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
+        userspace_wireguard: bool,
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
-
-        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || config.daita;
 
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
@@ -711,6 +718,7 @@ impl WireguardMonitor {
         config: &Config,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
+        _userspace_wireguard: bool,
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
@@ -732,11 +740,9 @@ impl WireguardMonitor {
         config: &Config,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
+        userspace_wireguard: bool,
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
-
-        let userspace_wireguard =
-            *FORCE_USERSPACE_WIREGUARD || config.daita || cfg!(feature = "boringtun");
 
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
@@ -796,8 +802,8 @@ impl WireguardMonitor {
         #[cfg(target_os = "windows")]
         let tunnel =
             wireguard_go::WgGoTunnel::start_tunnel(config, log_path, route_manager, setup_done_tx)
-            .await
-            .map_err(Error::TunnelError)?;
+                .await
+                .map_err(Error::TunnelError)?;
 
         // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
         // with an ephemeral peer, this multihop strategy require us to restart the tunnel
@@ -843,7 +849,7 @@ impl WireguardMonitor {
     async fn open_boringtun_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        tun_provider: Arc<Mutex<TunProvider>>,
+        tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         #[cfg(target_os = "android")] route_manager_handle: RouteManagerHandle,
         //#[cfg(target_os = "android")] gateway_only: bool,
         //#[cfg(target_os = "android")] connectivity_check: connectivity::Check<
@@ -1035,6 +1041,7 @@ impl WireguardMonitor {
     }
 
     /// Replace default (0-prefix) routes with more specific routes.
+    #[cfg(feature = "boringtun")]
     fn replace_default_prefixes(network: ipnetwork::IpNetwork) -> Vec<ipnetwork::IpNetwork> {
         #[cfg(windows)]
         if network.prefix() == 0 {
