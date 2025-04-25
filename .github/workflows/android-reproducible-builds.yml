@@ -150,7 +150,7 @@ jobs:
         with:
           path: artifacts
           pattern: apk-*
-          merge-multiple: true
+          merge-multiple: false
 
       - name: List files
         working-directory: ./artifacts
