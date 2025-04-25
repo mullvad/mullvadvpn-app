@@ -44,7 +44,8 @@ class LocationCell: UITableViewCell {
 
         checkboxView.isUserInteractionEnabled = false
         button.addConstrainedSubviews([checkboxView]) {
-            checkboxView.pinEdgesToSuperviewMargins(PinnableEdges([.top(8), .bottom(8), .leading(16), .trailing(16)]))
+            checkboxView.centerYAnchor.constraint(equalTo: button.centerYAnchor)
+            checkboxView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(16), .trailing(16)]))
         }
 
         return button

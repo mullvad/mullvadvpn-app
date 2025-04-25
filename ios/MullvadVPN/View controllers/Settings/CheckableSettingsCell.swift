@@ -48,11 +48,10 @@ class CheckableSettingsCell: SettingsCell {
     private func setCheckboxView() {
         setLeadingView { superview in
             superview.addConstrainedSubviews([checkboxView]) {
+                checkboxView.centerYAnchor.constraint(equalTo: superview.centerYAnchor)
                 checkboxView.pinEdgesToSuperview(PinnableEdges([
                     .leading(0),
                     .trailing(UIMetrics.SettingsCell.checkableSettingsCellLeftViewSpacing),
-                    .top(0),
-                    .bottom(0),
                 ]))
             }
         }
