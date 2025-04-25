@@ -1,6 +1,6 @@
 use super::TunConfig;
 use std::{io, net::IpAddr, ops::Deref};
-use tun::{AbstractDevice, AsyncDevice, Configuration, Device};
+use tun::{AbstractDevice, AsyncDevice, Configuration};
 
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, thiserror::Error)]
@@ -20,6 +20,10 @@ pub enum Error {
     /// Failed to enable/disable link device
     #[error("Failed to enable/disable link device")]
     ToggleDevice(#[source] tun::Error),
+
+    /// Failed to get device name
+    #[error("Failed to get tunnel device name")]
+    GetDeviceName(#[source] tun::Error),
 }
 
 /// Factory of tunnel devices on Unix systems.
@@ -126,7 +130,7 @@ impl TunnelDevice {
         self.dev.enabled(up).map_err(Error::ToggleDevice)
     }
 
-    fn get_name(&self) -> String {
-        self.dev.tun_name().unwrap()
+    fn get_name(&self) -> Result<String, Error> {
+        self.dev.tun_name().map_err(Error::GetDeviceName)
     }
 }
