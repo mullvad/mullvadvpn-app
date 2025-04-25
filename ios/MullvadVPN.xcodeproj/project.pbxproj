@@ -935,6 +935,7 @@
 		A9E0317A2ACB0AE70095D843 /* UIApplication+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E031792ACB0AE70095D843 /* UIApplication+Stubs.swift */; };
 		A9E0317F2ACC331C0095D843 /* TunnelStatusBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */; };
 		A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */; };
+		CEB1F64F2DBBB12100840AA5 /* libboringtun.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CEB1F64E2DBBB12100840AA5 /* libboringtun.a */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
@@ -2378,6 +2379,8 @@
 		A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerNegotiator.swift; sourceTree = "<group>"; };
 		A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatesTests.swift; sourceTree = "<group>"; };
 		A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNConnectionProtocol.swift; sourceTree = "<group>"; };
+		CEB1F64E2DBBB12100840AA5 /* libboringtun.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboringtun.a; path = "boringtun/target/aarch64-apple-ios/debug/libboringtun.a"; sourceTree = "<group>"; };
+		CEB1F6502DBBB1D700840AA5 /* wireguard_ffi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wireguard_ffi.h; path = boringtun/boringtun/src/wireguard_ffi.h; sourceTree = SOURCE_ROOT; };
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* String+AccountFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AccountFormatting.swift"; sourceTree = "<group>"; };
@@ -2613,6 +2616,7 @@
 				58FE25CE2AA72802003D1918 /* MullvadSettings.framework in Frameworks */,
 				58D223EA294C8F3C0029F5F8 /* MullvadTypes.framework in Frameworks */,
 				58D223C6294C8B970029F5F8 /* Operations.framework in Frameworks */,
+				CEB1F64F2DBBB12100840AA5 /* libboringtun.a in Frameworks */,
 				58153071294CBE8B00D1702E /* MullvadREST.framework in Frameworks */,
 				44A262452D6373C400085380 /* WireGuardKit in Frameworks */,
 				58D22422294C921B0029F5F8 /* MullvadLogging.framework in Frameworks */,
@@ -3482,6 +3486,7 @@
 		584F991F2902CBDD001F858D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CEB1F64E2DBBB12100840AA5 /* libboringtun.a */,
 				A9C75BC12C2D8C9E00B4CDF5 /* libmullvad_ios.a */,
 				A944F2712B8E02E800473F4C /* libmullvad_ios.a */,
 				01EF6F332B6A590700125696 /* libmullvad_api.a */,
@@ -3956,6 +3961,7 @@
 		58CE5E7A224146470008646E /* PacketTunnel */ = {
 			isa = PBXGroup;
 			children = (
+				CEB1F6502DBBB1D700840AA5 /* wireguard_ffi.h */,
 				58915D662A25F9F20066445B /* DeviceCheck */,
 				58CE5E7D224146470008646E /* Info.plist */,
 				58CE5E7E224146470008646E /* PacketTunnel.entitlements */,
@@ -7697,15 +7703,23 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = .;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/boringtun/target/aarch64-apple-ios/debug",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Packet Tunnel Development";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 5.0;
@@ -7719,11 +7733,16 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = .;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/boringtun/target/aarch64-apple-ios/debug",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8338,11 +8357,16 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = .;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/boringtun/target/aarch64-apple-ios/debug",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9185,11 +9209,16 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = .;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/boringtun/target/aarch64-apple-ios/debug",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
