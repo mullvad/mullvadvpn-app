@@ -76,6 +76,7 @@
               go
               gcc
               protoc-gen-grpc-java
+              gnumake
             ];
 
             shellHook = ''
