@@ -5,6 +5,5 @@
     android:widgetFeatures="reconfigurable"
     android:initialLayout="@layout/glance_default_loading_layout"
     android:minWidth="180dp"
-    android:minHeight="110dp"
-    tools:targetApi="28">
+    android:minHeight="110dp">
 </appwidget-provider>

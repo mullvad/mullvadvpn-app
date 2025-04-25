@@ -6,7 +6,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Suppress warning, just using queries tag is not enough for our all, we need access to all
     packages to allow the user to select apps for split tunneling -->
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- https://developer.android.com/guide/components/fg-service-types#system-exempted -->
@@ -80,9 +81,13 @@
                 <action android:name="net.mullvad.mullvadvpn.request_vpn_permission" />
             </intent-filter>
         </activity>
-        <activity android:name=".app.widget.WidgetSettingsActivity" android:exported="true">
+        <!-- To show the widget configuration screen -->
+        <activity
+            android:name=".app.widget.WidgetSettingsActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
         <!--
@@ -137,8 +142,10 @@
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
                        android:resource="@xml/provider_paths" />
         </provider>
-        <receiver android:name=".receiver.LocaleChangedBroadcastReceiver"
-                  android:exported="false">
+
+        <receiver
+            android:name=".receiver.LocaleChangedBroadcastReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
@@ -184,14 +191,8 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_settings_info" />
         </receiver>
-        <receiver tools:ignore="MissingClass" android:name=".app.widget.DnsContentBlockersWidgetReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/app_widget_content_blockers_info" />
-        </receiver>
+        <receiver
+            android:name=".receiver.WidgetActionsReceiver"
+            android:exported="false" />
     </application>
 </manifest>

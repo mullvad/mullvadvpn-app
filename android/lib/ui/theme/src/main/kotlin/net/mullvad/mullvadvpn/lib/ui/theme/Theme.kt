@@ -59,7 +59,7 @@ private val lightColorScheme =
         surfaceDim = ColorLightTokens.SurfaceDim,
     )
 
-private val darkColorScheme =
+val darkColorScheme =
     darkColorScheme(
         primary = ColorDarkTokens.Primary,
         onPrimary = ColorDarkTokens.OnPrimary,
