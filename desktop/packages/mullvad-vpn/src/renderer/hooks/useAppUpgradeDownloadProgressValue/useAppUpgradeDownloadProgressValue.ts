@@ -11,7 +11,7 @@ export const useAppUpgradeDownloadProgressValue = () => {
   const getValueError = useGetValueError();
   const hasAppUpgradeError = useHasAppUpgradeError();
   const hasAppUpgradeVerifiedInstallerPath = useHasAppUpgradeVerifiedInstallerPath();
-  const lastProgress = useAppUpgradeLastProgress();
+  const { lastProgress } = useAppUpgradeLastProgress();
 
   if (hasAppUpgradeError) {
     return getValueError();
