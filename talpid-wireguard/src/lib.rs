@@ -785,7 +785,7 @@ impl WireguardMonitor {
     async fn open_wireguard_go_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        #[cfg(unix)] tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(unix)] tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         #[cfg(target_os = "android")] route_manager: RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
         #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
