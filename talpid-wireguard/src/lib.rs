@@ -39,6 +39,9 @@ use tokio::sync::Mutex as AsyncMutex;
 #[cfg(feature = "boringtun")]
 mod boringtun;
 
+//#[cfg(not(feature = "boringtun"))]
+mod wireguard_go;
+
 /// WireGuard config data-types
 pub mod config;
 mod connectivity;
@@ -46,8 +49,6 @@ mod ephemeral;
 mod logging;
 mod obfuscation;
 mod stats;
-#[cfg(wireguard_go)]
-mod wireguard_go;
 #[cfg(target_os = "linux")]
 pub(crate) mod wireguard_kernel;
 #[cfg(windows)]
@@ -56,7 +57,6 @@ mod wireguard_nt;
 #[cfg(not(target_os = "android"))]
 mod mtu_detection;
 
-#[cfg(wireguard_go)]
 use self::wireguard_go::WgGoTunnel;
 
 type TunnelType = Box<dyn Tunnel>;
@@ -432,6 +432,7 @@ impl WireguardMonitor {
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
+        #[cfg(feature = "boringtun")]
         let tunnel = args
             .runtime
             .block_on(Self::open_boringtun_tunnel(
@@ -442,17 +443,18 @@ impl WireguardMonitor {
             ))
             .map(Box::new)? as Box<dyn Tunnel>;
 
-        // let tunnel = args.runtime.block_on(Self::open_wireguard_go_tunnel(
-        //     &config,
-        //     log_path,
-        //     args.tun_provider.clone(),
-        //     args.route_manager,
-        //     // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
-        //     // that we only allows traffic to/from the gateway. This is only needed on Android
-        //     // since we lack a firewall there.
-        //     should_negotiate_ephemeral_peer,
-        //     cancel_receiver,
-        // ))?;
+        #[cfg(not(feature = "boringtun"))]
+        let tunnel = args.runtime.block_on(Self::open_wireguard_go_tunnel(
+            &config,
+            log_path,
+            args.tun_provider.clone(),
+            args.route_manager,
+            // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
+            // that we only allows traffic to/from the gateway. This is only needed on Android
+            // since we lack a firewall there.
+            should_negotiate_ephemeral_peer,
+            cancel_receiver,
+        ))?;
 
         let iface_name = tunnel.get_interface_name();
         let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));

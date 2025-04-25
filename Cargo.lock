@@ -444,6 +444,7 @@ dependencies = [
 [[package]]
 name = "boringtun"
 version = "0.6.0"
+source = "git+https://github.com/mullvad/boringtun?rev=cb7bf9eb68217658029fdb99b7c2c8e465977fd1#cb7bf9eb68217658029fdb99b7c2c8e465977fd1"
 dependencies = [
  "aead",
  "base64 0.13.1",

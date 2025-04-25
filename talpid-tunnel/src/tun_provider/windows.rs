@@ -71,7 +71,7 @@ impl WindowsTun {
         self.get_name()
     }
 
-    pub fn into_tun_lol(self) -> AsyncDevice {
+    pub fn into_inner(self) -> AsyncDevice {
         AsyncDevice::new(self.0.dev).unwrap()
     }
 }

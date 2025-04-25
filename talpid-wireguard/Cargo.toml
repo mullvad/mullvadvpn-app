@@ -43,9 +43,9 @@ tokio-stream = { version = "0.1", features = ["io-util"] }
 [dependencies.boringtun]
 optional = true
 features = ["device"]
-path = "../../boringtun/boringtun"
-# git = "https://github.com/mullvad/boringtun"
-# rev = "252229be89e9c97db9e28c2dc943d331c70e1c37"
+#path = "../../boringtun/boringtun"
+git = "https://github.com/mullvad/boringtun"
+rev = "cb7bf9eb68217658029fdb99b7c2c8e465977fd1"
 # branch = "tokio"
 
 [target.'cfg(unix)'.dependencies]

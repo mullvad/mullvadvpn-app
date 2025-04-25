@@ -1,5 +1,3 @@
-#![allow(dead_code)] // TODO: remove me
-
 #[cfg(target_os = "android")]
 use super::config;
 #[cfg(target_os = "android")]

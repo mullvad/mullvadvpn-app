@@ -52,7 +52,7 @@ impl BoringTun {
             }
             #[cfg(windows)]
             {
-                tun.into_tun_lol()
+                tun.into_inner()
             }
         };
 
