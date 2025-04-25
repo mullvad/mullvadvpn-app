@@ -16,6 +16,20 @@ PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
 $REPO_ROOT/scripts/utils/gh-ready-check
 source $REPO_ROOT/scripts/utils/log
 
+WAIT="false"
+
+for argument in "$@"; do
+    case "$argument" in
+        --wait)
+          WAIT="true"
+          ;;
+        *)
+            log_error "Unknown option \"$argument\""
+            exit 1
+            ;;
+    esac
+done
+
 function verify_repository_versions {
   print_versions_args=( --staging )
 
@@ -42,7 +56,34 @@ function verify_repository_versions {
   fi
 }
 
+function wait_for_workflow_result {
+  log_header "Waiting workflow result..."
+  sleep 30 # Sleep to allow the workflow run to start
+
+  while true; do
+    run=$(gh run list --workflow desktop-e2e.yml --branch "$PRODUCT_VERSION" --limit 1 --json conclusion,status,updatedAt,url | jq --exit-status '.[0]')
+
+    status=$(echo "$run" | jq --exit-status --raw-output '.status')
+    echo "Status: $status"
+    if [[ "$status" != "in_progress" ]] && [[ "$status" != "queued" ]]; then
+      if echo "$run" | jq --exit-status '.conclusion == "success"' > /dev/null; then
+        log_success "Workflow run successfull"
+        break
+      else
+        log_error "Workflow failed"
+        exit 1
+      fi
+    fi
+
+    sleep 60
+  done
+}
+
 verify_repository_versions
 gh workflow run desktop-e2e.yml --ref "$PRODUCT_VERSION" \
     -f oses="fedora41 ubuntu2404 windows11 macos15" \
     -f tests="test_quantum_resistant_tunnel test_ui_tunnel_settings"
+
+if [[ "$WAIT" == "true" ]]; then
+  wait_for_workflow_result
+fi
