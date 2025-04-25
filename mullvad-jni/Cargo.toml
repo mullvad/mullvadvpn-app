@@ -13,6 +13,7 @@ workspace = true
 [features]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override", "mullvad-daemon/api-override"]
+boringtun = ["mullvad-daemon/boringtun"]
 
 [lib]
 crate-type = ["cdylib"]
