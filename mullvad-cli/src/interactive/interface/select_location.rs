@@ -6,9 +6,8 @@ use crate::interactive::component::{Component, Frame};
 use crossterm::event::{Event, KeyCode, KeyEvent};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
-    relay_constraints::{
-        Constraint, GeographicLocationConstraint, LocationConstraint, RelaySettings,
-    },
+    constraints::Constraint,
+    relay_constraints::{GeographicLocationConstraint, LocationConstraint, RelaySettings},
     relay_list::{Relay, RelayListCity, RelayListCountry},
 };
 use parking_lot::Mutex;

@@ -43,9 +43,8 @@ impl<T: Component> TunnelStateProvider<T> {
 
         while let Some(event) = rpc.events_listen().await?.next().await {
             if let DaemonEvent::TunnelState(state) = event? {
-                if let Ok(tunnel_state) = TunnelState::try_from(state) {
-                    let _ = sender.send(tunnel_state);
-                }
+                let Ok(tunnel_state) = TunnelState::try_from(state);
+                let _ = sender.send(tunnel_state);
             }
         }
 

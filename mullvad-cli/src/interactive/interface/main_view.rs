@@ -112,7 +112,10 @@ impl MainView {
     fn connection_details(state: &TunnelState) -> impl Widget {
         let mut list_items = Vec::new();
 
-        if let TunnelState::Connected { endpoint, location } = state {
+        if let TunnelState::Connected {
+            endpoint, location, ..
+        } = state
+        {
             list_items.push(ListItem::new(format!("{:?}", endpoint.tunnel_type)));
             list_items.push(ListItem::new(format!("In: {}", endpoint.endpoint.address)));
 
