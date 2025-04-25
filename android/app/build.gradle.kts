@@ -271,7 +271,8 @@ cargo {
     val isReleaseBuild = isReleaseBuild()
     val enableApiOverride =
         !isReleaseBuild || isDevBuild(localProperties) || isAlphaBuild(localProperties)
-    module = repoRootPath
+    val enableBoringTun = localProperties.getProperty("ENABLE_BORING_TUN").toBoolean() == true
+        module = repoRootPath
     libname = "mullvad-jni"
     // All available targets:
     // https://github.com/mozilla/rust-android-gradle/tree/master?tab=readme-ov-file#targets
@@ -290,6 +291,9 @@ cargo {
     features {
         if (enableApiOverride) {
             defaultAnd(arrayOf("api-override"))
+        }
+        if (enableBoringTun) {
+            defaultAnd(arrayOf("boringtun"))
         }
     }
     targetIncludes = arrayOf("libmullvad_jni.so")
