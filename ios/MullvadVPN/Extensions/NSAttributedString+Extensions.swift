@@ -27,7 +27,7 @@ extension NSAttributedString {
             if stringIndex % 2 == 0 {
                 attributes[.font] = options.font
             } else {
-                attributes[.font] = options.boldFont
+                attributes[.font] = options.font.withWeight(.bold)
                 attributes.merge(applyEffect?(.bold, string) ?? [:], uniquingKeysWith: { $1 })
             }
 

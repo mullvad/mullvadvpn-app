@@ -60,12 +60,12 @@ class LatestChangesNotificationProvider: NotificationProvider, InAppNotification
                 value: "**Tap here** to see what’s new.",
                 comment: ""
             ),
-            options: MarkdownStylingOptions(font: UIFont.preferredFont(forTextStyle: .body)),
-            applyEffect: { markdownType, _ in
-                guard case .bold = markdownType else { return [:] }
-                return [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
-            }
-        )
+            options: MarkdownStylingOptions(
+                font: .preferredFont(forTextStyle: .body)
+            )
+        ) { _, _ in
+            [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
+        }
     }
 
     private func createCloseButtonAction() -> InAppNotificationAction {
