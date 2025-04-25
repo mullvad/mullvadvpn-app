@@ -46,7 +46,7 @@ features = ["device"]
 #path = "../../boringtun/boringtun"
 git = "https://github.com/mullvad/boringtun"
 rev = "cb7bf9eb68217658029fdb99b7c2c8e465977fd1"
-# branch = "tokio"
+# branch = "mullvad"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.23"
