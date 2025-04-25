@@ -558,6 +558,16 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         )
     }
 
+    func updateSettings(_ newSettings: LatestTunnelSettings, completionHandler: (@Sendable () -> Void)? = nil) {
+        scheduleSettingsUpdate(
+            taskName: "Update tunnel settings",
+            modificationBlock: { settings in
+                settings = newSettings
+            },
+            completionHandler: completionHandler
+        )
+    }
+
     func refreshRelayCacheTracker() throws {
         try relayCacheTracker.refreshCachedRelays()
     }

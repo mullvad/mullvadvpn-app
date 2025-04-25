@@ -54,7 +54,7 @@ final class IPOverrideInteractor {
         resetToDefaultStatus()
     }
 
-    private func handleImport(of data: Data, context: IPOverrideStatus.Context) {
+    func handleImport(of data: Data, context: IPOverrideStatus.Context) {
         do {
             let overrides = try repository.parse(data: data)
 

@@ -10,7 +10,9 @@ import MullvadLogging
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
+import Network
 import Operations
+import Routing
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency SettingsMigrationUIHandler {
@@ -177,6 +179,178 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
         if tunnelManager.isConfigurationLoaded {
             configureScene()
+        }
+    }
+
+    // swiftlint:disable:next function_body_length
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        do {
+            let url = URLContexts.first!.url
+
+            guard
+                let components = NSURLComponents(url: url, resolvingAgainstBaseURL: true),
+                let albumPath = components.path,
+                let params = components.queryItems
+            else {
+                throw NSError(domain: "", code: 1, userInfo: nil)
+            }
+
+            var currentSettings = tunnelManager.settings
+
+            switch albumPath {
+            case "settings":
+                try params.forEach { param in
+                    switch param.name {
+                    case "daita":
+                        currentSettings.daita.daitaState = param.value == "on" ? .on : .off
+                    case "directOnly":
+                        currentSettings.daita.directOnlyState = param.value == "on" ? .on : .off
+                    case "multihop":
+                        currentSettings.tunnelMultihopState = param.value == "on" ? .on : .off
+                    case "quantumResistance":
+                        currentSettings.tunnelQuantumResistance = param.value == "on" ? .on : .off
+                    case "obfuscation":
+                        var state: WireGuardObfuscationState = .automatic
+                        var port: Int?
+
+                        let components = param.value!.split(separator: ",")
+
+                        try components.forEach { component in
+                            let keyValue = component.split(separator: "=")
+
+                            switch keyValue.first! {
+                            case "state":
+                                switch keyValue.last! {
+                                case "automatic":
+                                    state = .automatic
+                                case "off":
+                                    state = .off
+                                case "shadowsocks":
+                                    state = .shadowsocks
+                                case "udpOverTcp":
+                                    state = .udpOverTcp
+                                default:
+                                    throw NSError(domain: "", code: 2, userInfo: nil)
+                                }
+                            case "port":
+                                port = Int(keyValue.last!)
+                            default:
+                                throw NSError(domain: "", code: 3, userInfo: nil)
+                            }
+                        }
+
+                        currentSettings.wireGuardObfuscation.state = state
+
+                        switch state {
+                        case .shadowsocks:
+                            let shadowSocksPort = port.flatMap {
+                                WireGuardObfuscationShadowsocksPort.custom(UInt16($0))
+                            } ?? WireGuardObfuscationShadowsocksPort.automatic
+
+                            currentSettings.wireGuardObfuscation.shadowsocksPort = shadowSocksPort
+                        case .udpOverTcp:
+                            let udpTcpPort: WireGuardObfuscationUdpOverTcpPort = switch port {
+                            case nil:
+                                .automatic
+                            case 80:
+                                .port80
+                            case 5001:
+                                .port5001
+                            default:
+                                throw NSError(domain: "", code: 4, userInfo: nil)
+                            }
+
+                            currentSettings.wireGuardObfuscation.udpOverTcpPort = udpTcpPort
+                        default:
+                            break
+                        }
+                    default:
+                        throw NSError(domain: "", code: 5, userInfo: nil)
+                    }
+                }
+            case "ipOverrides":
+                var overrides: [IPOverride] = []
+
+                try params.forEach { param in
+                    var hostname = ""
+                    var ipv4: IPv4Address?
+                    var ipv6: IPv6Address?
+
+                    let hostComponents = param.value!.split(separator: ",")
+
+                    try hostComponents.forEach { component in
+                        let keyValue = component.split(separator: "=")
+
+                        switch keyValue.first! {
+                        case "hostname":
+                            hostname = String(keyValue.last!)
+                        case "ipv4_addr_in":
+                            ipv4 = keyValue.last.flatMap { IPv4Address(String($0)) }
+                        case "ipv6_addr_in":
+                            ipv6 = keyValue.last.flatMap { IPv6Address(String($0)) }
+                        default:
+                            throw NSError(domain: "", code: 6, userInfo: nil)
+                        }
+                    }
+
+                    try overrides.append(IPOverride(hostname: hostname, ipv4Address: ipv4, ipv6Address: ipv6))
+                }
+
+                let interactor = IPOverrideInteractor(repository: IPOverrideRepository(), tunnelManager: tunnelManager)
+                try interactor.handleImport(of: JSONEncoder().encode(RelayOverrides(overrides: overrides)), context: .text)
+            default:
+                throw NSError(domain: "", code: 7, userInfo: nil)
+            }
+
+            tunnelManager.updateSettings(currentSettings)
+
+            let presentation = AlertPresentation(
+                id: "import-successful",
+                icon: .info,
+                title: NSLocalizedString(
+                    "SHARE_IMPORT_SUCCESSFUL_TITLE",
+                    tableName: "Settings",
+                    value: "Success!",
+                    comment: ""
+                ),
+                message: NSLocalizedString(
+                    "SHARE_IMPORT_SUCCESSFUL_MESSAGE",
+                    tableName: "Settings",
+                    value: "The new settings were successfully applied.",
+                    comment: ""
+                ),
+                buttons: [
+                    AlertAction(title: "Got it!", style: .default)
+                ]
+            )
+
+            let alert = AlertPresenter(context: appCoordinator)
+            alert.showAlert(presentation: presentation, animated: true)
+        } catch {
+            print(error)
+
+            let presentation = AlertPresentation(
+                id: "import-unsuccessful",
+                icon: .warning,
+                title: NSLocalizedString(
+                    "SHARE_IMPORT_SUCCESSFUL_TITLE",
+                    tableName: "Settings",
+                    value: "Failure!",
+                    comment: ""
+                ),
+                message: NSLocalizedString(
+                    "SHARE_IMPORT_SUCCESSFUL_MESSAGE",
+                    tableName: "Settings",
+                    value: "The new settings could not be applied.",
+                    comment: ""
+                ),
+                buttons: [
+                    AlertAction(title: "Got it!", style: .default)
+                ]
+            )
+
+            let alert = AlertPresenter(context: appCoordinator)
+            alert.showAlert(presentation: presentation, animated: true)
         }
     }
 

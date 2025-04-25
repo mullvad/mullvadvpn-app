@@ -11,6 +11,10 @@ import Network
 public struct RelayOverrides: Codable, Sendable {
     public let overrides: [IPOverride]
 
+    public init(overrides: [IPOverride]) {
+        self.overrides = overrides
+    }
+
     private enum CodingKeys: String, CodingKey {
         case overrides = "relay_overrides"
     }
