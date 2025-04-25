@@ -266,7 +266,8 @@ cargo {
         }
     prebuiltToolchains = true
     targetDirectory = "$repoRootPath/target"
-    features {
+    fdr
+    leatures {
         if (enableApiOverride) {
             defaultAnd(arrayOf("api-override"))
         }
