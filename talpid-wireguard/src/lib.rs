@@ -57,8 +57,6 @@ mod wireguard_nt;
 #[cfg(not(target_os = "android"))]
 mod mtu_detection;
 
-use self::wireguard_go::WgGoTunnel;
-
 type TunnelType = Box<dyn Tunnel>;
 
 type Result<T> = std::result::Result<T, Error>;
@@ -787,16 +785,17 @@ impl WireguardMonitor {
         #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
         #[cfg(target_os = "android")] gateway_only: bool,
         #[cfg(target_os = "android")] cancel_receiver: connectivity::CancelReceiver,
-    ) -> Result<WgGoTunnel> {
+    ) -> Result<wireguard_go::WgGoTunnel> {
         #[cfg(all(unix, not(target_os = "android")))]
         let routes = config.get_tunnel_destinations();
 
         #[cfg(all(unix, not(target_os = "android")))]
-        let tunnel = WgGoTunnel::start_tunnel(config, log_path, tun_provider, routes)
+        let tunnel = wireguard_go::WgGoTunnel::start_tunnel(config, log_path, tun_provider, routes)
             .map_err(Error::TunnelError)?;
 
         #[cfg(target_os = "windows")]
-        let tunnel = WgGoTunnel::start_tunnel(config, log_path, route_manager, setup_done_tx)
+        let tunnel =
+            wireguard_go::WgGoTunnel::start_tunnel(config, log_path, route_manager, setup_done_tx)
             .await
             .map_err(Error::TunnelError)?;
 
@@ -813,7 +812,7 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "android")]
         let tunnel = if let Some(exit_peer) = &config.exit_peer {
-            WgGoTunnel::start_multihop_tunnel(
+            wireguard_go::WgGoTunnel::start_multihop_tunnel(
                 &config,
                 exit_peer,
                 log_path,
@@ -824,7 +823,7 @@ impl WireguardMonitor {
             .await
             .map_err(Error::TunnelError)?
         } else {
-            WgGoTunnel::start_tunnel(
+            wireguard_go::WgGoTunnel::start_tunnel(
                 #[allow(clippy::needless_borrow)]
                 &config,
                 log_path,
