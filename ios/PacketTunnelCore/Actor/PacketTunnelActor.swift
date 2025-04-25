@@ -14,6 +14,7 @@ import MullvadSettings
 import MullvadTypes
 import NetworkExtension
 import WireGuardKitTypes
+import BoringtunWrapper
 
 /**
  Packet tunnel state machine implemented as an actor.
@@ -168,6 +169,9 @@ extension PacketTunnelActor {
     private func start(options: StartOptions) async {
         guard case .initial = state else { return }
 
+        let wrapper = BoringTunWrapper()
+        wrapper.createTunnel()
+        
         logger.debug("\(options.logFormat())")
 
         // Start observing default network path to determine network reachability.

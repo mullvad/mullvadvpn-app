@@ -1,0 +1,5 @@
+framework module BoringTunProxy {
+   header "wireguard_ffi.h"
+   link "libboringtun"
+   export *
+}

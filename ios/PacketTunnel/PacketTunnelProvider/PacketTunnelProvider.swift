@@ -46,6 +46,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         providerLogger = Logger(label: "PacketTunnelProvider")
         providerLogger.info("Starting new packet tunnel")
 
+        BoringTunWrapper().createTunnel()
+
         let containerURL = ApplicationConfiguration.containerURL
         let addressCache = REST.AddressCache(canWriteToCache: false, cacheDirectory: containerURL)
         addressCache.loadFromFile()

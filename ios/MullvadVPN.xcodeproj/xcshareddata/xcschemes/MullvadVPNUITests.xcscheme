@@ -28,6 +28,17 @@
                ReferencedContainer = "container:MullvadVPN.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A9A625982DBBB83D0052E20D"
+               BuildableName = "BoringtunWrapperTests.xctest"
+               BlueprintName = "BoringtunWrapperTests"
+               ReferencedContainer = "container:MullvadVPN.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
