@@ -13,6 +13,7 @@ on:
       commit_hash:
         type: string
         required: false
+  push:
 
 permissions: {}
 
@@ -33,8 +34,8 @@ jobs:
     outputs:
       COMMIT_HASH: ${{ steps.hash.outputs.commit_hash }}
 
-  build-fdroid-app:
-    name: Build fdroid container
+  build-using-container:
+    name: Build fdroid variant using container
     runs-on: ubuntu-latest
     needs: set-up-env
     steps:
@@ -54,13 +55,13 @@ jobs:
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
-          name: container-app
+          name: apk-container
           path: android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
           if-no-files-found: error
           retention-days: 7
 
-  build-fdroid-app-server:
-    name: Build fdroid with fdroid server
+  build-using-fdroidserver:
+    name: Build fdroid variant using fdroidserver
     runs-on: ubuntu-latest
     needs: set-up-env
     steps:
@@ -102,35 +103,62 @@ jobs:
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
-          name: fdroidserver-app
+          name: apk-fdroidserver
           path: |
             build/net\.mullvad\.mullvadvpn/android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  build-using-nix:
+    name: Build fdroid variant using nix
+    runs-on: ubuntu-24.04
+    needs: set-up-env
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Build app
+        working-directory: android
+        run: nix develop -c ./gradlew assembleOssProdFdroid
+
+      - name: Upload apks
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-nix
+          path: android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
           if-no-files-found: error
           retention-days: 7
 
   compare-builds:
     name: Check builds
     runs-on: ubuntu-latest
-    needs: [build-fdroid-app, build-fdroid-app-server]
+    needs: [build-using-container, build-using-fdroidserver, build-using-nix]
     steps:
-      - name: Download container apk
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: container-app
-          path: container
+          path: artifacts
+          pattern: apk-*
+          merge-multiple: true
 
-      - name: Download server apk
-        uses: actions/download-artifact@v4
-        with:
-          name: fdroidserver-app
-          path: fdroidserver
+      - name: List files
+        working-directory: ./artifacts
+        run: ls -R
 
       - name: Print checksums
-        run: |
-          echo "Container build checksum"
-          md5sum container/app-oss-prod-fdroid-unsigned.apk
-          echo "Fdroidserver build checksum"
-          md5sum fdroidserver/app-oss-prod-fdroid-unsigned.apk
+        working-directory: ./artifacts
+        run: sha256sum *
 
       - name: Compare files
-        run: diff container/app-oss-prod-fdroid-unsigned.apk fdroidserver/app-oss-prod-fdroid-unsigned.apk
+        working-directory: ./artifacts
+        run: >-
+          diff3
+          container/app-oss-prod-fdroid-unsigned.apk
+          fdroidserver/app-oss-prod-fdroid-unsigned.apk
+          nix/app-oss-prod-fdroid-unsigned.apk

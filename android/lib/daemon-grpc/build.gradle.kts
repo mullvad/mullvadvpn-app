@@ -42,8 +42,23 @@ android {
 protobuf {
     protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
     plugins {
-        create("java") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
-        create("grpc") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
+        val useSystemGrpcJava =
+            providers.gradleProperty("use_system_grpc_java").orNull?.toBooleanStrictOrNull()
+                ?: false
+        create("java") {
+            if (useSystemGrpcJava) {
+                path = "protoc-gen-grpc-java"
+            } else {
+                artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
+            }
+        }
+        create("grpc") {
+            if (useSystemGrpcJava) {
+                path = "protoc-gen-grpc-java"
+            } else {
+                artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
+            }
+        }
         create("grpckt") { artifact = libs.plugins.grpc.protoc.gen.grpc.kotlin.get().toString() }
     }
     generateProtoTasks {
