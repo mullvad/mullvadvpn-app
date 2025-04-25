@@ -25,6 +25,7 @@ export const createIpc = (util: MockedTestUtils) => {
     handle: {
       appUpgrade: () => createMockHandle('appUpgrade'),
       appUpgradeAbort: () => createMockHandle('appUpgradeAbort'),
+      appUpgradeInstallerStart: () => createMockHandle('appUpgradeInstallerStart'),
     },
     send: {
       appUpgradeEventAborted: () =>
@@ -50,10 +51,6 @@ export const createIpc = (util: MockedTestUtils) => {
         createMockResponseAppUpgradeEvent({
           type: 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER',
         }),
-      appUpgradeEventStartingInstaller: () =>
-        createMockResponseAppUpgradeEvent({
-          type: 'APP_UPGRADE_STATUS_STARTING_INSTALLER',
-        }),
       appUpgradeEventStartedInstaller: () =>
         createMockResponseAppUpgradeEvent({
           type: 'APP_UPGRADE_STATUS_STARTED_INSTALLER',
@@ -66,22 +63,32 @@ export const createIpc = (util: MockedTestUtils) => {
         createMockResponse<AppUpgradeError>('app-upgradeError', error),
       upgradeVersion: (data: IAppVersionInfo) =>
         createMockResponse<IAppVersionInfo>('upgradeVersion-', data),
+      windowFocus: (value: boolean) => createMockResponse<boolean>('window-focus', value),
     },
   };
 };
 
 export const createSelectors = (page: Page) => ({
-  downloadAndInstallButton: () =>
+  downloadAndLaunchInstallerButton: () =>
     page.getByRole('button', {
       name: 'Download & install',
     }),
+  downloadProgressBar: () => page.getByRole('progressbar'),
   installButton: () =>
     page.getByRole('button', {
       name: 'Install update',
     }),
-  cancelButton: () =>
+  manualDownloadButton: () =>
     page.getByRole('button', {
-      name: 'Cancel',
+      name: 'Manual download',
+    }),
+  pauseButton: () =>
+    page.getByRole('button', {
+      name: 'Pause',
+    }),
+  resumeButton: () =>
+    page.getByRole('button', {
+      name: 'Resume',
     }),
   retryButton: () =>
     page.getByRole('button', {
@@ -91,7 +98,10 @@ export const createSelectors = (page: Page) => ({
     page.getByRole('button', {
       name: 'Report a problem',
     }),
-  downloadProgressBar: () => page.getByRole('progressbar'),
+  startingInstallerButton: () =>
+    page.getByRole('button', {
+      name: ' Starting installer...',
+    }),
 });
 
 export const mockData = {
@@ -112,9 +122,9 @@ export const createHelpers = (page: Page, util: MockedTestUtils) => {
   const ipc = createIpc(util);
 
   const startAppUpgrade = async () => {
-    const downloadAndInstallButton = selectors.downloadAndInstallButton();
+    const downloadAndLaunchInstallerButton = selectors.downloadAndLaunchInstallerButton();
 
-    await resolveIpcHandle(ipc.handle.appUpgrade(), downloadAndInstallButton.click());
+    await resolveIpcHandle(ipc.handle.appUpgrade(), downloadAndLaunchInstallerButton.click());
 
     await ipc.send.appUpgradeEventDownloadStarted();
   };
