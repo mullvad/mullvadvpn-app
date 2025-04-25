@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -eu
+
+BUILDSERVER_BUILDUSER="build"
+
+function run_on_build_server {
+  # shellcheck disable=SC2029
+  ssh "$BUILD_SERVER_HOST" "$@"
+}
+
+function run_on_build_server_as_build_user {
+  run_on_build_server sudo -i -u "$BUILDSERVER_BUILDUSER" "$@"
+}
