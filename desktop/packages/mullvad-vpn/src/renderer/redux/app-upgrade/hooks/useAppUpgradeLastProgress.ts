@@ -1,5 +1,9 @@
 import { useSelector } from '../../store';
+import { setLastProgress } from '../actions';
 
 export const useAppUpgradeLastProgress = () => {
-  return useSelector((state) => state.appUpgrade.lastProgress);
+  return {
+    lastProgress: useSelector((state) => state.appUpgrade.lastProgress),
+    setLastProgress,
+  };
 };
