@@ -23,6 +23,7 @@ typedef uint8_t SwiftAccessMethodKind;
 enum TunnelObfuscatorProtocol {
   UdpOverTcp = 0,
   Shadowsocks,
+  Quic,
 };
 typedef uint8_t TunnelObfuscatorProtocol;
 
