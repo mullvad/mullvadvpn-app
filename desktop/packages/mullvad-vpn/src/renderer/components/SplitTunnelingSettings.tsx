@@ -41,7 +41,6 @@ import {
   StyledPageCover,
   StyledSearchBar,
   StyledSpinnerRow,
-  WideSmallButton,
 } from './SplitTunnelingSettingsStyles';
 import Switch from './Switch';
 
@@ -582,9 +581,11 @@ function MacOsSplitTunnelingAvailability({
       </HeaderSubTitle>
       <Flex $flexDirection="column" $gap="small">
         <Flex $flexDirection="column" $gap="big">
-          <WideSmallButton onClick={showFullDiskAccessSettings}>
-            {messages.pgettext('split-tunneling-view', 'Open System Settings')}
-          </WideSmallButton>
+          <Button onClick={showFullDiskAccessSettings}>
+            <Button.Text>
+              {messages.pgettext('split-tunneling-view', 'Open System Settings')}
+            </Button.Text>
+          </Button>
           <FootnoteMini color={Colors.white60}>
             {messages.pgettext(
               'split-tunneling-view',
@@ -592,9 +593,11 @@ function MacOsSplitTunnelingAvailability({
             )}
           </FootnoteMini>
         </Flex>
-        <WideSmallButton onClick={restartDaemon}>
-          {messages.pgettext('split-tunneling-view', 'Restart Mullvad Service')}
-        </WideSmallButton>
+        <Button onClick={restartDaemon}>
+          <Button.Text>
+            {messages.pgettext('split-tunneling-view', 'Restart Mullvad Service')}
+          </Button.Text>
+        </Button>
       </Flex>
     </Flex>
   );
