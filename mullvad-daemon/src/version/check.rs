@@ -770,6 +770,7 @@ mod test {
                 },
                 beta: None,
             },
+            #[cfg(update)]
             metadata_version: 0,
         }
     }
