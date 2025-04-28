@@ -1,4 +1,3 @@
-import { DeprecatedColors } from '../../../foundations';
 import { LabelTinyProps, TitleMedium } from '../../typography';
 import { useListItem } from '../ListItemContext';
 
@@ -8,7 +7,5 @@ export const ListItemLabel = <E extends React.ElementType = 'span'>(
   props: ListItemLabelProps<E>,
 ) => {
   const { disabled } = useListItem();
-  return (
-    <TitleMedium color={disabled ? DeprecatedColors.white40 : DeprecatedColors.white} {...props} />
-  );
+  return <TitleMedium color={disabled ? 'white40' : 'white100'} {...props} />;
 };

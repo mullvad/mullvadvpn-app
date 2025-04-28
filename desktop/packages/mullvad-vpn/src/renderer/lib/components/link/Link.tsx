@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { DeprecatedColors, Radius } from '../../foundations';
+import { Colors, colors, Radius } from '../../foundations';
 import { Text, TextProps } from '../typography';
 import { LinkIcon } from './components';
 
@@ -10,7 +10,7 @@ export type LinkProps<T extends React.ElementType = 'a'> = TextProps<T> & {
 };
 
 const StyledText = styled(Text)<{
-  $hoverColor: DeprecatedColors | undefined;
+  $hoverColor: Colors | undefined;
 }>((props) => ({
   background: 'transparent',
   cursor: 'default',
@@ -24,15 +24,15 @@ const StyledText = styled(Text)<{
   },
   '&&:focus-visible': {
     borderRadius: Radius.radius4,
-    outline: `2px solid ${DeprecatedColors.white}`,
+    outline: `2px solid ${colors.white60}`,
     outlineOffset: '2px',
   },
 }));
 
-const getHoverColor = (color: DeprecatedColors | undefined) => {
+const getHoverColor = (color: Colors | undefined) => {
   switch (color) {
-    case DeprecatedColors.white60:
-      return DeprecatedColors.white;
+    case 'white60':
+      return 'white100';
     default:
       return undefined;
   }
