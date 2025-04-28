@@ -9,7 +9,6 @@ import { useAppContext } from '../context';
 import { formatAccountNumber } from '../lib/account';
 import useActions from '../lib/actionsHook';
 import { Box, Button, Flex, Icon, Label, LabelTiny, Spinner, TitleMedium } from '../lib/components';
-import { DeprecatedColors } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
 import { IconBadge } from '../lib/icon-badge';
 import accountActions from '../redux/account/actions';
@@ -370,7 +369,7 @@ class Login extends React.Component<IProps, IState> {
   private createFooter() {
     return (
       <Flex $flexDirection="column" $gap="small">
-        <LabelTiny color={DeprecatedColors.white60}>
+        <LabelTiny color="white60">
           {messages.pgettext('login-view', 'Don’t have an account number?')}
         </LabelTiny>
         <Button onClick={this.props.createNewAccount} disabled={!this.allowCreateAccount()}>
@@ -448,7 +447,7 @@ function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdo
                 accountNumber: label,
               },
             )}>
-            <TitleMedium color={DeprecatedColors.blue80}>{label}</TitleMedium>
+            <TitleMedium color="blue80">{label}</TitleMedium>
           </StyledAccountDropdownItemButton>
           <Box $height="48px" $width="48px" center>
             <StyledAccountDropdownItemIconButton

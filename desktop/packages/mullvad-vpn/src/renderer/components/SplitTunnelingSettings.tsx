@@ -586,7 +586,7 @@ function MacOsSplitTunnelingAvailability({
               {messages.pgettext('split-tunneling-view', 'Open System Settings')}
             </Button.Text>
           </Button>
-          <FootnoteMini color={DeprecatedColors.white60}>
+          <FootnoteMini color="white60">
             {messages.pgettext(
               'split-tunneling-view',
               'Enabled "Full disk access" and still having issues?',
