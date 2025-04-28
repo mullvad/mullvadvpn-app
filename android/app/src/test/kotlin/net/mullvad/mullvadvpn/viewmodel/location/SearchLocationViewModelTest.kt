@@ -94,7 +94,7 @@ class SearchLocationViewModelTest {
         filteredRelayList.value = testCountries
 
         // Act, Assert
-        viewModel.uiState.test() {
+        viewModel.uiState.test {
             // Wait for first data
             assertIs<SearchLocationUiState.NoQuery>(awaitItem())
 

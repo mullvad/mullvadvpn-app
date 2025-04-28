@@ -382,6 +382,7 @@ dependencies {
     implementation(projects.lib.talpid)
     implementation(projects.lib.tv)
     implementation(projects.lib.ui.component)
+    implementation(projects.lib.ui.tag)
     implementation(projects.tile)
     implementation(projects.lib.theme)
     implementation(projects.service)

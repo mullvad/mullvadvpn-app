@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
 import java.time.ZonedDateTime
-import net.mullvad.mullvadvpn.compose.test.LOGIN_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown

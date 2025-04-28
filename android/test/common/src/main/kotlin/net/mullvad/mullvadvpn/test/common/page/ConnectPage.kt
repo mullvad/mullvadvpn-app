@@ -1,6 +1,11 @@
 package net.mullvad.mullvadvpn.test.common.page
 
 import androidx.test.uiautomator.By
+import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_ACCOUNT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
@@ -16,11 +21,11 @@ class ConnectPage internal constructor() : Page() {
     }
 
     fun clickSettings() {
-        uiDevice.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON)).click()
+        uiDevice.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON_TEST_TAG)).click()
     }
 
     fun clickAccount() {
-        uiDevice.findObjectWithTimeout(By.res(TOP_BAR_ACCOUNT_BUTTON)).click()
+        uiDevice.findObjectWithTimeout(By.res(TOP_BAR_ACCOUNT_BUTTON_TEST_TAG)).click()
     }
 
     fun clickSelectLocation() {
@@ -82,13 +87,5 @@ class ConnectPage internal constructor() : Page() {
                 VERY_LONG_TIMEOUT,
             )
             .text
-    }
-
-    companion object {
-        const val TOP_BAR_ACCOUNT_BUTTON = "top_bar_account_button"
-        const val TOP_BAR_SETTINGS_BUTTON = "top_bar_settings_button"
-        const val CONNECT_CARD_HEADER_TEST_TAG = "connect_card_header_test_tag"
-        const val SELECT_LOCATION_BUTTON_TEST_TAG = "select_location_button_test_tag"
-        const val CONNECT_BUTTON_TEST_TAG = "connect_button_test_tag"
     }
 }
