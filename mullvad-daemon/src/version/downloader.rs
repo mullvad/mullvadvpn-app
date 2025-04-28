@@ -1,12 +1,11 @@
 #![cfg(update)]
 
 use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpgradeEvent};
-use mullvad_update::app::{
-    AppDownloader, AppDownloaderParameters, DownloadError, HttpAppDownloader,
-};
+use mullvad_update::app::{bin_path, AppDownloader, AppDownloaderParameters, DownloadError};
 use rand::seq::SliceRandom;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
+use talpid_types::ErrorExt;
 use tokio::fs;
 use tokio::sync::broadcast;
 
@@ -28,7 +27,7 @@ pub enum Error {
     NoUrlFound,
 }
 
-type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub struct DownloaderHandle {
@@ -48,41 +47,58 @@ impl Drop for DownloaderHandle {
     }
 }
 
-impl DownloaderHandle {
-    /// Wait for the downloader to finish
-    pub async fn wait(&mut self) -> Result<PathBuf> {
-        let path = (&mut self.task).await?;
+impl std::future::Future for DownloaderHandle {
+    type Output = Result<PathBuf>;
+
+    fn poll(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Self::Output> {
+        let task = std::pin::Pin::new(&mut self.task);
+        let ready = futures::ready!(task.poll(cx))?;
         self.dropped_tx = None; // Prevent sending the aborted event after successful download
-        path
+        std::task::Poll::Ready(ready)
     }
 }
 
-pub fn spawn_downloader(
+pub fn spawn_downloader<D>(
     version: mullvad_update::version::Version,
     event_tx: broadcast::Sender<AppUpgradeEvent>,
-) -> DownloaderHandle {
+) -> DownloaderHandle
+where
+    D: AppDownloader + Send + 'static,
+    D: From<AppDownloaderParameters<ProgressUpdater>>,
+{
     DownloaderHandle {
-        task: tokio::spawn(start(version, event_tx.clone())),
+        task: tokio::spawn(start::<D>(version, event_tx.clone())),
         dropped_tx: Some(event_tx),
     }
 }
 
 /// Begin or resume download of `version`
-async fn start(
+async fn start<D>(
     version: mullvad_update::version::Version,
     event_tx: broadcast::Sender<AppUpgradeEvent>,
-) -> Result<PathBuf> {
+) -> Result<PathBuf>
+where
+    D: AppDownloader + Send + 'static,
+    D: From<AppDownloaderParameters<ProgressUpdater>>,
+{
     let url = select_cdn_url(&version.urls)
         .ok_or(Error::NoUrlFound)?
         .to_owned();
 
     log::info!("Downloading app version '{}' from {url}", version.version);
 
-    let download_dir = mullvad_paths::cache_dir()?.join("mullvad-update");
-    log::trace!("Download directory: {download_dir:?}");
-    fs::create_dir_all(&download_dir)
-        .await
-        .map_err(Error::CreateDownloadDir)?;
+    let download_dir = if cfg!(test) {
+        PathBuf::new()
+    } else {
+        create_download_dir().await.inspect_err(|err| {
+            log::error!("Failed to get download directory: {}", err.display_chain());
+            let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::GeneralError));
+        })?
+    };
+    let bin_path = bin_path(&version.version, &download_dir);
 
     let params = AppDownloaderParameters {
         app_version: version.version,
@@ -92,27 +108,48 @@ async fn start(
         app_sha256: version.sha256,
         cache_dir: download_dir,
     };
-    let mut downloader = HttpAppDownloader::from(params);
+    let mut downloader = D::from(params);
 
-    if let Err(download_err) = downloader.download_executable().await {
-        log::error!("Failed to download app: {download_err}");
+    let _ = event_tx.send(AppUpgradeEvent::DownloadStarting);
+    if let Err(err) = downloader.download_executable().await {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed));
-        return Err(download_err.into());
+        log::error!("{}", err.display_chain());
+        log::info!("Cleaning up download at '{bin_path:?}'",);
+        #[cfg(not(test))]
+        tokio::fs::remove_file(&bin_path)
+            .await
+            .expect("Removing download file");
+        return Err(err.into());
     };
-
     let _ = event_tx.send(AppUpgradeEvent::VerifyingInstaller);
-
-    if let Err(verify_err) = downloader.verify().await {
-        log::error!("Failed to verify downloaded app: {verify_err}");
+    if let Err(err) = downloader.verify().await {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::VerificationFailed));
-        return Err(verify_err.into());
+        log::error!("{}", err.display_chain());
+        log::info!("Cleaning up download at '{:?}'", bin_path);
+        #[cfg(not(test))]
+        tokio::fs::remove_file(&bin_path)
+            .await
+            .expect("Removing download file");
+        return Err(err.into());
     };
-
     let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
-    Ok(downloader.bin_path())
+
+    // Note that we cannot call `downloader.install()` here, as it must be done by the user process.
+    // Instead, the GUI is responsible for launching the installer.
+
+    Ok(bin_path)
 }
 
-struct ProgressUpdater {
+async fn create_download_dir() -> Result<PathBuf> {
+    let download_dir = mullvad_paths::cache_dir()?.join("mullvad-update");
+    log::trace!("Download directory: {download_dir:?}");
+    fs::create_dir_all(&download_dir)
+        .await
+        .map_err(Error::CreateDownloadDir)?;
+    Ok(download_dir)
+}
+
+pub struct ProgressUpdater {
     server: String,
     event_tx: broadcast::Sender<AppUpgradeEvent>,
     complete_frac: f32,
