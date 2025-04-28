@@ -5,7 +5,7 @@ use std::{
 };
 use tokio::task::JoinHandle;
 use tunnel_obfuscation::{
-    create_obfuscator, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
+    create_obfuscator, quic, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
 };
 
 mod ffi;
@@ -26,6 +26,14 @@ impl TunnelObfuscatorRuntime {
                 ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
                     shadowsocks_endpoint: peer,
                     wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
+                })
+            }
+            TunnelObfuscatorProtocol::Quic => {
+                ObfuscationSettings::Quic(quic::Settings {
+                    quic_endpoint: peer,
+                    wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
+                    // TODO
+                    hostname: "se-got-wg-881.relays.stagemole.eu".to_string(),
                 })
             }
         };

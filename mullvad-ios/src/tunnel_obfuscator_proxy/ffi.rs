@@ -11,6 +11,7 @@ static INIT_LOGGING: Once = Once::new();
 pub enum TunnelObfuscatorProtocol {
     UdpOverTcp = 0,
     Shadowsocks,
+    Quic,
 }
 
 #[unsafe(no_mangle)]

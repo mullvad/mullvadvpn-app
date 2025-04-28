@@ -2,8 +2,6 @@
 
 use async_trait::async_trait;
 use mullvad_masque_proxy::client::{Client, ClientConfig};
-#[cfg(any(target_os = "android", target_os = "linux"))]
-use std::os::fd::AsRawFd;
 use std::net::{Ipv4Addr, SocketAddr};
 use tokio::net::UdpSocket;
 
