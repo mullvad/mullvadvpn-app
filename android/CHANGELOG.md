@@ -21,6 +21,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2025.2] - 2025-04-28
+Identical to `android/2025.2-beta2`
+
+
 ## [android/2025.2-beta2] - 2025-04-15
 ### Fixed
 - Fix focus on TV devices when returning to connect screen from select location.
