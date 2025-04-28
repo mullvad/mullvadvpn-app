@@ -97,10 +97,6 @@ import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
 import net.mullvad.mullvadvpn.compose.preview.ConnectUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
-import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.CONNECT_CARD_HEADER_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
@@ -134,6 +130,10 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
 import net.mullvad.mullvadvpn.lib.theme.typeface.hostname
 import net.mullvad.mullvadvpn.lib.tv.NavigationDrawerTv
+import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.RECONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.util.removeHtmlTags
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.compose.koinViewModel

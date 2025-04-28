@@ -122,7 +122,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-android-preview = { module = "androidx.compose.ui:ui-tooling-preview-android", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
-accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "drawablepainter"  }
+accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "drawablepainter" }
 
 # gRPC
 grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }

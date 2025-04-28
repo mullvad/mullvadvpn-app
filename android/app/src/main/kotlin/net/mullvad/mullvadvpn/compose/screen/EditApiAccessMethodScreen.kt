@@ -54,7 +54,6 @@ import net.mullvad.mullvadvpn.compose.preview.EditApiAccessMethodUiStatePreviewP
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodTypes
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessFormData
 import net.mullvad.mullvadvpn.compose.state.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.compose.test.EDIT_API_ACCESS_NAME_INPUT
 import net.mullvad.mullvadvpn.compose.textfield.ApiAccessMethodTextField
 import net.mullvad.mullvadvpn.compose.textfield.apiAccessTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -70,6 +69,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.tag.EDIT_API_ACCESS_NAME_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditApiAccessSideEffect
 import org.koin.androidx.compose.koinViewModel
@@ -308,7 +308,7 @@ private fun NameInputField(
         maxCharLength = ApiAccessMethodName.MAX_LENGTH,
         errorText = nameError?.let { textResource(id = R.string.this_field_is_required) },
         capitalization = KeyboardCapitalization.Words,
-        modifier = Modifier.animateContentSize().testTag(EDIT_API_ACCESS_NAME_INPUT),
+        modifier = Modifier.animateContentSize().testTag(EDIT_API_ACCESS_NAME_INPUT_TEST_TAG),
     )
 }
 

@@ -1,17 +1,14 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.compose)
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.lib.ui.component"
+    namespace = "net.mullvad.mullvadvpn.lib.ui.tag"
     compileSdk = Versions.compileSdkVersion
     buildToolsVersion = Versions.buildToolsVersion
 
     defaultConfig { minSdk = Versions.minSdkVersion }
-
-    buildFeatures { compose = true }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -28,18 +25,4 @@ android {
         abortOnError = true
         warningsAsErrors = true
     }
-}
-
-dependencies {
-    implementation(projects.lib.ui.tag)
-    implementation(libs.compose.material3)
-    implementation(libs.compose.ui)
-    implementation(libs.compose.constrainlayout)
-    implementation(libs.kotlin.stdlib)
-    implementation(libs.compose.icons.extended)
-    implementation(libs.androidx.ktx)
-    implementation(projects.lib.resource)
-    implementation(projects.lib.shared)
-    implementation(projects.lib.theme)
-    implementation(projects.lib.model)
 }

@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.test.common.page
 
 import androidx.test.uiautomator.By
+import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class SelectLocationPage internal constructor() : Page() {
@@ -16,10 +18,5 @@ class SelectLocationPage internal constructor() : Page() {
 
     fun clickLocationCell(locationName: String) {
         uiDevice.findObjectWithTimeout(By.text(locationName)).click()
-    }
-
-    companion object {
-        const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
-        const val EXPAND_BUTTON_TEST_TAG = "expand_button_test_tag"
     }
 }

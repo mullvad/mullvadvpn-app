@@ -8,6 +8,12 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
+import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_IN_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.OUT_OF_TIME_SCREEN_TITLE_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_ACCOUNT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
@@ -81,7 +87,7 @@ class AppInteractor(
     }
 
     fun ensureOutOfTime() {
-        device.findObjectWithTimeout(By.res("out_of_time_screen_title_test_tag"))
+        device.findObjectWithTimeout(By.res(OUT_OF_TIME_SCREEN_TITLE_TEST_TAG))
     }
 
     fun ensureAccountScreen() {
@@ -89,22 +95,22 @@ class AppInteractor(
     }
 
     fun extractOutIpv4Address(): String {
-        device.findObjectWithTimeout(By.res("connect_card_header_test_tag")).click()
+        device.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG)).click()
         return device
             .findObjectWithTimeout(
                 // Text exist and contains IP address
-                By.res("location_info_connection_out_test_tag").textContains("."),
+                By.res(LOCATION_INFO_CONNECTION_OUT_TEST_TAG).textContains("."),
                 VERY_LONG_TIMEOUT,
             )
             .text
     }
 
     fun extractInIpv4Address(): String {
-        device.findObjectWithTimeout(By.res("connect_card_header_test_tag")).click()
+        device.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG)).click()
         val inString =
             device
                 .findObjectWithTimeout(
-                    By.res("location_info_connection_in_test_tag"),
+                    By.res(LOCATION_INFO_CONNECTION_IN_TEST_TAG),
                     VERY_LONG_TIMEOUT,
                 )
                 .text
@@ -114,11 +120,11 @@ class AppInteractor(
     }
 
     fun clickSettingsCog() {
-        device.findObjectWithTimeout(By.res("top_bar_settings_button")).click()
+        device.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON_TEST_TAG)).click()
     }
 
     fun clickAccountCog() {
-        device.findObjectWithTimeout(By.res("top_bar_account_button")).click()
+        device.findObjectWithTimeout(By.res(TOP_BAR_ACCOUNT_BUTTON_TEST_TAG)).click()
     }
 
     fun clickListItemByText(text: String) {

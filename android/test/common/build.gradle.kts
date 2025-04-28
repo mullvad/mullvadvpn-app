@@ -47,6 +47,7 @@ androidComponents {
 
 dependencies {
     implementation(projects.lib.endpoint)
+    implementation(projects.lib.ui.tag)
 
     implementation(libs.androidx.test.core)
     implementation(libs.androidx.test.runner)
