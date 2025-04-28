@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { DeprecatedColors } from '../../foundations';
+import { colors } from '../../foundations';
 
 export interface DotProps {
   variant?: 'primary' | 'success' | 'warning' | 'error';
@@ -20,13 +20,13 @@ const sizes = {
   medium: '12px',
 };
 
-const colors = {
-  primary: DeprecatedColors.white80,
-  success: DeprecatedColors.green,
-  warning: DeprecatedColors.yellow,
-  error: DeprecatedColors.red,
+const dotColors = {
+  primary: colors.white80,
+  success: colors.brandGreen,
+  warning: colors.brandYellow,
+  error: colors.brandRed,
 };
 
 export const Dot = ({ variant = 'primary', size = 'medium', ...props }: DotProps) => {
-  return <StyledDiv $size={sizes[size]} $color={colors[variant]} {...props} />;
+  return <StyledDiv $size={sizes[size]} $color={dotColors[variant]} {...props} />;
 };
