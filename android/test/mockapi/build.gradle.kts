@@ -64,6 +64,7 @@ android {
 dependencies {
     implementation(projects.lib.endpoint)
     implementation(projects.test.common)
+    implementation(projects.lib.ui.tag)
 
     implementation(libs.androidx.test.core)
     // Fixes: https://github.com/android/android-test/issues/1589

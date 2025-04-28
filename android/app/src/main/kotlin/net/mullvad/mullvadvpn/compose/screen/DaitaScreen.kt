@@ -48,12 +48,12 @@ import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.state.DaitaUiState
-import net.mullvad.mullvadvpn.compose.test.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.DaitaViewModel
 import org.koin.androidx.compose.koinViewModel
 

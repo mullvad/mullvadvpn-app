@@ -36,12 +36,12 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.preview.ApiAccessListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.ApiAccessListUiState
-import net.mullvad.mullvadvpn.compose.test.API_ACCESS_LIST_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.tag.API_ACCESS_LIST_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import org.koin.androidx.compose.koinViewModel
 
