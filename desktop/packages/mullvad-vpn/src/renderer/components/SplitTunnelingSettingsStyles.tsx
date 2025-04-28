@@ -5,7 +5,6 @@ import * as Cell from './cell';
 import { measurements, normalText } from './common-styles';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SearchBar from './SearchBar';
-import { SmallButton } from './SmallButton';
 
 export const StyledPageCover = styled.div<{ $show: boolean }>((props) => ({
   position: 'absolute',
@@ -85,8 +84,4 @@ export const StyledSearchBar = styled(SearchBar)({
   marginLeft: measurements.horizontalViewMargin,
   marginRight: measurements.horizontalViewMargin,
   marginBottom: measurements.buttonVerticalMargin,
-});
-
-export const WideSmallButton = styled(SmallButton)({
-  width: '100%',
 });
