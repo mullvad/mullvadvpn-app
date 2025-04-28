@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
+import { RoutePath } from '../../../../src/renderer/lib/routes';
 import { MockedTestUtils, startMockedApp } from '../mocked-utils';
 import { createHelpers, createIpc, createSelectors, mockData, resolveIpcHandle } from './helpers';
 
@@ -31,11 +32,12 @@ test.describe('App upgrade', () => {
       },
     });
 
-    await util.waitForNavigation(() => page.click('button[aria-label="Settings"]'));
-    await util.waitForNavigation(() => page.getByRole('button', { name: 'App info' }).click());
-    await util.waitForNavigation(() =>
-      page.getByRole('button', { name: 'Update available' }).click(),
-    );
+    await page.click('button[aria-label="Settings"]');
+    await util.waitForRoute(RoutePath.settings);
+    await page.getByRole('button', { name: 'App info' }).click();
+    await util.waitForRoute(RoutePath.appInfo);
+    await page.getByRole('button', { name: 'Update available' }).click();
+    await util.waitForRoute(RoutePath.appUpgrade);
   };
 
   const restart = async () => {
