@@ -57,7 +57,7 @@ impl AppVersionProxy {
         architecture: mullvad_update::format::Architecture,
         rollout: f32,
         lowest_metadata_version: usize,
-    ) -> impl Future<Output = Result<VersionInfo, rest::Error>> + use<> {
+    ) -> impl Future<Output = Result<(VersionInfo, usize), rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let path = format!("app/releases/{platform}.json");
         let request = self.handle.factory.get(&path);
@@ -79,9 +79,13 @@ impl AppVersionProxy {
                 lowest_metadata_version,
             };
 
-            VersionInfo::try_from_response(&params, response.signed)
-                .map_err(Arc::new)
-                .map_err(rest::Error::FetchVersions)
+            let metadata_version = response.signed.metadata_version;
+            Ok((
+                VersionInfo::try_from_response(&params, response.signed)
+                    .map_err(Arc::new)
+                    .map_err(rest::Error::FetchVersions)?,
+                metadata_version,
+            ))
         }
     }
 }
