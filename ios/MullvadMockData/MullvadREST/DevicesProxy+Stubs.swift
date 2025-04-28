@@ -41,7 +41,7 @@ struct DevicesProxyStub: DeviceHandling {
 
     func createDevice(
         accountNumber: String,
-        request: REST.CreateDeviceRequest,
+        request: CreateDeviceRequest,
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<Device>
     ) -> Cancellable {
