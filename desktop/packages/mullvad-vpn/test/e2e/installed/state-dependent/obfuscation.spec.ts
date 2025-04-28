@@ -18,6 +18,7 @@ let util: TestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startInstalledApp());
+  await util.waitForRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {
@@ -25,14 +26,14 @@ test.afterAll(async () => {
 });
 
 test('App should have automatic obfuscation', async () => {
-  await util.waitForNavigation(() => page.click('button[aria-label="Settings"]'));
-  expect(await util.waitForNavigation(() => page.getByText('VPN settings').click())).toBe(
-    RoutePath.vpnSettings,
-  );
+  await page.click('button[aria-label="Settings"]');
+  await util.waitForRoute(RoutePath.settings);
 
-  expect(await util.waitForNavigation(() => page.getByText('WireGuard settings').click())).toBe(
-    RoutePath.wireguardSettings,
-  );
+  await page.getByText('VPN settings').click();
+  await util.waitForRoute(RoutePath.vpnSettings);
+
+  await page.getByText('WireGuard settings').click();
+  await util.waitForRoute(RoutePath.wireguardSettings);
 
   const automatic = page.getByTestId('automatic-obfuscation');
   await expect(automatic).toHaveCSS('background-color', colors['--color-green']);
@@ -44,9 +45,8 @@ test('App should have automatic obfuscation', async () => {
 });
 
 test('App should set obfuscation to shadowsocks with custom port', async () => {
-  expect(
-    await util.waitForNavigation(() => page.click('button[aria-label="Shadowsocks settings"]')),
-  ).toBe(RoutePath.shadowsocks);
+  await page.click('button[aria-label="Shadowsocks settings"]');
+  await util.waitForRoute(RoutePath.shadowsocks);
 
   const automatic = page.locator('button', { hasText: 'Automatic' });
   await expect(automatic).toHaveCSS('background-color', colors['--color-green']);
@@ -59,7 +59,8 @@ test('App should set obfuscation to shadowsocks with custom port', async () => {
   const customItem = page.locator('div[role="option"]', { hasText: 'Custom' });
   await expect(customItem).toHaveCSS('background-color', colors['--color-green']);
 
-  await util.waitForNavigation(() => page.click('button[aria-label="Back"]'));
+  await page.click('button[aria-label="Back"]');
+  await util.waitForRoute(RoutePath.wireguardSettings);
 
   const shadowsocksItem = page.locator('button', { hasText: 'Shadowsocks' });
   await shadowsocksItem.click();
@@ -71,20 +72,19 @@ test('App should set obfuscation to shadowsocks with custom port', async () => {
 });
 
 test('App should still have shadowsocks custom port', async () => {
-  expect(
-    await util.waitForNavigation(() => page.click('button[aria-label="Shadowsocks settings"]')),
-  ).toBe(RoutePath.shadowsocks);
+  await page.click('button[aria-label="Shadowsocks settings"]');
+  await util.waitForRoute(RoutePath.shadowsocks);
 
   const customItem = page.locator('div[role="option"]', { hasText: 'Custom' });
   await expect(customItem).toHaveCSS('background-color', colors['--color-green']);
 
-  await util.waitForNavigation(() => page.click('button[aria-label="Back"]'));
+  await page.click('button[aria-label="Back"]');
+  await util.waitForRoute(RoutePath.wireguardSettings);
 });
 
 test('App should set obfuscation to UDP-over-TCP with port', async () => {
-  expect(
-    await util.waitForNavigation(() => page.click('button[aria-label="UDP-over-TCP settings"]')),
-  ).toBe(RoutePath.udpOverTcp);
+  await page.click('button[aria-label="UDP-over-TCP settings"]');
+  await util.waitForRoute(RoutePath.udpOverTcp);
 
   const automatic = page.locator('button', { hasText: 'Automatic' });
   await expect(automatic).toHaveCSS('background-color', colors['--color-green']);
@@ -94,7 +94,8 @@ test('App should set obfuscation to UDP-over-TCP with port', async () => {
 
   await expect(portButton).toHaveCSS('background-color', colors['--color-green']);
 
-  await util.waitForNavigation(() => page.click('button[aria-label="Back"]'));
+  await page.click('button[aria-label="Back"]');
+  await util.waitForRoute(RoutePath.wireguardSettings);
 
   const udpOverTcpItem = page.locator('button', { hasText: 'UDP-over-TCP' });
   await udpOverTcpItem.click();

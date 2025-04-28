@@ -3,6 +3,7 @@ import { execSync } from 'child_process';
 import os from 'os';
 import path from 'path';
 
+import { RoutePath } from '../../../../src/renderer/lib/routes';
 import { fileExists, TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
 
@@ -19,6 +20,7 @@ let util: TestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startInstalledApp());
+  await util.waitForRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {
@@ -28,8 +30,10 @@ test.afterAll(async () => {
 test.describe('VPN Settings', () => {
   test('Auto-connect setting', async () => {
     // Navigate to the VPN settings view
-    await util.waitForNavigation(() => page.click('button[aria-label="Settings"]'));
-    await util.waitForNavigation(() => page.click('text=VPN settings'));
+    await page.click('button[aria-label="Settings"]');
+    await util.waitForRoute(RoutePath.settings);
+    await page.click('text=VPN settings');
+    await util.waitForRoute(RoutePath.vpnSettings);
 
     // Find the auto-connect toggle
     const autoConnectToggle = page.getByText('Auto-connect').locator('..').getByRole('checkbox');

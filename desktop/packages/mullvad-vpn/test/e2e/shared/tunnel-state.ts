@@ -17,47 +17,47 @@ const getHeader = (page: Page) => page.locator('header');
 
 export async function expectDisconnected(page: Page) {
   await expectTunnelState(page, {
-    labelText: 'disconnected',
+    labelText: 'DISCONNECTED',
     labelColor: DISCONNECTED_COLOR,
     headerColor: DISCONNECTED_COLOR,
-    buttonText: 'connect',
+    buttonText: 'Connect',
     buttonColor: CONNECTED_BUTTON_COLOR,
   });
 }
 
 export async function expectConnecting(page: Page) {
   await expectTunnelState(page, {
-    labelText: 'connecting',
+    labelText: 'CONNECTING...',
     labelColor: WHITE_COLOR,
     headerColor: CONNECTED_COLOR,
-    buttonText: 'cancel',
+    buttonText: 'Cancel',
     buttonColor: DISCONNECTED_BUTTON_COLOR,
   });
 }
 
 export async function expectConnected(page: Page) {
   await expectTunnelState(page, {
-    labelText: 'connected',
+    labelText: 'CONNECTED',
     labelColor: CONNECTED_COLOR,
     headerColor: CONNECTED_COLOR,
-    buttonText: 'disconnect',
+    buttonText: 'Disconnect',
     buttonColor: DISCONNECTED_BUTTON_COLOR,
   });
 }
 
 export async function expectDisconnecting(page: Page) {
   await expectTunnelState(page, {
-    labelText: 'disconnecting',
+    labelText: 'DISCONNECTING...',
     labelColor: WHITE_COLOR,
     headerColor: DISCONNECTED_COLOR,
-    buttonText: 'connect',
+    buttonText: 'Connect',
     buttonColor: DISCONNECTING_BUTTON_COLOR,
   });
 }
 
 export async function expectError(page: Page) {
   await expectTunnelState(page, {
-    labelText: 'blocked connection',
+    labelText: 'BLOCKED CONNECTION',
     labelColor: WHITE_COLOR,
     headerColor: CONNECTED_COLOR,
   });
@@ -74,7 +74,7 @@ interface TunnelStateContent {
 export async function expectTunnelState(page: Page, content: TunnelStateContent) {
   const statusLabel = getLabel(page);
   if (content.labelText && content.labelColor) {
-    await expect(statusLabel).toContainText(new RegExp(content.labelText, 'i'));
+    await expect(statusLabel).toContainText(content.labelText);
     await expect(statusLabel).toHaveCSS('color', content.labelColor);
   } else {
     await expect(statusLabel).toBeEmpty();
@@ -84,7 +84,7 @@ export async function expectTunnelState(page: Page, content: TunnelStateContent)
   await expect(header).toHaveCSS('background-color', content.headerColor);
 
   if (content.buttonText && content.buttonColor) {
-    const button = page.locator('button', { hasText: new RegExp(`^${content.buttonText}$`, 'i') });
+    const button = page.getByRole('button', { name: content.buttonText }).last();
     await expect(button).toHaveCSS('background-color', content.buttonColor);
   }
 }
