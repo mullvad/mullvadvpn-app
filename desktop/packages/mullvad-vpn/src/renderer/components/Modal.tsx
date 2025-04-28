@@ -8,10 +8,10 @@ import { FlexColumn } from '../lib/components/flex-column';
 import { Colors } from '../lib/foundations';
 import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
+import { ButtonGroup } from './ButtonGroup';
 import { measurements, normalText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { BackAction } from './KeyboardNavigation';
-import { SmallButtonGrid } from './SmallButton';
 
 const MODAL_CONTAINER_ID = 'modal-container';
 
@@ -153,10 +153,6 @@ const ModalAlertButtonGroupContainer = styled.div({
   marginTop: measurements.buttonVerticalMargin,
 });
 
-const StyledSmallButtonGrid = styled(SmallButtonGrid)({
-  marginRight: '16px',
-});
-
 const ModalAlertButtonContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
@@ -289,10 +285,12 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
 
               <ModalAlertButtonGroupContainer>
                 {this.props.gridButtons && (
-                  <StyledSmallButtonGrid>{this.props.gridButtons}</StyledSmallButtonGrid>
+                  <ButtonGroup $gap="small" $flexWrap="wrap-reverse" $margin={{ right: 'medium' }}>
+                    {this.props.gridButtons}
+                  </ButtonGroup>
                 )}
                 {this.props.buttons && (
-                  <FlexColumn $gap="medium">
+                  <FlexColumn $gap="small">
                     {this.props.buttons.map((button, index) => (
                       <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
                     ))}
