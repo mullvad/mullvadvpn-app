@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Colors } from '../../../foundations';
+import { DeprecatedColors } from '../../../foundations';
 import { LabelTiny, LabelTinyProps } from '../../typography';
 import { useProgress } from '../ProgressContext';
 
@@ -15,7 +15,7 @@ export const ProgressPercent = <T extends React.ElementType = 'span'>(
 ) => {
   const { percent, disabled } = useProgress();
   return (
-    <StyledText color={disabled ? Colors.white40 : Colors.white} {...props}>
+    <StyledText color={disabled ? DeprecatedColors.white40 : DeprecatedColors.white} {...props}>
       {`${Math.round(percent)}%`}
     </StyledText>
   );

@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import styled, { WebTarget } from 'styled-components';
 
-import { Colors, Radius } from '../../foundations';
+import { DeprecatedColors, Radius } from '../../foundations';
 import { buttonReset } from '../../styles';
 import { Flex } from '../flex';
 import { FilterChipIcon, FilterChipText } from './components';
@@ -12,9 +12,9 @@ export interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonEl
 }
 
 const variables = {
-  background: Colors.blue,
-  hover: Colors.blue60,
-  disabled: Colors.blue50,
+  background: DeprecatedColors.blue,
+  hover: DeprecatedColors.blue60,
+  disabled: DeprecatedColors.blue50,
 } as const;
 
 const StyledButton = styled.button({
@@ -34,7 +34,7 @@ const StyledButton = styled.button({
     background: 'var(--disabled)',
   },
   '&:focus-visible': {
-    outline: `2px solid ${Colors.white}`,
+    outline: `2px solid ${DeprecatedColors.white}`,
   },
 });
 

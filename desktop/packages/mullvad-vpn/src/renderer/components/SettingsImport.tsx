@@ -7,7 +7,7 @@ import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Button, Flex, Icon, IconProps } from '../lib/components';
-import { Colors, spacings } from '../lib/foundations';
+import { DeprecatedColors, spacings } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
@@ -203,12 +203,12 @@ const StyledStatusTitle = styled.div(normalText, {
   alignItems: 'center',
   fontWeight: 'bold',
   lineHeight: '20px',
-  color: Colors.white,
+  color: DeprecatedColors.white,
   gap: spacings.tiny,
 });
 
 const StyledStatusSubTitle = styled.div(tinyText, {
-  color: Colors.white60,
+  color: DeprecatedColors.white60,
 });
 
 interface ImportStatusProps {
@@ -235,9 +235,9 @@ function SettingsImportStatus(props: ImportStatusProps) {
     iconProps = props.status.successful
       ? {
           icon: 'checkmark',
-          color: Colors.green,
+          color: DeprecatedColors.green,
         }
-      : { icon: 'cross', color: Colors.red };
+      : { icon: 'cross', color: DeprecatedColors.red };
 
     if (props.status.successful) {
       subtitle =

@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 
-import { Colors } from '../../foundations';
+import { DeprecatedColors } from '../../foundations';
 import { TransientProps } from '../../types';
 import { icons } from './types';
 
 export type IconProps = {
   icon: keyof typeof icons;
   size?: 'tiny' | 'small' | 'medium' | 'large' | 'big';
-  color?: Colors;
+  color?: DeprecatedColors;
   className?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
@@ -34,7 +34,7 @@ const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
 export const Icon = ({
   icon: iconProp,
   size = 'medium',
-  color = Colors.white,
+  color = DeprecatedColors.white,
   ...props
 }: IconProps) => {
   const icon = icons[iconProp];

@@ -1,16 +1,22 @@
 import { expect } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { colors } from '../../../src/renderer/lib/foundations';
+import { deprecatedColors } from '../../../src/renderer/lib/foundations';
 import { anyOf } from '../utils';
 
-const DISCONNECTED_COLOR = colors['--color-red'];
-const CONNECTED_COLOR = colors['--color-green'];
-const WHITE_COLOR = colors['--color-white'];
+const DISCONNECTED_COLOR = deprecatedColors['--color-red'];
+const CONNECTED_COLOR = deprecatedColors['--color-green'];
+const WHITE_COLOR = deprecatedColors['--color-white'];
 
-const DISCONNECTED_BUTTON_COLOR = anyOf(colors['--color-red'], colors['--color-red-80']);
-const DISCONNECTING_BUTTON_COLOR = anyOf(colors['--color-green-40']);
-const CONNECTED_BUTTON_COLOR = anyOf(colors['--color-green'], colors['--color-green-90']);
+const DISCONNECTED_BUTTON_COLOR = anyOf(
+  deprecatedColors['--color-red'],
+  deprecatedColors['--color-red-80'],
+);
+const DISCONNECTING_BUTTON_COLOR = anyOf(deprecatedColors['--color-green-40']);
+const CONNECTED_BUTTON_COLOR = anyOf(
+  deprecatedColors['--color-green'],
+  deprecatedColors['--color-green-90'],
+);
 
 const getLabel = (page: Page) => page.locator('span[role="status"]');
 const getHeader = (page: Page) => page.locator('header');
