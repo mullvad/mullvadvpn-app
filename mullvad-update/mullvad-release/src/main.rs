@@ -25,9 +25,6 @@ const DEFAULT_EXPIRY_MONTHS: usize = 6;
 /// Rollout to use when not specified
 const DEFAULT_ROLLOUT: f32 = 1.;
 
-/// Lowest version to accept using 'verify'
-const MIN_VERIFY_METADATA_VERSION: usize = 0;
-
 /// A tool that generates signed Mullvad version metadata.
 ///
 /// Unsigned work is stored in `work/`, and signed work is stored in `signed/`
