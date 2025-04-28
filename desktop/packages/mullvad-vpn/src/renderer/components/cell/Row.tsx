@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Colors } from '../../lib/foundations';
+import { DeprecatedColors } from '../../lib/foundations';
 import { measurements } from '../common-styles';
 import { Group } from './Group';
 
@@ -14,7 +14,7 @@ export const Row = styled.div.withConfig({
 })<RowProps>((props) => ({
   display: 'flex',
   alignItems: 'center',
-  backgroundColor: Colors.blue,
+  backgroundColor: DeprecatedColors.blue,
   minHeight: measurements.rowMinHeight,
   paddingLeft: measurements.horizontalViewMargin,
   paddingRight: measurements.horizontalViewMargin,

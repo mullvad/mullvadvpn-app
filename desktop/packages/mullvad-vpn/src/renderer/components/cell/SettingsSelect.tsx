@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { useScheduler } from '../../../shared/scheduler';
 import { Icon } from '../../lib/components';
-import { Colors } from '../../lib/foundations';
+import { DeprecatedColors } from '../../lib/foundations';
 import { useBoolean, useEffectEvent } from '../../lib/utility-hooks';
 import { AriaInput } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
@@ -20,13 +20,13 @@ const StyledSelect = styled.div.attrs({ tabIndex: 0 })(smallNormalText, {
   position: 'relative',
   background: 'transparent',
   border: 'none',
-  color: Colors.white,
+  color: DeprecatedColors.white,
   borderRadius: '4px',
   height: '26px',
 
   '&&:focus': {
-    outline: `1px ${Colors.darkBlue} solid`,
-    backgroundColor: Colors.blue,
+    outline: `1px ${DeprecatedColors.darkBlue} solid`,
+    backgroundColor: DeprecatedColors.blue,
   },
 });
 
@@ -37,8 +37,8 @@ const StyledItems = styled.div<{ $direction: 'down' | 'up' }>((props) => ({
   top: props.$direction === 'down' ? 'calc(100% + 4px)' : 'auto',
   bottom: props.$direction === 'up' ? 'calc(100% + 4px)' : 'auto',
   right: '-1px',
-  backgroundColor: Colors.darkBlue,
-  border: `1px ${Colors.darkerBlue} solid`,
+  backgroundColor: DeprecatedColors.darkBlue,
+  border: `1px ${DeprecatedColors.darkerBlue} solid`,
   borderRadius: '4px',
   padding: '4px 8px',
   maxHeight: '250px',
@@ -155,7 +155,7 @@ export function SettingsSelect<T extends string>(props: SettingsSelectProps<T>) 
             <StyledSelectedText>
               {props.items.find((item) => item.value === value)?.label ?? ''}
             </StyledSelectedText>
-            <StyledChevron color={Colors.white60} icon="chevron-down" />
+            <StyledChevron color={DeprecatedColors.white60} icon="chevron-down" />
           </StyledSelectedContainerInner>
           <StyledInvisibleItems>
             {props.items.map((item) => (
@@ -220,7 +220,7 @@ const StyledItem = styled.div<{ $selected: boolean }>((props) => ({
   paddingRight: '18px',
   whiteSpace: 'nowrap',
   '&&:hover': {
-    backgroundColor: Colors.blue,
+    backgroundColor: DeprecatedColors.blue,
   },
 }));
 

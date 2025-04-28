@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { Icon } from '../../lib/components';
-import { Colors } from '../../lib/foundations';
+import { DeprecatedColors } from '../../lib/foundations';
 import { AriaInputGroup, AriaLabel } from '../AriaGroup';
 import { measurements, smallNormalText, tinyText } from '../common-styles';
 import { StyledSettingsGroup, useSettingsGroupContext } from './SettingsGroup';
@@ -14,7 +14,7 @@ const StyledSettingsRow = styled.label<{ $invalid: boolean }>((props) => ({
   margin: `0 ${measurements.horizontalViewMargin} ${measurements.rowVerticalMargin}`,
   padding: '0 8px',
   minHeight: '36px',
-  backgroundColor: Colors.blue60,
+  backgroundColor: DeprecatedColors.blue60,
   borderRadius: '4px',
 
   [`${StyledSettingsGroup} &&`]: {
@@ -36,11 +36,11 @@ const StyledSettingsRow = styled.label<{ $invalid: boolean }>((props) => ({
   outlineWidth: '1px',
   borderStyle: 'solid',
   outlineStyle: 'solid',
-  borderColor: props.$invalid ? Colors.red : 'transparent',
-  outlineColor: props.$invalid ? Colors.red : 'transparent',
+  borderColor: props.$invalid ? DeprecatedColors.red : 'transparent',
+  outlineColor: props.$invalid ? DeprecatedColors.red : 'transparent',
   '&&:focus-within': {
-    borderColor: props.$invalid ? Colors.red : Colors.white,
-    outlineColor: props.$invalid ? Colors.red : Colors.white,
+    borderColor: props.$invalid ? DeprecatedColors.red : DeprecatedColors.white,
+    outlineColor: props.$invalid ? DeprecatedColors.red : DeprecatedColors.white,
   },
 }));
 
@@ -61,7 +61,7 @@ const StyledSettingsRowErrorMessage = styled.div(tinyText, {
   alignItems: 'center',
   marginLeft: measurements.horizontalViewMargin,
   marginTop: '5px',
-  color: Colors.white60,
+  color: DeprecatedColors.white60,
 });
 
 const StyledErrorMessageAlertIcon = styled(Icon)({
@@ -132,7 +132,7 @@ export function SettingsRow(props: React.PropsWithChildren<IndentedRowProps>) {
 export function SettingsRowErrorMessage(props: React.PropsWithChildren) {
   return (
     <StyledSettingsRowErrorMessage>
-      <StyledErrorMessageAlertIcon icon="alert-circle" color={Colors.red} size="small" />
+      <StyledErrorMessageAlertIcon icon="alert-circle" color={DeprecatedColors.red} size="small" />
       {props.children}
     </StyledSettingsRowErrorMessage>
   );

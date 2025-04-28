@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Button, Flex } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { DeprecatedColors } from '../lib/foundations';
 import { IconBadge } from '../lib/icon-badge';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
@@ -18,7 +18,7 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
 export const StyledContainer = styled(Container)({
   paddingTop: '22px',
   minHeight: '100%',
-  backgroundColor: Colors.darkBlue,
+  backgroundColor: DeprecatedColors.darkBlue,
 });
 
 export const StyledBody = styled.div({
@@ -31,12 +31,12 @@ export const StyledBody = styled.div({
 export const StyledTitle = styled.span(bigText, {
   lineHeight: '38px',
   marginBottom: '8px',
-  color: Colors.white,
+  color: DeprecatedColors.white,
 });
 
 export const StyledMessage = styled.span(smallText, {
   marginBottom: measurements.rowVerticalMargin,
-  color: Colors.white,
+  color: DeprecatedColors.white,
 });
 
 export function DeviceRevokedView() {

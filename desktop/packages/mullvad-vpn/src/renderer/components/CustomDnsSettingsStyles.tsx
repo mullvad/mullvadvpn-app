@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Colors } from '../lib/foundations';
+import { DeprecatedColors } from '../lib/foundations';
 import * as Cell from './cell';
 
 export const StyledCustomDnsFooter = styled(Cell.CellFooter)({
@@ -20,17 +20,17 @@ export const StyledAddCustomDnsLabel = styled(Cell.Label)<{ $paddingLeft?: numbe
 
 export const StyledItemContainer = styled(Cell.Container)({
   display: 'flex',
-  backgroundColor: Colors.blue40,
+  backgroundColor: DeprecatedColors.blue40,
   '&&:hover': {
-    backgroundColor: Colors.blue80,
+    backgroundColor: DeprecatedColors.blue80,
   },
 });
 
 export const AddServerContainer = styled(Cell.Container)({
   display: 'flex',
-  backgroundColor: Colors.blue20,
+  backgroundColor: DeprecatedColors.blue20,
   '&&:hover': {
-    backgroundColor: Colors.blue60,
+    backgroundColor: DeprecatedColors.blue60,
   },
 });
 

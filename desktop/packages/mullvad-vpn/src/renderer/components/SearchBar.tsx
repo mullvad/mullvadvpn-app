@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { Icon, IconButton } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { DeprecatedColors } from '../lib/foundations';
 import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { normalText } from './common-styles';
 
@@ -20,17 +20,17 @@ export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
   padding: '9px 38px',
   margin: 0,
   lineHeight: '24px',
-  color: Colors.white60,
-  backgroundColor: Colors.white10,
+  color: DeprecatedColors.white60,
+  backgroundColor: DeprecatedColors.white10,
   '&&::placeholder': {
-    color: Colors.white60,
+    color: DeprecatedColors.white60,
   },
   '&&:focus': {
-    color: Colors.blue,
-    backgroundColor: Colors.white,
+    color: DeprecatedColors.blue,
+    backgroundColor: DeprecatedColors.white,
   },
   '&&:focus::placeholder': {
-    color: Colors.blue40,
+    color: DeprecatedColors.blue40,
   },
 });
 
@@ -41,7 +41,7 @@ export const StyledClearButton = styled(IconButton)({
   transform: 'translateY(-50%)',
   right: '9px',
   [`${StyledSearchInput}:focus ~ && > div`]: {
-    backgroundColor: Colors.blue40,
+    backgroundColor: DeprecatedColors.blue40,
   },
 });
 
@@ -51,7 +51,7 @@ export const StyledSearchIcon = styled(Icon)({
   transform: 'translateY(-50%)',
   left: '8px',
   [`${StyledSearchInput}:focus ~ &&`]: {
-    backgroundColor: Colors.blue,
+    backgroundColor: DeprecatedColors.blue,
   },
 });
 
@@ -96,7 +96,7 @@ export default function SearchBar(props: ISearchBarProps) {
         onInput={onInput}
         placeholder={messages.gettext('Search for...')}
       />
-      <StyledSearchIcon icon="search" color={Colors.white60} />
+      <StyledSearchIcon icon="search" color={DeprecatedColors.white60} />
       {props.searchTerm.length > 0 && (
         <StyledClearButton variant="secondary" onClick={onClear}>
           <IconButton.Icon icon="cross-circle" />

@@ -10,7 +10,7 @@ import {
   filterLocations,
   filterLocationsByEndPointType,
 } from '../lib/filter-locations';
-import { Colors } from '../lib/foundations';
+import { DeprecatedColors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useNormalRelaySettings, useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { useBoolean } from '../lib/utility-hooks';
@@ -28,7 +28,7 @@ import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
-  backgroundColor: Colors.darkBlue,
+  backgroundColor: DeprecatedColors.darkBlue,
   flex: 1,
 });
 
@@ -230,7 +230,7 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
         <AriaLabel>
           <Cell.Label>{messages.pgettext('filter-view', 'Ownership')}</Cell.Label>
         </AriaLabel>
-        <Icon color={Colors.white80} icon={expanded ? 'chevron-up' : 'chevron-down'} />
+        <Icon color={DeprecatedColors.white80} icon={expanded ? 'chevron-up' : 'chevron-down'} />
       </Cell.CellButton>
 
       <Accordion expanded={expanded}>
@@ -276,7 +276,7 @@ function FilterByProvider(props: IFilterByProviderProps) {
     <>
       <Cell.CellButton onClick={toggleExpanded}>
         <Cell.Label>{messages.pgettext('filter-view', 'Providers')}</Cell.Label>
-        <Icon color={Colors.white80} icon={expanded ? 'chevron-up' : 'chevron-down'} />
+        <Icon color={DeprecatedColors.white80} icon={expanded ? 'chevron-up' : 'chevron-down'} />
       </Cell.CellButton>
       <Accordion expanded={expanded}>
         <CheckboxRow
@@ -310,20 +310,20 @@ const StyledCheckbox = styled.div({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: Colors.white,
+  backgroundColor: DeprecatedColors.white,
   borderRadius: '4px',
 });
 
 const StyledRow = styled(Cell.Row)({
-  backgroundColor: Colors.blue40,
+  backgroundColor: DeprecatedColors.blue40,
   '&&:hover': {
-    backgroundColor: Colors.blue80,
+    backgroundColor: DeprecatedColors.blue80,
   },
 });
 
 const StyledRowTitle = styled.label<IStyledRowTitleProps>(normalText, (props) => ({
   fontWeight: props.$bold ? 600 : 400,
-  color: Colors.white,
+  color: DeprecatedColors.white,
   marginLeft: '22px',
 }));
 
@@ -341,7 +341,7 @@ function CheckboxRow(props: ICheckboxRowProps) {
   return (
     <StyledRow onClick={onToggle}>
       <StyledCheckbox role="checkbox" aria-label={props.label} aria-checked={props.checked}>
-        {props.checked && <Icon icon="checkmark" color={Colors.green} />}
+        {props.checked && <Icon icon="checkmark" color={DeprecatedColors.green} />}
       </StyledCheckbox>
       <StyledRowTitle aria-hidden $bold={props.$bold}>
         {props.label}

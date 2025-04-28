@@ -1,18 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Colors, Typography, typography } from '../../foundations';
+import { DeprecatedColors, Typography, typography } from '../../foundations';
 import { PolymorphicProps, TransientProps } from '../../types';
 
 type TextBaseProps = {
   variant?: Typography;
-  color?: Colors;
+  color?: DeprecatedColors;
 };
 
 export type TextProps<T extends React.ElementType = 'span'> = PolymorphicProps<T, TextBaseProps>;
 
 const StyledText = styled.span<TransientProps<TextBaseProps>>(
-  ({ $variant = 'bodySmall', $color = Colors.white }) => {
+  ({ $variant = 'bodySmall', $color = DeprecatedColors.white }) => {
     const { fontFamily, fontSize, fontWeight, lineHeight } = typography[$variant];
     return `
       --color: ${$color};

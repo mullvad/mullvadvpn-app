@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 
-import { Colors } from '../../../foundations';
+import { DeprecatedColors } from '../../../foundations';
 import { ButtonBase } from '../../button';
 import { useListItem } from '../ListItemContext';
 import { StyledFlex } from './ListItemContent';
@@ -22,7 +22,7 @@ const StyledButton = styled(ButtonBase)<{ $disabled?: boolean }>`
     `}
 
   &&:focus-visible {
-    outline: 2px solid ${Colors.white};
+    outline: 2px solid ${DeprecatedColors.white};
     outline-offset: -1px;
     z-index: 10;
   }
