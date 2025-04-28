@@ -5,14 +5,14 @@
         id="InvalidPackage"
         message="Invalid package reference in library; not included in Android: `javax.naming.directory`. Referenced from `io.grpc.internal.JndiResourceResolverFactory.JndiRecordFetcher`.">
         <location
-            file="*/caches/modules-2/files-2.1/io.grpc/grpc-core/1.71.0/a7cd1e546cd5518dc6a919e5469712af99fe13b0/grpc-core-1.71.0.jar"/>
+            file="*/caches/modules-2/files-2.1/io.grpc/grpc-core/1.72.0/9d0b0bc4d432c143aade945268d7599ea74eb115/grpc-core-1.72.0.jar"/>
     </issue>
 
     <issue
         id="InvalidPackage"
         message="Invalid package reference in library; not included in Android: `javax.naming`. Referenced from `io.grpc.internal.JndiResourceResolverFactory.JndiRecordFetcher`.">
         <location
-            file="*/caches/modules-2/files-2.1/io.grpc/grpc-core/1.71.0/a7cd1e546cd5518dc6a919e5469712af99fe13b0/grpc-core-1.71.0.jar"/>
+            file="*/caches/modules-2/files-2.1/io.grpc/grpc-core/1.72.0/9d0b0bc4d432c143aade945268d7599ea74eb115/grpc-core-1.72.0.jar"/>
     </issue>
 
     <issue
