@@ -148,6 +148,7 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
     let server = server::Server::bind(
         any_localhost_addr,
         Default::default(),
+        None,
         Arc::new(server_tls_config),
         mtu,
     )

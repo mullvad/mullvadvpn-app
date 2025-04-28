@@ -26,6 +26,13 @@ pub struct ServerArgs {
     #[arg(long = "allowed-ip", short = 'a', required = false)]
     allowed_ips: Vec<IpAddr>,
 
+    /// Server hostname.
+    ///
+    /// If set, the client must provide the correct hostname when connecting. If they don't, the
+    /// server will provide an HTTP 308 redirect to the correct URI.
+    #[arg(long)]
+    hostname: Option<String>,
+
     /// Maximum packet size
     #[arg(long, short = 'm', default_value = "1700")]
     mtu: u16,
@@ -46,6 +53,7 @@ async fn main() {
     let server = mullvad_masque_proxy::server::Server::bind(
         args.bind_addr,
         args.allowed_ips.iter().cloned().collect(),
+        args.hostname,
         tls_config.into(),
         args.mtu,
     )

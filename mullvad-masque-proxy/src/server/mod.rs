@@ -2,10 +2,11 @@ use std::{
     collections::HashSet,
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    str::FromStr,
     sync::Arc,
 };
 
-use anyhow::{ensure, Context};
+use anyhow::{anyhow, ensure, Context};
 use bytes::{Bytes, BytesMut};
 use h3::{
     proto::varint::VarInt,
@@ -13,7 +14,7 @@ use h3::{
     server::{self, Connection, RequestStream},
 };
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
-use http::{Request, StatusCode};
+use http::{Request, StatusCode, Uri};
 use quinn::{crypto::rustls::QuicServerConfig, Endpoint, Incoming};
 use tokio::{net::UdpSocket, select, sync::mpsc, task};
 
@@ -41,7 +42,17 @@ const MASQUE_WELL_KNOWN_PATH: &str = "/.well-known/masque/udp/";
 
 pub struct Server {
     endpoint: Endpoint,
+    params: Arc<ServerParams>,
+}
+
+struct ServerParams {
+    /// Allowed target IPs for the proxy connection
     allowed_hosts: AllowedIps,
+
+    /// Server hostname (optional)
+    hostname: Option<String>,
+
+    /// Maximum transfer unit
     mtu: u16,
 }
 
@@ -60,6 +71,7 @@ impl Server {
     pub fn bind(
         bind_addr: SocketAddr,
         allowed_hosts: HashSet<IpAddr>,
+        hostname: Option<String>,
         tls_config: Arc<rustls::ServerConfig>,
         mtu: u16,
     ) -> Result<Self> {
@@ -73,10 +85,13 @@ impl Server {
 
         Ok(Self {
             endpoint,
-            allowed_hosts: AllowedIps {
-                hosts: Arc::new(allowed_hosts),
-            },
-            mtu,
+            params: Arc::new(ServerParams {
+                allowed_hosts: AllowedIps {
+                    hosts: Arc::new(allowed_hosts),
+                },
+                hostname,
+                mtu,
+            }),
         })
     }
 
@@ -101,14 +116,13 @@ impl Server {
         while let Some(new_connection) = self.endpoint.accept().await {
             tokio::spawn(Self::handle_incoming_connection(
                 new_connection,
-                self.allowed_hosts.clone(),
-                self.mtu,
+                Arc::clone(&self.params),
             ));
         }
         Ok(())
     }
 
-    async fn handle_incoming_connection(connection: Incoming, allowed_hosts: AllowedIps, mtu: u16) {
+    async fn handle_incoming_connection(connection: Incoming, server_params: Arc<ServerParams>) {
         match connection.await {
             Ok(conn) => {
                 log::debug!("new connection established");
@@ -131,8 +145,7 @@ impl Server {
                             quinn_conn,
                             req,
                             stream,
-                            allowed_hosts.clone(),
-                            mtu,
+                            server_params,
                         ));
                     }
 
@@ -155,21 +168,38 @@ impl Server {
         quinn_conn: quinn::Connection,
         request: Request<()>,
         mut stream: RequestStream<T, Bytes>,
-        allowed_hosts: AllowedIps,
-        mtu: u16,
+        server_params: Arc<ServerParams>,
     ) {
-        let Some(target_addr) = get_target_socketaddr(request.uri().path()) else {
-            return;
+        let proxy_uri = match ProxyUri::try_from(request.uri()) {
+            Ok(proxy_uri) => proxy_uri,
+            Err(e) => {
+                log::debug!("Bad proxy URI: {e}");
+                return;
+            }
         };
-        if !allowed_hosts.ip_allowed(target_addr.ip()) {
+
+        if let Some(hostname) = &server_params.hostname {
+            if &proxy_uri.hostname != hostname {
+                let valid_uri = ProxyUri {
+                    hostname: hostname.to_string(),
+                    ..proxy_uri
+                };
+                return handle_invalid_hostname(stream, valid_uri).await;
+            }
+        }
+
+        if !server_params
+            .allowed_hosts
+            .ip_allowed(proxy_uri.target_addr.ip())
+        {
             return handle_disallowed_ip(stream).await;
         }
 
-        let bind_addr = SocketAddr::new(unspecified_addr(target_addr.ip()), 0);
+        let bind_addr = SocketAddr::new(unspecified_addr(proxy_uri.target_addr.ip()), 0);
         let Ok(udp_socket) = UdpSocket::bind(bind_addr).await else {
             return handle_failed_socket(stream).await;
         };
-        if let Err(err) = udp_socket.connect(target_addr).await {
+        if let Err(err) = udp_socket.connect(proxy_uri.target_addr).await {
             log::error!("Failed to set destination for UDP socket: {err}");
             return handle_failed_socket(stream).await;
         };
@@ -188,8 +218,8 @@ impl Server {
         let mut proxy_rx_task = task::spawn(proxy_rx_task(
             stream_id,
             quinn_conn,
-            target_addr,
-            mtu,
+            proxy_uri.target_addr,
+            server_params.mtu,
             Arc::clone(&udp_socket),
             send_tx,
         ));
@@ -370,21 +400,74 @@ async fn handle_failed_socket<T: BidiStream<Bytes>>(mut stream: RequestStream<T,
     let _ = stream.send_response(response).await;
 }
 
-fn get_target_socketaddr(request_path: &str) -> Option<SocketAddr> {
-    // Establish if the URL path looks like `/.well-known/masque/udp/{ip}/{port}`
-    if !request_path.starts_with(MASQUE_WELL_KNOWN_PATH) {
-        return None;
-    };
-    let (addr_str, port_str) = request_path
-        .strip_prefix(MASQUE_WELL_KNOWN_PATH)?
-        .trim_start_matches('/')
-        .split_once('/')?;
-    let port_str = port_str.trim_end_matches('/');
+async fn handle_invalid_hostname<T: BidiStream<Bytes>>(
+    mut stream: RequestStream<T, Bytes>,
+    valid_uri: ProxyUri,
+) {
+    let uri = Uri::from(valid_uri).to_string();
+    let response = http::Response::builder()
+        .status(StatusCode::PERMANENT_REDIRECT)
+        .header("Location", uri)
+        .body(())
+        .unwrap();
+    let _ = stream.send_response(response).await;
+}
 
-    Some(SocketAddr::new(
-        addr_str.trim_start_matches('/').parse().ok()?,
-        port_str.parse().ok()?,
-    ))
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct ProxyUri {
+    hostname: String,
+    target_addr: SocketAddr,
+}
+
+impl From<ProxyUri> for Uri {
+    fn from(proxy_uri: ProxyUri) -> Self {
+        Uri::builder()
+            .scheme("https")
+            .authority(proxy_uri.hostname)
+            .path_and_query(format!(
+                "{MASQUE_WELL_KNOWN_PATH}/{ip}/{port}",
+                ip = proxy_uri.target_addr.ip(),
+                port = proxy_uri.target_addr.port(),
+            ))
+            .build()
+            .unwrap()
+    }
+}
+
+impl TryFrom<&Uri> for ProxyUri {
+    type Error = anyhow::Error;
+
+    fn try_from(uri: &Uri) -> std::result::Result<Self, Self::Error> {
+        let host = uri.host().context("Expected a URI containing a host")?;
+
+        let path = uri.path();
+        let anyhow_path_err =
+            || anyhow!("Expected `/.well-known/masque/udp/<ip>/<port>`, found `{path}`");
+        let (addr_str, port_str) = path
+            .strip_prefix(MASQUE_WELL_KNOWN_PATH)
+            .with_context(anyhow_path_err)?
+            .trim_start_matches('/')
+            .split_once('/')
+            .with_context(anyhow_path_err)?;
+
+        let port_str = port_str.trim_end_matches('/');
+
+        Ok(ProxyUri {
+            hostname: host.to_string(),
+            target_addr: SocketAddr::new(
+                addr_str.parse().with_context(anyhow_path_err)?,
+                port_str.parse().with_context(anyhow_path_err)?,
+            ),
+        })
+    }
+}
+
+impl FromStr for ProxyUri {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        ProxyUri::try_from(&Uri::from_str(s)?)
+    }
 }
 
 fn unspecified_addr(addr: IpAddr) -> IpAddr {
@@ -402,18 +485,21 @@ mod test {
     fn test_get_good_slashy_ocketaddr() {
         let addr: IpAddr = "192.168.1.1".parse().unwrap();
         let port: u16 = 7979;
-        let expected_addr = SocketAddr::new(addr, port);
-        let good_path = format!("{MASQUE_WELL_KNOWN_PATH}///{addr}/{port}////");
+        let expected = ProxyUri {
+            hostname: "foo".to_string(),
+            target_addr: SocketAddr::new(addr, port),
+        };
+        let good_path = format!("https://foo{MASQUE_WELL_KNOWN_PATH}///{addr}/{port}////");
 
-        assert_eq!(get_target_socketaddr(&good_path).unwrap(), expected_addr)
+        assert_eq!(ProxyUri::from_str(&good_path).unwrap(), expected)
     }
 
     #[test]
     fn test_get_bad_socketaddr() {
         let addr: IpAddr = "192.168.1.1".parse().unwrap();
         let port: u16 = 7979;
-        let good_path = format!("{MASQUE_WELL_KNOWN_PATH}{addr}adsfasd/asdfasdf/{port}");
+        let bad_path = format!("{MASQUE_WELL_KNOWN_PATH}{addr}adsfasd/asdfasdf/{port}");
 
-        assert_eq!(get_target_socketaddr(&good_path), None)
+        assert!(ProxyUri::from_str(&bad_path).is_err())
     }
 }
