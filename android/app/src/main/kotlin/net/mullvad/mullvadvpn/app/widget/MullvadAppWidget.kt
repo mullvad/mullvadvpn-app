@@ -118,7 +118,7 @@ class MullvadAppWidget : GlanceAppWidget() {
         packageName: String,
     ) {
         Scaffold(
-            backgroundColor = GlanceTheme.colors.widgetBackground,//ColorProvider(Color(0xFF254669)),
+            backgroundColor = ColorProvider(Color(0xFF254669)), //colors.widgetBackground
             titleBar = {
                 Row(
                     modifier = GlanceModifier.fillMaxWidth(),
@@ -243,7 +243,7 @@ class MullvadAppWidget : GlanceAppWidget() {
                                     Intent().apply {
                                         setClassName(packageName, WIDGET_ACTION_RECEIVER)
                                         action = KEY_UPDATE_SETTING
-                                        putExtra("SETTING", "MULITIHOP")
+                                        putExtra("SETTING", "MULTIHOP")
                                     }
                                 ),
                             colors = switchColors,

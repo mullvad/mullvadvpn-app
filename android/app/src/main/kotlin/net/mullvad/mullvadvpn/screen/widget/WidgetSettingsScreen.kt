@@ -115,11 +115,6 @@ fun WidgetSettingsScreen(state: WidgetSettingsState, onBackClick: () -> Unit) {
                 )
             }
             itemWithDivider {
-                SwitchListItem(
-                    title = "Show Quantum-resistant tunnel Setting",
-                    isToggled = currentState.showQuantumResistant,
-                    onCellClicked = { currentState = currentState.copy(showQuantumResistant = it) },
-                )
                 WidgetSettingListItem(
                     title =
                         stringResource(
