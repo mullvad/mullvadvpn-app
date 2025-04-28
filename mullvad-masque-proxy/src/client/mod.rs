@@ -346,6 +346,7 @@ impl Client {
                 ))
                 .await
             }
+
             status => Err(Error::UnexpectedStatus(status)),
         }
     }

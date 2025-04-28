@@ -14,7 +14,7 @@ use h3::{
     server::{self, Connection, RequestStream},
 };
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
-use http::{Request, StatusCode, Uri};
+use http::{StatusCode, Uri};
 use quinn::{crypto::rustls::QuicServerConfig, Endpoint, Incoming};
 use tokio::{net::UdpSocket, select, sync::mpsc, task};
 
@@ -121,54 +121,49 @@ impl Server {
     }
 
     async fn handle_incoming_connection(connection: Incoming, server_params: Arc<ServerParams>) {
-        match connection.await {
-            Ok(conn) => {
-                log::debug!("new connection established");
-
-                let quinn_conn = conn.clone();
-
-                let Ok(mut connection) = server::builder()
-                    .enable_datagram(true)
-                    .build(h3_quinn::Connection::new(conn))
-                    .await
-                else {
-                    log::error!("Failed to construct a new H3 server connection");
-                    return;
-                };
-
-                match connection.accept().await {
-                    Ok(Some((req, stream))) => {
-                        tokio::spawn(Self::handle_proxy_request(
-                            connection,
-                            quinn_conn,
-                            req,
-                            stream,
-                            server_params,
-                        ));
-                    }
-
-                    // indicating no more streams to be received
-                    Ok(None) => {}
-
-                    Err(err) => {
-                        log::error!("error on accept {}", err);
-                    }
-                }
-            }
+        let conn = match connection.await {
+            Ok(conn) => conn,
             Err(err) => {
                 log::error!("accepting connection failed: {:?}", err);
+                return;
             }
-        }
+        };
+
+        log::debug!("new connection established");
+
+        let quinn_conn = conn.clone();
+
+        let Ok(connection) = server::builder()
+            .enable_datagram(true)
+            .build(h3_quinn::Connection::new(conn))
+            .await
+        else {
+            log::error!("Failed to construct a new H3 server connection");
+            return;
+        };
+
+        Self::accept_proxy_request(quinn_conn, connection, server_params).await;
     }
 
-    async fn handle_proxy_request<T: BidiStream<Bytes>>(
-        connection: Connection<h3_quinn::Connection, Bytes>,
-        quinn_conn: quinn::Connection,
-        request: Request<()>,
-        mut stream: RequestStream<T, Bytes>,
+    /// Accept an HTTP request and try to handle it as a proxy request.
+    async fn accept_proxy_request(
+        quic_conn: quinn::Connection,
+        mut http_conn: Connection<h3_quinn::Connection, Bytes>,
         server_params: Arc<ServerParams>,
     ) {
-        let proxy_uri = match ProxyUri::try_from(request.uri()) {
+        let (http_request, mut stream) = match http_conn.accept().await {
+            Ok(Some((req, stream))) => (req, stream),
+
+            // indicating no more streams to be received
+            Ok(None) => return,
+
+            Err(err) => {
+                log::error!("error on accept {}", err);
+                return;
+            }
+        };
+
+        let proxy_uri = match ProxyUri::try_from(http_request.uri()) {
             Ok(proxy_uri) => proxy_uri,
             Err(e) => {
                 log::debug!("Bad proxy URI: {e}");
@@ -182,7 +177,19 @@ impl Server {
                     hostname: hostname.to_string(),
                     ..proxy_uri
                 };
-                return handle_invalid_hostname(stream, valid_uri).await;
+
+                respond_with_redirect(stream, valid_uri).await;
+
+                // NOTE: Recursing like this makes us vulnerable to DoS if the client keeps
+                // sending the wrong hostname. This is fine since this is just an example server.
+                Box::pin(Self::accept_proxy_request(
+                    quic_conn,
+                    http_conn,
+                    server_params,
+                ))
+                .await;
+
+                return;
             }
         }
 
@@ -212,10 +219,10 @@ impl Server {
         let (send_tx, send_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
 
         let mut connection_task =
-            task::spawn(connection_task(stream_id, connection, send_rx, client_tx));
+            task::spawn(connection_task(stream_id, http_conn, send_rx, client_tx));
         let mut proxy_rx_task = task::spawn(proxy_rx_task(
             stream_id,
-            quinn_conn,
+            quic_conn,
             proxy_uri.target_addr,
             server_params.mtu,
             Arc::clone(&udp_socket),
@@ -398,7 +405,7 @@ async fn handle_failed_socket<T: BidiStream<Bytes>>(mut stream: RequestStream<T,
     let _ = stream.send_response(response).await;
 }
 
-async fn handle_invalid_hostname<T: BidiStream<Bytes>>(
+async fn respond_with_redirect<T: BidiStream<Bytes>>(
     mut stream: RequestStream<T, Bytes>,
     valid_uri: ProxyUri,
 ) {
