@@ -1,3 +1,9 @@
+const { build } = require('./build');
 const { packLinux } = require('./distribution');
 
-packLinux();
+async function buildAndPackage() {
+  await build();
+  await packLinux();
+}
+
+buildAndPackage();
