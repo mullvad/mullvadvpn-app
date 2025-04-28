@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Colors } from '../lib/foundations';
+import { DeprecatedColors } from '../lib/foundations';
 import AccountNumberLabel from './AccountNumberLabel';
 import * as Cell from './cell';
 import { hugeText, measurements, tinyText } from './common-styles';
@@ -12,7 +12,7 @@ export const StyledAccountNumberLabel = styled(AccountNumberLabel)({
   lineHeight: '20px',
   fontSize: '20px',
   fontWeight: 700,
-  color: Colors.white,
+  color: DeprecatedColors.white,
 });
 
 export const StyledModalCellContainer = styled(Cell.Container)({
@@ -28,7 +28,7 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
 export const StyledContainer = styled(Container)({
   paddingTop: '22px',
   minHeight: '100%',
-  backgroundColor: Colors.darkBlue,
+  backgroundColor: DeprecatedColors.darkBlue,
 });
 
 export const StyledBody = styled.div({
@@ -45,11 +45,11 @@ export const StyledTitle = styled.span(hugeText, {
 
 export const StyledMessage = styled.span(tinyText, {
   marginBottom: '20px',
-  color: Colors.white,
+  color: DeprecatedColors.white,
 });
 
 export const StyledAccountNumberMessage = styled.span(tinyText, {
-  color: Colors.white,
+  color: DeprecatedColors.white,
 });
 
 export const StyledAccountNumberContainer = styled.div({
@@ -60,5 +60,5 @@ export const StyledAccountNumberContainer = styled.div({
 
 export const StyledDeviceLabel = styled.span(tinyText, {
   lineHeight: '20px',
-  color: Colors.white,
+  color: DeprecatedColors.white,
 });

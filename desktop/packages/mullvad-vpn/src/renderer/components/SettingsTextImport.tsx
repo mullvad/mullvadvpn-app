@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
 import useActions from '../lib/actionsHook';
 import { IconButton } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { DeprecatedColors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useCombinedRefs, useRefCallback, useStyledRef } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
@@ -17,7 +17,7 @@ const StyledTextArea = styled.textarea({
   width: '100%',
   flex: 1,
   padding: '13px',
-  color: Colors.blue,
+  color: DeprecatedColors.blue,
 });
 
 export default function SettingsTextImport() {

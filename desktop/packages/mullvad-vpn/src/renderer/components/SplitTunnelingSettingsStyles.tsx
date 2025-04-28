@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Colors, spacings } from '../lib/foundations';
+import { DeprecatedColors, spacings } from '../lib/foundations';
 import * as Cell from './cell';
 import { measurements, normalText } from './common-styles';
 import { NavigationScrollbars } from './NavigationScrollbars';
@@ -23,7 +23,7 @@ export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
 
 export const StyledCellButton = styled(Cell.CellButton)<{ $lookDisabled?: boolean }>((props) => ({
   '&&:not(:disabled):hover': {
-    backgroundColor: props.$lookDisabled ? Colors.blue : undefined,
+    backgroundColor: props.$lookDisabled ? DeprecatedColors.blue : undefined,
   },
 }));
 
@@ -65,7 +65,7 @@ export const StyledSpinnerRow = styled(Cell.CellButton)({
   justifyContent: 'center',
   padding: `${spacings.small} 0`,
   marginBottom: measurements.rowVerticalMargin,
-  background: Colors.blue40,
+  background: DeprecatedColors.blue40,
 });
 
 export const StyledNoResult = styled(Cell.CellFooter)({

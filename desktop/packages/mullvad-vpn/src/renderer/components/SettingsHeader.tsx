@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { Flex, LabelTiny, TitleBig } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { DeprecatedColors } from '../lib/foundations';
 
 export const HeaderTitle = styled(TitleBig)({
   wordWrap: 'break-word',
@@ -10,7 +10,7 @@ export const HeaderTitle = styled(TitleBig)({
 });
 
 export const HeaderSubTitle = styled(LabelTiny).attrs({
-  color: Colors.white60,
+  color: DeprecatedColors.white60,
 })({});
 
 interface SettingsHeaderProps {

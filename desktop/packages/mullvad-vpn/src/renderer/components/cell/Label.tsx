@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import { Icon, IconProps, Image, ImageProps } from '../../lib/components';
-import { Colors, spacings } from '../../lib/foundations';
+import { DeprecatedColors, spacings } from '../../lib/foundations';
 import { buttonText, normalText, tinyText } from '../common-styles';
 import { CellButton } from './CellButton';
 import { CellDisabledContext } from './Container';
@@ -11,7 +11,7 @@ const StyledLabel = styled.div<{ disabled: boolean }>(buttonText, (props) => ({
   display: 'flex',
   margin: '10px 0',
   flex: 1,
-  color: props.disabled ? Colors.white40 : Colors.white,
+  color: props.disabled ? DeprecatedColors.white40 : DeprecatedColors.white,
   textAlign: 'left',
 
   [`${LabelContainer} &&`]: {
@@ -27,7 +27,7 @@ const StyledLabel = styled.div<{ disabled: boolean }>(buttonText, (props) => ({
 }));
 
 const StyledSubText = styled.span<{ disabled: boolean }>(tinyText, (props) => ({
-  color: props.disabled ? Colors.white20 : Colors.white60,
+  color: props.disabled ? DeprecatedColors.white20 : DeprecatedColors.white60,
   flex: -1,
   textAlign: 'right',
   margin: `0 ${spacings.small}`,
@@ -56,7 +56,7 @@ const StyledTintedIcon = styled(Icon)<IconProps & { disabled?: boolean }>(
 const StyledSubLabel = styled.div<{ disabled: boolean }>(tinyText, {
   display: 'flex',
   alignItems: 'center',
-  color: Colors.white60,
+  color: DeprecatedColors.white60,
   marginBottom: '5px',
   lineHeight: '14px',
   height: '14px',

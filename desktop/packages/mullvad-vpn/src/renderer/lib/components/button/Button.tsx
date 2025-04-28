@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 
-import { Colors, Radius, spacings } from '../../foundations';
+import { DeprecatedColors, Radius, spacings } from '../../foundations';
 import { ButtonBase } from './ButtonBase';
 import { ButtonProvider } from './ButtonContext';
 import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './components';
@@ -15,19 +15,19 @@ const styles = {
   radius: Radius.radius4,
   variants: {
     primary: {
-      background: Colors.blue,
-      hover: Colors.blue60,
-      disabled: Colors.blue50,
+      background: DeprecatedColors.blue,
+      hover: DeprecatedColors.blue60,
+      disabled: DeprecatedColors.blue50,
     },
     success: {
-      background: Colors.green,
-      hover: Colors.green90,
-      disabled: Colors.green40,
+      background: DeprecatedColors.green,
+      hover: DeprecatedColors.green90,
+      disabled: DeprecatedColors.green40,
     },
     destructive: {
-      background: Colors.red,
-      hover: Colors.red80,
-      disabled: Colors.red60,
+      background: DeprecatedColors.red,
+      hover: DeprecatedColors.red80,
+      disabled: DeprecatedColors.red60,
     },
   },
   flex: {
@@ -75,7 +75,7 @@ export const StyledButton = styled(ButtonBase)<ButtonProps>`
       }
 
       &:focus-visible {
-        outline: 2px solid ${Colors.white};
+        outline: 2px solid ${DeprecatedColors.white};
         outline-offset: 2px;
       }
 

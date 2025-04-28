@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Flex, Logo } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { DeprecatedColors } from '../lib/foundations';
 import { AppMainHeader } from './app-main-header';
 import { measurements } from './common-styles';
 import { Container, Layout } from './Layout';
@@ -19,7 +19,7 @@ const Subtitle = styled.span({
   fontSize: '14px',
   lineHeight: '20px',
   margin: `0 ${measurements.horizontalViewMargin}`,
-  color: Colors.white40,
+  color: DeprecatedColors.white40,
   textAlign: 'center',
 });
 

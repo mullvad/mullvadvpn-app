@@ -1,7 +1,7 @@
 import { useCallback, useId, useState } from 'react';
 import { styled } from 'styled-components';
 
-import { Colors } from '../../lib/foundations';
+import { DeprecatedColors } from '../../lib/foundations';
 import { AriaInput, AriaInputGroup, AriaLabel } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
 import { SettingsSelectItem } from './SettingsSelect';
@@ -60,7 +60,7 @@ const StyledRadioButton = styled.input.attrs({ type: 'radio' })({
     height: '12px',
     borderRadius: '50%',
     backgroundColor: 'transparent',
-    border: `1px ${Colors.white} solid`,
+    border: `1px ${DeprecatedColors.white} solid`,
     top: 0,
     left: 0,
   },
@@ -71,7 +71,7 @@ const StyledRadioButton = styled.input.attrs({ type: 'radio' })({
     width: '8px',
     height: '8px',
     borderRadius: '50%',
-    backgroundColor: Colors.white,
+    backgroundColor: DeprecatedColors.white,
     top: '3px',
     left: '3px',
   },
@@ -85,7 +85,7 @@ const StyledRadioButtonContainer = styled.div({
 });
 
 const StyledRadioButtonLabel = styled.label(smallNormalText, {
-  color: Colors.white,
+  color: DeprecatedColors.white,
   marginLeft: '8px',
 });
 

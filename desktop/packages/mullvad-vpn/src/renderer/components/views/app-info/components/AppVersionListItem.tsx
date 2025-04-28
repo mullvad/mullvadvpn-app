@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { messages } from '../../../../../shared/gettext';
 import { getDownloadUrl } from '../../../../../shared/version';
 import { useAppContext } from '../../../../context';
-import { Colors } from '../../../../lib/foundations';
+import { DeprecatedColors } from '../../../../lib/foundations';
 import { useSelector } from '../../../../redux/store';
 import * as Cell from '../../../cell';
 import { LabelStack } from '../../../Layout';
@@ -36,7 +36,7 @@ export function AppVersionListItem() {
 
     const message = !consistentVersion ? inconsistentVersionMessage : updateAvailableMessage;
 
-    alertIcon = <Cell.CellIcon icon="alert-circle" color={Colors.red} />;
+    alertIcon = <Cell.CellIcon icon="alert-circle" color={DeprecatedColors.red} />;
     footer = (
       <Cell.CellFooter>
         <Cell.CellFooterText>{message}</Cell.CellFooterText>

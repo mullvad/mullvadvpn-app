@@ -1,20 +1,20 @@
 import styled from 'styled-components';
 
-import { Colors } from '../../../foundations';
+import { DeprecatedColors } from '../../../foundations';
 import { Icon, IconProps } from '../../icon/Icon';
 import { useIconButtonContext } from '../IconButtonContext';
 export type IconButtonIconProps = IconProps;
 
 const variants = {
   primary: {
-    background: Colors.white,
-    hover: Colors.white60,
-    disabled: Colors.white50,
+    background: DeprecatedColors.white,
+    hover: DeprecatedColors.white60,
+    disabled: DeprecatedColors.white50,
   },
   secondary: {
-    background: Colors.white60,
-    hover: Colors.white80,
-    disabled: Colors.white50,
+    background: DeprecatedColors.white60,
+    hover: DeprecatedColors.white80,
+    disabled: DeprecatedColors.white50,
   },
 } as const;
 

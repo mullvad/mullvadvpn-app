@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Colors } from '../../foundations';
+import { DeprecatedColors } from '../../foundations';
 
 export interface DotProps {
   variant?: 'primary' | 'success' | 'warning' | 'error';
@@ -21,10 +21,10 @@ const sizes = {
 };
 
 const colors = {
-  primary: Colors.white80,
-  success: Colors.green,
-  warning: Colors.yellow,
-  error: Colors.red,
+  primary: DeprecatedColors.white80,
+  success: DeprecatedColors.green,
+  warning: DeprecatedColors.yellow,
+  error: DeprecatedColors.red,
 };
 
 export const Dot = ({ variant = 'primary', size = 'medium', ...props }: DotProps) => {

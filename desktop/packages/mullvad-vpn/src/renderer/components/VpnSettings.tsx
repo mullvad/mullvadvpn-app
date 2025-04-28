@@ -9,7 +9,7 @@ import log from '../../shared/logging';
 import { useAppContext } from '../context';
 import { Button } from '../lib/components';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
-import { Colors, spacings } from '../lib/foundations';
+import { DeprecatedColors, spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
@@ -40,7 +40,7 @@ const StyledTitleLabel = styled(Cell.SectionTitle)({
 });
 
 const StyledSectionItem = styled(Cell.Container)({
-  backgroundColor: Colors.blue40,
+  backgroundColor: DeprecatedColors.blue40,
 });
 
 const LanIpRanges = styled.ul({
