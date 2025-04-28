@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { Flex } from '../lib/components';
+import { Button, Flex } from '../lib/components';
 import { spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
@@ -21,7 +21,6 @@ import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import PageSlider from './PageSlider';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { SmallButton, SmallButtonColor } from './SmallButton';
 
 const StyledHeaderSubTitle = styled(HeaderSubTitle)({
   display: 'inline-block',
@@ -224,18 +223,17 @@ function DaitaToggle() {
         isOpen={confirmationDialogVisible}
         type={ModalAlertType.caution}
         gridButtons={[
-          <SmallButton
-            key="confirm"
-            onClick={confirmEnableDirectOnly}
-            color={SmallButtonColor.blue}>
-            {
-              // TRANSLATORS: A toggle that refers to the setting "Direct only".
-              messages.gettext('Enable direct only')
-            }
-          </SmallButton>,
-          <SmallButton key="cancel" onClick={hideConfirmationDialog} color={SmallButtonColor.blue}>
-            {messages.pgettext('wireguard-settings-view', 'Cancel')}
-          </SmallButton>,
+          <Button key="cancel" onClick={hideConfirmationDialog}>
+            <Button.Text>{messages.pgettext('wireguard-settings-view', 'Cancel')}</Button.Text>
+          </Button>,
+          <Button key="confirm" onClick={confirmEnableDirectOnly}>
+            <Button.Text>
+              {
+                // TRANSLATORS: A toggle that refers to the setting "Direct only".
+                messages.gettext('Enable direct only')
+              }
+            </Button.Text>
+          </Button>,
         ]}
         close={hideConfirmationDialog}>
         <ModalMessage>
