@@ -55,6 +55,10 @@ struct ObfuscatorPortSelector {
                 tunnelSettings: tunnelSettings,
                 shadowsocksPortRanges: relays.wireguard.shadowsocksPortRanges
             )
+        #if DEBUG
+        case .quic:
+            port = .only(443)
+        #endif
         default:
             break
         }

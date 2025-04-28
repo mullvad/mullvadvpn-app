@@ -324,7 +324,7 @@ private extension WireGuardObfuscationState {
         switch self {
         case .shadowsocks:
             true
-        case .on, .off, .automatic, .udpOverTcp:
+        case .on, .off, .automatic, .udpOverTcp, .quic:
             false
         }
     }

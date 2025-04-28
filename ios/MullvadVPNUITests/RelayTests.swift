@@ -324,6 +324,47 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDisconnectButton()
     }
 
+    func testWireGuardOverQuicManually() throws {
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapVPNSettingsCell()
+
+            VPNSettingsPage(self.app)
+                .tapWireGuardObfuscationExpandButton()
+                .tapWireGuardObfuscationOffCell()
+        }
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapWireGuardObfuscationExpandButton()
+            .tapWireGuardObufscationQuicCell()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapConnectButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+
+        try Networking.verifyCanAccessInternet()
+
+        TunnelControlPage(app)
+            .tapDisconnectButton()
+    }
+
     /// Test automatic switching to TCP is functioning when UDP traffic to relay is blocked. This test first connects to a realy to get the IP address of it, in order to block UDP traffic to this relay.
     func testWireGuardOverTCPAutomatically() throws {
         FirewallClient().removeRules()
