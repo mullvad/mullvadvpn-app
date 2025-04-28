@@ -76,8 +76,6 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
-import net.mullvad.mullvadvpn.compose.test.LOGIN_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.LoginTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -87,6 +85,8 @@ import net.mullvad.mullvadvpn.compose.util.accountNumberVisualTransformation
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.ui.tag.LOGIN_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.compose.koinViewModel

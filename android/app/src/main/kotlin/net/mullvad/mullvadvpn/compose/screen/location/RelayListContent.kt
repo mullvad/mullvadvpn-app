@@ -23,11 +23,11 @@ import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.S
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowEditCustomListBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowLocationBottomSheet
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
-import net.mullvad.mullvadvpn.compose.test.LOCATION_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.ui.tag.LOCATION_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 
 /** Used by both the select location screen and search select location screen */
 fun LazyListScope.relayListContent(

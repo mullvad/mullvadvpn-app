@@ -93,17 +93,6 @@ import net.mullvad.mullvadvpn.compose.dialog.info.WireguardPortInfoDialogArgumen
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_VPN_SETTINGS_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.WIREGUARD_OBFUSCATION_OFF_CELL
-import net.mullvad.mullvadvpn.compose.test.WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL
-import net.mullvad.mullvadvpn.compose.test.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
@@ -122,6 +111,17 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.ui.tag.LAZY_LIST_LAST_ITEM_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.util.indexOfFirstOrNull
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsUiState
@@ -828,7 +828,7 @@ fun VpnSettingsContent(
                             title = stringResource(id = R.string.off),
                             isSelected = it.selected,
                             onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Off) },
-                            testTag = WIREGUARD_OBFUSCATION_OFF_CELL,
+                            testTag = WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG,
                             modifier = Modifier.animateItem(),
                         )
                     }
@@ -841,7 +841,7 @@ fun VpnSettingsContent(
                             port = it.port,
                             onSelected = onSelectObfuscationMode,
                             onNavigate = navigateToShadowSocksSettings,
-                            testTag = WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL,
+                            testTag = WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG,
                             modifier = Modifier.animateItem(),
                         )
                     }
@@ -854,7 +854,7 @@ fun VpnSettingsContent(
                             port = it.port,
                             onSelected = onSelectObfuscationMode,
                             onNavigate = navigateToUdp2TcpSettings,
-                            testTag = WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL,
+                            testTag = WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG,
                             modifier = Modifier.animateItem(),
                         )
                     }

@@ -21,9 +21,6 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.CustomPortNavArgs
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsState
-import net.mullvad.mullvadvpn.compose.test.SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SHADOWSOCKS_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_AVAILABLE_PORTS
@@ -31,6 +28,9 @@ import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.ui.tag.SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.SHADOWSOCKS_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.ShadowsocksSettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 

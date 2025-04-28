@@ -17,11 +17,11 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesItemUiState
 import net.mullvad.mullvadvpn.compose.state.ManageDevicesUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.util.withRole
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
+import net.mullvad.mullvadvpn.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -61,7 +61,7 @@ class ManageDevicesScreenTest {
             initScreen(state = Lce.Loading)
 
             // Assert
-            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertIsDisplayed()
+            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertIsDisplayed()
         }
     }
 
@@ -151,7 +151,7 @@ class ManageDevicesScreenTest {
             buttons[1].assertIsDisplayed()
 
             // Make sure the device that is loading is displaying the spinner
-            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertIsDisplayed()
+            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertIsDisplayed()
         }
     }
 }

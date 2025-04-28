@@ -12,11 +12,11 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.EditCustomListUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
-import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -55,7 +55,7 @@ class EditCustomListScreenTest {
             initScreen()
 
             // Assert
-            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
+            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
         }
 
     @Test

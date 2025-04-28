@@ -13,8 +13,8 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
-import net.mullvad.mullvadvpn.compose.test.VOUCHER_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
+import net.mullvad.mullvadvpn.ui.tag.VOUCHER_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.util.VoucherRegexHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -12,11 +12,11 @@ import net.mullvad.mullvadvpn.compose.data.CUSTOM_ACCESS_METHOD
 import net.mullvad.mullvadvpn.compose.data.DIRECT_ACCESS_METHOD
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
-import net.mullvad.mullvadvpn.compose.test.API_ACCESS_DETAILS_EDIT_BUTTON
-import net.mullvad.mullvadvpn.compose.test.API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.API_ACCESS_TEST_METHOD_BUTTON
-import net.mullvad.mullvadvpn.compose.test.API_ACCESS_USE_METHOD_BUTTON
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.ui.tag.API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.API_ACCESS_USE_METHOD_BUTTON_TEST_TAG
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -65,7 +65,7 @@ class ApiAccessMethodDetailsScreenTest {
 
             // Assert
             onNodeWithTag(API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG).assertDoesNotExist()
-            onNodeWithTag(API_ACCESS_DETAILS_EDIT_BUTTON).assertDoesNotExist()
+            onNodeWithTag(API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG).assertDoesNotExist()
         }
 
     @Test
@@ -136,7 +136,7 @@ class ApiAccessMethodDetailsScreenTest {
             )
 
             // Act
-            onNodeWithTag(API_ACCESS_DETAILS_EDIT_BUTTON).performClick()
+            onNodeWithTag(API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG).performClick()
 
             // Assert
             verify(exactly = 1) { onEditMethodClicked() }
@@ -184,7 +184,7 @@ class ApiAccessMethodDetailsScreenTest {
             )
 
             // Act
-            onNodeWithTag(API_ACCESS_TEST_METHOD_BUTTON).performClick()
+            onNodeWithTag(API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG).performClick()
 
             // Assert
             verify(exactly = 1) { onTestMethodClicked() }
@@ -208,7 +208,7 @@ class ApiAccessMethodDetailsScreenTest {
             )
 
             // Act
-            onNodeWithTag(API_ACCESS_USE_METHOD_BUTTON).performClick()
+            onNodeWithTag(API_ACCESS_USE_METHOD_BUTTON_TEST_TAG).performClick()
 
             // Assert
             verify(exactly = 1) { onUseMethodClicked() }

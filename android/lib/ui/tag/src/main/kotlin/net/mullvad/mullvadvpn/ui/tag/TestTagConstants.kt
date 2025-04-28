@@ -1,8 +1,8 @@
-package net.mullvad.mullvadvpn.compose.test
+package net.mullvad.mullvadvpn.ui.tag
 
 // Top Bar
-const val TOP_BAR_ACCOUNT_BUTTON = "top_bar_account_button"
-const val TOP_BAR_SETTINGS_BUTTON = "top_bar_settings_button"
+const val TOP_BAR_ACCOUNT_BUTTON_TEST_TAG = "top_bar_account_button_test_tag"
+const val TOP_BAR_SETTINGS_BUTTON_TEST_TAG = "top_bar_settings_button_test_tag"
 const val TOP_BAR_TEST_TAG = "top_bar_test_tag"
 
 // Settings screen
@@ -27,28 +27,27 @@ const val CUSTOM_PORT_DIALOG_INPUT_TEST_TAG = "custom_port_dialog_input_test_tag
 const val LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG =
     "lazy_list_wireguard_obfuscation_title_test_tag"
 const val SWITCH_TEST_TAG = "switch_test_tag"
-const val WIREGUARD_OBFUSCATION_OFF_CELL = "wireguard_obfuscation_off_cell_test_tag"
-const val WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL = "wireguard_obfuscation_shadowsocks_cell_test_tag"
-const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL =
+const val WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG = "wireguard_obfuscation_off_cell_test_tag"
+const val WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG =
+    "wireguard_obfuscation_shadowsocks_cell_test_tag"
+const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG =
     "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
-const val QUANTUM_RESISTANCE_OFF_CELL = "quantum_resistance_off_cell_test_tag"
+const val QUANTUM_RESISTANCE_OFF_CELL_TEST_TAG = "quantum_resistance_off_cell_test_tag"
 
 // Account screen
 const val MANAGE_DEVICES_BUTTON_TEST_TAG = "manage_devices_button_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
-const val CIRCULAR_PROGRESS_INDICATOR = "circular_progress_indicator"
+const val CIRCULAR_PROGRESS_INDICATOR_TEST_TAG = "circular_progress_indicator"
 const val EXPAND_BUTTON_TEST_TAG = "expand_button_test_tag"
 const val LOCATION_CELL_TEST_TAG = "location_cell_test_tag"
 
 // ConnectScreen
-const val SCROLLABLE_COLUMN_TEST_TAG = "scrollable_column_test_tag"
 const val SELECT_LOCATION_BUTTON_TEST_TAG = "select_location_button_test_tag"
 const val CONNECT_BUTTON_TEST_TAG = "connect_button_test_tag"
 const val RECONNECT_BUTTON_TEST_TAG = "reconnect_button_test_tag"
 const val CONNECT_CARD_HEADER_TEST_TAG = "connect_card_header_test_tag"
-const val LOCATION_INFO_TEST_TAG = "location_info_test_tag"
 const val LOCATION_INFO_CONNECTION_IN_TEST_TAG = "location_info_connection_in_test_tag"
 const val LOCATION_INFO_CONNECTION_OUT_TEST_TAG = "location_info_connection_out_test_tag"
 
@@ -113,12 +112,12 @@ const val API_ACCESS_LIST_INFO_TEST_TAG = "api_access_list_info_test_tag"
 // ApiAccessMethodDetailsScreen
 const val API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG =
     "api_access_details_top_bar_dropdown_button_test_tag"
-const val API_ACCESS_DETAILS_EDIT_BUTTON = "api_access_details_edit_button_test_tag"
-const val API_ACCESS_USE_METHOD_BUTTON = "api_access_details_use_method_test_tag"
-const val API_ACCESS_TEST_METHOD_BUTTON = "api_access_details_test_method_test_tag"
+const val API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG = "api_access_details_edit_button_test_tag"
+const val API_ACCESS_USE_METHOD_BUTTON_TEST_TAG = "api_access_details_use_method_test_tag"
+const val API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG = "api_access_details_test_method_test_tag"
 
 // EditApiAccessMethodScreen
-const val EDIT_API_ACCESS_NAME_INPUT = "edit_api_access_name_input"
+const val EDIT_API_ACCESS_NAME_INPUT_TEST_TAG = "edit_api_access_name_input_test_tag"
 
 // Udp2TcpSettingScreen
 const val UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG = "udp_over_tcp_item_automatic_test_tag"

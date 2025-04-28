@@ -18,13 +18,13 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.Udp2TcpSettingsState
-import net.mullvad.mullvadvpn.compose.test.UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.constant.UDP2TCP_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.ui.tag.UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG
+import net.mullvad.mullvadvpn.ui.tag.UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.Udp2TcpSettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 

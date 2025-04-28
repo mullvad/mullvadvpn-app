@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.test.mockapi
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import java.time.ZonedDateTime
-import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
@@ -11,6 +10,7 @@ import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShow
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
+import net.mullvad.mullvadvpn.ui.tag.LOGIN_TITLE_TEST_TAG
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 

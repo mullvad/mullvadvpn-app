@@ -8,10 +8,10 @@ import io.mockk.mockk
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.Udp2TcpSettingsState
-import net.mullvad.mullvadvpn.compose.test.UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
+import net.mullvad.mullvadvpn.ui.tag.UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 

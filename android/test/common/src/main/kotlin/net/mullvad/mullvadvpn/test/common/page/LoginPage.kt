@@ -6,13 +6,14 @@ import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
 
 class LoginPage internal constructor() : Page() {
     private val invalidAccountNumberSelector = By.text("Invalid account number")
     private val loginSelector = By.text("Login")
 
     fun clickSettings() {
-        uiDevice.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON)).click()
+        uiDevice.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON_TEST_TAG)).click()
     }
 
     fun enterAccountNumber(accountNumber: String) {
@@ -32,9 +33,5 @@ class LoginPage internal constructor() : Page() {
 
     override fun assertIsDisplayed() {
         uiDevice.findObjectWithTimeout(loginSelector)
-    }
-
-    companion object {
-        const val TOP_BAR_SETTINGS_BUTTON = "top_bar_settings_button"
     }
 }
