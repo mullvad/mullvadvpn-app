@@ -6,6 +6,8 @@ mod fragment;
 pub mod server;
 mod stats;
 
+pub const MASQUE_WELL_KNOWN_PATH: &str = "/.well-known/masque/udp/";
+
 pub const HTTP_MASQUE_DATAGRAM_CONTEXT_ID: VarInt = VarInt::from_u32(0);
 pub const HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID: VarInt = VarInt::from_u32(1);
 
