@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"67fe1591-2d9e1\"",
+  "etag": "W/\"680f466d-2ff8a\"",
   "countries": [
     {
       "name": "Albania",
@@ -1198,6 +1198,72 @@
       "code": "br",
       "cities": [
         {
+          "name": "Fortaleza",
+          "code": "for",
+          "latitude": -3.732714,
+          "longitude": -38.526997,
+          "relays": [
+            {
+              "hostname": "br-for-wg-001",
+              "ipv4_addr_in": "98.98.12.178",
+              "ipv6_addr_in": "2604:980:e007:100::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Zenlayer",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "CiPqGvrQidRVmKc6T8TORsAAZtQbsGzNEAKyd1iVlWY=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "155.2.219.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "Brazil",
+                "country_code": "br",
+                "city": "Fortaleza",
+                "city_code": "for",
+                "latitude": -3.732714,
+                "longitude": -38.526997
+              }
+            },
+            {
+              "hostname": "br-for-wg-002",
+              "ipv4_addr_in": "98.98.12.182",
+              "ipv6_addr_in": "2604:980:e007:100::f101",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Zenlayer",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "qXISz0Kl4oC0sypcjD6hIxplv8zzZGIJPQZc4/EGz2k=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "155.2.219.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "Brazil",
+                "country_code": "br",
+                "city": "Fortaleza",
+                "city_code": "for",
+                "latitude": -3.732714,
+                "longitude": -38.526997
+              }
+            }
+          ]
+        },
+        {
           "name": "Sao Paulo",
           "code": "sao",
           "latitude": -23.533773,
@@ -1642,7 +1708,7 @@
               "ipv6_addr_in": "2607:9000:6000:18::a01f",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
@@ -1669,7 +1735,7 @@
               "ipv6_addr_in": "2607:9000:6000:14::a02f",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
@@ -1696,7 +1762,7 @@
               "ipv6_addr_in": "2607:9000:6000:17::a03f",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
@@ -1723,7 +1789,7 @@
               "ipv6_addr_in": "2607:9000:6000:15::a04f",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
@@ -1750,7 +1816,7 @@
               "ipv6_addr_in": "2607:9000:6000:19::a05f",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
@@ -1777,7 +1843,7 @@
               "ipv6_addr_in": "2607:9000:6000:16::a26f",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
@@ -1804,7 +1870,7 @@
               "ipv6_addr_in": "2607:9000:6000:20::a07f",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
@@ -4092,7 +4158,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": true,
               "provider": "31173",
               "weight": 100,
@@ -6557,7 +6623,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "xtom",
               "weight": 100,
@@ -6584,7 +6650,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "xtom",
               "weight": 100,
@@ -6611,7 +6677,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "xtom",
               "weight": 100,
@@ -6638,7 +6704,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "xtom",
               "weight": 100,
@@ -13285,6 +13351,238 @@
                 "latitude": 33.753746,
                 "longitude": -84.38633
               }
+            },
+            {
+              "hostname": "us-atl-wg-401",
+              "ipv4_addr_in": "23.234.108.3",
+              "ipv6_addr_in": "2607:9000:c00:31::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "49LoowbQpQfc/Yw+1DZ0A/Gien3wRnxwJzvo7Gz8Zhw=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.108.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Atlanta, GA",
+                "city_code": "atl",
+                "latitude": 33.753746,
+                "longitude": -84.38633
+              }
+            },
+            {
+              "hostname": "us-atl-wg-402",
+              "ipv4_addr_in": "23.234.108.127",
+              "ipv6_addr_in": "2607:9000:c00:32::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "9CYtFK8cSKxzEiFYpiCuKgYnjMO5Jqri2iFiG2lDUlM=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.108.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Atlanta, GA",
+                "city_code": "atl",
+                "latitude": 33.753746,
+                "longitude": -84.38633
+              }
+            },
+            {
+              "hostname": "us-atl-wg-403",
+              "ipv4_addr_in": "23.234.109.3",
+              "ipv6_addr_in": "2607:9000:c00:33::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "a64LFZfr0htAq1mk5EvVPmQPi52oboISpVUHaYKGE1E=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.109.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Atlanta, GA",
+                "city_code": "atl",
+                "latitude": 33.753746,
+                "longitude": -84.38633
+              }
+            },
+            {
+              "hostname": "us-atl-wg-404",
+              "ipv4_addr_in": "23.234.109.127",
+              "ipv6_addr_in": "2607:9000:c00:34::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "kYm0GM0/fD37iCZM3+60vAxRV1w/PUW+WQkYV14QZFo=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.109.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Atlanta, GA",
+                "city_code": "atl",
+                "latitude": 33.753746,
+                "longitude": -84.38633
+              }
+            },
+            {
+              "hostname": "us-atl-wg-405",
+              "ipv4_addr_in": "23.234.110.3",
+              "ipv6_addr_in": "2607:9000:c00:35::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "643HR3VhN/WVydahUwuKL/e8jT8UNDHduBfDPMF/2E8=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.110.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Atlanta, GA",
+                "city_code": "atl",
+                "latitude": 33.753746,
+                "longitude": -84.38633
+              }
+            },
+            {
+              "hostname": "us-atl-wg-406",
+              "ipv4_addr_in": "23.234.110.127",
+              "ipv6_addr_in": "2607:9000:c00:36::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "spmw1nZv6lgKC/T1KMSuLKyAfCifmrxCdXvVPNhQFCY=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.110.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Atlanta, GA",
+                "city_code": "atl",
+                "latitude": 33.753746,
+                "longitude": -84.38633
+              }
+            },
+            {
+              "hostname": "us-atl-wg-407",
+              "ipv4_addr_in": "23.234.111.3",
+              "ipv6_addr_in": "2607:9000:c00:37::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "e2UcVruvaIHcCXYjaHe6alKbZW/Qc9lbYzYh1AckWEU=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.111.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Atlanta, GA",
+                "city_code": "atl",
+                "latitude": 33.753746,
+                "longitude": -84.38633
+              }
+            },
+            {
+              "hostname": "us-atl-wg-408",
+              "ipv4_addr_in": "23.234.111.127",
+              "ipv6_addr_in": "2607:9000:c00:38::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "x3sKDqtdNIUhOjCiZCzMSZmoMps20J0JloSQMebYK2o=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.111.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Atlanta, GA",
+                "city_code": "atl",
+                "latitude": 33.753746,
+                "longitude": -84.38633
+              }
             }
           ]
         },
@@ -13424,114 +13722,6 @@
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "qOy1gb7dETzbzzKABZGNmb0V53XN1DEAQBs9/0R/yzs=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Chicago, IL",
-                "city_code": "chi",
-                "latitude": 41.881832,
-                "longitude": -87.623177
-              }
-            },
-            {
-              "hostname": "us-chi-wg-101",
-              "ipv4_addr_in": "66.63.167.114",
-              "ipv6_addr_in": "2607:fcd0:bb80:403::b32f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": false,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "P1Y04kVMViwZrMhjcX8fDmuVWoKl3xm2Hv/aQOmPWH0=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Chicago, IL",
-                "city_code": "chi",
-                "latitude": 41.881832,
-                "longitude": -87.623177
-              }
-            },
-            {
-              "hostname": "us-chi-wg-102",
-              "ipv4_addr_in": "66.63.167.194",
-              "ipv6_addr_in": "2607:fcd0:bb80:402::f001",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": false,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "6CwMg2aoKNSFFcIsW3R3SY5T6fBYwoRFifl8ZVlw+Vg=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Chicago, IL",
-                "city_code": "chi",
-                "latitude": 41.881832,
-                "longitude": -87.623177
-              }
-            },
-            {
-              "hostname": "us-chi-wg-103",
-              "ipv4_addr_in": "66.63.167.162",
-              "ipv6_addr_in": "2607:fcd0:bb80:404::b44f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": false,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "GO7SMFDm9Z29PLeX7cw8QndfUsdAe3jYQ8zDr91zt0U=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Chicago, IL",
-                "city_code": "chi",
-                "latitude": 41.881832,
-                "longitude": -87.623177
-              }
-            },
-            {
-              "hostname": "us-chi-wg-104",
-              "ipv4_addr_in": "66.63.167.146",
-              "ipv6_addr_in": "2607:fcd0:bb80:405::f001",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": false,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "/WirOQ8FNF9tD1+/MYgIAWpjFKiJYhJJ7/w2QmKBrVo=",
                   "daita": false,
                   "shadowsocks_extra_addr_in": []
                 }
@@ -13990,87 +14180,6 @@
               }
             },
             {
-              "hostname": "us-dal-wg-301",
-              "ipv4_addr_in": "96.44.191.130",
-              "ipv6_addr_in": "2607:fcd0:da80:1803::b35f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "qWBfuOXxbsSk8Pgi9lqAzpebZtCSKHvwL7ifF5iw3lc=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Dallas, TX",
-                "city_code": "dal",
-                "latitude": 32.89748,
-                "longitude": -97.040443
-              }
-            },
-            {
-              "hostname": "us-dal-wg-302",
-              "ipv4_addr_in": "96.44.191.146",
-              "ipv6_addr_in": "2607:fcd0:da80:1804::f001",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "8M6a88xIRG1d7pRD1qTJKKJVAYjkX6/ls8D8M1A2Zxo=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Dallas, TX",
-                "city_code": "dal",
-                "latitude": 32.89748,
-                "longitude": -97.040443
-              }
-            },
-            {
-              "hostname": "us-dal-wg-303",
-              "ipv4_addr_in": "96.44.189.98",
-              "ipv6_addr_in": "2607:fcd0:da80:1801::c40f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "9sg8LrGRk5XzHfMeAhgp9IbbqD1NKepHQ5FpBDZWOn0=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Dallas, TX",
-                "city_code": "dal",
-                "latitude": 32.89748,
-                "longitude": -97.040443
-              }
-            },
-            {
               "hostname": "us-dal-wg-401",
               "ipv4_addr_in": "37.19.200.156",
               "ipv6_addr_in": "2a02:6ea0:d20c:3::b72f",
@@ -14138,33 +14247,6 @@
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "4s9JIhxC/D02tosXYYcgrD+pHI+C7oTAFsXzVisKjRs=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Dallas, TX",
-                "city_code": "dal",
-                "latitude": 32.89748,
-                "longitude": -97.040443
-              }
-            },
-            {
-              "hostname": "us-dal-wg-501",
-              "ipv4_addr_in": "206.217.206.27",
-              "ipv6_addr_in": "2606:2e00:8007:a:ae1f:6bff:fef5:7bf5",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "100TB",
-              "weight": 100,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "8J4HNTRdwRX1me/sKxPTy8576fCcmVusC194ZLKyjQg=",
                   "daita": false,
                   "shadowsocks_extra_addr_in": []
                 }
@@ -15136,89 +15218,6 @@
               }
             },
             {
-              "hostname": "us-lax-wg-301",
-              "ipv4_addr_in": "198.96.89.194",
-              "ipv6_addr_in": "2607:fcd0:100:7c03::f001",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "U4uhpKZm/G1i/qU6s0puSuI+UL4bNCWTuiZBJ8Hdi1Y=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": [
-                    "104.223.56.133"
-                  ]
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Los Angeles, CA",
-                "city_code": "lax",
-                "latitude": 34.052235,
-                "longitude": -118.243683
-              }
-            },
-            {
-              "hostname": "us-lax-wg-302",
-              "ipv4_addr_in": "204.152.216.98",
-              "ipv6_addr_in": "2607:fcd0:100:7c01::b29f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "Ey0LihLvJ0YnkMLXK+Kcb4SniJiqoavQuASdRRFASXw=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Los Angeles, CA",
-                "city_code": "lax",
-                "latitude": 34.052235,
-                "longitude": -118.243683
-              }
-            },
-            {
-              "hostname": "us-lax-wg-303",
-              "ipv4_addr_in": "204.152.216.114",
-              "ipv6_addr_in": "2607:fcd0:100:7c02::b30f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "AcExK2CiCHYWU6Sft49uYnLUhIZiId1M+ISzupOJznI=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Los Angeles, CA",
-                "city_code": "lax",
-                "latitude": 34.052235,
-                "longitude": -118.243683
-              }
-            },
-            {
               "hostname": "us-lax-wg-402",
               "ipv4_addr_in": "146.70.173.66",
               "ipv6_addr_in": "2a0d:5600:8:6::d2f",
@@ -15423,6 +15422,238 @@
                   "public_key": "V+LTWA5DxEVITAXqHexqBzeZo95b8r+3WR8g1FsbPQ4=",
                   "daita": false,
                   "shadowsocks_extra_addr_in": []
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Los Angeles, CA",
+                "city_code": "lax",
+                "latitude": 34.052235,
+                "longitude": -118.243683
+              }
+            },
+            {
+              "hostname": "us-lax-wg-601",
+              "ipv4_addr_in": "23.162.40.3",
+              "ipv6_addr_in": "2602:fa19::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "xtom",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "oA6/33kBggrBOJ7z+uo5gZW6L1w2zYcCILKXXax8knY=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.162.40.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Los Angeles, CA",
+                "city_code": "lax",
+                "latitude": 34.052235,
+                "longitude": -118.243683
+              }
+            },
+            {
+              "hostname": "us-lax-wg-602",
+              "ipv4_addr_in": "23.162.40.127",
+              "ipv6_addr_in": "2602:fa19::f101",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "xtom",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "oLu1H6C8YaoWtmaPzAFboFX8r102Wb1uma9spVPqAX8=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.162.40.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Los Angeles, CA",
+                "city_code": "lax",
+                "latitude": 34.052235,
+                "longitude": -118.243683
+              }
+            },
+            {
+              "hostname": "us-lax-wg-603",
+              "ipv4_addr_in": "23.159.216.3",
+              "ipv6_addr_in": "2602:fa47::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "xtom",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "qeojNB247YQbT0/ysFyZDjs9RJ6Y4bFaKCLu6PjeMxA=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.159.216.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Los Angeles, CA",
+                "city_code": "lax",
+                "latitude": 34.052235,
+                "longitude": -118.243683
+              }
+            },
+            {
+              "hostname": "us-lax-wg-604",
+              "ipv4_addr_in": "23.159.216.127",
+              "ipv6_addr_in": "2602:fa47::f101",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "xtom",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "GKl6nhOl96/1AJtVCdEZpOO6F0BS5/TMkrjdH2fb93A=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.159.216.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Los Angeles, CA",
+                "city_code": "lax",
+                "latitude": 34.052235,
+                "longitude": -118.243683
+              }
+            },
+            {
+              "hostname": "us-lax-wg-605",
+              "ipv4_addr_in": "23.160.24.3",
+              "ipv6_addr_in": "2602:fa45::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "xtom",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "DbZksYqiYPGxOEF7iIaAiyN4+hZc+8HcuMMqpLW3XmA=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.160.24.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Los Angeles, CA",
+                "city_code": "lax",
+                "latitude": 34.052235,
+                "longitude": -118.243683
+              }
+            },
+            {
+              "hostname": "us-lax-wg-606",
+              "ipv4_addr_in": "23.160.24.127",
+              "ipv6_addr_in": "2602:fa45::f101",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "xtom",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "AW1YO/vYtXJioBmD8BhSGpz1DQNIQeU+jOu+3F7KBDY=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.160.24.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Los Angeles, CA",
+                "city_code": "lax",
+                "latitude": 34.052235,
+                "longitude": -118.243683
+              }
+            },
+            {
+              "hostname": "us-lax-wg-607",
+              "ipv4_addr_in": "23.168.216.3",
+              "ipv6_addr_in": "2602:f99d::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "xtom",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "ItEcyDXwTXtq6bQubbO6lY0K/oh0dfk26AV+muU+Ah4=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.168.216.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Los Angeles, CA",
+                "city_code": "lax",
+                "latitude": 34.052235,
+                "longitude": -118.243683
+              }
+            },
+            {
+              "hostname": "us-lax-wg-608",
+              "ipv4_addr_in": "23.168.216.127",
+              "ipv6_addr_in": "2602:f99d::f101",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "xtom",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "ikLR1TUKk+PTWFnydqwZ9m0HaD1dPaMNI9DwZTvzYBs=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.168.216.139"
+                  ]
                 }
               },
               "location": {
@@ -16508,14 +16739,14 @@
             {
               "hostname": "us-nyc-wg-703",
               "ipv4_addr_in": "23.162.8.130",
-              "ipv6_addr_in": "2602:fa1f:3::f001",
+              "ipv6_addr_in": "2602:fa1f:1:3::f001",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
               "active": true,
               "owned": false,
               "provider": "xtom",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "Ycm86cSu1NKGpC+vZA6htq6YE9BUFk9wweE2/RySA1g=",
@@ -16663,7 +16894,7 @@
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 50,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "1BbuYcr+WcmgcUhZTJ48GxOjQW0k4iEYBnn1Axhm1yA=",
@@ -16690,12 +16921,244 @@
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "aEJhNzQJYMH9VzB7bxhimyUFz3uo4mp1RD9VY3KAEWs=",
                   "daita": false,
                   "shadowsocks_extra_addr_in": []
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Phoenix, AZ",
+                "city_code": "phx",
+                "latitude": 33.448376,
+                "longitude": -112.074036
+              }
+            },
+            {
+              "hostname": "us-phx-wg-201",
+              "ipv4_addr_in": "23.234.88.3",
+              "ipv6_addr_in": "2607:9000:700:41::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "8mie5kslgD63v3pZkbFmwGdj3dg5mu8Wm2Ji5kntfXA=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.88.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Phoenix, AZ",
+                "city_code": "phx",
+                "latitude": 33.448376,
+                "longitude": -112.074036
+              }
+            },
+            {
+              "hostname": "us-phx-wg-202",
+              "ipv4_addr_in": "23.234.88.127",
+              "ipv6_addr_in": "2607:9000:700:42::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "I8eCMCSsFlb78N8VNaFqSJKM4Z2+3iVdlG6CvJkYEiA=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.88.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Phoenix, AZ",
+                "city_code": "phx",
+                "latitude": 33.448376,
+                "longitude": -112.074036
+              }
+            },
+            {
+              "hostname": "us-phx-wg-203",
+              "ipv4_addr_in": "23.234.89.3",
+              "ipv6_addr_in": "2607:9000:700:43::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "nSeEIx++JuzqxNqLPOm2BVCXwPpR72Q3QLflDUK8tTA=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.89.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Phoenix, AZ",
+                "city_code": "phx",
+                "latitude": 33.448376,
+                "longitude": -112.074036
+              }
+            },
+            {
+              "hostname": "us-phx-wg-204",
+              "ipv4_addr_in": "23.234.89.127",
+              "ipv6_addr_in": "2607:9000:700:44::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "0is4/9V/KIBWwfeuDVDlBmPa134UuV5gaFGUqI1emXY=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.89.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Phoenix, AZ",
+                "city_code": "phx",
+                "latitude": 33.448376,
+                "longitude": -112.074036
+              }
+            },
+            {
+              "hostname": "us-phx-wg-205",
+              "ipv4_addr_in": "23.234.90.3",
+              "ipv6_addr_in": "2607:9000:700:45::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "sZMMs5XaQN+p0HXCK15zYV1jo7IJN7agm1Ftm7JDnnk=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.90.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Phoenix, AZ",
+                "city_code": "phx",
+                "latitude": 33.448376,
+                "longitude": -112.074036
+              }
+            },
+            {
+              "hostname": "us-phx-wg-206",
+              "ipv4_addr_in": "23.234.90.127",
+              "ipv6_addr_in": "2607:9000:700:46::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "fdA7Lc9cpwb1oPy4Oa/A8sPm+RaDpW5yrdgjykde4jM=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.90.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Phoenix, AZ",
+                "city_code": "phx",
+                "latitude": 33.448376,
+                "longitude": -112.074036
+              }
+            },
+            {
+              "hostname": "us-phx-wg-207",
+              "ipv4_addr_in": "23.234.91.3",
+              "ipv6_addr_in": "2607:9000:700:47::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "G5tIt92dwuvvln9nlsi/cI3Au47U94mOMgSdODRMIxs=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.91.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Phoenix, AZ",
+                "city_code": "phx",
+                "latitude": 33.448376,
+                "longitude": -112.074036
+              }
+            },
+            {
+              "hostname": "us-phx-wg-208",
+              "ipv4_addr_in": "23.234.91.127",
+              "ipv6_addr_in": "2607:9000:700:48::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "4nHL/Y9efuazXJB0cx6ktdBb0L0gkITWzCFCswfCh04=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.91.139"
+                  ]
                 }
               },
               "location": {
@@ -17483,60 +17946,6 @@
               }
             },
             {
-              "hostname": "us-sea-wg-301",
-              "ipv4_addr_in": "104.129.57.66",
-              "ipv6_addr_in": "2607:fcd0:cd00:a00::b27f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": false,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 0,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "ekaodfDtCmMmHBPWT04FObtHi9uxCn9mI2NB6WAsS0U=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Seattle, WA",
-                "city_code": "sea",
-                "latitude": 47.608013,
-                "longitude": -122.335167
-              }
-            },
-            {
-              "hostname": "us-sea-wg-302",
-              "ipv4_addr_in": "173.205.93.2",
-              "ipv6_addr_in": "2607:fcd0:cd00:a01::b28f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": false,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 0,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "Plbre6XhYWgXzdAUD94/gqSy6C9z/nD40U2gIt+MAGQ=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Seattle, WA",
-                "city_code": "sea",
-                "latitude": 47.608013,
-                "longitude": -122.335167
-              }
-            },
-            {
               "hostname": "us-sea-wg-401",
               "ipv4_addr_in": "23.234.80.2",
               "ipv6_addr_in": "2607:9000:5000:31::f001",
@@ -18033,6 +18442,238 @@
                 "latitude": 37.338208,
                 "longitude": -121.886329
               }
+            },
+            {
+              "hostname": "us-sjc-wg-501",
+              "ipv4_addr_in": "23.234.92.3",
+              "ipv6_addr_in": "2607:9000:800:31::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "wbK8/hP/ZMr972OtanZxugSqUVt/sM/G9rnTiQ5YbSw=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.92.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "San Jose, CA",
+                "city_code": "sjc",
+                "latitude": 37.338208,
+                "longitude": -121.886329
+              }
+            },
+            {
+              "hostname": "us-sjc-wg-502",
+              "ipv4_addr_in": "23.234.92.127",
+              "ipv6_addr_in": "2607:9000:800:32::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "dCHtOy+ieOOMzgpZPr557dXygpmlj9RRNCAvUQvXj3I=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.92.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "San Jose, CA",
+                "city_code": "sjc",
+                "latitude": 37.338208,
+                "longitude": -121.886329
+              }
+            },
+            {
+              "hostname": "us-sjc-wg-503",
+              "ipv4_addr_in": "23.234.93.3",
+              "ipv6_addr_in": "2607:9000:800:33::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "HqWGqZbCgLxYLGHQG7P3jHYWQgc5p6ImqaxgqA97WCY=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.93.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "San Jose, CA",
+                "city_code": "sjc",
+                "latitude": 37.338208,
+                "longitude": -121.886329
+              }
+            },
+            {
+              "hostname": "us-sjc-wg-504",
+              "ipv4_addr_in": "23.234.93.127",
+              "ipv6_addr_in": "2607:9000:800:34::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "hQ/UqXflXztKM2T39HmQRPpPjWP8I2r9FMqnqFWy53M=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.93.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "San Jose, CA",
+                "city_code": "sjc",
+                "latitude": 37.338208,
+                "longitude": -121.886329
+              }
+            },
+            {
+              "hostname": "us-sjc-wg-505",
+              "ipv4_addr_in": "23.234.94.3",
+              "ipv6_addr_in": "2607:9000:800:35::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "v0CXmb+wIy1P+IbFA/1nYTB3KoDzFyW5k7n8vXoTxiY=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.94.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "San Jose, CA",
+                "city_code": "sjc",
+                "latitude": 37.338208,
+                "longitude": -121.886329
+              }
+            },
+            {
+              "hostname": "us-sjc-wg-506",
+              "ipv4_addr_in": "23.234.94.127",
+              "ipv6_addr_in": "2607:9000:800:36::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "sjWKL/W2+21cyjEBjtMd4TQQlWTsLTUN4skYOF7YgnU=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.94.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "San Jose, CA",
+                "city_code": "sjc",
+                "latitude": 37.338208,
+                "longitude": -121.886329
+              }
+            },
+            {
+              "hostname": "us-sjc-wg-507",
+              "ipv4_addr_in": "23.234.95.3",
+              "ipv6_addr_in": "2607:9000:800:37::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "IKhrTUlWJXlcH30jNV82mlWlj6NEre3PZffJ7MoT0zc=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.95.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "San Jose, CA",
+                "city_code": "sjc",
+                "latitude": 37.338208,
+                "longitude": -121.886329
+              }
+            },
+            {
+              "hostname": "us-sjc-wg-508",
+              "ipv4_addr_in": "23.234.95.127",
+              "ipv6_addr_in": "2607:9000:800:38::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "rIqRJ1o3UxvuwXj9B7VDquiTZ8BtQdab4wsb4F1L7l8=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.95.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "San Jose, CA",
+                "city_code": "sjc",
+                "latitude": 37.338208,
+                "longitude": -121.886329
+              }
             }
           ]
         },
@@ -18193,6 +18834,238 @@
               }
             },
             {
+              "hostname": "us-slc-wg-301",
+              "ipv4_addr_in": "23.234.112.3",
+              "ipv6_addr_in": "2607:9000:d00:2::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "tA/k8ouzYiVmgCRCF7TWibVzv5xRp3cgv9TJX66poGE=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.112.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Salt Lake City, UT",
+                "city_code": "slc",
+                "latitude": 40.758701,
+                "longitude": -111.876183
+              }
+            },
+            {
+              "hostname": "us-slc-wg-302",
+              "ipv4_addr_in": "23.234.112.127",
+              "ipv6_addr_in": "2607:9000:d00:3::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "6hF/LLVCkxlW+mH6wFob5ZiDZNu2DqfEj82w8wzVnHY=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.112.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Salt Lake City, UT",
+                "city_code": "slc",
+                "latitude": 40.758701,
+                "longitude": -111.876183
+              }
+            },
+            {
+              "hostname": "us-slc-wg-303",
+              "ipv4_addr_in": "23.234.113.3",
+              "ipv6_addr_in": "2607:9000:d00:4::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "Taa3TPPNUUcD3upveDHqpi9uaNHbeXzh6kX+sQUcM0s=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.113.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Salt Lake City, UT",
+                "city_code": "slc",
+                "latitude": 40.758701,
+                "longitude": -111.876183
+              }
+            },
+            {
+              "hostname": "us-slc-wg-304",
+              "ipv4_addr_in": "23.234.113.127",
+              "ipv6_addr_in": "2607:9000:d00:5::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "+ru/ZmhgTYWNLyn3ZWuC57PMOU64yMfuWPZ5ow0XY3A=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.113.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Salt Lake City, UT",
+                "city_code": "slc",
+                "latitude": 40.758701,
+                "longitude": -111.876183
+              }
+            },
+            {
+              "hostname": "us-slc-wg-305",
+              "ipv4_addr_in": "23.234.114.3",
+              "ipv6_addr_in": "2607:9000:d00:6::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "QkiwUWRNNtI+8YSK0SPCq6KeKPSohpX/8FbFZkx+uHg=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.114.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Salt Lake City, UT",
+                "city_code": "slc",
+                "latitude": 40.758701,
+                "longitude": -111.876183
+              }
+            },
+            {
+              "hostname": "us-slc-wg-306",
+              "ipv4_addr_in": "23.234.114.127",
+              "ipv6_addr_in": "2607:9000:d00:7::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "Gv4GZOT46WQsTOAH4mYlauwFRxtpCX08BI0bzot5Piw=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.114.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Salt Lake City, UT",
+                "city_code": "slc",
+                "latitude": 40.758701,
+                "longitude": -111.876183
+              }
+            },
+            {
+              "hostname": "us-slc-wg-307",
+              "ipv4_addr_in": "23.234.115.3",
+              "ipv6_addr_in": "2607:9000:d00:8::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "6pJrsejyhJLRotKdS+RCZez28/WqlOw6qEs1BbjQVSI=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.115.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Salt Lake City, UT",
+                "city_code": "slc",
+                "latitude": 40.758701,
+                "longitude": -111.876183
+              }
+            },
+            {
+              "hostname": "us-slc-wg-308",
+              "ipv4_addr_in": "23.234.115.127",
+              "ipv6_addr_in": "2607:9000:d00:9::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "f7xT56F8RP9XDXW7UCxBcjgP+SAGyH+y2OZ4fieR4X8=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.115.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Salt Lake City, UT",
+                "city_code": "slc",
+                "latitude": 40.758701,
+                "longitude": -111.876183
+              }
+            },
+            {
               "hostname": "us-slc-br-201",
               "ipv4_addr_in": "69.4.234.8",
               "ipv6_addr_in": null,
@@ -18283,33 +19156,6 @@
           "latitude": 40.789543,
           "longitude": -74.0565,
           "relays": [
-            {
-              "hostname": "us-uyk-wg-101",
-              "ipv4_addr_in": "209.54.101.130",
-              "ipv6_addr_in": "2607:fcd0:ccc0:1d02::b37f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": false,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "25c8tyAhFiHXwp71beltk/KmAn0fsXGEl6nnNQQjmHI=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Secaucus, NJ",
-                "city_code": "uyk",
-                "latitude": 40.789543,
-                "longitude": -74.0565
-              }
-            },
             {
               "hostname": "us-uyk-wg-102",
               "ipv4_addr_in": "104.223.118.34",
