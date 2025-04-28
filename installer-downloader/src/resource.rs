@@ -4,7 +4,7 @@
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Window title
-pub const WINDOW_TITLE: &str = "Mullvad VPN installer";
+pub const WINDOW_TITLE: &str = "Mullvad VPN loader";
 /// Window width
 pub const WINDOW_WIDTH: usize = 600;
 /// Window height

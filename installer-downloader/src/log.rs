@@ -3,7 +3,7 @@ use fern::Dispatch;
 use log::LevelFilter;
 use std::{io, path::PathBuf};
 
-const LOG_FILENAME: &str = "mullvad-installer.log";
+const LOG_FILENAME: &str = "mullvad-loader.log";
 
 pub fn init() -> Result<(), fern::InitError> {
     Dispatch::new()

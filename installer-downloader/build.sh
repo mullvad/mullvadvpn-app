@@ -32,7 +32,7 @@ BUILD_DIR="$SCRIPT_DIR/build"
 # Successfully built (and signed) artifacts
 DIST_DIR="$SCRIPT_DIR/../dist"
 
-BUNDLE_NAME="MullvadVPNInstaller"
+BUNDLE_NAME="MullvadVPNLoader"
 BUNDLE_ID="net.mullvad.$BUNDLE_NAME"
 
 FILENAME="Install Mullvad VPN"
@@ -296,7 +296,7 @@ function sign_win {
         log_info "Signing $binary..."
         if signtool sign \
             -tr http://timestamp.digicert.com -td sha256 \
-            -fd sha256 -d "Mullvad VPN installer" \
+            -fd sha256 -d "Mullvad VPN loader" \
             -du "https://github.com/mullvad/mullvadvpn-app#readme" \
             -sha1 "$CERT_HASH" "$binary"
         then
