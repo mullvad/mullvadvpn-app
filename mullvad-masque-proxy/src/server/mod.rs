@@ -21,7 +21,7 @@ use tokio::{net::UdpSocket, select, sync::mpsc, task};
 use crate::{
     compute_udp_payload_size,
     fragment::{self, Fragments},
-    MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
+    MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -37,8 +37,6 @@ pub enum Error {
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
-
-const MASQUE_WELL_KNOWN_PATH: &str = "/.well-known/masque/udp/";
 
 pub struct Server {
     endpoint: Endpoint,
