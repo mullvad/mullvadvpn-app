@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import { InAppNotificationSubtitle } from '../../shared/notifications';
 import { LabelTiny } from '../lib/components';
-import { DeprecatedColors } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
 import { ExternalLink } from './ExternalLink';
 import { InternalLink } from './InternalLink';
@@ -47,14 +46,14 @@ export const NotificationSubtitle = ({ subtitle, ...props }: NotificationSubtitl
 
   if (!Array.isArray(subtitle)) {
     return (
-      <LabelTiny color={DeprecatedColors.white60} {...props}>
+      <LabelTiny color="white60" {...props}>
         {formatHtml(subtitle)}
       </LabelTiny>
     );
   }
 
   return (
-    <LabelTiny color={DeprecatedColors.white60} {...props}>
+    <LabelTiny color="white60" {...props}>
       {subtitle.map((subtitle, index, arr) => {
         const content = formatSubtitle(subtitle);
 
