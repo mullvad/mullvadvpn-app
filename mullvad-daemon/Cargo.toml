@@ -58,8 +58,8 @@ talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features =  ["test-util"] }
 
 [target.'cfg(target_os="android")'.dependencies]
-android_logger = "0.8"
 async-trait = "0.1"
+android_logger = "0.8"
 hickory-resolver = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
