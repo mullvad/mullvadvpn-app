@@ -116,13 +116,6 @@ fun WidgetSettingsScreen(state: WidgetSettingsState, onBackClick: () -> Unit) {
                 )
             }
             itemWithDivider {
-                NormalSwitchComposeCell(
-                    title = "Show Quantum-resistant tunnel Setting",
-                    isToggled = currentState.showQuantumResistant,
-                    onCellClicked = { currentState = currentState.copy(showQuantumResistant = it) },
-                    background = MaterialTheme.colorScheme.surfaceContainerLow,
-                    startPadding = Dimens.indentedCellStartPadding,
-                )
                 WidgetSettingCell(
                     title =
                         stringResource(
