@@ -55,6 +55,7 @@ pub(super) struct VersionCache {
     pub current_version_supported: bool,
     /// The latest available versions
     pub latest_version: mullvad_update::version::VersionInfo,
+    #[cfg(update)]
     pub metadata_version: usize,
 }
 
@@ -125,6 +126,7 @@ impl VersionUpdaterInner {
         self.last_app_version_info.as_ref().map(|(info, _)| info)
     }
 
+    #[cfg(update)]
     pub fn get_min_metadata_version(&self) -> usize {
         self.last_app_version_info
             .as_ref()
@@ -135,13 +137,27 @@ impl VersionUpdaterInner {
             .unwrap_or(mullvad_update::MIN_VERIFY_METADATA_VERSION)
     }
 
+    #[cfg(not(update))]
+    pub fn get_min_metadata_version(&self) -> usize {
+        mullvad_update::MIN_VERIFY_METADATA_VERSION
+    }
+
     /// Update [Self::last_app_version_info] and write it to disk cache, and notify the `update`
     /// callback.
+    #[allow(unused_mut)]
     async fn update_version_info(
         &mut self,
         update: &impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
-        new_version_info: VersionCache,
+        mut new_version_info: VersionCache,
     ) {
+        #[cfg(update)]
+        if let Some((current_cache, _)) = self.last_app_version_info.as_ref() {
+            if current_cache.metadata_version == new_version_info.metadata_version {
+                log::trace!("Ignoring version info with same metadata version");
+                new_version_info = current_cache.clone();
+            }
+        }
+
         if let Err(err) = update(new_version_info.clone()).await {
             log::error!("Failed to save version cache to disk: {}", err);
         }
@@ -312,6 +328,7 @@ impl UpdateContext {
 }
 
 #[derive(Clone)]
+#[cfg_attr(not(update), allow(dead_code))]
 struct ApiContext {
     api_handle: ApiAvailability,
     version_proxy: AppVersionProxy,
@@ -372,7 +389,7 @@ fn do_version_check_in_background(
 }
 
 /// Combine the old version and new version endpoint
-#[cfg(any(target_os = "windows", target_os = "macos"))]
+#[cfg(update)]
 fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
@@ -400,8 +417,12 @@ fn version_check_inner(
     }
 }
 
-#[cfg(any(target_os = "linux", target_os = "android"))]
-fn version_check_inner(api: &ApiContext) -> impl Future<Output = Result<VersionCache, Error>> {
+#[cfg(not(update))]
+fn version_check_inner(
+    api: &ApiContext,
+    // NOTE: This is unused when `update` is disabled
+    _min_metadata_version: usize,
+) -> impl Future<Output = Result<VersionCache, Error>> {
     let v1_endpoint = api.version_proxy.version_check(
         mullvad_version::VERSION.to_owned(),
         PLATFORM,
@@ -523,6 +544,7 @@ fn dev_version_cache() -> VersionCache {
             },
             beta: None,
         },
+        #[cfg(update)]
         metadata_version: 0,
     }
 }
