@@ -267,12 +267,15 @@ cargo {
     prebuiltToolchains = true
     targetDirectory = "$repoRootPath/target"
     features {
-        if (enableApiOverride) {
-            defaultAnd(arrayOf("api-override"))
+        val enabledFeatures = buildList {
+            if (enableApiOverride) {
+                add("api-override")
+            }
+            if (enableBoringTun) {
+                add("boringtun")
+            }
         }
-        if (enableBoringTun) {
-            defaultAnd(arrayOf("boringtun"))
-        }
+        defaultAnd(enabledFeatures.toTypedArray())
     }
     targetIncludes = arrayOf("libmullvad_jni.so")
     extraCargoBuildArguments = buildList {
