@@ -125,7 +125,7 @@ impl VersionUpdaterInner {
 
     #[cfg(not(update))]
     pub fn get_min_metadata_version(&self) -> usize {
-        mullvad_update::MIN_VERIFY_METADATA_VERSION
+        mullvad_update::version::MIN_VERIFY_METADATA_VERSION
     }
 
     /// Update [Self::last_app_version_info] and write it to disk cache, and notify the `update`
