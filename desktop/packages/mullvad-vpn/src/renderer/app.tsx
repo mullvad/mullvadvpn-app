@@ -183,7 +183,7 @@ export default class AppRenderer {
       }
 
       // Check if the installer should be started automatically
-      this.maybeStartAppUpgradeInstaller();
+      this.appUpgradeMaybeStartInstaller();
     });
 
     IpcRendererEventChannel.app.listenUpgradeError((appUpgradeError) => {
@@ -198,7 +198,7 @@ export default class AppRenderer {
       this.setUpgradeVersion(upgradeVersion);
 
       // Check if the installer should be started automatically
-      this.maybeStartAppUpgradeInstaller();
+      this.appUpgradeMaybeStartInstaller();
     });
 
     IpcRendererEventChannel.guiSettings.listen((guiSettings: IGuiSettingsState) => {
@@ -656,7 +656,7 @@ export default class AppRenderer {
 
   // If the installer has just been downloaded and verified we want to automatically
   // start the installer if the window is focused.
-  private maybeStartAppUpgradeInstaller() {
+  private appUpgradeMaybeStartInstaller() {
     const reduxState = this.reduxStore.getState();
 
     const appUpgradeEvent = reduxState.appUpgrade.event;
