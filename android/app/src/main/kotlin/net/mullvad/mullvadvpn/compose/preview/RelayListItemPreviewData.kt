@@ -110,5 +110,11 @@ object RelayListItemPreviewData {
     }
 
     fun generateEmptyList(searchTerm: String, isSearching: Boolean) =
-        listOf(RelayListItem.LocationsEmptyText(searchTerm, isSearching))
+        listOf(
+            if (isSearching) {
+                RelayListItem.LocationsEmptyText(searchTerm)
+            } else {
+                RelayListItem.EmptyRelayList
+            }
+        )
 }
