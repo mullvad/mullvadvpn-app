@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import log from '../../shared/logging';
 import { Icon, IconProps, Spinner } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
-import { Colors, DeprecatedColors } from '../lib/foundations';
+import { Colors, colors } from '../lib/foundations';
 import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { ButtonGroup } from './ButtonGroup';
@@ -28,7 +28,7 @@ const ModalContent = styled.div({
 });
 
 const ModalBackground = styled.div<{ $visible: boolean }>((props) => ({
-  backgroundColor: props.$visible ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)',
+  backgroundColor: props.$visible ? colors.black50 : 'transparent',
   backdropFilter: props.$visible ? 'blur(1.5px)' : '',
   position: 'absolute',
   display: 'flex',
@@ -128,13 +128,13 @@ const StyledModalAlert = styled.div<{ $visible: boolean; $closing: boolean }>((p
   return {
     display: 'flex',
     flexDirection: 'column',
-    backgroundColor: DeprecatedColors.darkBlue,
+    backgroundColor: colors.brandDarkBlue,
     borderRadius: '11px',
     padding: '16px 0 16px 16px',
     maxHeight: '80vh',
     opacity: props.$visible && !props.$closing ? 1 : 0,
     transform,
-    boxShadow: ' 0px 15px 35px 5px rgba(0,0,0,0.5)',
+    boxShadow: `0px 15px 35px 5px ${colors.black50}`,
     transition: 'all 150ms ease-out',
   };
 });
@@ -343,13 +343,13 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
 }
 
 const ModalTitle = styled.h1(normalText, {
-  color: DeprecatedColors.white,
+  color: colors.white100,
   fontWeight: 600,
   margin: '18px 0 0 0',
 });
 
 export const ModalMessage = styled.span(tinyText, {
-  color: DeprecatedColors.white80,
+  color: colors.white60,
   marginTop: '16px',
 
   [`${ModalTitle} ~ &&`]: {
@@ -360,5 +360,5 @@ export const ModalMessage = styled.span(tinyText, {
 export const ModalMessageList = styled.ul({
   listStyle: 'disc outside',
   paddingLeft: '20px',
-  color: DeprecatedColors.white80,
+  color: colors.white80,
 });
