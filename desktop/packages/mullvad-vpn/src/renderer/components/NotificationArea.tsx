@@ -80,7 +80,8 @@ export default function NotificationArea(props: IProps) {
 
   const { hideNewDeviceBanner } = useActions(accountActions);
 
-  const { setDisplayedChangelog, setDismissedUpgrade, appUpgrade } = useAppContext();
+  const { setDisplayedChangelog, setDismissedUpgrade, appUpgrade, appUpgradeInstallerStart } =
+    useAppContext();
 
   const currentVersion = useSelector((state) => state.version.current);
   const displayedForVersion = useSelector(
@@ -109,6 +110,9 @@ export default function NotificationArea(props: IProps) {
   const restartAppUpgrade = useCallback(() => {
     appUpgrade();
   }, [appUpgrade]);
+  const restartAppUpgradeInstaller = useCallback(() => {
+    appUpgradeInstallerStart();
+  }, [appUpgradeInstallerStart]);
 
   const shouldAppUpgradeInstallManually = useShouldAppUpgradeInstallManually();
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
@@ -129,6 +133,7 @@ export default function NotificationArea(props: IProps) {
       hasAppUpgradeError,
       appUpgradeError: error,
       restartAppUpgrade,
+      restartAppUpgradeInstaller,
     }),
     new AppUpgradeReadyNotificationProvider({
       shouldAppUpgradeInstallManually,
