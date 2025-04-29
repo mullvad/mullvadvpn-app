@@ -1,13 +1,15 @@
 import styled from 'styled-components';
 
-import { DeprecatedColors } from '../../foundations';
+import { Colors, colors } from '../../foundations';
 import { TransientProps } from '../../types';
 import { Flex } from '../flex';
 import { MainHeaderIconButton } from './components';
 
+type HeaderVariant = 'default' | 'success' | 'error';
+
 export type HeaderProps = React.PropsWithChildren<{
   size?: '1' | '2';
-  variant?: 'default' | 'success' | 'error';
+  variant?: HeaderVariant;
 }>;
 
 const sizes = {
@@ -15,20 +17,23 @@ const sizes = {
   '2': '80px',
 };
 
-const variants = {
-  default: DeprecatedColors.blue,
-  error: DeprecatedColors.red,
-  success: DeprecatedColors.green,
+const variants: Record<HeaderVariant, Colors> = {
+  default: 'brandBlue',
+  error: 'brandRed',
+  success: 'brandGreen',
 };
 
 const StyledHeader = styled.header<TransientProps<HeaderProps>>(
-  ({ $size = '1', $variant = 'default' }) => ({
-    height: sizes[$size],
-    minHeight: sizes[$size],
+  ({ $size = '1', $variant = 'default' }) => {
+    const backgroundColor = colors[variants[$variant]];
+    return {
+      height: sizes[$size],
+      minHeight: sizes[$size],
 
-    backgroundColor: variants[$variant],
-    transition: 'height 250ms ease-in-out, min-height 250ms ease-in-out',
-  }),
+      backgroundColor,
+      transition: 'height 250ms ease-in-out, min-height 250ms ease-in-out',
+    };
+  },
 );
 
 const MainHeader = ({ size = '1', variant = 'default', children, ...props }: HeaderProps) => {
