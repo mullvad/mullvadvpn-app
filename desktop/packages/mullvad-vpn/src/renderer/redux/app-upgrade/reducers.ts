@@ -31,13 +31,6 @@ export function appUpgradeReducer(
         lastProgress: action.lastProgress,
       };
     case 'APP_UPGRADE_SET_ERROR':
-      if (action.error === 'START_INSTALLER_AUTOMATIC_FAILED') {
-        return {
-          ...state,
-          error: action.error,
-        };
-      }
-
       return {
         ...state,
         error: action.error,
