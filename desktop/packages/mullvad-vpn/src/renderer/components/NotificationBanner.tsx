@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
 import { IconButton } from '../lib/components';
-import { DeprecatedColors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
 import { useEffectEvent, useLastDefinedValue, useStyledRef } from '../lib/utility-hooks';
 import { tinyText } from './common-styles';
@@ -12,11 +12,11 @@ import { tinyText } from './common-styles';
 const NOTIFICATION_AREA_ID = 'notification-area';
 
 export const NotificationTitle = styled.span(tinyText, {
-  color: DeprecatedColors.white,
+  color: colors.white100,
 });
 
 export const NotificationSubtitleText = styled.span(tinyText, {
-  color: DeprecatedColors.white60,
+  color: colors.white60,
 });
 
 interface INotificationSubtitleProps {
@@ -90,9 +90,9 @@ interface INotificationIndicatorProps {
 }
 
 const notificationIndicatorTypeColorMap = {
-  success: DeprecatedColors.green,
-  warning: DeprecatedColors.yellow,
-  error: DeprecatedColors.red,
+  success: colors.brandGreen,
+  warning: colors.brandYellow,
+  error: colors.brandRed,
 };
 
 export const NotificationIndicator = styled.div<INotificationIndicatorProps>((props) => ({
@@ -114,7 +114,7 @@ const Collapsible = styled.div<ICollapsibleProps>((props) => {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: props.$alignBottom ? 'flex-end' : 'flex-start',
-    backgroundColor: DeprecatedColors.darkerBlue,
+    backgroundColor: colors.darkerBlue50,
     overflow: 'hidden',
     // Using auto as the initial value prevents transition if a notification is visible on mount.
     height: props.$height === undefined ? 'auto' : `${props.$height}px`,
