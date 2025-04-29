@@ -6,8 +6,8 @@ import { messages } from '../../shared/gettext';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Button, Flex, Icon, IconProps } from '../lib/components';
-import { DeprecatedColors, spacings } from '../lib/foundations';
+import { Button, Flex, Icon, IconProps, LabelTiny } from '../lib/components';
+import { colors, spacings } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
@@ -15,7 +15,7 @@ import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
 import { ButtonGroup } from './ButtonGroup';
-import { measurements, normalText, tinyText } from './common-styles';
+import { measurements, normalText } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
@@ -203,12 +203,8 @@ const StyledStatusTitle = styled.div(normalText, {
   alignItems: 'center',
   fontWeight: 'bold',
   lineHeight: '20px',
-  color: DeprecatedColors.white,
+  color: colors.white100,
   gap: spacings.tiny,
-});
-
-const StyledStatusSubTitle = styled.div(tinyText, {
-  color: DeprecatedColors.white60,
 });
 
 interface ImportStatusProps {
@@ -277,7 +273,9 @@ function SettingsImportStatus(props: ImportStatusProps) {
         {iconProps !== undefined && <Icon {...iconProps} size="medium" />}
       </StyledStatusTitle>
       {subtitle !== undefined && (
-        <StyledStatusSubTitle data-testid="status-subtitle">{subtitle}</StyledStatusSubTitle>
+        <LabelTiny data-testid="status-subtitle" color="white60">
+          {subtitle}
+        </LabelTiny>
       )}
     </StyledStatusContainer>
   );
