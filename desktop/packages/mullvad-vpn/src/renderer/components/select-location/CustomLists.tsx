@@ -106,7 +106,7 @@ export default function CustomLists(props: CustomListsProps) {
           $backgroundColor={DeprecatedColors.blue}
           $backgroundColorHover={DeprecatedColors.blue80}
           onClick={showAddList}>
-          <StyledSideButtonIcon icon="add-circle" color={DeprecatedColors.white60} />
+          <StyledSideButtonIcon icon="add-circle" color="white60" />
         </StyledCellButton>
       </StyledCellContainer>
 
@@ -202,7 +202,7 @@ function AddListForm(props: AddListFormProps) {
             $backgroundColorHover={DeprecatedColors.blue80}
             disabled={!nameValid}
             onClick={createList}>
-            <StyledSideButtonIcon icon="checkmark" color={DeprecatedColors.white60} />
+            <StyledSideButtonIcon icon="checkmark" color="white60" />
           </StyledAddListCellButton>
         </StyledCellContainer>
         <Cell.CellFooter>

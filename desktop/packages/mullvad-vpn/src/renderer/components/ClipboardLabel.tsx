@@ -5,7 +5,6 @@ import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useScheduler } from '../../shared/scheduler';
 import { Flex, Icon, IconButton } from '../lib/components';
-import { DeprecatedColors } from '../lib/foundations';
 import { useBoolean } from '../lib/utility-hooks';
 
 const COPIED_ICON_DURATION = 2000;
@@ -71,7 +70,7 @@ export default function ClipboardLabel(props: IProps) {
           </IconButton>
         )}
         {justCopied ? (
-          <Icon icon="checkmark" color={DeprecatedColors.green}></Icon>
+          <Icon icon="checkmark" color="brandGreen"></Icon>
         ) : (
           <IconButton
             onClick={onCopy}

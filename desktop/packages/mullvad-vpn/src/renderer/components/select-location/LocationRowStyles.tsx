@@ -83,7 +83,7 @@ export const StyledHoverIconButton = styled.button<ButtonColors & HoverButtonPro
 );
 
 export const StyledHoverIcon = styled(Icon).attrs({
-  color: DeprecatedColors.white60,
+  color: 'white60',
 })({
   [`${StyledHoverIconButton}:hover &&`]: {
     backgroundColor: DeprecatedColors.white,
