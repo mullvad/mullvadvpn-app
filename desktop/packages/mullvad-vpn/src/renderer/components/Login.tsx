@@ -9,6 +9,7 @@ import { useAppContext } from '../context';
 import { formatAccountNumber } from '../lib/account';
 import useActions from '../lib/actionsHook';
 import { Box, Button, Flex, Icon, Label, LabelTiny, Spinner, TitleMedium } from '../lib/components';
+import { colors } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
 import { IconBadge } from '../lib/icon-badge';
 import accountActions from '../redux/account/actions';
@@ -410,7 +411,7 @@ interface AccountDropdownItemProps {
 }
 
 const StyledIcon = styled(Icon)({
-  backgroundColor: 'rgba(84, 113, 143, 1)',
+  backgroundColor: colors.whiteOnBlue20,
 });
 
 function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdownItemProps) {

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { Icon } from '../lib/components';
-import { DeprecatedColors, spacings } from '../lib/foundations';
+import { colors, spacings } from '../lib/foundations';
 import { buttonReset } from '../lib/styles';
 import * as Cell from './cell';
 import { hugeText, largeText, measurements, smallText, tinyText } from './common-styles';
@@ -26,13 +26,13 @@ const baseButtonStyles = {
   ...buttonReset,
   width: '100%',
   height: '100%',
-  backgroundColor: DeprecatedColors.white60,
+  backgroundColor: colors.white60,
   cursor: 'default',
   '&&:hover': {
-    backgroundColor: DeprecatedColors.white40,
+    backgroundColor: colors.white40,
   },
   '&:focus-visible': {
-    outline: `2px solid ${DeprecatedColors.white}`,
+    outline: `2px solid ${colors.white100}`,
     outlineOffset: '-2px',
   },
 };
@@ -54,14 +54,14 @@ export const StyledAccountDropdownTrailingButton = styled.button({
   backgroundColor: 'transparent',
   cursor: 'pointer',
   '&:focus-visible': {
-    outline: `2px solid ${DeprecatedColors.white}`,
+    outline: `2px solid ${colors.white100}`,
     outlineOffset: '2px',
   },
 });
 
 export const StyledAccountDropdownItemButtonLabel = styled(Cell.Label)(largeText, {
   margin: '0',
-  color: DeprecatedColors.blue80,
+  color: colors.blue80,
   borderWidth: 0,
   textAlign: 'left',
   marginLeft: 0,
@@ -79,7 +79,7 @@ export const StyledFooter = styled(Footer)<{ $show: boolean }>((props) => ({
   width: '100%',
   bottom: 0,
   transform: `translateY(${props.$show ? 0 : 100}%)`,
-  backgroundColor: DeprecatedColors.darkBlue,
+  backgroundColor: colors.brandDarkBlue,
   transition: 'transform 250ms ease-in-out',
 }));
 
@@ -112,18 +112,14 @@ export const StyledAccountInputGroup = styled.form<IStyledAccountInputGroupProps
   borderStyle: 'solid',
   borderRadius: '8px',
   overflow: 'hidden',
-  borderColor: props.$error
-    ? DeprecatedColors.red40
-    : props.$active
-      ? DeprecatedColors.darkBlue
-      : 'transparent',
+  borderColor: props.$error ? colors.red40 : props.$active ? colors.brandDarkBlue : 'transparent',
   opacity: props.$editable ? 1 : 0.6,
 }));
 
 export const StyledAccountInputBackdrop = styled.div({
   display: 'flex',
-  backgroundColor: DeprecatedColors.white,
-  borderColor: DeprecatedColors.darkBlue,
+  backgroundColor: colors.white100,
+  borderColor: colors.brandDarkBlue,
 });
 
 export const StyledInputButton = styled.button<{ $visible: boolean }>((props) => ({
@@ -134,12 +130,12 @@ export const StyledInputButton = styled.button<{ $visible: boolean }>((props) =>
   justifyContent: 'center',
   opacity: props.$visible ? 1 : 0,
   transition: 'opacity 250ms ease-in-out',
-  backgroundColor: DeprecatedColors.green,
+  backgroundColor: colors.brandGreen,
 }));
 
 export const StyledDropdownSpacer = styled.div({
   height: 1,
-  backgroundColor: DeprecatedColors.darkBlue,
+  backgroundColor: colors.brandDarkBlue,
 });
 
 export const StyledTitle = styled.h1(hugeText, {
@@ -153,11 +149,11 @@ export const StyledInput = styled(FormattableTextInput)(largeText, {
   minWidth: 0,
   borderWidth: 0,
   padding: '12px 12px 12px',
-  color: DeprecatedColors.blue,
+  color: colors.brandBlue,
   backgroundColor: 'transparent',
   flex: 1,
   '&&::placeholder': {
-    color: DeprecatedColors.blue40,
+    color: colors.whiteOnBlue60,
   },
 });
 
@@ -166,19 +162,19 @@ export const StyledBlockMessageContainer = styled.div({
   flexDirection: 'column',
   flex: 1,
   alignSelf: 'start',
-  backgroundColor: DeprecatedColors.darkBlue,
+  backgroundColor: colors.brandDarkBlue,
   borderRadius: '8px',
   margin: '5px 16px 10px',
   padding: '16px',
 });
 
 export const StyledBlockTitle = styled.div(smallText, {
-  color: DeprecatedColors.white,
+  color: colors.white100,
   marginBottom: '5px',
   fontWeight: 700,
 });
 
 export const StyledBlockMessage = styled.div(tinyText, {
-  color: DeprecatedColors.white,
+  color: colors.white100,
   marginBottom: '10px',
 });
