@@ -34,8 +34,5 @@ export type AppUpgradeEventStatus =
 
 export type AppUpgradeEvent = DaemonAppUpgradeEventStatus | AppUpgradeEventStatus;
 
-export type AppUpgradeError =
-  | DaemonAppUpgradeError
-  | 'START_INSTALLER_AUTOMATIC_FAILED'
-  | 'START_INSTALLER_FAILED'
-  | 'INSTALLER_FAILED';
+
+export type AppUpgradeError = DaemonAppUpgradeError | 'START_INSTALLER_FAILED' | 'INSTALLER_FAILED';
