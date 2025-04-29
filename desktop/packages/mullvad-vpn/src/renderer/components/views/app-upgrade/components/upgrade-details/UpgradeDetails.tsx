@@ -6,12 +6,11 @@ import { SettingsContainer } from '../../../../Layout';
 import { NavigationContainer } from '../../../../NavigationContainer';
 import { NavigationScrollbars } from '../../../../NavigationScrollbars';
 import { NoChangelogUpdates } from './components';
-import { useChangelog, useShowChangelogList, useShowNoChangelogUpdates, useTitle } from './hooks';
+import { useChangelog, useShowChangelogList, useTitle } from './hooks';
 
 export function UpgradeDetails() {
   const changelog = useChangelog();
   const showChangelogList = useShowChangelogList();
-  const showNoChangelogUpdates = useShowNoChangelogUpdates();
   const title = useTitle();
 
   return (
@@ -38,8 +37,11 @@ export function UpgradeDetails() {
                 <TitleLarge as="h2">{title}</TitleLarge>
               </Container>
               <Container size="3" $flexDirection="column">
-                {showChangelogList && <ChangelogList changelog={changelog} />}
-                {showNoChangelogUpdates && <NoChangelogUpdates />}
+                {showChangelogList ? (
+                  <ChangelogList changelog={changelog} />
+                ) : (
+                  <NoChangelogUpdates />
+                )}
               </Container>
             </Flex>
           </Flex>
