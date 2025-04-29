@@ -1,11 +1,11 @@
 import { sprintf } from 'sprintf-js';
 
-import { AppUpgradeEvent } from '../../../shared/app-upgrade';
+import { AppUpgradeEvent, AppUpgradeStep } from '../../../shared/app-upgrade';
 import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
 
 interface AppUpgradeProgressNotificationContext {
-  isAppUpgradeInProgress: boolean;
+  appUpgradeStep: AppUpgradeStep;
   appUpgradeDownloadProgressValue: number;
   appUpgradeEventType?: AppUpgradeEvent['type'];
 }
@@ -14,7 +14,11 @@ export class AppUpgradeProgressNotificationProvider implements InAppNotification
   public constructor(private context: AppUpgradeProgressNotificationContext) {}
 
   public mayDisplay = () => {
-    return this.context.isAppUpgradeInProgress;
+    return (
+      this.context.appUpgradeStep === 'download' ||
+      this.context.appUpgradeStep === 'launch' ||
+      this.context.appUpgradeStep === 'verify'
+    );
   };
 
   public getInAppNotification(): InAppNotification {
