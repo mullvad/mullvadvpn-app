@@ -10,15 +10,14 @@ interface AppUpgradeErrorNotificationContext {
   hasAppUpgradeError: boolean;
   appUpgradeError?: AppUpgradeError;
   restartAppUpgrade: () => void;
+  restartAppUpgradeInstaller: () => void;
 }
 
 export class AppUpgradeErrorNotificationProvider implements InAppNotificationProvider {
   public constructor(private context: AppUpgradeErrorNotificationContext) {}
 
   public mayDisplay = () => {
-    return (
-      this.context.hasAppUpgradeError && this.context.appUpgradeError !== 'START_INSTALLER_FAILED'
-    );
+    return this.context.hasAppUpgradeError;
   };
 
   public getInAppNotification(): InAppNotification {
@@ -69,6 +68,39 @@ export class AppUpgradeErrorNotificationProvider implements InAppNotificationPro
                 messages.pgettext('in-app-notifications', 'Could not download installer.'),
             },
             retrySubtitle,
+          ],
+        };
+      }
+
+      if (appUpgradeError === 'START_INSTALLER_FAILED') {
+        return {
+          indicator: 'error',
+          title:
+            // TRANSLATORS: Notification title when the installer failed.
+            messages.pgettext('in-app-notifications', 'INSTALLER FAILED'),
+          subtitle: [
+            {
+              content:
+                // TRANSLATORS: Notification subtitle when the installer failed.
+                messages.pgettext(
+                  'in-app-notifications',
+                  'The installer did not start successfully.',
+                ),
+            },
+            {
+              content:
+                // TRANSLATORS: Notification subtitle when the installer failed.
+                messages.pgettext('in-app-notifications', 'Click here to retry'),
+              action: {
+                type: 'run-function',
+                button: {
+                  onClick: () => this.context.restartAppUpgradeInstaller(),
+                  'aria-label':
+                    // TRANSLATORS: Accessibility label for the button to retry the installation.
+                    messages.pgettext('in-app-notifications', 'Retry installation'),
+                },
+              },
+            },
           ],
         };
       }
