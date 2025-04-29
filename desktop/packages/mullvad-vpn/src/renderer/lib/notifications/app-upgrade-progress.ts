@@ -51,8 +51,21 @@ export class AppUpgradeProgressNotificationProvider implements InAppNotification
     }
 
     if (
+      appUpgradeEventType === 'APP_UPGRADE_STATUS_MANUAL_START_INSTALLER' ||
       appUpgradeEventType === 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER' ||
-      appUpgradeEventType === 'APP_UPGRADE_STATUS_STARTING_INSTALLER' ||
+      appUpgradeEventType === 'APP_UPGRADE_STATUS_EXITED_INSTALLER'
+    ) {
+      return {
+        indicator: 'warning',
+        title:
+          // TRANSLATORS: Notification title when app upgrade is ready for the user to launch the installer.
+          messages.pgettext('in-app-notifications', 'VERIFICATION COMPLETE! INSTALLER READY!'),
+      };
+    }
+
+    if (
+      appUpgradeEventType === 'APP_UPGRADE_STATUS_AUTOMATIC_STARTING_INSTALLER' ||
+      appUpgradeEventType === 'APP_UPGRADE_STATUS_MANUAL_STARTING_INSTALLER' ||
       appUpgradeEventType === 'APP_UPGRADE_STATUS_STARTED_INSTALLER'
     ) {
       return {
@@ -65,6 +78,7 @@ export class AppUpgradeProgressNotificationProvider implements InAppNotification
           ),
       };
     }
+
     return {
       indicator: 'warning',
       title:
