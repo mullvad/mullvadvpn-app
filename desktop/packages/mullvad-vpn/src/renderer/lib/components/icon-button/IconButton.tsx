@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import styled from 'styled-components';
 
-import { DeprecatedColors } from '../../foundations';
+import { colors } from '../../foundations';
 import { buttonReset } from '../../styles';
 import { IconProps, iconSizes } from '../icon/Icon';
 import { IconButtonIcon } from './components/IconButtonIcon';
@@ -20,7 +20,7 @@ const StyledButton = styled.button({
   width: 'var(--size)',
   borderRadius: '100%',
   '&:focus-visible': {
-    outline: `2px solid ${DeprecatedColors.white}`,
+    outline: `2px solid ${colors.white100}`,
     outlineOffset: '1px',
   },
 });
