@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { DeprecatedColors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { measurements, normalText, tinyText } from './common-styles';
 
 export const AccountContainer = styled.div({
@@ -28,12 +28,12 @@ const AccountRowText = styled.span({
 export const AccountRowLabel = styled(AccountRowText)(tinyText, {
   lineHeight: '20px',
   marginBottom: '5px',
-  color: DeprecatedColors.white60,
+  color: colors.white60,
 });
 
 export const AccountRowValue = styled(AccountRowText)(normalText, {
   fontWeight: 600,
-  color: DeprecatedColors.white,
+  color: colors.white100,
 });
 
 export const DeviceRowValue = styled(AccountRowValue)({
@@ -41,7 +41,7 @@ export const DeviceRowValue = styled(AccountRowValue)({
 });
 
 export const AccountOutOfTime = styled(AccountRowValue)({
-  color: DeprecatedColors.red,
+  color: colors.brandRed,
 });
 
 export const StyledDeviceNameRow = styled.div({
