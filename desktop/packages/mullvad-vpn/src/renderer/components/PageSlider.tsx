@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { NonEmptyArray } from '../../shared/utils';
 import { IconButton } from '../lib/components';
-import { DeprecatedColors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { useStyledRef } from '../lib/utility-hooks';
 
 const PAGE_GAP = 16;
@@ -153,10 +153,10 @@ const StyledPageIndicator = styled.div<{ $current: boolean }>((props) => ({
   width: '8px',
   height: '8px',
   borderRadius: '50%',
-  backgroundColor: props.$current ? DeprecatedColors.white80 : DeprecatedColors.white40,
+  backgroundColor: props.$current ? colors.white80 : colors.white40,
 
   [`${StyledTransparentButton}:hover &&`]: {
-    backgroundColor: DeprecatedColors.white80,
+    backgroundColor: colors.white80,
   },
 }));
 
