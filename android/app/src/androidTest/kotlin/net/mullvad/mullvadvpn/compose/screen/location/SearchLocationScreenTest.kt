@@ -113,8 +113,7 @@ class SearchLocationScreenTest {
                     SearchLocationUiState.Content(
                         searchTerm = mockSearchString,
                         filterChips = emptyList(),
-                        relayListItems =
-                            listOf(RelayListItem.LocationsEmptyText(mockSearchString, true)),
+                        relayListItems = listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
                         customLists = emptyList(),
                     )
             )
