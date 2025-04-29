@@ -1,31 +1,34 @@
 import styled from 'styled-components';
 
-import { DeprecatedColors } from '../../../foundations';
+import { Colors, colors } from '../../../foundations';
 import { Icon, IconProps } from '../../icon/Icon';
 import { useIconButtonContext } from '../IconButtonContext';
 export type IconButtonIconProps = IconProps;
 
 const variants = {
   primary: {
-    background: DeprecatedColors.white,
-    hover: DeprecatedColors.white60,
-    disabled: DeprecatedColors.white50,
+    background: 'white100',
+    hover: 'white60',
+    disabled: 'white40',
   },
   secondary: {
-    background: DeprecatedColors.white60,
-    hover: DeprecatedColors.white80,
-    disabled: DeprecatedColors.white50,
+    background: 'white60',
+    hover: 'white80',
+    disabled: 'white40',
   },
 } as const;
 
-const StyledIcon = styled(Icon)<IconButtonIconProps & { $hoverColor: string; $disabled?: boolean }>(
-  ({ $hoverColor, $disabled }) => ({
-    ...(!$disabled && {
-      '&&:hover': {
-        backgroundColor: $hoverColor,
-      },
-    }),
-  }),
+const StyledIcon = styled(Icon)<IconButtonIconProps & { $hoverColor: Colors; $disabled?: boolean }>(
+  ({ $hoverColor, $disabled }) => {
+    const hoverColor = colors[$hoverColor];
+    return {
+      ...(!$disabled && {
+        '&&:hover': {
+          backgroundColor: hoverColor,
+        },
+      }),
+    };
+  },
 );
 
 export const IconButtonIcon = (props: IconButtonIconProps) => {

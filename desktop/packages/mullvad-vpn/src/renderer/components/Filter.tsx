@@ -230,7 +230,7 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
         <AriaLabel>
           <Cell.Label>{messages.pgettext('filter-view', 'Ownership')}</Cell.Label>
         </AriaLabel>
-        <Icon color={DeprecatedColors.white80} icon={expanded ? 'chevron-up' : 'chevron-down'} />
+        <Icon color="white80" icon={expanded ? 'chevron-up' : 'chevron-down'} />
       </Cell.CellButton>
 
       <Accordion expanded={expanded}>
@@ -276,7 +276,7 @@ function FilterByProvider(props: IFilterByProviderProps) {
     <>
       <Cell.CellButton onClick={toggleExpanded}>
         <Cell.Label>{messages.pgettext('filter-view', 'Providers')}</Cell.Label>
-        <Icon color={DeprecatedColors.white80} icon={expanded ? 'chevron-up' : 'chevron-down'} />
+        <Icon color="white80" icon={expanded ? 'chevron-up' : 'chevron-down'} />
       </Cell.CellButton>
       <Accordion expanded={expanded}>
         <CheckboxRow
@@ -341,7 +341,7 @@ function CheckboxRow(props: ICheckboxRowProps) {
   return (
     <StyledRow onClick={onToggle}>
       <StyledCheckbox role="checkbox" aria-label={props.label} aria-checked={props.checked}>
-        {props.checked && <Icon icon="checkmark" color={DeprecatedColors.green} />}
+        {props.checked && <Icon icon="checkmark" color="brandGreen" />}
       </StyledCheckbox>
       <StyledRowTitle aria-hidden $bold={props.$bold}>
         {props.label}

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import log from '../../shared/logging';
 import { Icon, IconProps, Spinner } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
-import { DeprecatedColors } from '../lib/foundations';
+import { Colors, DeprecatedColors } from '../lib/foundations';
 import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { ButtonGroup } from './ButtonGroup';
@@ -310,19 +310,19 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
 
   private renderTypeIcon(type: ModalAlertType) {
     let source: IconProps['icon'] | undefined = undefined;
-    let color = undefined;
+    let color: Colors | undefined = undefined;
     switch (type) {
       case ModalAlertType.info:
         source = 'info-circle';
-        color = DeprecatedColors.white;
+        color = 'white100';
         break;
       case ModalAlertType.caution:
         source = 'alert-circle';
-        color = DeprecatedColors.white;
+        color = 'white100';
         break;
       case ModalAlertType.warning:
         source = 'alert-circle';
-        color = DeprecatedColors.red;
+        color = 'brandRed';
         break;
       case ModalAlertType.loading:
         return <Spinner size="big" />;

@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 
-import { DeprecatedColors } from '../../../foundations';
 import { Icon, IconProps } from '../../icon';
 import { useButtonContext } from '../ButtonContext';
 
@@ -14,7 +13,7 @@ export function ButtonIcon({ ...props }: ButtonIconProps) {
     <StyledButtonIcon
       size="medium"
       aria-hidden="true"
-      color={disabled ? DeprecatedColors.white40 : DeprecatedColors.white}
+      color={disabled ? 'white40' : 'white100'}
       {...props}
     />
   );

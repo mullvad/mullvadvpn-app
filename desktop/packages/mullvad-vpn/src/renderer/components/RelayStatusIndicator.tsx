@@ -29,7 +29,7 @@ interface IProps {
 
 export default function RelayStatusIndicator(props: IProps) {
   return props.selected ? (
-    <TickIcon color={DeprecatedColors.white} icon="checkmark" />
+    <TickIcon color="white100" icon="checkmark" />
   ) : (
     <StyledRelayStatus $active={props.active} />
   );
