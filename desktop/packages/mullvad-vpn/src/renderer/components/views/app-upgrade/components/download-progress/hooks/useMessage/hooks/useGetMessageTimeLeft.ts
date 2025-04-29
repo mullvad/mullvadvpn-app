@@ -27,7 +27,7 @@ export const useGetMessageTimeLeft = () => {
           );
         }
 
-        if (timeLeft > 5) {
+        if (timeLeft > 3) {
           return sprintf(
             // TRANSLATORS: Status text displayed below a progress bar when the update is being downloaded
             // TRANSLATORS: Available placeholders:

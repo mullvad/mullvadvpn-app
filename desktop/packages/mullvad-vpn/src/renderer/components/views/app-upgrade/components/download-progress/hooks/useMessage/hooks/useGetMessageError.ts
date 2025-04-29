@@ -6,8 +6,8 @@ export const useGetMessageError = () => {
 
   const getMessageError = () => {
     if (
+      error === 'INSTALLER_FAILED' ||
       error === 'START_INSTALLER_FAILED' ||
-      error === 'START_INSTALLER_AUTOMATIC_FAILED' ||
       error === 'VERIFICATION_FAILED'
     ) {
       // TRANSLATORS: Status text displayed below a progress bar when the download of an update is complete
