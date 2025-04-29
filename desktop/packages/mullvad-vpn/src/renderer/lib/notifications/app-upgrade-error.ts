@@ -17,9 +17,7 @@ export class AppUpgradeErrorNotificationProvider implements InAppNotificationPro
 
   public mayDisplay = () => {
     return (
-      this.context.hasAppUpgradeError &&
-      this.context.appUpgradeError !== 'START_INSTALLER_FAILED' &&
-      this.context.appUpgradeError !== 'START_INSTALLER_AUTOMATIC_FAILED'
+      this.context.hasAppUpgradeError && this.context.appUpgradeError !== 'START_INSTALLER_FAILED'
     );
   };
 
