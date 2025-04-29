@@ -13,7 +13,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Button, Container, Flex, FootnoteMini, IconButton, Spinner } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
-import { DeprecatedColors } from '../lib/foundations';
+import { Colors, DeprecatedColors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useAfterTransition } from '../lib/transition-hooks';
@@ -241,7 +241,7 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
   const hideWarningDialog = useCallback(() => setShowWarning(false), []);
 
   const disabled = props.application.warning === 'launches-elsewhere';
-  const warningColor = disabled ? DeprecatedColors.red : DeprecatedColors.yellow;
+  const warningColor: Colors = disabled ? 'brandRed' : 'brandYellow';
   const warningMessage = disabled
     ? sprintf(
         messages.pgettext(

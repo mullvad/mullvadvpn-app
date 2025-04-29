@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { Icon } from '../lib/components';
-import { DeprecatedColors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 
 interface IProps extends React.HTMLAttributes<HTMLButtonElement> {
   up: boolean;
@@ -18,7 +18,7 @@ const StyledIcon = styled(Icon)({
   alignSelf: 'stretch',
   justifyContent: 'center',
   '&&:hover': {
-    backgroundColor: DeprecatedColors.white,
+    backgroundColor: colors.white100,
   },
 });
 
@@ -27,7 +27,7 @@ export default function ChevronButton(props: IProps) {
 
   return (
     <Button {...otherProps}>
-      <StyledIcon color={DeprecatedColors.white60} icon={up ? 'chevron-up' : 'chevron-down'} />
+      <StyledIcon color="white60" icon={up ? 'chevron-up' : 'chevron-down'} />
     </Button>
   );
 }

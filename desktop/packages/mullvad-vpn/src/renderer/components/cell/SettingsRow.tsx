@@ -132,7 +132,7 @@ export function SettingsRow(props: React.PropsWithChildren<IndentedRowProps>) {
 export function SettingsRowErrorMessage(props: React.PropsWithChildren) {
   return (
     <StyledSettingsRowErrorMessage>
-      <StyledErrorMessageAlertIcon icon="alert-circle" color={DeprecatedColors.red} size="small" />
+      <StyledErrorMessageAlertIcon icon="alert-circle" color="brandRed" size="small" />
       {props.children}
     </StyledSettingsRowErrorMessage>
   );

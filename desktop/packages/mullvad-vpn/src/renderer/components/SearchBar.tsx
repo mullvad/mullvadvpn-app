@@ -96,7 +96,7 @@ export default function SearchBar(props: ISearchBarProps) {
         onInput={onInput}
         placeholder={messages.gettext('Search for...')}
       />
-      <StyledSearchIcon icon="search" color={DeprecatedColors.white60} />
+      <StyledSearchIcon icon="search" color="white60" />
       {props.searchTerm.length > 0 && (
         <StyledClearButton variant="secondary" onClick={onClear}>
           <IconButton.Icon icon="cross-circle" />

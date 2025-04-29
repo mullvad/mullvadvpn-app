@@ -155,7 +155,7 @@ export function SettingsSelect<T extends string>(props: SettingsSelectProps<T>) 
             <StyledSelectedText>
               {props.items.find((item) => item.value === value)?.label ?? ''}
             </StyledSelectedText>
-            <StyledChevron color={DeprecatedColors.white60} icon="chevron-down" />
+            <StyledChevron color="white60" icon="chevron-down" />
           </StyledSelectedContainerInner>
           <StyledInvisibleItems>
             {props.items.map((item) => (
