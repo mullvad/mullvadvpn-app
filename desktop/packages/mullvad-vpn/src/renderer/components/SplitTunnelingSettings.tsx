@@ -13,7 +13,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Button, Container, Flex, FootnoteMini, IconButton, Spinner } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
-import { Colors, DeprecatedColors } from '../lib/foundations';
+import { Colors, colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useAfterTransition } from '../lib/transition-hooks';
@@ -202,7 +202,7 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
       <ModalAlert
         isOpen={browseError !== undefined}
         type={ModalAlertType.warning}
-        iconColor={DeprecatedColors.red}
+        iconColor={colors.brandRed}
         message={sprintf(
           // TRANSLATORS: Error message showed in a dialog when an application fails to launch.
           messages.pgettext(
@@ -635,7 +635,7 @@ function applicationGetKey<T extends IApplication>(application: T): string {
 }
 
 const StyledContainer = styled(Cell.Container)({
-  backgroundColor: DeprecatedColors.blue40,
+  backgroundColor: colors.blue40,
 });
 
 interface IApplicationRowProps {
