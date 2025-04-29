@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { IconButton } from '../lib/components';
-import { DeprecatedColors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { useBoolean, useStyledRef } from '../lib/utility-hooks';
 import { smallText } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
@@ -113,8 +113,8 @@ const StyledMenu = styled.div<StyledMenuProps>((props) => {
     left: props.$align === 'left' ? iconMargin : 'auto',
     right: props.$align === 'left' ? 'auto' : iconMargin,
     padding: '7px 4px',
-    background: 'rgb(36, 53, 78)',
-    border: `1px solid ${DeprecatedColors.darkBlue}`,
+    background: colors.blue40,
+    border: `1px solid ${colors.brandDarkBlue}`,
     borderRadius: '8px',
     zIndex: 1,
   };
@@ -127,17 +127,17 @@ const StyledMenuItem = styled.button(smallText, (props) => ({
   background: 'transparent',
   border: 'none',
   textAlign: 'left',
-  color: props.disabled ? DeprecatedColors.white50 : DeprecatedColors.white,
+  color: props.disabled ? colors.white40 : colors.white100,
 
   '&&:hover': {
-    background: props.disabled ? 'transparent' : DeprecatedColors.blue,
+    background: props.disabled ? 'transparent' : colors.brandBlue,
   },
 }));
 
 const StyledSeparator = styled.hr({
   height: '1px',
   border: 'none',
-  backgroundColor: DeprecatedColors.darkBlue,
+  backgroundColor: colors.brandDarkBlue,
   margin: '4px 9px',
 });
 
