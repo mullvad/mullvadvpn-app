@@ -72,6 +72,39 @@ export class AppUpgradeErrorNotificationProvider implements InAppNotificationPro
           ],
         };
       }
+
+      if (appUpgradeError === 'INSTALLER_FAILED') {
+        return {
+          indicator: 'error',
+          title:
+            // TRANSLATORS: Notification title when the installer failed.
+            messages.pgettext('in-app-notifications', 'INSTALLER FAILED'),
+          subtitle: [
+            {
+              content:
+                // TRANSLATORS: Notification subtitle when the installer failed.
+                messages.pgettext(
+                  'in-app-notifications',
+                  'The installer did not complete successfully.',
+                ),
+            },
+            {
+              content:
+                // TRANSLATORS: Notification subtitle when the installer failed.
+                messages.pgettext('in-app-notifications', 'Click here to retry'),
+              action: {
+                type: 'run-function',
+                button: {
+                  onClick: () => this.context.restartAppUpgradeInstaller(),
+                  'aria-label':
+                    // TRANSLATORS: Accessibility label for the button to retry the installation.
+                    messages.pgettext('in-app-notifications', 'Retry installation'),
+                },
+              },
+            },
+          ],
+        };
+      }
     }
 
     return {
