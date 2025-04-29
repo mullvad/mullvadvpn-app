@@ -10,7 +10,7 @@ import {
   filterLocations,
   filterLocationsByEndPointType,
 } from '../lib/filter-locations';
-import { DeprecatedColors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useNormalRelaySettings, useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { useBoolean } from '../lib/utility-hooks';
@@ -28,7 +28,7 @@ import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
-  backgroundColor: DeprecatedColors.darkBlue,
+  backgroundColor: colors.brandDarkBlue,
   flex: 1,
 });
 
@@ -310,20 +310,20 @@ const StyledCheckbox = styled.div({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: DeprecatedColors.white,
+  backgroundColor: colors.white100,
   borderRadius: '4px',
 });
 
 const StyledRow = styled(Cell.Row)({
-  backgroundColor: DeprecatedColors.blue40,
+  backgroundColor: colors.blue40,
   '&&:hover': {
-    backgroundColor: DeprecatedColors.blue80,
+    backgroundColor: colors.blue80,
   },
 });
 
 const StyledRowTitle = styled.label<IStyledRowTitleProps>(normalText, (props) => ({
   fontWeight: props.$bold ? 600 : 400,
-  color: DeprecatedColors.white,
+  color: colors.white100,
   marginLeft: '22px',
 }));
 
