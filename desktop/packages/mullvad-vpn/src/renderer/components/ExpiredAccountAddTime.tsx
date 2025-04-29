@@ -11,7 +11,7 @@ import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Button, Flex } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
-import { DeprecatedColors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
 import { generateRoutePath } from '../lib/routeHelpers';
@@ -36,7 +36,7 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
 export const StyledContainer = styled(Container)({
   paddingTop: '22px',
   minHeight: '100%',
-  backgroundColor: DeprecatedColors.darkBlue,
+  backgroundColor: colors.brandDarkBlue,
 });
 
 export const StyledBody = styled.div({
@@ -54,7 +54,7 @@ export const StyledTitle = styled.span(hugeText, {
 
 export const StyledLabel = styled.span(tinyText, {
   lineHeight: '20px',
-  color: DeprecatedColors.white,
+  color: colors.white100,
   marginBottom: '9px',
 });
 
