@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Styles } from 'styled-components/dist/types';
 
-import { DeprecatedColors, spacings } from '../lib/foundations';
+import { colors, spacings } from '../lib/foundations';
 import * as Cell from './cell';
 
 const indicatorStyles: Styles<
@@ -14,7 +14,7 @@ const indicatorStyles: Styles<
 };
 
 const StyledRelayStatus = styled.div<{ $active: boolean }>(indicatorStyles, (props) => ({
-  backgroundColor: props.$active ? DeprecatedColors.green90 : DeprecatedColors.red95,
+  backgroundColor: props.$active ? colors.brandGreen : colors.brandRed,
 }));
 
 const TickIcon = styled(Cell.CellIcon)({
@@ -36,5 +36,5 @@ export default function RelayStatusIndicator(props: IProps) {
 }
 
 export const SpecialLocationIndicator = styled.div(indicatorStyles, {
-  backgroundColor: DeprecatedColors.white90,
+  backgroundColor: colors.white100,
 });
