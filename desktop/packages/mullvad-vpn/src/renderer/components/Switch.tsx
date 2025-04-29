@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { DeprecatedColors } from '../lib/foundations';
+import { colors, ColorVariables } from '../lib/foundations';
 
 interface IProps {
   id?: string;
@@ -18,7 +18,7 @@ const SwitchContainer = styled.div<{ disabled: boolean }>((props) => ({
   position: 'relative',
   width: '34px',
   height: '22px',
-  borderColor: props.disabled ? DeprecatedColors.white20 : DeprecatedColors.white80,
+  borderColor: props.disabled ? colors.white20 : colors.white80,
   borderWidth: '2px',
   borderStyle: 'solid',
   borderRadius: '11px',
@@ -26,9 +26,9 @@ const SwitchContainer = styled.div<{ disabled: boolean }>((props) => ({
 }));
 
 const Knob = styled.div<{ $isOn: boolean; disabled: boolean }>((props) => {
-  let backgroundColor = props.$isOn ? DeprecatedColors.green : DeprecatedColors.red;
+  let backgroundColor: ColorVariables = props.$isOn ? colors.brandGreen : colors.brandRed;
   if (props.disabled) {
-    backgroundColor = props.$isOn ? DeprecatedColors.green40 : DeprecatedColors.red40;
+    backgroundColor = props.$isOn ? colors.green40 : colors.red40;
   }
 
   return {
