@@ -661,9 +661,11 @@ export default class AppRenderer {
     const verifiedInstallerPath = reduxState.version.suggestedUpgrade?.verifiedInstallerPath;
     const windowFocused = reduxState.userInterface.windowFocused;
 
+    const hasVerifiedInstallerPath =
+      typeof verifiedInstallerPath === 'string' && verifiedInstallerPath.length > 0;
+
     if (
-      typeof verifiedInstallerPath === 'string' &&
-      verifiedInstallerPath.length > 0 &&
+      hasVerifiedInstallerPath &&
       appUpgradeEvent?.type === 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER'
     ) {
       // Only trigger the installer if the window is focused
