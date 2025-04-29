@@ -18,7 +18,6 @@ import {
   useAppUpgradeDownloadProgressValue,
   useAppUpgradeEventType,
   useHasAppUpgradeError,
-  useIsAppUpgradeInProgress,
   useShouldAppUpgradeInstallManually,
 } from '../hooks';
 import useActions from '../lib/actionsHook';
@@ -36,6 +35,7 @@ import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/ap
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
+import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
 import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
@@ -112,7 +112,7 @@ export default function NotificationArea(props: IProps) {
 
   const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
   const appUpgradeEventType = useAppUpgradeEventType();
-  const isAppUpgradeInProgress = useIsAppUpgradeInProgress();
+  const appUpgradeStep = convertEventTypeToStep(appUpgradeEventType); // TODO: Remove and read value from redux
 
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
@@ -132,7 +132,7 @@ export default function NotificationArea(props: IProps) {
       suggestedUpgradeVersion: suggestedUpgrade?.version,
     }),
     new AppUpgradeProgressNotificationProvider({
-      isAppUpgradeInProgress,
+      appUpgradeStep,
       appUpgradeEventType,
       appUpgradeDownloadProgressValue,
     }),
