@@ -3,9 +3,9 @@ import { Progress } from '../../../../../lib/components/progress';
 import { useDisabled, useMessage } from './hooks';
 
 export function DownloadProgress() {
+  const disabled = useDisabled();
   const message = useMessage();
   const value = useAppUpgradeDownloadProgressValue();
-  const disabled = useDisabled();
 
   return (
     <Progress value={value} disabled={disabled}>

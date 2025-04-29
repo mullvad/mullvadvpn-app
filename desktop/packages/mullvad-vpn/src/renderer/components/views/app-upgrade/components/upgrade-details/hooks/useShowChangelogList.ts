@@ -1,9 +1,9 @@
-import { useHasChangelog } from './useHasChangelog';
+import { useChangelog } from './useChangelog';
 
 export const useShowChangelogList = () => {
-  const hasChangelog = useHasChangelog();
+  const changeLog = useChangelog();
 
-  const showChangelogList = hasChangelog;
+  const showChangelogList = changeLog.length > 0;
 
   return showChangelogList;
 };
