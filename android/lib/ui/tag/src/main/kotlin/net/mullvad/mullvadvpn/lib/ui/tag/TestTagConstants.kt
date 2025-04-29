@@ -39,7 +39,7 @@ const val MANAGE_DEVICES_BUTTON_TEST_TAG = "manage_devices_button_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
-const val CIRCULAR_PROGRESS_INDICATOR_TEST_TAG = "circular_progress_indicator"
+const val CIRCULAR_PROGRESS_INDICATOR_TEST_TAG = "circular_progress_indicator_test_tag"
 const val EXPAND_BUTTON_TEST_TAG = "expand_button_test_tag"
 const val LOCATION_CELL_TEST_TAG = "location_cell_test_tag"
 
@@ -50,6 +50,11 @@ const val RECONNECT_BUTTON_TEST_TAG = "reconnect_button_test_tag"
 const val CONNECT_CARD_HEADER_TEST_TAG = "connect_card_header_test_tag"
 const val LOCATION_INFO_CONNECTION_IN_TEST_TAG = "location_info_connection_in_test_tag"
 const val LOCATION_INFO_CONNECTION_OUT_TEST_TAG = "location_info_connection_out_test_tag"
+
+// ConnectScreen - Notification banner
+const val NOTIFICATION_BANNER_TEST_TAG = "notification_banner_test_tag"
+const val NOTIFICATION_BANNER_ACTION_TEST_TAG = "notification_banner_action_test_tag"
+const val NOTIFICATION_BANNER_TEXT_ACTION_TEST_TAG = "notification_banner_text_action_test_tag"
 
 // PlayPayment
 const val PLAY_PAYMENT_INFO_ICON_TEST_TAG = "play_payment_info_icon_test_tag"

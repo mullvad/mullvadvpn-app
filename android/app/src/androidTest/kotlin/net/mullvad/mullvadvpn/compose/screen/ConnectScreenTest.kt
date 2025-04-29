@@ -26,11 +26,11 @@ import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
-import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_ACTION
-import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_TEXT_ACTION
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_ACTION_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_TEXT_ACTION_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_ACCOUNT_BUTTON_TEST_TAG
@@ -607,7 +607,7 @@ class ConnectScreenTest {
             )
 
             // Act
-            onNodeWithTag(NOTIFICATION_BANNER_ACTION).performClick()
+            onNodeWithTag(NOTIFICATION_BANNER_ACTION_TEST_TAG).performClick()
 
             // Assert
             verify { mockedClickHandler.invoke() }
@@ -639,7 +639,7 @@ class ConnectScreenTest {
             )
 
             // Act
-            onNodeWithTag(NOTIFICATION_BANNER_ACTION).performClick()
+            onNodeWithTag(NOTIFICATION_BANNER_ACTION_TEST_TAG).performClick()
 
             // Assert
             verify { mockedClickHandler.invoke() }
@@ -667,7 +667,7 @@ class ConnectScreenTest {
             )
 
             // Act
-            onNodeWithTag(NOTIFICATION_BANNER_TEXT_ACTION).performClick()
+            onNodeWithTag(NOTIFICATION_BANNER_TEXT_ACTION_TEST_TAG).performClick()
 
             // Assert
             verify { mockedClickHandler.invoke() }

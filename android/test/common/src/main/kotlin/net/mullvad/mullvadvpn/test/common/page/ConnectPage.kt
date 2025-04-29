@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.test.common.page
 import androidx.test.uiautomator.By
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_IN_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_ACCOUNT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
@@ -61,11 +63,11 @@ class ConnectPage internal constructor() : Page() {
      * connection card is in collapsed state.
      */
     fun extractInIpv4Address(): String {
-        uiDevice.findObjectWithTimeout(By.res("connect_card_header_test_tag")).click()
+        uiDevice.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG)).click()
         val inString =
             uiDevice
                 .findObjectWithTimeout(
-                    By.res("location_info_connection_in_test_tag"),
+                    By.res(LOCATION_INFO_CONNECTION_IN_TEST_TAG),
                     VERY_LONG_TIMEOUT,
                 )
                 .text
@@ -79,11 +81,11 @@ class ConnectPage internal constructor() : Page() {
      * connection card is in collapsed state.
      */
     fun extractOutIpv4Address(): String {
-        uiDevice.findObjectWithTimeout(By.res("connect_card_header_test_tag")).click()
+        uiDevice.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG)).click()
         return uiDevice
             .findObjectWithTimeout(
                 // Text exist and contains IP address
-                By.res("location_info_connection_out_test_tag").textContains("."),
+                By.res(LOCATION_INFO_CONNECTION_OUT_TEST_TAG).textContains("."),
                 VERY_LONG_TIMEOUT,
             )
             .text
