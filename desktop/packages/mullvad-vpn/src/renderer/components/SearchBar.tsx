@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { Icon, IconButton } from '../lib/components';
-import { DeprecatedColors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { normalText } from './common-styles';
 
@@ -20,28 +20,28 @@ export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
   padding: '9px 38px',
   margin: 0,
   lineHeight: '24px',
-  color: DeprecatedColors.white60,
-  backgroundColor: DeprecatedColors.white10,
+  color: colors.white60,
+  backgroundColor: colors.whiteOnDarkBlue10,
   '&&::placeholder': {
-    color: DeprecatedColors.white60,
+    color: colors.whiteOnDarkBlue60,
   },
   '&&:focus': {
-    color: DeprecatedColors.blue,
-    backgroundColor: DeprecatedColors.white,
-  },
-  '&&:focus::placeholder': {
-    color: DeprecatedColors.blue40,
+    color: colors.brandBlue,
+    backgroundColor: colors.white100,
   },
 });
 
-// TODO: The focus styling can be removed once we implement the new colors from foundations
 export const StyledClearButton = styled(IconButton)({
   position: 'absolute',
   top: '50%',
   transform: 'translateY(-50%)',
   right: '9px',
-  [`${StyledSearchInput}:focus ~ && > div`]: {
-    backgroundColor: DeprecatedColors.blue40,
+});
+
+export const StyledClearIcon = styled(Icon)({
+  background: colors.whiteOnDarkBlue60,
+  '&&:hover': {
+    backgroundColor: colors.whiteOnDarkBlue40,
   },
 });
 
@@ -51,7 +51,7 @@ export const StyledSearchIcon = styled(Icon)({
   transform: 'translateY(-50%)',
   left: '8px',
   [`${StyledSearchInput}:focus ~ &&`]: {
-    backgroundColor: DeprecatedColors.blue,
+    backgroundColor: colors.brandBlue,
   },
 });
 
@@ -99,7 +99,7 @@ export default function SearchBar(props: ISearchBarProps) {
       <StyledSearchIcon icon="search" color="white60" />
       {props.searchTerm.length > 0 && (
         <StyledClearButton variant="secondary" onClick={onClear}>
-          <IconButton.Icon icon="cross-circle" />
+          <StyledClearIcon icon="cross-circle" />
         </StyledClearButton>
       )}
     </StyledSearchContainer>
