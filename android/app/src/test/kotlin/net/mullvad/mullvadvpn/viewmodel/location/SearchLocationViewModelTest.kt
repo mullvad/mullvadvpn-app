@@ -135,7 +135,7 @@ class SearchLocationViewModelTest {
             val actualState = awaitItem()
             assertIs<SearchLocationUiState.Content>(actualState)
             assertLists(
-                listOf(RelayListItem.LocationsEmptyText(mockSearchString, true)),
+                listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
                 actualState.relayListItems,
             )
         }

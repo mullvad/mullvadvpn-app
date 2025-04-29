@@ -12,6 +12,7 @@ enum class RelayListItemContentType {
     LOCATION_HEADER,
     LOCATION_ITEM,
     LOCATIONS_EMPTY_TEXT,
+    EMPTY_RELAY_LIST,
 }
 
 enum class RelayListItemState {
@@ -82,9 +83,13 @@ sealed interface RelayListItem {
         override val contentType = RelayListItemContentType.LOCATION_ITEM
     }
 
-    data class LocationsEmptyText(val searchTerm: String, val isSearching: Boolean) :
-        RelayListItem {
+    data class LocationsEmptyText(val searchTerm: String) : RelayListItem {
         override val key = "locations_empty_text"
         override val contentType = RelayListItemContentType.LOCATIONS_EMPTY_TEXT
+    }
+
+    data object EmptyRelayList : RelayListItem {
+        override val key = "empty_relay_list"
+        override val contentType = RelayListItemContentType.EMPTY_RELAY_LIST
     }
 }

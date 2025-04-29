@@ -140,7 +140,8 @@ private fun SelectLocationListUiState.indexOfSelectedRelayItem(): Int? =
                     is RelayListItem.CustomListFooter,
                     RelayListItem.CustomListHeader,
                     RelayListItem.LocationHeader,
-                    is RelayListItem.LocationsEmptyText -> false
+                    is RelayListItem.LocationsEmptyText,
+                    is RelayListItem.EmptyRelayList -> false
                 }
             }
         if (index >= 0) index else null

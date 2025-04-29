@@ -38,7 +38,11 @@ internal fun relayListItems(
             // search term is empty since we should get a result as long as there are any
             // location in the list
             listOf(
-                RelayListItem.LocationsEmptyText(searchTerm, isSearching && searchTerm.isNotEmpty())
+                if (isSearching && searchTerm.isNotEmpty()) {
+                    RelayListItem.LocationsEmptyText(searchTerm)
+                } else {
+                    RelayListItem.EmptyRelayList
+                }
             )
         }
 }
