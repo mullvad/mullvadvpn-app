@@ -434,10 +434,8 @@ export default class AppRenderer {
     // Ensure we have a the path to the verified installer and that we are not already trying
     // to start the installer.
     if (hasVerifiedInstallerPath) {
-      // Ensure we don't try to start the installer multiple times by setting the status
-      // as starting
       this.reduxActions.appUpgrade.setAppUpgradeEvent({
-        type: 'APP_UPGRADE_STATUS_STARTING_INSTALLER',
+        type: 'APP_UPGRADE_STATUS_MANUAL_STARTING_INSTALLER',
       });
       this.reduxActions.appUpgrade.resetAppUpgradeError();
 
@@ -670,10 +668,15 @@ export default class AppRenderer {
     ) {
       // Only trigger the installer if the window is focused
       if (windowFocused) {
-        this.appUpgradeInstallerStart();
+        this.reduxActions.appUpgrade.setAppUpgradeEvent({
+          type: 'APP_UPGRADE_STATUS_AUTOMATIC_STARTING_INSTALLER',
+        });
+        IpcRendererEventChannel.app.upgradeInstallerStart(verifiedInstallerPath);
       } else {
-        // Otherwise, flag this as a failed automatic start (even though we haven't really attempted a start)
-        this.reduxActions.appUpgrade.setAppUpgradeError('START_INSTALLER_AUTOMATIC_FAILED');
+        // Otherwise, flag this as requiring manual start
+        this.reduxActions.appUpgrade.setAppUpgradeEvent({
+          type: 'APP_UPGRADE_STATUS_MANUAL_START_INSTALLER',
+        });
       }
     }
   }
