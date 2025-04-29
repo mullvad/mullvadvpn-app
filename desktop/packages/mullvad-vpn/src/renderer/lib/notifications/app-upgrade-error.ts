@@ -25,7 +25,8 @@ export class AppUpgradeErrorNotificationProvider implements InAppNotificationPro
     const { appUpgradeError } = this.context;
     const retrySubtitle: InAppNotificationSubtitle = {
       content:
-        // TRANSLATORS: Notification subtitle when the installer verification failed.
+        // TRANSLATORS: Notification subtitle when the download of the installer failed
+        // TRANSLATORS: and the user can try downloading again.
         messages.pgettext('in-app-notifications', 'Click here to retry download'),
       action: {
         type: 'run-function',
