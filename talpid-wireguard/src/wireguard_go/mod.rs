@@ -128,7 +128,7 @@ impl WgGoTunnel {
                 )
                 .await?;
             }
-            Circuit::Singlehop if !config.is_multihop() => {
+            Circuit::Singlehop if config.is_multihop() => {
                 self.stop()?;
                 *self = Self::start_multihop_tunnel(
                     &config,
