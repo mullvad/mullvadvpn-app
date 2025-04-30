@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { DeprecatedColors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { useEffectEvent } from '../../lib/utility-hooks';
 import { AriaInput } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
@@ -13,11 +13,11 @@ const StyledInput = styled.input(smallNormalText, {
   textAlign: 'right',
   background: 'transparent',
   border: 'none',
-  color: DeprecatedColors.white,
+  color: colors.white100,
   width: '100px',
 
   '&&::placeholder': {
-    color: DeprecatedColors.white50,
+    color: colors.whiteOnBlue60,
   },
 });
 

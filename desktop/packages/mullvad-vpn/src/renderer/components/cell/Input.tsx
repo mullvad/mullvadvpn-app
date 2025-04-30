@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { IconButton } from '../../lib/components';
-import { DeprecatedColors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { useBoolean, useCombinedRefs, useEffectEvent, useStyledRef } from '../../lib/utility-hooks';
 import { normalText } from '../common-styles';
 import { BackAction } from '../KeyboardNavigation';
@@ -31,13 +31,9 @@ const StyledInput = styled.input<{ $focused: boolean; $valid?: boolean }>((props
   width: '100%',
   height: '100%',
   color:
-    props.$valid === false
-      ? DeprecatedColors.red
-      : props.$focused
-        ? DeprecatedColors.blue
-        : DeprecatedColors.white,
+    props.$valid === false ? colors.brandRed : props.$focused ? colors.brandBlue : colors.white100,
   '&&::placeholder': {
-    color: props.$focused ? DeprecatedColors.blue60 : DeprecatedColors.white60,
+    color: props.$focused ? colors.blue60 : colors.white60,
   },
 }));
 
@@ -183,7 +179,7 @@ export const Input = React.memo(React.forwardRef(InputWithRef));
 const InputFrame = styled.div<{ $focused: boolean }>((props) => ({
   display: 'flex',
   flexGrow: 0,
-  backgroundColor: props.$focused ? DeprecatedColors.white : 'rgba(255,255,255,0.1)',
+  backgroundColor: props.$focused ? colors.white100 : colors.whiteOnBlue10,
   borderRadius: '4px',
   padding: '6px 8px',
 }));
@@ -286,7 +282,7 @@ const StyledTextArea = styled.textarea<{ $invalid?: boolean }>(normalText, (prop
   fontWeight: 400,
   resize: 'none',
   padding: '10px 25px 10px 0',
-  color: props.$invalid ? DeprecatedColors.red : 'auto',
+  color: props.$invalid ? colors.brandRed : 'auto',
 }));
 
 const StyledInputFiller = styled.div({
@@ -297,13 +293,12 @@ const StyledInputFiller = styled.div({
   marginRight: '25px',
 });
 
-// TODO: This can be removed once we implement the new colors from foundations
 const StyledIconButton = styled(IconButton)<{ $disabled: boolean }>(({ $disabled }) => ({
   ['> div']: {
-    backgroundColor: $disabled ? DeprecatedColors.blue60 : DeprecatedColors.blue,
+    backgroundColor: $disabled ? colors.blue60 : colors.brandBlue,
   },
   ['&&:hover > div']: {
-    backgroundColor: $disabled ? DeprecatedColors.blue60 : DeprecatedColors.blue80,
+    backgroundColor: $disabled ? colors.blue60 : colors.blue80,
   },
 }));
 

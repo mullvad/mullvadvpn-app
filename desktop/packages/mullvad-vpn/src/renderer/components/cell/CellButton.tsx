@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import { Box, IconProps } from '../../lib/components';
-import { DeprecatedColors, spacings } from '../../lib/foundations';
+import { colors, spacings } from '../../lib/foundations';
 import { CellDisabledContext } from './Container';
 import { CellTintedIcon } from './Label';
 import { Row } from './Row';
@@ -15,11 +15,11 @@ interface IStyledCellButtonProps extends React.HTMLAttributes<HTMLButtonElement>
 
 const StyledCellButton = styled(Row)<IStyledCellButtonProps>((props) => {
   const backgroundColor = props.$selected
-    ? DeprecatedColors.green
+    ? colors.brandGreen
     : props.$containedInSection
-      ? DeprecatedColors.blue40
-      : DeprecatedColors.blue;
-  const backgroundColorHover = props.$selected ? DeprecatedColors.green : DeprecatedColors.blue80;
+      ? colors.blue40
+      : colors.brandBlue;
+  const backgroundColorHover = props.$selected ? colors.brandGreen : colors.blue80;
 
   return {
     paddingRight: spacings.medium,
