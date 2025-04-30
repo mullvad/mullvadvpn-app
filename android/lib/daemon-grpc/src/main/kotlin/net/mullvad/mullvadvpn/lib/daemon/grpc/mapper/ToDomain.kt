@@ -67,6 +67,7 @@ import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.ShadowsocksSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
+import net.mullvad.mullvadvpn.lib.model.SuggestedUpgrade
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions
@@ -513,7 +514,14 @@ internal fun QuantumResistantState.toDomain(): ManagementInterface.QuantumResist
 internal fun ManagementInterface.AppVersionInfo.toDomain(): AppVersionInfo =
     AppVersionInfo(
         supported = supported,
-        suggestedUpgrade = if (hasSuggestedUpgrade()) suggestedUpgrade else null,
+        suggestedUpgrade = suggestedUpgrade.toDomain(),
+    )
+
+internal fun ManagementInterface.SuggestedUpgrade.toDomain(): SuggestedUpgrade =
+    SuggestedUpgrade(
+        version = version,
+        changelog = changelog,
+        verifiedInstallerPath = if (hasVerifiedInstallerPath()) verifiedInstallerPath else null
     )
 
 internal fun ConnectivityState.toDomain(): GrpcConnectivityState =
