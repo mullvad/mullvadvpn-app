@@ -14,9 +14,10 @@ use h3::{
     server::{self, Connection, RequestStream},
 };
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
-use http::{StatusCode, Uri};
+use http::{header, StatusCode, Uri};
 use quinn::{crypto::rustls::QuicServerConfig, Endpoint, Incoming};
 use tokio::{net::UdpSocket, select, sync::mpsc, task};
+use typed_builder::TypedBuilder;
 
 use crate::{
     compute_udp_payload_size,
@@ -43,20 +44,35 @@ pub struct Server {
     params: Arc<ServerParams>,
 }
 
-struct ServerParams {
+#[derive(TypedBuilder)]
+pub struct ServerParams {
     /// Allowed target IPs for the proxy connection
-    allowed_hosts: AllowedIps,
+    pub allowed_hosts: AllowedIps,
 
-    /// Server hostname (optional)
-    hostname: Option<String>,
+    /// Server hostname expected from clients
+    #[builder(default)]
+    pub hostname: Option<String>,
 
     /// Maximum transfer unit
-    mtu: u16,
+    #[builder(default = 1500)]
+    pub mtu: u16,
+
+    /// Authorization header expected from clients
+    #[builder(default)]
+    pub auth_header: Option<String>,
 }
 
-#[derive(Clone)]
-struct AllowedIps {
+#[derive(Default, Clone)]
+pub struct AllowedIps {
     hosts: Arc<HashSet<IpAddr>>,
+}
+
+impl<T: IntoIterator<Item = IpAddr>> From<T> for AllowedIps {
+    fn from(value: T) -> Self {
+        AllowedIps {
+            hosts: Arc::new(value.into_iter().collect()),
+        }
+    }
 }
 
 impl AllowedIps {
@@ -68,12 +84,10 @@ impl AllowedIps {
 impl Server {
     pub fn bind(
         bind_addr: SocketAddr,
-        allowed_hosts: HashSet<IpAddr>,
-        hostname: Option<String>,
         tls_config: Arc<rustls::ServerConfig>,
-        mtu: u16,
+        params: ServerParams,
     ) -> Result<Self> {
-        Self::validate_mtu(mtu, bind_addr)?;
+        Self::validate_mtu(params.mtu, bind_addr)?;
 
         let server_config = quinn::ServerConfig::with_crypto(Arc::new(
             QuicServerConfig::try_from(tls_config).map_err(Error::BadTlsConfig)?,
@@ -83,13 +97,7 @@ impl Server {
 
         Ok(Self {
             endpoint,
-            params: Arc::new(ServerParams {
-                allowed_hosts: AllowedIps {
-                    hosts: Arc::new(allowed_hosts),
-                },
-                hostname,
-                mtu,
-            }),
+            params: Arc::new(params),
         })
     }
 
@@ -170,6 +178,13 @@ impl Server {
                 return;
             }
         };
+
+        if let Some(required_auth) = &server_params.auth_header {
+            match http_request.headers().get(header::AUTHORIZATION) {
+                Some(actual_auth) if actual_auth == required_auth => (),
+                _ => return handle_invalid_auth(stream).await,
+            }
+        }
 
         if let Some(hostname) = &server_params.hostname {
             if &proxy_uri.hostname != hostname {
@@ -387,6 +402,14 @@ async fn handle_established_connection<T: BidiStream<Bytes>>(
         .await
         .map_err(Error::SendNegotiationResponse)?;
     Ok(())
+}
+
+async fn handle_invalid_auth<T: BidiStream<Bytes>>(mut stream: RequestStream<T, Bytes>) {
+    let response = http::Response::builder()
+        .status(StatusCode::BAD_REQUEST)
+        .body(())
+        .unwrap();
+    let _ = stream.send_response(response).await;
 }
 
 async fn handle_disallowed_ip<T: BidiStream<Bytes>>(mut stream: RequestStream<T, Bytes>) {
