@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { DeprecatedColors, spacings } from '../lib/foundations';
+import { colors, spacings } from '../lib/foundations';
 
 export const openSans: React.CSSProperties = {
   fontFamily: 'Open Sans',
@@ -22,7 +22,7 @@ export const smallText = {
   fontSize: '14px',
   fontWeight: 600,
   lineHeight: '20px',
-  color: DeprecatedColors.white80,
+  color: colors.white80,
 };
 
 export const smallNormalText = {
@@ -45,7 +45,7 @@ export const largeText = {
 
 export const buttonText = {
   ...largeText,
-  color: DeprecatedColors.white,
+  color: colors.white100,
 };
 
 export const bigText = {
@@ -60,7 +60,7 @@ export const hugeText = {
   fontSize: '32px',
   fontWeight: 700,
   lineHeight: '34px',
-  color: DeprecatedColors.white,
+  color: colors.white100,
 };
 
 export const measurements = {
