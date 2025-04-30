@@ -5,7 +5,6 @@
 
 set -u
 
-# Set to "android", "desktop", or "ios".
 MULLVAD_SETUP_PLATFORM="${MULLVAD_SETUP_PLATFORM:-}"
 
 SETUP_RUST_SCRIPT="scripts/setup-rust"
@@ -15,8 +14,8 @@ if [[ ! -f "$SETUP_RUST_SCRIPT" ]]; then
 fi
 
 if [[ -z ${MULLVAD_SETUP_PLATFORM+x} ]]; then
-    echo "MULLVAD_SETUP_PLATFORM is not set, must be set to " >&2
-    echo "\`android\`, \`desktop\` or \`ios\`" >&2
+    echo "MULLVAD_SETUP_PLATFORM is not set, must be set to one of the following: " >&2
+    echo "\`android\`, \`ios\`, \`windows\`, \`linux\`, \`macos\`" >&2
     exit 1
 fi
 
