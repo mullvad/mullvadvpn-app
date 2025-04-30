@@ -44,6 +44,10 @@ pub struct ClientArgs {
     /// Inactivity happens when no data is sent over the proxy.
     #[arg(long, short = 'i', value_parser = duration_from_seconds)]
     idle_timeout: Option<Duration>,
+
+    /// Authorization header value to set
+    #[arg(long, default_value = "Bearer test")]
+    auth: Option<String>,
 }
 
 /// Parse a duration from a decimal number of seconds
@@ -69,6 +73,7 @@ async fn main() {
         #[cfg(target_os = "linux")]
         fwmark,
         idle_timeout,
+        auth,
     } = ClientArgs::parse();
 
     let tls_config = match root_cert_path {
@@ -94,7 +99,8 @@ async fn main() {
         .target_addr(target_addr)
         .mtu(mtu)
         .tls_config(tls_config)
-        .idle_timeout(idle_timeout);
+        .idle_timeout(idle_timeout)
+        .auth_header(auth);
 
     #[cfg(target_os = "linux")]
     let config = config.fwmark(fwmark);
