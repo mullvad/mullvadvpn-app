@@ -21,6 +21,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2025.3] - 2025-04-30
+### Fixed
+- Fix in-app language bug that could cause unexpected language changes
+  in the app or its notifications.
+
+
 ## [android/2025.2] - 2025-04-28
 Identical to `android/2025.2-beta2`
 
