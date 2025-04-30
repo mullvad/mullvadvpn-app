@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"680f466d-2ff8a\"",
+  "etag": "W/\"6811cef1-2fd98\"",
   "countries": [
     {
       "name": "Albania",
@@ -7141,6 +7141,64 @@
               }
             },
             {
+              "hostname": "gb-mnc-wg-201",
+              "ipv4_addr_in": "167.160.13.3",
+              "ipv6_addr_in": "2a03:ee40:3304::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": false,
+              "active": true,
+              "owned": false,
+              "provider": "Veloxserv",
+              "weight": 1,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "x3APiw/mxJzdD+3WAPxTFnvOZHVotm6SGomHtMoR4Hg=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "167.160.13.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "UK",
+                "country_code": "gb",
+                "city": "Manchester",
+                "city_code": "mnc",
+                "latitude": 53.5,
+                "longitude": -2.216667
+              }
+            },
+            {
+              "hostname": "gb-mnc-wg-202",
+              "ipv4_addr_in": "167.160.13.127",
+              "ipv6_addr_in": "2a03:ee40:3304::f101",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": false,
+              "active": true,
+              "owned": false,
+              "provider": "Veloxserv",
+              "weight": 1,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "OpQgffPufxbHQUbItRoezS2V+yAEBKZ10jfU82YIByI=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "167.160.13.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "UK",
+                "country_code": "gb",
+                "city": "Manchester",
+                "city_code": "mnc",
+                "latitude": 53.5,
+                "longitude": -2.216667
+              }
+            },
+            {
               "hostname": "gb-mnc-br-001",
               "ipv4_addr_in": "89.238.134.58",
               "ipv6_addr_in": null,
@@ -8466,7 +8524,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "DataPacket",
               "weight": 200,
@@ -10367,60 +10425,6 @@
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "5P4CQYQeSozk/3KQZh/kl7tUMFGgRB60Ttx6x2nh+F8=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "Portugal",
-                "country_code": "pt",
-                "city": "Lisbon",
-                "city_code": "lis",
-                "latitude": 38.736946,
-                "longitude": -9.142685
-              }
-            },
-            {
-              "hostname": "pt-lis-wg-301",
-              "ipv4_addr_in": "185.92.210.195",
-              "ipv6_addr_in": "2a06:3040:0:1410::f001",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": false,
-              "provider": "HostRoyale",
-              "weight": 100,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "v28I9wElvqG81kdFi9UZ08qmPDZJnr99lPGTM+HMxgQ=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "Portugal",
-                "country_code": "pt",
-                "city": "Lisbon",
-                "city_code": "lis",
-                "latitude": 38.736946,
-                "longitude": -9.142685
-              }
-            },
-            {
-              "hostname": "pt-lis-wg-302",
-              "ipv4_addr_in": "185.92.210.225",
-              "ipv6_addr_in": "2a06:3040:0:1410::f101",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": false,
-              "provider": "HostRoyale",
-              "weight": 100,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "IzFkZPCljVR/zth8r6F4ajnawxFJZhe0+nRbGFp0d0U=",
                   "daita": false,
                   "shadowsocks_extra_addr_in": []
                 }
@@ -13080,7 +13084,7 @@
               "active": true,
               "owned": false,
               "provider": "Quadranet",
-              "weight": 70,
+              "weight": 0,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "BbW2Gm4IZEW8CrEIg71jZC9pztA/J4h1PK9lwq57ewE=",
@@ -13107,7 +13111,7 @@
               "active": true,
               "owned": false,
               "provider": "Quadranet",
-              "weight": 70,
+              "weight": 0,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "Qnb6TdDA7IkTIISJ40W+6rZA81pb0v4D0jRZRTYNQnQ=",
@@ -13134,7 +13138,7 @@
               "active": true,
               "owned": false,
               "provider": "Quadranet",
-              "weight": 70,
+              "weight": 0,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "nZQvI+2ZzDC2titokjWcojbjvn4bxHrhUzg1UK/K0nc=",
@@ -13161,7 +13165,7 @@
               "active": true,
               "owned": false,
               "provider": "Quadranet",
-              "weight": 70,
+              "weight": 0,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "rlZyrKRSLfvjUBpYD2jUkWhdWkB1RnRr+Q4bv9+nvD8=",
@@ -15899,60 +15903,6 @@
               }
             },
             {
-              "hostname": "us-mia-wg-301",
-              "ipv4_addr_in": "173.44.63.66",
-              "ipv6_addr_in": "2607:ff48:aa81:2602::b25f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "nCr87vBNEwrERnkcDhWENNVIMaLF+C0p3h9nqwguO2g=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Miami, FL",
-                "city_code": "mia",
-                "latitude": 25.761681,
-                "longitude": -80.191788
-              }
-            },
-            {
-              "hostname": "us-mia-wg-302",
-              "ipv4_addr_in": "104.129.41.194",
-              "ipv6_addr_in": "2607:ff48:aa81:2603::b26f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 70,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "voRd3Wi8W4kaEMIJMy7IBkpkAVxQkYF0VubbK1+zgR8=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Miami, FL",
-                "city_code": "mia",
-                "latitude": 25.761681,
-                "longitude": -80.191788
-              }
-            },
-            {
               "hostname": "us-mia-br-101",
               "ipv4_addr_in": "146.70.183.34",
               "ipv6_addr_in": null,
@@ -18237,7 +18187,7 @@
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "Ow25Pdtyqbv/Y0I0myNixjJ2iljsKcH04PWvtJqbmCk=",
@@ -18264,7 +18214,7 @@
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "aOt3gFGc0a0UMAdcxhBWX9TCnEabe2s66MHzjXU50Tc=",
@@ -19162,11 +19112,11 @@
               "ipv6_addr_in": "2607:fcd0:ccc0:1d03::b38f",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Quadranet",
-              "weight": 70,
+              "weight": 0,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "fD/JDsMLFxEZ7awcJJB9h0mjfRlcEvwF8e7arB2fHhU=",
@@ -19189,11 +19139,11 @@
               "ipv6_addr_in": "2607:fcd0:ccc0:1d05::c41f",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Quadranet",
-              "weight": 70,
+              "weight": 0,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "Tysz0Ii2m+DsyhcWoQWxsXUdJxu1lKln4F7ML+nWPXA=",
