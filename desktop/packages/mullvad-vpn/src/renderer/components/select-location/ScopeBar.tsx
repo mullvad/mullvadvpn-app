@@ -1,13 +1,13 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { DeprecatedColors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { smallText } from '../common-styles';
 
 const StyledScopeBar = styled.div({
   display: 'flex',
   flexDirection: 'row',
-  backgroundColor: DeprecatedColors.blue40,
+  backgroundColor: colors.blue40,
   borderRadius: '13px',
   overflow: 'hidden',
 });
@@ -40,12 +40,12 @@ const StyledScopeBarItem = styled.button<{ selected?: boolean }>(smallText, (pro
   flex: 1,
   flexBasis: 0,
   padding: '4px 8px',
-  color: DeprecatedColors.white,
+  color: colors.white100,
   textAlign: 'center',
   border: 'none',
-  backgroundColor: props.selected ? DeprecatedColors.green : 'transparent',
+  backgroundColor: props.selected ? colors.brandGreen : 'transparent',
   '&&:hover': {
-    backgroundColor: props.selected ? DeprecatedColors.green : DeprecatedColors.blue40,
+    backgroundColor: props.selected ? colors.brandGreen : colors.blue40,
   },
 }));
 

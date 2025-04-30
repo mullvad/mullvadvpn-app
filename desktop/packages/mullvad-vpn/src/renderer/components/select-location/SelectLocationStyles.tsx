@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { DeprecatedColors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import * as Cell from '../cell';
 import { normalText, tinyText } from '../common-styles';
 import SearchBar from '../SearchBar';
@@ -23,7 +23,7 @@ export const StyledNavigationBarAttachment = styled.div({
 
 export const StyledFilterRow = styled.div({
   ...tinyText,
-  color: DeprecatedColors.white,
+  color: colors.white100,
   margin: '0 6px 16px',
 });
 
@@ -31,11 +31,11 @@ export const StyledFilter = styled.div({
   ...tinyText,
   display: 'inline-flex',
   alignItems: 'center',
-  backgroundColor: DeprecatedColors.blue,
+  backgroundColor: colors.brandBlue,
   borderRadius: '4px',
   padding: '3px 8px',
   marginLeft: '6px',
-  color: DeprecatedColors.white,
+  color: colors.white100,
 });
 
 export const StyledClearFilterButton = styled.div({
