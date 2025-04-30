@@ -890,7 +890,28 @@
 	${ExtractMullvadSetup}
 	${ClearFirewallRules}
 
-	MessageBox MB_OK "Failed to uninstall a previous version. Please try restarting your computer and try again. If you still have this issue, please contact support."
+	# Give the user some helpful instructions about how to proceed
+	Push $0
+
+	${GetParameters} $0
+	${GetOptions} $0 "/inapp" $1
+	${If} ${Errors}
+		Push 0
+	${Else}
+		Push 1
+	${EndIf}
+
+	Pop $0
+
+	# Show appropriate message about failed update depending on whether /inapp is specified
+	${If} $0 == 1
+		MessageBox MB_OK "The update could not be installed and the previous version is missing. Please download the app again from mullvad.net/download and reinstall. If that fails, please try restarting your computer and try again."
+	${Else}
+		MessageBox MB_OK "Failed to uninstall a previous version. Please try restarting your computer and try again. If you still have this issue, please contact support."
+	${EndIf}
+
+	Pop $0
+
 	SetErrorLevel 5
 	Abort
 
