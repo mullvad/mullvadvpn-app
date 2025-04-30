@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { strings } from '../../../shared/constants';
 import { FeatureIndicator } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { DeprecatedColors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { useStyledRef } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
 import { tinyText } from '../common-styles';
@@ -28,7 +28,7 @@ const StyledTitle = styled.h2(tinyText, {
   margin: '0 0 2px',
   fontSize: '10px',
   lineHeight: '15px',
-  color: DeprecatedColors.white60,
+  color: colors.white60,
 });
 
 const StyledFeatureIndicators = styled.div({
@@ -50,8 +50,8 @@ const StyledFeatureIndicatorLabel = styled.span(tinyText, (props) => ({
   justifyContent: 'center',
   alignItems: 'center',
   borderRadius: '4px',
-  background: DeprecatedColors.darkerBlue,
-  color: DeprecatedColors.white,
+  background: colors.brandDarkBlue,
+  color: colors.white100,
   fontWeight: 400,
   whiteSpace: 'nowrap',
   visibility: 'hidden',
@@ -59,17 +59,17 @@ const StyledFeatureIndicatorLabel = styled.span(tinyText, (props) => ({
   // Style clickable feature indicators with a border and on-hover effect
   boxSizing: 'border-box', // make border act as padding rather than margin
   border: 'solid 1px',
-  borderColor: props.onClick ? DeprecatedColors.blue : DeprecatedColors.darkerBlue,
+  borderColor: props.onClick ? colors.brandBlue : colors.brandDarkBlue,
   transition: 'background ease-in-out 300ms',
   '&&:hover': {
-    background: props.onClick ? DeprecatedColors.blue60 : undefined,
+    background: props.onClick ? colors.blue60 : undefined,
   },
 }));
 
 const StyledBaseEllipsis = styled.span<{ $display: boolean }>(tinyText, (props) => ({
   position: 'absolute',
   top: `${LINE_HEIGHT + GAP}px`,
-  color: DeprecatedColors.white,
+  color: colors.white100,
   padding: '2px 8px 2px 16px',
   display: props.$display ? 'inline' : 'none',
 }));
