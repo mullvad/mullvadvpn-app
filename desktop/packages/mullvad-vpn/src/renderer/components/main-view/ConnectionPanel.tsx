@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { IconButton } from '../../lib/components';
+import { colors } from '../../lib/foundations';
 import { useBoolean } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
 import CustomScrollbars from '../CustomScrollbars';
@@ -30,7 +31,7 @@ const StyledConnectionPanel = styled.div<{ $expanded: boolean }>((props) => ({
   padding: '16px',
   justifySelf: 'flex-end',
   borderRadius: '12px',
-  backgroundColor: `rgba(16, 24, 35, ${props.$expanded ? 0.8 : 0.4})`,
+  backgroundColor: props.$expanded ? colors.darkerBlue10Alpha80 : colors.darkerBlue10Alpha40,
   backdropFilter: 'blur(6px)',
 
   transition: 'background-color 300ms ease-out',
@@ -61,7 +62,7 @@ const StyledConnectionStatusContainer = styled.div<{
 }>((props) => ({
   paddingBottom: props.$hasFeatureIndicators || props.$expanded ? '16px' : 0,
   marginBottom: props.$expanded && props.$hasFeatureIndicators ? '16px' : 0,
-  borderBottom: props.$expanded ? '1px rgba(255, 255, 255, 0.2) solid' : 'none',
+  borderBottom: props.$expanded ? `1px ${colors.white20} solid` : 'none',
   transitionProperty: 'margin-bottom, padding-bottom',
   transitionDuration: '300ms',
   transitionTimingFunction: 'ease-out',
