@@ -145,6 +145,10 @@ pub struct ClientConfig {
     /// Optional timeout when no data is sent in the proxy.
     #[builder(default)]
     pub idle_timeout: Option<Duration>,
+
+    /// Set the authorization header to use in the CONNECT-UDP request.
+    #[builder(default)]
+    pub auth_header: Option<String>,
 }
 
 impl Client {
@@ -189,6 +193,7 @@ impl Client {
             config.target_addr,
             &config.server_host,
             max_udp_payload_size,
+            config.auth_header,
         )
         .await?;
 
@@ -257,6 +262,7 @@ impl Client {
         target: SocketAddr,
         server_host: &str,
         mtu: u16,
+        auth_header: Option<String>,
     ) -> Result<(
         client::Connection<h3_quinn::Connection, bytes::Bytes>,
         client::SendRequest<h3_quinn::OpenStreams, bytes::Bytes>,
@@ -270,7 +276,16 @@ impl Client {
             .await
             .map_err(Error::CreateClient)?;
 
-        Self::send_connect_request(connection, send_stream, server_host, target, mtu, 0).await
+        Self::send_connect_request(
+            connection,
+            send_stream,
+            server_host,
+            target,
+            mtu,
+            0,
+            auth_header,
+        )
+        .await
     }
 
     /// Send an HTTP CONNECT request and set up the h3 connection for sending datagrams.
@@ -283,12 +298,13 @@ impl Client {
         target: SocketAddr,
         mtu: u16,
         redirect_count: usize,
+        auth_header: Option<String>,
     ) -> Result<(
         client::Connection<h3_quinn::Connection, bytes::Bytes>,
         client::SendRequest<h3_quinn::OpenStreams, bytes::Bytes>,
         client::RequestStream<h3_quinn::BidiStream<bytes::Bytes>, bytes::Bytes>,
     )> {
-        let request = new_connect_request(target, &server_host, mtu)?;
+        let request = new_connect_request(target, &server_host, mtu, auth_header.as_deref())?;
 
         let request_future = async move {
             let mut request_stream = send_stream.send_request(request).await?;
@@ -343,6 +359,7 @@ impl Client {
                     target,
                     mtu,
                     redirect_count + 1,
+                    auth_header,
                 ))
                 .await
             }
@@ -547,6 +564,7 @@ fn new_connect_request(
     socket_addr: SocketAddr,
     authority: &dyn AsRef<str>,
     mtu: u16,
+    authorization: Option<&str>,
 ) -> Result<http::Request<()>> {
     let host = socket_addr.ip();
     let port = socket_addr.port();
@@ -558,12 +576,17 @@ fn new_connect_request(
         .build()
         .map_err(Error::Uri)?;
 
-    let mut request = http::Request::builder()
+    let mut builder = http::Request::builder()
         .method(http::method::Method::CONNECT)
         .uri(uri)
         .header(b"Capsule-Protocol".as_slice(), b"?1".as_slice())
-        .header(header::AUTHORIZATION, b"Bearer test".as_slice())
-        .header(header::HOST, authority.as_ref())
+        .header(header::HOST, authority.as_ref());
+
+    if let Some(auth) = authorization {
+        builder = builder.header(header::AUTHORIZATION, auth);
+    }
+
+    let mut request = builder
         // TODO: Not needed since we set the max_udp_payload_size transport param
         .header(
             b"X-Mullvad-Uplink-Mtu".as_slice(),
