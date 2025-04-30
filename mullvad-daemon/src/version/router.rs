@@ -260,14 +260,14 @@ where
                 self.notify_version_requesters(app_version_info.clone());
                 if is_new {
                     // Notify the daemon about new version
-                    let _ = self.version_event_sender.send(app_version_info);
+                    let _ = dbg!(self.version_event_sender.send(app_version_info));
                 }
             }
             res = wait_for_update(&mut self.state) => {
                 // If the download was successful, we send the new version, which contains the
                 // verified installer path
                 if let Some(app_update_info) =  res {
-                    let _ = self.version_event_sender.send(app_update_info);
+                    let _ = dbg!(self.version_event_sender.send(app_update_info));
                 }
             },
             Some(message) = self.daemon_rx.next() => self.handle_message(message),

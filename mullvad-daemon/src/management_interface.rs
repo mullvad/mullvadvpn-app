@@ -1158,7 +1158,7 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("app_upgrade_events_listen");
         let rx = self.app_upgrade_broadcast.subscribe();
         let upgrade_event_stream =
-            tokio_stream::wrappers::BroadcastStream::new(rx).map(|result| match result {
+            tokio_stream::wrappers::BroadcastStream::new(rx).map(|result| match dbg!(result) {
                 Ok(event) => Ok(event.into()),
                 Err(error) => Err(Status::internal(format!(
                     "Failed to receive app upgrade event: {error}"
