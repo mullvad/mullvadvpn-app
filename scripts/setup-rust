@@ -32,6 +32,9 @@ function main {
     fi
 
     case "$1" in
+    # A previous version of this script didn't have individual options for the desktop platforms but
+    # had only a single `desktop` option which we keep here for backwards compatibility.
+    # Should be removed at a later point.
     "windows" | "desktop")
         setup "Windows" "$WINDOWS_TARGETS" "$WINDOWS_COMPONENTS"
         ;;
