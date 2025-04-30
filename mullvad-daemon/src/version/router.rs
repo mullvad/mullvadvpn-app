@@ -571,8 +571,8 @@ fn recommended_version_upgrade(
     };
 
     // Set suggested upgrade if the received version is newer than the current version
-    let current_version = mullvad_version::VERSION.parse().unwrap();
-    if version_details.version > current_version {
+    // let current_version = mullvad_version::VERSION.parse().unwrap();
+    if true {
         Some(version_details.to_owned())
     } else {
         None
