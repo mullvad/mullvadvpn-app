@@ -75,6 +75,7 @@ export const createSelectors = (page: Page) => ({
     page.getByRole('button', {
       name: 'Download & install',
     }),
+  downloadProgressBar: () => page.getByRole('progressbar'),
   installButton: () =>
     page.getByRole('button', {
       name: 'Install update',
@@ -95,7 +96,10 @@ export const createSelectors = (page: Page) => ({
     page.getByRole('button', {
       name: 'Report a problem',
     }),
-  downloadProgressBar: () => page.getByRole('progressbar'),
+  startingInstallerButton: () =>
+    page.getByRole('button', {
+      name: ' Starting installer...',
+    }),
 });
 
 export const mockData = {
@@ -119,6 +123,14 @@ export const createHelpers = (page: Page, util: MockedTestUtils) => {
     const downloadAndLaunchInstallerButton = selectors.downloadAndLaunchInstallerButton();
 
     await resolveIpcHandle(ipc.handle.appUpgrade(), downloadAndLaunchInstallerButton.click());
+
+    await ipc.send.appUpgradeEventDownloadStarted();
+  };
+
+  const resumeAppUpgrade = async () => {
+    const resumeButton = selectors.resumeButton();
+
+    await resolveIpcHandle(ipc.handle.appUpgrade(), resumeButton.click());
 
     await ipc.send.appUpgradeEventDownloadStarted();
   };

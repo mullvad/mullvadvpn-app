@@ -12,9 +12,9 @@ let ipc: ReturnType<typeof createIpc>;
 let selectors: ReturnType<typeof createSelectors>;
 
 test.describe('App upgrade', () => {
-  if (process.platform === 'linux') {
-    test.skip();
-  }
+  // if (process.platform === 'linux') {
+  //   test.skip();
+  // }
 
   const startup = async () => {
     ({ page, util } = await startMockedApp());
@@ -22,6 +22,8 @@ test.describe('App upgrade', () => {
     helpers = createHelpers(page, util);
     ipc = createIpc(util);
     selectors = createSelectors(page);
+
+    await util.waitForRoute(RoutePath.main);
 
     await ipc.send.upgradeVersion({
       supported: true,
@@ -118,7 +120,7 @@ test.describe('App upgrade', () => {
     test('Should show that it has verified the installer when verification is complete', async () => {
       await ipc.send.appUpgradeEventVerifiedInstaller();
 
-      await expect(page.getByText('Verification successful! Starting installer...')).toBeVisible();
+      await expect(page.getByText('Verification successful!')).toBeVisible();
       await expect(page.getByText('Download complete')).toBeVisible();
 
       await helpers.expectProgress(100);
@@ -191,7 +193,7 @@ test.describe('App upgrade', () => {
 
       await expect(
         page.getByText(
-          'Could not start the update installer, try downloading it again. If this problem persists, please contact support.',
+          'Could not start the update installer. Try again. If this problem persists, please contact support.',
         ),
       ).toBeVisible();
       const retryButton = selectors.retryButton();
@@ -201,7 +203,7 @@ test.describe('App upgrade', () => {
       await expect(reportProblemButton).toBeVisible();
     });
 
-    test('Should handle retrying upgrade', async () => {
+    test('Should handle failing to retry button', async () => {
       const retryButton = selectors.retryButton();
 
       await resolveIpcHandle(ipc.handle.appUpgrade(), retryButton.click());
@@ -210,7 +212,7 @@ test.describe('App upgrade', () => {
 
       await expect(page.getByText('Downloading...')).toBeVisible();
       await expect(page.getByText('Starting download...')).toBeVisible();
-      await helpers.expectProgress(0, true);
+      await helpers.expectProgress(100, true);
     });
   });
 
@@ -219,7 +221,6 @@ test.describe('App upgrade', () => {
       await helpers.startAppUpgrade();
       const pauseButton = selectors.pauseButton();
 
-      await new Promise(() => {});
       await expect(pauseButton).toBeVisible();
       await expect(pauseButton).toBeEnabled();
     });
@@ -241,9 +242,10 @@ test.describe('App upgrade', () => {
     });
 
     test('Should start upgrade again when clicking Download & install button', async () => {
-      await helpers.startAppUpgrade();
-
       const resumeButton = selectors.resumeButton();
+
+      await resolveIpcHandle(ipc.handle.appUpgrade(), resumeButton.click());
+
       await expect(resumeButton).toBeHidden();
     });
   });

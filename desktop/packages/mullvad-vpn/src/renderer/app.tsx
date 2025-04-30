@@ -142,6 +142,7 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.account.listen((newAccountData?: IAccountData) => {
+      console.log('got message with expiry', newAccountData);
       this.setAccountExpiry(newAccountData?.expiry);
     });
 
@@ -176,6 +177,7 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.app.listenUpgradeEvent((appUpgradeEvent) => {
+      console.log('got event', appUpgradeEvent);
       this.reduxActions.appUpgrade.setAppUpgradeEvent(appUpgradeEvent);
 
       if (appUpgradeEvent.type === 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS') {
@@ -195,6 +197,7 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.upgradeVersion.listen((upgradeVersion: IAppVersionInfo) => {
+      console.log('upgrade version listen');
       this.setUpgradeVersion(upgradeVersion);
 
       // Check if the installer should be started automatically
@@ -1039,6 +1042,7 @@ export default class AppRenderer {
   }
 
   private setUpgradeVersion(upgradeVersion: IAppVersionInfo) {
+    console.log('got upgrade version', upgradeVersion);
     this.reduxActions.version.updateLatest(upgradeVersion);
   }
 

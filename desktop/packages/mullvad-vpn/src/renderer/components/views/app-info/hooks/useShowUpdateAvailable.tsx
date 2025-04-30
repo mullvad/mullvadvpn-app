@@ -2,5 +2,8 @@ import { useVersionSuggestedUpgrade } from '../../../../redux/version/hooks/useV
 
 export const useShowUpdateAvailable = () => {
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
+
+  console.log('suggestedUpgrade', suggestedUpgrade);
+
   return !!suggestedUpgrade;
 };

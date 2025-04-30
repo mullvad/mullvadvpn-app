@@ -8,6 +8,7 @@ export const convertEventTypeToStep = (
     case 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS':
     case 'APP_UPGRADE_STATUS_DOWNLOAD_STARTED':
       return 'download';
+    case 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER':
     case 'APP_UPGRADE_STATUS_AUTOMATIC_STARTING_INSTALLER':
     case 'APP_UPGRADE_STATUS_EXITED_INSTALLER':
     case 'APP_UPGRADE_STATUS_MANUAL_START_INSTALLER':
@@ -16,7 +17,6 @@ export const convertEventTypeToStep = (
       return 'launch';
     case 'APP_UPGRADE_STATUS_ABORTED':
       return 'pause';
-    case 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER':
     case 'APP_UPGRADE_STATUS_VERIFYING_INSTALLER':
       return 'verify';
     default:
