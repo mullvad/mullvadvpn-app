@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { useScheduler } from '../../../shared/scheduler';
 import { Icon } from '../../lib/components';
-import { DeprecatedColors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { useBoolean, useEffectEvent } from '../../lib/utility-hooks';
 import { AriaInput } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
@@ -20,13 +20,13 @@ const StyledSelect = styled.div.attrs({ tabIndex: 0 })(smallNormalText, {
   position: 'relative',
   background: 'transparent',
   border: 'none',
-  color: DeprecatedColors.white,
+  color: colors.white100,
   borderRadius: '4px',
   height: '26px',
 
   '&&:focus': {
-    outline: `1px ${DeprecatedColors.darkBlue} solid`,
-    backgroundColor: DeprecatedColors.blue,
+    outline: `1px ${colors.brandDarkBlue} solid`,
+    backgroundColor: colors.brandBlue,
   },
 });
 
@@ -37,8 +37,8 @@ const StyledItems = styled.div<{ $direction: 'down' | 'up' }>((props) => ({
   top: props.$direction === 'down' ? 'calc(100% + 4px)' : 'auto',
   bottom: props.$direction === 'up' ? 'calc(100% + 4px)' : 'auto',
   right: '-1px',
-  backgroundColor: DeprecatedColors.darkBlue,
-  border: `1px ${DeprecatedColors.darkerBlue} solid`,
+  backgroundColor: colors.brandDarkBlue,
+  border: `1px ${colors.darkerBlue50} solid`,
   borderRadius: '4px',
   padding: '4px 8px',
   maxHeight: '250px',
@@ -220,7 +220,7 @@ const StyledItem = styled.div<{ $selected: boolean }>((props) => ({
   paddingRight: '18px',
   whiteSpace: 'nowrap',
   '&&:hover': {
-    backgroundColor: DeprecatedColors.blue,
+    backgroundColor: colors.brandBlue,
   },
 }));
 
