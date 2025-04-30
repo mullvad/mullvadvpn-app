@@ -6,6 +6,8 @@ use std::time::Duration;
 use anyhow::anyhow;
 use anyhow::Context;
 use bytes::BytesMut;
+use mullvad_masque_proxy::server::AllowedIps;
+use mullvad_masque_proxy::server::ServerParams;
 use mullvad_masque_proxy::MIN_IPV4_MTU;
 use rand::RngCore;
 use tokio::fs;
@@ -145,14 +147,15 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
 
     // Set up MASQUE server
     let server_tls_config = load_server_test_cert().await?;
-    let server = server::Server::bind(
-        any_localhost_addr,
-        Default::default(),
-        None,
-        Arc::new(server_tls_config),
-        mtu,
-    )
-    .context("Failed to start MASQUE server")?;
+
+    let params = ServerParams::builder()
+        .allowed_hosts(AllowedIps::default())
+        .mtu(mtu)
+        .auth_header(Some("Bearer test".to_owned()))
+        .build();
+
+    let server = server::Server::bind(any_localhost_addr, Arc::new(server_tls_config), params)
+        .context("Failed to start MASQUE server")?;
 
     let masque_server_addr = server.local_addr()?;
 
@@ -176,6 +179,7 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         .target_addr(target_udp_addr)
         .mtu(mtu)
         .idle_timeout(Some(Duration::from_secs(10)))
+        .auth_header(Some("Bearer test".to_owned()))
         .build();
 
     let client = client::Client::connect(client_config)
