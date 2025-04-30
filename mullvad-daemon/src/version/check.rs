@@ -198,7 +198,7 @@ impl VersionUpdaterInner {
         api: ApiContext,
     ) {
         // If this is a dev build, there's no need to pester the API for version checks.
-        if *IS_DEV_BUILD {
+        if false {
             log::warn!("Not checking for updates because this is a development build");
             while let Some(()) = refresh_rx.next().await {
                 log::info!("Version check is disabled in dev builds");
@@ -399,10 +399,11 @@ fn version_check_inner(
         min_metadata_version,
     );
     async move {
-        let (v1_response, v2_response) =
-            tokio::try_join!(v1_endpoint, v2_endpoint).map_err(Error::Download)?;
+        let v2_response = v2_endpoint.await.map_err(Error::Download)?;
+        // let (v1_response, v2_response) =
+        //     tokio::try_join!(v1_endpoint, v2_endpoint).map_err(Error::Download)?;
         Ok(VersionCache {
-            current_version_supported: v1_response.supported,
+            current_version_supported: false,
             latest_version: v2_response.0,
             metadata_version: v2_response.1,
         })
@@ -477,7 +478,7 @@ async fn load_cache(cache_dir: &Path) -> Option<(VersionCache, SystemTime)> {
 }
 
 async fn try_load_cache(cache_dir: &Path) -> Result<(VersionCache, SystemTime), Error> {
-    if *IS_DEV_BUILD {
+    if false {
         return Ok((dev_version_cache(), SystemTime::now()));
     }
 
