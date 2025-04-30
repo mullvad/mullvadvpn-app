@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { Styles } from 'styled-components/dist/types';
 
 import { Icon } from '../../lib/components';
-import { DeprecatedColors } from '../../lib/foundations';
+import { colors, ColorVariables } from '../../lib/foundations';
 import * as Cell from '../cell';
 import { buttonColor, ButtonColors } from '../cell/styles';
 import { measurements, normalText } from '../common-styles';
@@ -86,7 +86,7 @@ export const StyledHoverIcon = styled(Icon).attrs({
   color: 'white60',
 })({
   [`${StyledHoverIconButton}:hover &&`]: {
-    backgroundColor: DeprecatedColors.white,
+    backgroundColor: colors.white100,
   },
 });
 
@@ -96,19 +96,19 @@ export const StyledHoverInfoButton = styled(InfoButton)<ButtonColors & HoverButt
 );
 
 export function getButtonColor(selected: boolean, level: number, disabled?: boolean) {
-  let backgroundColor = DeprecatedColors.blue60;
+  let backgroundColor: ColorVariables = colors.blue60;
   if (selected) {
-    backgroundColor = DeprecatedColors.green;
+    backgroundColor = colors.brandGreen;
   } else if (level === 1) {
-    backgroundColor = DeprecatedColors.blue40;
+    backgroundColor = colors.blue40;
   } else if (level === 2) {
-    backgroundColor = DeprecatedColors.blue20;
+    backgroundColor = colors.blue20;
   } else if (level === 3) {
-    backgroundColor = DeprecatedColors.blue10;
+    backgroundColor = colors.blue10;
   }
 
   return {
     $backgroundColor: backgroundColor,
-    $backgroundColorHover: selected || disabled ? backgroundColor : DeprecatedColors.blue80,
+    $backgroundColorHover: selected || disabled ? backgroundColor : colors.blue80,
   };
 }
