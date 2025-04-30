@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { Icon } from '../../lib/components';
-import { DeprecatedColors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { AriaInputGroup, AriaLabel } from '../AriaGroup';
 import { measurements, smallNormalText, tinyText } from '../common-styles';
 import { StyledSettingsGroup, useSettingsGroupContext } from './SettingsGroup';
@@ -14,7 +14,7 @@ const StyledSettingsRow = styled.label<{ $invalid: boolean }>((props) => ({
   margin: `0 ${measurements.horizontalViewMargin} ${measurements.rowVerticalMargin}`,
   padding: '0 8px',
   minHeight: '36px',
-  backgroundColor: DeprecatedColors.blue60,
+  backgroundColor: colors.blue60,
   borderRadius: '4px',
 
   [`${StyledSettingsGroup} &&`]: {
@@ -36,11 +36,11 @@ const StyledSettingsRow = styled.label<{ $invalid: boolean }>((props) => ({
   outlineWidth: '1px',
   borderStyle: 'solid',
   outlineStyle: 'solid',
-  borderColor: props.$invalid ? DeprecatedColors.red : 'transparent',
-  outlineColor: props.$invalid ? DeprecatedColors.red : 'transparent',
+  borderColor: props.$invalid ? colors.brandRed : 'transparent',
+  outlineColor: props.$invalid ? colors.brandRed : 'transparent',
   '&&:focus-within': {
-    borderColor: props.$invalid ? DeprecatedColors.red : DeprecatedColors.white,
-    outlineColor: props.$invalid ? DeprecatedColors.red : DeprecatedColors.white,
+    borderColor: props.$invalid ? colors.brandRed : colors.white100,
+    outlineColor: props.$invalid ? colors.brandRed : colors.white100,
   },
 }));
 
@@ -61,7 +61,7 @@ const StyledSettingsRowErrorMessage = styled.div(tinyText, {
   alignItems: 'center',
   marginLeft: measurements.horizontalViewMargin,
   marginTop: '5px',
-  color: DeprecatedColors.white60,
+  color: colors.white60,
 });
 
 const StyledErrorMessageAlertIcon = styled(Icon)({
