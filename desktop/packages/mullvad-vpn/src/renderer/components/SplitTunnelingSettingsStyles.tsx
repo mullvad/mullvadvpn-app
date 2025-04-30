@@ -1,12 +1,10 @@
 import styled from 'styled-components';
 
 import { Colors, spacings } from '../lib/foundations';
-import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { measurements, normalText } from './common-styles';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SearchBar from './SearchBar';
-import { SmallButton } from './SmallButton';
 
 export const StyledPageCover = styled.div<{ $show: boolean }>((props) => ({
   position: 'absolute',
@@ -70,10 +68,6 @@ export const StyledSpinnerRow = styled(Cell.CellButton)({
   background: Colors.blue40,
 });
 
-export const StyledBrowseButton = styled(AppButton.BlueButton)({
-  margin: `0 ${measurements.horizontalViewMargin} ${measurements.verticalViewMargin}`,
-});
-
 export const StyledNoResult = styled(Cell.CellFooter)({
   display: 'flex',
   flexDirection: 'column',
@@ -90,8 +84,4 @@ export const StyledSearchBar = styled(SearchBar)({
   marginLeft: measurements.horizontalViewMargin,
   marginRight: measurements.horizontalViewMargin,
   marginBottom: measurements.buttonVerticalMargin,
-});
-
-export const WideSmallButton = styled(SmallButton)({
-  width: '100%',
 });

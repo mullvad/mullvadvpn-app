@@ -130,7 +130,7 @@ function ReconnectButton(props: ButtonProps) {
   return (
     <StyledReconnectButton
       onClick={onReconnect}
-      size="auto"
+      width="fit"
       aria-label={messages.gettext('Reconnect')}
       {...props}>
       <Icon icon="reconnect" />

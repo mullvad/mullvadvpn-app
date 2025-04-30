@@ -6,7 +6,7 @@ import { AccessMethodSetting } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useApiAccessMethodTest } from '../lib/api-access-methods';
-import { Container, Flex, Spinner } from '../lib/components';
+import { Button, Container, Flex, Spinner } from '../lib/components';
 import { Colors, spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { generateRoutePath } from '../lib/routeHelpers';
@@ -27,7 +27,6 @@ import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbar
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationContainer } from './NavigationContainer';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { SmallButton, SmallButtonColor } from './SmallButton';
 
 const StyledNameLabel = styled(Cell.Label)({
   display: 'block',
@@ -124,7 +123,9 @@ export default function ApiAccessMethods() {
                     ))}
                   </Cell.Group>
                   <Container size="4" $flex={1} $justifyContent="flex-end">
-                    <SmallButton onClick={navigateToNew}>{messages.gettext('Add')}</SmallButton>
+                    <Button width="fit" onClick={navigateToNew}>
+                      <Button.Text>{messages.gettext('Add')}</Button.Text>
+                    </Button>
                   </Container>
                 </Flex>
               </SettingsContent>
@@ -300,12 +301,12 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         isOpen={removeConfirmationVisible}
         type={ModalAlertType.warning}
         gridButtons={[
-          <SmallButton key="cancel" onClick={hideRemoveConfirmation}>
-            {messages.gettext('Cancel')}
-          </SmallButton>,
-          <SmallButton key="confirm" onClick={confirmRemove} color={SmallButtonColor.red}>
-            {messages.gettext('Delete')}
-          </SmallButton>,
+          <Button key="cancel" onClick={hideRemoveConfirmation}>
+            <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+          </Button>,
+          <Button key="confirm" onClick={confirmRemove} variant="destructive">
+            <Button.Text>{messages.gettext('Delete')}</Button.Text>
+          </Button>,
         ]}
         close={hideRemoveConfirmation}
         title={sprintf(messages.pgettext('api-access-methods-view', 'Delete %(name)s?'), {

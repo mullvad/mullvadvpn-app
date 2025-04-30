@@ -11,6 +11,7 @@ import { messages } from '../../shared/gettext';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import { useApiAccessMethodTest } from '../lib/api-access-methods';
+import { Button } from '../lib/components';
 import { useHistory } from '../lib/history';
 import { useLastDefinedValue } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
@@ -22,7 +23,6 @@ import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationContainer } from './NavigationContainer';
 import { NamedProxyForm } from './ProxyForm';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { SmallButton } from './SmallButton';
 
 export function EditApiAccessMethod() {
   return (
@@ -216,19 +216,19 @@ function getTestingDialogSubTitle(type: ModalAlertType, newMethod: boolean, name
 
 function getTestingDialogButtons(type: ModalAlertType, save: () => void, cancel: () => void) {
   const saveButton = (
-    <SmallButton key="confirm" onClick={save}>
-      {messages.gettext('Save')}
-    </SmallButton>
+    <Button key="confirm" onClick={save}>
+      <Button.Text>{messages.gettext('Save')}</Button.Text>
+    </Button>
   );
   const cancelButton = (
-    <SmallButton key="cancel" onClick={cancel}>
-      {messages.gettext('Cancel')}
-    </SmallButton>
+    <Button key="cancel" onClick={cancel}>
+      <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+    </Button>
   );
   const disabledCancelButton = (
-    <SmallButton key="cancel" onClick={cancel} disabled>
-      {messages.gettext('Cancel')}
-    </SmallButton>
+    <Button key="cancel" onClick={cancel} disabled>
+      <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+    </Button>
   );
 
   switch (type) {

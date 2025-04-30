@@ -1,15 +1,14 @@
 import React, { forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 
-import { Colors, Radius } from '../../foundations';
-import { Flex } from '../flex';
+import { Colors, Radius, spacings } from '../../foundations';
 import { ButtonBase } from './ButtonBase';
 import { ButtonProvider } from './ButtonContext';
-import { ButtonIcon, ButtonText, StyledIcon, StyledText } from './components';
+import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './components';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'success' | 'destructive';
-  size?: 'auto' | 'full' | '1/2';
+  width?: 'fill' | 'fit';
 }
 
 const styles = {
@@ -31,17 +30,21 @@ const styles = {
       disabled: Colors.red60,
     },
   },
-  sizes: {
-    auto: 'auto',
-    full: '100%',
-    '1/2': '50%',
+  flex: {
+    fill: '1 1 0',
+    fit: '0 0 auto',
+  },
+  widths: {
+    fill: undefined,
+    fit: 'fit-content',
   },
 };
 
-const StyledButton = styled(ButtonBase)<ButtonProps>`
-  ${({ size: sizeProp = 'full', variant: variantProp = 'primary' }) => {
+export const StyledButton = styled(ButtonBase)<ButtonProps>`
+  ${({ width: sizeProp = 'fill', variant: variantProp = 'primary' }) => {
     const variant = styles.variants[variantProp];
-    const size = styles.sizes[sizeProp];
+    const size = styles.flex[sizeProp];
+    const width = styles.widths[sizeProp];
 
     return css`
       --background: ${variant.background};
@@ -49,11 +52,18 @@ const StyledButton = styled(ButtonBase)<ButtonProps>`
       --disabled: ${variant.disabled};
       --radius: ${styles.radius};
       --size: ${size};
+      --width: ${width};
+
+      display: flex;
+      flex: var(--size);
+      align-items: center;
+      padding: ${spacings.tiny} ${spacings.small};
+      gap: ${spacings.small};
 
       min-height: 32px;
       min-width: 60px;
+      width: var(--width);
       border-radius: var(--radius);
-      width: var(--size);
       background: var(--background);
 
       &:not(:disabled):hover {
@@ -68,62 +78,51 @@ const StyledButton = styled(ButtonBase)<ButtonProps>`
         outline: 2px solid ${Colors.white};
         outline-offset: 2px;
       }
+
+      justify-content: space-between;
+      &&:has(${StyledButtonText}:only-child) {
+        justify-content: center;
+      }
+      &&:has(${StyledButtonText} + ${StyledButtonIcon}) {
+        &::before {
+          content: ' ';
+          display: inline-block;
+          width: 24px;
+        }
+      }
+      &&:has(${StyledButtonIcon} + ${StyledButtonText}) {
+        &::after {
+          content: ' ';
+          display: inline-block;
+          width: 24px;
+        }
+      }
+      &&:has(${StyledButtonIcon} + ${StyledButtonText} + ${StyledButtonIcon}) {
+        &::before {
+          display: none;
+        }
+        &::after {
+          display: none;
+        }
+      }
     `;
   }}
 `;
 
-const StyledFlex = styled(Flex)`
-  justify-content: space-between;
-  &&:has(${StyledText}:only-child) {
-    justify-content: center;
-  }
-  &&:has(${StyledText} + ${StyledIcon}) {
-    &::before {
-      content: ' ';
-      display: inline-block;
-      width: 24px;
-    }
-  }
-  &&:has(${StyledIcon} + ${StyledText}) {
-    &::after {
-      content: ' ';
-      display: inline-block;
-      width: 24px;
-    }
-  }
-  &&:has(${StyledIcon} + ${StyledText} + ${StyledIcon}) {
-    &::before {
-      display: none;
-    }
-    &::after {
-      display: none;
-    }
-  }
-`;
+const ForwardedButton = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { children, disabled = false, style, ...props },
+  ref,
+) {
+  return (
+    <ButtonProvider disabled={disabled}>
+      <StyledButton ref={ref} disabled={disabled} {...props}>
+        {children}
+      </StyledButton>
+    </ButtonProvider>
+  );
+});
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, disabled = false, style, ...props }, ref) => {
-    return (
-      <ButtonProvider disabled={disabled}>
-        <StyledButton ref={ref} disabled={disabled} {...props}>
-          <StyledFlex
-            $flex={1}
-            $gap="small"
-            $alignItems="center"
-            $padding={{
-              horizontal: 'small',
-            }}>
-            {children}
-          </StyledFlex>
-        </StyledButton>
-      </ButtonProvider>
-    );
-  },
-);
-
-Button.displayName = 'Button';
-
-const ButtonNamespace = Object.assign(Button, {
+const ButtonNamespace = Object.assign(ForwardedButton, {
   Text: ButtonText,
   Icon: ButtonIcon,
 });

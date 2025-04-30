@@ -12,6 +12,7 @@ import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Button, Container, Flex, FootnoteMini, IconButton, Spinner } from '../lib/components';
+import { FlexColumn } from '../lib/components/flex-column';
 import { Colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
@@ -20,7 +21,6 @@ import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { IReduxState } from '../redux/store';
 import { AppNavigationHeader } from './';
 import Accordion from './Accordion';
-import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import { BackAction } from './KeyboardNavigation';
@@ -30,7 +30,6 @@ import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationContainer } from './NavigationContainer';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
-  StyledBrowseButton,
   StyledCellButton,
   StyledCellLabel,
   StyledCellWarningIcon,
@@ -42,7 +41,6 @@ import {
   StyledPageCover,
   StyledSearchBar,
   StyledSpinnerRow,
-  WideSmallButton,
 } from './SplitTunnelingSettingsStyles';
 import Switch from './Switch';
 
@@ -186,15 +184,20 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
           </StyledNoResult>
         )}
 
-      <Flex $flexDirection="column" $gap="medium">
+      <FlexColumn $gap="medium">
         {filteredApplications !== undefined && filteredApplications.length > 0 && (
           <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
         )}
 
-        <StyledBrowseButton onClick={launchWithFilePicker}>
-          {messages.pgettext('split-tunneling-view', 'Find another app')}
-        </StyledBrowseButton>
-      </Flex>
+        <Button onClick={launchWithFilePicker}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for browsing applications with split tunneling.
+              messages.pgettext('split-tunneling-view', 'Find another app')
+            }
+          </Button.Text>
+        </Button>
+      </FlexColumn>
 
       <ModalAlert
         isOpen={browseError !== undefined}
@@ -209,9 +212,9 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
           { detailedErrorMessage: browseError },
         )}
         buttons={[
-          <AppButton.BlueButton key="close" onClick={hideBrowseFailureDialog}>
-            {messages.gettext('Close')}
-          </AppButton.BlueButton>,
+          <Button key="close" onClick={hideBrowseFailureDialog}>
+            <Button.Text>{messages.gettext('Close')}</Button.Text>
+          </Button>,
         ]}
         close={hideBrowseFailureDialog}
       />
@@ -260,17 +263,22 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
       );
   const warningDialogButtons = disabled
     ? [
-        <AppButton.BlueButton key="cancel" onClick={hideWarningDialog}>
-          {messages.gettext('Back')}
-        </AppButton.BlueButton>,
+        <Button key="cancel" onClick={hideWarningDialog}>
+          <Button.Text>{messages.gettext('Back')}</Button.Text>
+        </Button>,
       ]
     : [
-        <AppButton.BlueButton key="launch" onClick={launch}>
-          {messages.pgettext('split-tunneling-view', 'Launch')}
-        </AppButton.BlueButton>,
-        <AppButton.BlueButton key="cancel" onClick={hideWarningDialog}>
-          {messages.gettext('Cancel')}
-        </AppButton.BlueButton>,
+        <Button key="launch" onClick={launch}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for launching an application with split tunneling.
+              messages.pgettext('split-tunneling-view', 'Launch')
+            }
+          </Button.Text>
+        </Button>,
+        <Button key="cancel" onClick={hideWarningDialog}>
+          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+        </Button>,
       ];
 
   return (
@@ -573,9 +581,11 @@ function MacOsSplitTunnelingAvailability({
       </HeaderSubTitle>
       <Flex $flexDirection="column" $gap="small">
         <Flex $flexDirection="column" $gap="big">
-          <WideSmallButton onClick={showFullDiskAccessSettings}>
-            {messages.pgettext('split-tunneling-view', 'Open System Settings')}
-          </WideSmallButton>
+          <Button onClick={showFullDiskAccessSettings}>
+            <Button.Text>
+              {messages.pgettext('split-tunneling-view', 'Open System Settings')}
+            </Button.Text>
+          </Button>
           <FootnoteMini color={Colors.white60}>
             {messages.pgettext(
               'split-tunneling-view',
@@ -583,9 +593,11 @@ function MacOsSplitTunnelingAvailability({
             )}
           </FootnoteMini>
         </Flex>
-        <WideSmallButton onClick={restartDaemon}>
-          {messages.pgettext('split-tunneling-view', 'Restart Mullvad Service')}
-        </WideSmallButton>
+        <Button onClick={restartDaemon}>
+          <Button.Text>
+            {messages.pgettext('split-tunneling-view', 'Restart Mullvad Service')}
+          </Button.Text>
+        </Button>
       </Flex>
     </Flex>
   );

@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import { CustomProxy } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { Button } from '../lib/components';
 import { useBridgeSettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
@@ -14,7 +15,6 @@ import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationContainer } from './NavigationContainer';
 import { ProxyForm } from './ProxyForm';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import { SmallButton, SmallButtonColor } from './SmallButton';
 
 export function EditCustomBridge() {
   return (
@@ -86,16 +86,16 @@ function CustomBridgeForm() {
                   isOpen={deleteDialogVisible}
                   type={ModalAlertType.warning}
                   gridButtons={[
-                    <SmallButton key="cancel" onClick={hideDeleteDialog}>
-                      {messages.gettext('Cancel')}
-                    </SmallButton>,
-                    <SmallButton
+                    <Button key="cancel" onClick={hideDeleteDialog}>
+                      <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+                    </Button>,
+                    <Button
                       key="delete"
-                      color={SmallButtonColor.red}
+                      variant="destructive"
                       onClick={onDelete}
                       data-testid="delete-confirm">
-                      {messages.gettext('Delete')}
-                    </SmallButton>,
+                      <Button.Text>{messages.gettext('Delete')}</Button.Text>
+                    </Button>,
                   ]}
                   close={hideDeleteDialog}
                   title={messages.pgettext('custom-bridge', 'Delete custom bridge?')}

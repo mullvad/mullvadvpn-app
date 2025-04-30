@@ -6,7 +6,7 @@ import { messages } from '../../shared/gettext';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Flex, Icon, IconProps } from '../lib/components';
+import { Button, Flex, Icon, IconProps } from '../lib/components';
 import { Colors, spacings } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
@@ -14,16 +14,12 @@ import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
+import { ButtonGroup } from './ButtonGroup';
 import { measurements, normalText, tinyText } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { SmallButton, SmallButtonColor, SmallButtonGrid } from './SmallButton';
-
-const StyledSmallButtonGrid = styled(SmallButtonGrid)({
-  margin: `0 ${measurements.horizontalViewMargin}`,
-});
 
 type ImportStatus = { successful: boolean } & ({ type: 'file'; name: string } | { type: 'text' });
 
@@ -149,37 +145,38 @@ export default function SettingsImport() {
             </SettingsHeader>
 
             <Flex $flexDirection="column" $flex={1}>
-              <StyledSmallButtonGrid>
-                <SmallButton onClick={navigateTextImport}>
-                  {messages.pgettext('settings-import', 'Import via text')}
-                </SmallButton>
-                <SmallButton onClick={importFile}>
-                  {messages.pgettext('settings-import', 'Import file')}
-                </SmallButton>
-              </StyledSmallButtonGrid>
+              <ButtonGroup $gap="small" $margin="medium">
+                <Button onClick={navigateTextImport}>
+                  <Button.Text>
+                    {messages.pgettext('settings-import', 'Import via text')}
+                  </Button.Text>
+                </Button>
+                <Button onClick={importFile}>
+                  <Button.Text>{messages.pgettext('settings-import', 'Import file')}</Button.Text>
+                </Button>
+              </ButtonGroup>
 
               <SettingsImportStatus status={importStatus} />
             </Flex>
 
             <Footer>
-              <SmallButton
-                onClick={showClearDialog}
-                color={SmallButtonColor.red}
-                disabled={!activeOverrides}>
-                {messages.pgettext('settings-import', 'Clear all overrides')}
-              </SmallButton>
+              <Button variant="destructive" onClick={showClearDialog} disabled={!activeOverrides}>
+                <Button.Text>
+                  {messages.pgettext('settings-import', 'Clear all overrides')}
+                </Button.Text>
+              </Button>
             </Footer>
 
             <ModalAlert
               isOpen={clearDialogVisible}
               type={ModalAlertType.warning}
               gridButtons={[
-                <SmallButton key="cancel" onClick={hideClearDialog}>
-                  {messages.gettext('Cancel')}
-                </SmallButton>,
-                <SmallButton key="confirm" onClick={confirmClear} color={SmallButtonColor.red}>
-                  {messages.gettext('Clear')}
-                </SmallButton>,
+                <Button key="cancel" onClick={hideClearDialog}>
+                  <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+                </Button>,
+                <Button key="confirm" onClick={confirmClear} variant="destructive">
+                  <Button.Text>{messages.gettext('Clear')}</Button.Text>
+                </Button>,
               ]}
               close={hideClearDialog}
               title={messages.pgettext('settings-import', 'Clear all overrides?')}
