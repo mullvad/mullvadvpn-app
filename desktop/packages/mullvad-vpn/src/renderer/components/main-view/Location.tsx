@@ -1,14 +1,14 @@
 import styled from 'styled-components';
 
 import { TunnelState } from '../../../shared/daemon-rpc-types';
-import { DeprecatedColors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { useSelector } from '../../redux/store';
 import { largeText } from '../common-styles';
 import Marquee from '../Marquee';
 import { ConnectionPanelAccordion } from './styles';
 
 const StyledLocation = styled.span(largeText, {
-  color: DeprecatedColors.white,
+  color: colors.white100,
   flexShrink: 0,
 });
 

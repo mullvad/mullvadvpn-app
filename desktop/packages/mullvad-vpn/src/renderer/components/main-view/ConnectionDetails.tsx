@@ -12,7 +12,7 @@ import {
   tunnelTypeToString,
 } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { DeprecatedColors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { useSelector } from '../../redux/store';
 import { tinyText } from '../common-styles';
 
@@ -38,7 +38,7 @@ const StyledConnectionDetailsHeading = styled.h2(tinyText, {
   margin: '0 0 4px',
   fontSize: '10px',
   lineHeight: '15px',
-  color: DeprecatedColors.white60,
+  color: colors.white60,
 });
 
 const StyledConnectionDetailsContainer = styled.div({
@@ -58,13 +58,13 @@ const StyledIpLabelContainer = styled.div({
 
 const StyledConnectionDetailsLabel = styled.span(tinyText, {
   display: 'block',
-  color: DeprecatedColors.white,
+  color: colors.white100,
   fontWeight: '400',
   minHeight: '1em',
 });
 
 const StyledConnectionDetailsTitle = styled(StyledConnectionDetailsLabel)({
-  color: DeprecatedColors.white60,
+  color: colors.white60,
   whiteSpace: 'nowrap',
 });
 
