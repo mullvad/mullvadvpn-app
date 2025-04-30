@@ -264,7 +264,8 @@ where
                 }
             }
             res = wait_for_update(&mut self.state) => {
-                // If the download was successful, we send the new version
+                // If the download was successful, we send the new version, which contains the
+                // verified installer path
                 if let Some(app_update_info) =  res {
                     let _ = self.version_event_sender.send(app_update_info);
                 }
@@ -480,9 +481,9 @@ where
             // In the `Downloaded` state, we also do nothing
             state => self.state = state,
         };
-        debug_assert!(!matches!(
+        debug_assert!(matches!(
             self.state,
-            State::Downloading { .. } | State::NoVersion
+            State::HasVersion { .. } | State::NoVersion
         ));
     }
 }
