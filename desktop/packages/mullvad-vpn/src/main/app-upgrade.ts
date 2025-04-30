@@ -69,9 +69,10 @@ export default class AppUpgrade {
     const SYSTEM_ROOT_PATH = process.env.SYSTEMROOT || process.env.windir || 'C:\\Windows';
     const CMD_PATH = `${SYSTEM_ROOT_PATH}\\System32\\cmd.exe`;
     const quotedVerifiedInstallerPath = `"${verifiedInstallerPath}"`;
+    const updaterFlag = '/inapp';
 
     const cwd = tmpdir();
-    const child = spawn(CMD_PATH, ['/C', 'start', '""', quotedVerifiedInstallerPath], {
+    const child = spawn(CMD_PATH, ['/C', 'start', '""', quotedVerifiedInstallerPath, updaterFlag], {
       cwd,
       detached: true,
       stdio: 'ignore',
