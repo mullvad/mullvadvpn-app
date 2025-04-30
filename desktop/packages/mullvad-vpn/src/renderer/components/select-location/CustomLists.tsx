@@ -9,7 +9,7 @@ import {
 import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
-import { DeprecatedColors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { useBoolean, useStyledRef } from '../../lib/utility-hooks';
 import Accordion from '../Accordion';
 import * as Cell from '../cell';
@@ -30,7 +30,7 @@ const StyledInputContainer = styled.div({
   display: 'flex',
   alignItems: 'center',
   flex: 1,
-  backgroundColor: DeprecatedColors.blue,
+  backgroundColor: colors.brandBlue,
   paddingLeft: measurements.horizontalViewMargin,
   height: measurements.rowMinHeight,
 });
@@ -38,7 +38,7 @@ const StyledInputContainer = styled.div({
 const StyledHeaderLabel = styled(Cell.Label)({
   display: 'block',
   flex: 1,
-  backgroundColor: DeprecatedColors.blue,
+  backgroundColor: colors.brandBlue,
   paddingLeft: measurements.horizontalViewMargin,
   margin: 0,
   height: measurements.rowMinHeight,
@@ -55,17 +55,17 @@ const StyledAddListCellButton = styled(StyledCellButton)({
 
 const StyledSideButtonIcon = styled(Cell.CellIcon)({
   [`${StyledCellButton}:disabled &&, ${StyledAddListCellButton}:disabled &&`]: {
-    backgroundColor: DeprecatedColors.white40,
+    backgroundColor: colors.white40,
   },
 
   [`${StyledCellButton}:not(:disabled):hover &&, ${StyledAddListCellButton}:not(:disabled):hover &&`]:
     {
-      backgroundColor: DeprecatedColors.white,
+      backgroundColor: colors.white100,
     },
 });
 
 const StyledInput = styled(SimpleInput)<{ $error: boolean }>((props) => ({
-  color: props.$error ? DeprecatedColors.red : 'auto',
+  color: props.$error ? colors.brandRed : 'auto',
 }));
 
 interface CustomListsProps {
@@ -103,8 +103,8 @@ export default function CustomLists(props: CustomListsProps) {
           {messages.pgettext('select-location-view', 'Custom lists')}
         </StyledHeaderLabel>
         <StyledCellButton
-          $backgroundColor={DeprecatedColors.blue}
-          $backgroundColorHover={DeprecatedColors.blue80}
+          $backgroundColor={colors.brandBlue}
+          $backgroundColorHover={colors.blue80}
           onClick={showAddList}>
           <StyledSideButtonIcon icon="add-circle" color="white60" />
         </StyledCellButton>
@@ -198,8 +198,8 @@ function AddListForm(props: AddListFormProps) {
           </StyledInputContainer>
 
           <StyledAddListCellButton
-            $backgroundColor={DeprecatedColors.blue}
-            $backgroundColorHover={DeprecatedColors.blue80}
+            $backgroundColor={colors.brandBlue}
+            $backgroundColorHover={colors.blue80}
             disabled={!nameValid}
             onClick={createList}>
             <StyledSideButtonIcon icon="checkmark" color="white60" />
