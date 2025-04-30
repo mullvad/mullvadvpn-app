@@ -3,8 +3,10 @@
 # The android-gradle-aapt plugin version must be in sync with the android plugin version.
 # Required for Gradle metadata verification to work properly, see:
 # https://github.com/gradle/gradle/issues/19228
-android-gradle-plugin = "8.9.2"
-android-gradle-aapt = "12782657"
+# AGP 8.8.0+ introduces resource resolution bug, https://issuetracker.google.com/issues/406641857
+# Ensure it is fixed before upgrading.
+android-gradle-plugin = "8.7.3"
+android-gradle-aapt = "12006047"
 android-billingclient = "7.1.1"
 
 # AndroidX
