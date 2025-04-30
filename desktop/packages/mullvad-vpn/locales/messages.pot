@@ -686,11 +686,6 @@ msgctxt "app-upgrade-view"
 msgid "An unknown error occurred. Please try again. If this problem persists, please contact support."
 msgstr ""
 
-#. Button text to cancel the download of an update
-msgctxt "app-upgrade-view"
-msgid "Cancel"
-msgstr ""
-
 #. Label displayed when an error occurred due to the connection being blocked
 msgctxt "app-upgrade-view"
 msgid "Connection blocked. Try changing server or other settings"
@@ -699,7 +694,7 @@ msgstr ""
 #. Label displayed when an error occurred due to the installer failing to start
 #. and the suggested resolution is to download the update again.
 msgctxt "app-upgrade-view"
-msgid "Could not start the update installer, try downloading it again. If this problem persists, please contact support."
+msgid "Could not start the update installer. Try again. If this problem persists, please contact support."
 msgstr ""
 
 #. Button text to download and install an update
@@ -713,6 +708,7 @@ msgid "Download complete!"
 msgstr ""
 
 #. Status text displayed below a progress bar when the download of an update has been paused
+#. Label displayed above a progress bar when the update is verified successfully
 msgctxt "app-upgrade-view"
 msgid "Download paused"
 msgstr ""
@@ -753,19 +749,39 @@ msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
 msgstr ""
 
+#. Button text to pause the download of an update
+msgctxt "app-upgrade-view"
+msgid "Pause"
+msgstr ""
+
 #. Button text to report a problem
 msgctxt "app-upgrade-view"
 msgid "Report a problem"
 msgstr ""
 
-#. Button text to retry updating
+#. Button text to resume updating
+msgctxt "app-upgrade-view"
+msgid "Resume"
+msgstr ""
+
+#. Button text to try again
 msgctxt "app-upgrade-view"
 msgid "Retry"
+msgstr ""
+
+#. Button text to try download again
+msgctxt "app-upgrade-view"
+msgid "Retry download"
 msgstr ""
 
 #. Status text displayed below a progress bar when the download of an update is starting
 msgctxt "app-upgrade-view"
 msgid "Starting download..."
+msgstr ""
+
+#. Button text to when starting the installer for an update
+msgctxt "app-upgrade-view"
+msgid "Starting installer..."
 msgstr ""
 
 #. Label displayed when an error occurred due to the download failing
@@ -784,14 +800,9 @@ msgctxt "app-upgrade-view"
 msgid "Verification failed. Try again. If this problem persists, please contact support."
 msgstr ""
 
-#. Label displayed above a progress bar when the update is ready to be installed
+#. Label displayed above a progress bar when the update is verified successfully
 msgctxt "app-upgrade-view"
-msgid "Verification successful! Ready to install."
-msgstr ""
-
-#. Label displayed above a progress bar when the update is ready to be installed
-msgctxt "app-upgrade-view"
-msgid "Verification successful! Starting installer..."
+msgid "Verification successful!"
 msgstr ""
 
 #. Label displayed above a progress bar when the update is being verified
@@ -1181,7 +1192,13 @@ msgctxt "in-app-notifications"
 msgid "Click here to install update."
 msgstr ""
 
-#. Notification subtitle when the installer verification failed.
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "Click here to retry"
+msgstr ""
+
+#. Notification subtitle when the download of the installer failed
+#. and the user can try downloading again.
 msgctxt "in-app-notifications"
 msgid "Click here to retry download"
 msgstr ""
@@ -1237,6 +1254,11 @@ msgctxt "in-app-notifications"
 msgid "Installer could not be verified."
 msgstr ""
 
+#. Notification title when the installer failed.
+msgctxt "in-app-notifications"
+msgid "INSTALLER FAILED"
+msgstr ""
+
 msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr ""
@@ -1290,6 +1312,11 @@ msgctxt "in-app-notifications"
 msgid "Retry download of the installer"
 msgstr ""
 
+#. Accessibility label for the button to retry the installation.
+msgctxt "in-app-notifications"
+msgid "Retry installation"
+msgstr ""
+
 #. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
@@ -1300,6 +1327,15 @@ msgstr ""
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please change it under "
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not complete successfully."
+msgstr ""
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not start successfully."
 msgstr ""
 
 #. The in-app banner displayed to the user when the app beta update is
@@ -1321,6 +1357,11 @@ msgstr ""
 #. Generic notification title when the app upgrade failed.
 msgctxt "in-app-notifications"
 msgid "UPDATE FAILED"
+msgstr ""
+
+#. Notification title when app upgrade is ready for the user to launch the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! INSTALLER READY!"
 msgstr ""
 
 #. Notification title when app upgrade is launching the installer.
