@@ -38,3 +38,4 @@ include(
     ":test:e2e",
     ":test:mockapi"
 )
+include(":lib:ui:tag")

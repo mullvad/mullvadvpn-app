@@ -29,9 +29,9 @@ import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.StatusLevel
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.warning
-import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER
-import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_ACTION
-import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_TEXT_ACTION
+import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_ACTION_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_TEXT_ACTION_TEST_TAG
 
 @Composable
 fun AnimatedNotificationBanner(
@@ -84,7 +84,7 @@ private fun Notification(modifier: Modifier = Modifier, notificationBannerData: 
                     bottom = Dimens.smallPadding,
                 )
                 .animateContentSize()
-                .testTag(NOTIFICATION_BANNER)
+                .testTag(NOTIFICATION_BANNER_TEST_TAG)
     ) {
         val (status, textTitle, textMessage, actionIcon) = createRefs()
         NotificationDot(
@@ -146,7 +146,7 @@ private fun Notification(modifier: Modifier = Modifier, notificationBannerData: 
                                     ) {
                                         message.onClick()
                                     }
-                                    .testTag(NOTIFICATION_BANNER_TEXT_ACTION)
+                                    .testTag(NOTIFICATION_BANNER_TEXT_ACTION_TEST_TAG)
                             } else {
                                 it
                             }
@@ -197,7 +197,10 @@ private fun NotificationAction(
     modifier: Modifier = Modifier,
 ) {
 
-    IconButton(modifier = modifier.testTag(NOTIFICATION_BANNER_ACTION), onClick = onClick) {
+    IconButton(
+        modifier = modifier.testTag(NOTIFICATION_BANNER_ACTION_TEST_TAG),
+        onClick = onClick,
+    ) {
         Icon(
             modifier = Modifier.padding(Dimens.notificationIconPadding),
             imageVector = imageVector,

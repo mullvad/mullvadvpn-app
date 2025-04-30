@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
 import java.time.ZonedDateTime
+import net.mullvad.mullvadvpn.lib.ui.tag.MANAGE_DEVICES_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
@@ -34,7 +35,7 @@ class ManageDevicesMockApiTest : MockApiTest() {
         device.dismissChangelogDialogIfShown()
         app.ensureLoggedIn()
         app.clickAccountCog()
-        device.findObject(By.res("manage_devices_button_test_tag")).click()
+        device.findObject(By.res(MANAGE_DEVICES_BUTTON_TEST_TAG)).click()
 
         // Assert - current device is shown but not clickable
         val current = device.findObjectWithTimeout(By.text("Current device")).parent

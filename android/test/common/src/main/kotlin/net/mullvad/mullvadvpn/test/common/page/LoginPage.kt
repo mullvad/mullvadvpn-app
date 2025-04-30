@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.test.common.page
 import android.widget.Button
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
+import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
@@ -12,7 +13,7 @@ class LoginPage internal constructor() : Page() {
     private val loginSelector = By.text("Login")
 
     fun clickSettings() {
-        uiDevice.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON)).click()
+        uiDevice.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON_TEST_TAG)).click()
     }
 
     fun enterAccountNumber(accountNumber: String) {
@@ -32,9 +33,5 @@ class LoginPage internal constructor() : Page() {
 
     override fun assertIsDisplayed() {
         uiDevice.findObjectWithTimeout(loginSelector)
-    }
-
-    companion object {
-        const val TOP_BAR_SETTINGS_BUTTON = "top_bar_settings_button"
     }
 }

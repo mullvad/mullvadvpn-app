@@ -16,12 +16,6 @@ import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
-import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
-import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.CONNECT_CARD_HEADER_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.TOP_BAR_ACCOUNT_BUTTON
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
@@ -32,8 +26,14 @@ import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
-import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_ACTION
-import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_TEXT_ACTION
+import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_ACTION_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_TEXT_ACTION_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.RECONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_ACCOUNT_BUTTON_TEST_TAG
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -124,7 +124,7 @@ class ConnectScreenTest {
             )
 
             // Assert
-            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
+            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
             onNodeWithText("CONNECTING...").assertExists()
             onNodeWithText("Switch location").assertExists()
             onNodeWithText("Cancel").assertExists()
@@ -292,7 +292,7 @@ class ConnectScreenTest {
             )
 
             // Assert
-            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
+            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
             onNodeWithText("CONNECTING...").assertExists()
             onNodeWithText("Switch location").assertExists()
             onNodeWithText("Disconnect").assertExists()
@@ -607,7 +607,7 @@ class ConnectScreenTest {
             )
 
             // Act
-            onNodeWithTag(NOTIFICATION_BANNER_ACTION).performClick()
+            onNodeWithTag(NOTIFICATION_BANNER_ACTION_TEST_TAG).performClick()
 
             // Assert
             verify { mockedClickHandler.invoke() }
@@ -639,7 +639,7 @@ class ConnectScreenTest {
             )
 
             // Act
-            onNodeWithTag(NOTIFICATION_BANNER_ACTION).performClick()
+            onNodeWithTag(NOTIFICATION_BANNER_ACTION_TEST_TAG).performClick()
 
             // Assert
             verify { mockedClickHandler.invoke() }
@@ -667,7 +667,7 @@ class ConnectScreenTest {
             )
 
             // Act
-            onNodeWithTag(NOTIFICATION_BANNER_TEXT_ACTION).performClick()
+            onNodeWithTag(NOTIFICATION_BANNER_TEXT_ACTION_TEST_TAG).performClick()
 
             // Assert
             verify { mockedClickHandler.invoke() }
@@ -682,7 +682,7 @@ class ConnectScreenTest {
             initScreen(state = ConnectUiState.INITIAL, onAccountClick = onAccountClickMockk)
 
             // Assert
-            onNodeWithTag(TOP_BAR_ACCOUNT_BUTTON).performClick()
+            onNodeWithTag(TOP_BAR_ACCOUNT_BUTTON_TEST_TAG).performClick()
 
             verify(exactly = 1) { onAccountClickMockk() }
         }
