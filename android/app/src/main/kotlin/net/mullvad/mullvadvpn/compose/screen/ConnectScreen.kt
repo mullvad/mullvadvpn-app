@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -354,7 +355,7 @@ fun ConnectScreen(
         Scaffold(
             modifier =
                 Modifier.focusProperties {
-                    enter = { focusDirection ->
+                    onEnter = {
                         // When we return to this screen from SelectLocationScreen the focus is
                         // sometimes put on the TV navigation drawer, which causes it expand
                         // (when it was previously not expanded). When returning from
@@ -362,7 +363,7 @@ fun ConnectScreen(
                         // on the switch location composable.
                         // When on TV and we return from account or settings we get a
                         // FocusDirection.Enter event, so focus remains on the navigation drawer.
-                        if (focusDirection == FocusDirection.Down) contentFocusRequester
+                        if (requestedFocusDirection == FocusDirection.Down) contentFocusRequester
                         else FocusRequester.Default
                     }
                 },
@@ -414,8 +415,7 @@ private fun Content(
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
+    val screenHeight = LocalWindowInfo.current.containerSize.height.dp
     val indicatorPercentOffset =
         if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
         else TALL_SCREEN_INDICATOR_BIAS
