@@ -104,7 +104,7 @@ fun NavigationDrawerTv(
     ModalNavigationDrawer(
         modifier =
             Modifier.focusRequester(focusRequester).focusProperties {
-                enter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
+                onEnter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
             },
         drawerState = drawerState,
         scrimBrush = brush,
