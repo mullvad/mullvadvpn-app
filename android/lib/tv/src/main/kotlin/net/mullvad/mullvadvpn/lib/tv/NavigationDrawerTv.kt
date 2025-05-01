@@ -103,9 +103,7 @@ fun NavigationDrawerTv(
 
     ModalNavigationDrawer(
         modifier =
-            Modifier.focusRequester(focusRequester).focusProperties {
-                onEnter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
-            },
+            Modifier.focusRequester(focusRequester),
         drawerState = drawerState,
         scrimBrush = brush,
         drawerContent = {
@@ -135,18 +133,14 @@ fun NavigationDrawerTv(
                 )
                 DrawerItemTv(
                     modifier =
-                        Modifier.align(Alignment.CenterStart).onFocusChanged {
-                            focusRequester.saveFocusedChild()
-                        },
+                        Modifier.align(Alignment.CenterStart),
                     icon = Icons.Default.AccountCircle,
                     text = stringResource(R.string.settings_account),
                     onClick = onAccountClick,
                 )
                 DrawerItemTv(
                     modifier =
-                        Modifier.align(Alignment.BottomStart).onFocusChanged {
-                            focusRequester.saveFocusedChild()
-                        },
+                        Modifier.align(Alignment.BottomStart),
                     icon = Icons.Default.Settings,
                     text = stringResource(R.string.settings),
                     onClick = onSettingsClick,
