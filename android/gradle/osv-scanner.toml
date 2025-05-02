@@ -1,6 +1,18 @@
 # See repository root `osv-scanner.toml` for instructions and rules for this file.
 #
 
+# protobuf-java: Has potential Denial of Service issue
+[[IgnoredVulns]]
+id = "CVE-2024-7254" # GHSA-735f-pc8j-v9w8
+ignoreUntil = 2025-05-02
+reason = "Should not be applicable since client and server are always in sync and we are only communicating locally over UDS."
+
+# apache Commons IO: Possible denial of service attack on untrusted input to XmlStreamReader
+[[IgnoredVulns]]
+id = "CVE-2024-47554" # GHSA-78wr-2p64-hpwj
+ignoreUntil = 2025-05-02
+reason = "No impact since the app doesn't process externally crafted XML."
+
 # netty: HttpPostRequestDecoder can OOM
 [[IgnoredVulns]]
 id = "CVE-2024-29025" # GHSA-5jpm-x58v-624v
@@ -43,30 +55,6 @@ id = "CVE-2020-13956" # GHSA-7r82-7xv7-xcpj
 ignoreUntil = 2025-05-02
 reason = "Apache http client is used by lint and not the app directly."
 
-# kotlin: Improper Locking
-[[IgnoredVulns]]
-id = "CVE-2022-24329" # GHSA-2qp4-g3q3-f92w
-ignoreUntil = 2025-05-02
-reason = "This CVE only affect Multiplatform Gradle Projects, which this project is not."
-
-# protobuf-java: Has potential Denial of Service issue
-[[IgnoredVulns]]
-id = "CVE-2024-7254" # GHSA-735f-pc8j-v9w8
-ignoreUntil = 2025-05-02
-reason = "Should not be applicable since client and server are always in sync and we are only communicating locally over UDS."
-
-# apache Commons IO: Possible denial of service attack on untrusted input to XmlStreamReader
-[[IgnoredVulns]]
-id = "CVE-2024-47554" # GHSA-78wr-2p64-hpwj
-ignoreUntil = 2025-05-02
-reason = "No impact since the app doesn't process externally crafted XML."
-
-# netty: Denial of Service attack on windows app
-[[IgnoredVulns]]
-id = "CVE-2024-47535" # GHSA-xq3w-v528-46rv
-ignoreUntil = 2025-06-13
-reason = "Only impacting Windows."
-
 # Several vulns related to bouncy castle that is only being used by lint.
 # These are not used directly in the app.
 [[PackageOverrides]]
@@ -75,6 +63,18 @@ ecosystem = "Maven"
 ignore = true
 effectiveUntil = 2025-05-02
 reason = "Used by lint and not the app directly."
+
+# kotlin: Improper Locking
+[[IgnoredVulns]]
+id = "CVE-2022-24329" # GHSA-2qp4-g3q3-f92w
+ignoreUntil = 2025-05-02
+reason = "This CVE only affect Multiplatform Gradle Projects, which this project is not."
+
+# netty: Denial of Service attack on windows app
+[[IgnoredVulns]]
+id = "CVE-2024-47535" # GHSA-xq3w-v528-46rv
+ignoreUntil = 2025-06-13
+reason = "Only impacting Windows."
 
 # netty: Denial of Service attack on windows app
 [[IgnoredVulns]]
