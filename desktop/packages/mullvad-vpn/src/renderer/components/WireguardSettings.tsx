@@ -215,10 +215,14 @@ function ObfuscationSettings() {
           ariaLabel: messages.pgettext('accessibility', 'UDP-over-TCP settings'),
         },
       },
-      {
-        label: messages.pgettext('wireguard-settings-view', 'QUIC'),
-        value: ObfuscationType.quic,
-      },
+      ...(window.env?.development
+        ? [
+            {
+              label: messages.pgettext('wireguard-settings-view', 'QUIC'),
+              value: ObfuscationType.quic,
+            },
+          ]
+        : []),
       {
         label: messages.gettext('Off'),
         value: ObfuscationType.off,
