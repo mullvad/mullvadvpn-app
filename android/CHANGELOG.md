@@ -21,9 +21,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [Unreleased]
+## [android/2025.4-beta1] - 2025-05-02
 ### Added
 - Make feature indicators clickable, allowing for easy access to active features.
+- Add device management which enables the revoking of wireguard keys from the app.
 
 
 ## [android/2025.3] - 2025-04-30
