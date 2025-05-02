@@ -14,7 +14,7 @@ export const Row = styled.div.withConfig({
 })<RowProps>((props) => ({
   display: 'flex',
   alignItems: 'center',
-  backgroundColor: colors.brandBlue,
+  backgroundColor: colors.blue,
   minHeight: measurements.rowMinHeight,
   paddingLeft: measurements.horizontalViewMargin,
   paddingRight: measurements.horizontalViewMargin,

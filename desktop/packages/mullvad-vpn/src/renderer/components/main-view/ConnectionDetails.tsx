@@ -38,7 +38,7 @@ const StyledConnectionDetailsHeading = styled.h2(tinyText, {
   margin: '0 0 4px',
   fontSize: '10px',
   lineHeight: '15px',
-  color: colors.white60,
+  color: colors.whiteAlpha60,
 });
 
 const StyledConnectionDetailsContainer = styled.div({
@@ -58,13 +58,13 @@ const StyledIpLabelContainer = styled.div({
 
 const StyledConnectionDetailsLabel = styled.span(tinyText, {
   display: 'block',
-  color: colors.white100,
+  color: colors.white,
   fontWeight: '400',
   minHeight: '1em',
 });
 
 const StyledConnectionDetailsTitle = styled(StyledConnectionDetailsLabel)({
-  color: colors.white60,
+  color: colors.whiteAlpha60,
   whiteSpace: 'nowrap',
 });
 

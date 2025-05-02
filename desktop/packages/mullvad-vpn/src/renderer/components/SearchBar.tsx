@@ -20,14 +20,14 @@ export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
   padding: '9px 38px',
   margin: 0,
   lineHeight: '24px',
-  color: colors.white60,
+  color: colors.whiteAlpha60,
   backgroundColor: colors.whiteOnDarkBlue10,
   '&&::placeholder': {
     color: colors.whiteOnDarkBlue60,
   },
   '&&:focus': {
-    color: colors.brandBlue,
-    backgroundColor: colors.white100,
+    color: colors.blue,
+    backgroundColor: colors.white,
   },
 });
 
@@ -51,7 +51,7 @@ export const StyledSearchIcon = styled(Icon)({
   transform: 'translateY(-50%)',
   left: '8px',
   [`${StyledSearchInput}:focus ~ &&`]: {
-    backgroundColor: colors.brandBlue,
+    backgroundColor: colors.blue,
   },
 });
 
@@ -96,7 +96,7 @@ export default function SearchBar(props: ISearchBarProps) {
         onInput={onInput}
         placeholder={messages.gettext('Search for...')}
       />
-      <StyledSearchIcon icon="search" color="white60" />
+      <StyledSearchIcon icon="search" color="whiteAlpha60" />
       {props.searchTerm.length > 0 && (
         <StyledClearButton variant="secondary" onClick={onClear}>
           <StyledClearIcon icon="cross-circle" />

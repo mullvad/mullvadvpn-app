@@ -15,7 +15,7 @@ const StyledContainer = styled.div({
 const StyledTitle = styled.h2(tinyText, {
   display: 'flex',
   alignItems: 'center',
-  color: colors.white80,
+  color: colors.whiteAlpha80,
   margin: `0 ${measurements.horizontalViewMargin} 8px`,
   lineHeight: '17px',
 });

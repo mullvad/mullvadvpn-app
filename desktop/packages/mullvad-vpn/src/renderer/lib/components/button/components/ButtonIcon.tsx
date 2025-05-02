@@ -13,7 +13,7 @@ export function ButtonIcon({ ...props }: ButtonIconProps) {
     <StyledButtonIcon
       size="medium"
       aria-hidden="true"
-      color={disabled ? 'white40' : 'white100'}
+      color={disabled ? 'whiteAlpha40' : 'white'}
       {...props}
     />
   );

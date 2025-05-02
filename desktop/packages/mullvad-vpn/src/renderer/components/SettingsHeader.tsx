@@ -9,7 +9,7 @@ export const HeaderTitle = styled(TitleBig)({
 });
 
 export const HeaderSubTitle = styled(LabelTiny).attrs({
-  color: 'white60',
+  color: 'whiteAlpha60',
 })({});
 
 interface SettingsHeaderProps {

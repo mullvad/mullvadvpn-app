@@ -9,7 +9,7 @@ export const Container = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  backgroundColor: colors.brandBlue,
+  backgroundColor: colors.blue,
   overflow: 'hidden',
 });
 
@@ -22,7 +22,7 @@ export const Layout = styled.div({
 });
 
 export const SettingsContainer = styled(Container)({
-  backgroundColor: colors.brandDarkBlue,
+  backgroundColor: colors.darkBlue,
 });
 
 export const SettingsNavigationScrollbars = styled(NavigationScrollbars)({

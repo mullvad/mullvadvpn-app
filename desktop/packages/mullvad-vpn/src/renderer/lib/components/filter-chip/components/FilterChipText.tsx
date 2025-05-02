@@ -11,5 +11,5 @@ export const FilterChipText = <T extends React.ElementType = 'span'>(
   props: FilterChipTextProps<T>,
 ) => {
   const { disabled } = useFilterChipContext();
-  return <StyledText color={disabled ? 'white40' : 'white100'} {...props} />;
+  return <StyledText color={disabled ? 'whiteAlpha40' : 'white'} {...props} />;
 };

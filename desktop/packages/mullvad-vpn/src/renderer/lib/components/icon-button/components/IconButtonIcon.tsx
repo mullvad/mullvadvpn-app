@@ -7,14 +7,14 @@ export type IconButtonIconProps = IconProps;
 
 const variants = {
   primary: {
-    background: 'white100',
-    hover: 'white60',
-    disabled: 'white40',
+    background: 'white',
+    hover: 'whiteAlpha60',
+    disabled: 'whiteAlpha40',
   },
   secondary: {
-    background: 'white60',
-    hover: 'white80',
-    disabled: 'white40',
+    background: 'whiteAlpha60',
+    hover: 'whiteAlpha80',
+    disabled: 'whiteAlpha40',
   },
 } as const;
 

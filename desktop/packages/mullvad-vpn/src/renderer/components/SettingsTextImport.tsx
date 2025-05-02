@@ -17,7 +17,7 @@ const StyledTextArea = styled.textarea({
   width: '100%',
   flex: 1,
   padding: '13px',
-  color: colors.brandBlue,
+  color: colors.blue,
 });
 
 export default function SettingsTextImport() {

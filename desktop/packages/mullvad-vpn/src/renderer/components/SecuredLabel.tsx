@@ -15,14 +15,14 @@ export enum SecuredDisplayStyle {
 }
 
 const securedDisplayStyleColorMap = {
-  [SecuredDisplayStyle.securing]: colors.white100,
-  [SecuredDisplayStyle.securingPq]: colors.white100,
-  [SecuredDisplayStyle.unsecuring]: colors.white100,
-  [SecuredDisplayStyle.secured]: colors.brandGreen,
-  [SecuredDisplayStyle.securedPq]: colors.brandGreen,
-  [SecuredDisplayStyle.blocked]: colors.white100,
-  [SecuredDisplayStyle.unsecured]: colors.brandRed,
-  [SecuredDisplayStyle.failedToSecure]: colors.brandRed,
+  [SecuredDisplayStyle.securing]: colors.white,
+  [SecuredDisplayStyle.securingPq]: colors.white,
+  [SecuredDisplayStyle.unsecuring]: colors.white,
+  [SecuredDisplayStyle.secured]: colors.green,
+  [SecuredDisplayStyle.securedPq]: colors.green,
+  [SecuredDisplayStyle.blocked]: colors.white,
+  [SecuredDisplayStyle.unsecured]: colors.red,
+  [SecuredDisplayStyle.failedToSecure]: colors.red,
 };
 
 const StyledSecuredLabel = styled.span<{ $displayStyle: SecuredDisplayStyle }>((props) => ({

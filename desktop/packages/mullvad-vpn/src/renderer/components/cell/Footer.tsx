@@ -8,5 +8,5 @@ export const CellFooter = styled.div({
 });
 
 export const CellFooterText = styled(LabelTiny).attrs({
-  color: 'white60',
+  color: 'whiteAlpha60',
 })({});

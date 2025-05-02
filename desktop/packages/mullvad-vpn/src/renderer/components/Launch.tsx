@@ -26,7 +26,7 @@ export default function Launch() {
 }
 
 const StyledFooter = styled(Footer)({
-  backgroundColor: colors.brandBlue,
+  backgroundColor: colors.blue,
   transition: 'opacity 250ms ease-in-out',
 });
 
@@ -34,14 +34,14 @@ const StyledFooterInner = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  backgroundColor: colors.brandDarkBlue,
+  backgroundColor: colors.darkBlue,
   borderRadius: '8px',
   margin: 0,
   padding: '16px',
 });
 
 const StyledFooterMessage = styled.span(tinyText, {
-  color: colors.white100,
+  color: colors.white,
   margin: `8px 0 ${measurements.buttonVerticalMargin} 0`,
 });
 

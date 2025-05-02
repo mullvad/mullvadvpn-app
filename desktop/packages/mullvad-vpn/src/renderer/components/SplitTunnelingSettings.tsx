@@ -202,7 +202,7 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
       <ModalAlert
         isOpen={browseError !== undefined}
         type={ModalAlertType.warning}
-        iconColor={colors.brandRed}
+        iconColor={colors.red}
         message={sprintf(
           // TRANSLATORS: Error message showed in a dialog when an application fails to launch.
           messages.pgettext(
@@ -241,7 +241,7 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
   const hideWarningDialog = useCallback(() => setShowWarning(false), []);
 
   const disabled = props.application.warning === 'launches-elsewhere';
-  const warningColor: Colors = disabled ? 'brandRed' : 'brandYellow';
+  const warningColor: Colors = disabled ? 'red' : 'yellow';
   const warningMessage = disabled
     ? sprintf(
         messages.pgettext(
@@ -586,7 +586,7 @@ function MacOsSplitTunnelingAvailability({
               {messages.pgettext('split-tunneling-view', 'Open System Settings')}
             </Button.Text>
           </Button>
-          <FootnoteMini color="white60">
+          <FootnoteMini color="whiteAlpha60">
             {messages.pgettext(
               'split-tunneling-view',
               'Enabled "Full disk access" and still having issues?',

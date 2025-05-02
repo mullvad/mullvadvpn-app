@@ -15,11 +15,11 @@ interface IStyledCellButtonProps extends React.HTMLAttributes<HTMLButtonElement>
 
 const StyledCellButton = styled(Row)<IStyledCellButtonProps>((props) => {
   const backgroundColor = props.$selected
-    ? colors.brandGreen
+    ? colors.green
     : props.$containedInSection
       ? colors.blue40
-      : colors.brandBlue;
-  const backgroundColorHover = props.$selected ? colors.brandGreen : colors.blue80;
+      : colors.blue;
+  const backgroundColorHover = props.$selected ? colors.green : colors.blue80;
 
   return {
     paddingRight: spacings.medium,

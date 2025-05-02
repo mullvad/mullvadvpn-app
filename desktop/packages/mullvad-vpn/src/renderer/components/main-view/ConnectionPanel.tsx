@@ -62,7 +62,7 @@ const StyledConnectionStatusContainer = styled.div<{
 }>((props) => ({
   paddingBottom: props.$hasFeatureIndicators || props.$expanded ? '16px' : 0,
   marginBottom: props.$expanded && props.$hasFeatureIndicators ? '16px' : 0,
-  borderBottom: props.$expanded ? `1px ${colors.white20} solid` : 'none',
+  borderBottom: props.$expanded ? `1px ${colors.whiteAlpha20} solid` : 'none',
   transitionProperty: 'margin-bottom, padding-bottom',
   transitionDuration: '300ms',
   transitionTimingFunction: 'ease-out',

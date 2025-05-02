@@ -35,7 +35,7 @@ const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
 export const Icon = ({
   icon: iconProp,
   size = 'medium',
-  color: colorProp = 'white100',
+  color: colorProp = 'white',
   ...props
 }: IconProps) => {
   const icon = icons[iconProp];

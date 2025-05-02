@@ -12,7 +12,7 @@ type TextBaseProps = {
 export type TextProps<T extends React.ElementType = 'span'> = PolymorphicProps<T, TextBaseProps>;
 
 const StyledText = styled.span<TransientProps<TextBaseProps>>(
-  ({ $variant = 'bodySmall', $color = 'white100' }) => {
+  ({ $variant = 'bodySmall', $color = 'white' }) => {
     const { fontFamily, fontSize, fontWeight, lineHeight } = typography[$variant];
     const color = colors[$color];
     return `

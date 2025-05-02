@@ -22,7 +22,7 @@ export const SideButton = styled.button<ButtonColors & { $noSeparator?: boolean 
       bottom: 0,
       height: '50%',
       width: '1px',
-      backgroundColor: colors.brandDarkBlue,
+      backgroundColor: colors.darkBlue,
     },
   }),
 );

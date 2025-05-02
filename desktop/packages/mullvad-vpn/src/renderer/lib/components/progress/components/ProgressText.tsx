@@ -5,5 +5,5 @@ export type ProgressTextProps<T extends React.ElementType = 'span'> = LabelTinyP
 
 export const ProgressText = <T extends React.ElementType = 'span'>(props: ProgressTextProps<T>) => {
   const { disabled } = useProgress();
-  return <LabelTiny color={disabled ? 'white40' : 'white60'} {...props} />;
+  return <LabelTiny color={disabled ? 'whiteAlpha40' : 'whiteAlpha60'} {...props} />;
 };

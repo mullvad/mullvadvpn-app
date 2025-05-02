@@ -30,10 +30,9 @@ const StyledInput = styled.input<{ $focused: boolean; $valid?: boolean }>((props
   border: 'none',
   width: '100%',
   height: '100%',
-  color:
-    props.$valid === false ? colors.brandRed : props.$focused ? colors.brandBlue : colors.white100,
+  color: props.$valid === false ? colors.red : props.$focused ? colors.blue : colors.white,
   '&&::placeholder': {
-    color: props.$focused ? colors.blue60 : colors.white60,
+    color: props.$focused ? colors.blue60 : colors.whiteAlpha60,
   },
 }));
 
@@ -179,7 +178,7 @@ export const Input = React.memo(React.forwardRef(InputWithRef));
 const InputFrame = styled.div<{ $focused: boolean }>((props) => ({
   display: 'flex',
   flexGrow: 0,
-  backgroundColor: props.$focused ? colors.white100 : colors.whiteOnBlue10,
+  backgroundColor: props.$focused ? colors.white : colors.whiteOnBlue10,
   borderRadius: '4px',
   padding: '6px 8px',
 }));
@@ -282,7 +281,7 @@ const StyledTextArea = styled.textarea<{ $invalid?: boolean }>(normalText, (prop
   fontWeight: 400,
   resize: 'none',
   padding: '10px 25px 10px 0',
-  color: props.$invalid ? colors.brandRed : 'auto',
+  color: props.$invalid ? colors.red : 'auto',
 }));
 
 const StyledInputFiller = styled.div({
@@ -295,7 +294,7 @@ const StyledInputFiller = styled.div({
 
 const StyledIconButton = styled(IconButton)<{ $disabled: boolean }>(({ $disabled }) => ({
   ['> div']: {
-    backgroundColor: $disabled ? colors.blue60 : colors.brandBlue,
+    backgroundColor: $disabled ? colors.blue60 : colors.blue,
   },
   ['&&:hover > div']: {
     backgroundColor: $disabled ? colors.blue60 : colors.blue80,

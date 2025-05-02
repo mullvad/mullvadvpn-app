@@ -18,7 +18,7 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
 export const StyledContainer = styled(Container)({
   paddingTop: '22px',
   minHeight: '100%',
-  backgroundColor: colors.brandDarkBlue,
+  backgroundColor: colors.darkBlue,
 });
 
 export const StyledBody = styled.div({
@@ -31,12 +31,12 @@ export const StyledBody = styled.div({
 export const StyledTitle = styled.span(bigText, {
   lineHeight: '38px',
   marginBottom: '8px',
-  color: colors.white100,
+  color: colors.white,
 });
 
 export const StyledMessage = styled.span(smallText, {
   marginBottom: measurements.rowVerticalMargin,
-  color: colors.white100,
+  color: colors.white,
 });
 
 export function DeviceRevokedView() {

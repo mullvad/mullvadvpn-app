@@ -28,7 +28,7 @@ const StyledTitle = styled.h2(tinyText, {
   margin: '0 0 2px',
   fontSize: '10px',
   lineHeight: '15px',
-  color: colors.white60,
+  color: colors.whiteAlpha60,
 });
 
 const StyledFeatureIndicators = styled.div({
@@ -50,8 +50,8 @@ const StyledFeatureIndicatorLabel = styled.span(tinyText, (props) => ({
   justifyContent: 'center',
   alignItems: 'center',
   borderRadius: '4px',
-  background: colors.brandDarkBlue,
-  color: colors.white100,
+  background: colors.darkBlue,
+  color: colors.white,
   fontWeight: 400,
   whiteSpace: 'nowrap',
   visibility: 'hidden',
@@ -59,7 +59,7 @@ const StyledFeatureIndicatorLabel = styled.span(tinyText, (props) => ({
   // Style clickable feature indicators with a border and on-hover effect
   boxSizing: 'border-box', // make border act as padding rather than margin
   border: 'solid 1px',
-  borderColor: props.onClick ? colors.brandBlue : colors.brandDarkBlue,
+  borderColor: props.onClick ? colors.blue : colors.darkBlue,
   transition: 'background ease-in-out 300ms',
   '&&:hover': {
     background: props.onClick ? colors.blue60 : undefined,
@@ -69,7 +69,7 @@ const StyledFeatureIndicatorLabel = styled.span(tinyText, (props) => ({
 const StyledBaseEllipsis = styled.span<{ $display: boolean }>(tinyText, (props) => ({
   position: 'absolute',
   top: `${LINE_HEIGHT + GAP}px`,
-  color: colors.white100,
+  color: colors.white,
   padding: '2px 8px 2px 16px',
   display: props.$display ? 'inline' : 'none',
 }));

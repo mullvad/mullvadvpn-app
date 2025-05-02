@@ -12,11 +12,11 @@ import { tinyText } from './common-styles';
 const NOTIFICATION_AREA_ID = 'notification-area';
 
 export const NotificationTitle = styled.span(tinyText, {
-  color: colors.white100,
+  color: colors.white,
 });
 
 export const NotificationSubtitleText = styled.span(tinyText, {
-  color: colors.white60,
+  color: colors.whiteAlpha60,
 });
 
 interface INotificationSubtitleProps {
@@ -90,9 +90,9 @@ interface INotificationIndicatorProps {
 }
 
 const notificationIndicatorTypeColorMap = {
-  success: colors.brandGreen,
-  warning: colors.brandYellow,
-  error: colors.brandRed,
+  success: colors.green,
+  warning: colors.yellow,
+  error: colors.red,
 };
 
 export const NotificationIndicator = styled.div<INotificationIndicatorProps>((props) => ({
