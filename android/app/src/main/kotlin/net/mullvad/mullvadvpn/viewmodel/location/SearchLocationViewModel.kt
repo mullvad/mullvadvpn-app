@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.combine
 
 @Suppress("LongParameterList")
@@ -57,7 +58,7 @@ class SearchLocationViewModel(
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
     private val _expandedItems = MutableStateFlow<Set<String>>(emptySet())
 
-    val uiState: StateFlow<SearchLocationUiState> =
+    val uiState: StateFlow<Lc<SearchLocationUiState>> =
         combine(
                 _searchTerm,
                 searchRelayListLocations(),
@@ -74,33 +75,31 @@ class SearchLocationViewModel(
                 selectedItem,
                 filterChips,
                 expandedItems ->
-                SearchLocationUiState.Content(
-                    searchTerm = searchTerm,
-                    relayListItems =
-                        relayListItems(
-                            searchTerm = searchTerm,
-                            isSearching = true,
-                            relayCountries = relayCountries,
-                            relayListType = relayListType,
-                            customLists = filteredCustomLists,
-                            selectedByThisEntryExitList =
-                                selectedItem.selectedByThisEntryExitList(relayListType),
-                            selectedByOtherEntryExitList =
-                                selectedItem.selectedByOtherEntryExitList(
-                                    relayListType,
-                                    customLists,
-                                ),
-                            expandedItems = expandedItems,
-                        ),
-                    customLists = customLists,
-                    filterChips = filterChips,
+                Lc.Content(
+                    SearchLocationUiState(
+                        searchTerm = searchTerm,
+                        relayListItems =
+                            relayListItems(
+                                searchTerm = searchTerm,
+                                isSearching = true,
+                                relayCountries = relayCountries,
+                                relayListType = relayListType,
+                                customLists = filteredCustomLists,
+                                selectedByThisEntryExitList =
+                                    selectedItem.selectedByThisEntryExitList(relayListType),
+                                selectedByOtherEntryExitList =
+                                    selectedItem.selectedByOtherEntryExitList(
+                                        relayListType,
+                                        customLists,
+                                    ),
+                                expandedItems = expandedItems,
+                            ),
+                        customLists = customLists,
+                        filterChips = filterChips,
+                    )
                 )
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(),
-                SearchLocationUiState.Content("", emptyList(), emptyList(), emptyList()),
-            )
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading)
 
     private val _uiSideEffect = Channel<SearchLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
