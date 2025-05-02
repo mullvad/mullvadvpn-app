@@ -14,6 +14,7 @@ import Network
 public enum TunnelObfuscationProtocol {
     case udpOverTcp
     case shadowsocks
+    case quic
 }
 
 public protocol TunnelObfuscation {
@@ -53,6 +54,8 @@ public final class TunnelObfuscator: TunnelObfuscation {
             .tcp
         case .shadowsocks:
             .udp
+        case .quic:
+            .udp
         }
     }
 
@@ -74,6 +77,7 @@ public final class TunnelObfuscator: TunnelObfuscation {
             let obfuscationProtocol = switch obfuscationProtocol {
             case .udpOverTcp: TunnelObfuscatorProtocol(0)
             case .shadowsocks: TunnelObfuscatorProtocol(1)
+            case .quic: TunnelObfuscatorProtocol(2)
             }
 
             let result = withUnsafeMutablePointer(to: &proxyHandle) { proxyHandlePointer in
