@@ -1,0 +1,2 @@
+- Made feature indicators clickable, allowing for easy access to active features.
+- Added device management that allows for revoking of other devices within the app.
