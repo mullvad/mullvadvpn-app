@@ -215,6 +215,8 @@ internal fun ManagementInterface.ObfuscationEndpoint.ObfuscationType.toDomain():
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UDP2TCP -> ObfuscationType.Udp2Tcp
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS ->
             ObfuscationType.Shadowsocks
+        ManagementInterface.ObfuscationEndpoint.ObfuscationType.QUIC ->
+            throw IllegalArgumentException("Unsupported obfuscation type")
         ManagementInterface.ObfuscationEndpoint.ObfuscationType.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized obfuscation type")
     }
@@ -419,6 +421,8 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
             ObfuscationMode.Udp2Tcp
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS ->
             ObfuscationMode.Shadowsocks
+        ManagementInterface.ObfuscationEndpoint.SelectedObfuscation.QUIC ->
+            throw IllegalArgumentException("Unsupported obfuscation type")
         ManagementInterface.ObfuscationSettings.SelectedObfuscation.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized selected obfuscation")
     }
