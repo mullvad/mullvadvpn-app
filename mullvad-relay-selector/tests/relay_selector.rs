@@ -424,8 +424,9 @@ fn test_wireguard_retry_order() {
                 assert!(match &query.wireguard_constraints().obfuscation {
                     ObfuscationQuery::Auto => true,
                     ObfuscationQuery::Off => obfuscator.is_none(),
-                    ObfuscationQuery::Udp2tcp(_) | ObfuscationQuery::Shadowsocks(_) =>
-                        obfuscator.is_some(),
+                    ObfuscationQuery::Quic
+                    | ObfuscationQuery::Udp2tcp(_)
+                    | ObfuscationQuery::Shadowsocks(_) => obfuscator.is_some(),
                 });
             }
             _ => unreachable!(),
