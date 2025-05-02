@@ -32,8 +32,8 @@ impl TunnelObfuscatorRuntime {
                 ObfuscationSettings::Quic(quic::Settings {
                     quic_endpoint: peer,
                     wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
-                    // TODO
-                    hostname: "se-got-wg-881.relays.stagemole.eu".to_string(),
+                    // TODO: fetch the real hostname from the relay list
+                    hostname: "www.mullvad.net".to_string(),
                 })
             }
         };

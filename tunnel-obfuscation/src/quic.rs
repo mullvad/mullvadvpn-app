@@ -2,7 +2,10 @@
 
 use async_trait::async_trait;
 use mullvad_masque_proxy::client::{Client, ClientConfig};
-use std::net::{Ipv4Addr, SocketAddr};
+use std::{
+    io, 
+    net::{Ipv4Addr, SocketAddr} 
+};
 use tokio::net::UdpSocket;
 
 use crate::Obfuscator;
@@ -11,6 +14,8 @@ type Result<T> = std::result::Result<T, Error>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    #[error("Failed to bind UDP socket")]
+    BindError(#[source] io::Error),
     #[error("Masque proxy error")]
     MasqueProxyError(#[source] mullvad_masque_proxy::client::Error),
 }
@@ -33,8 +38,8 @@ pub struct Settings {
 impl Quic {
     pub(crate) async fn new(settings: &Settings) -> Result<Self> {
         let local_socket = UdpSocket::bind(SocketAddr::from((Ipv4Addr::LOCALHOST, 0)))
-            .await
-            .expect("Failed to bind address");
+        .await
+        .map_err(Error::BindError)?;
 
         let local_endpoint = local_socket.local_addr().unwrap();
 
