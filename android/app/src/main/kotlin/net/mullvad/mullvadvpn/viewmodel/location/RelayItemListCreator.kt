@@ -38,7 +38,7 @@ internal fun relayListItems(
             // search term is empty since we should get a result as long as there are any
             // location in the list
             listOf(
-                if (isSearching && searchTerm.isNotEmpty()) {
+                if (searchTerm.isNotEmpty()) {
                     RelayListItem.LocationsEmptyText(searchTerm)
                 } else {
                     RelayListItem.EmptyRelayList
@@ -46,6 +46,24 @@ internal fun relayListItems(
             )
         }
 }
+
+internal fun emptyLocationsRelayListItems(
+    isSearching: Boolean = false,
+    relayListType: RelayListType,
+    customLists: List<RelayItem.CustomList>,
+    selectedByThisEntryExitList: RelayItemId?,
+    selectedByOtherEntryExitList: RelayItemId?,
+    expandedItems: Set<String>,
+) =
+    createCustomListSection(
+        isSearching,
+        relayListType,
+        selectedByThisEntryExitList,
+        selectedByOtherEntryExitList,
+        customLists,
+    ) {
+        it in expandedItems
+    } + RelayListItem.LocationHeader + RelayListItem.EmptyRelayList
 
 private fun createRelayListItems(
     isSearching: Boolean,

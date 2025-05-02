@@ -55,8 +55,10 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SearchLocationsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.RelayListType
@@ -71,15 +73,16 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview("Default|No Locations|Not found|Results")
+@Preview("Loading|Default|No Locations|Not found|Results")
 @Composable
 private fun PreviewSearchLocationScreen(
     @PreviewParameter(SearchLocationsUiStatePreviewParameterProvider::class)
-    state: SearchLocationUiState
+    state: Lc<SearchLocationUiState>
 ) {
     AppTheme {
         SearchLocationScreen(
@@ -216,7 +219,7 @@ fun SearchLocation(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchLocationScreen(
-    state: SearchLocationUiState,
+    state: Lc<SearchLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectRelay: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
@@ -260,7 +263,7 @@ fun SearchLocationScreen(
             LaunchedEffect(Unit) { focusRequester.requestFocus() }
             SearchBar(
                 modifier = Modifier.focusRequester(focusRequester),
-                searchTerm = state.searchTerm,
+                searchTerm = state.contentOrNull()?.searchTerm ?: "",
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
                 onSearchInputChanged = onSearchInputChanged,
@@ -281,17 +284,20 @@ fun SearchLocationScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 filterRow(
-                    filters = state.filterChips,
+                    filters = state.contentOrNull()?.filterChips ?: emptyList(),
                     onBackgroundColor = onBackgroundColor,
                     onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                     onRemoveProviderFilter = onRemoveProviderFilter,
                 )
                 when (state) {
-                    is SearchLocationUiState.Content -> {
+                    Lc.Loading -> {
+                        loading()
+                    }
+                    is Lc.Content -> {
                         relayListContent(
                             backgroundColor = backgroundColor,
-                            customLists = state.customLists,
-                            relayListItems = state.relayListItems,
+                            customLists = state.value.customLists,
+                            relayListItems = state.value.relayListItems,
                             onSelectRelay = onSelectRelay,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->
@@ -402,4 +408,8 @@ private fun Title(text: String, onBackgroundColor: Color) {
                 .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
         style = MaterialTheme.typography.labelMedium,
     )
+}
+
+private fun LazyListScope.loading() {
+    item(contentType = ContentType.PROGRESS) { MullvadCircularProgressIndicatorLarge() }
 }
