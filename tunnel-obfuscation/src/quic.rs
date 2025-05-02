@@ -3,8 +3,8 @@
 use async_trait::async_trait;
 use mullvad_masque_proxy::client::{Client, ClientConfig};
 use std::{
-    io, 
-    net::{Ipv4Addr, SocketAddr} 
+    io,
+    net::{Ipv4Addr, SocketAddr},
 };
 use tokio::net::UdpSocket;
 
@@ -38,8 +38,8 @@ pub struct Settings {
 impl Quic {
     pub(crate) async fn new(settings: &Settings) -> Result<Self> {
         let local_socket = UdpSocket::bind(SocketAddr::from((Ipv4Addr::LOCALHOST, 0)))
-        .await
-        .map_err(Error::BindError)?;
+            .await
+            .map_err(Error::BindError)?;
 
         let local_endpoint = local_socket.local_addr().unwrap();
 
