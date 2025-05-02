@@ -19,7 +19,7 @@ const Subtitle = styled.span({
   fontSize: '14px',
   lineHeight: '20px',
   margin: `0 ${measurements.horizontalViewMargin}`,
-  color: colors.white40,
+  color: colors.whiteAlpha40,
   textAlign: 'center',
 });
 

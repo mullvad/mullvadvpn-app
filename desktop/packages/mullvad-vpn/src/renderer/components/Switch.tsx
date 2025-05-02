@@ -18,7 +18,7 @@ const SwitchContainer = styled.div<{ disabled: boolean }>((props) => ({
   position: 'relative',
   width: '34px',
   height: '22px',
-  borderColor: props.disabled ? colors.white20 : colors.white80,
+  borderColor: props.disabled ? colors.whiteAlpha20 : colors.whiteAlpha80,
   borderWidth: '2px',
   borderStyle: 'solid',
   borderRadius: '11px',
@@ -26,7 +26,7 @@ const SwitchContainer = styled.div<{ disabled: boolean }>((props) => ({
 }));
 
 const Knob = styled.div<{ $isOn: boolean; disabled: boolean }>((props) => {
-  let backgroundColor: ColorVariables = props.$isOn ? colors.brandGreen : colors.brandRed;
+  let backgroundColor: ColorVariables = props.$isOn ? colors.green : colors.red;
   if (props.disabled) {
     backgroundColor = props.$isOn ? colors.green40 : colors.red40;
   }

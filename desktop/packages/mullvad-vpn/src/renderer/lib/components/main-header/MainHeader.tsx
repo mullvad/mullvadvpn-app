@@ -16,9 +16,9 @@ const sizes = {
 };
 
 const variants: Record<string, Colors> = {
-  default: 'brandBlue',
-  error: 'brandRed',
-  success: 'brandGreen',
+  default: 'blue',
+  error: 'red',
+  success: 'green',
 };
 
 const StyledHeader = styled.header<TransientProps<HeaderProps>>(

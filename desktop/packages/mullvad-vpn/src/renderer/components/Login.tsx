@@ -370,7 +370,7 @@ class Login extends React.Component<IProps, IState> {
   private createFooter() {
     return (
       <Flex $flexDirection="column" $gap="small">
-        <LabelTiny color="white60">
+        <LabelTiny color="whiteAlpha60">
           {messages.pgettext('login-view', 'Don’t have an account number?')}
         </LabelTiny>
         <Button onClick={this.props.createNewAccount} disabled={!this.allowCreateAccount()}>

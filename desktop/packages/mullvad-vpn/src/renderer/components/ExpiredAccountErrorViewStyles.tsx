@@ -12,7 +12,7 @@ export const StyledAccountNumberLabel = styled(AccountNumberLabel)({
   lineHeight: '20px',
   fontSize: '20px',
   fontWeight: 700,
-  color: colors.white100,
+  color: colors.white,
 });
 
 export const StyledModalCellContainer = styled(Cell.Container)({
@@ -28,7 +28,7 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
 export const StyledContainer = styled(Container)({
   paddingTop: '22px',
   minHeight: '100%',
-  backgroundColor: colors.brandDarkBlue,
+  backgroundColor: colors.darkBlue,
 });
 
 export const StyledBody = styled.div({
@@ -45,11 +45,11 @@ export const StyledTitle = styled.span(hugeText, {
 
 export const StyledMessage = styled.span(tinyText, {
   marginBottom: '20px',
-  color: colors.white100,
+  color: colors.white,
 });
 
 export const StyledAccountNumberMessage = styled.span(tinyText, {
-  color: colors.white100,
+  color: colors.white,
 });
 
 export const StyledAccountNumberContainer = styled.div({
@@ -60,5 +60,5 @@ export const StyledAccountNumberContainer = styled.div({
 
 export const StyledDeviceLabel = styled.span(tinyText, {
   lineHeight: '20px',
-  color: colors.white100,
+  color: colors.white,
 });

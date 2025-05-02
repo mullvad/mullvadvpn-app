@@ -203,7 +203,7 @@ const StyledStatusTitle = styled.div(normalText, {
   alignItems: 'center',
   fontWeight: 'bold',
   lineHeight: '20px',
-  color: colors.white100,
+  color: colors.white,
   gap: spacings.tiny,
 });
 
@@ -231,9 +231,9 @@ function SettingsImportStatus(props: ImportStatusProps) {
     iconProps = props.status.successful
       ? {
           icon: 'checkmark',
-          color: 'brandGreen',
+          color: 'green',
         }
-      : { icon: 'cross', color: 'brandRed' };
+      : { icon: 'cross', color: 'red' };
 
     if (props.status.successful) {
       subtitle =
@@ -273,7 +273,7 @@ function SettingsImportStatus(props: ImportStatusProps) {
         {iconProps !== undefined && <Icon {...iconProps} size="medium" />}
       </StyledStatusTitle>
       {subtitle !== undefined && (
-        <LabelTiny data-testid="status-subtitle" color="white60">
+        <LabelTiny data-testid="status-subtitle" color="whiteAlpha60">
           {subtitle}
         </LabelTiny>
       )}

@@ -14,7 +14,7 @@ const StyledAccordion = styled(ConnectionPanelAccordion)({
 });
 
 const StyledHostname = styled.span(smallText, {
-  color: colors.white60,
+  color: colors.whiteAlpha60,
   fontWeight: '400',
   flexShrink: 0,
   minHeight: '1em',

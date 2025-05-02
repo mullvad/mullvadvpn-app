@@ -28,7 +28,7 @@ import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
-  backgroundColor: colors.brandDarkBlue,
+  backgroundColor: colors.darkBlue,
   flex: 1,
 });
 
@@ -230,7 +230,7 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
         <AriaLabel>
           <Cell.Label>{messages.pgettext('filter-view', 'Ownership')}</Cell.Label>
         </AriaLabel>
-        <Icon color="white80" icon={expanded ? 'chevron-up' : 'chevron-down'} />
+        <Icon color="whiteAlpha80" icon={expanded ? 'chevron-up' : 'chevron-down'} />
       </Cell.CellButton>
 
       <Accordion expanded={expanded}>
@@ -276,7 +276,7 @@ function FilterByProvider(props: IFilterByProviderProps) {
     <>
       <Cell.CellButton onClick={toggleExpanded}>
         <Cell.Label>{messages.pgettext('filter-view', 'Providers')}</Cell.Label>
-        <Icon color="white80" icon={expanded ? 'chevron-up' : 'chevron-down'} />
+        <Icon color="whiteAlpha80" icon={expanded ? 'chevron-up' : 'chevron-down'} />
       </Cell.CellButton>
       <Accordion expanded={expanded}>
         <CheckboxRow
@@ -310,7 +310,7 @@ const StyledCheckbox = styled.div({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: colors.white100,
+  backgroundColor: colors.white,
   borderRadius: '4px',
 });
 
@@ -323,7 +323,7 @@ const StyledRow = styled(Cell.Row)({
 
 const StyledRowTitle = styled.label<IStyledRowTitleProps>(normalText, (props) => ({
   fontWeight: props.$bold ? 600 : 400,
-  color: colors.white100,
+  color: colors.white,
   marginLeft: '22px',
 }));
 
@@ -341,7 +341,7 @@ function CheckboxRow(props: ICheckboxRowProps) {
   return (
     <StyledRow onClick={onToggle}>
       <StyledCheckbox role="checkbox" aria-label={props.label} aria-checked={props.checked}>
-        {props.checked && <Icon icon="checkmark" color="brandGreen" />}
+        {props.checked && <Icon icon="checkmark" color="green" />}
       </StyledCheckbox>
       <StyledRowTitle aria-hidden $bold={props.$bold}>
         {props.label}

@@ -15,7 +15,7 @@ export type NavigationHeaderProps = React.PropsWithChildren<{
 }>;
 
 const StyledHeader = styled.nav<TransientProps<NavigationHeaderProps>>({
-  backgroundColor: colors.brandDarkBlue,
+  backgroundColor: colors.darkBlue,
 });
 
 export const StyledContent = styled.div({

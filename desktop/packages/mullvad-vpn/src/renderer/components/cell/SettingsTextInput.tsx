@@ -13,7 +13,7 @@ const StyledInput = styled.input(smallNormalText, {
   textAlign: 'right',
   background: 'transparent',
   border: 'none',
-  color: colors.white100,
+  color: colors.white,
   width: '100px',
 
   '&&::placeholder': {

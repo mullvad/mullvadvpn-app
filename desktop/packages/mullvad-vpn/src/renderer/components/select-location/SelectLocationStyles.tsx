@@ -23,7 +23,7 @@ export const StyledNavigationBarAttachment = styled.div({
 
 export const StyledFilterRow = styled.div({
   ...tinyText,
-  color: colors.white100,
+  color: colors.white,
   margin: '0 6px 16px',
 });
 
@@ -31,11 +31,11 @@ export const StyledFilter = styled.div({
   ...tinyText,
   display: 'inline-flex',
   alignItems: 'center',
-  backgroundColor: colors.brandBlue,
+  backgroundColor: colors.blue,
   borderRadius: '4px',
   padding: '3px 8px',
   marginLeft: '6px',
-  color: colors.white100,
+  color: colors.white,
 });
 
 export const StyledClearFilterButton = styled.div({

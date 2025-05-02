@@ -15,17 +15,17 @@ const styles = {
   radius: Radius.radius4,
   variants: {
     primary: {
-      background: colors.brandBlue,
+      background: colors.blue,
       hover: colors.blue60,
       disabled: colors.blue40,
     },
     success: {
-      background: colors.brandGreen,
+      background: colors.green,
       hover: colors.green80,
       disabled: colors.green40,
     },
     destructive: {
-      background: colors.brandRed,
+      background: colors.red,
       hover: colors.red80,
       disabled: colors.red40,
     },
@@ -75,7 +75,7 @@ export const StyledButton = styled(ButtonBase)<ButtonProps>`
       }
 
       &:focus-visible {
-        outline: 2px solid ${colors.white100};
+        outline: 2px solid ${colors.white};
         outline-offset: 2px;
       }
 

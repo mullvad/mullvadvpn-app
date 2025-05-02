@@ -228,9 +228,9 @@ interface StyledCustomContainerProps {
 }
 
 const StyledCustomContainer = styled(Cell.Container)<StyledCustomContainerProps>((props) => ({
-  backgroundColor: props.selected ? colors.brandGreen : colors.blue40,
+  backgroundColor: props.selected ? colors.green : colors.blue40,
   '&&:hover': {
-    backgroundColor: props.selected ? colors.brandGreen : colors.brandBlue,
+    backgroundColor: props.selected ? colors.green : colors.blue,
   },
 }));
 

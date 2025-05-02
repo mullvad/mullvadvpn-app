@@ -9,5 +9,5 @@ export const StyledIcon = styled(Icon)({});
 
 export const FilterChipIcon = ({ ...props }: FilterChipIconProps) => {
   const { disabled } = useFilterChipContext();
-  return <Icon size="small" color={disabled ? 'white40' : 'white100'} {...props} />;
+  return <Icon size="small" color={disabled ? 'whiteAlpha40' : 'white'} {...props} />;
 };

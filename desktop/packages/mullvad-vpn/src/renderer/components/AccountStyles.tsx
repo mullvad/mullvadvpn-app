@@ -28,12 +28,12 @@ const AccountRowText = styled.span({
 export const AccountRowLabel = styled(AccountRowText)(tinyText, {
   lineHeight: '20px',
   marginBottom: '5px',
-  color: colors.white60,
+  color: colors.whiteAlpha60,
 });
 
 export const AccountRowValue = styled(AccountRowText)(normalText, {
   fontWeight: 600,
-  color: colors.white100,
+  color: colors.white,
 });
 
 export const DeviceRowValue = styled(AccountRowValue)({
@@ -41,7 +41,7 @@ export const DeviceRowValue = styled(AccountRowValue)({
 });
 
 export const AccountOutOfTime = styled(AccountRowValue)({
-  color: colors.brandRed,
+  color: colors.red,
 });
 
 export const StyledDeviceNameRow = styled.div({

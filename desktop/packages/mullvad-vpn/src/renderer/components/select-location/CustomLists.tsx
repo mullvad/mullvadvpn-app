@@ -30,7 +30,7 @@ const StyledInputContainer = styled.div({
   display: 'flex',
   alignItems: 'center',
   flex: 1,
-  backgroundColor: colors.brandBlue,
+  backgroundColor: colors.blue,
   paddingLeft: measurements.horizontalViewMargin,
   height: measurements.rowMinHeight,
 });
@@ -38,7 +38,7 @@ const StyledInputContainer = styled.div({
 const StyledHeaderLabel = styled(Cell.Label)({
   display: 'block',
   flex: 1,
-  backgroundColor: colors.brandBlue,
+  backgroundColor: colors.blue,
   paddingLeft: measurements.horizontalViewMargin,
   margin: 0,
   height: measurements.rowMinHeight,
@@ -55,17 +55,17 @@ const StyledAddListCellButton = styled(StyledCellButton)({
 
 const StyledSideButtonIcon = styled(Cell.CellIcon)({
   [`${StyledCellButton}:disabled &&, ${StyledAddListCellButton}:disabled &&`]: {
-    backgroundColor: colors.white40,
+    backgroundColor: colors.whiteAlpha40,
   },
 
   [`${StyledCellButton}:not(:disabled):hover &&, ${StyledAddListCellButton}:not(:disabled):hover &&`]:
     {
-      backgroundColor: colors.white100,
+      backgroundColor: colors.white,
     },
 });
 
 const StyledInput = styled(SimpleInput)<{ $error: boolean }>((props) => ({
-  color: props.$error ? colors.brandRed : 'auto',
+  color: props.$error ? colors.red : 'auto',
 }));
 
 interface CustomListsProps {
@@ -103,10 +103,10 @@ export default function CustomLists(props: CustomListsProps) {
           {messages.pgettext('select-location-view', 'Custom lists')}
         </StyledHeaderLabel>
         <StyledCellButton
-          $backgroundColor={colors.brandBlue}
+          $backgroundColor={colors.blue}
           $backgroundColorHover={colors.blue80}
           onClick={showAddList}>
-          <StyledSideButtonIcon icon="add-circle" color="white60" />
+          <StyledSideButtonIcon icon="add-circle" color="whiteAlpha60" />
         </StyledCellButton>
       </StyledCellContainer>
 
@@ -198,11 +198,11 @@ function AddListForm(props: AddListFormProps) {
           </StyledInputContainer>
 
           <StyledAddListCellButton
-            $backgroundColor={colors.brandBlue}
+            $backgroundColor={colors.blue}
             $backgroundColorHover={colors.blue80}
             disabled={!nameValid}
             onClick={createList}>
-            <StyledSideButtonIcon icon="checkmark" color="white60" />
+            <StyledSideButtonIcon icon="checkmark" color="whiteAlpha60" />
           </StyledAddListCellButton>
         </StyledCellContainer>
         <Cell.CellFooter>

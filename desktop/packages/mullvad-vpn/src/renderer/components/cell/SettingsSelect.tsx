@@ -20,13 +20,13 @@ const StyledSelect = styled.div.attrs({ tabIndex: 0 })(smallNormalText, {
   position: 'relative',
   background: 'transparent',
   border: 'none',
-  color: colors.white100,
+  color: colors.white,
   borderRadius: '4px',
   height: '26px',
 
   '&&:focus': {
-    outline: `1px ${colors.brandDarkBlue} solid`,
-    backgroundColor: colors.brandBlue,
+    outline: `1px ${colors.darkBlue} solid`,
+    backgroundColor: colors.blue,
   },
 });
 
@@ -37,7 +37,7 @@ const StyledItems = styled.div<{ $direction: 'down' | 'up' }>((props) => ({
   top: props.$direction === 'down' ? 'calc(100% + 4px)' : 'auto',
   bottom: props.$direction === 'up' ? 'calc(100% + 4px)' : 'auto',
   right: '-1px',
-  backgroundColor: colors.brandDarkBlue,
+  backgroundColor: colors.darkBlue,
   border: `1px ${colors.darkerBlue50} solid`,
   borderRadius: '4px',
   padding: '4px 8px',
@@ -155,7 +155,7 @@ export function SettingsSelect<T extends string>(props: SettingsSelectProps<T>) 
             <StyledSelectedText>
               {props.items.find((item) => item.value === value)?.label ?? ''}
             </StyledSelectedText>
-            <StyledChevron color="white60" icon="chevron-down" />
+            <StyledChevron color="whiteAlpha60" icon="chevron-down" />
           </StyledSelectedContainerInner>
           <StyledInvisibleItems>
             {props.items.map((item) => (
@@ -220,7 +220,7 @@ const StyledItem = styled.div<{ $selected: boolean }>((props) => ({
   paddingRight: '18px',
   whiteSpace: 'nowrap',
   '&&:hover': {
-    backgroundColor: colors.brandBlue,
+    backgroundColor: colors.blue,
   },
 }));
 

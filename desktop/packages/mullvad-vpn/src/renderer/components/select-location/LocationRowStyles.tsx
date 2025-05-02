@@ -83,10 +83,10 @@ export const StyledHoverIconButton = styled.button<ButtonColors & HoverButtonPro
 );
 
 export const StyledHoverIcon = styled(Icon).attrs({
-  color: 'white60',
+  color: 'whiteAlpha60',
 })({
   [`${StyledHoverIconButton}:hover &&`]: {
-    backgroundColor: colors.white100,
+    backgroundColor: colors.white,
   },
 });
 
@@ -98,7 +98,7 @@ export const StyledHoverInfoButton = styled(InfoButton)<ButtonColors & HoverButt
 export function getButtonColor(selected: boolean, level: number, disabled?: boolean) {
   let backgroundColor: ColorVariables = colors.blue60;
   if (selected) {
-    backgroundColor = colors.brandGreen;
+    backgroundColor = colors.green;
   } else if (level === 1) {
     backgroundColor = colors.blue40;
   } else if (level === 2) {

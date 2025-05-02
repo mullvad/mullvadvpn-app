@@ -11,7 +11,7 @@ const StyledLabel = styled.div<{ disabled: boolean }>(buttonText, (props) => ({
   display: 'flex',
   margin: '10px 0',
   flex: 1,
-  color: props.disabled ? colors.white40 : colors.white100,
+  color: props.disabled ? colors.whiteAlpha40 : colors.white,
   textAlign: 'left',
 
   [`${LabelContainer} &&`]: {
@@ -27,7 +27,7 @@ const StyledLabel = styled.div<{ disabled: boolean }>(buttonText, (props) => ({
 }));
 
 const StyledSubText = styled.span<{ disabled: boolean }>(tinyText, (props) => ({
-  color: props.disabled ? colors.white20 : colors.white60,
+  color: props.disabled ? colors.whiteAlpha20 : colors.whiteAlpha60,
   flex: -1,
   textAlign: 'right',
   margin: `0 ${spacings.small}`,
@@ -56,7 +56,7 @@ const StyledTintedIcon = styled(Icon)<IconProps & { disabled?: boolean }>(
 const StyledSubLabel = styled.div<{ disabled: boolean }>(tinyText, {
   display: 'flex',
   alignItems: 'center',
-  color: colors.white60,
+  color: colors.whiteAlpha60,
   marginBottom: '5px',
   lineHeight: '14px',
   height: '14px',

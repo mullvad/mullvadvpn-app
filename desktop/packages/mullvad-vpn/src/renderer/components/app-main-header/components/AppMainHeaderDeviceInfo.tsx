@@ -29,7 +29,7 @@ export const AppMainHeaderDeviceInfo = () => {
 
   return (
     <Flex $gap="large" $margin={{ top: 'tiny' }}>
-      <StyledDeviceLabel color="white80">
+      <StyledDeviceLabel color="whiteAlpha80">
         {sprintf(
           // TRANSLATORS: A label that will display the newly created device name to inform the user
           // TRANSLATORS: about it.
@@ -42,7 +42,7 @@ export const AppMainHeaderDeviceInfo = () => {
         )}
       </StyledDeviceLabel>
       {accountExpiry && !closeToExpiry(accountExpiry) && !isOutOfTime && (
-        <StyledTimeLeftLabel color="white80">
+        <StyledTimeLeftLabel color="whiteAlpha80">
           {sprintf(messages.pgettext('device-management', 'Time left: %(timeLeft)s'), {
             timeLeft: formattedExpiry,
           })}

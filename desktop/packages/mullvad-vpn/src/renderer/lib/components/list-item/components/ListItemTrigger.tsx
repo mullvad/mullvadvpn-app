@@ -20,7 +20,7 @@ const StyledButton = styled(ButtonBase)<{ $disabled?: boolean }>`
     `}
 
   &&:focus-visible {
-    outline: 2px solid ${colors.white100};
+    outline: 2px solid ${colors.white};
     outline-offset: -1px;
     z-index: 10;
   }

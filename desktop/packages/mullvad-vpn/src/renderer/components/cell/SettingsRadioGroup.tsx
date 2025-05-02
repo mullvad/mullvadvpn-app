@@ -60,7 +60,7 @@ const StyledRadioButton = styled.input.attrs({ type: 'radio' })({
     height: '12px',
     borderRadius: '50%',
     backgroundColor: 'transparent',
-    border: `1px ${colors.white100} solid`,
+    border: `1px ${colors.white} solid`,
     top: 0,
     left: 0,
   },
@@ -71,7 +71,7 @@ const StyledRadioButton = styled.input.attrs({ type: 'radio' })({
     width: '8px',
     height: '8px',
     borderRadius: '50%',
-    backgroundColor: colors.white100,
+    backgroundColor: colors.white,
     top: '3px',
     left: '3px',
   },
@@ -85,7 +85,7 @@ const StyledRadioButtonContainer = styled.div({
 });
 
 const StyledRadioButtonLabel = styled.label(smallNormalText, {
-  color: colors.white100,
+  color: colors.white,
   marginLeft: '8px',
 });
 

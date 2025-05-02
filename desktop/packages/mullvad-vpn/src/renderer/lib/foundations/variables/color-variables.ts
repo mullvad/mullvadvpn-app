@@ -67,38 +67,37 @@ export enum DeprecatedColors {
 }
 
 export const colorPrimitives = {
-  '--color-white100': colorTokens.white100,
-  '--color-white80': colorTokens.white80,
-  '--color-white60': colorTokens.white60,
-  '--color-white40': colorTokens.white40,
-  '--color-white20': colorTokens.white20,
+  '--color-white': colorTokens.white,
+  '--color-white-alpha80': colorTokens.whiteAlpha80,
+  '--color-white-alpha60': colorTokens.whiteAlpha60,
+  '--color-white-alpha40': colorTokens.whiteAlpha40,
+  '--color-white-alpha20': colorTokens.whiteAlpha20,
 
   '--color-black': colorTokens.black,
-  '--color-black50': colorTokens.black50,
-
-  '--color-brand-red': colorTokens.brandRed,
-  '--color-brand-green': colorTokens.brandGreen,
-  '--color-brand-yellow': colorTokens.brandYellow,
-  '--color-brand-fur': colorTokens.brandFur,
-  '--color-brand-nose': colorTokens.brandNose,
-  '--color-brand-blue': colorTokens.brandBlue,
-  '--color-brand-dark-blue': colorTokens.brandDarkBlue,
-
-  '--color-green-alpha': colorTokens.greenAlpha,
-  '--color-green80': colorTokens.green80,
-  '--color-green40': colorTokens.green40,
+  '--color-black-alpha50': colorTokens.blackAlpha50,
 
   '--color-red': colorTokens.red,
-  '--color-red-alpha': colorTokens.redAlpha,
+  '--color-red-alpha40': colorTokens.redAlpha40,
   '--color-red80': colorTokens.red80,
   '--color-red40': colorTokens.red40,
 
+  '--color-green': colorTokens.green,
+  '--color-green-alpha40': colorTokens.greenAlpha40,
+  '--color-green80': colorTokens.green80,
+  '--color-green40': colorTokens.green40,
+
+  '--color-yellow': colorTokens.yellow,
+  '--color-fur': colorTokens.fur,
+  '--color-nose': colorTokens.nose,
+  '--color-blue': colorTokens.blue,
+  '--color-dark-blue': colorTokens.darkBlue,
+
   '--color-dark': colorTokens.dark,
   '--color-darker-blue50': colorTokens.darkerBlue50,
+  '--color-darker-blue50-alpha80': colorTokens.darkerBlue50Alpha80,
   '--color-darker-blue10': colorTokens.darkerBlue10,
   '--color-darker-blue10-alpha80': colorTokens.darkerBlue10Alpha80,
   '--color-darker-blue10-alpha40': colorTokens.darkerBlue10Alpha40,
-  '--color-darker-blue50-alpha80': colorTokens.darkerBlue50Alpha80,
 
   '--color-blue10': colorTokens.blue10,
   '--color-blue20': colorTokens.blue20,
@@ -123,38 +122,37 @@ export const colorPrimitives = {
   '--color-white-on-blue60': colorTokens.whiteOnBlue60,
   '--color-white-on-blue80': colorTokens.whiteOnBlue80,
 
-  '--color-chalk100': colorTokens.chalk100,
+  '--color-chalk': colorTokens.chalk,
+  '--color-chalk-alpha80': colorTokens.chalkAlpha80,
+  '--color-chalk-alpha40': colorTokens.chalkAlpha40,
   '--color-chalk80': colorTokens.chalk80,
-  '--color-chalk80Alpha': colorTokens.chalk80Alpha,
-  '--color-chalk40Alpha': colorTokens.chalk40Alpha,
 } as const;
 
-export const colors = {
-  white100: 'var(--color-white100)',
-  white80: 'var(--color-white80)',
-  white60: 'var(--color-white60)',
-  white40: 'var(--color-white40)',
-  white20: 'var(--color-white20)',
+export const colors: Record<keyof typeof colorTokens, `var(${keyof typeof colorPrimitives})`> = {
+  white: 'var(--color-white)',
+  whiteAlpha80: 'var(--color-white-alpha80)',
+  whiteAlpha60: 'var(--color-white-alpha60)',
+  whiteAlpha40: 'var(--color-white-alpha40)',
+  whiteAlpha20: 'var(--color-white-alpha20)',
 
   black: 'var(--color-black)',
-  black50: 'var(--color-black50)',
+  blackAlpha50: 'var(--color-black-alpha50)',
 
-  brandRed: 'var(--color-brand-red)',
-  brandGreen: 'var(--color-brand-green)',
-  brandYellow: 'var(--color-brand-yellow)',
-  brandFur: 'var(--color-brand-fur)',
-  brandNose: 'var(--color-brand-nose)',
-  brandBlue: 'var(--color-brand-blue)',
-  brandDarkBlue: 'var(--color-brand-dark-blue)',
+  red: 'var(--color-red)',
+  redAlpha40: 'var(--color-red-alpha40)',
+  red80: 'var(--color-red80)',
+  red40: 'var(--color-red40)',
 
-  greenAlpha: 'var(--color-green-alpha)',
+  green: 'var(--color-green)',
+  greenAlpha40: 'var(--color-green-alpha40)',
   green80: 'var(--color-green80)',
   green40: 'var(--color-green40)',
 
-  redAlpha: 'var(--color-red-alpha)',
-  red: 'var(--color-red)',
-  red80: 'var(--color-red80)',
-  red40: 'var(--color-red40)',
+  yellow: 'var(--color-yellow)',
+  fur: 'var(--color-fur)',
+  nose: 'var(--color-nose)',
+  blue: 'var(--color-blue)',
+  darkBlue: 'var(--color-dark-blue)',
 
   dark: 'var(--color-dark)',
   darkerBlue50: 'var(--color-darker-blue50)',
@@ -186,10 +184,10 @@ export const colors = {
   whiteOnBlue60: 'var(--color-white-on-blue60)',
   whiteOnBlue80: 'var(--color-white-on-blue80)',
 
-  chalk100: 'var(--color-chalk100)',
+  chalk: 'var(--color-chalk)',
+  chalkAlpha40: 'var(--color-chalk-alpha40)',
+  chalkAlpha80: 'var(--color-chalk-alpha80)',
   chalk80: 'var(--color-chalk80)',
-  chalk80Alpha: 'var(--color-chalk80Alpha)',
-  chalk40Alpha: 'var(--color-chalk40Alpha)',
 } as const;
 
 export type Colors = keyof typeof colors;

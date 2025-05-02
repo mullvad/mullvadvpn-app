@@ -46,14 +46,14 @@ export const NotificationSubtitle = ({ subtitle, ...props }: NotificationSubtitl
 
   if (!Array.isArray(subtitle)) {
     return (
-      <LabelTiny color="white60" {...props}>
+      <LabelTiny color="whiteAlpha60" {...props}>
         {formatHtml(subtitle)}
       </LabelTiny>
     );
   }
 
   return (
-    <LabelTiny color="white60" {...props}>
+    <LabelTiny color="whiteAlpha60" {...props}>
       {subtitle.map((subtitle, index, arr) => {
         const content = formatSubtitle(subtitle);
 
