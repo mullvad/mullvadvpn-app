@@ -75,4 +75,9 @@ impl Obfuscator for Quic {
     fn packet_overhead(&self) -> u16 {
         0 // FIXME
     }
+
+    #[cfg(target_os = "android")]
+    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
+        unimplemented!()
+    }
 }
