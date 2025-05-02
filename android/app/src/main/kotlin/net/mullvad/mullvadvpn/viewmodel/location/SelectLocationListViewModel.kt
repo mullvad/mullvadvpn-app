@@ -62,16 +62,30 @@ class SelectLocationListViewModel(
             selectedLocationUseCase(),
             _expandedItems,
         ) { relayCountries, customLists, selectedItem, expandedItems ->
-            relayListItems(
-                relayCountries = relayCountries,
-                relayListType = relayListType,
-                customLists = customLists,
-                selectedByThisEntryExitList =
-                    selectedItem.selectedByThisEntryExitList(relayListType),
-                selectedByOtherEntryExitList =
-                    selectedItem.selectedByOtherEntryExitList(relayListType, customLists),
-                expandedItems = expandedItems,
-            )
+            // If we have no locations we have an empty relay list
+            // and we should show an error
+            if (relayCountries.isEmpty()) {
+                emptyLocationsRelayListItems(
+                    relayListType = relayListType,
+                    customLists = customLists,
+                    selectedByThisEntryExitList =
+                        selectedItem.selectedByThisEntryExitList(relayListType),
+                    selectedByOtherEntryExitList =
+                        selectedItem.selectedByOtherEntryExitList(relayListType, customLists),
+                    expandedItems = expandedItems,
+                )
+            } else {
+                relayListItems(
+                    relayCountries = relayCountries,
+                    relayListType = relayListType,
+                    customLists = customLists,
+                    selectedByThisEntryExitList =
+                        selectedItem.selectedByThisEntryExitList(relayListType),
+                    selectedByOtherEntryExitList =
+                        selectedItem.selectedByOtherEntryExitList(relayListType, customLists),
+                    expandedItems = expandedItems,
+                )
+            }
         }
 
     private fun initialExpand(item: RelayItemId?): Set<String> = buildSet {
