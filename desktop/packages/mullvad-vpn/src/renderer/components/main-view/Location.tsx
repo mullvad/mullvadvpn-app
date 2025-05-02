@@ -8,7 +8,7 @@ import Marquee from '../Marquee';
 import { ConnectionPanelAccordion } from './styles';
 
 const StyledLocation = styled.span(largeText, {
-  color: colors.white100,
+  color: colors.white,
   flexShrink: 0,
 });
 

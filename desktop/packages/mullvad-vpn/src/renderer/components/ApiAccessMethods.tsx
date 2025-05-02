@@ -39,7 +39,7 @@ const StyledTestResultCircle = styled.div<{ $result: boolean }>((props) => ({
   width: '10px',
   height: '10px',
   borderRadius: '50%',
-  backgroundColor: props.$result ? colors.brandGreen : colors.brandRed,
+  backgroundColor: props.$result ? colors.green : colors.red,
   marginRight: spacings.small,
 }));
 

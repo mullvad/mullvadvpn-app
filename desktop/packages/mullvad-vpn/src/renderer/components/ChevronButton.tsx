@@ -18,7 +18,7 @@ const StyledIcon = styled(Icon)({
   alignSelf: 'stretch',
   justifyContent: 'center',
   '&&:hover': {
-    backgroundColor: colors.white100,
+    backgroundColor: colors.white,
   },
 });
 
@@ -27,7 +27,7 @@ export default function ChevronButton(props: IProps) {
 
   return (
     <Button {...otherProps}>
-      <StyledIcon color="white60" icon={up ? 'chevron-up' : 'chevron-down'} />
+      <StyledIcon color="whiteAlpha60" icon={up ? 'chevron-up' : 'chevron-down'} />
     </Button>
   );
 }

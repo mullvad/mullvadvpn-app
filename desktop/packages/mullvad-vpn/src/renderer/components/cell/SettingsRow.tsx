@@ -36,11 +36,11 @@ const StyledSettingsRow = styled.label<{ $invalid: boolean }>((props) => ({
   outlineWidth: '1px',
   borderStyle: 'solid',
   outlineStyle: 'solid',
-  borderColor: props.$invalid ? colors.brandRed : 'transparent',
-  outlineColor: props.$invalid ? colors.brandRed : 'transparent',
+  borderColor: props.$invalid ? colors.red : 'transparent',
+  outlineColor: props.$invalid ? colors.red : 'transparent',
   '&&:focus-within': {
-    borderColor: props.$invalid ? colors.brandRed : colors.white100,
-    outlineColor: props.$invalid ? colors.brandRed : colors.white100,
+    borderColor: props.$invalid ? colors.red : colors.white,
+    outlineColor: props.$invalid ? colors.red : colors.white,
   },
 }));
 
@@ -61,7 +61,7 @@ const StyledSettingsRowErrorMessage = styled.div(tinyText, {
   alignItems: 'center',
   marginLeft: measurements.horizontalViewMargin,
   marginTop: '5px',
-  color: colors.white60,
+  color: colors.whiteAlpha60,
 });
 
 const StyledErrorMessageAlertIcon = styled(Icon)({
@@ -132,7 +132,7 @@ export function SettingsRow(props: React.PropsWithChildren<IndentedRowProps>) {
 export function SettingsRowErrorMessage(props: React.PropsWithChildren) {
   return (
     <StyledSettingsRowErrorMessage>
-      <StyledErrorMessageAlertIcon icon="alert-circle" color="brandRed" size="small" />
+      <StyledErrorMessageAlertIcon icon="alert-circle" color="red" size="small" />
       {props.children}
     </StyledSettingsRowErrorMessage>
   );

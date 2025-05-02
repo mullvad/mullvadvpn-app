@@ -29,14 +29,14 @@ export default function ConnectionStatus() {
 function getConnectionSTatusLabelColor(tunnelState: TunnelState, lockdownMode: boolean) {
   switch (tunnelState.state) {
     case 'connected':
-      return colors.brandGreen;
+      return colors.green;
     case 'connecting':
     case 'disconnecting':
-      return colors.white100;
+      return colors.white;
     case 'disconnected':
-      return lockdownMode ? colors.white100 : colors.brandRed;
+      return lockdownMode ? colors.white : colors.red;
     case 'error':
-      return tunnelState.details.blockingError ? colors.brandRed : colors.white100;
+      return tunnelState.details.blockingError ? colors.red : colors.white;
   }
 }
 

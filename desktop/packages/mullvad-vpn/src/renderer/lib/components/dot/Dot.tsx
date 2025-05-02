@@ -21,10 +21,10 @@ const sizes = {
 };
 
 const dotColors = {
-  primary: colors.white80,
-  success: colors.brandGreen,
-  warning: colors.brandYellow,
-  error: colors.brandRed,
+  primary: colors.whiteAlpha80,
+  success: colors.green,
+  warning: colors.yellow,
+  error: colors.red,
 };
 
 export const Dot = ({ variant = 'primary', size = 'medium', ...props }: DotProps) => {

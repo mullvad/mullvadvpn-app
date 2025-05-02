@@ -14,7 +14,7 @@ export const ProgressPercent = <T extends React.ElementType = 'span'>({
   ...props
 }: ProgressPercentProps<T>) => {
   const { percent, disabled } = useProgress();
-  const defaultColor = disabled ? 'white40' : 'white100';
+  const defaultColor = disabled ? 'whiteAlpha40' : 'white';
   return (
     <StyledText color={color ?? defaultColor} {...props}>
       {`${Math.round(percent)}%`}

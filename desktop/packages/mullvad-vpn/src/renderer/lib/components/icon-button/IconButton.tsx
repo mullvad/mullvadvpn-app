@@ -23,7 +23,7 @@ const StyledButton = styled(ButtonBase)<{ $size: IconButtonProps['size'] }>`
       width: var(--size);
       border-radius: 100%;
       &:focus-visible {
-        outline: 2px solid ${colors.white100};
+        outline: 2px solid ${colors.white};
         outline-offset: 1px;
       }
     `;

@@ -153,10 +153,10 @@ const StyledPageIndicator = styled.div<{ $current: boolean }>((props) => ({
   width: '8px',
   height: '8px',
   borderRadius: '50%',
-  backgroundColor: props.$current ? colors.white80 : colors.white40,
+  backgroundColor: props.$current ? colors.whiteAlpha80 : colors.whiteAlpha40,
 
   [`${StyledTransparentButton}:hover &&`]: {
-    backgroundColor: colors.white80,
+    backgroundColor: colors.whiteAlpha80,
   },
 }));
 

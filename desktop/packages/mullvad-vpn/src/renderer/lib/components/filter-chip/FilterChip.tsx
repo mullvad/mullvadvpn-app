@@ -12,7 +12,7 @@ export interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonEl
 }
 
 const variables = {
-  background: colors.brandBlue,
+  background: colors.blue,
   hover: colors.blue60,
   disabled: colors.blue50,
 } as const;
@@ -34,7 +34,7 @@ const StyledButton = styled.button({
     background: 'var(--disabled)',
   },
   '&:focus-visible': {
-    outline: `2px solid ${colors.white100}`,
+    outline: `2px solid ${colors.white}`,
   },
 });
 

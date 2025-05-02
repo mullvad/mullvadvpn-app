@@ -35,7 +35,7 @@ export function AppVersionListItem() {
 
     const message = !consistentVersion ? inconsistentVersionMessage : updateAvailableMessage;
 
-    alertIcon = <Cell.CellIcon icon="alert-circle" color="brandRed" />;
+    alertIcon = <Cell.CellIcon icon="alert-circle" color="red" />;
     footer = (
       <Cell.CellFooter>
         <Cell.CellFooterText>{message}</Cell.CellFooterText>

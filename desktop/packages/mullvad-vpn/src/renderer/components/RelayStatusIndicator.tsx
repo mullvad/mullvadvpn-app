@@ -14,7 +14,7 @@ const indicatorStyles: Styles<
 };
 
 const StyledRelayStatus = styled.div<{ $active: boolean }>(indicatorStyles, (props) => ({
-  backgroundColor: props.$active ? colors.brandGreen : colors.brandRed,
+  backgroundColor: props.$active ? colors.green : colors.red,
 }));
 
 const TickIcon = styled(Cell.CellIcon)({
@@ -29,12 +29,12 @@ interface IProps {
 
 export default function RelayStatusIndicator(props: IProps) {
   return props.selected ? (
-    <TickIcon color="white100" icon="checkmark" />
+    <TickIcon color="white" icon="checkmark" />
   ) : (
     <StyledRelayStatus $active={props.active} />
   );
 }
 
 export const SpecialLocationIndicator = styled.div(indicatorStyles, {
-  backgroundColor: colors.white100,
+  backgroundColor: colors.white,
 });

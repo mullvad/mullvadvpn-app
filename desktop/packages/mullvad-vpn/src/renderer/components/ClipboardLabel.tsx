@@ -70,7 +70,7 @@ export default function ClipboardLabel(props: IProps) {
           </IconButton>
         )}
         {justCopied ? (
-          <Icon icon="checkmark" color="brandGreen"></Icon>
+          <Icon icon="checkmark" color="green"></Icon>
         ) : (
           <IconButton
             onClick={onCopy}

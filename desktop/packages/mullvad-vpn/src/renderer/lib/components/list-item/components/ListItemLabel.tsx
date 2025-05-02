@@ -7,5 +7,5 @@ export const ListItemLabel = <E extends React.ElementType = 'span'>(
   props: ListItemLabelProps<E>,
 ) => {
   const { disabled } = useListItem();
-  return <TitleMedium color={disabled ? 'white40' : 'white100'} {...props} />;
+  return <TitleMedium color={disabled ? 'whiteAlpha40' : 'white'} {...props} />;
 };

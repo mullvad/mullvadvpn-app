@@ -24,15 +24,15 @@ const StyledText = styled(Text)<{
   },
   '&&:focus-visible': {
     borderRadius: Radius.radius4,
-    outline: `2px solid ${colors.white60}`,
+    outline: `2px solid ${colors.whiteAlpha60}`,
     outlineOffset: '2px',
   },
 }));
 
 const getHoverColor = (color: Colors | undefined) => {
   switch (color) {
-    case 'white60':
-      return 'white100';
+    case 'whiteAlpha60':
+      return 'white';
     default:
       return undefined;
   }

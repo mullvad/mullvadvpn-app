@@ -23,7 +23,7 @@ export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
 
 export const StyledCellButton = styled(Cell.CellButton)<{ $lookDisabled?: boolean }>((props) => ({
   '&&:not(:disabled):hover': {
-    backgroundColor: props.$lookDisabled ? colors.brandBlue : undefined,
+    backgroundColor: props.$lookDisabled ? colors.blue : undefined,
   },
 }));
 

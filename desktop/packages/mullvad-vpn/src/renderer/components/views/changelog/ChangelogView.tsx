@@ -43,13 +43,13 @@ export const ChangelogView = () => {
                     {changelog.length ? (
                       <StyledList as="ul" $flexDirection="column" $gap="medium">
                         {changelog.map((item, i) => (
-                          <BodySmall as="li" key={i} color="white60">
+                          <BodySmall as="li" key={i} color="whiteAlpha60">
                             {item}
                           </BodySmall>
                         ))}
                       </StyledList>
                     ) : (
-                      <BodySmall color="white60">
+                      <BodySmall color="whiteAlpha60">
                         {messages.pgettext(
                           'changelog-view',
                           'No updates or changes were made in this release for this platform.',

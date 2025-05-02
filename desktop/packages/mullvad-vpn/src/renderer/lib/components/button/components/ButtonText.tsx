@@ -9,5 +9,5 @@ export const StyledButtonText = styled(BodySmallSemiBold)``;
 
 export function ButtonText<T extends React.ElementType = 'span'>(props: ButtonTextProps<T>) {
   const { disabled } = useButtonContext();
-  return <StyledButtonText color={disabled ? 'white40' : 'white100'} {...props} />;
+  return <StyledButtonText color={disabled ? 'whiteAlpha40' : 'white'} {...props} />;
 }

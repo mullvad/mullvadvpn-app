@@ -22,7 +22,7 @@ export const smallText = {
   fontSize: '14px',
   fontWeight: 600,
   lineHeight: '20px',
-  color: colors.white80,
+  color: colors.whiteAlpha80,
 };
 
 export const smallNormalText = {
@@ -45,7 +45,7 @@ export const largeText = {
 
 export const buttonText = {
   ...largeText,
-  color: colors.white100,
+  color: colors.white,
 };
 
 export const bigText = {
@@ -60,7 +60,7 @@ export const hugeText = {
   fontSize: '32px',
   fontWeight: 700,
   lineHeight: '34px',
-  color: colors.white100,
+  color: colors.white,
 };
 
 export const measurements = {

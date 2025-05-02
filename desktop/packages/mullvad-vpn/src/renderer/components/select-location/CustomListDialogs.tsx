@@ -105,7 +105,7 @@ const StyledSelectListItemLabel = styled(Cell.Label)(normalText, {
 
 const StyledSelectListItemIcon = styled(Cell.CellTintedIcon)({
   [`${Cell.CellButton}:not(:disabled):hover &&`]: {
-    backgroundColor: colors.white80,
+    backgroundColor: colors.whiteAlpha80,
   },
 });
 
@@ -137,7 +137,7 @@ function SelectList(props: SelectListProps) {
 
 const StyledInputErrorText = styled.span(tinyText, {
   marginTop: '6px',
-  color: colors.brandRed,
+  color: colors.red,
 });
 
 interface EditListProps {

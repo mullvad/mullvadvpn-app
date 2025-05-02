@@ -114,7 +114,7 @@ const StyledMenu = styled.div<StyledMenuProps>((props) => {
     right: props.$align === 'left' ? 'auto' : iconMargin,
     padding: '7px 4px',
     background: colors.blue40,
-    border: `1px solid ${colors.brandDarkBlue}`,
+    border: `1px solid ${colors.darkBlue}`,
     borderRadius: '8px',
     zIndex: 1,
   };
@@ -127,17 +127,17 @@ const StyledMenuItem = styled.button(smallText, (props) => ({
   background: 'transparent',
   border: 'none',
   textAlign: 'left',
-  color: props.disabled ? colors.white40 : colors.white100,
+  color: props.disabled ? colors.whiteAlpha40 : colors.white,
 
   '&&:hover': {
-    background: props.disabled ? 'transparent' : colors.brandBlue,
+    background: props.disabled ? 'transparent' : colors.blue,
   },
 }));
 
 const StyledSeparator = styled.hr({
   height: '1px',
   border: 'none',
-  backgroundColor: colors.brandDarkBlue,
+  backgroundColor: colors.darkBlue,
   margin: '4px 9px',
 });
 

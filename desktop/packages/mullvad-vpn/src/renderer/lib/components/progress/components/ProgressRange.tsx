@@ -6,7 +6,7 @@ import { useProgress } from '../ProgressContext';
 const StyledDiv = styled.div<{
   disabled?: boolean;
 }>`
-  background-color: ${({ disabled }) => (disabled ? colors.white80 : colors.white100)};
+  background-color: ${({ disabled }) => (disabled ? colors.whiteAlpha80 : colors.white)};
   border-radius: ${Radius.radius4};
   height: 100%;
   width: 100%;

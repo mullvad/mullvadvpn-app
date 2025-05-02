@@ -37,8 +37,8 @@ const input = {
   flex: 1,
   borderRadius: '4px',
   padding: '14px',
-  color: colors.brandBlue,
-  backgroundColor: colors.white100,
+  color: colors.blue,
+  backgroundColor: colors.white,
   border: 'none',
 };
 
@@ -60,16 +60,16 @@ export const StyledStatusIcon = styled.div({
 
 export const StyledSentMessage = styled.span(smallText, {
   overflow: 'visible',
-  color: colors.white60,
+  color: colors.whiteAlpha60,
 });
 
 export const StyledThanks = styled.span({
-  color: colors.brandGreen,
+  color: colors.green,
 });
 
 export const StyledEmail = styled.span({
   fontWeight: 900,
-  color: colors.white100,
+  color: colors.white,
 });
 
 export const StyledSendStatus = styled.span(hugeText, {

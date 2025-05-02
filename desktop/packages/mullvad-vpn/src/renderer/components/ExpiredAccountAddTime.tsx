@@ -36,7 +36,7 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
 export const StyledContainer = styled(Container)({
   paddingTop: '22px',
   minHeight: '100%',
-  backgroundColor: colors.brandDarkBlue,
+  backgroundColor: colors.darkBlue,
 });
 
 export const StyledBody = styled.div({
@@ -54,7 +54,7 @@ export const StyledTitle = styled.span(hugeText, {
 
 export const StyledLabel = styled.span(tinyText, {
   lineHeight: '20px',
-  color: colors.white100,
+  color: colors.white,
   marginBottom: '9px',
 });
 
