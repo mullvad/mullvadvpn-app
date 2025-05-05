@@ -261,31 +261,11 @@ pub struct ObfuscationEndpoint {
 
 impl From<&ObfuscatorConfig> for ObfuscationEndpoint {
     fn from(config: &ObfuscatorConfig) -> ObfuscationEndpoint {
-        let (endpoint, obfuscation_type) = match config {
-            ObfuscatorConfig::Udp2Tcp { endpoint } => (
-                Endpoint {
-                    address: *endpoint,
-                    protocol: TransportProtocol::Tcp,
-                },
-                ObfuscationType::Udp2Tcp,
-            ),
-            ObfuscatorConfig::Shadowsocks { endpoint } => (
-                Endpoint {
-                    address: *endpoint,
-                    protocol: TransportProtocol::Udp,
-                },
-                ObfuscationType::Shadowsocks,
-            ),
-            ObfuscatorConfig::Quic {
-                hostname: _,
-                endpoint,
-            } => (
-                Endpoint {
-                    address: *endpoint,
-                    protocol: TransportProtocol::Udp,
-                },
-                ObfuscationType::Quic,
-            ),
+        let endpoint = config.get_obfuscator_endpoint();
+        let obfuscation_type = match config {
+            ObfuscatorConfig::Udp2Tcp { .. } => ObfuscationType::Udp2Tcp,
+            ObfuscatorConfig::Shadowsocks { .. } => ObfuscationType::Shadowsocks,
+            ObfuscatorConfig::Quic { .. } => ObfuscationType::Quic,
         };
 
         ObfuscationEndpoint {
