@@ -39,6 +39,7 @@ import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
+import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -90,6 +91,9 @@ class ConnectViewModelTest {
     // Last known location
     private val mockLastKnownLocationUseCase: LastKnownLocationUseCase = mockk()
 
+    // System VPN Settings
+    private val mockSystemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase = mockk()
+
     @BeforeEach
     fun setup() {
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
@@ -125,6 +129,7 @@ class ConnectViewModelTest {
                 selectedLocationTitleUseCase = mockSelectedLocationTitleUseCase,
                 connectionProxy = mockConnectionProxy,
                 lastKnownLocationUseCase = mockLastKnownLocationUseCase,
+                systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
                 resources = mockk(),
                 isPlayBuild = false,
                 isFdroidBuild = false,
