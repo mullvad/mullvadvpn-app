@@ -65,7 +65,7 @@ const viteConfig = defineConfig({
           // had not been enabled again. However, after the default --no-sandbox
           // was omitted we can open the devtools regardless of whether the
           // sandbox is enabled or not.
-          await startup(['.']);
+          await startup(['.', ...process.argv.slice(3)]);
         },
         vite: {
           // We define process.env.NODE_ENV here in order for vite to statically
