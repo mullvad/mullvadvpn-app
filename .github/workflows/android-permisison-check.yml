@@ -1,0 +1,56 @@
+---
+name: Android - Check permissions
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - 'prepare-android/**'
+  push:
+    branches:
+      - 'prepare-android/**'
+    tags:
+      - 'android/**'
+
+permissions: {}
+
+jobs:
+  build-and-check-permisisons:
+    name: Build APK and check permissions
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          # - task: createOssProdReleaseDistApk
+          #   artifact-path: app-oss-prod-release.apk
+          #   snapshot: oss-permissions.txt
+          - task: createOssProdFdroidDistApk
+            artifact-path: android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
+            snapshot: oss-permissions.txt
+          # - task: createPlayProdReleaseDistApk
+          #   artifact-path: app-play-prod-release.apk
+          #   snapshot: play-permissions.txt
+    steps:
+      - name: Install apktool
+        run: |
+          sudo apt-get -y update && sudo apt-get -y install apktool
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
+
+      - name: Fetch submodules and tags
+        run: |
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+          git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
+
+      - name: Build app
+        run: ./building/containerized-build.sh android android/gradlew -p android ${{ matrix.task }}
+
+      - name: Extract resources
+        run: apktool d ${{ matrix.artifact-path }} -s -o output
+
+      - name: Compare permissions with snapshot
+        run: |
+          diff android/snapshot/${{ matrix.snapshot }} <(cat output/AndroidManifest.xml | grep uses-permission)
