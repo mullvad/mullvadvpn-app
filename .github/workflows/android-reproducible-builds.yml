@@ -13,6 +13,14 @@ on:
       commit_hash:
         type: string
         required: false
+  pull_request:
+    branches:
+      - 'prepare-android/**'
+  push:
+    branches:
+      - 'prepare-android/**'
+    tags:
+      - 'android/**'
 
 permissions: {}
 
