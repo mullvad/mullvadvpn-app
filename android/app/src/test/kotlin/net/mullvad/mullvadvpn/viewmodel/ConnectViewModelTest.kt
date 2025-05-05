@@ -39,6 +39,7 @@ import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
+import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -90,6 +91,9 @@ class ConnectViewModelTest {
     // Last known location
     private val mockLastKnownLocationUseCase: LastKnownLocationUseCase = mockk()
 
+    // System VPN Settings
+    private val mockSystemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase = mockk()
+
     @BeforeEach
     fun setup() {
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
@@ -125,6 +129,7 @@ class ConnectViewModelTest {
                 selectedLocationTitleUseCase = mockSelectedLocationTitleUseCase,
                 connectionProxy = mockConnectionProxy,
                 lastKnownLocationUseCase = mockLastKnownLocationUseCase,
+                systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
                 resources = mockk(),
                 isPlayBuild = false,
                 isFdroidBuild = false,
@@ -333,5 +338,35 @@ class ConnectViewModelTest {
                 val result = awaitItem()
                 assertEquals(lastKnownLocation, result.location)
             }
+        }
+
+    @Test
+    fun `given no vpn system setting available should return the correct permission denied`() =
+        runTest {
+            // Arrange
+            val expectedSideEffect =
+                ConnectViewModel.UiSideEffect.ConnectError.PermissionDenied(false)
+            every { mockSystemVpnSettingsUseCase.invoke() } returns false
+
+            // Act
+            viewModel.createVpnProfileResult(hasVpnPermission = false)
+
+            // Assert
+            viewModel.uiSideEffect.test { assertEquals(expectedSideEffect, awaitItem()) }
+        }
+
+    @Test
+    fun `given vpn system setting available should return the correct permission denied`() =
+        runTest {
+            // Arrange
+            val expectedSideEffect =
+                ConnectViewModel.UiSideEffect.ConnectError.PermissionDenied(true)
+            every { mockSystemVpnSettingsUseCase.invoke() } returns true
+
+            // Act
+            viewModel.createVpnProfileResult(hasVpnPermission = false)
+
+            // Assert
+            viewModel.uiSideEffect.test { assertEquals(expectedSideEffect, awaitItem()) }
         }
 }
