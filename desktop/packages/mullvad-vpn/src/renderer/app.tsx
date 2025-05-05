@@ -195,6 +195,17 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.upgradeVersion.listen((upgradeVersion: IAppVersionInfo) => {
+      const reduxStore = this.reduxStore.getState();
+
+      const currentSuggestedUpgradeVersion = reduxStore.version.suggestedUpgrade?.version;
+      const newSuggestedUpgradeVersion = upgradeVersion.suggestedUpgrade?.version;
+      if (
+        currentSuggestedUpgradeVersion &&
+        currentSuggestedUpgradeVersion !== newSuggestedUpgradeVersion
+      ) {
+        this.reduxActions.appUpgrade.resetAppUpgrade();
+      }
+
       this.setUpgradeVersion(upgradeVersion);
 
       // Check if the installer should be started automatically
