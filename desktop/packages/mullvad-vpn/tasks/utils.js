@@ -43,11 +43,7 @@ async function runCommand(command) {
   return new Promise((resolve, reject) => {
     childProcess.exec(command, (error, stdout, stderr) => {
       if (error) {
-        return reject(error);
-      }
-
-      if (stderr) {
-        console.error(stderr);
+        return reject([error, stdout, stderr]);
       }
 
       return resolve([stdout, stderr]);
