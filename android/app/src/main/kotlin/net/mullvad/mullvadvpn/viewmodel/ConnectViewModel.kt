@@ -95,22 +95,13 @@ class ConnectViewModel(
                                 }
                             is TunnelState.Error -> lastKnownDisconnectedLocation
                         },
-                    selectedRelayItemTitle = selectedRelayItemTitle,
-                    tunnelState = tunnelState,
-                    showLocation =
-                        when (tunnelState) {
-                            is TunnelState.Disconnected -> tunnelState.location != null
-                            is TunnelState.Disconnecting -> {
-                                when (tunnelState.actionAfterDisconnect) {
-                                    ActionAfterDisconnect.Nothing -> false
-                                    ActionAfterDisconnect.Block -> true
-                                    ActionAfterDisconnect.Reconnect -> false
-                                }
-                            }
-                            is TunnelState.Connecting -> false
-                            is TunnelState.Connected -> false
-                            is TunnelState.Error -> true
+                    selectedRelayItemTitle =
+                        if (tunnelState is TunnelState.Disconnected) {
+                            selectedRelayItemTitle
+                        } else {
+                            null
                         },
+                    tunnelState = tunnelState,
                     inAppNotification = notifications.firstOrNull(),
                     deviceName = deviceName,
                     daysLeftUntilExpiry = accountData?.expiryDate?.daysFromNow(),
