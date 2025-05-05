@@ -99,12 +99,7 @@ fn settings_from_config(
         ObfuscatorConfig::Quic { hostname, endpoint } => {
             ObfuscationSettings::Quic(quic::Settings {
                 quic_endpoint: *endpoint,
-                // TODO: IPv6
-                wireguard_endpoint: if endpoint.is_ipv4() {
-                    SocketAddr::from((Ipv4Addr::LOCALHOST, 51820))
-                } else {
-                    SocketAddr::from((Ipv6Addr::LOCALHOST, 51820))
-                },
+                wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
                 hostname: hostname.to_owned(),
                 #[cfg(target_os = "linux")]
                 fwmark,
