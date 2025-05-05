@@ -32,6 +32,7 @@ async function copyAssetsToBuildDirectory() {
 
 async function build() {
   await removeRecursively(BUILD_DIR);
+  await runCommand('npm run type-check');
   await runCommand('npm run build:vite');
   await copyAssetsToBuildDirectory();
 }
