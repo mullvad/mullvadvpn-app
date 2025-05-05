@@ -26,7 +26,7 @@ jobs:
           #   snapshot: oss-permissions.txt
           - task: createOssProdFdroidDistApk
             artifact-path: android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
-            snapshot: oss-permissions.txt
+            snapshot-path: android/snapshot/oss-permissions.txt
           # - task: createPlayProdReleaseDistApk
           #   artifact-path: app-play-prod-release.apk
           #   snapshot: play-permissions.txt
@@ -53,4 +53,4 @@ jobs:
 
       - name: Compare permissions with snapshot
         run: |
-          diff android/snapshot/${{ matrix.snapshot }} <(cat output/AndroidManifest.xml | grep uses-permission)
+          diff ${{ matrix.snapshot-path }} <(cat output/AndroidManifest.xml | grep uses-permission)
