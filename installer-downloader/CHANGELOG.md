@@ -20,6 +20,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+#### Windows
+- Add window icon.
+
 ### Changed
 - Changed title to "Mullvad VPN loader".
 

@@ -48,6 +48,9 @@ pub const BETA_LINK_HANDLER_ID: usize = 0x10002;
 pub struct AppWindow {
     pub window: nwg::Window,
 
+    pub window_icon_res: nwg::EmbedResource,
+    pub window_icon: Option<nwg::Icon>,
+
     pub banner: nwg::ImageFrame,
 
     pub banner_text: nwg::Label,
@@ -142,10 +145,17 @@ impl AppWindow {
     /// Set up UI elements, position them, and register window message handlers
     /// Note that some additional setup happens in [Self::on_init]
     pub fn layout(mut self) -> Result<Rc<RefCell<AppWindow>>, nwg::NwgError> {
+        nwg::EmbedResource::builder().build(&mut self.window_icon_res)?;
+
+        // Load icon embedded using the build script. This has a default id of 1.
+        // See `winres::WindowsResource::set_icon`.
+        self.window_icon = self.window_icon_res.icon(1, None);
+
         nwg::Window::builder()
             .size((WINDOW_WIDTH as i32, WINDOW_HEIGHT as i32))
             .center(true)
             .title(WINDOW_TITLE)
+            .icon(self.window_icon.as_ref())
             .flags(WindowFlags::WINDOW)
             .build(&mut self.window)?;
 
