@@ -12,6 +12,9 @@ use crate::Obfuscator;
 
 type Result<T> = std::result::Result<T, Error>;
 
+/// Authentication header to set for the CONNECT request
+const AUTH_HEADER: &str = "Bearer test";
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to bind UDP socket")]
@@ -48,7 +51,8 @@ impl Quic {
             .local_addr((Ipv4Addr::UNSPECIFIED, 0).into())
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
-            .target_addr(settings.wireguard_endpoint);
+            .target_addr(settings.wireguard_endpoint)
+            .auth_header(Some(AUTH_HEADER.to_owned()));
 
         let task = tokio::spawn(async move {
             let client = Client::connect(config_builder.build())

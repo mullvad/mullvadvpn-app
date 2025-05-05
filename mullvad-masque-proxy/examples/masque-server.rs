@@ -1,4 +1,5 @@
 use clap::Parser;
+use mullvad_masque_proxy::server::{AllowedIps, ServerParams};
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
 
 use std::{
@@ -36,6 +37,10 @@ pub struct ServerArgs {
     /// Maximum packet size
     #[arg(long, short = 'm', default_value = "1700")]
     mtu: u16,
+
+    /// Authorization header value to set
+    #[arg(long, default_value = "Bearer test")]
+    auth: Option<String>,
 }
 
 #[tokio::main]
@@ -50,14 +55,16 @@ async fn main() {
 
     let tls_config = load_server_config(&args.key_path, &args.cert_path).unwrap();
 
-    let server = mullvad_masque_proxy::server::Server::bind(
-        args.bind_addr,
-        args.allowed_ips.iter().cloned().collect(),
-        args.hostname,
-        tls_config.into(),
-        args.mtu,
-    )
-    .expect("Failed to initialize server");
+    let params = ServerParams::builder()
+        .allowed_hosts(AllowedIps::from(args.allowed_ips))
+        .hostname(args.hostname)
+        .mtu(args.mtu)
+        .auth_header(args.auth)
+        .build();
+
+    let server =
+        mullvad_masque_proxy::server::Server::bind(args.bind_addr, tls_config.into(), params)
+            .expect("Failed to initialize server");
     log::info!("Listening on {}", args.bind_addr);
     server.run().await.expect("Server failed.")
 }
