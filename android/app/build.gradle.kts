@@ -394,7 +394,13 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.coresplashscreen)
-    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials) {
+        // This dependency adds a lot of unused permissions to the app.
+        // It is not used so let's exclude it.
+        // Unfortunately, this is not possible to do using libs.version.toml
+        // https://github.com/gradle/gradle/issues/26367#issuecomment-2120830998
+        exclude("androidx.biometric", "biometric")
+    }
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewmodel)
