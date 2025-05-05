@@ -6,10 +6,10 @@ on:
     branches:
       - 'prepare-android/**'
   push:
-    branches:
-      - 'prepare-android/**'
-    tags:
-      - 'android/**'
+    # branches:
+    #   - 'prepare-android/**'
+    # tags:
+    #   - 'android/**'
 
 permissions: {}
 
