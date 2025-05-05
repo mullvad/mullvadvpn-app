@@ -13,7 +13,11 @@ export const useGetValueError = () => {
       return getValueDownloadProgress();
     }
 
-    if (error === 'START_INSTALLER_FAILED' || error === 'VERIFICATION_FAILED') {
+    if (
+      error === 'INSTALLER_FAILED' ||
+      error === 'START_INSTALLER_FAILED' ||
+      error === 'VERIFICATION_FAILED'
+    ) {
       return DOWNLOAD_COMPLETE_VALUE;
     }
 
