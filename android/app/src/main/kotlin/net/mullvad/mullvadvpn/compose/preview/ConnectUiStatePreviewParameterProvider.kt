@@ -45,7 +45,6 @@ private fun generateOtherStates(): Sequence<ConnectUiState> =
                     ),
                 selectedRelayItemTitle = "Relay Title",
                 tunnelState = state,
-                showLocation = true,
                 inAppNotification =
                     if (index == 0) InAppNotification.NewDevice("Test Device") else null,
                 deviceName = "Cool Beans",

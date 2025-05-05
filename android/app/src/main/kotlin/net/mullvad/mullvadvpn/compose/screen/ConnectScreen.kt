@@ -687,7 +687,7 @@ private fun ButtonPanel(
     Column(modifier = Modifier.padding(vertical = Dimens.tinyPadding)) {
         SwitchLocationButton(
             text =
-                if (state.showLocation && state.selectedRelayItemTitle != null) {
+                if (state.selectedRelayItemTitle != null) {
                     state.selectedRelayItemTitle
                 } else {
                     stringResource(id = R.string.switch_location)
