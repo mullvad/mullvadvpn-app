@@ -2896,7 +2896,13 @@ msgstr ""
 msgid "Use method"
 msgstr ""
 
+msgid "VPN Settings not available on device"
+msgstr ""
+
 msgid "VPN permission error"
+msgstr ""
+
+msgid "VPN permission was denied"
 msgstr ""
 
 msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
