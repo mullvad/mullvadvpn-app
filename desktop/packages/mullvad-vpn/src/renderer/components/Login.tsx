@@ -46,8 +46,9 @@ export default function LoginContainer() {
   const { accountNumber, accountHistory, status } = useSelector((state) => state.account);
 
   const tunnelState = useSelector((state) => state.connection.status);
-  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
-  const showBlockMessage = tunnelState.state === 'error' || blockWhenDisconnected;
+  const showBlockMessage =
+    tunnelState.state === 'error' ||
+    (tunnelState.state === 'disconnected' && tunnelState.lockedDown);
 
   const isPerformingPostUpgrade = useSelector(
     (state) => state.userInterface.isPerformingPostUpgrade,
@@ -475,7 +476,7 @@ function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdo
 function BlockMessage() {
   const { setBlockWhenDisconnected, disconnectTunnel } = useAppContext();
   const tunnelState = useSelector((state) => state.connection.status);
-  const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
+  const blockWhenDisconnected = tunnelState.state === 'disconnected' && tunnelState.lockedDown;
 
   const unlock = useCallback(() => {
     if (blockWhenDisconnected) {

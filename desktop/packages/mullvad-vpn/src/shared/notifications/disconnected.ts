@@ -9,14 +9,13 @@ import {
 
 interface DisconnectedNotificationContext {
   tunnelState: TunnelState;
-  blockWhenDisconnected: boolean;
 }
 
 export class DisconnectedNotificationProvider implements SystemNotificationProvider {
   public constructor(private context: DisconnectedNotificationContext) {}
 
   public mayDisplay = () =>
-    this.context.tunnelState.state === 'disconnected' && !this.context.blockWhenDisconnected;
+    this.context.tunnelState.state === 'disconnected' && !this.context.tunnelState.lockedDown;
 
   public getSystemNotification(): SystemNotification | undefined {
     return {

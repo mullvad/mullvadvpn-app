@@ -16,7 +16,7 @@ export interface IConnectionReduxState {
 }
 
 const initialState: IConnectionReduxState = {
-  status: { state: 'disconnected' },
+  status: { state: 'disconnected', lockedDown: true },
   isBlocked: false,
   ipv4: undefined,
   ipv6: undefined,
@@ -74,7 +74,7 @@ export default function (
     case 'DISCONNECTED':
       return {
         ...state,
-        status: { state: 'disconnected' },
+        status: { state: 'disconnected', lockedDown: action.lockedDown },
       };
 
     case 'DISCONNECTING':
