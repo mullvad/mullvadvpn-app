@@ -135,7 +135,7 @@ impl DevicesProxy {
         &self,
         account: AccountNumber,
         id: DeviceId,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -151,7 +151,7 @@ impl DevicesProxy {
     pub fn list_response(
         &self,
         account: AccountNumber,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -169,7 +169,7 @@ impl DevicesProxy {
         account: AccountNumber,
         id: DeviceId,
         pubkey: wireguard::PublicKey,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
         #[derive(serde::Serialize)]
         struct RotateDevicePubkey {
             pubkey: wireguard::PublicKey,
@@ -195,7 +195,7 @@ impl DevicesProxy {
         &self,
         account: AccountNumber,
         pubkey: wireguard::PublicKey,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
         #[derive(serde::Serialize)]
         struct DeviceSubmission {
             pubkey: wireguard::PublicKey,

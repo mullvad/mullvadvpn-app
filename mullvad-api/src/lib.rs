@@ -603,7 +603,7 @@ impl AccountsProxy {
     pub fn init_play_purchase(
         &mut self,
         account: AccountNumber,
-    ) -> impl Future<Output = Result<PlayPurchasePaymentToken, rest::Error>> {
+    ) -> impl Future<Output = Result<PlayPurchasePaymentToken, rest::Error>> + use<> {
         #[derive(serde::Deserialize)]
         struct PlayPurchaseInitResponse {
             obfuscated_id: String,
@@ -630,7 +630,7 @@ impl AccountsProxy {
         &mut self,
         account: AccountNumber,
         play_purchase: PlayPurchase,
-    ) -> impl Future<Output = Result<(), rest::Error>> {
+    ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
