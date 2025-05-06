@@ -688,7 +688,7 @@ msgstr ""
 
 #. Label displayed when an error occurred due to the connection being blocked
 msgctxt "app-upgrade-view"
-msgid "Connection blocked. Try changing server or other settings"
+msgid "Connection blocked. Try changing server or other settings."
 msgstr ""
 
 #. Label displayed when an error occurred due to the installer failing to start
