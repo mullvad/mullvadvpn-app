@@ -1,4 +1,4 @@
-import { useState, useCallback, useLayoutEffect, RefCallback } from 'react';
+import { RefCallback, useCallback, useLayoutEffect, useState } from 'react';
 
 export interface MeasureSize {
   width: number;
