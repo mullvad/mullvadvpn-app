@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { deprecatedColors } from '../../../../src/renderer/lib/foundations';
+import { colorTokens } from '../../../../src/renderer/lib/foundations';
 import { RoutePath } from '../../../../src/renderer/lib/routes';
 import { TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
@@ -99,19 +99,16 @@ test('App should add new custom bridge', async () => {
 
 test('App should select custom bridge', async () => {
   const customBridgeButton = page.locator('button:has-text("Custom bridge")');
-  await expect(customBridgeButton).toHaveCSS('background-color', deprecatedColors['--color-green']);
+  await expect(customBridgeButton).toHaveCSS('background-color', colorTokens.green);
 
   const automaticButton = page.getByText('Automatic');
   await automaticButton.click();
   await page.getByText(/^Entry$/).click();
-  await expect(customBridgeButton).not.toHaveCSS(
-    'background-color',
-    deprecatedColors['--color-green'],
-  );
+  await expect(customBridgeButton).not.toHaveCSS('background-color', colorTokens.green);
 
   await customBridgeButton.click();
   await page.getByText(/^Entry$/).click();
-  await expect(customBridgeButton).toHaveCSS('background-color', deprecatedColors['--color-green']);
+  await expect(customBridgeButton).toHaveCSS('background-color', colorTokens.green);
 });
 
 test('App should edit custom bridge', async () => {
@@ -138,7 +135,7 @@ test('App should edit custom bridge', async () => {
 
   const customBridgeButton = page.locator('button:has-text("Custom bridge")');
   await expect(customBridgeButton).toBeEnabled();
-  await expect(customBridgeButton).toHaveCSS('background-color', deprecatedColors['--color-green']);
+  await expect(customBridgeButton).toHaveCSS('background-color', colorTokens.green);
 });
 
 test('App should delete custom bridge', async () => {
@@ -158,8 +155,5 @@ test('App should delete custom bridge', async () => {
 
   const customBridgeButton = page.locator('button:has-text("Custom bridge")');
   await expect(customBridgeButton).toBeDisabled();
-  await expect(customBridgeButton).not.toHaveCSS(
-    'background-color',
-    deprecatedColors['--color-green'],
-  );
+  await expect(customBridgeButton).not.toHaveCSS('background-color', colorTokens.green);
 });
