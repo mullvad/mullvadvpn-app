@@ -7,8 +7,6 @@ use crate::dns::DnsConfig;
 #[cfg(not(target_os = "android"))]
 use crate::firewall::FirewallPolicy;
 use futures::StreamExt;
-#[cfg(target_os = "macos")]
-use std::net::Ipv4Addr;
 use talpid_types::{
     tunnel::{ErrorStateCause, FirewallPolicyError},
     ErrorExt,
@@ -38,8 +36,8 @@ impl ErrorState {
         if !block_reason.prevents_filtering_resolver() {
             // Set system DNS to our local DNS resolver
             let system_dns = DnsConfig::default().resolve(
-                &[Ipv4Addr::LOCALHOST.into()],
-                shared_values.filtering_resolver.listening_port(),
+                &[shared_values.filtering_resolver.listening_addr().ip()],
+                shared_values.filtering_resolver.listening_addr().port(),
             );
             if let Err(err) = shared_values.dns_monitor.set("lo", system_dns) {
                 log::error!(
@@ -81,7 +79,7 @@ impl ErrorState {
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: Some(shared_values.allowed_endpoint.clone()),
             #[cfg(target_os = "macos")]
-            dns_redirect_port: shared_values.filtering_resolver.listening_port(),
+            dns_redirect_port: shared_values.filtering_resolver.listening_addr().port(),
         };
 
         #[cfg(target_os = "linux")]
