@@ -7,11 +7,7 @@
 //!
 //! See [start_resolver].
 use std::{
-    io,
-    net::{IpAddr, Ipv4Addr, SocketAddr},
-    str::FromStr,
-    sync::{Arc, Weak},
-    time::{Duration, Instant},
+  io, net::{IpAddr, Ipv4Addr, SocketAddr}, str::FromStr, sync::{Arc, Weak}, time::{Duration, Instant}
 };
 
 use futures::{
@@ -41,7 +37,9 @@ use hickory_server::{
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
     ServerFuture,
 };
+use tokio::process::Command;
 use std::sync::LazyLock;
+use rand::random;
 
 /// If a local DNS resolver should be used at all times.
 ///
@@ -261,17 +259,18 @@ impl Resolver {
 #[derive(Clone)]
 pub struct ResolverHandle {
     tx: Arc<mpsc::UnboundedSender<ResolverMessage>>,
-    listening_port: u16,
+    // listening_port: u16,
+    listening_addr: SocketAddr,
 }
 
 impl ResolverHandle {
-    fn new(tx: Arc<mpsc::UnboundedSender<ResolverMessage>>, listening_port: u16) -> Self {
-        Self { tx, listening_port }
+    fn new(tx: Arc<mpsc::UnboundedSender<ResolverMessage>>, listening_addr: SocketAddr) -> Self {
+        Self { tx, listening_addr }
     }
 
-    /// Get listening port for resolver handle
-    pub fn listening_port(&self) -> u16 {
-        self.listening_port
+    /// Get listening socket address for resolver handle
+    pub fn listening_addr(&self) -> SocketAddr {
+        self.listening_addr
     }
 
     /// Set the DNS server to forward queries to `dns_servers`
@@ -299,17 +298,24 @@ impl ResolverHandle {
 
 impl LocalResolver {
     /// Constructs a new filtering resolver and it's handle.
-    async fn new(local_dns_resolver_addr: impl Into<SocketAddr>) -> Result<(Self, ResolverHandle), Error> {
+    async fn new() -> Result<(Self, ResolverHandle), Error> {
         let (tx, rx) = mpsc::unbounded();
         let command_tx = Arc::new(tx);
 
         let weak_tx = Arc::downgrade(&command_tx);
+
+
+        let random_loopback_addr = Ipv4Addr::new(127, random::<u8>().max(1), random(), random());
+        // Allow ourselves to bind to this "random" loopback address.
+        // TODO: do the inverse: ifconfig lo0 alias xyz down (?)
+        Command::new("ifconfig").args(["lo0", "alias", &format!("{random_loopback_addr}"), "up"]).output().await.unwrap();
+        log::debug!("Local DNS resolver shall bind to {random_loopback_addr}");
+
         // TODO: Try to bind to port 53. If that doesn't work, fallback on binding to a random
         // port.
-        //let port = 53;
-        let local_dns_resolver_addr = (std::net::Ipv4Addr::LOCALHOST, 53);
+        let local_dns_resolver_addr = (random_loopback_addr, 53);
 
-        let (mut server, port) = Self::new_server(local_dns_resolver_addr, weak_tx.clone()).await.unwrap();
+        let (mut server, _port) = Self::new_server(local_dns_resolver_addr, weak_tx.clone()).await.unwrap();
 
         let (server_done_tx, server_done_rx) = oneshot::channel();
         let server_handle = tokio::spawn(async move {
@@ -342,7 +348,7 @@ impl LocalResolver {
             inner_resolver: Resolver::from(Config::Blocking),
         };
 
-        Ok((resolver, ResolverHandle::new(command_tx, port)))
+        Ok((resolver, ResolverHandle::new(command_tx,  local_dns_resolver_addr.into())))
     }
 
     async fn new_server(
