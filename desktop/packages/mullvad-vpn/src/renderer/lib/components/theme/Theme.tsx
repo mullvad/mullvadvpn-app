@@ -3,7 +3,6 @@ import { createGlobalStyle } from 'styled-components';
 
 import {
   colorPrimitives,
-  deprecatedColors,
   fontFamilies,
   fontSizes,
   fontWeights,
@@ -17,7 +16,6 @@ type VariablesProps = React.PropsWithChildren<object>;
 const VariablesGlobalStyle = createGlobalStyle`
   :root {
     ${Object.entries({
-      ...deprecatedColors,
       ...spacingPrimitives,
       ...colorPrimitives,
       ...radius,
