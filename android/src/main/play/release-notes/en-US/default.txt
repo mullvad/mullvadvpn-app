@@ -1,2 +1,4 @@
 - Made feature indicators clickable, allowing for easy access to active features.
 - Added device management that allows for revoking of other devices within the app.
+- Removed permissions that were added by mistake.
+- Fixed crash on TV devices when trying to access system vpn settings.
