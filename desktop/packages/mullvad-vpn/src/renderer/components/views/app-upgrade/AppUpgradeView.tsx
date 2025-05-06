@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 
-import { Animate } from '../../../lib/components/animate';
 import { useHistory } from '../../../lib/history';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout } from '../../Layout';
@@ -22,9 +21,7 @@ export const AppUpgradeView = () => {
       <Layout>
         <UpgradeDetails />
         <StyledFooter>
-          <Animate animations={[{ type: 'wipe', direction: 'vertical' }]} present>
-            <Footer />
-          </Animate>
+          <Footer />
         </StyledFooter>
       </Layout>
     </BackAction>
