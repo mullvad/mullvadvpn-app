@@ -949,17 +949,16 @@ mod test {
         // Check that the state is now downloading
         assert!(matches!(version_router.state, State::Downloading { .. }),);
 
+        // Advance the download to the point where we have started downloading
         tokio::time::sleep(DOWNLOAD_DURATION / 2).await;
-        version_router.on_new_version(upgrade_version);
-
         assert_eq!(
             app_upgrade_listener.try_recv().unwrap(),
             AppUpgradeEvent::DownloadStarting
         );
         assert_eq!(app_upgrade_listener.try_recv(), Err(TryRecvError::Empty));
 
+        // Now, send a new version while the download is in progress
         version_router.on_new_version(upgrade_version_newer);
-
         assert_eq!(
             app_upgrade_listener.try_recv().unwrap(),
             AppUpgradeEvent::Aborted
