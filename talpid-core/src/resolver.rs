@@ -48,6 +48,7 @@ use std::sync::LazyLock;
 /// This setting does not affect the error or blocked state. In those states, we will want to use
 /// the local DNS resoler to work around Apple's captive portals check. Exactly how this is done is
 /// documented elsewhere.
+#[allow(unused)]
 pub static LOCAL_DNS_RESOLVER: LazyLock<bool> = LazyLock::new(|| {
     use talpid_platform_metadata::MacosVersion;
     let version = MacosVersion::new().expect("Could not detect macOS version");
@@ -70,7 +71,8 @@ pub static LOCAL_DNS_RESOLVER: LazyLock<bool> = LazyLock::new(|| {
     // Also, most programs don't set the `skip filtering` pf flag on loopback, but some notable
     // ones do for some reason. Orbstack is one such example, which meant that people running
     // containers would run into the aforementioned issue.
-    let use_local_dns_resolver = v("14.6") <= version && version < v("15.1");
+    // HACK: Always use the local resolver.
+    let use_local_dns_resolver = true;
     if use_local_dns_resolver {
         log::debug!("Using local DNS resolver");
     }
