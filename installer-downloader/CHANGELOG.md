@@ -20,12 +20,16 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [0.3.0] - 2025-05-06
 ### Added
 #### Windows
 - Add window icon.
 
 ### Changed
 - Changed title to "Mullvad VPN loader".
+
 
 ## [0.2.0] - 2025-04-08
 - Initial support for downloading and installing the latest version of the Mullvad VPN app on
