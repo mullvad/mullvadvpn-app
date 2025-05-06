@@ -54,7 +54,7 @@ pub enum Error {
 
 /// Throw a Java exception and return if `result` is an error
 macro_rules! ok_or_throw {
-    ($env:expr, $result:expr) => {{
+    ($env:expr_2021, $result:expr_2021) => {{
         match $result {
             Ok(val) => val,
             Err(err) => {

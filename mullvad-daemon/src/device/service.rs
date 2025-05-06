@@ -52,8 +52,14 @@ impl DeviceService {
         let api_handle = self.api_availability.clone();
         let number_copy = account_number.clone();
         async move {
+            let factory = move || {
+                let number = number_copy.clone();
+                let pubkey = pubkey.clone();
+
+                proxy.create(number, pubkey)
+            };
             let (device, addresses) = retry_future(
-                move || proxy.create(number_copy.clone(), pubkey.clone()),
+                factory,
                 move |result| should_retry(result, &api_handle),
                 RETRY_ACTION_STRATEGY,
             )
@@ -84,13 +90,17 @@ impl DeviceService {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         let number_copy = account_number.clone();
-        let (device, addresses) = retry_future(
-            move || api_handle.when_online(proxy.create(number_copy.clone(), pubkey.clone())),
-            should_retry_backoff,
-            RETRY_BACKOFF_STRATEGY,
-        )
-        .await
-        .map_err(map_rest_error)?;
+        let factory = move || {
+            let number = number_copy.clone();
+            let pubkey = pubkey.clone();
+            let task = proxy.create(number, pubkey);
+
+            api_handle.when_online(task)
+        };
+        let (device, addresses) =
+            retry_future(factory, should_retry_backoff, RETRY_BACKOFF_STRATEGY)
+                .await
+                .map_err(map_rest_error)?;
 
         Ok(PrivateAccountAndDevice {
             account_number,
@@ -163,8 +173,15 @@ impl DeviceService {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         let pubkey = private_key.public_key();
+        let factory = move || {
+            let number = number.clone();
+            let device = device.clone();
+            let pubkey = pubkey.clone();
+
+            proxy.replace_wg_key(number, device, pubkey)
+        };
         let addresses = retry_future(
-            move || proxy.replace_wg_key(number.clone(), device.clone(), pubkey.clone()),
+            factory,
             move |result| should_retry(result, &api_handle),
             RETRY_ACTION_STRATEGY,
         )
@@ -193,11 +210,8 @@ impl DeviceService {
 
         let addresses = retry_future(
             move || {
-                api_handle.when_bg_resumes(proxy.replace_wg_key(
-                    number.clone(),
-                    device.clone(),
-                    pubkey.clone(),
-                ))
+                let task = proxy.replace_wg_key(number.clone(), device.clone(), pubkey.clone());
+                api_handle.when_bg_resumes(task)
             },
             should_retry_backoff,
             rotate_retry_strategy,
@@ -215,8 +229,12 @@ impl DeviceService {
     pub async fn list_devices(&self, number: AccountNumber) -> Result<Vec<Device>, Error> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
+        let factory = move || {
+            let number = number.clone();
+            proxy.list(number)
+        };
         retry_future(
-            move || proxy.list(number.clone()),
+            factory,
             move |result| should_retry(result, &api_handle),
             RETRY_ACTION_STRATEGY,
         )
@@ -231,20 +249,30 @@ impl DeviceService {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
 
-        retry_future(
-            move || api_handle.when_online(proxy.list(number.clone())),
-            should_retry_backoff,
-            RETRY_BACKOFF_STRATEGY,
-        )
-        .await
-        .map_err(map_rest_error)
+        let factory = move || {
+            let number = number.clone();
+            let task = proxy.list(number);
+
+            api_handle.when_online(task)
+        };
+        retry_future(factory, should_retry_backoff, RETRY_BACKOFF_STRATEGY)
+            .await
+            .map_err(map_rest_error)
     }
 
     pub async fn get(&self, number: AccountNumber, device: DeviceId) -> Result<Device, Error> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
+        let number = number.clone();
+        let device = device.clone();
+        let factory = move || {
+            let number = number.clone();
+            let device = device.clone();
+
+            proxy.get(number, device)
+        };
         retry_future(
-            move || proxy.get(number.clone(), device.clone()),
+            factory,
             move |result| should_retry(result, &api_handle),
             RETRY_ACTION_STRATEGY,
         )
@@ -332,8 +360,13 @@ impl AccountService {
     ) -> Result<PlayPurchasePaymentToken, Error> {
         let mut proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
+        let factory = move || {
+            let account_number = account_number.clone();
+
+            proxy.init_play_purchase(account_number)
+        };
         let result = retry_future(
-            move || proxy.init_play_purchase(account_number.clone()),
+            factory,
             move |result| should_retry(result, &api_handle),
             RETRY_ACTION_STRATEGY,
         )
@@ -353,8 +386,14 @@ impl AccountService {
     ) -> Result<(), Error> {
         let mut proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
+        let factory = move || {
+            let account_number = account_number.clone();
+            let play_purchase = play_purchase.clone();
+
+            proxy.verify_play_purchase(account_number, play_purchase)
+        };
         let result = retry_future(
-            move || proxy.verify_play_purchase(account_number.clone(), play_purchase.clone()),
+            factory,
             move |result| should_retry(result, &api_handle),
             RETRY_ACTION_STRATEGY,
         )
