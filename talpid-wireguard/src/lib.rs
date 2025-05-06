@@ -882,22 +882,34 @@ impl WireguardMonitor {
         iface_name: &str,
         config: &'a Config,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
+        use talpid_routing::Node;
+
+        // e.g. utun4
         let gateway_node = talpid_routing::Node::device(iface_name.to_string());
+
+        // e.g. route to 10.64.0.1 through utun4
         let gateway_routes = std::iter::once(RequiredRoute::new(
             ipnetwork::Ipv4Network::from(config.ipv4_gateway).into(),
             gateway_node.clone(),
         ))
+        // same but ipv6
         .chain(config.ipv6_gateway.map(|gateway| {
             RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node)
         }));
 
+        // e.g. utun4 and utun4
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
 
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         let gateway_routes =
             gateway_routes.map(|route| Self::apply_route_mtu_for_multihop(route, config));
 
-        let routes = gateway_routes.chain(
+        // e.g. route 10.<private tunnel ip> to loopback
+        let loopback_routes = config.tunnel.addresses.iter().map(|&private_tunnel_ip| {
+            RequiredRoute::new(private_tunnel_ip.into(), Node::device("lo0".to_owned()))
+        });
+
+        let routes = gateway_routes.chain(loopback_routes).chain(
             config
                 .get_tunnel_destinations()
                 .filter(|allowed_ip| allowed_ip.prefix() != 0)
