@@ -20,6 +20,7 @@ interface IConnectedAction {
 
 interface IDisconnectedAction {
   type: 'DISCONNECTED';
+  lockedDown: boolean;
 }
 
 interface IDisconnectingAction {
@@ -73,9 +74,10 @@ function connected(
   };
 }
 
-function disconnected(): IDisconnectedAction {
+function disconnected(lockedDown: boolean): IDisconnectedAction {
   return {
     type: 'DISCONNECTED',
+    lockedDown: lockedDown,
   };
 }
 
