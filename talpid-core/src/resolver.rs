@@ -304,7 +304,10 @@ impl LocalResolver {
         let command_tx = Arc::new(tx);
 
         let weak_tx = Arc::downgrade(&command_tx);
-        let (mut server, port) = Self::new_server(0, weak_tx.clone()).await?;
+        // TODO: Try to bind to port 53. If that doesn't work, fallback on binding to a random
+        // port.
+        let port = 53;
+        let (mut server, port) = Self::new_server(port, weak_tx.clone()).await.unwrap();
 
         let (server_done_tx, server_done_rx) = oneshot::channel();
         let server_handle = tokio::spawn(async move {
