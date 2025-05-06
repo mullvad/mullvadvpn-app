@@ -39,15 +39,27 @@ async function removeRecursively(path) {
   });
 }
 
+async function runNpmScript(scriptName) {
+  const command = `npm run ${scriptName}`;
+
+  try {
+    await runCommand(command);
+  } catch (errors) {
+    if (Array.isArray(errors)) {
+      // Remove first error as it will always
+      // bubble up and be printed to the console.
+      errors.slice(1).forEach((error) => {
+        console.error(new Error(error));
+      });
+    }
+  }
+}
+
 async function runCommand(command) {
   return new Promise((resolve, reject) => {
     childProcess.exec(command, (error, stdout, stderr) => {
       if (error) {
-        return reject(error);
-      }
-
-      if (stderr) {
-        console.error(stderr);
+        return reject([error, stdout, stderr]);
       }
 
       return resolve([stdout, stderr]);
@@ -63,4 +75,5 @@ exports.copyRecursively = copyRecursively;
 exports.getCopyExtensionFilter = getCopyExtensionFilter;
 exports.removeRecursively = removeRecursively;
 exports.runCommand = runCommand;
+exports.runNpmScript = runNpmScript;
 exports.setNodeEnvironment = setNodeEnvironment;

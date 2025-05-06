@@ -3,7 +3,7 @@ const {
   copyRecursively,
   getCopyExtensionFilter,
   removeRecursively,
-  runCommand,
+  runNpmScript,
 } = require('./utils');
 
 const WORKSPACE_PROJECT_ROOT = path.resolve(__dirname, '..');
@@ -32,7 +32,8 @@ async function copyAssetsToBuildDirectory() {
 
 async function build() {
   await removeRecursively(BUILD_DIR);
-  await runCommand('npm run build:vite');
+  await runNpmScript('type-check');
+  await runNpmScript('build:vite');
   await copyAssetsToBuildDirectory();
 }
 
