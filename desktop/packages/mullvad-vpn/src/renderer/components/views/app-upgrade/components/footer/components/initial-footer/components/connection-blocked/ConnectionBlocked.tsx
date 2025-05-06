@@ -1,23 +1,21 @@
 import { messages } from '../../../../../../../../../../shared/gettext';
 import { Flex } from '../../../../../../../../../lib/components';
 import { ConnectionBlockedLabel } from '../../../../../connection-blocked-label';
-import { DownloadProgress } from '../../../../../download-progress';
-import { LaunchInstallerButton } from '../../../../../launch-installer-button';
+import { UpgradeButton } from '../../../../../upgrade-button';
 
 export function ConnectionBlocked() {
   return (
     <Flex $padding="large" $flexDirection="column">
       <Flex $gap="medium" $flexDirection="column" $margin={{ bottom: 'medium' }}>
         <ConnectionBlockedLabel />
-        <DownloadProgress />
       </Flex>
       <Flex $flexDirection="column">
-        <LaunchInstallerButton disabled>
+        <UpgradeButton disabled>
           {
-            // TRANSLATORS: Button text to install an update
-            messages.pgettext('app-upgrade-view', 'Install update')
+            // TRANSLATORS: Button text to download and install an update
+            messages.pgettext('app-upgrade-view', 'Download & install')
           }
-        </LaunchInstallerButton>
+        </UpgradeButton>
       </Flex>
     </Flex>
   );
