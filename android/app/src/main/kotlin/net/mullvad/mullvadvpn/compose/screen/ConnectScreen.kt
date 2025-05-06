@@ -231,7 +231,7 @@ fun Connect(
                         createVpnProfile.launch(sideEffect.prepareError.prepareIntent)
                 }
 
-            is ConnectViewModel.UiSideEffect.ConnectError.Generic ->
+            ConnectViewModel.UiSideEffect.ConnectError.Generic ->
                 snackbarHostState.showSnackbarImmediately(
                     message = context.getString(R.string.error_occurred)
                 )
@@ -239,10 +239,31 @@ fun Connect(
             is ConnectViewModel.UiSideEffect.ConnectError.PermissionDenied -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = context.getString(R.string.vpn_permission_denied_error),
-                        actionLabel = context.getString(R.string.go_to_vpn_settings),
-                        withDismissAction = true,
-                        onAction = context::openVpnSettings,
+                        message =
+                            context.getString(
+                                if (sideEffect.systemVpnSettingsAvailable) {
+                                    R.string.vpn_permission_denied_error
+                                } else {
+                                    R.string.vpn_permission_denied_error_no_vpn_settings
+                                }
+                            ),
+                        actionLabel =
+                            if (sideEffect.systemVpnSettingsAvailable) {
+                                context.getString(R.string.go_to_vpn_settings)
+                            } else {
+                                null
+                            },
+                        withDismissAction = sideEffect.systemVpnSettingsAvailable,
+                        onAction = {
+                            context.openVpnSettings().onLeft {
+                                launch {
+                                    snackbarHostState.showSnackbarImmediately(
+                                        message =
+                                            context.getString(R.string.vpn_settings_not_available)
+                                    )
+                                }
+                            }
+                        },
                     )
                 }
             }

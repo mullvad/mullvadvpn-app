@@ -416,4 +416,6 @@
     <string name="device_ip_info_first_paragraph">This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server.</string>
     <string name="device_ip_info_second_paragraph">It can be useful when you are aware of problems caused by a certain IP version.</string>
     <string name="daita_multihop">%s: Multihop</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">VPN permission was denied</string>
+    <string name="vpn_settings_not_available">VPN Settings not available on device</string>
 </resources>
