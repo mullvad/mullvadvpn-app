@@ -306,13 +306,11 @@ where
     /// If the router is in the process of upgrading, it will not propagate versions, but only
     /// remember it for when it transitions back into the "idle" (version check) state.
     fn on_new_version(&mut self, version_cache: VersionCache) -> AppVersionInfoEvent {
-        #[cfg(update)]
-        let verified_installer_path = self.get_verified_installer_path();
-        match &mut self.state {
+        let new_app_version_info = match &mut self.state {
             State::NoVersion => {
                 // Receive first version
                 let app_version_info = to_app_version_info(&version_cache, self.beta_program, None);
-                self.state = State::HasVersion { version_cache };
+
                 AppVersionInfoEvent {
                     app_version_info,
                     is_new: true,
@@ -325,61 +323,30 @@ where
                 let prev_app_version = to_app_version_info(prev_cache, self.beta_program, None);
                 let new_app_version = to_app_version_info(&version_cache, self.beta_program, None);
 
-                self.state = State::HasVersion { version_cache };
-
                 AppVersionInfoEvent {
                     is_new: new_app_version != prev_app_version,
                     app_version_info: new_app_version,
                 }
             }
             #[cfg(update)]
-            State::Downloaded {
-                version_cache: ref mut prev_cache,
-                ..
-            }
-            | State::Downloading {
-                version_cache: ref mut prev_cache,
-                ..
-            } => {
-                let prev_app_version = to_app_version_info(
-                    prev_cache,
-                    self.beta_program,
-                    verified_installer_path.clone(),
-                );
-                let new_app_version =
-                    to_app_version_info(&version_cache, self.beta_program, verified_installer_path);
+            State::Downloaded { .. } | State::Downloading { .. } => {
+                let app_version_info = to_app_version_info(&version_cache, self.beta_program, None);
 
-                let is_new = new_app_version != prev_app_version;
-                // If version changed, cancel download by switching state
-                if is_new {
-                    log::warn!("Received new version while upgrading: {new_app_version:?}");
-                    self.state = State::HasVersion { version_cache };
-                } else {
-                    *prev_cache = version_cache;
-                };
+                log::warn!("Received new version while upgrading: {app_version_info:?}");
                 AppVersionInfoEvent {
-                    app_version_info: new_app_version,
-                    is_new,
+                    app_version_info,
+                    is_new: true,
                 }
             }
-        }
+        };
+        self.state = State::HasVersion { version_cache };
+        new_app_version_info
     }
 
     fn notify_version_requesters(&mut self, new_app_version_info: AppVersionInfo) {
         // Notify all requesters
         for tx in self.version_request_channels.drain(..) {
             let _ = tx.send(Ok(new_app_version_info.clone()));
-        }
-    }
-
-    #[cfg(update)]
-    fn get_verified_installer_path(&self) -> Option<PathBuf> {
-        match &self.state {
-            State::Downloaded {
-                verified_installer_path,
-                ..
-            } => Some(verified_installer_path.clone()),
-            _ => None,
         }
     }
 
