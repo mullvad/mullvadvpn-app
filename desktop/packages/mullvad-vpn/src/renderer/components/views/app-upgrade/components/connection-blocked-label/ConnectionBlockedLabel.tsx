@@ -11,7 +11,7 @@ export function ConnectionBlockedLabel() {
           // TRANSLATORS: Label displayed when an error occurred due to the connection being blocked
           messages.pgettext(
             'app-upgrade-view',
-            'Connection blocked. Try changing server or other settings',
+            'Connection blocked. Try changing server or other settings.',
           )
         }
       </LabelTiny>
