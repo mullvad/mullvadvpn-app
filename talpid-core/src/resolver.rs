@@ -299,15 +299,17 @@ impl ResolverHandle {
 
 impl LocalResolver {
     /// Constructs a new filtering resolver and it's handle.
-    async fn new() -> Result<(Self, ResolverHandle), Error> {
+    async fn new(local_dns_resolver_addr: impl Into<SocketAddr>) -> Result<(Self, ResolverHandle), Error> {
         let (tx, rx) = mpsc::unbounded();
         let command_tx = Arc::new(tx);
 
         let weak_tx = Arc::downgrade(&command_tx);
         // TODO: Try to bind to port 53. If that doesn't work, fallback on binding to a random
         // port.
-        let port = 53;
-        let (mut server, port) = Self::new_server(port, weak_tx.clone()).await.unwrap();
+        //let port = 53;
+        let local_dns_resolver_addr = (std::net::Ipv4Addr::LOCALHOST, 53);
+
+        let (mut server, port) = Self::new_server(local_dns_resolver_addr, weak_tx.clone()).await.unwrap();
 
         let (server_done_tx, server_done_rx) = oneshot::channel();
         let server_handle = tokio::spawn(async move {
@@ -317,7 +319,7 @@ impl LocalResolver {
 
                     if weak_tx.strong_count() > 0 {
                         log::debug!("Attempting restart server");
-                        match Self::new_server(port, weak_tx.clone()).await {
+                        match Self::new_server(local_dns_resolver_addr, weak_tx.clone()).await {
                             Ok((new_server, _port)) => {
                                 server = new_server;
                                 continue;
@@ -344,13 +346,15 @@ impl LocalResolver {
     }
 
     async fn new_server(
-        port: u16,
+        addr: impl Into<SocketAddr>,
+        // port: u16,
         command_tx: Weak<mpsc::UnboundedSender<ResolverMessage>>,
     ) -> Result<(ServerFuture<ResolverImpl>, u16), Error> {
         let mut server = ServerFuture::new(ResolverImpl { tx: command_tx });
 
         let server_listening_socket =
-            tokio::net::UdpSocket::bind(SocketAddr::new(Ipv4Addr::LOCALHOST.into(), port))
+            //tokio::net::UdpSocket::bind(SocketAddr::new(Ipv4Addr::LOCALHOST.into(), port))
+            tokio::net::UdpSocket::bind(addr.into())
                 .await
                 .map_err(Error::UdpBindError)?;
         let port = server_listening_socket
