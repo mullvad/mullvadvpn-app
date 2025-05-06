@@ -24,7 +24,10 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_IN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
 
 @Composable
-fun ConnectionDetailPanel(connectionDetails: ConnectionDetails) {
+fun ConnectionDetailPanel(
+    connectionDetails: ConnectionDetails,
+    enableSelectableText: Boolean = true,
+) {
 
     ConnectionInfoHeader(
         stringResource(R.string.connect_panel_connection_details),
@@ -37,6 +40,7 @@ fun ConnectionDetailPanel(connectionDetails: ConnectionDetails) {
             it.outIpv4Address,
             it.outIpv6Address,
             modifier = Modifier.padding(bottom = Dimens.smallPadding),
+            enableSelectableText = enableSelectableText,
         )
     }
 }
@@ -48,6 +52,7 @@ fun ConnectionDetails(
     outIPV4: String?,
     outIPV6: String?,
     modifier: Modifier = Modifier,
+    enableSelectableText: Boolean = true,
 ) {
     ConstraintLayout(modifier = modifier.fillMaxWidth()) {
         val (inAddrHeader, inAddr, outAddrV4Header, outAddrV4, outAddrV6Header, outAddrV6) =
@@ -131,15 +136,21 @@ fun ConnectionDetails(
                         width = Dimension.fillToConstraints
                     }
             ) {
-                SelectionContainer {
-                    Text(
-                        modifier = Modifier.testTag(LOCATION_INFO_CONNECTION_OUT_TEST_TAG),
-                        text = outIPV4,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                val outIpV4Text =
+                    @Composable {
+                        Text(
+                            modifier = Modifier.testTag(LOCATION_INFO_CONNECTION_OUT_TEST_TAG),
+                            text = outIPV4,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                if (enableSelectableText) {
+                    SelectionContainer(content = outIpV4Text)
+                } else {
+                    outIpV4Text()
                 }
             }
         }
@@ -176,14 +187,20 @@ fun ConnectionDetails(
                         width = Dimension.fillToConstraints
                     }
             ) {
-                SelectionContainer {
-                    Text(
-                        text = outIPV6,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                val outIpV6Text =
+                    @Composable {
+                        Text(
+                            text = outIPV6,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                if (enableSelectableText) {
+                    SelectionContainer(content = outIpV6Text)
+                } else {
+                    outIpV6Text()
                 }
             }
         }
