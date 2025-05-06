@@ -8,8 +8,6 @@ use crate::firewall::FirewallPolicy;
 use crate::{dns, tunnel_state_machine::ErrorState};
 use futures::StreamExt;
 #[cfg(target_os = "macos")]
-use std::net::Ipv4Addr;
-#[cfg(target_os = "macos")]
 use talpid_types::tunnel::ErrorStateCause;
 use talpid_types::ErrorExt;
 
@@ -81,7 +79,7 @@ impl DisconnectedState {
                 allow_lan: shared_values.allow_lan,
                 allowed_endpoint: Some(shared_values.allowed_endpoint.clone()),
                 #[cfg(target_os = "macos")]
-                dns_redirect_port: shared_values.filtering_resolver.listening_port(),
+                dns_redirect_port: shared_values.filtering_resolver.listening_addr().port(),
             };
 
             shared_values.firewall.apply_policy(policy).map_err(|e| {
@@ -149,8 +147,8 @@ impl DisconnectedState {
         shared_values.dns_monitor.set(
             "lo",
             dns::DnsConfig::default().resolve(
-                &[Ipv4Addr::LOCALHOST.into()],
-                shared_values.filtering_resolver.listening_port(),
+                &[shared_values.filtering_resolver.listening_addr().ip()],
+                shared_values.filtering_resolver.listening_addr().port(),
             ),
         )
     }
