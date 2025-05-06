@@ -142,3 +142,31 @@ jobs:
 
       - name: Compare files
         run: diff container/app-oss-prod-fdroid-unsigned.apk fdroidserver/app-oss-prod-fdroid-unsigned.apk
+
+  # Included in this workflow since it's the only place
+  # release artifacts are built. Should eventually be moved.
+  check-permissions:
+    name: Check APK permissions
+    runs-on: ubuntu-latest
+    needs: [set-up-env, build-fdroid-app]
+    steps:
+      - name: Install apktool
+        run: sudo apt-get install -y apktool
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
+
+      - name: Download container apk
+        uses: actions/download-artifact@v4
+        with:
+          name: container-app
+
+      - name: Extract resources
+        run: |
+          apktool d app-oss-prod-fdroid-unsigned.apk -s -o output
+
+      - name: Compare manifest permissions with checked in snapshot
+        run: |
+          diff android/snapshot/manifest-permissions-oss.txt <(cat output/AndroidManifest.xml | grep uses-permission)
