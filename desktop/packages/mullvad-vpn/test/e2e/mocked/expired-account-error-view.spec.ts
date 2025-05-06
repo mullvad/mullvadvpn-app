@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { deprecatedColors } from '../../../src/renderer/lib/foundations';
+import { colorTokens } from '../../../src/renderer/lib/foundations';
 import { RoutePath } from '../../../src/renderer/lib/routes';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
 import { getBackgroundColor } from '../utils';
@@ -28,11 +28,11 @@ test('App should show Expired Account Error View', async () => {
   await expect(page.locator('text=Out of time')).toBeVisible();
   const buyMoreButton = page.locator('button:has-text("Buy more credit")');
   await expect(buyMoreButton).toBeVisible();
-  expect(await getBackgroundColor(buyMoreButton)).toBe(deprecatedColors['--color-green']);
+  expect(await getBackgroundColor(buyMoreButton)).toBe(colorTokens.green);
 
   const redeemVoucherButton = page.locator('button:has-text("Redeem voucher")');
   await expect(redeemVoucherButton).toBeVisible();
-  expect(await getBackgroundColor(redeemVoucherButton)).toBe(deprecatedColors['--color-green']);
+  expect(await getBackgroundColor(redeemVoucherButton)).toBe(colorTokens.green);
 });
 
 test('App should show out of time view after running out of time', async () => {
