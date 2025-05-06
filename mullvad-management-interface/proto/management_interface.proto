@@ -25,6 +25,8 @@ service ManagementService {
   rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+  // Get information about the latest available version of the app.
+  // Note that calling this during an in-app upgrade will cancel the upgrade.
   rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
 
   rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
