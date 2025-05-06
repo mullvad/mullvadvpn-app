@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.tv
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Settings
@@ -27,12 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
-import androidx.compose.ui.focus.FocusRequester.Companion.Default
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -87,7 +82,6 @@ fun NavigationDrawerTv(
     content: @Composable () -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialDrawerValue)
-    val focusRequester = remember { FocusRequester() }
     val brush = remember { Brush.horizontalGradient(listOf(Color.Black, Color.Transparent)) }
 
     val focusManager = LocalFocusManager.current
@@ -102,8 +96,6 @@ fun NavigationDrawerTv(
     }
 
     ModalNavigationDrawer(
-        modifier =
-            Modifier.focusRequester(focusRequester),
         drawerState = drawerState,
         scrimBrush = brush,
         drawerContent = {
@@ -116,7 +108,8 @@ fun NavigationDrawerTv(
                         start = Dimens.tvDrawerHorizontalPadding,
                         end = Dimens.tvDrawerHorizontalPadding,
                     )
-                    .selectableGroup()
+                    .focusRestorer()
+                    .focusGroup()
             ) {
                 val animatedPadding =
                     animateDpAsState(
@@ -132,15 +125,13 @@ fun NavigationDrawerTv(
                     deviceName = deviceName,
                 )
                 DrawerItemTv(
-                    modifier =
-                        Modifier.align(Alignment.CenterStart),
+                    modifier = Modifier.align(Alignment.CenterStart),
                     icon = Icons.Default.AccountCircle,
                     text = stringResource(R.string.settings_account),
                     onClick = onAccountClick,
                 )
                 DrawerItemTv(
-                    modifier =
-                        Modifier.align(Alignment.BottomStart),
+                    modifier = Modifier.align(Alignment.BottomStart),
                     icon = Icons.Default.Settings,
                     text = stringResource(R.string.settings),
                     onClick = onSettingsClick,
