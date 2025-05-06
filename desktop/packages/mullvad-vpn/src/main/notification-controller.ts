@@ -92,7 +92,6 @@ export default class NotificationController {
 
   public notifyTunnelState(
     tunnelState: TunnelState,
-    blockWhenDisconnected: boolean,
     hasExcludedApps: boolean,
     isWindowVisible: boolean,
     areSystemNotificationsEnabled: boolean,
@@ -101,7 +100,7 @@ export default class NotificationController {
       new ConnectingNotificationProvider({ tunnelState, reconnecting: this.reconnecting }),
       new ConnectedNotificationProvider(tunnelState),
       new ReconnectingNotificationProvider(tunnelState),
-      new DisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
+      new DisconnectedNotificationProvider({ tunnelState }),
       new ErrorNotificationProvider({ tunnelState, hasExcludedApps }),
     ];
 

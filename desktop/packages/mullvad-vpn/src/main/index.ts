@@ -431,16 +431,11 @@ class ApplicationMain
     this.tunnelStateExpectation = new Expectation(async () => {
       this.userInterface?.createTrayIconController(
         this.tunnelState.tunnelState,
-        this.settings.blockWhenDisconnected,
         this.settings.gui.monochromaticIcon,
       );
       await this.userInterface?.updateTrayTheme();
 
-      this.userInterface?.updateTray(
-        this.account.isLoggedIn(),
-        this.tunnelState.tunnelState,
-        this.settings.blockWhenDisconnected,
-      );
+      this.userInterface?.updateTray(this.account.isLoggedIn(), this.tunnelState.tunnelState);
 
       if (process.platform === 'win32') {
         nativeTheme.on('updated', async () => {
@@ -673,7 +668,7 @@ class ApplicationMain
 
     if (wasConnected) {
       // update the tray icon to indicate that the computer is not secure anymore
-      this.userInterface?.updateTray(false, { state: 'disconnected' }, false);
+      this.userInterface?.updateTray(false, { state: 'disconnected', lockedDown: false });
 
       // notify renderer process
       IpcMainEventChannel.daemon.notifyDisconnected?.();
@@ -742,11 +737,7 @@ class ApplicationMain
     const oldSettings = this.settings;
     this.settings.handleNewSettings(newSettings);
 
-    this.userInterface?.updateTray(
-      this.account.isLoggedIn(),
-      this.tunnelState.tunnelState,
-      newSettings.blockWhenDisconnected,
-    );
+    this.userInterface?.updateTray(this.account.isLoggedIn(), this.tunnelState.tunnelState);
 
     if (oldSettings.showBetaReleases !== newSettings.showBetaReleases) {
       this.version.setLatestVersion(this.version.upgradeVersion);
@@ -949,11 +940,7 @@ class ApplicationMain
       relayLocations: relayLocationsTranslations,
     };
 
-    this.userInterface?.updateTray(
-      this.account.isLoggedIn(),
-      this.tunnelState.tunnelState,
-      this.settings.blockWhenDisconnected,
-    );
+    this.userInterface?.updateTray(this.account.isLoggedIn(), this.tunnelState.tunnelState);
   }
 
   private blockPermissionRequests() {
@@ -1131,15 +1118,10 @@ class ApplicationMain
 
   // TunnelStateHandlerDelegate
   public handleTunnelStateUpdate = (tunnelState: TunnelState) => {
-    this.userInterface?.updateTray(
-      this.account.isLoggedIn(),
-      tunnelState,
-      this.settings.blockWhenDisconnected,
-    );
+    this.userInterface?.updateTray(this.account.isLoggedIn(), tunnelState);
 
     this.notificationController.notifyTunnelState(
       tunnelState,
-      this.settings.blockWhenDisconnected,
       this.settings.splitTunnel.enableExclusions && this.settings.splitTunnel.appsList.length > 0,
       this.userInterface?.isWindowVisible() ?? false,
       this.settings.gui.enableSystemNotifications,
@@ -1165,11 +1147,7 @@ class ApplicationMain
   public getLocale = () => this.locale;
   public getTunnelState = () => this.tunnelState.tunnelState;
   public onDeviceEvent = () => {
-    this.userInterface?.updateTray(
-      this.account.isLoggedIn(),
-      this.tunnelState.tunnelState,
-      this.settings.blockWhenDisconnected,
-    );
+    this.userInterface?.updateTray(this.account.isLoggedIn(), this.tunnelState.tunnelState);
 
     if (this.isPerformingPostUpgrade) {
       void this.performPostUpgradeCheck();

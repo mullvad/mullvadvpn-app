@@ -56,7 +56,7 @@ export default function NotificationArea(props: IProps) {
   const tunnelProtocol = useTunnelProtocol();
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
 
-  const blockWhenDisconnected = useSelector(
+  const blockWhenDisconnectedSetting = useSelector(
     (state: IReduxState) => state.settings.blockWhenDisconnected,
   );
   const hasExcludedApps = useSelector(
@@ -91,7 +91,7 @@ export default function NotificationArea(props: IProps) {
     new ReconnectingNotificationProvider(tunnelState),
     new BlockWhenDisconnectedNotificationProvider({
       tunnelState,
-      blockWhenDisconnected,
+      blockWhenDisconnectedSetting,
       hasExcludedApps,
     }),
     new NoOpenVpnServerAvailableNotificationProvider({
