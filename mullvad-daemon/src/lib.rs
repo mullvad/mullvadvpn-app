@@ -585,7 +585,6 @@ where
 {
     pub fn to_unbounded_sender<T>(&self) -> mpsc::UnboundedSender<T>
     where
-        InternalDaemonEvent: From<E>,
         T: Send + 'static,
         E: From<T>,
     {
@@ -593,12 +592,10 @@ where
         let sender = self.sender.clone();
         tokio::spawn(async move {
             while let Some(msg) = rx.next().await {
-                if let Some(tx) = sender.upgrade() {
-                    let e: E = E::from(msg);
-                    if tx.send(e.into()).is_err() {
-                        return;
-                    }
-                } else {
+                let Some(tx) = sender.upgrade() else {
+                    return;
+                };
+                if tx.send(InternalDaemonEvent::from(E::from(msg))).is_err() {
                     return;
                 };
             }

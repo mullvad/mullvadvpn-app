@@ -35,8 +35,8 @@ const MAX_SEND_ATTEMPTS: usize = 3;
 /// Custom macro to write a line to an output formatter that uses platform-specific newline
 /// character sequences.
 macro_rules! write_line {
-    ($fmt:expr $(,)*) => { write!($fmt, "{}", LINE_SEPARATOR) };
-    ($fmt:expr, $pattern:expr $(, $arg:expr)* $(,)*) => {
+    ($fmt:expr_2021 $(,)*) => { write!($fmt, "{}", LINE_SEPARATOR) };
+    ($fmt:expr_2021, $pattern:expr_2021 $(, $arg:expr_2021)* $(,)*) => {
         write!($fmt, $pattern, $( $arg ),*)
             .and_then(|_| write!($fmt, "{}", LINE_SEPARATOR))
     };
