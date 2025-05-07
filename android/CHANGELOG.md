@@ -22,8 +22,16 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2025.4-beta1] - 2025-05-06
 ### Added
 - Make feature indicators clickable, allowing for easy access to active features.
+- Add device management which enables the revoking of wireguard keys from the app.
+
+### Fixed
+- Remove unintended permissions added by an unused transitive Google dependency.
+- Fix crash on TV devices when trying to access system vpn settings.
 
 
 ## [android/2025.3] - 2025-04-30
