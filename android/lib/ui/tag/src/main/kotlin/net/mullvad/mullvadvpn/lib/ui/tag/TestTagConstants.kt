@@ -32,8 +32,6 @@ const val WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG =
     "wireguard_obfuscation_shadowsocks_cell_test_tag"
 const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG =
     "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
-const val QUANTUM_RESISTANCE_OFF_CELL_TEST_TAG = "quantum_resistance_off_cell_test_tag"
-
 // Account screen
 const val MANAGE_DEVICES_BUTTON_TEST_TAG = "manage_devices_button_test_tag"
 
