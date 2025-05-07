@@ -32,11 +32,12 @@ jobs:
       - id: hash
         name: Set commit hash or default to github.sha
         run: |
-          # If the input has a value, it is filled by that value; otherwise, use github.sha
+          # If the input has a value, it is filled by that value; otherwise, fallback to PR sha.
+          # If it is not triggered by a PR, use github.sha.
           if [ -n "${{ inputs.commit_hash }}" ]; then
             echo "commit_hash=${{ inputs.commit_hash }}" >> "$GITHUB_OUTPUT"
           else
-            echo "commit_hash=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            echo "commit_hash=${{ github.event.pull_request.head.sha || github.sha }}" >> "$GITHUB_OUTPUT"
           fi
     outputs:
       COMMIT_HASH: ${{ steps.hash.outputs.commit_hash }}
