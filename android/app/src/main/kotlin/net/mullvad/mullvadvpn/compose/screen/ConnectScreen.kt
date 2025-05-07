@@ -33,6 +33,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,16 +44,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -352,26 +351,12 @@ fun ConnectScreen(
 
     if (isTv()) {
         Scaffold(
-            modifier =
-                Modifier.focusProperties {
-                    enter = { focusDirection ->
-                        // When we return to this screen from SelectLocationScreen the focus is
-                        // sometimes put on the TV navigation drawer, which causes it expand
-                        // (when it was previously not expanded). When returning from
-                        // SelectLocationScreen we get a FocusDirection.Down event, so we focus
-                        // on the switch location composable.
-                        // When on TV and we return from account or settings we get a
-                        // FocusDirection.Enter event, so focus remains on the navigation drawer.
-                        if (focusDirection == FocusDirection.Down) contentFocusRequester
-                        else FocusRequester.Default
-                    }
-                },
             snackbarHost = {
                 SnackbarHost(
                     snackbarHostState,
                     snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
                 )
-            },
+            }
         ) {
             NavigationDrawerTv(
                 daysLeftUntilExpiry = state.daysLeftUntilExpiry,
@@ -382,6 +367,7 @@ fun ConnectScreen(
                 content(it)
             }
         }
+        LaunchedEffect(Unit) { contentFocusRequester.requestFocus() }
     } else {
         ScaffoldWithTopBarAndDeviceName(
             topBarColor = state.tunnelState.topBarColor(),
@@ -414,8 +400,7 @@ private fun Content(
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
+    val screenHeight = LocalWindowInfo.current.containerSize.height.dp
     val indicatorPercentOffset =
         if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
         else TALL_SCREEN_INDICATOR_BIAS
@@ -666,7 +651,7 @@ private fun ConnectionInfo(
             FeatureIndicatorsPanel(featureIndicators, expanded, onToggleExpand, onNavigateToFeature)
 
             if (expanded && connectionDetails != null) {
-                ConnectionDetailPanel(connectionDetails)
+                ConnectionDetailPanel(connectionDetails, enableSelectableText = !isTv())
             }
         }
     }
@@ -689,7 +674,7 @@ fun TunnelState.Connected.toConnectionsDetails(): ConnectionDetails =
 @Composable
 private fun ButtonPanel(
     state: ConnectUiState,
-    focusRequester: FocusRequester,
+    selectButtonFocusRequester: FocusRequester,
     onSwitchLocationClick: () -> Unit,
     onDisconnectClick: () -> Unit,
     onReconnectClick: () -> Unit,
@@ -714,12 +699,18 @@ private fun ButtonPanel(
                     stringResource(id = R.string.switch_location)
                 },
             onSwitchLocation = onSwitchLocationClick,
-            reconnectClick = { handleThrottledAction(onReconnectClick) },
+            reconnectClick = {
+                handleThrottledAction {
+                    onReconnectClick()
+                    selectButtonFocusRequester.requestFocus()
+                }
+            },
             isReconnectButtonEnabled =
                 state.tunnelState is TunnelState.Connected ||
                     state.tunnelState is TunnelState.Connecting,
             modifier =
-                Modifier.testTag(SELECT_LOCATION_BUTTON_TEST_TAG).focusRequester(focusRequester),
+                Modifier.testTag(SELECT_LOCATION_BUTTON_TEST_TAG)
+                    .focusRequester(selectButtonFocusRequester),
             reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG,
         )
         Spacer(Modifier.height(Dimens.buttonVerticalPadding))
