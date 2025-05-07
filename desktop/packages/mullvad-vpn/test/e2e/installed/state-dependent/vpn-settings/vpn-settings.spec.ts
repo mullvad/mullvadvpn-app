@@ -115,4 +115,22 @@ test.describe('VPN settings', () => {
       expect(cliAutoConnect).toContain('on');
     });
   });
+
+  test('LAN settings', async () => {
+    // Find the LAN toggle
+    const lanToggle = page.getByText('Local network sharing').locator('..').getByRole('checkbox');
+
+    // Check initial state
+    const initialCliState = execSync('mullvad lan get').toString().trim();
+    expect(initialCliState).toMatch(/block$/);
+    await expect(lanToggle).toHaveAttribute('aria-checked', 'false');
+
+    // Toggle LAN setting
+    await lanToggle.click();
+
+    // Verify the setting was applied correctly
+    await expect(lanToggle).toHaveAttribute('aria-checked', 'true');
+    const newState = execSync('mullvad lan get').toString().trim();
+    expect(newState).toMatch(/allow$/);
+  });
 });
