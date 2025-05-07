@@ -317,7 +317,7 @@ impl LocalResolver {
 
         let (socket, cleanup_ifconfig) = Self::new_random_socket().await?;
         let resolver_addr = socket.local_addr().map_err(Error::GetSocketAddrError)?;
-        let mut server = Self::new_server(socket, weak_tx.clone()).await?;
+        let mut server = Self::new_server(socket, weak_tx.clone())?;
 
         let dns_server_task = tokio::spawn(async move {
             // This drop guard will clean up the loopback IP addr alias when the task exits.
@@ -346,7 +346,7 @@ impl LocalResolver {
                     }
                 };
 
-                match Self::new_server(socket, weak_tx.clone()).await {
+                match Self::new_server(socket, weak_tx.clone()) {
                     Ok(new_server) => {
                         server = new_server;
                         continue;
@@ -369,7 +369,7 @@ impl LocalResolver {
         Ok((resolver, ResolverHandle::new(command_tx, resolver_addr)))
     }
 
-    async fn new_server(
+    fn new_server(
         socket: UdpSocket,
         command_tx: Weak<mpsc::UnboundedSender<ResolverMessage>>,
     ) -> Result<ServerFuture<ResolverImpl>, Error> {
