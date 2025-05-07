@@ -44,7 +44,11 @@ use hickory_server::{
 use rand::random;
 use std::sync::LazyLock;
 use talpid_types::drop_guard::{on_drop, OnDrop};
-use tokio::{net, process::Command, task::JoinHandle};
+use tokio::{
+    net::{self, UdpSocket},
+    process::Command,
+    task::JoinHandle,
+};
 
 /// If a local DNS resolver should be used at all times.
 ///
@@ -81,6 +85,9 @@ pub static LOCAL_DNS_RESOLVER: LazyLock<bool> = LazyLock::new(|| {
     }
     use_local_dns_resolver
 });
+
+// Name of the loopback network device.
+const LOOPBACK: &str = "lo0";
 
 const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
 const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com", "netcts.cdn-apple.com"];
@@ -124,10 +131,6 @@ struct LocalResolver {
     rx: mpsc::UnboundedReceiver<ResolverMessage>,
     dns_server_task: JoinHandle<()>,
     inner_resolver: Resolver,
-
-    /// A drop guard that removes the non-standard IP alias on the loopback device.
-    /// The IP is the one we bind the dns resover to, e.g. `127.123.42.33`.
-    _cleanup_ifconfig: OnDrop,
 }
 
 /// A message to [LocalResolver]
@@ -308,129 +311,147 @@ impl ResolverHandle {
 impl LocalResolver {
     /// Constructs a new filtering resolver and it's handle.
     async fn new() -> Result<(Self, ResolverHandle), Error> {
-        let (tx, rx) = mpsc::unbounded();
-        let command_tx = Arc::new(tx);
-
+        let (command_tx, command_rx) = mpsc::unbounded();
+        let command_tx = Arc::new(command_tx);
         let weak_tx = Arc::downgrade(&command_tx);
 
-        // Name of the loopback network device.
-        let loopback_name = "lo0";
-
-        // Try to bind to the UDP socket that will be passed to the local DNS resolver.
-        let server_listening_socket = LocalResolver::new_socket().await?;
-        let resolver_addr = server_listening_socket
-            .local_addr()
-            .map_err(Error::GetSocketAddrError)?;
-        let resolver_ip = resolver_addr.ip();
-
-        // TODO: Check if random_loopback_addr is already assigned to some other alias
-        Command::new("ifconfig")
-            .args([loopback_name, "alias", &format!("{resolver_ip}"), "up"])
-            .output()
-            .await
-            .inspect_err(|e| {
-                log::warn!("Failed to create {loopback_name} alias {resolver_ip}: {e}")
-            })
-            .unwrap();
-
-        // Clean up ip address when stopping the resolver
-        let cleanup_ifconfig = on_drop(move || {
-            tokio::task::spawn(async move {
-                let result = Command::new("ifconfig")
-                    .args([loopback_name, "delete", &format!("{resolver_ip}")])
-                    .output()
-                    .await;
-
-                if let Err(e) = result {
-                    log::warn!("Failed to clean up {loopback_name} alias {resolver_ip}: {e}");
-                }
-            });
-        })
-        .boxed();
-
-        let (mut server, _port) = Self::new_server(server_listening_socket, weak_tx.clone())?;
+        let (socket, cleanup_ifconfig) = Self::new_random_socket().await?;
+        let resolver_addr = socket.local_addr().map_err(Error::GetSocketAddrError)?;
+        let mut server = Self::new_server(socket, weak_tx.clone()).await?;
 
         let dns_server_task = tokio::spawn(async move {
+            // This drop guard will clean up the loopback IP addr alias when the task exits.
+            let _cleanup_ifconfig = cleanup_ifconfig;
+
+            log::info!("Running DNS resolver on {resolver_addr}");
+
             loop {
-                if let Err(err) = server.block_until_done().await {
-                    log::error!("DNS server unexpectedly stopped: {}", err);
+                let Err(err) = server.block_until_done().await else {
+                    break;
+                };
 
-                    // TODO: Create new UDP socket ???????
-                    let Ok(local_dns_resolver_socket) = LocalResolver::new_socket().await else {
-                        // TODO: Is this wanted behaviour if we fail to create a UDP socket for the
-                        // local DNS resolver?
+                log::error!("DNS server unexpectedly stopped: {}", err);
+
+                if weak_tx.strong_count() == 0 {
+                    break;
+                }
+
+                log::debug!("Attempting restart server");
+
+                let socket = match net::UdpSocket::bind(resolver_addr).await {
+                    Ok(socket) => socket,
+                    Err(e) => {
+                        log::warn!("Failed to bind DNS server to {resolver_addr}: {e}");
+                        break;
+                    }
+                };
+
+                match Self::new_server(socket, weak_tx.clone()).await {
+                    Ok(new_server) => {
+                        server = new_server;
                         continue;
-                    };
-
-                    if weak_tx.strong_count() > 0 {
-                        log::debug!("Attempting restart server");
-                        match Self::new_server(local_dns_resolver_socket, weak_tx.clone()) {
-                            Ok((new_server, _port)) => {
-                                server = new_server;
-                                continue;
-                            }
-                            Err(error) => {
-                                log::error!("Failed to restart DNS server: {error}");
-                            }
-                        }
+                    }
+                    Err(error) => {
+                        log::error!("Failed to restart DNS server: {error}");
                     }
                 }
+
                 break;
             }
         });
 
         let resolver = Self {
-            rx,
+            rx: command_rx,
             dns_server_task,
             inner_resolver: Resolver::from(Config::Blocking),
-            _cleanup_ifconfig: cleanup_ifconfig,
         };
 
         Ok((resolver, ResolverHandle::new(command_tx, resolver_addr)))
     }
 
-    fn new_server(
-        socket: net::UdpSocket,
+    async fn new_server(
+        socket: UdpSocket,
         command_tx: Weak<mpsc::UnboundedSender<ResolverMessage>>,
-    ) -> Result<(ServerFuture<ResolverImpl>, u16), Error> {
+    ) -> Result<ServerFuture<ResolverImpl>, Error> {
         let mut server = ServerFuture::new(ResolverImpl { tx: command_tx });
-
-        // TODO: Do we really need to query the socket for port? Why do we even need the port ??
-        let port = socket
-            .local_addr()
-            .map_err(Error::GetSocketAddrError)?
-            .port();
 
         server.register_socket(socket);
 
-        Ok((server, port))
+        Ok(server)
     }
 
-    /// Create a new [net::UdpSocket] that may be used to .
-    /// This socket will bind one of the following IP+port combos in sequential order:
+    /// Create a new [net::UdpSocket] bound to port 53 on loopback.
+    ///
+    /// This socket will try to bind to the following IPs in sequential order:
+    /// - random ip in the range 127.1-255.0-255.0.255 : 53
+    /// - random ip in the range 127.1-255.0-255.0.255 : 53
     /// - random ip in the range 127.1-255.0-255.0.255 : 53
     /// - 127.0.0.1 : 53
-    /// - 127.0.0.1 : random port
-    async fn new_socket() -> Result<net::UdpSocket, Error> {
+    ///
+    /// We do this do try and avoid collisions with other DNS servers running on the same system.
+    ///
+    /// # Returns
+    /// - The first successfully bound [UdpSocket]
+    /// - An [OnDrop] guard that will delete the IP aliases added, if any.
+    ///   If the guard is dropped while the socket is in use, calls to read/write will likely fail.
+    async fn new_random_socket() -> Result<(UdpSocket, OnDrop), Error> {
         use std::net::Ipv4Addr;
+
+        let random_loopback = || async move {
+            let addr = Ipv4Addr::new(127, 1u8.max(random()), random(), random());
+
+            // TODO: Check if random_loopback_addr is already assigned to some other alias
+            Command::new("ifconfig")
+                .args([LOOPBACK, "alias", &format!("{addr}"), "up"])
+                .output()
+                .await
+                .inspect_err(|e| log::warn!("Failed to create {LOOPBACK} alias {addr}: {e}"))
+                .unwrap();
+
+            log::debug!("Created loopback address {addr}");
+
+            // Clean up ip address when stopping the resolver
+            let cleanup_ifconfig = on_drop(move || {
+                tokio::task::spawn(async move {
+                    log::debug!("Cleaning up loopback address {addr}");
+
+                    let result = Command::new("ifconfig")
+                        .args([LOOPBACK, "delete", &format!("{addr}")])
+                        .output()
+                        .await;
+
+                    if let Err(e) = result {
+                        log::warn!("Failed to clean up {LOOPBACK} alias {addr}: {e}");
+                    }
+                });
+            })
+            .boxed();
+
+            (addr, cleanup_ifconfig)
+        };
+
+        // TODO: create IP aliases lazily
         let local_resolver_addrs = [
             // Allow the UDP socket to bind to this "random" loopback address.
-            (
-                Ipv4Addr::new(127, 1u8.max(random()), random(), random()),
-                53,
-            ),
-            // If that doesn't work, try to bind to port 53. If that doesn't work, fallback on binding to a random
-            // port.
-            (Ipv4Addr::LOCALHOST, 53),
-            (Ipv4Addr::LOCALHOST, 1338),
-        ]
-        .map(SocketAddr::from); // TODO: should we randomize the port ??
+            (random_loopback().await, 53),
+            (random_loopback().await, 53),
+            (random_loopback().await, 53),
+            // If that doesn't work, try to bind to the normal loopback address
+            ((Ipv4Addr::LOCALHOST, OnDrop::noop()), 53),
+            //(Ipv4Addr::LOCALHOST, 1338),
+        ];
 
-        // NOTE: Take precauation to not invoke blocking IO here, which _might_ happen as part of
-        // [ToSocketAddrs]!
-        net::UdpSocket::bind(&local_resolver_addrs[..])
-            .await
-            .map_err(Error::UdpBindError)
+        for ((addr, on_drop), port) in local_resolver_addrs {
+            let socket_addr = SocketAddr::new(addr.into(), port);
+            match net::UdpSocket::bind(socket_addr).await {
+                Ok(socket) => return Ok((socket, on_drop)),
+                Err(e) => {
+                    log::warn!("Failed to bind DNS server to {socket_addr}: {e}");
+                }
+            }
+        }
+
+        todo!()
     }
 
     /// Runs the filtering resolver as an actor, listening for new queries instances.  When all
