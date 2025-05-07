@@ -6725,6 +6725,7 @@ dependencies = [
  "anyhow",
  "log",
  "maybenot-ffi",
+ "talpid-types",
  "thiserror 2.0.9",
  "windows-sys 0.52.0",
  "zeroize",
