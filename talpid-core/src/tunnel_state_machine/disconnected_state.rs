@@ -8,8 +8,6 @@ use crate::firewall::FirewallPolicy;
 use crate::{dns, tunnel_state_machine::ErrorState};
 use futures::StreamExt;
 #[cfg(target_os = "macos")]
-use std::net::Ipv4Addr;
-#[cfg(target_os = "macos")]
 use talpid_types::tunnel::ErrorStateCause;
 use talpid_types::ErrorExt;
 
