@@ -24,6 +24,11 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2025.6-beta2] - 2025-05-07
+### Fixed
+- Fix "No OpenVPN servers" warning being displayed erroneously.
+
+
 ## [2025.6-beta1] - 2025-04-15
 ### Added
 - Add a notification for notifying users about the sunsetting of OpenVPN.
