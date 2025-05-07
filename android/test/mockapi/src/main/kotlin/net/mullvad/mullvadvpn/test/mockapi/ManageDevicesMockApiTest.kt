@@ -46,6 +46,8 @@ class ManageDevicesMockApiTest : MockApiTest() {
         secondDevice.findObject(By.clickable(true)).click()
         app.clickActionButtonByText("Remove")
 
+        device.waitForIdle()
+
         // Assert - the other device is no longer shown
         assertNull(device.findObject(By.text("Yellow Hat")))
     }
