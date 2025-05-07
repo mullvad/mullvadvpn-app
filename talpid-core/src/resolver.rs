@@ -71,7 +71,12 @@ pub static LOCAL_DNS_RESOLVER: LazyLock<bool> = LazyLock::new(|| {
 // Name of the loopback network device.
 const LOOPBACK: &str = "lo0";
 
-const DNS_PORT: u16 = 53;
+/// The port we should bind the local DNS resolver to.
+const DNS_PORT: u16 = if cfg!(test) {
+    1053 // use a value above 1000 to allow for running the tests without root privileges
+} else {
+    53
+};
 
 const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
 const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com", "netcts.cdn-apple.com"];
@@ -620,11 +625,11 @@ mod test {
         super::start_resolver().await.unwrap()
     }
 
-    fn get_test_resolver(port: u16) -> hickory_server::resolver::TokioAsyncResolver {
+    fn get_test_resolver(addr: SocketAddr) -> hickory_server::resolver::TokioAsyncResolver {
         let resolver_config = ResolverConfig::from_parts(
             None,
             vec![],
-            NameServerConfigGroup::from_ips_clear(&[Ipv4Addr::LOCALHOST.into()], port, true),
+            NameServerConfigGroup::from_ips_clear(&[addr.ip()], addr.port(), true),
         );
         TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default())
     }
@@ -633,7 +638,7 @@ mod test {
     fn test_successful_lookup() {
         let rt = tokio::runtime::Runtime::new().unwrap();
         let handle = rt.block_on(start_resolver());
-        let test_resolver = get_test_resolver(handle.listening_addr().port());
+        let test_resolver = get_test_resolver(handle.listening_addr());
 
         rt.block_on(async move {
             for domain in &*ALLOWED_DOMAINS {
@@ -649,7 +654,7 @@ mod test {
         let rt = tokio::runtime::Runtime::new().unwrap();
 
         let handle = rt.block_on(start_resolver());
-        let test_resolver = get_test_resolver(handle.listening_addr().port());
+        let test_resolver = get_test_resolver(handle.listening_addr());
 
         let captive_portal_domain = LowerName::from(Name::from_str("apple.com").unwrap());
         let resolver_result = rt.block_on(async move {
@@ -668,10 +673,9 @@ mod test {
         let rt = tokio::runtime::Runtime::new().unwrap();
 
         let handle = rt.block_on(start_resolver());
-        let port = handle.listening_addr().port();
+        let addr = handle.listening_addr();
         mem::drop(handle);
         thread::sleep(Duration::from_millis(300));
-        UdpSocket::bind((Ipv4Addr::LOCALHOST, port))
-            .expect("Failed to bind to a port that should have been removed");
+        UdpSocket::bind(addr).expect("Failed to bind to a port that should have been removed");
     }
 }
