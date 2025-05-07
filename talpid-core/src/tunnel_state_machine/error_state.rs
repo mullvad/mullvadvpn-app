@@ -7,8 +7,6 @@ use crate::dns::DnsConfig;
 #[cfg(not(target_os = "android"))]
 use crate::firewall::FirewallPolicy;
 use futures::StreamExt;
-#[cfg(target_os = "macos")]
-use std::net::Ipv4Addr;
 use talpid_types::{
     tunnel::{ErrorStateCause, FirewallPolicyError},
     ErrorExt,
