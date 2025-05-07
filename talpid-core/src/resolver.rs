@@ -310,36 +310,34 @@ impl LocalResolver {
 
             loop {
                 let Err(err) = server.block_until_done().await else {
-                    break;
+                    break; // Graceful shutdown
                 };
 
                 log::error!("DNS server unexpectedly stopped: {}", err);
+                drop(server); // drop the old server since we need to create a new one
 
+                // Exit if `command_tx` has been dropped.
                 if weak_tx.strong_count() == 0 {
                     break;
                 }
 
-                log::debug!("Attempting restart server");
+                log::debug!("Attempting to restart server");
 
                 let socket = match net::UdpSocket::bind(resolver_addr).await {
                     Ok(socket) => socket,
                     Err(e) => {
-                        log::warn!("Failed to bind DNS server to {resolver_addr}: {e}");
+                        log::error!("Failed to bind DNS server to {resolver_addr}: {e}");
                         break;
                     }
                 };
 
                 match Self::new_server(socket, weak_tx.clone()) {
-                    Ok(new_server) => {
-                        server = new_server;
-                        continue;
-                    }
+                    Ok(new_server) => server = new_server,
                     Err(error) => {
                         log::error!("Failed to restart DNS server: {error}");
+                        break;
                     }
                 }
-
-                break;
             }
         });
 
