@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+#### macOS
+- Make switching between networks faster.
+
 ### Fixed
 #### Linux
 - Fix syntax error in Apparmor profile.
