@@ -44,7 +44,7 @@ use hickory_server::{
 use rand::random;
 use std::sync::LazyLock;
 use talpid_types::drop_guard::{on_drop, OnDrop};
-use tokio::{net, process::Command};
+use tokio::{net, process::Command, task::JoinHandle};
 
 /// If a local DNS resolver should be used at all times.
 ///
@@ -122,7 +122,7 @@ pub enum Error {
 /// Is controlled by commands sent through [ResolverHandle]s.
 struct LocalResolver {
     rx: mpsc::UnboundedReceiver<ResolverMessage>,
-    dns_server: Option<(tokio::task::JoinHandle<()>, oneshot::Receiver<()>)>,
+    dns_server_task: JoinHandle<()>,
     inner_resolver: Resolver,
 
     /// A drop guard that removes the non-standard IP alias on the loopback device.
@@ -350,8 +350,7 @@ impl LocalResolver {
 
         let (mut server, _port) = Self::new_server(server_listening_socket, weak_tx.clone())?;
 
-        let (server_done_tx, server_done_rx) = oneshot::channel();
-        let server_handle = tokio::spawn(async move {
+        let dns_server_task = tokio::spawn(async move {
             loop {
                 if let Err(err) = server.block_until_done().await {
                     log::error!("DNS server unexpectedly stopped: {}", err);
@@ -378,13 +377,11 @@ impl LocalResolver {
                 }
                 break;
             }
-
-            let _ = server_done_tx.send(());
         });
 
         let resolver = Self {
             rx,
-            dns_server: Some((server_handle, server_done_rx)),
+            dns_server_task,
             inner_resolver: Resolver::from(Config::Blocking),
             _cleanup_ifconfig: cleanup_ifconfig,
         };
@@ -461,10 +458,9 @@ impl LocalResolver {
             }
         }
 
-        if let Some((server_handle, done_rx)) = self.dns_server.take() {
-            server_handle.abort();
-            let _ = done_rx.await;
-        }
+        self.dns_server_task.abort();
+        // TODO: why do we bother waiting?
+        let _ = self.dns_server_task.await;
     }
 }
 
