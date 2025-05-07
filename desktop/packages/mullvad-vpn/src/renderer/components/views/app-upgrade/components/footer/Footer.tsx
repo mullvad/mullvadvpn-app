@@ -22,33 +22,20 @@ const TransitionHeight = styled.div<{ $height: string }>`
   }
 `;
 
+const footers = {
+  download: <DownloadFooter />,
+  error: <ErrorFooter />,
+  initial: <InitialFooter />,
+  launch: <LaunchFooter />,
+  pause: <PauseFooter />,
+  verify: <VerifyFooter />,
+};
+
 export function Footer() {
   const step = useStep();
-  const [ref, { height }] = useMeasure<HTMLDivElement>();
-  let footer: React.ReactElement | null = null;
+  const footer = footers[step];
 
-  switch (step) {
-    case 'download':
-      footer = <DownloadFooter />;
-      break;
-    case 'error':
-      footer = <ErrorFooter />;
-      break;
-    case 'initial':
-      footer = <InitialFooter />;
-      break;
-    case 'launch':
-      footer = <LaunchFooter />;
-      break;
-    case 'pause':
-      footer = <PauseFooter />;
-      break;
-    case 'verify':
-      footer = <VerifyFooter />;
-      break;
-    default:
-      return step satisfies never;
-  }
+  const [ref, { height }] = useMeasure<HTMLDivElement>();
 
   return (
     <TransitionHeight $height={`${height}px`}>
