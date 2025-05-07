@@ -7,7 +7,11 @@
 //!
 //! See [start_resolver].
 use std::{
-  io, net::{IpAddr, Ipv4Addr, SocketAddr}, str::FromStr, sync::{Arc, Weak}, time::{Duration, Instant}
+    io,
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+    str::FromStr,
+    sync::{Arc, Weak},
+    time::{Duration, Instant},
 };
 
 use futures::{
@@ -37,9 +41,10 @@ use hickory_server::{
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
     ServerFuture,
 };
-use tokio::process::Command;
-use std::sync::LazyLock;
 use rand::random;
+use std::sync::LazyLock;
+use talpid_types::drop_guard::on_drop;
+use tokio::process::Command;
 
 /// If a local DNS resolver should be used at all times.
 ///
@@ -304,18 +309,42 @@ impl LocalResolver {
 
         let weak_tx = Arc::downgrade(&command_tx);
 
-
-        let random_loopback_addr = Ipv4Addr::new(127, random::<u8>().max(1), random(), random());
+        let loopback_name = "lo0";
+        let random_loopback_addr = Ipv4Addr::new(127, 1u8.max(random()), random(), random());
         // Allow ourselves to bind to this "random" loopback address.
         // TODO: do the inverse: ifconfig lo0 alias xyz down (?)
-        Command::new("ifconfig").args(["lo0", "alias", &format!("{random_loopback_addr}"), "up"]).output().await.unwrap();
+        Command::new("ifconfig")
+            .args([
+                loopback_name,
+                "alias",
+                &format!("{random_loopback_addr}"),
+                "up",
+            ])
+            .output()
+            .await
+            .unwrap();
+
+        // Clean up ip address when stopping the resolver
+        // TODO: move me into self?
+        let on_drop = on_drop(|| {
+            tokio::task::spawn(async move {
+                Command::new("ifconfig")
+                    .args([loopback_name, "delete", &format!("{random_loopback_addr}")])
+                    .output()
+                    .await
+                    .unwrap();
+            });
+        });
+
         log::debug!("Local DNS resolver shall bind to {random_loopback_addr}");
 
         // TODO: Try to bind to port 53. If that doesn't work, fallback on binding to a random
         // port.
         let local_dns_resolver_addr = (random_loopback_addr, 53);
 
-        let (mut server, _port) = Self::new_server(local_dns_resolver_addr, weak_tx.clone()).await.unwrap();
+        let (mut server, _port) = Self::new_server(local_dns_resolver_addr, weak_tx.clone())
+            .await
+            .unwrap();
 
         let (server_done_tx, server_done_rx) = oneshot::channel();
         let server_handle = tokio::spawn(async move {
@@ -348,7 +377,10 @@ impl LocalResolver {
             inner_resolver: Resolver::from(Config::Blocking),
         };
 
-        Ok((resolver, ResolverHandle::new(command_tx,  local_dns_resolver_addr.into())))
+        Ok((
+            resolver,
+            ResolverHandle::new(command_tx, local_dns_resolver_addr.into()),
+        ))
     }
 
     async fn new_server(
