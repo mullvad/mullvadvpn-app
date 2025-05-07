@@ -124,8 +124,10 @@ struct LocalResolver {
     rx: mpsc::UnboundedReceiver<ResolverMessage>,
     dns_server: Option<(tokio::task::JoinHandle<()>, oneshot::Receiver<()>)>,
     inner_resolver: Resolver,
-    // TODO: [OnDrop] currently prevents [LocalResolver] from being Send :///
-    cleanup_ifconfig: OnDrop,
+
+    /// A drop guard that removes the non-standard IP alias on the loopback device.
+    /// The IP is the one we bind the dns resover to, e.g. `127.123.42.33`.
+    _cleanup_ifconfig: OnDrop,
 }
 
 /// A message to [LocalResolver]
@@ -311,6 +313,7 @@ impl LocalResolver {
 
         let weak_tx = Arc::downgrade(&command_tx);
 
+        // Name of the loopback network device.
         let loopback_name = "lo0";
 
         // Try to bind to the UDP socket that will be passed to the local DNS resolver.
@@ -321,8 +324,6 @@ impl LocalResolver {
         let resolver_ip = resolver_addr.ip();
 
         // TODO: Check if random_loopback_addr is already assigned to some other alias
-
-        // TODO: do the inverse: ifconfig lo0 alias xyz down (?)
         Command::new("ifconfig")
             .args([loopback_name, "alias", &format!("{resolver_ip}"), "up"])
             .output()
@@ -385,7 +386,7 @@ impl LocalResolver {
             rx,
             dns_server: Some((server_handle, server_done_rx)),
             inner_resolver: Resolver::from(Config::Blocking),
-            cleanup_ifconfig,
+            _cleanup_ifconfig: cleanup_ifconfig,
         };
 
         Ok((resolver, ResolverHandle::new(command_tx, resolver_addr)))
