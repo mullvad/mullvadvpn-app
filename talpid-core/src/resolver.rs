@@ -633,7 +633,7 @@ mod test {
     fn test_successful_lookup() {
         let rt = tokio::runtime::Runtime::new().unwrap();
         let handle = rt.block_on(start_resolver());
-        let test_resolver = get_test_resolver(handle.listening_port());
+        let test_resolver = get_test_resolver(handle.listening_addr().port());
 
         rt.block_on(async move {
             for domain in &*ALLOWED_DOMAINS {
@@ -649,7 +649,7 @@ mod test {
         let rt = tokio::runtime::Runtime::new().unwrap();
 
         let handle = rt.block_on(start_resolver());
-        let test_resolver = get_test_resolver(handle.listening_port());
+        let test_resolver = get_test_resolver(handle.listening_addr().port());
 
         let captive_portal_domain = LowerName::from(Name::from_str("apple.com").unwrap());
         let resolver_result = rt.block_on(async move {
@@ -668,7 +668,7 @@ mod test {
         let rt = tokio::runtime::Runtime::new().unwrap();
 
         let handle = rt.block_on(start_resolver());
-        let port = handle.listening_port();
+        let port = handle.listening_addr().port();
         mem::drop(handle);
         thread::sleep(Duration::from_millis(300));
         UdpSocket::bind((Ipv4Addr::LOCALHOST, port))
