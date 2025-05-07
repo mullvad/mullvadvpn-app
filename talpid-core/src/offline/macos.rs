@@ -79,13 +79,13 @@ pub async fn spawn_monitor(
     // Detect changes to the default route
     let state = Arc::new(Mutex::new(ConnectivityInner { ipv4, ipv6 }));
     if *LOCAL_DNS_RESOLVER {
-        tokio::spawn(handle_route_changes_with_synthetic_state(
+        tokio::spawn(handle_route_changes(
             route_listener,
             state.clone(),
             notify_tx.clone(),
         ));
     } else {
-        tokio::spawn(handle_route_changes(
+        tokio::spawn(handle_route_changes_with_synthetic_state(
             route_listener,
             state.clone(),
             notify_tx.clone(),
