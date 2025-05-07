@@ -629,7 +629,7 @@ mod test {
         TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default())
     }
 
-    #[test]
+    #[test_log::test]
     fn test_successful_lookup() {
         let rt = tokio::runtime::Runtime::new().unwrap();
         let handle = rt.block_on(start_resolver());
@@ -644,7 +644,7 @@ mod test {
         .expect("Resolution of domains failed");
     }
 
-    #[test]
+    #[test_log::test]
     fn test_failed_lookup() {
         let rt = tokio::runtime::Runtime::new().unwrap();
 
@@ -663,7 +663,7 @@ mod test {
         )
     }
 
-    #[test]
+    #[test_log::test]
     fn test_shutdown() {
         let rt = tokio::runtime::Runtime::new().unwrap();
 
