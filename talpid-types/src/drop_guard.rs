@@ -5,14 +5,23 @@ pub fn on_drop<F: FnOnce()>(f: F) -> OnDrop<F> {
 }
 
 /// A type that executes a function when dropped.
-pub struct OnDrop<F: FnOnce() = Box<dyn FnOnce()>>(Option<F>);
+///
+/// The default type of `F` is a boxed function. It's also [Send] in order to be useful with async.
+/// If you need a less restrictive type for `F` you can specify it explicitly.
+pub struct OnDrop<F: FnOnce() = Box<dyn FnOnce() + Send>>(Option<F>);
 
-impl<F: FnOnce() + 'static> OnDrop<F> {
-    /// Box the inner function and erase its type.
-    pub fn boxed(mut self) -> OnDrop {
+impl<F: FnOnce()> OnDrop<F> {
+    /// Map the wrapped function into some other function.
+    pub fn map<F2: FnOnce()>(mut self, map: impl FnOnce(F) -> F2) -> OnDrop<F2> {
         let f = self.0.take();
-        let f = f.map(|f| Box::new(f) as Box<_>);
-        OnDrop(f)
+        OnDrop(f.map(map))
+    }
+}
+
+impl<F: FnOnce() + Send + 'static> OnDrop<F> {
+    /// Box the inner function to erase its type.
+    pub fn boxed(self) -> OnDrop {
+        self.map(|f| Box::new(f) as Box<_>)
     }
 }
 
