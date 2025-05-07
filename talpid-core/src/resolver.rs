@@ -101,11 +101,11 @@ pub async fn start_resolver() -> Result<ResolverHandle, Error> {
 pub enum Error {
     /// Failed to bind UDP socket
     #[error("Failed to bind UDP socket")]
-    UdpBindError(#[source] io::Error),
+    UdpBind,
 
     /// Failed to get local address of a bound UDP socket
     #[error("Failed to get local address of a bound UDP socket")]
-    GetSocketAddrError(#[source] io::Error),
+    GetSocketAddr(#[source] io::Error),
 }
 
 /// A DNS resolver that forwards queries to some other DNS server
@@ -299,7 +299,7 @@ impl LocalResolver {
         let weak_tx = Arc::downgrade(&command_tx);
 
         let (socket, cleanup_ifconfig) = Self::new_random_socket().await?;
-        let resolver_addr = socket.local_addr().map_err(Error::GetSocketAddrError)?;
+        let resolver_addr = socket.local_addr().map_err(Error::GetSocketAddr)?;
         let mut server = Self::new_server(socket, weak_tx.clone())?;
 
         let dns_server_task = tokio::spawn(async move {
@@ -383,13 +383,19 @@ impl LocalResolver {
         let random_loopback = || async move {
             let addr = Ipv4Addr::new(127, 1u8.max(random()), random(), random());
 
-            // TODO: Check if random_loopback_addr is already assigned to some other alias
-            Command::new("ifconfig")
+            let output = Command::new("ifconfig")
                 .args([LOOPBACK, "alias", &format!("{addr}"), "up"])
                 .output()
                 .await
-                .inspect_err(|e| log::warn!("Failed to create {LOOPBACK} alias {addr}: {e}"))
-                .unwrap();
+                .inspect_err(|e| {
+                    log::warn!("Failed to spawn `ifconfig {LOOPBACK} alias {addr} up`: {e}")
+                })
+                .ok()?;
+
+            if !output.status.success() {
+                log::warn!("Non-zero exit code from ifconfig: {}", output.status);
+                return None;
+            }
 
             log::debug!("Created loopback address {addr}");
 
@@ -410,30 +416,27 @@ impl LocalResolver {
             })
             .boxed();
 
-            (addr, cleanup_ifconfig)
+            Some((addr, cleanup_ifconfig))
         };
 
-        let mut addr_and_on_drop = random_loopback().await;
-        let mut attempt = 0;
-        loop {
-            let (socket_addr, on_drop) = addr_and_on_drop;
-
-            let result = net::UdpSocket::bind((socket_addr, DNS_PORT)).await;
-
-            let err = match result {
-                Err(err) => err,
-                Ok(socket) => return Ok((socket, on_drop)),
+        for attempt in 0.. {
+            let (socket_addr, on_drop) = match attempt {
+                ..3 => match random_loopback().await {
+                    Some(random) => random,
+                    None => continue,
+                },
+                3 => (Ipv4Addr::LOCALHOST, OnDrop::noop()),
+                4.. => break,
             };
 
-            log::warn!("Failed to bind DNS server to {socket_addr}: {err}");
-
-            attempt += 1;
-            addr_and_on_drop = match attempt {
-                ..3 => random_loopback().await,
-                3 => (Ipv4Addr::LOCALHOST, OnDrop::noop()),
-                4.. => return Err(Error::UdpBindError(err)),
+            match net::UdpSocket::bind((socket_addr, DNS_PORT)).await {
+                Ok(socket) => return Ok((socket, on_drop)),
+                Err(err) => log::warn!("Failed to bind DNS server to {socket_addr}: {err}"),
             }
         }
+
+        // See logs for details.
+        Err(Error::UdpBind)
     }
 
     /// Runs the filtering resolver as an actor, listening for new queries instances.  When all
