@@ -16,6 +16,11 @@ impl<F: FnOnce()> OnDrop<F> {
         let f = self.0.take();
         OnDrop(f.map(map))
     }
+
+    /// A drop guard that does nothing
+    pub fn noop() -> Self {
+        OnDrop(None)
+    }
 }
 
 impl<F: FnOnce() + Send + 'static> OnDrop<F> {
