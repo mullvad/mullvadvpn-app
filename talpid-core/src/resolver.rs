@@ -57,33 +57,15 @@ use tokio::{
 /// documented elsewhere.
 #[allow(unused)]
 pub static LOCAL_DNS_RESOLVER: LazyLock<bool> = LazyLock::new(|| {
-    use talpid_platform_metadata::MacosVersion;
-    let version = MacosVersion::new().expect("Could not detect macOS version");
-    let v = |s| MacosVersion::from_raw_version(s).unwrap();
-    // Apple services tried to perform DNS lookups on the physical interface on some macOS
-    // versions, so we added redirect rules to always redirect DNS to our local DNS resolver.
-    // This seems to break some apps which do not like that we redirect DNS on port 53 to our local
-    // DNS resolver running on some other, arbitrary port, and so we disable this behaviour on
-    // macOS versions that are unaffected by this naughty bug.
-    //
-    // The workaround should only be applied to the affected macOS versions because some programs
-    // set the `skip filtering` pf flag on loopback, which meant that the pf filtering would break
-    // unexpectedly. We could clear the `skip filtering` flag to force pf filtering on loopback,
-    // but apparently it is good practice to enable `skip filtering` on loopback so we decided
-    // against this. Source: https://www.openbsd.org/faq/pf/filter.html
-    //
-    // It should be noted that most programs still works fine with this workaround enabled. Notably
-    // programs that use `getaddrinfo` would behave correctly when we redirect DNS to our local
-    // resolver, while some programs always used port 53 no matter what (nslookup for example).
-    // Also, most programs don't set the `skip filtering` pf flag on loopback, but some notable
-    // ones do for some reason. Orbstack is one such example, which meant that people running
-    // containers would run into the aforementioned issue.
-    // HACK: Always use the local resolver.
-    let use_local_dns_resolver = true;
-    if use_local_dns_resolver {
+    let disable_local_dns_resolver = std::env::var("TALPID_DISABLE_LOCAL_DNS_RESOLVER")
+        .map(|v| v != "0")
+        // Use the local DNS resolver by default.
+        .unwrap_or(false);
+
+    if !disable_local_dns_resolver {
         log::debug!("Using local DNS resolver");
     }
-    use_local_dns_resolver
+    !disable_local_dns_resolver
 });
 
 // Name of the loopback network device.
