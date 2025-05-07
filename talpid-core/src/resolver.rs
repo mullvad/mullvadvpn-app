@@ -71,6 +71,8 @@ pub static LOCAL_DNS_RESOLVER: LazyLock<bool> = LazyLock::new(|| {
 // Name of the loopback network device.
 const LOOPBACK: &str = "lo0";
 
+const DNS_PORT: u16 = 53;
+
 const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
 const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com", "netcts.cdn-apple.com"];
 
@@ -165,7 +167,7 @@ impl From<Config> for Resolver {
                 dns_servers.retain(|addr| !addr.is_loopback());
 
                 let forward_server_config =
-                    NameServerConfigGroup::from_ips_clear(dns_servers, 53, true);
+                    NameServerConfigGroup::from_ips_clear(dns_servers, DNS_PORT, true);
 
                 let forward_config =
                     ResolverConfig::from_parts(None, vec![], forward_server_config);
@@ -253,7 +255,6 @@ impl Resolver {
 #[derive(Clone)]
 pub struct ResolverHandle {
     tx: Arc<mpsc::UnboundedSender<ResolverMessage>>,
-    // listening_port: u16,
     listening_addr: SocketAddr,
 }
 
@@ -412,28 +413,27 @@ impl LocalResolver {
             (addr, cleanup_ifconfig)
         };
 
-        // TODO: create IP aliases lazily
-        let local_resolver_addrs = [
-            // Allow the UDP socket to bind to this "random" loopback address.
-            (random_loopback().await, 53),
-            (random_loopback().await, 53),
-            (random_loopback().await, 53),
-            // If that doesn't work, try to bind to the normal loopback address
-            ((Ipv4Addr::LOCALHOST, OnDrop::noop()), 53),
-            //(Ipv4Addr::LOCALHOST, 1338),
-        ];
+        let mut addr_and_on_drop = random_loopback().await;
+        let mut attempt = 0;
+        loop {
+            let (socket_addr, on_drop) = addr_and_on_drop;
 
-        for ((addr, on_drop), port) in local_resolver_addrs {
-            let socket_addr = SocketAddr::new(addr.into(), port);
-            match net::UdpSocket::bind(socket_addr).await {
+            let result = net::UdpSocket::bind((socket_addr, DNS_PORT)).await;
+
+            let err = match result {
+                Err(err) => err,
                 Ok(socket) => return Ok((socket, on_drop)),
-                Err(e) => {
-                    log::warn!("Failed to bind DNS server to {socket_addr}: {e}");
-                }
+            };
+
+            log::warn!("Failed to bind DNS server to {socket_addr}: {err}");
+
+            attempt += 1;
+            addr_and_on_drop = match attempt {
+                ..3 => random_loopback().await,
+                3 => (Ipv4Addr::LOCALHOST, OnDrop::noop()),
+                4.. => return Err(Error::UdpBindError(err)),
             }
         }
-
-        todo!()
     }
 
     /// Runs the filtering resolver as an actor, listening for new queries instances.  When all
