@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+#### macOS
+- Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
+
 ### Fixed
 #### Linux
 - Fix syntax error in Apparmor profile.
@@ -29,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fully uninstall the app when it is removed by being dropped in the bin.
 - Add grace period when best default route goes away to reduce frequency of random reconnects.
+- Fix DNS not working briefly after switching networks.
 
 ### Security
 #### macOS
