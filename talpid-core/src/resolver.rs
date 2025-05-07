@@ -640,7 +640,7 @@ mod test {
         TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default())
     }
 
-    #[test]
+    #[test_log::test]
     fn test_successful_lookup() {
         let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
@@ -657,7 +657,7 @@ mod test {
         .expect("Resolution of domains failed");
     }
 
-    #[test]
+    #[test_log::test]
     fn test_failed_lookup() {
         let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
@@ -677,7 +677,7 @@ mod test {
         )
     }
 
-    #[test]
+    #[test_log::test]
     fn test_shutdown() {
         let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
