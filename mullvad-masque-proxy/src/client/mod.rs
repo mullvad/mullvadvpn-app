@@ -140,7 +140,7 @@ pub struct ClientConfig {
     /// Optional fwmark to set on the QUIC endpoint socket
     #[cfg(target_os = "linux")]
     #[builder(default)]
-    pub fwmark: Option<u16>,
+    pub fwmark: Option<u32>,
 
     /// Optional timeout when no data is sent in the proxy.
     #[builder(default)]
@@ -224,7 +224,7 @@ impl Client {
     fn setup_quic_endpoint(
         local_addr: SocketAddr,
         max_udp_payload_size: u16,
-        #[cfg(target_os = "linux")] fwmark: Option<u16>,
+        #[cfg(target_os = "linux")] fwmark: Option<u32>,
     ) -> Result<Endpoint> {
         let local_socket = socket2::Socket::new(
             socket2::Domain::IPV4,
@@ -235,9 +235,7 @@ impl Client {
 
         #[cfg(target_os = "linux")]
         if let Some(fwmark) = fwmark {
-            local_socket
-                .set_mark(u32::from(fwmark))
-                .map_err(Error::Fwmark)?;
+            local_socket.set_mark(fwmark).map_err(Error::Fwmark)?;
         }
 
         local_socket.bind(&local_addr.into()).map_err(Error::Bind)?;

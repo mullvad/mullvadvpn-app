@@ -2327,6 +2327,10 @@ msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr ""
 
+msgctxt "wireguard-settings-view"
+msgid "QUIC"
+msgstr ""
+
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"

@@ -239,6 +239,7 @@ pub enum ObfuscationType {
     #[serde(rename = "udp2tcp")]
     Udp2Tcp,
     Shadowsocks,
+    Quic,
 }
 
 impl fmt::Display for ObfuscationType {
@@ -246,6 +247,7 @@ impl fmt::Display for ObfuscationType {
         match self {
             ObfuscationType::Udp2Tcp => "Udp2Tcp".fmt(f),
             ObfuscationType::Shadowsocks => "Shadowsocks".fmt(f),
+            ObfuscationType::Quic => "QUIC".fmt(f),
         }
     }
 }
@@ -259,21 +261,11 @@ pub struct ObfuscationEndpoint {
 
 impl From<&ObfuscatorConfig> for ObfuscationEndpoint {
     fn from(config: &ObfuscatorConfig) -> ObfuscationEndpoint {
-        let (endpoint, obfuscation_type) = match config {
-            ObfuscatorConfig::Udp2Tcp { endpoint } => (
-                Endpoint {
-                    address: *endpoint,
-                    protocol: TransportProtocol::Tcp,
-                },
-                ObfuscationType::Udp2Tcp,
-            ),
-            ObfuscatorConfig::Shadowsocks { endpoint } => (
-                Endpoint {
-                    address: *endpoint,
-                    protocol: TransportProtocol::Udp,
-                },
-                ObfuscationType::Shadowsocks,
-            ),
+        let endpoint = config.get_obfuscator_endpoint();
+        let obfuscation_type = match config {
+            ObfuscatorConfig::Udp2Tcp { .. } => ObfuscationType::Udp2Tcp,
+            ObfuscatorConfig::Shadowsocks { .. } => ObfuscationType::Shadowsocks,
+            ObfuscatorConfig::Quic { .. } => ObfuscationType::Quic,
         };
 
         ObfuscationEndpoint {

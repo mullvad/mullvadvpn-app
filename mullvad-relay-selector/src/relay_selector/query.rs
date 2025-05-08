@@ -283,6 +283,7 @@ pub enum ObfuscationQuery {
     Auto,
     Udp2tcp(Udp2TcpObfuscationSettings),
     Shadowsocks(ShadowsocksSettings),
+    Quic,
 }
 
 impl ObfuscationQuery {
@@ -306,6 +307,10 @@ impl ObfuscationQuery {
                 shadowsocks: settings,
                 ..Default::default()
             },
+            ObfuscationQuery::Quic => ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Quic,
+                ..Default::default()
+            },
         }
     }
 }
@@ -323,6 +328,7 @@ impl From<ObfuscationSettings> for ObfuscationQuery {
             SelectedObfuscation::Shadowsocks => {
                 ObfuscationQuery::Shadowsocks(obfuscation.shadowsocks)
             }
+            SelectedObfuscation::Quic => ObfuscationQuery::Quic,
         }
     }
 }
