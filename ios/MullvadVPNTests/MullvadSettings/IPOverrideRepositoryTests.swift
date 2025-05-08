@@ -19,7 +19,7 @@ final class IPOverrideRepositoryTests: XCTestCase {
     }
 
     override static func tearDown() {
-        SettingsManager.unitTestStore = nil
+        store.reset()
     }
 
     override func tearDownWithError() throws {
