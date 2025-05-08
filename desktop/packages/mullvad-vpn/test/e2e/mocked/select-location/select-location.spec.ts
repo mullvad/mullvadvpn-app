@@ -1,16 +1,16 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { getDefaultSettings } from '../../../src/main/default-settings';
-import { colorTokens } from '../../../src/renderer/lib/foundations';
+import { getDefaultSettings } from '../../../../src/main/default-settings';
+import { colorTokens } from '../../../../src/renderer/lib/foundations';
 import {
   IRelayList,
   IRelayListWithEndpointData,
   ISettings,
   IWireguardEndpointData,
-} from '../../../src/shared/daemon-rpc-types';
-import { RoutePath } from '../../../src/shared/routes';
-import { MockedTestUtils, startMockedApp } from './mocked-utils';
+} from '../../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../../src/shared/routes';
+import { MockedTestUtils, startMockedApp } from '../mocked-utils';
 
 const relayList: IRelayList = {
   countries: [
