@@ -13,10 +13,7 @@ import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import net.mullvad.mullvadvpn.test.e2e.BuildConfig
-import net.mullvad.mullvadvpn.test.e2e.serializer.NanoSecondsTimestampSerializer
 
 class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
     suspend fun createRule(rule: DropRule) {
@@ -50,12 +47,9 @@ private fun defaultHttpClient(): HttpClient =
         install(ContentNegotiation) {
             json(
                 Json {
+                    ignoreUnknownKeys = true
                     isLenient = true
                     prettyPrint = true
-
-                    serializersModule = SerializersModule {
-                        contextual(NanoSecondsTimestampSerializer)
-                    }
                 }
             )
         }
