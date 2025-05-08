@@ -26,6 +26,9 @@ use super::{
 ///
 /// `account_number` must be a pointer to a null terminated string.
 ///
+/// `retry_strategy` must have been created by a call to either of the following functions
+/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
 pub unsafe extern "C" fn mullvad_ios_get_account(
@@ -79,6 +82,9 @@ pub unsafe extern "C" fn mullvad_ios_get_account(
 /// object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
 /// when completion finishes (in completion.finish).
 ///
+/// `retry_strategy` must have been created by a call to either of the following functions
+/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
 pub unsafe extern "C" fn mullvad_ios_create_account(
@@ -121,6 +127,9 @@ pub unsafe extern "C" fn mullvad_ios_create_account(
 /// when completion finishes (in completion.finish).
 ///
 /// `account_number` must be a pointer to a null terminated string.
+///
+/// `retry_strategy` must have been created by a call to either of the following functions
+/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]

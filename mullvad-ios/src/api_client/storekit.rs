@@ -27,6 +27,9 @@ use super::{
 ///
 /// `account_number` must be a pointer to a null terminated string.
 ///
+/// `retry_strategy` must have been created by a call to either of the following functions
+/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
 pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
@@ -91,6 +94,9 @@ async fn mullvad_ios_init_storekit_payment_inner(
 /// This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
 /// object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
 /// when completion finishes (in completion.finish).
+///
+/// `retry_strategy` must have been created by a call to either of the following functions
+/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// `account_number` must be a pointer to a null terminated string.
 ///

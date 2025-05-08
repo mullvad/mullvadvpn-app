@@ -30,6 +30,9 @@ use talpid_types::net::wireguard::PublicKey;
 /// the `account_number` must be a pointer to a null terminated string.
 /// the `identifier` must be a pointer to a null terminated string.
 ///
+/// `retry_strategy` must have been created by a call to either of the following functions
+/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_get_device(
@@ -86,6 +89,9 @@ pub unsafe extern "C" fn mullvad_ios_get_device(
 ///
 /// the `account_number` must be a pointer to a null terminated string.
 ///
+/// `retry_strategy` must have been created by a call to either of the following functions
+/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_get_devices(
@@ -136,6 +142,9 @@ pub unsafe extern "C" fn mullvad_ios_get_devices(
 /// This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
 /// object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
 /// when completion finishes (in completion.finish).
+///
+/// `retry_strategy` must have been created by a call to either of the following functions
+/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// the `account_number` must be a pointer to a null terminated string.
 /// the `identifier` must be a pointer to a null terminated string.
@@ -195,6 +204,9 @@ pub unsafe extern "C" fn mullvad_ios_create_device(
 /// object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
 /// when completion finishes (in completion.finish).
 ///
+/// `retry_strategy` must have been created by a call to either of the following functions
+/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+///
 /// the `account_number` must be a pointer to a null terminated string.
 /// the `identifier` must be a pointer to a null terminated string.
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
@@ -250,6 +262,9 @@ pub unsafe extern "C" fn mullvad_ios_delete_device(
 /// This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
 /// object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
 /// when completion finishes (in completion.finish).
+///
+/// `retry_strategy` must have been created by a call to either of the following functions
+/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// the `account_number` must be a pointer to a null terminated string.
 /// the `identifier` must be a pointer to a null terminated string.

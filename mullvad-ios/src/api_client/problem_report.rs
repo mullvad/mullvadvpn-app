@@ -29,6 +29,9 @@ use tokio::task::JoinHandle;
 /// object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
 /// when completion finishes (in completion.finish).
 ///
+/// `retry_strategy` must have been created by a call to either of the following functions
+/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+///
 /// the string properties of `SwiftProblemReportRequest` must be pointers to a null terminated strings.
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
