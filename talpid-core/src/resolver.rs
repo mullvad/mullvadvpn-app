@@ -621,7 +621,11 @@ mod test {
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
         TokioAsyncResolver,
     };
-    use std::{mem, net::UdpSocket, thread, time::Duration};
+    use std::{mem, net::UdpSocket, sync::Mutex, thread, time::Duration};
+
+    /// Can't have multiple local resolvers running at the same time, as they will try to bind to
+    /// the same address and port. The tests below use this lock to run sequentially.
+    static LOCK: Mutex<()> = Mutex::new(());
 
     async fn start_resolver() -> ResolverHandle {
         super::start_resolver().await.unwrap()
@@ -638,7 +642,9 @@ mod test {
 
     #[test]
     fn test_successful_lookup() {
+        let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
+
         let handle = rt.block_on(start_resolver());
         let test_resolver = get_test_resolver(handle.listening_addr());
 
@@ -653,6 +659,7 @@ mod test {
 
     #[test]
     fn test_failed_lookup() {
+        let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
 
         let handle = rt.block_on(start_resolver());
@@ -672,6 +679,7 @@ mod test {
 
     #[test]
     fn test_shutdown() {
+        let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
 
         let handle = rt.block_on(start_resolver());
