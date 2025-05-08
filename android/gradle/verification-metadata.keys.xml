@@ -44,6 +44,7 @@
             <trusting group="androidx.datastore"/>
             <trusting group="androidx.navigation"/>
             <trusting group="^androidx[.]compose($|([.].*))" regex="true"/>
+            <trusting group="^androidx[.]test($|([.].*))" regex="true"/>
             <trusting group="^com[.]android($|([.].*))" regex="true"/>
          </trusted-key>
          <trusted-key id="0F07D1201BDDAB67CFB84EB479752DB6C966F0B8" group="com.google.android" name="annotations" version="4.1.1.4"/>
@@ -105,7 +106,10 @@
          <trusted-key id="600EA202B1EC682F4A788E5AAC7A514BC9F9BB70" group="io.opencensus"/>
          <trusted-key id="60200AC4AE761F1614D6C46766D68DAA073BE985" group="org.slf4j"/>
          <trusted-key id="648190996EC0930A6D7D49A978178478013521D0" group="com.facebook"/>
-         <trusted-key id="64B9B09F164AA0BF88742EB61188B69F6D6259CA" group="com.google.accompanist" name="accompanist-drawablepainter" version="0.37.2"/>
+         <trusted-key id="64B9B09F164AA0BF88742EB61188B69F6D6259CA">
+            <trusting group="com.google.accompanist" name="accompanist-drawablepainter" version="0.37.2"/>
+            <trusting group="com.google.accompanist" name="accompanist-drawablepainter" version="0.37.3"/>
+         </trusted-key>
          <trusted-key id="694621A7227D8D5289699830ABE9F3126BB741C1" group="^com[.]google($|([.].*))" regex="true"/>
          <trusted-key id="696B6199A2A9D8C29CE78CC0D041CAD2E452550F" group="com.google.protobuf"/>
          <trusted-key id="6CE63E2E1685215A995BB3020B99A4AB5DB59AA2" group="io.arrow-kt"/>
@@ -148,6 +152,7 @@
             <trusting group="androidx.annotation"/>
             <trusting group="androidx.appcompat"/>
             <trusting group="androidx.collection"/>
+            <trusting group="androidx.concurrent"/>
             <trusting group="androidx.core"/>
             <trusting group="androidx.databinding"/>
             <trusting group="androidx.fragment"/>
