@@ -4,7 +4,7 @@
    https://docs.gradle.org/current/userguide/dependency_verification.html
 
    The easiest way to update this file is to run the following script:
-   <repository-root>/android/scripts/update-lockfile.sh
+   <repository-root>/android/scripts/lockfile -u
 
    The following trust group is only used for GitHub Actions: com.github.burrunan.multicache
 
