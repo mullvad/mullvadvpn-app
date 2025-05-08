@@ -369,9 +369,9 @@ impl LocalResolver {
     /// Create a new [net::UdpSocket] bound to port 53 on loopback.
     ///
     /// This socket will try to bind to the following IPs in sequential order:
-    /// - random ip in the range 127.1-255.0-255.0.255 : 53
-    /// - random ip in the range 127.1-255.0-255.0.255 : 53
-    /// - random ip in the range 127.1-255.0-255.0.255 : 53
+    /// - random ip in the range 127.1-255.0-255.0-255 : 53
+    /// - random ip in the range 127.1-255.0-255.0-255 : 53
+    /// - random ip in the range 127.1-255.0-255.0-255 : 53
     /// - 127.0.0.1 : 53
     ///
     /// We do this do try and avoid collisions with other DNS servers running on the same system.
