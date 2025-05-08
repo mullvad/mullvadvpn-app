@@ -20,11 +20,8 @@ import java.util.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import net.mullvad.mullvadvpn.test.e2e.BuildConfig
 import net.mullvad.mullvadvpn.test.e2e.misc.Networking
-import net.mullvad.mullvadvpn.test.e2e.serializer.NanoSecondsTimestampSerializer
 import net.mullvad.mullvadvpn.test.e2e.serializer.PacketCaptureSessionSerializer
 import org.junit.jupiter.api.fail
 
@@ -68,12 +65,9 @@ private fun defaultHttpClient(): HttpClient =
         install(ContentNegotiation) {
             json(
                 Json {
+                    ignoreUnknownKeys = true
                     isLenient = true
                     prettyPrint = true
-
-                    serializersModule = SerializersModule {
-                        contextual(NanoSecondsTimestampSerializer)
-                    }
                 }
             )
         }
