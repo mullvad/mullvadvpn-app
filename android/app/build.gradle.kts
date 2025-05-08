@@ -337,7 +337,7 @@ tasks.register("ensureValidVersionCode") {
     }
 }
 
-tasks.create("printVersion") {
+tasks.register("printVersion") {
     doLast {
         println("versionCode=${project.android.defaultConfig.versionCode}")
         println("versionName=${project.android.defaultConfig.versionName}")
