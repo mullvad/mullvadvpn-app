@@ -50,12 +50,9 @@ private fun defaultHttpClient(): HttpClient =
         install(ContentNegotiation) {
             json(
                 Json {
+                    ignoreUnknownKeys = true
                     isLenient = true
                     prettyPrint = true
-
-                    serializersModule = SerializersModule {
-                        contextual(NanoSecondsTimestampSerializer)
-                    }
                 }
             )
         }

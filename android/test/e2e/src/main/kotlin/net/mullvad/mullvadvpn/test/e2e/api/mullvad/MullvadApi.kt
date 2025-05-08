@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.test.e2e.api.mullvad
 
+import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
