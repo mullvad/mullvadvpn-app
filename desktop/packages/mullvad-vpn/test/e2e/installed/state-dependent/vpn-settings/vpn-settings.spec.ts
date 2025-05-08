@@ -116,21 +116,49 @@ test.describe('VPN settings', () => {
     });
   });
 
-  test('LAN settings', async () => {
-    // Find the LAN toggle
-    const lanToggle = page.getByText('Local network sharing').locator('..').getByRole('checkbox');
+  test.describe('LAN settings', () => {
+    const expectLocalNetworkSharing = async (
+      ariaChecked: 'true' | 'false',
+      cliState: 'allow' | 'block',
+    ) => {
+      const lanSwitch = selectors.lanSwitch();
+      await expect(lanSwitch).toHaveAttribute('aria-checked', ariaChecked);
+      const cliStateOutput = execSync('mullvad lan get').toString();
+      expect(cliStateOutput).toContain(cliState);
+    };
 
-    // Check initial state
-    const initialCliState = execSync('mullvad lan get').toString().trim();
-    expect(initialCliState).toMatch(/block$/);
-    await expect(lanToggle).toHaveAttribute('aria-checked', 'false');
+    const expectLocalNetworkSharingEnabled = async () => {
+      await expectLocalNetworkSharing('true', 'allow');
+    };
 
-    // Toggle LAN setting
-    await lanToggle.click();
+    const expectLocalNetworkSharingDisabled = async () => {
+      await expectLocalNetworkSharing('false', 'block');
+    };
 
-    // Verify the setting was applied correctly
-    await expect(lanToggle).toHaveAttribute('aria-checked', 'true');
-    const newState = execSync('mullvad lan get').toString().trim();
-    expect(newState).toMatch(/allow$/);
+    const disableLocalNetworkSharing = async () => {
+      const lanSwitch = selectors.lanSwitch();
+      if ((await lanSwitch.getAttribute('aria-checked')) === 'true') {
+        await lanSwitch.click();
+      }
+      await expectLocalNetworkSharingDisabled();
+    };
+
+    test.beforeAll(async () => {
+      // Ensure local network sharing is disabled before starting the tests
+      await disableLocalNetworkSharing();
+    });
+
+    test.afterEach(async () => {
+      await disableLocalNetworkSharing();
+    });
+
+    test('Should be enabled when switch is clicked', async () => {
+      await expectLocalNetworkSharingDisabled();
+
+      const lanSwitch = selectors.lanSwitch();
+      await lanSwitch.click();
+
+      await expectLocalNetworkSharingEnabled();
+    });
   });
 });
