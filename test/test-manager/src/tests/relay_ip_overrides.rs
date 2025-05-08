@@ -11,19 +11,19 @@ use crate::{
 use anyhow::{anyhow, bail, ensure, Context};
 use futures::FutureExt;
 use mullvad_management_interface::MullvadProxyClient;
+use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
-    constraints::Constraint,
     location::CountryCode,
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, BridgeType, GeographicLocationConstraint,
-        LocationConstraint, ObfuscationSettings, OpenVpnConstraints, RelayConstraints,
-        RelayOverride, SelectedObfuscation, TransportPort, WireguardConstraints,
+        LocationConstraint, ObfuscationSettings, RelayConstraints, RelayOverride,
+        SelectedObfuscation,
     },
     relay_list::RelayEndpointData,
 };
 use scopeguard::ScopeGuard;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use talpid_types::net::{TransportProtocol, TunnelType};
+use talpid_types::net::TunnelType;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 use tokio::{
@@ -60,9 +60,11 @@ pub async fn test_wireguard_ip_override(
         bail!("Guests with IPv6 addresses are not supported.");
     };
 
-    // pick any openvpn relay to use with the test
-    let filter = |endpoint: &_| matches!(endpoint, RelayEndpointData::Wireguard(..));
-    let (hostname, relay_ip) = constrain_to_a_relay(&mut mullvad_client, filter).await?;
+    // pick any wireguard_constraints relay to use with the test
+    let query = RelayQueryBuilder::wireguard().build();
+    let relay = helpers::constrain_to_relay(&mut mullvad_client, query)
+        .await
+        .context("Failed to set WireGuard")?;
 
     log::info!("connecting to selected relay");
     helpers::connect_and_wait(&mut mullvad_client).await?;
@@ -71,7 +73,7 @@ pub async fn test_wireguard_ip_override(
     let _ = helpers::geoip_lookup_with_retries(&rpc).await?;
 
     log::info!("blocking connection to relay from guest");
-    let _remove_nft_rule_on_drop = block_route(guest_ip, relay_ip).await?;
+    let _remove_nft_rule_on_drop = block_route(guest_ip, relay.ipv4_addr_in).await?;
 
     log::info!("checking that the connection does not work while blocked");
     ensure!(
@@ -79,15 +81,17 @@ pub async fn test_wireguard_ip_override(
         "Assert that relay is blocked by firewall rule"
     );
 
-    let _proxy_abort_handle =
-        spawn_udp_proxy(SocketAddr::new(relay_ip.into(), TUNNEL_PORT), TUNNEL_PORT)
-            .await
-            .with_context(|| "Failed to spawn UDP proxy")?;
+    let _proxy_abort_handle = spawn_udp_proxy(
+        SocketAddr::new(relay.ipv4_addr_in.into(), TUNNEL_PORT),
+        TUNNEL_PORT,
+    )
+    .await
+    .with_context(|| "Failed to spawn UDP proxy")?;
 
     log::info!("adding proxy to relay ip overrides");
     mullvad_client
         .set_relay_override(RelayOverride {
-            hostname,
+            hostname: relay.hostname,
             ipv4_addr_in: Some(TEST_CONFIG.host_bridge_ip),
             ipv6_addr_in: None,
         })
@@ -117,8 +121,10 @@ pub async fn test_openvpn_ip_override(
     };
 
     // pick any openvpn relay to use with the test
-    let filter = |endpoint: &_| matches!(endpoint, RelayEndpointData::Openvpn);
-    let (hostname, relay_ip) = constrain_to_a_relay(&mut mullvad_client, filter).await?;
+    let query = RelayQueryBuilder::openvpn().build();
+    let relay = helpers::constrain_to_relay(&mut mullvad_client, query)
+        .await
+        .context("Failed to set OpenVPN")?;
 
     log::info!("connecting to selected relay");
     helpers::connect_and_wait(&mut mullvad_client).await?;
@@ -127,7 +133,7 @@ pub async fn test_openvpn_ip_override(
     let _ = helpers::geoip_lookup_with_retries(&rpc).await?;
 
     log::info!("blocking connection to relay from guest");
-    let _remove_nft_rule_on_drop = block_route(guest_ip, relay_ip).await?;
+    let _remove_nft_rule_on_drop = block_route(guest_ip, relay.ipv4_addr_in).await?;
 
     log::info!("checking that the connection does not work while blocked");
     ensure!(
@@ -135,15 +141,17 @@ pub async fn test_openvpn_ip_override(
         "Assert that relay is blocked by firewall rule"
     );
 
-    let _proxy_abort_handle =
-        spawn_tcp_proxy(SocketAddr::new(relay_ip.into(), TUNNEL_PORT), TUNNEL_PORT)
-            .await
-            .with_context(|| "Failed to spawn TCP proxy")?;
+    let _proxy_abort_handle = spawn_tcp_proxy(
+        SocketAddr::new(relay.ipv4_addr_in.into(), TUNNEL_PORT),
+        TUNNEL_PORT,
+    )
+    .await
+    .with_context(|| "Failed to spawn TCP proxy")?;
 
     log::info!("adding proxy to relay ip overrides");
     mullvad_client
         .set_relay_override(RelayOverride {
-            hostname,
+            hostname: relay.hostname,
             ipv4_addr_in: Some(TEST_CONFIG.host_bridge_ip),
             ipv6_addr_in: None,
         })
@@ -304,42 +312,6 @@ async fn pick_a_relay(
     let location = GeographicLocationConstraint::Hostname(country, city, hostname.clone()).into();
 
     Ok((hostname, relay_ip, location))
-}
-
-/// Find a single arbitrary relay matching the given filter and constrain the client to only use
-/// that relay, and to only connect on [TUNNEL_PORT].
-///
-/// Returns the hostname and IP of the relay.
-async fn constrain_to_a_relay(
-    mullvad_client: &mut MullvadProxyClient,
-    endpoint_filter: impl Fn(&RelayEndpointData) -> bool,
-) -> anyhow::Result<(String, Ipv4Addr)> {
-    let (hostname, relay_ip, location) = pick_a_relay(mullvad_client, endpoint_filter).await?;
-
-    // constrain client to only use this relay
-    let constraints = RelayConstraints {
-        location: Constraint::Only(location),
-        openvpn_constraints: OpenVpnConstraints {
-            port: TransportPort {
-                protocol: TransportProtocol::Tcp,
-                port: TUNNEL_PORT.into(),
-            }
-            .into(),
-        },
-        wireguard_constraints: WireguardConstraints {
-            port: TUNNEL_PORT.into(),
-            use_multihop: false,
-            ..Default::default()
-        },
-        ..Default::default()
-    };
-
-    mullvad_client
-        .set_relay_settings(constraints.into())
-        .await
-        .with_context(|| "Failed to set relay constraints")?;
-
-    Ok((hostname, relay_ip))
 }
 
 /// Spawn a TCP socket that forwards packets between `destination` and anyone that connects to it.
