@@ -446,6 +446,9 @@ impl LocalResolver {
     /// related [ResolverHandle] instances are dropped, this function will return, closing the DNS
     /// server.
     async fn run(mut self) {
+        let abort_handle = self.dns_server_task.abort_handle();
+        let abort_dns_server_task = on_drop(|| abort_handle.abort());
+
         while let Some(request) = self.rx.next().await {
             match request {
                 ResolverMessage::SetConfig {
@@ -467,7 +470,7 @@ impl LocalResolver {
             }
         }
 
-        self.dns_server_task.abort();
+        drop(abort_dns_server_task);
         // TODO: why do we bother waiting?
         let _ = self.dns_server_task.await;
     }
