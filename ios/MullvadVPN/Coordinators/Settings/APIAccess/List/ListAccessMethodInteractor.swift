@@ -51,14 +51,7 @@ extension PersistentAccessMethod {
         return ListAccessMethodItem(
             id: id,
             name: itemName,
-            detail: isEnabled
-                ? kind.localizedDescription
-                : NSLocalizedString(
-                    "LIST_ACCESS_METHODS_DISABLED",
-                    tableName: "APIAccess",
-                    value: "Disabled",
-                    comment: ""
-                ),
+            detail: kind.localizedDescription,
             isEnabled: isEnabled
         )
     }

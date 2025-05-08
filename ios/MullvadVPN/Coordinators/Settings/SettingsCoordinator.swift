@@ -268,7 +268,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             return .vpnSettings
         case is ProblemReportViewController:
             return .problemReport
-        case is ListAccessMethodViewController:
+        case is UIHostingController<ListAccessMethodView<ListAccessViewModelBridge>>:
             return .apiAccess
         default:
             return nil
