@@ -28,6 +28,7 @@ mod problem_report;
 mod response;
 mod retry_strategy;
 mod shadowsocks_loader;
+mod storekit;
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);

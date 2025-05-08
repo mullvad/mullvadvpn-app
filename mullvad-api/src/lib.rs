@@ -65,6 +65,10 @@ pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 
 const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
+
+#[cfg(target_os = "ios")]
+const APPLE_PAYMENT_URL_PREFIX: &str = "payments/apple/v2";
+
 #[cfg(target_os = "android")]
 const GOOGLE_PAYMENTS_URL_PREFIX: &str = "payments/google-play/v1";
 
@@ -597,6 +601,35 @@ impl AccountsProxy {
             let _ = service.request(request).await?;
             Ok(())
         }
+    }
+
+    #[cfg(target_os = "ios")]
+    pub async fn init_storekit_payment(
+        &self,
+        account: AccountNumber,
+    ) -> Result<rest::Response<Incoming>, rest::Error> {
+        let request = self
+            .handle
+            .factory
+            .post(&format!("{APPLE_PAYMENT_URL_PREFIX}/init"))?
+            .expected_status(&[StatusCode::OK])
+            .account(account)?;
+        self.handle.service.request(request).await
+    }
+
+    #[cfg(target_os = "ios")]
+    pub async fn check_storekit_payment(
+        &self,
+        account: AccountNumber,
+        body: Vec<u8>,
+    ) -> Result<rest::Response<Incoming>, rest::Error> {
+        let request = self
+            .handle
+            .factory
+            .post_json_bytes(&format!("{APPLE_PAYMENT_URL_PREFIX}/check"), body)?
+            .expected_status(&[StatusCode::OK])
+            .account(account)?;
+        self.handle.service.request(request).await
     }
 
     #[cfg(target_os = "android")]
