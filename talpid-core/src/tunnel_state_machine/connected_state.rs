@@ -141,8 +141,6 @@ impl ConnectedState {
             dns_config: Self::resolve_dns(&self.metadata, shared_values),
             #[cfg(target_os = "macos")]
             redirect_interface,
-            #[cfg(target_os = "macos")]
-            dns_redirect_port: shared_values.filtering_resolver.listening_addr().port(),
         }
     }
 
