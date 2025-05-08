@@ -386,6 +386,9 @@ impl LocalResolver {
         let random_loopback = || async move {
             let addr = Ipv4Addr::new(127, 1u8.max(random()), random(), random());
 
+            // TODO: this command requires root privileges and will thus not work in `cargo test`.
+            // This means that the tests will fall back to 127.0.0.1, and will not assert that the
+            // ifconfig stuff actually works. We probably do want to test this, so what do?
             let output = Command::new("ifconfig")
                 .args([LOOPBACK, "alias", &format!("{addr}"), "up"])
                 .output()
