@@ -268,7 +268,7 @@ impl ResolverHandle {
         Self { tx, listening_addr }
     }
 
-    /// Get listening socket address for resolver handle
+    /// Get socket address associated with the running DNS resolver.
     pub fn listening_addr(&self) -> SocketAddr {
         self.listening_addr
     }
@@ -374,7 +374,7 @@ impl LocalResolver {
     /// - random ip in the range 127.1-255.0-255.0-255 : 53
     /// - 127.0.0.1 : 53
     ///
-    /// We do this do try and avoid collisions with other DNS servers running on the same system.
+    /// We do this to try and avoid collisions with other DNS servers running on the same system.
     ///
     /// # Returns
     /// - The first successfully bound [UdpSocket]
