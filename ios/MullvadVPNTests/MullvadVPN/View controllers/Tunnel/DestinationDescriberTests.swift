@@ -20,7 +20,7 @@ final class DestinationDescriberTests: XCTestCase {
     }
 
     override static func tearDown() {
-        SettingsManager.unitTestStore = nil
+        store.reset()
     }
 
     func testDescribeList() throws {
