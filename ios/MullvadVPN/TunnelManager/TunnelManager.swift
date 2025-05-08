@@ -20,7 +20,7 @@ import WireGuardKitTypes
 
 /// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.
-private let establishingTunnelStatusPollInterval: Duration = .seconds(3)
+private let establishingTunnelStatusPollInterval: Duration = .seconds(1)
 
 /// Interval used for periodic polling of tunnel connectivity status once the tunnel connection
 /// is established.
@@ -286,6 +286,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     func reconnectTunnel(selectNewRelay: Bool, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
+        // Start polling the tunnel immediately when the user reconnects
+        startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { finish -> Cancellable in
             do {
                 guard let tunnel = self.tunnel else {
@@ -293,6 +295,24 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                 }
 
                 return tunnel.reconnectTunnel(to: selectNewRelay ? .random : .current) { result in
+                    if case let .success(observedState) = result {
+                        guard let connectionState = observedState.connectionState else { return }
+
+                        // This makes the app feel very responsive when the user wants to reconnect
+                        // If the tunnel is already connected, at worst the next tunnel status poll will correct the state
+                        self._tunnelStatus.state = .reconnecting(
+                            connectionState.selectedRelays,
+                            isPostQuantum: connectionState.isPostQuantum,
+                            isDaita: connectionState.isDaitaEnabled
+                        )
+                        self._tunnelStatus.observedState = observedState
+                        DispatchQueue.main.async {
+                            self.observerList.notify { observer in
+                                observer.tunnelManager(self, didUpdateTunnelStatus: self._tunnelStatus)
+                            }
+                        }
+                    }
+
                     finish(result.error)
                 }
             } catch {
@@ -1043,9 +1063,12 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     // MARK: - Tunnel status polling
 
     private func startPollingTunnelStatus(interval: Duration) {
-        guard !isPolling else { return }
-
+        /*
+         Ignore idempotency, otherwise the timer will not be using the correct time interval
+         when switching between states, until the tunnel disconnects.
+         */
         isPolling = true
+        tunnelStatusPollTimer?.cancel()
 
         logger.debug("Start polling tunnel status every \(interval.logFormat()).")
 
@@ -1056,7 +1079,6 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         timer.schedule(wallDeadline: .now() + interval, repeating: interval.timeInterval)
         timer.activate()
 
-        tunnelStatusPollTimer?.cancel()
         tunnelStatusPollTimer = timer
     }
 
