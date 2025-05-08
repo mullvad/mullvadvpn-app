@@ -47,7 +47,7 @@ koin-compose = "4.0.4"
 
 # Ktor
 # Bumping to 3.1.0 causes an AbstractMethodError in the serialization logic (DROID-1820).
-ktor = "3.0.3"
+ktor = "3.1.3"
 
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
