@@ -170,6 +170,9 @@ impl Client {
         // TODO: Set datagram_send_buffer_size if needed
         // When would it be needed? If we need to buffer more packets or buffer less packets for
         // better performance.
+        transport_config.datagram_send_buffer_size(10 * 1024 * 1024);
+        transport_config.datagram_receive_buffer_size(Some(10 * 1024 * 1024));
+
         client_config.transport_config(Arc::new(transport_config));
 
         Self::validate_mtu(config.mtu, config.target_addr)?;
