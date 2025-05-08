@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Context};
-use bytes::{Buf, Bytes, BytesMut};
+use bytes::{Buf, BufMut, Bytes, BytesMut};
 use rustls::client::danger::ServerCertVerified;
 use std::{
     fs::{self},
@@ -18,7 +18,7 @@ use tokio::{
 use typed_builder::TypedBuilder;
 
 use h3::{client, ext::Protocol, proto::varint::VarInt, quic::StreamId};
-use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
+use h3_datagram::datagram_traits::HandleDatagramsExt;
 use http::{header, uri::Scheme, StatusCode, Uri};
 use quinn::{
     crypto::rustls::QuicClientConfig, Endpoint, EndpointConfig, IdleTimeout, TokioRuntime,
@@ -373,6 +373,7 @@ impl Client {
         let (return_addr_tx, return_addr_rx) = broadcast::channel(1);
 
         let mut client_socket_rx_task = tokio::task::spawn(client_socket_rx_task(
+            stream_id,
             self.client_socket.clone(),
             client_tx,
             return_addr_tx,
@@ -433,13 +434,13 @@ async fn server_socket_tx_task(
         if packet.len() <= usize::from(maximum_packet_size) {
             stats.tx(packet.len(), false);
 
-            let dgram = Datagram::new(stream_id, packet);
-            let mut buf = BytesMut::new();
-            dgram.encode(&mut buf);
             quinn_conn
-                .send_datagram(buf.freeze())
+                .send_datagram(packet)
                 .map_err(Error::SendDatagram)?;
         } else {
+            // drop the stream id
+            let _ = VarInt::decode(&mut packet);
+
             // drop the added context ID, since packet will have to be fragmented.
             let _ = VarInt::decode(&mut packet);
 
@@ -450,9 +451,11 @@ async fn server_socket_tx_task(
 
                 stats.tx(fragment.len(), true);
 
-                let dgram = Datagram::new(stream_id, fragment);
+                // add back stream id
                 let mut buf = BytesMut::new();
-                dgram.encode(&mut buf);
+                (VarInt::from(stream_id) / 4).encode(&mut buf);
+                buf.put(fragment);
+
                 quinn_conn
                     .send_datagram(buf.freeze())
                     .map_err(Error::SendDatagram)?;
@@ -465,6 +468,7 @@ async fn server_socket_tx_task(
 }
 
 async fn client_socket_rx_task(
+    stream_id: StreamId,
     client_socket: Arc<UdpSocket>,
     client_tx: mpsc::Sender<Bytes>,
     return_addr_tx: broadcast::Sender<SocketAddr>,
@@ -481,6 +485,9 @@ async fn client_socket_rx_task(
 
     loop {
         client_read_buf.reserve(crate::PACKET_BUFFER_SIZE);
+
+        // start with the stream id
+        (VarInt::from(stream_id) / 4).encode(&mut client_read_buf);
 
         // this is the variable ID used to signify UDP payloads in HTTP datagrams.
         crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut client_read_buf);
