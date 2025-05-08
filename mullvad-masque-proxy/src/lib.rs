@@ -16,7 +16,7 @@ pub const HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID: VarInt = VarInt::from_u32(
 const PACKET_BUFFER_SIZE: usize = (u16::MAX - UDP_HEADER_SIZE + 1) as usize;
 
 /// Maximum number of inflight packets, in both directions.
-const MAX_INFLIGHT_PACKETS: usize = 100;
+const MAX_INFLIGHT_PACKETS: usize = 1000;
 
 /// Fragment headers size for fragmented packets
 const FRAGMENT_HEADER_SIZE_FRAGMENTED: u16 = 5;
