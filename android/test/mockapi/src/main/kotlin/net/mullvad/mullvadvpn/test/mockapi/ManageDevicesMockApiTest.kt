@@ -2,9 +2,6 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
 import java.time.ZonedDateTime
-import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
-import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
-import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.page.AccountPage
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
@@ -29,13 +26,7 @@ class ManageDevicesMockApiTest : MockApiTest() {
         }
 
         // Act - go to devices screen
-        app.launch(endpoint)
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        app.waitForLoginPrompt()
-        app.attemptLogin(validAccountNumber)
-        device.waitForIdle()
-        device.dismissChangelogDialogIfShown()
+        app.launchAndLogIn(validAccountNumber)
 
         on<ConnectPage> { clickAccount() }
 
@@ -48,8 +39,8 @@ class ManageDevicesMockApiTest : MockApiTest() {
 
             removeDevice("Yellow Hat")
 
-            // Confirm removal of device
-            app.clickActionButtonByText("Remove")
+            // Confirm the removal of the device
+            device.findObjectWithTimeout(By.text("Remove")).click()
 
             expectDeviceToBeRemoved("Yellow Hat")
         }

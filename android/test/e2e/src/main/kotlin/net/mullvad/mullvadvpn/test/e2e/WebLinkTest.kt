@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.test.common.page.SettingsPage
 import net.mullvad.mullvadvpn.test.common.page.on
 import org.junit.jupiter.api.Test
 
-class WebLinkTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
+class WebLinkTest : EndToEndTest() {
     @Test
     @SkipForFlavors(currentFlavor = BuildConfig.FLAVOR_billing, "play")
     fun testOpenFaqFromApp() {
