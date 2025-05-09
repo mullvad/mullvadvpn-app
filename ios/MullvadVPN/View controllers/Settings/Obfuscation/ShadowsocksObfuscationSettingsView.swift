@@ -31,7 +31,10 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
                 value: "\(item)",
                 comment: ""
             ) },
-            parseCustomValue: { UInt16($0).flatMap { $0 > 0 ? WireGuardObfuscationShadowsocksPort.custom($0) : nil }
+            parseCustomValue: { UInt16($0).flatMap { $0 > 0 && $0 != 443
+                    ? WireGuardObfuscationShadowsocksPort.custom($0)
+                    : nil
+            }
             },
             formatCustomValue: {
                 if case let .custom(port) = $0 {

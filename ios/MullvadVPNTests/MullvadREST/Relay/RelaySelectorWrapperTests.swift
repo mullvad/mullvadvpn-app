@@ -120,4 +120,164 @@ class RelaySelectorWrapperTests: XCTestCase {
         let selectedRelays = try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
         XCTAssertNotNil(selectedRelays.entry)
     }
+
+    func testValidWireguardPortDoesNotThrow() throws {
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
+
+        let settings = LatestTunnelSettings(
+            relayConstraints: .init(
+                port:
+                .only(
+                    ServerRelaysResponseStubs.sampleRelays.wireguard.portRanges.first!.first!
+                )
+            )
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+    }
+
+    func testInvalidWireguardPortThrows() throws {
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
+
+        var settings = LatestTunnelSettings(
+            relayConstraints: .init(port: .only(1)),
+            wireGuardObfuscation: .init(state: .automatic)
+        )
+
+        XCTAssertThrowsError(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+
+        settings = LatestTunnelSettings(
+            relayConstraints: .init(port: .only(1)),
+            wireGuardObfuscation: .init(state: .off)
+        )
+
+        XCTAssertThrowsError(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+    }
+
+    func testInvalidWireguardPortDoesNotThrowWhenObfuscated() throws {
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
+
+        var settings = LatestTunnelSettings(
+            relayConstraints: .init(port: .only(1)),
+            wireGuardObfuscation: .init(state: .quic)
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+
+        settings = LatestTunnelSettings(
+            relayConstraints: .init(port: .only(1)),
+            wireGuardObfuscation: .init(state: .udpOverTcp)
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+
+        settings = LatestTunnelSettings(
+            relayConstraints: .init(port: .only(1)),
+            wireGuardObfuscation: .init(state: .shadowsocks)
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+    }
+
+    func testValidShadowsocksPortDoesNotThrow() throws {
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
+
+        let settings = LatestTunnelSettings(
+            wireGuardObfuscation: .init(
+                state: .shadowsocks,
+                shadowsocksPort: .custom(123)
+            )
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+    }
+
+    func testInvalidShadowsocksPortThrows() throws {
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
+
+        var settings = LatestTunnelSettings(
+            wireGuardObfuscation: .init(
+                state: .shadowsocks,
+                shadowsocksPort: .custom(443)
+            )
+        )
+
+        XCTAssertThrowsError(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+
+        settings = LatestTunnelSettings(
+            wireGuardObfuscation: .init(
+                state: .automatic,
+                shadowsocksPort: .custom(443)
+            )
+        )
+
+        XCTAssertThrowsError(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+    }
+
+    func testInvalidShadowsocksPortDoesNotThrowWhenOff() throws {
+        let wrapper = RelaySelectorWrapper(relayCache: relayCache)
+
+        var settings = LatestTunnelSettings(
+            wireGuardObfuscation: .init(
+                state: .off,
+                shadowsocksPort: .custom(443)
+            )
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+
+        settings = LatestTunnelSettings(
+            wireGuardObfuscation: .init(
+                state: .udpOverTcp,
+                shadowsocksPort: .custom(443)
+            )
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+
+        settings = LatestTunnelSettings(
+            wireGuardObfuscation: .init(
+                state: .quic,
+                shadowsocksPort: .custom(443)
+            )
+        )
+
+        XCTAssertNoThrow(
+            try wrapper
+                .selectRelays(tunnelSettings: settings, connectionAttemptCount: 0)
+        )
+    }
 }

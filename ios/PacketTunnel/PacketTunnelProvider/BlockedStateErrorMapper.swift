@@ -58,6 +58,10 @@ public struct BlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
                 .noRelaysSatisfyingDaitaConstraints
             case .noObfuscatedRelaysFound:
                 .noRelaysSatisfyingObfuscationSettings
+            case .invalidPort:
+                .noRelaysSatisfyingPortConstraints
+            case .invalidShadowsocksPort:
+                .noRelaysSatisfyingShadowsocksPortConstraints
             default:
                 .noRelaysSatisfyingConstraints
             }
