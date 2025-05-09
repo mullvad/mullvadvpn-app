@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Operations
 
 private let kLogDelimiter = "===================="
 private let kRedactedPlaceholder = "[REDACTED]"
@@ -16,6 +17,7 @@ private let kRedactedContainerPlaceholder = "[REDACTED CONTAINER PATH]"
 class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
     typealias Metadata = KeyValuePairs<MetadataKey, String>
     private let bufferSize: UInt64
+    private var workItem: DispatchWorkItem?
 
     enum MetadataKey: String {
         case id, os
@@ -50,15 +52,30 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
             }
     }
 
-    func addLogFiles(fileURLs: [URL], completion: (@Sendable () -> Void)? = nil) {
-        logQueue.async(flags: .barrier) {
+    func cancel() {
+        workItem?.cancel()
+    }
+
+    func addLogFiles(fileURLs: [URL], completion: (@Sendable (Result<String, Error>) -> Void)? = nil) {
+        let workItem = DispatchWorkItem(flags: .barrier) { [weak self] in
             for fileURL in fileURLs {
-                self.addSingleLogFile(fileURL)
+                guard let workItem = self?.workItem, !workItem.isCancelled else {
+                    DispatchQueue.main.async {
+                        completion?(.failure(OperationError.cancelled))
+                    }
+                    return
+                }
+
+                self?.addSingleLogFile(fileURL)
             }
-            DispatchQueue.main.async {
-                completion?()
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                completion?(.success(self.string))
             }
         }
+        self.workItem = workItem
+
+        logQueue.async(execute: workItem)
     }
 
     func addError(message: String, error: String, completion: (@Sendable () -> Void)? = nil) {

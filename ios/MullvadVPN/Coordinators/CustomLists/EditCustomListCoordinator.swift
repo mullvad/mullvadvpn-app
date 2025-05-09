@@ -103,7 +103,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
                 value: "You have unsaved changes.",
                 comment: ""
             ),
-            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
+            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body, weight: .bold))
         )
 
         let presentation = AlertPresentation(

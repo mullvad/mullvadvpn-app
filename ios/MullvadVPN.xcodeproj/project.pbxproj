@@ -562,6 +562,7 @@
 		7A6389ED2B7FADA1008E77E1 /* SettingsFieldValidationErrorConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389EC2B7FADA1008E77E1 /* SettingsFieldValidationErrorConfiguration.swift */; };
 		7A6389F82B864CDF008E77E1 /* LocationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389F72B864CDF008E77E1 /* LocationNode.swift */; };
 		7A6652B82BB44C3E0042D848 /* LocationDiffableDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6652B62BB44B120042D848 /* LocationDiffableDataSourceProtocol.swift */; };
+		7A6811542DC8EC6E009CB61A /* UIFont+Weight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */; };
 		7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */; };
 		7A6F2FA52AFA3CB2006D0856 /* AccountExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */; };
 		7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
@@ -5984,6 +5985,7 @@
 				A9A5FA0D2ACB05160083449F /* StorePaymentManagerError.swift in Sources */,
 				A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */,
 				A9A5FA0F2ACB05160083449F /* StoreSubscription.swift in Sources */,
+				7A6811542DC8EC6E009CB61A /* UIFont+Weight.swift in Sources */,
 				A9A5FA102ACB05160083449F /* PacketTunnelTransport.swift in Sources */,
 				7AD63A472CDA666100445268 /* UIntTests.swift in Sources */,
 				A9A5FA112ACB05160083449F /* TransportMonitor.swift in Sources */,

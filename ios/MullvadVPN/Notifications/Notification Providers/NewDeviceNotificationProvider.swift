@@ -33,15 +33,13 @@ final class NewDeviceNotificationProvider: NotificationProvider,
         let deviceName = storedDeviceData?.capitalizedName ?? ""
         let string = String(format: formattedString, deviceName)
 
-        let stylingOptions = MarkdownStylingOptions(font: .systemFont(ofSize: 14.0))
-
-        return NSAttributedString(markdownString: string, options: stylingOptions) { markdownType, _ in
-            if case .bold = markdownType {
-                return [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
-            } else {
-                return [:]
-            }
-        }
+        return NSAttributedString(
+            markdownString: string,
+            options: MarkdownStylingOptions(
+                font: .preferredFont(forTextStyle: .body, weight: .bold),
+                textColor: UIColor.InAppNotificationBanner.titleColor
+            )
+        )
     }
 
     // MARK: - public properties

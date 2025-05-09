@@ -10,10 +10,6 @@ import UIKit
 
 struct MarkdownStylingOptions {
     var font: UIFont
+    var textColor: UIColor?
     var paragraphStyle: NSParagraphStyle = .default
-
-    var boldFont: UIFont {
-        let fontDescriptor = font.fontDescriptor.withSymbolicTraits(.traitBold) ?? font.fontDescriptor
-        return UIFont(descriptor: fontDescriptor, size: font.pointSize)
-    }
 }

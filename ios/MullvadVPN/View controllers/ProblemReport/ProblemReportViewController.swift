@@ -12,8 +12,8 @@ import Operations
 import UIKit
 
 final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
-    private let interactor: ProblemReportInteractor
     private let alertPresenter: AlertPresenter
+    let interactor: ProblemReportInteractor
 
     var textViewKeyboardResponder: AutomaticKeyboardResponder?
     var scrollViewKeyboardResponder: AutomaticKeyboardResponder?
@@ -77,7 +77,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         view.backgroundColor = .secondaryColor
         view.setAccessibilityIdentifier(.problemReportView)
 
-        navigationItem.title = Self.persistentViewModel.navigationTitle
+        navigationItem.title = ProblemReportViewModel.navigationTitle
 
         textViewKeyboardResponder = AutomaticKeyboardResponder(targetView: messageTextView)
         scrollViewKeyboardResponder = AutomaticKeyboardResponder(targetView: scrollView)
@@ -170,17 +170,17 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         let presentation = AlertPresentation(
             id: "problem-report-alert",
             icon: .alert,
-            message: Self.persistentViewModel.emptyEmailAlertWarning,
+            message: ProblemReportViewModel.emptyEmailAlertWarning,
             buttons: [
                 AlertAction(
-                    title: Self.persistentViewModel.confirmEmptyEmailTitle,
+                    title: ProblemReportViewModel.confirmEmptyEmailTitle,
                     style: .destructive,
                     handler: {
                         completion(true)
                     }
                 ),
                 AlertAction(
-                    title: Self.persistentViewModel.cancelEmptyEmailTitle,
+                    title: ProblemReportViewModel.cancelEmptyEmailTitle,
                     style: .default,
                     handler: {
                         completion(false)
@@ -245,7 +245,11 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
             clearPersistentViewModel()
 
         case let .failure(error):
-            submissionOverlayView.state = .failure(error)
+            if let error = error as? OperationError, error == .cancelled {
+                hideSubmissionOverlay()
+            } else {
+                submissionOverlayView.state = .failure(error)
+            }
         }
 
         navigationItem.setHidesBackButton(false, animated: true)
