@@ -1,8 +1,20 @@
 pluginManagement {
     repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
+        google{
+            content {
+                excludeGroup("io.grpc")
+            }
+        }
+        mavenCentral {
+            content {
+                includeGroup("io.grpc")
+            }
+        }
+        gradlePluginPortal{
+            content {
+                excludeGroup("io.grpc")
+            }
+        }
     }
 }
 
