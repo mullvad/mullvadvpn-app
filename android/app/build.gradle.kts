@@ -271,6 +271,8 @@ cargo {
     val isReleaseBuild = isReleaseBuild()
     val enableApiOverride =
         !isReleaseBuild || isDevBuild(localProperties) || isAlphaBuild(localProperties)
+    val enableBoringTun = localProperties.getProperty("ENABLE_BORING_TUN").toBoolean() == true
+
     module = repoRootPath
     libname = "mullvad-jni"
     // All available targets:
@@ -288,9 +290,15 @@ cargo {
     prebuiltToolchains = true
     targetDirectory = "$repoRootPath/target"
     features {
-        if (enableApiOverride) {
-            defaultAnd(arrayOf("api-override"))
+        val enabledFeatures = buildList {
+            if (enableApiOverride) {
+                add("api-override")
+            }
+            if (enableBoringTun) {
+                add("boringtun")
+            }
         }
+        defaultAnd(enabledFeatures.toTypedArray())
     }
     targetIncludes = arrayOf("libmullvad_jni.so")
     extraCargoBuildArguments = buildList {
