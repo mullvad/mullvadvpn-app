@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -eu
+
+if [ $# -ne 2 ]; then
+    echo "Please provide the following arguments:"
+    echo "    $(basename "$0") \\"
+    echo "        <product version> \\"
+    echo "        <build server SSH destination> \\"
+    exit 1
+fi
+
+PRODUCT_VERSION=$1
+BUILD_SERVER_HOST=$2
+
+source ./run-on-buildserver
+
+run_on_build_server_as_build_user \
+  ./autobuild-linux/publish-app-to-repositories.sh --production \
+    "autobuild-linux/artifacts/$PRODUCT_VERSION" "$PRODUCT_VERSION"
