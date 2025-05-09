@@ -5,6 +5,7 @@ pub mod client;
 mod fragment;
 pub mod server;
 mod stats;
+pub mod udp;
 
 pub const MASQUE_WELL_KNOWN_PATH: &str = "/.well-known/masque/udp/";
 

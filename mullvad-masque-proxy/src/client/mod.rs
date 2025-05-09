@@ -26,10 +26,7 @@ use quinn::{
 };
 
 use crate::{
-    compute_udp_payload_size,
-    fragment::{self, Fragments},
-    stats::Stats,
-    MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
+    compute_udp_payload_size, fragment::{self, Fragments}, stats::Stats, udp::UdpSocketTrait, MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE
 };
 
 const MAX_HEADER_SIZE: u64 = 8192;
@@ -38,8 +35,9 @@ const MAX_REDIRECT_COUNT: usize = 1;
 
 const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
 
-pub struct Client {
-    client_socket: Arc<UdpSocket>,
+
+pub struct Client<U: UdpSocketTrait = UdpSocket> {
+    client_socket: Arc<U>,
 
     /// QUIC endpoint
     quinn_conn: quinn::Connection,
@@ -113,9 +111,9 @@ pub enum Error {
 }
 
 #[derive(TypedBuilder)]
-pub struct ClientConfig {
+pub struct ClientConfig<U: UdpSocketTrait> {
     /// Socket that accepts proxy clients
-    pub client_socket: UdpSocket,
+    pub client_socket: U,
 
     /// Socket address to bind the QUIC endpoint socket to
     pub local_addr: SocketAddr,
@@ -151,8 +149,8 @@ pub struct ClientConfig {
     pub auth_header: Option<String>,
 }
 
-impl Client {
-    pub async fn connect(config: ClientConfig) -> Result<Self> {
+impl<U: UdpSocketTrait> Client<U> {
+    pub async fn connect(config: ClientConfig<U>) -> Result<Self> {
         let quic_client_config = QuicClientConfig::try_from(config.tls_config)
             .expect("Failed to construct a valid TLS configuration");
 
@@ -476,8 +474,8 @@ async fn server_socket_task(
     Result::Ok(())
 }
 
-async fn client_socket_rx_task(
-    client_socket: Arc<UdpSocket>,
+async fn client_socket_rx_task<U: UdpSocketTrait>(
+    client_socket: Arc<U>,
     client_tx: mpsc::Sender<Bytes>,
     return_addr_tx: broadcast::Sender<SocketAddr>,
 ) -> Result<()> {
@@ -511,11 +509,11 @@ async fn client_socket_rx_task(
     Ok(())
 }
 
-async fn client_socket_tx_task(
+async fn client_socket_tx_task<U: UdpSocketTrait>(
     stream_id: StreamId,
     mut server_rx: mpsc::Receiver<Datagram>,
     mut return_addr_rx: broadcast::Receiver<SocketAddr>,
-    client_socket: Arc<UdpSocket>,
+    client_socket: Arc<U>,
     stats: Arc<Stats>,
 ) -> Result<()> {
     let mut fragments = Fragments::default();
@@ -711,3 +709,134 @@ impl rustls::client::danger::ServerCertVerifier for Approver {
         ]
     }
 }
+
+/*
+#[cfg(any(target_os = "openbsd", target_os = "netbsd", apple_slow))]
+fn send(state: &UdpSocketState, io: SockRef<'_>, transmit: &Transmit<'_>) -> io::Result<()> {
+    let mut hdr: libc::msghdr = unsafe { mem::zeroed() };
+    let mut iov: libc::iovec = unsafe { mem::zeroed() };
+    let mut ctrl = cmsg::Aligned([0u8; CMSG_LEN]);
+    let addr = socket2::SockAddr::from(transmit.destination);
+    prepare_msg(
+        transmit,
+        &addr,
+        &mut hdr,
+        &mut iov,
+        &mut ctrl,
+        cfg!(apple) || cfg!(target_os = "openbsd") || cfg!(target_os = "netbsd"),
+        state.sendmsg_einval(),
+    );
+    loop {
+        let n = unsafe { libc::sendmsg(io.as_raw_fd(), &hdr, 0) };
+
+        if n >= 0 {
+            return Ok(());
+        }
+
+        let e = io::Error::last_os_error();
+        match e.kind() {
+            // Retry the transmission
+            io::ErrorKind::Interrupted => continue,
+            _ => return Err(e),
+        }
+    }
+}
+
+
+const CMSG_LEN: usize = 88;
+
+fn prepare_msg(
+    transmit: &Transmit<'_>,
+    dst_addr: &socket2::SockAddr,
+    #[cfg(not(apple_fast))] hdr: &mut libc::msghdr,
+    #[cfg(apple_fast)] hdr: &mut msghdr_x,
+    iov: &mut libc::iovec,
+    ctrl: &mut cmsg::Aligned<[u8; CMSG_LEN]>,
+    #[allow(unused_variables)] // only used on FreeBSD & macOS
+    encode_src_ip: bool,
+    sendmsg_einval: bool,
+) {
+    iov.iov_base = transmit.contents.as_ptr() as *const _ as *mut _;
+    iov.iov_len = transmit.contents.len();
+
+    // SAFETY: Casting the pointer to a mutable one is legal,
+    // as sendmsg is guaranteed to not alter the mutable pointer
+    // as per the POSIX spec. See the section on the sys/socket.h
+    // header for details. The type is only mutable in the first
+    // place because it is reused by recvmsg as well.
+    let name = dst_addr.as_ptr() as *mut libc::c_void;
+    let namelen = dst_addr.len();
+    hdr.msg_name = name as *mut _;
+    hdr.msg_namelen = namelen;
+    hdr.msg_iov = iov;
+    hdr.msg_iovlen = 1;
+
+    hdr.msg_control = ctrl.0.as_mut_ptr() as _;
+    hdr.msg_controllen = CMSG_LEN as _;
+    let mut encoder = unsafe { cmsg::Encoder::new(hdr) };
+    let ecn = transmit.ecn.map_or(0, |x| x as libc::c_int);
+    // True for IPv4 or IPv4-Mapped IPv6
+    let is_ipv4 = transmit.destination.is_ipv4()
+        || matches!(transmit.destination.ip(), IpAddr::V6(addr) if addr.to_ipv4_mapped().is_some());
+    if is_ipv4 {
+        if !sendmsg_einval {
+            #[cfg(not(target_os = "netbsd"))]
+            {
+                encoder.push(libc::IPPROTO_IP, libc::IP_TOS, ecn as IpTosTy);
+            }
+        }
+    } else {
+        encoder.push(libc::IPPROTO_IPV6, libc::IPV6_TCLASS, ecn);
+    }
+
+    // Only set the segment size if it is less than the size of the contents.
+    // Some network drivers don't like being told to do GSO even if there is effectively only a single segment (i.e. `segment_size == transmit.contents.len()`)
+    // Additionally, a `segment_size` that is greater than the content also means there is effectively only a single segment.
+    // This case is actually quite common when splitting up a prepared GSO batch again after GSO has been disabled because the last datagram in a GSO batch is allowed to be smaller than the segment size.
+    if let Some(segment_size) = transmit
+        .segment_size
+        .filter(|segment_size| *segment_size < transmit.contents.len())
+    {
+        gso::set_segment_size(&mut encoder, segment_size as u16);
+    }
+
+    if let Some(ip) = &transmit.src_ip {
+        match ip {
+            IpAddr::V4(v4) => {
+                #[cfg(any(target_os = "linux", target_os = "android"))]
+                {
+                    let pktinfo = libc::in_pktinfo {
+                        ipi_ifindex: 0,
+                        ipi_spec_dst: libc::in_addr {
+                            s_addr: u32::from_ne_bytes(v4.octets()),
+                        },
+                        ipi_addr: libc::in_addr { s_addr: 0 },
+                    };
+                    encoder.push(libc::IPPROTO_IP, libc::IP_PKTINFO, pktinfo);
+                }
+                #[cfg(any(bsd, apple, solarish))]
+                {
+                    if encode_src_ip {
+                        let addr = libc::in_addr {
+                            s_addr: u32::from_ne_bytes(v4.octets()),
+                        };
+                        encoder.push(libc::IPPROTO_IP, libc::IP_RECVDSTADDR, addr);
+                    }
+                }
+            }
+            IpAddr::V6(v6) => {
+                let pktinfo = libc::in6_pktinfo {
+                    ipi6_ifindex: 0,
+                    ipi6_addr: libc::in6_addr {
+                        s6_addr: v6.octets(),
+                    },
+                };
+                encoder.push(libc::IPPROTO_IPV6, libc::IPV6_PKTINFO, pktinfo);
+            }
+        }
+    }
+
+    encoder.finish();
+}
+
+*/
