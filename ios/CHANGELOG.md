@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Improve the filter view to display the number of available servers based on selected criteria.
+- Make the app feel more responsive when reconnecting.
 
 ## 2025.2 - 2025-02-08
 ### Added

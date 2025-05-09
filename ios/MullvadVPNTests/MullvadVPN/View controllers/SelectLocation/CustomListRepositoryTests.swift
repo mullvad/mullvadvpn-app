@@ -19,7 +19,7 @@ class CustomListRepositoryTests: XCTestCase {
     }
 
     override class func tearDown() {
-        SettingsManager.unitTestStore = nil
+        store.reset()
     }
 
     override func tearDownWithError() throws {

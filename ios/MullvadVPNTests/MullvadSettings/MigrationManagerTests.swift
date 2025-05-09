@@ -22,7 +22,7 @@ final class MigrationManagerTests: XCTestCase {
     }
 
     override static func tearDown() {
-        SettingsManager.unitTestStore = nil
+        store.reset()
     }
 
     override func setUpWithError() throws {

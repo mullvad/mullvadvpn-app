@@ -34,7 +34,7 @@ class TunnelManagerTests: XCTestCase {
     }
 
     override static func tearDown() {
-        SettingsManager.unitTestStore = nil
+        store.reset()
     }
 
     override func setUp() async throws {
@@ -201,7 +201,79 @@ class TunnelManagerTests: XCTestCase {
         )
     }
 
+    /// This test verifies that a refresh tunnel status operation is scheduled whenever the tunnel is being restarted
+    func testReconnectingTunnelRefreshesItsStatus() async throws {
+        accountProxy.createAccountResult = .success(NewAccountData.mockValue())
+
+        let relaySelector = RelaySelectorStub { _ in
+            try RelaySelectorStub.nonFallible().selectRelays(
+                tunnelSettings: LatestTunnelSettings(),
+                connectionAttemptCount: 0
+            )
+        }
+
+        let tunnelManager = TunnelManager(
+            backgroundTaskProvider: application,
+            tunnelStore: TunnelStore(application: application),
+            relayCacheTracker: relayCacheTracker,
+            accountsProxy: accountProxy,
+            devicesProxy: devicesProxy,
+            apiProxy: apiProxy,
+            accessTokenManager: accessTokenManager,
+            relaySelector: relaySelector
+        )
+
+        let simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
+            relaySelector: relaySelector,
+            transportProvider: transportProvider,
+            apiTransportProvider: APITransportProvider(
+                requestFactory: MullvadApiRequestFactory(
+                    apiContext: apiContext,
+                    encoder: REST.Coding.makeJSONEncoder()
+                )
+            )
+        )
+
+        SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
+
+        _ = try await tunnelManager.setNewAccount()
+        XCTAssertTrue(tunnelManager.deviceState.isLoggedIn)
+
+        let connectedExpectation = expectation(description: "Connected")
+        let reconnectingExpectation = expectation(description: "Reconnecting")
+        let tunnelObserver = TunnelBlockObserver(
+            didUpdateTunnelStatus: { _, tunnelStatus in
+                switch tunnelStatus.state {
+                case .connected: connectedExpectation.fulfill()
+                case .reconnecting: reconnectingExpectation.fulfill()
+                default: return
+                }
+            }
+        )
+
+        self.tunnelObserver = tunnelObserver
+        tunnelManager.addObserver(tunnelObserver)
+        tunnelManager.startTunnel()
+
+        await fulfillment(of: [connectedExpectation])
+
+        let reconnectMessageExpectation = expectation(description: "Did witness reconnect message")
+
+        simulatorTunnelProviderHost.onHandleProviderMessage = { message in
+            switch message {
+            case .reconnectTunnel: reconnectMessageExpectation.fulfill()
+            default: break
+            }
+        }
+
+        tunnelManager.reconnectTunnel(selectNewRelay: false)
+        await fulfillment(
+            of: [reconnectMessageExpectation, reconnectingExpectation], enforceOrder: true
+        )
+    }
+
     /// This test verifies tunnel gets disconnected and reconnected on config reapply.
+    // swiftlint:disable:next function_body_length
     func testReapplyingConfigDisconnectsAndReconnects() async throws {
         var connectedExpectation = expectation(description: "Connected!")
         let disconnectedExpectation = expectation(description: "Disconnected!")

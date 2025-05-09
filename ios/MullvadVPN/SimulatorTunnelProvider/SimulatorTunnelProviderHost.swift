@@ -26,6 +26,8 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate, @unche
     private let providerLogger = Logger(label: "SimulatorTunnelProviderHost")
     private let dispatchQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
 
+    public var onHandleProviderMessage: ((TunnelProviderMessage) -> Void)?
+
     init(
         relaySelector: RelaySelectorProtocol,
         transportProvider: TransportProvider,
@@ -110,6 +112,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate, @unche
         }
     }
 
+    // swiftlint:disable:next function_body_length
     private func handleProviderMessage(
         _ message: TunnelProviderMessage,
         completionHandler: ((Data?) -> Void)?
@@ -143,10 +146,14 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate, @unche
                 break
             }
 
-            setInternalStateConnected(with: selectedRelays)
+            setInternalStateReconnecting(with: selectedRelays)
             reasserting = false
 
             completionHandler?(nil)
+
+            dispatchQueue.asyncAfter(deadline: .now() + .milliseconds(600)) { [weak self] in
+                self?.setInternalStateConnected(with: self?.selectedRelays)
+            }
 
         case let .sendURLRequest(proxyRequest):
             urlRequestProxy.sendRequest(proxyRequest) { response in
@@ -189,6 +196,8 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate, @unche
         case .privateKeyRotation:
             completionHandler?(nil)
         }
+
+        onHandleProviderMessage?(message)
     }
 
     private func pickRelays() throws -> SelectedRelays {
@@ -199,8 +208,33 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate, @unche
         )
     }
 
+    private func setInternalStateReconnecting(with selectedRelays: SelectedRelays?) {
+        guard let selectedRelays = selectedRelays else { return }
+
+        do {
+            let settings = try SettingsManager.readSettings()
+            observedState = .reconnecting(
+                ObservedConnectionState(
+                    selectedRelays: selectedRelays,
+                    relayConstraints: settings.relayConstraints,
+                    networkReachability: .reachable,
+                    connectionAttemptCount: 0,
+                    transportLayer: .udp,
+                    remotePort: selectedRelays.entry?.endpoint.ipv4Relay.port ?? selectedRelays.exit.endpoint.ipv4Relay
+                        .port,
+                    isPostQuantum: settings.tunnelQuantumResistance.isEnabled,
+                    isDaitaEnabled: settings.daita.daitaState.isEnabled
+                )
+            )
+        } catch {
+            providerLogger.error(error: error, message: "Failed to read device settings")
+        }
+    }
+
     private func setInternalStateConnected(with selectedRelays: SelectedRelays?) {
         guard let selectedRelays = selectedRelays else { return }
+
+        self.selectedRelays = selectedRelays
 
         do {
             let settings = try SettingsManager.readSettings()
