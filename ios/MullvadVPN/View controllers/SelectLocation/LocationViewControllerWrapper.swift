@@ -137,6 +137,7 @@ final class LocationViewControllerWrapper: UIViewController {
             entryLocationViewController?.setDaitaChip(isDirectOnly)
             entryLocationViewController?.toggleDaitaAutomaticRouting(isEnabled: isAutomaticRouting)
         } else {
+            segmentedControl.isHidden = true
             exitLocationViewController.setObfuscationChip(isObfuscation)
             exitLocationViewController.setDaitaChip(isDirectOnly)
         }
