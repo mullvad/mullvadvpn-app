@@ -60,7 +60,9 @@ impl Fragments {
             Ok(crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID) => {
                 return Ok(Some(payload));
             }
-            Ok(crate::HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID) => {}
+            Ok(crate::HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID) => {
+                return Err(DefragError::BadContextId(unexpected_context_id));
+            }
             unexpected_context_id => {
                 return Err(DefragError::BadContextId(unexpected_context_id));
             }

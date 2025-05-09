@@ -459,7 +459,7 @@ async fn server_socket_task(
             // drop the added context ID, since packet will have to be fragmented.
             let _ = VarInt::decode(&mut packet);
 
-            for fragment in fragment::fragment_packet(maximum_packet_size, &mut packet, fragment_id)
+            /*for fragment in fragment::fragment_packet(maximum_packet_size, &mut packet, fragment_id)
                 .map_err(Error::PacketTooLarge)?
             {
                 debug_assert!(fragment.len() <= maximum_packet_size as usize);
@@ -469,7 +469,7 @@ async fn server_socket_task(
                     .send_datagram(stream_id, fragment)
                     .map_err(Error::SendDatagram)?;
             }
-            fragment_id = fragment_id.wrapping_add(1);
+            fragment_id = fragment_id.wrapping_add(1);*/
         }
     }
 
@@ -545,14 +545,14 @@ async fn client_socket_tx_task(
         }
         let payload = response.into_payload();
 
-        if let Ok(Some(payload)) = fragments.handle_incoming_packet(payload) {
+        /*if let Ok(Some(payload)) = fragments.handle_incoming_packet(payload) {
             stats.rx(payload.len(), false /* TODO */);
 
             client_socket
                 .send_to(payload.chunk(), return_addr)
                 .await
                 .map_err(Error::ClientWrite)?;
-        }
+        }*/
     }
 
     Result::Ok(())
