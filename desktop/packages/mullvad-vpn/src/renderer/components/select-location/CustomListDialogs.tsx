@@ -12,7 +12,7 @@ import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
 import { Button } from '../../lib/components';
-import { Colors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { formatHtml } from '../../lib/html-formatter';
 import { useBoolean } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
@@ -105,7 +105,7 @@ const StyledSelectListItemLabel = styled(Cell.Label)(normalText, {
 
 const StyledSelectListItemIcon = styled(Cell.CellTintedIcon)({
   [`${Cell.CellButton}:not(:disabled):hover &&`]: {
-    backgroundColor: Colors.white80,
+    backgroundColor: colors.whiteAlpha80,
   },
 });
 
@@ -137,7 +137,7 @@ function SelectList(props: SelectListProps) {
 
 const StyledInputErrorText = styled.span(tinyText, {
   marginTop: '6px',
-  color: Colors.red,
+  color: colors.red,
 });
 
 interface EditListProps {

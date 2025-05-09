@@ -1,13 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Radius } from '../../../foundations';
+import { colors, Radius } from '../../../foundations';
 import { Flex, FlexProps } from '../../flex';
 import { useProgress } from '../ProgressContext';
 
 const StyledFlex = styled(Flex)`
-  // TODO: Replace with token when available
-  background-color: ${'rgba(27, 49, 74, 1)'};
+  background-color: ${colors.blue10};
   border-radius: ${Radius.radius4};
   width: 100%;
   height: 8px;

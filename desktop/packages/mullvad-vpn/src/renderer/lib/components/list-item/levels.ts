@@ -1,10 +1,9 @@
-// TODO: These are colors are from the new colors tokens
-// which are currently not implemented, should be replaced
-// with the new color tokens once they are.
+import { colors } from '../../foundations';
+
 export const levels = {
-  0: { enabled: 'rgba(41, 77, 115, 1)', disabled: 'rgba(31, 58, 87, 1)' },
-  1: { enabled: 'rgba(35, 65, 97, 1)', disabled: 'rgba(31, 58, 87, 1)' },
-  2: { enabled: 'rgba(31, 58, 87, 1)', disabled: 'rgba(28, 52, 78, 1)' },
-  3: { enabled: 'rgba(28, 52, 78, 1)', disabled: 'rgba(27, 49, 74, 1)' },
-  4: { enabled: 'rgba(27, 49, 74, 1)', disabled: 'rgba(27, 49, 74, 1)' },
+  0: { enabled: colors.blue, disabled: colors.blue40 },
+  1: { enabled: colors.blue60, disabled: colors.blue40 },
+  2: { enabled: colors.blue40, disabled: colors.blue20 },
+  3: { enabled: colors.blue20, disabled: colors.blue10 },
+  4: { enabled: colors.blue10, disabled: colors.blue10 },
 } as const;

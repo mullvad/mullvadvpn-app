@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 
-import { Colors } from '../../../foundations';
 import { BodySmallSemiBoldProps, LabelTiny } from '../../typography';
 import { useFilterChipContext } from '../FilterChipContext';
 
@@ -12,5 +11,5 @@ export const FilterChipText = <T extends React.ElementType = 'span'>(
   props: FilterChipTextProps<T>,
 ) => {
   const { disabled } = useFilterChipContext();
-  return <StyledText color={disabled ? Colors.white40 : Colors.white} {...props} />;
+  return <StyledText color={disabled ? 'whiteAlpha40' : 'white'} {...props} />;
 };

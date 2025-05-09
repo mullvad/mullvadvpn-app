@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
-import { Colors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { normalText, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
 
 export const StyledLabel = styled.span(smallText, {
-  color: Colors.white,
+  color: colors.white,
   marginBottom: '9px',
 });
 
@@ -15,19 +15,19 @@ export const StyledInput = styled(FormattableTextInput)(normalText, {
   padding: '14px',
   fontWeight: 600,
   lineHeight: '26px',
-  color: Colors.blue,
-  backgroundColor: Colors.white,
+  color: colors.blue,
+  backgroundColor: colors.white,
   border: 'none',
   borderRadius: '4px',
   '&&::placeholder': {
-    color: Colors.blue40,
+    color: colors.whiteOnBlue60,
   },
 });
 
 export const StyledResponse = styled.span(tinyText, {
   lineHeight: '20px',
   marginTop: '8px',
-  color: Colors.white,
+  color: colors.white,
 });
 
 export const StyledProgressResponse = styled(StyledResponse)({
@@ -35,7 +35,7 @@ export const StyledProgressResponse = styled(StyledResponse)({
 });
 
 export const StyledErrorResponse = styled(StyledResponse)({
-  color: Colors.red,
+  color: colors.red,
 });
 
 export const StyledEmptyResponse = styled.span({
@@ -46,6 +46,6 @@ export const StyledEmptyResponse = styled.span({
 export const StyledTitle = styled.span(smallText, {
   lineHeight: '22px',
   fontWeight: 400,
-  color: Colors.white,
+  color: colors.white,
   marginBottom: '5px',
 });

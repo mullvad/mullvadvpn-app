@@ -2,7 +2,7 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { messages } from '../../../shared/gettext';
-import { Colors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { IConnectionReduxState } from '../../redux/connection/reducers';
 import { useSelector } from '../../redux/store';
 import { smallText } from '../common-styles';
@@ -14,7 +14,7 @@ const StyledAccordion = styled(ConnectionPanelAccordion)({
 });
 
 const StyledHostname = styled.span(smallText, {
-  color: Colors.white60,
+  color: colors.whiteAlpha60,
   fontWeight: '400',
   flexShrink: 0,
   minHeight: '1em',

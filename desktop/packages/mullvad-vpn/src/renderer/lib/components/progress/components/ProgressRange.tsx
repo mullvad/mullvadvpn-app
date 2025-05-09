@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 
-import { Colors, Radius } from '../../../foundations';
+import { colors, Radius } from '../../../foundations';
 import { useProgress } from '../ProgressContext';
 
 const StyledDiv = styled.div<{
   disabled?: boolean;
 }>`
-  background-color: ${({ disabled }) => (disabled ? Colors.white50 : Colors.white)};
+  background-color: ${({ disabled }) => (disabled ? colors.whiteAlpha80 : colors.white)};
   border-radius: ${Radius.radius4};
   height: 100%;
   width: 100%;

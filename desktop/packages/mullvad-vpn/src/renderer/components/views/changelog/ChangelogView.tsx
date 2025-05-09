@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
 import { BodySmall, Container, Flex, TitleBig, TitleLarge } from '../../../lib/components';
-import { Colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../';
@@ -44,13 +43,13 @@ export const ChangelogView = () => {
                     {changelog.length ? (
                       <StyledList as="ul" $flexDirection="column" $gap="medium">
                         {changelog.map((item, i) => (
-                          <BodySmall as="li" key={i} color={Colors.white60}>
+                          <BodySmall as="li" key={i} color="whiteAlpha60">
                             {item}
                           </BodySmall>
                         ))}
                       </StyledList>
                     ) : (
-                      <BodySmall color={Colors.white60}>
+                      <BodySmall color="whiteAlpha60">
                         {messages.pgettext(
                           'changelog-view',
                           'No updates or changes were made in this release for this platform.',
