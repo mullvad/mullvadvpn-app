@@ -8,8 +8,13 @@
 
 import Foundation
 import PacketTunnelCore
+import UIKit
 
 final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationProvider, @unchecked Sendable {
+    enum ActionIdentifier: String {
+        case showVPNSettings
+    }
+
     private var isWaitingForConnectivity = false
     private var noNetwork = false
     private var packetTunnelError: BlockedStateReason?
@@ -135,7 +140,19 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     private func notificationDescription(for packetTunnelError: BlockedStateReason) -> InAppNotificationDescriptor {
-        InAppNotificationDescriptor(
+        let button: InAppNotificationAction? = switch packetTunnelError {
+        case .noRelaysSatisfyingPortConstraints:
+            InAppNotificationAction(image: UIImage.Buttons.settings) {
+                NotificationManager.shared
+                    .notificationProvider(
+                        self,
+                        didReceiveAction: "\(ActionIdentifier.showVPNSettings)"
+                    )
+            }
+        default:
+            nil
+        }
+        return InAppNotificationDescriptor(
             identifier: identifier,
             style: .error,
             title: NSLocalizedString(
@@ -149,7 +166,8 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
                     value: localizedReasonForBlockedStateError(packetTunnelError),
                     comment: ""
                 )
-            ))
+            )),
+            button: button
         )
     }
 

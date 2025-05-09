@@ -823,6 +823,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             updateDeviceInfo(deviceState: tunnelManager.deviceState)
         case .latestChangesInAppNotificationProvider:
             router.present(.changelog)
+        case .tunnelStatusNotificationProvider:
+            switch response.actionIdentifier {
+            case TunnelStatusNotificationProvider.ActionIdentifier.showVPNSettings.rawValue:
+                router.present(.settings(.vpnSettings))
+            default: break
+            }
         default: return
         }
     }
