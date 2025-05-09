@@ -165,6 +165,8 @@ See [this](Release.md) for instructions on how to make a new release.
     * `netsh`: use the `netsh` program
     * `tcpip`: set TCP/IP parameters in the registry
 
+- `TALPID_DISABLE_LOCAL_DNS_RESOLVER` - Set this variable to `1` to disable the local DNS resolver (macOS only).
+
 * `TALPID_FORCE_USERSPACE_WIREGUARD` - Forces the daemon to use the userspace implementation of
    WireGuard on Linux.
 

@@ -13,12 +13,10 @@ use core::mem::MaybeUninit;
 use core::slice;
 #[cfg(target_os = "windows")]
 use std::ffi::CString;
-use util::OnDrop;
+use talpid_types::drop_guard::on_drop;
 #[cfg(target_os = "windows")]
 use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
 use zeroize::Zeroize;
-
-mod util;
 
 #[cfg(unix)]
 pub type Fd = std::os::unix::io::RawFd;
@@ -223,7 +221,7 @@ impl Tunnel {
         let config_len = config.to_bytes().len();
 
         // execute cleanup code on Drop to make sure that it happens even if `f` panics
-        let on_drop = OnDrop::new(|| {
+        let on_drop = on_drop(|| {
             {
                 // SAFETY:
                 // we checked for null, and wgGetConfig promises that this is a valid cstr.
