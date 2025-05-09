@@ -10,6 +10,7 @@ description = "A limited functionality UDP over HTTP3 proxy"
 
 [dependencies]
 quinn = { version = "0.11", default-features = false, features = ["log", "runtime-tokio", "rustls-ring"] }
+quinn-udp = { version = "0.5.12", features = ["fast-apple-datapath"] }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs",  "macros", "io-util"] }
 h3 = "0.0.7"
