@@ -1,6 +1,7 @@
 //! A downloader that supports HTTP range requests and resuming downloads
 
 use std::{
+    error::Error,
     path::Path,
     pin::Pin,
     task::{ready, Poll},
@@ -15,12 +16,11 @@ use tokio::{
 
 use thiserror::Error;
 
-const READ_TIMEOUT: Duration = Duration::from_secs(5);
+/// Start value of the read timeout. This is doubled on each retry.
+const READ_TIMEOUT: Duration = Duration::from_secs(1);
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
 // Maximum number of retry attempts for timeouts
-const MAX_RETRY_ATTEMPTS: u32 = 3;
-// Base delay between retries (will be increased exponentially)
-const RETRY_BASE_DELAY: Duration = Duration::from_secs(1);
+const MAX_RETRY_ATTEMPTS: u32 = 4;
 
 /// Custom error type for download operations
 #[derive(Error, Debug)]
@@ -81,10 +81,10 @@ impl DownloadError {
             DownloadError::HeadRequest(e)
             | DownloadError::RangeRequest(e)
             | DownloadError::ChunkRead(e)
-            | DownloadError::ClientInitialization(e) => is_network_error(e),
+            | DownloadError::ClientInitialization(e) => is_network_error(dbg!(e)),
             DownloadError::HttpStatus(status) => {
                 // Retry server errors and timeout status
-                status.is_server_error() || *status == reqwest::StatusCode::REQUEST_TIMEOUT
+                dbg!(status).is_server_error() || *status == reqwest::StatusCode::REQUEST_TIMEOUT
             }
             // Don't retry other types of errors
             _ => false,
@@ -97,7 +97,26 @@ fn is_network_error(error: &reqwest::Error) -> bool {
     // Retry on timeout errors
     // Retry on connection errors (which often happen when switching networks)
     // Retry on request errors (like "connection reset")
-    error.is_timeout() || error.is_connect() || error.is_request()
+    if error.is_timeout() || error.is_connect() || error.is_request() {
+        return true;
+    }
+
+    let mut error = error as &dyn Error;
+    loop {
+        if let Some(io_err) = error.downcast_ref::<std::io::Error>() {
+            // Check if the error is a timeout or connection error
+            if io_err.kind() == io::ErrorKind::TimedOut
+                || io_err.kind() == io::ErrorKind::ConnectionReset
+            {
+                return true;
+            }
+        }
+        if let Some(source) = error.source() {
+            error = source;
+        } else {
+            break false;
+        }
+    }
 }
 
 /// Receiver of the current progress so far
@@ -158,13 +177,19 @@ pub async fn get_to_file(
         .map_err(DownloadError::FileOperation)?;
     let mut file = BufWriter::new(file);
     let mut attempts = 0;
-    while let Err(err) = get_to_writer(&mut file, url, progress_updater, size_hint).await {
-        if !err.should_retry() || attempts >= MAX_RETRY_ATTEMPTS {
+    let mut read_timeout = READ_TIMEOUT;
+    while let Err(err) =
+        get_to_writer(&mut file, url, progress_updater, size_hint, read_timeout).await
+    {
+        if !err.should_retry() {
             anyhow::bail!(err);
         }
+        if attempts >= MAX_RETRY_ATTEMPTS {
+            anyhow::bail!("Max retry attempts reached: {err}");
+        }
         attempts += 1;
-        log::warn!("Download failed: {err}. Retrying...");
-        tokio::time::sleep(RETRY_BASE_DELAY).await;
+        read_timeout *= 2;
+        log::warn!("Download failed: {err}. Retrying in with timeout: {read_timeout:?}");
     }
     Ok(())
 }
@@ -179,9 +204,11 @@ pub async fn get_to_writer(
     url: &str,
     progress_updater: &mut impl ProgressUpdater,
     size_hint: SizeHint,
+    read_timeout: Duration,
 ) -> Result<(), DownloadError> {
+    // Create a new client for each download attempt to prevent stale connections
     let client = reqwest::Client::builder()
-        .read_timeout(READ_TIMEOUT)
+        .read_timeout(read_timeout)
         .connect_timeout(CONNECT_TIMEOUT)
         .build()
         .map_err(DownloadError::ClientInitialization)?;
@@ -459,6 +486,7 @@ mod test {
             &file_url,
             &mut progress_updater,
             SizeHint::Exact(file_data.len()),
+            READ_TIMEOUT,
         )
         .await
         .context("Complete download failed")?;
@@ -493,6 +521,7 @@ mod test {
             &file_url,
             &mut progress_updater,
             SizeHint::Exact(file_data.len()),
+            READ_TIMEOUT,
         )
         .await
         .expect_err("Expected interrupted download");
@@ -523,6 +552,7 @@ mod test {
             &file_url,
             &mut progress_updater,
             SizeHint::Exact(file_data.len()),
+            READ_TIMEOUT,
         )
         .await
         .context("Partial download failed")?;
@@ -583,6 +613,7 @@ mod test {
             &file_url,
             &mut FakeProgressUpdater::default(),
             SizeHint::Exact(1),
+            READ_TIMEOUT,
         )
         .await
         .expect_err("Reject unexpected content length");
@@ -607,6 +638,7 @@ mod test {
             &file_url,
             &mut FakeProgressUpdater::default(),
             SizeHint::Exact(file_data.len()),
+            READ_TIMEOUT,
         )
         .await
         .expect_err("Reject unexpected chunk sizes");
