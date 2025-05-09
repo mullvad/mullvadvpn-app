@@ -61,7 +61,7 @@ impl Fragments {
                 return Ok(Some(payload));
             }
             Ok(crate::HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID) => {
-                return Err(DefragError::BadContextId(123));
+                return Err(DefragError::PayloadTooSmall);
             }
             unexpected_context_id => {
                 return Err(DefragError::BadContextId(unexpected_context_id));
