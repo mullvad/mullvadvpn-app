@@ -22,19 +22,19 @@ androidx-test = "1.6.1"
 androidx-testmonitor = "1.7.2"
 androidx-testorchestrator = "1.5.1"
 androidx-testrunner = "1.6.2"
-androidx-uiautomator = "2.4.0-alpha01"
+androidx-uiautomator = "2.4.0-alpha02"
 androidx-tv = "1.0.0"
 
 # Arrow
-arrow = "2.1.0"
+arrow = "2.1.1"
 
 # Compose
 compose = "1.8.0"
-compose-destinations = "2.1.0"
+compose-destinations = "2.2.0"
 compose-constraintlayout = "1.1.1"
 compose-material3 = "1.3.2"
 compose-material-icons-extended = "1.7.8"
-drawablepainter = "0.37.2"
+drawablepainter = "0.37.3"
 
 # Update suppression for 'InvalidPackage' in config/lint.xml
 grpc = "1.72.0"
@@ -53,9 +53,9 @@ ktor = "3.0.3"
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
 kotlin = "2.1.20"
-kotlin-ksp = "2.1.20-2.0.0"
+kotlin-ksp = "2.1.20-2.0.1"
 kotlinx = "1.10.2"
-kotlinx-serialization = "2.1.20"
+kotlinx-serialization = "1.8.1"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.5"
@@ -152,7 +152,6 @@ kotlin-native-prebuilt = { module = "org.jetbrains.kotlin:kotlin-native-prebuilt
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 # Ktor
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -191,7 +190,7 @@ kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref =
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }
 
 # Kotlinx
-kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serialization" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 # Protobuf
 protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plugin" }
