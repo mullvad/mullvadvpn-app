@@ -15,7 +15,7 @@ class LogoutTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @Test
     fun testLogout() {
         // Given
-        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
 
         on<ConnectPage> { clickAccount() }
 

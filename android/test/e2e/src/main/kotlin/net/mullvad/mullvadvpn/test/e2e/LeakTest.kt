@@ -39,7 +39,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
     @BeforeEach
     fun setupVPNSettings() {
-        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
 
         on<ConnectPage> { clickSettings() }
 

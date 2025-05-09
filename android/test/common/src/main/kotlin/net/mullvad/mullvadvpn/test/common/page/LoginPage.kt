@@ -20,15 +20,25 @@ class LoginPage internal constructor() : Page() {
         uiDevice.findObjectWithTimeout(By.clazz("android.widget.EditText")).text = accountNumber
     }
 
-    fun tapLoginButton() {
+    fun clickLoginButton() {
         val accountTextField = uiDevice.findObjectWithTimeout(By.clazz("android.widget.EditText"))
         val loginButton = accountTextField.parent.findObject(By.clazz(Button::class.java))
         loginButton.wait(Until.enabled(true), DEFAULT_TIMEOUT)
         loginButton.click()
     }
 
+    fun clickCreateAccount() {
+        uiDevice.findObjectWithTimeout(By.text("Create account")).click()
+    }
+
     fun verifyShowingInvalidAccount() {
         uiDevice.findObjectWithTimeout(invalidAccountNumberSelector, EXTREMELY_LONG_TIMEOUT)
+    }
+
+    fun assertHasAccountHistory(accountNumber: String) {
+        // This can be improved, if we've entered the same account number in the TextField we might
+        // get a false positive.
+        uiDevice.findObjectWithTimeout(By.text(accountNumber))
     }
 
     override fun assertIsDisplayed() {

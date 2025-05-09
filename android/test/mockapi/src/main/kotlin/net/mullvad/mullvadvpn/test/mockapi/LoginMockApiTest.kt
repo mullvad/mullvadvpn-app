@@ -5,9 +5,9 @@ import androidx.test.uiautomator.Until
 import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
-import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
-import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
-import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
+import net.mullvad.mullvadvpn.test.common.page.ConnectPage
+import net.mullvad.mullvadvpn.test.common.page.OutOfTimePage
+import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
@@ -23,14 +23,9 @@ class LoginMockApiTest : MockApiTest() {
             expectedAccountNumber = null
             accountExpiry = ZonedDateTime.now().plusDays(1)
         }
-        app.launch(endpoint)
 
-        // Act
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        app.waitForLoginPrompt()
-        app.attemptLogin(validAccountNumber)
-        app.attemptLogin(validAccountNumber)
+        // Act login with invalid credentials
+        app.launchAndLogIn(validAccountNumber)
 
         // Assert
         val result =
@@ -53,15 +48,10 @@ class LoginMockApiTest : MockApiTest() {
         }
 
         // Act
-        app.launch(endpoint)
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        app.waitForLoginPrompt()
-        app.attemptLogin(validAccountNumber)
-        device.dismissChangelogDialogIfShown()
+        app.launchAndLogIn(validAccountNumber)
 
         // Assert
-        app.ensureLoggedIn()
+        on<ConnectPage>()
     }
 
     @Test
@@ -75,15 +65,9 @@ class LoginMockApiTest : MockApiTest() {
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
 
-        // Act
-        app.launch(endpoint)
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        app.waitForLoginPrompt()
-        app.attemptLogin(validAccountNumber)
-        device.dismissChangelogDialogIfShown()
+        app.launchAndLogIn(validAccountNumber)
 
         // Assert
-        app.ensureOutOfTime()
+        on<OutOfTimePage>()
     }
 }
