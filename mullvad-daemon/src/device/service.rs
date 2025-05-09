@@ -66,6 +66,8 @@ impl DeviceService {
             .await
             .map_err(map_rest_error)?;
 
+    log::debug!("XXXXXXXXXXXXXXXXXXX Created device XXXXXXXXXXXXXXXXXXXXXXXXXXXX {:?}", device);
+
             Ok(PrivateAccountAndDevice {
                 account_number,
                 device: PrivateDevice::try_from_device(
@@ -101,6 +103,8 @@ impl DeviceService {
             retry_future(factory, should_retry_backoff, RETRY_BACKOFF_STRATEGY)
                 .await
                 .map_err(map_rest_error)?;
+
+        log::debug!("XXXXXXXXXXXXXXXXXXX Created device XXXXXXXXXXXXXXXXXXXXXXXXXXXX {:?}", device);
 
         Ok(PrivateAccountAndDevice {
             account_number,
