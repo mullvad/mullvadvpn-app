@@ -31,18 +31,16 @@ class AccountExpiryMockApiTest : MockApiTest() {
         // Act
         app.launchAndLogIn(validAccountNumber)
 
-        on<LoginPage> {
-            enterAccountNumber(validAccountNumber)
-            clickLoginButton()
-        }
-
         // Add one month to the account expiry
         val newAccountExpiry = oldAccountExpiry.plusMonths(1)
         apiDispatcher.accountExpiry = newAccountExpiry
 
         on<ConnectPage> { clickAccount() }
 
-        device.findObjectWithTimeout(By.text(newAccountExpiry.toExpiryDateString()))
+        on<AccountPage> {
+            // Assert that the account expiry date is updated
+            device.findObjectWithTimeout(By.text(newAccountExpiry.toExpiryDateString()))
+        }
     }
 
     @Test
