@@ -194,9 +194,7 @@ public enum AccessibilityIdentifier: Equatable {
     case wireGuardObfuscationOff
     case wireGuardObfuscationUdpOverTcp
     case wireGuardObfuscationShadowsocks
-    #if DEBUG
     case wireGuardObfuscationQuic
-    #endif
     case wireGuardObfuscationUdpOverTcpPort
     case wireGuardObfuscationShadowsocksPort
     case wireGuardPort(UInt16?)
