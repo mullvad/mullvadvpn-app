@@ -15,7 +15,7 @@ use tokio::{
 
 use thiserror::Error;
 
-const READ_TIMEOUT: Duration = Duration::from_secs(30);
+const READ_TIMEOUT: Duration = Duration::from_secs(5);
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
 // Maximum number of retry attempts for timeouts
 const MAX_RETRY_ATTEMPTS: u32 = 3;
@@ -95,21 +95,9 @@ impl DownloadError {
 /// Checks if the error is a network-related error that can be retried
 fn is_network_error(error: &reqwest::Error) -> bool {
     // Retry on timeout errors
-    if error.is_timeout() {
-        return true;
-    }
-
     // Retry on connection errors (which often happen when switching networks)
-    if error.is_connect() {
-        return true;
-    }
-
     // Retry on request errors (like "connection reset")
-    if error.is_request() {
-        return true;
-    }
-
-    false
+    error.is_timeout() || error.is_connect() || error.is_request()
 }
 
 /// Receiver of the current progress so far
@@ -172,7 +160,6 @@ pub async fn get_to_file(
     let mut attempts = 0;
     while let Err(err) = get_to_writer(&mut file, url, progress_updater, size_hint).await {
         if !err.should_retry() || attempts >= MAX_RETRY_ATTEMPTS {
-            log::error!("Download failed: {err}");
             anyhow::bail!(err);
         }
         attempts += 1;
