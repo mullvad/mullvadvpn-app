@@ -74,11 +74,12 @@ class EditAccessMethodViewController: UIViewController {
 
     private func createTitle() -> UIView {
         let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 34.0)
+        label.font = UIFont.preferredFont(forTextStyle: .largeTitle, weight: .bold)
         label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.lineBreakStrategy = []
         label.text = subject.value.navigationItemTitle
         label.textColor = UIColor.NavigationBar.titleColor
-        label.backgroundColor = .clear
         return label
     }
 
