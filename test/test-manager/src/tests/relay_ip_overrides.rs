@@ -157,6 +157,8 @@ pub async fn test_openvpn_ip_override(
         })
         .await?;
 
+    // Setting an IP override will cause the client to reconnect, so we have to wait for that
+    helpers::connect_and_wait(&mut mullvad_client).await?;
     log::info!("checking that the connection works again with the added overrides");
     let _ = helpers::geoip_lookup_with_retries(&rpc)
         .await
