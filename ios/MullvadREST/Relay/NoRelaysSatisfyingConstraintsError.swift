@@ -11,6 +11,7 @@ import Foundation
 public enum NoRelaysSatisfyingConstraintsReason: Sendable {
     case filterConstraintNotMatching
     case invalidPort
+    case invalidShadowsocksPort
     case entryEqualsExit
     case multihopInvalidFlow
     case noActiveRelaysFound
@@ -28,6 +29,8 @@ public struct NoRelaysSatisfyingConstraintsError: LocalizedError, Sendable {
             "Filter yields no matching relays"
         case .invalidPort:
             "Invalid port selected by RelaySelector"
+        case .invalidShadowsocksPort:
+            "Invalid shadowsocks port"
         case .entryEqualsExit:
             "Entry and exit relays are the same"
         case .multihopInvalidFlow:

@@ -20,6 +20,8 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         tunnelSettings: LatestTunnelSettings,
         connectionAttemptCount: UInt
     ) throws -> SelectedRelays {
+        try validatePorts(tunnelSettings)
+
         let obfuscation = try prepareObfuscation(for: tunnelSettings, connectionAttemptCount: connectionAttemptCount)
 
         return switch tunnelSettings.tunnelMultihopState {
@@ -75,5 +77,46 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
             tunnelSettings: tunnelSettings,
             connectionAttemptCount: connectionAttemptCount
         )
+    }
+
+    private func validatePorts(_ tunnelSettings: LatestTunnelSettings) throws {
+        func validateShadowsocksPort() throws {
+            if let shadowsocksPort = tunnelSettings.wireGuardObfuscation.shadowsocksPort.portValue {
+                guard shadowsocksPort != 443 else {
+                    throw NoRelaysSatisfyingConstraintsError(.invalidShadowsocksPort)
+                }
+            }
+        }
+
+        func validateWireguardPort() throws {
+            func isPortWithinValidWireGuardRanges(_ port: UInt16) throws -> Bool {
+                return try relayCache
+                    .read().relays.wireguard.portRanges
+                    .contains { range in
+                        if let minPort = range.first, let maxPort = range.last {
+                            return (minPort ... maxPort).contains(port)
+                        }
+
+                        return false
+                    }
+            }
+            if case let .only(port) = tunnelSettings.relayConstraints.port {
+                guard try isPortWithinValidWireGuardRanges(port) else {
+                    throw NoRelaysSatisfyingConstraintsError(.invalidPort)
+                }
+            }
+        }
+
+        switch tunnelSettings.wireGuardObfuscation.state {
+        case .on, .udpOverTcp, .quic:
+            break
+        case .automatic:
+            try validateWireguardPort()
+            try validateShadowsocksPort()
+        case .shadowsocks:
+            try validateShadowsocksPort()
+        case .off:
+            try validateWireguardPort()
+        }
     }
 }

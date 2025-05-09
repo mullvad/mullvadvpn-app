@@ -248,6 +248,10 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
             errorString = "No DAITA compatible servers match your location settings. Try changing location."
         case .noRelaysSatisfyingConstraints:
             errorString = "No servers match your settings, try changing server or other settings."
+        case .noRelaysSatisfyingPortConstraints:
+            errorString = "The selected WireGuard port is not supported, plase change it under VPN settings."
+        case .noRelaysSatisfyingShadowsocksPortConstraints:
+            errorString = "The selected Shadowsocks port is not supported, plase change it under VPN settings."
         case .invalidAccount:
             errorString = "You are logged in with an invalid account number. Please log out and try another one."
         case .deviceLoggedOut:

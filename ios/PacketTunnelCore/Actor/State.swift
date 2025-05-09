@@ -211,8 +211,14 @@ public enum BlockedStateReason: String, Codable, Equatable, Sendable {
     /// No relays satisfying DAITA constraints.
     case noRelaysSatisfyingDaitaConstraints
 
-    /// No relays satisfying DAITA constraints.
+    /// No relays satisfying obfuscation settings.
     case noRelaysSatisfyingObfuscationSettings
+
+    /// No relays satisfying port constraints.
+    case noRelaysSatisfyingPortConstraints
+
+    /// No relays satisfying shadowsocks port constraints.
+    case noRelaysSatisfyingShadowsocksPortConstraints
 
     /// Any other failure when reading settings.
     case readSettings
