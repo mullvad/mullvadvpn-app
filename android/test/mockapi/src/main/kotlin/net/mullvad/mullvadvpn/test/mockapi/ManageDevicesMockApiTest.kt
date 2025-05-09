@@ -2,11 +2,14 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
 import java.time.ZonedDateTime
-import net.mullvad.mullvadvpn.lib.ui.tag.MANAGE_DEVICES_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.page.AccountPage
+import net.mullvad.mullvadvpn.test.common.page.ConnectPage
+import net.mullvad.mullvadvpn.test.common.page.DeviceManagementPage
+import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.mockapi.constant.ALMOST_FULL_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_1
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_1
@@ -33,22 +36,22 @@ class ManageDevicesMockApiTest : MockApiTest() {
         app.attemptLogin(validAccountNumber)
         device.waitForIdle()
         device.dismissChangelogDialogIfShown()
-        app.ensureLoggedIn()
-        app.clickAccountCog()
-        device.findObject(By.res(MANAGE_DEVICES_BUTTON_TEST_TAG)).click()
 
-        // Assert - current device is shown but not clickable
-        val current = device.findObjectWithTimeout(By.text("Current device")).parent
-        assertNull(current.findObject(By.clickable(true)))
+        on<ConnectPage> { clickAccount() }
 
-        // Act - remove another device in the list
-        val secondDevice = device.findObjectWithTimeout(By.text("Yellow Hat")).parent
-        secondDevice.findObject(By.clickable(true)).click()
-        app.clickActionButtonByText("Remove")
+        on<AccountPage> { clickManageDevices() }
 
-        device.waitForIdle()
+        on<DeviceManagementPage> {
+            // Assert - current device is shown but not clickable
+            val current = uiDevice.findObjectWithTimeout(By.text("Current device")).parent
+            assertNull(current.findObject(By.clickable(true)))
 
-        // Assert - the other device is no longer shown
-        assertNull(device.findObject(By.text("Yellow Hat")))
+            removeDevice("Yellow Hat")
+
+            // Confirm removal of device
+            app.clickActionButtonByText("Remove")
+
+            expectDeviceToBeRemoved("Yellow Hat")
+        }
     }
 }
