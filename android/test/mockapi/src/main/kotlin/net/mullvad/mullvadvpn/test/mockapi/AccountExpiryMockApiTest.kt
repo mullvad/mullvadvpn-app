@@ -5,7 +5,6 @@ import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.page.AccountPage
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
-import net.mullvad.mullvadvpn.test.common.page.LoginPage
 import net.mullvad.mullvadvpn.test.common.page.OutOfTimePage
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
@@ -57,6 +56,9 @@ class AccountExpiryMockApiTest : MockApiTest() {
 
         // Act
         app.launchAndLogIn(validAccountNumber)
+
+        // Wait for us to be on connect page before changing expiry
+        on<ConnectPage>()
 
         // Set account time as expired
         val newAccountExpiry = oldAccountExpiry.minusMonths(2)
