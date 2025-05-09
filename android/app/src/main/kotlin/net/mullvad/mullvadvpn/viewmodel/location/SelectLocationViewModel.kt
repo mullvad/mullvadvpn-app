@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.util.Lc
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("TooManyFunctions")
@@ -43,14 +44,18 @@ class SelectLocationViewModel(
                 filterChips(),
                 wireguardConstraintsRepository.wireguardConstraints,
                 _relayListType,
-            ) { filterChips, wireguardConstraints, relayListSelection ->
-                SelectLocationUiState.Data(
-                    filterChips = filterChips,
-                    multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
-                    relayListType = relayListSelection,
+                relayListRepository.relayList,
+            ) { filterChips, wireguardConstraints, relayListSelection, relayList ->
+                Lc.Content(
+                    SelectLocationUiState(
+                        filterChips = filterChips,
+                        multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
+                        relayListType = relayListSelection,
+                        enableTopBar = relayList.isNotEmpty(),
+                    )
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.Lazily, SelectLocationUiState.Loading)
+            .stateIn(viewModelScope, SharingStarted.Lazily, Lc.Loading(Unit))
 
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()

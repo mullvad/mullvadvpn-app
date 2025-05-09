@@ -57,6 +57,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -65,7 +66,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewCustomListLocationScreen(
     @PreviewParameter(CustomListLocationUiStatePreviewParameterProvider::class)
-    state: CustomListLocationsUiState
+    state: Lce<Boolean, CustomListLocationsUiState, Boolean>
 ) {
     AppTheme { CustomListLocationsScreen(state = state, {}, {}, { _, _ -> }, { _, _ -> }, {}) }
 }
@@ -102,7 +103,7 @@ fun CustomListLocations(
         onExpand = customListsViewModel::onExpand,
         onBackClick =
             dropUnlessResumed {
-                if (state.hasUnsavedChanges) {
+                if (state.contentOrNull()?.hasUnsavedChanges == true) {
                     navigator.navigate(DiscardChangesDestination)
                 } else {
                     backNavigator.navigateBack()
@@ -113,7 +114,7 @@ fun CustomListLocations(
 
 @Composable
 fun CustomListLocationsScreen(
-    state: CustomListLocationsUiState,
+    state: Lce<Boolean, CustomListLocationsUiState, Boolean>,
     onSearchTermInput: (String) -> Unit,
     onSaveClick: () -> Unit,
     onRelaySelectionClick: (RelayItem.Location, selected: Boolean) -> Unit,
@@ -125,14 +126,19 @@ fun CustomListLocationsScreen(
     ScaffoldWithSmallTopBar(
         appBarTitle =
             stringResource(
-                if (state.newList) {
+                if (state.newList()) {
                     R.string.add_locations
                 } else {
                     R.string.edit_locations
                 }
             ),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        actions = { Actions(isSaveEnabled = state.saveEnabled, onSaveClick = onSaveClick) },
+        actions = {
+            Actions(
+                isSaveEnabled = state.contentOrNull()?.saveEnabled == true,
+                onSaveClick = onSaveClick,
+            )
+        },
     ) { modifier ->
         Column(modifier = modifier) {
             SearchTextField(
@@ -159,15 +165,15 @@ fun CustomListLocationsScreen(
                 state = lazyListState,
             ) {
                 when (state) {
-                    is CustomListLocationsUiState.Loading -> {
+                    is Lce.Loading -> {
                         loading()
                     }
-                    is CustomListLocationsUiState.Content.Empty -> {
-                        empty(searchTerm = state.searchTerm, isSearching = state.isSearching)
+                    is Lce.Error -> {
+                        empty()
                     }
-                    is CustomListLocationsUiState.Content.Data -> {
+                    is Lce.Content -> {
                         content(
-                            uiState = state,
+                            uiState = state.value,
                             onRelaySelectedChanged = onRelaySelectionClick,
                             onExpand = onExpand,
                         )
@@ -175,8 +181,8 @@ fun CustomListLocationsScreen(
                 }
             }
 
-            if (state is CustomListLocationsUiState.Content.Data && !state.newList) {
-                val firstChecked = state.locations.indexOfFirst { it.checked }
+            if (state is Lce.Content && !state.value.newList) {
+                val firstChecked = state.value.locations.indexOfFirst { it.checked }
                 LaunchedEffect(Unit) {
                     if (firstChecked != -1) {
                         lazyListState.scrollToItem(firstChecked)
@@ -208,37 +214,48 @@ private fun LazyListScope.loading() {
     }
 }
 
-private fun LazyListScope.empty(searchTerm: String, isSearching: Boolean) {
+private fun LazyListScope.empty() {
     item(key = CommonContentKey.EMPTY, contentType = ContentType.EMPTY_TEXT) {
-        if (isSearching) {
-            LocationsEmptyText(searchTerm = searchTerm)
-        } else {
-            EmptyRelayListText()
-        }
+        EmptyRelayListText()
     }
 }
 
 private fun LazyListScope.content(
-    uiState: CustomListLocationsUiState.Content.Data,
+    uiState: CustomListLocationsUiState,
     onExpand: (RelayItem.Location, expand: Boolean) -> Unit,
     onRelaySelectedChanged: (RelayItem.Location, selected: Boolean) -> Unit,
 ) {
-    itemsIndexed(uiState.locations, key = { index, listItem -> listItem.item.id }) { index, listItem
-        ->
-        Column(modifier = Modifier.animateItem()) {
-            if (index != 0) {
-                HorizontalDivider()
-            }
-            CheckableRelayLocationCell(
-                item = listItem.item,
-                onRelayCheckedChange = { isChecked ->
-                    onRelaySelectedChanged(listItem.item, isChecked)
-                },
-                checked = listItem.checked,
-                depth = listItem.depth,
-                onExpand = { expand -> onExpand(listItem.item, expand) },
-                expanded = listItem.expanded,
-            )
+    if (uiState.locations.isEmpty()) {
+        item(key = CommonContentKey.EMPTY, contentType = ContentType.EMPTY_TEXT) {
+            LocationsEmptyText(searchTerm = uiState.searchTerm)
         }
+    } else {
+        itemsIndexed(uiState.locations, key = { index, listItem -> listItem.item.id }) {
+            index,
+            listItem ->
+            Column(modifier = Modifier.animateItem()) {
+                if (index != 0) {
+                    HorizontalDivider()
+                }
+                CheckableRelayLocationCell(
+                    item = listItem.item,
+                    onRelayCheckedChange = { isChecked ->
+                        onRelaySelectedChanged(listItem.item, isChecked)
+                    },
+                    checked = listItem.checked,
+                    depth = listItem.depth,
+                    onExpand = { expand -> onExpand(listItem.item, expand) },
+                    expanded = listItem.expanded,
+                )
+            }
+        }
+    }
+}
+
+private fun Lce<Boolean, CustomListLocationsUiState, Boolean>.newList(): Boolean {
+    return when (this) {
+        is Lce.Content -> this.value.newList
+        is Lce.Loading -> this.value
+        is Lce.Error -> this.error
     }
 }

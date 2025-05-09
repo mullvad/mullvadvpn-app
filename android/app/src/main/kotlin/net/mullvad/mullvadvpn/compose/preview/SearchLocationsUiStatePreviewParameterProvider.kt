@@ -3,14 +3,14 @@ package net.mullvad.mullvadvpn.compose.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.usecase.FilterChip
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.Lce
 
 class SearchLocationsUiStatePreviewParameterProvider :
-    PreviewParameterProvider<Lc<SearchLocationUiState>> {
+    PreviewParameterProvider<Lce<Unit, SearchLocationUiState, Unit>> {
     override val values =
         sequenceOf(
-            Lc.Loading,
-            Lc.Content(
+            Lce.Loading(Unit),
+            Lce.Content(
                 SearchLocationUiState(
                     searchTerm = "",
                     filterChips = listOf(FilterChip.Entry),
@@ -22,16 +22,8 @@ class SearchLocationsUiStatePreviewParameterProvider :
                     customLists = emptyList(),
                 )
             ),
-            Lc.Content(
-                SearchLocationUiState(
-                    searchTerm = "",
-                    filterChips = listOf(FilterChip.Entry),
-                    relayListItems =
-                        RelayListItemPreviewData.generateEmptyList("", isSearching = false),
-                    customLists = emptyList(),
-                )
-            ),
-            Lc.Content(
+            Lce.Error(Unit),
+            Lce.Content(
                 SearchLocationUiState(
                     searchTerm = "Mullvad",
                     filterChips = listOf(FilterChip.Entry),
@@ -40,7 +32,7 @@ class SearchLocationsUiStatePreviewParameterProvider :
                     customLists = emptyList(),
                 )
             ),
-            Lc.Content(
+            Lce.Content(
                 SearchLocationUiState(
                     searchTerm = "Germany",
                     filterChips = listOf(FilterChip.Entry),

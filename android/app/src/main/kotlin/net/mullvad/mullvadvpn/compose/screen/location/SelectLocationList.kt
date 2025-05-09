@@ -33,9 +33,14 @@ import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+
+private typealias EntryBlocked = Lce.Error<Unit>
+
+private typealias Content = Lce.Content<SelectLocationListUiState>
 
 @Composable
 fun SelectLocationList(
@@ -53,7 +58,7 @@ fun SelectLocationList(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
     val stateActual = state
-    RunOnKeyChange(stateActual is SelectLocationListUiState.Content) {
+    RunOnKeyChange(stateActual is Content) {
         stateActual.indexOfSelectedRelayItem()?.let { index ->
             lazyListState.scrollToItem(index)
             lazyListState.animateScrollAndCentralizeItem(index)
@@ -69,24 +74,24 @@ fun SelectLocationList(
         state = lazyListState,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement =
-            if (state is SelectLocationListUiState.EntryBlocked) {
+            if (state is EntryBlocked) {
                 Arrangement.Center
             } else {
                 Arrangement.Top
             },
     ) {
         when (stateActual) {
-            SelectLocationListUiState.Loading -> {
+            is Lce.Loading -> {
                 loading()
             }
-            SelectLocationListUiState.EntryBlocked -> {
+            is EntryBlocked -> {
                 entryBlocked(openDaitaSettings = openDaitaSettings)
             }
-            is SelectLocationListUiState.Content -> {
+            is Content -> {
                 relayListContent(
                     backgroundColor = backgroundColor,
-                    relayListItems = stateActual.relayListItems,
-                    customLists = stateActual.customLists,
+                    relayListItems = stateActual.value.relayListItems,
+                    customLists = stateActual.value.customLists,
                     onSelectRelay = onSelectRelay,
                     onToggleExpand = viewModel::onToggleExpand,
                     onUpdateBottomSheetState = onUpdateBottomSheetState,
@@ -129,10 +134,10 @@ private fun LazyListScope.entryBlocked(openDaitaSettings: () -> Unit) {
     }
 }
 
-private fun SelectLocationListUiState.indexOfSelectedRelayItem(): Int? =
-    if (this is SelectLocationListUiState.Content) {
+private fun Lce<Unit, SelectLocationListUiState, Unit>.indexOfSelectedRelayItem(): Int? =
+    if (this is Content) {
         val index =
-            relayListItems.indexOfFirst {
+            value.relayListItems.indexOfFirst {
                 when (it) {
                     is RelayListItem.CustomListItem -> it.isSelected
                     is RelayListItem.GeoLocationItem -> it.isSelected

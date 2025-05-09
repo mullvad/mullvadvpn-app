@@ -12,8 +12,26 @@ import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 
 // Creates a relay list to be displayed by RelayListContent
 internal fun relayListItems(
+    relayListType: RelayListType,
+    relayCountries: List<RelayItem.Location.Country>,
+    customLists: List<RelayItem.CustomList>,
+    selectedByThisEntryExitList: RelayItemId?,
+    selectedByOtherEntryExitList: RelayItemId?,
+    expandedItems: Set<String>,
+): List<RelayListItem> {
+    return createRelayListItems(
+        relayListType = relayListType,
+        selectedByThisEntryExitList = selectedByThisEntryExitList,
+        selectedByOtherEntryExitList = selectedByOtherEntryExitList,
+        customLists = customLists,
+        countries = relayCountries,
+    ) {
+        it in expandedItems
+    }
+}
+
+internal fun relayListItemsSearching(
     searchTerm: String = "",
-    isSearching: Boolean = false,
     relayListType: RelayListType,
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
@@ -23,8 +41,7 @@ internal fun relayListItems(
 ): List<RelayListItem> {
     val filteredCustomLists = customLists.filterOnSearchTerm(searchTerm)
 
-    return createRelayListItems(
-            isSearching = isSearching,
+    return createRelayListItemsSearching(
             relayListType = relayListType,
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
@@ -33,22 +50,10 @@ internal fun relayListItems(
         ) {
             it in expandedItems
         }
-        .ifEmpty {
-            // Even though we are searching we want to show no locations found text if the
-            // search term is empty since we should get a result as long as there are any
-            // location in the list
-            listOf(
-                if (searchTerm.isNotEmpty()) {
-                    RelayListItem.LocationsEmptyText(searchTerm)
-                } else {
-                    RelayListItem.EmptyRelayList
-                }
-            )
-        }
+        .ifEmpty { listOf(RelayListItem.LocationsEmptyText(searchTerm)) }
 }
 
 internal fun emptyLocationsRelayListItems(
-    isSearching: Boolean = false,
     relayListType: RelayListType,
     customLists: List<RelayItem.CustomList>,
     selectedByThisEntryExitList: RelayItemId?,
@@ -56,7 +61,6 @@ internal fun emptyLocationsRelayListItems(
     expandedItems: Set<String>,
 ) =
     createCustomListSection(
-        isSearching,
         relayListType,
         selectedByThisEntryExitList,
         selectedByOtherEntryExitList,
@@ -66,7 +70,6 @@ internal fun emptyLocationsRelayListItems(
     } + RelayListItem.LocationHeader + RelayListItem.EmptyRelayList
 
 private fun createRelayListItems(
-    isSearching: Boolean,
     relayListType: RelayListType,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
@@ -75,7 +78,6 @@ private fun createRelayListItems(
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> =
     createCustomListSection(
-        isSearching,
         relayListType,
         selectedByThisEntryExitList,
         selectedByOtherEntryExitList,
@@ -83,7 +85,29 @@ private fun createRelayListItems(
         isExpanded,
     ) +
         createLocationSection(
-            isSearching,
+            selectedByThisEntryExitList,
+            relayListType,
+            selectedByOtherEntryExitList,
+            countries,
+            isExpanded,
+        )
+
+private fun createRelayListItemsSearching(
+    relayListType: RelayListType,
+    selectedByThisEntryExitList: RelayItemId?,
+    selectedByOtherEntryExitList: RelayItemId?,
+    customLists: List<RelayItem.CustomList>,
+    countries: List<RelayItem.Location.Country>,
+    isExpanded: (String) -> Boolean,
+): List<RelayListItem> =
+    createCustomListSectionSearching(
+        relayListType,
+        selectedByThisEntryExitList,
+        selectedByOtherEntryExitList,
+        customLists,
+        isExpanded,
+    ) +
+        createLocationSectionSearching(
             selectedByThisEntryExitList,
             relayListType,
             selectedByOtherEntryExitList,
@@ -92,16 +116,33 @@ private fun createRelayListItems(
         )
 
 private fun createCustomListSection(
-    isSearching: Boolean,
     relayListType: RelayListType,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
-    if (isSearching && customLists.isEmpty()) {
-        // If we are searching and no results are found don't show header or footer
-    } else {
+    add(RelayListItem.CustomListHeader)
+    val customListItems =
+        createCustomListRelayItems(
+            customLists,
+            relayListType,
+            selectedByThisEntryExitList,
+            selectedByOtherEntryExitList,
+            isExpanded,
+        )
+    addAll(customListItems)
+    add(RelayListItem.CustomListFooter(customListItems.isNotEmpty()))
+}
+
+private fun createCustomListSectionSearching(
+    relayListType: RelayListType,
+    selectedByThisEntryExitList: RelayItemId?,
+    selectedByOtherEntryExitList: RelayItemId?,
+    customLists: List<RelayItem.CustomList>,
+    isExpanded: (String) -> Boolean,
+): List<RelayListItem> = buildList {
+    if (customLists.isNotEmpty()) {
         add(RelayListItem.CustomListHeader)
         val customListItems =
             createCustomListRelayItems(
@@ -112,10 +153,6 @@ private fun createCustomListSection(
                 isExpanded,
             )
         addAll(customListItems)
-        // Do not show the footer in the search view
-        if (!isSearching) {
-            add(RelayListItem.CustomListFooter(customListItems.isNotEmpty()))
-        }
     }
 }
 
@@ -160,16 +197,34 @@ private fun createCustomListRelayItems(
     }
 
 private fun createLocationSection(
-    isSearching: Boolean,
     selectedByThisEntryExitList: RelayItemId?,
     relayListType: RelayListType,
     selectedByOtherEntryExitList: RelayItemId?,
     countries: List<RelayItem.Location.Country>,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
-    if (isSearching && countries.isEmpty()) {
-        // If we are searching and no results are found don't show header or footer
-    } else {
+    add(RelayListItem.LocationHeader)
+    addAll(
+        countries.flatMap { country ->
+            createGeoLocationEntry(
+                item = country,
+                selectedByThisEntryExitList = selectedByThisEntryExitList,
+                relayListType = relayListType,
+                selectedByOtherEntryExitList = selectedByOtherEntryExitList,
+                isExpanded = isExpanded,
+            )
+        }
+    )
+}
+
+private fun createLocationSectionSearching(
+    selectedByThisEntryExitList: RelayItemId?,
+    relayListType: RelayListType,
+    selectedByOtherEntryExitList: RelayItemId?,
+    countries: List<RelayItem.Location.Country>,
+    isExpanded: (String) -> Boolean,
+): List<RelayListItem> = buildList {
+    if (countries.isNotEmpty()) {
         add(RelayListItem.LocationHeader)
         addAll(
             countries.flatMap { country ->

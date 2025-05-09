@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -39,7 +39,7 @@ class SearchLocationScreenTest {
     }
 
     private fun ComposeContext.initScreen(
-        state: Lc<SearchLocationUiState>,
+        state: Lce<Unit, SearchLocationUiState, Unit>,
         onSelectRelay: (RelayItem) -> Unit = {},
         onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
         onSearchInputChanged: (String) -> Unit = {},
@@ -87,7 +87,7 @@ class SearchLocationScreenTest {
             val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    Lc.Content(
+                    Lce.Content(
                         SearchLocationUiState(
                             searchTerm = "",
                             filterChips = emptyList(),
@@ -113,7 +113,7 @@ class SearchLocationScreenTest {
             val mockSearchString = "SEARCH"
             initScreen(
                 state =
-                    Lc.Content(
+                    Lce.Content(
                         SearchLocationUiState(
                             searchTerm = mockSearchString,
                             filterChips = emptyList(),
@@ -136,7 +136,7 @@ class SearchLocationScreenTest {
             val mockSearchString = "SEARCH"
             initScreen(
                 state =
-                    Lc.Content(
+                    Lce.Content(
                         SearchLocationUiState(
                             searchTerm = mockSearchString,
                             filterChips = emptyList(),
