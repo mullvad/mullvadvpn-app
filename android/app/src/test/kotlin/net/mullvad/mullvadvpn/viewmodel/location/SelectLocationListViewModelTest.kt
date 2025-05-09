@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -70,7 +71,7 @@ class SelectLocationListViewModelTest {
         viewModel = createSelectLocationListViewModel(relayListType = RelayListType.ENTRY)
 
         // Assert
-        assertEquals(SelectLocationListUiState.Loading, viewModel.uiState.value)
+        assertEquals(Lce.Loading(Unit), viewModel.uiState.value)
     }
 
     @Test
@@ -84,13 +85,13 @@ class SelectLocationListViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             val actualState = awaitItem()
-            assertIs<SelectLocationListUiState.Content>(actualState)
+            assertIs<Lce.Content<SelectLocationListUiState>>(actualState)
             assertLists(
                 testCountries.map { it.id },
-                actualState.relayListItems.mapNotNull { it.relayItemId() },
+                actualState.value.relayListItems.mapNotNull { it.relayItemId() },
             )
             assertTrue(
-                actualState.relayListItems
+                actualState.value.relayListItems
                     .filterIsInstance<RelayListItem.SelectableItem>()
                     .first { it.relayItemId() == selectedId }
                     .isSelected
@@ -108,15 +109,15 @@ class SelectLocationListViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             val actualState = awaitItem()
-            assertIs<SelectLocationListUiState.Content>(actualState)
+            assertIs<Lce.Content<SelectLocationListUiState>>(actualState)
             assertLists(
                 testCountries.map { it.id },
-                actualState.relayListItems.mapNotNull { it.relayItemId() },
+                actualState.value.relayListItems.mapNotNull { it.relayItemId() },
             )
             assertTrue(
-                actualState.relayListItems.filterIsInstance<RelayListItem.SelectableItem>().all {
-                    !it.isSelected
-                }
+                actualState.value.relayListItems
+                    .filterIsInstance<RelayListItem.SelectableItem>()
+                    .all { !it.isSelected }
             )
         }
     }

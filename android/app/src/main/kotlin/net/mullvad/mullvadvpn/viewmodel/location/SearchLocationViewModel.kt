@@ -9,8 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -34,18 +32,18 @@ import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.util.combine
 
 @Suppress("LongParameterList")
 class SearchLocationViewModel(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val relayListRepository: RelayListRepository,
-    private val filteredRelayListUseCase: FilteredRelayListUseCase,
     private val customListActionUseCase: CustomListActionUseCase,
     private val customListsRepository: CustomListsRepository,
     private val relayListFilterRepository: RelayListFilterRepository,
     private val filterChipUseCase: FilterChipUseCase,
+    filteredRelayListUseCase: FilteredRelayListUseCase,
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
@@ -56,17 +54,17 @@ class SearchLocationViewModel(
         SearchLocationDestination.argsFrom(savedStateHandle).relayListType
 
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
-    private val _expandedItems = MutableStateFlow<Set<String>>(emptySet())
+    private val _expandOverrides = MutableStateFlow<Map<String, Boolean>>(emptyMap())
 
-    val uiState: StateFlow<Lc<SearchLocationUiState>> =
+    val uiState: StateFlow<Lce<Unit, SearchLocationUiState, Unit>> =
         combine(
                 _searchTerm,
-                searchRelayListLocations(),
+                filteredRelayListUseCase(relayListType),
                 filteredCustomListRelayItemsUseCase(relayListType = relayListType),
                 customListsRelayItemUseCase(),
                 selectedLocationUseCase(),
                 filterChips(),
-                _expandedItems,
+                _expandOverrides,
             ) {
                 searchTerm,
                 relayCountries,
@@ -74,15 +72,25 @@ class SearchLocationViewModel(
                 customLists,
                 selectedItem,
                 filterChips,
-                expandedItems ->
-                Lc.Content(
+                expandOverrides ->
+                if (relayCountries.isEmpty()) {
+                    return@combine Lce.Error<Unit>(Unit)
+                }
+                val (expandSet, relayListLocations) =
+                    searchRelayListLocations(
+                        searchTerm = searchTerm,
+                        relayCountries = relayCountries,
+                    )
+                val expandedItems =
+                    expandSet + expandOverrides.filterValues { expanded -> expanded }.keys -
+                        expandOverrides.filterValues { expanded -> !expanded }.keys
+                Lce.Content(
                     SearchLocationUiState(
                         searchTerm = searchTerm,
                         relayListItems =
-                            relayListItems(
+                            relayListItemsSearching(
                                 searchTerm = searchTerm,
-                                isSearching = true,
-                                relayCountries = relayCountries,
+                                relayCountries = relayListLocations,
                                 relayListType = relayListType,
                                 customLists = filteredCustomLists,
                                 selectedByThisEntryExitList =
@@ -99,13 +107,16 @@ class SearchLocationViewModel(
                     )
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lce.Loading(Unit))
 
     private val _uiSideEffect = Channel<SearchLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     fun onSearchInputUpdated(searchTerm: String) {
-        viewModelScope.launch { _searchTerm.emit(searchTerm) }
+        viewModelScope.launch {
+            _expandOverrides.emit(emptyMap())
+            _searchTerm.emit(searchTerm)
+        }
     }
 
     fun selectRelay(relayItem: RelayItem) {
@@ -123,18 +134,16 @@ class SearchLocationViewModel(
         }
     }
 
-    private fun searchRelayListLocations() =
-        combine(_searchTerm, filteredRelayListUseCase(relayListType)) { searchTerm, relayCountries
-                ->
-                if (searchTerm.isNotEmpty()) {
-                    val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
-                    exp.map { it.expandKey() }.toSet() to filteredRelayCountries
-                } else {
-                    emptySet<String>() to relayCountries
-                }
-            }
-            .onEach { _expandedItems.value = it.first }
-            .map { it.second }
+    private fun searchRelayListLocations(
+        searchTerm: String,
+        relayCountries: List<RelayItem.Location.Country>,
+    ) =
+        if (searchTerm.isNotEmpty()) {
+            val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
+            exp.map { it.expandKey() }.toSet() to filteredRelayCountries
+        } else {
+            emptySet<String>() to relayCountries
+        }
 
     private fun filterChips() =
         combine(
@@ -192,7 +201,7 @@ class SearchLocationViewModel(
     }
 
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
-        _expandedItems.onToggleExpand(item = item, parent = parent, expand = expand)
+        _expandOverrides.onToggleExpandMap(item = item, parent = parent, expand = expand)
     }
 
     companion object {

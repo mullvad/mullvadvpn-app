@@ -78,7 +78,7 @@ class ManageDevicesViewModelTest {
     @Test
     fun `initial state should be Loading followed by Content`() = runTest {
         // Initial state is Loading
-        assertIs<Lce.Loading>(viewModel.uiState.value)
+        assertIs<Lce.Loading<Unit>>(viewModel.uiState.value)
 
         viewModel.uiState.test {
             val contentState = awaitItem()

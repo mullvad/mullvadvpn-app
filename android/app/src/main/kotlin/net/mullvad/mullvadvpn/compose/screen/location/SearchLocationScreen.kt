@@ -55,6 +55,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
@@ -73,7 +74,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.usecase.FilterChip
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -82,7 +83,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewSearchLocationScreen(
     @PreviewParameter(SearchLocationsUiStatePreviewParameterProvider::class)
-    state: Lc<SearchLocationUiState>
+    state: Lce<Unit, SearchLocationUiState, Unit>
 ) {
     AppTheme {
         SearchLocationScreen(
@@ -219,7 +220,7 @@ fun SearchLocation(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchLocationScreen(
-    state: Lc<SearchLocationUiState>,
+    state: Lce<Unit, SearchLocationUiState, Unit>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectRelay: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
@@ -264,6 +265,7 @@ fun SearchLocationScreen(
             SearchBar(
                 modifier = Modifier.focusRequester(focusRequester),
                 searchTerm = state.contentOrNull()?.searchTerm ?: "",
+                enabled = state is Lce.Content,
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
                 onSearchInputChanged = onSearchInputChanged,
@@ -290,10 +292,14 @@ fun SearchLocationScreen(
                     onRemoveProviderFilter = onRemoveProviderFilter,
                 )
                 when (state) {
-                    Lc.Loading -> {
+                    is Lce.Loading -> {
                         loading()
                     }
-                    is Lc.Content -> {
+                    is Lce.Error -> {
+                        // Relay list is empty
+                        item { EmptyRelayListText() }
+                    }
+                    is Lce.Content -> {
                         relayListContent(
                             backgroundColor = backgroundColor,
                             customLists = state.value.customLists,
@@ -327,6 +333,7 @@ fun SearchLocationScreen(
 @Composable
 private fun SearchBar(
     searchTerm: String,
+    enabled: Boolean,
     backgroundColor: Color,
     onBackgroundColor: Color,
     onSearchInputChanged: (String) -> Unit,
@@ -337,6 +344,7 @@ private fun SearchBar(
     SearchBarDefaults.InputField(
         modifier = modifier.height(Dimens.searchFieldHeightExpanded).fillMaxWidth(),
         query = searchTerm,
+        enabled = enabled,
         onQueryChange = onSearchInputChanged,
         onSearch = { hideKeyboard() },
         expanded = true,

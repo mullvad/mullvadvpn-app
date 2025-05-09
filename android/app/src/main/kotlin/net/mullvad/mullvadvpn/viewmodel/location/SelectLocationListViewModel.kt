@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.util.Lce
 
 class SelectLocationListViewModel(
     private val relayListType: RelayListType,
@@ -34,25 +35,27 @@ class SelectLocationListViewModel(
     private val _expandedItems: MutableStateFlow<Set<String>> =
         MutableStateFlow(initialExpand(initialSelection()))
 
-    val uiState: StateFlow<SelectLocationListUiState> =
+    val uiState: StateFlow<Lce<Unit, SelectLocationListUiState, Unit>> =
         combine(
                 relayListItems(),
                 customListsRelayItemUseCase(),
                 settingsRepository.settingsUpdates,
             ) { relayListItems, customLists, settings ->
                 if (relayListType == RelayListType.ENTRY && settings?.entryBlocked() == true) {
-                    SelectLocationListUiState.EntryBlocked
+                    Lce.Error(Unit)
                 } else {
-                    SelectLocationListUiState.Content(
-                        relayListItems = relayListItems,
-                        customLists = customLists,
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems = relayListItems,
+                            customLists = customLists,
+                        )
                     )
                 }
             }
-            .stateIn(viewModelScope, SharingStarted.Lazily, SelectLocationListUiState.Loading)
+            .stateIn(viewModelScope, SharingStarted.Lazily, Lce.Loading(Unit))
 
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
-        _expandedItems.onToggleExpand(item, parent, expand)
+        _expandedItems.onToggleExpandSet(item, parent, expand)
     }
 
     private fun relayListItems() =

@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
-import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -102,11 +102,8 @@ class SearchLocationViewModelTest {
             // Update search string
             viewModel.onSearchInputUpdated(mockSearchString)
 
-            // We get some unnecessary emissions for now
-            awaitItem()
-
             val actualState = awaitItem()
-            assertIs<Lc.Content<SearchLocationUiState>>(actualState)
+            assertIs<Lce.Content<SearchLocationUiState>>(actualState)
             assertTrue(
                 actualState.value.relayListItems
                     .filterIsInstance<RelayListItem.GeoLocationItem>()
@@ -129,12 +126,9 @@ class SearchLocationViewModelTest {
             // Update search string
             viewModel.onSearchInputUpdated(mockSearchString)
 
-            // We get some unnecessary emissions for now
-            awaitItem()
-
             // Assert
             val actualState = awaitItem()
-            assertIs<Lc.Content<SearchLocationUiState>>(actualState)
+            assertIs<Lce.Content<SearchLocationUiState>>(actualState)
             assertLists(
                 listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
                 actualState.value.relayListItems,
