@@ -2,10 +2,12 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
 import java.time.ZonedDateTime
-import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
-import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
-import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.page.AccountPage
+import net.mullvad.mullvadvpn.test.common.page.ConnectPage
+import net.mullvad.mullvadvpn.test.common.page.LoginPage
+import net.mullvad.mullvadvpn.test.common.page.OutOfTimePage
+import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
@@ -27,24 +29,19 @@ class AccountExpiryMockApiTest : MockApiTest() {
         }
 
         // Act
-        app.launch(endpoint)
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        app.waitForLoginPrompt()
-        app.attemptLogin(validAccountNumber)
+        app.launchAndLogIn(validAccountNumber, endpoint)
 
-        // Assert logged in
-        device.dismissChangelogDialogIfShown()
-        app.ensureLoggedIn()
+        on<LoginPage> {
+            enterAccountNumber(validAccountNumber)
+            clickLoginButton()
+        }
 
         // Add one month to the account expiry
         val newAccountExpiry = oldAccountExpiry.plusMonths(1)
         apiDispatcher.accountExpiry = newAccountExpiry
 
-        // Go to account page to update the account expiry
-        app.clickAccountCog()
+        on<ConnectPage> { clickAccount() }
 
-        app.ensureAccountScreen()
         device.findObjectWithTimeout(By.text(newAccountExpiry.toExpiryDateString()))
     }
 
@@ -61,28 +58,21 @@ class AccountExpiryMockApiTest : MockApiTest() {
         }
 
         // Act
-        app.launch(endpoint)
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        app.waitForLoginPrompt()
-        app.attemptLogin(validAccountNumber)
-
-        // Assert logged in
-        device.dismissChangelogDialogIfShown()
-        app.ensureLoggedIn()
+        app.launchAndLogIn(validAccountNumber, endpoint)
 
         // Set account time as expired
         val newAccountExpiry = oldAccountExpiry.minusMonths(2)
         apiDispatcher.accountExpiry = newAccountExpiry
 
+        on<ConnectPage> { clickAccount() }
+
         // Go to account page to update the account expiry
-        app.clickAccountCog()
-        app.ensureAccountScreen()
+        on<AccountPage>()
 
         // Go back to the main screen
         device.pressBack()
 
         // Assert that we show the out of time screen
-        app.ensureOutOfTime()
+        on<OutOfTimePage>()
     }
 }

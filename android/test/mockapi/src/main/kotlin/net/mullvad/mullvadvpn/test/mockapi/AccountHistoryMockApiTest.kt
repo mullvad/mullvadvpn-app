@@ -2,15 +2,14 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
 import java.time.ZonedDateTime
-import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
-import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
-import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.page.AccountPage
+import net.mullvad.mullvadvpn.test.common.page.ConnectPage
+import net.mullvad.mullvadvpn.test.common.page.LoginPage
+import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
 class AccountHistoryMockApiTest : MockApiTest() {
@@ -26,25 +25,18 @@ class AccountHistoryMockApiTest : MockApiTest() {
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
 
-        // Act
-        app.launch(endpoint)
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        app.waitForLoginPrompt()
-        app.attemptLogin(validAccountNumber)
-        device.dismissChangelogDialogIfShown()
-        app.ensureLoggedIn()
-        app.clickAccountCog()
-        app.clickActionButtonByText("Log out")
-        app.waitForLoginPrompt()
-        device.findObjectWithTimeout(By.res(LOGIN_INPUT_TEST_TAG)).click()
+        app.launchAndLogIn(validAccountNumber, endpoint)
 
-        // Assert
+        on<ConnectPage> { clickAccount() }
+
+        on<AccountPage> { clickLogOut() }
+
         val expectedResult = "1234 1234 1234 1234"
-        assertNotNull(device.findObjectWithTimeout(By.text(expectedResult)))
+        on<LoginPage> {
+            assertHasAccountHistory(expectedResult)
+            device.findObjectWithTimeout(By.text(expectedResult)).click()
+        }
 
-        // Try to login with the same account again
-        device.findObjectWithTimeout(By.text(expectedResult)).click()
-        app.ensureLoggedIn()
+        on<ConnectPage>()
     }
 }
