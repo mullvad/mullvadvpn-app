@@ -20,6 +20,8 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         tunnelSettings: LatestTunnelSettings,
         connectionAttemptCount: UInt
     ) throws -> SelectedRelays {
+        try validateWireguardPort(tunnelSettings)
+
         let obfuscation = try prepareObfuscation(for: tunnelSettings, connectionAttemptCount: connectionAttemptCount)
 
         return switch tunnelSettings.tunnelMultihopState {
@@ -75,5 +77,30 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
             tunnelSettings: tunnelSettings,
             connectionAttemptCount: connectionAttemptCount
         )
+    }
+
+    private func validateWireguardPort(_ tunnelSettings: LatestTunnelSettings) throws {
+        func isPortWithinValidWireGuardRanges(_ port: UInt16) throws -> Bool {
+            return try relayCache
+                .read().relays.wireguard.portRanges
+                .contains { range in
+                    if let minPort = range.first, let maxPort = range.last {
+                        return (minPort ... maxPort).contains(port)
+                    }
+
+                    return false
+                }
+        }
+
+        switch tunnelSettings.wireGuardObfuscation.state {
+        case .automatic, .off:
+            if case let .only(port) = tunnelSettings.relayConstraints.port {
+                guard try isPortWithinValidWireGuardRanges(port) else {
+                    throw NoRelaysSatisfyingConstraintsError(.invalidPort)
+                }
+            }
+        case .on, .udpOverTcp, .quic, .shadowsocks:
+            break
+        }
     }
 }
