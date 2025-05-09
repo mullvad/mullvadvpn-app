@@ -199,7 +199,11 @@ export enum FeatureIndicator {
   customMssFix,
 }
 
-export type DisconnectedState = { state: 'disconnected'; location?: Partial<ILocation> };
+export type DisconnectedState = {
+  state: 'disconnected';
+  location?: Partial<ILocation>;
+  lockedDown: boolean;
+};
 export type ConnectingState = {
   state: 'connecting';
   details?: ITunnelStateRelayInfo;

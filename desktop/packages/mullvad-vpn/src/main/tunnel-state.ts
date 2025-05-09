@@ -12,7 +12,7 @@ export interface TunnelStateHandlerDelegate {
 
 export default class TunnelStateHandler {
   // The current tunnel state
-  private tunnelStateValue: TunnelState = { state: 'disconnected' };
+  private tunnelStateValue: TunnelState = { state: 'disconnected', lockedDown: false };
   // When pressing connect/disconnect/reconnect the app assumes what the next state will be before
   // it get's the new state from the daemon. The latest state from the daemon is saved as fallback
   // if the assumed state isn't reached.

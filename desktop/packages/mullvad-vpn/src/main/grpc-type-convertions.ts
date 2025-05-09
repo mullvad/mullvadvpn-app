@@ -163,6 +163,7 @@ export function convertFromTunnelState(
       return {
         state: 'disconnected',
         location: tunnelStateObject.disconnected!.disconnectedLocation,
+        lockedDown: tunnelStateObject.disconnected!.lockedDown,
       };
     case grpcTypes.TunnelState.StateCase.DISCONNECTING: {
       const detailsMap: Record<grpcTypes.AfterDisconnect, AfterDisconnect> = {

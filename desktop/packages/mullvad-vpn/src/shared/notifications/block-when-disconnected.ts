@@ -14,7 +14,7 @@ import {
 
 interface BlockWhenDisconnectedNotificationContext {
   tunnelState: TunnelState;
-  blockWhenDisconnected: boolean;
+  blockWhenDisconnectedSetting: boolean;
   hasExcludedApps: boolean;
 }
 
@@ -25,9 +25,9 @@ export class BlockWhenDisconnectedNotificationProvider
 
   public mayDisplay() {
     return (
-      (this.context.tunnelState.state === 'disconnecting' ||
-        this.context.tunnelState.state === 'disconnected') &&
-      this.context.blockWhenDisconnected
+      (this.context.tunnelState.state === 'disconnecting' &&
+        this.context.blockWhenDisconnectedSetting) ||
+      (this.context.tunnelState.state === 'disconnected' && this.context.tunnelState.lockedDown)
     );
   }
 
