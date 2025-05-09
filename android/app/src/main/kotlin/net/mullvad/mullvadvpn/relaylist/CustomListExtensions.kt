@@ -13,7 +13,7 @@ fun CustomList.toRelayItemCustomList(
     )
 
 fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String) =
-    if (searchTerm.length >= MIN_SEARCH_LENGTH) {
+    if (searchTerm.isNotEmpty()) {
         this.filter { it.name.contains(searchTerm, ignoreCase = true) }
     } else {
         this

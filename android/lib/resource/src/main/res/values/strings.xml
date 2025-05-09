@@ -389,7 +389,6 @@
     <string name="x_exit">%s (Exit)</string>
     <string name="filters">Filters:</string>
     <string name="removed_provider">%s (removed)</string>
-    <string name="search_query_empty">Type at least 2 characters to start searching.</string>
     <string name="daita_description_slide_1_first_paragraph">Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) hides patterns in your encrypted VPN traffic.</string>
     <string name="daita_description_slide_1_third_paragraph">By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</string>

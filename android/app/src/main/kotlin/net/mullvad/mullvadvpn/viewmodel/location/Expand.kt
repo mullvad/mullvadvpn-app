@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.update
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
-internal fun MutableStateFlow<Set<String>>.onToggleExpand(
+internal fun MutableStateFlow<Set<String>>.onToggleExpandSet(
     item: RelayItemId,
     parent: CustomListId? = null,
     expand: Boolean,
@@ -17,5 +17,16 @@ internal fun MutableStateFlow<Set<String>>.onToggleExpand(
         } else {
             it - key
         }
+    }
+}
+
+internal fun MutableStateFlow<Map<String, Boolean>>.onToggleExpandMap(
+    item: RelayItemId,
+    parent: CustomListId? = null,
+    expand: Boolean,
+) {
+    update {
+        val key = item.expandKey(parent)
+        it + (key to expand)
     }
 }

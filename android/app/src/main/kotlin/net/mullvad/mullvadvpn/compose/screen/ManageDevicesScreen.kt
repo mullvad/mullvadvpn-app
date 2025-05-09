@@ -54,12 +54,12 @@ import org.koin.androidx.compose.koinViewModel
 @Preview("Normal|TooMany|Empty|Loading|Error")
 private fun PreviewDeviceListScreenContent(
     @PreviewParameter(ManageDevicesUiStatePreviewParameterProvider::class)
-    state: Lce<ManageDevicesUiState, GetDeviceListError>
+    state: Lce<Unit, ManageDevicesUiState, GetDeviceListError>
 ) {
     AppTheme { ManageDevicesScreen(state = state, SnackbarHostState(), {}, {}, {}) }
 }
 
-private typealias StateLce = Lce<ManageDevicesUiState, GetDeviceListError>
+private typealias StateLce = Lce<Unit, ManageDevicesUiState, GetDeviceListError>
 
 @Destination<RootGraph>(style = DefaultTransition::class, navArgs = DeviceListNavArgs::class)
 @Composable
@@ -121,7 +121,7 @@ fun ManageDevicesScreen(
             is Lce.Content ->
                 Content(modifier, state.value, navigateToRemoveDeviceConfirmationDialog)
             is Lce.Error -> Error(modifier, onTryAgainClicked)
-            Lce.Loading -> Loading(modifier)
+            is Lce.Loading -> Loading(modifier)
         }
     }
 }

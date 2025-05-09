@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.StatusRelayItemCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.cell.ThreeDotCell
+import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsEntryBottomSheet
@@ -102,6 +103,7 @@ fun LazyListScope.relayListContent(
                             { expand -> onToggleExpand(listItem.item.id, null, expand) },
                         )
                     is RelayListItem.LocationsEmptyText -> LocationsEmptyText(listItem.searchTerm)
+                    is RelayListItem.EmptyRelayList -> EmptyRelayListText()
                 }
             }
         },

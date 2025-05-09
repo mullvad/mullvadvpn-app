@@ -1,39 +1,25 @@
 package net.mullvad.mullvadvpn.util
 
-sealed interface Lce<out T, out E> {
-    data object Loading : Lce<Nothing, Nothing>
+sealed interface Lce<out L, out T, out E> {
+    data class Loading<L>(val value: L) : Lce<L, Nothing, Nothing>
 
-    data class Content<T>(val value: T) : Lce<T, Nothing>
+    data class Content<T>(val value: T) : Lce<Nothing, T, Nothing>
 
-    data class Error<E>(val error: E) : Lce<Nothing, E>
+    data class Error<E>(val error: E) : Lce<Nothing, Nothing, E>
 
-    fun contentOrNull(): T? =
-        when (this) {
-            is Loading,
-            is Error -> null
-            is Content -> value
-        }
+    fun contentOrNull(): T? = (this as? Content<T>)?.value
 
-    fun errorOrNull(): E? =
-        when (this) {
-            is Loading,
-            is Content -> null
-            is Error -> error
-        }
+    fun errorOrNull(): E? = (this as? Error<E>)?.error
 }
 
-fun <T, E> T.toLce(): Lce<T, E> = Lce.Content(this)
+fun <L, T, E> T.toLce(): Lce<L, T, E> = Lce.Content(this)
 
-sealed interface Lc<out T> {
-    data object Loading : Lc<Nothing>
+sealed interface Lc<out L, out T> {
+    data class Loading<L>(val value: L) : Lc<L, Nothing>
 
-    data class Content<T>(val value: T) : Lc<T>
+    data class Content<T>(val value: T) : Lc<Nothing, T>
 
-    fun contentOrNull(): T? =
-        when (this) {
-            is Content -> value
-            Loading -> null
-        }
+    fun contentOrNull(): T? = (this as? Content<T>)?.value
 }
 
-fun <T> T.toLc(): Lc<T> = Lc.Content(this)
+fun <L, T> T.toLc(): Lc<L, T> = Lc.Content(this)

@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,7 +39,7 @@ class SearchLocationScreenTest {
     }
 
     private fun ComposeContext.initScreen(
-        state: SearchLocationUiState,
+        state: Lce<Unit, SearchLocationUiState, Unit>,
         onSelectRelay: (RelayItem) -> Unit = {},
         onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
         onSearchInputChanged: (String) -> Unit = {},
@@ -85,7 +86,15 @@ class SearchLocationScreenTest {
             // Arrange
             val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
             initScreen(
-                state = SearchLocationUiState.NoQuery(searchTerm = "", filterChips = emptyList()),
+                state =
+                    Lce.Content(
+                        SearchLocationUiState(
+                            searchTerm = "",
+                            filterChips = emptyList(),
+                            relayListItems = emptyList(),
+                            emptyList(),
+                        )
+                    ),
                 onSearchInputChanged = mockedSearchTermInput,
             )
             val mockSearchString = "SEARCH"
@@ -104,11 +113,14 @@ class SearchLocationScreenTest {
             val mockSearchString = "SEARCH"
             initScreen(
                 state =
-                    SearchLocationUiState.Content(
-                        searchTerm = mockSearchString,
-                        filterChips = emptyList(),
-                        relayListItems = listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
-                        customLists = emptyList(),
+                    Lce.Content(
+                        SearchLocationUiState(
+                            searchTerm = mockSearchString,
+                            filterChips = emptyList(),
+                            relayListItems =
+                                listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
+                            customLists = emptyList(),
+                        )
                     )
             )
 
@@ -124,11 +136,13 @@ class SearchLocationScreenTest {
             val mockSearchString = "SEARCH"
             initScreen(
                 state =
-                    SearchLocationUiState.Content(
-                        searchTerm = mockSearchString,
-                        filterChips = emptyList(),
-                        relayListItems = emptyList(),
-                        customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                    Lce.Content(
+                        SearchLocationUiState(
+                            searchTerm = mockSearchString,
+                            filterChips = emptyList(),
+                            relayListItems = emptyList(),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                        )
                     )
             )
 

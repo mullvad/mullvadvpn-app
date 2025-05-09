@@ -31,13 +31,13 @@ class ManageDevicesViewModel(
             .filter { it is DeviceListSideEffect.FailedToRemoveDevice }
             .map { ManageDevicesSideEffect.FailedToRemoveDevice }
 
-    val uiState: StateFlow<Lce<ManageDevicesUiState, GetDeviceListError>> =
+    val uiState: StateFlow<Lce<Unit, ManageDevicesUiState, GetDeviceListError>> =
         combine(
                 deviceRepository.deviceState.filterIsInstance<DeviceState.LoggedIn>(),
                 deviceListViewModel.uiState,
             ) { loggedInState, deviceListState ->
                 when (deviceListState) {
-                    DeviceListUiState.Loading -> Lce.Loading
+                    DeviceListUiState.Loading -> Lce.Loading(Unit)
                     is DeviceListUiState.Error -> Lce.Error(deviceListState.error)
                     is DeviceListUiState.Content -> {
                         ManageDevicesUiState(
@@ -49,7 +49,7 @@ class ManageDevicesViewModel(
                     }
                 }
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lce.Loading)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lce.Loading(Unit))
 
     fun fetchDevices() = deviceListViewModel.fetchDevices()
 

@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.util.Lce
 
 class ManageDevicesUiStatePreviewParameterProvider :
-    PreviewParameterProvider<Lce<ManageDevicesUiState, GetDeviceListError>> {
+    PreviewParameterProvider<Lce<Unit, ManageDevicesUiState, GetDeviceListError>> {
     override val values =
         sequenceOf(
             Lce.Content(
@@ -24,7 +24,7 @@ class ManageDevicesUiStatePreviewParameterProvider :
                 )
             ),
             Lce.Content(ManageDevicesUiState(emptyList())),
-            Lce.Loading,
+            Lce.Loading(Unit),
             Lce.Error(GetDeviceListError.Unknown(IllegalStateException("Error"))),
         )
 

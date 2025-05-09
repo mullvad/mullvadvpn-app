@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.relaylist.withDescendants
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
+import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -59,10 +60,15 @@ class CustomListLocationsViewModelTest {
                 name = CustomListName.fromString("name"),
                 locations = emptyList(),
             )
+        relayListFlow.value = DUMMY_COUNTRIES
         val viewModel = createViewModel(customListId = customList.id, newList = newList)
 
         // Act, Assert
-        viewModel.uiState.test { assertEquals(newList, awaitItem().newList) }
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertIs<Lce.Content<CustomListLocationsUiState>>(state)
+            assertEquals(newList, state.value.newList)
+        }
     }
 
     @Test
@@ -80,7 +86,15 @@ class CustomListLocationsViewModelTest {
                 }
             val customListId = CustomListId("id")
             val expectedState =
-                CustomListLocationsUiState.Content.Data(newList = true, locations = expectedList)
+                Lce.Content(
+                    CustomListLocationsUiState(
+                        newList = true,
+                        saveEnabled = false,
+                        hasUnsavedChanges = false,
+                        searchTerm = "",
+                        locations = expectedList,
+                    )
+                )
             val viewModel = createViewModel(customListId, true)
             relayListFlow.value = DUMMY_COUNTRIES
 
@@ -102,7 +116,7 @@ class CustomListLocationsViewModelTest {
         viewModel.uiState.test {
             // Check no selected
             val firstState = awaitItem()
-            assertIs<CustomListLocationsUiState.Content.Data>(firstState)
+            assertIs<Lce.Content<CustomListLocationsUiState>>(firstState)
             assertEquals(emptyList<RelayItem>(), firstState.selectedLocations())
             // Expand country
             viewModel.onExpand(DUMMY_COUNTRIES[0], true)
@@ -114,7 +128,7 @@ class CustomListLocationsViewModelTest {
             viewModel.onRelaySelectionClick(DUMMY_COUNTRIES[0], true)
             // Check all items selected
             val secondState = awaitItem()
-            assertIs<CustomListLocationsUiState.Content.Data>(secondState)
+            assertIs<Lce.Content<CustomListLocationsUiState>>(secondState)
             assertLists(expectedSelection, secondState.selectedLocations())
         }
     }
@@ -133,20 +147,14 @@ class CustomListLocationsViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
-            awaitItem()
-            // Expand country
-            viewModel.onExpand(DUMMY_COUNTRIES[0], true)
-            awaitItem()
-            // Expand city
-            viewModel.onExpand(DUMMY_COUNTRIES[0].cities[0], true)
             // Check initial selected
             val firstState = awaitItem()
-            assertIs<CustomListLocationsUiState.Content.Data>(firstState)
+            assertIs<Lce.Content<CustomListLocationsUiState>>(firstState)
             assertEquals(initialSelectionIds, firstState.selectedLocations())
             viewModel.onRelaySelectionClick(DUMMY_COUNTRIES[0].cities[0].relays[0], false)
             // Check all items selected
             val secondState = awaitItem()
-            assertIs<CustomListLocationsUiState.Content.Data>(secondState)
+            assertIs<Lce.Content<CustomListLocationsUiState>>(secondState)
             assertEquals(expectedSelection, secondState.selectedLocations())
         }
     }
@@ -166,20 +174,13 @@ class CustomListLocationsViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
-            awaitItem()
-            // Expand country
-            viewModel.onExpand(DUMMY_COUNTRIES[0], true)
-            awaitItem()
-            // Expand city
-            viewModel.onExpand(DUMMY_COUNTRIES[0].cities[0], true)
-            // Check initial selected
             val firstState = awaitItem()
-            assertIs<CustomListLocationsUiState.Content.Data>(firstState)
+            assertIs<Lce.Content<CustomListLocationsUiState>>(firstState)
             assertEquals(initialSelectionIds, firstState.selectedLocations())
             viewModel.onRelaySelectionClick(DUMMY_COUNTRIES[0], false)
             // Check all items selected
             val secondState = awaitItem()
-            assertIs<CustomListLocationsUiState.Content.Data>(secondState)
+            assertIs<Lce.Content<CustomListLocationsUiState>>(secondState)
             assertEquals(expectedSelection, secondState.selectedLocations())
         }
     }
@@ -203,12 +204,12 @@ class CustomListLocationsViewModelTest {
             viewModel.onExpand(DUMMY_COUNTRIES[0].cities[0], true)
             // Check no selected
             val firstState = awaitItem()
-            assertIs<CustomListLocationsUiState.Content.Data>(firstState)
+            assertIs<Lce.Content<CustomListLocationsUiState>>(firstState)
             assertEquals(emptyList<RelayItem>(), firstState.selectedLocations())
             viewModel.onRelaySelectionClick(DUMMY_COUNTRIES[0].cities[0].relays[0], true)
             // Check all items selected
             val secondState = awaitItem()
-            assertIs<CustomListLocationsUiState.Content.Data>(secondState)
+            assertIs<Lce.Content<CustomListLocationsUiState>>(secondState)
             assertEquals(expectedSelection, secondState.selectedLocations())
         }
     }
@@ -323,8 +324,8 @@ class CustomListLocationsViewModelTest {
         )
     }
 
-    private fun CustomListLocationsUiState.Content.Data.selectedLocations() =
-        this.locations.filter { it.checked }.map { it.item.id }
+    private fun Lce.Content<CustomListLocationsUiState>.selectedLocations() =
+        this.value.locations.filter { it.checked }.map { it.item.id }
 
     private fun RelayItem.Location.toDepth() =
         when (this) {
