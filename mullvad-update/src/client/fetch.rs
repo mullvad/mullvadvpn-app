@@ -184,11 +184,11 @@ pub async fn get_to_file(
         if !err.should_retry() {
             anyhow::bail!(err);
         }
+        attempts += 1;
+        read_timeout *= 2;
         if attempts >= MAX_RETRY_ATTEMPTS {
             anyhow::bail!("Max retry attempts reached: {err}");
         }
-        attempts += 1;
-        read_timeout *= 2;
         log::warn!("Download failed: {err}. Retrying in with timeout: {read_timeout:?}");
     }
     Ok(())
