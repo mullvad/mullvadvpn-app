@@ -98,6 +98,8 @@ pub async fn test_wireguard_ip_override(
         .await?;
 
     log::info!("checking that the connection works again with the added overrides");
+    // Setting an IP override will cause the client to reconnect, so we have to wait for that
+    helpers::connect_and_wait(&mut mullvad_client).await?;
     let _ = helpers::geoip_lookup_with_retries(&rpc)
         .await
         .with_context(|| "Can't access internet through relay ip override")?;
@@ -158,6 +160,8 @@ pub async fn test_openvpn_ip_override(
         .await?;
 
     log::info!("checking that the connection works again with the added overrides");
+    // Setting an IP override will cause the client to reconnect, so we have to wait for that
+    helpers::connect_and_wait(&mut mullvad_client).await?;
     let _ = helpers::geoip_lookup_with_retries(&rpc)
         .await
         .with_context(|| "Can't access internet through relay ip override")?;
