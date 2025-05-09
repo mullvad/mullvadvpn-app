@@ -116,6 +116,7 @@ pub enum Error {
 /// A DNS resolver that forwards queries to some other DNS server
 ///
 /// Is controlled by commands sent through [ResolverHandle]s.
+/// When all [ResolverHandle]s are dropped, [Self::rx] will close and [Self::run] will exit.
 struct LocalResolver {
     rx: mpsc::UnboundedReceiver<ResolverMessage>,
     dns_server_task: JoinHandle<()>,
@@ -450,7 +451,7 @@ impl LocalResolver {
     /// server.
     async fn run(mut self) {
         let abort_handle = self.dns_server_task.abort_handle();
-        let abort_dns_server_task = on_drop(|| abort_handle.abort());
+        let _abort_dns_server_task = on_drop(|| abort_handle.abort());
 
         while let Some(request) = self.rx.next().await {
             match request {
@@ -472,10 +473,6 @@ impl LocalResolver {
                 }
             }
         }
-
-        drop(abort_dns_server_task);
-        // TODO: why do we bother waiting?
-        let _ = self.dns_server_task.await;
     }
 }
 
