@@ -8,12 +8,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
-import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_IN_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.OUT_OF_TIME_SCREEN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_ACCOUNT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
@@ -94,41 +90,8 @@ class AppInteractor(
         device.findObjectWithTimeout(By.text("Account"))
     }
 
-    fun extractOutIpv4Address(): String {
-        device.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG)).click()
-        return device
-            .findObjectWithTimeout(
-                // Text exist and contains IP address
-                By.res(LOCATION_INFO_CONNECTION_OUT_TEST_TAG).textContains("."),
-                VERY_LONG_TIMEOUT,
-            )
-            .text
-    }
-
-    fun extractInIpv4Address(): String {
-        device.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG)).click()
-        val inString =
-            device
-                .findObjectWithTimeout(
-                    By.res(LOCATION_INFO_CONNECTION_IN_TEST_TAG),
-                    VERY_LONG_TIMEOUT,
-                )
-                .text
-
-        val extractedIpAddress = inString.split(" ")[0].split(":")[0]
-        return extractedIpAddress
-    }
-
-    fun clickSettingsCog() {
-        device.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON_TEST_TAG)).click()
-    }
-
     fun clickAccountCog() {
         device.findObjectWithTimeout(By.res(TOP_BAR_ACCOUNT_BUTTON_TEST_TAG)).click()
-    }
-
-    fun clickListItemByText(text: String) {
-        device.findObjectWithTimeout(By.text(text)).click()
     }
 
     fun clickActionButtonByText(text: String) {
@@ -139,10 +102,6 @@ class AppInteractor(
         device.findObjectWithTimeout(By.text("Login"), timeout)
     }
 
-    fun attemptToRemoveDevice() {
-        device.findObjectWithTimeout(By.desc("Remove")).click()
-        clickActionButtonByText("Yes, log out device")
-    }
 
     fun dismissStorePasswordPromptIfShown() {
         try {
