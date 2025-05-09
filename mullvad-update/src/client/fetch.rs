@@ -4,6 +4,7 @@ use std::{
     path::Path,
     pin::Pin,
     task::{ready, Poll},
+    time::Duration,
 };
 
 use reqwest::header::{HeaderValue, CONTENT_LENGTH, RANGE};
@@ -13,6 +14,9 @@ use tokio::{
 };
 
 use anyhow::Context;
+
+const READ_TIMEOUT: Duration = Duration::from_secs(30);
+const CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
 
 /// Receiver of the current progress so far
 pub trait ProgressUpdater: Send + 'static {
@@ -83,13 +87,20 @@ pub async fn get_to_writer(
     progress_updater: &mut impl ProgressUpdater,
     size_hint: SizeHint,
 ) -> anyhow::Result<()> {
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .read_timeout(READ_TIMEOUT)
+        .connect_timeout(CONNECT_TIMEOUT)
+        .build()?;
 
     progress_updater.set_url(url);
     progress_updater.set_progress(0.);
 
     // Fetch content length first
-    let response = client.head(url).send().await.context("HEAD failed")?;
+    let response = client
+        .head(url)
+        .send()
+        .await
+        .context("Failed to request download")?;
     if !response.status().is_success() {
         return response
             .error_for_status()
