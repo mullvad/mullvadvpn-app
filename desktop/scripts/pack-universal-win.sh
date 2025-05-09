@@ -57,6 +57,7 @@ if [[ -z ${WIN_X64_INSTALLER-} ]] || [[ -z ${WIN_ARM64_INSTALLER-} ]]; then
     exit 1
 fi
 
+export RUSTFLAGS="-C opt-level=s"
 cargo build "${CARGO_ARGS[@]}" -p windows-installer --target x86_64-pc-windows-msvc
 
 dest="dist/MullvadVPN-${PRODUCT_VERSION}.exe"
