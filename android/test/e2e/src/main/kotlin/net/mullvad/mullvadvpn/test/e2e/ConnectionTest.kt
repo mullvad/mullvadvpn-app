@@ -74,7 +74,6 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         assertEquals(result.ip, outIpv4Address)
     }
 
-    @Disabled
     @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
@@ -112,7 +111,6 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         }
     }
 
-    @Disabled
     @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
@@ -213,8 +211,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             clickDisconnect()
         }
     }
-
-    @Disabled
+    
     @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules

@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.e2e
 
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.test.common.misc.Attachment
@@ -62,59 +63,9 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         device.pressBack()
     }
 
-    @Disabled
     @Test
     @HasDependencyOnLocalAPI
-    fun testEnsureNoLeaksToSpecificHost() = runTest {
-        app.launch()
-
-        on<ConnectPage> {
-            waitForDisconnectedLabel()
-
-            clickSelectLocation()
-        }
-
-        on<SelectLocationPage> {
-            clickLocationExpandButton(DEFAULT_COUNTRY)
-            clickLocationExpandButton(DEFAULT_CITY)
-            clickLocationCell(DEFAULT_RELAY)
-        }
-
-        on<SystemVpnConfigurationAlert> { clickOk() }
-
-        on<ConnectPage> { waitForConnectedLabel() }
-
-        // Capture generated traffic to a specific host
-        val targetIpAddress = BuildConfig.TRAFFIC_GENERATION_IP_ADDRESS
-        val targetPort = 80
-        val captureResult =
-            PacketCapture().capturePackets {
-                TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
-                    // Give it some time for generating traffic
-                    delay(3000)
-                }
-            }
-
-        on<ConnectPage> { clickDisconnect() }
-
-        val capturedStreams = captureResult.streams
-        val capturedPcap = captureResult.pcap
-        val timestamp = System.currentTimeMillis()
-        Attachment.saveAttachment(
-            "capture-${javaClass.enclosingMethod}-$timestamp.pcap",
-            capturedPcap,
-        )
-
-        NetworkTrafficChecker.checkTrafficStreamsAgainstRules(
-            capturedStreams,
-            NoTrafficToHostRule(targetIpAddress),
-        )
-    }
-
-    @Disabled
-    @Test
-    @HasDependencyOnLocalAPI
-    fun testEnsureLeaksToSpecificHost() = runTest {
+    fun testEnsureLeaksToSpecificHost() = runTest(timeout = 10.minutes) {
         app.launch()
 
         on<ConnectPage> {
@@ -174,7 +125,55 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @Disabled
     @Test
     @HasDependencyOnLocalAPI
-    fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() = runTest {
+    fun testEnsureNoLeaksToSpecificHost() = runTest {
+        app.launch()
+
+        on<ConnectPage> {
+            waitForDisconnectedLabel()
+
+            clickSelectLocation()
+        }
+
+        on<SelectLocationPage> {
+            clickLocationExpandButton(DEFAULT_COUNTRY)
+            clickLocationExpandButton(DEFAULT_CITY)
+            clickLocationCell(DEFAULT_RELAY)
+        }
+
+        on<SystemVpnConfigurationAlert> { clickOk() }
+
+        on<ConnectPage> { waitForConnectedLabel() }
+
+        // Capture generated traffic to a specific host
+        val targetIpAddress = BuildConfig.TRAFFIC_GENERATION_IP_ADDRESS
+        val targetPort = 80
+        val captureResult =
+            PacketCapture().capturePackets {
+                TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
+                    // Give it some time for generating traffic
+                    delay(3000)
+                }
+            }
+
+        on<ConnectPage> { clickDisconnect() }
+
+        val capturedStreams = captureResult.streams
+        val capturedPcap = captureResult.pcap
+        val timestamp = System.currentTimeMillis()
+        Attachment.saveAttachment(
+            "capture-${javaClass.enclosingMethod}-$timestamp.pcap",
+            capturedPcap,
+        )
+
+        NetworkTrafficChecker.checkTrafficStreamsAgainstRules(
+            capturedStreams,
+            NoTrafficToHostRule(targetIpAddress),
+        )
+    }
+
+    @Test
+    @HasDependencyOnLocalAPI
+    fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() = runTest(timeout = 10.minutes) {
         app.launch()
         // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
         on<ConnectPage> { disableObfuscationStory() }
