@@ -264,8 +264,8 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
     }
 
     fn handle_try_beta(&mut self) {
-        log::error!("Attempted 'try beta' without beta version");
         let Some(beta_info) = self.version_info.beta.as_ref() else {
+            log::error!("Attempted 'try beta' without beta version");
             return;
         };
 
