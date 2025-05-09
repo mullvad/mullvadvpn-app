@@ -3,15 +3,10 @@
 //! user from connecting to a relay.
 //!
 //! See [RouteManagerHandle::default_route_listener].
-//!
-//! This offline monitor synthesizes an offline state between network switches and before coming
-//! online from an offline state. This is done to work around issues with DNS being blocked due
-//! to macOS's connectivity check. In the offline state, a DNS server on localhost prevents the
-//! connectivity check from being blocked.
 use futures::{
     channel::mpsc::UnboundedSender,
     future::{Fuse, FutureExt},
-    select, StreamExt,
+    select, Stream, StreamExt,
 };
 use std::{
     sync::{Arc, Mutex},
@@ -19,6 +14,8 @@ use std::{
 };
 use talpid_routing::{DefaultRouteEvent, RouteManagerHandle};
 use talpid_types::net::Connectivity;
+
+use crate::resolver::LOCAL_DNS_RESOLVER;
 
 const SYNTHETIC_OFFLINE_DURATION: Duration = Duration::from_secs(1);
 
@@ -79,92 +76,161 @@ pub async fn spawn_monitor(
         }
     };
 
-    let state = ConnectivityInner { ipv4, ipv6 };
-    let mut real_state = state;
-
-    let state = Arc::new(Mutex::new(state));
-
-    let weak_state = Arc::downgrade(&state);
-    let weak_notify_tx = Arc::downgrade(&notify_tx);
-
     // Detect changes to the default route
-    tokio::spawn(async move {
-        let mut timeout = Fuse::terminated();
-        let mut route_listener = route_listener.fuse();
-
-        loop {
-            talpid_types::detect_flood!();
-
-            select! {
-                _ = timeout => {
-                    // Update shared state
-                    let Some(state) = weak_state.upgrade() else {
-                        break;
-                    };
-
-                    let mut state = state.lock().unwrap();
-                    if real_state.is_online() {
-                        log::info!("Connectivity changed: Connected");
-                        let Some(tx) = weak_notify_tx.upgrade() else {
-                            break;
-                        };
-                        let _ = tx.unbounded_send(real_state.into_connectivity());
-                    }
-
-                    *state = real_state;
-                }
-
-                route_event = route_listener.next() => {
-                    let Some(event) = route_event else {
-                        break;
-                    };
-
-                    // Update real state
-                    match event {
-                        DefaultRouteEvent::AddedOrChangedV4 => {
-                            real_state.ipv4 = true;
-                        }
-                        DefaultRouteEvent::AddedOrChangedV6 => {
-                            real_state.ipv6 = true;
-                        }
-                        DefaultRouteEvent::RemovedV4 => {
-                            real_state.ipv4 = false;
-                        }
-                        DefaultRouteEvent::RemovedV6 => {
-                            real_state.ipv6 = false;
-                        }
-                    }
-
-                    // Synthesize offline state
-                    // Update shared state
-                    let Some(state) = weak_state.upgrade() else {
-                        break;
-                    };
-                    let mut state = state.lock().unwrap();
-                    let previous_connectivity = *state;
-                    state.ipv4 = false;
-                    state.ipv6 = false;
-
-                    if previous_connectivity.is_online() {
-                        let Some(tx) = weak_notify_tx.upgrade() else {
-                            break;
-                        };
-                        let _ = tx.unbounded_send(state.into_connectivity());
-                        log::info!("Connectivity changed: Offline");
-                    }
-
-                    if real_state.is_online() {
-                        timeout = Box::pin(tokio::time::sleep(SYNTHETIC_OFFLINE_DURATION)).fuse();
-                    }
-                }
-            }
-        }
-
-        log::trace!("Offline monitor exiting");
-    });
+    let state = Arc::new(Mutex::new(ConnectivityInner { ipv4, ipv6 }));
+    if *LOCAL_DNS_RESOLVER {
+        tokio::spawn(handle_route_changes(
+            route_listener,
+            state.clone(),
+            notify_tx.clone(),
+        ));
+    } else {
+        tokio::spawn(handle_route_changes_with_synthetic_state(
+            route_listener,
+            state.clone(),
+            notify_tx.clone(),
+        ));
+    };
 
     Ok(MonitorHandle {
         state,
         _notify_tx: notify_tx,
     })
+}
+
+async fn handle_route_changes(
+    mut route_listener: impl Stream<Item = DefaultRouteEvent> + Unpin,
+    state: Arc<Mutex<ConnectivityInner>>,
+    notify_tx: Arc<UnboundedSender<Connectivity>>,
+) {
+    let weak_state = Arc::downgrade(&state);
+    let weak_notify_tx = Arc::downgrade(&notify_tx);
+
+    while let Some(event) = route_listener.next().await {
+        talpid_types::detect_flood!();
+
+        // Update real state
+        let Some(state) = weak_state.upgrade() else {
+            break;
+        };
+        let mut state = state.lock().unwrap();
+        let previous_state = *state;
+
+        match event {
+            DefaultRouteEvent::AddedOrChangedV4 => {
+                state.ipv4 = true;
+            }
+            DefaultRouteEvent::AddedOrChangedV6 => {
+                state.ipv6 = true;
+            }
+            DefaultRouteEvent::RemovedV4 => {
+                state.ipv4 = false;
+            }
+            DefaultRouteEvent::RemovedV6 => {
+                state.ipv6 = false;
+            }
+        }
+
+        if previous_state != *state {
+            if state.is_online() {
+                log::info!("Connectivity changed: Connected");
+            } else {
+                log::info!("Connectivity changed: Offline");
+            }
+            let Some(tx) = weak_notify_tx.upgrade() else {
+                break;
+            };
+            let _ = tx.unbounded_send(state.into_connectivity());
+        }
+    }
+
+    log::trace!("Offline monitor exiting");
+}
+
+/// When the local DNS resolver is disabled, the offline monitor synthesizes an offline state between
+/// network switches and before coming online from an offline state. This is done to work around
+/// issues with DNS being blocked due to macOS's connectivity check. In the offline state, a DNS
+/// server on localhost prevents the connectivity check from being blocked.
+async fn handle_route_changes_with_synthetic_state(
+    route_listener: impl Stream<Item = DefaultRouteEvent> + Unpin,
+    state: Arc<Mutex<ConnectivityInner>>,
+    notify_tx: Arc<UnboundedSender<Connectivity>>,
+) {
+    let mut timeout = Fuse::terminated();
+    let mut route_listener = route_listener.fuse();
+
+    let weak_state = Arc::downgrade(&state);
+    let weak_notify_tx = Arc::downgrade(&notify_tx);
+
+    let mut real_state = { state.lock().unwrap().clone() };
+
+    loop {
+        talpid_types::detect_flood!();
+
+        select! {
+            _ = timeout => {
+                // Update shared state
+                let Some(state) = weak_state.upgrade() else {
+                    break;
+                };
+
+                let mut state = state.lock().unwrap();
+                if real_state.is_online() {
+                    log::info!("Connectivity changed: Connected");
+                    let Some(tx) = weak_notify_tx.upgrade() else {
+                        break;
+                    };
+                    let _ = tx.unbounded_send(real_state.into_connectivity());
+                }
+
+                *state = real_state;
+            }
+
+            route_event = route_listener.next() => {
+                let Some(event) = route_event else {
+                    break;
+                };
+
+                // Update real state
+                match event {
+                    DefaultRouteEvent::AddedOrChangedV4 => {
+                        real_state.ipv4 = true;
+                    }
+                    DefaultRouteEvent::AddedOrChangedV6 => {
+                        real_state.ipv6 = true;
+                    }
+                    DefaultRouteEvent::RemovedV4 => {
+                        real_state.ipv4 = false;
+                    }
+                    DefaultRouteEvent::RemovedV6 => {
+                        real_state.ipv6 = false;
+                    }
+                }
+
+                // Synthesize offline state
+                // Update shared state
+                let Some(state) = weak_state.upgrade() else {
+                    break;
+                };
+                let mut state = state.lock().unwrap();
+                let previous_connectivity = *state;
+                state.ipv4 = false;
+                state.ipv6 = false;
+
+                if previous_connectivity.is_online() {
+                    let Some(tx) = weak_notify_tx.upgrade() else {
+                        break;
+                    };
+                    let _ = tx.unbounded_send(state.into_connectivity());
+                    log::info!("Connectivity changed: Offline");
+                }
+
+                if real_state.is_online() {
+                    timeout = Box::pin(tokio::time::sleep(SYNTHETIC_OFFLINE_DURATION)).fuse();
+                }
+            }
+        }
+    }
+
+    log::trace!("Offline monitor exiting");
 }
