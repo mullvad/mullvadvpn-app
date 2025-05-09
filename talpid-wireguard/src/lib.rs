@@ -882,8 +882,6 @@ impl WireguardMonitor {
         iface_name: &str,
         config: &'a Config,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
-        use talpid_routing::Node;
-
         // e.g. utun4
         let gateway_node = talpid_routing::Node::device(iface_name.to_string());
 
@@ -904,12 +902,7 @@ impl WireguardMonitor {
         let gateway_routes =
             gateway_routes.map(|route| Self::apply_route_mtu_for_multihop(route, config));
 
-        // e.g. route 10.<private tunnel ip> to loopback
-        let loopback_routes = config.tunnel.addresses.iter().map(|&private_tunnel_ip| {
-            RequiredRoute::new(private_tunnel_ip.into(), Node::device("lo0".to_owned()))
-        });
-
-        let routes = gateway_routes.chain(loopback_routes).chain(
+        let routes = gateway_routes.chain(
             config
                 .get_tunnel_destinations()
                 .filter(|allowed_ip| allowed_ip.prefix() != 0)
