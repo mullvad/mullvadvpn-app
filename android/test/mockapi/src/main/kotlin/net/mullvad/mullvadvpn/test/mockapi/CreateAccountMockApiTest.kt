@@ -19,7 +19,7 @@ class CreateAccountMockApiTest : MockApiTest() {
             expectedAccountNumber = createdAccountNumber
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
-        app.launchAndEnsureOnLoginPage(endpoint)
+        app.launchAndEnsureOnLoginPage()
 
         on<LoginPage> { clickCreateAccount() }
 
@@ -34,7 +34,7 @@ class CreateAccountMockApiTest : MockApiTest() {
     @Test
     fun testCreateAccountFailed() {
         // Arrange
-        app.launchAndEnsureOnLoginPage(endpoint)
+        app.launchAndEnsureOnLoginPage()
 
         on<LoginPage> {
             clickCreateAccount()

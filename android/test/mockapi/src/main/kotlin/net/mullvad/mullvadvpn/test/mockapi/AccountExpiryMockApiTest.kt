@@ -29,7 +29,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
         }
 
         // Act
-        app.launchAndLogIn(validAccountNumber, endpoint)
+        app.launchAndLogIn(validAccountNumber)
 
         on<LoginPage> {
             enterAccountNumber(validAccountNumber)
@@ -58,7 +58,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
         }
 
         // Act
-        app.launchAndLogIn(validAccountNumber, endpoint)
+        app.launchAndLogIn(validAccountNumber)
 
         // Set account time as expired
         val newAccountExpiry = oldAccountExpiry.minusMonths(2)

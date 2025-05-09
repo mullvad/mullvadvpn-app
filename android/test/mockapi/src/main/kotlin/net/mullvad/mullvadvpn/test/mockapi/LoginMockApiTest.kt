@@ -25,7 +25,7 @@ class LoginMockApiTest : MockApiTest() {
         }
 
         // Act login with invalid credentials
-        app.launchAndLogIn(validAccountNumber, endpoint)
+        app.launchAndLogIn(validAccountNumber)
 
         // Assert
         val result =
@@ -48,7 +48,7 @@ class LoginMockApiTest : MockApiTest() {
         }
 
         // Act
-        app.launchAndLogIn(validAccountNumber, endpoint)
+        app.launchAndLogIn(validAccountNumber)
 
         // Assert
         on<ConnectPage>()
@@ -65,7 +65,7 @@ class LoginMockApiTest : MockApiTest() {
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
 
-        app.launchAndLogIn(validAccountNumber, endpoint)
+        app.launchAndLogIn(validAccountNumber)
 
         // Assert
         on<OutOfTimePage>()

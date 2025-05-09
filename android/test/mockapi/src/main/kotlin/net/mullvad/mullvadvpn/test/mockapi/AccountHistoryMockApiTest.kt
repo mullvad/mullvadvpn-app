@@ -25,7 +25,7 @@ class AccountHistoryMockApiTest : MockApiTest() {
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
 
-        app.launchAndLogIn(validAccountNumber, endpoint)
+        app.launchAndLogIn(validAccountNumber)
 
         on<ConnectPage> { clickAccount() }
 
