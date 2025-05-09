@@ -141,6 +141,3 @@ strip = true
 opt-level = 3
 [profile.release.package."classic-mceliece-rust"]
 opt-level = 3
-
-[patch.crates-io]
-quinn = { git = "https://github.com/mullvad/quinn", rev = "7ce43e8e7b22c61fee3430d1c1a1bf447e046e02" }
