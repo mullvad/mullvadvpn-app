@@ -8,6 +8,9 @@ use anyhow::Context;
 use bytes::BytesMut;
 use mullvad_masque_proxy::server::AllowedIps;
 use mullvad_masque_proxy::server::ServerParams;
+use mullvad_masque_proxy::udp::fake_udp_pair;
+use mullvad_masque_proxy::udp::FakeUdp;
+use mullvad_masque_proxy::udp::UdpSocketTrait;
 use mullvad_masque_proxy::MIN_IPV4_MTU;
 use rand::RngCore;
 use tokio::fs;
@@ -16,17 +19,83 @@ use mullvad_masque_proxy::client;
 use mullvad_masque_proxy::server;
 use tokio::net::UdpSocket;
 use tokio::time::timeout;
+use tokio::time::Instant;
+
+#[tokio::test]
+async fn test_perf() -> anyhow::Result<()> {
+    let mut data = vec![0u8; 1400];
+    rand::thread_rng().fill_bytes(&mut data);
+
+    let began = Instant::now();
+
+    for _ in 0..100 {
+        const MTU: u16 = 1700;
+        //let (client, server) = setup_masque_fake(MTU).await?;
+        let (client, server) = setup_masque(MTU).await?;
+
+        // Proxy client -> destination
+        let mut rx_buf = BytesMut::with_capacity(data.len());
+        client.send(&data).await?;
+        let (_, proxy_addr) = server
+            .recv_buf_from(&mut rx_buf)
+            .await
+            .context("Expected to receive message")?;
+        assert_eq!(&*rx_buf, data, "Expected to receive message from client");
+    
+        // Destination -> proxy client
+        let mut rx_buf = BytesMut::with_capacity(data.len());
+        server.send_to(&data, proxy_addr).await?;
+        client
+            .recv_buf_from(&mut rx_buf)
+            .await
+            .context("Expected to receive message")?;
+        assert_eq!(&*rx_buf, data, "Expected to receive message from server");
+    }
+
+    eprintln!("real E2E: {}", began.elapsed().as_millis());
+
+    let dst = "123.123.123.123:123".parse().unwrap();
+    let began = Instant::now();
+    for _ in 0..100 {
+        const MTU: u16 = 1700;
+        let (client, server) = setup_masque_fake(MTU).await?;
+    
+        // Proxy client -> destination
+        let mut rx_buf = BytesMut::with_capacity(data.len());
+        client.send_to(&data, dst).await?;
+        let (_, proxy_addr) = server
+            .recv_buf_from(&mut rx_buf)
+            .await
+            .context("Expected to receive message")?;
+        assert_eq!(&*rx_buf, data, "Expected to receive message from client");
+    
+        // Destination -> proxy client
+        let mut rx_buf = BytesMut::with_capacity(data.len());
+        server.send_to(&data, proxy_addr).await?;
+        client
+            .recv_buf_from(&mut rx_buf)
+            .await
+            .context("Expected to receive message")?;
+        assert_eq!(&*rx_buf, data, "Expected to receive message from server");
+    }
+
+    eprintln!("fake E2E: {}", began.elapsed().as_millis());
+
+    panic!();
+
+    Ok(())
+}
 
 /// Set up a MASQUE proxy and test that it can be used to communicate with some UDP destination
 #[tokio::test]
 async fn test_server_and_client_forwarding() -> anyhow::Result<()> {
     timeout(Duration::from_secs(1), async {
         const MTU: u16 = 1700;
-        let (client, server) = setup_masque(MTU).await?;
+        let (client, server) = setup_masque_fake(MTU).await?;
 
         // Proxy client -> destination
         let mut rx_buf = BytesMut::with_capacity(128);
-        client.send(b"abc").await?;
+        client.send_to(b"abc", "123.123.123.123:123".parse().unwrap()).await?;
         let (_, proxy_addr) = server
             .recv_buf_from(&mut rx_buf)
             .await
@@ -37,7 +106,7 @@ async fn test_server_and_client_forwarding() -> anyhow::Result<()> {
         let mut rx_buf = BytesMut::with_capacity(128);
         server.send_to(b"def", proxy_addr).await?;
         client
-            .recv_buf(&mut rx_buf)
+            .recv_buf_from(&mut rx_buf)
             .await
             .context("Expected to receive message")?;
         assert_eq!(&*rx_buf, b"def", "Expected to receive message from server");
@@ -198,6 +267,72 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         .connect(masque_client_addr)
         .await
         .context("Failed to connect to local UDP server")?;
+
+    Ok((proxy_client, destination_udp_server))
+}
+
+/// Set up a client and server connected by a MASQUE proxy.
+/// This returns a UDP socket that is connected to the local MASQUE client,
+/// and a UDP socket that represents the other endpoint.
+/// Note that the server socket (second returned value) is not connected,
+/// so `recv_from` must be used.
+async fn setup_masque_fake(mtu: u16) -> anyhow::Result<(FakeUdp, UdpSocket)> {
+    const HOST: &str = "test.test";
+
+    // FIXME: simplify shared setup
+
+    let any_localhost_addr: SocketAddr = "127.0.0.1:0".parse().unwrap();
+
+    let (proxy_client, local_socket) = fake_udp_pair();
+
+    // TODO: fake this end too (ie target a fake socket instead of target_addr)
+    let destination_udp_server = UdpSocket::bind(any_localhost_addr).await?;
+    let target_udp_addr = destination_udp_server
+        .local_addr()
+        .context("Retrieve dest UDP server addr")?;
+
+    // Set up MASQUE server
+    let server_tls_config = load_server_test_cert().await?;
+
+    let params = ServerParams::builder()
+        .allowed_hosts(AllowedIps::default())
+        .mtu(mtu)
+        .auth_header(Some("Bearer test".to_owned()))
+        .build();
+
+    let server = server::Server::bind(any_localhost_addr, Arc::new(server_tls_config), params)
+        .context("Failed to start MASQUE server")?;
+
+    let masque_server_addr = server.local_addr()?;
+
+    tokio::spawn(async move {
+        if let Err(err) = server.run().await {
+            eprintln!("server.run() failed: {err}");
+        }
+    });
+
+    // Set up MASQUE client
+
+    let client_config = client::ClientConfig::builder()
+        .client_socket(local_socket)
+        .local_addr(any_localhost_addr)
+        .server_addr(masque_server_addr)
+        .server_host(HOST.to_owned())
+        .target_addr(target_udp_addr)
+        .mtu(mtu)
+        .idle_timeout(Some(Duration::from_secs(10)))
+        .auth_header(Some("Bearer test".to_owned()))
+        .build();
+
+    let client = client::Client::connect(client_config)
+        .await
+        .context("Failed to start MASQUE client")?;
+
+    tokio::spawn(async move {
+        if let Err(err) = client.run().await {
+            eprintln!("client.run() failed: {err}");
+        }
+    });
 
     Ok((proxy_client, destination_udp_server))
 }
