@@ -19,7 +19,7 @@ use crate::{
 #[derive(Debug, thiserror::Error)]
 pub enum DownloadError {
     #[error("Failed to download app")]
-    FetchApp(#[source] anyhow::Error),
+    FetchApp(#[from] anyhow::Error),
     #[error("Failed to verify app")]
     Verification(#[source] anyhow::Error),
     #[error("Failed to launch app")]
