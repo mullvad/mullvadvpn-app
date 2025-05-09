@@ -9,6 +9,7 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiObject2Condition
 import androidx.test.uiautomator.Until
 import co.touchlab.kermit.Logger
+import java.lang.Thread.sleep
 import java.util.regex.Pattern
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
@@ -38,6 +39,22 @@ fun UiDevice.findObjectWithTimeout(
     }
 
     return foundObject
+}
+
+fun UiDevice.expectObjectToDisappearWithTimeout(
+    selector: BySelector,
+    timeout: Long = DEFAULT_TIMEOUT,
+) {
+    val sleepInterval = 100L
+    val startTime = System.currentTimeMillis()
+
+    while (null != findObject(selector)) {
+        val elapsedTime = System.currentTimeMillis() - startTime
+        if (elapsedTime > timeout) {
+            error("Object is still visible after timeout")
+        }
+        sleep(sleepInterval)
+    }
 }
 
 fun UiDevice.clickObjectAwaitCondition(
