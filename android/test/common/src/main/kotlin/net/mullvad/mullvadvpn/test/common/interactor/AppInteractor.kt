@@ -17,8 +17,9 @@ class AppInteractor(
     private val device: UiDevice,
     private val targetContext: Context,
     private val targetPackageName: String,
+    private val customApiEndpointConfiguration: ApiEndpointOverride? = null,
 ) {
-    fun launch(customApiEndpointConfiguration: ApiEndpointOverride? = null) {
+    fun launch() {
         device.pressHome()
         // Wait for launcher
         device.wait(Until.hasObject(By.pkg(device.launcherPackageName).depth(0)), LONG_TIMEOUT)
@@ -35,18 +36,15 @@ class AppInteractor(
         device.wait(Until.hasObject(By.pkg(targetPackageName).depth(0)), LONG_TIMEOUT)
     }
 
-    fun launchAndEnsureOnLoginPage(customApiEndpointConfiguration: ApiEndpointOverride? = null) {
-        launch(customApiEndpointConfiguration)
+    fun launchAndEnsureOnLoginPage() {
+        launch()
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<LoginPage>()
     }
 
-    fun launchAndLogIn(
-        accountNumber: String,
-        customApiEndpointConfiguration: ApiEndpointOverride? = null,
-    ) {
-        launchAndEnsureOnLoginPage(customApiEndpointConfiguration)
+    fun launchAndLogIn(accountNumber: String) {
+        launchAndEnsureOnLoginPage()
         on<LoginPage> {
             enterAccountNumber(accountNumber)
             clickLoginButton()

@@ -24,7 +24,7 @@ class LogoutMockApiTest : MockApiTest() {
         }
 
         // Act
-        app.launchAndLogIn(validAccountNumber, endpoint)
+        app.launchAndLogIn(validAccountNumber)
 
         on<ConnectPage> { clickAccount() }
 

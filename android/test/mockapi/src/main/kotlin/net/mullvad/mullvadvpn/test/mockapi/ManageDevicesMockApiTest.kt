@@ -26,7 +26,7 @@ class ManageDevicesMockApiTest : MockApiTest() {
         }
 
         // Act - go to devices screen
-        app.launchAndLogIn(validAccountNumber, endpoint)
+        app.launchAndLogIn(validAccountNumber)
 
         on<ConnectPage> { clickAccount() }
 
