@@ -8,8 +8,13 @@
 
 import Foundation
 import PacketTunnelCore
+import UIKit
 
 final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationProvider, @unchecked Sendable {
+    enum ActionIdentifier: String {
+        case showVPNSettings
+    }
+
     private var isWaitingForConnectivity = false
     private var noNetwork = false
     private var packetTunnelError: BlockedStateReason?
@@ -135,7 +140,19 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     private func notificationDescription(for packetTunnelError: BlockedStateReason) -> InAppNotificationDescriptor {
-        InAppNotificationDescriptor(
+        let button: InAppNotificationAction? = switch packetTunnelError {
+        case .noRelaysSatisfyingPortConstraints:
+            InAppNotificationAction(image: UIImage.Buttons.settings) {
+                NotificationManager.shared
+                    .notificationProvider(
+                        self,
+                        didReceiveAction: "\(ActionIdentifier.showVPNSettings)"
+                    )
+            }
+        default:
+            nil
+        }
+        return InAppNotificationDescriptor(
             identifier: identifier,
             style: .error,
             title: NSLocalizedString(
@@ -149,7 +166,8 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
                     value: localizedReasonForBlockedStateError(packetTunnelError),
                     comment: ""
                 )
-            ))
+            )),
+            button: button
         )
     }
 
@@ -248,6 +266,8 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
             errorString = "No DAITA compatible servers match your location settings. Try changing location."
         case .noRelaysSatisfyingConstraints:
             errorString = "No servers match your settings, try changing server or other settings."
+        case .noRelaysSatisfyingPortConstraints:
+            errorString = "The selected WireGuard port is not supported, please change it under VPN settings."
         case .invalidAccount:
             errorString = "You are logged in with an invalid account number. Please log out and try another one."
         case .deviceLoggedOut:
