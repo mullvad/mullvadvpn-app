@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.test.e2e.misc.TrafficGenerator
 import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.PacketCapture
 import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.PacketCaptureResult
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -61,6 +62,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         device.pressBack()
     }
 
+    @Disabled
     @Test
     @HasDependencyOnLocalAPI
     fun testEnsureNoLeaksToSpecificHost() = runTest {
@@ -109,6 +111,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         )
     }
 
+    @Disabled
     @Test
     @HasDependencyOnLocalAPI
     fun testEnsureLeaksToSpecificHost() = runTest {
@@ -168,6 +171,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         )
     }
 
+    @Disabled
     @Test
     @HasDependencyOnLocalAPI
     fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() = runTest {

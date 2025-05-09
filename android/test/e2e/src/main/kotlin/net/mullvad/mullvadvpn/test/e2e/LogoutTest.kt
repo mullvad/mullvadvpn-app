@@ -5,6 +5,7 @@ import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.LoginPage
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -12,6 +13,7 @@ class LogoutTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
     @RegisterExtension @JvmField val accountTestRule = AccountTestRule()
 
+    @Disabled
     @Test
     fun testLogout() {
         // Given

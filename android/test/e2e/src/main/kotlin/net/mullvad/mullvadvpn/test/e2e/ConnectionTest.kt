@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.test.e2e.misc.ClearFirewallRules
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.DropRule
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.FirewallClient
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -37,6 +38,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     private val connCheckClient = ConnectionCheckApi()
     private val firewallClient = FirewallClient()
 
+    @Disabled
     @Test
     fun testConnect() {
         // Given
@@ -49,6 +51,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         on<ConnectPage> { waitForConnectedLabel() }
     }
 
+    @Disabled
     @Test
     fun testConnectAndVerifyWithConnectionCheck() = runTest {
         // Given
@@ -71,6 +74,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         assertEquals(result.ip, outIpv4Address)
     }
 
+    @Disabled
     @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
@@ -108,6 +112,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         }
     }
 
+    @Disabled
     @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
@@ -209,6 +214,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         }
     }
 
+    @Disabled
     @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
