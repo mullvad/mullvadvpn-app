@@ -36,7 +36,6 @@ class LogoutMockApiTest : MockApiTest() {
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountNumber)
         device.dismissChangelogDialogIfShown()
-        app.ensureLoggedIn()
 
         on<ConnectPage> {
             clickAccount()
