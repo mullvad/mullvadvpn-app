@@ -34,19 +34,16 @@ class ForgetAllVpnAppsInSettingsTestRule : BeforeTestExecutionCallback {
             .filter { !it.isHardcodedVpn() }
             .forEach { button ->
                 button.click()
-
-                if (device.hasObjectWithTimeout(By.text(FORGET_VPN_VPN_BUTTON_TEXT))) {
-                    device.findObjectWithTimeout(By.text(FORGET_VPN_VPN_BUTTON_TEXT)).click()
-                    device
-                        .findObjectByCaseInsensitiveText(FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT)
-                        .click()
+                if (device.hasObjectWithTimeout(By.text(FORGET_VPN_BUTTON_TEXT))) {
+                    device.findObjectWithTimeout(By.text(FORGET_VPN_BUTTON_TEXT)).click()
+                    device.findObjectByCaseInsensitiveText(FORGET_VPN_CONFIRM_BUTTON_TEXT).click()
                 } else if (device.hasObjectWithTimeout(By.text(DELETE_VPN_PROFILE_TEXT))) {
                     device.findObjectWithTimeout(By.text(DELETE_VPN_PROFILE_TEXT)).click()
                     device
                         .findObjectWithTimeout(By.text(DELETE_VPN_CONFIRM_BUTTON_TEXT_REGEXP))
                         .click()
-                } else if (device.hasObjectWithTimeout(By.text(FORGET_VPN_BUTTON_TEXT))) {
-                    device.findObjectWithTimeout(By.text(FORGET_VPN_BUTTON_TEXT)).click()
+                } else if (device.hasObjectWithTimeout(By.text(FORGET_BUTTON_TEXT))) {
+                    device.findObjectWithTimeout(By.text(FORGET_BUTTON_TEXT)).click()
                 } else {
                     fail("Unable to find forget or delete button")
                 }
@@ -61,10 +58,10 @@ class ForgetAllVpnAppsInSettingsTestRule : BeforeTestExecutionCallback {
     companion object {
         private val HARDCODED_VPN_PROFILE_NAMES = listOf("VPN by Google")
 
-        private const val FORGET_VPN_VPN_BUTTON_TEXT = "Forget VPN"
-        private const val FORGET_VPN_BUTTON_TEXT = "Forget" // Legacy VPN
+        private const val FORGET_VPN_BUTTON_TEXT = "Forget VPN"
+        private const val FORGET_BUTTON_TEXT = "Forget" // Legacy VPN
         private const val DELETE_VPN_PROFILE_TEXT = "Delete VPN profile"
-        private const val FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT = "Forget"
+        private const val FORGET_VPN_CONFIRM_BUTTON_TEXT = "Forget"
         // Samsung S22 shows "Delete"
         // Stock Android shows "DELETE"
         private val DELETE_VPN_CONFIRM_BUTTON_TEXT_REGEXP = Pattern.compile("DELETE|Delete")
