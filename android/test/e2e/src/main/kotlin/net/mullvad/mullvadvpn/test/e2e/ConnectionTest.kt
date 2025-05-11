@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.test.e2e
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
@@ -25,7 +24,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
-class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
+class ConnectionTest : EndToEndTest() {
 
     @RegisterExtension @JvmField val accountTestRule = AccountTestRule()
 

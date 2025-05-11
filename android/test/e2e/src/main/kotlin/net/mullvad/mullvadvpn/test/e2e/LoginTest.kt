@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
-class LoginTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
+class LoginTest : EndToEndTest() {
 
     @RegisterExtension @JvmField val accountTestRule = AccountTestRule()
 
