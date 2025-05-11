@@ -7,6 +7,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiObject2Condition
 import androidx.test.uiautomator.Until
+import androidx.test.uiautomator.waitForAppToBeVisible
 import co.touchlab.kermit.Logger
 import java.lang.Thread.sleep
 import java.util.regex.Pattern
@@ -103,4 +104,11 @@ fun UiObject2.findObjectWithTimeout(
             "No matches for selector within timeout ($timeout ms): $selector"
         )
     }
+}
+
+fun UiDevice.acceptVpnPermissionDialog() {
+    findObjectWithTimeout(By.text("Connection request"))
+    // Accept Creating the VPN Permission profile
+    findObjectWithTimeout(By.text("OK")).click()
+    waitForAppToBeVisible(currentPackageName)
 }
