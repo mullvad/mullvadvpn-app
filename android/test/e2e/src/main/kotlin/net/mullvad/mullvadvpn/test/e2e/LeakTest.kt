@@ -3,11 +3,11 @@ package net.mullvad.mullvadvpn.test.e2e
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.misc.Attachment
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.SettingsPage
-import net.mullvad.mullvadvpn.test.common.page.SystemVpnConfigurationAlert
 import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.WireGuardCustomPortDialog
 import net.mullvad.mullvadvpn.test.common.page.disableObfuscationStory
@@ -78,7 +78,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             clickLocationCell(DEFAULT_RELAY)
         }
 
-        on<SystemVpnConfigurationAlert> { clickOk() }
+        device.acceptVpnPermissionDialog()
 
         on<ConnectPage> { waitForConnectedLabel() }
 
@@ -126,7 +126,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             clickLocationCell(DEFAULT_RELAY)
         }
 
-        on<SystemVpnConfigurationAlert> { clickOk() }
+        device.acceptVpnPermissionDialog()
 
         on<ConnectPage> { waitForConnectedLabel() }
 
@@ -183,7 +183,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             clickLocationCell(DAITA_COMPATIBLE_RELAY)
         }
 
-        on<SystemVpnConfigurationAlert> { clickOk() }
+        device.acceptVpnPermissionDialog()
 
         on<ConnectPage> { waitForConnectedLabel() }
 

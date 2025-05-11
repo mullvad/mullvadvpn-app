@@ -143,3 +143,10 @@ fun UiObject2.findObjectWithTimeout(
         )
     }
 }
+
+fun UiDevice.acceptVpnPermissionDialog() {
+    findObjectWithTimeout(By.text("Connection request"))
+    // Accept Creating the VPN Permission profile
+    findObjectWithTimeout(By.text("OK")).click()
+    waitForIdle()
+}

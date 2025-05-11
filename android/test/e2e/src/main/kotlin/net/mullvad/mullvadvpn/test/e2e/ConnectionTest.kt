@@ -5,10 +5,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.SettingsPage
-import net.mullvad.mullvadvpn.test.common.page.SystemVpnConfigurationAlert
 import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.disableObfuscationStory
 import net.mullvad.mullvadvpn.test.common.page.enableLocalNetworkSharingStory
@@ -43,7 +43,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
         on<ConnectPage> { clickConnect() }
 
-        on<SystemVpnConfigurationAlert> { clickOk() }
+        device.acceptVpnPermissionDialog()
 
         on<ConnectPage> { waitForConnectedLabel() }
     }
@@ -55,7 +55,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
         on<ConnectPage> { clickConnect() }
 
-        on<SystemVpnConfigurationAlert> { clickOk() }
+        device.acceptVpnPermissionDialog()
 
         var outIpv4Address = ""
 
@@ -85,7 +85,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             clickLocationCell(DEFAULT_RELAY)
         }
 
-        on<SystemVpnConfigurationAlert> { clickOk() }
+        device.acceptVpnPermissionDialog()
 
         var relayIpAddress: String? = null
 
@@ -122,7 +122,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             clickLocationCell(DEFAULT_RELAY)
         }
 
-        on<SystemVpnConfigurationAlert> { clickOk() }
+        device.acceptVpnPermissionDialog()
 
         var relayIpAddress: String? = null
 
@@ -174,7 +174,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             clickLocationCell(DEFAULT_RELAY)
         }
 
-        on<SystemVpnConfigurationAlert> { clickOk() }
+        device.acceptVpnPermissionDialog()
 
         var relayIpAddress: String? = null
 
@@ -223,7 +223,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
         on<ConnectPage> { clickConnect() }
 
-        on<SystemVpnConfigurationAlert> { clickOk() }
+        device.acceptVpnPermissionDialog()
 
         // Ensure it is not possible to connect to relay
         on<ConnectPage> {
