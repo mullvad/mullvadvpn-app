@@ -3,11 +3,13 @@ package net.mullvad.mullvadvpn.test.common.extension
 import android.os.Build
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
+import androidx.test.uiautomator.StableResult
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiObject2Condition
 import androidx.test.uiautomator.Until
+import androidx.test.uiautomator.waitForStableInActiveWindow
 import co.touchlab.kermit.Logger
 import java.lang.Thread.sleep
 import java.util.regex.Pattern
@@ -141,5 +143,27 @@ fun UiObject2.findObjectWithTimeout(
         throw IllegalArgumentException(
             "No matches for selector within timeout ($timeout ms): $selector"
         )
+    }
+}
+
+fun UiDevice.waitForStableInActiveWindowSafe(): StableResult? {
+    return try {
+        // This is a workaround for a NullPointerException that may occurs invoking waitForStable
+        // and it is unable to find the current window. To avoid failing our test because unstable
+        // api we try and just catch this.
+        waitForStableInActiveWindow()
+    } catch (e: NullPointerException) {
+        Logger.e(e) { "waitForStableInActive window failed" }
+        // This is the stack trace of the exception we try to grab:
+        // java.lang.NullPointerException:
+        // Attempt to invoke virtual method 'int
+        // android.view.accessibility.AccessibilityWindowInfo.getDisplayId()' on a null object
+        // reference
+        //	at
+        // androidx.test.uiautomator.UiDeviceExt.waitForStableInActiveWindow$lambda$3(UiDeviceExt.kt:112)
+
+        // Since waitForStable failed we sleep for some time and hope the UI is stable by then.
+        sleep(2000)
+        null
     }
 }
