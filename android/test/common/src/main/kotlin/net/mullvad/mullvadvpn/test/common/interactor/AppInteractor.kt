@@ -17,7 +17,6 @@ import net.mullvad.mullvadvpn.test.common.page.on
 class AppInteractor(
     private val device: UiDevice,
     private val targetContext: Context,
-    private val targetPackageName: String,
     private val customApiEndpointConfiguration: ApiEndpointOverride? = null,
 ) {
     fun launch() {
@@ -25,6 +24,7 @@ class AppInteractor(
         // Wait for launcher
         device.wait(Until.hasObject(By.pkg(device.launcherPackageName).depth(0)), LONG_TIMEOUT)
 
+        val targetPackageName = targetContext.packageName
         val intent =
             targetContext.packageManager.getLaunchIntentForPackage(targetPackageName)?.apply {
                 // Clear out any previous instances

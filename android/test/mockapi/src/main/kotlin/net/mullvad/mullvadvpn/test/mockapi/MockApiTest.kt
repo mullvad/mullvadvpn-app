@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
 import net.mullvad.mullvadvpn.test.mockapi.constant.LOG_TAG
-import net.mullvad.mullvadvpn.test.mockapi.constant.PACKAGE_NAME
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -46,7 +45,8 @@ abstract class MockApiTest {
         Logger.d("Mocked web server started using port: ${mockWebServer.port}")
         endpoint = createEndpoint(mockWebServer.port)
 
-        app = AppInteractor(device, targetContext, PACKAGE_NAME, endpoint)
+        Logger.d { "What is context packageName: ${targetContext.packageName}" }
+        app = AppInteractor(device, targetContext, endpoint)
     }
 
     @AfterEach
