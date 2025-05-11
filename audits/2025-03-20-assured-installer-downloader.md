@@ -34,7 +34,7 @@ to them.
 The script we use to automate part of the desktop app release process (`4-make-release`) uses
 `gpg --verify` to ensure that the installers it has fetched from Mullvad's internal release
 servers are not tampered with.
-Both the installer and the accompanying signature comes from the same server.
+Both the installer and the accompanying signature come from the same server.
 
 The audit report claims that `gpg --verify` will succeed as long as the signature matches the data,
 no matter which key produced the signature. This claim is not fully accurate according
@@ -53,7 +53,7 @@ identified two potential risks here:
 
 The manpage for `gpg` explicitly states that only using the exit code, like we do, for signature
 validation is not appropriate. So Assured is correct in pointing out this behavior as risky.
-Both Assured and the manpage for `gpg` recommends `gpgv` as an alternative for usage in scripts.
+Both Assured and the manpage for `gpg` recommend `gpgv` as an alternative for usage in scripts.
 However, even `gpgv` is a bit unclear about how it handles key servers and bundled pubkeys.
 So instead we decided use [Sequoia] to verify the signatures, as it allows explicitly specifying
 what PGP pubkey to trust. It also does not require us to initialize any keyring, so it is simpler
@@ -82,7 +82,7 @@ The recommendation here is to deserialize `canon_json` and return that as the tr
 
 A sidenote here is that the code was initially implemented according to the recommendation.
 The code was changed to return `partial_data.signed` just before the audit. This change was
-a result of a pre-audit meeting between Mullvad and Assured where we probably missunderstood
+a result of a pre-audit meeting between Mullvad and Assured where we probably misunderstood
 some of their early feedback on the metadata verification best practices.
 
 We [changed the implementation back] to only use the verified data, as recommended.
@@ -96,7 +96,7 @@ We [changed the implementation back] to only use the verified data, as recommend
 The macOS version of the installer downloader runs as the user who launched it. The program will
 save the downloaded installer to a temporary directory writable by the user. The installer
 downloader will then verify the checksum of the file and launch it if it matches. This leaves
-a possible Time-of-Check, Time-of-Use (TOCTOU) attack vector. Any program running as the the same
+a possible Time-of-Check, Time-of-Use (TOCTOU) attack vector. Any program running as the same
 user can replace the installer downloader between the time it was verified and it was launched.
 Causing the installer downloader to launch a potentially malicious installer.
 

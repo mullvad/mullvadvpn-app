@@ -35,7 +35,7 @@ public struct MigrationManager {
     /// and writes back to `store` when settings are updated.
     ///
     /// In order to avoid migration happening from both the VPN and the host processes at the same time,
-    /// a non existant file path is used as a lock to synchronize access between the processes.
+    /// a non existent file path is used as a lock to synchronize access between the processes.
     /// This file is accessed by `NSFileCoordinator` in order to prevent multiple processes accessing at the same time.
     /// - Parameters:
     ///   - store: The store to from which settings are read and written to.
