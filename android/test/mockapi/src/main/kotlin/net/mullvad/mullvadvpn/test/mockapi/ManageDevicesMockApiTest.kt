@@ -39,7 +39,7 @@ class ManageDevicesMockApiTest : MockApiTest() {
 
             removeDevice("Yellow Hat")
 
-            // Confirm dialog removal of device
+            // Confirm the removal of the device
             device.findObjectWithTimeout(By.text("Remove")).click()
 
             expectDeviceToBeRemoved("Yellow Hat")
