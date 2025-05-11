@@ -60,7 +60,7 @@ pub enum Error {
     #[error("The daemon returned an error: {0}")]
     Daemon(String),
 
-    #[error("The daemon ended up in the the wrong tunnel-state: {0:?}")]
+    #[error("The daemon ended up in the wrong tunnel-state: {0:?}")]
     UnexpectedTunnelState(Box<mullvad_types::states::TunnelState>),
 
     #[error("The daemon ended up in the error state: {0:?}")]

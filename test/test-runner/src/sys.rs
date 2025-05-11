@@ -410,7 +410,7 @@ impl EnvVar {
         let pre = input.next().ok_or(error)?;
         match pre {
             "Environment" => {
-                // Proccess the input just a bit more - remove the leading and trailing quote (").
+                // Process the input just a bit more - remove the leading and trailing quote (").
                 let var = input
                     .next()
                     .ok_or(error)?

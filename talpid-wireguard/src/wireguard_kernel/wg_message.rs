@@ -140,7 +140,7 @@ impl DeviceMessage {
         if cmd == WG_CMD_GET_DEVICE || cmd == WG_CMD_SET_DEVICE {
             Ok(cmd)
         } else {
-            Err(Error::UnnkownWireguardCommmand(cmd))
+            Err(Error::UnknownWireguardCommand(cmd))
         }
     }
 }

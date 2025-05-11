@@ -45,7 +45,7 @@ private fun PreviewDeleteConfirmationDialogError() {
     AppTheme {
         NegativeConfirmationDialog(
             message = "Do you want to delete Cookie?",
-            errorMessage = "An error occured",
+            errorMessage = "An error occurred",
             onConfirm = {},
             onBack = {},
         )
