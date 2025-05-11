@@ -20,7 +20,7 @@ import WireGuardKitTypes
  tunnel process.
 
  Packet tunnel runs this operation immediately as it starts, with `rotateImmediatelyOnKeyMismatch` flag set to
- `true` which forces key rotation to happpen immediately given that the key stored on server does not match the key
+ `true` which forces key rotation to happen immediately given that the key stored on server does not match the key
  stored on device. Unless the last rotation attempt took place less than 15 seconds ago in which case the key rotation
  is not performed.
 

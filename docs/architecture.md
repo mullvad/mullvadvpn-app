@@ -130,7 +130,7 @@ A high-level overview of the tunnel state machine can be seen in the diagram bel
 
 #### State machine inputs
 
-There are two types of inputs that the tunnel state machine react to. The first one is commands sent
+There are two types of inputs that the tunnel state machine reacts to. The first one is commands sent
 to the state machine, and the second is external events that the state machine listens to. Reacting
 to any event can result in the state machine transitioning away to a different state.
 
@@ -261,7 +261,7 @@ needed for routing tunnel traffic.
 #### Android
 
 To detect connectivity on Android, the app relies on [`ConnectivityManager`] by listening for
-changes to the availability  of non-VPN networks that provide internet connectivity.  Connectivity
+changes to the availability of non-VPN networks that provide internet connectivity.  Connectivity
 is inferred if such a network exists.
 
 #### iOS

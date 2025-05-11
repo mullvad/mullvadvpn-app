@@ -48,7 +48,7 @@ pub enum Error {
     WireguardNetlinkInterfaceUnavailable,
 
     #[error("Unknown WireGuard command: {0}")]
-    UnnkownWireguardCommmand(u8),
+    UnnkownWireguardCommand(u8),
 
     #[error("Received no response")]
     NoResponse,

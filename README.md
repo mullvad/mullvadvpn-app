@@ -180,8 +180,8 @@ See [this](Release.md) for instructions on how to make a new release.
 * `MULLVAD_BACKTRACE_ON_FAULT` - When enabled, if the daemon encounters a fault (e.g. `SIGSEGV`),
   it will log a backtrace to stdout, and to `daemon.log`. By default, this is disabled in
   release-builds and enabled in debug-builds. Set variable to `1` or `0` to explicitly enable or
-  disable this feature. Logging the backtrace cause heap allocation. Allocation is not signal safe,
-  but here it runs in the signal handler. This in technically undefined behavior and therefore
+  disable this feature. Logging the backtrace causes heap allocation. Allocation is not signal safe,
+  but here it runs in the signal handler. This is technically undefined behavior and therefore
   disabled by default. This usually works, but enable at your own risk.
 
 ### Development builds only
@@ -260,7 +260,7 @@ launchctl load -w /Library/LaunchDaemons/net.mullvad.daemon.plist
 
 ## Tray icon on Linux
 
-The requirements for displaying a tray icon varies between different desktop environments. If the
+The requirements for displaying a tray icon vary between different desktop environments. If the
 tray icon doesn't appear, try installing one of these packages:
 - `libappindicator3-1`
 - `libappindicator1`

@@ -95,7 +95,7 @@ impl DefaultRouteMonitor {
     }
 
     fn handle_events(&mut self, events: Vec<InterfaceEvent>) {
-        // Split events by address family and handle them seperately.
+        // Split events by address family and handle them separately.
         let mut ipv4_events = vec![];
         let mut ipv6_events = vec![];
         for event in events {
