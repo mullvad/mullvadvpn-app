@@ -83,7 +83,7 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
                 )
                 .toFile()
                 .apply {
-                    if (exists().not()) {
+                    if (!exists()) {
                         mkdirs()
                     }
                 }

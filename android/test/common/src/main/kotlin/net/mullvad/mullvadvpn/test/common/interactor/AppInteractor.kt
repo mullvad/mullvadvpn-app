@@ -2,14 +2,15 @@ package net.mullvad.mullvadvpn.test.common.interactor
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
+import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
-import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
-import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
+import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.page.LoginPage
 import net.mullvad.mullvadvpn.test.common.page.on
 
@@ -38,8 +39,8 @@ class AppInteractor(
 
     fun launchAndEnsureOnLoginPage() {
         launch()
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+        clickAgreeOnPrivacyDisclaimer()
+        clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<LoginPage>()
     }
 
@@ -48,6 +49,31 @@ class AppInteractor(
         on<LoginPage> {
             enterAccountNumber(accountNumber)
             clickLoginButton()
+        }
+    }
+
+    private fun clickAgreeOnPrivacyDisclaimer() {
+        device.findObjectWithTimeout(By.text("Agree and continue")).click()
+    }
+
+    private fun clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
+        timeout: Long = DEFAULT_TIMEOUT
+    ) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            // Skipping as notification permissions are not shown.
+            return
+        }
+
+        val selector = By.text("Allow")
+
+        device.wait(Until.hasObject(selector), timeout)
+
+        try {
+            device.findObjectWithTimeout(selector).click()
+        } catch (_: IllegalArgumentException) {
+            throw IllegalArgumentException(
+                "Failed to allow notification permission within timeout ($timeout ms)"
+            )
         }
     }
 }

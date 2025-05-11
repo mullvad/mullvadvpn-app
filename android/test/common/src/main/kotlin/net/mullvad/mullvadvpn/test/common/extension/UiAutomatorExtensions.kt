@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.test.common.extension
 
-import android.os.Build
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.StaleObjectException
@@ -83,31 +82,6 @@ fun UiDevice.clickObjectAwaitIsChecked(selector: BySelector, timeout: Long = LON
         condition = Until.checked(true),
         timeout = timeout,
     )
-}
-
-fun UiDevice.clickAgreeOnPrivacyDisclaimer() {
-    findObjectWithTimeout(By.text("Agree and continue")).click()
-}
-
-fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
-    timeout: Long = DEFAULT_TIMEOUT
-) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-        // Skipping as notification permissions are not shown.
-        return
-    }
-
-    val selector = By.text("Allow")
-
-    wait(Until.hasObject(selector), timeout)
-
-    try {
-        findObjectWithTimeout(selector).click()
-    } catch (e: IllegalArgumentException) {
-        throw IllegalArgumentException(
-            "Failed to allow notification permission within timeout ($timeout ms)"
-        )
-    }
 }
 
 fun UiDevice.pressBackTwice() {

@@ -19,7 +19,7 @@ fun UiDevice.dismissStorePasswordPromptIfShown() {
         val selector = By.textContains("password")
         wait(Until.hasObject(selector), DEFAULT_TIMEOUT)
         pressBack()
-    } catch (e: IllegalArgumentException) {
+    } catch (_: IllegalArgumentException) {
         // This is OK since it means the password prompt wasn't shown.
     }
 }
