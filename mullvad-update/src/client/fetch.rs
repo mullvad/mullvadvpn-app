@@ -214,7 +214,6 @@ pub async fn get_to_writer(
         .map_err(DownloadError::ClientInitialization)?;
 
     progress_updater.set_url(url);
-    progress_updater.set_progress(0.);
 
     // Fetch content length first
     let response = client
@@ -250,8 +249,8 @@ pub async fn get_to_writer(
         .try_into()
         .map_err(|_| DownloadError::Other("Invalid file position"))?;
 
+    progress_updater.set_progress(already_fetched_bytes as f32 / total_size as f32);
     if total_size == already_fetched_bytes {
-        progress_updater.set_progress(1.);
         return Ok(());
     }
     if already_fetched_bytes > total_size {
