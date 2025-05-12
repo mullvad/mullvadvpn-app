@@ -45,7 +45,7 @@ abstract class MockApiTest {
         Logger.d("Mocked web server started using port: ${mockWebServer.port}")
         endpoint = createEndpoint(mockWebServer.port)
 
-        Logger.d { "What is context packageName: ${targetContext.packageName}" }
+        Logger.d("targetContext packageName: ${targetContext.packageName}")
         app = AppInteractor(device, targetContext, endpoint)
     }
 
