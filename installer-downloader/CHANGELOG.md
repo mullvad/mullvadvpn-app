@@ -20,6 +20,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+### Fixed
+- Fixed downloads hanging indefinitely on switching networks
+
 ### Changed
 - Changed title to "Mullvad VPN loader".
 
