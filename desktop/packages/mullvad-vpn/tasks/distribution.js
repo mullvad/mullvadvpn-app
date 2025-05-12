@@ -91,7 +91,11 @@ function newConfig() {
       if (
         // Flip fuses for non-MacOS platforms
         !isMac ||
-        // Only flip fuses for universal MacOS package
+        // Flip fuses for all MacOS platforms if universal flag
+        // is not set
+        !universal ||
+        // Only flip fuses for universal MacOS package,
+        // when the universal flag is set
         isMacUniversal
       ) {
         await flipElectronFuses(context);
