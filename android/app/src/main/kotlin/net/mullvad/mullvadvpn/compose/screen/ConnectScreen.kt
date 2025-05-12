@@ -164,6 +164,7 @@ private fun PreviewAccountScreen(
             {},
             {},
             {},
+            {},
         )
     }
 }
@@ -304,6 +305,8 @@ fun Connect(
                 dropUnlessResumed { feature: FeatureIndicator ->
                     navigator.navigate(feature.destination())
                 },
+            onClickShowWireguardPortSettings =
+                dropUnlessResumed { navigator.navigate(VpnSettingsDestination()) },
         )
     }
 }
@@ -326,6 +329,7 @@ fun ConnectScreen(
     onAccountClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) {
     val contentFocusRequester = remember { FocusRequester() }
 
@@ -346,6 +350,7 @@ fun ConnectScreen(
                 onDismissChangelogClick,
                 onDismissNewDeviceClick,
                 onNavigateToFeature,
+                onClickShowWireguardPortSettings,
             )
         }
 
@@ -399,6 +404,7 @@ private fun Content(
     onDismissChangelogClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) {
     val screenHeight = LocalWindowInfo.current.containerSize.height.dp
     val indicatorPercentOffset =
@@ -446,6 +452,7 @@ private fun Content(
                 onClickShowChangelog = onChangelogClick,
                 onClickDismissChangelog = onDismissChangelogClick,
                 onClickDismissNewDevice = onDismissNewDeviceClick,
+                onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
             )
             ConnectionCard(
                 state = state,
