@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.test.e2e
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
@@ -25,7 +24,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
-class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
+class ConnectionTest : EndToEndTest() {
 
     @RegisterExtension @JvmField val accountTestRule = AccountTestRule()
 
@@ -39,7 +38,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @Test
     fun testConnect() {
         // Given
-        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
 
         on<ConnectPage> { clickConnect() }
 
@@ -51,7 +50,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @Test
     fun testConnectAndVerifyWithConnectionCheck() = runTest {
         // Given
-        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
 
         on<ConnectPage> { clickConnect() }
 
@@ -74,7 +73,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
     fun testWireGuardObfuscationAutomatic() = runTest {
-        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
         on<ConnectPage> { enableLocalNetworkSharingStory() }
 
         on<ConnectPage> { clickSelectLocation() }
@@ -111,7 +110,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
     fun testWireGuardObfuscationOff() = runTest {
-        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
         on<ConnectPage> { enableLocalNetworkSharingStory() }
 
         on<ConnectPage> { clickSelectLocation() }
@@ -163,7 +162,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
     fun testUDPOverTCP() = runTest {
-        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
         on<ConnectPage> { enableLocalNetworkSharingStory() }
 
         on<ConnectPage> { clickSelectLocation() }
@@ -212,7 +211,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
     fun testShadowsocks() = runTest {
-        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
         on<ConnectPage> { enableLocalNetworkSharingStory() }
 
         on<ConnectPage> { disableObfuscationStory() }

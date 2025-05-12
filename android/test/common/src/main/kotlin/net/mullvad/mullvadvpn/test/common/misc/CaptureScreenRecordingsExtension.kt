@@ -34,7 +34,7 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
     }
 
     private fun startScreenRecord(fileName: String) {
-        if (File(OUTPUT_DIRECTORY).exists().not()) {
+        if (!File(OUTPUT_DIRECTORY).exists()) {
             File(OUTPUT_DIRECTORY).mkdirs()
         }
 
@@ -49,6 +49,7 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
             device.executeShellCommand("pkill -2 screenrecord")
             runBlocking { job.join() }
         } catch (e: Exception) {
+            Logger.e("Failed to stop recording", e)
             fail("Failed to stop screen recording")
         }
     }

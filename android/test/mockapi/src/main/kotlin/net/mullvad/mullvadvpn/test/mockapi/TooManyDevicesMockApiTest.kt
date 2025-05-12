@@ -1,11 +1,10 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
-import androidx.test.uiautomator.By
 import java.time.ZonedDateTime
-import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
-import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
-import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
-import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.page.ConnectPage
+import net.mullvad.mullvadvpn.test.common.page.TooManyDevicesPage
+import net.mullvad.mullvadvpn.test.common.page.on
+import net.mullvad.mullvadvpn.test.common.page.removeDeviceFlow
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_6
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_6
 import net.mullvad.mullvadvpn.test.mockapi.constant.FULL_DEVICE_LIST
@@ -24,31 +23,16 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         }
 
         // Act
-        app.launch(endpoint)
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        app.waitForLoginPrompt()
-        app.attemptLogin(validAccountNumber)
+        app.launchAndLogIn(validAccountNumber)
 
         // Assert that we have too many devices
-        device.findObjectWithTimeout(By.text("Too many devices"))
-        // And that the continue with login button is disabled
-        device.findObjectWithTimeout(By.text("Continue with login").hasParent(By.enabled((false))))
+        on<TooManyDevicesPage> {
+            removeDeviceFlow(FULL_DEVICE_LIST.values.first())
 
-        // Act
-        // Wait until the application is idle to avoid skipping input events that are filtered out
-        // depending on lifecycle state (dropUnlessResumed).
-        device.waitForIdle()
-        app.attemptToRemoveDevice()
+            assertReadyToLogin()
+            clickContinueWithLogin()
+        }
 
-        // Assert that a device was removed
-        device.findObjectWithTimeout(By.text("Super!"))
-
-        // Act
-        app.clickActionButtonByText("Continue with login")
-
-        // Assert that we are logged in
-        device.dismissChangelogDialogIfShown()
-        app.ensureLoggedIn()
+        on<ConnectPage>()
     }
 }

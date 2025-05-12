@@ -8,14 +8,14 @@ import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
-class LogoutTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
+class LogoutTest : EndToEndTest() {
 
     @RegisterExtension @JvmField val accountTestRule = AccountTestRule()
 
     @Test
     fun testLogout() {
         // Given
-        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
 
         on<ConnectPage> { clickAccount() }
 

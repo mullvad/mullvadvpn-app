@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.RegisterExtension
 
 @ExtendWith(CaptureScreenRecordingsExtension::class)
-abstract class EndToEndTest(private val infra: String) {
+abstract class EndToEndTest {
 
     @RegisterExtension @JvmField val rule = CaptureScreenshotOnFailedTestRule(LOG_TAG)
 
@@ -43,14 +43,7 @@ abstract class EndToEndTest(private val infra: String) {
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         targetContext = InstrumentationRegistry.getInstrumentation().targetContext
 
-        val targetPackageNameSuffix =
-            when (infra) {
-                "devmole" -> ".devmole"
-                "stagemole" -> ".stagemole"
-                else -> ""
-            }
-
-        app = AppInteractor(device, targetContext, "net.mullvad.mullvadvpn$targetPackageNameSuffix")
+        app = AppInteractor(device, targetContext)
     }
 
     companion object {
