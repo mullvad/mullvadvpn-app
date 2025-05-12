@@ -51,7 +51,7 @@ class SelectLocationViewModel(
                         filterChips = filterChips,
                         multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                         relayListType = relayListSelection,
-                        enableTopBar = relayList.isNotEmpty(),
+                        isTopBarActionsEnabled = relayList.isNotEmpty(),
                     )
                 )
             }

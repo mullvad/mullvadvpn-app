@@ -264,9 +264,9 @@ fun SelectLocationScreen(
         modifier = Modifier.testTag(SELECT_LOCATION_SCREEN_TEST_TAG),
         snackbarHostState = snackbarHostState,
         actions = {
-            val enableTopBar = state.contentOrNull()?.enableTopBar == true
+            val isTopBarActionsEnabled = state.contentOrNull()?.isTopBarActionsEnabled == true
             IconButton(
-                enabled = enableTopBar,
+                enabled = isTopBarActionsEnabled,
                 onClick = { state.contentOrNull()?.let { onSearchClick(it.relayListType) } },
             ) {
                 Icon(
@@ -274,17 +274,17 @@ fun SelectLocationScreen(
                     contentDescription = stringResource(id = R.string.search),
                     tint =
                         MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = if (enableTopBar) AlphaVisible else AlphaDisabled
+                            alpha = if (isTopBarActionsEnabled) AlphaVisible else AlphaDisabled
                         ),
                 )
             }
-            IconButton(enabled = enableTopBar, onClick = onFilterClick) {
+            IconButton(enabled = isTopBarActionsEnabled, onClick = onFilterClick) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
                     contentDescription = stringResource(id = R.string.filter),
                     tint =
                         MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = if (enableTopBar) AlphaVisible else AlphaDisabled
+                            alpha = if (isTopBarActionsEnabled) AlphaVisible else AlphaDisabled
                         ),
                 )
             }

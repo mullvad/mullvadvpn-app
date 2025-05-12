@@ -81,9 +81,7 @@ class SearchLocationViewModel(
                         searchTerm = searchTerm,
                         relayCountries = relayCountries,
                     )
-                val expandedItems =
-                    expandSet + expandOverrides.filterValues { expanded -> expanded }.keys -
-                        expandOverrides.filterValues { expanded -> !expanded }.keys
+                val expandedItems = expandSet.with(expandOverrides)
                 Lce.Content(
                     SearchLocationUiState(
                         searchTerm = searchTerm,
@@ -203,6 +201,10 @@ class SearchLocationViewModel(
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
         _expandOverrides.onToggleExpandMap(item = item, parent = parent, expand = expand)
     }
+
+    private fun Set<String>.with(overrides: Map<String, Boolean>): Set<String> =
+        this + overrides.filterValues { expanded -> expanded }.keys -
+            overrides.filterValues { expanded -> !expanded }.keys
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""

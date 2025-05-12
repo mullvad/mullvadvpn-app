@@ -46,6 +46,7 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.CustomListLocationUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -66,7 +67,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewCustomListLocationScreen(
     @PreviewParameter(CustomListLocationUiStatePreviewParameterProvider::class)
-    state: Lce<Boolean, CustomListLocationsUiState, Boolean>
+    state: CustomListLocationsUiState
 ) {
     AppTheme { CustomListLocationsScreen(state = state, {}, {}, { _, _ -> }, { _, _ -> }, {}) }
 }
@@ -103,7 +104,7 @@ fun CustomListLocations(
         onExpand = customListsViewModel::onExpand,
         onBackClick =
             dropUnlessResumed {
-                if (state.contentOrNull()?.hasUnsavedChanges == true) {
+                if (state.content.contentOrNull()?.hasUnsavedChanges == true) {
                     navigator.navigate(DiscardChangesDestination)
                 } else {
                     backNavigator.navigateBack()
@@ -114,7 +115,7 @@ fun CustomListLocations(
 
 @Composable
 fun CustomListLocationsScreen(
-    state: Lce<Boolean, CustomListLocationsUiState, Boolean>,
+    state: CustomListLocationsUiState,
     onSearchTermInput: (String) -> Unit,
     onSaveClick: () -> Unit,
     onRelaySelectionClick: (RelayItem.Location, selected: Boolean) -> Unit,
@@ -126,7 +127,7 @@ fun CustomListLocationsScreen(
     ScaffoldWithSmallTopBar(
         appBarTitle =
             stringResource(
-                if (state.newList()) {
+                if (state.newList) {
                     R.string.add_locations
                 } else {
                     R.string.edit_locations
@@ -135,7 +136,7 @@ fun CustomListLocationsScreen(
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         actions = {
             Actions(
-                isSaveEnabled = state.contentOrNull()?.saveEnabled == true,
+                isSaveEnabled = state.content.contentOrNull()?.saveEnabled == true,
                 onSaveClick = onSaveClick,
             )
         },
@@ -164,7 +165,7 @@ fun CustomListLocationsScreen(
                         .fillMaxWidth(),
                 state = lazyListState,
             ) {
-                when (state) {
+                when (state.content) {
                     is Lce.Loading -> {
                         loading()
                     }
@@ -173,7 +174,7 @@ fun CustomListLocationsScreen(
                     }
                     is Lce.Content -> {
                         content(
-                            uiState = state.value,
+                            uiState = state.content.value,
                             onRelaySelectedChanged = onRelaySelectionClick,
                             onExpand = onExpand,
                         )
@@ -181,8 +182,8 @@ fun CustomListLocationsScreen(
                 }
             }
 
-            if (state is Lce.Content && !state.value.newList) {
-                val firstChecked = state.value.locations.indexOfFirst { it.checked }
+            if (state.content is Lce.Content && !state.newList) {
+                val firstChecked = state.content.value.locations.indexOfFirst { it.checked }
                 LaunchedEffect(Unit) {
                     if (firstChecked != -1) {
                         lazyListState.scrollToItem(firstChecked)
@@ -221,7 +222,7 @@ private fun LazyListScope.empty() {
 }
 
 private fun LazyListScope.content(
-    uiState: CustomListLocationsUiState,
+    uiState: CustomListLocationsData,
     onExpand: (RelayItem.Location, expand: Boolean) -> Unit,
     onRelaySelectedChanged: (RelayItem.Location, selected: Boolean) -> Unit,
 ) {

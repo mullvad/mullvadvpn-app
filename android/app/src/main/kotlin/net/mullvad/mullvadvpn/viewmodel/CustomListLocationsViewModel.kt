@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
+import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -32,6 +33,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
 import net.mullvad.mullvadvpn.util.Lce
 
+@Suppress("TooManyFunctions")
 class CustomListLocationsViewModel(
     private val relayListRepository: RelayListRepository,
     private val customListRelayItemsUseCase: CustomListRelayItemsUseCase,
@@ -55,33 +57,47 @@ class CustomListLocationsViewModel(
                 selectedLocations,
                 expandOverrides ->
                 when {
-                    selectedLocations == null -> Lce.Loading(navArgs.newList)
-                    relayCountries.isEmpty() -> Lce.Error(navArgs.newList)
+                    selectedLocations == null ->
+                        CustomListLocationsUiState(
+                            newList = navArgs.newList,
+                            content = Lce.Loading(Unit),
+                        )
+                    relayCountries.isEmpty() ->
+                        CustomListLocationsUiState(
+                            newList = navArgs.newList,
+                            content = Lce.Error(Unit),
+                        )
                     else -> {
                         val (expandSet, filteredRelayCountries) =
                             searchRelayListLocations(searchTerm, relayCountries)
-                        val expandedLocations =
-                            expandSet + expandOverrides.filterValues { expanded -> expanded }.keys -
-                                expandOverrides.filterValues { expanded -> !expanded }.keys
-                        Lce.Content(
-                            CustomListLocationsUiState(
-                                newList = navArgs.newList,
-                                searchTerm = searchTerm,
-                                locations =
-                                    filteredRelayCountries.toRelayItems(
-                                        isSelected = { it in selectedLocations },
-                                        isExpanded = { it in expandedLocations },
-                                    ),
-                                saveEnabled =
-                                    selectedLocations.isNotEmpty() &&
-                                        selectedLocations != _initialLocations.value,
-                                hasUnsavedChanges = selectedLocations != _initialLocations.value,
-                            )
+                        val expandedLocations = expandSet.with(expandOverrides)
+                        CustomListLocationsUiState(
+                            newList = navArgs.newList,
+                            content =
+                                Lce.Content(
+                                    CustomListLocationsData(
+                                        searchTerm = searchTerm,
+                                        locations =
+                                            filteredRelayCountries.toRelayItems(
+                                                isSelected = { it in selectedLocations },
+                                                isExpanded = { it in expandedLocations },
+                                            ),
+                                        saveEnabled =
+                                            selectedLocations.isNotEmpty() &&
+                                                selectedLocations != _initialLocations.value,
+                                        hasUnsavedChanges =
+                                            selectedLocations != _initialLocations.value,
+                                    )
+                                ),
                         )
                     }
                 }
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lce.Loading(navArgs.newList))
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                CustomListLocationsUiState(newList = navArgs.newList, content = Lce.Loading(Unit)),
+            )
 
     init {
         viewModelScope.launch { fetchInitialSelectedLocations() }
@@ -297,6 +313,10 @@ class CustomListLocationsViewModel(
                     )
             }
         }
+
+    private fun Set<RelayItemId>.with(overrides: Map<RelayItemId, Boolean>): Set<RelayItemId> =
+        this + overrides.filterValues { expanded -> expanded }.keys -
+            overrides.filterValues { expanded -> !expanded }.keys
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""

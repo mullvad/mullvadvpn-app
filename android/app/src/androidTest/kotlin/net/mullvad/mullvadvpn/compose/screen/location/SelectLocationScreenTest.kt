@@ -123,7 +123,7 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
-                            enableTopBar = true,
+                            isTopBarActionsEnabled = true,
                         )
                     )
             )
@@ -157,7 +157,7 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
-                            enableTopBar = true,
+                            isTopBarActionsEnabled = true,
                         )
                     )
             )
@@ -188,7 +188,7 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
-                            enableTopBar = true,
+                            isTopBarActionsEnabled = true,
                         )
                     ),
                 onSelectRelay = mockedOnSelectRelay,
@@ -225,7 +225,7 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
-                            enableTopBar = true,
+                            isTopBarActionsEnabled = true,
                         )
                     ),
                 onSelectRelay = mockedOnSelectRelay,
@@ -260,7 +260,7 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
-                            enableTopBar = true,
+                            isTopBarActionsEnabled = true,
                         )
                     ),
                 onSelectRelay = mockedOnSelectRelay,

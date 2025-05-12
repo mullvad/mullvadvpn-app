@@ -17,7 +17,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     filterChips = emptyList(),
                     multihopEnabled = false,
                     relayListType = RelayListType.EXIT,
-                    enableTopBar = true,
+                    isTopBarActionsEnabled = true,
                 )
             ),
             Lc.Content(
@@ -29,7 +29,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                         ),
                     multihopEnabled = false,
                     relayListType = RelayListType.EXIT,
-                    enableTopBar = true,
+                    isTopBarActionsEnabled = true,
                 )
             ),
             Lc.Content(
@@ -37,7 +37,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     filterChips = emptyList(),
                     multihopEnabled = true,
                     relayListType = RelayListType.ENTRY,
-                    enableTopBar = true,
+                    isTopBarActionsEnabled = true,
                 )
             ),
             Lc.Content(
@@ -49,7 +49,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                         ),
                     multihopEnabled = true,
                     relayListType = RelayListType.ENTRY,
-                    enableTopBar = true,
+                    isTopBarActionsEnabled = true,
                 )
             ),
         )
