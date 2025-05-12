@@ -82,8 +82,8 @@ jobs:
         run: |
           sudo apt-get -y remove gradle
           mkdir /opt/gradle
-          curl -sfLo /opt/gradle/gradle-8.13-bin.zip https\://services.gradle.org/distributions/gradle-8.13-bin.zip
-          unzip -d /opt/gradle /opt/gradle/gradle-8.13-bin.zip
+          curl -sfLo /opt/gradle/gradle-8.14-bin.zip https\://services.gradle.org/distributions/gradle-8.14-bin.zip
+          unzip -d /opt/gradle /opt/gradle/gradle-8.14-bin.zip
 
       # These are equivalent to the sudo section of the metadata file
       - name: Install dependencies
@@ -105,7 +105,7 @@ jobs:
 
       - name: Build app
         run: |
-          export PATH=$PATH:/opt/gradle/gradle-8.13/bin
+          export PATH=$PATH:/opt/gradle/gradle-8.14/bin
           fdroid build net.mullvad.mullvadvpn:1
 
       - name: Upload apks
