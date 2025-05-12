@@ -140,9 +140,9 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     private func notificationDescription(for packetTunnelError: BlockedStateReason) -> InAppNotificationDescriptor {
-        let button: InAppNotificationAction? = switch packetTunnelError {
+        let tapAction: InAppNotificationAction? = switch packetTunnelError {
         case .noRelaysSatisfyingPortConstraints:
-            InAppNotificationAction(image: UIImage.Buttons.settings) {
+            InAppNotificationAction {
                 NotificationManager.shared
                     .notificationProvider(
                         self,
@@ -160,14 +160,23 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
                 value: "BLOCKING INTERNET",
                 comment: ""
             ),
-            body: .init(string: String(
-                format: NSLocalizedString(
-                    "TUNNEL_BLOCKED_INAPP_NOTIFICATION_BODY",
-                    value: localizedReasonForBlockedStateError(packetTunnelError),
-                    comment: ""
-                )
-            )),
-            button: button
+            body: createNotificationBody(localizedReasonForBlockedStateError(packetTunnelError)),
+            tapAction: tapAction
+        )
+    }
+
+    private func createNotificationBody(_ string: String) -> NSAttributedString {
+        NSAttributedString(
+            markdownString: NSLocalizedString(
+                "LATEST_CHANGES_IN_APP_NOTIFICATION_BODY",
+                value: string,
+                comment: ""
+            ),
+            options: MarkdownStylingOptions(font: UIFont.preferredFont(forTextStyle: .body)),
+            applyEffect: { markdownType, _ in
+                guard case .bold = markdownType else { return [:] }
+                return [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
+            }
         )
     }
 
@@ -267,7 +276,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
         case .noRelaysSatisfyingConstraints:
             errorString = "No servers match your settings, try changing server or other settings."
         case .noRelaysSatisfyingPortConstraints:
-            errorString = "The selected WireGuard port is not supported, please change it under VPN settings."
+            errorString = "The selected WireGuard port is not supported, please change it under **VPN settings**."
         case .invalidAccount:
             errorString = "You are logged in with an invalid account number. Please log out and try another one."
         case .deviceLoggedOut:
