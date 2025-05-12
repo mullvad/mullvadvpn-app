@@ -10,8 +10,6 @@ use talpid_types::{BoxedError, ErrorExt};
 use crate::dns::DnsConfig;
 use crate::dns::ResolvedDnsConfig;
 use crate::firewall::FirewallPolicy;
-#[cfg(target_os = "macos")]
-use crate::resolver::LOCAL_DNS_RESOLVER;
 #[cfg(windows)]
 use crate::tunnel::TunnelMonitor;
 use crate::tunnel::{TunnelEvent, TunnelMetadata};
@@ -166,15 +164,7 @@ impl ConnectedState {
 
         // On macOS, configure only the local DNS resolver
         #[cfg(target_os = "macos")]
-        // We do not want to forward DNS queries to *our* local resolver if we do not run a local
-        // DNS resolver *or* if the DNS config points to a loopback address.
-        if dns_config.is_loopback() || !*LOCAL_DNS_RESOLVER {
-            log::debug!("Not enabling local DNS resolver");
-            shared_values
-                .dns_monitor
-                .set(&self.metadata.interface, dns_config)
-                .map_err(BoxedError::new)?;
-        } else {
+        {
             log::debug!("Enabling local DNS resolver");
             // Tell local DNS resolver to start forwarding DNS queries to whatever `dns_config`
             // specifies as DNS.
