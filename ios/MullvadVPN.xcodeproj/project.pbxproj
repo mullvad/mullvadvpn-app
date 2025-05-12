@@ -475,7 +475,6 @@
 		58FF9FEA2B07653800E4C97D /* ButtonCellContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FE92B07653800E4C97D /* ButtonCellContentView.swift */; };
 		58FF9FF02B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FEF2B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift */; };
 		58FF9FF42B07C61B00E4C97D /* AccessMethodValidationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */; };
-		7A02D4EB2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */; };
 		7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */; };
 		7A0B311E2B303A0D004B12E0 /* AccessbilityIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */; };
 		7A0C0F632A979C4A0058EFCE /* Coordinator+Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0C0F622A979C4A0058EFCE /* Coordinator+Router.swift */; };
@@ -1112,6 +1111,7 @@
 		F924C5A42DA65F28001F4660 /* Storekit2.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C5A32DA65F28001F4660 /* Storekit2.swift */; };
 		F924C65F2DAE4554001F4660 /* ServerRelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */; };
 		F924C4532D70692E001F4660 /* MullvadApiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C4522D706929001F4660 /* MullvadApiTests.swift */; };
+		F924C65F2DAE4554001F4660 /* ServerRelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */; };
 		F998EFF82D359C4600D88D01 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
 /* End PBXBuildFile section */
@@ -2526,6 +2526,7 @@
 		F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerRelayTests.swift; sourceTree = "<group>"; };
 		F924C5A32DA65F28001F4660 /* Storekit2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storekit2.swift; sourceTree = "<group>"; };
 		F924C4522D706929001F4660 /* MullvadApiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiTests.swift; sourceTree = "<group>"; };
+		F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerRelayTests.swift; sourceTree = "<group>"; };
 		F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Sorting.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -5580,7 +5581,6 @@
 				7A83C3FF2A55B72E00DFB83A /* MullvadVPNApp.xctestplan in Resources */,
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
 				5859A55529CD9DD900F66591 /* changes.txt in Resources */,
-				7A02D4EB2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan in Resources */,
 				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 			);
