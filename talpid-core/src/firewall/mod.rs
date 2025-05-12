@@ -177,6 +177,20 @@ impl FirewallPolicy {
             | FirewallPolicy::Blocked { allow_lan, .. } => *allow_lan,
         }
     }
+
+    /// Return the interface to redirect (VPN tunnel) traffic to, if any.
+    #[cfg(target_os = "macos")]
+    pub fn redirect_interface(&self) -> Option<&str> {
+        match self {
+            FirewallPolicy::Connecting {
+                redirect_interface, ..
+            } => redirect_interface.as_deref(),
+            FirewallPolicy::Connected {
+                redirect_interface, ..
+            } => redirect_interface.as_deref(),
+            FirewallPolicy::Blocked { .. } => None,
+        }
+    }
 }
 
 impl fmt::Display for FirewallPolicy {
