@@ -315,14 +315,16 @@ impl WgGoTunnel {
 
         let interface_name = handle.name();
 
-        Ok(WgGoTunnel(WgGoTunnelState {
-            interface_name: interface_name.to_owned(),
-            tunnel_handle: handle,
-            _logging_context: logging_context,
-            _socket_update_cb: socket_update_cb,
-            #[cfg(daita)]
-            config: config.clone(),
-        }))
+        Ok(WgGoTunnel {
+            inner: Some(WgGoTunnelState {
+                interface_name: interface_name.to_owned(),
+                tunnel_handle: handle,
+                _logging_context: logging_context,
+                _socket_update_cb: socket_update_cb,
+                #[cfg(daita)]
+                config: config.clone(),
+            }),
+        })
     }
 
     // Callback to be used to rebind the tunnel sockets when the default route changes
