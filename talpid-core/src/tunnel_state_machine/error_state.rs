@@ -6,6 +6,8 @@ use super::{
 use crate::dns::DnsConfig;
 #[cfg(not(target_os = "android"))]
 use crate::firewall::FirewallPolicy;
+#[cfg(target_os = "macos")]
+use crate::resolver::LOCAL_DNS_RESOLVER;
 use futures::StreamExt;
 use talpid_types::{
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -185,13 +187,30 @@ impl TunnelState for ErrorState {
                 if !connectivity.is_offline()
                     && matches!(self.block_reason, ErrorStateCause::IsOffline)
                 {
+                    #[cfg(target_os = "macos")]
+                    if !*LOCAL_DNS_RESOLVER {
+                        // This is probably unnecessary, since DNS is already configured on the
+                        // primary interface.
+                        Self::reset_dns(shared_values);
+                    }
+
+                    #[cfg(not(target_os = "macos"))]
                     Self::reset_dns(shared_values);
+
                     NewState(ConnectingState::enter(shared_values, 0))
                 } else {
                     SameState(self)
                 }
             }
             Some(TunnelCommand::Connect) => {
+                #[cfg(target_os = "macos")]
+                if !*LOCAL_DNS_RESOLVER {
+                    // This is probably unnecessary, since DNS is already configured on the
+                    // primary interface.
+                    Self::reset_dns(shared_values);
+                }
+
+                #[cfg(not(target_os = "macos"))]
                 Self::reset_dns(shared_values);
 
                 NewState(ConnectingState::enter(shared_values, 0))
