@@ -55,6 +55,7 @@ private fun PreviewNotificationBanner() {
                     onClickShowChangelog = {},
                     onClickDismissChangelog = {},
                     onClickDismissNewDevice = {},
+                    onClickShowWireguardPortSettings = {},
                 )
                 Spacer(modifier = Modifier.size(16.dp))
             }
@@ -72,6 +73,7 @@ fun NotificationBanner(
     onClickShowChangelog: () -> Unit,
     onClickDismissChangelog: () -> Unit,
     onClickDismissNewDevice: () -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) {
     if (isTv()) {
         NotificationBannerTv(
@@ -83,6 +85,7 @@ fun NotificationBanner(
             onClickShowChangelog = onClickShowChangelog,
             onClickDismissChangelog = onClickDismissChangelog,
             onClickDismissNewDevice = onClickDismissNewDevice,
+            onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
         )
     } else {
         AnimatedNotificationBanner(
@@ -95,6 +98,7 @@ fun NotificationBanner(
             onClickShowChangelog = onClickShowChangelog,
             onClickDismissChangelog = onClickDismissChangelog,
             onClickDismissNewDevice = onClickDismissNewDevice,
+            onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
         )
     }
 }

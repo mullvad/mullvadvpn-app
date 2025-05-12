@@ -164,6 +164,7 @@ private fun PreviewAccountScreen(
             {},
             {},
             {},
+            {},
         )
     }
 }
@@ -304,12 +305,15 @@ fun Connect(
                 dropUnlessResumed { feature: FeatureIndicator ->
                     navigator.navigate(feature.destination())
                 },
+            onClickShowWireguardPortSettings =
+                dropUnlessResumed { navigator.navigate(VpnSettingsDestination()) },
         )
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
+@Suppress("LongParameterList")
 fun ConnectScreen(
     state: ConnectUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -326,6 +330,7 @@ fun ConnectScreen(
     onAccountClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) {
     val contentFocusRequester = remember { FocusRequester() }
 
@@ -346,6 +351,7 @@ fun ConnectScreen(
                 onDismissChangelogClick,
                 onDismissNewDeviceClick,
                 onNavigateToFeature,
+                onClickShowWireguardPortSettings,
             )
         }
 
@@ -384,6 +390,7 @@ fun ConnectScreen(
 }
 
 @Composable
+@Suppress("LongParameterList")
 private fun Content(
     focusRequester: FocusRequester,
     paddingValues: PaddingValues,
@@ -399,6 +406,7 @@ private fun Content(
     onDismissChangelogClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) {
     val screenHeight = LocalWindowInfo.current.containerSize.height.dp
     val indicatorPercentOffset =
@@ -446,6 +454,7 @@ private fun Content(
                 onClickShowChangelog = onChangelogClick,
                 onClickDismissChangelog = onDismissChangelogClick,
                 onClickDismissNewDevice = onDismissNewDeviceClick,
+                onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
             )
             ConnectionCard(
                 state = state,
