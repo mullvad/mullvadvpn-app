@@ -3238,6 +3238,7 @@ dependencies = [
  "hex",
  "insta",
  "json-canon",
+ "log",
  "mockito",
  "mullvad-version",
  "rand 0.8.5",

@@ -2217,6 +2217,7 @@ dependencies = [
  "ed25519-dalek",
  "hex",
  "json-canon",
+ "log",
  "mullvad-version",
  "reqwest",
  "serde",
