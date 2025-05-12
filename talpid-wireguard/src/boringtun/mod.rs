@@ -17,7 +17,7 @@ use std::{
     path::Path,
     sync::{Arc, Mutex},
 };
-use talpid_tunnel::tun_provider::{Tun, TunProvider};
+use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
 use tun::AbstractDevice;
 
@@ -30,8 +30,37 @@ pub struct BoringTun {
     interface_name: String,
 }
 
+/// Configure and start a boringtun tunnel.
+pub async fn open_boringtun_tunnel(
+    config: &Config,
+    log_path: Option<&Path>,
+    tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
+    #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
+    //#[cfg(target_os = "android")] gateway_only: bool,
+    //#[cfg(target_os = "android")] connectivity_check: connectivity::Check<
+    //    connectivity::Cancellable,
+    //>,
+) -> super::Result<BoringTun> {
+    let routes = config
+        .get_tunnel_destinations()
+        .flat_map(super::WireguardMonitor::replace_default_prefixes);
+
+    let tunnel = BoringTun::start_tunnel(
+        config,
+        log_path,
+        tun_provider,
+        routes,
+        #[cfg(target_os = "android")]
+        route_manager_handle,
+    )
+    .await
+    .map_err(super::Error::TunnelError)?;
+
+    Ok(tunnel)
+}
+
 impl BoringTun {
-    pub async fn start_tunnel(
+    async fn start_tunnel(
         config: &Config,
         _log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,

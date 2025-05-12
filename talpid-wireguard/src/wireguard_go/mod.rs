@@ -13,6 +13,8 @@ use crate::connectivity;
 use crate::logging::{clean_up_logging, initialize_logging};
 #[cfg(all(unix, not(target_os = "android")))]
 use ipnetwork::IpNetwork;
+#[cfg(target_os = "android")]
+use std::borrow::Cow;
 #[cfg(daita)]
 use std::ffi::CString;
 #[cfg(unix)]
@@ -80,6 +82,109 @@ pub struct WgGoTunnel {
 enum Circuit {
     Singlehop,
     Multihop,
+}
+
+/// Configure and start a Wireguard-go tunnel.
+#[allow(clippy::unused_async)]
+pub(crate) async fn open_wireguard_go_tunnel(
+    config: &Config,
+    log_path: Option<&Path>,
+    #[cfg(unix)] tun_provider: Arc<std::sync::Mutex<talpid_tunnel::tun_provider::TunProvider>>,
+    #[cfg(target_os = "android")] route_manager: RouteManagerHandle,
+    #[cfg(windows)] setup_done_tx: futures::channel::mpsc::Sender<
+        std::result::Result<(), BoxedError>,
+    >,
+    #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
+    #[cfg(target_os = "android")] gateway_only: bool,
+    #[cfg(target_os = "android")] cancel_receiver: connectivity::CancelReceiver,
+) -> super::Result<WgGoTunnel> {
+    #[cfg(all(unix, not(target_os = "android")))]
+    let routes = config.get_tunnel_destinations();
+
+    #[cfg(all(unix, not(target_os = "android")))]
+    let tunnel = WgGoTunnel::start_tunnel(config, log_path, tun_provider, routes)
+        .map_err(Error::TunnelError)?;
+
+    #[cfg(target_os = "windows")]
+    let tunnel = WgGoTunnel::start_tunnel(config, log_path, route_manager, setup_done_tx)
+        .await
+        .map_err(super::Error::TunnelError)?;
+
+    // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
+    // with an ephemeral peer, this multihop strategy require us to restart the tunnel
+    // every time we want to reconfigure it. As such, we will actually start a multihop
+    // tunnel at a later stage, after we have negotiated with the first ephemeral peer.
+    // At this point, when the tunnel *is first started*, we establish a regular, singlehop
+    // tunnel to where the ephemeral peer resides.
+    //
+    // Refer to `docs/architecture.md` for details on how to use multihop + PQ.
+    #[cfg(target_os = "android")]
+    let config = patch_allowed_ips(config, gateway_only);
+
+    #[cfg(target_os = "android")]
+    let tunnel = if let Some(exit_peer) = &config.exit_peer {
+        WgGoTunnel::start_multihop_tunnel(
+            &config,
+            exit_peer,
+            log_path,
+            tun_provider,
+            route_manager,
+            cancel_receiver,
+        )
+        .await
+        .map_err(Error::TunnelError)?
+    } else {
+        WgGoTunnel::start_tunnel(
+            #[allow(clippy::needless_borrow)]
+            &config,
+            log_path,
+            tun_provider,
+            route_manager,
+            cancel_receiver,
+        )
+        .await
+        .map_err(Error::TunnelError)?
+    };
+
+    Ok(tunnel)
+}
+
+/// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
+/// Used to block traffic to other destinations while connecting on Android.
+#[cfg(target_os = "android")]
+fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
+    use std::net::IpAddr;
+
+    if gateway_only {
+        let mut patched_config = config.clone();
+        let gateway_net_v4 =
+            ipnetwork::IpNetwork::from(std::net::IpAddr::from(config.ipv4_gateway));
+        let gateway_net_v6 = config
+            .ipv6_gateway
+            .map(|net| ipnetwork::IpNetwork::from(IpAddr::from(net)));
+        for peer in patched_config.peers_mut() {
+            peer.allowed_ips = peer
+                .allowed_ips
+                .iter()
+                .cloned()
+                .filter_map(|mut allowed_ip| {
+                    if allowed_ip.prefix() == 0 {
+                        if allowed_ip.is_ipv4() {
+                            allowed_ip = gateway_net_v4;
+                        } else if let Some(net) = gateway_net_v6 {
+                            allowed_ip = net;
+                        } else {
+                            return None;
+                        }
+                    }
+                    Some(allowed_ip)
+                })
+                .collect();
+        }
+        Cow::Owned(patched_config)
+    } else {
+        Cow::Borrowed(config)
+    }
 }
 
 impl WgGoTunnel {
@@ -213,7 +318,7 @@ impl WgGoTunnelState {
 
 impl WgGoTunnel {
     #[cfg(any(target_os = "linux", target_os = "macos"))]
-    pub fn start_tunnel(
+    fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
