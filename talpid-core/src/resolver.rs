@@ -70,11 +70,7 @@ pub static LOCAL_DNS_RESOLVER: LazyLock<bool> = LazyLock::new(|| {
     // Also, most programs don't set the `skip filtering` pf flag on loopback, but some notable
     // ones do for some reason. Orbstack is one such example, which meant that people running
     // containers would run into the aforementioned issue.
-    let use_local_dns_resolver = v("14.6") <= version && version < v("15.1");
-    if use_local_dns_resolver {
-        log::debug!("Using local DNS resolver");
-    }
-    use_local_dns_resolver
+    true
 });
 
 const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
