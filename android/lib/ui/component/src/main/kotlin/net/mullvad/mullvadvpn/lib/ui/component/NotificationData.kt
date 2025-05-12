@@ -9,10 +9,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.core.text.HtmlCompat
 import java.net.InetAddress
@@ -75,6 +78,7 @@ fun InAppNotification.toNotificationData(
     onClickShowChangelog: () -> Unit,
     onClickDismissChangelog: () -> Unit,
     onClickDismissNewDevice: () -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) =
     when (this) {
         is InAppNotification.NewDevice ->
@@ -113,7 +117,8 @@ fun InAppNotification.toNotificationData(
                 title = stringResource(id = R.string.blocking_internet),
                 statusLevel = StatusLevel.Error,
             )
-        is InAppNotification.TunnelStateError -> errorMessageBannerData(error)
+        is InAppNotification.TunnelStateError ->
+            errorMessageBannerData(error, onClickShowWireguardPortSettings)
         is InAppNotification.UnsupportedVersion ->
             NotificationData(
                 title = stringResource(id = R.string.unsupported_version),
@@ -156,10 +161,54 @@ fun InAppNotification.toNotificationData(
     }
 
 @Composable
-private fun errorMessageBannerData(error: ErrorState) =
+private fun errorMessageBannerData(
+    error: ErrorState,
+    onClickShowWireguardPortSettings: () -> Unit,
+) =
     NotificationData(
         title = error.title().formatWithHtml(),
-        message = NotificationMessage.Text(error.message().formatWithHtml()),
+        message =
+            if (error.cause is ErrorStateCause.NoRelaysMatchSelectedPort) {
+                NotificationMessage.Text(
+                    text =
+                        buildAnnotatedString {
+                            append(
+                                stringResource(
+                                    R.string.wireguard_port_is_not_supported,
+                                    stringResource(R.string.wireguard),
+                                )
+                            )
+                            append(" ")
+                            withStyle(
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textDecoration = TextDecoration.Underline,
+                                )
+                            ) {
+                                withLink(
+                                    LinkAnnotation.Clickable(
+                                        tag = stringResource(R.string.wireguard),
+                                        linkInteractionListener =
+                                            object : LinkInteractionListener {
+                                                override fun onClick(link: LinkAnnotation) {
+                                                    onClickShowWireguardPortSettings()
+                                                }
+                                            },
+                                    )
+                                ) {
+                                    append(
+                                        stringResource(
+                                            R.string.wireguard_settings,
+                                            stringResource(R.string.wireguard),
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                )
+            } else {
+                NotificationMessage.Text(error.message().formatWithHtml())
+            },
         statusLevel = StatusLevel.Error,
     )
 
@@ -220,6 +269,8 @@ private fun ErrorStateCause.errorMessageId(): String =
                 R.string.invalid_dns_servers,
                 addresses.joinToString { address -> address.addressString() },
             )
+        is ErrorStateCause.NoRelaysMatchSelectedPort ->
+            stringResource(R.string.wireguard_port_is_not_supported)
     }
 
 private fun AuthFailedError.errorMessageId(): Int =
