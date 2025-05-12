@@ -407,33 +407,6 @@ pub async fn test_dns_config_custom_public(
         .await
         .context("failed to configure DNS server")?;
 
-    let result = rpc.exec("/usr/sbin/scutil", ["--dns"]).await;
-    if let Ok(result) = result {
-        let stdout = std::str::from_utf8(&result.stdout).unwrap_or("invalid utf8");
-        let stderr = std::str::from_utf8(&result.stderr).unwrap_or("invalid utf8");
-        log::error!("scutil:\n\nstdout:\n\n{stdout}\n\n{stderr}\n");
-    } else {
-        log::error!("Failed to run scutil");
-    }
-
-    let result = rpc.exec("/sbin/ifconfig", []).await;
-    if let Ok(result) = result {
-        let stdout = std::str::from_utf8(&result.stdout).unwrap_or("invalid utf8");
-        let stderr = std::str::from_utf8(&result.stderr).unwrap_or("invalid utf8");
-        log::error!("ifconfig:\n\nstdout:\n\n{stdout}\n\n{stderr}\n");
-    } else {
-        log::error!("Failed to run ifconfig");
-    }
-
-    let result = rpc.exec("/usr/sbin/netstat", ["-rn"]).await;
-    if let Ok(result) = result {
-        let stdout = std::str::from_utf8(&result.stdout).unwrap_or("invalid utf8");
-        let stderr = std::str::from_utf8(&result.stderr).unwrap_or("invalid utf8");
-        log::error!("netstat:\n\nstdout:\n\n{stdout}\n\n{stderr}\n");
-    } else {
-        log::error!("Failed to run netstat");
-    }
-
     run_dns_config_tunnel_test(&rpc, &mut mullvad_client, custom_ip).await
 }
 
@@ -608,6 +581,34 @@ async fn run_dns_config_test<
                 .await
                 .context("failed to connect to custom wg relay")?;
         }
+    }
+
+
+    let result = rpc.exec("/usr/sbin/scutil", ["--dns"]).await;
+    if let Ok(result) = result {
+        let stdout = std::str::from_utf8(&result.stdout).unwrap_or("invalid utf8");
+        let stderr = std::str::from_utf8(&result.stderr).unwrap_or("invalid utf8");
+        log::error!("scutil:\n\nstdout:\n\n{stdout}\n\n{stderr}\n");
+    } else {
+        log::error!("Failed to run scutil");
+    }
+
+    let result = rpc.exec("/sbin/ifconfig", []).await;
+    if let Ok(result) = result {
+        let stdout = std::str::from_utf8(&result.stdout).unwrap_or("invalid utf8");
+        let stderr = std::str::from_utf8(&result.stderr).unwrap_or("invalid utf8");
+        log::error!("ifconfig:\n\nstdout:\n\n{stdout}\n\n{stderr}\n");
+    } else {
+        log::error!("Failed to run ifconfig");
+    }
+
+    let result = rpc.exec("/usr/sbin/netstat", ["-rn"]).await;
+    if let Ok(result) = result {
+        let stdout = std::str::from_utf8(&result.stdout).unwrap_or("invalid utf8");
+        let stderr = std::str::from_utf8(&result.stderr).unwrap_or("invalid utf8");
+        log::error!("netstat:\n\nstdout:\n\n{stdout}\n\n{stderr}\n");
+    } else {
+        log::error!("Failed to run netstat");
     }
 
     let nontun_iface = rpc
