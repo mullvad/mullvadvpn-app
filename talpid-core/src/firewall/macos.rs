@@ -47,6 +47,7 @@ pub struct Firewall {
     pf: pfctl::PfCtl,
     pf_was_enabled: Option<bool>,
     rule_logging: RuleLogging,
+    last_policy: Option<FirewallPolicy>,
 }
 
 impl Firewall {
@@ -70,6 +71,7 @@ impl Firewall {
             pf: pfctl::PfCtl::new()?,
             pf_was_enabled: None,
             rule_logging,
+            last_policy: None,
         })
     }
 
@@ -78,9 +80,15 @@ impl Firewall {
         self.add_anchor()?;
         self.set_rules(&policy)?;
 
-        if let Err(error) = self.flush_states(&policy) {
+        let last_policy = self.last_policy.as_ref();
+        let last_redirect_interface = last_policy.and_then(|p| p.redirect_interface());
+        let is_toggling_split_tunneling = policy.redirect_interface() != last_redirect_interface;
+
+        if let Err(error) = self.flush_states(&policy, is_toggling_split_tunneling) {
             log::error!("Failed to clear PF connection states: {error}");
         }
+
+        self.last_policy = Some(policy);
 
         Ok(())
     }
@@ -90,13 +98,18 @@ impl Firewall {
     /// PF retains approved connections forever, even after a responsible anchor or rule has been
     /// removed. Therefore, they should be flushed after every state transition to ensure approved
     /// states conform to our desired policy.
-    fn flush_states(&mut self, policy: &FirewallPolicy) -> Result<()> {
+    fn flush_states(
+        &mut self,
+        policy: &FirewallPolicy,
+        is_toggling_split_tunneling: bool,
+    ) -> Result<()> {
         self.pf
             .get_states()?
             .into_iter()
             .filter(|state| {
                 // If we can't parse a state for whatever reason, err on the safe side and keep it
-                Self::should_delete_state(policy, state).unwrap_or(false)
+                Self::should_delete_state(policy, state, is_toggling_split_tunneling)
+                    .unwrap_or(false)
             })
             .for_each(|state| {
                 if let Err(error) = self.pf.kill_state(&state) {
@@ -110,7 +123,11 @@ impl Firewall {
     /// Clearing the VPN server connection seems to interrupt ephemeral key exchange on some
     /// machines, so we kill any state except that one as well as within-tunnel connections that
     /// should still be allowed.
-    fn should_delete_state(policy: &FirewallPolicy, state: &pfctl::State) -> Result<bool> {
+    fn should_delete_state(
+        policy: &FirewallPolicy,
+        state: &pfctl::State,
+        is_toggling_split_tunneling: bool,
+    ) -> Result<bool> {
         let allowed_tunnel_traffic = policy.allowed_tunnel_traffic();
         let tunnel_ips = policy
             .tunnel()
@@ -158,27 +175,32 @@ impl Firewall {
             return Ok(true);
         };
 
-        let should_delete = if tunnel_ips.contains(&local_address.ip()) {
-            // Tunnel traffic: Clear states except those allowed in the tunnel
-            // Ephemeral peer exchange becomes unreliable otherwise, when multihop is enabled
-            match allowed_tunnel_traffic {
-                AllowedTunnelTraffic::None => true,
-                AllowedTunnelTraffic::All => false,
-                AllowedTunnelTraffic::One(endpoint) => endpoint.address != remote_address,
-                AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
-                    endpoint1.address != remote_address && endpoint2.address != remote_address
+        // If split tunneling is being turned on/off, ALL in-tunnel states need to be flushed
+        // because the state will need to be routed through a different tun device.
+        let should_delete =
+            if !is_toggling_split_tunneling && tunnel_ips.contains(&local_address.ip()) {
+                // Tunnel traffic: Clear states except those allowed in the tunnel.
+                // Ephemeral peer exchange becomes unreliable otherwise, when multihop is enabled.
+                match allowed_tunnel_traffic {
+                    AllowedTunnelTraffic::None => true,
+                    AllowedTunnelTraffic::All => false,
+                    AllowedTunnelTraffic::One(endpoint) => endpoint.address != remote_address,
+                    AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
+                        endpoint1.address != remote_address && endpoint2.address != remote_address
+                    }
                 }
-            }
-        } else {
-            // Non-tunnel traffic: Clear all states except traffic destined for the VPN endpoint
-            // Ephemeral peer exchange becomes unreliable otherwise
-            peer.address != remote_address || as_pfctl_proto(peer.protocol) != proto
-        };
+            } else {
+                // Clear all states except traffic destined for the VPN endpoint.
+                // Ephemeral peer exchange becomes unreliable otherwise.
+                peer.address != remote_address || as_pfctl_proto(peer.protocol) != proto
+            };
 
         Ok(should_delete)
     }
 
     pub fn reset_policy(&mut self) -> Result<()> {
+        self.last_policy = None;
+
         // Implemented this way to not early return on an error.
         // We always want all three methods to run, and then return
         // the first error it encountered, if any.
