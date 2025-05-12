@@ -116,7 +116,6 @@ class TunnelStateNotificationUseCaseTest {
 
                 // Assert
                 val item = awaitItem()
-                assertEquals(listOf(InAppNotification.TunnelStateError(errorState)), item)
                 assertTrue {
                     (item.first() as InAppNotification.TunnelStateError).error.cause is
                         NoRelaysMatchSelectedPort

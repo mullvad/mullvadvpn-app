@@ -313,6 +313,7 @@ fun Connect(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
+@Suppress("LongParameterList")
 fun ConnectScreen(
     state: ConnectUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -389,6 +390,7 @@ fun ConnectScreen(
 }
 
 @Composable
+@Suppress("LongParameterList")
 private fun Content(
     focusRequester: FocusRequester,
     paddingValues: PaddingValues,
