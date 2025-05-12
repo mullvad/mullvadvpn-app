@@ -61,6 +61,7 @@ class PacketCapture {
 private fun defaultHttpClient(): HttpClient =
     HttpClient(CIO) {
         defaultRequest { url("http://${BuildConfig.TEST_ROUTER_API_HOST}") }
+        engine { requestTimeout = REQUEST_TIMEOUT_MS }
 
         install(ContentNegotiation) {
             json(
@@ -123,3 +124,6 @@ class PacketCaptureClient(private val httpClient: HttpClient = defaultHttpClient
 data class PacketCaptureResult(val streams: List<Stream>, val pcap: ByteArray)
 
 @Serializable data class StartCaptureRequestJson(val label: PacketCaptureSession)
+
+// 30 seconds timeout, double the default timeout
+private const val REQUEST_TIMEOUT_MS = 30000L
