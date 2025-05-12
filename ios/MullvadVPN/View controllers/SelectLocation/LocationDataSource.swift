@@ -341,21 +341,10 @@ extension LocationDataSource: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let item = itemIdentifier(for: indexPath) else { return }
-        selectedLocation = item
-        var customListSelection: UserSelectedRelays.CustomListSelection?
-        if let topmostNode = item.node.root as? CustomListLocationNode {
-            customListSelection = UserSelectedRelays.CustomListSelection(
-                listId: topmostNode.customList.id,
-                isList: topmostNode == item.node
-            )
+        guard let cell = tableView.cellForRow(at: indexPath) as? LocationCell else {
+            return
         }
-
-        let relayLocations = UserSelectedRelays(
-            locations: item.node.locations,
-            customListSelection: customListSelection
-        )
-        didSelectRelayLocations?(relayLocations)
+        toggleSelecting(cell: cell)
     }
 
     private func scrollToTop(animated: Bool) {
@@ -373,6 +362,21 @@ extension LocationDataSource: @preconcurrency LocationCellDelegate {
     }
 
     func toggleSelecting(cell: LocationCell) {
-        // No op.
+        guard let indexPath = tableView.indexPath(for: cell),
+              let item = itemIdentifier(for: indexPath) else { return }
+        selectedLocation = item
+        var customListSelection: UserSelectedRelays.CustomListSelection?
+        if let topmostNode = item.node.root as? CustomListLocationNode {
+            customListSelection = UserSelectedRelays.CustomListSelection(
+                listId: topmostNode.customList.id,
+                isList: topmostNode == item.node
+            )
+        }
+
+        let relayLocations = UserSelectedRelays(
+            locations: item.node.locations,
+            customListSelection: customListSelection
+        )
+        didSelectRelayLocations?(relayLocations)
     }
 }
