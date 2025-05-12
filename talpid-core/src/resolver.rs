@@ -225,9 +225,17 @@ impl Resolver {
     ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
         let return_query = query.original().clone();
 
-        let lookup = resolver
-            .lookup(return_query.name().clone(), return_query.query_type())
-            .await;
+        let lookup = match tokio::time::timeout(
+            Duration::from_secs(1),
+            resolver.lookup(return_query.name().clone(), return_query.query_type()),
+        )
+        .await
+        {
+            Ok(asdf) => asdf,
+            Err(_err) => {
+                return Ok(Box::new(EmptyLookup) as Box<dyn LookupObject>);
+            }
+        };
 
         lookup.map(|lookup| Box::new(ForwardLookup(lookup)) as Box<_>)
     }
