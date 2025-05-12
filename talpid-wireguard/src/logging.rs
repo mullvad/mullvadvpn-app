@@ -1,3 +1,4 @@
+#![cfg(any(windows, not(feature = "boringtun")))]
 use parking_lot::Mutex;
 use std::{collections::HashMap, fmt, fs, io::Write, path::Path, sync::LazyLock};
 
