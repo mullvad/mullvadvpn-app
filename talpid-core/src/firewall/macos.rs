@@ -148,7 +148,8 @@ impl Firewall {
         if [5353, 53].contains(&remote_address.port()) {
             // Ignore DNS states. The local resolver takes care of everything,
             // and PQ seems to timeout if these states are flushed
-            return Ok(false);
+            //return Ok(false);
+            return Ok(true);
         }
 
         if policy.allow_lan() {
