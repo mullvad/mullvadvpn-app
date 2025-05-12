@@ -79,7 +79,7 @@ jobs:
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
             -project MullvadVPN.xcodeproj \
-            -scheme MullvadVPN \
+            -scheme MullvadVPNScreenshotTests \
             -testPlan MullvadVPNScreenshots \
             -destination "platform=iOS Simulator,name=iPhone 16" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
