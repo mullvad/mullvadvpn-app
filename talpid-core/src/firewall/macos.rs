@@ -1,5 +1,7 @@
 use std::env;
 use std::io;
+use std::net::Ipv6Addr;
+use std::net::SocketAddr;
 use std::net::{IpAddr, Ipv4Addr};
 use std::ptr;
 use std::sync::LazyLock;
@@ -143,9 +145,15 @@ impl Firewall {
             return Ok(false);
         }
 
-        if [5353, 53].contains(&remote_address.port()) {
-            // Ignore DNS states. The local resolver takes care of everything,
-            // and PQ seems to timeout if these states are flushed
+        // Socket addresses for Multicast DNS.
+        let mdns_port = 5353;
+        let mdns_addrs = [
+            SocketAddr::from((Ipv4Addr::new(224,0,0,251), mdns_port)),
+            SocketAddr::from((Ipv6Addr::new(0xff02, 0, 0, 0 ,0 ,0 ,0, 0xfb), mdns_port)),
+        ];
+
+        if mdns_addrs.contains(&remote_address) {
+            // Ignore MDNS states. PQ *seems* to timeout if these states are flushed.
             return Ok(false);
         }
 
