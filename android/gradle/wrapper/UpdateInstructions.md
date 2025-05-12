@@ -11,5 +11,5 @@
 ```
 
 4. Update the gradle version to the new version in `.github/workflows/android-reproducible-builds.yml`. The steps required to update are:
-	- build-fdroid-app-server/Install gradle
-	- build-fdroid-app-server/Build app
+- build-fdroid-app-server/Install gradle
+- build-fdroid-app-server/Build app
