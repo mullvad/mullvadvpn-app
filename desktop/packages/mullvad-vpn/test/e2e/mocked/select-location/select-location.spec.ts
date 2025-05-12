@@ -82,90 +82,91 @@ test.beforeAll(async () => {
   ({ page, util } = await startMockedApp());
   selectors = createSelectors(page);
   await util.waitForRoute(RoutePath.main);
-  await setMultihop();
   await page.getByLabel('Select location').click();
   await util.waitForRoute(RoutePath.selectLocation);
+
+  await util.sendMockIpcResponse<IRelayListWithEndpointData>({
+    channel: 'relays-',
+    response: { relayList, wireguardEndpointData },
+  });
 });
 
 test.afterAll(async () => {
   await page.close();
 });
 
-async function setMultihop() {
-  const settings = getDefaultSettings();
-  if ('normal' in settings.relaySettings) {
-    settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
-  }
+test.describe('Multihop enabled', () => {
+  test.beforeAll(async () => {
+    const settings = getDefaultSettings();
+    if ('normal' in settings.relaySettings) {
+      settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
+    }
 
-  await util.sendMockIpcResponse<ISettings>({
-    channel: 'settings-',
-    response: settings,
+    await util.sendMockIpcResponse<ISettings>({
+      channel: 'settings-',
+      response: settings,
+    });
   });
 
-  await util.sendMockIpcResponse<IRelayListWithEndpointData>({
-    channel: 'relays-',
-    response: { relayList, wireguardEndpointData },
-  });
-}
+  test('App should show entry selection', async () => {
+    const entryTab = page.getByText('Entry');
+    await entryTab.click();
+    await expect(entryTab).toHaveCSS('background-color', colors['--color-green']);
 
-test('App should show entry selection', async () => {
-  const entryTab = page.getByText('Entry');
-  await entryTab.click();
-  await expect(entryTab).toHaveCSS('background-color', colors['--color-green']);
-
-  const sweden = page.getByText('Sweden');
-  await expect(sweden).toBeVisible();
-});
-
-test('App should show exit selection', async () => {
-  const exitTab = page.getByText('Exit');
-  await exitTab.click();
-  await expect(exitTab).toHaveCSS('background-color', colors['--color-green']);
-
-  const sweden = page.getByText('Sweden');
-  await expect(sweden).toBeVisible();
-});
-
-test("App shouldn't show entry selection when daita is enabled without direct only", async () => {
-  const settings = getDefaultSettings();
-  if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
-    settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
-    settings.tunnelOptions.wireguard.daita.enabled = true;
-    settings.tunnelOptions.wireguard.daita.directOnly = false;
-  }
-
-  await util.sendMockIpcResponse<ISettings>({
-    channel: 'settings-',
-    response: settings,
+    const sweden = page.getByText('Sweden');
+    await expect(sweden).toBeVisible();
   });
 
-  const entryTab = page.getByText('Entry').first();
-  await entryTab.click();
-  await expect(entryTab).toHaveCSS('background-color', colors['--color-green']);
+  test('App should show exit selection', async () => {
+    const exitTab = page.getByText('Exit');
+    await exitTab.click();
+    await expect(exitTab).toHaveCSS('background-color', colors['--color-green']);
 
-  const sweden = page.getByText('Sweden');
-  await expect(sweden).not.toBeVisible();
-});
-
-test('App should show entry selection when daita is enabled with direct only', async () => {
-  const settings = getDefaultSettings();
-  if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
-    settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
-    settings.tunnelOptions.wireguard.daita.enabled = true;
-    settings.tunnelOptions.wireguard.daita.directOnly = true;
-  }
-
-  await util.sendMockIpcResponse<ISettings>({
-    channel: 'settings-',
-    response: settings,
+    const sweden = page.getByText('Sweden');
+    await expect(sweden).toBeVisible();
   });
 
-  const entryTab = page.getByText('Entry');
-  await entryTab.click();
-  await expect(entryTab).toHaveCSS('background-color', colors['--color-green']);
+  test("App shouldn't show entry selection when daita is enabled without direct only", async () => {
+    const settings = getDefaultSettings();
+    if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
+      settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
+      settings.tunnelOptions.wireguard.daita.enabled = true;
+      settings.tunnelOptions.wireguard.daita.directOnly = false;
+    }
 
-  const sweden = page.getByText('Sweden');
-  await expect(sweden).toBeVisible();
+    await util.sendMockIpcResponse<ISettings>({
+      channel: 'settings-',
+      response: settings,
+    });
+
+    const entryTab = page.getByText('Entry').first();
+    await entryTab.click();
+    await expect(entryTab).toHaveCSS('background-color', colors['--color-green']);
+
+    const sweden = page.getByText('Sweden');
+    await expect(sweden).not.toBeVisible();
+  });
+
+  test('App should show entry selection when daita is enabled with direct only', async () => {
+    const settings = getDefaultSettings();
+    if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
+      settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
+      settings.tunnelOptions.wireguard.daita.enabled = true;
+      settings.tunnelOptions.wireguard.daita.directOnly = true;
+    }
+
+    await util.sendMockIpcResponse<ISettings>({
+      channel: 'settings-',
+      response: settings,
+    });
+
+    const entryTab = page.getByText('Entry');
+    await entryTab.click();
+    await expect(entryTab).toHaveCSS('background-color', colors['--color-green']);
+
+    const sweden = page.getByText('Sweden');
+    await expect(sweden).toBeVisible();
+  });
 });
 
 type LocatedRelay = {
