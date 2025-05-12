@@ -1,6 +1,7 @@
 use anyhow::Error;
 use colored::Colorize;
-use std::sync::{Arc, Mutex};
+use tokio::process::Command;
+use std::{process::Stdio, sync::{Arc, Mutex}};
 use test_rpc::logging::{LogOutput, Output};
 
 use crate::summary;
