@@ -29,7 +29,7 @@ class ObfuscationMethodSelectorTests: XCTestCase {
                 connectionAttemptCount: attempt,
                 tunnelSettings: tunnelSettings
             )
-            if attempt.isOrdered(nth: 1, forEverySetOf: 4) || attempt.isOrdered(nth: 2, forEverySetOf: 4) {
+            if attempt.isOrdered(nth: 1, forEverySetOf: 3) {
                 XCTAssertEqual(method, .off)
             } else {
                 XCTAssertNotEqual(method, .off)
@@ -53,7 +53,7 @@ class ObfuscationMethodSelectorTests: XCTestCase {
                 connectionAttemptCount: attempt,
                 tunnelSettings: tunnelSettings
             )
-            if attempt.isOrdered(nth: 3, forEverySetOf: 4) {
+            if attempt.isOrdered(nth: 2, forEverySetOf: 3) {
                 XCTAssertEqual(method, .shadowsocks)
             } else {
                 XCTAssertNotEqual(method, .shadowsocks)
@@ -77,7 +77,7 @@ class ObfuscationMethodSelectorTests: XCTestCase {
                 connectionAttemptCount: attempt,
                 tunnelSettings: tunnelSettings
             )
-            if attempt.isOrdered(nth: 4, forEverySetOf: 4) {
+            if attempt.isOrdered(nth: 3, forEverySetOf: 3) {
                 XCTAssertEqual(method, .udpOverTcp)
             } else {
                 XCTAssertNotEqual(method, .udpOverTcp)
