@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.test.common.page
 
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.waitForStableInActiveWindow
 import net.mullvad.mullvadvpn.test.common.extension.expectObjectToDisappearWithTimeout
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.extension.waitForStableInActiveWindowSafe
 
 class TooManyDevicesPage internal constructor() : Page() {
     private val tooManyDevicesSelector = By.text("Too many devices")
@@ -37,7 +37,7 @@ fun TooManyDevicesPage.removeDeviceFlow(deviceName: String) {
     clickRemoveDevice(deviceName)
 
     // Wait for the confirmation dialog to appear
-    uiDevice.waitForStableInActiveWindow()
+    uiDevice.waitForStableInActiveWindowSafe()
     // Confirm logout
     uiDevice.findObjectWithTimeout(By.text("Yes, log out device")).click()
 
