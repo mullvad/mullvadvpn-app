@@ -48,7 +48,8 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
         try {
             device.executeShellCommand("pkill -2 screenrecord")
             runBlocking { job.join() }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Logger.e("Failed to stop recording", e)
             fail("Failed to stop screen recording")
         }
     }
