@@ -143,6 +143,8 @@ impl Firewall {
             return Ok(false);
         }
 
+        // TODO: FIXME: only if the local resolver is active.
+        // TODO: FIXME: use the correct port/addr
         if [5353, 53].contains(&remote_address.port()) {
             // Ignore DNS states. The local resolver takes care of everything,
             // and PQ seems to timeout if these states are flushed
