@@ -34,7 +34,7 @@ pub struct BoringTun {
 pub async fn open_boringtun_tunnel(
     config: &Config,
     log_path: Option<&Path>,
-    tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
+    tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
     #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
     //#[cfg(target_os = "android")] gateway_only: bool,
     //#[cfg(target_os = "android")] connectivity_check: connectivity::Check<

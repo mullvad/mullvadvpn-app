@@ -71,7 +71,7 @@ pub enum Error {
 
     /// An interaction with a tunnel failed
     #[error("Tunnel failed")]
-    TunnelError(#[source] TunnelError),
+    TunnelError(#[from] TunnelError),
 
     /// Failed to run tunnel obfuscation
     #[error("Tunnel obfuscation failed")]
@@ -195,7 +195,7 @@ impl WireguardMonitor {
             args.resource_dir,
             #[cfg(not(all(target_os = "windows", not(feature = "boringtun"))))]
             args.tun_provider.clone(),
-            #[cfg(not(all(windows, feature = "boringtun")))]
+            #[cfg(all(windows, not(feature = "boringtun")))]
             args.route_manager.clone(),
             #[cfg(target_os = "windows")]
             setup_done_tx,
@@ -691,7 +691,7 @@ impl WireguardMonitor {
         runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
-        tun_provider: Arc<Mutex<TunProvider>>,
+        tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         _userspace_wireguard: bool,
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
@@ -713,7 +713,7 @@ impl WireguardMonitor {
         runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
-        tun_provider: Arc<Mutex<TunProvider>>,
+        tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         userspace_wireguard: bool,
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
@@ -742,13 +742,21 @@ impl WireguardMonitor {
 
             res.or_else(|err| {
                     log::warn!("Failed to initialize kernel WireGuard tunnel, falling back to userspace WireGuard implementation:\n{}",err.display_chain() );
-                    Ok(runtime
-                        .block_on(wireguard_go::open_wireguard_go_tunnel(
-                            config,
-                            log_path,
-                            tun_provider,
-                        ))
-                        .map(Box::new)?)
+
+                    #[cfg(not(feature = "boringtun"))]
+                    {
+                        Ok(runtime
+                            .block_on(wireguard_go::open_wireguard_go_tunnel(
+                                config,
+                                log_path,
+                                tun_provider,
+                            ))
+                            .map(Box::new)?)
+                    }
+                    #[cfg(feature = "boringtun")]
+                    { Ok(runtime
+                            .block_on(boringtun::open_boringtun_tunnel(config, log_path, tun_provider))
+                            .map(Box::new)?) }
                 })
         }
     }

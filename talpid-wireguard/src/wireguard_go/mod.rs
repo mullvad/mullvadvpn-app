@@ -97,18 +97,15 @@ pub(crate) async fn open_wireguard_go_tunnel(
     #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
     #[cfg(target_os = "android")] gateway_only: bool,
     #[cfg(target_os = "android")] cancel_receiver: connectivity::CancelReceiver,
-) -> super::Result<WgGoTunnel> {
+) -> Result<WgGoTunnel> {
     #[cfg(all(unix, not(target_os = "android")))]
     let routes = config.get_tunnel_destinations();
 
     #[cfg(all(unix, not(target_os = "android")))]
-    let tunnel = WgGoTunnel::start_tunnel(config, log_path, tun_provider, routes)
-        .map_err(Error::TunnelError)?;
+    let tunnel = WgGoTunnel::start_tunnel(config, log_path, tun_provider, routes)?;
 
     #[cfg(target_os = "windows")]
-    let tunnel = WgGoTunnel::start_tunnel(config, log_path, route_manager, setup_done_tx)
-        .await
-        .map_err(super::Error::TunnelError)?;
+    let tunnel = WgGoTunnel::start_tunnel(config, log_path, route_manager, setup_done_tx).await?;
 
     // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
     // with an ephemeral peer, this multihop strategy require us to restart the tunnel
@@ -131,8 +128,7 @@ pub(crate) async fn open_wireguard_go_tunnel(
             route_manager,
             cancel_receiver,
         )
-        .await
-        .map_err(Error::TunnelError)?
+        .await?
     } else {
         WgGoTunnel::start_tunnel(
             #[allow(clippy::needless_borrow)]
@@ -142,8 +138,7 @@ pub(crate) async fn open_wireguard_go_tunnel(
             route_manager,
             cancel_receiver,
         )
-        .await
-        .map_err(Error::TunnelError)?
+        .await?
     };
 
     Ok(tunnel)
