@@ -57,13 +57,13 @@ final class ProtocolObfuscatorTests: XCTestCase {
     func testObfuscateAutomatic() throws {
         let settings = settings(.automatic, obfuscationPort: .automatic)
 
-        try (UInt(0) ... 3).forEach { attempt in
+        try (UInt(0) ... 2).forEach { attempt in
             let obfuscated = obfuscator.obfuscate(endpoint, settings: settings, retryAttempts: attempt)
 
             switch attempt {
-            case 0, 1:
+            case 0:
                 XCTAssertEqual(endpoint, obfuscated.endpoint)
-            case 2, 3:
+            case 1, 2:
                 let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
                 validate(obfuscated.endpoint, against: obfuscationProtocol)
             default:
