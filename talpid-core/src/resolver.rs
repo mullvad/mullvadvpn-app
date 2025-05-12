@@ -120,6 +120,8 @@ struct LocalResolver {
     rx: mpsc::UnboundedReceiver<ResolverMessage>,
     dns_server_task: JoinHandle<()>,
     inner_resolver: Resolver,
+    /// Which IP+port the local resolver is bound to.
+    bound_to: SocketAddr,
 }
 
 /// A message to [LocalResolver]
@@ -161,29 +163,6 @@ enum Resolver {
 
     /// Forward DNS queries to a configured server
     Forwarding(TokioAsyncResolver),
-}
-
-impl From<Config> for Resolver {
-    fn from(mut config: Config) -> Self {
-        match &mut config {
-            Config::Blocking => Resolver::Blocking,
-            Config::Forwarding { dns_servers } => {
-                // make sure not to accidentally forward queries to ourselves
-                dns_servers.retain(|addr| !addr.is_loopback());
-
-                let forward_server_config =
-                    NameServerConfigGroup::from_ips_clear(dns_servers, DNS_PORT, true);
-
-                let forward_config =
-                    ResolverConfig::from_parts(None, vec![], forward_server_config);
-                let resolver_opts = ResolverOpts::default();
-
-                let resolver = TokioAsyncResolver::tokio(forward_config, resolver_opts);
-
-                Resolver::Forwarding(resolver)
-            }
-        }
-    }
 }
 
 impl Resolver {
@@ -349,7 +328,8 @@ impl LocalResolver {
         let resolver = Self {
             rx: command_rx,
             dns_server_task,
-            inner_resolver: Resolver::from(Config::Blocking),
+            bound_to: resolver_addr,
+            inner_resolver: Resolver::Blocking,
         };
 
         Ok((resolver, ResolverHandle::new(command_tx, resolver_addr)))
@@ -460,7 +440,7 @@ impl LocalResolver {
                 } => {
                     log::debug!("Updating config: {new_config:?}");
 
-                    self.inner_resolver = Resolver::from(new_config);
+                    self.update_config(new_config);
                     flush_system_cache();
                     let _ = response_tx.send(());
                 }
@@ -472,6 +452,36 @@ impl LocalResolver {
                 }
             }
         }
+    }
+
+    /// Update the current DNS config.
+    fn update_config(&mut self, config: Config) {
+        match config {
+            Config::Blocking => self.blocking(),
+            Config::Forwarding { mut dns_servers } => {
+                // make sure not to accidentally forward queries to ourselves
+                dns_servers.retain(|addr| *addr != self.bound_to.ip());
+                self.forwarding(dns_servers);
+            }
+        }
+    }
+
+    /// Turn into a blocking resolver.
+    fn blocking(&mut self) {
+        self.inner_resolver = Resolver::Blocking;
+    }
+
+    /// Turn into a forwarding resolver (forward DNS queries to [dns_servers]).
+    fn forwarding(&mut self, dns_servers: Vec<IpAddr>) {
+        let forward_server_config =
+            NameServerConfigGroup::from_ips_clear(&dns_servers, DNS_PORT, true);
+
+        let forward_config = ResolverConfig::from_parts(None, vec![], forward_server_config);
+        let resolver_opts = ResolverOpts::default();
+
+        let resolver = TokioAsyncResolver::tokio(forward_config, resolver_opts);
+
+        self.inner_resolver = Resolver::Forwarding(resolver);
     }
 }
 
