@@ -232,7 +232,6 @@
     <string name="add_30_days_time_x">Add 30 days time (%s)</string>
     <string name="add_30_days_time">Add 30 days time</string>
     <string name="payment_completed_dialog_title">Time was successfully added</string>
-    <string name="payment_completed_dialog_message">30 days was added to your account.</string>
     <string name="got_it">Got it!</string>
     <string name="payment_billing_error_dialog_title">Google Play unavailable</string>
     <string name="payment_billing_error_dialog_message">We were unable to start the payment process, please make sure you have the latest version of Google Play.</string>
@@ -419,4 +418,13 @@
     <string name="vpn_settings_not_available">VPN Settings not available on device</string>
     <string name="wireguard_port_is_not_supported">The selected %s port is not supported, please change it under</string>
     <string name="wireguard_settings">%s settings.</string>
+    <string name="add_90_days_time_x">Add 90 days time (%s)</string>
+    <string name="add_90_days_time">Add 90 days time</string>
+    <string name="add_time">Add time</string>
+    <string name="loading_products">Loading products</string>
+    <string name="failed_to_load_products">Failed to load products, please try again</string>
+    <string name="retry">Retry</string>
+    <string name="days_were_added_30">30 days was added to your account.</string>
+    <string name="days_were_added_90">90 days was added to your account.</string>
+    <string name="time_added">Time added</string>
 </resources>

@@ -26,11 +26,17 @@ private fun PreviewSitePaymentButton() {
 }
 
 @Composable
-fun SitePaymentButton(onClick: () -> Unit, isEnabled: Boolean, modifier: Modifier = Modifier) {
+fun SitePaymentButton(
+    onClick: () -> Unit,
+    isEnabled: Boolean,
+    modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
+) {
     ExternalButton(
         onClick = onClick,
         modifier = modifier,
         isEnabled = isEnabled,
+        isLoading = isLoading,
         text = stringResource(id = R.string.buy_credit),
     )
 }
