@@ -21,6 +21,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+
+## [1.0.0] - 2025-05-13
 ### Fixed
 #### Windows
 - Use default font instead of Segoe Fluent Icons for back arrow.
