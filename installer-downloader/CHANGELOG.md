@@ -21,6 +21,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Fixed
+#### Windows
+- Use default font instead Segoe Fluent Icons for back arrow.
+
 
 ## [0.3.0] - 2025-05-06
 ### Added
