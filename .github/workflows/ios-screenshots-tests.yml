@@ -25,6 +25,9 @@ jobs:
       TEST_ACCOUNT: ${{ secrets.IOS_TEST_ACCOUNT_NUMBER }}
       
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
         with:
