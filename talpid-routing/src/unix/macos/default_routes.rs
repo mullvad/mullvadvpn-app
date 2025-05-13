@@ -1,6 +1,4 @@
-use std::{
-    collections::HashMap, convert::Infallible, fmt::Debug, future::pending, mem, time::Duration,
-};
+use std::{collections::HashMap, convert::Infallible, future::pending, mem, time::Duration};
 
 use futures::{
     channel::mpsc::{self, UnboundedReceiver, UnboundedSender},
