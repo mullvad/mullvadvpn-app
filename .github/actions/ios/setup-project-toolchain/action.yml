@@ -8,30 +8,10 @@ inputs:
       - aarch64-apple-ios-sim
       - aarch64-apple-ios
     required: true
-  commit_hash:
-    type: string
-    required: false
 
 runs:
   using: 'composite'
   steps:
-    - name: Set commit hash or default to github.sha
-      id: set-commit-hash
-      run: |
-        # If the input has a value, it is filled by that value; otherwise, use github.sha
-        if [ -n "${{ inputs.commit_hash }}" ]; then
-          echo "COMMIT_HASH=${{ inputs.commit_hash }}" >> $GITHUB_ENV
-        else
-          echo "COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
-        fi
-      shell: bash
-
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        clean: true
-        ref: ${{ env.COMMIT_HASH }}
-
     - name: Checkout submodules
       run: |
         git config --global --add safe.directory '*'
