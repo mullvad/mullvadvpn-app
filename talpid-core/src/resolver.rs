@@ -372,7 +372,9 @@ impl LocalResolver {
         use std::net::Ipv4Addr;
 
         let random_loopback = || async move {
-            let addr = Ipv4Addr::new(127, 1u8.max(random()), random(), random());
+            //let addr = Ipv4Addr::new(127, 1u8.max(random()), random(), random());
+            // FIXME: test
+            let addr = Ipv4Addr::new(127, 31, 31, 31);
 
             // TODO: this command requires root privileges and will thus not work in `cargo test`.
             // This means that the tests will fall back to 127.0.0.1, and will not assert that the

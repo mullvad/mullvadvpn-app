@@ -179,6 +179,12 @@ impl State {
         };
         let desired_set = desired_settings.server_addresses();
 
+        log::info!("!!!!! desired set: {desired_set:?}");
+        log::info!("!!!!!");
+        log::info!("!!!!!");
+        log::info!("!!!!!");
+        log::info!("!!!!!");
+
         for (path, settings) in actual_state {
             match settings {
                 // Do nothing if the state is already what we want
@@ -195,7 +201,7 @@ impl State {
     }
 
     fn reset(&mut self, store: &SCDynamicStore) -> Result<()> {
-        log::trace!("Restoring DNS settings to: {:#?}", self.backup);
+        log::info!("Restoring DNS settings to: {:#?}", self.backup);
 
         let actual_state = read_all_dns(store);
         self.update_backup_state(&actual_state);
