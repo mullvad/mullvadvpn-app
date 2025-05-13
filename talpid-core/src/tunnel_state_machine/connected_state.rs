@@ -10,6 +10,7 @@ use talpid_types::{BoxedError, ErrorExt};
 use crate::dns::DnsConfig;
 use crate::dns::ResolvedDnsConfig;
 use crate::firewall::FirewallPolicy;
+use crate::resolver::LOCAL_DNS_RESOLVER;
 #[cfg(windows)]
 use crate::tunnel::TunnelMonitor;
 use crate::tunnel::{TunnelEvent, TunnelMetadata};
@@ -164,7 +165,15 @@ impl ConnectedState {
 
         // On macOS, configure only the local DNS resolver
         #[cfg(target_os = "macos")]
-        {
+        // We do not want to forward DNS queries to *our* local resolver if we do not run a local
+        // DNS resolver.
+        if !*LOCAL_DNS_RESOLVER {
+            log::debug!("Not enabling local DNS resolver");
+            shared_values
+                .dns_monitor
+                .set(&self.metadata.interface, dns_config)
+                .map_err(BoxedError::new)?;
+        } else {
             log::debug!("Enabling local DNS resolver");
             // Tell local DNS resolver to start forwarding DNS queries to whatever `dns_config`
             // specifies as DNS.
@@ -173,15 +182,6 @@ impl ConnectedState {
                     .filtering_resolver
                     .enable_forward(dns_config.addresses().collect()),
             );
-            // Set system DNS to our local DNS resolver
-            let system_dns = DnsConfig::default().resolve(
-                &[shared_values.filtering_resolver.listening_addr().ip()],
-                shared_values.filtering_resolver.listening_addr().port(),
-            );
-            shared_values
-                .dns_monitor
-                .set("lo", system_dns)
-                .map_err(BoxedError::new)?;
         }
 
         Ok(())
@@ -195,9 +195,15 @@ impl ConnectedState {
 
         // On macOS, configure only the local DNS resolver
         #[cfg(target_os = "macos")]
-        shared_values
-            .runtime
-            .block_on(shared_values.filtering_resolver.disable_forward());
+        if !*LOCAL_DNS_RESOLVER {
+            if let Err(error) = shared_values.dns_monitor.reset_before_interface_removal() {
+                log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
+            }
+        } else {
+            shared_values
+                .runtime
+                .block_on(shared_values.filtering_resolver.disable_forward());
+        }
     }
 
     fn reset_routes(

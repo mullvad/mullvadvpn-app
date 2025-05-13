@@ -35,7 +35,7 @@ impl ErrorState {
         }
 
         #[cfg(target_os = "macos")]
-        if !block_reason.prevents_filtering_resolver() {
+        if !block_reason.prevents_filtering_resolver() && !*LOCAL_DNS_RESOLVER {
             // Set system DNS to our local DNS resolver
             let system_dns = DnsConfig::default().resolve(
                 &[shared_values.filtering_resolver.listening_addr().ip()],
