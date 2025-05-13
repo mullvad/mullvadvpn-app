@@ -12,9 +12,8 @@ struct MullvadList<Content: View, Data: RandomAccessCollection<ID>, ID: Hashable
 
     @State var itemHeight: CGFloat = 0
     var maxListHeight: CGFloat {
-        itemHeight * CGFloat(data.count) > 0 ? itemHeight * CGFloat(
-            data.count
-        ) : .infinity
+        var height = itemHeight * CGFloat(data.count)
+        return height > 0 ? height : .infinity
     }
 
     init(_ data: Data, id: KeyPath<Data.Element, ID>, @ViewBuilder content: @escaping (Data.Element) -> Content) {
