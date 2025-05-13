@@ -1,7 +1,7 @@
 use crate::{AmIMullvad, Error};
 use bytes::Bytes;
 use futures::channel::oneshot;
-use hickory_resolver::{config::{NameServerConfig, ResolverConfig, ResolverOpts}, Resolver};
+use hickory_resolver::{config::{NameServerConfig, ResolverConfig, ResolverOpts}, name_server::TokioRuntimeProvider, Resolver, TokioAsyncResolver};
 use http_body_util::{BodyExt, Full};
 use hyper::Uri;
 use hyper_util::client::legacy::Client;
@@ -91,23 +91,17 @@ pub async fn geoip_lookup(mullvad_host: String, timeout: Duration) -> Result<AmI
     // Construct a new Resolver with default configuration options
     let mut config = ResolverConfig::default();
     config.add_name_server(NameServerConfig::new(nameserver, hickory_resolver::config::Protocol::Udp));
-    let mut resolver = Resolver::new(
-        config,
-        ResolverOpts::default(),
-    ).unwrap();
+    let resolver = TokioAsyncResolver::tokio(config, ResolverOpts::default());
 
-    // Lookup the IP addresses associated with a name.
-    // This returns a future that will lookup the IP addresses, it must be run in the Core to
-    //  to get the actual result.
-    let lookup_future = resolver.lookup_ip("www.example.com.");
+    let lookup_future = resolver.lookup_ip(&mullvad_host);
 
-    match lookup_future {
+    match lookup_future.await {
         Ok(res) => {
-            log::debug!("LOOKUP: {res:?}");
-
-            // There can be many addresses associated with the name,
-            //  this can return IPv4 and/or IPv6 addresses
-            let _address = res.iter().next().expect("no addresses returned!");
+            log::debug!("LOOKUP for {mullvad_host}: {res:?}");
+            match res.iter().next() {
+                Some(addr) => log::debug!("got addr: {addr}"),
+                None => log::debug!("no addr!"),
+            }
         }
         Err(err) => log::error!("FAILED LOOKUP: {err}"),
     }
