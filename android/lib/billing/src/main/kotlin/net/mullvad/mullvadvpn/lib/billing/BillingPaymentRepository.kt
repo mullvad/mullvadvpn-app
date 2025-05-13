@@ -47,7 +47,7 @@ class BillingPaymentRepository(
                 .associate { it.products.first() to it.purchaseState.toPaymentStatus() }
         emit(
             billingRepository
-                .queryProducts(listOf(ProductIds.OneMonth))
+                .queryProducts(listOf(ProductIds.OneMonth, ProductIds.ThreeMonths))
                 .toPaymentAvailability(productIdToPaymentStatus)
         )
     }
@@ -121,14 +121,14 @@ class BillingPaymentRepository(
                             return@flow
                         }
                 if (purchase.purchaseState == Purchase.PurchaseState.PENDING) {
-                    emit(PurchaseResult.Completed.Pending)
+                    emit(PurchaseResult.Completed.Pending(ProductId(purchase.products.first())))
                 } else {
                     emit(PurchaseResult.VerificationStarted)
                     emit(
                         verifyPurchase(event.purchases.first())
                             .fold(
                                 { PurchaseResult.Error.VerificationError(null) },
-                                { PurchaseResult.Completed.Success },
+                                { productId -> PurchaseResult.Completed.Success(productId) },
                             )
                     )
                 }
@@ -164,10 +164,12 @@ class BillingPaymentRepository(
         }
 
     private suspend fun verifyPurchase(purchase: Purchase) =
-        playPurchaseRepository.verifyPlayPurchase(
-            PlayPurchase(
-                productId = purchase.products.first(),
-                purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken),
+        playPurchaseRepository
+            .verifyPlayPurchase(
+                PlayPurchase(
+                    productId = purchase.products.first(),
+                    purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken),
+                )
             )
-        )
+            .map { ProductId(purchase.products.first()) }
 }
