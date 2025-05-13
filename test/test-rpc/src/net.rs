@@ -80,13 +80,13 @@ pub async fn geoip_lookup(mullvad_host: String, timeout: Duration) -> Result<AmI
 
     let nameserver = "127.31.31.31:53".parse().unwrap();
 
-    log::debug!("!!!");
-    log::debug!("!!!");
-    log::debug!("!!!");
-    log::debug!("!!! HICKORY DNS LOOKUP! servers: {:?}", nameserver);
-    log::debug!("!!!");
-    log::debug!("!!!");
-    log::debug!("!!!");
+    log::info!("!!!");
+    log::info!("!!!");
+    log::info!("!!!");
+    log::info!("!!! HICKORY DNS LOOKUP! servers: {:?}", nameserver);
+    log::info!("!!!");
+    log::info!("!!!");
+    log::info!("!!!");
 
     // Construct a new Resolver with default configuration options
     let mut config = ResolverConfig::default();
@@ -97,10 +97,10 @@ pub async fn geoip_lookup(mullvad_host: String, timeout: Duration) -> Result<AmI
 
     match lookup_future.await {
         Ok(res) => {
-            log::debug!("LOOKUP for {mullvad_host}: {res:?}");
+            log::info!("LOOKUP for {mullvad_host}: {res:?}");
             match res.iter().next() {
-                Some(addr) => log::debug!("got addr: {addr}"),
-                None => log::debug!("no addr!"),
+                Some(addr) => log::info!("got addr: {addr}"),
+                None => log::info!("no addr!"),
             }
         }
         Err(err) => log::error!("FAILED LOOKUP: {err}"),
