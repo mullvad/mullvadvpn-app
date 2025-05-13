@@ -3,27 +3,46 @@ package net.mullvad.mullvadvpn.compose.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.usecase.FilterChip
+import net.mullvad.mullvadvpn.util.Lce
 
 class SearchLocationsUiStatePreviewParameterProvider :
-    PreviewParameterProvider<SearchLocationUiState> {
+    PreviewParameterProvider<Lce<Unit, SearchLocationUiState, Unit>> {
     override val values =
         sequenceOf(
-            SearchLocationUiState.NoQuery(searchTerm = "", filterChips = listOf(FilterChip.Entry)),
-            SearchLocationUiState.Content(
-                searchTerm = "Mullvad",
-                filterChips = listOf(FilterChip.Entry),
-                relayListItems = RelayListItemPreviewData.generateEmptyList("Mullvad"),
-                customLists = emptyList(),
+            Lce.Loading(Unit),
+            Lce.Content(
+                SearchLocationUiState(
+                    searchTerm = "",
+                    filterChips = listOf(FilterChip.Entry),
+                    relayListItems =
+                        RelayListItemPreviewData.generateRelayListItems(
+                            includeCustomLists = true,
+                            isSearching = true,
+                        ),
+                    customLists = emptyList(),
+                )
             ),
-            SearchLocationUiState.Content(
-                searchTerm = "Germany",
-                filterChips = listOf(FilterChip.Entry),
-                relayListItems =
-                    RelayListItemPreviewData.generateRelayListItems(
-                        includeCustomLists = true,
-                        isSearching = true,
-                    ),
-                customLists = emptyList(),
+            Lce.Error(Unit),
+            Lce.Content(
+                SearchLocationUiState(
+                    searchTerm = "Mullvad",
+                    filterChips = listOf(FilterChip.Entry),
+                    relayListItems =
+                        RelayListItemPreviewData.generateEmptyList("Mullvad", isSearching = true),
+                    customLists = emptyList(),
+                )
+            ),
+            Lce.Content(
+                SearchLocationUiState(
+                    searchTerm = "Germany",
+                    filterChips = listOf(FilterChip.Entry),
+                    relayListItems =
+                        RelayListItemPreviewData.generateRelayListItems(
+                            includeCustomLists = true,
+                            isSearching = true,
+                        ),
+                    customLists = emptyList(),
+                )
             ),
         )
 }

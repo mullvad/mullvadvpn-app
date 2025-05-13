@@ -37,7 +37,7 @@ class ManageDevicesScreenTest {
     }
 
     private fun ComposeContext.initScreen(
-        state: Lce<ManageDevicesUiState, GetDeviceListError>,
+        state: Lce<Unit, ManageDevicesUiState, GetDeviceListError>,
         snackbarHostState: SnackbarHostState = SnackbarHostState(),
         onBackClick: () -> Unit = {},
         onTryAgainClicked: () -> Unit = {},
@@ -58,7 +58,7 @@ class ManageDevicesScreenTest {
     fun loadingStateShowsProgressIndicator() {
         composeExtension.use {
             // Arrange
-            initScreen(state = Lce.Loading)
+            initScreen(state = Lce.Loading(Unit))
 
             // Assert
             onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertIsDisplayed()

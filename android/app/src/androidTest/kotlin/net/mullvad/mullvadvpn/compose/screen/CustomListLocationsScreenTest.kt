@@ -12,11 +12,13 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -55,7 +57,9 @@ class CustomListLocationsScreenTest {
     fun givenLoadingStateShouldShowLoadingSpinner() =
         composeExtension.use {
             // Arrange
-            initScreen(state = CustomListLocationsUiState.Loading(newList = false))
+            initScreen(
+                state = CustomListLocationsUiState(newList = false, content = Lce.Loading(Unit))
+            )
 
             // Assert
             onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
@@ -66,7 +70,9 @@ class CustomListLocationsScreenTest {
         composeExtension.use {
             // Arrange
             val newList = true
-            initScreen(state = CustomListLocationsUiState.Loading(newList = newList))
+            initScreen(
+                state = CustomListLocationsUiState(newList = newList, content = Lce.Loading(Unit))
+            )
 
             // Assert
             onNodeWithText(ADD_LOCATIONS_TEXT).assertExists()
@@ -77,7 +83,9 @@ class CustomListLocationsScreenTest {
         composeExtension.use {
             // Arrange
             val newList = false
-            initScreen(state = CustomListLocationsUiState.Loading(newList = newList))
+            initScreen(
+                state = CustomListLocationsUiState(newList = newList, content = Lce.Loading(Unit))
+            )
 
             // Assert
             onNodeWithText(EDIT_LOCATIONS_TEXT).assertExists()
@@ -89,13 +97,27 @@ class CustomListLocationsScreenTest {
             // Arrange
             initScreen(
                 state =
-                    CustomListLocationsUiState.Content.Data(
-                        locations =
-                            listOf(
-                                RelayLocationListItem(DUMMY_RELAY_COUNTRIES[0], checked = true),
-                                RelayLocationListItem(DUMMY_RELAY_COUNTRIES[1], checked = false),
+                    CustomListLocationsUiState(
+                        newList = false,
+                        content =
+                            Lce.Content(
+                                CustomListLocationsData(
+                                    locations =
+                                        listOf(
+                                            RelayLocationListItem(
+                                                DUMMY_RELAY_COUNTRIES[0],
+                                                checked = true,
+                                            ),
+                                            RelayLocationListItem(
+                                                DUMMY_RELAY_COUNTRIES[1],
+                                                checked = false,
+                                            ),
+                                        ),
+                                    searchTerm = "",
+                                    saveEnabled = false,
+                                    hasUnsavedChanges = false,
+                                )
                             ),
-                        searchTerm = "",
                     )
             )
 
@@ -112,9 +134,20 @@ class CustomListLocationsScreenTest {
             val mockedOnRelaySelectionClicked: (RelayItem, Boolean) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    CustomListLocationsUiState.Content.Data(
+                    CustomListLocationsUiState(
                         newList = false,
-                        locations = listOf(RelayLocationListItem(selectedCountry, checked = true)),
+                        content =
+                            Lce.Content(
+                                CustomListLocationsData(
+                                    locations =
+                                        listOf(
+                                            RelayLocationListItem(selectedCountry, checked = true)
+                                        ),
+                                    searchTerm = "",
+                                    saveEnabled = false,
+                                    hasUnsavedChanges = false,
+                                )
+                            ),
                     ),
                 onRelaySelectionClick = mockedOnRelaySelectionClicked,
             )
@@ -133,9 +166,17 @@ class CustomListLocationsScreenTest {
             val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    CustomListLocationsUiState.Content.Data(
+                    CustomListLocationsUiState(
                         newList = false,
-                        locations = emptyList(),
+                        content =
+                            Lce.Content(
+                                CustomListLocationsData(
+                                    locations = emptyList(),
+                                    searchTerm = "",
+                                    saveEnabled = false,
+                                    hasUnsavedChanges = false,
+                                )
+                            ),
                     ),
                 onSearchTermInput = mockedSearchTermInput,
             )
@@ -156,9 +197,17 @@ class CustomListLocationsScreenTest {
             val mockSearchString = "SEARCH"
             initScreen(
                 state =
-                    CustomListLocationsUiState.Content.Empty(
+                    CustomListLocationsUiState(
                         newList = false,
-                        searchTerm = mockSearchString,
+                        content =
+                            Lce.Content(
+                                CustomListLocationsData(
+                                    searchTerm = mockSearchString,
+                                    saveEnabled = false,
+                                    hasUnsavedChanges = false,
+                                    locations = emptyList(),
+                                )
+                            ),
                     ),
                 onSearchTermInput = mockedSearchTermInput,
             )
@@ -171,13 +220,8 @@ class CustomListLocationsScreenTest {
     fun whenRelayListIsEmptyShouldShowNoRelaysText() =
         composeExtension.use {
             // Arrange
-            val emptySearchString = ""
             initScreen(
-                state =
-                    CustomListLocationsUiState.Content.Empty(
-                        newList = false,
-                        searchTerm = emptySearchString,
-                    )
+                state = CustomListLocationsUiState(newList = false, content = Lce.Error(Unit))
             )
 
             // Assert
@@ -191,10 +235,17 @@ class CustomListLocationsScreenTest {
             val mockOnSaveClick: () -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    CustomListLocationsUiState.Content.Data(
+                    CustomListLocationsUiState(
                         newList = false,
-                        locations = emptyList(),
-                        saveEnabled = true,
+                        content =
+                            Lce.Content(
+                                CustomListLocationsData(
+                                    locations = emptyList(),
+                                    saveEnabled = true,
+                                    hasUnsavedChanges = true,
+                                    searchTerm = "",
+                                )
+                            ),
                     ),
                 onSaveClick = mockOnSaveClick,
             )
@@ -213,10 +264,17 @@ class CustomListLocationsScreenTest {
             val mockOnSaveClick: () -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    CustomListLocationsUiState.Content.Data(
+                    CustomListLocationsUiState(
                         newList = false,
-                        locations = emptyList(),
-                        saveEnabled = false,
+                        content =
+                            Lce.Content(
+                                CustomListLocationsData(
+                                    locations = emptyList(),
+                                    saveEnabled = false,
+                                    hasUnsavedChanges = false,
+                                    searchTerm = "",
+                                )
+                            ),
                     ),
                 onSaveClick = mockOnSaveClick,
             )
