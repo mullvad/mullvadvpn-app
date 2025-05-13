@@ -45,7 +45,7 @@ optional = true
 features = ["device"]
 #path = "../../boringtun/boringtun"
 git = "https://github.com/mullvad/boringtun"
-rev = "5ba2785f8bdb66aa7dba570538461eb3d3c02f1e"
+rev = "333f6ff28b866799576599501118fa407ad16a9f"
 # branch = "mullvad"
 
 [target.'cfg(unix)'.dependencies]
