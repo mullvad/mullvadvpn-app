@@ -339,6 +339,8 @@ impl LocalResolver {
                     }
                 }
             }
+
+            log::error!("DNS server exited!");
         });
 
         let resolver = Self {

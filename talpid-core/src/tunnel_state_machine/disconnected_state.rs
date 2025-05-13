@@ -51,6 +51,8 @@ impl DisconnectedState {
         #[cfg(target_os = "android")]
         shared_values.tun_provider.lock().unwrap().close_tun();
 
+        log::info!("!!! asdfasdf TODO: remove");
+
         Self::construct_state_transition(shared_values)
     }
 

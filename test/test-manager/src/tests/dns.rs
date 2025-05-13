@@ -688,6 +688,9 @@ async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Resu
         CUSTOM_TUN_REMOTE_REAL_PORT,
     );
 
+
+    log::info!("connect_local_wg_relay 2");
+
     let custom_tunnel_endpoint = CustomTunnelEndpoint {
         host: peer_addr.ip().to_string(),
         config: ConnectionConfig::Wireguard(wireguard::ConnectionConfig {
@@ -709,11 +712,19 @@ async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Resu
             ipv6_gateway: None,
         }),
     };
+
+    log::info!("connect_local_wg_relay 3");
+
     set_custom_endpoint(mullvad_client, custom_tunnel_endpoint)
         .await
         .expect("failed to update relay settings");
 
+
+    log::info!("connect_local_wg_relay 4");
+
     connect_and_wait(mullvad_client).await?;
+
+    log::info!("connect_local_wg_relay 5");
 
     Ok(())
 }

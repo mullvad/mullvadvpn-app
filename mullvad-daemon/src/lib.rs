@@ -3234,7 +3234,10 @@ impl Daemon {
 
     fn reconnect_tunnel(&mut self) {
         if *self.target_state == TargetState::Secured {
+            log::debug!("TODO: reconnect_tunnel: secured");
             self.connect_tunnel();
+        } else {
+            log::debug!("TODO: reconnect_tunnel: not secured");
         }
     }
 
