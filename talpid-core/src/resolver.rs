@@ -187,6 +187,10 @@ impl Resolver {
     fn resolve_blocked(
         query: LowerQuery,
     ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
+        log::info!("!!!");
+        log::info!("!!! resolve_blocked: {query:?}");
+        log::info!("!!!");
+
         if !Self::is_captive_portal_domain(&query) {
             return Ok(Box::new(EmptyLookup));
         }
