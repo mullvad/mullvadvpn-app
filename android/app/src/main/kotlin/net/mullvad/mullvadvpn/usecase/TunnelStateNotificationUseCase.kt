@@ -35,8 +35,7 @@ class TunnelStateNotificationUseCase(
                 combine(relayListRepository.portRanges, settingsRepository.settingsUpdates) {
                     portRanges,
                     settings ->
-                    checkForPortError(
-                        inAppNotification = inAppNotification,
+                    inAppNotification?.maybeUpdateWithPortError(
                         wireguardPort = settings.wireguardPort(),
                         availablePorts = portRanges,
                     )
@@ -61,44 +60,29 @@ class TunnelStateNotificationUseCase(
             is TunnelState.Disconnected -> null
         }
 
-    private fun checkForPortError(
-        inAppNotification: InAppNotification?,
+    private fun InAppNotification.maybeUpdateWithPortError(
         wireguardPort: Constraint<Port>,
         availablePorts: List<PortRange>,
-    ): InAppNotification? =
-        if (
-            inAppNotification != null &&
-                inAppNotification is InAppNotification.TunnelStateError &&
-                inAppNotification.error.isPossiblePortError()
-        ) {
-            checkInvalidPort(wireguardPort, availablePorts)?.let {
-                inAppNotification.copy(
+    ): InAppNotification =
+        if (this is InAppNotification.TunnelStateError && error.isPossiblePortError()) {
+            wireguardPort.invalidPortOrNull(availablePorts)?.let {
+                copy(
                     error =
                         ErrorState(
                             cause = ErrorStateCause.NoRelaysMatchSelectedPort(port = it),
-                            isBlocking = inAppNotification.error.isBlocking,
+                            isBlocking = error.isBlocking,
                         )
                 )
-            } ?: inAppNotification
-        } else {
-            inAppNotification
-        }
+            } ?: this
+        } else this
 
     private fun ErrorState.isPossiblePortError(): Boolean =
         cause is ErrorStateCause.TunnelParameterError &&
             (cause as ErrorStateCause.TunnelParameterError).error ==
                 ParameterGenerationError.NoMatchingRelay
 
-    private fun checkInvalidPort(
-        wireguardPort: Constraint<Port>,
-        availablePortRanges: List<PortRange>,
-    ): Port? =
-        when {
-            wireguardPort is Constraint.Any -> null
-            wireguardPort is Constraint.Only && wireguardPort.value.inAnyOf(availablePortRanges) ->
-                null
-            else -> wireguardPort.getOrNull()
-        }
+    private fun Constraint<Port>.invalidPortOrNull(availablePortRanges: List<PortRange>): Port? =
+        getOrNull()?.takeIf { !it.inAnyOf(availablePortRanges) }
 
     private fun Settings?.wireguardPort() =
         this?.relaySettings?.relayConstraints?.wireguardConstraints?.port ?: Constraint.Any

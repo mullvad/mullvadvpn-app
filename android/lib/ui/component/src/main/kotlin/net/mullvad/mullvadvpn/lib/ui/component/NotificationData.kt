@@ -167,48 +167,7 @@ private fun errorMessageBannerData(
 ) =
     NotificationData(
         title = error.title().formatWithHtml(),
-        message =
-            if (error.cause is ErrorStateCause.NoRelaysMatchSelectedPort) {
-                NotificationMessage.Text(
-                    text =
-                        buildAnnotatedString {
-                            append(
-                                stringResource(
-                                    R.string.wireguard_port_is_not_supported,
-                                    stringResource(R.string.wireguard),
-                                )
-                            )
-                            append(" ")
-                            withStyle(
-                                SpanStyle(
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    textDecoration = TextDecoration.Underline,
-                                )
-                            ) {
-                                withLink(
-                                    LinkAnnotation.Clickable(
-                                        tag = stringResource(R.string.wireguard),
-                                        linkInteractionListener =
-                                            object : LinkInteractionListener {
-                                                override fun onClick(link: LinkAnnotation) {
-                                                    onClickShowWireguardPortSettings()
-                                                }
-                                            },
-                                    )
-                                ) {
-                                    append(
-                                        stringResource(
-                                            R.string.wireguard_settings,
-                                            stringResource(R.string.wireguard),
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                )
-            } else {
-                NotificationMessage.Text(error.message().formatWithHtml())
-            },
+        message = NotificationMessage.Text(error.message(onClickShowWireguardPortSettings)),
         statusLevel = StatusLevel.Error,
     )
 
@@ -240,11 +199,13 @@ private fun ErrorState.title(): String {
 }
 
 @Composable
-private fun ErrorState.message(): String {
+private fun ErrorState.message(onClickShowWireguardPortSettings: () -> Unit): AnnotatedString {
     val cause = this.cause
     return when {
-        isBlocking -> cause.errorMessageId()
-        else -> stringResource(R.string.failed_to_block_internet)
+        cause is ErrorStateCause.NoRelaysMatchSelectedPort ->
+            cause.message(onClickShowWireguardPortSettings)
+        isBlocking -> cause.errorMessageId().formatWithHtml()
+        else -> stringResource(R.string.failed_to_block_internet).formatWithHtml()
     }
 }
 
@@ -299,4 +260,34 @@ private fun InetAddress.addressString(): String {
     val address = hostNameAndAddress[1]
 
     return address
+}
+
+@Composable
+private fun ErrorStateCause.NoRelaysMatchSelectedPort.message(
+    onClickShowWireguardPortSettings: () -> Unit
+) = buildAnnotatedString {
+    append(
+        stringResource(R.string.wireguard_port_is_not_supported, stringResource(R.string.wireguard))
+    )
+    append(" ")
+    withStyle(
+        SpanStyle(
+            color = MaterialTheme.colorScheme.onSurface,
+            textDecoration = TextDecoration.Underline,
+        )
+    ) {
+        withLink(
+            LinkAnnotation.Clickable(
+                tag = stringResource(R.string.wireguard),
+                linkInteractionListener =
+                    object : LinkInteractionListener {
+                        override fun onClick(link: LinkAnnotation) {
+                            onClickShowWireguardPortSettings()
+                        }
+                    },
+            )
+        ) {
+            append(stringResource(R.string.wireguard_settings, stringResource(R.string.wireguard)))
+        }
+    }
 }
