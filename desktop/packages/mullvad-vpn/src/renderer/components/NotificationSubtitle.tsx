@@ -17,8 +17,11 @@ const StyledExternalLink = styled(ExternalLink)`
   display: flex;
 `;
 
-const StyledLink = styled(Link)({
-  ...buttonReset,
+const StyledLink = styled(Link)(() => {
+  const { color: _, ...reset } = buttonReset;
+  return {
+    ...reset,
+  };
 });
 
 const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
@@ -40,7 +43,7 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
         );
       case 'run-function':
         return (
-          <StyledLink color={Colors.white60} forwardedAs="button" {...subtitle.action.button}>
+          <StyledLink color={Colors.white} forwardedAs="button" {...subtitle.action.button}>
             {content}
           </StyledLink>
         );
