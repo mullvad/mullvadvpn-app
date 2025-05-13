@@ -48,5 +48,4 @@ runs:
       shell: bash
 
     - name: Configure Xcode project
-      run: uses ./.github/actions/ios/configure-xcode
-      shell: bash
+      uses: ./.github/actions/ios/configure-xcode
