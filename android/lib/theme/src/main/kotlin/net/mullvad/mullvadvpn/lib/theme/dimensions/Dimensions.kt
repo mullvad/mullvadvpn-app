@@ -8,6 +8,7 @@ data class Dimensions(
     val accountRowSpacing: Dp = 24.dp,
     val addIconSize: Dp = 24.dp,
     val bigIconSize: Dp = 40.dp,
+    val borderWidth: Dp = 2.dp,
     val bottomPadding: Dp = 4.dp,
     val buttonHeight: Dp = 44.dp,
     val buttonSpacing: Dp = 8.dp,
