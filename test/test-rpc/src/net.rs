@@ -78,6 +78,7 @@ impl Drop for SockHandle {
 
 pub async fn geoip_lookup(mullvad_host: String, timeout: Duration) -> Result<AmIMullvad, Error> {
 
+    /*
     let nameserver = "127.31.31.31:53".parse().unwrap();
 
     log::info!("!!!");
@@ -105,6 +106,7 @@ pub async fn geoip_lookup(mullvad_host: String, timeout: Duration) -> Result<AmI
         }
         Err(err) => log::error!("FAILED LOOKUP: {err}"),
     }
+     */
 
     let uri = Uri::try_from(format!("https://ipv4.am.i.{mullvad_host}/json"))
         .map_err(|_| Error::InvalidUrl)?;
