@@ -1,0 +1,13 @@
+name: 'Setup and configure Xcode'
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.1'
+
+    - name: Configure Xcode project
+      run: |
+          for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
+      working-directory: ios/Configurations
