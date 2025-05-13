@@ -223,10 +223,14 @@ impl Resolver {
         resolver: TokioAsyncResolver,
         query: LowerQuery,
     ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
+        log::info!("!!!");
+        log::info!("!!! resolve_forward: {query:?}");
+        log::info!("!!!");
+
         let return_query = query.original().clone();
 
         let lookup = match tokio::time::timeout(
-            Duration::from_secs(1),
+            Duration::from_secs(5),
             resolver.lookup(return_query.name().clone(), return_query.query_type()),
         )
         .await
