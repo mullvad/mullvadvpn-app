@@ -52,6 +52,9 @@ jobs:
     env:
       SOURCE_PACKAGES_PATH: .spm
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
         with:
