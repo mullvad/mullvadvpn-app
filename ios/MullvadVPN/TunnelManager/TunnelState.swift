@@ -12,12 +12,25 @@ import MullvadTypes
 import PacketTunnelCore
 @preconcurrency import WireGuardKitTypes
 
-/// A struct describing the tunnel status.
+/// Describes the tunnel status.
+///
+/// The `state` property is reflected in the main view of the app, and typically shows
+/// whether the VPN is connected, connecting, or disconnected.
+/// On top of that, a banner might be shown in cases `state` is either `waitingForConnectivity` or `error`
+///
+/// The `observedState` contains metadata about the PacketTunnel, and can be used to infer various details such as
+/// - A reason why the app would enter the blocked state
+/// - Whether networking is available from within the `PacketTunnel` process
+/// - How many times a reconnection was attempted
+/// - Which protocol layer is used by the `PacketTunnel` (TCP, UDP etc...)
+///
+/// And so on, this is a non-exhaustive list.
 struct TunnelStatus: Equatable, CustomStringConvertible, Sendable {
-    /// Tunnel status returned by tunnel process.
+    /// Reflects the `PacketTunnel`'s internal state.
     var observedState: ObservedState = .disconnected
 
-    /// Tunnel state.
+    /// Internal state used by the UI Process to manage transitions and UI updates.
+    /// Directly affects the UI, what user actions are available.
     var state: TunnelState = .disconnected
 
     var description: String {
