@@ -905,6 +905,8 @@ impl Firewall {
             .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Filter)?;
         self.pf.flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Nat)?;
         self.pf
+            .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Redirect)?;
+        self.pf
             .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Scrub)?;
         Ok(())
     }
