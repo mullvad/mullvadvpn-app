@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import fs from 'fs/promises';
 import { tmpdir } from 'os';
 
 import { DaemonAppUpgradeEvent } from '../shared/daemon-rpc-types';
@@ -18,21 +19,14 @@ export default class AppUpgrade {
       this.daemonRpc.appUpgradeAbort();
     });
 
-    IpcMainEventChannel.app.handleUpgradeInstallerStart((verifiedInstallerPath: string) => {
+    IpcMainEventChannel.app.handleUpgradeInstallerStart(async (verifiedInstallerPath: string) => {
       try {
+        await this.checkInstallerPath(verifiedInstallerPath);
         this.startInstaller(verifiedInstallerPath);
-        IpcMainEventChannel.app.notifyUpgradeEvent?.({
-          type: 'APP_UPGRADE_STATUS_STARTED_INSTALLER',
-        });
       } catch (e) {
-        IpcMainEventChannel.app.notifyUpgradeError?.('START_INSTALLER_FAILED');
-        IpcMainEventChannel.app.notifyUpgradeEvent?.({
-          type: 'APP_UPGRADE_STATUS_EXITED_INSTALLER',
-        });
-
         const error = e as Error;
         log.error(
-          `An error occurred when starting installer at path: ${verifiedInstallerPath}. Error: ${error.message}`,
+          `An error occurred when trying to start the installer: ${verifiedInstallerPath}. Error: ${error.message}`,
         );
       }
     });
@@ -55,6 +49,33 @@ export default class AppUpgrade {
     this.daemonRpc.subscribeAppUpgradeEventListener(daemonAppUpgradeEventListener);
 
     return daemonAppUpgradeEventListener;
+  }
+
+  private async checkInstallerPath(verifiedInstallerPath: string) {
+    try {
+      // fs.stat throws if the path does not exist
+      const stat = await fs.stat(verifiedInstallerPath);
+      // If the path exists, verify that its a file.
+      if (!stat.isFile()) {
+        throw new Error('Verified installer path is not a file.');
+      }
+    } catch (e) {
+      // Let the render process know we encountered an error
+      IpcMainEventChannel.app.notifyUpgradeError?.('GENERAL_ERROR');
+      // If the daemon for some reason doesn't reply with an aborted event we should
+      // let the render process know which event step to re-start from.
+      IpcMainEventChannel.app.notifyUpgradeEvent?.({
+        type: 'APP_UPGRADE_STATUS_MANUAL_START_INSTALLER',
+      });
+
+      // Let the daemon know the we are aborting the upgrade
+      this.daemonRpc.appUpgradeAbort();
+
+      const error = e as Error;
+      throw new Error(
+        `An error occurred when checking installer at path: ${verifiedInstallerPath}. Error: ${error.message}`,
+      );
+    }
   }
 
   private spawnChildMac(verifiedInstallerPath: string) {
@@ -95,25 +116,40 @@ export default class AppUpgrade {
   }
 
   private startInstaller(verifiedInstallerPath: string) {
-    const child = this.spawnChild(verifiedInstallerPath);
-
-    child.once('error', (error) => {
-      log.error(`An error occurred with the installer: ${error.message}`);
-      IpcMainEventChannel.app.notifyUpgradeError?.('INSTALLER_FAILED');
+    try {
+      const child = this.spawnChild(verifiedInstallerPath);
       IpcMainEventChannel.app.notifyUpgradeEvent?.({
-        type: 'APP_UPGRADE_STATUS_EXITED_INSTALLER',
+        type: 'APP_UPGRADE_STATUS_STARTED_INSTALLER',
       });
-    });
 
-    child.once('exit', (code) => {
-      if (code !== 0) {
-        log.error(`The installer exited unexpectedly with exit code: ${code}`);
+      child.once('error', (error) => {
+        log.error(`An error occurred with the installer: ${error.message}`);
         IpcMainEventChannel.app.notifyUpgradeError?.('INSTALLER_FAILED');
-      }
+        IpcMainEventChannel.app.notifyUpgradeEvent?.({
+          type: 'APP_UPGRADE_STATUS_EXITED_INSTALLER',
+        });
+      });
 
+      child.once('exit', (code) => {
+        if (code !== 0) {
+          log.error(`The installer exited unexpectedly with exit code: ${code}`);
+          IpcMainEventChannel.app.notifyUpgradeError?.('INSTALLER_FAILED');
+        }
+
+        IpcMainEventChannel.app.notifyUpgradeEvent?.({
+          type: 'APP_UPGRADE_STATUS_EXITED_INSTALLER',
+        });
+      });
+    } catch (e) {
+      IpcMainEventChannel.app.notifyUpgradeError?.('START_INSTALLER_FAILED');
       IpcMainEventChannel.app.notifyUpgradeEvent?.({
         type: 'APP_UPGRADE_STATUS_EXITED_INSTALLER',
       });
-    });
+
+      const error = e as Error;
+      log.error(
+        `An error occurred when starting installer at path: ${verifiedInstallerPath}. Error: ${error.message}`,
+      );
+    }
   }
 }
