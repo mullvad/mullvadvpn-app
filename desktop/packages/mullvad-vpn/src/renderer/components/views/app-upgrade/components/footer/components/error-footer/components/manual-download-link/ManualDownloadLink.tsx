@@ -2,7 +2,7 @@ import { messages } from '../../../../../../../../../../shared/gettext';
 import { Button } from '../../../../../../../../../lib/components';
 import { useHandleClick } from './hooks';
 
-export function ManualDownloadButton() {
+export function ManualDownloadLink() {
   const handleClick = useHandleClick();
 
   return (
