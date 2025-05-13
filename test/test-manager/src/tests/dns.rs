@@ -583,6 +583,9 @@ async fn run_dns_config_test<
         }
     }
 
+    if helpers::using_mullvad_exit(&rpc).await {
+        log::debug!("!! am using mullvad exit");
+    }
 
     let result = rpc.exec("/usr/sbin/scutil", ["--dns"]).await;
     if let Ok(result) = result {
