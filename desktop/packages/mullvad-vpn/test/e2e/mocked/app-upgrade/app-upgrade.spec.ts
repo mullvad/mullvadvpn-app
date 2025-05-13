@@ -211,7 +211,7 @@ test.describe('App upgrade', () => {
       const retryButton = selectors.retryButton();
 
       // Call the retry button 2 additional times, to increase the total
-      // errorCount to 3 in order for the ManualDownloadButton to be shown.
+      // errorCount to 3 in order for the ManualDownloadLink to be shown.
       await resolveIpcHandle(ipc.handle.appUpgradeInstallerStart(), retryButton.click());
       await ipc.send.appUpgradeEventExitedInstaller();
       await ipc.send.appUpgradeError('START_INSTALLER_FAILED');
@@ -220,9 +220,8 @@ test.describe('App upgrade', () => {
       await ipc.send.appUpgradeEventExitedInstaller();
       await ipc.send.appUpgradeError('START_INSTALLER_FAILED');
 
-      const manualDownloadButton = selectors.manualDownloadButton();
-      await expect(manualDownloadButton).toBeVisible();
-      await expect(manualDownloadButton).toBeEnabled();
+      const manualDownloadLink = selectors.manualDownloadLink();
+      await expect(manualDownloadLink).toBeVisible();
     });
   });
 
