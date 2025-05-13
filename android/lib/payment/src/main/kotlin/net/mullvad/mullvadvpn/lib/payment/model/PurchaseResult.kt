@@ -10,12 +10,12 @@ sealed interface PurchaseResult {
     data object VerificationStarted : PurchaseResult
 
     sealed interface Completed : PurchaseResult {
-        data object Success : Completed
+        data class Success(val productId: ProductId) : Completed
 
         data object Cancelled : Completed
 
         // This ends our part of the purchase flow. The rest is handled by Google and the api.
-        data object Pending : Completed
+        data class Pending(val productId: ProductId) : Completed
     }
 
     sealed interface Error : PurchaseResult {
