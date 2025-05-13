@@ -170,7 +170,7 @@ impl Resolver {
         query: LowerQuery,
         tx: oneshot::Sender<std::result::Result<Box<dyn LookupObject>, ResolveError>>,
     ) {
-         match self {
+        match self {
             Resolver::Blocking => {
                 let _ = tx.send(Self::resolve_blocked(query));
             }
@@ -182,7 +182,6 @@ impl Resolver {
                 });
             }
         };
-
     }
 
     /// Resolution in blocked state will return spoofed records for captive portal domains.
