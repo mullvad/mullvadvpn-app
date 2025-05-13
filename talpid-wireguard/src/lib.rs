@@ -15,7 +15,7 @@ use std::{
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc},
 };
-#[cfg(any(target_os = "linux", target_os = "windows"))]
+#[cfg(not(target_os = "android"))]
 use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
@@ -139,7 +139,7 @@ pub struct WireguardMonitor {
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
 }
 
-#[cfg(any(target_os = "linux", target_os = "windows"))]
+#[cfg(not(target_os = "android"))]
 /// Overrides the preference for the kernel module for WireGuard.
 static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
     env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
@@ -698,8 +698,18 @@ impl WireguardMonitor {
 
         log::debug!("Using userspace WireGuard implementation");
 
+        #[cfg(not(feature = "boringtun"))]
         let tunnel = runtime
             .block_on(wireguard_go::open_wireguard_go_tunnel(
+                config,
+                log_path,
+                tun_provider,
+            ))
+            .map(Box::new)?;
+
+        #[cfg(feature = "boringtun")]
+        let tunnel = runtime
+            .block_on(boringtun::open_boringtun_tunnel(
                 config,
                 log_path,
                 tun_provider,

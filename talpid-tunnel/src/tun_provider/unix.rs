@@ -153,27 +153,21 @@ impl TunnelDevice {
                 self.dev.set_address(ipv4.into()).map_err(Error::SetIpv4)?;
             }
 
-            // NOTE: On MacOs, As of `tun 0.7`, `Device::set_address` accepts an `IpAddr` but
-            // only supports the `IpAddr::V4` address kind and panics if you pass it an
-            // `IpAddr::V6` value.
-            #[cfg(target_os = "macos")]
+            // NOTE: As of `tun 0.7`, `Device::set_address` accepts an `IpAddr` but
+            // only supports the `IpAddr::V4`.
+            // On MacOs, `Device::set_address` panics if you pass it an `IpAddr::V6` value.
+            // On Linux, `Device::set_address` throws an I/O error if you pass it an IPv6-address.
             IpAddr::V6(ipv6) => {
-                // ifconfig <device> inet6 <ipv6 address> alias
-                let ipv6 = ipv6.to_string();
-                let device = self.dev.get_ref().name();
-                Command::new("ifconfig")
-                    .args([device, "inet6", &ipv6, "alias"])
-                    .output()
-                    .map_err(Error::SetIpv6)?;
-            }
-
-            // NOTE: On Linux, As of `tun 0.7`, `Device::set_address` throws an I/O error if you
-            // pass it an IPv6-address.
-            #[cfg(target_os = "linux")]
-            IpAddr::V6(ipv6) => {
-                // ip -6 addr add <ipv6 address> dev <device>
                 let ipv6 = ipv6.to_string();
                 let device = self.get_name()?;
+                // ifconfig <device> inet6 <ipv6 address> alias
+                #[cfg(target_os = "macos")]
+                Command::new("ifconfig")
+                    .args([&device, "inet6", &ipv6, "alias"])
+                    .output()
+                    .map_err(Error::SetIpv6)?;
+                // ip -6 addr add <ipv6 address> dev <device>
+                #[cfg(target_os = "linux")]
                 Command::new("ip")
                     .args(["-6", "addr", "add", &ipv6, "dev", &device])
                     .output()
