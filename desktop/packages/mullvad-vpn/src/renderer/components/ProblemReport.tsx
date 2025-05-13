@@ -387,27 +387,31 @@ function OutdatedVersionWarningDialog() {
       type={ModalAlertType.warning}
       message={message}
       buttons={[
-        <AriaDescriptionGroup key="upgrade">
-          <AriaDescribed>
-            <AppButton.GreenButton disabled={disabled} onClick={upgradeAction}>
-              <AppButton.Label>{messages.pgettext('support-view', 'Upgrade app')}</AppButton.Label>
-              {isLinux && (
-                <AriaDescription>
-                  <Icon
-                    icon="external"
-                    aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                  />
-                </AriaDescription>
-              )}
-            </AppButton.GreenButton>
-          </AriaDescribed>
-        </AriaDescriptionGroup>,
-        <AppButton.RedButton key="proceed" onClick={acknowledgeOutdatedVersion}>
-          {messages.pgettext('support-view', 'Continue anyway')}
-        </AppButton.RedButton>,
-        <AppButton.BlueButton key="cancel" onClick={outdatedVersionCancel}>
-          {messages.gettext('Cancel')}
-        </AppButton.BlueButton>,
+        <Button
+          key="upgrade"
+          variant="success"
+          disabled={disabled}
+          onClick={upgradeAction}
+          aria-description={messages.pgettext('accessibility', 'Opens externally')}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for upgrading the app to the latest version.
+              messages.pgettext('support-view', 'Upgrade app')
+            }
+          </Button.Text>
+          <Button.Icon icon="external" />
+        </Button>,
+        <Button variant="destructive" key="proceed" onClick={acknowledgeOutdatedVersion}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for continuing problem report submission with an outdated app version.
+              messages.pgettext('support-view', 'Continue anyway')
+            }
+          </Button.Text>
+        </Button>,
+        <Button key="cancel" onClick={outdatedVersionCancel}>
+          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+        </Button>,
       ]}
       close={pop}
     />
