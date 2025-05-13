@@ -25,10 +25,10 @@ export default class AppUpgrade {
           type: 'APP_UPGRADE_STATUS_STARTED_INSTALLER',
         });
       } catch (e) {
+        IpcMainEventChannel.app.notifyUpgradeError?.('START_INSTALLER_FAILED');
         IpcMainEventChannel.app.notifyUpgradeEvent?.({
           type: 'APP_UPGRADE_STATUS_EXITED_INSTALLER',
         });
-        IpcMainEventChannel.app.notifyUpgradeError?.('START_INSTALLER_FAILED');
 
         const error = e as Error;
         log.error(
