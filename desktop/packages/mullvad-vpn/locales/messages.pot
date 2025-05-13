@@ -2398,6 +2398,9 @@ msgstr ""
 msgid "%s more..."
 msgstr ""
 
+msgid "%s settings."
+msgstr ""
+
 msgid "%s was added to \"%s\""
 msgstr ""
 
@@ -2840,6 +2843,9 @@ msgid "The device will be removed from the list and logged out."
 msgstr ""
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
+msgstr ""
+
+msgid "The selected %s port is not supported, please change it under"
 msgstr ""
 
 msgid "This address has already been entered."

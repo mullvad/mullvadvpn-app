@@ -153,7 +153,7 @@ val uiModule = module {
     single { WireguardConstraintsRepository(get()) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) }
-    single { TunnelStateNotificationUseCase(get()) }
+    single { TunnelStateNotificationUseCase(get(), get(), get()) }
     single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
     single { NewDeviceNotificationUseCase(get(), get()) }
     single { NewChangelogNotificationUseCase(get()) }

@@ -72,6 +72,7 @@ class ConnectScreenTest {
         onChangelogClick: () -> Unit = {},
         onDismissChangelogClick: () -> Unit = {},
         onNavigateToFeature: (FeatureIndicator) -> Unit = {},
+        onClickShowWireguardPortSettings: () -> Unit = {},
     ) {
         setContentWithTheme {
             ConnectScreen(
@@ -89,6 +90,7 @@ class ConnectScreenTest {
                 onChangelogClick = onChangelogClick,
                 onDismissChangelogClick = onDismissChangelogClick,
                 onNavigateToFeature = onNavigateToFeature,
+                onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
             )
         }
     }
