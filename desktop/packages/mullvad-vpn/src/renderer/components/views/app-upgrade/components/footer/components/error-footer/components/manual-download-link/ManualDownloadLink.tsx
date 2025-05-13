@@ -1,21 +1,24 @@
 import { messages } from '../../../../../../../../../../shared/gettext';
-import { Button } from '../../../../../../../../../lib/components';
-import { useHandleClick } from './hooks';
+import { ExternalLink } from '../../../../../../../../../components/ExternalLink';
+import { useDownloadUrl } from './hooks';
 
 export function ManualDownloadLink() {
-  const handleClick = useHandleClick();
+  const downloadUrl = useDownloadUrl();
 
   return (
-    <Button
-      aria-description={messages.pgettext('accessibility', 'Opens externally')}
-      onClick={handleClick}>
-      <Button.Text>
-        {
-          // TRANSLATORS: Button text to manually download the update
-          messages.pgettext('app-upgrade-view', 'Manual download')
-        }
-      </Button.Text>
-      <Button.Icon icon="external" />
-    </Button>
+    <ExternalLink variant="labelTiny" to={downloadUrl}>
+      {
+        // TRANSLATORS: Link shown to optionally manually download the update
+        // TRANSLATORS: due to repeated errors in the upgrade process.
+        messages.pgettext(
+          'app-upgrade-view',
+          'Having problems? Try downloading the app from our website',
+        )
+      }
+      <ExternalLink.Icon
+        aria-description={messages.pgettext('accessibility', 'Opens externally')}
+        icon="external"
+      />
+    </ExternalLink>
   );
 }
