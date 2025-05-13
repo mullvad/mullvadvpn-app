@@ -33,6 +33,8 @@ const ANCHOR_NAME: &str = "mullvad";
 /// on macOS versions that are unaffected by this naughty bug, but keep it were it is necessary for
 /// Apple services to function properly together with a VPN.
 pub static NAT_WORKAROUND: LazyLock<bool> = LazyLock::new(|| {
+    return false; // TMP
+
     use talpid_platform_metadata::MacosVersion;
     let version = MacosVersion::new().expect("Could not detect macOS version");
     let v = |s| MacosVersion::from_raw_version(s).unwrap();
