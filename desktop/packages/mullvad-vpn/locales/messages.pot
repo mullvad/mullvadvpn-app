@@ -724,9 +724,10 @@ msgctxt "app-upgrade-view"
 msgid "Downloading..."
 msgstr ""
 
-#. Label displayed when an error occurred due to the download failing
+#. Link shown to optionally manually download the update
+#. due to repeated errors in the upgrade process.
 msgctxt "app-upgrade-view"
-msgid "Having problems? Try downloading the update from our website. If this problem persists, please contact support."
+msgid "Having problems? Try downloading the app from our website"
 msgstr ""
 
 #. Button text to install an update
@@ -737,11 +738,6 @@ msgstr ""
 #. Label displayed when an error occurred within the installer
 msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
-msgstr ""
-
-#. Button text to manually download the update
-msgctxt "app-upgrade-view"
-msgid "Manual download"
 msgstr ""
 
 #. Text displayed when there are no updates for this platform in the next app version
