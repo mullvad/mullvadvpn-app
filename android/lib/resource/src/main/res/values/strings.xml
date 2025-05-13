@@ -417,4 +417,6 @@
     <string name="daita_multihop">%s: Multihop</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN permission was denied</string>
     <string name="vpn_settings_not_available">VPN Settings not available on device</string>
+    <string name="wireguard_port_is_not_supported">The selected %s port is not supported, please change it under</string>
+    <string name="wireguard_settings">%s settings.</string>
 </resources>

@@ -44,6 +44,7 @@ fun AnimatedNotificationBanner(
     onClickShowChangelog: () -> Unit,
     onClickDismissChangelog: () -> Unit,
     onClickDismissNewDevice: () -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) {
     // Fix for animating to invisible state
     val previous = rememberPrevious(current = notification, shouldUpdate = { _, _ -> true })
@@ -64,6 +65,7 @@ fun AnimatedNotificationBanner(
                     onClickShowChangelog,
                     onClickDismissChangelog,
                     onClickDismissNewDevice,
+                    onClickShowWireguardPortSettings,
                 ),
             )
     }

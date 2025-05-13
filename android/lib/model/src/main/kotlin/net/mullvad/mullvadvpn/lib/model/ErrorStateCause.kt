@@ -30,6 +30,8 @@ sealed class ErrorStateCause {
     data class OtherAlwaysOnApp(val appName: String) : ErrorStateCause()
 
     data object OtherLegacyAlwaysOnApp : ErrorStateCause()
+
+    data class NoRelaysMatchSelectedPort(val port: Port) : ErrorStateCause()
 }
 
 sealed interface AuthFailedError {
