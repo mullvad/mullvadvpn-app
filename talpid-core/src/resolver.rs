@@ -171,16 +171,19 @@ impl Resolver {
         query: LowerQuery,
         tx: oneshot::Sender<std::result::Result<Box<dyn LookupObject>, ResolveError>>,
     ) {
-        let lookup = match self {
-            Resolver::Blocking => Either::Left(async move { Self::resolve_blocked(query) }),
+         match self {
+            Resolver::Blocking => {
+                let _ = tx.send(Self::resolve_blocked(query));
+            }
             Resolver::Forwarding(resolver) => {
-                Either::Right(Self::resolve_forward(resolver.clone(), query))
+                let resolver = resolver.clone();
+                tokio::spawn(async move {
+                    let lookup = Self::resolve_forward(resolver, query);
+                    let _ = tx.send(lookup.await);
+                });
             }
         };
 
-        tokio::spawn(async move {
-            let _ = tx.send(lookup.await);
-        });
     }
 
     /// Resolution in blocked state will return spoofed records for captive portal domains.
