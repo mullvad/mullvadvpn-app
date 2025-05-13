@@ -63,6 +63,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseC
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
+import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
@@ -193,7 +194,7 @@ val uiModule = module {
     single { AppVersionInfoRepository(get(), get()) }
 
     // View models
-    viewModel { AccountViewModel(get(), get(), get(), IS_PLAY_BUILD) }
+    viewModel { AccountViewModel(get(), get(), get()) }
     viewModel { ChangelogViewModel(get(), get(), get()) }
     viewModel {
         AppInfoViewModel(
@@ -279,6 +280,13 @@ val uiModule = module {
         SelectLocationListViewModel(relayListType, get(), get(), get(), get(), get(), get(), get())
     }
     viewModel { DaitaViewModel(get(), get()) }
+    viewModel {
+        AddMoreTimeViewModel(
+            paymentUseCase = get(),
+            accountRepository = get(),
+            isPlayBuild = IS_PLAY_BUILD,
+        )
+    }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { MullvadAppViewModel(get(), get()) }

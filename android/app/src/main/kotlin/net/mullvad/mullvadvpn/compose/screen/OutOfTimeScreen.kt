@@ -32,19 +32,13 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
+import com.ramcosta.composedestinations.generated.destinations.AddMoreTimeDestination
 import com.ramcosta.composedestinations.generated.destinations.ConnectDestination
-import com.ramcosta.composedestinations.generated.destinations.PaymentDestination
-import com.ramcosta.composedestinations.generated.destinations.RedeemVoucherDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsDestination
-import com.ramcosta.composedestinations.generated.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
-import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
-import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
-import net.mullvad.mullvadvpn.compose.component.PlayPayment
+import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
@@ -54,9 +48,6 @@ import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
-import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -69,36 +60,14 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewOutOfTimeScreen(
     @PreviewParameter(OutOfTimeScreenPreviewParameterProvider::class) state: OutOfTimeUiState
 ) {
-    AppTheme { OutOfTimeScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}, {}, {}) }
+    AppTheme { OutOfTimeScreen(state = state, SnackbarHostState(), {}, {}, {}, {}) }
 }
 
 @Destination<RootGraph>(style = HomeTransition::class)
 @Composable
-fun OutOfTime(
-    navigator: DestinationsNavigator,
-    redeemVoucherResultRecipient: ResultRecipient<RedeemVoucherDestination, Boolean>,
-    playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>,
-) {
+fun OutOfTime(navigator: DestinationsNavigator) {
     val vm = koinViewModel<OutOfTimeViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
-    redeemVoucherResultRecipient.onNavResult {
-        // If we successfully redeemed a voucher, navigate to Connect screen
-        if (it is NavResult.Value && it.value) {
-            navigator.navigate(ConnectDestination) {
-                launchSingleTop = true
-                popUpTo(NavGraphs.root) { inclusive = true }
-            }
-        }
-    }
-
-    playPaymentResultRecipient.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {
-                /* Do nothing */
-            }
-            is NavResult.Value -> vm.onClosePurchaseResultDialog(it.value)
-        }
-    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -122,15 +91,10 @@ fun OutOfTime(
     OutOfTimeScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onSitePaymentClick = vm::onSitePaymentClick,
-        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
         onDisconnectClick = vm::onDisconnectClick,
-        onPurchaseBillingProductClick =
-            dropUnlessResumed { productId -> navigator.navigate(PaymentDestination(productId)) },
-        navigateToVerificationPendingDialog =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
+        onAddMoreTimeClick = dropUnlessResumed { navigator.navigate(AddMoreTimeDestination) },
     )
 }
 
@@ -139,12 +103,9 @@ fun OutOfTimeScreen(
     state: OutOfTimeUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onDisconnectClick: () -> Unit,
-    onSitePaymentClick: () -> Unit,
-    onRedeemVoucherClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
-    onPurchaseBillingProductClick: (ProductId) -> Unit,
-    navigateToVerificationPendingDialog: () -> Unit,
+    onAddMoreTimeClick: () -> Unit,
 ) {
 
     val scrollState = rememberScrollState()
@@ -216,10 +177,7 @@ fun OutOfTimeScreen(
             ButtonPanel(
                 state = state,
                 onDisconnectClick = onDisconnectClick,
-                onPurchaseBillingProductClick = onPurchaseBillingProductClick,
-                onRedeemVoucherClick = onRedeemVoucherClick,
-                onSitePaymentClick = onSitePaymentClick,
-                navigateToVerificationPendingDialog = navigateToVerificationPendingDialog,
+                onAddMoreTimeClick = onAddMoreTimeClick,
             )
         }
     }
@@ -229,10 +187,7 @@ fun OutOfTimeScreen(
 private fun ButtonPanel(
     state: OutOfTimeUiState,
     onDisconnectClick: () -> Unit,
-    onPurchaseBillingProductClick: (ProductId) -> Unit,
-    onRedeemVoucherClick: () -> Unit,
-    onSitePaymentClick: () -> Unit,
-    navigateToVerificationPendingDialog: () -> Unit,
+    onAddMoreTimeClick: () -> Unit,
 ) {
 
     Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
@@ -242,29 +197,10 @@ private fun ButtonPanel(
                 text = stringResource(id = R.string.disconnect),
             )
         }
-        state.billingPaymentState?.let {
-            PlayPayment(
-                billingPaymentState = state.billingPaymentState,
-                onPurchaseBillingProductClick = { productId ->
-                    onPurchaseBillingProductClick(productId)
-                },
-                onInfoClick = navigateToVerificationPendingDialog,
-            )
-        }
-        if (state.showSitePayment) {
-            SitePaymentButton(
-                onClick = onSitePaymentClick,
-                isEnabled = state.tunnelState.enableSitePaymentButton(),
-            )
-        }
-        RedeemVoucherButton(
-            onClick = onRedeemVoucherClick,
-            isEnabled = state.tunnelState.enableRedeemButton(),
+        VariantButton(
+            onClick = onAddMoreTimeClick,
+            text = stringResource(id = R.string.add_time),
+            isEnabled = !state.tunnelState.isSecured(),
         )
     }
 }
-
-private fun TunnelState.enableSitePaymentButton(): Boolean = this is TunnelState.Disconnected
-
-private fun TunnelState.enableRedeemButton(): Boolean =
-    !(this is TunnelState.Error && this.errorState.cause is ErrorStateCause.IsOffline)
