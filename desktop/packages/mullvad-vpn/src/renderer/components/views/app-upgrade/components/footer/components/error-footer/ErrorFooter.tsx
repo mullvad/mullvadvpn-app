@@ -1,12 +1,12 @@
 import { Flex, Icon, LabelTiny } from '../../../../../../../lib/components';
 import { Colors } from '../../../../../../../lib/foundations';
 import { DownloadProgress } from '../../../download-progress';
-import { ManualDownloadButton, ReportProblemButton, RetryButton } from './components';
-import { useMessage, useShowManualDownloadButton } from './hooks';
+import { ManualDownloadLink, ReportProblemButton, RetryButton } from './components';
+import { useMessage, useShowManualDownloadLink } from './hooks';
 
 export function ErrorFooter() {
   const message = useMessage();
-  const showManualDownloadButton = useShowManualDownloadButton();
+  const showManualDownloadLink = useShowManualDownloadLink();
 
   return (
     <Flex $padding="large" $flexDirection="column">
@@ -23,7 +23,7 @@ export function ErrorFooter() {
       </Flex>
       <Flex $gap="medium" $flexDirection="column">
         <ReportProblemButton />
-        {showManualDownloadButton ? <ManualDownloadButton /> : <RetryButton />}
+        {showManualDownloadLink ? <ManualDownloadLink /> : <RetryButton />}
       </Flex>
     </Flex>
   );
