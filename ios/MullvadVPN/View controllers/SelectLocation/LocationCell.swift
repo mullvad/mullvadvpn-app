@@ -252,7 +252,7 @@ class LocationCell: UITableViewCell {
         case 3:
             return UIColor.Cell.Background.indentationLevelThree
         default:
-            return UIColor.Cell.Background.normal
+            return UIColor.Cell.Background.indentationLevelZero
         }
     }
 

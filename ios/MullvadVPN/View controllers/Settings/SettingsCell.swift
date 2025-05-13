@@ -168,7 +168,7 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
 
     func applySubCellStyling() {
         contentView.layoutMargins.left = subCellLeadingIndentation
-        backgroundView?.backgroundColor = UIColor.Cell.Background.indentationLevelOne
+        backgroundView?.backgroundColor = UIColor.Cell.Background.indentationLevelZero
     }
 
     func setLeadingView(superviewProvider: (UIView) -> Void) {
