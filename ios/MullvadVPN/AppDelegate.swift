@@ -321,7 +321,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.appRefresh.identifier,
             using: .main
         ) { [self] task in
-
             nonisolated(unsafe) let handle = relayCacheTracker.updateRelays { result in
                 task.setTaskCompleted(success: result.isSuccess)
             }

@@ -647,7 +647,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         switch deviceState {
         case let .loggedIn(accountData, _):
-
             // Account creation is being shown
             guard !isPresentingWelcome && !appPreferences.isShownOnboarding else { return }
 
