@@ -70,8 +70,6 @@ pub struct AppWindow {
     pub beta_prefix: nwg::Label,
     pub beta_link: nwg::Label,
 
-    pub arrow_font: nwg::Font,
-
     pub stable_message_frame: nwg::ImageFrame,
     pub stable_prefix: nwg::Label,
     pub stable_link: nwg::Label,
@@ -226,15 +224,10 @@ impl AppWindow {
             .size((240, 24))
             .build(&mut self.stable_message_frame)?;
 
-        nwg::Font::builder()
-            .family("Segoe Fluent Icons")
-            .size(10)
-            .build(&mut self.arrow_font)?;
         nwg::Label::builder()
             .parent(&self.stable_message_frame)
             .size((16, 24))
-            .text("")
-            .font(Some(&self.arrow_font))
+            .text("←")
             .h_align(nwg::HTextAlign::Left)
             .build(&mut self.stable_prefix)?;
         nwg::Label::builder()
@@ -288,7 +281,7 @@ impl AppWindow {
             self.window.size().1 as i32 - 24 - self.stable_message_frame.size().1 as i32,
         );
         self.stable_link.set_position(16, 0);
-        self.stable_prefix.set_position(4, 12 - 4);
+        self.stable_prefix.set_position(0, 0);
         handle_link_messages(
             &self.stable_message_frame.handle,
             &self.stable_prefix,
