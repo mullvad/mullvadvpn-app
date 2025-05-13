@@ -47,7 +47,7 @@ class BillingPaymentRepository(
                 .associate { it.products.first() to it.purchaseState.toPaymentStatus() }
         emit(
             billingRepository
-                .queryProducts(listOf(ProductIds.OneMonth))
+                .queryProducts(listOf(ProductIds.OneMonth, ProductIds.ThreeMonths))
                 .toPaymentAvailability(productIdToPaymentStatus)
         )
     }

@@ -24,8 +24,8 @@ import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.isSuccess
-import net.mullvad.mullvadvpn.util.toPaymentState
 
 class WelcomeViewModel(
     private val accountRepository: AccountRepository,
@@ -39,20 +39,19 @@ class WelcomeViewModel(
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), hasAddedTimeEffect())
 
     val uiState =
-        combine(
-                connectionProxy.tunnelState,
-                deviceRepository.deviceState.filterNotNull(),
-                paymentUseCase.paymentAvailability,
-            ) { tunnelState, accountState, paymentAvailability ->
-                WelcomeUiState(
-                    tunnelState = tunnelState,
-                    accountNumber = accountState.accountNumber(),
-                    deviceName = accountState.displayName(),
-                    showSitePayment = !isPlayBuild,
-                    billingPaymentState = paymentAvailability?.toPaymentState(),
+        combine(connectionProxy.tunnelState, deviceRepository.deviceState.filterNotNull()) {
+                tunnelState,
+                accountState ->
+                Lc.Content(
+                    WelcomeUiState(
+                        tunnelState = tunnelState,
+                        accountNumber = accountState.accountNumber(),
+                        deviceName = accountState.displayName(),
+                        showSitePayment = !isPlayBuild,
+                    )
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), WelcomeUiState())
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(Unit))
 
     init {
         viewModelScope.launch {
@@ -62,10 +61,10 @@ class WelcomeViewModel(
             }
         }
         verifyPurchases()
-        fetchPaymentAvailability()
         viewModelScope.launch { deviceRepository.updateDevice() }
         viewModelScope.launch {
-            val accountNumber = uiState.map { it.accountNumber }.filterNotNull().first()
+            val accountNumber =
+                uiState.map { it.contentOrNull()?.accountNumber }.filterNotNull().first()
             _uiSideEffect.send(UiSideEffect.StoreCredentialsRequest(accountNumber))
         }
     }
@@ -90,32 +89,12 @@ class WelcomeViewModel(
         }
     }
 
+    // TODO Keep this?
     private fun verifyPurchases() {
         viewModelScope.launch {
             if (paymentUseCase.verifyPurchases().isSuccess()) {
                 updateAccountExpiry()
             }
-        }
-    }
-
-    private fun fetchPaymentAvailability() {
-        viewModelScope.launch { paymentUseCase.queryPaymentAvailability() }
-    }
-
-    fun onClosePurchaseResultDialog(success: Boolean) {
-        // We are closing the dialog without any action, this can happen either if an error occurred
-        // during the purchase or the purchase ended successfully.
-        // If the payment was successful we want to update the account expiry. If not successful we
-        // should check payment availability and verify any purchases to handle potential errors.
-        if (success) {
-            viewModelScope.launch { updateAccountExpiry() }
-            // Emission of out of time navigation is handled by launch in onStart
-        } else {
-            fetchPaymentAvailability()
-            verifyPurchases() // Attempt to verify again
-        }
-        viewModelScope.launch {
-            paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
         }
     }
 

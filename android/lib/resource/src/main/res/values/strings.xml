@@ -419,4 +419,9 @@
     <string name="vpn_settings_not_available">VPN Settings not available on device</string>
     <string name="wireguard_port_is_not_supported">The selected %s port is not supported, please change it under</string>
     <string name="wireguard_settings">%s settings.</string>
+    <string name="add_more_time_screen_title">Add more time</string>
+    <string name="add_more_time">Add more time</string>
+    <string name="add_90_days_time_x">Add 90 days time (%s)</string>
+    <string name="add_90_days_time">Add 90 days time</string>
+    <string name="add_time">Add time</string>
 </resources>

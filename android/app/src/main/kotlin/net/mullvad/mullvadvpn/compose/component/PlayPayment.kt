@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,10 +43,15 @@ private fun PreviewPlayPaymentPaymentAvailable() {
                         products =
                             listOf(
                                 PaymentProduct(
-                                    productId = ProductId("test"),
+                                    productId = ProductId("one_month"),
                                     price = ProductPrice("$10"),
                                     status = null,
-                                )
+                                ),
+                                PaymentProduct(
+                                    productId = ProductId("three_months"),
+                                    price = ProductPrice("$30"),
+                                    status = null,
+                                ),
                             )
                     ),
                 onPurchaseBillingProductClick = {},
@@ -81,10 +88,15 @@ private fun PreviewPlayPaymentPaymentPending() {
                         products =
                             listOf(
                                 PaymentProduct(
-                                    productId = ProductId("test"),
+                                    productId = ProductId("one_month"),
                                     price = ProductPrice("$10"),
                                     status = PaymentStatus.PENDING,
-                                )
+                                ),
+                                PaymentProduct(
+                                    productId = ProductId("three_months"),
+                                    price = ProductPrice("$30"),
+                                    status = null,
+                                ),
                             )
                     ),
                 onPurchaseBillingProductClick = {},
@@ -106,12 +118,32 @@ private fun PreviewPlayPaymentVerificationInProgress() {
                         products =
                             listOf(
                                 PaymentProduct(
-                                    productId = ProductId("test"),
+                                    productId = ProductId("one_month"),
                                     price = ProductPrice("$10"),
+                                    status = null,
+                                ),
+                                PaymentProduct(
+                                    productId = ProductId("three_months"),
+                                    price = ProductPrice("$30"),
                                     status = PaymentStatus.VERIFICATION_IN_PROGRESS,
-                                )
+                                ),
                             )
                     ),
+                onPurchaseBillingProductClick = {},
+                onInfoClick = {},
+                modifier = Modifier.padding(Dimens.screenBottomMargin),
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewPlayPaymentError() {
+    AppTheme {
+        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
+            PlayPayment(
+                billingPaymentState = PaymentState.Error.Billing,
                 onPurchaseBillingProductClick = {},
                 onInfoClick = {},
                 modifier = Modifier.padding(Dimens.screenBottomMargin),
@@ -129,62 +161,138 @@ fun PlayPayment(
 ) {
     when (billingPaymentState) {
         PaymentState.Loading -> {
-            Column(modifier = modifier.fillMaxWidth()) {
-                MullvadCircularProgressIndicatorSmall(modifier = modifier)
-            }
+            Loading(modifier = modifier)
         }
         PaymentState.NoPayment,
         PaymentState.NoProductsFounds -> {
             // Show nothing
         }
         is PaymentState.PaymentAvailable -> {
-            billingPaymentState.products.forEach { product ->
-                Column(modifier = modifier) {
-                    val statusMessage =
-                        when (product.status) {
-                            PaymentStatus.PENDING ->
-                                stringResource(id = R.string.payment_status_pending)
-                            PaymentStatus.VERIFICATION_IN_PROGRESS ->
-                                stringResource(id = R.string.verifying_purchase)
-                            else -> null
-                        }
-                    statusMessage?.let {
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            Text(
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                text = statusMessage,
-                                modifier = Modifier.padding(bottom = Dimens.smallPadding),
-                            )
-                            IconButton(
-                                onClick = onInfoClick,
-                                modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Info,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
-                        }
-                    }
-                    VariantButton(
-                        text =
-                            stringResource(id = R.string.add_30_days_time_x, product.price.value),
-                        onClick = { onPurchaseBillingProductClick(product.productId) },
-                        isEnabled = product.status == null,
+            PaymentAvailable(
+                modifier = modifier,
+                billingPaymentState = billingPaymentState,
+                onPurchaseBillingProductClick = onPurchaseBillingProductClick,
+                onInfoClick = onInfoClick,
+            )
+        }
+        is PaymentState.Error -> {
+            Error(modifier = modifier)
+        }
+    }
+}
+
+@Composable
+private fun Loading(modifier: Modifier = Modifier) {
+    Column(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .border(
+                    width = Dimens.borderWidth,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    shape = MaterialTheme.shapes.extraSmall,
+                )
+                .padding(all = Dimens.smallPadding)
+    ) {
+        MullvadCircularProgressIndicatorSmall()
+    }
+}
+
+@Composable
+private fun PaymentAvailable(
+    billingPaymentState: PaymentState.PaymentAvailable,
+    onPurchaseBillingProductClick: (ProductId) -> Unit,
+    onInfoClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        val statusMessage =
+            when (billingPaymentState.products.status()) {
+                PaymentStatus.PENDING -> stringResource(id = R.string.payment_status_pending)
+
+                PaymentStatus.VERIFICATION_IN_PROGRESS ->
+                    stringResource(id = R.string.verifying_purchase)
+
+                else -> null
+            }
+        statusMessage?.let {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    text = statusMessage,
+                    modifier = Modifier.padding(bottom = Dimens.smallPadding),
+                )
+                IconButton(
+                    onClick = onInfoClick,
+                    modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
         }
-        // Show the button without the price
-        is PaymentState.Error -> {
-            Column(modifier = modifier) {
+        Column(
+            modifier =
+                Modifier.border(
+                        width = Dimens.borderWidth,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        shape = MaterialTheme.shapes.extraSmall,
+                    )
+                    .padding(all = Dimens.smallPadding),
+            verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing),
+        ) {
+            billingPaymentState.products.forEach { product ->
                 VariantButton(
-                    text = stringResource(id = R.string.add_30_days_time),
-                    onClick = { onPurchaseBillingProductClick(ProductId(ProductIds.OneMonth)) },
+                    text =
+                        when (product.productId.value) {
+                            ProductIds.OneMonth ->
+                                stringResource(
+                                    id = R.string.add_30_days_time_x,
+                                    product.price.value,
+                                )
+
+                            ProductIds.ThreeMonths ->
+                                stringResource(
+                                    id = R.string.add_90_days_time_x,
+                                    product.price.value,
+                                )
+
+                            else -> {
+                                // We have somehow requested a product that is not supported
+                                error("ProductId ${product.productId.value} is not supported")
+                            }
+                        },
+                    onClick = { onPurchaseBillingProductClick(product.productId) },
+                    isEnabled = statusMessage == null,
                 )
             }
         }
     }
+}
+
+@Composable
+private fun Error(modifier: Modifier) {
+    Column(
+        modifier =
+            modifier.border(
+                width = Dimens.borderWidth,
+                color = MaterialTheme.colorScheme.onSurface,
+                shape = MaterialTheme.shapes.extraSmall,
+            )
+    ) {
+        Text(
+            text = stringResource(id = R.string.payment_billing_error_dialog_title),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(Dimens.smallPadding),
+        )
+    }
+}
+
+private fun List<PaymentProduct>.status(): PaymentStatus? {
+    return this.firstOrNull { it.status != null }?.status
 }
