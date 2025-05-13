@@ -1,6 +1,7 @@
 use crate::{AmIMullvad, Error};
 use bytes::Bytes;
 use futures::channel::oneshot;
+use hickory_resolver::{config::{NameServerConfig, ResolverConfig, ResolverOpts}, Resolver};
 use http_body_util::{BodyExt, Full};
 use hyper::Uri;
 use hyper_util::client::legacy::Client;
@@ -76,6 +77,41 @@ impl Drop for SockHandle {
 }
 
 pub async fn geoip_lookup(mullvad_host: String, timeout: Duration) -> Result<AmIMullvad, Error> {
+
+    let nameserver = "127.31.31.31:53".parse().unwrap();
+
+    log::debug!("!!!");
+    log::debug!("!!!");
+    log::debug!("!!!");
+    log::debug!("!!! HICKORY DNS LOOKUP! servers: {:?}", nameserver);
+    log::debug!("!!!");
+    log::debug!("!!!");
+    log::debug!("!!!");
+
+    // Construct a new Resolver with default configuration options
+    let mut config = ResolverConfig::default();
+    config.add_name_server(NameServerConfig::new(nameserver, hickory_resolver::config::Protocol::Udp));
+    let mut resolver = Resolver::new(
+        config,
+        ResolverOpts::default(),
+    ).unwrap();
+
+    // Lookup the IP addresses associated with a name.
+    // This returns a future that will lookup the IP addresses, it must be run in the Core to
+    //  to get the actual result.
+    let lookup_future = resolver.lookup_ip("www.example.com.");
+
+    match lookup_future {
+        Ok(res) => {
+            log::debug!("LOOKUP: {res:?}");
+
+            // There can be many addresses associated with the name,
+            //  this can return IPv4 and/or IPv6 addresses
+            let _address = res.iter().next().expect("no addresses returned!");
+        }
+        Err(err) => log::error!("FAILED LOOKUP: {err}"),
+    }
+
     let uri = Uri::try_from(format!("https://ipv4.am.i.{mullvad_host}/json"))
         .map_err(|_| Error::InvalidUrl)?;
     http_get_with_timeout(uri, timeout).await

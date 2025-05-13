@@ -3778,6 +3778,7 @@ dependencies = [
  "bytes",
  "colored",
  "futures",
+ "hickory-resolver",
  "http-body-util",
  "hyper",
  "hyper-rustls",

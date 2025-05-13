@@ -30,6 +30,8 @@ http-body-util = "0.1.2"
 tokio-rustls = { version = "0.26.0", features = ["logging", "tls12", "ring"], default-features = false}
 rustls-pemfile = "2.1.3"
 
+hickory-resolver = "*"
+
 [dependencies.tokio-util]
 version = "0.7"
 features = ["codec"]
