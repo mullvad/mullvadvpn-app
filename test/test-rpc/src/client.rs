@@ -203,8 +203,12 @@ impl ServiceClient {
 
     /// Fetch the current location.
     pub async fn geoip_lookup(&self, mullvad_host: String) -> Result<AmIMullvad, Error> {
+        let mut ctx = tarpc::context::current();
+        ctx.deadline = SystemTime::now()
+            .checked_add(DAEMON_RESTART_TIMEOUT)
+            .unwrap();
         self.client
-            .geoip_lookup(tarpc::context::current(), mullvad_host)
+            .geoip_lookup(ctx, mullvad_host)
             .await?
     }
 
