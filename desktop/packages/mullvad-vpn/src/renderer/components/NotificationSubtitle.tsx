@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { InAppNotificationSubtitle } from '../../shared/notifications';
 import { LabelTiny, Link } from '../lib/components';
+import { colors } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
 import { buttonReset } from '../lib/styles';
 import { ExternalLink } from './ExternalLink';
@@ -16,8 +17,11 @@ const StyledExternalLink = styled(ExternalLink)`
   display: flex;
 `;
 
-const StyledLink = styled(Link)({
-  ...buttonReset,
+const StyledLink = styled(Link)(() => {
+  const { color: _, ...reset } = buttonReset;
+  return {
+    ...reset,
+  };
 });
 
 const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
@@ -39,7 +43,7 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
         );
       case 'run-function':
         return (
-          <StyledLink color="whiteAlpha60" forwardedAs="button" {...subtitle.action.button}>
+          <StyledLink color={colors.whiteAlpha60} forwardedAs="button" {...subtitle.action.button}>
             {content}
           </StyledLink>
         );
