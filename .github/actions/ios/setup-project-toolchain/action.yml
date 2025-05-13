@@ -1,0 +1,67 @@
+name: 'Setup project toolchain'
+description: 'Setup Xcode project and install toolchain'
+inputs:
+  ios_rust_target:
+    description: 'iOS target device'
+    type: choice
+    options:
+      - aarch64-apple-ios-sim
+      - aarch64-apple-ios
+    required: true
+  commit_hash:
+    type: string
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set commit hash or default to github.sha
+      id: set-commit-hash
+      run: |
+        # If the input has a value, it is filled by that value; otherwise, use github.sha
+        if [ -n "${{ inputs.commit_hash }}" ]; then
+          echo "COMMIT_HASH=${{ inputs.commit_hash }}" >> $GITHUB_ENV
+        else
+          echo "COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+        fi
+      shell: bash
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        clean: true
+        ref: ${{ env.COMMIT_HASH }}
+
+    - name: Checkout submodules
+      run: |
+        git config --global --add safe.directory '*'
+        git submodule update --init --recursive ios/wireguard-apple
+
+    - name: Configure cache
+      uses: actions/cache@v3
+      with:
+        path: ios/${{ env.SOURCE_PACKAGES_PATH }}
+        key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-
+
+    - name: Setup go-lang
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.21.13
+
+    - name: Configure Rust
+      run: rustup target add ${{ inputs.ios_rust_target }}
+
+    - name: Install xcbeautify
+      run: |
+        brew update
+        brew install xcbeautify
+
+    - name: Install protobuf
+      run: |
+        brew update
+        brew install protobuf
+
+    - name: Configure Xcode project
+      run: uses ./.github/actions/ios/configure-xcode

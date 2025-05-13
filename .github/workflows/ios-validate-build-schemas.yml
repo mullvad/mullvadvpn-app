@@ -24,54 +24,12 @@ jobs:
     runs-on: macos-15-xlarge
     env:
       SOURCE_PACKAGES_PATH: .spm
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Checkout submodules
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --recursive ios/wireguard-apple
-
-      - name: Configure cache
-        uses: actions/cache@v3
+      - name: Setup project
+        uses: ./.github/actions/ios/setup-project-toolchain
         with:
-          path: ios/${{ env.SOURCE_PACKAGES_PATH }}
-          key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
-
-      - name: Setup go-lang
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.21.13
-
-      - name: Configure Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '16.1'
-      - name: Configure Rust
-        run: rustup target add aarch64-apple-ios-sim x86_64-apple-ios
-
-      - name: Configure Xcode project
-        run: |
-          cp Base.xcconfig.template Base.xcconfig
-          cp App.xcconfig.template App.xcconfig
-          cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
-          cp Screenshots.xcconfig.template Screenshots.xcconfig
-          cp Api.xcconfig.template Api.xcconfig
-          cp UITests.xcconfig.template UITests.xcconfig
-        working-directory: ios/Configurations
-
-      - name: Install xcbeautify
-        run: |
-          brew update
-          brew install xcbeautify
-
-      - name: Install protobuf
-        run: |
-          brew update
-          brew install protobuf
+          ios_rust_target: aarch64-apple-ios-sim
 
       - name: Run build validation for Staging and MockRelease configurations as well as the MullvadVPNUITests target
         run: |
