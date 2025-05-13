@@ -243,7 +243,13 @@ impl Firewall {
         anchor_change.set_filter_rules(new_filter_rules);
         if *NAT_WORKAROUND {
             anchor_change.set_nat_rules(self.get_nat_rules(policy)?);
+        } else {
+            // Make sure NAT ruleset is empty
+            anchor_change.set_nat_rules(vec![]);
         }
+        // Make sure redirect ruleset is empty
+        anchor_change.set_redirect_rules(vec![]);
+
         self.pf.set_rules(ANCHOR_NAME, anchor_change)?;
 
         Ok(())
@@ -906,9 +912,9 @@ impl Firewall {
         // remove_anchor() does not deactivate active rules
         self.pf
             .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Filter)?;
-        if *NAT_WORKAROUND {
-            self.pf.flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Nat)?;
-        }
+        self.pf.flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Nat)?;
+        self.pf
+            .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Redirect)?;
         self.pf
             .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Scrub)?;
         Ok(())
@@ -947,8 +953,6 @@ impl Firewall {
         }
         self.pf
             .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)?;
-        self.pf
-            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)?;
         Ok(())
     }
 
