@@ -1,11 +1,11 @@
 import SwiftUI
 
 extension Color {
-    private static let mullvadPrimaryColor = Color(UIColor.primaryColor)
-    private static let mullvadSecondaryColor = Color(UIColor.secondaryColor)
-    private static let mullvadWarningColor = Color(UIColor.warningColor)
-    private static let mullvadDangerColor = Color(UIColor.dangerColor)
-    private static let mullvadSuccessColor = Color(UIColor.successColor)
+    private static let mullvadPrimaryColor = UIColor.primaryColor.color
+    private static let mullvadSecondaryColor = UIColor.secondaryColor.color
+    private static let mullvadWarningColor = UIColor.warningColor.color
+    private static let mullvadDangerColor = UIColor.dangerColor.color
+    private static let mullvadSuccessColor = UIColor.successColor.color
 
     static let mullvadBackground: Color = .mullvadSecondaryColor
     static let mullvadTextPrimary: Color = UIColor.primaryTextColor.color

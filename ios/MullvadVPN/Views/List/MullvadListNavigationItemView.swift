@@ -62,7 +62,7 @@ struct MullvadListNavigationItemView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .frame(minHeight: 56, maxHeight: .infinity)
+            .frame(minHeight: UIMetrics.TableView.rowHeight, maxHeight: .infinity)
             .background(
                 isPressed ? Color.MullvadButton.primaryPressed : Color.MullvadButton
                     .primary

@@ -1121,6 +1121,7 @@
 		F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EF22DC21D8C009595EA /* MullvadList.swift */; };
 		F998EFF82D359C4600D88D01 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
+		F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2540,6 +2541,7 @@
 		F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Font+Mullvad.swift"; sourceTree = "<group>"; };
 		F91B94A62DC9EB5E00132C28 /* MullvadInfoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadInfoHeaderView.swift; sourceTree = "<group>"; };
 		F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Sorting.swift"; sourceTree = "<group>"; };
+		F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessViewModelBridge.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -4008,6 +4010,7 @@
 		58CEB2EA2AFBBCBA00E6E088 /* List */ = {
 			isa = PBXGroup;
 			children = (
+				F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */,
 				58EFC76D2AFB3BDA00E9F4CB /* ListAccessMethodCoordinator.swift */,
 				588D7EDF2AF3A595005DF40A /* ListAccessMethodInteractor.swift */,
 				588D7EDB2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift */,
@@ -6244,6 +6247,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				44075DFB2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift in Sources */,
+				F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */,
 				7A6389DC2B7E3BD6008E77E1 /* CustomListViewModel.swift in Sources */,
 				4422C0712CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift in Sources */,
 				7A95B67D2D5F7C5B00687524 /* DAITASettingsCoordinator.swift in Sources */,
