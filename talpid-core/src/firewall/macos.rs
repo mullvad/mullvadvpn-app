@@ -240,13 +240,18 @@ impl Firewall {
         anchor_change.set_filter_rules(new_filter_rules);
         if *NAT_WORKAROUND {
             anchor_change.set_nat_rules(self.get_nat_rules(policy)?);
+        } else {
+            // Clear NAT rules that some previous version may have set.
+            // Removing anchors alone is insufficient here, as it doesn't
+            // affect active rules.
+            anchor_change.set_nat_rules(vec![]);
         }
-        self.pf.set_rules(ANCHOR_NAME, anchor_change)?;
+        // Clear redirect rules that some previous version may have set.
+        // Removing anchors alone is insufficient here, as it doesn't
+        // affect active rules.
+        anchor_change.set_redirect_rules(vec![]);
 
-        // FIXME: TEST: remove delete rules we don't care about
-        self.pf.flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Nat)?;
-        self.pf
-            .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Redirect)?;
+        self.pf.set_rules(ANCHOR_NAME, anchor_change)?;
 
         Ok(())
     }
@@ -949,8 +954,6 @@ impl Firewall {
         }
         self.pf
             .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)?;
-        self.pf
-            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)?;
         Ok(())
     }
 
