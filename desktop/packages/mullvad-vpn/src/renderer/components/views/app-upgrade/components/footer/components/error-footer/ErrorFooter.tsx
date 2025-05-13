@@ -22,8 +22,9 @@ export function ErrorFooter() {
         <DownloadProgress />
       </Flex>
       <Flex $gap="medium" $flexDirection="column">
+        {showManualDownloadLink && <ManualDownloadLink />}
         <ReportProblemButton />
-        {showManualDownloadLink ? <ManualDownloadLink /> : <RetryButton />}
+        <RetryButton />
       </Flex>
     </Flex>
   );
