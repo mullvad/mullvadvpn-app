@@ -1,2 +1,2 @@
 export * from './useMessage';
-export * from './useShowManualDownloadButton';
+export * from './useShowManualDownloadLink';
