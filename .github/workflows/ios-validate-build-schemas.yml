@@ -28,11 +28,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
-        with:
-          ios_rust_target: aarch64-apple-ios-sim
 
       - name: Run build validation for Staging and MockRelease configurations as well as the MullvadVPNUITests target
         run: |
