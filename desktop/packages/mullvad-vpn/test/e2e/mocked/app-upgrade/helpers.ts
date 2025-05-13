@@ -78,9 +78,9 @@ export const createSelectors = (page: Page) => ({
     page.getByRole('button', {
       name: 'Install update',
     }),
-  manualDownloadButton: () =>
-    page.getByRole('button', {
-      name: 'Manual download',
+  manualDownloadLink: () =>
+    page.getByRole('link', {
+      name: 'Having problems? Try downloading the app from our website',
     }),
   pauseButton: () =>
     page.getByRole('button', {
