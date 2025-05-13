@@ -243,6 +243,11 @@ impl Firewall {
         }
         self.pf.set_rules(ANCHOR_NAME, anchor_change)?;
 
+        // FIXME: TEST: remove delete rules we don't care about
+        self.pf.flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Nat)?;
+        self.pf
+            .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Redirect)?;
+
         Ok(())
     }
 
