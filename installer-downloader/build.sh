@@ -217,11 +217,11 @@ function sign_macos {
     fi
 }
 
-# Build app bundle and dmg, and optionally sign it.
+# Build app bundle and zip, and optionally sign it.
 # If `$SIGN` is false, the app bundle is only ad-hoc signed.
 function dist_macos_app {
     local app_path="$BUILD_DIR/$FILENAME.app/"
-    local dmg_path="$BUILD_DIR/$FILENAME.dmg"
+    local zip_path="$BUILD_DIR/$FILENAME.zip"
 
     # Build app bundle
     log_info "Building $app_path..."
@@ -248,17 +248,16 @@ function dist_macos_app {
     fi
     sign_macos "$app_path"
 
-    # Pack in .dmg
-    log_info "Creating $dmg_path image..."
-    hdiutil create -volname "$FILENAME" -srcfolder "$app_path" -ov -format UDZO \
-        "$dmg_path"
+    # Pack in .zip
+    log_info "Creating $zip_path..."
+    (cd "$BUILD_DIR"; zip -r "$zip_path" "$FILENAME.app")
 
     # Sign .dmg
-    sign_macos "$dmg_path"
+    sign_macos "$zip_path"
 
-    # Notarize .dmg
+    # Notarize .zip
     if [[ "$SIGN" != "false" ]]; then
-        notarize_mac "$dmg_path"
+        notarize_mac "$zip_path"
     fi
 
     # Move to dist dir
@@ -266,7 +265,7 @@ function dist_macos_app {
     rm -rf "$DIST_DIR/$FILENAME.app/"
     rm -rf "$DIST_DIR/$FILENAME.dmg"
     mv "$app_path" "$DIST_DIR/"
-    mv "$dmg_path" "$DIST_DIR/"
+    mv "$zip_path" "$DIST_DIR/"
 }
 
 # Notarize and staple a file.

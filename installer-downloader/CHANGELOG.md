@@ -21,6 +21,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Changed
+#### macOS
+- Pack downloader in a zip file instead of disk image.
+
 ### Fixed
 #### Windows
 - Use default font instead of Segoe Fluent Icons for back arrow.
