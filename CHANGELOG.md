@@ -24,6 +24,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2025.6] - 2025-05-13
+This release is identical to 2025.6-beta2.
+
+
 ## [2025.6-beta2] - 2025-05-07
 ### Fixed
 - Fix "No OpenVPN servers" warning being displayed erroneously.
