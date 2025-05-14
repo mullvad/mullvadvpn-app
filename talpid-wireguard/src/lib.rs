@@ -110,9 +110,8 @@ impl Error {
             Error::TunnelError(TunnelError::BypassError(_)) => true,
 
             #[cfg(windows)]
-            _ => self.get_tunnel_device_error().is_some(),
+            Error::TunnelError(TunnelError::SetupTunnelDevice(_)) => true,
 
-            #[cfg(not(windows))]
             _ => false,
         }
     }
@@ -121,7 +120,9 @@ impl Error {
     #[cfg(windows)]
     pub fn get_tunnel_device_error(&self) -> Option<&io::Error> {
         match self {
-            Error::TunnelError(TunnelError::SetupTunnelDevice(error)) => Some(error),
+            Error::TunnelError(TunnelError::SetupTunnelDevice(tun_provider::Error::Io(error))) => {
+                Some(error)
+            }
             _ => None,
         }
     }
@@ -1074,20 +1075,9 @@ pub enum TunnelError {
     #[error("Failed to duplicate tunnel file descriptor for wireguard-go")]
     FdDuplicationError(#[source] nix::Error),
 
-    /// Failed to setup a tunnel device.
-    #[cfg(not(windows))]
+    /// Failed to set up a tunnel device
     #[error("Failed to create tunnel device")]
     SetupTunnelDevice(#[source] tun_provider::Error),
-
-    /// Failed to set up a tunnel device
-    #[cfg(windows)]
-    #[error("Failed to create tunnel device")]
-    SetupTunnelDevice(#[source] io::Error),
-
-    /// Failed to set up a tunnel device
-    #[cfg(windows)]
-    #[error("Failed to create tunnel device")]
-    SetupTunnelDevice2(#[source] tun_provider::Error),
 
     /// Failed to setup a tunnel device.
     #[cfg(windows)]
