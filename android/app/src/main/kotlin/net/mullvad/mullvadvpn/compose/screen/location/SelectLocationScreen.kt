@@ -316,12 +316,17 @@ fun SelectLocationScreen(
                     Loading()
                 }
                 is Lc.Content -> {
+                    if (state.value.multihopEnabled) {
+                        MultihopBar(state.value.relayListType, onSelectRelayList)
+                    }
+
                     AnimatedContent(
                         targetState = state.value.filterChips,
                         label = "Select location top bar",
                     ) { filterChips ->
                         if (filterChips.isNotEmpty()) {
                             FilterRow(
+                                modifier = Modifier.padding(bottom = Dimens.smallPadding),
                                 filters = filterChips,
                                 onRemoveOwnershipFilter = removeOwnershipFilter,
                                 onRemoveProviderFilter = removeProviderFilter,
@@ -329,12 +334,8 @@ fun SelectLocationScreen(
                         }
                     }
 
-                    if (state.value.multihopEnabled) {
-                        MultihopBar(state.value.relayListType, onSelectRelayList)
-                    }
-
-                    if (state.value.filterChips.isNotEmpty() || state.value.multihopEnabled) {
-                        Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
+                    if (state.value.multihopEnabled && state.value.filterChips.isEmpty()) {
+                        Spacer(modifier = Modifier.height(Dimens.smallPadding))
                     }
 
                     RelayLists(
@@ -356,7 +357,12 @@ fun SelectLocationScreen(
 private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayListType) -> Unit) {
     SingleChoiceSegmentedButtonRow(
         modifier =
-            Modifier.fillMaxWidth().padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
+            Modifier.fillMaxWidth()
+                .padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    bottom = Dimens.smallPadding,
+                )
     ) {
         MullvadSegmentedStartButton(
             selected = relayListType == RelayListType.ENTRY,
