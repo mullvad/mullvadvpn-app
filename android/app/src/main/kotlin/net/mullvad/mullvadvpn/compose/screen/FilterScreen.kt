@@ -122,7 +122,7 @@ fun FilterScreen(
                 OwnershipHeader(ownershipExpanded) { ownershipExpanded = it }
             }
             if (ownershipExpanded) {
-                item(key = Keys.OWNERSHIP_ALL, contentType = ContentType.ITEM) {
+                itemWithDivider (key = Keys.OWNERSHIP_ALL, contentType = ContentType.ITEM) {
                     AnyOwnership(state, { onSelectedOwnership(Constraint.Any) })
                 }
                 itemsWithDivider(
