@@ -271,7 +271,7 @@ fn get_tunnel_for_userspace(
     #[cfg(windows)]
     tun_provider
         .open_tun()
-        .map_err(TunnelError::SetupTunnelDevice2)
+        .map_err(TunnelError::SetupTunnelDevice)
 }
 
 #[cfg(all(not(target_os = "android"), unix))]
