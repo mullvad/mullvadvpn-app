@@ -12,6 +12,7 @@ import {
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { removeNonNumericCharacters } from '../../shared/string-helpers';
+import { isInRanges } from '../../shared/utils';
 import { useAppContext } from '../context';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
@@ -133,7 +134,7 @@ function PortSelector() {
   const parseValue = useCallback((port: string) => parseInt(port), []);
 
   const validateValue = useCallback(
-    (value: number) => allowedPortRanges.some(([start, end]) => value >= start && value <= end),
+    (value: number) => isInRanges(value, allowedPortRanges),
     [allowedPortRanges],
   );
 
