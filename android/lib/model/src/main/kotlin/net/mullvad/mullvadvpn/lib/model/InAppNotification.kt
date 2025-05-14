@@ -14,7 +14,12 @@ sealed class InAppNotification {
     abstract val priority: Long
 
     data class TunnelStateError(val error: ErrorState) : InAppNotification() {
-        override val statusLevel = StatusLevel.Error
+        override val statusLevel =
+            if (error.cause is ErrorStateCause.IsOffline) {
+                StatusLevel.Warning
+            } else {
+                StatusLevel.Error
+            }
         override val priority: Long = 1001
     }
 

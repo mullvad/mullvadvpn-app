@@ -90,7 +90,7 @@ fun InAppNotification.toNotificationData(
                         stringResource(id = R.string.new_device_notification_message, deviceName)
                             .formatWithHtml()
                     ),
-                statusLevel = StatusLevel.Info,
+                statusLevel = statusLevel,
                 action =
                     NotificationAction(
                         Icons.Default.Clear,
@@ -102,7 +102,7 @@ fun InAppNotification.toNotificationData(
             NotificationData(
                 title = stringResource(id = R.string.account_credit_expires_soon),
                 message = LocalContext.current.resources.getExpiryQuantityString(expiry),
-                statusLevel = StatusLevel.Error,
+                statusLevel = statusLevel,
                 action =
                     if (isPlayBuild) null
                     else
@@ -118,12 +118,12 @@ fun InAppNotification.toNotificationData(
                 statusLevel = StatusLevel.None,
             )
         is InAppNotification.TunnelStateError ->
-            errorMessageBannerData(error, onClickShowWireguardPortSettings)
+            errorMessageBannerData(statusLevel, error, onClickShowWireguardPortSettings)
         is InAppNotification.UnsupportedVersion ->
             NotificationData(
                 title = stringResource(id = R.string.unsupported_version),
                 message = stringResource(id = R.string.unsupported_version_description),
-                statusLevel = StatusLevel.Error,
+                statusLevel = statusLevel,
                 action =
                     NotificationAction(
                         Icons.AutoMirrored.Default.OpenInNew,
@@ -150,7 +150,7 @@ fun InAppNotification.toNotificationData(
                         contentDescription =
                             stringResource(id = R.string.new_changelog_notification_message),
                     ),
-                statusLevel = StatusLevel.Info,
+                statusLevel = statusLevel,
                 action =
                     NotificationAction(
                         Icons.Default.Clear,
@@ -162,13 +162,14 @@ fun InAppNotification.toNotificationData(
 
 @Composable
 private fun errorMessageBannerData(
+    statusLevel: StatusLevel,
     error: ErrorState,
     onClickShowWireguardPortSettings: () -> Unit,
 ) =
     NotificationData(
         title = error.title().formatWithHtml(),
         message = NotificationMessage.Text(error.message(onClickShowWireguardPortSettings)),
-        statusLevel = StatusLevel.Error,
+        statusLevel = statusLevel,
     )
 
 @Composable
