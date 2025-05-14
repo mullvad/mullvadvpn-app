@@ -1,9 +1,17 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
+import { getDefaultSettings } from '../../../src/main/default-settings';
 import { colors } from '../../../src/renderer/lib/foundations';
 import { RoutePath } from '../../../src/renderer/lib/routes';
-import { IAccountData } from '../../../src/shared/daemon-rpc-types';
+import {
+  Constraint,
+  ErrorStateCause,
+  IAccountData,
+  IRelayListWithEndpointData,
+  ISettings,
+  TunnelState,
+} from '../../../src/shared/daemon-rpc-types';
 import { getBackgroundColor } from '../utils';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
@@ -51,4 +59,103 @@ test('App should notify user about account expiring soon', async () => {
   });
   subTitle = page.getByTestId('notificationSubTitle');
   await expect(subTitle).toContainText(/less than a day left\. buy more credit\./i);
+});
+
+test.describe('Unsupported wireguard port', () => {
+  const portRanges: [number, number][] = [
+    [1, 50],
+    [51, 100],
+  ];
+  const portInRange = portRanges[0][0];
+  const portOutOfRange = portRanges[1][1] + 1;
+  const cases: {
+    name: string;
+    port: Constraint<number>;
+    tunnelState: TunnelState;
+    expectVisible: boolean;
+  }[] = [
+    {
+      name: 'Should not show notification when any port is allowed',
+      port: 'any',
+      tunnelState: {
+        state: 'error',
+        details: { cause: ErrorStateCause.startTunnelError },
+      },
+      expectVisible: false,
+    },
+    {
+      name: 'Should not show notification when port is in range',
+      port: { only: portInRange },
+      tunnelState: {
+        state: 'error',
+        details: { cause: ErrorStateCause.startTunnelError },
+      },
+      expectVisible: false,
+    },
+    {
+      name: 'Should not show notification when tunnel is not in error state',
+      port: { only: portOutOfRange },
+      tunnelState: {
+        state: 'connected',
+        details: {
+          endpoint: {
+            address: '',
+            daita: false,
+            protocol: 'tcp',
+            quantumResistant: false,
+            tunnelType: 'wireguard',
+          },
+        },
+      },
+      expectVisible: false,
+    },
+    {
+      name: 'Should show notification when port is out of range',
+      port: { only: portOutOfRange },
+      tunnelState: {
+        state: 'error',
+        details: { cause: ErrorStateCause.startTunnelError },
+      },
+      expectVisible: true,
+    },
+  ];
+  cases.forEach(({ name, port, tunnelState, expectVisible }) => {
+    test(name, async () => {
+      const settings = getDefaultSettings();
+      if ('normal' in settings.relaySettings) {
+        settings.relaySettings.normal.wireguardConstraints.port = port;
+        settings;
+      }
+      await util.sendMockIpcResponse<ISettings>({
+        channel: 'settings-',
+        response: settings,
+      });
+
+      await util.sendMockIpcResponse<IRelayListWithEndpointData>({
+        channel: 'relays-',
+        response: {
+          relayList: {
+            countries: [],
+          },
+          wireguardEndpointData: {
+            portRanges,
+            udp2tcpPorts: [],
+          },
+        },
+      });
+
+      await util.sendMockIpcResponse<TunnelState>({
+        channel: 'tunnel-',
+        response: tunnelState,
+      });
+      const title = page.getByTestId('notificationTitle');
+      const subTitle = page.getByTestId('notificationSubTitle');
+      if (expectVisible) {
+        await expect(title).toHaveText('BLOCKING INTERNET');
+        await expect(subTitle).toContainText(/The selected WireGuard port is not supported/i);
+      } else {
+        await expect(subTitle).not.toContainText(/The selected WireGuard port is not supported/i);
+      }
+    });
+  });
 });
