@@ -119,7 +119,7 @@ class RelaySelectorTests: XCTestCase {
         )
         let allPorts = portRanges.flatMap { $0 }
 
-        var result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
+        let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
         XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
     }
 
