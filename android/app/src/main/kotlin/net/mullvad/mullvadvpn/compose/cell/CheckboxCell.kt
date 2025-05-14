@@ -33,7 +33,7 @@ internal fun CheckboxCell(
     checked: Boolean,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
-    background: Color = MaterialTheme.colorScheme.surfaceContainerLow,
+    background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     startPadding: Dp = Dimens.mediumPadding,
     endPadding: Dp = Dimens.cellEndPadding,
     minHeight: Dp = Dimens.cellHeight,
@@ -49,8 +49,6 @@ internal fun CheckboxCell(
                 .padding(start = startPadding, end = endPadding),
     ) {
         MullvadCheckbox(checked = checked, onCheckedChange = onCheckedChange)
-
-        Spacer(modifier = Modifier.size(Dimens.mediumPadding))
 
         Text(
             text = title,
