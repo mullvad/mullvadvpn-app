@@ -169,6 +169,7 @@ fun ScaffoldWithMediumTopBar(
     actions: @Composable RowScope.() -> Unit = {},
     scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    bottomBar: @Composable () -> Unit = {},
     content: @Composable (modifier: Modifier) -> Unit,
 ) {
     val appBarState = rememberTopAppBarState()
@@ -186,6 +187,7 @@ fun ScaffoldWithMediumTopBar(
                 scrollBehavior = scrollBehavior,
             )
         },
+        bottomBar = bottomBar,
         snackbarHost = {
             SnackbarHost(
                 snackbarHostState,

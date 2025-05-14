@@ -17,6 +17,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
@@ -52,8 +53,9 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithLargeTopBarAndButton
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -67,7 +69,7 @@ import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 @Preview
 @Composable
 private fun PreviewAutoConnectAndLockdownModeScreen() {
-    AppTheme { AutoConnectAndLockdownModeScreen({}) }
+    AppTheme { AutoConnectAndLockdownModeScreen {} }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -79,11 +81,27 @@ fun AutoConnectAndLockdownMode(navigator: DestinationsNavigator) {
 @Composable
 fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
-    ScaffoldWithLargeTopBarAndButton(
+    ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.auto_connect_and_lockdown_mode),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        buttonTitle = stringResource(id = R.string.go_to_vpn_settings),
-        onButtonClick = { context.openVpnSettings() },
+        bottomBar = {
+            PrimaryButton(
+                text = stringResource(id = R.string.go_to_vpn_settings),
+                onClick = { context.openVpnSettings() },
+                modifier =
+                    Modifier.padding(
+                        horizontal = Dimens.sideMargin,
+                        vertical = Dimens.screenBottomMargin,
+                    ),
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        contentDescription = null,
+                    )
+                },
+            )
+        },
         content = { modifier ->
             Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
                 val pagerState = rememberPagerState(pageCount = { PAGES.entries.size })
