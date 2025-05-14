@@ -23,6 +23,7 @@ import {
   NewVersionNotificationProvider,
   NoOpenVpnServerAvailableNotificationProvider,
   OpenVpnSupportEndingNotificationProvider,
+  UnsupportedWireGuardPortNotificationProvider,
 } from '../lib/notifications';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
@@ -55,6 +56,8 @@ export default function NotificationArea(props: IProps) {
   const version = useSelector((state: IReduxState) => state.version);
   const tunnelProtocol = useTunnelProtocol();
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
+  const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
 
   const blockWhenDisconnected = useSelector(
     (state: IReduxState) => state.settings.blockWhenDisconnected,
@@ -98,6 +101,12 @@ export default function NotificationArea(props: IProps) {
       connection,
       tunnelProtocol,
       relayLocations: fullRelayList,
+    }),
+    new UnsupportedWireGuardPortNotificationProvider({
+      connection,
+      relaySettings,
+      tunnelProtocol,
+      allowedPortRanges,
     }),
     new ErrorNotificationProvider({
       tunnelState,
