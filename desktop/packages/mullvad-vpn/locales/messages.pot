@@ -2091,10 +2091,6 @@ msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr ""
 
-msgctxt "support-view"
-msgid "Beta program"
-msgstr ""
-
 #. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
