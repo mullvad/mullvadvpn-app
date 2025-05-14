@@ -154,7 +154,7 @@ private fun ReportProblemScreen(
                         .padding(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
-                            bottom = Dimens.verticalSpace,
+                            bottom = Dimens.screenBottomMargin,
                         )
                         .height(IntrinsicSize.Max),
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),

@@ -11,7 +11,6 @@ data class Dimensions(
     val bottomPadding: Dp = 4.dp,
     val buttonHeight: Dp = 44.dp,
     val buttonSpacing: Dp = 8.dp,
-    val buttonVerticalPadding: Dp = 8.dp,
     val cellEndPadding: Dp = 16.dp,
     val cellFooterTopPadding: Dp = 6.dp,
     val cellHeight: Dp = 56.dp,

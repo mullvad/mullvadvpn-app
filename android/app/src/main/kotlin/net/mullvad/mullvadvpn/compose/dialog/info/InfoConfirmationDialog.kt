@@ -149,7 +149,7 @@ fun <T> InfoConfirmationDialog(
                 null
             },
         confirmButton = {
-            Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonVerticalPadding)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = confirmButtonTitle,
