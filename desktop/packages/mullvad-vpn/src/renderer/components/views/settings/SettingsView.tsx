@@ -59,14 +59,15 @@ export function SettingsView() {
 
             <Flex $flexDirection="column" $gap="medium">
               {showSubSettings ? (
-                <Flex $flexDirection="column">
-                  <DaitaListItem />
-                  <MultihopListItem />
-                  <VpnSettingsListItem />
-                  <UserInterfaceSettingsListItem />
-
+                <>
+                  <Flex $flexDirection="column">
+                    <DaitaListItem />
+                    <MultihopListItem />
+                    <VpnSettingsListItem />
+                    <UserInterfaceSettingsListItem />
+                  </Flex>
                   {showSplitTunneling && <SplitTunnelingListItem />}
-                </Flex>
+                </>
               ) : (
                 <UserInterfaceSettingsListItem />
               )}
