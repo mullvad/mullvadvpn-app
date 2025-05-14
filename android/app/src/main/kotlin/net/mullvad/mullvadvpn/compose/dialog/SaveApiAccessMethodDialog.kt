@@ -20,7 +20,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.preview.SaveApiAccessMethodUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SaveApiAccessMethodUiState
 import net.mullvad.mullvadvpn.compose.state.TestApiAccessMethodState
@@ -90,18 +90,14 @@ fun SaveApiAccessMethodDialog(
                         painter =
                             painterResource(
                                 id =
-                                    if (
-                                        testingState is TestApiAccessMethodState.Result.Successful
-                                    ) {
+                                    if (testingState is TestApiAccessMethodState.Result.Successful)
                                         R.drawable.icon_success
-                                    } else {
-                                        R.drawable.icon_fail
-                                    }
+                                    else R.drawable.icon_fail
                             ),
                         contentDescription = null,
                     )
                 TestApiAccessMethodState.Testing ->
-                    MullvadCircularProgressIndicatorMedium(
+                    MullvadCircularProgressIndicatorLarge(
                         modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG)
                     )
             }

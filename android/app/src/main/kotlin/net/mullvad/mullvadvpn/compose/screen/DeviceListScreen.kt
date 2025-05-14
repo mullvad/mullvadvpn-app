@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -145,11 +144,15 @@ fun DeviceListScreen(
         onAccountClicked = null,
         snackbarHostState = snackbarHostState,
     ) {
-        Column(modifier = Modifier.fillMaxSize().padding(it)) {
+        Column(
+            modifier =
+                Modifier.fillMaxSize().padding(it).padding(bottom = Dimens.screenBottomMargin)
+        ) {
             val scrollState = rememberScrollState()
             Column(
                 modifier =
                     Modifier.drawVerticalScrollbar(scrollState, MaterialTheme.colorScheme.onSurface)
+                        .padding(top = Dimens.screenTopMargin)
                         .verticalScroll(scrollState)
                         .weight(1f)
                         .fillMaxWidth()
@@ -221,25 +224,17 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                             }
                     ),
                 contentDescription = null, // No meaningful user info or action.
-                modifier =
-                    Modifier.align(Alignment.CenterHorizontally)
-                        .padding(top = Dimens.iconFailSuccessTopMargin)
-                        .size(Dimens.bigIconSize),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             )
         is DeviceListUiState.Error ->
             Image(
                 painter = painterResource(id = R.drawable.icon_fail),
                 contentDescription = null, // No meaningful user info or action.
-                modifier =
-                    Modifier.align(Alignment.CenterHorizontally)
-                        .padding(top = Dimens.iconFailSuccessTopMargin)
-                        .size(Dimens.bigIconSize),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             )
         DeviceListUiState.Loading ->
             MullvadCircularProgressIndicatorLarge(
-                modifier =
-                    Modifier.align(Alignment.CenterHorizontally)
-                        .padding(top = Dimens.iconFailSuccessTopMargin)
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
     }
 
@@ -301,7 +296,6 @@ private fun DeviceListButtonPanel(
                 start = Dimens.sideMargin,
                 end = Dimens.sideMargin,
                 top = Dimens.spacingAboveButton,
-                bottom = Dimens.screenBottomMargin,
             )
     ) {
         VariantButton(
