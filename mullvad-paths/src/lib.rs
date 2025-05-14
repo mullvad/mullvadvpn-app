@@ -85,7 +85,16 @@ fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathBuf> 
             "Removing directory with unexpected ownership or permissions: {}",
             dir.display()
         );
-        fs::remove_dir_all(&dir).map_err(|e| Error::RemoveDir(dir.display().to_string(), e))?;
+        fs::remove_dir_all(&dir)
+            .or_else(|err| {
+                // ENOTDIR: If the path is not a directory, try to remove the file
+                if err.raw_os_error() == Some(20) {
+                    fs::remove_file(&dir)
+                } else {
+                    Err(err)
+                }
+            })
+            .map_err(|e| Error::RemoveDir(dir.display().to_string(), e))?;
     }
     fs::create_dir_all(&dir).map_err(|e| Error::CreateDirFailed(dir.display().to_string(), e))?;
     if let Some(fs_perms) = fs_perms {
@@ -97,11 +106,14 @@ fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathBuf> 
 
 #[cfg(unix)]
 fn dir_is_root_owned(dir: &Path, perms: Option<fs::Permissions>) -> Result<bool> {
-    use std::os::unix::fs::MetadataExt;
+    use std::os::unix::fs::{MetadataExt, PermissionsExt};
+
+    const DIR_BIT: u32 = 0o040000;
+
     let meta = fs::symlink_metadata(&dir)
         .map_err(|e| Error::GetDirPermissionFailed(dir.display().to_string(), e))?;
     let matching_perms = perms
-        .map(|perms| perms == meta.permissions())
+        .map(|perms| perms.mode() == meta.permissions().mode() & (!DIR_BIT))
         .unwrap_or(true);
     Ok(matching_perms && meta.uid() == 0)
 }
