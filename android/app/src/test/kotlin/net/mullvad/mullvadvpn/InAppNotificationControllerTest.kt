@@ -84,6 +84,7 @@ class InAppNotificationControllerTest {
         newVersionChangelogNotifications.value = listOf(newVersionChangelog)
 
         val errorState: ErrorState = mockk()
+        every { errorState.cause } returns mockk()
         val tunnelStateBlocked = InAppNotification.TunnelStateBlocked
         val tunnelStateError = InAppNotification.TunnelStateError(errorState)
         tunnelStateNotifications.value = listOf(tunnelStateBlocked, tunnelStateError)
