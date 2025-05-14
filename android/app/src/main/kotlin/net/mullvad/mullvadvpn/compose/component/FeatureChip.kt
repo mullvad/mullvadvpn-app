@@ -34,7 +34,7 @@ fun MullvadFeatureChip(
         shape = MaterialTheme.shapes.chipShape,
         colors =
             FilterChipDefaults.filterChipColors(
-                disabledContainerColor = containerColor,
+                containerColor = containerColor,
                 disabledLabelColor = labelColor,
                 labelColor = labelColor,
                 iconColor = iconColor,
