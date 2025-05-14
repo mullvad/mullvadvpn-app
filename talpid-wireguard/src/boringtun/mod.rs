@@ -36,10 +36,6 @@ pub async fn open_boringtun_tunnel(
     log_path: Option<&Path>,
     tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
     #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
-    //#[cfg(target_os = "android")] gateway_only: bool,
-    //#[cfg(target_os = "android")] connectivity_check: connectivity::Check<
-    //    connectivity::Cancellable,
-    //>,
 ) -> super::Result<BoringTun> {
     let routes = config
         .get_tunnel_destinations()
