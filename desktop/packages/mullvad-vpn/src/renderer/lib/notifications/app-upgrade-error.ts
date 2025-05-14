@@ -49,7 +49,7 @@ export class AppUpgradeErrorNotificationProvider implements InAppNotificationPro
             {
               content:
                 // TRANSLATORS: Notification subtitle when the installer verification failed.
-                messages.pgettext('in-app-notifications', 'Installer could not be verified.'),
+                messages.pgettext('in-app-notifications', 'The installer could not be verified.'),
             },
             retrySubtitle,
           ],
