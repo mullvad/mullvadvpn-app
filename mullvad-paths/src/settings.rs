@@ -6,12 +6,12 @@ use std::{env, path::PathBuf};
 pub fn settings_dir() -> Result<PathBuf> {
     #[cfg(not(target_os = "windows"))]
     {
-        crate::create_and_return(get_settings_dir, None)
+        crate::create_and_return(get_settings_dir()?, None)
     }
 
     #[cfg(target_os = "windows")]
     {
-        crate::create_and_return(get_settings_dir, false)
+        crate::create_and_return(get_settings_dir()?, false)
     }
 }
 
