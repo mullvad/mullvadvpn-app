@@ -20,7 +20,8 @@ function get_test_utils_dir {
 }
 
 # Infer stable version from GitHub repo
-RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
+RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | \
+    jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios") or startswith("desktop/installer"))) | not))]')
 LATEST_STABLE_RELEASE=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_name' <<<"$RELEASES")
 
 commit=$(git rev-parse HEAD^\{commit\})
