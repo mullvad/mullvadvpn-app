@@ -6,9 +6,7 @@ use std::{env, path::PathBuf};
 pub fn log_dir() -> Result<PathBuf> {
     #[cfg(unix)]
     {
-        use std::os::unix::fs::PermissionsExt;
-        let permissions = Some(PermissionsExt::from_mode(0o755));
-        crate::create_and_return(get_log_dir()?, permissions)
+        crate::create_and_return(get_log_dir()?, crate::Permissions::ReadExecOnly)
     }
     #[cfg(target_os = "windows")]
     {
