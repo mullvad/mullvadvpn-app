@@ -257,8 +257,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             .foregroundColor(
                 customValueIsFocused
                     ? customValueInputIsInvalid
-                    ? Color(UIColor.TextField.invalidInputTextColor)
-                    : Color(UIColor.TextField.textColor)
+                        ? Color(UIColor.TextField.invalidInputTextColor)
+                        : Color(UIColor.TextField.textColor)
                     : Color(UIColor.TextField.inactiveTextColor)
             )
             .background(

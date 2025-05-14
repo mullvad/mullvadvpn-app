@@ -1,57 +1,25 @@
 import SwiftUI
 
 extension Font {
-    private struct Size {
-        static let big: CGFloat = 34
-        static let large: CGFloat = 28
-        static let medium: CGFloat = 20
-        static let small: CGFloat = 17
-        static let tiny: CGFloat = 15
-        static let mini: CGFloat = 13
-    }
+    static let mullvadBig: Font = .largeTitle.bold()
+    static let mullvadLarge: Font = .title.bold()
+    static let mullvadMedium: Font = .title3.weight(.semibold)
+    static let mullvadSmall: Font = .body
+    static let mullvadSmallSemiBold: Font = mullvadSmall.weight(.semibold)
+    static let mullvadTiny: Font = .subheadline
+    static let mullvadTinySemiBold: Font = .mullvadTiny.weight(.semibold)
+    static let mullvadMini: Font = .footnote
+    static let mullvadMiniSemiBold: Font = mullvadMini.weight(.semibold)
+}
 
-    static let mullvadBig: Font = .system(
-        size: Size.big,
-        weight: .bold,
-        design: .default
-    )
-    static let mullvadLarge: Font = .system(
-        size: Size.large,
-        weight: .bold, design: .default
-    )
-    static let mullvadMedium: Font = .system(
-        size: Size.medium,
-        weight: .semibold,
-        design: .default
-    )
-    static let mullvadSmallSemiBold: Font = .system(
-        size: Size.small,
-        weight: .semibold,
-        design: .default
-    )
-    static let mullvadSmall: Font = .system(
-        size: Size.small,
-        weight: .regular,
-        design: .default
-    )
-    static let mullvadTiny: Font = .system(
-        size: Size.tiny,
-        weight: .regular,
-        design: .default
-    )
-    static let mullvadTinySemiBold: Font = .system(
-        size: Size.tiny,
-        weight: .semibold,
-        design: .default
-    )
-    static let mullvadMiniSemiBold: Font = .system(
-        size: Size.mini,
-        weight: .semibold,
-        design: .default
-    )
-    static let mullvadMini: Font = .system(
-        size: Size.mini,
-        weight: .regular,
-        design: .default
-    )
+extension UIFont {
+    static let mullvadBig: UIFont = .preferredFont(forTextStyle: .largeTitle, weight: .bold)
+    static let mullvadLarge: UIFont = .preferredFont(forTextStyle: .title1, weight: .bold)
+    static let mullvadMedium: UIFont = .preferredFont(forTextStyle: .title3, weight: .semibold)
+    static let mullvadSmall: UIFont = .preferredFont(forTextStyle: .body)
+    static let mullvadSmallSemiBold: UIFont = .preferredFont(forTextStyle: .body, weight: .semibold)
+    static let mullvadTiny: UIFont = .preferredFont(forTextStyle: .subheadline)
+    static let mullvadTinySemiBold: UIFont = .preferredFont(forTextStyle: .subheadline, weight: .semibold)
+    static let mullvadMini: UIFont = .preferredFont(forTextStyle: .footnote)
+    static let mullvadMiniSemiBold: UIFont = .preferredFont(forTextStyle: .footnote, weight: .semibold)
 }

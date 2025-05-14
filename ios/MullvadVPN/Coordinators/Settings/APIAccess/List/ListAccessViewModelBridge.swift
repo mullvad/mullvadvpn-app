@@ -6,8 +6,10 @@ class ListAccessViewModelBridge: ListAccessViewModel {
 
     @Published var items: [ListAccessMethodItem] = []
     @Published var itemInUse: ListAccessMethodItem?
-    init(interactor: ListAccessMethodInteractorProtocol,
-         delegate: ListAccessMethodViewControllerDelegate?) {
+    init(
+        interactor: ListAccessMethodInteractorProtocol,
+        delegate: ListAccessMethodViewControllerDelegate?
+    ) {
         self.interactor = interactor
         self.delegate = delegate
         interactor.itemsPublisher.assign(to: &$items)
