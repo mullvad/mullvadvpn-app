@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
@@ -40,13 +41,7 @@ class WelcomeViewModel(
     val uiState =
         combine(
                 connectionProxy.tunnelState,
-                deviceRepository.deviceState.filterNotNull().onEach {
-                    viewModelScope.launch {
-                        it.accountNumber()?.let { accountNumber ->
-                            _uiSideEffect.send(UiSideEffect.StoreCredentialsRequest(accountNumber))
-                        }
-                    }
-                },
+                deviceRepository.deviceState.filterNotNull(),
                 paymentUseCase.paymentAvailability,
             ) { tunnelState, accountState, paymentAvailability ->
                 WelcomeUiState(
@@ -69,6 +64,10 @@ class WelcomeViewModel(
         verifyPurchases()
         fetchPaymentAvailability()
         viewModelScope.launch { deviceRepository.updateDevice() }
+        viewModelScope.launch {
+            val accountNumber = uiState.map { it.accountNumber }.filterNotNull().first()
+            _uiSideEffect.send(UiSideEffect.StoreCredentialsRequest(accountNumber))
+        }
     }
 
     private fun hasAddedTimeEffect() =
