@@ -59,7 +59,7 @@ fun NormalSwitchComposeCell(
     modifier: Modifier = Modifier,
     startPadding: Dp = Dimens.indentedCellStartPadding,
     isEnabled: Boolean = true,
-    background: Color = MaterialTheme.colorScheme.surfaceContainerLow,
+    background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     onBackground: Color = MaterialTheme.colorScheme.onSurface,
     onCellClicked: (Boolean) -> Unit,
     onInfoClicked: (() -> Unit)? = null,

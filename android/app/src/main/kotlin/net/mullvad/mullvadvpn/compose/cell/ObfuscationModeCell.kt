@@ -68,7 +68,7 @@ fun ObfuscationModeCell(
             modifier
                 .height(IntrinsicSize.Min)
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 .let { if (testTag != null) it.testTag(testTag) else it }
                 .semantics { selected = isSelected }
     ) {

@@ -122,7 +122,7 @@ fun FilterScreen(
                 OwnershipHeader(ownershipExpanded) { ownershipExpanded = it }
             }
             if (ownershipExpanded) {
-                itemWithDivider (key = Keys.OWNERSHIP_ALL, contentType = ContentType.ITEM) {
+                itemWithDivider(key = Keys.OWNERSHIP_ALL, contentType = ContentType.ITEM) {
                     AnyOwnership(state, { onSelectedOwnership(Constraint.Any) })
                 }
                 itemsWithDivider(
@@ -179,7 +179,7 @@ private fun LazyItemScope.AnyOwnership(state: RelayFilterUiState, onSelectedOwne
         isSelected = state.selectedOwnership is Constraint.Any,
         onCellClicked = { onSelectedOwnership() },
         modifier = Modifier.animateItem(),
-        backgroundColor = MaterialTheme.colorScheme.surfaceContainerHighest
+        backgroundColor = MaterialTheme.colorScheme.surfaceContainerHighest,
     )
 }
 
@@ -194,7 +194,7 @@ private fun LazyItemScope.Ownership(
         isSelected = ownership == state.selectedOwnership.getOrNull(),
         onCellClicked = { onSelectedOwnership(ownership) },
         modifier = Modifier.animateItem(),
-        backgroundColor = MaterialTheme.colorScheme.surfaceContainerHighest
+        backgroundColor = MaterialTheme.colorScheme.surfaceContainerHighest,
     )
 }
 
