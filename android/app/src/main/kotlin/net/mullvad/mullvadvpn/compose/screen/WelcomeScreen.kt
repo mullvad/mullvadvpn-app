@@ -240,7 +240,7 @@ private fun WelcomeInfo(
             modifier =
                 Modifier.fillMaxWidth()
                     .padding(
-                        top = Dimens.screenVerticalMargin,
+                        top = Dimens.screenTopMargin,
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
                     ),
@@ -357,7 +357,7 @@ private fun ButtonPanel(
     onDisconnectClick: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(top = Dimens.mediumPadding)) {
-        Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
+        Spacer(modifier = Modifier.padding(top = Dimens.screenTopMargin))
         if (showDisconnectButton) {
             NegativeButton(
                 onClick = onDisconnectClick,
@@ -405,7 +405,7 @@ private fun ButtonPanel(
                 Modifier.padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                    bottom = Dimens.screenVerticalMargin,
+                    bottom = Dimens.screenBottomMargin,
                 ),
         )
     }

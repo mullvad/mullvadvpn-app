@@ -241,7 +241,7 @@ fun ScaffoldWithLargeTopBarAndButton(
                 modifier =
                     Modifier.padding(
                         horizontal = Dimens.sideMargin,
-                        vertical = Dimens.screenVerticalMargin,
+                        vertical = Dimens.screenBottomMargin,
                     ),
                 trailingIcon = {
                     Icon(

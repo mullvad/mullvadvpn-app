@@ -236,7 +236,7 @@ fun ServerIpOverridesScreen(
                 text = stringResource(R.string.import_overrides_import),
                 modifier =
                     Modifier.padding(horizontal = Dimens.sideMargin)
-                        .padding(bottom = Dimens.screenVerticalMargin)
+                        .padding(bottom = Dimens.screenBottomMargin)
                         .testTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG),
             )
         }
