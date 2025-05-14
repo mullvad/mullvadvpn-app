@@ -115,7 +115,7 @@ fun InAppNotification.toNotificationData(
         InAppNotification.TunnelStateBlocked ->
             NotificationData(
                 title = stringResource(id = R.string.blocking_internet),
-                statusLevel = StatusLevel.Error,
+                statusLevel = StatusLevel.None,
             )
         is InAppNotification.TunnelStateError ->
             errorMessageBannerData(error, onClickShowWireguardPortSettings)

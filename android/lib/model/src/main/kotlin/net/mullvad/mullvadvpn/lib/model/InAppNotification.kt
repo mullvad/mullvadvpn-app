@@ -6,6 +6,7 @@ enum class StatusLevel {
     Error,
     Warning,
     Info,
+    None,
 }
 
 sealed class InAppNotification {
@@ -18,7 +19,7 @@ sealed class InAppNotification {
     }
 
     data object TunnelStateBlocked : InAppNotification() {
-        override val statusLevel = StatusLevel.Error
+        override val statusLevel = StatusLevel.None
         override val priority: Long = 1000
     }
 
