@@ -69,8 +69,10 @@ impl DefaultRouteMonitor {
             runtime::Handle::current().block_on(monitor.run());
         });
 
-        let route_v4_rx = filter_duplicates(delay_nones(NO_ROUTE_GRACE_TIME, route_v4_rx));
-        let route_v6_rx = filter_duplicates(delay_nones(NO_ROUTE_GRACE_TIME, route_v6_rx));
+        let route_v4_rx =
+            filter_duplicates(delay_nones_except_first(NO_ROUTE_GRACE_TIME, route_v4_rx));
+        let route_v6_rx =
+            filter_duplicates(delay_nones_except_first(NO_ROUTE_GRACE_TIME, route_v6_rx));
 
         (route_v4_rx, route_v6_rx)
     }
@@ -227,13 +229,13 @@ fn filter_duplicates<T: PartialEq + Clone + Send + 'static>(
     filtered_rx
 }
 
-/// Delay `None`-events by `grace_time`.
+/// Delay `None`-events by `grace_time`, except for the first value received.
 ///
 /// When receiving a `None` on the channel, a timer will start. If no `Some`s are received within
 /// the deadline, a `None` will be sent.
 ///
 /// Some `None`s may be dropped, but `Some`-values are passed along immediately.
-fn delay_nones<T: Send + 'static>(
+fn delay_nones_except_first<T: Send + 'static>(
     grace_time: Duration,
     mut fast_rx: UnboundedReceiver<Option<T>>,
 ) -> UnboundedReceiver<Option<T>> {
@@ -241,6 +243,14 @@ fn delay_nones<T: Send + 'static>(
 
     tokio::task::spawn(async move {
         let mut no_route_grace_timeout = None;
+
+        // We send the initial value without any delay
+        let Some(route) = fast_rx.next().await else {
+            return;
+        };
+        if slow_tx.unbounded_send(route).is_err() {
+            return;
+        }
 
         loop {
             let no_route_grace_timer = async {
