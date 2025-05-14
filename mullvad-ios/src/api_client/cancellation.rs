@@ -21,7 +21,7 @@ impl SwiftCancelHandle {
     /// This call is safe as long as the pointer is only ever used from a single thread and the
     /// instance of `SwiftCancelHandle` was created with a valid pointer to
     /// `RequestCancelHandle`.
-    unsafe fn into_handle(mut self) -> RequestCancelHandle {
+    unsafe fn as_handle(&mut self) -> RequestCancelHandle {
         // SAFETY: See safety notes above
         let handle = unsafe { *Box::from_raw(self.ptr) };
         self.ptr = null_mut();
@@ -61,16 +61,15 @@ impl RequestCancelHandle {
 ///
 /// # Safety
 ///
-/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`. This function
-/// is not safe to call multiple times with the same `SwiftCancelHandle`.
+/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
 #[no_mangle]
-extern "C" fn mullvad_api_cancel_task(handle_ptr: SwiftCancelHandle) {
+extern "C" fn mullvad_api_cancel_task(handle_ptr: &mut SwiftCancelHandle) {
     if handle_ptr.ptr.is_null() {
         return;
     }
 
-    // SAFETY: See notes for `into_handle`
-    let handle = unsafe { handle_ptr.into_handle() };
+    // SAFETY: See notes for `as_handle`
+    let handle = unsafe { handle_ptr.as_handle() };
     handle.cancel()
 }
 
@@ -79,14 +78,13 @@ extern "C" fn mullvad_api_cancel_task(handle_ptr: SwiftCancelHandle) {
 ///
 /// # Safety
 ///
-/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`. This function
-/// is not safe to call multiple times with the same `SwiftCancelHandle`.
+/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
 #[no_mangle]
-extern "C" fn mullvad_api_cancel_task_drop(handle_ptr: SwiftCancelHandle) {
+extern "C" fn mullvad_api_cancel_task_drop(handle_ptr: &mut SwiftCancelHandle) {
     if handle_ptr.ptr.is_null() {
         return;
     }
 
-    // SAFETY: See notes for `into_handle`
-    let _handle = unsafe { handle_ptr.into_handle() };
+    // SAFETY: See notes for `as_handle`
+    let _handle = unsafe { handle_ptr.as_handle() };
 }

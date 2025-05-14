@@ -345,10 +345,9 @@ struct SwiftCancelHandle mullvad_ios_get_relays(struct SwiftApiContext api_conte
  *
  * # Safety
  *
- * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`. This function
- * is not safe to call multiple times with the same `SwiftCancelHandle`.
+ * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
  */
-void mullvad_api_cancel_task(struct SwiftCancelHandle handle_ptr);
+void mullvad_api_cancel_task(struct SwiftCancelHandle *handle_ptr);
 
 /**
  * Called by the Swift side to signal that the Rust `SwiftCancelHandle` can be safely
@@ -356,10 +355,9 @@ void mullvad_api_cancel_task(struct SwiftCancelHandle handle_ptr);
  *
  * # Safety
  *
- * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`. This function
- * is not safe to call multiple times with the same `SwiftCancelHandle`.
+ * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
  */
-void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
+void mullvad_api_cancel_task_drop(struct SwiftCancelHandle *handle_ptr);
 
 /**
  * Maps to `mullvadApiCompletionFinish` on Swift side to facilitate callback based completion flow when doing
