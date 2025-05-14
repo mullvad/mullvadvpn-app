@@ -238,7 +238,7 @@ fun EditApiAccessMethodScreen(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
                     .verticalScroll(scrollState)
-                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
+                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenBottomMargin)
         ) {
             when (state) {
                 is EditApiAccessMethodUiState.Loading -> Loading()

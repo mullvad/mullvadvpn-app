@@ -183,7 +183,7 @@ fun OutOfTimeScreen(
                 contentDescription = null,
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
-                        .padding(vertical = Dimens.screenVerticalMargin)
+                        .padding(vertical = Dimens.screenTopMargin)
                         .size(Dimens.bigIconSize),
             )
             Text(
@@ -284,7 +284,7 @@ private fun ButtonPanel(
                 Modifier.padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                    bottom = Dimens.screenVerticalMargin,
+                    bottom = Dimens.screenBottomMargin,
                 ),
             isEnabled = state.tunnelState.enableRedeemButton(),
         )

@@ -49,7 +49,7 @@ private fun PreviewPlayPaymentPaymentAvailable() {
                     ),
                 onPurchaseBillingProductClick = {},
                 onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenVerticalMargin),
+                modifier = Modifier.padding(Dimens.screenBottomMargin),
             )
         }
     }
@@ -64,7 +64,7 @@ private fun PreviewPlayPaymentLoading() {
                 billingPaymentState = PaymentState.Loading,
                 onPurchaseBillingProductClick = {},
                 onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenVerticalMargin),
+                modifier = Modifier.padding(Dimens.screenBottomMargin),
             )
         }
     }
@@ -89,7 +89,7 @@ private fun PreviewPlayPaymentPaymentPending() {
                     ),
                 onPurchaseBillingProductClick = {},
                 onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenVerticalMargin),
+                modifier = Modifier.padding(Dimens.screenBottomMargin),
             )
         }
     }
@@ -114,7 +114,7 @@ private fun PreviewPlayPaymentVerificationInProgress() {
                     ),
                 onPurchaseBillingProductClick = {},
                 onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenVerticalMargin),
+                modifier = Modifier.padding(Dimens.screenBottomMargin),
             )
         }
     }

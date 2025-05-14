@@ -290,19 +290,10 @@ private fun BottomBar(
         modifier =
             Modifier.fillMaxWidth()
                 .background(color = backgroundColor)
-                .padding(top = Dimens.screenVerticalMargin),
+                .padding(vertical = Dimens.screenBottomMargin, horizontal = Dimens.sideMargin),
         contentAlignment = Alignment.BottomCenter,
     ) {
-        ApplyButton(
-            onClick = onApplyClick,
-            isEnabled = isApplyButtonEnabled,
-            modifier =
-                Modifier.padding(
-                    start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
-                    bottom = Dimens.screenVerticalMargin,
-                ),
-        )
+        ApplyButton(onClick = onApplyClick, isEnabled = isApplyButtonEnabled)
     }
 }
 

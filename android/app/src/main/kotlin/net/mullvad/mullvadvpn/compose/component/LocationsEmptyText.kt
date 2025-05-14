@@ -19,6 +19,6 @@ fun LocationsEmptyText(searchTerm: String) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.padding(Dimens.screenVerticalMargin),
+        modifier = Modifier.padding(Dimens.cellVerticalSpacing),
     )
 }

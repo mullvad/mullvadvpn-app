@@ -423,7 +423,7 @@ private fun CreateAccountPanel(onCreateAccountClick: () -> Unit, isEnabled: Bool
     Column(
         Modifier.fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
+            .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenBottomMargin)
     ) {
         Text(
             modifier = Modifier.padding(bottom = Dimens.smallPadding),

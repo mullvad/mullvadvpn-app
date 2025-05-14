@@ -165,7 +165,7 @@ fun AccountScreen(
                 modifier
                     .animateContentSize()
                     .padding(horizontal = Dimens.sideMargin)
-                    .padding(bottom = Dimens.screenVerticalMargin),
+                    .padding(bottom = Dimens.screenBottomMargin),
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(Dimens.accountRowSpacing),

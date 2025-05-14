@@ -176,7 +176,8 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
                 text = annotatedTopText,
             )
             Image(
-                modifier = Modifier.padding(top = Dimens.topPadding, bottom = Dimens.bottomPadding),
+                modifier =
+                    Modifier.padding(top = Dimens.smallPadding, bottom = Dimens.bottomPadding),
                 painter = painterResource(id = page.image),
                 contentDescription = null,
             )
@@ -224,7 +225,7 @@ private fun ConstraintLayoutScope.PageIndicator(
     pager: ConstrainedLayoutReference,
 ) {
     Row(
-        Modifier.wrapContentHeight().fillMaxWidth().padding(top = Dimens.topPadding).constrainAs(
+        Modifier.wrapContentHeight().fillMaxWidth().padding(top = Dimens.mediumSpacer).constrainAs(
             pageIndicatorRef
         ) {
             top.linkTo(pager.bottom)
