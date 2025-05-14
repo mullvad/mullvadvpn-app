@@ -681,11 +681,6 @@ msgctxt "app-upgrade-view"
 msgid "About %(seconds)s seconds remaining..."
 msgstr ""
 
-#. Label displayed when an unknown error occurred
-msgctxt "app-upgrade-view"
-msgid "An unknown error occurred. Please try again. If this problem persists, please contact support."
-msgstr ""
-
 #. Label displayed when an error occurred due to the connection being blocked
 msgctxt "app-upgrade-view"
 msgid "Connection blocked. Try changing server or other settings."
@@ -694,7 +689,7 @@ msgstr ""
 #. Label displayed when an error occurred due to the installer failing to start
 #. and the suggested resolution is to download the update again.
 msgctxt "app-upgrade-view"
-msgid "Could not start the update installer. Try again. If this problem persists, please contact support."
+msgid "Could not open installer, please try again or send a problem report."
 msgstr ""
 
 #. Button text to download and install an update
@@ -705,6 +700,11 @@ msgstr ""
 #. Status text displayed below a progress bar when the download of an update is complete
 msgctxt "app-upgrade-view"
 msgid "Download complete!"
+msgstr ""
+
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Download failed, please check your connection/firewall and try again, or send a problem report."
 msgstr ""
 
 #. Status text displayed below a progress bar when the download of an update has been paused
@@ -736,7 +736,7 @@ msgstr ""
 
 #. Label displayed when an error occurred within the installer
 msgctxt "app-upgrade-view"
-msgid "Installer encountered an error. Try again. If this problem persists, please contact support."
+msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr ""
 
 #. Button text to manually download the update
@@ -784,9 +784,9 @@ msgctxt "app-upgrade-view"
 msgid "Starting installer..."
 msgstr ""
 
-#. Label displayed when an error occurred due to the download failing
+#. Label displayed when an unknown error occurred
 msgctxt "app-upgrade-view"
-msgid "Unable to download update. Check your connection and/or firewall then try again. If this problem persists, please contact support."
+msgid "Unknown error occurred. Please try again or send a problem report."
 msgstr ""
 
 #. Title in navigation bar
@@ -797,7 +797,7 @@ msgstr ""
 
 #. Label displayed when an error occurred due to the installer failed verification
 msgctxt "app-upgrade-view"
-msgid "Verification failed. Try again. If this problem persists, please contact support."
+msgid "Verification failed, please try again or send a problem report."
 msgstr ""
 
 #. Label displayed above a progress bar when the update is verified successfully
@@ -1249,11 +1249,6 @@ msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr ""
 
-#. Notification subtitle when the installer verification failed.
-msgctxt "in-app-notifications"
-msgid "Installer could not be verified."
-msgstr ""
-
 #. Notification title when the installer failed.
 msgctxt "in-app-notifications"
 msgid "INSTALLER FAILED"
@@ -1327,6 +1322,11 @@ msgstr ""
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please change it under "
+
+#. Notification subtitle when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "The installer could not be verified."
+msgstr ""
 
 #. Notification subtitle when the installer failed.
 msgctxt "in-app-notifications"
