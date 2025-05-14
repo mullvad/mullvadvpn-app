@@ -29,11 +29,13 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
@@ -53,6 +55,7 @@ class SelectLocationViewModelTest {
     private val mockCustomListsRepository: CustomListsRepository = mockk()
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
     private val mockFilterChipUseCase: FilterChipUseCase = mockk()
+    private val mockSettingsRepository: SettingsRepository = mockk()
 
     private lateinit var viewModel: SelectLocationViewModel
 
@@ -60,6 +63,7 @@ class SelectLocationViewModelTest {
     private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
     private val filterChips = MutableStateFlow<List<FilterChip>>(emptyList())
     private val relayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
+    private val settings = MutableStateFlow<Settings>(mockk(relaxed = true))
 
     @BeforeEach
     fun setup() {
@@ -69,6 +73,7 @@ class SelectLocationViewModelTest {
             wireguardConstraints
         every { mockFilterChipUseCase(any()) } returns filterChips
         every { mockRelayListRepository.relayList } returns relayList
+        every { mockSettingsRepository.settingsUpdates } returns settings
 
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
@@ -81,6 +86,7 @@ class SelectLocationViewModelTest {
                 customListsRepository = mockCustomListsRepository,
                 filterChipUseCase = mockFilterChipUseCase,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
+                settingsRepository = mockSettingsRepository,
             )
     }
 

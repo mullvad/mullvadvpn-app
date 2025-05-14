@@ -123,7 +123,8 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
-                            isTopBarActionsEnabled = true,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
                         )
                     )
             )
@@ -157,7 +158,8 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
-                            isTopBarActionsEnabled = true,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
                         )
                     )
             )
@@ -188,7 +190,8 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
-                            isTopBarActionsEnabled = true,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
                         )
                     ),
                 onSelectRelay = mockedOnSelectRelay,
@@ -221,11 +224,11 @@ class SelectLocationScreenTest {
                 state =
                     Lc.Content(
                         SelectLocationUiState(
-                            // searchTerm = "",
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
-                            isTopBarActionsEnabled = true,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
                         )
                     ),
                 onSelectRelay = mockedOnSelectRelay,
@@ -260,7 +263,8 @@ class SelectLocationScreenTest {
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
-                            isTopBarActionsEnabled = true,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
                         )
                     ),
                 onSelectRelay = mockedOnSelectRelay,
