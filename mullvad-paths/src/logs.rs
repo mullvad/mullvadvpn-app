@@ -8,11 +8,11 @@ pub fn log_dir() -> Result<PathBuf> {
     {
         use std::os::unix::fs::PermissionsExt;
         let permissions = Some(PermissionsExt::from_mode(0o755));
-        crate::create_and_return(get_log_dir, permissions)
+        crate::create_and_return(get_log_dir()?, permissions)
     }
     #[cfg(target_os = "windows")]
     {
-        crate::create_and_return(get_log_dir, true)
+        crate::create_and_return(get_log_dir()?, true)
     }
 }
 

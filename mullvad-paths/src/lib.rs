@@ -48,11 +48,7 @@ fn get_allusersprofile_dir() -> Result<PathBuf> {
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-fn create_and_return(
-    dir_fn: fn() -> Result<PathBuf>,
-    permissions: Option<fs::Permissions>,
-) -> Result<PathBuf> {
-    let dir = dir_fn()?;
+fn create_and_return(dir: PathBuf, permissions: Option<fs::Permissions>) -> Result<PathBuf> {
     fs::create_dir_all(&dir).map_err(|e| Error::CreateDirFailed(dir.display().to_string(), e))?;
     if let Some(permissions) = permissions {
         fs::set_permissions(&dir, permissions)
@@ -62,11 +58,7 @@ fn create_and_return(
 }
 
 #[cfg(windows)]
-fn create_and_return(
-    dir_fn: fn() -> Result<PathBuf>,
-    set_security_permissions: bool,
-) -> Result<PathBuf> {
-    let dir = dir_fn()?;
+fn create_and_return(dir: PathBuf, set_security_permissions: bool) -> Result<PathBuf> {
     create_dir_recursive(&dir, set_security_permissions)?;
     Ok(dir)
 }

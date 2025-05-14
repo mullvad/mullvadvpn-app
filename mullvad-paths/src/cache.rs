@@ -10,7 +10,7 @@ pub fn cache_dir() -> Result<PathBuf> {
     let permissions = Some(std::os::unix::fs::PermissionsExt::from_mode(0o755));
     #[cfg(target_os = "windows")]
     let permissions = true;
-    crate::create_and_return(get_cache_dir, permissions)
+    crate::create_and_return(get_cache_dir()?, permissions)
 }
 
 pub fn get_cache_dir() -> Result<PathBuf> {
