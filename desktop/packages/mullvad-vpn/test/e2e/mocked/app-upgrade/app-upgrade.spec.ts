@@ -135,7 +135,7 @@ test.describe('App upgrade', () => {
 
       await expect(
         page.getByText(
-          'Unable to download update. Check your connection and/or firewall then try again. If this problem persists, please contact support.',
+          'Download failed, please check your connection/firewall and try again, or send a problem report.',
         ),
       ).toBeVisible();
 
@@ -196,9 +196,7 @@ test.describe('App upgrade', () => {
       await expect(installUpdateButton).not.toBeVisible();
 
       await expect(
-        page.getByText(
-          'Could not start the update installer. Try again. If this problem persists, please contact support.',
-        ),
+        page.getByText('Could not open installer, please try again or send a problem report.'),
       ).toBeVisible();
       const retryButton = selectors.retryButton();
       await expect(retryButton).toBeVisible();
