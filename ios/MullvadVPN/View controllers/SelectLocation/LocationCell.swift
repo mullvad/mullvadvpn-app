@@ -191,7 +191,7 @@ class LocationCell: UITableViewCell {
         accessibilityTraits = .button
 
         // Set the accessibility label to the location name
-        accessibilityLabel = locationCellViewModel.node.name
+        accessibilityLabel = locationCellViewModel.node.code
 
         // Provide a hint about the action
         if !locationCellViewModel.node.children.isEmpty {
