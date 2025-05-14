@@ -303,7 +303,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
     ) {
         Text(
             text = state.accountNumber?.value?.groupWithSpaces() ?: "",
-            modifier = Modifier.weight(1f).padding(vertical = Dimens.smallPadding),
+            modifier = Modifier.weight(1f).padding(top = Dimens.smallPadding),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
         )
