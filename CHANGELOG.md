@@ -22,6 +22,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+- Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
+  mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
+  uses a lot less CPU to compute the keypair, and the public key sent to the server
+  is drastically smaller.
+
 ### Fixed
 #### Linux
 - Fix syntax error in Apparmor profile.
