@@ -1,4 +1,5 @@
 use core::fmt;
+use futures::StreamExt;
 use std::{
     collections::HashSet,
     path::PathBuf,
@@ -196,6 +197,9 @@ impl SplitTunnel {
     }
 
     async fn run(mut self) {
+        let mut default_interface_stream =
+            default::default_interface_change_listener(self.state.route_manager().clone()).await;
+
         loop {
             let process_monitor_stopped = async {
                 match self.state.process_monitor() {
@@ -208,6 +212,11 @@ impl SplitTunnel {
                 // Handle process monitor being stopped
                 result = process_monitor_stopped => {
                     self.handle_process_monitor_shutdown(result);
+                }
+
+                // Handle changes to default interface
+                Some(new_default_interface) = default_interface_stream.next() => {
+                    self.handle_new_default_interface(new_default_interface).await;
                 }
 
                 // Handle messages
@@ -254,6 +263,24 @@ impl SplitTunnel {
         }
 
         self.state.fail(result.err().map(Error::from));
+    }
+
+    /// Handle default interface changing
+    async fn handle_new_default_interface(&mut self, default_interface: default::DefaultInterface) {
+        if let Err(err) = self.state.set_default(default_interface).await {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to update default route interface")
+            );
+
+            // Enter the error state if split tunneling is active
+            if self.state.active() {
+                if let Some(tunnel_tx) = self.tunnel_tx.upgrade() {
+                    let _ = tunnel_tx
+                        .unbounded_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
+                }
+            }
+        }
     }
 
     /// Handle an incoming message
@@ -331,6 +358,7 @@ enum State {
         process: process::ProcessMonitorHandle,
         tun_handle: tun::SplitTunnelHandle,
         vpn_interface: VpnInterface,
+        default_interface: default::DefaultInterface,
     },
     /// State entered when anything at all fails. Users can force a transition out of this state
     /// by disabling/clearing the paths to use.
@@ -451,6 +479,7 @@ impl State {
                 mut process,
                 tun_handle,
                 vpn_interface,
+                default_interface: _,
             } if paths.is_empty() => {
                 if let Err(error) = tun_handle.shutdown().await {
                     log::error!("Failed to stop split tunnel: {error}");
@@ -508,6 +537,7 @@ impl State {
                 process,
                 tun_handle,
                 vpn_interface: _,
+                default_interface: _,
             } => {
                 if let Err(error) = tun_handle.shutdown().await {
                     log::error!("Failed to stop split tunnel: {error}");
@@ -554,6 +584,7 @@ impl State {
                 mut process,
                 tun_handle,
                 vpn_interface: old_vpn_interface,
+                default_interface: old_default_interface,
             } => {
                 // Try to update the default interface first
                 // If this fails, remain in the current state and just fail
@@ -567,6 +598,7 @@ impl State {
                                 process,
                                 tun_handle,
                                 vpn_interface: old_vpn_interface,
+                                default_interface: old_default_interface,
                             }),
                         });
                     }
@@ -575,7 +607,7 @@ impl State {
                 log::debug!("Updating split tunnel device");
 
                 match tun_handle
-                    .set_interfaces(default_interface, Some(vpn_interface.clone()))
+                    .set_interfaces(default_interface.clone(), Some(vpn_interface.clone()))
                     .await
                 {
                     Ok(tun_handle) => Ok(State::Active {
@@ -583,6 +615,7 @@ impl State {
                         process,
                         tun_handle,
                         vpn_interface,
+                        default_interface,
                     }),
                     Err(error) => {
                         process.shutdown().await;
@@ -614,7 +647,7 @@ impl State {
 
                 let states = process.states().clone();
                 let result = tun::create_split_tunnel(
-                    default_interface,
+                    default_interface.clone(),
                     Some(vpn_interface.clone()),
                     route_manager.clone(),
                     Box::new(move |packet| {
@@ -636,6 +669,7 @@ impl State {
                         process,
                         tun_handle,
                         vpn_interface,
+                        default_interface,
                     }),
                     Err(error) => {
                         process.shutdown().await;
@@ -665,6 +699,53 @@ impl State {
                 *old_vpn_interface = Some(vpn_interface);
                 Err(cause.unwrap_or(Error::unavailable()).into())
             }
+        }
+    }
+
+    /// Update default interface that excluded packets are sent on
+    async fn set_default(
+        &mut self,
+        default_interface: default::DefaultInterface,
+    ) -> Result<(), Error> {
+        self.transition(move |self_| self_.set_default_inner(default_interface))
+            .await
+    }
+
+    async fn set_default_inner(
+        self,
+        default_interface: default::DefaultInterface,
+    ) -> Result<Self, ErrorWithTransition> {
+        match self {
+            // If split tunneling is initialized, and the default interface has changed, update the
+            // interfaces
+            State::Active {
+                route_manager,
+                mut process,
+                tun_handle,
+                vpn_interface,
+                default_interface: old_default_interface,
+            } if old_default_interface != default_interface => {
+                log::debug!("Updating split tunnel device due to default route change");
+
+                match tun_handle
+                    .set_interfaces(default_interface.clone(), Some(vpn_interface.clone()))
+                    .await
+                {
+                    Ok(tun_handle) => Ok(State::Active {
+                        route_manager,
+                        process,
+                        tun_handle,
+                        vpn_interface,
+                        default_interface,
+                    }),
+                    Err(error) => {
+                        process.shutdown().await;
+                        Err(error.into())
+                    }
+                }
+            }
+            // Ignore all other states
+            _ => Ok(self),
         }
     }
 
