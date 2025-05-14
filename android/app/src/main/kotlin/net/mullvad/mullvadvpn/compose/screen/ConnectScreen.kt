@@ -722,7 +722,7 @@ private fun ButtonPanel(
                     .focusRequester(selectButtonFocusRequester),
             reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG,
         )
-        Spacer(Modifier.height(Dimens.buttonVerticalPadding))
+        Spacer(Modifier.height(Dimens.buttonSpacing))
 
         ConnectionButton(
             modifier = Modifier.fillMaxWidth().testTag(CONNECT_BUTTON_TEST_TAG),
