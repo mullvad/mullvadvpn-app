@@ -19,32 +19,32 @@ export const useMessage = () => {
       // TRANSLATORS: Label displayed when an error occurred due to the download failing
       return messages.pgettext(
         'app-upgrade-view',
-        'Unable to download update. Check your connection and/or firewall then try again. If this problem persists, please contact support.',
+        'Download failed, please check your connection/firewall and try again, or send a problem report.',
       );
     case 'INSTALLER_FAILED':
       // TRANSLATORS: Label displayed when an error occurred within the installer
       return messages.pgettext(
         'app-upgrade-view',
-        'Installer encountered an error. Try again. If this problem persists, please contact support.',
+        'Installer quit unexpectedly, please try again or send a problem report.',
       );
     case 'START_INSTALLER_FAILED':
       // TRANSLATORS: Label displayed when an error occurred due to the installer failing to start
       // TRANSLATORS: and the suggested resolution is to download the update again.
       return messages.pgettext(
         'app-upgrade-view',
-        'Could not start the update installer. Try again. If this problem persists, please contact support.',
+        'Could not open installer, please try again or send a problem report.',
       );
     case 'VERIFICATION_FAILED':
       // TRANSLATORS: Label displayed when an error occurred due to the installer failed verification
       return messages.pgettext(
         'app-upgrade-view',
-        'Verification failed. Try again. If this problem persists, please contact support.',
+        'Verification failed, please try again or send a problem report.',
       );
     default:
       // TRANSLATORS: Label displayed when an unknown error occurred
       return messages.pgettext(
         'app-upgrade-view',
-        'An unknown error occurred. Please try again. If this problem persists, please contact support.',
+        'Unknown error occurred. Please try again or send a problem report.',
       );
   }
 };
