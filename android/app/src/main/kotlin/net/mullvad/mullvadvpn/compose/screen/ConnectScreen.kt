@@ -702,14 +702,9 @@ private fun ButtonPanel(
             action.invoke()
         }
     }
-    Column(modifier = Modifier.padding(vertical = Dimens.tinyPadding)) {
+    Column(modifier = Modifier.padding(top = Dimens.tinyPadding)) {
         SwitchLocationButton(
-            text =
-                if (state.selectedRelayItemTitle != null) {
-                    state.selectedRelayItemTitle
-                } else {
-                    stringResource(id = R.string.switch_location)
-                },
+            text = state.selectedRelayItemTitle ?: stringResource(id = R.string.switch_location),
             onSwitchLocation = onSwitchLocationClick,
             reconnectClick = {
                 handleThrottledAction {
