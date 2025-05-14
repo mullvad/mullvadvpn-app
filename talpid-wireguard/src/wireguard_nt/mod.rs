@@ -440,7 +440,9 @@ impl WgNtTunnel {
             );
 
             match error {
-                Error::CreateTunnelDevice(error) => super::TunnelError::SetupTunnelDevice(error),
+                Error::CreateTunnelDevice(error) => super::TunnelError::SetupTunnelDevice(
+                    talpid_tunnel::tun_provider::Error::Io(error),
+                ),
                 _ => super::TunnelError::FatalStartWireguardError(Box::new(error)),
             }
         })

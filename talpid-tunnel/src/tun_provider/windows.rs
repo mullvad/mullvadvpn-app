@@ -24,6 +24,10 @@ pub enum Error {
     /// Failed to get device name
     #[error("Failed to get tunnel device name")]
     GetDeviceName(#[source] tun::Error),
+
+    /// IO error
+    #[error("IO error")]
+    Io(#[from] io::Error),
 }
 
 /// Factory of tunnel devices on Unix systems.
