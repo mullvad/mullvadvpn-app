@@ -40,7 +40,6 @@ import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -320,14 +319,13 @@ private fun ColumnScope.LoginInput(
 
 @Composable
 private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
-    Box(contentAlignment = Alignment.Center, modifier = modifier.size(Dimens.bigIconSize)) {
+    Box(contentAlignment = Alignment.Center, modifier = modifier) {
         when (loginState) {
             is Idle ->
                 if (loginState.loginError != null) {
                     Image(
                         painter = painterResource(id = R.drawable.icon_fail),
                         contentDescription = stringResource(id = R.string.login_fail_title),
-                        contentScale = ContentScale.Inside,
                     )
                 } else {
                     // If view is Idle, we display empty box to keep the same size as other states

@@ -41,6 +41,7 @@ fun MullvadCircularProgressIndicatorLarge(
 ) {
     CircularProgressIndicator(
         modifier
+            .padding(Dimens.tinyPadding)
             .size(Dimens.circularProgressBarLargeSize)
             .testTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG),
         color,
