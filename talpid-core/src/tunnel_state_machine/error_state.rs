@@ -187,10 +187,9 @@ impl TunnelState for ErrorState {
                 if !connectivity.is_offline()
                     && matches!(self.block_reason, ErrorStateCause::IsOffline)
                 {
-                    // TODO: why ever reset here?
-
                     #[cfg(target_os = "macos")]
                     if !*LOCAL_DNS_RESOLVER {
+                        // TODO: why ever reset, regardless of LOCAL_DNS_RESOLVER?
                         Self::reset_dns(shared_values);
                     }
 
@@ -203,10 +202,9 @@ impl TunnelState for ErrorState {
                 }
             }
             Some(TunnelCommand::Connect) => {
-                // TODO: why ever reset here?
-
                 #[cfg(target_os = "macos")]
                 if !*LOCAL_DNS_RESOLVER {
+                    // TODO: why ever reset, regardless of LOCAL_DNS_RESOLVER?
                     Self::reset_dns(shared_values);
                 }
 
