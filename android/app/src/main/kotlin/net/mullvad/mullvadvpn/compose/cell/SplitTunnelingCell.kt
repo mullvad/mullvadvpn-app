@@ -73,7 +73,7 @@ fun SplitTunnelingCell(
     isSelected: Boolean,
     enabled: Boolean,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     onResolveIcon: (String) -> Drawable?,
     onCellClicked: () -> Unit,
 ) {
