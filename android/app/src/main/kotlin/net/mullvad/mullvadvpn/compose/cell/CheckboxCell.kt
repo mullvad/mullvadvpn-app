@@ -34,7 +34,7 @@ internal fun CheckboxCell(
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
     background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
-    startPadding: Dp = Dimens.mediumPadding,
+    startPadding: Dp = Dimens.smallPadding,
     endPadding: Dp = Dimens.cellEndPadding,
     minHeight: Dp = Dimens.cellHeight,
 ) {
