@@ -1081,7 +1081,7 @@ pub enum TunnelError {
     FdDuplicationError(#[source] nix::Error),
 
     /// Failed to set up a tunnel device
-    #[error("Failed to create tunnel device")]
+    #[error("Failed to setup a tunnel device")]
     SetupTunnelDevice(#[source] tun_provider::Error),
 
     /// Failed to setup a tunnel device.
