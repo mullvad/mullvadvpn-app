@@ -447,13 +447,21 @@ where
                 self.state = State::HasVersion { version_cache };
             }
             State::Downloaded { version_cache, .. } => {
+                let app_version_info = to_app_version_info(&version_cache, self.beta_program, None);
                 self.state = State::HasVersion { version_cache };
+
+                // Send "Aborted" here, since there's no "Downloader" to do it for us
                 let _ = self.app_upgrade_broadcast.send(AppUpgradeEvent::Aborted);
+
+                // Notify the daemon and version requesters about new version
+                self.notify_version_requesters(app_version_info.clone());
+                let _ = self.version_event_sender.send(app_version_info);
             }
             // No-op unless we're downloading something right now
             // In the `Downloaded` state, we also do nothing
             state => self.state = state,
         };
+
         debug_assert!(matches!(
             self.state,
             State::HasVersion { .. } | State::NoVersion
@@ -905,7 +913,7 @@ mod test {
         let version_info = channels
             .version_event_receiver
             .try_next()
-            .expect("Version event sender should not be closed")
+            .expect("Version event channel should contain message")
             .expect("Version event should be sent");
         assert_eq!(
             version_info
@@ -915,6 +923,10 @@ mod test {
                 .verified_installer_path,
             Some(verified_installer_path.clone())
         );
+        channels
+            .version_event_receiver
+            .try_next()
+            .expect_err("Channel should not have any messages");
 
         version_router.update_application();
         assert!(
@@ -937,6 +949,21 @@ mod test {
             app_upgrade_listener.try_recv(),
             Err(TryRecvError::Empty),
             "No more events should be sent",
+        );
+
+        let version_info = channels
+            .version_event_receiver
+            .try_next()
+            .expect("Version event channel should contain message")
+            .expect("Version event should be sent");
+        assert_eq!(
+            version_info
+                .suggested_upgrade
+                .as_ref()
+                .unwrap()
+                .verified_installer_path,
+            None,
+            "Aborting should send a new `AppVersionInfo` without a verified installer path"
         );
     }
 
