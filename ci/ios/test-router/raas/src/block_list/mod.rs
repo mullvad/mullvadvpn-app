@@ -14,11 +14,9 @@ pub struct BlockList {
 }
 
 impl BlockList {
-    pub fn add_rule(&mut self, rule: BlockRule, label: uuid::Uuid) -> io::Result<()> {
-        {
-            let rules = self.rules.entry(label).or_default();
-            rules.push(rule);
-        }
+    pub fn add_rules(&mut self, rules: &[BlockRule], label: uuid::Uuid) -> io::Result<()> {
+        let rules_for_label = self.rules.entry(label).or_default();
+        rules_for_label.extend_from_slice(rules);
         self.apply_rules()
     }
 
@@ -89,6 +87,6 @@ impl BlockList {
         self.rules
             .values()
             .flatten()
-            .flat_map(move |rule| rule.create_nft_rule(chain))
+            .flat_map(move |rule| rule.create_nft_rules(chain))
     }
 }
