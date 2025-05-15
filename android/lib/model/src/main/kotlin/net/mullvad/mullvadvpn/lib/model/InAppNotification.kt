@@ -6,6 +6,7 @@ enum class StatusLevel {
     Error,
     Warning,
     Info,
+    None,
 }
 
 sealed class InAppNotification {
@@ -19,17 +20,17 @@ sealed class InAppNotification {
             } else {
                 StatusLevel.Error
             }
-        override val priority: Long = 1001
+        override val priority: Long = 1004
     }
 
     data object TunnelStateBlocked : InAppNotification() {
-        override val statusLevel = StatusLevel.Error
-        override val priority: Long = 1000
+        override val statusLevel = StatusLevel.None
+        override val priority: Long = 1003
     }
 
     data class UnsupportedVersion(val versionInfo: VersionInfo) : InAppNotification() {
         override val statusLevel = StatusLevel.Error
-        override val priority: Long = 999
+        override val priority: Long = 1002
     }
 
     data class AccountExpiry(val expiry: Duration) : InAppNotification() {
@@ -44,6 +45,6 @@ sealed class InAppNotification {
 
     data object NewVersionChangelog : InAppNotification() {
         override val statusLevel = StatusLevel.Info
-        override val priority: Long = 1001
+        override val priority: Long = 1000
     }
 }

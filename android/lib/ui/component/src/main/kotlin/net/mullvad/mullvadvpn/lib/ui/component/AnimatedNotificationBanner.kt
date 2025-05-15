@@ -175,7 +175,7 @@ private fun Notification(modifier: Modifier = Modifier, notificationBannerData: 
 }
 
 @Composable
-private fun NotificationDot(statusLevel: StatusLevel?, modifier: Modifier) {
+private fun NotificationDot(statusLevel: StatusLevel, modifier: Modifier) {
     Box(
         modifier =
             modifier
@@ -185,7 +185,7 @@ private fun NotificationDot(statusLevel: StatusLevel?, modifier: Modifier) {
                             StatusLevel.Error -> MaterialTheme.colorScheme.error
                             StatusLevel.Warning -> MaterialTheme.colorScheme.warning
                             StatusLevel.Info -> MaterialTheme.colorScheme.tertiary
-                            null -> Color.Transparent
+                            StatusLevel.None -> Color.Transparent
                         },
                     shape = CircleShape,
                 )

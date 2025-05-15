@@ -33,8 +33,8 @@ class InAppNotificationController(
             .map {
                 it.sortedWith(
                     compareBy(
-                        { notification -> notification.statusLevel.ordinal },
                         { notification -> -notification.priority },
+                        { notification -> notification.statusLevel.ordinal },
                     )
                 )
             }

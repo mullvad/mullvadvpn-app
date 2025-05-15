@@ -29,13 +29,13 @@ import net.mullvad.mullvadvpn.lib.model.StatusLevel
 data class NotificationData(
     val title: AnnotatedString,
     val message: NotificationMessage? = null,
-    val statusLevel: StatusLevel?,
+    val statusLevel: StatusLevel,
     val action: NotificationAction? = null,
 ) {
     constructor(
         title: String,
         message: String? = null,
-        statusLevel: StatusLevel?,
+        statusLevel: StatusLevel,
         action: NotificationAction? = null,
     ) : this(
         AnnotatedString(title),
@@ -47,7 +47,7 @@ data class NotificationData(
     constructor(
         title: String,
         message: NotificationMessage,
-        statusLevel: StatusLevel?,
+        statusLevel: StatusLevel,
         action: NotificationAction? = null,
     ) : this(AnnotatedString(title), message, statusLevel, action)
 }
@@ -115,7 +115,7 @@ fun InAppNotification.toNotificationData(
         InAppNotification.TunnelStateBlocked ->
             NotificationData(
                 title = stringResource(id = R.string.blocking_internet),
-                statusLevel = null,
+                statusLevel = StatusLevel.None,
             )
         is InAppNotification.TunnelStateError ->
             errorMessageBannerData(statusLevel, error, onClickShowWireguardPortSettings)
