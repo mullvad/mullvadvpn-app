@@ -69,7 +69,7 @@ impl BoringTun {
         // TODO: investigate timing bug when creating tun device? (Device or resource busy)
         #[cfg(not(target_os = "android"))]
         let async_tun = {
-            let tun = crate::boringtun::get_tunnel_for_userspace(tun_provider, config, routes)?;
+            let tun = get_tunnel_for_userspace(tun_provider, config, routes)?;
 
             #[cfg(unix)]
             {
