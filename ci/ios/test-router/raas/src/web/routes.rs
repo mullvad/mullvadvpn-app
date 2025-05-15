@@ -8,8 +8,10 @@ use mnl::mnl_sys::libc;
 use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
-use crate::block_list::{BlockList, BlockRule, Endpoints};
-use crate::web;
+use crate::{
+    block_list::{BlockList, BlockRule, Endpoints},
+    web,
+};
 
 #[derive(serde::Deserialize, Clone)]
 pub struct NewRule {
@@ -204,11 +206,20 @@ fn log_rule(rule: &BlockRule, label: &Uuid) {
             );
         }
         BlockRule::WireGuard {
-            endpoints: Endpoints { src, dst, invert_dst },
+            endpoints:
+                Endpoints {
+                    src,
+                    dst,
+                    invert_dst,
+                },
         } => {
             log::info!(
                 "Successfully added a rule to {} {src} to {dst} for WireGuard [test: {label}]",
-                if *invert_dst { "allow only traffic from" } else { "block" },
+                if *invert_dst {
+                    "allow only traffic from"
+                } else {
+                    "block"
+                },
             );
         }
     }
