@@ -336,7 +336,7 @@ pub enum DaemonCommand {
     /// Return whether the daemon is performing post-upgrade tasks
     IsPerformingPostUpgrade(oneshot::Sender<bool>),
     /// Get current version of the app
-    GetCurrentVersion(oneshot::Sender<String>),
+    GetCurrentVersion(oneshot::Sender<mullvad_version::Version>),
     /// Remove settings and clear the cache
     #[cfg(not(target_os = "android"))]
     FactoryReset(ResponseTx<(), Error>),
@@ -659,7 +659,7 @@ impl Daemon {
         macos::bump_filehandle_limit();
 
         let command_sender = daemon_command_channel.sender();
-        let app_upgrade_broadcast = tokio::sync::broadcast::channel(128).0; // TODO: look over bufsize
+        let app_upgrade_broadcast = tokio::sync::broadcast::channel(32).0;
         let management_interface = ManagementInterfaceServer::start(
             command_sender,
             config.rpc_socket_path,
@@ -1970,10 +1970,12 @@ impl Daemon {
         });
     }
 
-    fn on_get_current_version(&mut self, tx: oneshot::Sender<String>) {
+    fn on_get_current_version(&mut self, tx: oneshot::Sender<mullvad_version::Version>) {
         Self::oneshot_send(
             tx,
-            mullvad_version::VERSION.to_owned(),
+            mullvad_version::VERSION
+                .parse::<mullvad_version::Version>()
+                .expect("Failed to parse version"),
             "get_current_version response",
         );
     }
@@ -3230,12 +3232,12 @@ impl Daemon {
 
     #[cfg_attr(not(in_app_upgrade), allow(clippy::unused_async))]
     async fn on_app_upgrade(&self, tx: ResponseTx<(), version::Error>) {
-        #[cfg(update)]
+        #[cfg(in_app_upgrade)]
         {
             let result = self.version_handle.update_application().await;
             Self::oneshot_send(tx, result, "on_app_upgrade response");
         }
-        #[cfg(not(update))]
+        #[cfg(not(in_app_upgrade))]
         {
             log::warn!("Ignoring app upgrade command as in-app upgrades are disabled on this OS");
             Self::oneshot_send(tx, Ok(()), "on_app_upgrade response")
@@ -3244,12 +3246,12 @@ impl Daemon {
 
     #[cfg_attr(not(in_app_upgrade), allow(clippy::unused_async))]
     async fn on_app_upgrade_abort(&self, tx: ResponseTx<(), version::Error>) {
-        #[cfg(update)]
+        #[cfg(in_app_upgrade)]
         {
             let result = self.version_handle.cancel_update().await;
             Self::oneshot_send(tx, result, "on_app_upgrade_abort response");
         }
-        #[cfg(not(update))]
+        #[cfg(not(in_app_upgrade))]
         {
             log::warn!(
                 "Ignoring cancel app upgrade command as in-app upgrades are disabled on this OS"
