@@ -70,7 +70,7 @@ fun DnsCell(
             )
         },
         onCellClicked = { onClick.invoke() },
-        background = MaterialTheme.colorScheme.surfaceContainerLow,
+        background = MaterialTheme.colorScheme.surfaceContainerHighest,
         startPadding = startPadding,
         modifier = modifier,
     )

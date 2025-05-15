@@ -83,7 +83,7 @@ fun CustomPortCell(
                         if (isSelected) {
                             MaterialTheme.colorScheme.selected
                         } else {
-                            MaterialTheme.colorScheme.surfaceContainerLow
+                            MaterialTheme.colorScheme.surfaceContainerHighest
                         }
                     )
                     .padding(start = Dimens.cellStartPadding)

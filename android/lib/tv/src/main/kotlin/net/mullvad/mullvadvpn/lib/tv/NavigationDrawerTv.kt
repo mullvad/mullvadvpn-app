@@ -103,8 +103,8 @@ fun NavigationDrawerTv(
                 Modifier.fillMaxHeight()
                     .background(brush)
                     .padding(
-                        top = Dimens.screenVerticalMargin,
-                        bottom = Dimens.screenVerticalMargin,
+                        top = Dimens.screenBottomMargin,
+                        bottom = Dimens.screenBottomMargin,
                         start = Dimens.tvDrawerHorizontalPadding,
                         end = Dimens.tvDrawerHorizontalPadding,
                     )

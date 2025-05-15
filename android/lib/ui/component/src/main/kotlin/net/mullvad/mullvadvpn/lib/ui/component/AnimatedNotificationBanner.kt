@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -184,6 +185,7 @@ private fun NotificationDot(statusLevel: StatusLevel, modifier: Modifier) {
                             StatusLevel.Error -> MaterialTheme.colorScheme.error
                             StatusLevel.Warning -> MaterialTheme.colorScheme.warning
                             StatusLevel.Info -> MaterialTheme.colorScheme.tertiary
+                            StatusLevel.None -> Color.Transparent
                         },
                     shape = CircleShape,
                 )

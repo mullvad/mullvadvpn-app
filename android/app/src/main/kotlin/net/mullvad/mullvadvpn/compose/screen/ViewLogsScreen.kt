@@ -142,7 +142,7 @@ private fun Content(state: ViewLogsUiState, paddingValues: PaddingValues) {
                 .padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                    bottom = Dimens.screenVerticalMargin,
+                    bottom = Dimens.screenBottomMargin,
                 ),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
     ) {

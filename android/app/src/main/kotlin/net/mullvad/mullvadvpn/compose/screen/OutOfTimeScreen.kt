@@ -2,12 +2,12 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -171,6 +171,12 @@ fun OutOfTimeScreen(
             modifier =
                 Modifier.fillMaxSize()
                     .padding(it)
+                    .padding(
+                        top = Dimens.screenTopMargin,
+                        start = Dimens.sideMargin,
+                        end = Dimens.sideMargin,
+                        bottom = Dimens.screenBottomMargin,
+                    )
                     .verticalScroll(scrollState)
                     .drawVerticalScrollbar(
                         state = scrollState,
@@ -183,16 +189,13 @@ fun OutOfTimeScreen(
                 contentDescription = null,
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
-                        .padding(vertical = Dimens.screenVerticalMargin)
-                        .size(Dimens.bigIconSize),
+                        .padding(bottom = Dimens.mediumSpacer),
             )
             Text(
                 text = stringResource(id = R.string.out_of_time),
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier =
-                    Modifier.padding(horizontal = Dimens.sideMargin)
-                        .testTag(OUT_OF_TIME_SCREEN_TITLE_TEST_TAG),
+                modifier = Modifier.testTag(OUT_OF_TIME_SCREEN_TITLE_TEST_TAG),
             )
             Text(
                 text =
@@ -205,12 +208,7 @@ fun OutOfTimeScreen(
                     },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier =
-                    Modifier.padding(
-                        top = Dimens.mediumPadding,
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                    ),
+                modifier = Modifier.padding(top = Dimens.mediumPadding),
             )
             Spacer(modifier = Modifier.weight(1f).defaultMinSize(minHeight = Dimens.verticalSpace))
             // Button area
@@ -237,17 +235,11 @@ private fun ButtonPanel(
     navigateToVerificationPendingDialog: () -> Unit,
 ) {
 
-    Column {
+    Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
         if (state.tunnelState.isSecured()) {
             NegativeButton(
                 onClick = onDisconnectClick,
                 text = stringResource(id = R.string.disconnect),
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.buttonSpacing,
-                    ),
             )
         }
         state.billingPaymentState?.let {
@@ -257,35 +249,16 @@ private fun ButtonPanel(
                     onPurchaseBillingProductClick(productId)
                 },
                 onInfoClick = navigateToVerificationPendingDialog,
-                modifier =
-                    Modifier.padding(
-                            start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
-                            bottom = Dimens.buttonSpacing,
-                        )
-                        .align(Alignment.CenterHorizontally),
             )
         }
         if (state.showSitePayment) {
             SitePaymentButton(
                 onClick = onSitePaymentClick,
                 isEnabled = state.tunnelState.enableSitePaymentButton(),
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.buttonSpacing,
-                    ),
             )
         }
         RedeemVoucherButton(
             onClick = onRedeemVoucherClick,
-            modifier =
-                Modifier.padding(
-                    start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
-                    bottom = Dimens.screenVerticalMargin,
-                ),
             isEnabled = state.tunnelState.enableRedeemButton(),
         )
     }

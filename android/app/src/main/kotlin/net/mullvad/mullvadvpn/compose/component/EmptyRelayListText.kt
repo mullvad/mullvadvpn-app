@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 fun EmptyRelayListText() {
     Text(
         text = stringResource(R.string.no_locations_found),
-        modifier = Modifier.padding(Dimens.screenVerticalMargin),
+        modifier = Modifier.padding(Dimens.cellVerticalSpacing),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )

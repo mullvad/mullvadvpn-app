@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -35,6 +36,7 @@ class SelectLocationViewModel(
     private val relayListRepository: RelayListRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val filterChipUseCase: FilterChipUseCase,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
     private val _relayListType: MutableStateFlow<RelayListType> =
         MutableStateFlow(RelayListType.EXIT)
@@ -45,13 +47,18 @@ class SelectLocationViewModel(
                 wireguardConstraintsRepository.wireguardConstraints,
                 _relayListType,
                 relayListRepository.relayList,
-            ) { filterChips, wireguardConstraints, relayListSelection, relayList ->
+                settingsRepository.settingsUpdates,
+            ) { filterChips, wireguardConstraints, relayListSelection, relayList, settings ->
                 Lc.Content(
                     SelectLocationUiState(
                         filterChips = filterChips,
                         multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                         relayListType = relayListSelection,
-                        isTopBarActionsEnabled = relayList.isNotEmpty(),
+                        isSearchButtonEnabled =
+                            relayList.isNotEmpty() &&
+                                (relayListSelection == RelayListType.EXIT ||
+                                    settings?.entryBlocked() != true),
+                        isFilterButtonEnabled = relayList.isNotEmpty(),
                     )
                 )
             }

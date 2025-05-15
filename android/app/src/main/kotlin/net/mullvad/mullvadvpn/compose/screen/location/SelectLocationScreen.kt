@@ -264,9 +264,9 @@ fun SelectLocationScreen(
         modifier = Modifier.testTag(SELECT_LOCATION_SCREEN_TEST_TAG),
         snackbarHostState = snackbarHostState,
         actions = {
-            val isTopBarActionsEnabled = state.contentOrNull()?.isTopBarActionsEnabled == true
+            val isSearchButtonEnabled = state.contentOrNull()?.isSearchButtonEnabled == true
             IconButton(
-                enabled = isTopBarActionsEnabled,
+                enabled = isSearchButtonEnabled,
                 onClick = { state.contentOrNull()?.let { onSearchClick(it.relayListType) } },
             ) {
                 Icon(
@@ -274,17 +274,18 @@ fun SelectLocationScreen(
                     contentDescription = stringResource(id = R.string.search),
                     tint =
                         MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = if (isTopBarActionsEnabled) AlphaVisible else AlphaDisabled
+                            alpha = if (isSearchButtonEnabled) AlphaVisible else AlphaDisabled
                         ),
                 )
             }
-            IconButton(enabled = isTopBarActionsEnabled, onClick = onFilterClick) {
+            val isFilterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
+            IconButton(enabled = isFilterButtonEnabled, onClick = onFilterClick) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
                     contentDescription = stringResource(id = R.string.filter),
                     tint =
                         MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = if (isTopBarActionsEnabled) AlphaVisible else AlphaDisabled
+                            alpha = if (isFilterButtonEnabled) AlphaVisible else AlphaDisabled
                         ),
                 )
             }
@@ -316,12 +317,17 @@ fun SelectLocationScreen(
                     Loading()
                 }
                 is Lc.Content -> {
+                    if (state.value.multihopEnabled) {
+                        MultihopBar(state.value.relayListType, onSelectRelayList)
+                    }
+
                     AnimatedContent(
                         targetState = state.value.filterChips,
                         label = "Select location top bar",
                     ) { filterChips ->
                         if (filterChips.isNotEmpty()) {
                             FilterRow(
+                                modifier = Modifier.padding(bottom = Dimens.smallPadding),
                                 filters = filterChips,
                                 onRemoveOwnershipFilter = removeOwnershipFilter,
                                 onRemoveProviderFilter = removeProviderFilter,
@@ -329,12 +335,8 @@ fun SelectLocationScreen(
                         }
                     }
 
-                    if (state.value.multihopEnabled) {
-                        MultihopBar(state.value.relayListType, onSelectRelayList)
-                    }
-
-                    if (state.value.filterChips.isNotEmpty() || state.value.multihopEnabled) {
-                        Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
+                    if (state.value.multihopEnabled && state.value.filterChips.isEmpty()) {
+                        Spacer(modifier = Modifier.height(Dimens.smallPadding))
                     }
 
                     RelayLists(
@@ -356,7 +358,12 @@ fun SelectLocationScreen(
 private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayListType) -> Unit) {
     SingleChoiceSegmentedButtonRow(
         modifier =
-            Modifier.fillMaxWidth().padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
+            Modifier.fillMaxWidth()
+                .padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    bottom = Dimens.smallPadding,
+                )
     ) {
         MullvadSegmentedStartButton(
             selected = relayListType == RelayListType.ENTRY,

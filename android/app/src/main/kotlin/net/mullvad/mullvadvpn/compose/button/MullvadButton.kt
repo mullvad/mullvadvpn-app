@@ -187,7 +187,7 @@ fun PrimaryTextButton(
         enabled = isEnabled,
         contentPadding =
             if (hasIcon) {
-                PaddingValues(vertical = Dimens.buttonVerticalPadding)
+                PaddingValues(vertical = Dimens.buttonSpacing)
             } else {
                 ButtonDefaults.TextButtonContentPadding
             },
@@ -221,7 +221,7 @@ private fun BaseButton(
         enabled = isEnabled,
         contentPadding =
             if (hasIcon) {
-                PaddingValues(vertical = Dimens.buttonVerticalPadding)
+                PaddingValues(vertical = Dimens.buttonSpacing)
             } else {
                 ButtonDefaults.ContentPadding
             },

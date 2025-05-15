@@ -6,5 +6,6 @@ data class SelectLocationUiState(
     val filterChips: List<FilterChip>,
     val multihopEnabled: Boolean,
     val relayListType: RelayListType,
-    val isTopBarActionsEnabled: Boolean,
+    val isSearchButtonEnabled: Boolean,
+    val isFilterButtonEnabled: Boolean,
 )

@@ -49,6 +49,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -408,7 +409,9 @@ private fun Content(
     onNavigateToFeature: (FeatureIndicator) -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
 ) {
-    val screenHeight = LocalWindowInfo.current.containerSize.height.dp
+    val screenHeight =
+        with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
+
     val indicatorPercentOffset =
         if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
         else TALL_SCREEN_INDICATOR_BIAS
@@ -699,14 +702,9 @@ private fun ButtonPanel(
             action.invoke()
         }
     }
-    Column(modifier = Modifier.padding(vertical = Dimens.tinyPadding)) {
+    Column(modifier = Modifier.padding(top = Dimens.tinyPadding)) {
         SwitchLocationButton(
-            text =
-                if (state.selectedRelayItemTitle != null) {
-                    state.selectedRelayItemTitle
-                } else {
-                    stringResource(id = R.string.switch_location)
-                },
+            text = state.selectedRelayItemTitle ?: stringResource(id = R.string.switch_location),
             onSwitchLocation = onSwitchLocationClick,
             reconnectClick = {
                 handleThrottledAction {
@@ -722,7 +720,7 @@ private fun ButtonPanel(
                     .focusRequester(selectButtonFocusRequester),
             reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG,
         )
-        Spacer(Modifier.height(Dimens.buttonVerticalPadding))
+        Spacer(Modifier.height(Dimens.buttonSpacing))
 
         ConnectionButton(
             modifier = Modifier.fillMaxWidth().testTag(CONNECT_BUTTON_TEST_TAG),

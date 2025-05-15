@@ -132,7 +132,7 @@ fun MullvadTopBar(
                     BoxWithConstraints {
                         val logoTextPainter = painterResource(id = R.drawable.logo_text)
                         val logoHeight = Dimens.mediumPadding
-                        val logoStartEndPadding = Dimens.mediumPadding
+                        val logoStartEndPadding = Dimens.smallPadding
 
                         val shouldShowText =
                             remember(maxWidth) {
@@ -149,7 +149,7 @@ fun MullvadTopBar(
                                 tint = iconTintColor,
                                 contentDescription = null, // No meaningful user info or action.
                                 modifier =
-                                    Modifier.padding(horizontal = Dimens.mediumPadding)
+                                    Modifier.padding(horizontal = logoStartEndPadding)
                                         .height(logoHeight),
                             )
                         }

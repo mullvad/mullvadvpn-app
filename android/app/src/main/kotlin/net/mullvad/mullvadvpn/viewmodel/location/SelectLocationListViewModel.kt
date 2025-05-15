@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
@@ -114,11 +113,4 @@ class SelectLocationListViewModel(
                 wireguardConstraintsRepository.wireguardConstraints.value?.entryLocation
             RelayListType.EXIT -> relayListRepository.selectedLocation.value
         }?.getOrNull()
-
-    // If Daita is enabled without direct only, it is not possible to manually select the entry
-    // location.
-    private fun Settings.entryBlocked() =
-        tunnelOptions.wireguard.daitaSettings.enabled &&
-            !tunnelOptions.wireguard.daitaSettings.directOnly &&
-            relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
 }
