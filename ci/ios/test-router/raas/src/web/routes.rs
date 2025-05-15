@@ -13,12 +13,30 @@ use crate::web;
 
 #[derive(serde::Deserialize, Clone)]
 pub struct NewRule {
+    /// A packet that is sent *from* `src` will match the block rule.
     pub src: IpNetwork,
+    /// A packet that is sent *to* `dst` will match the block rule.
     pub dst: IpNetwork,
-    pub protocols: Option<BTreeSet<TransportProtocol>>,
-    #[serde(default)]
-    pub block_wireguard: bool,
+    /// A list of protocols that should be blocked, e.g. Tcp or WireGuard. The default behavior
+    /// is to block all traffic regardless of protocol, but if `protocols` is non-empty, only
+    /// traffic that uses that protocol is blocked.
+    pub protocols: Option<BTreeSet<Protocol>>,
+    /// A unique identifier for a group of rules. It is possible to add rules to an existing label
+    /// and to remove all rules for a label.
     pub label: Uuid,
+    /// Normally a packet sent to `dst` would match the block rule, but this option inverts that
+    /// so that any packet *not* sent to `dst` will match the block rule.
+    #[serde(default)]
+    pub block_all_except_dst: bool,
+}
+
+#[derive(
+    PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Debug, serde::Deserialize, serde::Serialize,
+)]
+#[serde(untagged)]
+pub enum Protocol {
+    Transport(TransportProtocol),
+    Application(AppProtocol),
 }
 
 #[derive(
@@ -43,28 +61,73 @@ impl TransportProtocol {
     }
 }
 
+#[derive(
+    PartialOrd, Ord, PartialEq, Eq, Clone, Copy, Debug, serde::Deserialize, serde::Serialize,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum AppProtocol {
+    #[serde(rename = "wireguard")]
+    WireGuard,
+}
+
+impl AppProtocol {
+    // Each "app protocol" (e.g. WireGuard, more could be added in the future) is mapped to its
+    // own block rule, as opposed to the transport protocols which have a single rule.
+    // This is to support each app protocol being able to have a unique block criteria
+    // (e.g. WireGuard needs to block UDP packets that match a certain pattern).
+    fn as_block_rule(&self, endpoints: Endpoints) -> BlockRule {
+        match self {
+            AppProtocol::WireGuard => BlockRule::WireGuard { endpoints },
+        }
+    }
+}
+
 pub async fn add_rule(
     State(state): State<super::State>,
     Json(json): Json<NewRule>,
 ) -> impl IntoResponse {
     let result = access_firewall(state, move |fw| {
         let label = json.label;
-        let src = json.src;
-        let dst = json.dst;
-
-        let rule = if json.block_wireguard {
-            BlockRule::WireGuard {
-                endpoints: Endpoints { src, dst },
-            }
-        } else {
-            BlockRule::Host {
-                endpoints: Endpoints { src, dst },
-                protocols: json.protocols.unwrap_or_default(),
-            }
+        let endpoints = Endpoints {
+            src: json.src,
+            dst: json.dst,
+            invert_dst: json.block_all_except_dst,
         };
 
-        fw.add_rule(rule.clone(), label)?;
-        log_rule(&rule, &label);
+        let mut block_rules = vec![];
+
+        if let Some(protocols) = json.protocols {
+            let mut transport = BTreeSet::new();
+            let mut application = BTreeSet::new();
+            for protocol in protocols {
+                match protocol {
+                    Protocol::Transport(p) => transport.insert(p),
+                    Protocol::Application(p) => application.insert(p),
+                };
+            }
+            if !transport.is_empty() {
+                block_rules.push(BlockRule::Host {
+                    endpoints,
+                    protocols: transport,
+                });
+            }
+            for protocol in application {
+                block_rules.push(protocol.as_block_rule(endpoints));
+            }
+        }
+
+        // If no protocols are specified we default to blocking everything for (src, dst).
+        if block_rules.is_empty() {
+            block_rules.push(BlockRule::Host {
+                endpoints,
+                protocols: BTreeSet::new(),
+            });
+        }
+
+        fw.add_rules(&block_rules, label)?;
+        for rule in block_rules {
+            log_rule(&rule, &label);
+        }
         Ok(())
     })
     .await;
@@ -128,16 +191,25 @@ fn log_rule(rule: &BlockRule, label: &Uuid) {
     match rule {
         BlockRule::Host {
             protocols,
-            endpoints: Endpoints { src, dst },
+            endpoints:
+                Endpoints {
+                    src,
+                    dst,
+                    invert_dst,
+                },
         } => {
             log::info!(
-                "Successfully added a rule to block {src} from {dst} for test {label} for protocols {protocols:?}",
+                "Successfully added a rule to {} {src} to {dst} for protocols {protocols:?} [test: {label}]",
+                if *invert_dst { "allow only traffic from" } else { "block" },
             );
         }
         BlockRule::WireGuard {
-            endpoints: Endpoints { src, dst },
+            endpoints: Endpoints { src, dst, invert_dst },
         } => {
-            log::info!("Successfully added a rule to block {src} from {dst} WireGuard traffic for test {label}",);
+            log::info!(
+                "Successfully added a rule to {} {src} to {dst} for WireGuard [test: {label}]",
+                if *invert_dst { "allow only traffic from" } else { "block" },
+            );
         }
     }
 }
