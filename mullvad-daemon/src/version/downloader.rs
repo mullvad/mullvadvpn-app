@@ -116,23 +116,11 @@ where
     let _ = event_tx.send(AppUpgradeEvent::DownloadStarting);
     if let Err(err) = downloader.download_executable().await {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed));
-        log::error!("{}", err.display_chain());
-        log::info!("Cleaning up download at '{bin_path:?}'",);
-        #[cfg(not(test))]
-        tokio::fs::remove_file(&bin_path)
-            .await
-            .expect("Removing download file");
         return Err(err.into());
     };
     let _ = event_tx.send(AppUpgradeEvent::VerifyingInstaller);
     if let Err(err) = downloader.verify().await {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::VerificationFailed));
-        log::error!("{}", err.display_chain());
-        log::info!("Cleaning up download at '{:?}'", bin_path);
-        #[cfg(not(test))]
-        tokio::fs::remove_file(&bin_path)
-            .await
-            .expect("Removing download file");
         return Err(err.into());
     };
     let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
