@@ -49,9 +49,6 @@ class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
         // Mark the beginning of key rotation and receive the public key to push to backend.
         let publicKey = keyRotation.beginAttempt()
 
-        // Persist mutated device data.
-        interactor.setDeviceState(.loggedIn(accountData, keyRotation.data), persist: true)
-
         // Send REST request to rotate the device key.
         logger.debug("Replacing old key with new key on server...")
 
