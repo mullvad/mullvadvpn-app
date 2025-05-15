@@ -3,6 +3,7 @@
 use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpgradeEvent};
 use mullvad_update::app::{bin_path, AppDownloader, AppDownloaderParameters, DownloadError};
 use rand::seq::SliceRandom;
+use std::io;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use talpid_types::ErrorExt;
@@ -144,10 +145,11 @@ async fn create_download_dir() -> Result<PathBuf> {
 pub async fn clear_download_dir() -> Result<PathBuf> {
     let download_dir = mullvad_paths::get_cache_dir()?.join("mullvad-update");
     log::info!("Cleaning up download directory: {}", download_dir.display());
-    fs::remove_dir_all(&download_dir)
-        .await
-        .map_err(Error::CreateDownloadDir)?;
-    Ok(download_dir)
+    match fs::remove_dir_all(&download_dir).await {
+        Ok(()) => Ok(download_dir),
+        Err(err) if err.kind() == io::ErrorKind::NotFound => Ok(download_dir),
+        Err(err) => Err(Error::CreateDownloadDir(err)),
+    }
 }
 
 pub struct ProgressUpdater {
