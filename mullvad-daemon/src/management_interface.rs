@@ -146,7 +146,7 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("get_current_version");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetCurrentVersion(tx))?;
-        let version = self.wait_for_result(rx).await?;
+        let version = self.wait_for_result(rx).await?.to_string();
         Ok(Response::new(version))
     }
 
