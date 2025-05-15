@@ -438,11 +438,17 @@ where
 
     #[cfg(update)]
     fn cancel_upgrade(&mut self) {
+        use mullvad_types::version::AppUpgradeEvent;
+
         match mem::replace(&mut self.state, State::NoVersion) {
             // If we're upgrading, emit an event if a version was received during the upgrade
             // Otherwise, just reset upgrade info to last known state
-            State::Downloaded { version_cache, .. } | State::Downloading { version_cache, .. } => {
+            State::Downloading { version_cache, .. } => {
                 self.state = State::HasVersion { version_cache };
+            }
+            State::Downloaded { version_cache, .. } => {
+                self.state = State::HasVersion { version_cache };
+                let _ = self.app_upgrade_broadcast.send(AppUpgradeEvent::Aborted);
             }
             // No-op unless we're downloading something right now
             // In the `Downloaded` state, we also do nothing
@@ -924,8 +930,13 @@ mod test {
 
         assert_eq!(
             app_upgrade_listener.try_recv(),
+            Ok(AppUpgradeEvent::Aborted),
+            "The `AppUpgradeEvent::Aborted` should be sent when cancelling a finished download"
+        );
+        assert_eq!(
+            app_upgrade_listener.try_recv(),
             Err(TryRecvError::Empty),
-            "The `AppUpgradeEvent::Aborted` should not be sent when cancelling a finished download"
+            "No more events should be sent",
         );
     }
 
