@@ -619,6 +619,7 @@ fun VpnSettingsContent(
                         InformationComposeCell(
                             title = stringResource(R.string.device_ip_version_title),
                             onInfoClicked = navigateToDeviceIpInfo,
+                            onCellClicked = navigateToDeviceIpInfo,
                             modifier = Modifier.animateItem(),
                         )
                     }
