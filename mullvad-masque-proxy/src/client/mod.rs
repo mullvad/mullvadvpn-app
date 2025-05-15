@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Context};
 use bytes::{Buf, Bytes, BytesMut};
-use rustls::client::danger::ServerCertVerified;
+use rustls::{client::{danger::ServerCertVerified, EchConfig, EchMode}, crypto::aws_lc_rs::hpke::ALL_SUPPORTED_SUITES, pki_types::{pem::PemObject, EchConfigListBytes}};
 use std::{
     fs::{self},
     future, io,
@@ -605,12 +605,46 @@ pub fn default_tls_config() -> Arc<rustls::ClientConfig> {
     TLS_CONFIG.clone()
 }
 
+static ECH_CONFIG: &[u8] = b"-----BEGIN ECHCONFIG-----
+AEH+DQA9mwAgACDc6mzgHSQV5XxuSXVqUTkT5krmHTZehgqYAJ2ZhN8vLQAEAAEA
+AQAOZWNoLmRldm1vbGUuZXUAAA==
+-----END ECHCONFIG-----
+";
+
 fn client_tls_config_with_certs(certs: rustls::RootCertStore) -> Arc<rustls::ClientConfig> {
+    // from go
+    /*
+	var echConfig []byte
+	if *echConfigFile != "" {
+		configBytes, err := os.ReadFile(*echConfigFile)
+		if err != nil {
+			slog2.Fatal("Read ECH config file", "error", err)
+		}
+
+		echConfigs := certutil.DecodePEMBlocks(configBytes, "ECHCONFIG")
+		if lc := len(echConfigs); lc != 1 {
+			slog2.Fatal("Expected one ECHCONFIG block", "n", lc)
+		}
+		echConfig = echConfigs[0]
+	}
+    */
+
+    // TODO: which suites should we support?
+    // TODO: grease?
+    let config = EchConfigListBytes::from_pem_slice(
+        ECH_CONFIG,
+    )
+    .unwrap();
+    let ech_config = EchConfig::new(config, ALL_SUPPORTED_SUITES).unwrap();
+
     let mut config = rustls::ClientConfig::builder_with_provider(Arc::new(
-        rustls::crypto::ring::default_provider(),
+        //rustls::crypto::ring::default_provider(),
+        rustls::crypto::aws_lc_rs::default_provider(),
     ))
-    .with_protocol_versions(&[&rustls::version::TLS13])
-    .expect("ring crypt-prover should support TLS 1.3")
+    .with_ech(ech_config.into())
+    .unwrap()
+    //.with_protocol_versions(&[&rustls::version::TLS13])
+    //.expect("ring crypt-prover should support TLS 1.3")
     .with_root_certificates(certs)
     .with_no_client_auth();
     config.alpn_protocols = vec![b"h3".to_vec()];
