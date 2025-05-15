@@ -54,8 +54,8 @@ pub(super) struct VersionCache {
     /// Whether the current (installed) version is supported or an upgrade is required
     pub current_version_supported: bool,
     /// The latest available versions
-    pub latest_version: mullvad_update::version::VersionInfo,
-    #[cfg(update)]
+    pub version_info: mullvad_update::version::VersionInfo,
+    #[cfg(in_app_upgrade)]
     pub metadata_version: usize,
 }
 
@@ -112,7 +112,7 @@ impl VersionUpdaterInner {
         self.last_app_version_info.as_ref().map(|(info, _)| info)
     }
 
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     pub fn get_min_metadata_version(&self) -> usize {
         self.last_app_version_info
             .as_ref()
@@ -123,7 +123,7 @@ impl VersionUpdaterInner {
             .unwrap_or(mullvad_update::version::MIN_VERIFY_METADATA_VERSION)
     }
 
-    #[cfg(not(update))]
+    #[cfg(not(in_app_upgrade))]
     pub fn get_min_metadata_version(&self) -> usize {
         mullvad_update::version::MIN_VERIFY_METADATA_VERSION
     }
@@ -136,7 +136,7 @@ impl VersionUpdaterInner {
         update: &impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
         mut new_version_info: VersionCache,
     ) {
-        #[cfg(update)]
+        #[cfg(in_app_upgrade)]
         if let Some((current_cache, _)) = self.last_app_version_info.as_ref() {
             if current_cache.metadata_version == new_version_info.metadata_version {
                 log::trace!("Ignoring version info with same metadata version");
@@ -369,11 +369,13 @@ fn do_version_check_in_background(
 }
 
 /// Combine the old version and new version endpoint
-#[cfg(update)]
+#[cfg(in_app_upgrade)]
 fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
 ) -> impl Future<Output = Result<VersionCache, Error>> {
+    use mullvad_api::version::{AppVersionResponse, AppVersionResponse2};
+
     let v1_endpoint = api.version_proxy.version_check(
         mullvad_version::VERSION.to_owned(),
         PLATFORM,
@@ -396,17 +398,26 @@ fn version_check_inner(
         min_metadata_version,
     );
     async move {
-        let (v1_response, v2_response) =
-            tokio::try_join!(v1_endpoint, v2_endpoint).map_err(Error::Download)?;
+        let (
+            AppVersionResponse {
+                supported: current_version_supported,
+                ..
+            },
+            AppVersionResponse2 {
+                version_info,
+                metadata_version,
+            },
+        ) = tokio::try_join!(v1_endpoint, v2_endpoint).map_err(Error::Download)?;
+
         Ok(VersionCache {
-            current_version_supported: v1_response.supported,
-            latest_version: v2_response.0,
-            metadata_version: v2_response.1,
+            current_version_supported,
+            version_info,
+            metadata_version,
         })
     }
 }
 
-#[cfg(not(update))]
+#[cfg(not(in_app_upgrade))]
 fn version_check_inner(
     api: &ApiContext,
     // NOTE: This is unused when `update` is disabled
@@ -433,7 +444,7 @@ fn version_check_inner(
             current_version_supported: response.supported,
             // Note: We're pretending that this is complete information,
             // but on Android and Linux, most of the information is missing
-            latest_version: VersionInfo {
+            version_info: VersionInfo {
                 stable: mullvad_update::version::Version {
                     version: latest_stable,
                     changelog: "".to_owned(),
@@ -494,7 +505,7 @@ async fn try_load_cache(cache_dir: &Path) -> Result<(VersionCache, SystemTime), 
 
     let cache: VersionCache = serde_json::from_str(&content).map_err(Error::Deserialize)?;
 
-    if cache_is_old(&cache.latest_version, &APP_VERSION) {
+    if cache_is_old(&cache.version_info, &APP_VERSION) {
         return Err(Error::OutdatedVersion);
     }
 
@@ -523,7 +534,7 @@ fn dev_version_cache() -> VersionCache {
 
     VersionCache {
         current_version_supported: false,
-        latest_version: VersionInfo {
+        version_info: VersionInfo {
             stable: mullvad_update::version::Version {
                 version: mullvad_version::VERSION.parse().unwrap(),
                 changelog: "".to_owned(),
@@ -533,7 +544,7 @@ fn dev_version_cache() -> VersionCache {
             },
             beta: None,
         },
-        #[cfg(update)]
+        #[cfg(in_app_upgrade)]
         metadata_version: 0,
     }
 }
@@ -757,7 +768,7 @@ mod test {
         // TODO: The tests pass, but check that this is a sane fake version cache anyway
         VersionCache {
             current_version_supported: true,
-            latest_version: VersionInfo {
+            version_info: VersionInfo {
                 stable: Version {
                     version: "2025.5".parse::<mullvad_version::Version>().unwrap(),
                     urls: vec![],
@@ -767,7 +778,7 @@ mod test {
                 },
                 beta: None,
             },
-            #[cfg(update)]
+            #[cfg(in_app_upgrade)]
             metadata_version: 0,
         }
     }

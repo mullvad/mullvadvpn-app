@@ -1,8 +1,9 @@
-#![cfg(update)]
+#![cfg(in_app_upgrade)]
 
 use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpgradeEvent};
 use mullvad_update::app::{bin_path, AppDownloader, AppDownloaderParameters, DownloadError};
 use rand::seq::SliceRandom;
+use std::io;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use talpid_types::ErrorExt;
@@ -116,23 +117,11 @@ where
     let _ = event_tx.send(AppUpgradeEvent::DownloadStarting);
     if let Err(err) = downloader.download_executable().await {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed));
-        log::error!("{}", err.display_chain());
-        log::info!("Cleaning up download at '{bin_path:?}'",);
-        #[cfg(not(test))]
-        tokio::fs::remove_file(&bin_path)
-            .await
-            .expect("Removing download file");
         return Err(err.into());
     };
     let _ = event_tx.send(AppUpgradeEvent::VerifyingInstaller);
     if let Err(err) = downloader.verify().await {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::VerificationFailed));
-        log::error!("{}", err.display_chain());
-        log::info!("Cleaning up download at '{:?}'", bin_path);
-        #[cfg(not(test))]
-        tokio::fs::remove_file(&bin_path)
-            .await
-            .expect("Removing download file");
         return Err(err.into());
     };
     let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
@@ -156,10 +145,11 @@ async fn create_download_dir() -> Result<PathBuf> {
 pub async fn clear_download_dir() -> Result<PathBuf> {
     let download_dir = mullvad_paths::get_cache_dir()?.join("mullvad-update");
     log::info!("Cleaning up download directory: {}", download_dir.display());
-    fs::remove_dir_all(&download_dir)
-        .await
-        .map_err(Error::CreateDownloadDir)?;
-    Ok(download_dir)
+    match fs::remove_dir_all(&download_dir).await {
+        Ok(()) => Ok(download_dir),
+        Err(err) if err.kind() == io::ErrorKind::NotFound => Ok(download_dir),
+        Err(err) => Err(Error::CreateDownloadDir(err)),
+    }
 }
 
 pub struct ProgressUpdater {
