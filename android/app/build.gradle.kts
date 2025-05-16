@@ -19,7 +19,6 @@ plugins {
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val relayListDirectory = file("$repoRootPath/dist-assets/relays/").absolutePath
-val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val rustJniLibsDir = layout.buildDirectory.dir("rustJniLibs/android").get()
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
@@ -86,7 +85,7 @@ android {
             )
         }
         getByName(BuildTypes.DEBUG) {
-            if (getMullvadProperty("app.build.keepDebugSymbols").toBoolean()) {
+            if (getBooleanProperty("app.build.keepDebugSymbols")) {
                 packaging { jniLibs.keepDebugSymbols.add("**/*.so") }
             }
         }
@@ -127,9 +126,7 @@ android {
 
     sourceSets {
         getByName("main") {
-            val changelogDir =
-                getMullvadProperty("app.config.override.changeLogDir")
-                    ?: defaultChangelogAssetsDirectory
+            val changelogDir = getStringProperty("app.config.changeLogDir")
             assets.srcDirs(relayListDirectory, changelogDir)
         }
     }
@@ -187,7 +184,7 @@ android {
 
     applicationVariants.configureEach {
         val enableInAppVersionNotifications =
-            getMullvadProperty("app.config.showInAppVerisonNotifications") ?: "true"
+            properties["app.config.showInAppVerisonNotifications"].toString()
         buildConfigField(
             "boolean",
             "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
@@ -263,9 +260,7 @@ cargo {
     libname = "mullvad-jni"
     // All available targets:
     // https://github.com/mozilla/rust-android-gradle/tree/master?tab=readme-ov-file#targets
-    targets =
-        getMullvadProperty("app.build.cargo.targets")?.split(",")
-            ?: listOf("arm", "arm64", "x86", "x86_64")
+    targets = getStringProperty("app.build.cargo.targets").split(',')
     profile =
         if (isReleaseBuild) {
             "release"
@@ -292,7 +287,7 @@ tasks.register<Exec>("cargoClean") {
     commandLine("cargo", "clean")
 }
 
-if (getMullvadProperty("app.build.cargo.cleanBuild")?.toBoolean() == true) {
+if (getBooleanPropertyOrNull("app.build.cargo.cleanBuild") == true) {
     tasks["clean"].dependsOn("cargoClean")
 }
 

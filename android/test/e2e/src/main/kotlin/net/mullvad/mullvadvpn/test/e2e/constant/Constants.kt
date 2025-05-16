@@ -6,7 +6,10 @@ import net.mullvad.mullvadvpn.test.e2e.BuildConfig
 import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
 
 const val LOG_TAG = "mullvad-e2e"
-const val PARTNER_AUTH = "partner_auth"
+
+fun Bundle.getPartnerAuth() =
+    InstrumentationRegistry.getArguments()
+        .getString("test.e2e.${BuildConfig.FLAVOR_infrastructure}.partnerAuth")
 
 fun Bundle.getValidAccountNumber() =
     InstrumentationRegistry.getArguments()
@@ -17,11 +20,11 @@ fun Bundle.getInvalidAccountNumber() =
         .getRequiredArgument("test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.invalid")
 
 fun Bundle.isRaasEnabled(): Boolean =
-    InstrumentationRegistry.getArguments().getBoolean("test.e2e.config.raas.enable", false)
+    InstrumentationRegistry.getArguments().getRequiredArgument("test.e2e.config.raas.enable").toBoolean()
 
 fun Bundle.isHighlyRateLimitedTestsEnabled(): Boolean =
     InstrumentationRegistry.getArguments()
-        .getBoolean("test.e2e.config.runHighlyRateLimitedTests", false)
+        .getRequiredArgument("test.e2e.config.runHighlyRateLimitedTests").toBoolean()
 
 fun Bundle.getRaasHost() =
     InstrumentationRegistry.getArguments().getRequiredArgument("test.e2e.config.raas.host")
@@ -32,7 +35,7 @@ fun Bundle.getTrafficGeneratorHost(): String =
 
 fun Bundle.getTrafficGeneratorPort(): Int =
     InstrumentationRegistry.getArguments()
-        .getInt("test.e2e.config.raas.trafficGenerator.target.port", 80)
+        .getRequiredArgument("test.e2e.config.raas.trafficGenerator.target.port").toInt()
 
 val DOMAIN =
     when (BuildConfig.FLAVOR_infrastructure) {
