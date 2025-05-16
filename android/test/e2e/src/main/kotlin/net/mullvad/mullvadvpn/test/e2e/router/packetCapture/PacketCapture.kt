@@ -21,7 +21,6 @@ import java.util.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import net.mullvad.mullvadvpn.test.e2e.BuildConfig
 import net.mullvad.mullvadvpn.test.e2e.constant.getRaasHost
 import net.mullvad.mullvadvpn.test.e2e.misc.Networking
 import net.mullvad.mullvadvpn.test.e2e.serializer.PacketCaptureSessionSerializer
