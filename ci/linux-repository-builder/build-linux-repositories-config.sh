@@ -7,6 +7,9 @@
 export CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
 
 # Debian codenames we support.
+# On top of these we also add the name of the repository as a codename as
+# well. Meaning the `stable` repository will also have a `stable` codename,
+# and `beta` will have `beta` as a codename.
 SUPPORTED_DEB_CODENAMES=("sid" "testing" "trixie" "bookworm" "bullseye")
 # Ubuntu codenames we support. Latest two LTS. But when adding a new
 # don't immediately remove the oldest one. Allow for some transition period

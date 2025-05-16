@@ -22,6 +22,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+#### Linux
+- The deb package repositores now have static codenames on top of the existing distro version
+  specific codenames. The stable repository always have the "stable" codename,
+  and the beta repository has the "beta" codename.
+
 ### Changed
 - Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
   mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
