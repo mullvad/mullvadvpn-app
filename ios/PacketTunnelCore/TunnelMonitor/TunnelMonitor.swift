@@ -13,7 +13,7 @@ import Network
 import NetworkExtension
 
 /// Tunnel monitor.
-public final class TunnelMonitor: TunnelMonitorProtocol {
+public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
     private let tunnelDeviceInfo: TunnelDeviceInfoProtocol
 
     private let nslock = NSLock()
@@ -22,7 +22,6 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
     private let timings: TunnelMonitorTimings
 
     private var pinger: PingerProtocol
-    private var isObservingDefaultPath = false
     private var timer: DispatchSourceTimer?
 
     private var state: TunnelMonitorState

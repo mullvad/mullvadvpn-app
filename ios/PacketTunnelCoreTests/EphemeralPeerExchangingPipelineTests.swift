@@ -89,10 +89,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         let connectionState = stubConnectionState(enableMultiHop: false, enablePostQuantum: true, enableDaita: false)
         await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
 
-        wait(
-            for: [reconfigurationExpectation, negotiationSuccessful],
-            timeout: .UnitTest.invertedTimeout
-        )
+        await fulfillment(of: [reconfigurationExpectation, negotiationSuccessful], timeout: .UnitTest.invertedTimeout)
     }
 
     func testSingleHopDaitaPeerExchange() async throws {
@@ -123,10 +120,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         let connectionState = stubConnectionState(enableMultiHop: false, enablePostQuantum: false, enableDaita: true)
         await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
 
-        wait(
-            for: [reconfigurationExpectation, negotiationSuccessful],
-            timeout: .UnitTest.invertedTimeout
-        )
+        await fulfillment(of: [reconfigurationExpectation, negotiationSuccessful], timeout: .UnitTest.invertedTimeout)
     }
 
     func testMultiHopPostQuantumKeyExchange() async throws {
@@ -158,10 +152,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         let connectionState = stubConnectionState(enableMultiHop: true, enablePostQuantum: true, enableDaita: false)
         await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
 
-        wait(
-            for: [reconfigurationExpectation, negotiationSuccessful],
-            timeout: .UnitTest.invertedTimeout
-        )
+        await fulfillment(of: [reconfigurationExpectation, negotiationSuccessful], timeout: .UnitTest.invertedTimeout)
     }
 
     func testMultiHopDaitaExchange() async throws {
@@ -188,10 +179,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         let connectionState = stubConnectionState(enableMultiHop: true, enablePostQuantum: false, enableDaita: true)
         await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
 
-        wait(
-            for: [reconfigurationExpectation, negotiationSuccessful],
-            timeout: .UnitTest.invertedTimeout
-        )
+        await fulfillment(of: [reconfigurationExpectation, negotiationSuccessful], timeout: .UnitTest.invertedTimeout)
     }
 
     func stubConnectionState(
