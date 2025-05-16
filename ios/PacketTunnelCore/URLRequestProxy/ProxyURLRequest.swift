@@ -9,7 +9,7 @@
 import Foundation
 
 /// Struct describing serializable URLRequest data.
-public struct ProxyURLRequest: Codable {
+public struct ProxyURLRequest: Codable, Sendable {
     public let id: UUID
     public let url: URL
     public let method: String?

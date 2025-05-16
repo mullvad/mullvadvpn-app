@@ -12,7 +12,7 @@ import NetworkExtension
 @testable import PacketTunnelCore
 @testable import WireGuardKitTypes
 
-final class EphemeralPeerExchangeActorStub: EphemeralPeerExchangeActorProtocol {
+final class EphemeralPeerExchangeActorStub: EphemeralPeerExchangeActorProtocol, @unchecked Sendable {
     typealias KeyNegotiationResult = Result<(PreSharedKey, PrivateKey), EphemeralPeerExchangeErrorStub>
     var result: KeyNegotiationResult = .failure(.unknown)
 

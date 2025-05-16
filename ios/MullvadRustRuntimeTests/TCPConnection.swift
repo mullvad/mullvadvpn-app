@@ -11,7 +11,7 @@ import Network
 
 /// Minimal implementation of TCP connection capable of receiving data.
 /// > Warning: Do not use this implementation in production code. See the warning in `start()`.
-class TCPConnection: Connection {
+class TCPConnection: Connection, @unchecked Sendable {
     private let dispatchQueue = DispatchQueue(label: "TCPConnection")
     private let nwConnection: NWConnection
 

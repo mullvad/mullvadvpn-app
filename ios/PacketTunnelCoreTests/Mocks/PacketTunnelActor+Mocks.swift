@@ -8,8 +8,8 @@
 
 import Foundation
 import MullvadMockData
-import MullvadREST
-import PacketTunnelCore
+@preconcurrency import MullvadREST
+@preconcurrency import PacketTunnelCore
 
 extension PacketTunnelActorTimings {
     static var timingsForTests: PacketTunnelActorTimings {
