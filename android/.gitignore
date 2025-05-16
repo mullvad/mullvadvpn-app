@@ -2,4 +2,3 @@ build
 .gradle
 .kotlin
 local.properties
-mullvad.properties
