@@ -24,7 +24,6 @@ impl Permissions {
     }
 }
 
-#[cfg(unix)]
 pub fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathBuf> {
     use std::{
         io,
