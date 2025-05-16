@@ -144,3 +144,6 @@ opt-level = 3
 
 [profile.release.package."ring"]
 opt-level = 3
+
+[profile.release.package."quinn-proto"]
+opt-level = 3
