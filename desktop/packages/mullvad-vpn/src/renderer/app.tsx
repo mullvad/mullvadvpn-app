@@ -157,12 +157,12 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.tunnel.listen((newState: TunnelState) => {
       this.setTunnelState(newState);
-      this.updateBlockedState(newState, this.settings.blockWhenDisconnected);
+      this.updateBlockedState(newState);
     });
 
     IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
       this.setSettings(newSettings);
-      this.updateBlockedState(this.tunnelState, newSettings.blockWhenDisconnected);
+      this.updateBlockedState(this.tunnelState);
     });
 
     IpcRendererEventChannel.settings.listenApiAccessMethodSettingChange((setting) => {
@@ -237,7 +237,7 @@ export default class AppRenderer {
 
     this.setAccountHistory(initialState.accountHistory);
     this.setTunnelState(initialState.tunnelState);
-    this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
+    this.updateBlockedState(initialState.tunnelState);
 
     this.setRelayListPair(initialState.relayList);
     this.setCurrentVersion(initialState.currentVersion);
@@ -803,7 +803,7 @@ export default class AppRenderer {
           break;
 
         case 'disconnected':
-          actions.connection.disconnected();
+          actions.connection.disconnected(tunnelState.lockedDown);
           break;
 
         case 'error':
@@ -847,7 +847,7 @@ export default class AppRenderer {
     this.reduxActions.userInterface.setIsPerformingPostUpgrade(isPerformingPostUpgrade);
   }
 
-  private updateBlockedState(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
+  private updateBlockedState(tunnelState: TunnelState) {
     const actions = this.reduxActions.connection;
     switch (tunnelState.state) {
       case 'connecting':
@@ -859,7 +859,7 @@ export default class AppRenderer {
         break;
 
       case 'disconnected':
-        actions.updateBlockState(blockWhenDisconnected);
+        actions.updateBlockState(tunnelState.lockedDown);
         break;
 
       case 'disconnecting':

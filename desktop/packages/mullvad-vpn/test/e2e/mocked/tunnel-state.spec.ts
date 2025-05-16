@@ -47,7 +47,7 @@ test('App should show disconnected tunnel state', async () => {
   });
   await util.sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
-    response: { state: 'disconnected' },
+    response: { state: 'disconnected', lockedDown: false },
   });
   await expectDisconnected(page);
 });

@@ -92,12 +92,8 @@ export default class UserInterface implements WindowControllerDelegate {
     });
   }
 
-  public createTrayIconController(
-    tunnelState: TunnelState,
-    blockWhenDisconnected: boolean,
-    monochromaticIcon: boolean,
-  ) {
-    const iconType = this.trayIconType(tunnelState, blockWhenDisconnected);
+  public createTrayIconController(tunnelState: TunnelState, monochromaticIcon: boolean) {
+    const iconType = this.trayIconType(tunnelState);
     this.trayIconController = new TrayIconController(this.tray, iconType, monochromaticIcon, false);
   }
 
@@ -163,12 +159,8 @@ export default class UserInterface implements WindowControllerDelegate {
     }
   }
 
-  public updateTray = (
-    isLoggedIn: boolean,
-    tunnelState: TunnelState,
-    blockWhenDisconnected: boolean,
-  ) => {
-    this.updateTrayIcon(tunnelState, blockWhenDisconnected);
+  public updateTray = (isLoggedIn: boolean, tunnelState: TunnelState) => {
+    this.updateTrayIcon(tunnelState);
     this.setTrayContextMenu(isLoggedIn, tunnelState);
     this.setTrayTooltip(tunnelState);
   };
@@ -204,8 +196,8 @@ export default class UserInterface implements WindowControllerDelegate {
     this.trayIconController?.showNotificationIcon(value, reason);
   public setWindowIcon = (icon: string) => this.windowController.window?.setIcon(icon);
 
-  public updateTrayIcon(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
-    const type = this.trayIconType(tunnelState, blockWhenDisconnected);
+  public updateTrayIcon(tunnelState: TunnelState) {
+    const type = this.trayIconType(tunnelState);
     this.trayIconController?.animateToIcon(type);
   }
 
@@ -671,7 +663,7 @@ export default class UserInterface implements WindowControllerDelegate {
     return label.replace('&', '&&');
   }
 
-  private trayIconType(tunnelState: TunnelState, blockWhenDisconnected: boolean): TrayIconType {
+  private trayIconType(tunnelState: TunnelState): TrayIconType {
     switch (tunnelState.state) {
       case 'connected':
         return 'secured';
@@ -689,7 +681,7 @@ export default class UserInterface implements WindowControllerDelegate {
         return 'securing';
 
       case 'disconnected':
-        if (blockWhenDisconnected) {
+        if (tunnelState.lockedDown) {
           return 'securing';
         } else {
           return 'unsecured';
