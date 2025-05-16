@@ -22,7 +22,7 @@ android {
         targetProjectPath = ":app"
 
         fun MutableMap<String, String>.putMullvadPropertyIfPresent(name: String) {
-            val value = getMullvadProperty(name)
+            val value = getStringPropertyOrNull(name)
             if (value != null) {
                 put(name, value)
             }
