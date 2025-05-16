@@ -141,3 +141,6 @@ strip = true
 # Selectively optimize packages where we know it makes a difference
 [profile.release.package."pqcrypto-hqc"]
 opt-level = 3
+
+[profile.release.package."ring"]
+opt-level = 3
