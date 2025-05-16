@@ -63,7 +63,7 @@ pub fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathB
 /// Return whether the directofy is owned by root and, optionally, is no less strict
 /// than the desired permissions
 fn dir_is_root_owned(dir: &Path, perms: Option<&fs::Permissions>) -> Result<bool> {
-    let meta = fs::symlink_metadata(&dir)
+    let meta = fs::symlink_metadata(dir)
         .map_err(|e| Error::GetDirPermissionFailed(dir.display().to_string(), e))?;
     let matching_perms = perms
         .map(|perms| has_at_most_mask(meta.permissions().mode(), perms.mode()))
