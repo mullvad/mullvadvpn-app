@@ -22,7 +22,8 @@ pub struct NewRule {
     /// A list of protocols that should be blocked, e.g. Tcp or WireGuard. The default behavior
     /// is to block all traffic regardless of protocol, but if `protocols` is non-empty, only
     /// traffic that uses that protocol is blocked.
-    pub protocols: Option<BTreeSet<Protocol>>,
+    #[serde(default)]
+    pub protocols: BTreeSet<Protocol>,
     /// A unique identifier for a group of rules. It is possible to add rules to an existing label
     /// and to remove all rules for a label.
     pub label: Uuid,
@@ -95,10 +96,17 @@ pub async fn add_rule(
             dst: json.dst,
             invert_dst: json.block_all_except_dst,
         };
+        let protocols = json.protocols;
 
         let mut block_rules = vec![];
 
-        if let Some(protocols) = json.protocols {
+        if protocols.is_empty() {
+            // If no protocols are specified we default to blocking everything for (src, dst).
+            block_rules.push(BlockRule::Host {
+                endpoints,
+                protocols: BTreeSet::new(),
+            });
+        } else {
             let mut transport = BTreeSet::new();
             let mut application = BTreeSet::new();
             for protocol in protocols {
@@ -116,14 +124,6 @@ pub async fn add_rule(
             for protocol in application {
                 block_rules.push(protocol.as_block_rule(endpoints));
             }
-        }
-
-        // If no protocols are specified we default to blocking everything for (src, dst).
-        if block_rules.is_empty() {
-            block_rules.push(BlockRule::Host {
-                endpoints,
-                protocols: BTreeSet::new(),
-            });
         }
 
         fw.add_rules(&block_rules, label)?;

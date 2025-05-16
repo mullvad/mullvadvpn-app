@@ -24,6 +24,8 @@ pub struct Endpoints {
 }
 
 impl BlockRule {
+    /// Creates one or more nft rules that correspond to this BlockRule. The returned Vec will always
+    /// have at least one element.
     pub fn create_nft_rules<'a>(&'a self, chain: &'a Chain<'a>) -> Vec<Rule<'a>> {
         match self {
             BlockRule::Host { protocols, .. } if !protocols.is_empty() => protocols
