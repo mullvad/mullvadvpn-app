@@ -24,6 +24,7 @@ hex = { version = "0.4" }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 zeroize = { version = "1.8", features = ["zeroize_derive"] }
+log = { workspace = true }
 
 reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"], optional = true }
 sha2 = { workspace = true, optional = true }
@@ -36,7 +37,6 @@ mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 clap = { workspace = true, optional = true }
 rand = { version = "0.8.5", optional = true }
 
-[target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
 thiserror = { workspace = true, optional = true }
 
 [dev-dependencies]

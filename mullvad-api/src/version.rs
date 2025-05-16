@@ -2,8 +2,9 @@ use std::future::Future;
 use std::sync::Arc;
 
 use http::StatusCode;
-use mullvad_types::version::AppVersion;
 use mullvad_update::version::{VersionInfo, VersionParameters};
+
+type AppVersion = String;
 
 use super::rest;
 use super::APP_URL_PREFIX;
@@ -18,7 +19,7 @@ pub struct AppVersionResponse {
     pub supported: bool,
     pub latest: AppVersion,
     pub latest_stable: Option<AppVersion>,
-    pub latest_beta: AppVersion,
+    pub latest_beta: Option<AppVersion>,
 }
 
 impl AppVersionProxy {
@@ -56,7 +57,7 @@ impl AppVersionProxy {
         architecture: mullvad_update::format::Architecture,
         rollout: f32,
         lowest_metadata_version: usize,
-    ) -> impl Future<Output = Result<VersionInfo, rest::Error>> + use<> {
+    ) -> impl Future<Output = Result<(VersionInfo, usize), rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let path = format!("app/releases/{platform}.json");
         let request = self.handle.factory.get(&path);
@@ -78,9 +79,13 @@ impl AppVersionProxy {
                 lowest_metadata_version,
             };
 
-            VersionInfo::try_from_response(&params, response.signed)
-                .map_err(Arc::new)
-                .map_err(rest::Error::FetchVersions)
+            let metadata_version = response.signed.metadata_version;
+            Ok((
+                VersionInfo::try_from_response(&params, response.signed)
+                    .map_err(Arc::new)
+                    .map_err(rest::Error::FetchVersions)?,
+                metadata_version,
+            ))
         }
     }
 }

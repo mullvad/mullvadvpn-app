@@ -12,21 +12,32 @@ import {
   InconsistentVersionNotificationProvider,
   ReconnectingNotificationProvider,
   UnsupportedVersionNotificationProvider,
-  UpdateAvailableNotificationProvider,
 } from '../../shared/notifications';
 import { useAppContext } from '../context';
+import {
+  useAppUpgradeDownloadProgressValue,
+  useAppUpgradeEventType,
+  useHasAppUpgradeError,
+  useShouldAppUpgradeInstallManually,
+} from '../hooks';
 import useActions from '../lib/actionsHook';
 import { Button } from '../lib/components';
 import { TransitionType, useHistory } from '../lib/history';
 import {
+  AppUpgradeErrorNotificationProvider,
+  AppUpgradeProgressNotificationProvider,
+  AppUpgradeReadyNotificationProvider,
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
   NoOpenVpnServerAvailableNotificationProvider,
   OpenVpnSupportEndingNotificationProvider,
 } from '../lib/notifications';
+import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/app-upgrade-available';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
+import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
+import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
@@ -66,7 +77,8 @@ export default function NotificationArea(props: IProps) {
 
   const { hideNewDeviceBanner } = useActions(accountActions);
 
-  const { setDisplayedChangelog } = useAppContext();
+  const { setDisplayedChangelog, setDismissedUpgrade, appUpgrade, appUpgradeInstallerStart } =
+    useAppContext();
 
   const currentVersion = useSelector((state) => state.version.current);
   const displayedForVersion = useSelector(
@@ -86,6 +98,26 @@ export default function NotificationArea(props: IProps) {
     await setSplitTunnelingState(false);
   }, [setSplitTunnelingState]);
 
+  const updateDismissedForVersion = useSelector(
+    (state) => state.settings.guiSettings.updateDismissedForVersion,
+  );
+  const hasAppUpgradeError = useHasAppUpgradeError();
+  const { error } = useAppUpgradeError();
+
+  const restartAppUpgrade = useCallback(() => {
+    appUpgrade();
+  }, [appUpgrade]);
+  const restartAppUpgradeInstaller = useCallback(() => {
+    appUpgradeInstallerStart();
+  }, [appUpgradeInstallerStart]);
+
+  const shouldAppUpgradeInstallManually = useShouldAppUpgradeInstallManually();
+  const { suggestedUpgrade } = useVersionSuggestedUpgrade();
+
+  const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
+  const appUpgradeEventType = useAppUpgradeEventType();
+  const appUpgradeStep = convertEventTypeToStep(appUpgradeEventType); // TODO: Remove and read value from redux
+
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
@@ -93,6 +125,21 @@ export default function NotificationArea(props: IProps) {
       tunnelState,
       blockWhenDisconnected,
       hasExcludedApps,
+    }),
+    new AppUpgradeErrorNotificationProvider({
+      hasAppUpgradeError,
+      appUpgradeError: error,
+      restartAppUpgrade,
+      restartAppUpgradeInstaller,
+    }),
+    new AppUpgradeReadyNotificationProvider({
+      shouldAppUpgradeInstallManually,
+      suggestedUpgradeVersion: suggestedUpgrade?.version,
+    }),
+    new AppUpgradeProgressNotificationProvider({
+      appUpgradeStep,
+      appUpgradeEventType,
+      appUpgradeDownloadProgressValue,
     }),
     new NoOpenVpnServerAvailableNotificationProvider({
       connection,
@@ -127,7 +174,13 @@ export default function NotificationArea(props: IProps) {
       changelog,
       close,
     }),
-    new UpdateAvailableNotificationProvider(version),
+    new AppUpgradeAvailableNotificationProvider({
+      platform: window.env.platform,
+      suggestedUpgradeVersion: suggestedUpgrade?.version,
+      suggestedIsBeta: version.suggestedIsBeta,
+      updateDismissedForVersion,
+      close: setDismissedUpgrade,
+    }),
     new OpenVpnSupportEndingNotificationProvider({ tunnelProtocol }),
   );
 

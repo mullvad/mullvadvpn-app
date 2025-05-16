@@ -25,6 +25,8 @@ service ManagementService {
   rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+  // Get information about the latest available version of the app.
+  // Note that calling this during an in-app upgrade will cancel the upgrade.
   rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
 
   rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
@@ -131,6 +133,40 @@ service ManagementService {
   // Debug features
   rpc DisableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc EnableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+
+  // App upgrade
+  rpc AppUpgrade(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc AppUpgradeAbort(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc AppUpgradeEventsListen(google.protobuf.Empty) returns (stream AppUpgradeEvent) {}
+}
+
+message AppUpgradeEvent {
+  oneof event {
+    AppUpgradeDownloadStarting download_starting = 1;
+    AppUpgradeDownloadProgress download_progress = 2;
+    AppUpgradeAborted upgrade_aborted = 3;
+    AppUpgradeVerifyingInstaller verifying_installer = 4;
+    AppUpgradeVerifiedInstaller verified_installer = 5;
+    AppUpgradeError error = 6;
+  }
+}
+
+message AppUpgradeDownloadStarting {}
+message AppUpgradeDownloadProgress {
+  string server = 1;
+  uint32 progress = 2;
+  optional google.protobuf.Duration time_left = 3;
+}
+message AppUpgradeAborted {}
+message AppUpgradeVerifyingInstaller {}
+message AppUpgradeVerifiedInstaller {}
+message AppUpgradeError {
+  enum Error {
+    GENERAL_ERROR = 0;
+    DOWNLOAD_FAILED = 1;
+    VERIFICATION_FAILED = 2;
+  }
+  Error error = 1;
 }
 
 message UUID { string value = 1; }
@@ -629,11 +665,15 @@ message ExcludedProcess {
 
 message ExcludedProcessList { repeated ExcludedProcess processes = 1; }
 
+message SuggestedUpgrade {
+  string version = 1;
+  string changelog = 2;
+  optional string verified_installer_path = 3;
+}
+
 message AppVersionInfo {
   bool supported = 1;
-  string latest_stable = 2;
-  string latest_beta = 3;
-  optional string suggested_upgrade = 4;
+  SuggestedUpgrade suggested_upgrade = 2;
 }
 
 message RelayListCountry {

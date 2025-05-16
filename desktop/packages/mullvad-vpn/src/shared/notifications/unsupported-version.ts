@@ -12,7 +12,6 @@ import {
 interface UnsupportedVersionNotificationContext {
   supported: boolean;
   consistent: boolean;
-  suggestedUpgrade?: string;
   suggestedIsBeta?: boolean;
 }
 

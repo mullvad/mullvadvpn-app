@@ -216,6 +216,7 @@ export default class History {
       scrollPosition: state?.scrollPosition ?? [0, 0],
       expandedSections: state?.expandedSections ?? {},
       transition: state?.transition ?? TransitionType.none,
+      options: state?.options,
     };
   }
 

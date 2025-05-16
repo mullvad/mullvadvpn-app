@@ -51,7 +51,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 
@@ -69,7 +68,10 @@ describe('System notifications', () => {
     const controller1 = createController();
     const controller2 = createController();
     const notification = new UpdateAvailableNotificationProvider({
-      suggestedUpgrade: '2100.1',
+      suggestedUpgrade: {
+        changelog: [],
+        version: '2100.1',
+      },
       suggestedIsBeta: false,
     });
 
@@ -88,7 +90,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 
@@ -105,7 +106,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 

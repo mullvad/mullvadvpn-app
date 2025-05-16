@@ -12,6 +12,7 @@ import {
 import { urls } from '../shared/constants';
 import {
   AccessMethodSetting,
+  DaemonAppUpgradeEvent,
   DaemonEvent,
   DeviceEvent,
   ErrorStateCause,
@@ -30,6 +31,7 @@ import {
   SystemNotificationCategory,
 } from '../shared/notifications/notification';
 import Account, { AccountDelegate, LocaleProvider } from './account';
+import AppUpgrade from './app-upgrade';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
 import {
@@ -96,10 +98,12 @@ class ApplicationMain
   private version: Version;
   private settings: Settings;
   private account: Account;
+  private appUpgrade: AppUpgrade;
   private userInterface?: UserInterface;
   private tunnelState = new TunnelStateHandler(this);
 
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
+  private daemonAppUpgradeEventListener?: SubscriptionListener<DaemonAppUpgradeEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;
   private isPerformingPostUpgrade = false;
@@ -141,6 +145,7 @@ class ApplicationMain
     this.version = new Version(this, this.daemonRpc, UPDATE_NOTIFICATION_DISABLED);
     this.settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
     this.account = new Account(this, this.daemonRpc);
+    this.appUpgrade = new AppUpgrade(this.daemonRpc);
   }
 
   public run() {
@@ -518,6 +523,17 @@ class ApplicationMain
 
     log.info('Connected to the daemon');
 
+    // verify daemon ownership
+    try {
+      await this.daemonRpc.verifyDaemonOwnership();
+      log.info('Verified daemon ownership');
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to verify daemon ownership: ${error.message}`);
+
+      return;
+    }
+
     this.notificationController.closeNotificationsInCategory(
       SystemNotificationCategory.tunnelState,
     );
@@ -528,6 +544,16 @@ class ApplicationMain
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to subscribe: ${error.message}`);
+
+      return this.handleBootstrapError(error);
+    }
+
+    // subscribe to app upgrade events
+    try {
+      this.daemonAppUpgradeEventListener = this.appUpgrade.subscribeEvents();
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to subscribe to app upgrade events: ${error.message}`);
 
       return this.handleBootstrapError(error);
     }
@@ -655,8 +681,12 @@ class ApplicationMain
     if (this.daemonEventListener) {
       this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
     }
-    // Reset the daemon event listener since it's going to be invalidated on disconnect
+    if (this.daemonAppUpgradeEventListener) {
+      this.daemonRpc.unsubscribeAppUpgradeEventListener(this.daemonAppUpgradeEventListener);
+    }
+    // Reset the daemon and app upgrade event listeners since they're going to be invalidated on disconnect
     this.daemonEventListener = undefined;
+    this.daemonAppUpgradeEventListener = undefined;
 
     this.notificationController.closeNotificationsInCategory(
       SystemNotificationCategory.tunnelState,
@@ -701,9 +731,13 @@ class ApplicationMain
   }
 
   private handleBootstrapError(_error?: Error) {
-    // Unsubscribe from daemon events when encountering errors during initial data retrieval.
+    // Unsubscribe from daemon and app upgrade events when encountering errors during initial data retrieval.
     if (this.daemonEventListener) {
       this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
+    }
+
+    if (this.daemonAppUpgradeEventListener) {
+      this.daemonRpc.unsubscribeAppUpgradeEventListener(this.daemonAppUpgradeEventListener);
     }
   }
 
@@ -903,6 +937,7 @@ class ApplicationMain
     this.userInterface!.registerIpcListeners();
     this.settings.registerIpcListeners();
     this.account.registerIpcListeners();
+    this.appUpgrade.registerIpcListeners();
 
     if (this.splitTunneling) {
       this.settings.gui.browsedForSplitTunnelingApplications.forEach((application) => {
