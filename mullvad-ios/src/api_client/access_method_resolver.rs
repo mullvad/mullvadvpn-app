@@ -10,7 +10,10 @@ use talpid_types::net::{
 };
 use tonic::async_trait;
 
-use super::shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
+use super::{
+    address_cache_provider::SwiftAddressCacheWrapper,
+    shadowsocks_loader::SwiftShadowsocksLoaderWrapper,
+};
 
 #[derive(Debug)]
 pub struct SwiftAccessMethodResolver {
@@ -18,6 +21,7 @@ pub struct SwiftAccessMethodResolver {
     domain: String,
     state: EncryptedDnsProxyState,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
+    address_cache: SwiftAddressCacheWrapper,
 }
 
 impl SwiftAccessMethodResolver {
@@ -26,12 +30,14 @@ impl SwiftAccessMethodResolver {
         domain: String,
         state: EncryptedDnsProxyState,
         bridge_provider: SwiftShadowsocksLoaderWrapper,
+        address_cache: SwiftAddressCacheWrapper,
     ) -> Self {
         Self {
             endpoint,
             domain,
             state,
             bridge_provider,
+            address_cache,
         }
     }
 }
@@ -79,8 +85,9 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
     }
 
     async fn default_connection_mode(&self) -> AllowedEndpoint {
-        // TODO: Call the iOS Address cache implementation instead of returning the default endpoint
-        let endpoint = ApiConnectionMode::Direct.get_endpoint().unwrap();
+        let endpoint =
+            Endpoint::from_socket_address(self.address_cache.get_addrs(), TransportProtocol::Tcp);
+
         AllowedEndpoint {
             endpoint,
             clients: AllowedClients::All,
