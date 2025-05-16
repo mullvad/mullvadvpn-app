@@ -10,8 +10,7 @@ import net.mullvad.mullvadvpn.test.e2e.constant.getValidAccountNumber
 
 object AccountProvider {
     private val mullvadClient = MullvadApi()
-    private val partnerAuth: String? =
-        InstrumentationRegistry.getArguments().getPartnerAuth()
+    private val partnerAuth: String? = InstrumentationRegistry.getArguments().getPartnerAuth()
     private val partnerClient: PartnerApi by lazy { PartnerApi(partnerAuth!!) }
 
     suspend fun getValidAccountNumber() =
