@@ -16,10 +16,10 @@ import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
 import net.mullvad.mullvadvpn.test.e2e.api.connectioncheck.ConnectionCheckApi
+import net.mullvad.mullvadvpn.test.e2e.api.relay.RelayApi
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.ClearFirewallRules
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.DropRule
-import net.mullvad.mullvadvpn.test.e2e.router.firewall.FirewallClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -33,7 +33,7 @@ class ConnectionTest : EndToEndTest() {
     val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
 
     private val connCheckClient = ConnectionCheckApi()
-    private val firewallClient = FirewallClient()
+    private val relayClient = RelayApi()
 
     @Test
     fun testConnect() {
@@ -238,6 +238,41 @@ class ConnectionTest : EndToEndTest() {
             clickConnect()
             waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
             clickDisconnect()
+        }
+    }
+
+    @Test
+    @HasDependencyOnLocalAPI
+    @ClearFirewallRules
+    fun testApiUnavailable() = runTest {
+        val testRelayIp = relayClient.getDefaultRelayIpAddress()
+
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
+        on<ConnectPage> {}
+
+        // Block everything except the default relay IP. After this the API is no longer reachable.
+        val firewallRule = DropRule.blockAllTrafficExceptToDestinationRule(testRelayIp)
+        firewallClient.createRule(firewallRule)
+
+        // Restarting the activity will re-create the daemon which will try to reach the API.
+        targetActivity.finishAffinity()
+        app.launch()
+
+        on<ConnectPage> { clickSelectLocation() }
+
+        on<SelectLocationPage> {
+            clickLocationExpandButton(DEFAULT_COUNTRY)
+            clickLocationExpandButton(DEFAULT_CITY)
+            clickLocationCell(DEFAULT_RELAY)
+        }
+
+        device.acceptVpnPermissionDialog()
+
+        // Test that we can still connect to the relay even though the API is blocked.
+        on<ConnectPage> {
+            waitForConnectedLabel()
+            clickDisconnect()
+            waitForDisconnectedLabel()
         }
     }
 
