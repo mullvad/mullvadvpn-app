@@ -1,12 +1,13 @@
 import { useCallback } from 'react';
 
-import { useAppUpgradeError } from '../../../redux/hooks';
-import { DOWNLOAD_COMPLETE_VALUE, FALLBACK_VALUE } from '../constants';
+import { useAppUpgradeError, useAppUpgradeLastProgress } from '../../../redux/hooks';
+import { DOWNLOAD_COMPLETE_VALUE } from '../constants';
 import { useGetValueDownloadProgress } from './useGetValueDownloadProgress';
 
 export const useGetValueError = () => {
   const { error } = useAppUpgradeError();
   const getValueDownloadProgress = useGetValueDownloadProgress();
+  const { lastProgress } = useAppUpgradeLastProgress();
 
   const getValueError = useCallback(() => {
     if (error === 'DOWNLOAD_FAILED' || error === 'GENERAL_ERROR') {
@@ -21,8 +22,8 @@ export const useGetValueError = () => {
       return DOWNLOAD_COMPLETE_VALUE;
     }
 
-    return FALLBACK_VALUE;
-  }, [error, getValueDownloadProgress]);
+    return lastProgress;
+  }, [error, getValueDownloadProgress, lastProgress]);
 
   return getValueError;
 };

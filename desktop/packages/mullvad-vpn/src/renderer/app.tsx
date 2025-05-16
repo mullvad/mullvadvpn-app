@@ -182,6 +182,14 @@ export default class AppRenderer {
         this.reduxActions.appUpgrade.setLastProgress(appUpgradeEvent.progress);
       }
 
+      // Ensure progress is updated to 100%, since the daemon doesn't send the last event
+      if (
+        appUpgradeEvent.type === 'APP_UPGRADE_STATUS_VERIFYING_INSTALLER' ||
+        appUpgradeEvent.type === 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER'
+      ) {
+        this.reduxActions.appUpgrade.setLastProgress(100);
+      }
+
       // Check if the installer should be started automatically
       this.appUpgradeMaybeStartInstaller();
     });
