@@ -1,11 +1,12 @@
 import { sprintf } from 'sprintf-js';
 
+import { AppUpgradeEvent } from '../../../shared/app-upgrade';
 import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
 import { RoutePath } from '../../../shared/routes';
 
 interface AppUpgradeReadyNotificationContext {
-  shouldAppUpgradeInstallManually: boolean;
+  appUpgradeEventType?: AppUpgradeEvent['type'];
   suggestedUpgradeVersion?: string;
 }
 
@@ -13,7 +14,10 @@ export class AppUpgradeReadyNotificationProvider implements InAppNotificationPro
   public constructor(private context: AppUpgradeReadyNotificationContext) {}
 
   public mayDisplay = () => {
-    return this.context.shouldAppUpgradeInstallManually;
+    return (
+      this.context.appUpgradeEventType === 'APP_UPGRADE_STATUS_EXITED_INSTALLER' ||
+      this.context.appUpgradeEventType === 'APP_UPGRADE_STATUS_MANUAL_START_INSTALLER'
+    );
   };
 
   public getInAppNotification(): InAppNotification {

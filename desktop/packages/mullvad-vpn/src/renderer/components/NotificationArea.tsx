@@ -19,7 +19,6 @@ import {
   useAppUpgradeDownloadProgressValue,
   useAppUpgradeEventType,
   useHasAppUpgradeError,
-  useShouldAppUpgradeInstallManually,
 } from '../hooks';
 import useActions from '../lib/actionsHook';
 import { Button } from '../lib/components';
@@ -114,7 +113,6 @@ export default function NotificationArea(props: IProps) {
     appUpgradeInstallerStart();
   }, [appUpgradeInstallerStart]);
 
-  const shouldAppUpgradeInstallManually = useShouldAppUpgradeInstallManually();
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
 
   const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
@@ -136,7 +134,7 @@ export default function NotificationArea(props: IProps) {
       restartAppUpgradeInstaller,
     }),
     new AppUpgradeReadyNotificationProvider({
-      shouldAppUpgradeInstallManually,
+      appUpgradeEventType,
       suggestedUpgradeVersion: suggestedUpgrade?.version,
     }),
     new AppUpgradeProgressNotificationProvider({
