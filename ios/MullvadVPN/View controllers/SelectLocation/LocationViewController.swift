@@ -171,8 +171,8 @@ final class LocationViewController: UIViewController {
         tableView.backgroundColor = view.backgroundColor
         tableView.separatorColor = .secondaryColor
         tableView.separatorInset = .zero
-        tableView.rowHeight = 56
-        tableView.sectionHeaderHeight = 56
+        tableView.rowHeight = UIMetrics.TableView.rowHeight
+        tableView.sectionHeaderHeight = UIMetrics.TableView.rowHeight
         tableView.indicatorStyle = .white
         tableView.keyboardDismissMode = .onDrag
         tableView.setAccessibilityIdentifier(.selectLocationTableView)

@@ -95,7 +95,7 @@ extension UIColor {
             static let indentationLevelTwo = UIColor(red: 0.11, green: 0.20, blue: 0.31, alpha: 1.0)
             static let indentationLevelThree = UIColor(red: 0.11, green: 0.19, blue: 0.29, alpha: 1.0)
 
-            static let normal = indentationLevelZero
+            static let normal = UIColor.primaryColor
             static let disabled = normal.darkened(by: 0.1)!
             static let selected = successColor
             static let disabledSelected = selected.darkened(by: 0.3)!

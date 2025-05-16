@@ -12,6 +12,8 @@ import UIKit
 
 enum UIMetrics {
     enum TableView {
+        /// Height of a cell.
+        static let rowHeight: CGFloat = 56
         /// Height for separators between cells and/or sections.
         static let separatorHeight: CGFloat = 0.33
         /// Spacing used between distinct sections of views

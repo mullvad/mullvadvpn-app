@@ -25,7 +25,7 @@ class AddLocationsViewController: UIViewController {
         let tableView = UITableView()
         tableView.separatorColor = .secondaryColor
         tableView.separatorInset = .zero
-        tableView.rowHeight = 56
+        tableView.rowHeight = UIMetrics.TableView.rowHeight
         tableView.indicatorStyle = .white
         tableView.setAccessibilityIdentifier(.editCustomListEditLocationsTableView)
         return tableView
