@@ -15,7 +15,7 @@ export const useMessage = () => {
   const hasAppUpgradeError = useHasAppUpgradeError();
   const hasAppUpgradeVerifiedInstallerPath = useHasAppUpgradeVerifiedInstallerPath();
 
-  if (hasAppUpgradeVerifiedInstallerPath) {
+  if (hasAppUpgradeVerifiedInstallerPath && !appUpgradeEventType) {
     return messages.pgettext('app-upgrade-view', 'Download complete!');
   }
 
