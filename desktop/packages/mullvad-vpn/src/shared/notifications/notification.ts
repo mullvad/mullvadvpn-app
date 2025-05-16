@@ -1,14 +1,13 @@
 import { ExternalLinkProps } from '../../renderer/components/ExternalLink';
 import { InternalLinkProps } from '../../renderer/components/InternalLink';
 import { ButtonProps } from '../../renderer/lib/components';
-import { Url } from '../constants';
 
-export type NotificationAction = {
-  type: 'open-url';
-  url: Url;
-  text?: string;
-  withAuth?: boolean;
+export type NotificationActionNavigateExternal = {
+  type: 'navigate-external';
+  link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label' | 'withAuth'>;
 };
+
+export type NotificationAction = NotificationActionNavigateExternal;
 
 export interface InAppNotificationTroubleshootInfo {
   details: string;
@@ -23,7 +22,6 @@ export interface InAppNotificationTroubleshootButton {
 }
 
 export type InAppNotificationAction =
-  | NotificationAction
   | {
       type: 'troubleshoot-dialog';
       troubleshoot: InAppNotificationTroubleshootInfo;
@@ -38,7 +36,7 @@ export type InAppNotificationAction =
     }
   | {
       type: 'navigate-external';
-      link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label'>;
+      link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label' | 'withAuth'>;
     }
   | {
       type: 'run-function';

@@ -30,9 +30,11 @@ export class UnsupportedVersionNotificationProvider
       category: SystemNotificationCategory.newVersion,
       severity: SystemNotificationSeverityType.high,
       action: {
-        type: 'open-url',
-        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-        text: messages.pgettext('notifications', 'Upgrade'),
+        type: 'navigate-external',
+        link: {
+          to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+          'aria-label': messages.pgettext('notifications', 'Upgrade'),
+        },
       },
       presentOnce: { value: true, name: this.constructor.name },
       suppressInDevelopment: true,
@@ -45,8 +47,10 @@ export class UnsupportedVersionNotificationProvider
       title: messages.pgettext('in-app-notifications', 'UNSUPPORTED VERSION'),
       subtitle: this.getMessage(),
       action: {
-        type: 'open-url',
-        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+        type: 'navigate-external',
+        link: {
+          to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+        },
       },
     };
   }

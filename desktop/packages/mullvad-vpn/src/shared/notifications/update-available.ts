@@ -28,9 +28,11 @@ export class UpdateAvailableNotificationProvider implements SystemNotificationPr
       category: SystemNotificationCategory.newVersion,
       severity: SystemNotificationSeverityType.medium,
       action: {
-        type: 'open-url',
-        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-        text: messages.pgettext('notifications', 'Upgrade'),
+        type: 'navigate-external',
+        link: {
+          to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+          'aria-label': messages.pgettext('notifications', 'Upgrade'),
+        },
       },
       presentOnce: { value: true, name: this.constructor.name },
       suppressInDevelopment: true,
