@@ -8,4 +8,5 @@ enum class NetworkingProtocol {
     @SerialName("tcp") TCP,
     @SerialName("udp") UDP,
     @SerialName("icmp") ICMP,
+    @SerialName("wireguard") WireGuard,
 }
