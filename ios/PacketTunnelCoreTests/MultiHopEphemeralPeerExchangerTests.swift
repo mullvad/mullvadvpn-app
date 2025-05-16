@@ -90,8 +90,8 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
 
         await multiHopExchanger.start()
 
-        wait(
-            for: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
@@ -133,8 +133,8 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
             })
         await multiHopPeerExchanger.start()
 
-        wait(
-            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
@@ -171,8 +171,8 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         })
         await multiHopPeerExchanger.start()
 
-        wait(
-            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
@@ -213,8 +213,8 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         })
         await multiHopPeerExchanger.start()
 
-        wait(
-            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
