@@ -77,7 +77,7 @@ fn dir_is_root_owned(dir: &Path, perms: Option<&fs::Permissions>) -> Result<bool
 }
 
 /// Return whether `mask` is *at least* as strict as `at_most`
-/// This only considers the user, group, and "others" bits.
+/// This only considers the read, write, and exec bits.
 fn has_at_most_mask(mask: u32, at_most: u32) -> bool {
     // Ignore "D" bit, setuid bit, etc.
     const RELEVANT_BITS: u32 = 0o777;
