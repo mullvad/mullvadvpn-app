@@ -1,5 +1,3 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -13,8 +11,7 @@ android {
 
     defaultConfig {
         minSdk = Versions.minSdkVersion
-        val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
-        val shouldRequireBundleRelayFile = isReleaseBuild() && !isDevBuild(localProperties)
+        val shouldRequireBundleRelayFile = isReleaseBuild() && !isDevBuild()
         buildConfigField(
             "Boolean",
             "REQUIRE_BUNDLED_RELAY_FILE",

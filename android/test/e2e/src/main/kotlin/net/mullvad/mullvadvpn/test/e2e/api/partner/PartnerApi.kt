@@ -21,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import net.mullvad.mullvadvpn.test.e2e.BuildConfig
+import net.mullvad.mullvadvpn.test.e2e.constant.DOMAIN
 import net.mullvad.mullvadvpn.test.e2e.misc.KermitLogger
 
 class PartnerApi(base64AuthCredentials: String) {
@@ -63,8 +63,8 @@ class PartnerApi(base64AuthCredentials: String) {
         }
 
     companion object {
-        private const val BASE_URL = "partner.${BuildConfig.INFRASTRUCTURE_BASE_DOMAIN}"
-        private const val ACCOUNT_PATH = "${BuildConfig.API_VERSION}/accounts"
+        private val BASE_URL = "partner.$DOMAIN"
+        private const val ACCOUNT_PATH = "v1/accounts"
     }
 }
 

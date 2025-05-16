@@ -16,7 +16,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import net.mullvad.mullvadvpn.test.e2e.BuildConfig
+import net.mullvad.mullvadvpn.test.e2e.constant.DOMAIN
 import net.mullvad.mullvadvpn.test.e2e.misc.KermitLogger
 
 class ConnectionCheckApi {
@@ -44,7 +44,7 @@ class ConnectionCheckApi {
 
     companion object {
         // Connection check
-        private const val BASE_URL = "am.i.${BuildConfig.INFRASTRUCTURE_BASE_DOMAIN}"
+        private val BASE_URL = "am.i.$DOMAIN"
         private const val JSON_PATH = "json"
     }
 }
