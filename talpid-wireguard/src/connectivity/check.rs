@@ -1,18 +1,16 @@
-use std::net::Ipv4Addr;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
-use std::time::Duration;
-use tokio::sync::broadcast;
-use tokio::time::Instant;
+use std::{
+    net::Ipv4Addr,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+    time::Duration,
+};
+use tokio::{sync::broadcast, time::Instant};
 
-use super::constants::*;
-use super::error::Error;
-use super::pinger;
+use super::{constants::*, error::Error, pinger};
 
-use crate::stats::StatsMap;
-#[cfg(target_os = "android")]
-use crate::Tunnel;
-use crate::{TunnelError, TunnelType};
+use crate::{stats::StatsMap, Tunnel, TunnelError};
 use pinger::Pinger;
 
 /// Verifies if a connection to a tunnel is working.
@@ -132,7 +130,7 @@ impl Check {
     // successful at the start of a connection.
     pub async fn establish_connectivity(
         &mut self,
-        tunnel_handle: &TunnelType,
+        tunnel_handle: &dyn Tunnel,
     ) -> Result<bool, Error> {
         // Send initial ping to prod WireGuard into connecting.
         self.ping_state
@@ -161,7 +159,7 @@ impl Check {
         timeout_initial: Duration,
         timeout_multiplier: u32,
         max_timeout: Duration,
-        tunnel_handle: &TunnelType,
+        tunnel_handle: &dyn Tunnel,
     ) -> Result<bool, Error> {
         if self.conn_state.connected() {
             return Ok(true);
@@ -226,7 +224,7 @@ impl Check {
     pub(crate) async fn check_connectivity(
         &mut self,
         now: Instant,
-        tunnel_handle: &TunnelType,
+        tunnel_handle: &dyn Tunnel,
     ) -> Result<bool, Error> {
         Self::check_connectivity_interval(
             &mut self.conn_state,
@@ -244,7 +242,7 @@ impl Check {
         ping_state: &mut PingState,
         now: Instant,
         timeout: Duration,
-        tunnel_handle: &TunnelType,
+        tunnel_handle: &dyn Tunnel,
     ) -> Result<bool, Error> {
         match Self::get_stats(tunnel_handle)
             .await
@@ -265,7 +263,7 @@ impl Check {
 
     /// If None is returned, then the underlying tunnel has already been closed and all subsequent
     /// calls will also return None.
-    async fn get_stats(tunnel_handle: &TunnelType) -> Result<Option<StatsMap>, TunnelError> {
+    async fn get_stats(tunnel_handle: &dyn Tunnel) -> Result<Option<StatsMap>, TunnelError> {
         let stats = tunnel_handle.get_tunnel_stats().await?;
         if stats.is_empty() {
             log::error!("Tunnel unexpectedly shut down");
@@ -604,7 +602,10 @@ mod test {
         Check::maybe_send_ping(&mut checker.conn_state, &mut checker.ping_state, start)
             .await
             .unwrap();
-        assert!(!checker.check_connectivity(now, &tunnel).await.unwrap())
+        assert!(!checker
+            .check_connectivity(now, tunnel.as_ref())
+            .await
+            .unwrap())
     }
 
     #[tokio::test]
@@ -617,7 +618,10 @@ mod test {
         let start = now.checked_sub(Duration::from_secs(1)).unwrap();
         let (mut checker, _cancel_token) = mock_checker(start, Box::new(pinger));
 
-        assert!(!checker.check_connectivity(now, &tunnel).await.unwrap())
+        assert!(!checker
+            .check_connectivity(now, tunnel.as_ref())
+            .await
+            .unwrap())
     }
 
     #[tokio::test]
@@ -633,7 +637,10 @@ mod test {
         // Mock the state - connectivity has been established
         checker.conn_state = connected_state(start);
 
-        assert!(checker.check_connectivity(now, &tunnel).await.unwrap())
+        assert!(checker
+            .check_connectivity(now, tunnel.as_ref())
+            .await
+            .unwrap())
     }
 
     #[tokio::test(start_paused = true)]
@@ -671,7 +678,7 @@ mod test {
                             ESTABLISH_TIMEOUT,
                             ESTABLISH_TIMEOUT_MULTIPLIER,
                             MAX_ESTABLISH_TIMEOUT,
-                            &tunnel,
+                            tunnel.as_ref(),
                         )
                         .await,
                 )

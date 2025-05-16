@@ -1,8 +1,6 @@
 //! This module takes care of obtaining ephemeral peers, updating the WireGuard configuration and
 //! restarting obfuscation and WG tunnels when necessary.
 
-#[cfg(target_os = "android")] // On Android, the Tunnel trait is not imported by default.
-use super::Tunnel;
 use super::{config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, TunnelType};
 
 #[cfg(target_os = "android")]
@@ -207,15 +205,15 @@ async fn reconfigure_tunnel(
     }
     {
         let mut shared_tunnel = tunnel.lock().await;
-        let tunnel = shared_tunnel.take().expect("tunnel was None");
+        let mut tunnel = shared_tunnel.take().expect("tunnel was None");
 
-        let updated_tunnel = tunnel
-            .set_config(&config)
+        tunnel
+            .set_config(config.clone())
             .await
             .map_err(Error::TunnelError)
             .map_err(CloseMsg::SetupError)?;
 
-        *shared_tunnel = Some(updated_tunnel);
+        *shared_tunnel = Some(tunnel);
     }
     Ok(config)
 }
