@@ -14,9 +14,6 @@ mod unix;
 #[cfg(unix)]
 pub use unix::PRODUCT_NAME;
 
-#[cfg(windows)]
-use crate::windows::create_dir_recursive;
-
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(thiserror::Error, Debug)]
@@ -47,14 +44,6 @@ pub enum Error {
 
     #[error("Device data directory has not been set")]
     NoDataDir,
-}
-
-#[cfg(windows)]
-fn get_allusersprofile_dir() -> Result<PathBuf> {
-    match std::env::var_os("ALLUSERSPROFILE") {
-        Some(dir) => Ok(PathBuf::from(&dir)),
-        None => Err(Error::NoProgramDataDir),
-    }
 }
 
 #[cfg(unix)]

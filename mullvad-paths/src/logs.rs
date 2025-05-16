@@ -30,6 +30,6 @@ pub fn get_default_log_dir() -> Result<PathBuf> {
 
 #[cfg(windows)]
 pub fn get_default_log_dir() -> Result<PathBuf> {
-    let dir = crate::get_allusersprofile_dir()?.join(crate::PRODUCT_NAME);
+    let dir = crate::windows::get_allusersprofile_dir()?.join(crate::PRODUCT_NAME);
     Ok(dir)
 }
