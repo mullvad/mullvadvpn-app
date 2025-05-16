@@ -1,13 +1,18 @@
 #![cfg(not(target_os = "android"))]
 
-#[cfg(any(target_os = "linux", target_os = "macos"))]
-use std::fs;
-#[cfg(any(target_os = "linux", target_os = "macos"))]
-use std::path::Path;
-use std::{io, path::PathBuf};
+use std::io;
 
 #[cfg(windows)]
-use crate::windows::create_dir_recursive;
+pub mod windows;
+
+#[cfg(windows)]
+pub use windows::PRODUCT_NAME;
+
+#[cfg(unix)]
+mod unix;
+
+#[cfg(unix)]
+pub use unix::PRODUCT_NAME;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -41,95 +46,11 @@ pub enum Error {
     NoDataDir,
 }
 
-#[cfg(any(target_os = "linux", target_os = "macos"))]
-const PRODUCT_NAME: &str = "mullvad-vpn";
+#[cfg(unix)]
+use unix::create_and_return;
 
 #[cfg(windows)]
-pub const PRODUCT_NAME: &str = "Mullvad VPN";
-
-#[cfg(unix)]
-#[derive(Clone, Copy, PartialEq)]
-enum Permissions {
-    /// Do not set any particular permissions. They will be inherited instead.
-    Any,
-    /// Only root should have write access. Other users will have
-    /// read and execute permissions (0o755).
-    ReadExecOnly,
-}
-
-#[cfg(unix)]
-impl Permissions {
-    fn fs_permissions(self) -> Option<fs::Permissions> {
-        match self {
-            Permissions::Any => None,
-            Permissions::ReadExecOnly => Some(std::os::unix::fs::PermissionsExt::from_mode(0o755)),
-        }
-    }
-}
-
-#[cfg(windows)]
-fn get_allusersprofile_dir() -> Result<PathBuf> {
-    match std::env::var_os("ALLUSERSPROFILE") {
-        Some(dir) => Ok(PathBuf::from(&dir)),
-        None => Err(Error::NoProgramDataDir),
-    }
-}
-
-#[cfg(unix)]
-fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathBuf> {
-    use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
-
-    let mut dir_builder = fs::DirBuilder::new();
-    let fs_perms = permissions.fs_permissions();
-    if let Some(fs_perms) = fs_perms.as_ref() {
-        dir_builder.mode(fs_perms.mode());
-    }
-    match dir_builder.create(&dir) {
-        Ok(()) => Ok(dir),
-        // The directory already exists
-        Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
-            // If the permissions are wrong, delete the directory
-            if !dir_is_root_owned(&dir, fs_perms.as_ref())? {
-                fs::remove_dir_all(&dir)
-                    .or_else(|err| {
-                        // ENOTDIR: If the path is not a directory, try to remove the file
-                        if err.raw_os_error() == Some(20) {
-                            fs::remove_file(&dir)
-                        } else {
-                            Err(err)
-                        }
-                    })
-                    .map_err(|e| Error::RemoveDir(dir.display().to_string(), e))?;
-                // Try to create it again
-                return create_and_return(dir, permissions);
-            }
-            // Correct permissions, so we're done
-            Ok(dir)
-        }
-        // Fail on any other error
-        Err(error) => Err(Error::CreateDirFailed(dir.display().to_string(), error)),
-    }
-}
-
-#[cfg(unix)]
-fn dir_is_root_owned(dir: &Path, perms: Option<&fs::Permissions>) -> Result<bool> {
-    use std::os::unix::fs::{MetadataExt, PermissionsExt};
-
-    const RELEVANT_BITS: u32 = 0o777;
-
-    let meta = fs::symlink_metadata(&dir)
-        .map_err(|e| Error::GetDirPermissionFailed(dir.display().to_string(), e))?;
-    let matching_perms = perms
-        .map(|perms| (perms.mode() & RELEVANT_BITS) == (meta.permissions().mode() & RELEVANT_BITS))
-        .unwrap_or(true);
-    Ok(matching_perms && meta.uid() == 0)
-}
-
-#[cfg(windows)]
-fn create_and_return(dir: PathBuf, set_security_permissions: bool) -> Result<PathBuf> {
-    create_dir_recursive(&dir, set_security_permissions)?;
-    Ok(dir)
-}
+use windows::create_and_return;
 
 mod cache;
 pub use crate::cache::{cache_dir, get_cache_dir, get_default_cache_dir};
@@ -145,6 +66,3 @@ pub use crate::rpc_socket::{get_default_rpc_socket_path, get_rpc_socket_path};
 
 mod settings;
 pub use crate::settings::{get_default_settings_dir, settings_dir};
-
-#[cfg(windows)]
-pub mod windows;
