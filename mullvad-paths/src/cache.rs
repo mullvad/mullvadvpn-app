@@ -4,9 +4,7 @@ use std::{env, path::PathBuf};
 /// Creates and returns the cache directory pointed to by `MULLVAD_CACHE_DIR`, or the default
 /// one if that variable is unset.
 pub fn cache_dir() -> Result<PathBuf> {
-    #[cfg(target_os = "linux")]
-    let permissions = crate::unix::Permissions::Any;
-    #[cfg(target_os = "macos")]
+    #[cfg(unix)]
     let permissions = crate::unix::Permissions::ReadExecOnly;
     #[cfg(target_os = "windows")]
     let permissions = true;
