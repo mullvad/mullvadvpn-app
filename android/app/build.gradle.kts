@@ -183,12 +183,10 @@ android {
     }
 
     applicationVariants.configureEach {
-        val enableInAppVersionNotifications =
-            getStringProperty("app.config.showInAppVerisonNotifications")
         buildConfigField(
             "boolean",
             "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
-            enableInAppVersionNotifications,
+            getBooleanProperty("app.config.showInAppVerisonNotifications").toString(),
         )
     }
 
