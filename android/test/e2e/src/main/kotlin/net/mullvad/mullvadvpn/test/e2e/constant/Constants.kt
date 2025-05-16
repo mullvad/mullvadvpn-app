@@ -1,9 +1,41 @@
 package net.mullvad.mullvadvpn.test.e2e.constant
 
+import android.os.Bundle
+import androidx.test.platform.app.InstrumentationRegistry
+import net.mullvad.mullvadvpn.test.e2e.BuildConfig
+import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
+
 const val LOG_TAG = "mullvad-e2e"
 const val PARTNER_AUTH = "partner_auth"
-const val VALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY = "valid_test_account_number"
-const val INVALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY = "invalid_test_account_number"
 
-const val ENABLE_ACCESS_TO_LOCAL_API_TESTS = "enable_access_to_local_api_tests"
-const val ENABLE_HIGHLY_RATE_LIMITED_TESTS = "enable_highly_rate_limited_tests"
+fun Bundle.getValidAccountNumber() =
+    InstrumentationRegistry.getArguments()
+        .getRequiredArgument("test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.valid")
+
+fun Bundle.getInvalidAccountNumber() =
+    InstrumentationRegistry.getArguments()
+        .getRequiredArgument("test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.invalid")
+
+fun Bundle.isRaasEnabled(): Boolean =
+    InstrumentationRegistry.getArguments().getBoolean("test.e2e.config.raas.enable", false)
+
+fun Bundle.isHighlyRateLimitedTestsEnabled(): Boolean =
+    InstrumentationRegistry.getArguments()
+        .getBoolean("test.e2e.config.runHighlyRateLimitedTests", false)
+
+fun Bundle.getRaasHost() =
+    InstrumentationRegistry.getArguments().getRequiredArgument("test.e2e.config.raas.host")
+
+fun Bundle.getTrafficGeneratorHost(): String =
+    InstrumentationRegistry.getArguments()
+        .getRequiredArgument("test.e2e.config.raas.trafficGenerator.target.host")
+
+fun Bundle.getTrafficGeneratorPort(): Int =
+    InstrumentationRegistry.getArguments()
+        .getInt("test.e2e.config.raas.trafficGenerator.target.port", 80)
+
+val DOMAIN =
+    when (BuildConfig.FLAVOR_infrastructure) {
+        "stagemole" -> "stagemole.eu"
+        else -> "mullvad.net"
+    }

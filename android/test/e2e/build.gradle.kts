@@ -1,5 +1,3 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
 
 plugins {
@@ -23,42 +21,28 @@ android {
             "de.mannodermaus.junit5.AndroidJUnit5Builder"
         targetProjectPath = ":app"
 
-        fun Properties.addRequiredPropertyAsBuildConfigField(name: String) {
-            val value =
-                System.getenv(name)
-                    ?: getProperty(name)
-                    ?: throw GradleException("Missing property: $name")
-
-            buildConfigField(type = "String", name = name, value = "\"$value\"")
-        }
-
-        Properties().apply {
-            load(project.file("e2e.properties").inputStream())
-            addRequiredPropertyAsBuildConfigField("API_VERSION")
-            addRequiredPropertyAsBuildConfigField("TRAFFIC_GENERATION_IP_ADDRESS")
-            addRequiredPropertyAsBuildConfigField("TEST_ROUTER_API_HOST")
-        }
-
-        fun MutableMap<String, String>.addOptionalPropertyAsArgument(name: String) {
-            val value =
-                rootProject.properties.getOrDefault(name, null) as? String
-                    ?: gradleLocalProperties(rootProject.projectDir, providers).getProperty(name)
-
+        fun MutableMap<String, String>.putMullvadPropertyIfPresent(name: String) {
+            val value = getMullvadProperty(name)
             if (value != null) {
                 put(name, value)
             }
         }
 
-        testInstrumentationRunnerArguments +=
-            mutableMapOf<String, String>().apply {
-                put("clearPackageData", "true")
-                addOptionalPropertyAsArgument("enable_highly_rate_limited_tests")
-                addOptionalPropertyAsArgument("valid_test_account_number")
-                addOptionalPropertyAsArgument("invalid_test_account_number")
-                project.findProperty("test.e2e.enableAccessToLocalApiTests")?.let {
-                    put("enable_access_to_local_api_tests", it.toString())
-                }
-            }
+        testInstrumentationRunnerArguments += buildMap {
+            put("clearPackageData", "true")
+
+            putMullvadPropertyIfPresent("test.e2e.stagemole.accountNumber.valid")
+            putMullvadPropertyIfPresent("test.e2e.stagemole.accountNumber.invalid")
+            putMullvadPropertyIfPresent("test.e2e.prod.accountNumber.valid")
+            putMullvadPropertyIfPresent("test.e2e.prod.accountNumber.invalid")
+
+            putMullvadPropertyIfPresent("test.e2e.config.raas.enable")
+            putMullvadPropertyIfPresent("test.e2e.config.raas.host")
+            putMullvadPropertyIfPresent("test.e2e.config.raas.trafficGenerator.target.host")
+            putMullvadPropertyIfPresent("test.e2e.config.raas.trafficGenerator.target.port")
+
+            putMullvadPropertyIfPresent("test.e2e.config.runHighlyRateLimitedTests")
+        }
     }
 
     flavorDimensions += FlavorDimensions.BILLING
@@ -67,22 +51,8 @@ android {
     productFlavors {
         create(Flavors.OSS) { dimension = FlavorDimensions.BILLING }
         create(Flavors.PLAY) { dimension = FlavorDimensions.BILLING }
-        create(Flavors.PROD) {
-            dimension = FlavorDimensions.INFRASTRUCTURE
-            buildConfigField(
-                type = "String",
-                name = "INFRASTRUCTURE_BASE_DOMAIN",
-                value = "\"mullvad.net\"",
-            )
-        }
-        create(Flavors.STAGEMOLE) {
-            dimension = FlavorDimensions.INFRASTRUCTURE
-            buildConfigField(
-                type = "String",
-                name = "INFRASTRUCTURE_BASE_DOMAIN",
-                value = "\"stagemole.eu\"",
-            )
-        }
+        create(Flavors.PROD) { dimension = FlavorDimensions.INFRASTRUCTURE }
+        create(Flavors.STAGEMOLE) { dimension = FlavorDimensions.INFRASTRUCTURE }
     }
 
     testOptions { execution = "ANDROIDX_TEST_ORCHESTRATOR" }

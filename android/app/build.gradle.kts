@@ -1,4 +1,3 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.github.triplet.gradle.androidpublisher.ReleaseStatus
 import java.io.FileInputStream
@@ -38,13 +37,11 @@ android {
     ndkVersion = Versions.ndkVersion
 
     defaultConfig {
-        val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
-
         applicationId = "net.mullvad.mullvadvpn"
         minSdk = Versions.minSdkVersion
         targetSdk = Versions.targetSdkVersion
-        versionCode = generateVersionCode(localProperties)
-        versionName = generateVersionName(localProperties)
+        versionCode = generateVersionCode()
+        versionName = generateVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         lint {
@@ -89,11 +86,7 @@ android {
             )
         }
         getByName(BuildTypes.DEBUG) {
-            if (
-                gradleLocalProperties(rootProject.projectDir, providers)
-                    .getProperty("KEEP_DEBUG_SYMBOLS")
-                    .toBoolean()
-            ) {
+            if (getMullvadProperty("app.build.keepDebugSymbols").toBoolean()) {
                 packaging { jniLibs.keepDebugSymbols.add("**/*.so") }
             }
         }
@@ -135,9 +128,8 @@ android {
     sourceSets {
         getByName("main") {
             val changelogDir =
-                gradleLocalProperties(rootProject.projectDir, providers)
-                    .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
-
+                getMullvadProperty("app.config.override.changeLogDir")
+                    ?: defaultChangelogAssetsDirectory
             assets.srcDirs(relayListDirectory, changelogDir)
         }
     }
@@ -195,9 +187,7 @@ android {
 
     applicationVariants.configureEach {
         val enableInAppVersionNotifications =
-            gradleLocalProperties(rootProject.projectDir, providers)
-                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS") ?: "true"
-
+            getMullvadProperty("app.config.showInAppVerisonNotifications") ?: "true"
         buildConfigField(
             "boolean",
             "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
@@ -267,18 +257,15 @@ junitPlatform {
 }
 
 cargo {
-    val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
     val isReleaseBuild = isReleaseBuild()
-    val enableApiOverride =
-        !isReleaseBuild || isDevBuild(localProperties) || isAlphaBuild(localProperties)
+    val enableApiOverride = !isReleaseBuild || isDevBuild() || isAlphaBuild()
     module = repoRootPath
     libname = "mullvad-jni"
     // All available targets:
     // https://github.com/mozilla/rust-android-gradle/tree/master?tab=readme-ov-file#targets
     targets =
-        gradleLocalProperties(rootProject.projectDir, providers)
-            .getProperty("CARGO_TARGETS")
-            ?.split(",") ?: listOf("arm", "arm64", "x86", "x86_64")
+        getMullvadProperty("app.build.cargo.targets")?.split(",")
+            ?: listOf("arm", "arm64", "x86", "x86_64")
     profile =
         if (isReleaseBuild) {
             "release"
@@ -305,11 +292,7 @@ tasks.register<Exec>("cargoClean") {
     commandLine("cargo", "clean")
 }
 
-if (
-    gradleLocalProperties(rootProject.projectDir, providers)
-        .getProperty("CLEAN_CARGO_BUILD")
-        ?.toBoolean() != false
-) {
+if (getMullvadProperty("app.build.cargo.cleanBuild")?.toBoolean() == true) {
     tasks["clean"].dependsOn("cargoClean")
 }
 
