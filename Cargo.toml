@@ -150,3 +150,6 @@ opt-level = 3
 
 [profile.release.package."quinn"]
 opt-level = 3
+
+[profile.release.package."mullvad-masque-proxy"]
+opt-level = 3
