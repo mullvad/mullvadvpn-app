@@ -114,26 +114,27 @@ case "$TEST_TYPE" in
         echo "Error: The 'e2e' test type with billing flavor 'oss' require infra flavor 'prod'."
         exit 1
     fi
+
     OPTIONAL_TEST_ARGUMENTS=""
     if [[ -n ${INVALID_TEST_ACCOUNT_NUMBER-} ]]; then
-        OPTIONAL_TEST_ARGUMENTS+=" -e invalid_test_account_number $INVALID_TEST_ACCOUNT_NUMBER"
+        OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.$INFRA_FLAVOR.accountNumber.invalid $INVALID_TEST_ACCOUNT_NUMBER"
     else
         echo "Error: The variable INVALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
     if [[ -n ${PARTNER_AUTH} ]]; then
         echo "Test account used for e2e test (provided/partner): partner"
-        OPTIONAL_TEST_ARGUMENTS+=" -e partner_auth $PARTNER_AUTH"
+        OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.$INFRA_FLAVOR.partnerAuth $PARTNER_AUTH"
     elif [[ -n ${VALID_TEST_ACCOUNT_NUMBER} ]]; then
         echo "Test account used for e2e test (provided/partner): provided"
-        OPTIONAL_TEST_ARGUMENTS+=" -e valid_test_account_number $VALID_TEST_ACCOUNT_NUMBER"
+        OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.$INFRA_FLAVOR.accountNumber.valid $VALID_TEST_ACCOUNT_NUMBER"
     else
         echo ""
         echo "Error: The variable PARTNER_AUTH or VALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
-    OPTIONAL_TEST_ARGUMENTS+=" -e enable_access_to_local_api_tests $ENABLE_ACCESS_TO_LOCAL_API_TESTS"
-    OPTIONAL_TEST_ARGUMENTS+=" -e enable_highly_rate_limited_tests $ENABLE_HIGHLY_RATE_LIMITED_TESTS"
+    OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.enable $ENABLE_ACCESS_TO_LOCAL_API_TESTS"
+    OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.runHighlyRateLimitedTests $ENABLE_HIGHLY_RATE_LIMITED_TESTS"
     USE_ORCHESTRATOR="true"
     PACKAGE_NAME="net.mullvad.mullvadvpn"
     if [[ "$INFRA_FLAVOR" =~ ^(devmole|stagemole)$ ]]; then
@@ -149,8 +150,6 @@ if [[ -z $REPORT_DIR || ! -d $REPORT_DIR ]]; then
     echo "Error: The variable REPORT_DIR must be set and the directory must exist."
     exit 1
 fi
-
-GRADLE_ENVIRONMENT_VARIABLES="TEST_E2E_ENABLEACCESSTOLOCALAPITESTS=$ENABLE_ACCESS_TO_LOCAL_API_TESTS"
 
 INSTRUMENTATION_LOG_FILE_PATH="$REPORT_DIR/instrumentation-log.txt"
 LOGCAT_FILE_PATH="$REPORT_DIR/logcat.txt"
@@ -229,7 +228,7 @@ else
     -e runnerBuilder de.mannodermaus.junit5.AndroidJUnit5Builder \
     $TEST_PACKAGE_NAME/androidx.test.runner.AndroidJUnitRunner"
 fi
-adb shell "$GRADLE_ENVIRONMENT_VARIABLES $INSTRUMENTATION_COMMAND" | tee "$INSTRUMENTATION_LOG_FILE_PATH"
+adb shell "$INSTRUMENTATION_COMMAND" | tee "$INSTRUMENTATION_LOG_FILE_PATH"
 echo ""
 
 echo "### Stop logging ###"
