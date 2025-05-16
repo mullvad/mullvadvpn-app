@@ -20,6 +20,8 @@ pub enum BlockRule {
 pub struct Endpoints {
     pub src: IpNetwork,
     pub dst: IpNetwork,
+    /// Normally a packet sent to `dst` would match the block rule, but this option inverts that
+    /// so that any packet *not* sent to `dst` will match the block rule.
     pub invert_dst: bool,
 }
 
@@ -27,13 +29,15 @@ impl BlockRule {
     /// Creates one or more nft rules that correspond to this BlockRule. The returned Vec will always
     /// have at least one element.
     pub fn create_nft_rules<'a>(&'a self, chain: &'a Chain<'a>) -> Vec<Rule<'a>> {
-        match self {
+        let rules = match self {
             BlockRule::Host { protocols, .. } if !protocols.is_empty() => protocols
                 .iter()
                 .flat_map(|protocol| self.create_nft_rules_inner(chain, Some(*protocol)))
                 .collect(),
             _ => self.create_nft_rules_inner(chain, None),
-        }
+        };
+        assert!(!rules.is_empty());
+        rules
     }
 
     fn create_nft_rules_inner<'a>(
