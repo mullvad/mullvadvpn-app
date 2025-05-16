@@ -26,8 +26,8 @@ extension MigrationManagerTests {
 
         let backgroundMigrationExpectation = expectation(description: "Migration from packet tunnel")
         let foregroundMigrationExpectation = expectation(description: "Migration from host")
-        var migrationHappenedInPacketTunnel = false
-        var migrationHappenedInHost = false
+        nonisolated(unsafe) var migrationHappenedInPacketTunnel = false
+        nonisolated(unsafe) var migrationHappenedInHost = false
 
         packetTunnelProcess.async { [unowned self] in
             manager.migrateSettings(store: MigrationManagerTests.store) { backgroundMigrationResult in

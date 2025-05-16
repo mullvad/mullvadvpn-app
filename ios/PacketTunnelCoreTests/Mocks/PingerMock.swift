@@ -12,7 +12,7 @@ import Network
 @testable import PacketTunnelCore
 
 /// Ping client mock that can be used to simulate network transmission errors and delays.
-class PingerMock: PingerProtocol {
+class PingerMock: PingerProtocol, @unchecked Sendable {
     typealias OutcomeDecider = (IPv4Address, UInt16) -> Outcome
 
     private let decideOutcome: OutcomeDecider
