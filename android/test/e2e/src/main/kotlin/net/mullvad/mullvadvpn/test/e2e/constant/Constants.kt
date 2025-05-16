@@ -20,11 +20,14 @@ fun Bundle.getInvalidAccountNumber() =
         .getRequiredArgument("test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.invalid")
 
 fun Bundle.isRaasEnabled(): Boolean =
-    InstrumentationRegistry.getArguments().getRequiredArgument("test.e2e.config.raas.enable").toBoolean()
+    InstrumentationRegistry.getArguments()
+        .getRequiredArgument("test.e2e.config.raas.enable")
+        .toBoolean()
 
 fun Bundle.isHighlyRateLimitedTestsEnabled(): Boolean =
     InstrumentationRegistry.getArguments()
-        .getRequiredArgument("test.e2e.config.runHighlyRateLimitedTests").toBoolean()
+        .getRequiredArgument("test.e2e.config.runHighlyRateLimitedTests")
+        .toBoolean()
 
 fun Bundle.getRaasHost() =
     InstrumentationRegistry.getArguments().getRequiredArgument("test.e2e.config.raas.host")
@@ -35,7 +38,8 @@ fun Bundle.getTrafficGeneratorHost(): String =
 
 fun Bundle.getTrafficGeneratorPort(): Int =
     InstrumentationRegistry.getArguments()
-        .getRequiredArgument("test.e2e.config.raas.trafficGenerator.target.port").toInt()
+        .getRequiredArgument("test.e2e.config.raas.trafficGenerator.target.port")
+        .toInt()
 
 val DOMAIN =
     when (BuildConfig.FLAVOR_infrastructure) {
