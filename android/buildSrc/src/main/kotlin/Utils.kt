@@ -46,8 +46,6 @@ private fun Project.execVersionNameCargoCommand() =
         .get()
         .trim()
 
-private lateinit var mullvadProperties: Properties
-
 fun Project.getStringPropertyOrNull(name: String): String? = findProperty(name)?.toString()
 
 fun Project.getIntPropertyOrNull(name: String): Int? = findProperty(name)?.toString()?.toInt()
