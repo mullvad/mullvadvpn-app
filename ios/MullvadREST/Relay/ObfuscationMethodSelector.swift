@@ -17,9 +17,9 @@ public struct ObfuscationMethodSelector {
     ) -> WireGuardObfuscationState {
         // TODO: Revisit this when QUIC obfuscation is added
         if tunnelSettings.wireGuardObfuscation.state == .automatic {
-            if connectionAttemptCount.isOrdered(nth: 3, forEverySetOf: 4) {
+            if connectionAttemptCount.isOrdered(nth: 2, forEverySetOf: 3) {
                 .shadowsocks
-            } else if connectionAttemptCount.isOrdered(nth: 4, forEverySetOf: 4) {
+            } else if connectionAttemptCount.isOrdered(nth: 3, forEverySetOf: 3) {
                 .udpOverTcp
             } else {
                 .off
