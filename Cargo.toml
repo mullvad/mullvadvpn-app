@@ -142,6 +142,7 @@ strip = true
 [profile.release.package]
 pqcrypto-hqc.opt-level = 3
 quinn-proto.opt-level = 3
+quinn-udp.opt-level = 3
 quinn.opt-level = 3
 mullvad-masque-proxy.opt-level = 3
 ring.opt-level = 3
