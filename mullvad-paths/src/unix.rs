@@ -38,6 +38,11 @@ pub fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathB
         Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
             // Recreate the directory if the ownership and permissions are unexpected
             if !dir_is_root_owned(&dir, fs_perms.as_ref())? {
+                log::debug!(
+                    "Removing old directory due to unexpected permissions: {}",
+                    dir.display()
+                );
+
                 fs::remove_dir_all(&dir)
                     .or_else(|err| {
                         // If the path is not a directory, try to remove the file
