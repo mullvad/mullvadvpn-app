@@ -48,7 +48,7 @@ class ConnectionTest : EndToEndTest() {
     }
 
     @Test
-    fun testConnectAndVerifyWithConnectionCheck() = runTest {
+    fun qtestConnectAndVerifyWithConnectionCheck() = runTest {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
 

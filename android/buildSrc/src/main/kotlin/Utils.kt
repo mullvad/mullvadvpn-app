@@ -19,13 +19,10 @@ fun Project.isDevBuild(): Boolean {
 }
 
 fun Project.generateVersionCode(): Int =
-    getMullvadProperty("app.config.override.versionCode")?.also { println("GOT PROPERTY :$it") }?.toInt()
-        ?: execVersionCodeCargoCommand()
+    getIntPropertyOrNull("app.config.override.versionCode") ?: execVersionCodeCargoCommand()
 
 fun Project.generateVersionName(): String =
-    getMullvadProperty("app.config.override.versionName")
-        ?: execVersionNameCargoCommand()
-
+    getStringPropertyOrNull("app.config.override.versionName") ?: execVersionNameCargoCommand()
 
 fun Project.generateRemapArguments(): String {
     val script = "${projectDir.parent}/../building/rustc-remap-path-prefix.sh"
@@ -51,19 +48,16 @@ private fun Project.execVersionNameCargoCommand() =
 
 private lateinit var mullvadProperties: Properties
 
-fun Project.getMullvadProperty(name: String): String? {
-    if (!::mullvadProperties.isInitialized) {
-        mullvadProperties = loadMullvadProperties()
-    }
+fun Project.getStringPropertyOrNull(name: String): String? = findProperty(name)?.toString()
 
-    return System.getenv(name)
-        ?: rootProject.properties.getOrDefault(name, null) as? String
-        ?: mullvadProperties.getProperty(name, null)
-}
+fun Project.getIntPropertyOrNull(name: String): Int? = findProperty(name)?.toString()?.toInt()
 
-private fun Project.loadMullvadProperties(): Properties {
-    val props = Properties()
-    props.load(rootProject.file("mullvad.properties").inputStream())
-    props.toMutableMap()
-    return props
-}
+fun Project.getBooleanPropertyOrNull(name: String): Boolean? =
+    findProperty(name)?.toString()?.toBooleanStrict()
+
+fun Project.getStringProperty(name: String): String = properties[name].toString()
+
+fun Project.getIntProperty(name: String): Int = properties[name].toString().toInt()
+
+fun Project.getBooleanProperty(name: String): Boolean =
+    properties[name].toString().toBooleanStrict()

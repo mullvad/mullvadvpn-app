@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.test.e2e.router.firewall
 
+import androidx.test.platform.app.InstrumentationRegistry
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -13,7 +14,7 @@ import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import net.mullvad.mullvadvpn.test.e2e.BuildConfig
+import net.mullvad.mullvadvpn.test.e2e.constant.getRaasHost
 
 class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
     suspend fun createRule(rule: DropRule) {
@@ -40,7 +41,7 @@ private fun defaultHttpClient(): HttpClient =
         defaultRequest {
             url {
                 protocol = URLProtocol.HTTP
-                host = BuildConfig.TEST_ROUTER_API_HOST
+                host = InstrumentationRegistry.getArguments().getRaasHost()
             }
         }
 
