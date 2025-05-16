@@ -10,6 +10,9 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[features]
+boringtun = ["dep:tun07"]
+
 [dependencies]
 thiserror = { workspace = true }
 cfg-if = "1.0"
@@ -19,24 +22,25 @@ talpid-types = { path = "../talpid-types" }
 futures = { workspace = true }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 
+[target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
+tun = { workspace = true } # use tun 0.5.5 for wireuguard-go
+
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
 
-[target.'cfg(target_os = "linux")'.dependencies]
-tun = { version = "0.7.11", features = ["async"] }
-
-[target.'cfg(target_os = "macos")'.dependencies]
-tun = { version = "0.7.11", features = ["async"] }
+[target.'cfg(not(target_os = "android"))'.dependencies]
+tun07 = { package = "tun", version = "0.7.11", optional = true, features = [
+  "async",
+] }
 
 [target.'cfg(windows)'.dependencies]
 talpid-windows = { path = "../talpid-windows" }
-tun = { version = "0.7.11", features = ["async"] }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
 features = [
-    "Win32_Foundation",
-    "Win32_Networking_WinSock",
-    "Win32_NetworkManagement_Ndis",
+  "Win32_Foundation",
+  "Win32_Networking_WinSock",
+  "Win32_NetworkManagement_Ndis",
 ]

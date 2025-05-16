@@ -19,7 +19,7 @@ use std::{
 };
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
-use tun::AbstractDevice;
+use tun07::AbstractDevice;
 
 pub struct BoringTun {
     device_handle: DeviceHandle,
@@ -115,15 +115,15 @@ impl BoringTun {
                     .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
             }
 
-            let mut config = tun::Configuration::default();
+            let mut config = tun07::Configuration::default();
             config.raw_fd(fd);
 
             boringtun_config.on_bind = Some(Box::new(move |socket| {
                 tun.bypass(socket.as_raw_fd()).unwrap()
             }));
 
-            let device = tun::Device::new(&config).unwrap();
-            tun::AsyncDevice::new(device).unwrap()
+            let device = tun07::Device::new(&config).unwrap();
+            tun07::AsyncDevice::new(device).unwrap()
         };
 
         let interface_name = async_tun.deref().tun_name().unwrap();
