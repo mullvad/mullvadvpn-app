@@ -5,14 +5,14 @@ export interface AppUpgradeReduxState {
   error?: AppUpgradeError;
   errorCount: number;
   event?: AppUpgradeEvent;
-  lastProgress?: number;
+  lastProgress: number;
 }
 
 const initialState: AppUpgradeReduxState = {
   error: undefined,
   errorCount: 0,
   event: undefined,
-  lastProgress: undefined,
+  lastProgress: 0,
 };
 
 export function appUpgradeReducer(
