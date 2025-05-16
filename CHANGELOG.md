@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add notification that shows when the user is connected to WireGuard with a port that is not
+supported.
+
 #### Linux
 - The deb package repositores now have static codenames on top of the existing distro version
   specific codenames. The stable repository always have the "stable" codename,
