@@ -40,8 +40,8 @@ pub fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathB
             if !dir_is_root_owned(&dir, fs_perms.as_ref())? {
                 fs::remove_dir_all(&dir)
                     .or_else(|err| {
-                        // ENOTDIR: If the path is not a directory, try to remove the file
-                        if err.raw_os_error() == Some(20) {
+                        // If the path is not a directory, try to remove the file
+                        if err.kind() == io::ErrorKind::NotADirectory {
                             fs::remove_file(&dir)
                         } else {
                             Err(err)
