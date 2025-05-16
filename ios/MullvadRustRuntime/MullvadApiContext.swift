@@ -16,6 +16,8 @@ public struct MullvadApiContext: @unchecked Sendable {
     public let context: SwiftApiContext
     private let shadowsocksBridgeProvider: SwiftShadowsocksBridgeProviding!
     private let shadowsocksBridgeProviderWrapper: SwiftShadowsocksLoaderWrapper!
+    private let addressCacheWrapper: SwiftAddressCacheWrapper!
+    private let addressCacheProvider: AddressCacheProviding!
 
     public init(
         host: String,
@@ -23,11 +25,16 @@ public struct MullvadApiContext: @unchecked Sendable {
         domain: String,
         disableTls: Bool = false,
         shadowsocksProvider: SwiftShadowsocksBridgeProviding,
-        accessMethodWrapper: SwiftAccessMethodSettingsWrapper
+        accessMethodWrapper: SwiftAccessMethodSettingsWrapper,
+        addressCacheProvider: AddressCacheProviding
     ) throws {
         let bridgeProvider = SwiftShadowsocksBridgeProvider(provider: shadowsocksProvider)
         self.shadowsocksBridgeProvider = bridgeProvider
         self.shadowsocksBridgeProviderWrapper = initMullvadShadowsocksBridgeProvider(provider: bridgeProvider)
+
+        let defaultAddressCache = DefaultAddressCacheProvider(provider: addressCacheProvider)
+        self.addressCacheProvider = defaultAddressCache
+        self.addressCacheWrapper = iniSwiftAddressCacheWrapper(provider: defaultAddressCache)
 
         context = switch disableTls {
         case true:
@@ -36,7 +43,8 @@ public struct MullvadApiContext: @unchecked Sendable {
                 address,
                 domain,
                 shadowsocksBridgeProviderWrapper,
-                accessMethodWrapper
+                accessMethodWrapper,
+                addressCacheWrapper
             )
         case false:
             mullvad_api_init_new(
@@ -44,7 +52,8 @@ public struct MullvadApiContext: @unchecked Sendable {
                 address,
                 domain,
                 shadowsocksBridgeProviderWrapper,
-                accessMethodWrapper
+                accessMethodWrapper,
+                addressCacheWrapper
             )
         }
 

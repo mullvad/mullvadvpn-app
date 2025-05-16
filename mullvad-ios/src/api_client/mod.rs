@@ -2,6 +2,7 @@ use std::{ffi::c_char, ffi::CStr, future::Future, sync::Arc};
 
 use access_method_resolver::SwiftAccessMethodResolver;
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
+use address_cache_provider::SwiftAddressCacheWrapper;
 use helpers::convert_c_string;
 use mullvad_api::{
     access_mode::{AccessModeSelector, AccessModeSelectorHandle},
@@ -18,6 +19,7 @@ use talpid_future::retry::retry_future;
 mod access_method_resolver;
 mod access_method_settings;
 mod account;
+mod address_cache_provider;
 mod api;
 mod cancellation;
 mod completion;
@@ -135,6 +137,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     domain: *const c_char,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
+    address_cache: SwiftAddressCacheWrapper,
 ) -> SwiftApiContext {
     mullvad_api_init_inner(
         host,
@@ -143,6 +146,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
         true,
         bridge_provider,
         settings_provider,
+        address_cache,
     )
 }
 
@@ -165,6 +169,7 @@ pub extern "C" fn mullvad_api_init_new(
     domain: *const c_char,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
+    address_cache: SwiftAddressCacheWrapper,
 ) -> SwiftApiContext {
     #[cfg(feature = "api-override")]
     return mullvad_api_init_inner(
@@ -174,9 +179,17 @@ pub extern "C" fn mullvad_api_init_new(
         false,
         bridge_provider,
         settings_provider,
+        address_cache,
     );
     #[cfg(not(feature = "api-override"))]
-    mullvad_api_init_inner(host, address, domain, bridge_provider, settings_provider)
+    mullvad_api_init_inner(
+        host,
+        address,
+        domain,
+        bridge_provider,
+        settings_provider,
+        address_cache,
+    )
 }
 
 /// # Safety
@@ -199,6 +212,7 @@ pub extern "C" fn mullvad_api_init_inner(
     #[cfg(feature = "api-override")] disable_tls: bool,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
+    address_cache: SwiftAddressCacheWrapper,
 ) -> SwiftApiContext {
     // Safety: See notes for `convert_c_string`
     let (host, address, domain) = unsafe {
@@ -233,6 +247,7 @@ pub extern "C" fn mullvad_api_init_inner(
         domain,
         encrypted_dns_proxy_state,
         bridge_provider,
+        address_cache,
     );
 
     let api_context = tokio_handle.clone().block_on(async move {
