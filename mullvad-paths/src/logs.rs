@@ -6,7 +6,7 @@ use std::{env, path::PathBuf};
 pub fn log_dir() -> Result<PathBuf> {
     #[cfg(unix)]
     {
-        crate::create_and_return(get_log_dir()?, crate::Permissions::ReadExecOnly)
+        crate::create_and_return(get_log_dir()?, crate::unix::Permissions::ReadExecOnly)
     }
     #[cfg(target_os = "windows")]
     {

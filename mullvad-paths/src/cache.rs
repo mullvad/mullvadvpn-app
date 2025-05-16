@@ -5,9 +5,9 @@ use std::{env, path::PathBuf};
 /// one if that variable is unset.
 pub fn cache_dir() -> Result<PathBuf> {
     #[cfg(target_os = "linux")]
-    let permissions = crate::Permissions::Any;
+    let permissions = crate::unix::Permissions::Any;
     #[cfg(target_os = "macos")]
-    let permissions = crate::Permissions::ReadExecOnly;
+    let permissions = crate::unix::Permissions::ReadExecOnly;
     #[cfg(target_os = "windows")]
     let permissions = true;
     crate::create_and_return(get_cache_dir()?, permissions)
