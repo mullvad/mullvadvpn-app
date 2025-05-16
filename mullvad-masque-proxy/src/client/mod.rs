@@ -482,7 +482,14 @@ async fn client_socket_rx_task(
     return_addr_tx: broadcast::Sender<SocketAddr>,
 ) -> Result<()> {
     let mut client_read_buf = BytesMut::with_capacity(100 * crate::PACKET_BUFFER_SIZE);
-    let mut return_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0);
+
+    let (_n, return_addr) = client_socket.peek_from(&mut client_read_buf).await.map_err(Error::ClientRead)?;
+    if return_addr_tx.send(return_addr).is_err() {
+        return Ok(());
+    }
+
+    // FIXME
+    client_socket.connect(return_addr).await.unwrap();
 
     loop {
         client_read_buf.reserve(crate::PACKET_BUFFER_SIZE);
@@ -490,17 +497,11 @@ async fn client_socket_rx_task(
         // this is the variable ID used to signify UDP payloads in HTTP datagrams.
         crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut client_read_buf);
 
-        let (_bytes_received, recv_addr) = client_socket
-            .recv_buf_from(&mut client_read_buf)
+        let _bytes_received = client_socket
+            .recv_buf(&mut client_read_buf)
             .await
             .map_err(Error::ClientRead)?;
 
-        if recv_addr != return_addr {
-            return_addr = recv_addr;
-            if return_addr_tx.send(return_addr).is_err() {
-                break;
-            }
-        }
         let packet = client_read_buf.split().freeze();
 
         if client_tx.send(packet).await.is_err() {
@@ -520,7 +521,7 @@ async fn client_socket_tx_task(
 ) -> Result<()> {
     let mut fragments = Fragments::default();
 
-    let mut return_addr = loop {
+    let return_addr = loop {
         match return_addr_rx.recv().await {
             Ok(addr) => break addr,
             Err(broadcast::error::RecvError::Lagged(..)) => continue,
@@ -528,16 +529,12 @@ async fn client_socket_tx_task(
         }
     };
 
+    //client_socket.connect(return_addr).await;
+
     loop {
         let Some(response) = server_rx.recv().await else {
             break;
         };
-
-        match return_addr_rx.try_recv() {
-            Ok(new_addr) => return_addr = new_addr,
-            Err(broadcast::error::TryRecvError::Empty) => {}
-            Err(..) => break,
-        }
 
         if response.stream_id() != stream_id {
             log::debug!("Received datagram with an unexpected stream ID");
@@ -549,7 +546,7 @@ async fn client_socket_tx_task(
             stats.rx(payload.len(), false /* TODO */);
 
             client_socket
-                .send_to(payload.chunk(), return_addr)
+                .send(payload.chunk())
                 .await
                 .map_err(Error::ClientWrite)?;
         }
