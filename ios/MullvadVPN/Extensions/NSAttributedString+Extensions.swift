@@ -16,19 +16,19 @@ extension NSAttributedString {
     convenience init(
         markdownString: String,
         options: MarkdownStylingOptions,
-        applyEffect: ((MarkdownElement, String) -> [NSAttributedString.Key: Any])? = nil
+        attributes: [NSAttributedString.Key: Any]? = nil,
+        applyEffect: ((String) -> [NSAttributedString.Key: Any])? = nil
     ) {
         let attributedString = NSMutableAttributedString()
         let components = markdownString.components(separatedBy: "**")
 
         for (stringIndex, string) in components.enumerated() {
-            var attributes: [NSAttributedString.Key: Any] = [:]
+            var attributes = attributes ?? [:]
 
-            if stringIndex % 2 == 0 {
+            if stringIndex % 2 != 0 {
                 attributes[.font] = options.font
-            } else {
-                attributes[.font] = options.boldFont
-                attributes.merge(applyEffect?(.bold, string) ?? [:], uniquingKeysWith: { $1 })
+                attributes[.foregroundColor] = options.textColor
+                attributes.merge(applyEffect?(string) ?? [:], uniquingKeysWith: { $1 })
             }
 
             attributedString.append(NSAttributedString(string: string, attributes: attributes))
