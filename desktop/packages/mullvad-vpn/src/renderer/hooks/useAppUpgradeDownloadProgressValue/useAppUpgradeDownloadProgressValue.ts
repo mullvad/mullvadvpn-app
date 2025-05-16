@@ -2,7 +2,7 @@ import { useAppUpgradeLastProgress } from '../../redux/hooks';
 import { useAppUpgradeEventType } from '../useAppUpgradeEventType';
 import { useHasAppUpgradeError } from '../useHasAppUpgradeError';
 import { useHasAppUpgradeVerifiedInstallerPath } from '../useHasAppUpgradeVerifiedInstallerPath';
-import { DOWNLOAD_COMPLETE_VALUE, FALLBACK_VALUE } from './constants';
+import { DOWNLOAD_COMPLETE_VALUE } from './constants';
 import { useGetValueDownloadProgress, useGetValueError } from './hooks';
 
 export const useAppUpgradeDownloadProgressValue = () => {
@@ -36,5 +36,5 @@ export const useAppUpgradeDownloadProgressValue = () => {
       break;
   }
 
-  return lastProgress ?? FALLBACK_VALUE;
+  return lastProgress;
 };
