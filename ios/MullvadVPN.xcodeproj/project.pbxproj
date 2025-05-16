@@ -1109,14 +1109,13 @@
 		F910A43A2D4A283D002FF3BB /* InAppPurchaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A4392D4A2839002FF3BB /* InAppPurchaseViewController.swift */; };
 		F910A8572D523812002FF3BB /* TunnelSettingsV7.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A8562D523812002FF3BB /* TunnelSettingsV7.swift */; };
 		F91B94A72DC9EB5E00132C28 /* MullvadInfoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91B94A62DC9EB5E00132C28 /* MullvadInfoHeaderView.swift */; };
+		F9276C622DBA2103006FE43D /* Font+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */; };
+		F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
+		F9394EF02DC0B58D009595EA /* MullvadListNavigationItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEF2DC0B58D009595EA /* MullvadListNavigationItemView.swift */; };
+		F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EF22DC21D8C009595EA /* MullvadList.swift */; };
 		F924C4532D70692E001F4660 /* MullvadApiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C4522D706929001F4660 /* MullvadApiTests.swift */; };
 		F924C5A42DA65F28001F4660 /* Storekit2.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C5A32DA65F28001F4660 /* Storekit2.swift */; };
 		F924C65F2DAE4554001F4660 /* ServerRelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */; };
-		F9276C622DBA2103006FE43D /* Font+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */; };
-		F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
-		F9394EED2DBF56B6009595EA /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
-		F9394EF02DC0B58D009595EA /* MullvadListNavigationItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEF2DC0B58D009595EA /* MullvadListNavigationItemView.swift */; };
-		F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EF22DC21D8C009595EA /* MullvadList.swift */; };
 		F998EFF82D359C4600D88D01 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
 		F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */; };
@@ -6539,7 +6538,7 @@
 				586C0D832B03D2FF00E7CDD7 /* ShadowsocksSectionHandler.swift in Sources */,
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
-				F9394EED2DBF56B6009595EA /* Color+Mullvad.swift in Sources */,
+				F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */,
 				F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */,
 				58FF9FE42B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift in Sources */,
 				449E9A6F2D283C7400F8574A /* ButtonPanel.swift in Sources */,
@@ -7331,7 +7330,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -7351,7 +7350,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -7462,7 +7461,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -7502,7 +7501,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -7525,7 +7524,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -7546,7 +7545,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -7748,7 +7747,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -7768,7 +7767,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_STRICT_CONCURRENCY = minimal;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
@@ -8223,7 +8222,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG MULLVAD_ENVIRONMENT_PRODUCTION $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadVPNUITests/BridgingHeader.h";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = MullvadVPN;
 			};
@@ -8255,7 +8254,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadVPNUITests/BridgingHeader.h";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = MullvadVPN;
 			};
@@ -8389,7 +8388,7 @@
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Packet Tunnel Development";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Staging;
 		};
@@ -8408,7 +8407,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Staging;
@@ -8627,7 +8626,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -8650,7 +8649,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Staging;
@@ -8782,7 +8781,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG MULLVAD_ENVIRONMENT_STAGING";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadVPNUITests/BridgingHeader.h";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = MullvadVPN;
 			};
@@ -8806,7 +8805,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = MULLVAD_ENVIRONMENT_PRODUCTION;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadVPNUITests/BridgingHeader.h";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = MullvadVPN;
 			};
@@ -8857,7 +8856,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -8908,7 +8907,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -8959,7 +8958,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -9009,7 +9008,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -9037,7 +9036,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -9062,7 +9061,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Staging;
@@ -9087,7 +9086,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -9112,7 +9111,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = MockRelease;
@@ -9235,7 +9234,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Packet Tunnel Development";
 				SWIFT_STRICT_CONCURRENCY = minimal;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = MockRelease;
 		};
@@ -9254,7 +9253,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = MockRelease;
@@ -9473,7 +9472,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -9496,7 +9495,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = MockRelease;
