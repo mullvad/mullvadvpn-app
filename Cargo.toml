@@ -139,17 +139,9 @@ lto = true
 strip = true
 
 # Selectively optimize packages where we know it makes a difference
-[profile.release.package."pqcrypto-hqc"]
-opt-level = 3
+[profile.release.package]
+pqcrypto-hqc.opt-level = 3
+quinn-proto.opt-level = 3
+quinn.opt-level = 3
+mullvad-masque-proxy.opt-level = 3
 
-[profile.release.package."ring"]
-opt-level = 3
-
-[profile.release.package."quinn-proto"]
-opt-level = 3
-
-[profile.release.package."quinn"]
-opt-level = 3
-
-[profile.release.package."mullvad-masque-proxy"]
-opt-level = 3
