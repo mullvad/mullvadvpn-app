@@ -14,7 +14,6 @@ import net.mullvad.mullvadvpn.test.e2e.router.NetworkingProtocol
 data class DropRule(
     @SerialName("src") val source: String,
     @SerialName("dst") val destination: String,
-    @SerialName("block_wireguard") val blockWireGuard: Boolean = false,
     val protocols: List<NetworkingProtocol>,
     @EncodeDefault val label: String = "urn:uuid:${SessionIdentifier.fromDeviceIdentifier()}",
 ) {
@@ -29,6 +28,6 @@ data class DropRule(
         }
 
         fun blockWireGuardTrafficRule(to: String): DropRule =
-            blockUDPTrafficRule(to).copy(blockWireGuard = true)
+            blockUDPTrafficRule(to).copy(protocols = listOf(NetworkingProtocol.WireGuard))
     }
 }
