@@ -354,7 +354,7 @@ pub async fn test_installation_idempotency(
             tokio::time::sleep(delay).await;
         }
     }
-    // Make sure that no network leak occured during any installation process.
+    // Make sure that no network leak occurred during any installation process.
     let guest_ip = pinger.guest_ip;
     let monitor_result = pinger.stop().await.unwrap();
     assert_eq!(

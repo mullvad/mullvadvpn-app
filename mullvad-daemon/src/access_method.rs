@@ -13,9 +13,9 @@ pub enum Error {
     /// Can not find access method
     #[error("Cannot find custom access method {0}")]
     NoSuchMethod(access_method::Id),
-    /// Some error occured in the daemon's state of handling
+    /// Some error occurred in the daemon's state of handling
     /// [`AccessMethodSetting`]s & [`ApiConnectionMode`]s
-    #[error("Error occured when handling connection settings & details")]
+    #[error("Error occurred when handling connection settings & details")]
     ApiService(#[from] access_mode::Error),
     /// A REST request failed
     #[error("Reset request failed")]

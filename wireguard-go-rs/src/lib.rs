@@ -77,7 +77,7 @@ impl Tunnel {
     /// for the tunnel device and logging. For targets other than android, this also takes an MTU
     /// value.
     ///
-    /// The `logging_callback` let's you provide a Rust function that receives any logging output
+    /// The `logging_callback` lets you provide a Rust function that receives any logging output
     /// from wireguard-go. `logging_context` is a value that will be passed to each invocation of
     /// `logging_callback`.
     #[cfg(not(target_os = "windows"))]
@@ -88,7 +88,7 @@ impl Tunnel {
         logging_callback: Option<LoggingCallback>,
         logging_context: LoggingContext,
     ) -> Result<Self, Error> {
-        // SAFETY: pointer is valid for the the lifetime of this function
+        // SAFETY: pointer is valid for the lifetime of this function
         let code = unsafe {
             ffi::wgTurnOn(
                 #[cfg(not(target_os = "android"))]
@@ -122,7 +122,7 @@ impl Tunnel {
         let mut assigned_name = [0u8; 128];
         let mut luid = MaybeUninit::uninit();
 
-        // SAFETY: pointers are valid for the the lifetime of this function
+        // SAFETY: pointers are valid for the lifetime of this function
         let code = unsafe {
             ffi::wgTurnOn(
                 interface_name.as_ptr(),
@@ -144,7 +144,7 @@ impl Tunnel {
         Ok(Tunnel {
             handle: code,
             assigned_name: assigned_name.to_owned(),
-            // SAFETY: wgTurnOn succeeded and the LUID is guaranteed to be intialized by wgTurnOn
+            // SAFETY: wgTurnOn succeeded and the LUID is guaranteed to be initialized by wgTurnOn
             luid: unsafe { luid.assume_init() },
         })
     }
@@ -173,7 +173,7 @@ impl Tunnel {
     /// Special function for android multihop since that behavior is different from desktop
     /// and android non-multihop.
     ///
-    /// The `logging_callback` let's you provide a Rust function that receives any logging output
+    /// The `logging_callback` lets you provide a Rust function that receives any logging output
     /// from wireguard-go. `logging_context` is a value that will be passed to each invocation of
     /// `logging_callback`.
     #[cfg(target_os = "android")]
@@ -185,7 +185,7 @@ impl Tunnel {
         logging_callback: Option<LoggingCallback>,
         logging_context: LoggingContext,
     ) -> Result<Self, Error> {
-        // SAFETY: pointer is valid for the the lifetime of this function
+        // SAFETY: pointer is valid for the lifetime of this function
         let code = unsafe {
             ffi::wgTurnOnMultihop(
                 exit_settings.as_ptr(),

@@ -11,7 +11,7 @@ decided to not address for some reason. Some example reasons why issues might en
   provide a mitigation for
 * The only known fixes for the issue comes with other drawbacks, that we consider as bad, or worse
   than the original issue
-* We are not able to reliably reproduce the issue. Enough anecdotal evidence exist to indicate
+* We are not able to reliably reproduce the issue. Enough anecdotal evidence exists to indicate
   the issue is real, but Mullvad is unable to reproduce it. As a result, it is really hard to fix.
 
 This document should only contain issues related to security and privacy. This document is a

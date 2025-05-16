@@ -75,7 +75,7 @@ enum Cli {
     Relay(relay::Relay),
     /// Manage Mullvad API access methods.
     ///
-    /// Access methods are used to connect to the the Mullvad API via one of
+    /// Access methods are used to connect to the Mullvad API via one of
     /// Mullvad's bridge servers or a custom proxy (SOCKS5 & Shadowsocks) when
     /// and where establishing a direct connection does not work.
     ///
