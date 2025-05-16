@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 
-import { Colors } from '../../../foundations';
 import { LabelTiny, LabelTinyProps } from '../../typography';
 import { useProgress } from '../ProgressContext';
 
@@ -10,12 +9,14 @@ const StyledText = styled(LabelTiny)`
   min-width: 26px;
 `;
 
-export const ProgressPercent = <T extends React.ElementType = 'span'>(
-  props: ProgressPercentProps<T>,
-) => {
+export const ProgressPercent = <T extends React.ElementType = 'span'>({
+  color,
+  ...props
+}: ProgressPercentProps<T>) => {
   const { percent, disabled } = useProgress();
+  const defaultColor = disabled ? 'whiteAlpha40' : 'white';
   return (
-    <StyledText color={disabled ? Colors.white40 : Colors.white} {...props}>
+    <StyledText color={color ?? defaultColor} {...props}>
       {`${Math.round(percent)}%`}
     </StyledText>
   );

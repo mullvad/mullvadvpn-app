@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { IconButton } from '../../lib/components';
-import { Colors } from '../../lib/foundations';
+import { colors } from '../../lib/foundations';
 import { useBoolean, useCombinedRefs, useEffectEvent, useStyledRef } from '../../lib/utility-hooks';
 import { normalText } from '../common-styles';
 import { BackAction } from '../KeyboardNavigation';
@@ -30,9 +30,9 @@ const StyledInput = styled.input<{ $focused: boolean; $valid?: boolean }>((props
   border: 'none',
   width: '100%',
   height: '100%',
-  color: props.$valid === false ? Colors.red : props.$focused ? Colors.blue : Colors.white,
+  color: props.$valid === false ? colors.red : props.$focused ? colors.blue : colors.white,
   '&&::placeholder': {
-    color: props.$focused ? Colors.blue60 : Colors.white60,
+    color: props.$focused ? colors.blue60 : colors.whiteAlpha60,
   },
 }));
 
@@ -178,7 +178,7 @@ export const Input = React.memo(React.forwardRef(InputWithRef));
 const InputFrame = styled.div<{ $focused: boolean }>((props) => ({
   display: 'flex',
   flexGrow: 0,
-  backgroundColor: props.$focused ? Colors.white : 'rgba(255,255,255,0.1)',
+  backgroundColor: props.$focused ? colors.white : colors.whiteOnBlue10,
   borderRadius: '4px',
   padding: '6px 8px',
 }));
@@ -281,7 +281,7 @@ const StyledTextArea = styled.textarea<{ $invalid?: boolean }>(normalText, (prop
   fontWeight: 400,
   resize: 'none',
   padding: '10px 25px 10px 0',
-  color: props.$invalid ? Colors.red : 'auto',
+  color: props.$invalid ? colors.red : 'auto',
 }));
 
 const StyledInputFiller = styled.div({
@@ -292,13 +292,12 @@ const StyledInputFiller = styled.div({
   marginRight: '25px',
 });
 
-// TODO: This can be removed once we implement the new colors from foundations
 const StyledIconButton = styled(IconButton)<{ $disabled: boolean }>(({ $disabled }) => ({
   ['> div']: {
-    backgroundColor: $disabled ? Colors.blue60 : Colors.blue,
+    backgroundColor: $disabled ? colors.blue60 : colors.blue,
   },
   ['&&:hover > div']: {
-    backgroundColor: $disabled ? Colors.blue60 : Colors.blue80,
+    backgroundColor: $disabled ? colors.blue60 : colors.blue80,
   },
 }));
 

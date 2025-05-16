@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 
-import { Colors } from '../../../foundations';
 import { Icon, IconProps } from '../../icon';
 import { useFilterChipContext } from '../FilterChipContext';
 
@@ -10,5 +9,5 @@ export const StyledIcon = styled(Icon)({});
 
 export const FilterChipIcon = ({ ...props }: FilterChipIconProps) => {
   const { disabled } = useFilterChipContext();
-  return <Icon size="small" color={disabled ? Colors.white40 : Colors.white} {...props} />;
+  return <Icon size="small" color={disabled ? 'whiteAlpha40' : 'white'} {...props} />;
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import { useAppContext } from '../../context';
-import { Colors, spacings } from '../../lib/foundations';
+import { colors, spacings } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
 import { useBoolean, useEffectEvent } from '../../lib/utility-hooks';
 import Accordion from '../Accordion';
@@ -23,7 +23,7 @@ interface SectionTitleProps {
 
 export const SectionTitle = styled(Row)<SectionTitleProps>(buttonText, (props) => ({
   paddingRight: spacings.medium,
-  color: props.disabled ? Colors.white20 : Colors.white,
+  color: props.disabled ? colors.whiteAlpha20 : colors.white,
   fontWeight: props.$thin ? 400 : 600,
   fontSize: props.$thin ? '15px' : '18px',
   ...(props.$thin ? openSans : sourceSansPro),

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../../shared/gettext';
 import { Icon } from '../../lib/components';
-import { Colors, spacings } from '../../lib/foundations';
+import { colors, spacings } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { useStyledRef } from '../../lib/utility-hooks';
@@ -194,8 +194,8 @@ function SelectorCell<T>(props: SelectorCellProps<T>) {
       </Cell.CellButton>
       {props.details && (
         <StyledSideButton
-          $backgroundColor={Colors.blue40}
-          $backgroundColorHover={Colors.blue80}
+          $backgroundColor={colors.blue40}
+          $backgroundColorHover={colors.blue80}
           aria-label={props.details.ariaLabel}
           onClick={navigate}>
           <Icon icon="chevron-right" />
@@ -228,9 +228,9 @@ interface StyledCustomContainerProps {
 }
 
 const StyledCustomContainer = styled(Cell.Container)<StyledCustomContainerProps>((props) => ({
-  backgroundColor: props.selected ? Colors.green : Colors.blue40,
+  backgroundColor: props.selected ? colors.green : colors.blue40,
   '&&:hover': {
-    backgroundColor: props.selected ? Colors.green : Colors.blue,
+    backgroundColor: props.selected ? colors.green : colors.blue,
   },
 }));
 

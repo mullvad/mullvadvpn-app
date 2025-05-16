@@ -1,12 +1,10 @@
 import styled, { css } from 'styled-components';
 
-import { Colors } from '../../../foundations';
+import { colors } from '../../../foundations';
 import { ButtonBase } from '../../button';
 import { useListItem } from '../ListItemContext';
 import { StyledFlex } from './ListItemContent';
 
-// TODO: Colors should be replace with
-// with new color tokens once they are implemented.
 const StyledButton = styled(ButtonBase)<{ $disabled?: boolean }>`
   display: flex;
   width: 100%;
@@ -14,15 +12,15 @@ const StyledButton = styled(ButtonBase)<{ $disabled?: boolean }>`
     !$disabled &&
     css`
       &:hover ${StyledFlex} {
-        background-color: rgba(56, 86, 116, 1);
+        background-color: ${colors.whiteOnBlue5};
       }
       &:active ${StyledFlex} {
-        background-color: rgba(62, 95, 129, 1);
+        background-color: ${colors.whiteOnBlue10};
       }
     `}
 
   &&:focus-visible {
-    outline: 2px solid ${Colors.white};
+    outline: 2px solid ${colors.white};
     outline-offset: -1px;
     z-index: 10;
   }

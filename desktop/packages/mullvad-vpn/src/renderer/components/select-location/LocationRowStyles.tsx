@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { Styles } from 'styled-components/dist/types';
 
 import { Icon } from '../../lib/components';
-import { Colors } from '../../lib/foundations';
+import { colors, ColorVariables } from '../../lib/foundations';
 import * as Cell from '../cell';
 import { buttonColor, ButtonColors } from '../cell/styles';
 import { measurements, normalText } from '../common-styles';
@@ -83,10 +83,10 @@ export const StyledHoverIconButton = styled.button<ButtonColors & HoverButtonPro
 );
 
 export const StyledHoverIcon = styled(Icon).attrs({
-  color: Colors.white60,
+  color: 'whiteAlpha60',
 })({
   [`${StyledHoverIconButton}:hover &&`]: {
-    backgroundColor: Colors.white,
+    backgroundColor: colors.white,
   },
 });
 
@@ -96,19 +96,19 @@ export const StyledHoverInfoButton = styled(InfoButton)<ButtonColors & HoverButt
 );
 
 export function getButtonColor(selected: boolean, level: number, disabled?: boolean) {
-  let backgroundColor = Colors.blue60;
+  let backgroundColor: ColorVariables = colors.blue60;
   if (selected) {
-    backgroundColor = Colors.green;
+    backgroundColor = colors.green;
   } else if (level === 1) {
-    backgroundColor = Colors.blue40;
+    backgroundColor = colors.blue40;
   } else if (level === 2) {
-    backgroundColor = Colors.blue20;
+    backgroundColor = colors.blue20;
   } else if (level === 3) {
-    backgroundColor = Colors.blue10;
+    backgroundColor = colors.blue10;
   }
 
   return {
     $backgroundColor: backgroundColor,
-    $backgroundColorHover: selected || disabled ? backgroundColor : Colors.blue80,
+    $backgroundColorHover: selected || disabled ? backgroundColor : colors.blue80,
   };
 }

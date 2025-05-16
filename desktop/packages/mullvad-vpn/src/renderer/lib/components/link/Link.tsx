@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Colors, Radius } from '../../foundations';
+import { Colors, colors, Radius } from '../../foundations';
 import { Text, TextProps } from '../typography';
 import { LinkIcon } from './components';
 
@@ -24,15 +24,15 @@ const StyledText = styled(Text)<{
   },
   '&&:focus-visible': {
     borderRadius: Radius.radius4,
-    outline: `2px solid ${Colors.white}`,
+    outline: `2px solid ${colors.whiteAlpha60}`,
     outlineOffset: '2px',
   },
 }));
 
 const getHoverColor = (color: Colors | undefined) => {
   switch (color) {
-    case Colors.white60:
-      return Colors.white;
+    case 'whiteAlpha60':
+      return 'white';
     default:
       return undefined;
   }
