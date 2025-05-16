@@ -1,6 +1,8 @@
-use std::fs;
-use std::os::unix::fs::{MetadataExt, PermissionsExt};
-use std::path::{Path, PathBuf};
+use std::{
+    fs, io,
+    os::unix::fs::{DirBuilderExt, MetadataExt, PermissionsExt},
+    path::{Path, PathBuf},
+};
 
 use crate::{Error, Result};
 
@@ -25,11 +27,6 @@ impl Permissions {
 }
 
 pub fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathBuf> {
-    use std::{
-        io,
-        os::unix::fs::{DirBuilderExt, PermissionsExt},
-    };
-
     let mut dir_builder = fs::DirBuilder::new();
     let fs_perms = permissions.fs_permissions();
     if let Some(fs_perms) = fs_perms.as_ref() {
