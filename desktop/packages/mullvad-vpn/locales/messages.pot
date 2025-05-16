@@ -325,6 +325,13 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr ""
 
+#. Accessibility label for link to wireguard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to %(wireGuard)s settings."
+msgstr ""
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -950,6 +957,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr ""
 
+#. Link in notication to go to WireGuard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "%(wireGuard)s settings."
+msgstr ""
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr ""
@@ -1029,6 +1043,13 @@ msgstr ""
 #. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
+msgstr ""
+
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please change it under "
 msgstr ""
 
 #. The in-app banner displayed to the user when the app beta update is
@@ -2400,9 +2421,6 @@ msgid "%s custom port"
 msgstr ""
 
 msgid "%s more..."
-msgstr ""
-
-msgid "%s settings."
 msgstr ""
 
 msgid "%s was added to \"%s\""
