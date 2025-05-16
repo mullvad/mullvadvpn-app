@@ -36,12 +36,17 @@ pub fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathB
         Ok(()) => Ok(dir),
         // The directory already exists
         Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
-            // If the permissions are wrong, delete the directory and recreate it
+            // Recreate the directory if the ownership and permissions are unexpected
             if !dir_is_root_owned(&dir, fs_perms.as_ref())? {
+                log::debug!(
+                    "Removing old directory due to unexpected permissions: {}",
+                    dir.display()
+                );
+
                 fs::remove_dir_all(&dir)
                     .or_else(|err| {
-                        // ENOTDIR: If the path is not a directory, try to remove the file
-                        if err.raw_os_error() == Some(20) {
+                        // If the path is not a directory, try to remove the file
+                        if err.kind() == io::ErrorKind::NotADirectory {
                             fs::remove_file(&dir)
                         } else {
                             Err(err)
@@ -60,14 +65,36 @@ pub fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathB
     }
 }
 
-/// Return whether the directofy is owned by root and, optionally, has the given permissions set
+/// Return whether the directory is owned by root and, optionally, is no less strict
+/// than the desired permissions
 fn dir_is_root_owned(dir: &Path, perms: Option<&fs::Permissions>) -> Result<bool> {
-    const RELEVANT_BITS: u32 = 0o777;
-
-    let meta = fs::symlink_metadata(&dir)
+    let meta = fs::symlink_metadata(dir)
         .map_err(|e| Error::GetDirPermissionFailed(dir.display().to_string(), e))?;
     let matching_perms = perms
-        .map(|perms| (perms.mode() & RELEVANT_BITS) == (meta.permissions().mode() & RELEVANT_BITS))
+        .map(|perms| has_at_most_mask(meta.permissions().mode(), perms.mode()))
         .unwrap_or(true);
     Ok(matching_perms && meta.uid() == 0)
+}
+
+/// Return whether `mask` is *at least* as strict as `at_most`
+/// This only considers the read, write, and exec bits.
+fn has_at_most_mask(mask: u32, at_most: u32) -> bool {
+    // Ignore "D" bit, setuid bit, etc.
+    const RELEVANT_BITS: u32 = 0o777;
+    ((mask & RELEVANT_BITS) & !(at_most & RELEVANT_BITS)) == 0
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_has_at_most_mask() {
+        assert!(!has_at_most_mask(0o777, 0o577));
+        assert!(!has_at_most_mask(0o777, 0o707));
+        assert!(!has_at_most_mask(0o777, 0o770));
+
+        assert!(has_at_most_mask(0o777, 0o777));
+        assert!(has_at_most_mask(0o000, 0o777));
+    }
 }
