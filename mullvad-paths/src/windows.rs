@@ -45,6 +45,20 @@ use windows_sys::{
     },
 };
 
+pub const PRODUCT_NAME: &str = "Mullvad VPN";
+
+pub fn get_allusersprofile_dir() -> Result<PathBuf> {
+    match std::env::var_os("ALLUSERSPROFILE") {
+        Some(dir) => Ok(PathBuf::from(&dir)),
+        None => Err(Error::NoProgramDataDir),
+    }
+}
+
+pub fn create_and_return(dir: PathBuf, set_security_permissions: bool) -> Result<PathBuf> {
+    create_dir_recursive(&dir, set_security_permissions)?;
+    Ok(dir)
+}
+
 struct Handle(HANDLE);
 
 impl Drop for Handle {
