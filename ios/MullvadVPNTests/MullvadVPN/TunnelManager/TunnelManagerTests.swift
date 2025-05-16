@@ -75,7 +75,8 @@ class TunnelManagerTests: XCTestCase {
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
-            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper
+            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper,
+            addressCacheProvider: addressCache
         )
 
         try SettingsManager.writeSettings(LatestTunnelSettings())

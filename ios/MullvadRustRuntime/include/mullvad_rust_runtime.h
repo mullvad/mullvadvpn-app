@@ -61,6 +61,14 @@ typedef struct SwiftShadowsocksLoaderWrapper {
   struct SwiftShadowsocksLoaderWrapperContext _0;
 } SwiftShadowsocksLoaderWrapper;
 
+typedef struct SwiftAddressCacheProviderContext {
+  const void *address_cache;
+} SwiftAddressCacheProviderContext;
+
+typedef struct SwiftAddressCacheWrapper {
+  struct SwiftAddressCacheProviderContext _0;
+} SwiftAddressCacheWrapper;
+
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
 } SwiftCancelHandle;
@@ -161,7 +169,8 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
                                                          const char *address,
                                                          const char *domain,
                                                          struct SwiftShadowsocksLoaderWrapper bridge_provider,
-                                                         struct SwiftAccessMethodSettingsWrapper settings_provider);
+                                                         struct SwiftAccessMethodSettingsWrapper settings_provider,
+                                                         struct SwiftAddressCacheWrapper address_cache);
 
 /**
  * # Safety
@@ -181,7 +190,8 @@ struct SwiftApiContext mullvad_api_init_new(const char *host,
                                             const char *address,
                                             const char *domain,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
-                                            struct SwiftAccessMethodSettingsWrapper settings_provider);
+                                            struct SwiftAccessMethodSettingsWrapper settings_provider,
+                                            struct SwiftAddressCacheWrapper address_cache);
 
 /**
  * # Safety
@@ -202,7 +212,8 @@ struct SwiftApiContext mullvad_api_init_inner(const char *host,
                                               const char *domain,
                                               bool disable_tls,
                                               struct SwiftShadowsocksLoaderWrapper bridge_provider,
-                                              struct SwiftAccessMethodSettingsWrapper settings_provider);
+                                              struct SwiftAccessMethodSettingsWrapper settings_provider,
+                                              struct SwiftAddressCacheWrapper address_cache);
 
 /**
  * Converts parameters into a `Box<AccessMethodSetting>` raw representation that
@@ -297,6 +308,25 @@ struct SwiftCancelHandle mullvad_ios_delete_account(struct SwiftApiContext api_c
                                                     void *completion_cookie,
                                                     struct SwiftRetryStrategy retry_strategy,
                                                     const char *account_number);
+
+/**
+ * Return the latest available endpoint, or a default one if none are cached
+ *
+ * # SAFETY
+ * `rawAddressCacheProvider` **must** be provided by a call to `init_swift_address_cache_wrapper`
+ * It is okay to persist it, and use it accross multiple threads.
+ */
+extern const char *swift_get_cached_endpoint(const void *rawAddressCacheProvider);
+
+/**
+ * Called by the Swift side in order to provide an object to rust that provides API addresses in a UTF-8 string form
+ *
+ * # SAFETY
+ * `address_cache` **must be** pointing to a valid instance of a `DefaultAddressCacheProvider`
+ * That instance's lifetime has to be equivalent to a `'static` lifetime in Rust
+ * This function does not take ownership of `address_cache`
+ */
+struct SwiftAddressCacheWrapper init_swift_address_cache_wrapper(const void *address_cache);
 
 /**
  * # Safety
