@@ -4,7 +4,13 @@ plugins {
     alias(libs.plugins.detekt) apply true
 }
 
-repositories { maven("https://plugins.gradle.org/m2/") }
+repositories {
+    gradlePluginPortal{
+        content {
+            excludeGroup("io.grpc")
+        }
+    }
+}
 
 kotlin { jvmToolchain(17) }
 

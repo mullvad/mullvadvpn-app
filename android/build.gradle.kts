@@ -21,9 +21,21 @@ plugins {
 
 buildscript {
     repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
+        google{
+            content {
+                excludeGroup("io.grpc")
+            }
+        }
+        mavenCentral {
+            content {
+                includeGroup("io.grpc")
+            }
+        }
+        gradlePluginPortal{
+            content {
+                excludeGroup("io.grpc")
+            }
+        }
     }
     dependencies {
         // Dependency class paths are required for Gradle metadata verification to work properly,
