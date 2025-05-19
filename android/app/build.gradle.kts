@@ -186,7 +186,7 @@ android {
         buildConfigField(
             "boolean",
             "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
-            getBooleanProperty("app.config.showInAppVerisonNotifications").toString(),
+            getBooleanProperty("app.config.inAppVerisonNotifications.enable").toString(),
         )
     }
 
