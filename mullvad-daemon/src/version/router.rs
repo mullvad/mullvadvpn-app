@@ -406,7 +406,7 @@ where
         match mem::replace(&mut self.state, State::NoVersion) {
             State::HasVersion { version_cache } => {
                 let Some(upgrading_to_version) =
-                    recommended_version_upgrade(&version_cache.latest_version, self.beta_program)
+                    recommended_version_upgrade(&version_cache.version_info, self.beta_program)
                 else {
                     // If there's no suggested upgrade, do nothing
                     log::debug!("Received update request without suggested upgrade");
@@ -527,7 +527,7 @@ fn to_app_version_info(
 ) -> AppVersionInfo {
     let current_version_supported = cache.current_version_supported;
     let suggested_upgrade =
-        recommended_version_upgrade(&cache.latest_version, beta_program).map(|version| {
+        recommended_version_upgrade(&cache.version_info, beta_program).map(|version| {
             SuggestedUpgrade {
                 version: version.version,
                 changelog: version.changelog,
@@ -699,7 +699,7 @@ mod test {
         version.incremental += 1;
         VersionCache {
             current_version_supported: true,
-            latest_version: VersionInfo {
+            version_info: VersionInfo {
                 beta: None,
                 stable: mullvad_update::version::Version {
                     version,
@@ -727,7 +727,7 @@ mod test {
         beta.version.incremental += 1;
         VersionCache {
             current_version_supported: true,
-            latest_version: VersionInfo {
+            version_info: VersionInfo {
                 beta: Some(beta),
                 stable,
             },
@@ -865,7 +865,7 @@ mod test {
                 assert_eq!(version_cache, &version_cache_test);
                 assert_eq!(
                     upgrading_to_version.version,
-                    version_cache_test.latest_version.stable.version
+                    version_cache_test.version_info.stable.version
                 );
             }
             other => panic!("State should be Downloading, was {other:?}"),
@@ -974,7 +974,7 @@ mod test {
         let upgrade_version = get_new_stable_version_cache();
         let mut upgrade_version_newer = upgrade_version.clone();
         upgrade_version_newer
-            .latest_version
+            .version_info
             .stable
             .version
             .incremental += 1;

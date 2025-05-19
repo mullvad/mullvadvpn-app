@@ -54,7 +54,7 @@ pub(super) struct VersionCache {
     /// Whether the current (installed) version is supported or an upgrade is required
     pub current_version_supported: bool,
     /// The latest available versions
-    pub latest_version: mullvad_update::version::VersionInfo,
+    pub version_info: mullvad_update::version::VersionInfo,
     #[cfg(update)]
     pub metadata_version: usize,
 }
@@ -377,6 +377,8 @@ fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
 ) -> impl Future<Output = Result<VersionCache, Error>> {
+    use mullvad_api::version::{AppVersionResponse, AppVersionResponse2};
+
     let v1_endpoint = api.version_proxy.version_check(
         mullvad_version::VERSION.to_owned(),
         PLATFORM,
@@ -399,12 +401,21 @@ fn version_check_inner(
         min_metadata_version,
     );
     async move {
-        let (v1_response, v2_response) =
-            tokio::try_join!(v1_endpoint, v2_endpoint).map_err(Error::Download)?;
+        let (
+            AppVersionResponse {
+                supported: current_version_supported,
+                ..
+            },
+            AppVersionResponse2 {
+                version_info,
+                metadata_version,
+            },
+        ) = tokio::try_join!(v1_endpoint, v2_endpoint).map_err(Error::Download)?;
+
         Ok(VersionCache {
-            current_version_supported: v1_response.supported,
-            latest_version: v2_response.0,
-            metadata_version: v2_response.1,
+            current_version_supported,
+            version_info,
+            metadata_version,
         })
     }
 }
@@ -497,7 +508,7 @@ async fn try_load_cache(cache_dir: &Path) -> Result<(VersionCache, SystemTime), 
 
     let cache: VersionCache = serde_json::from_str(&content).map_err(Error::Deserialize)?;
 
-    if cache_is_old(&cache.latest_version, &APP_VERSION) {
+    if cache_is_old(&cache.version_info, &APP_VERSION) {
         return Err(Error::OutdatedVersion);
     }
 
@@ -526,7 +537,7 @@ fn dev_version_cache() -> VersionCache {
 
     VersionCache {
         current_version_supported: false,
-        latest_version: VersionInfo {
+        version_info: VersionInfo {
             stable: mullvad_update::version::Version {
                 version: mullvad_version::VERSION.parse().unwrap(),
                 changelog: "".to_owned(),
@@ -760,7 +771,7 @@ mod test {
         // TODO: The tests pass, but check that this is a sane fake version cache anyway
         VersionCache {
             current_version_supported: true,
-            latest_version: VersionInfo {
+            version_info: VersionInfo {
                 stable: Version {
                     version: "2025.5".parse::<mullvad_version::Version>().unwrap(),
                     urls: vec![],
