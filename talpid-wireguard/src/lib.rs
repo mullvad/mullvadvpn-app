@@ -964,24 +964,6 @@ impl WireguardMonitor {
         }
     }
 
-    /// Replace default (0-prefix) routes with more specific routes.
-    #[cfg(feature = "boringtun")]
-    fn replace_default_prefixes(network: ipnetwork::IpNetwork) -> Vec<ipnetwork::IpNetwork> {
-        #[cfg(windows)]
-        if network.prefix() == 0 {
-            if network.is_ipv4() {
-                vec!["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()]
-            } else {
-                vec!["8000::/1".parse().unwrap(), "::/1".parse().unwrap()]
-            }
-        } else {
-            vec![network]
-        }
-
-        #[cfg(not(windows))]
-        vec![network]
-    }
-
     fn tunnel_metadata(interface_name: &str, config: &Config) -> TunnelMetadata {
         TunnelMetadata {
             interface: interface_name.to_string(),
