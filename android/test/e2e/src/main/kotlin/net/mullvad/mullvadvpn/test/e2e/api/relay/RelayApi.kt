@@ -16,7 +16,6 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import net.mullvad.mullvadvpn.test.e2e.BuildConfig
 import net.mullvad.mullvadvpn.test.e2e.EndToEndTest.Companion.DEFAULT_RELAY
 import net.mullvad.mullvadvpn.test.e2e.constant.DOMAIN
 import net.mullvad.mullvadvpn.test.e2e.misc.KermitLogger

@@ -137,7 +137,8 @@ case "$TEST_TYPE" in
         exit 1
     fi
     OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.enable $ENABLE_ACCESS_TO_LOCAL_API_TESTS"
-    if [[ -n $ENABLE_ACCESS_TO_LOCAL_API_TESTS]]; then
+
+    if [[ -n ${ENABLE_ACCESS_TO_LOCAL_API_TESTS} ]]; then
         echo "Tests dependent on local API enabled"
         OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.host $RAAS_HOST"
         OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.trafficGenerator.target.host $RAAS_TRAFFIC_GENERATOR_TARGET_HOST"
