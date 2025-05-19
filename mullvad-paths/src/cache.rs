@@ -8,7 +8,7 @@ pub fn cache_dir() -> Result<PathBuf> {
     let permissions = crate::unix::Permissions::ReadExecOnly;
     #[cfg(target_os = "windows")]
     let permissions = true;
-    crate::create_and_return(get_cache_dir()?, permissions)
+    crate::create_dir(get_cache_dir()?, permissions)
 }
 
 pub fn get_cache_dir() -> Result<PathBuf> {
