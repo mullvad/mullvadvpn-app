@@ -3,9 +3,9 @@ import { useConnectionIsBlocked } from '../../../../../../../../redux/hooks';
 
 export const useShowResumeButton = () => {
   const { isBlocked } = useConnectionIsBlocked();
-  const eventType = useAppUpgradeEventType();
+  const appUpgradeEventType = useAppUpgradeEventType();
 
-  const showResumeButton = eventType === 'APP_UPGRADE_STATUS_ABORTED' || isBlocked;
+  const showResumeButton = appUpgradeEventType === 'APP_UPGRADE_STATUS_ABORTED' || isBlocked;
 
   return showResumeButton;
 };
