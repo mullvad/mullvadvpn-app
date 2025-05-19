@@ -285,7 +285,7 @@ tasks.register<Exec>("cargoClean") {
     commandLine("cargo", "clean")
 }
 
-if (getBooleanPropertyOrNull("app.build.cargo.cleanBuild") == true) {
+if (getBooleanProperty("app.build.cargo.cleanBuild")) {
     tasks["clean"].dependsOn("cargoClean")
 }
 
