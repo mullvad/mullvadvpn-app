@@ -3230,12 +3230,12 @@ impl Daemon {
 
     #[allow(clippy::unused_async)]
     async fn on_app_upgrade(&self, tx: ResponseTx<(), version::Error>) {
-        #[cfg(update)]
+        #[cfg(in_app_upgrade)]
         {
             let result = self.version_handle.update_application().await;
             Self::oneshot_send(tx, result, "on_app_upgrade response");
         }
-        #[cfg(not(update))]
+        #[cfg(not(in_app_upgrade))]
         {
             log::warn!("Ignoring app upgrade command as in-app upgrades are disabled on this OS");
             Self::oneshot_send(tx, Ok(()), "on_app_upgrade response")
@@ -3244,12 +3244,12 @@ impl Daemon {
 
     #[allow(clippy::unused_async)]
     async fn on_app_upgrade_abort(&self, tx: ResponseTx<(), version::Error>) {
-        #[cfg(update)]
+        #[cfg(in_app_upgrade)]
         {
             let result = self.version_handle.cancel_update().await;
             Self::oneshot_send(tx, result, "on_app_upgrade_abort response");
         }
-        #[cfg(not(update))]
+        #[cfg(not(in_app_upgrade))]
         {
             log::warn!(
                 "Ignoring cancel app upgrade command as in-app upgrades are disabled on this OS"

@@ -35,9 +35,9 @@ fn main() {
     println!(r#"cargo::rustc-cfg=daita"#);
 
     // Enable in-app upgrades on macOS and Windows
-    println!("cargo::rustc-check-cfg=cfg(update)");
+    println!("cargo::rustc-check-cfg=cfg(in_app_upgrade)");
     if matches!(target_os(), Os::Windows | Os::Macos) {
-        println!(r#"cargo::rustc-cfg=update"#);
+        println!(r#"cargo::rustc-cfg=in_app_upgrade"#);
     }
 }
 

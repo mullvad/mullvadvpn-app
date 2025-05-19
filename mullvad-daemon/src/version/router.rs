@@ -5,24 +5,24 @@ use futures::channel::{mpsc, oneshot};
 use futures::stream::StreamExt;
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle};
 use mullvad_types::version::{AppVersionInfo, SuggestedUpgrade};
-#[cfg(update)]
+#[cfg(in_app_upgrade)]
 use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloader};
 use mullvad_update::version::VersionInfo;
 use talpid_core::mpsc::Sender;
-#[cfg(update)]
+#[cfg(in_app_upgrade)]
 use talpid_types::ErrorExt;
 
 use crate::management_interface::AppUpgradeBroadcast;
 use crate::DaemonEventSender;
 
-#[cfg(update)]
+#[cfg(in_app_upgrade)]
 use super::downloader::ProgressUpdater;
 use super::{
     check::{VersionCache, VersionUpdater},
     Error,
 };
 
-#[cfg(update)]
+#[cfg(in_app_upgrade)]
 use super::downloader;
 use std::mem;
 
@@ -50,7 +50,7 @@ impl VersionRouterHandle {
         result_rx.await.map_err(|_| Error::VersionRouterClosed)?
     }
 
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     pub async fn update_application(&self) -> Result<()> {
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
@@ -59,7 +59,7 @@ impl VersionRouterHandle {
         result_rx.await.map_err(|_| Error::VersionRouterClosed)
     }
 
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     pub async fn cancel_update(&self) -> Result<()> {
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
@@ -70,17 +70,17 @@ impl VersionRouterHandle {
 }
 
 // These wrapper traits and type aliases exist to help feature gate the module
-#[cfg(update)]
+#[cfg(in_app_upgrade)]
 trait Downloader:
     AppDownloader + Send + 'static + From<AppDownloaderParameters<ProgressUpdater>>
 {
 }
-#[cfg(not(update))]
+#[cfg(not(in_app_upgrade))]
 trait Downloader {}
 
-#[cfg(update)]
+#[cfg(in_app_upgrade)]
 type DefaultDownloader = HttpAppDownloader<ProgressUpdater>;
-#[cfg(not(update))]
+#[cfg(not(in_app_upgrade))]
 type DefaultDownloader = ();
 
 impl Downloader for DefaultDownloader {}
@@ -104,7 +104,7 @@ struct VersionRouter<S = DaemonEventSender<AppVersionInfo>, D = DefaultDownloade
     /// Channels that receive responses to `get_latest_version`
     version_request_channels: Vec<oneshot::Sender<Result<AppVersionInfo>>>,
     /// Broadcast channel for app upgrade events
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     app_upgrade_broadcast: AppUpgradeBroadcast,
     /// Type used to spawn the downloader task, replaced when testing
     _phantom: std::marker::PhantomData<D>,
@@ -119,10 +119,10 @@ enum Message {
     /// Check for updates
     GetLatestVersion(oneshot::Sender<Result<AppVersionInfo>>),
     /// Update the application
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     UpdateApplication { result_tx: oneshot::Sender<()> },
     /// Cancel the ongoing update
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     CancelUpdate { result_tx: oneshot::Sender<()> },
 }
 
@@ -133,7 +133,7 @@ enum State {
     /// Running version checker, no upgrade in progress
     HasVersion { version_cache: VersionCache },
     /// Download is in progress, so we don't forward version checks
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     Downloading {
         /// Version info received from `HasVersion`
         version_cache: VersionCache,
@@ -143,7 +143,7 @@ enum State {
         downloader_handle: downloader::DownloaderHandle,
     },
     /// Download is complete. We have a verified binary
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     Downloaded {
         /// Version info received from `HasVersion`
         version_cache: VersionCache,
@@ -162,12 +162,12 @@ impl std::fmt::Display for State {
         match self {
             State::NoVersion => write!(f, "NoVersion"),
             State::HasVersion { .. } => write!(f, "HasVersion"),
-            #[cfg(update)]
+            #[cfg(in_app_upgrade)]
             State::Downloading {
                 upgrading_to_version,
                 ..
             } => write!(f, "Downloading '{}'", upgrading_to_version.version),
-            #[cfg(update)]
+            #[cfg(in_app_upgrade)]
             State::Downloaded {
                 verified_installer_path,
                 ..
@@ -181,7 +181,7 @@ impl State {
         match self {
             State::NoVersion => None,
             State::HasVersion { version_cache, .. } => Some(version_cache),
-            #[cfg(update)]
+            #[cfg(in_app_upgrade)]
             State::Downloading { version_cache, .. } | State::Downloaded { version_cache, .. } => {
                 Some(version_cache)
             }
@@ -189,7 +189,7 @@ impl State {
     }
 }
 
-#[cfg_attr(not(update), allow(unused_variables))]
+#[cfg_attr(not(in_app_upgrade), allow(unused_variables))]
 pub(crate) fn spawn_version_router(
     api_handle: MullvadRestHandle,
     availability_handle: ApiAvailability,
@@ -204,7 +204,7 @@ pub(crate) fn spawn_version_router(
         let (new_version_tx, new_version_rx) = mpsc::unbounded();
         let (refresh_version_check_tx, refresh_version_check_rx) = mpsc::unbounded();
 
-        #[cfg(update)]
+        #[cfg(in_app_upgrade)]
         let _ = downloader::clear_download_dir().await.inspect_err(|err| {
             log::error!(
                 "{}",
@@ -228,7 +228,7 @@ pub(crate) fn spawn_version_router(
             version_event_sender,
             new_version_rx,
             version_request_channels: vec![],
-            #[cfg(update)]
+            #[cfg(in_app_upgrade)]
             app_upgrade_broadcast,
             refresh_version_check_tx,
             _phantom: std::marker::PhantomData::<DefaultDownloader>,
@@ -288,12 +288,12 @@ where
             Message::GetLatestVersion(result_tx) => {
                 self.get_latest_version(result_tx);
             }
-            #[cfg(update)]
+            #[cfg(in_app_upgrade)]
             Message::UpdateApplication { result_tx } => {
                 self.update_application();
                 let _ = result_tx.send(());
             }
-            #[cfg(update)]
+            #[cfg(in_app_upgrade)]
             Message::CancelUpdate { result_tx } => {
                 self.cancel_upgrade();
                 let _ = result_tx.send(());
@@ -328,7 +328,7 @@ where
                     app_version_info: new_app_version,
                 }
             }
-            #[cfg(update)]
+            #[cfg(in_app_upgrade)]
             State::Downloaded { .. } | State::Downloading { .. } => {
                 let app_version_info = to_app_version_info(&version_cache, self.beta_program, None);
 
@@ -367,7 +367,7 @@ where
 
         // Always cancel download if the suggested upgrade changes
         let version_cache = match mem::replace(&mut self.state, State::NoVersion) {
-            #[cfg(update)]
+            #[cfg(in_app_upgrade)]
             State::Downloaded { version_cache, .. } | State::Downloading { version_cache, .. } => {
                 log::warn!("Switching beta after while updating resulted in new suggested upgrade: {:?}, aborting", new_app_version.suggested_upgrade);
                 version_cache
@@ -399,7 +399,7 @@ where
         }
     }
 
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     fn update_application(&mut self) {
         use crate::version::downloader::spawn_downloader;
 
@@ -436,7 +436,7 @@ where
         }
     }
 
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     fn cancel_upgrade(&mut self) {
         use mullvad_types::version::AppUpgradeEvent;
 
@@ -473,7 +473,7 @@ where
 /// support in-app upgrades), then the future will never resolve as to not escape the select statement.
 #[allow(clippy::unused_async, unused_variables)]
 async fn wait_for_update(state: &mut State) -> Option<AppVersionInfo> {
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     match state {
         State::Downloading {
             version_cache,
@@ -511,7 +511,7 @@ async fn wait_for_update(state: &mut State) -> Option<AppVersionInfo> {
             unreachable!()
         }
     }
-    #[cfg(not(update))]
+    #[cfg(not(in_app_upgrade))]
     {
         let () = std::future::pending().await;
         unreachable!()
@@ -560,7 +560,7 @@ fn recommended_version_upgrade(
     }
 }
 
-#[cfg(all(test, update))]
+#[cfg(all(test, in_app_upgrade))]
 mod test {
     use super::downloader::ProgressUpdater;
     use futures::channel::mpsc::unbounded;

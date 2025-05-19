@@ -55,7 +55,7 @@ pub(super) struct VersionCache {
     pub current_version_supported: bool,
     /// The latest available versions
     pub version_info: mullvad_update::version::VersionInfo,
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     pub metadata_version: usize,
 }
 
@@ -112,7 +112,7 @@ impl VersionUpdaterInner {
         self.last_app_version_info.as_ref().map(|(info, _)| info)
     }
 
-    #[cfg(update)]
+    #[cfg(in_app_upgrade)]
     pub fn get_min_metadata_version(&self) -> usize {
         self.last_app_version_info
             .as_ref()
@@ -123,7 +123,7 @@ impl VersionUpdaterInner {
             .unwrap_or(mullvad_update::version::MIN_VERIFY_METADATA_VERSION)
     }
 
-    #[cfg(not(update))]
+    #[cfg(not(in_app_upgrade))]
     pub fn get_min_metadata_version(&self) -> usize {
         mullvad_update::version::MIN_VERIFY_METADATA_VERSION
     }
@@ -136,7 +136,7 @@ impl VersionUpdaterInner {
         update: &impl Fn(VersionCache) -> BoxFuture<'static, Result<(), Error>>,
         mut new_version_info: VersionCache,
     ) {
-        #[cfg(update)]
+        #[cfg(in_app_upgrade)]
         if let Some((current_cache, _)) = self.last_app_version_info.as_ref() {
             if current_cache.metadata_version == new_version_info.metadata_version {
                 log::trace!("Ignoring version info with same metadata version");
@@ -372,7 +372,7 @@ fn do_version_check_in_background(
 }
 
 /// Combine the old version and new version endpoint
-#[cfg(update)]
+#[cfg(in_app_upgrade)]
 fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
@@ -420,7 +420,7 @@ fn version_check_inner(
     }
 }
 
-#[cfg(not(update))]
+#[cfg(not(in_app_upgrade))]
 fn version_check_inner(
     api: &ApiContext,
     // NOTE: This is unused when `update` is disabled
@@ -547,7 +547,7 @@ fn dev_version_cache() -> VersionCache {
             },
             beta: None,
         },
-        #[cfg(update)]
+        #[cfg(in_app_upgrade)]
         metadata_version: 0,
     }
 }
@@ -781,7 +781,7 @@ mod test {
                 },
                 beta: None,
             },
-            #[cfg(update)]
+            #[cfg(in_app_upgrade)]
             metadata_version: 0,
         }
     }
