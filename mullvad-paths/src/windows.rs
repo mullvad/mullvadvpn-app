@@ -54,9 +54,22 @@ pub fn get_allusersprofile_dir() -> Result<PathBuf> {
     }
 }
 
-pub fn create_and_return(dir: PathBuf, set_security_permissions: bool) -> Result<PathBuf> {
-    create_dir_recursive(&dir, set_security_permissions)?;
-    Ok(dir)
+/// This recursively creates directories, if set_security_permissions is true it will set
+/// file permissions corresponding to Authenticated Users - Read Only and Administrators - Full
+/// Access. Only directories that do not already exist and the leaf directory will have their
+/// permissions set.
+pub fn create_dir(path: PathBuf, set_security_permissions: bool) -> Result<PathBuf> {
+    if set_security_permissions {
+        create_dir_with_permissions_recursive(&path)?;
+    } else {
+        std::fs::create_dir_all(path).map_err(|e| {
+            Error::CreateDirFailed(
+                format!("Could not create directory at {}", path.display()),
+                e,
+            )
+        })?;
+    }
+    Ok(path)
 }
 
 struct Handle(HANDLE);
@@ -78,23 +91,6 @@ fn get_wide_str<S: AsRef<OsStr>>(string: S) -> Vec<u16> {
         .chain(std::iter::once(0))
         .collect();
     wide_string
-}
-
-/// Recursively creates directories, if set_security_permissions is true it will set
-/// file permissions corresponding to Authenticated Users - Read Only and Administrators - Full
-/// Access. Only directories that do not already exist and the leaf directory will have their
-/// permissions set.
-pub fn create_dir_recursive(path: &Path, set_security_permissions: bool) -> Result<()> {
-    if set_security_permissions {
-        create_dir_with_permissions_recursive(path)
-    } else {
-        std::fs::create_dir_all(path).map_err(|e| {
-            Error::CreateDirFailed(
-                format!("Could not create directory at {}", path.display()),
-                e,
-            )
-        })
-    }
 }
 
 /// If directory at path already exists, set permissions for it.

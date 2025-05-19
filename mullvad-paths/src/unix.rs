@@ -26,7 +26,10 @@ impl Permissions {
     }
 }
 
-pub fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathBuf> {
+/// Create a directory at `dir`, setting the permissions given by `permissions`, unless it exists.
+/// If the directory already exists, but the permissions are not at least as strict as expected,
+/// then it will be deleted and recreated.
+pub fn create_dir(dir: PathBuf, permissions: Permissions) -> Result<PathBuf> {
     let mut dir_builder = fs::DirBuilder::new();
     let fs_perms = permissions.fs_permissions();
     if let Some(fs_perms) = fs_perms.as_ref() {
@@ -55,7 +58,7 @@ pub fn create_and_return(dir: PathBuf, permissions: Permissions) -> Result<PathB
                     .map_err(|e| Error::RemoveDir(dir.display().to_string(), e))?;
 
                 // Try to create it again
-                return create_and_return(dir, permissions);
+                return create_dir(dir, permissions);
             }
             // Correct permissions, so we're done
             Ok(dir)
