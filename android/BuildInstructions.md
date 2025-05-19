@@ -221,25 +221,30 @@ rm ./gradle/verification-metadata.xml
 ```
 
 ## Gradle properties
-Some gradle properties can be set to simplify development. These are listed below.
+Some gradle properties can be set to simplify development. These are listed below. In-order
+to override them, add the new properties in `<USER_GRADLE_HOME>/gradle.properties`. See the
+[gradle documentation](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties)
+for more info.
 
 ### Override version code and version name
-To avoid or override the rust based version generation, the `OVERRIDE_VERSION_CODE` and
-`OVERRIDE_VERSION_NAME` properties can be set in `local.properties`. For example:
+To avoid or override the rust based version generation, the `app.config.override.versionCode` and
+`app.config.override.versionName` properties can be set in `local.properties`. For example:
 ```
-OVERRIDE_VERSION_CODE=123
-OVERRIDE_VERSION_NAME=1.2.3
+app.config.override.versionCode=123
+app.config.override.versionName=1.2.3
 ```
 
 ### Disable version in-app notifications
 To disable in-app notifications related to the app version during development or testing,
-the `ENABLE_IN_APP_VERSION_NOTIFICATIONS` property can be set in `local.properties`:
+the `app.config.inAppVersionNotifications.enable` property can be:
 ```
-ENABLE_IN_APP_VERSION_NOTIFICATIONS=false
+app.config.inAppVersionNotifications.enable=false
 ```
 
 ### Run tests highly affected by rate limiting
-To avoid being rate limited we avoid running tests sending requests that are highly rate limited too often. If you want to run these tests you can set `enable_highly_rate_limited_tests=true` in `local.properties`. The default value is `false`.
+To avoid being rate limited we avoid running tests sending requests that are highly rate limited
+too often. If you want to run these tests you can override the
+`test.e2e.config.runHighlyRateLimitedTests` gradle properties. The default value is `false`.
 
 ## Reproducible builds
 
@@ -249,7 +254,7 @@ The Mullvad Android app is by default reproducible when built using our build co
 
 When building without the container on Linux systems, reproducibility depends on having the exact same versions of system tools (compilers, build tools, etc) installed. Small differences in tool versions or configurations can lead to different build outputs even when using the same source code.
 
-> **Make sure that the `local.properties` file has not changed keys that affect the reproducibility of the build such as `CARGO_TARGETS` and `ENABLE_IN_APP_VERSION_NOTIFICATIONS`.**
+> **Make sure that any `gradle.properties` has not changed or been overridden it will affect the reproducibility of the build such as changing `app.build.cargo.targets` and `app.config.inAppVersionNotifications.enable`.**
 
 To maximize reproducibility when building without the container:
 
