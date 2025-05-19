@@ -21,7 +21,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Fixed
-- Fixed downloads hanging indefinitely on switching networks
+- Fix downloads hanging indefinitely on switching networks
 
 ## [1.0.0] - 2025-05-13
 ### Fixed
