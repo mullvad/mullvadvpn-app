@@ -331,11 +331,8 @@ fn do_version_check(
 
     // retry immediately on network errors (unless we're offline)
     let should_retry_immediate = move |result: &Result<_, Error>| {
-        if let Err(Error::Download(error)) = result {
-            error.is_network_error() && !api_handle.is_offline()
-        } else {
-            false
-        }
+        !api_handle.is_offline()
+            && matches!(result, Err(Error::Download(error)) if error.is_network_error())
     };
 
     Box::pin(retry_future(
