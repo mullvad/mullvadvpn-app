@@ -9,36 +9,36 @@ const val LOG_TAG = "mullvad-e2e"
 
 fun Bundle.getPartnerAuth() =
     InstrumentationRegistry.getArguments()
-        .getString("test.e2e.${BuildConfig.FLAVOR_infrastructure}.partnerAuth")
+        .getString("mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.partnerAuth")
 
 fun Bundle.getValidAccountNumber() =
     InstrumentationRegistry.getArguments()
-        .getRequiredArgument("test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.valid")
+        .getRequiredArgument("mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.valid")
 
 fun Bundle.getInvalidAccountNumber() =
     InstrumentationRegistry.getArguments()
-        .getRequiredArgument("test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.invalid")
+        .getRequiredArgument("mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.invalid")
 
 fun Bundle.isRaasEnabled(): Boolean =
     InstrumentationRegistry.getArguments()
-        .getRequiredArgument("test.e2e.config.raas.enable")
+        .getRequiredArgument("mullvad.test.e2e.config.raas.enable")
         .toBoolean()
 
 fun Bundle.isHighlyRateLimitedTestsEnabled(): Boolean =
     InstrumentationRegistry.getArguments()
-        .getRequiredArgument("test.e2e.config.runHighlyRateLimitedTests")
+        .getRequiredArgument("mullvad.test.e2e.config.runHighlyRateLimitedTests")
         .toBoolean()
 
 fun Bundle.getRaasHost() =
-    InstrumentationRegistry.getArguments().getRequiredArgument("test.e2e.config.raas.host")
+    InstrumentationRegistry.getArguments().getRequiredArgument("mullvad.test.e2e.config.raas.host")
 
 fun Bundle.getTrafficGeneratorHost(): String =
     InstrumentationRegistry.getArguments()
-        .getRequiredArgument("test.e2e.config.raas.trafficGenerator.target.host")
+        .getRequiredArgument("mullvad.test.e2e.config.raas.trafficGenerator.target.host")
 
 fun Bundle.getTrafficGeneratorPort(): Int =
     InstrumentationRegistry.getArguments()
-        .getRequiredArgument("test.e2e.config.raas.trafficGenerator.target.port")
+        .getRequiredArgument("mullvad.test.e2e.config.raas.trafficGenerator.target.port")
         .toInt()
 
 val DOMAIN =
