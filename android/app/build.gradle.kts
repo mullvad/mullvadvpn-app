@@ -19,6 +19,7 @@ plugins {
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val relayListDirectory = file("$repoRootPath/dist-assets/relays/").absolutePath
+val changelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val rustJniLibsDir = layout.buildDirectory.dir("rustJniLibs/android").get()
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
@@ -126,8 +127,7 @@ android {
 
     sourceSets {
         getByName("main") {
-            val changelogDir = getStringProperty("app.config.changelogDir")
-            assets.srcDirs(relayListDirectory, changelogDir)
+            assets.srcDirs(relayListDirectory, changelogAssetsDirectory)
         }
     }
 
