@@ -245,7 +245,7 @@ where
     D: Downloader,
 {
     async fn run(mut self) {
-        log::info!("Version router started");
+        log::debug!("Version router started");
         // Loop until the router is closed
         while self.run_step().await.is_continue() {}
         log::info!("Version router closed");
