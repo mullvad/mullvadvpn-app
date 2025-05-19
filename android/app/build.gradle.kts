@@ -258,7 +258,7 @@ cargo {
     libname = "mullvad-jni"
     // All available targets:
     // https://github.com/mozilla/rust-android-gradle/tree/master?tab=readme-ov-file#targets
-    targets = getStringProperty("app.build.cargo.targets").split(',')
+    targets = getStringListProperty("app.build.cargo.targets")
     profile =
         if (isReleaseBuild) {
             "release"
