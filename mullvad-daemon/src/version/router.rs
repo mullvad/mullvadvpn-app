@@ -266,7 +266,7 @@ where
             res = wait_for_update(&mut self.state) => {
                 // If the download was successful, we send the new version, which contains the
                 // verified installer path
-                if let Some(app_update_info) =  res {
+                if let Some(app_update_info) = res {
                     let _ = self.version_event_sender.send(app_update_info);
                 }
             },
