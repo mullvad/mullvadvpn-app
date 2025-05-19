@@ -13,11 +13,15 @@ fun Bundle.getPartnerAuth() =
 
 fun Bundle.getValidAccountNumber() =
     InstrumentationRegistry.getArguments()
-        .getRequiredArgument("mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.valid")
+        .getRequiredArgument(
+            "mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.valid"
+        )
 
 fun Bundle.getInvalidAccountNumber() =
     InstrumentationRegistry.getArguments()
-        .getRequiredArgument("mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.invalid")
+        .getRequiredArgument(
+            "mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.invalid"
+        )
 
 fun Bundle.isRaasEnabled(): Boolean =
     InstrumentationRegistry.getArguments()

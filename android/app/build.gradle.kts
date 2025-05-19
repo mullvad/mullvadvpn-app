@@ -126,9 +126,7 @@ android {
     }
 
     sourceSets {
-        getByName("main") {
-            assets.srcDirs(relayListDirectory, changelogAssetsDirectory)
-        }
+        getByName("main") { assets.srcDirs(relayListDirectory, changelogAssetsDirectory) }
     }
 
     buildFeatures {
