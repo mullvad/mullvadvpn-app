@@ -1,8 +1,8 @@
 [target.x86_64-pc-windows-msvc]
-rustflags = ["-Ctarget-feature=+crt-static"]
+rustflags = ["-Ctarget-feature=+crt-static", "-Ccontrol-flow-guard"]
 
 [target.i686-pc-windows-msvc]
-rustflags = ["-Ctarget-feature=+crt-static"]
+rustflags = ["-Ctarget-feature=+crt-static", "-Ccontrol-flow-guard"]
 
 [target.aarch64-pc-windows-msvc]
-rustflags = ["-Ctarget-feature=+crt-static"]
+rustflags = ["-Ctarget-feature=+crt-static", "-Ccontrol-flow-guard"]
