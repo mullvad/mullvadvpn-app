@@ -37,9 +37,7 @@ pub async fn open_boringtun_tunnel(
     tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
     #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
 ) -> super::Result<BoringTun> {
-    let routes = config
-        .get_tunnel_destinations()
-        .flat_map(super::WireguardMonitor::replace_default_prefixes);
+    let routes = config.get_tunnel_destinations();
 
     let tunnel = BoringTun::start_tunnel(
         config,
