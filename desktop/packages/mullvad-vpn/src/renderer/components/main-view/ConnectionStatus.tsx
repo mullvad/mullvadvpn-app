@@ -14,9 +14,8 @@ const StyledConnectionStatus = styled.span<{ $color: string }>(largeText, (props
 
 export default function ConnectionStatus() {
   const tunnelState = useSelector((state) => state.connection.status);
-  const lockdownMode = useSelector((state) => state.settings.blockWhenDisconnected);
 
-  const color = getConnectionSTatusLabelColor(tunnelState, lockdownMode);
+  const color = getConnectionSTatusLabelColor(tunnelState);
   const text = getConnectionStatusLabelText(tunnelState);
 
   return (
@@ -26,7 +25,7 @@ export default function ConnectionStatus() {
   );
 }
 
-function getConnectionSTatusLabelColor(tunnelState: TunnelState, lockdownMode: boolean) {
+function getConnectionSTatusLabelColor(tunnelState: TunnelState) {
   switch (tunnelState.state) {
     case 'connected':
       return colors.green;
@@ -34,7 +33,7 @@ function getConnectionSTatusLabelColor(tunnelState: TunnelState, lockdownMode: b
     case 'disconnecting':
       return colors.white;
     case 'disconnected':
-      return lockdownMode ? colors.white : colors.red;
+      return tunnelState.lockedDown ? colors.white : colors.red;
     case 'error':
       return tunnelState.details.blockingError ? colors.red : colors.white;
   }

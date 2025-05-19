@@ -59,7 +59,7 @@ export default function NotificationArea(props: IProps) {
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
   const relaySettings = useSelector((state) => state.settings.relaySettings);
 
-  const blockWhenDisconnected = useSelector(
+  const blockWhenDisconnectedSetting = useSelector(
     (state: IReduxState) => state.settings.blockWhenDisconnected,
   );
   const hasExcludedApps = useSelector(
@@ -94,7 +94,7 @@ export default function NotificationArea(props: IProps) {
     new ReconnectingNotificationProvider(tunnelState),
     new BlockWhenDisconnectedNotificationProvider({
       tunnelState,
-      blockWhenDisconnected,
+      blockWhenDisconnectedSetting,
       hasExcludedApps,
     }),
     new NoOpenVpnServerAvailableNotificationProvider({
