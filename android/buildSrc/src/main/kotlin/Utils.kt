@@ -59,3 +59,7 @@ fun Project.getIntProperty(name: String): Int = properties[name].toString().toIn
 
 fun Project.getBooleanProperty(name: String): Boolean =
     properties[name].toString().toBooleanStrict()
+
+// Fetch a string and that is split by `,` into a list of strings
+const val STRING_LIST_SEPARATOR = ','
+fun Project.getStringListProperty(name: String): List<String> = properties[name].toString().split(STRING_LIST_SEPARATOR)
