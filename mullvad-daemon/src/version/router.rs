@@ -389,11 +389,11 @@ where
         result_tx: oneshot::Sender<std::result::Result<AppVersionInfo, Error>>,
     ) {
         // Start a version request unless already in progress
-        if let Err(_e) = self.refresh_version_check_tx.unbounded_send(()) {
-            result_tx
-                .send(Err(Error::VersionRouterClosed))
-                .unwrap_or_else(|e| log::warn!("Failed to send version request result: {e:?}"));
-        } else {
+        match self
+            .refresh_version_check_tx
+            .unbounded_send(())
+            .map_err(|_e| Error::VersionRouterClosed)
+        {
             // Append to response channels
             self.version_request_channels.push(result_tx);
         }
