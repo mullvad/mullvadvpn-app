@@ -5,12 +5,12 @@ import { useConnectionIsBlocked } from '../../../../../../redux/hooks';
 
 export const useStep = (): AppUpgradeStep => {
   const { isBlocked } = useConnectionIsBlocked();
-  const eventType = useAppUpgradeEventType();
+  const appUpgradeEventType = useAppUpgradeEventType();
   const hasAppUpgradeError = useHasAppUpgradeError();
 
   if (hasAppUpgradeError && !isBlocked) {
     return 'error';
   }
 
-  return convertEventTypeToStep(eventType);
+  return convertEventTypeToStep(appUpgradeEventType);
 };
