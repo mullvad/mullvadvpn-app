@@ -1,4 +1,3 @@
-import { messages } from '../../../../../../../../shared/gettext';
 import {
   useAppUpgradeEventType,
   useHasAppUpgradeError,
@@ -6,6 +5,7 @@ import {
 } from '../../../../../../../hooks';
 import { convertEventTypeToStep } from '../../../../../../../redux/app-upgrade/helpers';
 import { useConnectionIsBlocked } from '../../../../../../../redux/hooks';
+import { translations } from './constants';
 import { useGetMessageError, useGetMessageTimeLeft } from './hooks';
 
 export const useMessage = () => {
@@ -22,17 +22,19 @@ export const useMessage = () => {
     step === 'launch' ||
     step === 'verify'
   ) {
-    // TRANSLATORS: Status text displayed below a progress bar when the download of an update is complete
-    return messages.pgettext('app-upgrade-view', 'Download complete!');
+    return translations.downloadComplete;
   }
 
-  if (step === 'pause' || isBlocked) {
-    // TRANSLATORS: Status text displayed below a progress bar when the download of an update has been paused
-    return messages.pgettext('app-upgrade-view', 'Download paused');
+  if (isBlocked) {
+    return translations.downloadPaused;
   }
 
   if (hasAppUpgradeError) {
     return getMessageError();
+  }
+
+  if (step === 'pause') {
+    return translations.downloadPaused;
   }
 
   if (step === 'download') {
@@ -42,8 +44,7 @@ export const useMessage = () => {
       return messageTimeLeft;
     }
 
-    // TRANSLATORS: Status text displayed below a progress bar when the download of an update is starting
-    return messages.pgettext('app-upgrade-view', 'Starting download...');
+    return translations.downloadStarting;
   }
 
   return null;
