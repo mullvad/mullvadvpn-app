@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import net.mullvad.mullvadvpn.test.e2e.BuildConfig
 import net.mullvad.mullvadvpn.test.e2e.EndToEndTest.Companion.DEFAULT_RELAY
+import net.mullvad.mullvadvpn.test.e2e.constant.DOMAIN
 import net.mullvad.mullvadvpn.test.e2e.misc.KermitLogger
 
 class RelayApi {
@@ -49,7 +50,7 @@ class RelayApi {
         }
 
     companion object {
-        private const val BASE_URL = "api.${BuildConfig.INFRASTRUCTURE_BASE_DOMAIN}"
-        private const val RELAY_PATH = "app/${BuildConfig.API_VERSION}/relays"
+        private val BASE_URL = "api.${DOMAIN}"
+        private const val RELAY_PATH = "app/v1/relays"
     }
 }
