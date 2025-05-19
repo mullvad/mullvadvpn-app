@@ -336,7 +336,7 @@ pub enum DaemonCommand {
     /// Return whether the daemon is performing post-upgrade tasks
     IsPerformingPostUpgrade(oneshot::Sender<bool>),
     /// Get current version of the app
-    GetCurrentVersion(oneshot::Sender<String>),
+    GetCurrentVersion(oneshot::Sender<mullvad_version::Version>),
     /// Remove settings and clear the cache
     #[cfg(not(target_os = "android"))]
     FactoryReset(ResponseTx<(), Error>),
@@ -1970,10 +1970,12 @@ impl Daemon {
         });
     }
 
-    fn on_get_current_version(&mut self, tx: oneshot::Sender<String>) {
+    fn on_get_current_version(&mut self, tx: oneshot::Sender<mullvad_version::Version>) {
         Self::oneshot_send(
             tx,
-            mullvad_version::VERSION.to_owned(),
+            mullvad_version::VERSION
+                .parse::<mullvad_version::Version>()
+                .expect("Failed to parse version"),
             "get_current_version response",
         );
     }
