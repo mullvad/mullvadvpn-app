@@ -248,7 +248,7 @@ where
         log::debug!("Version router started");
         // Loop until the router is closed
         while self.run_step().await.is_continue() {}
-        log::info!("Version router closed");
+        log::debug!("Version router closed");
     }
 
     /// Run a single step of the router, handling messages from the daemon and version events
