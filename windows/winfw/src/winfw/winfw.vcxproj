@@ -285,6 +285,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\libshared\src\;$(ProjectDir)..\;$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir)..\..\..\libwfp\src\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -312,6 +313,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\libshared\src\;$(ProjectDir)..\;$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir)..\..\..\libwfp\src\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -339,6 +341,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\libshared\src\;$(ProjectDir)..\;$(ProjectDir)..\..\..\windows-libraries\src\;$(ProjectDir)..\..\..\libwfp\src\</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
