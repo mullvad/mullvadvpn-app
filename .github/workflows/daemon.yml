@@ -139,8 +139,6 @@ jobs:
           git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Install Protoc
-        # NOTE: ARM runner already has protoc
-        if: ${{ matrix.config.arch != 'arm64' }}
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
