@@ -1,15 +1,15 @@
 import { Page } from 'playwright';
 
 import { RoutePath } from '../../../../src/renderer/lib/routes';
-import { MockedTestUtils } from '../../mocked/mocked-utils';
+import { TestUtils } from '../../utils';
 import { createSelectors } from './selectors';
 
 export class UserInterfaceSettingsRouteObjectModel {
   readonly page: Page;
-  readonly utils: MockedTestUtils;
+  readonly utils: TestUtils;
   readonly selectors: ReturnType<typeof createSelectors>;
 
-  constructor(page: Page, utils: MockedTestUtils) {
+  constructor(page: Page, utils: TestUtils) {
     this.page = page;
     this.utils = utils;
     this.selectors = createSelectors(page);
