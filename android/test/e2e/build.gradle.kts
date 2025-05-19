@@ -21,27 +21,15 @@ android {
             "de.mannodermaus.junit5.AndroidJUnit5Builder"
         targetProjectPath = ":app"
 
-        fun MutableMap<String, String>.putMullvadPropertyIfPresent(name: String) {
-            val value = getStringPropertyOrNull(name)
-            if (value != null) {
-                put(name, value)
-            }
-        }
-
         testInstrumentationRunnerArguments += buildMap {
             put("clearPackageData", "true")
 
-            putMullvadPropertyIfPresent("test.e2e.stagemole.accountNumber.valid")
-            putMullvadPropertyIfPresent("test.e2e.stagemole.accountNumber.invalid")
-            putMullvadPropertyIfPresent("test.e2e.prod.accountNumber.valid")
-            putMullvadPropertyIfPresent("test.e2e.prod.accountNumber.invalid")
-
-            putMullvadPropertyIfPresent("test.e2e.config.raas.enable")
-            putMullvadPropertyIfPresent("test.e2e.config.raas.host")
-            putMullvadPropertyIfPresent("test.e2e.config.raas.trafficGenerator.target.host")
-            putMullvadPropertyIfPresent("test.e2e.config.raas.trafficGenerator.target.port")
-
-            putMullvadPropertyIfPresent("test.e2e.config.runHighlyRateLimitedTests")
+            // Add all properties starting with "test.e2e" to the testInstrumentationRunnerArguments
+            properties.forEach {
+                if (it.key.startsWith("test.e2e")) {
+                    put(it.key, it.value.toString())
+                }
+            }
         }
     }
 
