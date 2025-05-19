@@ -16,6 +16,7 @@ data class DropRule(
     @SerialName("dst") val destination: String,
     val protocols: List<NetworkingProtocol>,
     @EncodeDefault val label: String = "urn:uuid:${SessionIdentifier.fromDeviceIdentifier()}",
+    @SerialName("block_all_except_dst") val blockAllExceptDestination: Boolean = false,
 ) {
     companion object {
         fun blockUDPTrafficRule(to: String): DropRule {
@@ -29,5 +30,15 @@ data class DropRule(
 
         fun blockWireGuardTrafficRule(to: String): DropRule =
             blockUDPTrafficRule(to).copy(protocols = listOf(NetworkingProtocol.WireGuard))
+
+        fun blockAllTrafficExceptToDestinationRule(to: String): DropRule {
+            val testDeviceIpAddress = Networking.getDeviceIpv4Address()
+            return DropRule(
+                source = testDeviceIpAddress,
+                destination = to,
+                protocols = emptyList(),
+                blockAllExceptDestination = true,
+            )
+        }
     }
 }
