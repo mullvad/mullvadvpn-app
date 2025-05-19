@@ -126,6 +126,8 @@ export const colorPrimitives = {
   '--color-chalk-alpha80': colorTokens.chalkAlpha80,
   '--color-chalk-alpha40': colorTokens.chalkAlpha40,
   '--color-chalk80': colorTokens.chalk80,
+
+  '--transparent': 'transparent',
 } as const;
 
 export const colors: Record<keyof typeof colorTokens, `var(${keyof typeof colorPrimitives})`> = {
@@ -188,6 +190,8 @@ export const colors: Record<keyof typeof colorTokens, `var(${keyof typeof colorP
   chalkAlpha40: 'var(--color-chalk-alpha40)',
   chalkAlpha80: 'var(--color-chalk-alpha80)',
   chalk80: 'var(--color-chalk80)',
+
+  transparent: 'var(--transparent)',
 } as const;
 
 export type Colors = keyof typeof colors;

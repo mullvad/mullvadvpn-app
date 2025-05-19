@@ -91,4 +91,6 @@ export const colorTokens = {
   chalkAlpha80: 'rgba(248, 247, 241, 0.8)',
   chalkAlpha40: 'rgba(248, 247, 241, 0.4)',
   chalk80: 'rgb(246, 242, 213)',
+
+  transparent: 'transparent',
 } as const;
