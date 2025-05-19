@@ -1,11 +1,18 @@
 #![cfg(not(target_os = "android"))]
 
-#[cfg(any(target_os = "linux", target_os = "macos"))]
-use std::fs;
-use std::{io, path::PathBuf};
+use std::io;
 
 #[cfg(windows)]
-use crate::windows::create_dir_recursive;
+pub mod windows;
+
+#[cfg(windows)]
+pub use windows::PRODUCT_NAME;
+
+#[cfg(unix)]
+mod unix;
+
+#[cfg(unix)]
+pub use unix::PRODUCT_NAME;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -13,6 +20,12 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error("Failed to create directory {0}")]
     CreateDirFailed(String, #[source] io::Error),
+
+    #[error("Failed to remove directory {0}")]
+    RemoveDir(String, #[source] io::Error),
+
+    #[error("Failed to get directory permissions on {0}")]
+    GetDirPermissionFailed(String, #[source] io::Error),
 
     #[error("Failed to set directory permissions on {0}")]
     SetDirPermissionFailed(String, #[source] io::Error),
@@ -33,43 +46,11 @@ pub enum Error {
     NoDataDir,
 }
 
-#[cfg(any(target_os = "linux", target_os = "macos"))]
-const PRODUCT_NAME: &str = "mullvad-vpn";
+#[cfg(unix)]
+use unix::create_dir;
 
 #[cfg(windows)]
-pub const PRODUCT_NAME: &str = "Mullvad VPN";
-
-#[cfg(windows)]
-fn get_allusersprofile_dir() -> Result<PathBuf> {
-    match std::env::var_os("ALLUSERSPROFILE") {
-        Some(dir) => Ok(PathBuf::from(&dir)),
-        None => Err(Error::NoProgramDataDir),
-    }
-}
-
-#[cfg(any(target_os = "linux", target_os = "macos"))]
-fn create_and_return(
-    dir_fn: fn() -> Result<PathBuf>,
-    permissions: Option<fs::Permissions>,
-) -> Result<PathBuf> {
-    let dir = dir_fn()?;
-    fs::create_dir_all(&dir).map_err(|e| Error::CreateDirFailed(dir.display().to_string(), e))?;
-    if let Some(permissions) = permissions {
-        fs::set_permissions(&dir, permissions)
-            .map_err(|e| Error::SetDirPermissionFailed(dir.display().to_string(), e))?;
-    }
-    Ok(dir)
-}
-
-#[cfg(windows)]
-fn create_and_return(
-    dir_fn: fn() -> Result<PathBuf>,
-    set_security_permissions: bool,
-) -> Result<PathBuf> {
-    let dir = dir_fn()?;
-    create_dir_recursive(&dir, set_security_permissions)?;
-    Ok(dir)
-}
+use windows::create_dir;
 
 mod cache;
 pub use crate::cache::{cache_dir, get_cache_dir, get_default_cache_dir};
@@ -85,6 +66,3 @@ pub use crate::rpc_socket::{get_default_rpc_socket_path, get_rpc_socket_path};
 
 mod settings;
 pub use crate::settings::{get_default_settings_dir, settings_dir};
-
-#[cfg(windows)]
-pub mod windows;

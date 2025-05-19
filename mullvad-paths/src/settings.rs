@@ -4,14 +4,14 @@ use std::{env, path::PathBuf};
 /// Creates and returns the settings directory pointed to by `MULLVAD_SETTINGS_DIR`, or the default
 /// one if that variable is unset.
 pub fn settings_dir() -> Result<PathBuf> {
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(unix)]
     {
-        crate::create_and_return(get_settings_dir, None)
+        crate::create_dir(get_settings_dir()?, crate::unix::Permissions::Any)
     }
 
     #[cfg(target_os = "windows")]
     {
-        crate::create_and_return(get_settings_dir, false)
+        crate::create_dir(get_settings_dir()?, false)
     }
 }
 

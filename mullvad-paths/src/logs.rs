@@ -6,13 +6,11 @@ use std::{env, path::PathBuf};
 pub fn log_dir() -> Result<PathBuf> {
     #[cfg(unix)]
     {
-        use std::os::unix::fs::PermissionsExt;
-        let permissions = Some(PermissionsExt::from_mode(0o755));
-        crate::create_and_return(get_log_dir, permissions)
+        crate::create_dir(get_log_dir()?, crate::unix::Permissions::ReadExecOnly)
     }
     #[cfg(target_os = "windows")]
     {
-        crate::create_and_return(get_log_dir, true)
+        crate::create_dir(get_log_dir()?, true)
     }
 }
 
@@ -32,6 +30,6 @@ pub fn get_default_log_dir() -> Result<PathBuf> {
 
 #[cfg(windows)]
 pub fn get_default_log_dir() -> Result<PathBuf> {
-    let dir = crate::get_allusersprofile_dir()?.join(crate::PRODUCT_NAME);
+    let dir = crate::windows::get_allusersprofile_dir()?.join(crate::PRODUCT_NAME);
     Ok(dir)
 }
