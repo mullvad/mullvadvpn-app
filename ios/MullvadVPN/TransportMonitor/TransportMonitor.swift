@@ -37,25 +37,33 @@ final class TransportMonitor: RESTTransportProvider {
             tunnel.status == .connecting || tunnel.status == .reasserting || tunnel.status == .connected
         }
 
-        if let tunnel, shouldBypassVPN(tunnel: tunnel) {
+        if let tunnel, shouldRouteThroughTunnel(tunnel: tunnel) {
             return PacketTunnelTransport(tunnel: tunnel)
         } else {
             return transportProvider.makeTransport()
         }
     }
 
-    private func shouldBypassVPN(tunnel: any TunnelProtocol) -> Bool {
+    /// Determines whether the tunnel tunnel should be used to pipe requests,
+    ///
+    /// - Parameter tunnel: The tunnel tunnel to evaluate
+    /// - Returns: `true` if the tunnel should be used; otherwise, `false`
+    private func shouldRouteThroughTunnel(tunnel: any TunnelProtocol) -> Bool {
         switch tunnel.status {
         case .connected:
+            // Use tunnel if the tunnel is connected but the tunnel manager reports an error
             if case .error = tunnelManager.tunnelStatus.state {
                 return true
             }
+            // Also use tunnel if configuration is loaded and device is revoked
             return tunnelManager.isConfigurationLoaded && tunnelManager.deviceState == .revoked
 
         case .connecting, .reasserting:
+            // Use tunnel while it's in a transitional connecting state
             return true
 
         default:
+            // In all other cases, do not use the tunnel
             return false
         }
     }
@@ -77,27 +85,34 @@ final class APITransportMonitor: APITransportProviderProtocol {
             tunnel.status == .connecting || tunnel.status == .reasserting || tunnel.status == .connected
         }
 
-        return if let tunnel, shouldBypassVPN(tunnel: tunnel) {
+        return if let tunnel, shouldRouteThroughTunnel(tunnel: tunnel) {
             PacketTunnelAPITransport(tunnel: tunnel)
         } else {
             APITransport(requestFactory: requestFactory)
         }
     }
 
-    private func shouldBypassVPN(tunnel: any TunnelProtocol) -> Bool {
+    /// Determines whether the tunnel tunnel should be used to pipe requests,
+    ///
+    /// - Parameter tunnel: The tunnel tunnel to evaluate
+    /// - Returns: `true` if the tunnel should be used; otherwise, `false`
+    private func shouldRouteThroughTunnel(tunnel: any TunnelProtocol) -> Bool {
         switch tunnel.status {
         case .connected:
+            // Use tunnel if the tunnel is connected but the tunnel manager reports an error
             if case .error = tunnelManager.tunnelStatus.state {
-                true
-            } else {
-                tunnelManager.isConfigurationLoaded && tunnelManager.deviceState == .revoked
+                return true
             }
+            // Also use tunnel if configuration is loaded and device is revoked
+            return tunnelManager.isConfigurationLoaded && tunnelManager.deviceState == .revoked
 
         case .connecting, .reasserting:
-            true
+            // Use tunnel while it's in a transitional connecting state
+            return true
 
         default:
-            false
+            // In all other cases, do not use the tunnel
+            return false
         }
     }
 }
