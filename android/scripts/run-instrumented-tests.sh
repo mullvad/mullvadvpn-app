@@ -120,32 +120,32 @@ case "$TEST_TYPE" in
 
     OPTIONAL_TEST_ARGUMENTS=""
     if [[ -n ${INVALID_TEST_ACCOUNT_NUMBER-} ]]; then
-        OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.$INFRA_FLAVOR.accountNumber.invalid $INVALID_TEST_ACCOUNT_NUMBER"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.$INFRA_FLAVOR.accountNumber.invalid $INVALID_TEST_ACCOUNT_NUMBER"
     else
         echo "Error: The variable INVALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
     if [[ -n ${PARTNER_AUTH} ]]; then
         echo "Test account used for e2e test (provided/partner): partner"
-        OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.$INFRA_FLAVOR.partnerAuth $PARTNER_AUTH"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.$INFRA_FLAVOR.partnerAuth $PARTNER_AUTH"
     elif [[ -n ${VALID_TEST_ACCOUNT_NUMBER} ]]; then
         echo "Test account used for e2e test (provided/partner): provided"
-        OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.$INFRA_FLAVOR.accountNumber.valid $VALID_TEST_ACCOUNT_NUMBER"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.$INFRA_FLAVOR.accountNumber.valid $VALID_TEST_ACCOUNT_NUMBER"
     else
         echo ""
         echo "Error: The variable PARTNER_AUTH or VALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
-    OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.enable $ENABLE_RAAS_TESTS"
+    OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.enable $ENABLE_RAAS_TESTS"
 
     if [[ -n ${EENABLE_RAAS_TESTS} ]]; then
         echo "Tests dependent on local API enabled"
-        OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.host $RAAS_HOST"
-        OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.trafficGenerator.target.host $RAAS_TRAFFIC_GENERATOR_TARGET_HOST"
-        OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.trafficGenerator.target.port $RAAS_TRAFFIC_GENERATOR_TARGET_PORT"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.host $RAAS_HOST"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.trafficGenerator.target.host $RAAS_TRAFFIC_GENERATOR_TARGET_HOST"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.trafficGenerator.target.port $RAAS_TRAFFIC_GENERATOR_TARGET_PORT"
     fi
 
-    OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.runHighlyRateLimitedTests $ENABLE_HIGHLY_RATE_LIMITED_TESTS"
+    OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.runHighlyRateLimitedTests $ENABLE_HIGHLY_RATE_LIMITED_TESTS"
     USE_ORCHESTRATOR="true"
     PACKAGE_NAME="net.mullvad.mullvadvpn"
     if [[ "$INFRA_FLAVOR" =~ ^(devmole|stagemole)$ ]]; then

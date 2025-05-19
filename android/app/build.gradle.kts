@@ -86,7 +86,7 @@ android {
             )
         }
         getByName(BuildTypes.DEBUG) {
-            if (getBooleanProperty("app.build.keepDebugSymbols")) {
+            if (getBooleanProperty("mullvad.app.build.keepDebugSymbols")) {
                 packaging { jniLibs.keepDebugSymbols.add("**/*.so") }
             }
         }
@@ -186,7 +186,7 @@ android {
         buildConfigField(
             "boolean",
             "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
-            getBooleanProperty("app.config.inAppVersionNotifications.enable").toString(),
+            getBooleanProperty("mullvad.app.config.inAppVersionNotifications.enable").toString(),
         )
     }
 
@@ -258,7 +258,7 @@ cargo {
     libname = "mullvad-jni"
     // All available targets:
     // https://github.com/mozilla/rust-android-gradle/tree/master?tab=readme-ov-file#targets
-    targets = getStringListProperty("app.build.cargo.targets")
+    targets = getStringListProperty("mullvad.app.build.cargo.targets")
     profile =
         if (isReleaseBuild) {
             "release"
@@ -285,7 +285,7 @@ tasks.register<Exec>("cargoClean") {
     commandLine("cargo", "clean")
 }
 
-if (getBooleanProperty("app.build.cargo.cleanBuild")) {
+if (getBooleanProperty("mullvad.app.build.cargo.cleanBuild")) {
     tasks["clean"].dependsOn("cargoClean")
 }
 
