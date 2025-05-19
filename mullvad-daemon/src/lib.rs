@@ -3242,7 +3242,7 @@ impl Daemon {
         };
     }
 
-    #[allow(clippy::unused_async)]
+    #[cfg_attr(not(in_app_upgrade), allow(clippy::unused_async))]
     async fn on_app_upgrade_abort(&self, tx: ResponseTx<(), version::Error>) {
         #[cfg(in_app_upgrade)]
         {
