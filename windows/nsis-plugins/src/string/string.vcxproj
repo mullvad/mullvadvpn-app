@@ -88,6 +88,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../../../windows-libraries/src/;$(ProjectDir)../</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
