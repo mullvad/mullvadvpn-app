@@ -207,7 +207,7 @@ in the following way:
 
 1. Run update script:
    ```bash
-   ./scripts/update-lockfile.sh
+   ./scripts/lockfile -u
    ```
 
    If you're on macOS make sure GNU sed is installed. Install with `brew install gnu-sed` and add it to your `PATH` so that it is used instead of the `sed` macOS ships with `PATH="$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"`
@@ -221,10 +221,10 @@ rm ./gradle/verification-metadata.xml
 ```
 
 ## Gradle properties
-Some gradle properties can be set to simplify development. These are listed below. In-order
-to override them, add the new properties in `<USER_GRADLE_HOME>/gradle.properties`. See the
+Some gradle properties can be set to simplify development, for the full list see `android/gradle.properties`.
+In order to override them, add the properties in `<USER_GRADLE_HOME>/gradle.properties`. See the
 [gradle documentation](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties)
-for more info.
+for more info of the prioritization of properties.
 
 ### Override version code and version name
 To avoid or override the rust based version generation, the `app.config.override.versionCode` and
