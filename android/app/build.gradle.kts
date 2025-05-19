@@ -126,7 +126,7 @@ android {
 
     sourceSets {
         getByName("main") {
-            val changelogDir = getStringProperty("app.config.changeLogDir")
+            val changelogDir = getStringProperty("app.config.changelogDir")
             assets.srcDirs(relayListDirectory, changelogDir)
         }
     }
@@ -186,7 +186,7 @@ android {
         buildConfigField(
             "boolean",
             "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
-            getBooleanProperty("app.config.inAppVerisonNotifications.enable").toString(),
+            getBooleanProperty("app.config.inAppVersionNotifications.enable").toString(),
         )
     }
 
