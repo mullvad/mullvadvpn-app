@@ -28,7 +28,7 @@ const ModalContent = styled.div({
 });
 
 const ModalBackground = styled.div<{ $visible: boolean }>((props) => ({
-  backgroundColor: props.$visible ? colors.blackAlpha50 : 'transparent',
+  backgroundColor: props.$visible ? colors.blackAlpha50 : colors.transparent,
   backdropFilter: props.$visible ? 'blur(1.5px)' : '',
   position: 'absolute',
   display: 'flex',

@@ -18,7 +18,7 @@ const StyledButton = styled(ButtonBase)<{ $size: IconButtonProps['size'] }>`
     return css`
       --size: ${size}px;
 
-      background: transparent;
+      background: ${colors.transparent};
       height: var(--size);
       width: var(--size);
       border-radius: 100%;

@@ -26,7 +26,7 @@ const inputTextStyles: React.CSSProperties = {
 
 const StyledInput = styled.input<{ $focused: boolean; $valid?: boolean }>((props) => ({
   ...inputTextStyles,
-  backgroundColor: 'transparent',
+  backgroundColor: colors.transparent,
   border: 'none',
   width: '100%',
   height: '100%',
@@ -190,7 +190,7 @@ const StyledAutoSizingTextInputContainer = styled.div({
 const StyledAutoSizingTextInputFiller = styled.pre({
   ...inputTextStyles,
   minWidth: '80px',
-  color: 'transparent',
+  color: colors.transparent,
 });
 
 const StyledAutoSizingTextInputWrapper = styled.div({
@@ -288,7 +288,7 @@ const StyledInputFiller = styled.div({
   whiteSpace: 'pre-wrap',
   overflowWrap: 'break-word',
   minHeight: '24px',
-  color: 'transparent',
+  color: colors.transparent,
   marginRight: '25px',
 });
 

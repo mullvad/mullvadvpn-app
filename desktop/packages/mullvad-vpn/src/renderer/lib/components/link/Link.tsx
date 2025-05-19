@@ -12,7 +12,7 @@ export type LinkProps<T extends React.ElementType = 'a'> = TextProps<T> & {
 const StyledText = styled(Text)<{
   $hoverColor: Colors | undefined;
 }>((props) => ({
-  background: 'transparent',
+  background: colors.transparent,
   cursor: 'default',
   textDecoration: 'none',
   display: 'inline',

@@ -49,7 +49,7 @@ const StyledRadioButton = styled.input.attrs({ type: 'radio' })({
   position: 'relative',
   margin: 0,
   appearance: 'none',
-  backgroundColor: 'transparent',
+  backgroundColor: colors.transparent,
   width: '12px',
   height: '12px',
 
@@ -59,7 +59,7 @@ const StyledRadioButton = styled.input.attrs({ type: 'radio' })({
     width: '12px',
     height: '12px',
     borderRadius: '50%',
-    backgroundColor: 'transparent',
+    backgroundColor: colors.transparent,
     border: `1px ${colors.white} solid`,
     top: 0,
     left: 0,

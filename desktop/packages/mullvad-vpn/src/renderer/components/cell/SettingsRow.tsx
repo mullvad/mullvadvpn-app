@@ -36,8 +36,8 @@ const StyledSettingsRow = styled.label<{ $invalid: boolean }>((props) => ({
   outlineWidth: '1px',
   borderStyle: 'solid',
   outlineStyle: 'solid',
-  borderColor: props.$invalid ? colors.red : 'transparent',
-  outlineColor: props.$invalid ? colors.red : 'transparent',
+  borderColor: props.$invalid ? colors.red : colors.transparent,
+  outlineColor: props.$invalid ? colors.red : colors.transparent,
   '&&:focus-within': {
     borderColor: props.$invalid ? colors.red : colors.white,
     outlineColor: props.$invalid ? colors.red : colors.white,

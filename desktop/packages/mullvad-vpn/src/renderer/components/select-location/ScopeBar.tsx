@@ -43,7 +43,7 @@ const StyledScopeBarItem = styled.button<{ selected?: boolean }>(smallText, (pro
   color: colors.white,
   textAlign: 'center',
   border: 'none',
-  backgroundColor: props.selected ? colors.green : 'transparent',
+  backgroundColor: props.selected ? colors.green : colors.transparent,
   '&&:hover': {
     backgroundColor: props.selected ? colors.green : colors.blue40,
   },

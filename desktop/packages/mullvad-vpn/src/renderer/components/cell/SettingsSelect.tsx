@@ -18,7 +18,7 @@ const StyledSelect = styled.div.attrs({ tabIndex: 0 })(smallNormalText, {
   display: 'flex',
   flex: 1,
   position: 'relative',
-  background: 'transparent',
+  background: colors.transparent,
   border: 'none',
   color: colors.white,
   borderRadius: '4px',

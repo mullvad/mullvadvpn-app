@@ -51,7 +51,7 @@ export const StyledAccountDropdownItemIconButton = styled.button({
 
 export const StyledAccountDropdownTrailingButton = styled.button({
   ...buttonReset,
-  backgroundColor: 'transparent',
+  backgroundColor: colors.transparent,
   cursor: 'pointer',
   '&:focus-visible': {
     outline: `2px solid ${colors.white}`,
@@ -112,7 +112,7 @@ export const StyledAccountInputGroup = styled.form<IStyledAccountInputGroupProps
   borderStyle: 'solid',
   borderRadius: '8px',
   overflow: 'hidden',
-  borderColor: props.$error ? colors.red40 : props.$active ? colors.darkBlue : 'transparent',
+  borderColor: props.$error ? colors.red40 : props.$active ? colors.darkBlue : colors.transparent,
   opacity: props.$editable ? 1 : 0.6,
 }));
 

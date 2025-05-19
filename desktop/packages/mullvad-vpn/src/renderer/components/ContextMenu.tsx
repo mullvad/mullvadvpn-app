@@ -124,13 +124,13 @@ const StyledMenuItem = styled.button(smallText, (props) => ({
   minWidth: '110px',
   padding: '1px 10px 2px',
   lineHeight: `${ITEM_HEIGHT}px`,
-  background: 'transparent',
+  background: colors.transparent,
   border: 'none',
   textAlign: 'left',
   color: props.disabled ? colors.whiteAlpha40 : colors.white,
 
   '&&:hover': {
-    background: props.disabled ? 'transparent' : colors.blue,
+    background: props.disabled ? colors.transparent : colors.blue,
   },
 }));
 

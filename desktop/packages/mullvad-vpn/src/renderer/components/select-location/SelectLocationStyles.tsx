@@ -44,7 +44,7 @@ export const StyledClearFilterButton = styled.div({
   padding: 0,
   margin: '0 0 0 6px',
   cursor: 'default',
-  backgroundColor: 'transparent',
+  backgroundColor: colors.transparent,
 });
 
 export const StyledSearchBar = styled(SearchBar)({

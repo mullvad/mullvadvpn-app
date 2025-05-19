@@ -144,7 +144,7 @@ const StyledPageIndicators = styled(StyledControlElement)({
 
 const StyledTransparentButton = styled.button({
   border: 'none',
-  background: 'transparent',
+  background: colors.transparent,
   padding: '4px',
   margin: 0,
 });

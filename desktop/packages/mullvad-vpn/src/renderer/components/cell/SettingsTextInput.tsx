@@ -11,7 +11,7 @@ import { useSettingsRowContext } from './SettingsRow';
 const StyledInput = styled.input(smallNormalText, {
   flex: 1,
   textAlign: 'right',
-  background: 'transparent',
+  background: colors.transparent,
   border: 'none',
   color: colors.white,
   width: '100px',

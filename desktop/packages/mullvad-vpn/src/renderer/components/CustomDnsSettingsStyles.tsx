@@ -39,7 +39,7 @@ export const StyledButton = styled.button({
   alignItems: 'center',
   flex: 1,
   border: 'none',
-  background: 'transparent',
+  background: colors.transparent,
   padding: 0,
   margin: 0,
 });
@@ -56,7 +56,7 @@ export const StyledLabel = styled(Cell.Label)({
 });
 
 export const StyledRemoveButton = styled.button({
-  background: 'transparent',
+  background: colors.transparent,
   border: 'none',
   padding: 0,
 });

@@ -101,7 +101,9 @@ export const NotificationIndicator = styled.div<INotificationIndicatorProps>((pr
   borderRadius: '5px',
   marginTop: '4px',
   marginRight: '8px',
-  backgroundColor: props.$type ? notificationIndicatorTypeColorMap[props.$type] : 'transparent',
+  backgroundColor: props.$type
+    ? notificationIndicatorTypeColorMap[props.$type]
+    : colors.transparent,
 }));
 
 interface ICollapsibleProps {
