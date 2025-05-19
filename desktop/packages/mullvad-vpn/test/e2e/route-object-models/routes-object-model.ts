@@ -1,6 +1,6 @@
 import { Page } from 'playwright';
 
-import { MockedTestUtils } from '../mocked/mocked-utils';
+import { TestUtils } from '../utils';
 import { MainRouteObjectModel } from './main';
 import { SelectLanguageRouteObjectModel } from './select-language';
 import { SettingsRouteObjectModel } from './settings/settings-route-object-model';
@@ -12,7 +12,7 @@ export class RoutesObjectModel {
   readonly userInterfaceSettings: UserInterfaceSettingsRouteObjectModel;
   readonly selectLanguage: SelectLanguageRouteObjectModel;
 
-  constructor(page: Page, utils: MockedTestUtils) {
+  constructor(page: Page, utils: TestUtils) {
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
     this.main = new MainRouteObjectModel(page, utils);
     this.settings = new SettingsRouteObjectModel(page, utils);
