@@ -248,7 +248,7 @@ class ConnectionTest : EndToEndTest() {
         val testRelayIp = relayClient.getDefaultRelayIpAddress()
 
         app.launchAndLogIn(accountTestRule.validAccountNumber)
-        on<ConnectPage> {}
+        on<ConnectPage>()
 
         // Block everything except the default relay IP. After this the API is no longer reachable.
         val firewallRule = DropRule.blockAllTrafficExceptToDestinationRule(testRelayIp)

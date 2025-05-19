@@ -89,7 +89,7 @@ abstract class EndToEndTest {
                 } catch (e: Exception) {
                     // If the router can't be reached we ignore the error because the e2e
                     // test that is about to be run may not require router access.
-                    Logger.i("firewallClient.removeAllRules() failed")
+                    Logger.e("firewallClient.removeAllRules() failed")
                 }
             }
         }
