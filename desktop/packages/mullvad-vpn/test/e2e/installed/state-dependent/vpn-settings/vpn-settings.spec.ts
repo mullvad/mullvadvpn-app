@@ -1,30 +1,25 @@
 import { execSync } from 'node:child_process';
 
 import { expect, test } from '@playwright/test';
-import os from 'os';
-import path from 'path';
 import { Page } from 'playwright';
 
-import { RoutePath } from '../../../../../src/renderer/lib/routes';
-import { fileExists, TestUtils } from '../../../utils';
+import { RoutesObjectModel } from '../../../route-object-models';
+import { TestUtils } from '../../../utils';
 import { startInstalledApp } from '../../installed-utils';
-import { createSelectors } from './helpers';
+import { autoStartPathExists } from './helpers';
 
 let page: Page;
 let util: TestUtils;
-let selectors: ReturnType<typeof createSelectors>;
+let routes: RoutesObjectModel;
 
 test.describe('VPN settings', () => {
   const startup = async () => {
     ({ page, util } = await startInstalledApp());
-    selectors = createSelectors(page);
+    routes = new RoutesObjectModel(page, util);
 
-    await util.waitForRoute(RoutePath.main);
-
-    await page.click('button[aria-label="Settings"]');
-    await util.waitForRoute(RoutePath.settings);
-    await page.getByRole('button', { name: 'VPN settings' }).click();
-    await util.waitForRoute(RoutePath.vpnSettings);
+    await routes.main.waitForRoute();
+    await routes.main.gotoSettings();
+    await routes.settings.gotoVpnSettings();
   };
 
   test.beforeAll(async () => {
@@ -37,49 +32,35 @@ test.describe('VPN settings', () => {
 
   test.describe('Launch on startup and auto-connect', () => {
     test.afterEach(async () => {
-      const autoConnectSwitch = selectors.autoConnectSwitch();
-      if ((await autoConnectSwitch.getAttribute('aria-checked')) === 'true') {
-        await autoConnectSwitch.click();
-      }
-      await expect(autoConnectSwitch).toHaveAttribute('aria-checked', 'false');
+      await routes.vpnSettings.setAutoConnectSwitch(false);
+      const autoConnectSwitchChecked = await routes.vpnSettings.getAutoConnectSwitchState();
+      expect(autoConnectSwitchChecked).toBe('false');
 
       if (process.platform === 'linux') {
         expect(autoStartPathExists()).toBeFalsy();
       }
 
-      const launchAppOnStartupSwitch = selectors.launchAppOnStartupSwitch();
-      if ((await launchAppOnStartupSwitch.getAttribute('aria-checked')) === 'true') {
-        await launchAppOnStartupSwitch.click();
-      }
-      await expect(launchAppOnStartupSwitch).toHaveAttribute('aria-checked', 'false');
+      await routes.vpnSettings.setLaunchAppOnStartupSwitch(false);
+      const launchOnStartupSwitchChecked =
+        await routes.vpnSettings.getLaunchAppOnStartupSwitchState();
+      expect(launchOnStartupSwitchChecked).toBe('false');
     });
 
     const enableAutoConnect = async () => {
-      const autoConnectSwitch = selectors.autoConnectSwitch();
-      await expect(autoConnectSwitch).toHaveAttribute('aria-checked', 'false');
-
-      await autoConnectSwitch.click();
-      await expect(autoConnectSwitch).toHaveAttribute('aria-checked', 'true');
+      await routes.vpnSettings.setAutoConnectSwitch(true);
+      const autoConnectSwitchChecked = await routes.vpnSettings.getAutoConnectSwitchState();
+      expect(autoConnectSwitchChecked).toBe('true');
     };
 
     const enableLaunchAppOnStartup = async () => {
-      const launchAppOnStartupSwitch = selectors.launchAppOnStartupSwitch();
-      await expect(launchAppOnStartupSwitch).toHaveAttribute('aria-checked', 'false');
-
-      await launchAppOnStartupSwitch.click();
-      await expect(launchAppOnStartupSwitch).toHaveAttribute('aria-checked', 'true');
+      await routes.vpnSettings.setLaunchAppOnStartupSwitch(true);
+      const launchOnStartupSwitchChecked =
+        await routes.vpnSettings.getLaunchAppOnStartupSwitchState();
+      expect(launchOnStartupSwitchChecked).toBe('true');
 
       if (process.platform === 'linux') {
         expect(autoStartPathExists()).toBeTruthy();
       }
-    };
-
-    const getAutoStartPath = () => {
-      return path.join(os.homedir(), '.config', 'autostart', 'mullvad-vpn.desktop');
-    };
-
-    const autoStartPathExists = () => {
-      return fileExists(getAutoStartPath());
     };
 
     test.describe('Launch app on start-up', () => {
@@ -90,7 +71,7 @@ test.describe('VPN settings', () => {
         expect(cliAutoConnect).toContain('off');
       });
 
-      test('Should not enavble cli auto-connect when enabled alone', () => {
+      test('Should not enable cli auto-connect when enabled alone', () => {
         const cliAutoConnect = execSync('mullvad auto-connect get').toString();
         expect(cliAutoConnect).toContain('off');
       });
@@ -121,7 +102,7 @@ test.describe('VPN settings', () => {
       ariaChecked: 'true' | 'false',
       cliState: 'allow' | 'block',
     ) => {
-      const lanSwitch = selectors.lanSwitch();
+      const lanSwitch = routes.vpnSettings.getLanSwitch();
       await expect(lanSwitch).toHaveAttribute('aria-checked', ariaChecked);
       const cliStateOutput = execSync('mullvad lan get').toString();
       expect(cliStateOutput).toContain(cliState);
@@ -136,7 +117,7 @@ test.describe('VPN settings', () => {
     };
 
     const disableLocalNetworkSharing = async () => {
-      const lanSwitch = selectors.lanSwitch();
+      const lanSwitch = routes.vpnSettings.getLanSwitch();
       if ((await lanSwitch.getAttribute('aria-checked')) === 'true') {
         await lanSwitch.click();
       }
@@ -155,7 +136,7 @@ test.describe('VPN settings', () => {
     test('Should be enabled when switch is clicked', async () => {
       await expectLocalNetworkSharingDisabled();
 
-      const lanSwitch = selectors.lanSwitch();
+      const lanSwitch = routes.vpnSettings.getLanSwitch();
       await lanSwitch.click();
 
       await expectLocalNetworkSharingEnabled();
