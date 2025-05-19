@@ -369,7 +369,7 @@ where
         let version_cache = match mem::replace(&mut self.state, State::NoVersion) {
             #[cfg(in_app_upgrade)]
             State::Downloaded { version_cache, .. } | State::Downloading { version_cache, .. } => {
-                log::warn!("Switching beta after while updating resulted in new suggested upgrade: {:?}, aborting", new_app_version.suggested_upgrade);
+                log::warn!("Switching beta after updating resulted in new suggested upgrade: {:?}, aborting", new_app_version.suggested_upgrade);
                 version_cache
             }
             State::HasVersion { version_cache } => version_cache,
