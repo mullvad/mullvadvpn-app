@@ -47,10 +47,10 @@ pub enum Error {
 }
 
 #[cfg(unix)]
-use unix::create_and_return;
+use unix::create_dir;
 
 #[cfg(windows)]
-use windows::create_and_return;
+use windows::create_dir;
 
 mod cache;
 pub use crate::cache::{cache_dir, get_cache_dir, get_default_cache_dir};
