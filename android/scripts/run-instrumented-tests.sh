@@ -138,7 +138,7 @@ case "$TEST_TYPE" in
     fi
     OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.enable $ENABLE_RAAS_TESTS"
 
-    if [[ -n ${EENABLE_RAAS_TESTS} ]]; then
+    if [[ -n ${ENABLE_RAAS_TESTS} ]]; then
         echo "Tests dependent on local API enabled"
         OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.host $RAAS_HOST"
         OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.trafficGenerator.target.host $RAAS_TRAFFIC_GENERATOR_TARGET_HOST"
