@@ -73,14 +73,14 @@ class DeviceManagementContentView: UIView {
         return button
     }()
 
-    let backButton: AppButton = {
+    let cancelButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(
             NSLocalizedString(
-                "BACK_BUTTON",
+                "CANCEL_BUTTON",
                 tableName: "DeviceManagement",
-                value: "Back",
+                value: "Cancel",
                 comment: ""
             ),
             for: .normal
@@ -89,7 +89,7 @@ class DeviceManagementContentView: UIView {
     }()
 
     private lazy var buttonStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [continueButton, backButton])
+        let stackView = UIStackView(arrangedSubviews: [continueButton, cancelButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.distribution = .fillEqually
@@ -128,7 +128,7 @@ class DeviceManagementContentView: UIView {
 
     private func constraintViews() {
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: topAnchor),
+            scrollView.topAnchor.constraint(equalTo: topAnchor, constant: 16),
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
@@ -156,7 +156,7 @@ class DeviceManagementContentView: UIView {
             scrollContentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
             statusImageView.topAnchor
-                .constraint(equalTo: scrollContentView.layoutMarginsGuide.topAnchor),
+                .constraint(equalTo: scrollContentView.topAnchor),
             statusImageView.centerXAnchor.constraint(equalTo: scrollContentView.centerXAnchor),
 
             titleLabel.topAnchor.constraint(equalTo: statusImageView.bottomAnchor, constant: 22),
