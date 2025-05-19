@@ -1,7 +1,12 @@
-import { Page } from 'playwright';
+import os from 'os';
+import path from 'path';
 
-export const createSelectors = (page: Page) => ({
-  launchAppOnStartupSwitch: () => page.getByLabel('Launch app on start-up'),
-  autoConnectSwitch: () => page.getByLabel('Auto-connect'),
-  lanSwitch: () => page.getByLabel('Local network sharing'),
-});
+import { fileExists } from '../../../utils';
+
+export const getAutoStartPath = () => {
+  return path.join(os.homedir(), '.config', 'autostart', 'mullvad-vpn.desktop');
+};
+
+export const autoStartPathExists = () => {
+  return fileExists(getAutoStartPath());
+};
