@@ -364,7 +364,7 @@ fn do_version_check_in_background(
     Box::pin(retry_future(
         download_future_factory,
         |result| result.is_err(),
-        std::iter::repeat(UPDATE_INTERVAL_ERROR),
+        ConstantInterval::new(UPDATE_INTERVAL_ERROR, None),
     ))
 }
 
