@@ -663,11 +663,13 @@ msgid "What’s new"
 msgstr ""
 
 #. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion is within a few seconds.
 msgctxt "app-upgrade-view"
 msgid "A few seconds remaining..."
 msgstr ""
 
 #. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in minutes.
 #. Available placeholders:
 #. %(minutes)s - Will be replaced with remaining minutes until download is complete
 msgctxt "app-upgrade-view"
@@ -675,6 +677,7 @@ msgid "About %(minutes)s minutes remaining..."
 msgstr ""
 
 #. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in seconds.
 #. Available placeholders:
 #. %(second)s - Will be replaced with remaining seconds until download is complete
 msgctxt "app-upgrade-view"
@@ -700,6 +703,11 @@ msgstr ""
 #. Status text displayed below a progress bar when the download of an update is complete
 msgctxt "app-upgrade-view"
 msgid "Download complete!"
+msgstr ""
+
+#. Status text displayed below a progress bar when the download of an update fails
+msgctxt "app-upgrade-view"
+msgid "Download failed"
 msgstr ""
 
 #. Label displayed when an error occurred due to the download failing
