@@ -659,7 +659,7 @@ impl Daemon {
         macos::bump_filehandle_limit();
 
         let command_sender = daemon_command_channel.sender();
-        let app_upgrade_broadcast = tokio::sync::broadcast::channel(128).0; // TODO: look over bufsize
+        let app_upgrade_broadcast = tokio::sync::broadcast::channel(32).0;
         let management_interface = ManagementInterfaceServer::start(
             command_sender,
             config.rpc_socket_path,
