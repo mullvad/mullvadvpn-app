@@ -337,6 +337,8 @@ class RelayTests: LoggedInWithTimeUITestCase {
                 .tapWireGuardObfuscationOffCell()
         }
 
+        let deviceIPAddress = try FirewallClient().getDeviceIPAddress()
+
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -351,18 +353,47 @@ class RelayTests: LoggedInWithTimeUITestCase {
         SettingsPage(app)
             .tapDoneButton()
 
+        startPacketCapture()
+
         TunnelControlPage(app)
-            .tapConnectButton()
+            .tapSelectLocationButton()
+
+        SelectLocationPage(app)
+            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCountryName)
+            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCityName)
+            .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicRelayName)
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
             .waitForConnectedLabel()
 
-        try Networking.verifyCanAccessInternet()
+        let connectedToIPAddress = TunnelControlPage(app)
+            .tapRelayStatusExpandCollapseButton()
+            .getInIPv4AddressLabel()
+
+        let relayIPAddress = TunnelControlPage(app)
+            .getInIPAddressFromConnectionStatus()
 
         TunnelControlPage(app)
             .tapDisconnectButton()
+
+        // Disconnect in order to create firewall rules, otherwise the test router cannot be reached
+        try FirewallClient().createRule(
+            FirewallRule.makeBlockWireGuardTrafficRule(
+                fromIPAddress: deviceIPAddress,
+                toIPAddress: relayIPAddress
+            )
+        )
+
+        // The VPN connects despite the wireguard protocol being blocked, QUIC obfuscation is in the works
+        TunnelControlPage(app)
+            .tapConnectButton()
+            .waitForConnectedLabel()
+
+        try Networking.verifyCanAccessInternet()
+
+        try generateTraffic(to: connectedToIPAddress, on: 443, assertProtocol: .UDP)
     }
 
     /// Test automatic switching to TCP is functioning when UDP traffic to relay is blocked. This test first connects to a realy to get the IP address of it, in order to block UDP traffic to this relay.
