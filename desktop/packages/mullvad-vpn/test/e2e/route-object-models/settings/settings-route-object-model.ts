@@ -19,4 +19,9 @@ export class SettingsRouteObjectModel {
     await this.selectors.userInterfaceButton().click();
     await this.utils.waitForRoute(RoutePath.userInterfaceSettings);
   }
+
+  async gotoVpnSettings() {
+    await this.selectors.vpnSettingsButton().click();
+    await this.utils.waitForRoute(RoutePath.vpnSettings);
+  }
 }
