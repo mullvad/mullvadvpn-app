@@ -33,105 +33,81 @@ pub struct BoringTun {
 /// Configure and start a boringtun tunnel.
 pub async fn open_boringtun_tunnel(
     config: &Config,
-    log_path: Option<&Path>,
     tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
     #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
 ) -> super::Result<BoringTun> {
+    log::info!("BoringTun::start_tunnel");
     let routes = config.get_tunnel_destinations();
 
-    let tunnel = BoringTun::start_tunnel(
-        config,
-        log_path,
-        tun_provider,
-        routes,
-        #[cfg(target_os = "android")]
-        route_manager_handle,
-    )
-    .await
-    .map_err(super::Error::TunnelError)?;
+    log::info!("calling get_tunnel_for_userspace");
+    #[cfg(not(target_os = "android"))]
+    let async_tun = {
+        let tun = get_tunnel_for_userspace(tun_provider, config, routes)?;
 
-    Ok(tunnel)
-}
+        #[cfg(unix)]
+        {
+            tun.into_inner().into_inner()
+        }
+        #[cfg(windows)]
+        {
+            tun.into_inner()
+        }
+    };
 
-impl BoringTun {
-    async fn start_tunnel(
-        config: &Config,
-        _log_path: Option<&Path>,
-        tun_provider: Arc<Mutex<TunProvider>>,
-        routes: impl Iterator<Item = IpNetwork>,
-        #[cfg(target_os = "android")] route_manager: talpid_routing::RouteManagerHandle,
-    ) -> Result<Self, TunnelError> {
-        log::info!("BoringTun::start_tunnel");
+    let (mut config_tx, config_rx) = ApiServer::new();
 
-        log::info!("calling get_tunnel_for_userspace");
-        #[cfg(not(target_os = "android"))]
-        let async_tun = {
-            let tun = get_tunnel_for_userspace(tun_provider, config, routes)?;
+    let boringtun_config = DeviceConfig {
+        n_threads: 4,
+        api: Some(config_rx),
+        on_bind: None,
+    };
 
-            #[cfg(unix)]
-            {
-                tun.into_inner().into_inner()
-            }
-            #[cfg(windows)]
-            {
-                tun.into_inner()
-            }
-        };
+    #[cfg(target_os = "android")]
+    let mut boringtun_config = boringtun_config;
 
-        let (mut config_tx, config_rx) = ApiServer::new();
+    #[cfg(target_os = "android")]
+    let async_tun = {
+        let _ = routes; // TODO: do we need this?
+        let (mut tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
+        let is_new_tunnel = tun.is_new;
 
-        let boringtun_config = DeviceConfig {
-            n_threads: 4,
-            api: Some(config_rx),
-            on_bind: None,
-        };
+        // TODO We should also wait for routes before sending any ping / connectivity check
 
-        #[cfg(target_os = "android")]
-        let mut boringtun_config = boringtun_config;
+        // There is a brief period of time between setting up a Wireguard-go tunnel and the tunnel being ready to serve
+        // traffic. This function blocks until the tunnel starts to serve traffic or until [connectivity::Check] times out.
+        if is_new_tunnel {
+            let expected_routes = tun_provider.lock().unwrap().real_routes();
 
-        #[cfg(target_os = "android")]
-        let async_tun = {
-            let _ = routes; // TODO: do we need this?
-            let (mut tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
-            let is_new_tunnel = tun.is_new;
+            route_manager
+                .clone()
+                .wait_for_routes(expected_routes)
+                .await
+                .map_err(crate::Error::SetupRoutingError)
+                .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
+        }
 
-            // TODO We should also wait for routes before sending any ping / connectivity check
+        let mut config = tun07::Configuration::default();
+        config.raw_fd(fd);
 
-            // There is a brief period of time between setting up a Wireguard-go tunnel and the tunnel being ready to serve
-            // traffic. This function blocks until the tunnel starts to serve traffic or until [connectivity::Check] times out.
-            if is_new_tunnel {
-                let expected_routes = tun_provider.lock().unwrap().real_routes();
+        boringtun_config.on_bind = Some(Box::new(move |socket| {
+            tun.bypass(socket.as_raw_fd()).unwrap()
+        }));
 
-                route_manager
-                    .clone()
-                    .wait_for_routes(expected_routes)
-                    .await
-                    .map_err(crate::Error::SetupRoutingError)
-                    .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
-            }
+        let device = tun07::Device::new(&config).unwrap();
+        tun07::AsyncDevice::new(device).unwrap()
+    };
 
-            let mut config = tun07::Configuration::default();
-            config.raw_fd(fd);
+    let interface_name = async_tun.deref().tun_name().unwrap();
 
-            boringtun_config.on_bind = Some(Box::new(move |socket| {
-                tun.bypass(socket.as_raw_fd()).unwrap()
-            }));
+    log::info!("passing tunnel dev to boringtun");
+    let device_handle: DeviceHandle = DeviceHandle::new(async_tun, boringtun_config)
+        .await
+        .map_err(TunnelError::BoringTunDevice)?;
 
-            let device = tun07::Device::new(&config).unwrap();
-            tun07::AsyncDevice::new(device).unwrap()
-        };
+    set_boringtun_config(&mut config_tx, config).await;
 
-        let interface_name = async_tun.deref().tun_name().unwrap();
-
-        log::info!("passing tunnel dev to boringtun");
-        let device_handle: DeviceHandle = DeviceHandle::new(async_tun, boringtun_config)
-            .await
-            .map_err(TunnelError::BoringTunDevice)?;
-
-        set_boringtun_config(&mut config_tx, config).await;
-
-        log::info!(
-            "This tunnel was brought to you by...
+    log::info!(
+        "This tunnel was brought to you by...
 .........................................................
 ..*...*.. .--.                    .---.         ..*....*.
 ...*..... |   )         o           |           ......*..
@@ -140,15 +116,14 @@ impl BoringTun {
 *.....*.. '--'  `-' ' -' `-'  `-`-`|'`--`-'  `- .....*...
 .........                       ._.'            ..*...*..
 ..*...*.............................................*...."
-        );
+    );
 
-        Ok(Self {
-            device_handle,
-            config: config.clone(),
-            config_tx,
-            interface_name,
-        })
-    }
+    Ok(BoringTun {
+        device_handle,
+        config: config.clone(),
+        config_tx,
+        interface_name,
+    })
 }
 
 #[async_trait::async_trait]
