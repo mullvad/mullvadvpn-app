@@ -136,9 +136,9 @@ case "$TEST_TYPE" in
         echo "Error: The variable PARTNER_AUTH or VALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
-    OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.enable $ENABLE_ACCESS_TO_LOCAL_API_TESTS"
+    OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.enable $ENABLE_RAAS_TESTS"
 
-    if [[ -n ${ENABLE_ACCESS_TO_LOCAL_API_TESTS} ]]; then
+    if [[ -n ${EENABLE_RAAS_TESTS} ]]; then
         echo "Tests dependent on local API enabled"
         OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.host $RAAS_HOST"
         OPTIONAL_TEST_ARGUMENTS+=" -e test.e2e.config.raas.trafficGenerator.target.host $RAAS_TRAFFIC_GENERATOR_TARGET_HOST"
