@@ -179,7 +179,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         let connectedToIPAddress = TunnelControlPage(app)
             .tapRelayStatusExpandCollapseButton()
-            .getInIPv4AddressLabel()
+            .getInIPAddressFromConnectionStatus()
 
         try Networking.verifyCanAccessInternet()
 
@@ -235,7 +235,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         let connectedToIPAddress = TunnelControlPage(app)
             .tapRelayStatusExpandCollapseButton()
-            .getInIPv4AddressLabel()
+            .getInIPAddressFromConnectionStatus()
 
         try Networking.verifyCanAccessInternet()
 
@@ -337,6 +337,8 @@ class RelayTests: LoggedInWithTimeUITestCase {
                 .tapWireGuardObfuscationOffCell()
         }
 
+        let deviceIPAddress = try FirewallClient().getDeviceIPAddress()
+
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -351,18 +353,47 @@ class RelayTests: LoggedInWithTimeUITestCase {
         SettingsPage(app)
             .tapDoneButton()
 
+        startPacketCapture()
+
         TunnelControlPage(app)
-            .tapConnectButton()
+            .tapSelectLocationButton()
+
+        SelectLocationPage(app)
+            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCountryName)
+            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCityName)
+            .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicRelayName)
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
             .waitForConnectedLabel()
 
-        try Networking.verifyCanAccessInternet()
+        let connectedToIPAddress = TunnelControlPage(app)
+            .tapRelayStatusExpandCollapseButton()
+            .getInIPAddressFromConnectionStatus()
 
+        let relayIPAddress = TunnelControlPage(app)
+            .getInIPAddressFromConnectionStatus()
+
+        // Disconnect in order to create firewall rules, otherwise the test router cannot be reached
         TunnelControlPage(app)
             .tapDisconnectButton()
+
+        try FirewallClient().createRule(
+            FirewallRule.makeBlockWireGuardTrafficRule(
+                fromIPAddress: deviceIPAddress,
+                toIPAddress: relayIPAddress
+            )
+        )
+
+        // The VPN connects despite the wireguard protocol being blocked, QUIC obfuscation is in the works
+        TunnelControlPage(app)
+            .tapConnectButton()
+            .waitForConnectedLabel()
+
+        try Networking.verifyCanAccessInternet()
+
+        try generateTraffic(to: connectedToIPAddress, on: 443, assertProtocol: .UDP)
     }
 
     /// Test automatic switching to TCP is functioning when UDP traffic to relay is blocked. This test first connects to a realy to get the IP address of it, in order to block UDP traffic to this relay.
@@ -607,10 +638,10 @@ extension RelayTests {
 
         // The capture will contain several streams where `other_addr` contains the IP the device connected to
         // One stream will be for the source port, the other for the destination port
-        let streamFromPeeerToRelay = try XCTUnwrap(
+        let streamFromPeerToRelay = try XCTUnwrap(
             capturedStreams.filter { $0.destinationAddress == connectedToIPAddress && $0.destinationPort == port }.first
         )
 
-        XCTAssertTrue(streamFromPeeerToRelay.transportProtocol == transportProtocol)
+        XCTAssertTrue(streamFromPeerToRelay.transportProtocol == transportProtocol)
     }
 } // swiftlint:disable:this file_length

@@ -10,10 +10,27 @@ import Foundation
 import Network
 import XCTest
 
+enum TransportProtocol: Codable {
+    case transport(NetworkTransportProtocol)
+    case application(ApplicationProtocol)
+
+    var rawValue: String {
+        switch self {
+        case let .transport(transport): transport.rawValue
+        case let .application(application): application.rawValue
+        }
+    }
+}
+
+enum ApplicationProtocol: String, Codable {
+    case wireguard
+}
+
 enum NetworkTransportProtocol: String, Codable {
     case TCP = "tcp"
     case UDP = "udp"
     case ICMP = "icmp"
+    case ICMP6 = "icmp_v6"
 }
 
 enum NetworkingError: Error {

@@ -12,13 +12,13 @@ import XCTest
 struct FirewallRule {
     let fromIPAddress: String
     let toIPAddress: String
-    let protocols: [NetworkTransportProtocol]
+    let protocols: [TransportProtocol]
 
     /// - Parameters:
     ///     - fromIPAddress: Block traffic originating from this source IP address.
     ///     - toIPAddress: Block traffic to this destination IP address.
     ///     - protocols: Protocols which should be blocked. If none is specified all will be blocked.
-    private init(fromIPAddress: String, toIPAddress: String, protocols: [NetworkTransportProtocol]) {
+    private init(fromIPAddress: String, toIPAddress: String, protocols: [TransportProtocol]) {
         self.fromIPAddress = fromIPAddress
         self.toIPAddress = toIPAddress
         self.protocols = protocols
@@ -35,7 +35,7 @@ struct FirewallRule {
         return FirewallRule(
             fromIPAddress: deviceIPAddress,
             toIPAddress: apiIPAddress,
-            protocols: [.TCP]
+            protocols: [.transport(.TCP)]
         )
     }
 
@@ -45,7 +45,18 @@ struct FirewallRule {
         return FirewallRule(
             fromIPAddress: deviceIPAddress,
             toIPAddress: toIPAddress,
-            protocols: [.ICMP, .TCP, .UDP]
+            protocols: [.transport(.ICMP), .transport(.TCP), .transport(.UDP)]
+        )
+    }
+
+    public static func makeBlockWireGuardTrafficRule(
+        fromIPAddress: String,
+        toIPAddress: String
+    ) throws -> FirewallRule {
+        FirewallRule(
+            fromIPAddress: fromIPAddress,
+            toIPAddress: toIPAddress,
+            protocols: [.application(.wireguard)]
         )
     }
 
@@ -55,7 +66,7 @@ struct FirewallRule {
         return FirewallRule(
             fromIPAddress: deviceIPAddress,
             toIPAddress: toIPAddress,
-            protocols: [.UDP]
+            protocols: [.transport(.UDP)]
         )
     }
 }
