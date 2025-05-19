@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Colors, spacings } from '../lib/foundations';
+import { colors, spacings } from '../lib/foundations';
 
 export const openSans: React.CSSProperties = {
   fontFamily: 'Open Sans',
@@ -22,7 +22,7 @@ export const smallText = {
   fontSize: '14px',
   fontWeight: 600,
   lineHeight: '20px',
-  color: Colors.white80,
+  color: colors.whiteAlpha80,
 };
 
 export const smallNormalText = {
@@ -45,7 +45,7 @@ export const largeText = {
 
 export const buttonText = {
   ...largeText,
-  color: Colors.white,
+  color: colors.white,
 };
 
 export const bigText = {
@@ -60,7 +60,7 @@ export const hugeText = {
   fontSize: '32px',
   fontWeight: 700,
   lineHeight: '34px',
-  color: Colors.white,
+  color: colors.white,
 };
 
 export const measurements = {

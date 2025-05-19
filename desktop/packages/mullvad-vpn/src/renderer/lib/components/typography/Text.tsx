@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Colors, Typography, typography } from '../../foundations';
+import { Colors, colors, Typography, typography } from '../../foundations';
 import { PolymorphicProps, TransientProps } from '../../types';
 
 type TextBaseProps = {
@@ -12,11 +12,12 @@ type TextBaseProps = {
 export type TextProps<T extends React.ElementType = 'span'> = PolymorphicProps<T, TextBaseProps>;
 
 const StyledText = styled.span<TransientProps<TextBaseProps>>(
-  ({ $variant = 'bodySmall', $color = Colors.white }) => {
+  ({ $variant = 'bodySmall', $color = 'white' }) => {
     const { fontFamily, fontSize, fontWeight, lineHeight } = typography[$variant];
+    const color = colors[$color];
     return `
-      --color: ${$color};
-      
+      --color: ${color};
+
       color: var(--color);
       font-family: ${fontFamily};
       font-size: ${fontSize};

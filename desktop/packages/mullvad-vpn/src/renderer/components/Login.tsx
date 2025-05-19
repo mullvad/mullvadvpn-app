@@ -9,7 +9,7 @@ import { useAppContext } from '../context';
 import { formatAccountNumber } from '../lib/account';
 import useActions from '../lib/actionsHook';
 import { Box, Button, Flex, Icon, Label, LabelTiny, Spinner, TitleMedium } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
 import { IconBadge } from '../lib/icon-badge';
 import accountActions from '../redux/account/actions';
@@ -370,7 +370,7 @@ class Login extends React.Component<IProps, IState> {
   private createFooter() {
     return (
       <Flex $flexDirection="column" $gap="small">
-        <LabelTiny color={Colors.white60}>
+        <LabelTiny color="whiteAlpha60">
           {messages.pgettext('login-view', 'Don’t have an account number?')}
         </LabelTiny>
         <Button onClick={this.props.createNewAccount} disabled={!this.allowCreateAccount()}>
@@ -411,7 +411,7 @@ interface AccountDropdownItemProps {
 }
 
 const StyledIcon = styled(Icon)({
-  backgroundColor: 'rgba(84, 113, 143, 1)',
+  backgroundColor: colors.whiteOnBlue20,
 });
 
 function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdownItemProps) {
@@ -448,7 +448,7 @@ function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdo
                 accountNumber: label,
               },
             )}>
-            <TitleMedium color={Colors.blue80}>{label}</TitleMedium>
+            <TitleMedium color="blue80">{label}</TitleMedium>
           </StyledAccountDropdownItemButton>
           <Box $height="48px" $width="48px" center>
             <StyledAccountDropdownItemIconButton

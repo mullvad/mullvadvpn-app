@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Button } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
@@ -26,7 +26,7 @@ export default function Launch() {
 }
 
 const StyledFooter = styled(Footer)({
-  backgroundColor: Colors.blue,
+  backgroundColor: colors.blue,
   transition: 'opacity 250ms ease-in-out',
 });
 
@@ -34,14 +34,14 @@ const StyledFooterInner = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  backgroundColor: Colors.darkBlue,
+  backgroundColor: colors.darkBlue,
   borderRadius: '8px',
   margin: 0,
   padding: '16px',
 });
 
 const StyledFooterMessage = styled.span(tinyText, {
-  color: Colors.white,
+  color: colors.white,
   margin: `8px 0 ${measurements.buttonVerticalMargin} 0`,
 });
 
