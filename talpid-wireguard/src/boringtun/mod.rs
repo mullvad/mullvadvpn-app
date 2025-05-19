@@ -64,7 +64,6 @@ impl BoringTun {
         log::info!("BoringTun::start_tunnel");
 
         log::info!("calling get_tunnel_for_userspace");
-        // TODO: investigate timing bug when creating tun device? (Device or resource busy)
         #[cfg(not(target_os = "android"))]
         let async_tun = {
             let tun = get_tunnel_for_userspace(tun_provider, config, routes)?;
@@ -83,8 +82,6 @@ impl BoringTun {
 
         let boringtun_config = DeviceConfig {
             n_threads: 4,
-            #[cfg(target_os = "linux")]
-            use_multi_queue: false, // TODO: what is this?
             api: Some(config_rx),
             on_bind: None,
         };
