@@ -438,7 +438,6 @@ impl WireguardMonitor {
             .runtime
             .block_on(boringtun::open_boringtun_tunnel(
                 &config,
-                log_path,
                 args.tun_provider.clone(),
                 args.route_manager,
             ))
@@ -680,11 +679,7 @@ impl WireguardMonitor {
 
             #[cfg(feature = "boringtun")]
             let tunnel = runtime
-                .block_on(boringtun::open_boringtun_tunnel(
-                    config,
-                    log_path,
-                    tun_provider,
-                ))
+                .block_on(boringtun::open_boringtun_tunnel(config, tun_provider))
                 .map(Box::new)?;
 
             #[cfg(not(feature = "boringtun"))]
@@ -729,11 +724,7 @@ impl WireguardMonitor {
 
         #[cfg(feature = "boringtun")]
         let tunnel = runtime
-            .block_on(boringtun::open_boringtun_tunnel(
-                config,
-                log_path,
-                tun_provider,
-            ))
+            .block_on(boringtun::open_boringtun_tunnel(config, tun_provider))
             .map(Box::new)?;
         Ok(tunnel)
     }
@@ -742,7 +733,7 @@ impl WireguardMonitor {
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
-        log_path: Option<&Path>,
+        #[cfg_attr(feature = "boringtun", allow(unused_variables))] log_path: Option<&Path>,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         userspace_wireguard: bool,
     ) -> Result<TunnelType> {
@@ -755,7 +746,7 @@ impl WireguardMonitor {
             let f = wireguard_go::open_wireguard_go_tunnel(config, log_path, tun_provider);
 
             #[cfg(feature = "boringtun")]
-            let f = boringtun::open_boringtun_tunnel(config, log_path, tun_provider);
+            let f = boringtun::open_boringtun_tunnel(config, tun_provider);
 
             let tunnel = runtime.block_on(f).map(Box::new)?;
             Ok(tunnel)
@@ -784,9 +775,11 @@ impl WireguardMonitor {
                             .map(Box::new)?)
                     }
                     #[cfg(feature = "boringtun")]
-                    { Ok(runtime
-                            .block_on(boringtun::open_boringtun_tunnel(config, log_path, tun_provider))
-                            .map(Box::new)?) }
+                    {
+                        Ok(runtime
+                            .block_on(boringtun::open_boringtun_tunnel(config, tun_provider))
+                            .map(Box::new)?)
+                    }
                 })
         }
     }
