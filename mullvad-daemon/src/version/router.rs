@@ -395,7 +395,10 @@ where
             .map_err(|_e| Error::VersionRouterClosed)
         {
             // Append to response channels
-            self.version_request_channels.push(result_tx);
+            Ok(()) => self.version_request_channels.push(result_tx),
+            Err(err) => result_tx
+                .send(Err(err))
+                .unwrap_or_else(|e| log::warn!("Failed to send version request result: {e:?}")),
         }
     }
 
