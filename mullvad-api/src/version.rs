@@ -22,6 +22,15 @@ pub struct AppVersionResponse {
     pub latest_beta: Option<AppVersion>,
 }
 
+/// Reply from `/app/releases/<platform>.json` endpoint
+pub struct AppVersionResponse2 {
+    /// Information about available versions for the current target
+    pub version_info: VersionInfo,
+    /// Index of the metadata version used to sign the response.
+    /// Used to prevent replay/downgrade attacks.
+    pub metadata_version: usize,
+}
+
 impl AppVersionProxy {
     /// Maximum size of `version_check_2` response
     const SIZE_LIMIT: usize = 1024 * 1024;
@@ -57,7 +66,7 @@ impl AppVersionProxy {
         architecture: mullvad_update::format::Architecture,
         rollout: f32,
         lowest_metadata_version: usize,
-    ) -> impl Future<Output = Result<(VersionInfo, usize), rest::Error>> + use<> {
+    ) -> impl Future<Output = Result<AppVersionResponse2, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let path = format!("app/releases/{platform}.json");
         let request = self.handle.factory.get(&path);
@@ -80,12 +89,12 @@ impl AppVersionProxy {
             };
 
             let metadata_version = response.signed.metadata_version;
-            Ok((
-                VersionInfo::try_from_response(&params, response.signed)
+            Ok(AppVersionResponse2 {
+                version_info: VersionInfo::try_from_response(&params, response.signed)
                     .map_err(Arc::new)
                     .map_err(rest::Error::FetchVersions)?,
                 metadata_version,
-            ))
+            })
         }
     }
 }
