@@ -1,4 +1,4 @@
-#![cfg(update)]
+#![cfg(in_app_upgrade)]
 
 use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpgradeEvent};
 use mullvad_update::app::{bin_path, AppDownloader, AppDownloaderParameters, DownloadError};
