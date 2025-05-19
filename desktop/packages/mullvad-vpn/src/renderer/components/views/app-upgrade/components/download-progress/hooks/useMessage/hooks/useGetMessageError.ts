@@ -14,6 +14,11 @@ export const useGetMessageError = () => {
       return messages.pgettext('app-upgrade-view', 'Download complete!');
     }
 
+    if (error === 'DOWNLOAD_FAILED') {
+      // TRANSLATORS: Status text displayed below a progress bar when the download of an update fails
+      return messages.pgettext('app-upgrade-view', 'Download failed');
+    }
+
     return null;
   };
 
