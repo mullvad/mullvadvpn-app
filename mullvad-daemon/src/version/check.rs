@@ -447,7 +447,7 @@ fn version_check_inner(
             current_version_supported: response.supported,
             // Note: We're pretending that this is complete information,
             // but on Android and Linux, most of the information is missing
-            latest_version: VersionInfo {
+            version_info: VersionInfo {
                 stable: mullvad_update::version::Version {
                     version: latest_stable,
                     changelog: "".to_owned(),
