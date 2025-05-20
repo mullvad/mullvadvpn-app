@@ -7,14 +7,14 @@ The tests in this module are end-to-end tests that rely on the publicly accessib
 Set account numbers in the below command and then execute the command in the `android` directory to run the tests on a local device:
 ```
 ./gradlew :test:e2e:connectedDebugAndroidTest \
-    -Pvalid_test_account_number=XXXX \
-    -Pinvalid_test_account_number=XXXX
+    -Pmullvad.test.e2e.prod.accountNumber.valid=XXXX \
+    -Pmullvad.test.e2e.prod.accountNumber.invalid==XXXX
 ```
 
-For convenience, the numbers can also be set in `<REPO-ROOT>/android/local.properties` in the following way:
+For convenience, the numbers can also be set in `<GRADLE_USER_HOME>/gradle.properties` in the following way:
 ```
-valid_test_account_number=XXXX
-invalid_test_account_number=XXXX
+mullvad.test.e2e.prod.accountNumber.valid=XXXX
+mullvad.test.e2e.prod.accountNumber.invalid=XXXX
 ```
 
 It's also possible to provide the numbers to the test runner during test execution. However note that this requires [the APKs to be installed manually](https://developer.android.com/training/testing/instrumented-tests/androidx-test-libraries/runner#architecture).
@@ -22,8 +22,8 @@ It's also possible to provide the numbers to the test runner during test executi
 adb shell 'CLASSPATH=$(pm path androidx.test.services) app_process / \
     androidx.test.services.shellexecutor.ShellMain am instrument -w \
     -e clearPackageData true \
-    -e valid_test_account_number XXXX \
-    -e invalid_test_account_number XXXX \
+    -e mullvad.test.e2e.prod.accountNumber.valid XXXX \
+    -e mullvad.test.e2e.prod.accountNumber.valid XXXX \
     -e targetInstrumentation net.mullvad.mullvadvpn.test.e2e/androidx.test.runner.AndroidJUnitRunner \
     androidx.test.orchestrator/.AndroidTestOrchestrator'
 ```
