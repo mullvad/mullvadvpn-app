@@ -30,6 +30,7 @@ import {
   SystemNotification,
   SystemNotificationCategory,
 } from '../shared/notifications/notification';
+import { RoutePath } from '../shared/routes';
 import Account, { AccountDelegate, LocaleProvider } from './account';
 import AppUpgrade from './app-upgrade';
 import { getOpenAtLogin } from './autostart';
@@ -1132,6 +1133,9 @@ class ApplicationMain
     } else {
       return shell.openExternal(url);
     }
+  };
+  public openRoute = (route: RoutePath) => {
+    void IpcMainEventChannel.app.notifyOpenRoute?.(route);
   };
   public showNotificationIcon = (value: boolean, reason?: string) =>
     this.userInterface?.showNotificationIcon(value, reason);
