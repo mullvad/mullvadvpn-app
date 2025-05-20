@@ -58,4 +58,3 @@ runs:
           for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
       working-directory: ios/Configurations
       shell: bash
-      
