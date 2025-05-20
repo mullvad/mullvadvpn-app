@@ -1,8 +1,8 @@
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../shared/gettext';
+import { RoutePath } from '../../shared/routes';
 import { AppVersionInfoSuggestedUpgrade } from '../daemon-rpc-types';
-import { getDownloadUrl } from '../version';
 import {
   SystemNotification,
   SystemNotificationCategory,
@@ -28,10 +28,10 @@ export class UpdateAvailableNotificationProvider implements SystemNotificationPr
       category: SystemNotificationCategory.newVersion,
       severity: SystemNotificationSeverityType.medium,
       action: {
-        type: 'navigate-external',
+        type: 'navigate-internal',
         link: {
           text: messages.pgettext('notifications', 'Upgrade'),
-          to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+          to: RoutePath.appUpgrade,
         },
       },
       presentOnce: { value: true, name: this.constructor.name },
