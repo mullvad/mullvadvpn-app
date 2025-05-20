@@ -38,6 +38,7 @@ import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-se
 import { IChangelog, ICurrentAppVersionInfo, IHistoryObject } from '../shared/ipc-types';
 import log, { ConsoleOutput } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
+import { RoutePath } from '../shared/routes';
 import { Scheduler } from '../shared/scheduler';
 import AppRouter from './components/AppRouter';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -50,7 +51,6 @@ import { Theme } from './lib/components';
 import History, { TransitionType } from './lib/history';
 import { loadTranslations } from './lib/load-translations';
 import IpcOutput from './lib/logging';
-import { RoutePath } from './lib/routes';
 import accountActions from './redux/account/actions';
 import { appUpgradeActions } from './redux/app-upgrade/actions';
 import connectionActions from './redux/connection/actions';

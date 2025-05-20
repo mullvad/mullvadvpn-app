@@ -1,13 +1,13 @@
 import { test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { RoutePath } from '../../../src/renderer/lib/routes';
 import {
   ErrorStateCause,
   ILocation,
   ITunnelEndpoint,
   TunnelState,
 } from '../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../src/shared/routes';
 import {
   expectConnected,
   expectConnecting,

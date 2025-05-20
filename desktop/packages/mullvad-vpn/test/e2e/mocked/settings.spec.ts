@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { RoutePath } from '../../../src/renderer/lib/routes';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../src/shared/routes';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
 let page: Page;

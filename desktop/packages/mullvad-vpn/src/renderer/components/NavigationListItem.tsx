@@ -1,8 +1,8 @@
 import React from 'react';
 
+import { RoutePath } from '../../shared/routes';
 import { ListItem, ListItemProps } from '../lib/components/list-item';
 import { useHistory } from '../lib/history';
-import { RoutePath } from '../lib/routes';
 
 export type NavigationListItemProps = ListItemProps & {
   to: RoutePath;

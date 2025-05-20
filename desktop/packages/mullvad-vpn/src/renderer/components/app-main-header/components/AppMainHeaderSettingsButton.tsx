@@ -2,10 +2,10 @@ import { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
+import { RoutePath } from '../../../../shared/routes';
 import { IconButton, IconButtonProps, MainHeader } from '../../../lib/components';
 import { Dot } from '../../../lib/components/dot';
 import { TransitionType, useHistory } from '../../../lib/history';
-import { RoutePath } from '../../../lib/routes';
 import { useSelector } from '../../../redux/store';
 
 export type MainHeaderSettingsButtonProps = Omit<IconButtonProps, 'icon'>;
