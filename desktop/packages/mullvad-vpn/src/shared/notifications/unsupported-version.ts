@@ -1,5 +1,6 @@
 import { messages } from '../../shared/gettext';
 import { AppVersionInfoSuggestedUpgrade } from '../daemon-rpc-types';
+import { RoutePath } from '../routes';
 import { getDownloadUrl } from '../version';
 import {
   InAppNotification,
@@ -31,13 +32,20 @@ export class UnsupportedVersionNotificationProvider
       message: this.getMessage(),
       category: SystemNotificationCategory.newVersion,
       severity: SystemNotificationSeverityType.high,
-      action: {
-        type: 'navigate-external',
-        link: {
-          text: messages.pgettext('notifications', 'Upgrade'),
-          to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-        },
-      },
+      action: this.context.suggestedUpgrade
+        ? {
+            type: 'navigate-internal',
+            link: {
+              to: RoutePath.appUpgrade,
+            },
+          }
+        : {
+            type: 'navigate-external',
+            link: {
+              text: messages.pgettext('notifications', 'Upgrade'),
+              to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+            },
+          },
       presentOnce: { value: true, name: this.constructor.name },
       suppressInDevelopment: true,
     };
@@ -48,12 +56,19 @@ export class UnsupportedVersionNotificationProvider
       indicator: 'error',
       title: messages.pgettext('in-app-notifications', 'UNSUPPORTED VERSION'),
       subtitle: this.getMessage(),
-      action: {
-        type: 'navigate-external',
-        link: {
-          to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-        },
-      },
+      action: this.context.suggestedUpgrade
+        ? {
+            type: 'navigate-internal',
+            link: {
+              to: RoutePath.appUpgrade,
+            },
+          }
+        : {
+            type: 'navigate-external',
+            link: {
+              to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+            },
+          },
     };
   }
 
