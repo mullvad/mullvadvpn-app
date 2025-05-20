@@ -1,5 +1,6 @@
 use super::TunConfig;
 use std::{io, net::IpAddr, ops::Deref};
+use talpid_windows::net::AddressFamily;
 use tun07 as tun;
 use tun07::{AbstractDevice, AsyncDevice, Configuration};
 
@@ -7,12 +8,11 @@ use tun07::{AbstractDevice, AsyncDevice, Configuration};
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     /// Failed to set IP address
-    #[error("Failed to set IPv4 address")]
-    SetIpv4(#[source] tun::Error),
-
-    /// Failed to set IP address
     #[error("Failed to set IPv6 address")]
-    SetIpv6(#[source] io::Error),
+    SetIp(#[source] talpid_windows::net::Error),
+
+    #[error("Failed to remove existing IP address")]
+    RemoveIpAddress(#[source] talpid_windows::net::Error),
 
     /// Unable to open a tunnel device
     #[error("Unable to open a tunnel device")]
@@ -21,6 +21,14 @@ pub enum Error {
     /// Failed to enable/disable link device
     #[error("Failed to enable/disable link device")]
     ToggleDevice(#[source] tun::Error),
+
+    /// Failed to get tunnel IP address table
+    #[error("Failed to get tunnel IP address table")]
+    GetDeviceAddresses(#[source] io::Error),
+
+    /// Failed to get device luid
+    #[error("Failed to get tunnel device luid")]
+    GetDeviceLuid(#[source] io::Error),
 
     /// Failed to get device name
     #[error("Failed to get tunnel device name")]
@@ -53,6 +61,7 @@ impl WindowsTunProvider {
             #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
             // TODO: have tun either not use netsh or not set any default address at all
+            // TODO: tun can only set a single address
             if let Some(addr) = self.config.addresses.first() {
                 builder.config.address(addr);
             }
@@ -122,13 +131,44 @@ impl Default for TunnelDeviceBuilder {
 
 impl TunnelDevice {
     fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
-        match ip {
-            IpAddr::V4(ipv4) => self.dev.set_address(ipv4.into()).map_err(Error::SetIpv4),
-            IpAddr::V6(_ipv6) => {
-                // TODO
-                todo!("ipv6 not implemented");
+        // TODO: Expose luid from wintun-bindings.
+        // Also, maybe, update wintun-bindings to use Windows APIs instead of netsh
+        let name = self.get_name()?;
+        let luid = talpid_windows::net::luid_from_alias(&name).map_err(Error::GetDeviceLuid)?;
+        let mut has_desired_entry = false;
+
+        let family = match ip {
+            IpAddr::V4(_) => AddressFamily::Ipv4,
+            IpAddr::V6(_) => AddressFamily::Ipv6,
+        };
+
+        // Check if IP is already set, and maybe unset existing entries
+        let table = talpid_windows::net::get_unicast_table(Some(family))
+            .map_err(Error::GetDeviceAddresses)?;
+        for row in &table {
+            // SAFETY: This is always valid as u64 ('Value')
+            if unsafe { row.InterfaceLuid.Value != luid.Value } {
+                continue;
+            }
+            let Ok(addr) = talpid_windows::net::try_socketaddr_from_inet_sockaddr(row.Address)
+            else {
+                continue;
+            };
+            has_desired_entry |= addr.ip() == ip;
+            if !has_desired_entry {
+                // Remove irrelevant IP addresses
+                talpid_windows::net::remove_ip_address_for_interface(&row)
+                    .map_err(Error::RemoveIpAddress)?;
             }
         }
+
+        if has_desired_entry {
+            return Ok(());
+        }
+
+        let name = self.get_name()?;
+        let luid = talpid_windows::net::luid_from_alias(&name).map_err(Error::GetDeviceLuid)?;
+        talpid_windows::net::add_ip_address_for_interface(luid, ip).map_err(Error::SetIp)
     }
 
     fn set_up(&mut self, up: bool) -> Result<(), Error> {
