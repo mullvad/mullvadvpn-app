@@ -4,10 +4,12 @@ import { ButtonProps } from '../../renderer/lib/components';
 import { Url } from '../constants';
 
 export type SystemNotificationAction = {
-  type: 'open-url';
-  url: Url;
-  text?: string;
-  withAuth?: boolean;
+  type: 'navigate-external';
+  link: {
+    to: Url;
+    text?: string;
+    withAuth?: boolean;
+  };
 };
 
 export interface InAppNotificationTroubleshootInfo {
