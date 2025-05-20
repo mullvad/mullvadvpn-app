@@ -2721,6 +2721,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
 
+msgid "%1$s more..."
+msgstr ""
+
+msgid "%1$s was added to \"%2$s\""
+msgstr ""
+
+msgid "%1$s was removed from \"%2$s\""
+msgstr ""
+
 msgid "%s (Entry)"
 msgstr ""
 
@@ -2736,16 +2745,7 @@ msgstr ""
 msgid "%s custom port"
 msgstr ""
 
-msgid "%s more..."
-msgstr ""
-
-msgid "%s was added to \"%s\""
-msgstr ""
-
 msgid "%s was added to your account."
-msgstr ""
-
-msgid "%s was removed from \"%s\""
 msgstr ""
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
@@ -2883,7 +2883,7 @@ msgstr ""
 msgid "Current: %s"
 msgstr ""
 
-msgid "Custom DNS server addresses %s are invalid"
+msgid "Custom DNS server addresses %1$s are invalid"
 msgstr ""
 
 msgid "DNS settings might not go into effect immediately"
@@ -2940,7 +2940,7 @@ msgstr ""
 msgid "Edit name"
 msgstr ""
 
-msgid "Enable %s"
+msgid "Enable %1$s"
 msgstr ""
 
 msgid "Enable method"
@@ -3006,7 +3006,7 @@ msgstr ""
 msgid "In-tunnel IPv6"
 msgstr ""
 
-msgid "Invalid or missing value \"%s\""
+msgid "Invalid or missing value \"%1$s\""
 msgstr ""
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
@@ -3108,7 +3108,7 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-msgid "Remove %s from %s"
+msgid "Remove %1$s from %2$s"
 msgstr ""
 
 msgid "Remove %s?"
@@ -3135,7 +3135,7 @@ msgstr ""
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr ""
 
-msgid "Set WireGuard MTU value. Valid range: %d - %d."
+msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr ""
 
 msgid "Set port"
@@ -3225,7 +3225,7 @@ msgstr ""
 msgid "Undo"
 msgstr ""
 
-msgid "Unknown or prohibited key \"%s\""
+msgid "Unknown or prohibited key \"%1$s\""
 msgstr ""
 
 msgid "Update DNS server"
