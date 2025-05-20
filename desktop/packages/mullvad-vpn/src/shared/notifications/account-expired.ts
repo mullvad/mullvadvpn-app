@@ -32,10 +32,12 @@ export class AccountExpiredNotificationProvider implements SystemNotificationPro
       severity: SystemNotificationSeverityType.high,
       presentOnce: { value: true, name: this.constructor.name },
       action: {
-        type: 'open-url',
-        url: urls.purchase,
-        withAuth: true,
-        text: messages.pgettext('notifications', 'Buy more'),
+        type: 'navigate-external',
+        link: {
+          text: messages.pgettext('notifications', 'Buy more'),
+          to: urls.purchase,
+          withAuth: true,
+        },
       },
     };
   }

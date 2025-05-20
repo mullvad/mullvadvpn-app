@@ -30,9 +30,11 @@ export class UnsupportedVersionNotificationProvider
       category: SystemNotificationCategory.newVersion,
       severity: SystemNotificationSeverityType.high,
       action: {
-        type: 'open-url',
-        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-        text: messages.pgettext('notifications', 'Upgrade'),
+        type: 'navigate-external',
+        link: {
+          text: messages.pgettext('notifications', 'Upgrade'),
+          to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+        },
       },
       presentOnce: { value: true, name: this.constructor.name },
       suppressInDevelopment: true,
