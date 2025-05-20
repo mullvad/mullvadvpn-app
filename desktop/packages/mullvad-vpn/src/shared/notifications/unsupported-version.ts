@@ -1,4 +1,5 @@
 import { messages } from '../../shared/gettext';
+import { AppVersionInfoSuggestedUpgrade } from '../daemon-rpc-types';
 import { getDownloadUrl } from '../version';
 import {
   InAppNotification,
@@ -12,6 +13,7 @@ import {
 interface UnsupportedVersionNotificationContext {
   supported: boolean;
   consistent: boolean;
+  suggestedUpgrade?: AppVersionInfoSuggestedUpgrade;
   suggestedIsBeta?: boolean;
 }
 
