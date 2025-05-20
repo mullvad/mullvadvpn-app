@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
+use std::panic;
 use std::sync::{Arc, LazyLock, Mutex, RwLock};
 
 use cacao::appkit::window::{Window, WindowConfig, WindowDelegate};
@@ -22,12 +23,12 @@ use crate::resource::{
 };
 
 /// Logo render in the banner
-const LOGO_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-icon.svg");
+const LOGO_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-icon.pdf");
 
 /// Logo banner text
-const LOGO_TEXT_DATA: &[u8] = include_bytes!("../../assets/logo-text.svg");
+const LOGO_TEXT_DATA: &[u8] = include_bytes!("../../assets/logo-text.pdf");
 
-const ALERT_CIRCLE_IMAGE_DATA: &[u8] = include_bytes!("../../assets/alert-circle.svg");
+const ALERT_CIRCLE_IMAGE_DATA: &[u8] = include_bytes!("../../assets/alert-circle.pdf");
 
 /// Banner background color: #192e45
 static BANNER_COLOR: LazyLock<Color> = LazyLock::new(|| {
