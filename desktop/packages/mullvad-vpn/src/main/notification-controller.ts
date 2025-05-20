@@ -10,9 +10,9 @@ import {
   DaemonDisconnectedNotificationProvider,
   DisconnectedNotificationProvider,
   ErrorNotificationProvider,
-  NotificationAction,
   ReconnectingNotificationProvider,
   SystemNotification,
+  SystemNotificationAction,
   SystemNotificationCategory,
   SystemNotificationProvider,
   SystemNotificationSeverityType,
@@ -268,7 +268,7 @@ export default class NotificationController {
     });
   }
 
-  private performAction(action?: NotificationAction) {
+  private performAction(action?: SystemNotificationAction) {
     if (action && action.type === 'open-url') {
       void this.notificationControllerDelegate.openLink(action.url, action.withAuth);
     }

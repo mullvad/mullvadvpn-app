@@ -3,7 +3,7 @@ import { InternalLinkProps } from '../../renderer/components/InternalLink';
 import { ButtonProps } from '../../renderer/lib/components';
 import { Url } from '../constants';
 
-export type NotificationAction = {
+export type SystemNotificationAction = {
   type: 'open-url';
   url: Url;
   text?: string;
@@ -71,7 +71,7 @@ export interface SystemNotification {
   throttle?: boolean;
   presentOnce?: { value: boolean; name: string };
   suppressInDevelopment?: boolean;
-  action?: NotificationAction;
+  action?: SystemNotificationAction;
 }
 
 export interface InAppNotification {
