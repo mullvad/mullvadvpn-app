@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"6819d727-3074e\"",
+  "etag": "W/\"682c1c83-31375\"",
   "countries": [
     {
       "name": "Albania",
@@ -5712,7 +5712,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "HostRoyale",
               "weight": 100,
@@ -6375,48 +6375,6 @@
               }
             },
             {
-              "hostname": "gb-lon-ovpn-005",
-              "ipv4_addr_in": "185.195.232.85",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": true,
-              "provider": "31173",
-              "weight": 100,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "UK",
-                "country_code": "gb",
-                "city": "London",
-                "city_code": "lon",
-                "latitude": 51.514125,
-                "longitude": -0.093689
-              }
-            },
-            {
-              "hostname": "gb-lon-ovpn-006",
-              "ipv4_addr_in": "185.195.232.86",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": true,
-              "provider": "31173",
-              "weight": 100,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "UK",
-                "country_code": "gb",
-                "city": "London",
-                "city_code": "lon",
-                "latitude": 51.514125,
-                "longitude": -0.093689
-              }
-            },
-            {
               "hostname": "gb-lon-ovpn-301",
               "ipv4_addr_in": "146.70.119.98",
               "ipv6_addr_in": null,
@@ -6881,6 +6839,27 @@
                   "shadowsocks_extra_addr_in": []
                 }
               },
+              "location": {
+                "country": "UK",
+                "country_code": "gb",
+                "city": "London",
+                "city_code": "lon",
+                "latitude": 51.514125,
+                "longitude": -0.093689
+              }
+            },
+            {
+              "hostname": "gb-lon-br-001",
+              "ipv4_addr_in": "141.98.252.66",
+              "ipv6_addr_in": null,
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": true,
+              "provider": "31173",
+              "weight": 100,
+              "endpoint_data": "bridge",
               "location": {
                 "country": "UK",
                 "country_code": "gb",
@@ -8393,7 +8372,7 @@
             {
               "hostname": "jp-osa-wg-001",
               "ipv4_addr_in": "194.114.136.3",
-              "ipv6_addr_in": "2400:ddc0:a00b::f001",
+              "ipv6_addr_in": "2403:fbc0:7000::f001",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
@@ -8420,7 +8399,7 @@
             {
               "hostname": "jp-osa-wg-002",
               "ipv4_addr_in": "194.114.136.34",
-              "ipv6_addr_in": "2400:ddc0:a00b::f101",
+              "ipv6_addr_in": "2403:fbc0:7000::f101",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
@@ -8447,7 +8426,7 @@
             {
               "hostname": "jp-osa-wg-003",
               "ipv4_addr_in": "194.114.136.65",
-              "ipv6_addr_in": "2400:ddc0:a00b::f201",
+              "ipv6_addr_in": "2403:fbc0:7000::f201",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
@@ -8474,7 +8453,7 @@
             {
               "hostname": "jp-osa-wg-004",
               "ipv4_addr_in": "194.114.136.96",
-              "ipv6_addr_in": "2400:ddc0:a00b::f301",
+              "ipv6_addr_in": "2403:fbc0:7000::f301",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
@@ -12390,7 +12369,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "DataPacket",
               "weight": 200,
@@ -16388,11 +16367,11 @@
               "ipv6_addr_in": "2607:9000:a000:12::f001",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "4oR0oc3cyktCoQ1eygZ/EZeCNeI6eQnQJNRuBmRne2Q=",
@@ -16415,11 +16394,11 @@
               "ipv6_addr_in": "2607:9000:a000:13::f001",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "/o79urfCcNSCTD4OCPNxn6qoWMchQ5Za6p6hf5cxmwE=",
@@ -16442,11 +16421,11 @@
               "ipv6_addr_in": "2607:9000:a000:14::f001",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "pFM95uwAFj62uYDkJXcAPYaPmy+nl+dd92ZLV9bWbHQ=",
@@ -16469,11 +16448,11 @@
               "ipv6_addr_in": "2607:9000:a000:17::f001",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "pCZ9NnIgAEwrDy4H/eGz8NvNcbAg7UGFTGYruyCfVwU=",
@@ -16496,11 +16475,11 @@
               "ipv6_addr_in": "2607:9000:a000:15::f001",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "SaxtRm9bIXJRhhIKuqTb5tMjbRQ+A12Oe6OvjCD5ehk=",
@@ -16525,11 +16504,11 @@
               "ipv6_addr_in": "2607:9000:a000:16::f001",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 100,
+              "weight": 1,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "EinCXC++sGc1FVJsyxF/7/xzERKeZy48pSPJUIxSjyw=",
@@ -16947,6 +16926,238 @@
                   "daita": false,
                   "shadowsocks_extra_addr_in": [
                     "23.162.8.136"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "New York, NY",
+                "city_code": "nyc",
+                "latitude": 40.73061,
+                "longitude": -73.935242
+              }
+            },
+            {
+              "hostname": "us-nyc-wg-801",
+              "ipv4_addr_in": "23.234.100.3",
+              "ipv6_addr_in": "2607:9000:a000:31::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "3XVRp858LSMwQ6pA2Zo5LFGf4nIjLnuTkbXTJiNPcmo=",
+                  "daita": true,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.100.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "New York, NY",
+                "city_code": "nyc",
+                "latitude": 40.73061,
+                "longitude": -73.935242
+              }
+            },
+            {
+              "hostname": "us-nyc-wg-802",
+              "ipv4_addr_in": "23.234.100.127",
+              "ipv6_addr_in": "2607:9000:a000:32::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "SG1mcVhXNEZDZkir3GGLA7DCltIfPr71rPW6nFzW1Rc=",
+                  "daita": true,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.100.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "New York, NY",
+                "city_code": "nyc",
+                "latitude": 40.73061,
+                "longitude": -73.935242
+              }
+            },
+            {
+              "hostname": "us-nyc-wg-803",
+              "ipv4_addr_in": "23.234.101.3",
+              "ipv6_addr_in": "2607:9000:a000:33::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "X1ZCLofMRmOnoJiNUTokpTazaRrdtbdH8+yAFvyCMnM=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.101.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "New York, NY",
+                "city_code": "nyc",
+                "latitude": 40.73061,
+                "longitude": -73.935242
+              }
+            },
+            {
+              "hostname": "us-nyc-wg-804",
+              "ipv4_addr_in": "23.234.101.127",
+              "ipv6_addr_in": "2607:9000:a000:34::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "uNKXjnTzZE0najF3fo5HiDBkg/fCF+anDkVuBNTCfhs=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.101.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "New York, NY",
+                "city_code": "nyc",
+                "latitude": 40.73061,
+                "longitude": -73.935242
+              }
+            },
+            {
+              "hostname": "us-nyc-wg-805",
+              "ipv4_addr_in": "23.234.102.3",
+              "ipv6_addr_in": "2607:9000:a000:35::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "i97V7R9Fk5IrrbYw+k7H35i8frXOHvbES13AAoRHrWY=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.102.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "New York, NY",
+                "city_code": "nyc",
+                "latitude": 40.73061,
+                "longitude": -73.935242
+              }
+            },
+            {
+              "hostname": "us-nyc-wg-806",
+              "ipv4_addr_in": "23.234.102.127",
+              "ipv6_addr_in": "2607:9000:a000:36::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "TJxsTwqSLYLKHFJLf7Uo87GiqVXnpYFaNbiiP9qwfBE=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.102.139"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "New York, NY",
+                "city_code": "nyc",
+                "latitude": 40.73061,
+                "longitude": -73.935242
+              }
+            },
+            {
+              "hostname": "us-nyc-wg-807",
+              "ipv4_addr_in": "23.234.103.3",
+              "ipv6_addr_in": "2607:9000:a000:37::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "THimhBHKHZ2KeoTRURvpNIVir4nlaxx5NSYwqNuF1wk=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.103.14"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "New York, NY",
+                "city_code": "nyc",
+                "latitude": 40.73061,
+                "longitude": -73.935242
+              }
+            },
+            {
+              "hostname": "us-nyc-wg-808",
+              "ipv4_addr_in": "23.234.103.127",
+              "ipv6_addr_in": "2607:9000:a000:38::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "Tzulo",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "tI+Ddqg8MZ3nqXLuvA5Kzryih//XLId7IM4IEgROiFk=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "23.234.103.139"
                   ]
                 }
               },
@@ -19366,6 +19577,64 @@
                   "public_key": "Tysz0Ii2m+DsyhcWoQWxsXUdJxu1lKln4F7ML+nWPXA=",
                   "daita": false,
                   "shadowsocks_extra_addr_in": []
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Secaucus, NJ",
+                "city_code": "uyk",
+                "latitude": 40.789543,
+                "longitude": -74.0565
+              }
+            },
+            {
+              "hostname": "us-uyk-wg-201",
+              "ipv4_addr_in": "104.36.50.3",
+              "ipv6_addr_in": "2a06:3040:12:620::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "HostRoyale",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "utm9eFUk8tH0j/dwKLJvlb6BRSfm3GZbomxr52ZDGn0=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "104.36.50.5"
+                  ]
+                }
+              },
+              "location": {
+                "country": "USA",
+                "country_code": "us",
+                "city": "Secaucus, NJ",
+                "city_code": "uyk",
+                "latitude": 40.789543,
+                "longitude": -74.0565
+              }
+            },
+            {
+              "hostname": "us-uyk-wg-202",
+              "ipv4_addr_in": "104.36.50.33",
+              "ipv6_addr_in": "2a06:3040:12:620::f101",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "HostRoyale",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "8Rh2Qc+vXTREhJb/RfCcpXS13U9xSqy4Pnw4+Wwt7iE=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "104.36.50.35"
+                  ]
                 }
               },
               "location": {
