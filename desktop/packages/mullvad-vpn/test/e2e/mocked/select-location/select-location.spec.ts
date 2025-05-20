@@ -5,7 +5,6 @@ import { getDefaultSettings } from '../../../../src/main/default-settings';
 import { colorTokens } from '../../../../src/renderer/lib/foundations';
 import { RoutePath } from '../../../../src/renderer/lib/routes';
 import {
-  IRelayList,
   IRelayListCity,
   IRelayListCountry,
   IRelayListHostname,
@@ -16,58 +15,7 @@ import {
 } from '../../../../src/shared/daemon-rpc-types';
 import { MockedTestUtils, startMockedApp } from '../mocked-utils';
 import { createSelectors } from './helpers';
-
-const relayList: IRelayList = {
-  countries: [
-    {
-      name: 'Sweden',
-      code: 'se',
-      cities: [
-        {
-          name: 'Gothenburg',
-          code: 'got',
-          latitude: 58,
-          longitude: 12,
-          relays: [
-            {
-              hostname: 'se-got-wg-101',
-              provider: 'mullvad',
-              ipv4AddrIn: '10.0.0.1',
-              includeInCountry: true,
-              active: true,
-              weight: 0,
-              owned: true,
-              endpointType: 'wireguard',
-              daita: true,
-            },
-            {
-              hostname: 'se-got-wg-102',
-              provider: 'mullvad',
-              ipv4AddrIn: '10.0.0.2',
-              includeInCountry: true,
-              active: true,
-              weight: 0,
-              owned: true,
-              endpointType: 'wireguard',
-              daita: true,
-            },
-            {
-              hostname: 'se-got-wg-103',
-              provider: 'another-provider',
-              ipv4AddrIn: '10.0.0.3',
-              includeInCountry: true,
-              active: true,
-              weight: 0,
-              owned: false,
-              endpointType: 'wireguard',
-              daita: true,
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
+import { mockData } from './mock-data';
 
 const wireguardEndpointData: IWireguardEndpointData = {
   portRanges: [],
@@ -77,6 +25,7 @@ const wireguardEndpointData: IWireguardEndpointData = {
 let page: Page;
 let util: MockedTestUtils;
 let selectors: ReturnType<typeof createSelectors>;
+const { relayList } = mockData;
 
 test.describe('Select location', () => {
   test.beforeAll(async () => {
