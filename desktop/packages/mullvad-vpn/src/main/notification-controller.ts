@@ -17,6 +17,7 @@ import {
   SystemNotificationProvider,
   SystemNotificationSeverityType,
 } from '../shared/notifications';
+import { RoutePath } from '../shared/routes';
 import { Scheduler } from '../shared/scheduler';
 
 const THROTTLE_DELAY = 500;
@@ -34,6 +35,7 @@ export interface NotificationSender {
 export interface NotificationControllerDelegate {
   openApp(): void;
   openLink(url: string, withAuth?: boolean): Promise<void>;
+  openRoute(url: RoutePath): void;
   /**
    * We have experienced issues where the
    * notification dot wasn't removed and logging the reason for it to be showing we can narrow the
@@ -269,8 +271,15 @@ export default class NotificationController {
   }
 
   private performAction(action?: SystemNotificationAction) {
-    if (action && action.type === 'navigate-external') {
-      void this.notificationControllerDelegate.openLink(action.link.to, action.link.withAuth);
+    if (action) {
+      if (action.type === 'navigate-external') {
+        void this.notificationControllerDelegate.openLink(action.link.to, action.link.withAuth);
+      }
+
+      if (action.type === 'navigate-internal') {
+        void this.notificationControllerDelegate.openRoute(action.link.to);
+        this.notificationControllerDelegate.openApp();
+      }
     }
   }
 
