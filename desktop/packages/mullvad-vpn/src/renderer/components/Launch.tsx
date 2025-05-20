@@ -2,11 +2,11 @@ import { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
+import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import { Button } from '../lib/components';
 import { colors } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
-import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { measurements, tinyText } from './common-styles';

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useHistory } from 'react-router';
 
 import { LocationState } from '../../../shared/ipc-types';
-import { RoutePath } from '../../lib/routes';
+import { RoutePath } from '../../../shared/routes';
 
 export type PushProblemReportProps = {
   state?: Partial<LocationState>;

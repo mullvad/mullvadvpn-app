@@ -13,6 +13,7 @@ import {
   ReconnectingNotificationProvider,
   UnsupportedVersionNotificationProvider,
 } from '../../shared/notifications';
+import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import {
   useAppUpgradeDownloadProgressValue,
@@ -35,7 +36,6 @@ import {
 } from '../lib/notifications';
 import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/app-upgrade-available';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
-import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
 import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
 import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
