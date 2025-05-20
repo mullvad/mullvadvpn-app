@@ -3,13 +3,13 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../src/main/default-settings';
 import { colorTokens } from '../../../src/renderer/lib/foundations';
-import { RoutePath } from '../../../src/renderer/lib/routes';
 import {
   IRelayList,
   IRelayListWithEndpointData,
   ISettings,
   IWireguardEndpointData,
 } from '../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../src/shared/routes';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
 const relayList: IRelayList = {

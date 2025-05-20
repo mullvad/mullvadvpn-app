@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
+import { RoutePath } from '../../../../../../shared/routes';
 import { Flex, Icon } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
 import { ListItem } from '../../../../../lib/components/list-item';
-import { RoutePath } from '../../../../../lib/routes';
 import { useVersionCurrent, useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
 import { NavigationListItem } from '../../../../NavigationListItem';
 

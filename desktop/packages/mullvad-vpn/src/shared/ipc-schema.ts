@@ -41,6 +41,7 @@ import {
   IHistoryObject,
   IWindowShapeParameters,
 } from './ipc-types';
+import { RoutePath } from './routes';
 
 export interface ITranslations {
   locale: string;

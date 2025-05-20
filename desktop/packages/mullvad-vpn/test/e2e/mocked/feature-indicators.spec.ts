@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { RoutePath } from '../../../src/renderer/lib/routes';
 import {
   FeatureIndicator,
   ILocation,
   ITunnelEndpoint,
   TunnelState,
 } from '../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../src/shared/routes';
 import { expectConnected } from '../shared/tunnel-state';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 

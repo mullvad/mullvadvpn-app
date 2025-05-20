@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 
 import { messages } from '../../../../shared/gettext';
+import { RoutePath } from '../../../../shared/routes';
 import { IconButton, IconButtonProps, MainHeader } from '../../../lib/components';
 import { TransitionType, useHistory } from '../../../lib/history';
-import { RoutePath } from '../../../lib/routes';
 import { useSelector } from '../../../redux/store';
 
 export type MainHeaderBarAccountButtonProps = Omit<IconButtonProps, 'icon'>;

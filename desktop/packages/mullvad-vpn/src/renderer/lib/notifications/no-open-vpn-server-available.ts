@@ -12,12 +12,12 @@ import {
   InAppNotificationProvider,
   InAppNotificationSubtitle,
 } from '../../../shared/notifications';
+import { RoutePath } from '../../../shared/routes';
 import { IConnectionReduxState } from '../../redux/connection/reducers';
 import {
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
 } from '../../redux/settings/reducers';
-import { RoutePath } from '../routes';
 
 interface NoOpenVpnServerAvailableNotificationContext {
   connection: IConnectionReduxState;

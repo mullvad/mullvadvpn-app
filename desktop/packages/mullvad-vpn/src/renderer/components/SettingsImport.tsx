@@ -3,13 +3,13 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
+import { RoutePath } from '../../shared/routes';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Button, Flex, Icon, IconProps, LabelTiny } from '../lib/components';
 import { colors, spacings } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
-import { RoutePath } from '../lib/routes';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';

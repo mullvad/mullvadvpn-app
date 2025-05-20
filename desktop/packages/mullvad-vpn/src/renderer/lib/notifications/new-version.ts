@@ -1,7 +1,7 @@
 import { messages } from '../../../shared/gettext';
 import { IChangelog } from '../../../shared/ipc-types';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
-import { RoutePath } from '../routes';
+import { RoutePath } from '../../../shared/routes';
 
 interface NewVersionNotificationContext {
   currentVersion: string;
