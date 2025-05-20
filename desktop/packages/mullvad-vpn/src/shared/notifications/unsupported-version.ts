@@ -45,8 +45,10 @@ export class UnsupportedVersionNotificationProvider
       title: messages.pgettext('in-app-notifications', 'UNSUPPORTED VERSION'),
       subtitle: this.getMessage(),
       action: {
-        type: 'open-url',
-        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+        type: 'navigate-external',
+        link: {
+          to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+        },
       },
     };
   }
