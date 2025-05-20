@@ -4,6 +4,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SWITCH_TEST_TAG
@@ -42,6 +43,10 @@ class VpnSettingsPage internal constructor() : Page() {
         scrollUntilCell(LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG)
     }
 
+    fun scrollUntilPostQuantumOnCell() {
+        scrollUntilCell(LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG)
+    }
+
     fun scrollUntilWireGuardObfuscationShadowsocksCell() {
         scrollUntilCell(WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG)
     }
@@ -56,6 +61,10 @@ class VpnSettingsPage internal constructor() : Page() {
 
     fun clickPostQuantumOffCell() {
         uiDevice.clickObjectAwaitIsChecked(By.res(LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG))
+    }
+
+    fun clickPostQuantumOnCell() {
+        uiDevice.clickObjectAwaitIsChecked(By.res(LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG))
     }
 
     fun clickWireGuardObfuscationShadowsocksCell() {

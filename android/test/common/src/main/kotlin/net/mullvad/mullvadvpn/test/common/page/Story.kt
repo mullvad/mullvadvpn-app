@@ -25,6 +25,16 @@ fun ConnectPage.disablePostQuantumStory() {
     uiDevice.pressBackTwice()
 }
 
+fun ConnectPage.enablePostQuantumStory() {
+    clickSettings()
+    on<SettingsPage> { clickVpnSettings() }
+    on<VpnSettingsPage> {
+        scrollUntilPostQuantumOnCell()
+        clickPostQuantumOnCell()
+    }
+    uiDevice.pressBackTwice()
+}
+
 fun ConnectPage.enableShadowsocksStory() {
     clickSettings()
     on<SettingsPage> { clickVpnSettings() }
