@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.test.e2e.api.relay.RelayApi
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.ClearFirewallRules
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.DropRule
+import net.mullvad.mullvadvpn.test.e2e.router.firewall.FirewallClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -34,6 +35,7 @@ class ConnectionTest : EndToEndTest() {
 
     private val connCheckClient = ConnectionCheckApi()
     private val relayClient = RelayApi()
+    private val firewallClient by lazy { FirewallClient() }
 
     @Test
     fun testConnect() {

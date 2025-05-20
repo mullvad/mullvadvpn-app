@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import net.mullvad.mullvadvpn.test.e2e.BuildConfig
+import net.mullvad.mullvadvpn.test.e2e.constant.DOMAIN
 import net.mullvad.mullvadvpn.test.e2e.misc.KermitLogger
 
 class MullvadApi {
@@ -83,9 +83,9 @@ class MullvadApi {
         }
 
     companion object {
-        private const val BASE_URL = "api.${BuildConfig.INFRASTRUCTURE_BASE_DOMAIN}"
-        private const val AUTH_PATH = "auth/${BuildConfig.API_VERSION}/token"
-        private const val DEVICES_PATH = "accounts/${BuildConfig.API_VERSION}/devices"
+        private val BASE_URL = "api.${DOMAIN}"
+        private const val AUTH_PATH = "auth/v1/token"
+        private const val DEVICES_PATH = "accounts/v1/devices"
     }
 }
 
