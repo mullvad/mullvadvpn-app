@@ -3,7 +3,7 @@ import { exec as execAsync } from 'child_process';
 import { Page } from 'playwright';
 import { promisify } from 'util';
 
-import { RoutePath } from '../../../../src/renderer/lib/routes';
+import { RoutePath } from '../../../../src/shared/routes';
 import { expectConnected, expectDisconnected, expectError } from '../../shared/tunnel-state';
 import { escapeRegExp, TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';

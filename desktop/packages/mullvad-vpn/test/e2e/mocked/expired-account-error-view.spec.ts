@@ -2,8 +2,8 @@ import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
 import { colors } from '../../../src/renderer/lib/foundations';
-import { RoutePath } from '../../../src/renderer/lib/routes';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../src/shared/routes';
 import { getBackgroundColor } from '../utils';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 

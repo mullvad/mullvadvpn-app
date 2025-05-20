@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { Locator, Page } from 'playwright';
 
-import { RoutePath } from '../../../../src/renderer/lib/routes';
+import { RoutePath } from '../../../../src/shared/routes';
 import { TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
 

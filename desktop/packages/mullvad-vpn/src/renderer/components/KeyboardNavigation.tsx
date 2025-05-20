@@ -1,9 +1,9 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 
+import { RoutePath } from '../../shared/routes';
 import { useHistory } from '../lib/history';
 import { disableDismissForRoutes } from '../lib/routeHelpers';
-import { RoutePath } from '../lib/routes';
 import { useEffectEvent } from '../lib/utility-hooks';
 
 interface IKeyboardNavigationProps {

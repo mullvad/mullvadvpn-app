@@ -1,9 +1,9 @@
 import { useCallback, useRef } from 'react';
 import { Route, Switch } from 'react-router';
 
+import { RoutePath } from '../../shared/routes';
 import LoginPage from '../components/Login';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
-import { RoutePath } from '../lib/routes';
 import { useViewTransitions } from '../lib/transition-hooks';
 import Account from './Account';
 import ApiAccessMethods from './ApiAccessMethods';
