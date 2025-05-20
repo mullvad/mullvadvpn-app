@@ -153,8 +153,8 @@ impl WireguardMonitor {
     #[cfg(not(target_os = "android"))]
     pub fn start(
         params: &TunnelParameters,
-        log_path: Option<&Path>,
         args: TunnelArgs<'_>,
+        _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
         #[cfg(any(target_os = "windows", target_os = "linux"))]
         let desired_mtu = args
@@ -191,7 +191,6 @@ impl WireguardMonitor {
         let tunnel = Self::open_tunnel(
             args.runtime.clone(),
             &config,
-            log_path,
             #[cfg(target_os = "windows")]
             args.resource_dir,
             #[cfg(not(all(target_os = "windows", not(feature = "boringtun"))))]
@@ -201,6 +200,7 @@ impl WireguardMonitor {
             #[cfg(target_os = "windows")]
             setup_done_tx,
             userspace_wireguard,
+            _log_path,
         )?;
         let iface_name = tunnel.get_interface_name();
 
@@ -663,7 +663,6 @@ impl WireguardMonitor {
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
-        log_path: Option<&Path>,
         resource_dir: &Path,
         #[cfg(feature = "boringtun")] tun_provider: Arc<
             std::sync::Mutex<tun_provider::TunProvider>,
@@ -671,6 +670,7 @@ impl WireguardMonitor {
         #[cfg(not(feature = "boringtun"))] route_manager: talpid_routing::RouteManagerHandle,
         setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
         userspace_wireguard: bool,
+        _log_path: Option<&Path>,
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
@@ -686,7 +686,7 @@ impl WireguardMonitor {
             let tunnel = runtime
                 .block_on(wireguard_go::open_wireguard_go_tunnel(
                     config,
-                    log_path,
+                    _log_path,
                     setup_done_tx,
                     route_manager,
                 ))
@@ -695,7 +695,7 @@ impl WireguardMonitor {
         } else {
             log::debug!("Using kernel WireGuard implementation");
 
-            wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir, setup_done_tx)
+            wireguard_nt::WgNtTunnel::start_tunnel(config, _log_path, resource_dir, setup_done_tx)
                 .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
                 .map_err(Error::TunnelError)
         }
@@ -705,9 +705,9 @@ impl WireguardMonitor {
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
-        log_path: Option<&Path>,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         _userspace_wireguard: bool,
+        _log_path: Option<&Path>,
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
@@ -717,7 +717,7 @@ impl WireguardMonitor {
         let tunnel = runtime
             .block_on(wireguard_go::open_wireguard_go_tunnel(
                 config,
-                log_path,
+                _log_path,
                 tun_provider,
             ))
             .map(Box::new)?;
@@ -733,9 +733,9 @@ impl WireguardMonitor {
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
-        #[cfg_attr(feature = "boringtun", allow(unused_variables))] log_path: Option<&Path>,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         userspace_wireguard: bool,
+        _log_path: Option<&Path>,
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
@@ -743,7 +743,7 @@ impl WireguardMonitor {
             log::debug!("Using userspace WireGuard implementation");
 
             #[cfg(not(feature = "boringtun"))]
-            let f = wireguard_go::open_wireguard_go_tunnel(config, log_path, tun_provider);
+            let f = wireguard_go::open_wireguard_go_tunnel(config, _log_path, tun_provider);
 
             #[cfg(feature = "boringtun")]
             let f = boringtun::open_boringtun_tunnel(config, tun_provider);
@@ -769,7 +769,7 @@ impl WireguardMonitor {
                         Ok(runtime
                             .block_on(wireguard_go::open_wireguard_go_tunnel(
                                 config,
-                                log_path,
+                                _log_path,
                                 tun_provider,
                             ))
                             .map(Box::new)?)
