@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -39,8 +39,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,6 +62,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.result.onResult
+import kotlin.math.abs
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedEndButton
@@ -100,7 +102,7 @@ private fun PreviewSelectLocationScreen(
         SelectLocationScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
-            onSelectHop = {},
+            onSelectHop = { _, _ -> },
             onSearchClick = {},
             onBackClick = {},
             onFilterClick = {},
@@ -254,7 +256,7 @@ fun SelectLocation(
 fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectHop: (item: Hop) -> Unit,
+    onSelectHop: (item: Hop, relayListType: RelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
     onFilterClick: () -> Unit,
@@ -345,8 +347,20 @@ fun SelectLocationScreen(
                     Loading()
                 }
                 is Lc.Content -> {
+                    val pagerState =
+                        rememberPagerState(
+                            initialPage = state.value.relayListType.ordinal,
+                            pageCount = {
+                                if (state.value.multihopEnabled) {
+                                    RelayListType.entries.size
+                                } else {
+                                    1
+                                }
+                            },
+                        )
+
                     if (state.value.multihopEnabled) {
-                        MultihopBar(state.value.relayListType, onSelectRelayList)
+                        MultihopBar(pagerState, state.value.relayListType, onSelectRelayList)
                     }
 
                     AnimatedContent(
@@ -368,6 +382,7 @@ fun SelectLocationScreen(
                     }
 
                     RelayLists(
+                        pagerState,
                         state = state.value,
                         onSelectHop = onSelectHop,
                         openDaitaSettings = openDaitaSettings,
@@ -376,6 +391,7 @@ fun SelectLocationScreen(
                         onUpdateBottomSheetState = { newState ->
                             locationBottomSheetState = newState
                         },
+                        onSelectRelayList,
                     )
                 }
             }
@@ -446,7 +462,11 @@ private fun SelectLocationDropdownMenu(
 }
 
 @Composable
-private fun MultihopBar(relayListType: RelayListType, onSelectHopList: (RelayListType) -> Unit) {
+private fun MultihopBar(
+    pagerState: PagerState,
+    relayListType: RelayListType,
+    onSelectHopList: (RelayListType) -> Unit,
+) {
     SingleChoiceSegmentedButtonRow(
         modifier =
             Modifier.fillMaxWidth()
@@ -458,11 +478,19 @@ private fun MultihopBar(relayListType: RelayListType, onSelectHopList: (RelayLis
     ) {
         MullvadSegmentedStartButton(
             selected = relayListType == RelayListType.ENTRY,
+            selectedProgress =
+                1f -
+                    abs(pagerState.getOffsetDistanceInPages(RelayListType.ENTRY.ordinal))
+                        .coerceIn(0f..1f),
             onClick = { onSelectHopList(RelayListType.ENTRY) },
             text = stringResource(id = R.string.entry),
         )
         MullvadSegmentedEndButton(
             selected = relayListType == RelayListType.EXIT,
+            selectedProgress =
+                1f -
+                    abs(pagerState.getOffsetDistanceInPages(RelayListType.EXIT.ordinal))
+                        .coerceIn(0f..1f),
             onClick = { onSelectHopList(RelayListType.EXIT) },
             text = stringResource(id = R.string.exit),
         )
@@ -470,57 +498,73 @@ private fun MultihopBar(relayListType: RelayListType, onSelectHopList: (RelayLis
 }
 
 @Composable
+@Suppress("ComplexCondition")
 private fun RelayLists(
+    pagerState: PagerState,
     state: SelectLocationUiState,
-    onSelectHop: (Hop) -> Unit,
+    onSelectHop: (Hop, RelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
+    onSelectRelayList: (RelayListType) -> Unit,
 ) {
-    // This is a workaround for the HorizontalPager being broken on Android TV when it contains
-    // focusable views and you navigate with the D-pad. Remove this code once DROID-1639 is fixed.
-    val configuration = LocalConfiguration.current
+    // This is so that when the pager is scrolled by the user the relay list type is updated
+    // correctly.
+    // If multihop is not enabled, the pager will only have one page, so this will not be called.
+    if (state.multihopEnabled) {
+        LaunchedEffect(pagerState.currentPage) {
+            onSelectRelayList(RelayListType.entries[pagerState.currentPage])
+        }
+    }
 
-    if (configuration.navigation == Configuration.NAVIGATION_DPAD) {
+    LaunchedEffect(state.relayListType) {
+        val index = state.relayListType.ordinal
+        pagerState.animateScrollToPage(index)
+    }
+
+    val focusManager = LocalFocusManager.current
+    val onSelectHopInner: (Hop, RelayListType) -> Unit = { hop, relayListType ->
+        onSelectHop(hop, relayListType)
+        // If multihop is enabled and the user selects a location or custom list in the entry list
+        // the app will switch to the exit list. Normally in this case the focus will stay in the
+        // entry list, but in this case we want move the focus to the exit list.
+        if (
+            state.multihopEnabled &&
+                relayListType == RelayListType.ENTRY &&
+                hop is Hop.Single<*> &&
+                hop.isActive
+        ) {
+            focusManager.moveFocus(FocusDirection.Right)
+            if (hop.relay.hasChildren) {
+                focusManager.moveFocus(FocusDirection.Right)
+            }
+        }
+    }
+
+    HorizontalPager(
+        state = pagerState,
+        userScrollEnabled = true,
+        beyondViewportPageCount =
+            if (state.multihopEnabled) {
+                1
+            } else {
+                0
+            },
+    ) { pageIndex ->
         SelectLocationList(
-            relayListType = state.relayListType,
-            onSelectHop = onSelectHop,
+            relayListType =
+                if (state.multihopEnabled) {
+                    RelayListType.entries[pageIndex]
+                } else {
+                    RelayListType.EXIT
+                },
+            onSelectHop = onSelectHopInner,
             openDaitaSettings = openDaitaSettings,
             onAddCustomList = onAddCustomList,
             onEditCustomLists = onEditCustomLists,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
         )
-    } else {
-        val pagerState =
-            rememberPagerState(
-                initialPage = state.relayListType.ordinal,
-                pageCount = { RelayListType.entries.size },
-            )
-        LaunchedEffect(state.relayListType) {
-            val index = state.relayListType.ordinal
-            pagerState.animateScrollToPage(index)
-        }
-
-        HorizontalPager(
-            state = pagerState,
-            userScrollEnabled = false,
-            beyondViewportPageCount =
-                if (state.multihopEnabled) {
-                    1
-                } else {
-                    0
-                },
-        ) { pageIndex ->
-            SelectLocationList(
-                relayListType = RelayListType.entries[pageIndex],
-                onSelectHop = onSelectHop,
-                openDaitaSettings = openDaitaSettings,
-                onAddCustomList = onAddCustomList,
-                onEditCustomLists = onEditCustomLists,
-                onUpdateBottomSheetState = onUpdateBottomSheetState,
-            )
-        }
     }
 }
 

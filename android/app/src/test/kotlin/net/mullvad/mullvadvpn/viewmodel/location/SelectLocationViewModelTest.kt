@@ -115,7 +115,7 @@ class SelectLocationViewModelTest {
 
             // Act, Assert
             viewModel.uiSideEffect.test {
-                viewModel.selectHop(Hop.Single(mockRelayItem))
+                viewModel.selectHop(Hop.Single(mockRelayItem), RelayListType.EXIT)
                 // Await an empty item
                 assertEquals(SelectLocationSideEffect.CloseScreen, awaitItem())
                 coVerify { mockRelayListRepository.updateSelectedRelayLocation(relayItemId) }
@@ -142,7 +142,7 @@ class SelectLocationViewModelTest {
                 assertIs<Lc.Content<SelectLocationUiState>>(firstState)
                 assertEquals(RelayListType.ENTRY, firstState.value.relayListType)
                 // Select entry
-                viewModel.selectHop(Hop.Single(mockRelayItem))
+                viewModel.selectHop(Hop.Single(mockRelayItem), RelayListType.ENTRY)
                 // Assert relay list type is exit
                 val secondState = awaitItem()
                 assertIs<Lc.Content<SelectLocationUiState>>(secondState)
