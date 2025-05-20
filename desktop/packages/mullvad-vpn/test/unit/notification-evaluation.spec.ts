@@ -10,6 +10,7 @@ import {
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
 } from '../../src/shared/notifications';
+import { RoutePath } from '../../src/shared/routes';
 
 function createController() {
   return new NotificationController({
@@ -17,6 +18,9 @@ function createController() {
       /* no-op */
     },
     openLink: (_url: string, _withAuth?: boolean) => Promise.resolve(),
+    openRoute: (_url: RoutePath) => {
+      /* no-op */
+    },
     showNotificationIcon: (_value: boolean) => {
       /* no-op */
     },
