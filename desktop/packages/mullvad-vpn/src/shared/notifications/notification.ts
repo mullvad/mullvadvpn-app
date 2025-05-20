@@ -1,16 +1,25 @@
 import { ExternalLinkProps } from '../../renderer/components/ExternalLink';
 import { InternalLinkProps } from '../../renderer/components/InternalLink';
 import { ButtonProps } from '../../renderer/lib/components';
+import { RoutePath } from '../../shared/routes';
 import { Url } from '../constants';
 
-export type SystemNotificationAction = {
-  type: 'navigate-external';
-  link: {
-    to: Url;
-    text?: string;
-    withAuth?: boolean;
-  };
-};
+export type SystemNotificationAction =
+  | {
+      type: 'navigate-internal';
+      link: {
+        to: RoutePath;
+        text?: string;
+      };
+    }
+  | {
+      type: 'navigate-external';
+      link: {
+        to: Url;
+        text?: string;
+        withAuth?: boolean;
+      };
+    };
 
 export interface InAppNotificationTroubleshootInfo {
   details: string;
