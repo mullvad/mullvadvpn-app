@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.test.e2e.constant.getTrafficGeneratorPort
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.NetworkTrafficChecker
 import net.mullvad.mullvadvpn.test.e2e.misc.NoTrafficToHostRule
+import net.mullvad.mullvadvpn.test.e2e.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.e2e.misc.SomeTrafficToHostRule
 import net.mullvad.mullvadvpn.test.e2e.misc.SomeTrafficToOtherHostsRule
 import net.mullvad.mullvadvpn.test.e2e.misc.TrafficGenerator
@@ -39,6 +40,8 @@ class LeakTest : EndToEndTest() {
     @RegisterExtension
     @JvmField
     val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
+
+    val relayProvider = RelayProvider()
 
     @BeforeEach
     fun setupVPNSettings() {
@@ -76,9 +79,9 @@ class LeakTest : EndToEndTest() {
         }
 
         on<SelectLocationPage> {
-            clickLocationExpandButton(DEFAULT_COUNTRY)
-            clickLocationExpandButton(DEFAULT_CITY)
-            clickLocationCell(DEFAULT_RELAY)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+            clickLocationCell(relayProvider.getDefaultRelay().relay)
         }
 
         device.acceptVpnPermissionDialog()
@@ -124,9 +127,9 @@ class LeakTest : EndToEndTest() {
         }
 
         on<SelectLocationPage> {
-            clickLocationExpandButton(DEFAULT_COUNTRY)
-            clickLocationExpandButton(DEFAULT_CITY)
-            clickLocationCell(DEFAULT_RELAY)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+            clickLocationCell(relayProvider.getDefaultRelay().relay)
         }
 
         device.acceptVpnPermissionDialog()
@@ -181,9 +184,9 @@ class LeakTest : EndToEndTest() {
         on<ConnectPage> { clickSelectLocation() }
 
         on<SelectLocationPage> {
-            clickLocationExpandButton(DAITA_COMPATIBLE_COUNTRY)
-            clickLocationExpandButton(DAITA_COMPATIBLE_CITY)
-            clickLocationCell(DAITA_COMPATIBLE_RELAY)
+            clickLocationExpandButton(relayProvider.getDaitaRelay().country)
+            clickLocationExpandButton(relayProvider.getDaitaRelay().city)
+            clickLocationCell(relayProvider.getDaitaRelay().relay)
         }
 
         device.acceptVpnPermissionDialog()
