@@ -21,6 +21,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2025.4-beta2] - 2025-05-20
+### Changed
+- Improve error message when the app can not connect due to an invalid port.
+
+### Fixed
+- Fix password prompt appearing every time when returning to the welcome screen.
+
+
 ## [android/2025.4-beta1] - 2025-05-06
 ### Added
 - Make feature indicators clickable, allowing for easy access to active features.
