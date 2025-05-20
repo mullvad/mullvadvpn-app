@@ -1,6 +1,6 @@
 import { Page } from 'playwright';
 
-import { RoutePath } from '../../../../src/renderer/lib/routes';
+import { RoutePath } from '../../../../src/shared/routes';
 import { MockedTestUtils } from '../../mocked/mocked-utils';
 import { createSelectors } from './selectors';
 

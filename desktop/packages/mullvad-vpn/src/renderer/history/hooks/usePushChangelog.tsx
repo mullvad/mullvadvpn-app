@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
+import { RoutePath } from '../../../shared/routes';
 import { useHistory } from '../../lib/history';
-import { RoutePath } from '../../lib/routes';
 
 export const usePushChangelog = () => {
   const history = useHistory();

@@ -3,9 +3,9 @@ import styled from 'styled-components';
 
 import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
+import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
-import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';

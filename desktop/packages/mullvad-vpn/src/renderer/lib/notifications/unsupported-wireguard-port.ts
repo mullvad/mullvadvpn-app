@@ -4,10 +4,10 @@ import { strings } from '../../../shared/constants';
 import { TunnelProtocol } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
+import { RoutePath } from '../../../shared/routes';
 import { isInRanges } from '../../../shared/utils';
 import { IConnectionReduxState } from '../../redux/connection/reducers';
 import { RelaySettingsRedux } from '../../redux/settings/reducers';
-import { RoutePath } from '../routes';
 
 interface UnsupportedWireGuardPortNotificationContext {
   connection: IConnectionReduxState;

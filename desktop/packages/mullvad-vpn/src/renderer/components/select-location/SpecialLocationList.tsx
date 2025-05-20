@@ -2,9 +2,9 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../shared/gettext';
+import { RoutePath } from '../../../shared/routes';
 import { Icon } from '../../lib/components';
 import { useHistory } from '../../lib/history';
-import { RoutePath } from '../../lib/routes';
 import { useSelector } from '../../redux/store';
 import * as Cell from '../cell';
 import InfoButton from '../InfoButton';

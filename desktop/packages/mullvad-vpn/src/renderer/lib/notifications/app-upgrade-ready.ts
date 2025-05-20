@@ -2,7 +2,7 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
-import { RoutePath } from '../routes';
+import { RoutePath } from '../../../shared/routes';
 
 interface AppUpgradeReadyNotificationContext {
   shouldAppUpgradeInstallManually: boolean;

@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 
+import { RoutePath } from '../../shared/routes';
 import { Link, LinkProps } from '../lib/components';
 import { useHistory } from '../lib/history';
-import { RoutePath } from '../lib/routes';
 
 export type InternalLinkProps = Omit<LinkProps<'a'>, 'href' | 'as'> & {
   to: RoutePath;

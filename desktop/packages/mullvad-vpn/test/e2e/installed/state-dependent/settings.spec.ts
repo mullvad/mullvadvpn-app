@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import os from 'os';
 import path from 'path';
 
-import { RoutePath } from '../../../../src/renderer/lib/routes';
+import { RoutePath } from '../../../../src/shared/routes';
 import { fileExists, TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
 

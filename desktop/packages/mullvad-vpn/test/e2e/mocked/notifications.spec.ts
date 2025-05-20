@@ -3,7 +3,6 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../src/main/default-settings';
 import { colorTokens } from '../../../src/renderer/lib/foundations';
-import { RoutePath } from '../../../src/renderer/lib/routes';
 import {
   Constraint,
   ErrorStateCause,
@@ -12,6 +11,7 @@ import {
   ISettings,
   TunnelState,
 } from '../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../src/shared/routes';
 import { getBackgroundColor } from '../utils';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
