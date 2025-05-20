@@ -17,7 +17,6 @@ BUILD_BUNDLE="no"
 BUNDLE_TASKS=(createPlayProdReleaseDistBundle)
 RUN_PLAY_PUBLISH_TASKS="no"
 PLAY_PUBLISH_TASKS=()
-LOCAL_PROPERTIES_FILE="local.properties"
 
 while [ -n "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
@@ -89,9 +88,5 @@ echo " $PRODUCT_VERSION"
 echo ""
 echo " Build checksums:"
 md5sum ../dist/MullvadVPN-"$PRODUCT_VERSION"* | sed 's/^/ /'
-echo ""
-if [[ -f "$LOCAL_PROPERTIES_FILE" ]] && grep -q "^CARGO_TARGETS=" "$LOCAL_PROPERTIES_FILE"; then
-    echo " CARGO_TARGETS is set in $LOCAL_PROPERTIES_FILE, build may not be reproducible!"
-fi
 echo ""
 echo "**********************************"
