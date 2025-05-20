@@ -254,11 +254,11 @@ function NotificationActionWrapper({
   const handleClick = useCallback(() => {
     if (action) {
       switch (action.type) {
-        case 'open-url':
-          if (action.withAuth) {
-            return openUrlWithAuth(action.url);
+        case 'navigate-external':
+          if (action.link.withAuth) {
+            return openUrlWithAuth(action.link.to);
           } else {
-            return openUrl(action.url);
+            return openUrl(action.link.to);
           }
         case 'troubleshoot-dialog':
           setIsModalOpen(true);
@@ -280,7 +280,7 @@ function NotificationActionWrapper({
   let actionComponent: React.ReactElement | undefined;
   if (action) {
     switch (action.type) {
-      case 'open-url':
+      case 'navigate-external':
         actionComponent = <NotificationOpenLinkAction onClick={handleClick} />;
         break;
       case 'troubleshoot-dialog':
