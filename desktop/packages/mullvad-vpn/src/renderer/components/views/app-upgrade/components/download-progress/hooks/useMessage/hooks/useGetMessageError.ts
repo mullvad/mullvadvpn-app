@@ -1,8 +1,10 @@
+import { useHasAppUpgradeVerifiedInstallerPath } from '../../../../../../../../hooks';
 import { useAppUpgradeError } from '../../../../../../../../redux/hooks';
 import { translations } from '../constants';
 
 export const useGetMessageError = () => {
   const { error } = useAppUpgradeError();
+  const hasAppUpgradeVerifiedInstallerPath = useHasAppUpgradeVerifiedInstallerPath();
 
   const getMessageError = () => {
     if (error) {
@@ -14,7 +16,7 @@ export const useGetMessageError = () => {
         case 'VERIFICATION_FAILED':
           return translations.downloadComplete;
         case 'GENERAL_ERROR':
-          return null;
+          return hasAppUpgradeVerifiedInstallerPath ? translations.downloadComplete : null;
         default:
           return error satisfies never;
       }
