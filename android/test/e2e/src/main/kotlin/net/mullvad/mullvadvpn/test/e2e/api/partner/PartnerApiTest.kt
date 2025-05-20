@@ -2,16 +2,13 @@ package net.mullvad.mullvadvpn.test.e2e.api.partner
 
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.test.e2e.constant.PARTNER_AUTH
+import net.mullvad.mullvadvpn.test.e2e.constant.getPartnerAuth
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 
-@Disabled("Only used developing the PartnerApi")
 class PartnerApiTest {
-    private val partnerApi =
-        PartnerApi(InstrumentationRegistry.getArguments().getString(PARTNER_AUTH, null))
+    private val partnerApi = PartnerApi(InstrumentationRegistry.getArguments().getPartnerAuth()!!)
 
     @Test
     fun testCreateAccount() = runTest {
