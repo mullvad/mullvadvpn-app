@@ -22,12 +22,12 @@ use crate::resource::{
 };
 
 /// Logo render in the banner
-const LOGO_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-icon.svg");
+const LOGO_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-icon.pdf");
 
 /// Logo banner text
-const LOGO_TEXT_DATA: &[u8] = include_bytes!("../../assets/logo-text.svg");
+const LOGO_TEXT_DATA: &[u8] = include_bytes!("../../assets/logo-text.pdf");
 
-const ALERT_CIRCLE_IMAGE_DATA: &[u8] = include_bytes!("../../assets/alert-circle.svg");
+const ALERT_CIRCLE_IMAGE_DATA: &[u8] = include_bytes!("../../assets/alert-circle.pdf");
 
 /// Banner background color: #192e45
 static BANNER_COLOR: LazyLock<Color> = LazyLock::new(|| {
@@ -159,7 +159,6 @@ pub struct AppWindow {
 }
 
 pub struct ErrorView {
-    pub view: View,
     pub text: Label,
     pub circle: ImageView,
     pub retry_button: Button,
@@ -445,7 +444,6 @@ impl ErrorView {
         on_cancel: Option<impl Fn() + Send + Sync + 'static>,
     ) -> Self {
         let mut error_view = ErrorView {
-            view: Default::default(),
             text: Default::default(),
             circle: Default::default(),
             retry_button: Button::new(&message.retry_button_text),
@@ -453,7 +451,6 @@ impl ErrorView {
         };
 
         let ErrorView {
-            view,
             text,
             circle,
             retry_button,
@@ -470,22 +467,18 @@ impl ErrorView {
             retry_button.set_action(on_retry);
         }
 
-        view.add_subview(text);
-        view.add_subview(circle);
-        main_view.add_subview(view);
+        main_view.add_subview(text);
+        main_view.add_subview(circle);
         main_view.add_subview(retry_button);
         main_view.add_subview(cancel_button);
 
         LayoutConstraint::activate(&[
-            view.center_x.constraint_equal_to(&main_view.center_x),
-            view.center_y
-                .constraint_equal_to(&main_view.top)
-                .offset(74.),
-            view.width.constraint_equal_to_constant(536.),
-            text.center_y.constraint_equal_to(&view.center_y),
-            text.left.constraint_equal_to(&circle.right).offset(16.),
-            text.right.constraint_equal_to(&view.right),
-            circle.left.constraint_equal_to(&view.left),
+            text.top.constraint_equal_to(&main_view.top).offset(45.),
+            circle.left.constraint_equal_to(&main_view.left).offset(32.),
+            text.left.constraint_equal_to(&circle.right).offset(16),
+            text.right
+                .constraint_equal_to(&main_view.right)
+                .offset(-32.),
             circle.center_y.constraint_equal_to(&text.center_y),
             retry_button
                 .top
@@ -497,11 +490,11 @@ impl ErrorView {
                 .offset(24.),
             retry_button
                 .left
-                .constraint_equal_to(&view.center_x)
+                .constraint_equal_to(&main_view.center_x)
                 .offset(8.),
             cancel_button
                 .right
-                .constraint_equal_to(&view.center_x)
+                .constraint_equal_to(&main_view.center_x)
                 .offset(-8.),
             retry_button.width.constraint_equal_to_constant(213.),
             cancel_button.width.constraint_equal_to_constant(213.),
@@ -514,13 +507,11 @@ impl ErrorView {
 impl Drop for ErrorView {
     fn drop(&mut self) {
         let ErrorView {
-            view,
             text,
             circle,
             retry_button,
             cancel_button,
         } = self;
-        view.remove_from_superview();
         text.remove_from_superview();
         circle.remove_from_superview();
         retry_button.remove_from_superview();
