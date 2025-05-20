@@ -162,6 +162,7 @@ export const ipcSchema = {
   app: {
     quit: send<void>(),
     openUrl: invoke<string, void>(),
+    openRoute: notifyRenderer<RoutePath>(),
     showOpenDialog: invoke<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(),
     showLaunchDaemonSettings: invoke<void, void>(),
     showFullDiskAccessSettings: invoke<void, void>(),
