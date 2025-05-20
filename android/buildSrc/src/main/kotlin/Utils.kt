@@ -22,7 +22,8 @@ fun Project.generateVersionCode(): Int =
     getIntPropertyOrNull("mullvad.app.config.override.versionCode") ?: execVersionCodeCargoCommand()
 
 fun Project.generateVersionName(): String =
-    getStringPropertyOrNull("mullvad.app.config.override.versionName") ?: execVersionNameCargoCommand()
+    getStringPropertyOrNull("mullvad.app.config.override.versionName")
+        ?: execVersionNameCargoCommand()
 
 fun Project.generateRemapArguments(): String {
     val script = "${projectDir.parent}/../building/rustc-remap-path-prefix.sh"
