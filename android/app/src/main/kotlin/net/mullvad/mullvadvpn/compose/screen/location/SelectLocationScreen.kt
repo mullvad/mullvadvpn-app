@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +39,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -376,6 +379,7 @@ fun SelectLocationScreen(
                         onUpdateBottomSheetState = { newState ->
                             locationBottomSheetState = newState
                         },
+                        onSelectRelayList,
                     )
                 }
             }
@@ -477,12 +481,43 @@ private fun RelayLists(
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
+    onSelectRelayList: (RelayListType) -> Unit,
 ) {
-    // This is a workaround for the HorizontalPager being broken on Android TV when it contains
-    // focusable views and you navigate with the D-pad. Remove this code once DROID-1639 is fixed.
-    val configuration = LocalConfiguration.current
+    val pagerState =
+        rememberPagerState(
+            initialPage = state.relayListType.ordinal,
+            pageCount = { RelayListType.entries.size },
+        )
 
-    if (configuration.navigation == Configuration.NAVIGATION_DPAD) {
+    val focusRequesterEntry = remember { FocusRequester() }
+    val focusRequesterExit = remember { FocusRequester() }
+    LaunchedEffect(state.relayListType) {
+        val index = state.relayListType.ordinal
+
+        pagerState.scrollToPage(index)
+
+        when (state.relayListType) {
+            RelayListType.ENTRY -> focusRequesterEntry.restoreFocusedChild()
+            RelayListType.EXIT -> focusRequesterExit.restoreFocusedChild()
+        }
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        onSelectRelayList(RelayListType.entries[pagerState.currentPage])
+        focusRequesterEntry.saveFocusedChild()
+        focusRequesterExit.saveFocusedChild()
+    }
+
+    HorizontalPager(
+        state = pagerState,
+        userScrollEnabled = true,
+        beyondViewportPageCount =
+            if (state.multihopEnabled) {
+                1
+            } else {
+                0
+            },
+    ) { pageIndex ->
         SelectLocationList(
             relayListType = state.relayListType,
             onSelectHop = onSelectHop,
@@ -491,36 +526,6 @@ private fun RelayLists(
             onEditCustomLists = onEditCustomLists,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
         )
-    } else {
-        val pagerState =
-            rememberPagerState(
-                initialPage = state.relayListType.ordinal,
-                pageCount = { RelayListType.entries.size },
-            )
-        LaunchedEffect(state.relayListType) {
-            val index = state.relayListType.ordinal
-            pagerState.animateScrollToPage(index)
-        }
-
-        HorizontalPager(
-            state = pagerState,
-            userScrollEnabled = false,
-            beyondViewportPageCount =
-                if (state.multihopEnabled) {
-                    1
-                } else {
-                    0
-                },
-        ) { pageIndex ->
-            SelectLocationList(
-                relayListType = RelayListType.entries[pageIndex],
-                onSelectHop = onSelectHop,
-                openDaitaSettings = openDaitaSettings,
-                onAddCustomList = onAddCustomList,
-                onEditCustomLists = onEditCustomLists,
-                onUpdateBottomSheetState = onUpdateBottomSheetState,
-            )
-        }
     }
 }
 
