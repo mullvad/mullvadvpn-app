@@ -30,67 +30,37 @@ mod android;
 mod gettext;
 mod normalize;
 
-use crate::android::{StringResource, StringValue};
+use crate::android::{
+    PluralResource, PluralResources, StringResource, StringResources, StringValue,
+};
 use crate::gettext::MsgValue;
 use crate::normalize::Normalize;
 use itertools::Itertools;
+use std::path::PathBuf;
 use std::{
     collections::HashMap,
-    fs::{self, File},
-    io::BufReader,
+    fs::{self},
     path::Path,
 };
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let resources_dir = Path::new("../lib/resource/src/main/res");
 
-    let strings_file = File::open(resources_dir.join("values/strings.xml"))
-        .expect("Failed to open string resources file");
-    let string_resources: android::StringResources =
-        quick_xml::de::from_reader(BufReader::new(strings_file))
-            .expect("Failed to read string resources file");
+    let string_resources =
+        StringResources::try_from(resources_dir.join("values/strings.xml").as_ref())?;
+    let plural_resources =
+        PluralResources::try_from(resources_dir.join("values/plurals.xml").as_ref())?;
 
-    // The current format is not built to handle multiple strings with the same values
-    // so we check for duplicates and panic if they are present
-    let duplicates: HashMap<&StringValue, Vec<&StringResource>> = string_resources
-        .iter()
-        .into_group_map_by(|res| &res.value)
+    check_duplicates(&string_resources);
+
+    let known_strings: HashMap<String, StringResource> = string_resources
         .into_iter()
-        .filter(|(_, string_resources)| string_resources.len() > 1)
+        .map(|resource| (resource.value.normalize(), resource))
         .collect();
 
-    if !duplicates.is_empty() {
-        duplicates
-            .iter()
-            .for_each(|(string_value, string_resources)| {
-                eprintln!(
-                    "String value: '{}', exists in following resource IDs: {}",
-                    string_value,
-                    string_resources
-                        .iter()
-                        .map(|x| x.name.clone())
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                )
-            });
-        panic!("Duplicate string values!!");
-    }
-
-    let known_strings: HashMap<_, _> = string_resources
-        .into_iter()
-        .map(|resource| (resource.value.normalize(), resource.name))
-        .collect();
-
-    let plurals_file = File::open(resources_dir.join("values/plurals.xml"))
-        .expect("Failed to open plurals resources file");
-    let plural_resources: android::PluralResources =
-        quick_xml::de::from_reader(BufReader::new(plurals_file))
-            .expect("Failed to read plural resources file");
-
-    let known_plurals: HashMap<_, _> = plural_resources
+    let known_plurals: HashMap<String, &PluralResource> = plural_resources
         .iter()
         .map(|plural| {
-            let name = plural.name.clone();
             let singular = plural
                 .items
                 .iter()
@@ -98,11 +68,48 @@ fn main() {
                 .map(|variant| variant.string.to_string())
                 .expect("Missing singular plural variant");
 
-            (singular, name)
+            (singular, plural)
         })
         .collect();
 
     let locale_dir = Path::new("../../desktop/packages/mullvad-vpn/locales");
+    generate_translated_strings_xml_files(
+        locale_dir,
+        resources_dir,
+        &known_strings,
+        &known_plurals,
+    );
+
+    let template_path = locale_dir.join("messages.pot");
+    let template = gettext::Messages::from_file(&template_path)?;
+
+    let mut missing_translations = known_strings;
+    let mut missing_plurals: HashMap<_, _> = known_plurals;
+
+    for message in template {
+        match message.value {
+            MsgValue::Invariant(_, _) => {
+                missing_translations.remove(&message.id.normalize());
+            }
+            MsgValue::Plural { .. } => {
+                missing_plurals.remove(&message.id.normalize());
+            }
+        };
+    }
+
+    add_missing_translations(&template_path, missing_translations);
+    add_missing_plurals(&template_path, &plural_resources, missing_plurals);
+    generate_relay_locale_files(locale_dir);
+
+    Ok(())
+}
+
+fn generate_translated_strings_xml_files(
+    locale_dir: &Path,
+    resources_dir: &Path,
+    known_strings: &HashMap<String, StringResource>,
+    known_plurals: &HashMap<String, &PluralResource>,
+) {
     let locale_files = fs::read_dir(locale_dir)
         .expect("Failed to open root locale directory")
         .filter_map(|dir_entry_result| dir_entry_result.ok().map(|dir_entry| dir_entry.path()))
@@ -135,45 +142,72 @@ fn main() {
             destination_dir.join("plurals.xml"),
         );
     }
+}
 
-    let template_path = locale_dir.join("messages.pot");
-    let template = gettext::Messages::from_file(&template_path)
-        .expect("Failed to load messages template file");
+fn check_duplicates(string_resources: &StringResources) {
+    // The current format is not built to handle multiple strings with the same values
+    // so we check for duplicates and panic if they are present
+    let duplicates: HashMap<&StringValue, Vec<&StringResource>> = string_resources
+        .iter()
+        .into_group_map_by(|res| &res.value)
+        .into_iter()
+        .filter(|(_, string_resources)| string_resources.len() > 1)
+        .collect();
 
-    let mut missing_translations = known_strings;
-    let mut missing_plurals: HashMap<_, _> = known_plurals;
-
-    for message in template {
-        match message.value {
-            MsgValue::Invariant(_, _) => missing_translations.remove(&message.id.normalize()),
-            MsgValue::Plural { .. } => missing_plurals.remove(&message.id.normalize()),
-        };
+    if !duplicates.is_empty() {
+        duplicates
+            .iter()
+            .for_each(|(string_value, string_resources)| {
+                eprintln!(
+                    "String value: '{}', exists in following resource IDs: {}",
+                    string_value,
+                    string_resources
+                        .iter()
+                        .map(|x| x.name.clone())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                )
+            });
+        panic!("Duplicate string values!!");
     }
+}
 
+fn add_missing_translations(
+    template_path: &PathBuf,
+    missing_translations: HashMap<String, StringResource>,
+) {
     if !missing_translations.is_empty() {
         println!("Appending missing translations to template file:");
 
         gettext::append_to_template(
-            &template_path,
+            template_path,
             missing_translations
                 .into_iter()
-                .inspect(|(missing_translation, id)| println!("  {id}: {missing_translation}"))
-                .map(|(id, _)| gettext::MsgEntry {
-                    id: gettext::MsgString::from_unescaped(&id),
+                .inspect(|(_, res)| println!("  {}: {}", res.name, res.value.normalize_keep_parameter_indices()))
+                .map(|(_, res)| gettext::MsgEntry {
+                    id: gettext::MsgString::from_unescaped(
+                        &res.value.normalize_keep_parameter_indices(),
+                    ),
                     value: gettext::MsgString::empty().into(),
                 }),
         )
         .expect("Failed to append missing translations to message template file");
     }
+}
 
+fn add_missing_plurals(
+    template_path: &PathBuf,
+    plural_resources: &PluralResources,
+    missing_plurals: HashMap<String, &PluralResource>,
+) {
     if !missing_plurals.is_empty() {
         println!("Appending missing plural translations to template file:");
 
         gettext::append_to_template(
-            &template_path,
+            template_path,
             missing_plurals
                 .into_iter()
-                .filter_map(|(_, name)| plural_resources.iter().find(|plural| plural.name == name))
+                .filter_map(|(_, p)| plural_resources.iter().find(|plural| plural.name == p.name))
                 .cloned()
                 .inspect(|plural| {
                     let other_item = &plural
@@ -215,9 +249,9 @@ fn main() {
         )
         .expect("Failed to append missing plural translations to message template file");
     }
+}
 
-    // Generate all relay locale files
-
+fn generate_relay_locale_files(locale_dir: &Path) {
     let relay_template_path = locale_dir.join("relay-locations.pot");
 
     let default_translations = gettext::Messages::from_file(&relay_template_path)
@@ -349,14 +383,14 @@ fn generate_relay_translations(
 /// current locale, which means that in the end the map contains only the translations that aren't
 /// present in any locale.
 fn generate_translations(
-    mut known_strings: HashMap<String, String>,
-    mut known_plurals: HashMap<String, String>,
+    mut known_strings: HashMap<String, StringResource>,
+    mut known_plurals: HashMap<String, &PluralResource>,
     translations: gettext::Messages,
     strings_output_path: impl AsRef<Path>,
     plurals_output_path: impl AsRef<Path>,
 ) {
-    let mut localized_strings = android::StringResources::new();
-    let mut localized_plurals = android::PluralResources::new();
+    let mut localized_strings = StringResources::new();
+    let mut localized_plurals = PluralResources::new();
 
     let plural_quantities = android_plural_quantities_from_gettext_plural_form(
         translations
@@ -368,8 +402,8 @@ fn generate_translations(
         match translation.value {
             MsgValue::Invariant(translation_value, arg_ordering) => {
                 if let Some(android_key) = known_strings.remove(&translation.id.normalize()) {
-                    localized_strings.push(android::StringResource::new(
-                        android_key,
+                    localized_strings.push(StringResource::new(
+                        android_key.name,
                         &translation_value.normalize(),
                         arg_ordering.as_ref(),
                     ));
@@ -379,8 +413,8 @@ fn generate_translations(
                 if let Some(android_key) = known_plurals.remove(&translation.id.normalize()) {
                     let values = values.into_iter().map(|message| message.normalize());
 
-                    localized_plurals.push(android::PluralResource::new(
-                        android_key,
+                    localized_plurals.push(PluralResource::new(
+                        android_key.name.clone(),
                         plural_quantities.clone().zip(values),
                     ));
                 }

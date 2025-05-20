@@ -29,6 +29,18 @@ mod android {
             htmlize::unescape(value).into()
         }
     }
+
+    impl StringValue {
+        pub fn normalize_keep_parameter_indices(&self) -> String {
+            // Unescape apostrophes
+            let value = APOSTROPHES.replace_all(self, "'");
+            // Unescape double quotes
+            let value = DOUBLE_QUOTES.replace_all(&value, r#"""#);
+
+            // Unescape XML characters
+            htmlize::unescape(value).into()
+        }
+    }
 }
 
 mod gettext {
