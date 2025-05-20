@@ -66,7 +66,13 @@ export class CloseToAccountExpiryNotificationProvider
       indicator: 'warning',
       title: messages.pgettext('in-app-notifications', 'ACCOUNT CREDIT EXPIRES SOON'),
       subtitle,
-      action: { type: 'open-url', url: urls.purchase, withAuth: true },
+      action: {
+        type: 'navigate-external',
+        link: {
+          to: urls.purchase,
+          withAuth: true,
+        },
+      },
     };
   }
 }
