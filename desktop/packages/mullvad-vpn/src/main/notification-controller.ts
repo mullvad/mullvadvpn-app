@@ -238,7 +238,7 @@ export default class NotificationController {
     // Action buttons are only available on macOS.
     if (process.platform === 'darwin') {
       if (systemNotification.action) {
-        notification.actions = [{ type: 'button', text: systemNotification.action.text }];
+        notification.actions = [{ type: 'button', text: systemNotification.action.link.text }];
         notification.on('action', () => this.performAction(systemNotification.action));
       }
       notification.on('click', () => this.notificationControllerDelegate.openApp());
@@ -270,8 +270,8 @@ export default class NotificationController {
   }
 
   private performAction(action?: SystemNotificationAction) {
-    if (action && action.type === 'open-url') {
-      void this.notificationControllerDelegate.openLink(action.url, action.withAuth);
+    if (action && action.type === 'navigate-external') {
+      void this.notificationControllerDelegate.openLink(action.link.to, action.link.withAuth);
     }
   }
 
