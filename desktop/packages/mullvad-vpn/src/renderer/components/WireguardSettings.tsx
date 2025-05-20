@@ -11,12 +11,12 @@ import {
 } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
+import { RoutePath } from '../../shared/routes';
 import { removeNonNumericCharacters } from '../../shared/string-helpers';
 import { isInRanges } from '../../shared/utils';
 import { useAppContext } from '../context';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
-import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
