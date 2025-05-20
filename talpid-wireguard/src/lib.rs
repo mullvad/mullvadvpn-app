@@ -153,8 +153,8 @@ impl WireguardMonitor {
     #[cfg(not(target_os = "android"))]
     pub fn start(
         params: &TunnelParameters,
-        log_path: Option<&Path>,
         args: TunnelArgs<'_>,
+        _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
         #[cfg(any(target_os = "windows", target_os = "linux"))]
         let desired_mtu = args
@@ -191,7 +191,6 @@ impl WireguardMonitor {
         let tunnel = Self::open_tunnel(
             args.runtime.clone(),
             &config,
-            log_path,
             #[cfg(target_os = "windows")]
             args.resource_dir,
             #[cfg(not(all(target_os = "windows", not(feature = "boringtun"))))]
@@ -201,6 +200,8 @@ impl WireguardMonitor {
             #[cfg(target_os = "windows")]
             setup_done_tx,
             userspace_wireguard,
+            #[cfg(not(feature = "boringtun"))]
+            _log_path,
         )?;
         let iface_name = tunnel.get_interface_name();
 
@@ -705,9 +706,9 @@ impl WireguardMonitor {
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
-        log_path: Option<&Path>,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         _userspace_wireguard: bool,
+        #[cfg(not(feature = "boringtun"))] log_path: Option<&Path>,
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
