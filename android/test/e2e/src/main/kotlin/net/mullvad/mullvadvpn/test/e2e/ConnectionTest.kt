@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.test.common.page.SettingsPage
 import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.disableObfuscationStory
 import net.mullvad.mullvadvpn.test.common.page.enableLocalNetworkSharingStory
+import net.mullvad.mullvadvpn.test.common.page.enablePostQuantumStory
 import net.mullvad.mullvadvpn.test.common.page.enableShadowsocksStory
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
@@ -19,6 +20,7 @@ import net.mullvad.mullvadvpn.test.e2e.api.connectioncheck.ConnectionCheckApi
 import net.mullvad.mullvadvpn.test.e2e.api.relay.RelayApi
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.ClearFirewallRules
+import net.mullvad.mullvadvpn.test.e2e.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.DropRule
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -34,6 +36,7 @@ class ConnectionTest : EndToEndTest() {
 
     private val connCheckClient = ConnectionCheckApi()
     private val relayClient = RelayApi()
+    private val relayProvider = RelayProvider()
 
     @Test
     fun testConnect() {
@@ -70,6 +73,32 @@ class ConnectionTest : EndToEndTest() {
     }
 
     @Test
+    fun testConnectUsingPostQuantum() = runTest {
+        // Given
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
+
+        // Enable post quantum
+        on<ConnectPage> { enablePostQuantumStory() }
+
+        // Connect
+        on<ConnectPage> { clickConnect() }
+
+        device.acceptVpnPermissionDialog()
+
+        var outIpv4Address = ""
+
+        on<ConnectPage> {
+            waitForConnectedLabel()
+            outIpv4Address = extractOutIpv4Address()
+        }
+
+        val result = connCheckClient.connectionCheck()
+
+        // Verify connection
+        assertEquals(result.ip, outIpv4Address)
+    }
+
+    @Test
     @HasDependencyOnLocalAPI
     @ClearFirewallRules
     fun testWireGuardObfuscationAutomatic() = runTest {
@@ -79,9 +108,9 @@ class ConnectionTest : EndToEndTest() {
         on<ConnectPage> { clickSelectLocation() }
 
         on<SelectLocationPage> {
-            clickLocationExpandButton(DEFAULT_COUNTRY)
-            clickLocationExpandButton(DEFAULT_CITY)
-            clickLocationCell(DEFAULT_RELAY)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+            clickLocationCell(relayProvider.getDefaultRelay().relay)
         }
 
         device.acceptVpnPermissionDialog()
@@ -116,9 +145,9 @@ class ConnectionTest : EndToEndTest() {
         on<ConnectPage> { clickSelectLocation() }
 
         on<SelectLocationPage> {
-            clickLocationExpandButton(DEFAULT_COUNTRY)
-            clickLocationExpandButton(DEFAULT_CITY)
-            clickLocationCell(DEFAULT_RELAY)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+            clickLocationCell(relayProvider.getDefaultRelay().relay)
         }
 
         device.acceptVpnPermissionDialog()
@@ -168,9 +197,9 @@ class ConnectionTest : EndToEndTest() {
         on<ConnectPage> { clickSelectLocation() }
 
         on<SelectLocationPage> {
-            clickLocationExpandButton(DEFAULT_COUNTRY)
-            clickLocationExpandButton(DEFAULT_CITY)
-            clickLocationCell(DEFAULT_RELAY)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+            clickLocationCell(relayProvider.getDefaultRelay().relay)
         }
 
         device.acceptVpnPermissionDialog()
@@ -261,9 +290,9 @@ class ConnectionTest : EndToEndTest() {
         on<ConnectPage> { clickSelectLocation() }
 
         on<SelectLocationPage> {
-            clickLocationExpandButton(DEFAULT_COUNTRY)
-            clickLocationExpandButton(DEFAULT_CITY)
-            clickLocationCell(DEFAULT_RELAY)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+            clickLocationCell(relayProvider.getDefaultRelay().relay)
         }
 
         device.acceptVpnPermissionDialog()
