@@ -23,7 +23,6 @@ export interface InAppNotificationTroubleshootButton {
 }
 
 export type InAppNotificationAction =
-  | NotificationAction
   | {
       type: 'troubleshoot-dialog';
       troubleshoot: InAppNotificationTroubleshootInfo;
