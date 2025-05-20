@@ -14,7 +14,6 @@ use std::os::fd::AsRawFd;
 use std::{
     future::Future,
     ops::Deref,
-    path::Path,
     sync::{Arc, Mutex},
 };
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
