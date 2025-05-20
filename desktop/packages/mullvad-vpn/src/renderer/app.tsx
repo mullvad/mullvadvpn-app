@@ -234,6 +234,17 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.navigation.listenReset(() => this.history.pop(true));
 
+    IpcRendererEventChannel.app.listenOpenRoute((route: RoutePath) => {
+      this.history.push({
+        routePath: route,
+        state: {
+          expandedSections: {},
+          scrollPosition: [0, 0],
+          transition: TransitionType.none,
+        },
+      });
+    });
+
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
