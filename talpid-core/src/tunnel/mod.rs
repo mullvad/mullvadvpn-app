@@ -182,7 +182,7 @@ impl TunnelMonitor {
         log: Option<path::PathBuf>,
         args: TunnelArgs<'_>,
     ) -> Result<Self> {
-        let monitor = talpid_wireguard::WireguardMonitor::start(params, log.as_deref(), args)?;
+        let monitor = talpid_wireguard::WireguardMonitor::start(params, args, log.as_deref())?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),
         })
