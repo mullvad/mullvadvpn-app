@@ -38,7 +38,7 @@ export type InAppNotificationAction =
     }
   | {
       type: 'navigate-external';
-      link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label'>;
+      link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label' | 'withAuth'>;
     }
   | {
       type: 'run-function';
