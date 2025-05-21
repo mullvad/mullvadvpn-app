@@ -6,11 +6,15 @@ use installer_downloader::delegate::{AppDelegate, AppDelegateQueue, ErrorMessage
 use installer_downloader::environment::{Architecture, Environment};
 use installer_downloader::temp::DirectoryProvider;
 use installer_downloader::ui_downloader::UiAppDownloaderParameters;
-use mullvad_update::api::VersionInfoProvider;
-use mullvad_update::app::{AppDownloader, DownloadError};
+use mullvad_update::app::{
+    AppCache, AppDownloader, DownloadError, DownloadedInstaller, VerifiedInstaller,
+};
 use mullvad_update::fetch::ProgressUpdater;
+use mullvad_update::format::{Response, SignedResponse};
 use mullvad_update::version::{Version, VersionInfo, VersionParameters};
+use mullvad_update::version_provider::VersionInfoProvider;
 use std::io;
+use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, LazyLock, Mutex};
@@ -20,6 +24,7 @@ use std::vec::Vec;
 #[derive(Default)]
 pub struct FakeVersionInfoProvider {
     pub fail_fetching: Arc<AtomicBool>,
+    pub dump_metadata_to_file: Option<PathBuf>,
 }
 
 pub static FAKE_VERSION: LazyLock<VersionInfo> = LazyLock::new(|| VersionInfo {
@@ -38,11 +43,15 @@ pub const FAKE_ENVIRONMENT: Environment = Environment {
 };
 
 impl VersionInfoProvider for FakeVersionInfoProvider {
-    async fn get_version_info(&self, _params: VersionParameters) -> anyhow::Result<VersionInfo> {
+    async fn get_version_info(&self, _params: &VersionParameters) -> anyhow::Result<VersionInfo> {
         if self.fail_fetching.load(std::sync::atomic::Ordering::SeqCst) {
             anyhow::bail!("Failed to fetch version info");
         }
         Ok(FAKE_VERSION.clone())
+    }
+
+    fn set_metadata_dump_path(&mut self, path: PathBuf) {
+        self.dump_metadata_to_file = Some(path);
     }
 }
 
@@ -61,6 +70,15 @@ impl<const SUCCEEDED: bool> DirectoryProvider for FakeDirectoryProvider<SUCCEEDE
 
 /// Downloader for which all steps immediately succeed
 pub type FakeAppDownloaderHappyPath = FakeAppDownloader<true, true, true>;
+
+/// Cache for which all steps immediately succeed
+pub type FakeAppCacheHappyPath = FakeAppCache<true, FakeInstaller<true, true, true>>;
+
+/// Cache for which the verification step fails
+pub type FakeAppCacheVerifyFail = FakeAppCache<true, FakeInstaller<true, false, false>>;
+
+/// A cache that returns nothing.
+pub type FakeAppCacheEmpty = FakeAppCache<false, FakeInstaller<true, true, true>>;
 
 /// Downloader for which the verification step fails
 pub type FakeAppDownloaderVerifyFail = FakeAppDownloader<true, false, false>;
@@ -87,25 +105,71 @@ pub struct FakeAppDownloader<
     params: UiAppDownloaderParameters<FakeAppDelegate>,
 }
 
+#[derive(Default, PartialEq, PartialOrd)]
+pub struct FakeAppCache<const HAS_APP: bool, Installer: DownloadedInstaller + Clone + Default> {
+    _phantom: PhantomData<Installer>,
+}
+
+#[derive(Default, Clone, PartialEq, PartialOrd)]
+pub struct FakeInstaller<
+    const EXE_SUCCEED: bool,
+    const VERIFY_SUCCEED: bool,
+    const LAUNCH_SUCCEED: bool,
+>;
+
 impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: bool> AppDownloader
     for FakeAppDownloader<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>
 {
-    async fn download_executable(&mut self) -> Result<(), DownloadError> {
+    async fn download_executable(mut self) -> Result<impl DownloadedInstaller, DownloadError> {
         self.params.app_progress.set_url(&self.params.app_url);
         self.params.app_progress.clear_progress();
         if EXE_SUCCEED {
             self.params.app_progress.set_progress(1.);
-            Ok(())
+            Ok(FakeInstaller::<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>)
         } else {
             Err(DownloadError::FetchApp(anyhow::anyhow!(
                 "fetching app failed"
             )))
         }
     }
+}
 
-    async fn verify(&mut self) -> Result<(), DownloadError> {
+impl<const HAS_APP: bool, Installer> AppCache for FakeAppCache<HAS_APP, Installer>
+where
+    Installer: DownloadedInstaller + Clone + Default + PartialEq + PartialOrd,
+{
+    type Installer = Installer;
+
+    fn new(_directory: PathBuf, _version_params: VersionParameters) -> Self {
+        Self::default()
+    }
+
+    fn get_cached_installers(self, _metadata: SignedResponse) -> Vec<Self::Installer> {
+        if HAS_APP {
+            vec![Installer::default()]
+        } else {
+            vec![]
+        }
+    }
+    #[allow(clippy::manual_async_fn)]
+    fn get_metadata(
+        &self,
+    ) -> impl std::future::Future<Output = anyhow::Result<SignedResponse>> + Send {
+        async {
+            Ok(SignedResponse {
+                signatures: vec![],
+                signed: Response::default(),
+            })
+        }
+    }
+}
+
+impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: bool>
+    DownloadedInstaller for FakeInstaller<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>
+{
+    async fn verify(self) -> Result<impl VerifiedInstaller, DownloadError> {
         if VERIFY_SUCCEED {
-            Ok(())
+            Ok(self)
         } else {
             Err(DownloadError::Verification(anyhow::anyhow!(
                 "verification failed"
@@ -113,7 +177,20 @@ impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: 
         }
     }
 
-    async fn install(&mut self) -> Result<(), DownloadError> {
+    fn version(&self) -> &mullvad_version::Version {
+        &mullvad_version::Version {
+            year: 2042,
+            incremental: 1337,
+            pre_stable: None,
+            dev: None,
+        }
+    }
+}
+
+impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: bool>
+    VerifiedInstaller for FakeInstaller<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>
+{
+    async fn install(self) -> Result<(), DownloadError> {
         if LAUNCH_SUCCEED {
             Ok(())
         } else {
