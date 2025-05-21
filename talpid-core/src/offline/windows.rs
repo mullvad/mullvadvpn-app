@@ -32,12 +32,14 @@ impl BroadcastListener {
     ) -> Result<Self, Error> {
         let notify_tx = Arc::new(notify_tx);
         let (ipv4, ipv6) = Self::check_initial_connectivity();
+        let connectivity = ConnectivityInner {
+            ipv4,
+            ipv6,
+            suspended: false,
+        };
+        log::info!("Initial connectivity: {}", connectivity.into_connectivity());
         let system_state = Arc::new(Mutex::new(SystemState {
-            connectivity: ConnectivityInner {
-                ipv4,
-                ipv6,
-                suspended: false,
-            },
+            connectivity,
             notify_tx: Arc::downgrade(&notify_tx),
         }));
 
@@ -93,10 +95,6 @@ impl BroadcastListener {
                 );
                 true
             });
-
-        let is_online = v4_connectivity || v6_connectivity;
-        log::info!("Initial connectivity: {}", is_offline_str(!is_online));
-
         (v4_connectivity, v6_connectivity)
     }
 
@@ -157,7 +155,7 @@ struct SystemState {
 
 impl SystemState {
     fn apply_change(&mut self, change: StateChange) {
-        let old_state = self.is_offline_currently();
+        let old_state = self.connectivity.into_connectivity();
         match change {
             StateChange::NetworkV4Connectivity(connectivity) => {
                 self.connectivity.ipv4 = connectivity;
@@ -170,28 +168,15 @@ impl SystemState {
             }
         };
 
-        let new_state = self.connectivity.is_offline();
+        let new_state = self.connectivity.into_connectivity();
         if old_state != new_state {
-            log::info!("Connectivity changed: {}", is_offline_str(new_state));
+            log::info!("Connectivity changed: {new_state}");
             if let Some(notify_tx) = self.notify_tx.upgrade() {
                 if let Err(e) = notify_tx.unbounded_send(self.connectivity.into_connectivity()) {
                     log::error!("Failed to send new offline state to daemon: {}", e);
                 }
             }
         }
-    }
-
-    fn is_offline_currently(&self) -> bool {
-        self.connectivity.is_offline()
-    }
-}
-
-// If `offline` is true, return "Offline". Otherwise, return "Connected".
-fn is_offline_str(offline: bool) -> &'static str {
-    if offline {
-        "Offline"
-    } else {
-        "Connected"
     }
 }
 
@@ -234,10 +219,5 @@ impl ConnectivityInner {
         } else {
             Connectivity::new(self.ipv4, self.ipv6)
         }
-    }
-
-    /// See [`Connectivity::is_offline`] for details.
-    fn is_offline(&self) -> bool {
-        self.into_connectivity().is_offline()
     }
 }
