@@ -613,6 +613,14 @@ impl Connectivity {
             .unwrap_or(false)
     }
 
+    /// Whether connectivity for `ip_version` seems to be available on the host.
+    pub fn has_family(&self, ip_version: IpVersion) -> bool {
+        match ip_version {
+            IpVersion::V4 => self.has_ipv4(),
+            IpVersion::V6 => self.has_ipv6(),
+        }
+    }
+
     pub fn new(ipv4: bool, ipv6: bool) -> Connectivity {
         match (ipv4, ipv6) {
             (true, true) => Connectivity::Online(IpAvailability::Ipv4AndIpv6),

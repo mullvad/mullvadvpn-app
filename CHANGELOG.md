@@ -42,6 +42,7 @@ supported.
 
 ### Fixed
 - Fix issue where the "IP version" setting could cause connecting to fail.
+- Automatically connect when IP version becomes available.
 
 #### Linux
 - Fix syntax error in Apparmor profile.
