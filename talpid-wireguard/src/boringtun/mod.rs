@@ -147,21 +147,19 @@ impl Tunnel for BoringTun {
             .expect("Failed to get peers");
 
         let Response::Get(response) = response else {
-            panic!();
+            return Err(TunnelError::GetConfigError);
         };
-
-        let mut stats = StatsMap::new();
-
-        for peer in &response.peers {
-            stats.insert(
-                peer.peer.public_key.0,
-                Stats {
-                    tx_bytes: peer.tx_bytes.unwrap_or_default(),
-                    rx_bytes: peer.rx_bytes.unwrap_or_default(),
-                },
-            );
-        }
-        Ok(stats)
+        Ok(StatsMap::from_iter(response.peers.into_iter().map(
+            |peer| {
+                (
+                    peer.peer.public_key.0,
+                    Stats {
+                        tx_bytes: peer.tx_bytes.unwrap_or_default(),
+                        rx_bytes: peer.rx_bytes.unwrap_or_default(),
+                    },
+                )
+            },
+        )))
     }
 
     fn set_config<'a>(
