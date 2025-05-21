@@ -158,9 +158,13 @@ where
 
         log::error!("Failed to get version info: {err:?}");
 
+        // TODO: figure out if we have an installer downloaded that we can install
+        let existing_download: Option<()> = None;
+
         enum Action {
             Retry,
             Cancel,
+            InstallExistingVersion,
         }
 
         let (action_tx, mut action_rx) = mpsc::channel(1);
@@ -176,14 +180,29 @@ where
             self_.on_error_message_retry(move || {
                 let _ = retry_tx.try_send(Action::Retry);
             });
-            self_.on_error_message_cancel(move || {
-                let _ = cancel_tx.try_send(Action::Cancel);
-            });
-            self_.show_error_message(crate::delegate::ErrorMessage {
-                status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
-                cancel_button_text: resource::FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT.to_owned(),
-                retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
-            });
+
+            if let Some(existing_download) = existing_download {
+                let version = "2025.123"; // TODO
+                self_.show_error_message(crate::delegate::ErrorMessage {
+                    status_text: resource::FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD
+                        .replace("%s", version),
+                    cancel_button_text: resource::FETCH_VERSION_ERROR_INSTALL_BUTTON_TEXT
+                        .to_owned(),
+                    retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
+                });
+                self_.on_error_message_cancel(move || {
+                    let _ = cancel_tx.try_send(Action::InstallExistingVersion);
+                });
+            } else {
+                self_.show_error_message(crate::delegate::ErrorMessage {
+                    status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
+                    cancel_button_text: resource::FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT.to_owned(),
+                    retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
+                });
+                self_.on_error_message_cancel(move || {
+                    let _ = cancel_tx.try_send(Action::Cancel);
+                });
+            }
         });
 
         // wait for user to press either button
@@ -199,6 +218,9 @@ where
                 queue.queue_main(|self_| {
                     self_.quit();
                 });
+            }
+            Action::InstallExistingVersion => {
+                log::info!("TODO");
             }
         }
     }

@@ -41,13 +41,20 @@ pub const FETCH_VERSION_DESC: &str = "Loading version details...";
 pub const LATEST_VERSION_PREFIX: &str = "Version";
 
 /// Displayed while fetching version info from the API failed
-pub const FETCH_VERSION_ERROR_DESC: &str = "Failed to load version details, please try again or make sure you have the latest installer downloader.";
+pub const FETCH_VERSION_ERROR_DESC: &str = "Failed to load version details, please try again or make sure you have the latest installer loader.";
+
+/// Displayed while fetching version info from the API failed
+pub const FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD: &str = "Failed to load new version details, please try again or install the already downloaded version (%s).";
 
 /// Displayed while fetching version info from the API failed (retry button)
 pub const FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT: &str = "Try again";
 
 /// Displayed while fetching version info from the API failed (cancel button)
 pub const FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT: &str = "Cancel";
+
+/// Displayed while fetching version info from the API failed,
+/// but there exists a previously downloaded installer (install button)
+pub const FETCH_VERSION_ERROR_INSTALL_BUTTON_TEXT: &str = "Install";
 
 /// The first part of "Downloading from \<some url\>... (x%)", displayed during download
 pub const DOWNLOADING_DESC_PREFIX: &str = "Downloading from";
