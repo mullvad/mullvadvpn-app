@@ -43,6 +43,8 @@ supported.
 ### Fixed
 #### Linux
 - Fix syntax error in Apparmor profile.
+- Fix issue where settings were lost after an upgrade if `mullvad-daemon` was not restarted
+  before `mullvad-early-boot-blocking.service`. That is, before a reboot.
 
 #### macOS
 - Fully uninstall the app when it is removed by being dropped in the bin.
