@@ -234,7 +234,7 @@ export class ErrorNotificationProvider
           // TRANSLATORS: Label for notification when IPv4 is not available.
           messages.pgettext(
             'notifications',
-            'IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting.',
+            'IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting.',
           ),
           { ipVersionFeatureName: ipVersion },
         );
@@ -243,7 +243,7 @@ export class ErrorNotificationProvider
           // TRANSLATORS: Label for notification when IPv6 is not available.
           messages.pgettext(
             'notifications',
-            'IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting.',
+            'IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting.',
           ),
           { ipVersionFeatureName: ipVersion },
         );
