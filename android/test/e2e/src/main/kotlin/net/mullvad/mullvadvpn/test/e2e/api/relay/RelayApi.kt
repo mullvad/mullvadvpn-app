@@ -49,7 +49,7 @@ class RelayApi {
         }
 
     companion object {
-        private const val BASE_URL = "api.${BuildConfig.INFRASTRUCTURE_BASE_DOMAIN}"
+        private const val BASE_URL = "api-app.${BuildConfig.INFRASTRUCTURE_BASE_DOMAIN}"
         private const val RELAY_PATH = "app/${BuildConfig.API_VERSION}/relays"
     }
 }
