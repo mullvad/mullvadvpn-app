@@ -44,6 +44,9 @@ supported.
 #### Linux
 - Fix syntax error in Apparmor profile.
 
+#### Windows
+- Fix issue where daemon got stuck trying to connect only over IPv4 (or only IPv6).
+
 #### macOS
 - Fully uninstall the app when it is removed by being dropped in the bin.
 - Add grace period when best default route goes away to reduce frequency of random reconnects.
