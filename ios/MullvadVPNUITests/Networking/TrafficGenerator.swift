@@ -6,10 +6,10 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
-import Network
+@preconcurrency import Network
 import XCTest
 
-class TrafficGenerator {
+class TrafficGenerator: @unchecked Sendable {
     let destinationHost: String
     let port: Int
     var connection: NWConnection

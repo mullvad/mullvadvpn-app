@@ -9,6 +9,7 @@
 import Foundation
 import XCTest
 
+@MainActor
 class Page {
     let app: XCUIApplication
 
