@@ -10,8 +10,9 @@ import org.junit.jupiter.api.Test
 class WebLinkTest : EndToEndTest() {
     @Test
     @Disabled(
-        "It is not currently not possible to inspect the " +
-            "content of other apps when using a test instrumentation app"
+        "This test currently does not work with an instrumentor test app " +
+            "since it is unable to detect any text in the browser" +
+        "This is tracked in DROID-2009"
     )
     fun testOpenFaqFromApp() {
         app.launchAndEnsureOnLoginPage()
