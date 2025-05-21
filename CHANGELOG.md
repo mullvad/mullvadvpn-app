@@ -41,6 +41,8 @@ supported.
 - Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
 
 ### Fixed
+- Automatically connect when IP version becomes available.
+
 #### Linux
 - Fix syntax error in Apparmor profile.
 
