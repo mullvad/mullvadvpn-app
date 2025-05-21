@@ -400,8 +400,8 @@ impl WireguardMonitor {
     #[cfg(target_os = "android")]
     pub fn start(
         params: &TunnelParameters,
-        log_path: Option<&Path>,
         args: TunnelArgs<'_>,
+        #[cfg_attr(not(feature = "boringtun"), allow(unused_variables))] log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
         let desired_mtu = get_desired_mtu(params);
         let mut config =
