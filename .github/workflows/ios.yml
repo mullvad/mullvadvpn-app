@@ -46,6 +46,30 @@ jobs:
           swiftlint --reporter github-actions-logging
         working-directory: ios
 
+  ui-test-build:
+    name: Build for ui tests (staging)
+    runs-on: macos-15
+    env:
+      SOURCE_PACKAGES_PATH: .spm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup project
+        uses: ./.github/actions/ios/setup-project-toolchain
+
+      - name: Build for ui tests
+        run: |
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+          -project MullvadVPN.xcodeproj \
+          -scheme MullvadVPNUITests \
+          -testPlan MullvadVPNUITestsAll \
+          -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+          -disableAutomaticPackageResolution \
+          -destination "platform=iOS Simulator,name=iPhone 16" \
+          clean build-for-testing 2>&1 | xcbeautify
+        working-directory: ios/
+
   test:
     name: Unit tests
     runs-on: macos-15-xlarge
