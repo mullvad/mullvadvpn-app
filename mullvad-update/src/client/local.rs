@@ -9,3 +9,12 @@ pub struct DirectoryVersionInfoProvider {
     /// Path to directory containing the metadata file.
     directory: PathBuf,
 }
+
+impl VersionInfoProvider for DirectoryVersionInfoProvider {
+    fn get_version_info(
+        &self,
+        params: crate::version::VersionParameters,
+    ) -> impl std::future::Future<Output = anyhow::Result<crate::version::VersionInfo>> + Send {
+        std::future::ready(todo!())
+    }
+}
