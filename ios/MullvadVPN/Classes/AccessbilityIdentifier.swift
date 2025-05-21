@@ -126,6 +126,7 @@ public enum AccessibilityIdentifier: Equatable {
     case addLocationsView
     case addAccessMethodTableView
     case apiAccessView
+    case apiAccessListView
     case alertContainerView
     case alertTitle
     case appLogsView

@@ -200,7 +200,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         .background(
             isSelected
                 ? Color(UIColor.Cell.Background.selected)
-                : Color(UIColor.Cell.Background.indentationLevelOne)
+                : Color(UIColor.Cell.Background.indentationLevelZero)
         )
         .foregroundColor(Color(UIColor.Cell.titleTextColor))
     }
