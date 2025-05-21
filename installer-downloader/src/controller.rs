@@ -9,9 +9,10 @@ use crate::{
 };
 
 use mullvad_update::{
-    api::{HttpVersionInfoProvider, MetaRepositoryPlatform, VersionInfoProvider},
+    api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
     app::{self, AppDownloader, HttpAppDownloader},
     version::{Version, VersionInfo, VersionParameters},
+    version_provider::VersionInfoProvider,
 };
 use rand::seq::SliceRandom;
 use std::path::PathBuf;
