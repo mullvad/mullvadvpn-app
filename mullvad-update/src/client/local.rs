@@ -17,7 +17,7 @@ impl DirectoryVersionInfoProvider {
     pub const METADATA: &str = "metadata.json";
 
     /// Read metadata.json from the local directory
-    async fn new(
+    pub async fn new(
         &self,
         directory: PathBuf,
         params: crate::version::VersionParameters,
