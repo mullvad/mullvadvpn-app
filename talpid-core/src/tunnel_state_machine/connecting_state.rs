@@ -9,9 +9,7 @@ use futures::{FutureExt, StreamExt};
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
-use talpid_types::net::{
-    AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, IpAvailability, TunnelParameters,
-};
+use talpid_types::net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::ErrorExt;
 
@@ -75,8 +73,10 @@ impl ConnectingState {
                 });
         }
 
-        let ip_availability = match shared_values.connectivity {
-            talpid_types::net::Connectivity::Offline => {
+        let ip_availability = match shared_values.connectivity.availability() {
+            Some(ip_availability) => ip_availability,
+            // If we're offline, enter the offline state
+            None => {
                 // FIXME: Temporary: Nudge route manager to update the default interface
                 #[cfg(target_os = "macos")]
                 {
@@ -85,15 +85,43 @@ impl ConnectingState {
                 }
                 return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
             }
-            talpid_types::net::Connectivity::PresumeOnline => IpAvailability::Ipv4,
-            talpid_types::net::Connectivity::Online(ip_availability) => ip_availability,
         };
 
-        match shared_values.runtime.block_on(
-            shared_values
-                .tunnel_parameters_generator
-                .generate(retry_attempt, ip_availability),
-        ) {
+        #[cfg_attr(target_os = "android", allow(clippy::bind_instead_of_map))]
+        match shared_values
+            .runtime
+            .block_on(
+                shared_values
+                    .tunnel_parameters_generator
+                    .generate(retry_attempt, ip_availability),
+            )
+            .or_else(|err| {
+                #[cfg(not(target_os = "android"))]
+                {
+                    use talpid_types::net::IpAvailability;
+                    use talpid_types::tunnel::ParameterGenerationError;
+
+                    if matches!(err, ParameterGenerationError::IpVersionUnavailable { .. }) {
+                        // Fall back on not filtering by IP version. This prevents us from getting stuck
+                        // with "no relay" if routes are temporarily unavailable for a given IP version.
+                        // TODO: A more complete solution here would be to remain in the error state until
+                        //       there is a route. Since this would depend on a setting (IP version), it
+                        //       needs to be communicated clearly in frontends.
+                        log::warn!(
+                            "No matching IP version. Connectivity state: (IPv4: {}, IPv6: {}).\
+                                Ignoring connectivity state",
+                            ip_availability.has_ipv4(),
+                            ip_availability.has_ipv6()
+                        );
+                        return shared_values.runtime.block_on(
+                            shared_values
+                                .tunnel_parameters_generator
+                                .generate(retry_attempt, IpAvailability::Ipv4AndIpv6),
+                        );
+                    }
+                }
+                Err(err)
+            }) {
             Err(err) => {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
             }
