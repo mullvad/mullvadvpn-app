@@ -10,7 +10,11 @@ use crate::{
 
 use mullvad_update::{
     api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
-    app::{self, AppDownloader, HttpAppDownloader},
+    app::{
+        self, AppDownloader, DownloadedInstaller, HttpAppDownloader, InstallerFile,
+        VerifiedInstaller,
+    },
+    local::DirectoryVersionInfoProvider,
     version::{Version, VersionInfo, VersionParameters},
     version_provider::VersionInfoProvider,
 };
@@ -31,6 +35,18 @@ enum TaskMessage {
 
 /// See the [module-level docs](self).
 pub struct AppController {}
+
+struct WorkingDirectory {
+    pub directory: anyhow::Result<PathBuf>,
+}
+
+impl WorkingDirectory {
+    pub async fn new<D: DirectoryProvider>() -> Self {
+        Self {
+            directory: D::create_download_dir().await,
+        }
+    }
+}
 
 /// Public entry function for registering a [AppDelegate].
 ///
@@ -79,8 +95,14 @@ impl AppController {
         let queue = delegate.queue();
         let task_tx_clone = task_tx.clone();
         tokio::spawn(async move {
-            let version_info =
-                fetch_app_version_info::<D, V>(queue.clone(), version_provider, environment).await;
+            let working_dir = WorkingDirectory::new::<DirProvider>().await;
+            let version_info = fetch_app_version_info::<D, V>(
+                queue.clone(),
+                version_provider,
+                &working_dir,
+                environment,
+            )
+            .await;
             let version_label = format_latest_version(&version_info.stable);
             let has_beta = version_info.beta.is_some();
             queue.queue_main(move |self_| {
@@ -91,10 +113,11 @@ impl AppController {
                 }
             });
 
-            ActionMessageHandler::<D, A>::run::<DirProvider>(
+            ActionMessageHandler::<D, A>::run(
                 queue,
                 task_tx_clone,
                 task_rx,
+                working_dir,
                 version_info,
             )
             .await;
@@ -130,6 +153,7 @@ impl AppController {
 async fn fetch_app_version_info<Delegate, VersionProvider>(
     queue: Delegate::Queue,
     version_provider: VersionProvider,
+    working_directory: &WorkingDirectory,
     Environment { architecture }: Environment,
 ) -> VersionInfo
 where
@@ -150,22 +174,35 @@ where
             lowest_metadata_version: 0,
         };
 
-        let err = match version_provider.get_version_info(version_params).await {
+        let err = match version_provider.get_version_info(&version_params).await {
             Ok(version_info) => {
-                return version_info;
+                anyhow::anyhow!("test")
+                //return version_info;
             }
             Err(err) => err,
         };
 
         log::error!("Failed to get version info: {err:?}");
 
-        // TODO: figure out if we have an installer downloaded that we can install
-        let existing_download: Option<()> = None;
+        // Check if we've already downloaded an istaller.
+        // If so, the user will be given the option to run it.
+        let existing_download: Option<_> = async {
+            // FIXME: everything
+            DirectoryVersionInfoProvider::new(
+                working_directory.directory.as_ref().ok()?.clone(),
+                version_params,
+            )
+            .await
+            .inspect_err(|e| log::warn!("Couldn't find a downloaded installer: {e:#}"))
+            .ok()
+            .map(|thingy| thingy.version_info.stable)
+        }
+        .await;
 
         enum Action {
             Retry,
             Cancel,
-            InstallExistingVersion,
+            InstallExistingVersion(mullvad_update::version::Version),
         }
 
         let (action_tx, mut action_rx) = mpsc::channel(1);
@@ -182,17 +219,17 @@ where
                 let _ = retry_tx.try_send(Action::Retry);
             });
 
-            if let Some(existing_download) = existing_download {
-                let version = "2025.123"; // TODO
+            // https://www.youtube.com/watch?v=r7DQDrRwNgI
+            if let Some((version)) = existing_download {
                 self_.show_error_message(crate::delegate::ErrorMessage {
                     status_text: resource::FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD
-                        .replace("%s", version),
+                        .replace("%s", &version.version.to_string()),
                     cancel_button_text: resource::FETCH_VERSION_ERROR_INSTALL_BUTTON_TEXT
                         .to_owned(),
                     retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
                 });
                 self_.on_error_message_cancel(move || {
-                    let _ = cancel_tx.try_send(Action::InstallExistingVersion);
+                    let _ = cancel_tx.try_send(Action::InstallExistingVersion(version.clone()));
                 });
             } else {
                 self_.show_error_message(crate::delegate::ErrorMessage {
@@ -220,8 +257,28 @@ where
                     self_.quit();
                 });
             }
-            Action::InstallExistingVersion => {
-                log::info!("TODO");
+            Action::InstallExistingVersion(version_info) => {
+                let installer = InstallerFile::from_version(
+                    working_directory
+                        .directory
+                        .as_deref()
+                        .expect("TODO: handle this error"),
+                    // TODO: what do about beta?
+                    version_info.version,
+                    version_info.size,
+                    version_info.sha256,
+                );
+
+                queue.queue_main(|delegate| {
+                    let ui_installer = UiAppDownloader::new(&*delegate, installer);
+
+                    // TODO: lifetimes!
+                    tokio::spawn(async move {
+                        if let Err(err) = app::install_and_upgrade(ui_installer).await {
+                            log::error!("install_and_upgrade failed: {err:?}");
+                        }
+                    });
+                });
             }
         }
     }
@@ -244,7 +301,7 @@ struct ActionMessageHandler<
     version_info: VersionInfo,
     active_download: Option<JoinHandle<()>>,
     target_version: TargetVersion,
-    temp_dir: anyhow::Result<PathBuf>,
+    working_directory: WorkingDirectory,
 
     _marker: std::marker::PhantomData<A>,
 }
@@ -253,21 +310,20 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
     ActionMessageHandler<D, A>
 {
     /// Run the [ActionMessageHandler] actor until the end of the program/execution
-    async fn run<DP: DirectoryProvider>(
+    async fn run(
         queue: D::Queue,
         tx: mpsc::Sender<TaskMessage>,
         mut rx: mpsc::Receiver<TaskMessage>,
+        working_directory: WorkingDirectory,
         version_info: VersionInfo,
     ) {
-        let temp_dir = DP::create_download_dir().await;
-
         let mut handler = Self {
             queue,
             tx,
             version_info,
             active_download: None,
             target_version: TargetVersion::Stable,
-            temp_dir,
+            working_directory,
 
             _marker: std::marker::PhantomData,
         };
@@ -330,7 +386,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
         });
 
         // Create temporary dir
-        let download_dir = match &self.temp_dir {
+        let download_dir = match &self.working_directory.directory {
             Ok(dir) => dir.clone(),
             Err(error) => {
                 log::error!("Failed to create temporary directory: {error:?}");
@@ -389,7 +445,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
 
             let ui_downloader = UiAppDownloader::new(self_, downloader);
             let _ = tx.send(tokio::spawn(async move {
-                if let Err(err) = app::install_and_upgrade(ui_downloader).await {
+                if let Err(err) = app::download_install_and_upgrade(ui_downloader).await {
                     log::error!("install_and_upgrade failed: {err:?}");
                 }
             }));

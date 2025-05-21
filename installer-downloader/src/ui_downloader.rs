@@ -6,7 +6,7 @@ use crate::{
     resource,
 };
 use mullvad_update::{
-    app::{self, AppDownloader, AppDownloaderParameters},
+    app::{self, AppDownloader, AppDownloaderParameters, DownloadedInstaller, VerifiedInstaller},
     fetch,
 };
 
@@ -21,9 +21,7 @@ pub struct UiAppDownloader<Delegate: AppDelegate, Downloader> {
 /// Parameters for [UiAppDownloader]
 pub type UiAppDownloaderParameters<Delegate> = AppDownloaderParameters<UiProgressUpdater<Delegate>>;
 
-impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static>
-    UiAppDownloader<Delegate, Downloader>
-{
+impl<Delegate: AppDelegate, Downloader: Send + 'static> UiAppDownloader<Delegate, Downloader> {
     /// Construct a [UiAppDownloader].
     pub fn new(delegate: &Delegate, downloader: Downloader) -> Self {
         Self {
@@ -36,15 +34,18 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static>
 impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownloader
     for UiAppDownloader<Delegate, Downloader>
 {
-    async fn download_executable(&mut self) -> Result<(), app::DownloadError> {
+    async fn download_executable(self) -> Result<impl DownloadedInstaller, app::DownloadError> {
         match self.downloader.download_executable().await {
-            Ok(()) => {
+            Ok(installer) => {
                 self.queue.queue_main(move |self_| {
                     self_.set_download_text(resource::DOWNLOAD_COMPLETE_DESC);
                     self_.disable_cancel_button();
                 });
 
-                Ok(())
+                Ok(UiAppDownloader::<Delegate, _> {
+                    downloader: installer,
+                    queue: self.queue,
+                })
             }
             Err(err) => {
                 self.queue.queue_main(move |self_| {
@@ -65,15 +66,22 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
             }
         }
     }
+}
 
-    async fn verify(&mut self) -> Result<(), app::DownloadError> {
+impl<Delegate: AppDelegate, Downloader: DownloadedInstaller + Send + 'static> DownloadedInstaller
+    for UiAppDownloader<Delegate, Downloader>
+{
+    async fn verify(self) -> Result<impl VerifiedInstaller, app::DownloadError> {
         match self.downloader.verify().await {
-            Ok(()) => {
+            Ok(verified) => {
                 self.queue.queue_main(move |self_| {
                     self_.set_download_text(resource::VERIFICATION_SUCCEEDED_DESC);
                 });
 
-                Ok(())
+                Ok(UiAppDownloader::<Delegate, _> {
+                    downloader: verified,
+                    queue: self.queue,
+                })
             }
             Err(error) => {
                 self.queue.queue_main(move |self_| {
@@ -96,8 +104,12 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
             }
         }
     }
+}
 
-    async fn install(&mut self) -> Result<(), app::DownloadError> {
+impl<Delegate: AppDelegate, I: VerifiedInstaller + Send + 'static> VerifiedInstaller
+    for UiAppDownloader<Delegate, I>
+{
+    async fn install(self) -> Result<(), app::DownloadError> {
         match self.downloader.install().await {
             Ok(()) => {
                 self.queue.queue_main(move |self_| {

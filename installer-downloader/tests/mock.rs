@@ -6,10 +6,10 @@ use installer_downloader::delegate::{AppDelegate, AppDelegateQueue, ErrorMessage
 use installer_downloader::environment::{Architecture, Environment};
 use installer_downloader::temp::DirectoryProvider;
 use installer_downloader::ui_downloader::UiAppDownloaderParameters;
-use mullvad_update::api::VersionInfoProvider;
-use mullvad_update::app::{AppDownloader, DownloadError};
+use mullvad_update::app::{AppDownloader, DownloadError, DownloadedInstaller, VerifiedInstaller};
 use mullvad_update::fetch::ProgressUpdater;
 use mullvad_update::version::{Version, VersionInfo, VersionParameters};
+use mullvad_update::version_provider::VersionInfoProvider;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
@@ -38,7 +38,7 @@ pub const FAKE_ENVIRONMENT: Environment = Environment {
 };
 
 impl VersionInfoProvider for FakeVersionInfoProvider {
-    async fn get_version_info(&self, _params: VersionParameters) -> anyhow::Result<VersionInfo> {
+    async fn get_version_info(&self, _params: &VersionParameters) -> anyhow::Result<VersionInfo> {
         if self.fail_fetching.load(std::sync::atomic::Ordering::SeqCst) {
             anyhow::bail!("Failed to fetch version info");
         }
@@ -87,33 +87,47 @@ pub struct FakeAppDownloader<
     params: UiAppDownloaderParameters<FakeAppDelegate>,
 }
 
+pub struct FakeInstalledApp<
+    const EXE_SUCCEED: bool,
+    const VERIFY_SUCCEED: bool,
+    const LAUNCH_SUCCEED: bool,
+>;
+
 impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: bool> AppDownloader
     for FakeAppDownloader<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>
 {
-    async fn download_executable(&mut self) -> Result<(), DownloadError> {
+    async fn download_executable(mut self) -> Result<impl DownloadedInstaller, DownloadError> {
         self.params.app_progress.set_url(&self.params.app_url);
         self.params.app_progress.clear_progress();
         if EXE_SUCCEED {
             self.params.app_progress.set_progress(1.);
-            Ok(())
+            Ok(FakeInstalledApp::<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>)
         } else {
             Err(DownloadError::FetchApp(anyhow::anyhow!(
                 "fetching app failed"
             )))
         }
     }
+}
 
-    async fn verify(&mut self) -> Result<(), DownloadError> {
+impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: bool>
+    DownloadedInstaller for FakeInstalledApp<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>
+{
+    async fn verify(self) -> Result<impl VerifiedInstaller, DownloadError> {
         if VERIFY_SUCCEED {
-            Ok(())
+            Ok(self)
         } else {
             Err(DownloadError::Verification(anyhow::anyhow!(
                 "verification failed"
             )))
         }
     }
+}
 
-    async fn install(&mut self) -> Result<(), DownloadError> {
+impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: bool>
+    VerifiedInstaller for FakeInstalledApp<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>
+{
+    async fn install(self) -> Result<(), DownloadError> {
         if LAUNCH_SUCCEED {
             Ok(())
         } else {
