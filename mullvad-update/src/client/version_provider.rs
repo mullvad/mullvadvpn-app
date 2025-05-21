@@ -1,3 +1,5 @@
+use crate::version::{VersionInfo, VersionParameters};
+
 /// See [module-level](self) docs.
 pub trait VersionInfoProvider {
     /// Return info about the stable version
