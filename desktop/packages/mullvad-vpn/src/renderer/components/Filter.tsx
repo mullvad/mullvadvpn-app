@@ -233,7 +233,7 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
         <Icon color="whiteAlpha80" icon={expanded ? 'chevron-up' : 'chevron-down'} />
       </Cell.CellButton>
 
-      <Accordion expanded={expanded}>
+      <Accordion testId={'ownership-accordion'} expanded={expanded}>
         <StyledSelector
           items={values}
           value={props.ownership}
@@ -278,7 +278,7 @@ function FilterByProvider(props: IFilterByProviderProps) {
         <Cell.Label>{messages.pgettext('filter-view', 'Providers')}</Cell.Label>
         <Icon color="whiteAlpha80" icon={expanded ? 'chevron-up' : 'chevron-down'} />
       </Cell.CellButton>
-      <Accordion expanded={expanded}>
+      <Accordion testId={'provider-accordion'} expanded={expanded}>
         <CheckboxRow
           label={messages.pgettext('filter-view', 'All providers')}
           $bold
