@@ -105,7 +105,7 @@ pub async fn open_boringtun_tunnel(
         .await
         .map_err(TunnelError::BoringTunDevice)?;
 
-    set_boringtun_config(&mut config_tx, config).await;
+    set_boringtun_config(&mut config_tx, config).await?;
 
     log::info!(
         "This tunnel was brought to you by...
@@ -168,7 +168,7 @@ impl Tunnel for BoringTun {
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
         Box::pin(async move {
             self.config = config;
-            set_boringtun_config(&mut self.config_tx, &self.config).await;
+            set_boringtun_config(&mut self.config_tx, &self.config).await?;
             Ok(())
         })
     }
@@ -179,7 +179,10 @@ impl Tunnel for BoringTun {
     }
 }
 
-async fn set_boringtun_config(tx: &mut ApiClient, config: &Config) {
+async fn set_boringtun_config(
+    tx: &mut ApiClient,
+    config: &Config,
+) -> Result<(), crate::TunnelError> {
     log::info!("configuring boringtun device");
     let mut set_cmd = Set::builder()
         .private_key(config.tunnel.private_key.to_bytes())
@@ -216,9 +219,11 @@ async fn set_boringtun_config(tx: &mut ApiClient, config: &Config) {
         set_cmd.peers.push(boring_peer);
     }
 
-    tx.send(set_cmd)
-        .await
-        .expect("Failed to configure boringtun");
+    tx.send(set_cmd).await.map_err(|err| {
+        log::error!("Failed to set boringtun config: {err:#}");
+        TunnelError::SetConfigError
+    })?;
+    Ok(())
 }
 
 #[cfg(target_os = "windows")]
