@@ -55,9 +55,3 @@ struct RelayFilterDataSourceItem: Hashable, Comparable {
         return nameComparison == .orderedAscending
     }
 }
-
-extension RelayFilterDataSourceItem.ItemType {
-    var isSpecificOwnership: Bool {
-        return self == .ownershipOwned || self == .ownershipRented
-    }
-}
