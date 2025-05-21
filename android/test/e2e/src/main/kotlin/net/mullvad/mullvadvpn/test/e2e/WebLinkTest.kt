@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 
 class WebLinkTest : EndToEndTest() {
     @Test
-    @Disabled
+    @Disabled("It is not currently not possible to inspect the content of other apps")
     fun testOpenFaqFromApp() {
         app.launchAndEnsureOnLoginPage()
 
