@@ -9,6 +9,7 @@
 import Foundation
 import XCTest
 
+@MainActor
 class BaseUITestCase: XCTestCase {
     let app = XCUIApplication()
     static let defaultTimeout = 5.0
@@ -199,20 +200,23 @@ class BaseUITestCase: XCTestCase {
 
     /// Suite level teardown ran after all tests in suite have been executed
     override class func tearDown() {
-        if shouldUninstallAppInTeardown() && uninstallAppInTestSuiteTearDown() {
-            uninstallApp()
+        // This function is not marked `@MainActor` therefore cannot legally enter its context without help
+        Task { @MainActor in
+            if shouldUninstallAppInTeardown() && uninstallAppInTestSuiteTearDown() {
+                uninstallApp()
+            }
         }
     }
 
     /// Test level setup
-    override func setUp() {
+    override func setUp() async throws {
         currentTestCaseShouldCapturePackets = false // Reset for each test case run
         continueAfterFailure = false
         app.launch()
     }
 
     /// Test level teardown
-    override func tearDown() {
+    override func tearDown() async throws {
         if currentTestCaseShouldCapturePackets {
             guard let packetCaptureSession = packetCaptureSession else {
                 XCTFail("Packet capture session unexpectedly not set up")
