@@ -18,7 +18,6 @@ impl DirectoryVersionInfoProvider {
 
     /// Read metadata.json from the local directory
     pub async fn new(
-        &self,
         directory: PathBuf,
         params: crate::version::VersionParameters,
     ) -> anyhow::Result<Self> {
