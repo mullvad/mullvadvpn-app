@@ -7,6 +7,8 @@ use vec1::Vec1;
 use crate::format;
 use crate::version::{VersionInfo, VersionParameters};
 
+use super::version_provider::VersionInfoProvider;
+
 /// Available platforms in the default metadata repository
 #[derive(Debug, Clone, Copy)]
 pub enum MetaRepositoryPlatform {
@@ -45,15 +47,6 @@ impl MetaRepositoryPlatform {
             MetaRepositoryPlatform::Macos => "macos.json",
         }
     }
-}
-
-/// See [module-level](self) docs.
-pub trait VersionInfoProvider {
-    /// Return info about the stable version
-    fn get_version_info(
-        &self,
-        params: VersionParameters,
-    ) -> impl std::future::Future<Output = anyhow::Result<VersionInfo>> + Send;
 }
 
 /// Obtain version data using a GET request
