@@ -63,7 +63,7 @@ val vpnServiceModule = module {
             cacheDir = get(named(CACHE_DIR_NAMED_ARGUMENT)),
             apiEndpointOverride =
                 if (BuildConfig.FLAVOR_infrastructure != "prod") {
-                    ApiEndpointOverride(BuildConfig.API_ENDPOINT)
+                    ApiEndpointOverride(BuildConfig.API_ENDPOINT, BuildConfig.API_IP)
                 } else {
                     null
                 },
