@@ -26,8 +26,14 @@ enum EditAccessMethodSectionIdentifier: Hashable {
                 value: "Performs a connection test to a Mullvad API server via this access method.",
                 comment: ""
             )
-
-        case .enableMethod, .methodSettings, .cancelTest, .testingStatus, .deleteMethod:
+        case .enableMethod:
+            NSLocalizedString(
+                "METHOD_FOOTER",
+                tableName: "APIAccess",
+                value: "At least one method needs to be enabled.",
+                comment: ""
+            )
+        case .methodSettings, .cancelTest, .testingStatus, .deleteMethod:
             nil
         }
     }

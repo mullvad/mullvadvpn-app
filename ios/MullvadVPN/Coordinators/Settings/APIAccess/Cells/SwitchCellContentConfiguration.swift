@@ -32,6 +32,9 @@ struct SwitchCellContentConfiguration: UIContentConfiguration, Equatable {
     /// Content view layout margins.
     var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
 
+    /// Weather the toggle is enabled or disabled
+    var isEnabled = true
+
     func makeContentView() -> UIView & UIContentView {
         return SwitchCellContentView(configuration: self)
     }

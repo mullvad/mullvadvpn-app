@@ -140,6 +140,9 @@ extension EditAccessMethodViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return nil }
+        if sectionIdentifier == .enableMethod && subject.value.canBeToggled {
+            return nil
+        }
         guard let sectionFooterText = sectionIdentifier.sectionFooter else { return nil }
 
         guard let headerView = tableView
@@ -250,6 +253,8 @@ extension EditAccessMethodViewController: UITableViewDelegate {
                 self?.onSave()
             }
         }
+
+        contentConfiguration.isEnabled = subject.value.canBeToggled
         cell.contentConfiguration = contentConfiguration
     }
 
