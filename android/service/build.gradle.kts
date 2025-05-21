@@ -46,14 +46,17 @@ android {
             isDefault = true
             // Not used for production builds.
             buildConfigField("String", "API_ENDPOINT", "\"\"")
+            buildConfigField("String", "API_IP", "\"\"")
         }
         create(Flavors.DEVMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             buildConfigField("String", "API_ENDPOINT", "\"api-app.devmole.eu\"")
+            buildConfigField("String", "API_IP", "\"185.217.116.4\"")
         }
         create(Flavors.STAGEMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             buildConfigField("String", "API_ENDPOINT", "\"api-app.stagemole.eu\"")
+            buildConfigField("String", "API_IP", "\"185.217.116.132\"")
         }
     }
 
