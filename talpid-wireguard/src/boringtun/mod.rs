@@ -8,6 +8,8 @@ use boringtun::device::{
     peer::AllowedIP,
     DeviceConfig, DeviceHandle,
 };
+
+#[cfg(not(target_os = "android"))]
 use ipnetwork::IpNetwork;
 #[cfg(target_os = "android")]
 use std::os::fd::AsRawFd;
@@ -77,7 +79,7 @@ pub async fn open_boringtun_tunnel(
         if is_new_tunnel {
             let expected_routes = tun_provider.lock().unwrap().real_routes();
 
-            route_manager
+            route_manager_handle
                 .clone()
                 .wait_for_routes(expected_routes)
                 .await
