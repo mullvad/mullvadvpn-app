@@ -9,7 +9,10 @@ import org.junit.jupiter.api.Test
 
 class WebLinkTest : EndToEndTest() {
     @Test
-    @Disabled("It is not currently not possible to inspect the content of other apps")
+    @Disabled(
+        "It is not currently not possible to inspect the " +
+            "content of other apps when using a test instrumentation app"
+    )
     fun testOpenFaqFromApp() {
         app.launchAndEnsureOnLoginPage()
 
