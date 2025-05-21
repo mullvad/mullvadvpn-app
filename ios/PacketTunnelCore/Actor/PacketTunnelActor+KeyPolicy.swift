@@ -40,17 +40,6 @@ extension PacketTunnelActor {
     }
 
     /**
-     Switch key policy  from `.usePrior` to `.useCurrent` policy and reconnect the tunnel.
-
-     Next reconnection attempt will read the new key from settings.
-     */
-    func switchToCurrentKey() {
-        if switchToCurrentKeyInner() {
-            eventChannel.send(.reconnect(.random))
-        }
-    }
-
-    /**
      Start a task that will wait for the new key to propagate across relays (see `PacketTunnelActorTimings.wgKeyPropagationDelay`) and then:
 
      1. Switch `keyPolicy` back to `.useCurrent`.
@@ -69,30 +58,5 @@ extension PacketTunnelActor {
         }
 
         return AutoCancellingTask(task)
-    }
-
-    /**
-     Switch key policy  from `.usePrior` to `.useCurrent` policy.
-
-     - Returns: `true` if the tunnel should reconnect, otherwise `false`.
-     */
-    private func switchToCurrentKeyInner() -> Bool {
-        let oldKeyPolicy = state.keyPolicy
-        state.mutateKeyPolicy(setCurrentKeyPolicy)
-        // Prevent tunnel from reconnecting when in blocked state.
-        guard case .error = state else { return state.keyPolicy != oldKeyPolicy }
-        return false
-    }
-
-    /**
-     Internal helper that transitions key policy from `.usePrior` to `.useCurrent`.
-
-     - Parameter keyPolicy: a reference to key policy held either in connection state or blocked state struct.
-     - Returns: `true` when the policy was modified, otherwise `false`.
-     */
-    private func setCurrentKeyPolicy(_ keyPolicy: inout State.KeyPolicy) {
-        if case .usePrior = keyPolicy {
-            keyPolicy = .useCurrent
-        }
     }
 }
