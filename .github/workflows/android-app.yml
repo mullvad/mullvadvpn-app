@@ -488,7 +488,10 @@ jobs:
           VALID_TEST_ACCOUNT_NUMBER: ${{ env.RESOLVED_TEST_ACCOUNT }}
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
-          ENABLE_ACCESS_TO_LOCAL_API_TESTS: true
+          ENABLE_RAAS_TESTS: true
+          RAAS_HOST: '192.168.105.1'
+          RAAS_TRAFFIC_GENERATOR_TARGET_HOST: '45.83.223.209'
+          RAAS_TRAFFIC_GENERATOR_TARGET_PORT: '80'
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
         run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ needs.prepare.outputs.E2E_TEST_REPEAT }}
 
@@ -513,7 +516,7 @@ jobs:
         invalid_test_account_number=0000000000000000,\
         ENABLE_HIGHLY_RATE_LIMITED_TESTS=${{ github.event_name == 'schedule' && 'true' || 'false' }},\
         partner_auth=${{ secrets.STAGEMOLE_PARTNER_AUTH }},\
-        ENABLE_ACCESS_TO_LOCAL_API_TESTS=false"
+        ENABLE_RAAS_TESTS=false"
     strategy:
       fail-fast: false
       matrix:

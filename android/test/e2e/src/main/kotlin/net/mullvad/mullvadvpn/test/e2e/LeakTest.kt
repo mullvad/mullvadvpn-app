@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.test.e2e
 
+import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
@@ -17,6 +18,8 @@ import net.mullvad.mullvadvpn.test.common.page.enableShadowsocksStory
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
+import net.mullvad.mullvadvpn.test.e2e.constant.getTrafficGeneratorHost
+import net.mullvad.mullvadvpn.test.e2e.constant.getTrafficGeneratorPort
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.NetworkTrafficChecker
 import net.mullvad.mullvadvpn.test.e2e.misc.NoTrafficToHostRule
@@ -83,8 +86,8 @@ class LeakTest : EndToEndTest() {
         on<ConnectPage> { waitForConnectedLabel() }
 
         // Capture generated traffic to a specific host
-        val targetIpAddress = BuildConfig.TRAFFIC_GENERATION_IP_ADDRESS
-        val targetPort = 80
+        val targetIpAddress = InstrumentationRegistry.getArguments().getTrafficGeneratorHost()
+        val targetPort = InstrumentationRegistry.getArguments().getTrafficGeneratorPort()
         val captureResult =
             PacketCapture().capturePackets {
                 TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
@@ -131,8 +134,8 @@ class LeakTest : EndToEndTest() {
         on<ConnectPage> { waitForConnectedLabel() }
 
         // Capture generated traffic to a specific host
-        val targetIpAddress = BuildConfig.TRAFFIC_GENERATION_IP_ADDRESS
-        val targetPort = 80
+        val targetIpAddress = InstrumentationRegistry.getArguments().getTrafficGeneratorHost()
+        val targetPort = InstrumentationRegistry.getArguments().getTrafficGeneratorPort()
         val captureResult: PacketCaptureResult =
             PacketCapture().capturePackets {
                 TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
@@ -188,8 +191,8 @@ class LeakTest : EndToEndTest() {
         on<ConnectPage> { waitForConnectedLabel() }
 
         // Capture generated traffic to a specific host
-        val targetIpAddress = BuildConfig.TRAFFIC_GENERATION_IP_ADDRESS
-        val targetPort = 80
+        val targetIpAddress = InstrumentationRegistry.getArguments().getTrafficGeneratorHost()
+        val targetPort = InstrumentationRegistry.getArguments().getTrafficGeneratorPort()
         val captureResult: PacketCaptureResult =
             PacketCapture().capturePackets {
                 TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
