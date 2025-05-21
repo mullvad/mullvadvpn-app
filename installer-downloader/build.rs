@@ -4,7 +4,7 @@ use std::env;
 fn main() -> anyhow::Result<()> {
     let target_os = env::var("CARGO_CFG_TARGET_OS").context("Missing 'CARGO_CFG_TARGET_OS")?;
     match target_os.as_str() {
-        "windows" => win_main(),
+        //"windows" => win_main(),
         _ => Ok(()),
     }
 }

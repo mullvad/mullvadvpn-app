@@ -1,11 +1,16 @@
 //! This module implements fetching of information about app versions
 
+use std::path::PathBuf;
+
 use anyhow::Context;
+use tokio::fs;
 #[cfg(test)]
 use vec1::Vec1;
 
 use crate::format;
 use crate::version::{VersionInfo, VersionParameters};
+
+use super::version_provider::VersionInfoProvider;
 
 /// Available platforms in the default metadata repository
 #[derive(Debug, Clone, Copy)]
@@ -47,27 +52,24 @@ impl MetaRepositoryPlatform {
     }
 }
 
-/// See [module-level](self) docs.
-pub trait VersionInfoProvider {
-    /// Return info about the stable version
-    fn get_version_info(
-        &self,
-        params: VersionParameters,
-    ) -> impl std::future::Future<Output = anyhow::Result<VersionInfo>> + Send;
-}
-
 /// Obtain version data using a GET request
 pub struct HttpVersionInfoProvider {
     /// Endpoint for GET request
     url: String,
     /// Accepted root certificate. Defaults are used unless specified
     pinned_certificate: Option<reqwest::Certificate>,
+    /// If set, the response metadata will be serialized and written to this path
+    dump_to_path: Option<PathBuf>,
 }
 
 impl VersionInfoProvider for HttpVersionInfoProvider {
-    async fn get_version_info(&self, params: VersionParameters) -> anyhow::Result<VersionInfo> {
+    async fn get_version_info(&self, params: &VersionParameters) -> anyhow::Result<VersionInfo> {
         let response = self.get_versions(params.lowest_metadata_version).await?;
-        VersionInfo::try_from_response(&params, response.signed)
+        VersionInfo::try_from_response(params, response.signed)
+    }
+
+    fn set_metadata_dump_path(&mut self, path: PathBuf) {
+        self.dump_to_path = Some(path);
     }
 }
 
@@ -79,6 +81,7 @@ impl From<MetaRepositoryPlatform> for HttpVersionInfoProvider {
         HttpVersionInfoProvider {
             url: platform.url(),
             pinned_certificate: Some(crate::defaults::PINNED_CERTIFICATE.clone()),
+            dump_to_path: None,
         }
     }
 }
@@ -136,7 +139,13 @@ impl HttpVersionInfoProvider {
         deserialize_fn: impl FnOnce(&[u8]) -> anyhow::Result<format::SignedResponse>,
     ) -> anyhow::Result<format::SignedResponse> {
         let raw_json = Self::get(&self.url, self.pinned_certificate.clone()).await?;
-        deserialize_fn(&raw_json)
+        let signed_response = deserialize_fn(&raw_json)?;
+        if let Some(path) = &self.dump_to_path {
+            fs::write(path, raw_json)
+                .await
+                .context("Failed to save cache")?;
+        }
+        Ok(signed_response)
     }
 
     /// Perform a simple GET request, with a size limit, and return it as bytes
@@ -191,10 +200,12 @@ impl HttpVersionInfoProvider {
 
 #[cfg(test)]
 mod test {
+    use async_tempfile::TempDir;
     use insta::assert_yaml_snapshot;
     use vec1::vec1;
 
     use super::*;
+    use crate::{format::SignedResponse, local::METADATA_FILENAME};
 
     // These tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
     // then most likely the snapshots need to be updated. The most convenient way to review
@@ -220,10 +231,14 @@ mod test {
 
         let url = format!("{}/version", server.url());
 
+        let temp_dump_dir = TempDir::new().await.unwrap();
+        let temp_dump = temp_dump_dir.join(METADATA_FILENAME);
+
         // Construct query and provider
         let info_provider = HttpVersionInfoProvider {
             url,
             pinned_certificate: None,
+            dump_to_path: Some(temp_dump.clone()),
         };
 
         let info = info_provider
@@ -233,6 +248,13 @@ mod test {
 
         // Expect: Our query should yield some version response
         assert_yaml_snapshot!(info);
+
+        // Expect: Dumped data should exist and look the same
+        let cached_data = fs::read(temp_dump).await.expect("expected dumped info");
+        let cached_info =
+            SignedResponse::deserialize_and_verify_with_keys(&verifying_keys, &cached_data, 0)
+                .unwrap();
+        assert_eq!(cached_info, info);
 
         Ok(())
     }
