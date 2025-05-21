@@ -5,3 +5,11 @@ public struct StorekitTransaction: Codable, Sendable {
         self.transaction = transaction
     }
 }
+
+public struct LegacyStorekitRequest: Codable, Sendable {
+    let receiptString: Data
+
+    public init(receiptString: Data) {
+        self.receiptString = receiptString
+    }
+}
