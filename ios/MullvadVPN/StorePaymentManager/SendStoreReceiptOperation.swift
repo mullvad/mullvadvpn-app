@@ -130,6 +130,40 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
         }
     }
 
+    #if DEBUG
+    private func sendReceipt(_ receiptData: Data) {
+        submitReceiptTask = apiProxy.legacyStorekitPayment(
+            accountNumber: accountNumber,
+            request: LegacyStorekitRequest(receiptString: receiptData),
+            retryStrategy: .default,
+            completionHandler: { result in
+                switch result {
+                case let .success(response):
+                    self.logger.info(
+                        """
+                        AppStore receipt was processed. \
+                        Time added: \(response.timeAdded), \
+                        New expiry: \(response.newExpiry.logFormatted)
+                        """
+                    )
+                    self.finish(result: .success(response))
+
+                case let .failure(error):
+                    if error.isOperationCancellationError {
+                        self.logger.debug("Receipt submission cancelled.")
+                        self.finish(result: .failure(error))
+                    } else {
+                        self.logger.error(
+                            error: error,
+                            message: "Failed to send the AppStore receipt."
+                        )
+                        self.finish(result: .failure(StorePaymentManagerError.sendReceipt(error)))
+                    }
+                }
+            }
+        )
+    }
+    #else
     private func sendReceipt(_ receiptData: Data) {
         submitReceiptTask = apiProxy.createApplePayment(
             accountNumber: accountNumber,
@@ -160,6 +194,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
             }
         }
     }
+    #endif
 }
 
 struct StoreReceiptNotFound: LocalizedError {
