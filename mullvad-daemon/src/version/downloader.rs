@@ -1,7 +1,9 @@
 #![cfg(in_app_upgrade)]
 
 use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpgradeEvent};
-use mullvad_update::app::{bin_path, AppDownloader, AppDownloaderParameters, DownloadError};
+use mullvad_update::app::{
+    bin_path, AppDownloader, AppDownloaderParameters, DownloadError, DownloadedInstaller,
+};
 use rand::seq::SliceRandom;
 use std::io;
 use std::path::PathBuf;
@@ -112,18 +114,16 @@ where
         app_sha256: version.sha256,
         cache_dir: download_dir,
     };
-    let mut downloader = D::from(params);
+    let downloader = D::from(params);
 
     let _ = event_tx.send(AppUpgradeEvent::DownloadStarting);
-    if let Err(err) = downloader.download_executable().await {
+    let installer = downloader.download_executable().await.inspect_err(|_| {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::DownloadFailed));
-        return Err(err.into());
-    };
+    })?;
     let _ = event_tx.send(AppUpgradeEvent::VerifyingInstaller);
-    if let Err(err) = downloader.verify().await {
+    installer.verify().await.inspect_err(|_| {
         let _ = event_tx.send(AppUpgradeEvent::Error(AppUpgradeError::VerificationFailed));
-        return Err(err.into());
-    };
+    })?;
     let _ = event_tx.send(AppUpgradeEvent::VerifiedInstaller);
 
     // Note that we cannot call `downloader.install()` here, as it must be done by the user process.
