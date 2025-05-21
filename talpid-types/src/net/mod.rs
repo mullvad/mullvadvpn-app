@@ -623,6 +623,18 @@ impl Connectivity {
     }
 }
 
+impl fmt::Display for Connectivity {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Connectivity::Online(IpAvailability::Ipv4AndIpv6) => "Connected (IPv4 and IPv6)",
+            Connectivity::Online(IpAvailability::Ipv4) => "Connected (IPv4)",
+            Connectivity::Online(IpAvailability::Ipv6) => "Connected (IPv6)",
+            Connectivity::PresumeOnline => "Online (assume IPv4)",
+            Connectivity::Offline => "Offline",
+        })
+    }
+}
+
 #[derive(Default, Debug, Clone, Copy, PartialEq)]
 #[cfg_attr(target_os = "android", derive(FromJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
