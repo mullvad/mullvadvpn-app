@@ -99,22 +99,14 @@ pub struct SettingsPersister {
 pub type MadeChanges = bool;
 
 impl SettingsPersister {
-    /// Loads user settings from file. If it fails, it returns the defaults.
+    /// Loads user settings from file. If it fails, it returns the defaults, and overwrites the old
+    /// settings.
     pub async fn load(settings_dir: &Path) -> Self {
         let path = settings_dir.join(SETTINGS_FILE);
         let LoadSettingsResult {
-            mut settings,
-            mut should_save,
+            settings,
+            should_save,
         } = Self::load_inner(|| Self::load_from_file(&path)).await;
-
-        if cfg!(target_os = "android") {
-            // Auto-connect is managed by Android itself.
-            settings.auto_connect = false;
-        }
-        if crate::version::is_beta_version() {
-            should_save |= !settings.show_beta_releases;
-            settings.show_beta_releases = true;
-        }
 
         let mut persister = SettingsPersister {
             settings,
@@ -134,6 +126,15 @@ impl SettingsPersister {
         persister
     }
 
+    /// Loads user settings from file. The only difference between this and [Self::load] is that
+    /// it is read-only.
+    pub async fn read_only(settings_dir: &Path) -> Settings {
+        let path = settings_dir.join(SETTINGS_FILE);
+        let LoadSettingsResult { settings, .. } =
+            Self::load_inner(|| Self::load_from_file(&path)).await;
+        settings
+    }
+
     /// Loads user settings, returning default settings if it should fail.
     ///
     /// `load_settings` allows the caller to decide how to load [`Settings`]
@@ -147,7 +148,7 @@ impl SettingsPersister {
         F: FnOnce() -> R,
         R: std::future::Future<Output = Result<Settings, Error>>,
     {
-        match load_settings().await {
+        let mut result = match load_settings().await {
             Ok(settings) => LoadSettingsResult {
                 settings,
                 should_save: false,
@@ -180,7 +181,18 @@ impl SettingsPersister {
                     should_save: true,
                 }
             }
+        };
+
+        if cfg!(target_os = "android") {
+            // Auto-connect is managed by Android itself.
+            result.settings.auto_connect = false;
         }
+        if crate::version::is_beta_version() {
+            result.should_save |= !result.settings.show_beta_releases;
+            result.settings.show_beta_releases = true;
+        }
+
+        result
     }
 
     async fn load_from_file<P>(path: P) -> Result<Settings, Error>
