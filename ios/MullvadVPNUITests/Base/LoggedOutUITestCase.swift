@@ -10,8 +10,8 @@ import Foundation
 
 /// Base class for tests which should start from a logged out state
 class LoggedOutUITestCase: BaseUITestCase {
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
 
         agreeToTermsOfServiceIfShown()
         logoutIfLoggedIn()
