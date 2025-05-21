@@ -87,41 +87,11 @@ impl ConnectingState {
             }
         };
 
-        #[cfg_attr(target_os = "android", allow(clippy::bind_instead_of_map))]
-        match shared_values
-            .runtime
-            .block_on(
-                shared_values
-                    .tunnel_parameters_generator
-                    .generate(retry_attempt, ip_availability),
-            )
-            .or_else(|err| {
-                #[cfg(not(target_os = "android"))]
-                {
-                    use talpid_types::net::IpAvailability;
-                    use talpid_types::tunnel::ParameterGenerationError;
-
-                    if matches!(err, ParameterGenerationError::IpVersionUnavailable { .. }) {
-                        // Fall back on not filtering by IP version. This prevents us from getting stuck
-                        // with "no relay" if routes are temporarily unavailable for a given IP version.
-                        // TODO: A more complete solution here would be to remain in the error state until
-                        //       there is a route. Since this would depend on a setting (IP version), it
-                        //       needs to be communicated clearly in frontends.
-                        log::warn!(
-                            "No matching IP version. Connectivity state: (IPv4: {}, IPv6: {}).\
-                                Ignoring connectivity state",
-                            ip_availability.has_ipv4(),
-                            ip_availability.has_ipv6()
-                        );
-                        return shared_values.runtime.block_on(
-                            shared_values
-                                .tunnel_parameters_generator
-                                .generate(retry_attempt, IpAvailability::Ipv4AndIpv6),
-                        );
-                    }
-                }
-                Err(err)
-            }) {
+        match shared_values.runtime.block_on(
+            shared_values
+                .tunnel_parameters_generator
+                .generate(retry_attempt, ip_availability),
+        ) {
             Err(err) => {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
             }
