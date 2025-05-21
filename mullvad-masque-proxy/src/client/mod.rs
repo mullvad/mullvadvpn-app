@@ -597,7 +597,6 @@ fn new_connect_request(
     Ok(request)
 }
 
-// TODO: resuse the same TLS code from `mullvad-api` maybe
 pub fn default_tls_config() -> Arc<rustls::ClientConfig> {
     static TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> =
         LazyLock::new(|| client_tls_config_with_certs(read_cert_store()));
@@ -616,7 +615,6 @@ fn client_tls_config_with_certs(certs: rustls::RootCertStore) -> Arc<rustls::Cli
     config.alpn_protocols = vec![b"h3".to_vec()];
 
     let approver = Approver {};
-    config.key_log = Arc::new(rustls::KeyLogFile::new());
     config
         .dangerous()
         .set_certificate_verifier(Arc::new(approver));
