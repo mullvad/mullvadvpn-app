@@ -53,6 +53,15 @@ struct APIProxyStub: APIQuerying {
         AnyCancellable()
     }
 
+    func legacyStorekitPayment(
+        accountNumber: String,
+        request: LegacyStorekitRequest,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
+    ) -> any Cancellable {
+        AnyCancellable()
+    }
+
     func initStorekitPayment(
         accountNumber: String,
         retryStrategy: MullvadREST.REST.RetryStrategy,

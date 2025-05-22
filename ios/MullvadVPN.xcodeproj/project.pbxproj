@@ -1109,14 +1109,13 @@
 		F910A43A2D4A283D002FF3BB /* InAppPurchaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A4392D4A2839002FF3BB /* InAppPurchaseViewController.swift */; };
 		F910A8572D523812002FF3BB /* TunnelSettingsV7.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A8562D523812002FF3BB /* TunnelSettingsV7.swift */; };
 		F91B94A72DC9EB5E00132C28 /* MullvadInfoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91B94A62DC9EB5E00132C28 /* MullvadInfoHeaderView.swift */; };
+		F9276C622DBA2103006FE43D /* Font+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */; };
+		F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
+		F9394EF02DC0B58D009595EA /* MullvadListNavigationItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEF2DC0B58D009595EA /* MullvadListNavigationItemView.swift */; };
+		F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EF22DC21D8C009595EA /* MullvadList.swift */; };
 		F924C4532D70692E001F4660 /* MullvadApiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C4522D706929001F4660 /* MullvadApiTests.swift */; };
 		F924C5A42DA65F28001F4660 /* Storekit2.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C5A32DA65F28001F4660 /* Storekit2.swift */; };
 		F924C65F2DAE4554001F4660 /* ServerRelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */; };
-		F9276C622DBA2103006FE43D /* Font+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */; };
-		F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
-		F9394EED2DBF56B6009595EA /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
-		F9394EF02DC0B58D009595EA /* MullvadListNavigationItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEF2DC0B58D009595EA /* MullvadListNavigationItemView.swift */; };
-		F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EF22DC21D8C009595EA /* MullvadList.swift */; };
 		F998EFF82D359C4600D88D01 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
 		F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */; };
@@ -6539,7 +6538,7 @@
 				586C0D832B03D2FF00E7CDD7 /* ShadowsocksSectionHandler.swift in Sources */,
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
-				F9394EED2DBF56B6009595EA /* Color+Mullvad.swift in Sources */,
+				F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */,
 				F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */,
 				58FF9FE42B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift in Sources */,
 				449E9A6F2D283C7400F8574A /* ButtonPanel.swift in Sources */,
