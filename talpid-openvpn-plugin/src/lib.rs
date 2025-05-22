@@ -1,4 +1,4 @@
-use openvpn_plugin::{openvpn_plugin, EventResult, EventType};
+use openvpn_plugin::{EventResult, EventType, openvpn_plugin};
 use std::{collections::HashMap, ffi::CString, io, sync::Mutex};
 use talpid_types::ErrorExt;
 
@@ -11,7 +11,7 @@ pub enum Error {
     MissingCoreServerId,
 
     #[error("Failed to send an event to daemon over the IPC channel")]
-    SendEvent(#[source] tonic::Status),
+    SendEvent(#[source] Box<tonic::Status>),
 
     #[error("Unable to start Tokio runtime")]
     CreateRuntime(#[source] io::Error),
