@@ -26,7 +26,7 @@ androidx-uiautomator = "2.4.0-alpha02"
 androidx-tv = "1.0.0"
 
 # Arrow
-arrow = "2.1.1"
+arrow = "2.1.2"
 
 # Compose
 compose = "1.8.0"
