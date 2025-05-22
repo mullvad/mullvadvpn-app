@@ -6,7 +6,7 @@ object Versions {
     const val targetSdkVersion = 35
     const val ndkVersion = "27.2.12479018"
 
-    const val junitJupiter = "5.12.0"
+    const val junitJupiter = "5.12.2"
     const val junit5Android = "1.7.0"
     const val junit5Plugin = "1.12.2.0"
 }
