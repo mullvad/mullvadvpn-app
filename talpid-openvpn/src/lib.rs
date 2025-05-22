@@ -905,12 +905,13 @@ mod event_server {
             Ok(Response::new(()))
         }
 
+        #[allow(clippy::result_large_err)]
         fn get_tunnel_metadata(
             env: &HashMap<String, String>,
         ) -> std::result::Result<TunnelMetadata, tonic::Status> {
             let tunnel_alias = env
                 .get("dev")
-                .ok_or_else(|| tonic::Status::invalid_argument("missing tunnel alias"))?
+                .ok_or_else(|| (tonic::Status::invalid_argument("missing tunnel alias")))?
                 .to_string();
 
             let mut ips = vec![env
