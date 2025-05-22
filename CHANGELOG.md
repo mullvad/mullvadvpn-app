@@ -45,6 +45,8 @@ supported.
 
 #### Linux
 - Fix syntax error in Apparmor profile.
+- Fix issue where settings were lost after an upgrade if `mullvad-daemon` was not restarted
+  before `mullvad-early-boot-blocking.service`. That is, before a reboot.
 
 #### Windows
 - Fix issue where daemon got stuck trying to connect only over IPv4 (or only IPv6).
