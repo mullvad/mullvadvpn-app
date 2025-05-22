@@ -17,10 +17,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import net.mullvad.mullvadvpn.test.e2e.BuildConfig
-import net.mullvad.mullvadvpn.test.e2e.EndToEndTest.Companion.DEFAULT_RELAY
 import net.mullvad.mullvadvpn.test.e2e.misc.KermitLogger
+import net.mullvad.mullvadvpn.test.e2e.misc.RelayProvider
 
 class RelayApi {
+    private val relayProvider = RelayProvider()
+
     private val client: HttpClient =
         HttpClient(CIO) {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
@@ -42,10 +44,13 @@ class RelayApi {
         withContext(Dispatchers.IO) {
             val body = client.get { url { path(RELAY_PATH) } }.body<String>()
             val ipRegex =
-                """${DEFAULT_RELAY}.+?ipv4_addr_in":"(.+?)"""".toRegex(RegexOption.DOT_MATCHES_ALL)
+                """${relayProvider.getDefaultRelay().relay}.+?ipv4_addr_in":"(.+?)""""
+                    .toRegex(RegexOption.DOT_MATCHES_ALL)
 
             ipRegex.find(body)?.groups?.get(1)?.value
-                ?: error("Could not find $DEFAULT_RELAY IP address in relay list")
+                ?: error(
+                    "Could not find ${relayProvider.getDefaultRelay().relay} IP address in relay list"
+                )
         }
 
     companion object {
