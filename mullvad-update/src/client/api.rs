@@ -1,6 +1,9 @@
 //! This module implements fetching of information about app versions
 
+use std::path::PathBuf;
+
 use anyhow::Context;
+use tokio::fs;
 #[cfg(test)]
 use vec1::Vec1;
 
@@ -55,12 +58,18 @@ pub struct HttpVersionInfoProvider {
     url: String,
     /// Accepted root certificate. Defaults are used unless specified
     pinned_certificate: Option<reqwest::Certificate>,
+
+    dump_to_path: Option<PathBuf>,
 }
 
 impl VersionInfoProvider for HttpVersionInfoProvider {
     async fn get_version_info(&self, params: &VersionParameters) -> anyhow::Result<VersionInfo> {
         let response = self.get_versions(params.lowest_metadata_version).await?;
         VersionInfo::try_from_response(params, response.signed)
+    }
+
+    fn dump_metadata_to_file(&mut self, path: PathBuf) {
+        self.dump_to_path = Some(path);
     }
 }
 
@@ -72,6 +81,7 @@ impl From<MetaRepositoryPlatform> for HttpVersionInfoProvider {
         HttpVersionInfoProvider {
             url: platform.url(),
             pinned_certificate: Some(crate::defaults::PINNED_CERTIFICATE.clone()),
+            dump_to_path: None,
         }
     }
 }
@@ -129,7 +139,14 @@ impl HttpVersionInfoProvider {
         deserialize_fn: impl FnOnce(&[u8]) -> anyhow::Result<format::SignedResponse>,
     ) -> anyhow::Result<format::SignedResponse> {
         let raw_json = Self::get(&self.url, self.pinned_certificate.clone()).await?;
-        deserialize_fn(&raw_json)
+        let signed_response = deserialize_fn(&raw_json)?;
+        if let Some(path) = &self.dump_to_path {
+            if let Err(e) = fs::write(path, serde_json::to_string(&signed_response).unwrap()).await
+            {
+                log::error!("Failed to write version metadata to {path:?}: {e:#}");
+            }
+        }
+        Ok(signed_response)
     }
 
     /// Perform a simple GET request, with a size limit, and return it as bytes
@@ -217,6 +234,7 @@ mod test {
         let info_provider = HttpVersionInfoProvider {
             url,
             pinned_certificate: None,
+            dump_to_path: None,
         };
 
         let info = info_provider

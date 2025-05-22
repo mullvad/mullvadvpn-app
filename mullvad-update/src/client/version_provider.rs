@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::version::{VersionInfo, VersionParameters};
 
 /// See [module-level](self) docs.
@@ -7,4 +9,6 @@ pub trait VersionInfoProvider {
         &self,
         params: &VersionParameters,
     ) -> impl std::future::Future<Output = anyhow::Result<VersionInfo>> + Send;
+
+    fn dump_metadata_to_file(&mut self, path: PathBuf) {}
 }

@@ -10,10 +10,7 @@ use crate::{
 
 use mullvad_update::{
     api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
-    app::{
-        self, AppDownloader, DownloadedInstaller, HttpAppDownloader, InstallerFile,
-        VerifiedInstaller,
-    },
+    app::{self, AppDownloader, HttpAppDownloader, InstallerFile},
     local::DirectoryVersionInfoProvider,
     version::{Version, VersionInfo, VersionParameters},
     version_provider::VersionInfoProvider,
@@ -76,7 +73,7 @@ impl AppController {
     /// which is useful for testing.
     pub fn initialize<D, A, V, DirProvider>(
         delegate: &mut D,
-        version_provider: V,
+        mut version_provider: V,
         environment: Environment,
     ) where
         D: AppDelegate + 'static,
@@ -96,6 +93,16 @@ impl AppController {
         let task_tx_clone = task_tx.clone();
         tokio::spawn(async move {
             let working_dir = WorkingDirectory::new::<DirProvider>().await;
+
+            if cfg!(target_os = "windows") {
+                if let Ok(cache_dir) = &working_dir.directory {
+                    let metadata_path = cache_dir.join("metadata.json");
+                    version_provider.dump_metadata_to_file(metadata_path);
+                } else {
+                    log::error!("Failed to create cache dir"); // TODO
+                }
+            }
+
             let version_info = fetch_app_version_info::<D, V>(
                 queue.clone(),
                 version_provider,
@@ -157,7 +164,7 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
     Environment { architecture }: Environment,
 ) -> VersionInfo
 where
-    Delegate: AppDelegate,
+    Delegate: AppDelegate + 'static,
     VersionProvider: VersionInfoProvider + Send,
 {
     loop {
@@ -272,7 +279,6 @@ where
                 queue.queue_main(|delegate| {
                     let ui_installer = UiAppDownloader::new(&*delegate, installer);
 
-                    // TODO: lifetimes!
                     tokio::spawn(async move {
                         if let Err(err) = app::install_and_upgrade(ui_installer).await {
                             log::error!("install_and_upgrade failed: {err:?}");
