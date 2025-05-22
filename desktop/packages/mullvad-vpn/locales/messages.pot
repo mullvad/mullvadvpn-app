@@ -1290,12 +1290,12 @@ msgstr ""
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
 msgstr ""
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
 msgstr ""
 
 msgctxt "notifications"
