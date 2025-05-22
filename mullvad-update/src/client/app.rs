@@ -2,7 +2,12 @@
 
 //! This module implements the flow of downloading and verifying the app.
 
-use std::{ffi::OsString, future::Future, path::PathBuf, time::Duration};
+use std::{
+    ffi::OsString,
+    future::Future,
+    path::{Path, PathBuf},
+    time::Duration,
+};
 
 use tokio::{process::Command, time::timeout};
 
@@ -41,23 +46,40 @@ pub struct AppDownloaderParameters<AppProgress> {
 /// See the [module-level documentation](self).
 pub trait AppDownloader: Send {
     /// Download the app binary.
-    fn download_executable(&mut self) -> impl Future<Output = Result<(), DownloadError>> + Send;
+    fn download_executable(
+        self,
+    ) -> impl Future<Output = Result<impl DownloadedInstaller, DownloadError>> + Send;
+}
 
+pub trait DownloadedInstaller: Send {
     /// Verify the app signature.
-    fn verify(&mut self) -> impl Future<Output = Result<(), DownloadError>> + Send;
+    fn verify(self) -> impl Future<Output = Result<impl VerifiedInstaller, DownloadError>> + Send;
+}
 
+pub trait VerifiedInstaller: Send {
     /// Execute installer.
-    fn install(&mut self) -> impl Future<Output = Result<(), DownloadError>> + Send;
+    fn install(self) -> impl Future<Output = Result<(), DownloadError>> + Send;
 }
 
 /// How long to wait for the installer to exit before returning
 const INSTALLER_STARTUP_TIMEOUT: Duration = Duration::from_millis(500);
 
-/// Download the app and signature, and verify the app's signature
-pub async fn install_and_upgrade(mut downloader: impl AppDownloader) -> Result<(), DownloadError> {
-    downloader.download_executable().await?;
-    downloader.verify().await?;
-    downloader.install().await
+/// Download the app and signature, and verify the installer's signature
+pub async fn download_install_and_upgrade(
+    downloader: impl AppDownloader,
+) -> Result<(), DownloadError> {
+    downloader
+        .download_executable()
+        .await?
+        .verify()
+        .await?
+        .install()
+        .await
+}
+
+/// Verify and run the installer.
+pub async fn install_and_upgrade(installer: impl DownloadedInstaller) -> Result<(), DownloadError> {
+    installer.verify().await?.install().await
 }
 
 #[derive(Clone)]
@@ -79,29 +101,51 @@ impl<AppProgress: ProgressUpdater> From<AppDownloaderParameters<AppProgress>>
     }
 }
 
+#[derive(Clone)]
+pub struct InstallerFile<const VERIFIED: bool> {
+    path: PathBuf,
+    pub app_version: mullvad_version::Version,
+    pub app_size: usize,
+    pub app_sha256: [u8; 32],
+}
+
 impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgress> {
-    async fn download_executable(&mut self) -> Result<(), DownloadError> {
-        let bin_path = self.bin_path();
+    async fn download_executable(mut self) -> Result<impl DownloadedInstaller, DownloadError> {
+        let bin_path = bin_path(&self.params.cache_dir, &self.params.app_version);
         fetch::get_to_file(
-            bin_path,
+            &bin_path,
             &self.params.app_url,
             &mut self.params.app_progress,
             fetch::SizeHint::Exact(self.params.app_size),
         )
         .await
-        .map_err(DownloadError::FetchApp)
-    }
+        .map_err(DownloadError::FetchApp)?;
 
-    async fn verify(&mut self) -> Result<(), DownloadError> {
-        let bin_path = self.bin_path();
-        let hash = self.hash_sha256();
+        Ok(InstallerFile::<false> {
+            path: bin_path,
+            app_version: self.params.app_version,
+            app_size: self.params.app_size,
+            app_sha256: self.params.app_sha256,
+        })
+    }
+}
+
+impl DownloadedInstaller for InstallerFile<false> {
+    async fn verify(self) -> Result<impl VerifiedInstaller, DownloadError> {
+        let bin_path = &self.path;
+        let hash = &self.app_sha256;
 
         match Sha256Verifier::verify(&bin_path, *hash)
             .await
             .map_err(DownloadError::Verification)
         {
             // Verification succeeded
-            Ok(()) => Ok(()),
+            Ok(()) => Ok(InstallerFile::<true> {
+                path: self.path, // TODO: remove clones?
+                app_version: self.app_version,
+                app_size: self.app_size,
+                app_sha256: self.app_sha256,
+            }),
             // Verification failed
             Err(err) => {
                 // Attempt to clean up
@@ -110,9 +154,11 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
             }
         }
     }
+}
 
-    async fn install(&mut self) -> Result<(), DownloadError> {
-        let launch_path = self.launch_path();
+impl VerifiedInstaller for InstallerFile<true> {
+    async fn install(self) -> Result<(), DownloadError> {
+        let launch_path = &self.launch_path();
 
         // Launch process
         let mut cmd = Command::new(launch_path);
@@ -133,21 +179,38 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
     }
 }
 
-impl<AppProgress> HttpAppDownloader<AppProgress> {
-    fn bin_path(&self) -> PathBuf {
-        #[cfg(windows)]
-        let bin_filename = format!("mullvad-{}.exe", self.params.app_version);
+fn bin_path(cache_dir: &Path, app_version: &mullvad_version::Version) -> PathBuf {
+    #[cfg(windows)]
+    let bin_filename = format!("mullvad-{}.exe", app_version);
 
-        #[cfg(target_os = "macos")]
-        let bin_filename = format!("mullvad-{}.pkg", self.params.app_version);
+    #[cfg(target_os = "macos")]
+    let bin_filename = format!("mullvad-{}.pkg", app_version);
 
-        self.params.cache_dir.join(bin_filename)
+    cache_dir.join(bin_filename)
+}
+
+impl InstallerFile<false> {
+    /// Create an unverified [InstallerFile] from a cache_dir and some metadata.
+    pub fn from_version(
+        cache_dir: &Path,
+        app_version: mullvad_version::Version,
+        app_size: usize,
+        app_sha256: [u8; 32],
+    ) -> Self {
+        Self {
+            path: bin_path(cache_dir, &app_version),
+            app_version,
+            app_size,
+            app_sha256,
+        }
     }
+}
 
+impl<const VERIFIED: bool> InstallerFile<VERIFIED> {
     fn launch_path(&self) -> PathBuf {
         #[cfg(target_os = "windows")]
         {
-            self.bin_path()
+            self.path.clone()
         }
 
         #[cfg(target_os = "macos")]
@@ -166,11 +229,7 @@ impl<AppProgress> HttpAppDownloader<AppProgress> {
 
         #[cfg(target_os = "macos")]
         {
-            vec![self.bin_path().into()]
+            vec![self.path.clone().into_os_string()]
         }
-    }
-
-    fn hash_sha256(&self) -> &[u8; 32] {
-        &self.params.app_sha256
     }
 }
