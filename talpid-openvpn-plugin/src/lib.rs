@@ -11,7 +11,7 @@ pub enum Error {
     MissingCoreServerId,
 
     #[error("Failed to send an event to daemon over the IPC channel")]
-    SendEvent(#[source] tonic::Status),
+    SendEvent(#[source] Box<tonic::Status>),
 
     #[error("Unable to start Tokio runtime")]
     CreateRuntime(#[source] io::Error),
