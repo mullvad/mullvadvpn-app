@@ -34,6 +34,7 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
         createDataSnapshot()
         tableView.delegate = self
         setupBindings()
+        updateSelection(from: viewModel.relayFilter)
     }
 
     private func registerCells() {
@@ -59,9 +60,19 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
             .store(in: &disposeBag)
     }
 
+    private func availableProviders(givenOwnership ownership: RelayFilter.Ownership) -> [RelayFilterDataSourceItem] {
+        [RelayFilterDataSourceItem.allProviders] + viewModel
+            .availableProviders(for: ownership)
+    }
+
     private func createDataSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, RelayFilterDataSourceItem>()
         snapshot.appendSections(Section.allCases)
+        snapshot.appendItems(RelayFilterDataSourceItem.ownerships, toSection: .ownership)
+        snapshot.appendItems(
+            availableProviders(givenOwnership: viewModel.relayFilter.ownership),
+            toSection: .providers
+        )
         apply(snapshot, animatingDifferences: false)
     }
 
@@ -79,7 +90,7 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
             case .providers:
                 if !oldSnapshot.itemIdentifiers(inSection: section).isEmpty {
                     newSnapshot.appendItems(
-                        [RelayFilterDataSourceItem.allProviders] + viewModel.availableProviders(for: filter.ownership),
+                        availableProviders(givenOwnership: filter.ownership),
                         toSection: .providers
                     )
                     applySnapshot(newSnapshot, animated: false)
@@ -161,8 +172,7 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
             newSnapshot.deleteItems(items)
         } else {
             newSnapshot.appendItems(
-                [RelayFilterDataSourceItem.allProviders] + viewModel
-                    .availableProviders(for: viewModel.relayFilter.ownership),
+                availableProviders(givenOwnership: viewModel.relayFilter.ownership),
                 toSection: .providers
             )
         }
@@ -256,6 +266,7 @@ extension RelayFilterDataSource: UITableViewDelegate {
             title = "Providers"
         }
 
+        view.isExpanded = true
         view.setAccessibilityIdentifier(accessibilityIdentifier)
         view.titleLabel.text = NSLocalizedString(
             "RELAY_FILTER_HEADER_LABEL",
