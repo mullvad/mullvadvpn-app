@@ -59,7 +59,7 @@ kotlinx-serialization = "1.8.1"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.5"
-protobuf = "4.30.2"
+protobuf = "4.31.0"
 
 # Rust Android Gradle
 rust-android-gradle = "0.9.6"
