@@ -92,7 +92,7 @@ pub enum Error {
     #[error("Could not resolve access method {access_method:#?}")]
     Resolve { access_method: AccessMethod },
     #[error("AccessModeSelector is not receiving any messages.")]
-    SendFailed(#[from] mpsc::TrySendError<Message>),
+    SendFailed(#[from] Box<mpsc::TrySendError<Message>>),
     #[error("AccessModeSelector is not receiving any messages.")]
     OneshotSendFailed,
     #[error("AccessModeSelector is not responding.")]
@@ -135,7 +135,7 @@ pub struct AccessModeSelectorHandle {
 impl AccessModeSelectorHandle {
     async fn send_command<T>(&self, make_cmd: impl FnOnce(ResponseTx<T>) -> Message) -> Result<T> {
         let (tx, rx) = oneshot::channel();
-        self.cmd_tx.unbounded_send(make_cmd(tx))?;
+        self.cmd_tx.unbounded_send(make_cmd(tx)).map_err(Box::new)?;
         rx.await.map_err(Error::NotRunning)?
     }
 
