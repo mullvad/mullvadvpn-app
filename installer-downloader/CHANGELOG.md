@@ -20,6 +20,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Fix
+#### macOS
+- Fix rendering issues on old (unsupported) macOS versions.
 
 
 ## [1.0.0] - 2025-05-13
