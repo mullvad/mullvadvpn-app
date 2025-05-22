@@ -220,7 +220,7 @@ where
             });
 
             // https://www.youtube.com/watch?v=r7DQDrRwNgI
-            if let Some((version)) = existing_download {
+            if let Some(version) = existing_download {
                 self_.show_error_message(crate::delegate::ErrorMessage {
                     status_text: resource::FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD
                         .replace("%s", &version.version.to_string()),

@@ -58,9 +58,9 @@ pub struct HttpVersionInfoProvider {
 }
 
 impl VersionInfoProvider for HttpVersionInfoProvider {
-    async fn get_version_info(&self, params: VersionParameters) -> anyhow::Result<VersionInfo> {
+    async fn get_version_info(&self, params: &VersionParameters) -> anyhow::Result<VersionInfo> {
         let response = self.get_versions(params.lowest_metadata_version).await?;
-        VersionInfo::try_from_response(&params, response.signed)
+        VersionInfo::try_from_response(params, response.signed)
     }
 }
 
