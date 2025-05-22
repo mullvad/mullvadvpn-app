@@ -183,6 +183,9 @@ impl WireguardMonitor {
             config.mtu = clamp_mtu(params, config.mtu);
         }
 
+        // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test
+        // the implementation, as DAITA is not currently supported by boringtun.
+        // TODO: Remove `cfg!(feature = "boringtun")`.
         let userspace_wireguard =
             *FORCE_USERSPACE_WIREGUARD || config.daita || cfg!(feature = "boringtun");
 
