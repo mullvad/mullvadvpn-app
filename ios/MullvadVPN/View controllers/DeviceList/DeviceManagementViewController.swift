@@ -60,7 +60,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
         view.addSubview(contentView)
 
-        contentView.backButton.addTarget(
+        contentView.cancelButton.addTarget(
             self,
             action: #selector(didTapBackButton(_:)),
             for: .touchUpInside

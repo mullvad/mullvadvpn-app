@@ -109,7 +109,7 @@ final class LoginCoordinator: Coordinator, Presenting, @preconcurrency DeviceMan
     private func returnToLogin(repeatLogin: Bool) {
         guard let loginController else { return }
 
-        navigationController.popToViewController(loginController, animated: true) {
+        navigationController.dismiss(animated: true) {
             if let lastLoginAction = self.lastLoginAction, repeatLogin {
                 self.loginController?.start(action: lastLoginAction)
             }
@@ -125,6 +125,7 @@ final class LoginCoordinator: Coordinator, Presenting, @preconcurrency DeviceMan
             interactor: interactor,
             alertPresenter: AlertPresenter(context: self)
         )
+        controller.isModalInPresentation = true
         controller.delegate = self
 
         controller.fetchDevices(animateUpdates: false) { [weak self] result in
@@ -133,7 +134,7 @@ final class LoginCoordinator: Coordinator, Presenting, @preconcurrency DeviceMan
             switch result {
             case .success:
                 Task { @MainActor in
-                    navigationController.pushViewController(controller, animated: true) {
+                    navigationController.present(controller, animated: true) {
                         completion(nil)
                     }
                 }
