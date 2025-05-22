@@ -10,7 +10,7 @@ use crate::firewall::FirewallPolicy;
 use crate::resolver::LOCAL_DNS_RESOLVER;
 use futures::StreamExt;
 use talpid_types::{
-    tunnel::{ErrorStateCause, FirewallPolicyError},
+    tunnel::{ErrorStateCause, FirewallPolicyError, ParameterGenerationError},
     ErrorExt,
 };
 
@@ -185,7 +185,10 @@ impl TunnelState for ErrorState {
             Some(TunnelCommand::Connectivity(connectivity)) => {
                 shared_values.connectivity = connectivity;
                 if !connectivity.is_offline()
-                    && matches!(self.block_reason, ErrorStateCause::IsOffline)
+                    // Reconnect if we're no longer offline
+                    && (matches!(self.block_reason, ErrorStateCause::IsOffline)
+                    // Try to reconnect if missing IP connectivity becomes available
+                    || matches!(self.block_reason, ErrorStateCause::TunnelParameterError(ParameterGenerationError::IpVersionUnavailable { family }) if connectivity.has_family(family)))
                 {
                     #[cfg(target_os = "macos")]
                     if !*LOCAL_DNS_RESOLVER {
