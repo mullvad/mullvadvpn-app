@@ -60,14 +60,16 @@ class LoginPage: Page {
         // Success icon is only shown very briefly, since another view is presented after success icon is shown.
         // Therefore we need to poll faster than waitForElement function.
         let successIconDisplayedExpectation = XCTestExpectation(description: "Success icon shown")
-        var isShown = false
+        nonisolated(unsafe) var isShown = false
         let timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [self] _ in
-            let statusImageView = self.app.images[.statusImageView]
+            DispatchQueue.main.async {
+                let statusImageView = self.app.images[.statusImageView]
 
-            if statusImageView.exists {
-                if statusImageView.value as? String == "success" {
-                    isShown = true
-                    successIconDisplayedExpectation.fulfill()
+                if statusImageView.exists {
+                    if statusImageView.value as? String == "success" {
+                        isShown = true
+                        successIconDisplayedExpectation.fulfill()
+                    }
                 }
             }
         }
