@@ -460,7 +460,6 @@ impl ErrorView {
 
         text.set_text(message.status_text);
         circle.set_image(&ALERT_CIRCLE);
-        circle.set_translates_autoresizing_mask_into_constraints(true);
 
         if let Some(on_cancel) = on_cancel {
             cancel_button.set_action(on_cancel);
@@ -474,20 +473,17 @@ impl ErrorView {
         main_view.add_subview(retry_button);
         main_view.add_subview(cancel_button);
 
-        circle.set_background_color(Color::SystemBlue);
         LayoutConstraint::activate(&[
             text.top.constraint_equal_to(&main_view.top).offset(45.),
             circle
-                .leading
-                .constraint_equal_to(&main_view.leading)
+                .left
+                .constraint_equal_to(&main_view.left)
                 .offset(32.),
-            circle.width.constraint_equal_to_constant(50.),
-            circle.height.constraint_equal_to_constant(50.),
-            text.leading
-                .constraint_equal_to(&circle.trailing)
+            text.left
+                .constraint_equal_to(&circle.right)
                 .offset(16),
-            text.trailing
-                .constraint_equal_to(&main_view.trailing)
+            text.right
+                .constraint_equal_to(&main_view.right)
                 .offset(-32.),
             circle.center_y.constraint_equal_to(&text.center_y),
             retry_button
