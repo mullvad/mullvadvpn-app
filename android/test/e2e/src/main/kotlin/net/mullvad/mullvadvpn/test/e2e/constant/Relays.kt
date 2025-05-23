@@ -16,5 +16,9 @@ private object Relays {
     val gotWg001 = TestRelay(relay = "se-got-wg-001", country = "Sweden", city = "Gothenburg")
     val gotWg002 = TestRelay(relay = "se-got-wg-002", country = "Sweden", city = "Gothenburg")
     val gotWg002RelaySoftware =
-        TestRelay(relay = "se-got-wg-002", country = "Sweden", city = "Gothenburg")
+        TestRelay(
+            relay = "se-got-wg-002",
+            country = "Relay Software Country",
+            city = "Relay Software City",
+        )
 }
