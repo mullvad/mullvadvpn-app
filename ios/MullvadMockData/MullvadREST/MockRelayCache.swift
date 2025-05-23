@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 import Foundation
+
 @testable import MullvadREST
 
 public struct MockRelayCache: RelayCacheProtocol {

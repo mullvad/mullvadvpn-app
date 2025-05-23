@@ -95,20 +95,28 @@ class ProblemReportReviewViewController: UIViewController {
 
     private func loadLogs() {
         spinnerView.startAnimating()
-        interactor.fetchReportString { [weak self] reportString in
+        interactor.fetchReportString { [weak self] result in
             guard let self else { return }
-            Task { @MainActor in
-                textView.text = reportString
-                spinnerView.stopAnimating()
-                spinnerContainerView.isHidden = true
+
+            if case let .success(reportString) = result {
+                Task { @MainActor in
+                    textView.text = reportString
+                    spinnerView.stopAnimating()
+                    spinnerContainerView.isHidden = true
+                }
             }
         }
     }
 
     #if DEBUG
     private func share() {
-        interactor.fetchReportString { [weak self] reportString in
-            guard let self,!reportString.isEmpty else { return }
+        interactor.fetchReportString { [weak self] result in
+            guard
+                let self,
+                case let .success(reportString) = result,
+                !reportString.isEmpty
+            else { return }
+
             Task { @MainActor in
                 let activityController = UIActivityViewController(
                     activityItems: [reportString],

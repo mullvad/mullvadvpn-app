@@ -104,7 +104,7 @@ extension CustomDNSViewController: @preconcurrency DNSSettingsDataSourceDelegate
     func showInfo(for item: VPNSettingsInfoButtonItem) {
         showInfo(with: NSAttributedString(
             markdownString: item.description,
-            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
+            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body, weight: .bold))
         ))
     }
 }
