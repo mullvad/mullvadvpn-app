@@ -31,6 +31,10 @@ class BaseUITestCase: XCTestCase {
     /// Default relay to use in tests
     static let testsDefaultRelayName = "se-got-wg-001"
 
+    static let testsDefaultQuicCountryName = "Relay Software Country"
+    static let testsDefaultQuicCityName = "Relay Software city"
+    static let testsDefaultQuicRelayName = "se-got-wg-881"
+
     /// True when the current test case is capturing packets
     private var currentTestCaseShouldCapturePackets = false
 

@@ -71,10 +71,6 @@ class TunnelControlPage: Page {
         return connectionAttempts
     }
 
-    func getInIPv4AddressLabel() -> String {
-        app.staticTexts[AccessibilityIdentifier.connectionPanelInAddressRow].label.components(separatedBy: ":")[0]
-    }
-
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
