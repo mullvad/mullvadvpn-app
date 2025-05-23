@@ -63,6 +63,9 @@ struct AccessMethodViewModel: Identifiable {
     /// The flag indicating whether configuration is enabled.
     var isEnabled = true
 
+    /// The flag indicating whether configuration is enabled.
+    var canBeToggled = true
+
     /// The status of testing the entered proxy configuration.
     var testingStatus: TestingStatus = .initial
 

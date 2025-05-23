@@ -56,4 +56,41 @@ class AccessMethodsTests: LoggedOutUITestCase {
             .tapTestMethodButton()
             .verifyTestStatus(.reachable)
     }
+
+    func testCanNotDisableLast() throws {
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapAPIAccessCell()
+
+        APIAccessPage(app)
+            .getAccessMethodCell(
+                accessibilityId: AccessibilityIdentifier.accessMethodDirectCell
+            )
+            .tap()
+
+        EditAccessMethodPage(app)
+            .tapEnableMethodSwitch()
+            .tapBackButton()
+
+        APIAccessPage(app)
+            .getAccessMethodCell(
+                accessibilityId: AccessibilityIdentifier.accessMethodBridgesCell
+            )
+            .tap()
+
+        EditAccessMethodPage(app)
+            .tapEnableMethodSwitch()
+            .tapBackButton()
+
+        APIAccessPage(app)
+            .getAccessMethodCell(
+                accessibilityId: AccessibilityIdentifier.accessMethodEncryptedDNSCell
+            )
+            .tap()
+
+        EditAccessMethodPage(app)
+            .verifySwitchDisabled()
+    }
 }
