@@ -34,14 +34,13 @@ enum TaskMessage {
 pub struct AppController {}
 
 struct WorkingDirectory {
-    pub directory: anyhow::Result<PathBuf>,
+    pub directory: PathBuf,
 }
 
 impl WorkingDirectory {
-    pub async fn new<D: DirectoryProvider>() -> Self {
-        Self {
-            directory: D::create_download_dir().await,
-        }
+    pub async fn new<D: DirectoryProvider>() -> anyhow::Result<WorkingDirectory> {
+        let directory = D::create_download_dir().await?;
+        Ok(Self { directory })
     }
 }
 
@@ -92,15 +91,35 @@ impl AppController {
         let queue = delegate.queue();
         let task_tx_clone = task_tx.clone();
         tokio::spawn(async move {
-            let working_dir = WorkingDirectory::new::<DirProvider>().await;
+            let working_dir = match WorkingDirectory::new::<DirProvider>().await {
+                Ok(directory) => directory,
+                Err(err) => {
+                    log::error!("Failed to create temporary directory: {err:?}");
+
+                    queue.queue_main(move |self_| {
+                        self_.clear_status_text();
+                        self_.hide_download_button();
+                        self_.hide_beta_text();
+                        self_.hide_stable_text();
+
+                        self_.show_error_message(crate::delegate::ErrorMessage {
+                            // TODO: Convert to static string.
+                            status_text:
+                                "Failed to create temporary directory for artifacts. Sue me"
+                                    .to_owned(),
+                            cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT
+                                .to_owned(),
+                            retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT
+                                .to_owned(),
+                        });
+                    });
+                    return;
+                }
+            };
 
             if cfg!(target_os = "windows") {
-                if let Ok(cache_dir) = &working_dir.directory {
-                    let metadata_path = cache_dir.join("metadata.json");
-                    version_provider.dump_metadata_to_file(metadata_path);
-                } else {
-                    log::error!("Failed to create cache dir"); // TODO
-                }
+                let metadata_path = working_dir.directory.join("metadata.json");
+                version_provider.dump_metadata_to_file(metadata_path);
             }
 
             let version_info = fetch_app_version_info::<D, V>(
@@ -195,14 +214,11 @@ where
         // If so, the user will be given the option to run it.
         let existing_download: Option<_> = async {
             // FIXME: everything
-            DirectoryVersionInfoProvider::new(
-                working_directory.directory.as_ref().ok()?.clone(),
-                version_params,
-            )
-            .await
-            .inspect_err(|e| log::warn!("Couldn't find a downloaded installer: {e:#}"))
-            .ok()
-            .map(|thingy| thingy.version_info.stable)
+            DirectoryVersionInfoProvider::new(working_directory.directory.clone(), version_params)
+                .await
+                .inspect_err(|e| log::warn!("Couldn't find a downloaded installer: {e:#}"))
+                .ok()
+                .map(|thingy| thingy.version_info.stable)
         }
         .await;
 
@@ -266,10 +282,7 @@ where
             }
             Action::InstallExistingVersion(version_info) => {
                 let installer = InstallerFile::from_version(
-                    working_directory
-                        .directory
-                        .as_deref()
-                        .expect("TODO: handle this error"),
+                    &working_directory.directory,
                     // TODO: what do about beta?
                     version_info.version,
                     version_info.size,
@@ -391,28 +404,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
             });
         });
 
-        // Create temporary dir
-        let download_dir = match &self.working_directory.directory {
-            Ok(dir) => dir.clone(),
-            Err(error) => {
-                log::error!("Failed to create temporary directory: {error:?}");
-
-                self.queue.queue_main(move |self_| {
-                    self_.clear_status_text();
-                    self_.hide_download_button();
-                    self_.hide_beta_text();
-                    self_.hide_stable_text();
-
-                    self_.show_error_message(crate::delegate::ErrorMessage {
-                        status_text: resource::DOWNLOAD_FAILED_DESC.to_owned(),
-                        cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT.to_owned(),
-                        retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT.to_owned(),
-                    });
-                });
-                return;
-            }
-        };
-
+        let download_dir = self.working_directory.directory.clone();
         log::debug!("Download directory: {}", download_dir.display());
 
         // Begin download
