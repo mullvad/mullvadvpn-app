@@ -124,6 +124,10 @@ test.describe('Select location', () => {
       await helpers.resetView();
       await helpers.resetProviders();
       await helpers.resetOwnership();
+      // TODO: Wait for accordion animations to fully finish.
+      // This should be removed once the accordion component
+      // is updated.
+      await new Promise((resolve) => setTimeout(resolve, 500));
     });
 
     test.describe('Filter by provider', () => {
