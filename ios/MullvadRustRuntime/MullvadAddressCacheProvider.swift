@@ -15,17 +15,13 @@ public func iniSwiftAddressCacheWrapper(provider: DefaultAddressCacheProvider) -
 }
 
 @_cdecl("swift_get_cached_endpoint")
-func getCacheEndpoint(rawAddressCacheProvider: UnsafeMutableRawPointer) -> UnsafePointer<CChar>! {
+func getCacheEndpoint(rawAddressCacheProvider: UnsafeMutableRawPointer) -> LateStringDeallocator {
     let addressCacheProvider = Unmanaged<DefaultAddressCacheProvider>.fromOpaque(rawAddressCacheProvider)
         .takeUnretainedValue()
     let cStr = addressCacheProvider.getCurrentEndpoint().description.toCStringPointer()
-    /**
-     `cStr` needs to shortly outlive the return of this function in order to get transformed into a `SocketAddr`
-     This is the simplest way to guarantee that the pointer returned does not get deallocated immediately
-     Or that no memory is leaked every time this function gets called
-     **/
-    DispatchQueue(label: "com.MullvadRustRuntime.DecallocateQueue").async {
-        cStr?.deallocate()
-    }
-    return cStr
+    return LateStringDeallocator(ptr: cStr, deallocate_ptr: deallocate_pointer(pointer:))
+}
+
+func deallocate_pointer(pointer: UnsafePointer<CChar>?) {
+    pointer?.deallocate()
 }
