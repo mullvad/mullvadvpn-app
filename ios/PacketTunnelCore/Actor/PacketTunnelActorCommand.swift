@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MullvadTypes
+@preconcurrency import MullvadTypes
 import Network
 import WireGuardKitTypes
 

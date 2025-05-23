@@ -46,6 +46,8 @@ extension NEProviderStopReason: CustomStringConvertible {
             return "sleep"
         case .appUpdate:
             return "app update"
+        case .internalError:
+            return "internal error"
         @unknown default:
             return "unknown value (\(rawValue))"
         }

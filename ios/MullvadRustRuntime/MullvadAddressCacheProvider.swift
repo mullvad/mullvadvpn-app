@@ -18,7 +18,7 @@ public func iniSwiftAddressCacheWrapper(provider: DefaultAddressCacheProvider) -
 func getCacheEndpoint(rawAddressCacheProvider: UnsafeMutableRawPointer) -> UnsafePointer<CChar>! {
     let addressCacheProvider = Unmanaged<DefaultAddressCacheProvider>.fromOpaque(rawAddressCacheProvider)
         .takeUnretainedValue()
-    let cStr = addressCacheProvider.getCurrentEndpoint().description.toCStringPointer()
+    nonisolated(unsafe) let cStr = addressCacheProvider.getCurrentEndpoint().description.toCStringPointer()
     /**
      `cStr` needs to shortly outlive the return of this function in order to get transformed into a `SocketAddr`
      This is the simplest way to guarantee that the pointer returned does not get deallocated immediately

@@ -290,9 +290,9 @@ class PacketCaptureClient: TestRouterAPIClient {
             }
         }
 
-        var requestResponse: URLResponse?
-        var requestError: Error?
-        var responseData: Data?
+        nonisolated(unsafe) var requestResponse: URLResponse?
+        nonisolated(unsafe) var requestError: Error?
+        nonisolated(unsafe) var responseData: Data?
 
         let completionHandlerInvokedExpectation = XCTestExpectation(
             description: "Completion handler for the request is invoked"

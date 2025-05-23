@@ -44,11 +44,14 @@ class LoginPage: Page {
         // Therefore we need to poll faster than waitForElement function.
         let successIconDisplayedExpectation = XCTestExpectation(description: "Success icon shown")
         let timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [self] _ in
-            let statusImageView = self.app.images[.statusImageView]
+            // Hop back on the @MainActor's queue to access `self`
+            DispatchQueue.main.async {
+                let statusImageView = self.app.images[.statusImageView]
 
-            if statusImageView.exists {
-                if statusImageView.value as? String == "success" {
-                    successIconDisplayedExpectation.fulfill()
+                if statusImageView.exists {
+                    if statusImageView.value as? String == "success" {
+                        successIconDisplayedExpectation.fulfill()
+                    }
                 }
             }
         }

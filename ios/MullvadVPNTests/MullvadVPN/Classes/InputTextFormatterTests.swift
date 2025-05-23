@@ -8,6 +8,7 @@
 
 import XCTest
 
+@MainActor
 class InputTextFormatterTests: XCTestCase {
     private let accountNumber = "12345678"
     private var inputTextFormatter: InputTextFormatter!
@@ -19,14 +20,14 @@ class InputTextFormatterTests: XCTestCase {
         maxGroups: 4
     )
 
-    override func setUp() {
+    override func setUp() async throws {
         inputTextFormatter = InputTextFormatter(
             string: accountNumber,
             configuration: configuration
         )
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         inputTextFormatter = nil
     }
 

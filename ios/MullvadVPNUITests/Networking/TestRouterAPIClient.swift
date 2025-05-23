@@ -19,8 +19,8 @@ class TestRouterAPIClient {
         let completionHandlerInvokedExpectation = XCTestExpectation(
             description: "Completion handler for the request is invoked"
         )
-        var deviceIPAddress = ""
-        var requestError: Error?
+        nonisolated(unsafe) var deviceIPAddress = ""
+        nonisolated(unsafe) var requestError: Error?
 
         let dataTask = URLSession.shared.dataTask(with: request) { data, _, _ in
             defer { completionHandlerInvokedExpectation.fulfill() }

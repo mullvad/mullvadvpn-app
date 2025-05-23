@@ -35,8 +35,8 @@ class FirewallClient: TestRouterAPIClient {
             "protocols": firewallRule.protocolsAsStringArray(),
         ]
 
-        var requestError: Error?
-        var requestResponse: URLResponse?
+        nonisolated(unsafe) var requestError: Error?
+        nonisolated(unsafe) var requestResponse: URLResponse?
         let completionHandlerInvokedExpectation = XCTestExpectation(
             description: "Completion handler for the request is invoked"
         )
@@ -82,8 +82,8 @@ class FirewallClient: TestRouterAPIClient {
         var request = URLRequest(url: removeRulesURL)
         request.httpMethod = "DELETE"
 
-        var requestResponse: URLResponse?
-        var requestError: Error?
+        nonisolated(unsafe) var requestResponse: URLResponse?
+        nonisolated(unsafe) var requestError: Error?
         let completionHandlerInvokedExpectation = XCTestExpectation(
             description: "Completion handler for the request is invoked"
         )

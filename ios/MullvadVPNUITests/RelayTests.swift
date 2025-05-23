@@ -17,14 +17,14 @@ private struct RelayInfo {
 class RelayTests: LoggedInWithTimeUITestCase {
     var removeFirewallRulesInTearDown = false
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
 
         removeFirewallRulesInTearDown = false
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         if removeFirewallRulesInTearDown {
             FirewallClient().removeRules()
