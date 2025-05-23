@@ -23,6 +23,7 @@ export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
   }
 
   const startAppResult = await startApp({ args });
+  await startAppResult.page.emulateMedia({ reducedMotion: 'reduce' });
   const mockIpcHandle = generateMockIpcHandle(startAppResult.app);
   const sendMockIpcResponse = generateSendMockIpcResponse(startAppResult.app);
 
