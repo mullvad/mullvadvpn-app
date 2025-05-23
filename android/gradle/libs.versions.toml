@@ -15,21 +15,21 @@ androidx-appcompat = "1.7.0"
 androidx-ktx = "1.16.0"
 androidx-credentials = "1.5.0"
 androidx-coresplashscreen = "1.1.0-rc01"
-androidx-datastore = "1.1.5"
+androidx-datastore = "1.1.7"
 androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.8.7"
 androidx-test = "1.6.1"
 androidx-testmonitor = "1.7.2"
 androidx-testorchestrator = "1.5.1"
 androidx-testrunner = "1.6.2"
-androidx-uiautomator = "2.4.0-alpha02"
+androidx-uiautomator = "2.4.0-alpha03"
 androidx-tv = "1.0.0"
 
 # Arrow
-arrow = "2.1.1"
+arrow = "2.1.2"
 
 # Compose
-compose = "1.8.0"
+compose = "1.8.2"
 compose-destinations = "2.2.0"
 compose-constraintlayout = "1.1.1"
 compose-material3 = "1.3.2"
@@ -52,14 +52,14 @@ ktor = "3.0.3"
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
-kotlin = "2.1.20"
-kotlin-ksp = "2.1.20-2.0.1"
+kotlin = "2.1.21"
+kotlin-ksp = "2.1.21-2.0.1"
 kotlinx = "1.10.2"
 kotlinx-serialization = "1.8.1"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.5"
-protobuf = "4.30.2"
+protobuf = "4.31.0"
 
 # Rust Android Gradle
 rust-android-gradle = "0.9.6"
@@ -75,7 +75,7 @@ ktfmt = "0.22.0"
 leakcanary = "2.14"
 
 # Mockk 1.14.0 is broken with value classes, avoid updating
-mockk = "1.13.17"
+mockk = "1.14.2"
 mockwebserver = "4.12.0"
 play-publisher = "3.12.1"
 turbine = "1.2.0"
