@@ -19,6 +19,6 @@ private object Relays {
         TestRelay(
             relay = "se-got-wg-002",
             country = "Relay Software Country",
-            city = "Relay Software City",
+            city = "Relay Software city",
         )
 }
