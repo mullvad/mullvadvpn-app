@@ -77,6 +77,15 @@ typedef struct SwiftRetryStrategy {
   struct RetryStrategy *_0;
 } SwiftRetryStrategy;
 
+/**
+ * A struct used to deallocate a pointer to a C String later than when the pointer's control is relinquished from Swift.
+ * Use the `deallocate_ptr` function on `ptr` to call the custom deallocator provided by Swift.
+ */
+typedef struct LateStringDeallocator {
+  const char *ptr;
+  void (*deallocate_ptr)(const char*);
+} LateStringDeallocator;
+
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
   uintptr_t body_size;
@@ -316,7 +325,7 @@ struct SwiftCancelHandle mullvad_ios_delete_account(struct SwiftApiContext api_c
  * `rawAddressCacheProvider` **must** be provided by a call to `init_swift_address_cache_wrapper`
  * It is okay to persist it, and use it accross multiple threads.
  */
-extern const char *swift_get_cached_endpoint(const void *rawAddressCacheProvider);
+extern struct LateStringDeallocator swift_get_cached_endpoint(const void *rawAddressCacheProvider);
 
 /**
  * Called by the Swift side in order to provide an object to rust that provides API addresses in a UTF-8 string form
