@@ -19,7 +19,7 @@ const Container = styled.div<{ $height: string; $animationDuration: number }>((p
   display: 'flex',
   height: props.$height,
   overflow: 'hidden',
-  transition: `height ${props.$animationDuration}ms ease-in-out`,
+  transition: 'height 0ms ease-in-out',
 }));
 
 const Content = styled.div({
