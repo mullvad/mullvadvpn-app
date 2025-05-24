@@ -1,5 +1,8 @@
 use super::string_value::StringValue;
 use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::io::BufReader;
+use std::path::Path;
 use std::{
     fmt::{self, Display, Formatter},
     ops::{Deref, DerefMut},
@@ -43,6 +46,18 @@ impl StringResources {
     pub fn sort(&mut self) {
         self.entries
             .sort_by(|left, right| left.name.cmp(&right.name));
+    }
+}
+
+impl TryFrom<&Path> for StringResources {
+    type Error = String;
+
+    fn try_from(value: &Path) -> Result<Self, Self::Error> {
+        let strings_file = File::open(value)
+            .map_err(|e| format!("Failed to open string resources file: {}", e))?;
+
+        quick_xml::de::from_reader(BufReader::new(strings_file))
+            .map_err(|e| format!("Failed to parse string resources file: {}", e))
     }
 }
 
