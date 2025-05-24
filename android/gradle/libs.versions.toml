@@ -1,4 +1,12 @@
 [versions]
+
+jvm-target = "17"
+compile-sdk = "35"
+build-tools = "35.0.0"
+min-sdk = "26"
+target-sdk = "35"
+ndk = "27.2.12479018"
+
 # Android
 # The android-gradle-aapt plugin version must be in sync with the android plugin version.
 # Required for Gradle metadata verification to work properly, see:
@@ -40,6 +48,10 @@ drawablepainter = "0.37.3"
 grpc = "1.72.0"
 grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
+
+junit = "5.12.2"
+junit5-android = "1.7.0"
+junit5-android-plugin = "1.12.2.0"
 
 # Koin
 koin = "4.0.4"
@@ -133,6 +145,16 @@ grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }
 grpc-protobuf-lite = { module = "io.grpc:grpc-protobuf-lite", version.ref = "grpc" }
 
+# JUnit
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+
+junit5-android-test-compose = { module = "de.mannodermaus.junit5:android-test-compose", version.ref = "junit5-android" }
+junit5-android-test-core = { module = "de.mannodermaus.junit5:android-test-core", version.ref = "junit5-android" }
+junit5-android-test-extensions = { module = "de.mannodermaus.junit5:android-test-extensions", version.ref = "junit5-android" }
+junit5-android-test-runner = { module = "de.mannodermaus.junit5:android-test-runner", version.ref = "junit5-android" }
+
 # Protobuf
 protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
 
@@ -183,6 +205,9 @@ android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" 
 
 # Compose
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+#Junit
+junit5-android = { id = "de.mannodermaus.android-junit5", version.ref = "junit5-android-plugin" }
 
 # Kotlin
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
