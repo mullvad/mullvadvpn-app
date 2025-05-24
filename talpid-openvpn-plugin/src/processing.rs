@@ -71,6 +71,9 @@ impl EventProcessor {
                 .block_on(self.ipc_client.route_predown(details)),
             other => return Err(Error::UnhandledEvent(other)),
         };
-        response.map(|_| ()).map_err(Error::SendEvent)
+        match response {
+            Ok(_) => Ok(()),
+            Err(e) => Err(Error::SendEvent(Box::new(e))),
+        }
     }
 }
