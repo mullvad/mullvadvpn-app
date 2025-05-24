@@ -95,7 +95,7 @@ turbine = "1.2.0"
 [libraries]
 # Android
 android-billingclient = { module = "com.android.billingclient:billing-ktx", version.ref = "android-billingclient" }
-android-gradle-aapt = { module = "com.android.tools.build:aapt2" }
+android-gradle-aapt = { module = "com.android.tools.build:aapt2", version.ref = "android-gradle-aapt" }
 
 # AndroidX
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
