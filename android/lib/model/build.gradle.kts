@@ -1,8 +1,15 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
+
+    val powerAssert = libs.plugins.power.assert.get()
+    kotlin(powerAssert.pluginId) version powerAssert.version.requiredVersion
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
@@ -32,6 +39,17 @@ android {
         abortOnError = true
         warningsAsErrors = true
     }
+}
+
+powerAssert {
+    functions =
+        listOf(
+            "kotlin.assert",
+            "kotlin.test.assertTrue",
+            "kotlin.test.assertEquals",
+            "kotlin.test.assertNull",
+        )
+    includedSourceSets = listOf("debugAndroidTest", "debugUnitTest", "release", "releaseUnitTest")
 }
 
 dependencies {

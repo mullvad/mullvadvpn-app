@@ -1,8 +1,7 @@
 package net.mullvad.mullvadvpn.lib.model
 
 import kotlin.math.sqrt
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
 
 class LatLongTest {
@@ -36,6 +35,6 @@ class LatLongTest {
         val malmoToNewYork = malmo.seppDistanceTo(newYork)
         val malmoToJohannesburg = malmo.seppDistanceTo(johannesburg)
 
-        assertTrue { malmoToNewYork < malmoToJohannesburg }
+        assert(malmoToNewYork > malmoToJohannesburg)
     }
 }
