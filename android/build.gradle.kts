@@ -28,11 +28,10 @@ buildscript {
     dependencies {
         // Dependency class paths are required for Gradle metadata verification to work properly,
         // see:
-        // https://github.com/gradle/gradle/issues/19228s
+        // https://github.com/gradle/gradle/issues/19228
         //noinspection UseTomlInstead
-        val aapt = libs.android.gradle.aapt.get().toString()
-        val aaptVersion = libs.versions.android.gradle.aapt.get()
-        val agpVersion = libs.versions.android.gradle.plugin.get()
+        val (aapt, aaptVersion) = with(libs.android.gradle.aapt.get()) { module to version }
+        val agpVersion = libs.plugins.android.gradle.plugin.get().version.requiredVersion
         classpath("$aapt:$agpVersion-$aaptVersion:linux")
         classpath("$aapt:$agpVersion-$aaptVersion:osx")
         classpath("$aapt:$agpVersion-$aaptVersion:windows")

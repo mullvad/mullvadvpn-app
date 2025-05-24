@@ -1,17 +1,16 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-
-    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
+    alias(libs.plugins.junit5.android)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.billing"
-    compileSdk = Versions.compileSdkVersion
-    buildToolsVersion = Versions.buildToolsVersion
+    compileSdk = libs.versions.compile.sdk.get().toInt()
+    buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig {
-        minSdk = Versions.minSdkVersion
+        minSdk = libs.versions.min.sdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -21,7 +20,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = Versions.jvmTarget
+        jvmTarget = libs.versions.jvm.target.get()
         allWarningsAsErrors = true
     }
 
@@ -66,13 +65,13 @@ dependencies {
     implementation(libs.kermit)
 
     // Test dependencies
-    testRuntimeOnly(Dependencies.junitJupiterEngine)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 
     testImplementation(projects.lib.commonTest)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
-    testImplementation(Dependencies.junitJupiterApi)
+    testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.turbine)
 
     androidTestImplementation(projects.lib.commonTest)
@@ -80,7 +79,7 @@ dependencies {
     androidTestImplementation(libs.kotlin.test)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.turbine)
-    androidTestImplementation(Dependencies.junitJupiterApi)
-    androidTestImplementation(Dependencies.junitJupiterEngine)
+    androidTestImplementation(libs.junit.jupiter.api)
+    androidTestImplementation(libs.junit.jupiter.engine)
     androidTestImplementation(libs.androidx.espresso)
 }

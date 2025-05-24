@@ -13,8 +13,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.protobuf.core)
     alias(libs.plugins.rust.android.gradle)
-
-    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
+    alias(libs.plugins.junit5.android)
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -32,14 +31,14 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "net.mullvad.mullvadvpn"
-    compileSdk = Versions.compileSdkVersion
-    buildToolsVersion = Versions.buildToolsVersion
-    ndkVersion = Versions.ndkVersion
+    compileSdk = libs.versions.compile.sdk.get().toInt()
+    buildToolsVersion = libs.versions.build.tools.get()
+    ndkVersion = libs.versions.ndk.get()
 
     defaultConfig {
         applicationId = "net.mullvad.mullvadvpn"
-        minSdk = Versions.minSdkVersion
-        targetSdk = Versions.targetSdkVersion
+        minSdk = libs.versions.min.sdk.get().toInt()
+        targetSdk = libs.versions.target.sdk.get().toInt()
         versionCode = generateVersionCode()
         versionName = generateVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -140,7 +139,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = Versions.jvmTarget
+        jvmTarget = libs.versions.jvm.target.get()
         allWarningsAsErrors = true
         freeCompilerArgs =
             listOf(
@@ -241,7 +240,7 @@ android {
 
 junitPlatform {
     instrumentationTests {
-        version.set(Versions.junit5Android)
+        version.set(libs.versions.junit5.android.asProvider())
         includeExtensions.set(true)
     }
 }
@@ -403,9 +402,9 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
-    testImplementation(Dependencies.junitJupiterApi)
-    testRuntimeOnly(Dependencies.junitJupiterEngine)
-    testImplementation(Dependencies.junitJupiterParams)
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.junit.jupiter.params)
 
     // UI test dependencies
     debugImplementation(libs.compose.ui.test.manifest)
@@ -413,6 +412,6 @@ dependencies {
     androidTestImplementation(libs.kotlin.test)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.turbine)
-    androidTestImplementation(Dependencies.junitJupiterApi)
-    androidTestImplementation(Dependencies.junit5AndroidTestCompose)
+    androidTestImplementation(libs.junit.jupiter.api)
+    androidTestImplementation(libs.junit5.android.test.compose)
 }
