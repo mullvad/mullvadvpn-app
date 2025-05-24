@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Find and print all remote branches not commited to in over two months.
-# Prints grouped by commiter email. Used to detect stale branches that
+# Find and print all remote branches not committed to in over two months.
+# Prints grouped by committer email. Used to detect stale branches that
 # could potentially be removed.
 
 TWO_MONTHS=$((60 * 60 * 24 * 60))

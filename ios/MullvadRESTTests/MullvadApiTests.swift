@@ -154,7 +154,7 @@ class MullvadApiTests: XCTestCase {
             UInt(expectedResponseCode),
             """
             {"code": "\(expectedErrorCode)",
-            "error": "A magical error occured"
+            "error": "A magical error occurred"
             }
             """
         )

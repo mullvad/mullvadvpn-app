@@ -36,7 +36,7 @@ pub struct TestConfig {
     pub host_bridge_name: String,
     pub host_bridge_ip: Ipv4Addr,
     pub os: Os,
-    /// The OpenVPN CA certificate to use with the the installed Mullvad App.
+    /// The OpenVPN CA certificate to use with the installed Mullvad App.
     pub openvpn_certificate: OpenVPNCertificate,
 }
 
