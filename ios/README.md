@@ -103,3 +103,8 @@ ios/convert-assets.rb --additional-assets
 The script `relays-prebuild.sh` runs on each Xcode build and will download and cache a list of relays if it is not already present for a given configuration.
 The cached list for a given configuration will always override the current relays file.
 To get a fresh relay file on demand, issue a `clean` command to Xcode and re-build the project.
+
+## Rust and FFI
+The application code makes extensive use of FFIs to leverage all the code written in Rust that can be reused across multiple platforms.
+
+As such, we wrote some [documentation](./FFI.md) to describe what best practices we are following.
