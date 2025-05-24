@@ -4,7 +4,7 @@ jvm-target = "17"
 compile-sdk = "35"
 build-tools = "35.0.0"
 min-sdk = "26"
-target-sdk = "35"
+target-sdk = "36"
 ndk = "27.2.12479018"
 
 # Android
