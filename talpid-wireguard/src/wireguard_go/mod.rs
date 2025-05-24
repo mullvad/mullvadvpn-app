@@ -13,6 +13,8 @@ use crate::connectivity;
 use crate::logging::{clean_up_logging, initialize_logging};
 #[cfg(all(unix, not(target_os = "android")))]
 use ipnetwork::IpNetwork;
+#[cfg(target_os = "android")]
+use std::borrow::Cow;
 #[cfg(daita)]
 use std::ffi::CString;
 #[cfg(unix)]
@@ -67,105 +69,191 @@ impl Drop for LoggingContext {
     }
 }
 
-#[cfg(not(target_os = "android"))]
-pub struct WgGoTunnel(WgGoTunnelState);
-
-#[cfg(target_os = "android")]
-pub enum WgGoTunnel {
-    Multihop(WgGoTunnelState),
-    Singlehop(WgGoTunnelState),
-}
-
-#[cfg(not(target_os = "android"))]
-impl WgGoTunnel {
-    fn into_state(self) -> WgGoTunnelState {
-        self.0
-    }
-
-    fn as_state(&self) -> &WgGoTunnelState {
-        &self.0
-    }
-
-    fn as_state_mut(&mut self) -> &mut WgGoTunnelState {
-        &mut self.0
-    }
+pub struct WgGoTunnel {
+    // This should never be [None] _unless_ we have just called [Self::stop] and
+    // we're restarting the tunnel.
+    inner: Option<WgGoTunnelState>,
+    #[cfg(target_os = "android")]
+    r#type: Circuit,
 }
 
 #[cfg(target_os = "android")]
+#[derive(Clone, Copy, Debug)]
+enum Circuit {
+    Singlehop,
+    Multihop,
+}
+
+/// Configure and start a Wireguard-go tunnel.
+#[allow(clippy::unused_async)]
+pub(crate) async fn open_wireguard_go_tunnel(
+    config: &Config,
+    log_path: Option<&Path>,
+    #[cfg(unix)] tun_provider: Arc<std::sync::Mutex<talpid_tunnel::tun_provider::TunProvider>>,
+    #[cfg(target_os = "android")] route_manager: RouteManagerHandle,
+    #[cfg(windows)] setup_done_tx: futures::channel::mpsc::Sender<
+        std::result::Result<(), BoxedError>,
+    >,
+    #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
+    #[cfg(target_os = "android")] gateway_only: bool,
+    #[cfg(target_os = "android")] cancel_receiver: connectivity::CancelReceiver,
+) -> Result<WgGoTunnel> {
+    #[cfg(all(unix, not(target_os = "android")))]
+    let routes = config.get_tunnel_destinations();
+
+    #[cfg(all(unix, not(target_os = "android")))]
+    let tunnel = WgGoTunnel::start_tunnel(config, log_path, tun_provider, routes)?;
+
+    #[cfg(target_os = "windows")]
+    let tunnel = WgGoTunnel::start_tunnel(config, log_path, route_manager, setup_done_tx).await?;
+
+    // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
+    // with an ephemeral peer, this multihop strategy require us to restart the tunnel
+    // every time we want to reconfigure it. As such, we will actually start a multihop
+    // tunnel at a later stage, after we have negotiated with the first ephemeral peer.
+    // At this point, when the tunnel *is first started*, we establish a regular, singlehop
+    // tunnel to where the ephemeral peer resides.
+    //
+    // Refer to `docs/architecture.md` for details on how to use multihop + PQ.
+    #[cfg(target_os = "android")]
+    let config = patch_allowed_ips(config, gateway_only);
+
+    #[cfg(target_os = "android")]
+    let tunnel = if let Some(exit_peer) = &config.exit_peer {
+        WgGoTunnel::start_multihop_tunnel(
+            &config,
+            exit_peer,
+            log_path,
+            tun_provider,
+            route_manager,
+            cancel_receiver,
+        )
+        .await?
+    } else {
+        WgGoTunnel::start_tunnel(
+            #[allow(clippy::needless_borrow)]
+            &config,
+            log_path,
+            tun_provider,
+            route_manager,
+            cancel_receiver,
+        )
+        .await?
+    };
+
+    Ok(tunnel)
+}
+
+/// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
+/// Used to block traffic to other destinations while connecting on Android.
+#[cfg(target_os = "android")]
+fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
+    use std::net::IpAddr;
+
+    if gateway_only {
+        let mut patched_config = config.clone();
+        let gateway_net_v4 =
+            ipnetwork::IpNetwork::from(std::net::IpAddr::from(config.ipv4_gateway));
+        let gateway_net_v6 = config
+            .ipv6_gateway
+            .map(|net| ipnetwork::IpNetwork::from(IpAddr::from(net)));
+        for peer in patched_config.peers_mut() {
+            peer.allowed_ips = peer
+                .allowed_ips
+                .iter()
+                .cloned()
+                .filter_map(|mut allowed_ip| {
+                    if allowed_ip.prefix() == 0 {
+                        if allowed_ip.is_ipv4() {
+                            allowed_ip = gateway_net_v4;
+                        } else if let Some(net) = gateway_net_v6 {
+                            allowed_ip = net;
+                        } else {
+                            return None;
+                        }
+                    }
+                    Some(allowed_ip)
+                })
+                .collect();
+        }
+        Cow::Owned(patched_config)
+    } else {
+        Cow::Borrowed(config)
+    }
+}
+
 impl WgGoTunnel {
-    fn into_state(self) -> WgGoTunnelState {
-        match self {
-            WgGoTunnel::Multihop(state) => state,
-            WgGoTunnel::Singlehop(state) => state,
-        }
+    fn handle(&self) -> &WgGoTunnelState {
+        debug_assert!(&self.inner.is_some());
+        self.inner.as_ref().unwrap()
     }
 
-    fn as_state(&self) -> &WgGoTunnelState {
-        match self {
-            WgGoTunnel::Multihop(state) => state,
-            WgGoTunnel::Singlehop(state) => state,
-        }
+    fn handle_mut(&mut self) -> &mut WgGoTunnelState {
+        debug_assert!(&self.inner.is_some());
+        self.inner.as_mut().unwrap()
     }
 
-    fn as_state_mut(&mut self) -> &mut WgGoTunnelState {
-        match self {
-            WgGoTunnel::Multihop(state) => state,
-            WgGoTunnel::Singlehop(state) => state,
+    fn stop(&mut self) -> Result<()> {
+        if let Some(tunnel) = self.inner.take() {
+            tunnel
+                .tunnel_handle
+                .turn_off()
+                .map_err(|e| TunnelError::StopWireguardError(Box::new(e)))?;
         }
+        Ok(())
     }
 
-    pub async fn set_config(self, config: &Config) -> Result<Self> {
-        let state = self.as_state();
-        let log_path = state._logging_context.path.clone();
-        let cancel_receiver = state.cancel_receiver.clone();
-        let tun_provider = Arc::clone(&state.tun_provider);
-        let route_manager = state.route_manager.clone();
+    #[cfg(not(target_os = "android"))]
+    #[allow(clippy::unused_async)]
+    async fn set_config(&mut self, config: Config) -> Result<()> {
+        self.handle_mut().set_config(config)
+    }
 
-        match self {
-            WgGoTunnel::Multihop(state) if !config.is_multihop() => {
-                state.stop()?;
-                Self::start_tunnel(
-                    config,
+    #[cfg(target_os = "android")]
+    pub async fn set_config(&mut self, config: Config) -> Result<()> {
+        let log_path = self.handle()._logging_context.path.clone();
+        let cancel_receiver = self.handle().cancel_receiver.clone();
+        let tun_provider = Arc::clone(&self.handle().tun_provider);
+        let route_manager = self.handle().route_manager.clone();
+
+        match self.r#type {
+            Circuit::Multihop if !config.is_multihop() => {
+                self.stop()?;
+                *self = Self::start_tunnel(
+                    &config,
                     log_path.as_deref(),
                     tun_provider,
                     route_manager,
                     cancel_receiver,
                 )
-                .await
+                .await?;
             }
-            WgGoTunnel::Singlehop(state) if config.is_multihop() => {
-                state.stop()?;
-                Self::start_multihop_tunnel(
-                    config,
+            Circuit::Singlehop if config.is_multihop() => {
+                self.stop()?;
+                *self = Self::start_multihop_tunnel(
+                    &config,
                     &config.exit_peer.clone().unwrap().clone(),
                     log_path.as_deref(),
                     tun_provider,
                     route_manager,
                     cancel_receiver,
                 )
-                .await
+                .await?;
             }
-            WgGoTunnel::Singlehop(mut state) => {
-                state.set_config(config.clone())?;
-                let new_state = WgGoTunnel::Singlehop(state);
+            Circuit::Singlehop => {
+                self.handle_mut().set_config(config)?;
                 // HACK: Check if the tunnel is working by sending a ping in the tunnel.
                 // This check is needed for PQ connections to be established.
-                new_state.ensure_tunnel_is_running().await?;
-                Ok(new_state)
+                self.ensure_tunnel_is_running().await?;
             }
-            WgGoTunnel::Multihop(mut state) => {
-                state.set_config(config.clone())?;
-                let new_state = WgGoTunnel::Multihop(state);
+            Circuit::Multihop => {
+                self.handle_mut().set_config(config)?;
                 // HACK: Check if the tunnel is working by sending a ping in the tunnel.
                 // This check is needed for PQ connections to be established.
-                new_state.ensure_tunnel_is_running().await?;
-                Ok(new_state)
+                self.ensure_tunnel_is_running().await?;
             }
-        }
-    }
-
-    pub fn stop(self) -> Result<()> {
-        self.into_state().stop()
+        };
+        Ok(())
     }
 }
 
@@ -194,12 +282,6 @@ pub(crate) struct WgGoTunnelState {
 }
 
 impl WgGoTunnelState {
-    fn stop(self) -> Result<()> {
-        self.tunnel_handle
-            .turn_off()
-            .map_err(|e| TunnelError::StopWireguardError(Box::new(e)))
-    }
-
     fn set_config(&mut self, config: Config) -> Result<()> {
         let wg_config_str = config.to_userspace_format();
 
@@ -231,7 +313,7 @@ impl WgGoTunnelState {
 
 impl WgGoTunnel {
     #[cfg(any(target_os = "linux", target_os = "macos"))]
-    pub fn start_tunnel(
+    fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
@@ -258,14 +340,18 @@ impl WgGoTunnel {
         )
         .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
-        Ok(WgGoTunnel(WgGoTunnelState {
+        let tunnel = WgGoTunnelState {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
             #[cfg(daita)]
             config: config.clone(),
-        }))
+        };
+
+        Ok(WgGoTunnel {
+            inner: Some(tunnel),
+        })
     }
 
     #[cfg(target_os = "windows")]
@@ -329,14 +415,16 @@ impl WgGoTunnel {
 
         let interface_name = handle.name();
 
-        Ok(WgGoTunnel(WgGoTunnelState {
-            interface_name: interface_name.to_owned(),
-            tunnel_handle: handle,
-            _logging_context: logging_context,
-            _socket_update_cb: socket_update_cb,
-            #[cfg(daita)]
-            config: config.clone(),
-        }))
+        Ok(WgGoTunnel {
+            inner: Some(WgGoTunnelState {
+                interface_name: interface_name.to_owned(),
+                tunnel_handle: handle,
+                _logging_context: logging_context,
+                _socket_update_cb: socket_update_cb,
+                #[cfg(daita)]
+                config: config.clone(),
+            }),
+        })
     }
 
     // Callback to be used to rebind the tunnel sockets when the default route changes
@@ -367,6 +455,7 @@ impl WgGoTunnel {
         #[cfg(target_os = "linux")]
         {
             tun_config.name = Some(MULLVAD_INTERFACE_NAME.to_string());
+            tun_config.packet_information = true;
         }
         tun_config.addresses = config.tunnel.addresses.clone();
         tun_config.ipv4_gateway = config.ipv4_gateway;
@@ -449,7 +538,7 @@ impl WgGoTunnel {
         Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
             .map_err(TunnelError::BypassError)?;
 
-        let tunnel = WgGoTunnel::Singlehop(WgGoTunnelState {
+        let tunnel = WgGoTunnelState {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
@@ -459,7 +548,11 @@ impl WgGoTunnel {
             #[cfg(daita)]
             config: config.clone(),
             cancel_receiver,
-        });
+        };
+        let tunnel = Self {
+            inner: Some(tunnel),
+            r#type: Circuit::Singlehop,
+        };
 
         if is_new_tunnel {
             tunnel.wait_for_routes().await?;
@@ -527,7 +620,7 @@ impl WgGoTunnel {
         Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
             .map_err(TunnelError::BypassError)?;
 
-        let tunnel = WgGoTunnel::Multihop(WgGoTunnelState {
+        let tunnel = WgGoTunnelState {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
@@ -537,7 +630,12 @@ impl WgGoTunnel {
             #[cfg(daita)]
             config: config.clone(),
             cancel_receiver: cancel_receiver.clone(),
-        });
+        };
+
+        let tunnel = Self {
+            inner: Some(tunnel),
+            r#type: Circuit::Multihop,
+        };
 
         if is_new_tunnel {
             tunnel.wait_for_routes().await?;
@@ -569,12 +667,10 @@ impl WgGoTunnel {
     /// There is a brief period of time between setting up a Wireguard-go tunnel and the tunnel being ready to serve
     /// traffic. This function blocks until the tunnel starts to serve traffic or until [connectivity::Check] times out.
     async fn wait_for_routes(&self) -> Result<()> {
-        let state = self.as_state();
-
-        let expected_routes = state.tun_provider.lock().unwrap().real_routes();
+        let expected_routes = self.handle().tun_provider.lock().unwrap().real_routes();
 
         // Wait for routes to come up
-        state
+        self.handle()
             .route_manager
             .clone()
             .wait_for_routes(expected_routes)
@@ -585,9 +681,8 @@ impl WgGoTunnel {
         Ok(())
     }
     async fn ensure_tunnel_is_running(&self) -> Result<()> {
-        let state = self.as_state();
-        let addr = state.config.ipv4_gateway;
-        let cancel_receiver = state.cancel_receiver.clone();
+        let addr = self.handle().config.ipv4_gateway;
+        let cancel_receiver = self.handle().cancel_receiver.clone();
         let mut check = connectivity::Check::new(addr, 0, cancel_receiver)
             .map_err(|err| TunnelError::RecoverableStartWireguardError(Box::new(err)))?;
 
@@ -612,16 +707,17 @@ impl WgGoTunnel {
 #[async_trait::async_trait]
 impl Tunnel for WgGoTunnel {
     fn get_interface_name(&self) -> String {
-        self.as_state().interface_name.clone()
+        self.handle().interface_name.clone()
     }
 
-    fn stop(self: Box<Self>) -> Result<()> {
-        self.into_state().stop()
+    fn stop(mut self: Box<Self>) -> Result<()> {
+        WgGoTunnel::stop(&mut self)?;
+        Ok(())
     }
 
     async fn get_tunnel_stats(&self) -> Result<StatsMap> {
         // NOTE: wireguard-go might perform blocking I/O, but it's most likely not a problem
-        self.as_state()
+        self.handle()
             .tunnel_handle
             .get_config(|cstr| {
                 Stats::parse_config_str(cstr.to_str().expect("Go strings are always UTF-8"))
@@ -634,20 +730,19 @@ impl Tunnel for WgGoTunnel {
         &mut self,
         config: Config,
     ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
-        Box::pin(async move { self.as_state_mut().set_config(config) })
+        Box::pin(async move { self.set_config(config).await })
     }
 
     #[cfg(daita)]
     fn start_daita(&mut self, settings: DaitaSettings) -> Result<()> {
         log::info!("Initializing DAITA for wireguard device");
-        let config = &self.as_state().config;
-        let peer_public_key = &config.entry_peer.public_key;
+        let peer_public_key = self.handle().config.entry_peer.public_key.clone();
 
         let machines = settings.client_machines.join("\n");
         let machines =
             CString::new(machines).map_err(|err| TunnelError::StartDaita(Box::new(err)))?;
 
-        self.as_state()
+        self.handle()
             .tunnel_handle
             .activate_daita(
                 peer_public_key.as_bytes(),
