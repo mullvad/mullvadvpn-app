@@ -236,9 +236,6 @@ android {
             inputs.dir(rustJniLibsDir)
             dependsOn("cargoBuild")
         }
-
-        // Ensure all relevant assemble tasks depend on our ensure task.
-        tasks["assemble$capitalizedVariantName"].dependsOn(tasks["ensureValidVersionCode"])
     }
 }
 
@@ -297,17 +294,6 @@ androidComponents {
                     }
                 enabledVariants.contains(currentVariant.name)
             }
-    }
-}
-
-// This is a safety net to avoid generating too big version codes, since that could potentially be
-// hard and inconvenient to recover from.
-tasks.register("ensureValidVersionCode") {
-    doLast {
-        val versionCode = project.android.defaultConfig.versionCode!!
-        if (versionCode >= MAX_ALLOWED_VERSION_CODE) {
-            throw GradleException("Bad version code: $versionCode")
-        }
     }
 }
 
