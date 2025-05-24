@@ -107,7 +107,7 @@ jobs:
         run: rustup target add aarch64-apple-ios
 
       - name: Build iOS end to end tests action
-        uses: ./.github/actions/build-ios-e2e-tests
+        uses: ./.github/actions/ios/build-ios-e2e-tests
         with:
           test_name: ${{ github.event.inputs.user_supplied_test_name }}
           ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
@@ -149,7 +149,7 @@ jobs:
         test_suite: ${{fromJson(needs.define-test-suites-matrix.outputs.test_suites_json)}}
     steps:
       - name: Run iOS end to end tests action
-        uses: ./.github/actions/run-ios-e2e-tests
+        uses: ./.github/actions/ios/run-ios-e2e-tests
         with:
           test_name: "MullvadVPNUITests/${{ matrix.test_suite }}"
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}

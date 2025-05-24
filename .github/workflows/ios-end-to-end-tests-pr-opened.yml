@@ -1,10 +1,9 @@
 ---
-name: iOS end-to-end merge to main tests
+name: iOS end-to-end on pr opened
 on:
   workflow_dispatch:
   pull_request:
     types:
-      - closed
       - opened
     branches:
       - main
@@ -21,5 +20,5 @@ jobs:
   reuse-e2e-workflow:
     uses: ./.github/workflows/ios-end-to-end-tests.yml
     with:
-      arg_tests_json_key: "pr-merge-to-main"
+      arg_tests_json_key: "pr-opened"
     secrets: inherit
