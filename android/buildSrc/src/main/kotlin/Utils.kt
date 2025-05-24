@@ -1,4 +1,3 @@
-import java.util.*
 import org.gradle.api.Project
 
 // This is a hack and will not work correctly under all scenarios.
@@ -18,8 +17,14 @@ fun Project.isDevBuild(): Boolean {
     return versionName.contains("-dev-")
 }
 
-fun Project.generateVersionCode(): Int =
-    getIntPropertyOrNull("mullvad.app.config.override.versionCode") ?: execVersionCodeCargoCommand()
+fun Project.generateVersionCode(): Int {
+    val versionCode = getIntPropertyOrNull("mullvad.app.config.override.versionCode")
+        ?: execVersionCodeCargoCommand()
+    // This is a safety net to avoid generating too big version codes, since that could potentially
+    // be hard and inconvenient to recover from.
+    assert(versionCode <= MAX_ALLOWED_VERSION_CODE)
+    return versionCode
+}
 
 fun Project.generateVersionName(): String =
     getStringPropertyOrNull("mullvad.app.config.override.versionName")
