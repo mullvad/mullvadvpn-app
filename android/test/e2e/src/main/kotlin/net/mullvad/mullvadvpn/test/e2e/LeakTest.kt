@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.test.e2e
 
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
@@ -176,56 +177,57 @@ class LeakTest : EndToEndTest() {
 
     @Test
     @HasDependencyOnLocalAPI
-    fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() = runTest {
-        app.launch()
-        // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
-        on<ConnectPage> { disableObfuscationStory() }
-        on<ConnectPage> { disablePostQuantumStory() }
-        on<ConnectPage> { clickSelectLocation() }
+    fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() =
+        runTest(timeout = 2.minutes) {
+            app.launch()
+            // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
+            on<ConnectPage> { disableObfuscationStory() }
+            on<ConnectPage> { disablePostQuantumStory() }
+            on<ConnectPage> { clickSelectLocation() }
 
-        on<SelectLocationPage> {
-            clickLocationExpandButton(relayProvider.getDaitaRelay().country)
-            clickLocationExpandButton(relayProvider.getDaitaRelay().city)
-            clickLocationCell(relayProvider.getDaitaRelay().relay)
-        }
-
-        device.acceptVpnPermissionDialog()
-
-        on<ConnectPage> { waitForConnectedLabel() }
-
-        // Capture generated traffic to a specific host
-        val targetIpAddress = InstrumentationRegistry.getArguments().getTrafficGeneratorHost()
-        val targetPort = InstrumentationRegistry.getArguments().getTrafficGeneratorPort()
-        val captureResult: PacketCaptureResult =
-            PacketCapture().capturePackets {
-                TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
-                    delay(
-                        1000.milliseconds
-                    ) // Give it some time for generating traffic in tunnel before changing
-                    // settings
-
-                    on<ConnectPage> { enableDAITAStory() }
-                    on<ConnectPage> { enableShadowsocksStory() }
-                    on<ConnectPage> { waitForConnectedLabel() }
-
-                    delay(
-                        1000.milliseconds
-                    ) // Give it some time for generating traffic in tunnel after enabling
-                    // settings
-                }
+            on<SelectLocationPage> {
+                clickLocationExpandButton(relayProvider.getDaitaRelay().country)
+                clickLocationExpandButton(relayProvider.getDaitaRelay().city)
+                clickLocationCell(relayProvider.getDaitaRelay().relay)
             }
 
-        val capturedStreams = captureResult.streams
-        val capturedPcap = captureResult.pcap
-        val timestamp = System.currentTimeMillis()
-        Attachment.saveAttachment(
-            "capture-${javaClass.enclosingMethod}-$timestamp.pcap",
-            capturedPcap,
-        )
+            device.acceptVpnPermissionDialog()
 
-        NetworkTrafficChecker.checkTrafficStreamsAgainstRules(
-            capturedStreams,
-            NoTrafficToHostRule(targetIpAddress),
-        )
-    }
+            on<ConnectPage> { waitForConnectedLabel() }
+
+            // Capture generated traffic to a specific host
+            val targetIpAddress = InstrumentationRegistry.getArguments().getTrafficGeneratorHost()
+            val targetPort = InstrumentationRegistry.getArguments().getTrafficGeneratorPort()
+            val captureResult: PacketCaptureResult =
+                PacketCapture().capturePackets {
+                    TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
+                        delay(
+                            1000.milliseconds
+                        ) // Give it some time for generating traffic in tunnel before changing
+                        // settings
+
+                        on<ConnectPage> { enableDAITAStory() }
+                        on<ConnectPage> { enableShadowsocksStory() }
+                        on<ConnectPage> { waitForConnectedLabel() }
+
+                        delay(
+                            1000.milliseconds
+                        ) // Give it some time for generating traffic in tunnel after enabling
+                        // settings
+                    }
+                }
+
+            val capturedStreams = captureResult.streams
+            val capturedPcap = captureResult.pcap
+            val timestamp = System.currentTimeMillis()
+            Attachment.saveAttachment(
+                "capture-${javaClass.enclosingMethod}-$timestamp.pcap",
+                capturedPcap,
+            )
+
+            NetworkTrafficChecker.checkTrafficStreamsAgainstRules(
+                capturedStreams,
+                NoTrafficToHostRule(targetIpAddress),
+            )
+        }
 }
