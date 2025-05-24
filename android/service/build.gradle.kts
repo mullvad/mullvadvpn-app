@@ -6,11 +6,11 @@ plugins {
 
 android {
     namespace = "net.mullvad.mullvadvpn.service"
-    compileSdk = Versions.compileSdkVersion
-    buildToolsVersion = Versions.buildToolsVersion
+    compileSdk = libs.versions.compile.sdk.get().toInt()
+    buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig {
-        minSdk = Versions.minSdkVersion
+        minSdk = libs.versions.min.sdk.get().toInt()
         val shouldRequireBundleRelayFile = isReleaseBuild() && !isDevBuild()
         buildConfigField(
             "Boolean",
@@ -25,7 +25,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = Versions.jvmTarget
+        jvmTarget = libs.versions.jvm.target.get()
         allWarningsAsErrors = true
     }
 
