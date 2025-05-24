@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0" type="baseline" client="gradle" dependencies="true" name="AGP (8.8.0)" variant="all" version="8.8.0">
+<issues format="6" by="lint 8.10.0" type="baseline" client="gradle" dependencies="true" name="AGP (8.10.0)" variant="all" version="8.10.0">
 
     <issue
         id="InvalidPackage"
@@ -22,29 +22,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="185"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf-gradle-plugin&quot; }"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="185"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf-gradle-plugin&quot; }"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="185"
+            line="221"
             column="18"/>
     </issue>
 
@@ -55,29 +33,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="186"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-protoc = { id = &quot;com.google.protobuf:protoc&quot;, version.ref = &quot;protobuf&quot; }"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="186"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-protoc = { id = &quot;com.google.protobuf:protoc&quot;, version.ref = &quot;protobuf&quot; }"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="186"
+            line="222"
             column="20"/>
     </issue>
 
@@ -88,29 +44,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="189"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies io.grpc but with different version"
-        errorLine1="grpc-protoc-gen-grpc-java = { id = &quot;io.grpc:protoc-gen-grpc-java&quot;, version.ref = &quot;grpc&quot; }"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="189"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies io.grpc but with different version"
-        errorLine1="grpc-protoc-gen-grpc-java = { id = &quot;io.grpc:protoc-gen-grpc-java&quot;, version.ref = &quot;grpc&quot; }"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="189"
+            line="225"
             column="30"/>
     </issue>
 
@@ -121,30 +55,15 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="190"
+            line="226"
             column="32"/>
     </issue>
 
     <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies io.grpc but with different version"
-        errorLine1="grpc-protoc-gen-grpc-kotlin = { id = &quot;io.grpc:protoc-gen-grpc-kotlin&quot;, version.ref = &quot;grpc-kotlin-jar&quot; }"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="Aligned16KB"
+        message="The native library `arm64-v8a/libmockkjvmtiagent.so` (from `io.mockk:mockk-agent-android:1.14.2`) is not 16 KB aligned">
         <location
-            file="../gradle/libs.versions.toml"
-            line="190"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies io.grpc but with different version"
-        errorLine1="grpc-protoc-gen-grpc-kotlin = { id = &quot;io.grpc:protoc-gen-grpc-kotlin&quot;, version.ref = &quot;grpc-kotlin-jar&quot; }"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="190"
-            column="32"/>
+            file="../../../../.gradle/caches/8.14.1/transforms/5539342577cc00b53e44ce9b0769cbe0/transformed/mockk-agent-android-1.14.2/jni/arm64-v8a/libmockkjvmtiagent.so"/>
     </issue>
 
     <issue
@@ -154,7 +73,7 @@
         errorLine2="                          ~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/compose/screen/AutoConnectAndLockdownModeScreen.kt"
-            line="302"
+            line="310"
             column="27"/>
     </issue>
 
@@ -165,7 +84,7 @@
         errorLine2="                          ~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/compose/screen/AutoConnectAndLockdownModeScreen.kt"
-            line="308"
+            line="316"
             column="27"/>
     </issue>
 
@@ -176,7 +95,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/compose/screen/AutoConnectAndLockdownModeScreen.kt"
-            line="313"
+            line="321"
             column="42"/>
     </issue>
 
@@ -187,7 +106,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/ConnectUiStatePreviewParameterProvider.kt"
-            line="10"
+            line="11"
             column="64"/>
     </issue>
 
