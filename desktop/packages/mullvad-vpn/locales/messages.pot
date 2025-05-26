@@ -330,6 +330,7 @@ msgstr ""
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "accessibility"
 msgid "Go to %(wireGuard)s settings."
+msgstr ""
 
 #. Accessibility label for link to app upgrade view.
 msgctxt "accessibility"
@@ -1154,17 +1155,18 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr ""
 
-#. Link in notication to go to WireGuard settings.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "%(wireGuard)s settings."
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
 msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
+msgstr ""
+
+#. Link in notication to go to WireGuard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "%(wireGuard)s settings."
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -1321,12 +1323,6 @@ msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr ""
 
-#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
-#. Available placeholders:
-#. %(wireGuard)s - Will be replaced with WireGuard
-msgctxt "in-app-notifications"
-msgid "The selected %(wireGuard)s port is not supported, please change it under "
-
 #. Notification subtitle when the installer verification failed.
 msgctxt "in-app-notifications"
 msgid "The installer could not be verified."
@@ -1340,6 +1336,13 @@ msgstr ""
 #. Notification subtitle when the installer failed.
 msgctxt "in-app-notifications"
 msgid "The installer did not start successfully."
+msgstr ""
+
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please change it under "
 msgstr ""
 
 #. The in-app banner displayed to the user when the app beta update is
