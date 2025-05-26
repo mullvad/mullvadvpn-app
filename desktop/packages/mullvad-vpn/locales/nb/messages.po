@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2025-04-11 07:48\n"
+"PO-Revision-Date: 2025-05-27 09:40\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d til …"
@@ -175,6 +175,7 @@ msgstr "KUNNE IKKE OPPRETTE SIKKER TILKOBLING"
 msgid "Filter"
 msgstr "Filter"
 
+#. Button label for system settings.
 msgid "Go to System Settings"
 msgstr "Gå til Systeminnstillinger"
 
@@ -334,6 +335,13 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "Glem kontonummer %(accountNumber)s"
 
+#. Accessibility label for link to wireguard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to %(wireGuard)s settings."
+msgstr "Gå til innstillinger for %(wireGuard)s."
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -375,6 +383,7 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "Ny versjon installert. Klikk her for å se endringsloggen"
 
+#. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "Åpnes i et nytt vindu"
@@ -422,6 +431,7 @@ msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "For øyeblikket utilgjengelig"
 
+#. Button label for logging out.
 msgctxt "account-view"
 msgid "Log out"
 msgstr "Logg ut"
@@ -660,6 +670,14 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
+#. This is used as a feature indicator to show that DAITA is enabled through
+#. multihop.
+#. Available placeholders:
+#. %(DAITA)s - Is a non-translatable feature "DAITA"
+msgctxt "connect-view"
+msgid "%(DAITA)s: Multihop"
+msgstr "%(DAITA)s: Multihopp"
+
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "Aktive funksjoner"
@@ -672,6 +690,7 @@ msgctxt "connect-view"
 msgid "Connection details"
 msgstr "Tilkoblingsdetaljer"
 
+#. Button label for disconnecting from the VPN.
 msgctxt "connect-view"
 msgid "Disconnect"
 msgstr "Koble fra"
@@ -692,6 +711,7 @@ msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr "Dette er kontonummeret ditt. Ta vare på det!"
 
+#. Button label for opening privacy information link.
 msgctxt "connect-view"
 msgid "Learn about privacy"
 msgstr "Lær om personvern"
@@ -700,6 +720,7 @@ msgctxt "connect-view"
 msgid "Out of time"
 msgstr "Tiden har utløpt"
 
+#. Button label for navigating to the voucher redemption view.
 msgctxt "connect-view"
 msgid "Redeem voucher"
 msgstr "Løs inn kupong"
@@ -708,6 +729,7 @@ msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
 msgstr "Husk at å slå den av vil tillate trafikk over nettverket mens VPN er frakoblet helt til du slår den på igjen under Avanserte innstillinger."
 
+#. Button label for starting the app.
 msgctxt "connect-view"
 msgid "Start using the app"
 msgstr "Begynn å buke appen"
@@ -820,6 +842,7 @@ msgctxt "device-management"
 msgid "Failed to remove device"
 msgstr "Kunne ikke fjerne enhet"
 
+#. Button label for navigating to login.
 msgctxt "device-management"
 msgid "Go to login"
 msgstr "Gå til pålogging"
@@ -856,7 +879,7 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "For mange enheter"
 
-#. Confirmation button when logging out other device.
+#. Button label for confirming logout of another device.
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "Ja, logg av enhet"
@@ -944,6 +967,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)s-støtten avsluttes. Bytt sted eller"
 
+#. Link in notication to go to WireGuard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "%(wireGuard)s settings."
+msgstr "Innstillinger for %(wireGuard)s."
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "KREDITTEN PÅ KONTOEN UTLØPER SNART"
@@ -1020,9 +1050,17 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "Les mer"
 
+#. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "Send problemrapport"
+
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please change it under "
+msgstr "Valgt %(wireGuard)s-port støttes ikke. Du kan endre i "
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1068,6 +1106,7 @@ msgctxt "launch-view"
 msgid "Restarting your computer."
 msgstr "å starte datamaskinen på nytt."
 
+#. Button label for problem report view.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "Send problemrapport"
@@ -1259,6 +1298,16 @@ msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "Kunne ikke aktivere delt tunnelering. Prøv å koble til på nytt eller deaktivere delt tunnelering."
 
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv4 er ikke tilgjengelig. Prøv å endre innstillingen <b>%(ipVersionFeatureName)</b>."
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv6 er ikke tilgjengelig. Prøv å endre innstillingen <b>%(ipVersionFeatureName)</b>."
+
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "Låsemodus aktivert, tilkobling blokkert"
@@ -1422,14 +1471,17 @@ msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr "Transportprotokoll"
 
+#. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr "Avbryt"
 
+#. Input field label for voucher code.
 msgctxt "redeem-voucher-alert"
 msgid "Enter voucher code"
 msgstr "Skriv inn kupongkode"
 
+#. Button label for redeeming a voucher.
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
 msgstr "Løs inn kupong"
@@ -1438,6 +1490,7 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "Det oppstod en feil."
 
+#. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
 msgstr "Løs inn"
@@ -1694,6 +1747,7 @@ msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr "Ekskluder apper"
 
+#. Button label for browsing applications with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "Finn en annen app"
@@ -1702,6 +1756,7 @@ msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
 msgstr "Hvis den allerede kjører, må du avslutte %(applicationName)s før du starter den herfra. Hvis ikke, kan den kanskje ikke utelates fra VPN-tunnelen."
 
+#. Button label for launching an application with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "Start"
@@ -1740,10 +1795,12 @@ msgctxt "support-view"
 msgid "Beta program"
 msgstr "Betaprogram"
 
+#. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "Fortsett uansett"
 
+#. Button text to edit the message after a failed attempt to send the problem report.
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "Rediger melding"
@@ -1778,10 +1835,12 @@ msgctxt "support-view"
 msgid "Report a problem"
 msgstr "Rapporter et problem"
 
+#. Button label for sending the problem report.
 msgctxt "support-view"
 msgid "Send"
 msgstr "Send"
 
+#. Button label for sending the problem report without an email address.
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr "Send allikevel"
@@ -1815,14 +1874,17 @@ msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "For å kunne gi deg god nok hjelp vil loggfilen til appen ligge som vedlegg til meldingen. All data forblir beskyttet og privat gjennom anonymisering før det sendes gjennom en kryptert kanal."
 
+#. Button label for retrying problem report submission after a failure.
 msgctxt "support-view"
 msgid "Try again"
 msgstr "Prøv på nytt"
 
+#. Button label for upgrading the app to the latest version.
 msgctxt "support-view"
 msgid "Upgrade app"
 msgstr "Oppgrader app"
 
+#. Button label for opening app logs.
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "Se applogger"
@@ -2003,6 +2065,7 @@ msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "Legg til en server"
 
+#. Button label to add a private IP DNS server despite warning.
 msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "Legg til likevel"
@@ -2295,6 +2358,10 @@ msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr "Kvantebestandig tunnel"
 
+msgctxt "wireguard-settings-view"
+msgid "QUIC"
+msgstr "QUIC"
+
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2504,6 +2571,9 @@ msgstr "Opprett ny liste"
 msgid "Critical error (your attention is required)"
 msgstr "Kritisk feil (krever din oppmerksomhet)"
 
+msgid "Current device"
+msgstr "Gjeldende enhet"
+
 msgid "Current: %s"
 msgstr "Gjeldende: %s"
 
@@ -2609,6 +2679,12 @@ msgstr "Google Play-betaling venter"
 msgid "Google Play unavailable"
 msgstr "Google Play utilgjengelig"
 
+msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv4 er ikke tilgjengelig. Prøv å endre innstillingen «Enhetens IP-versjon»."
+
+msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv6 er ikke tilgjengelig. Prøv å endre innstillingen «Enhetens IP-versjon»."
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Hvis funksjonen delt tunnelering brukes, vil appen be systemet ditt om en liste over alle installerte applikasjoner. Denne listen hentes bare i delt tunnelering-visningen. Listen over installerte apper sendes aldri ut fra enheten."
 
@@ -2626,6 +2702,9 @@ msgstr "IPv6 i tunnel"
 
 msgid "Invalid or missing value \"%s\""
 msgstr "Ugyldig eller mangler verdien «%s»"
+
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr "Det kan være nyttig når du er klar over problemer som skyldes en bestemt IP-versjon."
 
 msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr "Det ser ut til at du har oppgitt et kontonummer i stedet for en kupongkode. Hvis du vil endre den aktive kontoen, må du først logge ut."
@@ -2647,6 +2726,9 @@ msgstr "Sørger for at enheten alltid er på VPN-tunnelen."
 
 msgid "Manage account"
 msgstr "Administrer konto"
+
+msgid "Manage devices"
+msgstr "Behandle enheter"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvad-tjenester utilgjengelig"
@@ -2723,6 +2805,9 @@ msgstr "Fjern"
 msgid "Remove %s from %s"
 msgstr "Fjern %s fra %s"
 
+msgid "Remove %s?"
+msgstr "Fjerne %s?"
+
 msgid "Remove custom port"
 msgstr "Fjern tilpasset port"
 
@@ -2786,14 +2871,20 @@ msgstr "Låsemodusen kalles «Blokker tilkoblinger uten VPN» i systeminnstillin
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "«Gjeldende» metode betyr den metoden som appen bruker for å nå API."
 
+msgid "The device will be removed from the list and logged out."
+msgstr "Enheten blir fjernet fra listen og logget ut."
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling av lokalt nettverk» under VPN-innstillinger."
+
+msgid "The selected %s port is not supported, please change it under"
+msgstr "Valgt %s-port støttes ikke. Du kan endre i"
 
 msgid "This address has already been entered."
 msgstr "Denne adressen er allerede skrevet inn."
 
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr "Dette gir tilgang til WireGuard for enheter som bare støtter IPv6."
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
+msgstr "Med denne funksjonen kan du velge om du vil bruke bare IPv4, bare IPv6 eller la appen automatisk velge det beste alternativet når du kobler deg til en server."
 
 msgid "This field is required"
 msgstr "Feltet er påkrevd"
@@ -2812,9 +2903,6 @@ msgstr "For å sørge for at du har den sikreste appversjonen, og informere deg 
 
 msgid "Toggle VPN"
 msgstr "Velg VPN"
-
-msgid "Type at least 2 characters to start searching."
-msgstr "Skriv minst 2 tegn for å begynne å søke."
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Kunne ikke bruke brannmur-regler. Feilsøk eller send inn en problemrapport."
@@ -2843,8 +2931,14 @@ msgstr "Oppdater listenavn"
 msgid "Use method"
 msgstr "Bruk metode"
 
+msgid "VPN Settings not available on device"
+msgstr "VPN-innstillinger ikke tilgjengelig på enhet"
+
 msgid "VPN permission error"
 msgstr "Feil med VPN-tillatelse"
+
+msgid "VPN permission was denied"
+msgstr "VPN-tillatelse avvist"
 
 msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
 msgstr "VPN-tillatelsen ble avslått, eller en annen app har «VPN alltid på» aktivert"
@@ -2872,6 +2966,9 @@ msgstr "Bekrefter kupong …"
 
 msgid "Version"
 msgstr "Versjon"
+
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "Se og administrer alle innloggede enheter. Du kan ha opptil fem enheter på én konto om gangen. Hver enhet får et navn når du logger inn, slik at du enkelt kan skille dem fra hverandre."
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Vi behandler kjøpet. Det kan ta litt tid. Hvis kjøpet blir bekreftet, legges tiden din til."
