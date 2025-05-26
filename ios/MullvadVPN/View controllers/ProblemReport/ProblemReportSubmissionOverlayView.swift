@@ -62,8 +62,7 @@ class ProblemReportSubmissionOverlayView: UIView {
                         tableName: "ProblemReport",
                         value: "Thanks!",
                         comment: ""
-                    ),
-                    attributes: [.foregroundColor: UIColor.successColor]
+                    )
                 )
 
                 if email.isEmpty {
