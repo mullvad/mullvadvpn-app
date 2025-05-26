@@ -1,7 +1,6 @@
 import { messages } from '../../../../../../shared/gettext';
 import { Icon } from '../../../../../lib/components';
 import { ListItem } from '../../../../../lib/components/list-item';
-import { Colors } from '../../../../../lib/foundations';
 import { useVersionCurrent } from '../../../../../redux/hooks';
 import { useShowAlert, useShowFooter } from './hooks';
 
@@ -15,7 +14,7 @@ export function VersionListItem() {
       <ListItem.Item>
         <ListItem.Content>
           <ListItem.Group>
-            {showAlert && <Icon icon="alert-circle" color={Colors.red} />}
+            {showAlert && <Icon icon="alert-circle" color="red" />}
             <ListItem.Label>
               {
                 // TRANSLATORS: Label for version list item.
