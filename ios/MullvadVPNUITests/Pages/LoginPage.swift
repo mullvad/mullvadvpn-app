@@ -40,22 +40,9 @@ class LoginPage: Page {
     }
 
     @discardableResult public func verifySuccessIconShown() -> Self {
-        // Success icon is only shown very briefly, since another view is presented after success icon is shown.
-        // Therefore we need to poll faster than waitForElement function.
-        let successIconDisplayedExpectation = XCTestExpectation(description: "Success icon shown")
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [self] _ in
-            let statusImageView = self.app.images[.statusImageView]
+        let isShown = getSuccessIconShown()
 
-            if statusImageView.exists {
-                if statusImageView.value as? String == "success" {
-                    successIconDisplayedExpectation.fulfill()
-                }
-            }
-        }
-
-        let waitResult = XCTWaiter.wait(for: [successIconDisplayedExpectation], timeout: BaseUITestCase.longTimeout)
-        XCTAssertEqual(waitResult, .completed, "Success icon shown")
-        timer.invalidate()
+        XCTAssertTrue(isShown, "Success icon shown")
 
         return self
     }
@@ -70,9 +57,24 @@ class LoginPage: Page {
 
     /// Checks whether success icon is being shown
     func getSuccessIconShown() -> Bool {
-        let predicate = NSPredicate(format: "identifier == 'statusImageView' AND value == 'success'")
-        let elementQuery = app.images.containing(predicate)
-        let elementExists = elementQuery.firstMatch.waitForExistence(timeout: BaseUITestCase.longTimeout)
-        return elementExists
+        // Success icon is only shown very briefly, since another view is presented after success icon is shown.
+        // Therefore we need to poll faster than waitForElement function.
+        let successIconDisplayedExpectation = XCTestExpectation(description: "Success icon shown")
+        var isShown = false
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [self] _ in
+            let statusImageView = self.app.images[.statusImageView]
+
+            if statusImageView.exists {
+                if statusImageView.value as? String == "success" {
+                    isShown = true
+                    successIconDisplayedExpectation.fulfill()
+                }
+            }
+        }
+
+        _ = XCTWaiter.wait(for: [successIconDisplayedExpectation], timeout: BaseUITestCase.longTimeout)
+        timer.invalidate()
+
+        return isShown
     }
 }
