@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-04-11 07:48\n"
+"PO-Revision-Date: 2025-05-26 11:59\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 個..."
@@ -169,6 +169,7 @@ msgstr "保護連線失敗"
 msgid "Filter"
 msgstr "篩選"
 
+#. Button label for system settings.
 msgid "Go to System Settings"
 msgstr "前往「系統設定」"
 
@@ -328,6 +329,13 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "忘記帳號 %(accountNumber)s"
 
+#. Accessibility label for link to wireguard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to %(wireGuard)s settings."
+msgstr "前往 %(wireGuard)s 設定。"
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -369,6 +377,7 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "已安裝新版本，按一下此處查看變更日誌"
 
+#. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "在外部開啟"
@@ -416,6 +425,7 @@ msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "目前不可用"
 
+#. Button label for logging out.
 msgctxt "account-view"
 msgid "Log out"
 msgstr "登出"
@@ -654,6 +664,14 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
+#. This is used as a feature indicator to show that DAITA is enabled through
+#. multihop.
+#. Available placeholders:
+#. %(DAITA)s - Is a non-translatable feature "DAITA"
+msgctxt "connect-view"
+msgid "%(DAITA)s: Multihop"
+msgstr "%(DAITA)s：多點跳躍"
+
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "有效功能"
@@ -666,6 +684,7 @@ msgctxt "connect-view"
 msgid "Connection details"
 msgstr "連線詳細資訊"
 
+#. Button label for disconnecting from the VPN.
 msgctxt "connect-view"
 msgid "Disconnect"
 msgstr "中斷連線"
@@ -686,6 +705,7 @@ msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr "以下是您的帳號。請妥善保管！"
 
+#. Button label for opening privacy information link.
 msgctxt "connect-view"
 msgid "Learn about privacy"
 msgstr "瞭解隱私權"
@@ -694,6 +714,7 @@ msgctxt "connect-view"
 msgid "Out of time"
 msgstr "逾時"
 
+#. Button label for navigating to the voucher redemption view.
 msgctxt "connect-view"
 msgid "Redeem voucher"
 msgstr "兌換憑證"
@@ -702,6 +723,7 @@ msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
 msgstr "注意，在 VPN 中斷連線時關閉它，將允許網路流量，直到您在「進階」設定下將其重新開啟。"
 
+#. Button label for starting the app.
 msgctxt "connect-view"
 msgid "Start using the app"
 msgstr "開始使用應用程式"
@@ -814,6 +836,7 @@ msgctxt "device-management"
 msgid "Failed to remove device"
 msgstr "無法移除裝置"
 
+#. Button label for navigating to login.
 msgctxt "device-management"
 msgid "Go to login"
 msgstr "前往登入"
@@ -850,7 +873,7 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "裝置過多"
 
-#. Confirmation button when logging out other device.
+#. Button label for confirming logout of another device.
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "是，將裝置登出"
@@ -938,6 +961,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)s 支援即將結束。請切換位置或"
 
+#. Link in notication to go to WireGuard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "%(wireGuard)s settings."
+msgstr "%(wireGuard)s 設定。"
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "帳戶點數即將到期"
@@ -1014,9 +1044,17 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "閱讀更多內容"
 
+#. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "傳送問題回報"
+
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please change it under "
+msgstr "不支援所選的 %(wireGuard)s 連接埠，請至下列位置變更："
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1062,6 +1100,7 @@ msgctxt "launch-view"
 msgid "Restarting your computer."
 msgstr "重新啟動您的電腦。"
 
+#. Button label for problem report view.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "傳送問題回報"
@@ -1253,6 +1292,16 @@ msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "無法啟用分割通道。請嘗試重新連線或停用分割通道。"
 
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "無法使用 IPv4，請嘗試變更 <b>%(ipVersionFeatureName)</b> 設定。"
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "無法使用 IPv6，請嘗試變更 <b>%(ipVersionFeatureName)</b> 設定。"
+
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "鎖定模式已啟用，連線已封鎖"
@@ -1416,14 +1465,17 @@ msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr "傳輸通訊協定"
 
+#. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr "取消"
 
+#. Input field label for voucher code.
 msgctxt "redeem-voucher-alert"
 msgid "Enter voucher code"
 msgstr "輸入憑證兌換碼"
 
+#. Button label for redeeming a voucher.
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
 msgstr "兌換憑證"
@@ -1432,6 +1484,7 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "發生錯誤了。"
 
+#. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
 msgstr "兌換"
@@ -1688,6 +1741,7 @@ msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr "已排除的應用程式"
 
+#. Button label for browsing applications with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "尋找其他應用程式"
@@ -1696,6 +1750,7 @@ msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
 msgstr "若它已在執行，請先關閉 %(applicationName)s，然後自此處啟動。否則，系統可能會將其從 VPN 通道中排除。"
 
+#. Button label for launching an application with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "啟動"
@@ -1734,10 +1789,12 @@ msgctxt "support-view"
 msgid "Beta program"
 msgstr "測試計劃"
 
+#. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "仍然繼續"
 
+#. Button text to edit the message after a failed attempt to send the problem report.
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "編輯訊息"
@@ -1772,10 +1829,12 @@ msgctxt "support-view"
 msgid "Report a problem"
 msgstr "回報問題"
 
+#. Button label for sending the problem report.
 msgctxt "support-view"
 msgid "Send"
 msgstr "傳送"
 
+#. Button label for sending the problem report without an email address.
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr "仍要傳送"
@@ -1809,14 +1868,17 @@ msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。"
 
+#. Button label for retrying problem report submission after a failure.
 msgctxt "support-view"
 msgid "Try again"
 msgstr "再試一次"
 
+#. Button label for upgrading the app to the latest version.
 msgctxt "support-view"
 msgid "Upgrade app"
 msgstr "將應用程式升級"
 
+#. Button label for opening app logs.
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "檢視應用程式日誌"
@@ -1997,6 +2059,7 @@ msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "新增伺服器"
 
+#. Button label to add a private IP DNS server despite warning.
 msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "仍要新增"
@@ -2289,6 +2352,10 @@ msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr "抗量子通道"
 
+msgctxt "wireguard-settings-view"
+msgid "QUIC"
+msgstr "QUIC"
+
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2498,6 +2565,9 @@ msgstr "建立新清單"
 msgid "Critical error (your attention is required)"
 msgstr "嚴重錯誤 (需注意)"
 
+msgid "Current device"
+msgstr "目前裝置"
+
 msgid "Current: %s"
 msgstr "目前：%s"
 
@@ -2603,6 +2673,12 @@ msgstr "Google Play 付款尚待處理"
 msgid "Google Play unavailable"
 msgstr "Google Play 無法使用"
 
+msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
+msgstr "無法使用 IPv4，請嘗試變更「裝置 IP 版本」設定。"
+
+msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
+msgstr "無法使用 IPv6，請嘗試變更「裝置 IP 版本」設定。"
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。我們只會在分割通道視圖中擷取這份清單，絕不會傳送至他處。"
 
@@ -2620,6 +2696,9 @@ msgstr "通道內 IPv6"
 
 msgid "Invalid or missing value \"%s\""
 msgstr "值「%s」無效或是遺失"
+
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr "當您知道某個 IP 版本會導致問題時，這項功能可能會有所幫助。"
 
 msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr "您輸入的似乎是帳戶，而不是憑證代碼。如果您想變更有效帳戶，請先登出。"
@@ -2641,6 +2720,9 @@ msgstr "請確認裝置始終位於 VPN 通道上。"
 
 msgid "Manage account"
 msgstr "管理帳戶"
+
+msgid "Manage devices"
+msgstr "管理裝置"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvad 服務無法使用"
@@ -2717,6 +2799,9 @@ msgstr "移除"
 msgid "Remove %s from %s"
 msgstr "從 %s 中移除 %s"
 
+msgid "Remove %s?"
+msgstr "是否移除 %s？"
+
 msgid "Remove custom port"
 msgstr "移除自訂連接埠"
 
@@ -2780,14 +2865,20 @@ msgstr "在 Android 系統設定中，鎖定模式稱為「在沒有 VPN 的情�
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "「目前」方式表示應用程式正用來存取 API 的方式。"
 
+msgid "The device will be removed from the list and logged out."
+msgstr "裝置將從清單中移除並登出。"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "若要使本機 DNS 伺服器運作，需先在 VPN 設定下啟用「本機網路共享」。"
+
+msgid "The selected %s port is not supported, please change it under"
+msgstr "不支援所選的 %s 連接埠，請至下列位置變更："
 
 msgid "This address has already been entered."
 msgstr "此地址已輸入過。"
 
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr "這將允許僅支援 IPv6 的裝置存取 WireGuard。"
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
+msgstr "此功能可讓您選擇是否僅使用 IPv4、僅使用 IPv6，或允許應用程式在連線至伺服器時自動決定最佳選項。"
 
 msgid "This field is required"
 msgstr "此欄位為必填項"
@@ -2806,9 +2897,6 @@ msgstr "為確保您擁有最安全的版本，並告知您目前執行的版本
 
 msgid "Toggle VPN"
 msgstr "切換 VPN"
-
-msgid "Type at least 2 characters to start searching."
-msgstr "至少輸入 2 個字元以開始搜尋。"
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "無法套用防火牆規則。請排除故障或傳送問題回報。"
@@ -2837,8 +2925,14 @@ msgstr "更新清單名稱"
 msgid "Use method"
 msgstr "使用方式"
 
+msgid "VPN Settings not available on device"
+msgstr "裝置上的 VPN 設定無法使用"
+
 msgid "VPN permission error"
 msgstr "VPN 權限錯誤"
+
+msgid "VPN permission was denied"
+msgstr "VPN 權限遭拒"
 
 msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
 msgstr "VPN 權限遭到拒絕，或者已有其他應用程式啟用「一律啟用 VPN」"
@@ -2866,6 +2960,9 @@ msgstr "正在驗證優惠券…"
 
 msgid "Version"
 msgstr "版本"
+
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "檢視並管理所有已登入的裝置。一個帳戶最多能同時登入 5 台裝置。每台裝置登入時都會獲得一個名稱，以協助您輕鬆區分。"
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "我們目前正在驗證您的購買，這可能需要一些時間。如果驗證成功，您的時間就會增加。"
