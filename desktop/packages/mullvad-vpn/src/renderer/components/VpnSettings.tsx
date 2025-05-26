@@ -758,11 +758,13 @@ function TunnelProtocolSetting() {
             </Cell.CellFooterText>
           </AriaDescription>
           <ExternalLink variant="labelTiny" to={urls.removingOpenVpnBlog}>
-            {sprintf(
-              // TRANSLATORS: Link in tunnel protocol selector footer to blog post
-              // TRANSLATORS: about OpenVPN support ending.
-              messages.pgettext('vpn-settings-view', 'Read more'),
-            )}
+            <ExternalLink.Text>
+              {sprintf(
+                // TRANSLATORS: Link in tunnel protocol selector footer to blog post
+                // TRANSLATORS: about OpenVPN support ending.
+                messages.pgettext('vpn-settings-view', 'Read more'),
+              )}
+            </ExternalLink.Text>
             <ExternalLink.Icon icon="external" size="small" />
           </ExternalLink>
         </Cell.CellFooter>
