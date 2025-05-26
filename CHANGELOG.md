@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add notification that shows when the user is connected to WireGuard with a port that is not
 supported.
+- Add in-app updates to Windows and macOS. This new feature lets you download, verify, and install
+  new versions from within the app.
 
 #### Linux
 - The deb package repositores now have static codenames on top of the existing distro version
