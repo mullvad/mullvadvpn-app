@@ -5,16 +5,15 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.protobuf.core)
-
-    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
+    alias(libs.plugins.junit5.android)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.lib.daemon.grpc"
-    compileSdk = Versions.compileSdkVersion
-    buildToolsVersion = Versions.buildToolsVersion
+    compileSdk = libs.versions.compile.sdk.get().toInt()
+    buildToolsVersion = libs.versions.build.tools.get()
 
-    defaultConfig { minSdk = Versions.minSdkVersion }
+    defaultConfig { minSdk = libs.versions.min.sdk.get().toInt() }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -22,7 +21,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = Versions.jvmTarget
+        jvmTarget = libs.versions.jvm.target.get()
         allWarningsAsErrors = true
     }
 
@@ -83,7 +82,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
-    testImplementation(Dependencies.junitJupiterApi)
-    testRuntimeOnly(Dependencies.junitJupiterEngine)
-    testImplementation(Dependencies.junitJupiterParams)
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.junit.jupiter.params)
 }
