@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.preview.RelayItemPreviewData.generateRelayItemCountry
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
 class RelayItemCheckableCellPreviewParameterProvider :

@@ -56,6 +56,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.screen.PAGES.Companion.annotatedTopText
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -300,26 +301,28 @@ private fun buildLockdownTopText() = buildAnnotatedString {
     }
 }
 
-private enum class PAGES(
-    val annotatedTopText: @Composable () -> AnnotatedString,
-    val image: Int,
-    val bottomText: Int,
-) {
+private enum class PAGES(val image: Int, val bottomText: Int) {
     FIRST(
-        annotatedTopText =
-            @Composable { buildTopText(id = R.string.auto_connect_carousel_first_slide_top_text) },
         R.drawable.carousel_slide_1_cogwheel,
         R.string.auto_connect_carousel_first_slide_bottom_text,
     ),
     SECOND(
-        annotatedTopText =
-            @Composable { buildTopText(id = R.string.auto_connect_carousel_second_slide_top_text) },
         R.drawable.carousel_slide_2_always_on,
         R.string.auto_connect_carousel_second_slide_bottom_text,
     ),
     THIRD(
-        annotatedTopText = @Composable { buildLockdownTopText() },
         R.drawable.carousel_slide_3_block_connections,
         R.string.auto_connect_carousel_third_slide_bottom_text,
-    ),
+    );
+
+    companion object {
+
+        @Composable
+        fun PAGES.annotatedTopText(): AnnotatedString =
+            when (this) {
+                FIRST -> buildTopText(id = R.string.auto_connect_carousel_first_slide_top_text)
+                SECOND -> buildTopText(id = R.string.auto_connect_carousel_second_slide_top_text)
+                THIRD -> buildLockdownTopText()
+            }
+    }
 }
