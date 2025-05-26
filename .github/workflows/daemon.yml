@@ -185,7 +185,7 @@ jobs:
           vs-version: 16
 
       - name: Install latest zig
-        uses: mlugg/setup-zig@v1
+        uses: mlugg/setup-zig@v2
 
       - name: Install Go
         uses: actions/setup-go@v5
