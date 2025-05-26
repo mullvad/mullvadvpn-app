@@ -29,10 +29,13 @@ final class ProblemReportInteractor: @unchecked Sendable {
         )
     }
 
-    func fetchReportString(completion: @escaping @Sendable (Result<String, Error>) -> Void) {
+    func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
         consolidatedLog.addLogFiles(fileURLs: ApplicationTarget.allCases.flatMap {
             ApplicationConfiguration.logFileURLs(for: $0, in: ApplicationConfiguration.containerURL)
-        }, completion: completion)
+        }) { [weak self] in
+            guard let self else { return }
+            completion(consolidatedLog.string)
+        }
     }
 
     func sendReport(
@@ -41,19 +44,15 @@ final class ProblemReportInteractor: @unchecked Sendable {
         completion: @escaping @Sendable (Result<Void, Error>) -> Void
     ) {
         let logString = self.consolidatedLog.string
+
         if logString.isEmpty {
-            fetchReportString { [weak self] result in
-                switch result {
-                case let .success(logString):
-                    self?.sendProblemReport(
-                        email: email,
-                        message: message,
-                        logString: logString,
-                        completion: completion
-                    )
-                case let .failure(error):
-                    completion(.failure(error))
-                }
+            fetchReportString { [weak self] updatedLogString in
+                self?.sendProblemReport(
+                    email: email,
+                    message: message,
+                    logString: updatedLogString,
+                    completion: completion
+                )
             }
         } else {
             sendProblemReport(
@@ -66,7 +65,6 @@ final class ProblemReportInteractor: @unchecked Sendable {
     }
 
     func cancelSendingReport() {
-        consolidatedLog.cancel()
         requestCancellable?.cancel()
     }
 
@@ -87,7 +85,7 @@ final class ProblemReportInteractor: @unchecked Sendable {
             metadata: metadataDict
         )
 
-        requestCancellable = self.apiProxy.sendProblemReport(request, retryStrategy: .default) { result in
+        requestCancellable = apiProxy.sendProblemReport(request, retryStrategy: .default) { result in
             DispatchQueue.main.async {
                 completion(result)
             }

@@ -36,7 +36,7 @@ final class NewDeviceNotificationProvider: NotificationProvider,
         return NSAttributedString(
             markdownString: string,
             options: MarkdownStylingOptions(
-                font: .preferredFont(forTextStyle: .body)
+                font: .preferredFont(forTextStyle: .subheadline)
             )
         ) { _, _ in
             [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]

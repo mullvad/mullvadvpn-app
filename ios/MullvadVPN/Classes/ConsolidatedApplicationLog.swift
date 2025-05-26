@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Operations
 
 private let kLogDelimiter = "===================="
 private let kRedactedPlaceholder = "[REDACTED]"
@@ -17,7 +16,6 @@ private let kRedactedContainerPlaceholder = "[REDACTED CONTAINER PATH]"
 class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
     typealias Metadata = KeyValuePairs<MetadataKey, String>
     private let bufferSize: UInt64
-    private var workItem: DispatchWorkItem?
 
     enum MetadataKey: String {
         case id, os
@@ -52,36 +50,21 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
             }
     }
 
-    func cancel() {
-        workItem?.cancel()
-    }
-
-    func addLogFiles(fileURLs: [URL], completion: (@Sendable (Result<String, Error>) -> Void)? = nil) {
-        let workItem = DispatchWorkItem { [weak self] in
+    func addLogFiles(fileURLs: [URL], completion: (@Sendable () -> Void)? = nil) {
+        logQueue.async(flags: .barrier) {
             for fileURL in fileURLs {
-                guard let workItem = self?.workItem, !workItem.isCancelled else {
-                    DispatchQueue.main.async {
-                        completion?(.failure(OperationError.cancelled))
-                    }
-                    return
-                }
-
-                self?.addSingleLogFile(fileURL)
+                self.addSingleLogFile(fileURL)
             }
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                completion?(.success(self.string))
+            DispatchQueue.main.async {
+                completion?()
             }
         }
-        self.workItem = workItem
-
-        logQueue.async(execute: workItem)
     }
 
     func addError(message: String, error: String, completion: (@Sendable () -> Void)? = nil) {
         let redactedError = redact(string: error)
-        safeAsync { [weak self] in
-            self?.logs.append(LogAttachment(label: message, content: redactedError))
+        logQueue.async(flags: .barrier) {
+            self.logs.append(LogAttachment(label: message, content: redactedError))
             DispatchQueue.main.async {
                 completion?()
             }
@@ -125,17 +108,6 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
         return result
     }
 
-    private func safeAsync(execute: @escaping @Sendable () -> Void) {
-        let isCancelled = workItem?.isCancelled ?? false
-        guard !isCancelled else { return }
-
-        logQueue.async {
-            if !isCancelled {
-                execute()
-            }
-        }
-    }
-
     private func addSingleLogFile(_ fileURL: URL) {
         guard fileURL.isFileURL else {
             addError(
@@ -150,8 +122,8 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
 
         if let lossyString = readFileLossy(path: path, maxBytes: bufferSize) {
             let redactedString = redact(string: lossyString)
-            safeAsync { [weak self] in
-                self?.logs.append(LogAttachment(label: redactedPath, content: redactedString))
+            logQueue.async(flags: .barrier) {
+                self.logs.append(LogAttachment(label: redactedPath, content: redactedString))
             }
         } else {
             addError(message: redactedPath, error: "Log file does not exist: \(path).")
