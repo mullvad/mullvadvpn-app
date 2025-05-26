@@ -10,5 +10,5 @@ pub trait VersionInfoProvider {
         params: &VersionParameters,
     ) -> impl std::future::Future<Output = anyhow::Result<VersionInfo>> + Send;
 
-    fn dump_metadata_to_file(&mut self, path: PathBuf) {}
+    fn dump_metadata_to_file(&mut self, path: PathBuf);
 }

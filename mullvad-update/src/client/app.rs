@@ -9,11 +9,13 @@ use std::{
     time::Duration,
 };
 
+use mullvad_version::Version;
 use tokio::{process::Command, time::timeout};
 
 use crate::{
     fetch::{self, ProgressUpdater},
     verify::{AppVerifier, Sha256Verifier},
+    version::VersionParameters,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -51,7 +53,15 @@ pub trait AppDownloader: Send {
     ) -> impl Future<Output = Result<impl DownloadedInstaller, DownloadError>> + Send;
 }
 
-pub trait DownloadedInstaller: Send {
+/// A cache where we can find past [DownloadedInstaller]s
+pub trait AppCache: Send {
+    fn new(directory: PathBuf, version_params: VersionParameters) -> Self;
+    fn find_app(
+        self,
+    ) -> impl Future<Output = anyhow::Result<(Version, impl DownloadedInstaller)>> + Send;
+}
+
+pub trait DownloadedInstaller: Send + 'static {
     /// Verify the app signature.
     fn verify(self) -> impl Future<Output = Result<impl VerifiedInstaller, DownloadError>> + Send;
 }

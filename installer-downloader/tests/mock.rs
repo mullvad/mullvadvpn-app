@@ -20,6 +20,7 @@ use std::vec::Vec;
 #[derive(Default)]
 pub struct FakeVersionInfoProvider {
     pub fail_fetching: Arc<AtomicBool>,
+    pub dump_metadata_to_file: Option<PathBuf>,
 }
 
 pub static FAKE_VERSION: LazyLock<VersionInfo> = LazyLock::new(|| VersionInfo {
@@ -43,6 +44,10 @@ impl VersionInfoProvider for FakeVersionInfoProvider {
             anyhow::bail!("Failed to fetch version info");
         }
         Ok(FAKE_VERSION.clone())
+    }
+
+    fn dump_metadata_to_file(&mut self, path: PathBuf) {
+        self.dump_metadata_to_file = Some(path);
     }
 }
 

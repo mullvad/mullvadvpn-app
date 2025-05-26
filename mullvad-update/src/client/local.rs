@@ -1,6 +1,7 @@
 //! This module implements fetching of information about app versions from disk.
 
 use anyhow::Context;
+use mullvad_version::Version;
 use std::path::PathBuf;
 use tokio::fs;
 
@@ -9,33 +10,44 @@ use crate::{
     version::{VersionInfo, VersionParameters},
 };
 
-/// Obtain version data from disk
-pub struct DirectoryVersionInfoProvider {
-    /// Path to directory containing the metadata file.
+use super::app::{AppCache, DownloadedInstaller, InstallerFile};
+
+pub struct AppCacheDir {
+    /// Path to directory containing the metadata file and the downloaded installer.
     pub directory: PathBuf,
-    /// TODO
-    pub version_info: VersionInfo,
+    pub version_params: VersionParameters,
 }
 
-impl DirectoryVersionInfoProvider {
-    pub const METADATA: &str = "metadata.json";
+pub const METADATA_FILENAME: &str = "metadata.json";
 
-    /// Read metadata.json from the local directory
-    pub async fn new(directory: PathBuf, params: VersionParameters) -> anyhow::Result<Self> {
-        let metadata_file = directory.join(Self::METADATA);
+impl AppCache for AppCacheDir {
+    fn new(directory: PathBuf, version_params: VersionParameters) -> Self {
+        Self {
+            directory,
+            version_params,
+        }
+    }
+
+    async fn find_app(self) -> anyhow::Result<(Version, impl DownloadedInstaller)> {
+        let metadata_file = self.directory.join(METADATA_FILENAME);
         let raw_json = fs::read(metadata_file)
             .await
             .context("Failed to read metadata.json")?;
 
         let response =
-            SignedResponse::deserialize_and_verify(&raw_json, params.lowest_metadata_version)
+            SignedResponse::deserialize_and_verify(&raw_json, self.version_params.lowest_metadata_version)
                 .context("Failed to deserialize or verify metadata.json")?;
 
-        let version_info = VersionInfo::try_from_response(&params, response.signed)?;
+        let version_info = VersionInfo::try_from_response(&self.version_params, response.signed)?;
 
-        Ok(Self {
-            directory,
-            version_info,
-        })
+        // TODO: beta?
+        let version_info = version_info.stable;
+        let version = version_info.version;
+
+        let installer = 
+        InstallerFile::<false>::from_version(&self.directory, version.clone(), version_info.size, version_info.sha256);
+
+        Ok((version, installer))
     }
 }
+

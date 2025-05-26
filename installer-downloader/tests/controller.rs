@@ -103,6 +103,7 @@ async fn test_failed_fetch_version() {
         &mut delegate,
         FakeVersionInfoProvider {
             fail_fetching: fail_fetching.clone(),
+            dump_metadata_to_file: None,
         },
         FAKE_ENVIRONMENT,
     );

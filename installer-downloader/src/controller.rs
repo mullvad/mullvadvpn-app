@@ -10,8 +10,8 @@ use crate::{
 
 use mullvad_update::{
     api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
-    app::{self, AppDownloader, HttpAppDownloader, InstallerFile},
-    local::DirectoryVersionInfoProvider,
+    app::{self, AppCache, AppDownloader, HttpAppDownloader},
+    local::AppCacheDir,
     version::{Version, VersionInfo, VersionParameters},
     version_provider::VersionInfoProvider,
 };
@@ -58,7 +58,7 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     let platform = MetaRepositoryPlatform::current().expect("current platform must be supported");
     let version_provider = HttpVersionInfoProvider::from(platform);
 
-    AppController::initialize::<_, Downloader<T>, _, DirProvider>(
+    AppController::initialize::<_, _, Downloader<T>, AppCacheDir, DirProvider>(
         delegate,
         version_provider,
         environment,
@@ -70,7 +70,7 @@ impl AppController {
     ///
     /// This function lets the caller provide a version information provider, download client, etc.,
     /// which is useful for testing.
-    pub fn initialize<D, A, V, DirProvider>(
+    pub fn initialize<D, V, A, C, DirProvider>(
         delegate: &mut D,
         mut version_provider: V,
         environment: Environment,
@@ -78,6 +78,7 @@ impl AppController {
         D: AppDelegate + 'static,
         V: VersionInfoProvider + Send + 'static,
         A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
+        C: AppCache,
         DirProvider: DirectoryProvider + 'static,
     {
         delegate.hide_download_progress();
@@ -119,10 +120,11 @@ impl AppController {
 
             if cfg!(target_os = "windows") {
                 let metadata_path = working_dir.directory.join("metadata.json");
+                // TODO: all non-pure stuff should be encapsulated in traits
                 version_provider.dump_metadata_to_file(metadata_path);
             }
 
-            let version_info = fetch_app_version_info::<D, V>(
+            let version_info = fetch_app_version_info::<D, V, C>(
                 queue.clone(),
                 version_provider,
                 &working_dir,
@@ -176,7 +178,7 @@ impl AppController {
 }
 
 /// Background task that fetches app version data.
-async fn fetch_app_version_info<Delegate, VersionProvider>(
+async fn fetch_app_version_info<Delegate, VersionProvider, Cache>(
     queue: Delegate::Queue,
     version_provider: VersionProvider,
     working_directory: &WorkingDirectory,
@@ -185,6 +187,7 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
 where
     Delegate: AppDelegate + 'static,
     VersionProvider: VersionInfoProvider + Send,
+    Cache: AppCache,
 {
     loop {
         queue.queue_main(|self_| {
@@ -202,8 +205,8 @@ where
 
         let err = match version_provider.get_version_info(&version_params).await {
             Ok(version_info) => {
-                anyhow::anyhow!("test")
-                //return version_info;
+                //anyhow::anyhow!("test")
+                return version_info;
             }
             Err(err) => err,
         };
@@ -212,20 +215,16 @@ where
 
         // Check if we've already downloaded an istaller.
         // If so, the user will be given the option to run it.
-        let existing_download: Option<_> = async {
-            // FIXME: everything
-            DirectoryVersionInfoProvider::new(working_directory.directory.clone(), version_params)
-                .await
-                .inspect_err(|e| log::warn!("Couldn't find a downloaded installer: {e:#}"))
-                .ok()
-                .map(|thingy| thingy.version_info.stable)
-        }
-        .await;
+        let cached_app: Option<_> = Cache::new(working_directory.directory.clone(), version_params)
+            .find_app()
+            .await
+            .inspect_err(|e| log::warn!("Couldn't find a downloaded installer: {e:#}"))
+            .ok();
 
         enum Action {
             Retry,
             Cancel,
-            InstallExistingVersion(mullvad_update::version::Version),
+            InstallExistingVersion,
         }
 
         let (action_tx, mut action_rx) = mpsc::channel(1);
@@ -242,17 +241,16 @@ where
                 let _ = retry_tx.try_send(Action::Retry);
             });
 
-            // https://www.youtube.com/watch?v=r7DQDrRwNgI
-            if let Some(version) = existing_download {
+            if let Some((version, _installer)) = cached_app {
                 self_.show_error_message(crate::delegate::ErrorMessage {
                     status_text: resource::FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD
-                        .replace("%s", &version.version.to_string()),
+                        .replace("%s", &version.to_string()),
                     cancel_button_text: resource::FETCH_VERSION_ERROR_INSTALL_BUTTON_TEXT
                         .to_owned(),
                     retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
                 });
                 self_.on_error_message_cancel(move || {
-                    let _ = cancel_tx.try_send(Action::InstallExistingVersion(version.clone()));
+                    let _ = cancel_tx.try_send(Action::InstallExistingVersion);
                 });
             } else {
                 self_.show_error_message(crate::delegate::ErrorMessage {
@@ -280,14 +278,16 @@ where
                     self_.quit();
                 });
             }
-            Action::InstallExistingVersion(version_info) => {
-                let installer = InstallerFile::from_version(
-                    &working_directory.directory,
-                    // TODO: what do about beta?
-                    version_info.version,
-                    version_info.size,
-                    version_info.sha256,
-                );
+            Action::InstallExistingVersion => {
+                let Some((_version, installer)) = cached_app else {
+                    unreachable!(); // :(
+                };
+
+                queue.queue_main(|self_| {
+                    self_.show_download_button();
+                    self_.set_status_text("todo lol");
+                    self_.hide_error_message();
+                });
 
                 queue.queue_main(|delegate| {
                     let ui_installer = UiAppDownloader::new(&*delegate, installer);
