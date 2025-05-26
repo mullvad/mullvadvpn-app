@@ -27,7 +27,7 @@ use std::{
     path::{Path, PathBuf},
     pin::Pin,
     ptr,
-    sync::{mpsc as sync_mpsc, Arc},
+    sync::{Arc, mpsc as sync_mpsc},
     time::{Duration, Instant},
 };
 use windows_sys::Win32::{
@@ -37,19 +37,19 @@ use windows_sys::Win32::{
     },
     Globalization::CompareStringOrdinal,
     Storage::FileSystem::{
-        GetFileAttributesW, GetFullPathNameW, ReadDirectoryChangesW, FILE_ATTRIBUTE_REPARSE_POINT,
-        FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_REPARSE_POINT, FILE_FLAG_OVERLAPPED,
-        FILE_NOTIFY_CHANGE_ATTRIBUTES, FILE_NOTIFY_CHANGE_DIR_NAME, FILE_NOTIFY_CHANGE_FILE_NAME,
-        FILE_NOTIFY_INFORMATION,
+        FILE_ATTRIBUTE_REPARSE_POINT, FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_REPARSE_POINT,
+        FILE_FLAG_OVERLAPPED, FILE_NOTIFY_CHANGE_ATTRIBUTES, FILE_NOTIFY_CHANGE_DIR_NAME,
+        FILE_NOTIFY_CHANGE_FILE_NAME, FILE_NOTIFY_INFORMATION, GetFileAttributesW,
+        GetFullPathNameW, ReadDirectoryChangesW,
     },
     System::{
+        IO::{
+            CancelIoEx, CreateIoCompletionPort, DeviceIoControl, GetQueuedCompletionStatus,
+            OVERLAPPED, PostQueuedCompletionStatus,
+        },
         Ioctl::FSCTL_GET_REPARSE_POINT,
         SystemServices::{IO_REPARSE_TAG_MOUNT_POINT, IO_REPARSE_TAG_SYMLINK},
         Threading::INFINITE,
-        IO::{
-            CancelIoEx, CreateIoCompletionPort, DeviceIoControl, GetQueuedCompletionStatus,
-            PostQueuedCompletionStatus, OVERLAPPED,
-        },
     },
 };
 
@@ -686,7 +686,7 @@ impl PathMonitor {
             return None;
         }
         for (i, dir_context) in self.dir_contexts.iter().enumerate() {
-            if (&*dir_context.overlapped as *const _) == overlapped {
+            if std::ptr::eq(&*dir_context.overlapped, overlapped) {
                 return Some(i);
             }
         }
@@ -700,7 +700,7 @@ impl PathMonitor {
         }
         let mut was_discarded = false;
         self.discarded_contexts.retain(|ctx| {
-            if ((&*ctx.overlapped) as *const _) != overlapped {
+            if !std::ptr::eq(&*ctx.overlapped, overlapped) {
                 true
             } else {
                 was_discarded = true;
@@ -795,7 +795,7 @@ impl PathMonitor {
                     result
                 }
             };
-            contexts.retain(|ctx| ((&*ctx.overlapped) as *const _) != result.used_overlapped);
+            contexts.retain(|ctx| !std::ptr::eq(&*ctx.overlapped, result.used_overlapped));
         }
     }
 }

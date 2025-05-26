@@ -13,19 +13,19 @@ use std::{
     convert::Infallible,
     path::Path,
     pin::Pin,
-    sync::{mpsc as sync_mpsc, Arc},
+    sync::{Arc, mpsc as sync_mpsc},
 };
 #[cfg(not(target_os = "android"))]
 use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
-use talpid_tunnel::{tun_provider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
 
 #[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
-    net::{wireguard::TunnelParameters, AllowedTunnelTraffic, Endpoint, TransportProtocol},
     BoxedError, ErrorExt,
+    net::{AllowedTunnelTraffic, Endpoint, TransportProtocol, wireguard::TunnelParameters},
 };
 use tokio::sync::Mutex as AsyncMutex;
 
@@ -898,7 +898,7 @@ impl WireguardMonitor {
         let gateway_routes =
             gateway_routes.map(|route| Self::apply_route_mtu_for_multihop(route, config));
 
-        let routes = gateway_routes.chain(
+        gateway_routes.chain(
             config
                 .get_tunnel_destinations()
                 .filter(|allowed_ip| allowed_ip.prefix() != 0)
@@ -909,9 +909,7 @@ impl WireguardMonitor {
                         RequiredRoute::new(allowed_ip, node_v6.clone())
                     }
                 }),
-        );
-
-        routes
+        )
     }
 
     /// Return any 0.0.0.0/0 routes specified by the allowed IPs.

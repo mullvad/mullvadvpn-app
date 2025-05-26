@@ -1,17 +1,15 @@
 #![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
 
 use super::{
+    Tunnel,
     config::Config,
     logging,
     stats::{Stats, StatsMap},
-    Tunnel,
 };
 use bitflags::bitflags;
 use futures::SinkExt;
 use ipnetwork::IpNetwork;
 use once_cell::sync::OnceCell;
-#[cfg(daita)]
-use std::{ffi::c_uchar, path::PathBuf};
 use std::{
     ffi::CStr,
     fmt,
@@ -25,19 +23,21 @@ use std::{
     ptr,
     sync::{Arc, LazyLock, Mutex},
 };
+#[cfg(daita)]
+use std::{ffi::c_uchar, path::PathBuf};
 use talpid_types::{BoxedError, ErrorExt};
 use talpid_windows::net;
 use widestring::{U16CStr, U16CString};
 use windows_sys::{
-    core::GUID,
     Win32::{
-        Foundation::{FreeLibrary, BOOL, ERROR_MORE_DATA, HMODULE},
+        Foundation::{BOOL, ERROR_MORE_DATA, FreeLibrary, HMODULE},
         NetworkManagement::Ndis::NET_LUID_LH,
         Networking::WinSock::{
-            ADDRESS_FAMILY, AF_INET, AF_INET6, IN6_ADDR, IN_ADDR, SOCKADDR_INET,
+            ADDRESS_FAMILY, AF_INET, AF_INET6, IN_ADDR, IN6_ADDR, SOCKADDR_INET,
         },
-        System::LibraryLoader::{GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH},
+        System::LibraryLoader::{GetProcAddress, LOAD_WITH_ALTERED_SEARCH_PATH, LoadLibraryExW},
     },
+    core::GUID,
 };
 
 #[cfg(daita)]
@@ -634,8 +634,7 @@ impl WgNtAdapter {
 
     fn name(&self) -> io::Result<U16CString> {
         net::alias_from_luid(&self.luid()).and_then(|alias| {
-            U16CString::from_os_str(alias)
-                .map_err(|_| io::Error::new(io::ErrorKind::Other, "unexpected null char"))
+            U16CString::from_os_str(alias).map_err(|_| io::Error::other("unexpected null char"))
         })
     }
 

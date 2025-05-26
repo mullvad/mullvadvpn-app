@@ -11,24 +11,24 @@ use std::{
 };
 use widestring::{WideCStr, WideCString};
 use windows_sys::{
-    core::{GUID, PWSTR},
     Win32::{
         Foundation::{
-            CloseHandle, LocalFree, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ALL,
-            GENERIC_EXECUTE, GENERIC_READ, GENERIC_WRITE, HANDLE, INVALID_HANDLE_VALUE, LUID, S_OK,
+            CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ALL, GENERIC_EXECUTE,
+            GENERIC_READ, GENERIC_WRITE, HANDLE, INVALID_HANDLE_VALUE, LUID, LocalFree, S_OK,
         },
         Security::{
             self, AdjustTokenPrivileges,
             Authorization::{
-                SetEntriesInAclW, SetNamedSecurityInfoW, EXPLICIT_ACCESS_W, NO_MULTIPLE_TRUSTEE,
-                SET_ACCESS, SE_FILE_OBJECT, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID, TRUSTEE_W,
+                EXPLICIT_ACCESS_W, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT, SET_ACCESS,
+                SetEntriesInAclW, SetNamedSecurityInfoW, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID,
+                TRUSTEE_W,
             },
             CreateWellKnownSid, EqualSid, GetTokenInformation, ImpersonateSelf,
-            LookupPrivilegeValueW, RevertToSelf, SecurityImpersonation, TokenUser,
-            WinAuthenticatedUserSid, WinBuiltinAdministratorsSid, WinLocalSystemSid,
-            LUID_AND_ATTRIBUTES, NO_INHERITANCE, SE_PRIVILEGE_ENABLED,
-            SUB_CONTAINERS_AND_OBJECTS_INHERIT, TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE,
-            TOKEN_IMPERSONATE, TOKEN_PRIVILEGES, TOKEN_QUERY, TOKEN_USER,
+            LUID_AND_ATTRIBUTES, LookupPrivilegeValueW, NO_INHERITANCE, RevertToSelf,
+            SE_PRIVILEGE_ENABLED, SUB_CONTAINERS_AND_OBJECTS_INHERIT, SecurityImpersonation,
+            TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE, TOKEN_IMPERSONATE, TOKEN_PRIVILEGES,
+            TOKEN_QUERY, TOKEN_USER, TokenUser, WinAuthenticatedUserSid,
+            WinBuiltinAdministratorsSid, WinLocalSystemSid,
         },
         Storage::FileSystem::MAX_SID_SIZE,
         System::{
@@ -40,9 +40,10 @@ use windows_sys::{
             },
         },
         UI::Shell::{
-            FOLDERID_LocalAppData, FOLDERID_System, SHGetKnownFolderPath, KF_FLAG_DEFAULT,
+            FOLDERID_LocalAppData, FOLDERID_System, KF_FLAG_DEFAULT, SHGetKnownFolderPath,
         },
     },
+    core::{GUID, PWSTR},
 };
 
 pub const PRODUCT_NAME: &str = "Mullvad VPN";
@@ -138,7 +139,7 @@ fn create_dir_recursive_with_permissions(
             return Err(Error::CreateDirFailed(
                 format!("Could not create directory at {}", path.display()),
                 e,
-            ))
+            ));
         }
     }
 
@@ -150,10 +151,7 @@ fn create_dir_recursive_with_permissions(
             // reason
             return Err(Error::CreateDirFailed(
                 path.display().to_string(),
-                io::Error::new(
-                    io::ErrorKind::Other,
-                    "reached top of directory tree but could not create directory",
-                ),
+                io::Error::other("reached top of directory tree but could not create directory"),
             ));
         }
     }

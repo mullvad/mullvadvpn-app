@@ -1,24 +1,24 @@
 use crate::{
+    DnsResolver,
     abortable_stream::{AbortableStream, AbortableStreamHandle},
     proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
-    DnsResolver,
 };
-use futures::{channel::mpsc, future, pin_mut, StreamExt};
+use futures::{StreamExt, channel::mpsc, future, pin_mut};
 #[cfg(target_os = "android")]
 use futures::{channel::oneshot, sink::SinkExt};
 use http::uri::Scheme;
 use hyper::Uri;
 use hyper_util::rt::TokioIo;
 use mullvad_encrypted_dns_proxy::{
-    config::ProxyConfig as EncryptedDNSConfig, Forwarder as EncryptedDNSForwarder,
+    Forwarder as EncryptedDNSForwarder, config::ProxyConfig as EncryptedDNSConfig,
 };
 use shadowsocks::{
+    ServerConfig,
     config::ServerType,
     context::{Context as SsContext, SharedContext},
     crypto::CipherKind,
     relay::tcprelay::ProxyClientStream,
-    ServerConfig,
 };
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
@@ -33,7 +33,7 @@ use std::{
     task::{Context, Poll},
     time::Duration,
 };
-use talpid_types::{net::proxy, ErrorExt};
+use talpid_types::{ErrorExt, net::proxy};
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::{TcpSocket, TcpStream},
@@ -148,9 +148,7 @@ impl InnerConnectionMode {
                             .await
                         }
                     }
-                    .map_err(|error| {
-                        io::Error::new(io::ErrorKind::Other, format!("SOCKS error: {error}"))
-                    })
+                    .map_err(|error| io::Error::other(format!("SOCKS error: {error}")))
                 };
                 Self::connect_proxied(
                     first_hop,
@@ -415,7 +413,7 @@ impl HttpsConnectorWithSni {
         let addrs = dns_resolver.resolve(hostname.to_owned()).await?;
         let addr = addrs
             .first()
-            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Empty DNS response"))?;
+            .ok_or_else(|| io::Error::other("Empty DNS response"))?;
         let port = match (addr.port(), port) {
             (_, Some(port)) => port,
             (0, None) => DEFAULT_PORT,

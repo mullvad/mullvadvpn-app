@@ -1,7 +1,7 @@
 use futures::{
+    FutureExt, StreamExt, TryFutureExt,
     channel::{mpsc, oneshot},
     future::{BoxFuture, FusedFuture},
-    FutureExt, StreamExt, TryFutureExt,
 };
 use mullvad_api::{
     availability::ApiAvailability, rest::MullvadRestHandle, version::AppVersionProxy,
@@ -19,7 +19,7 @@ use std::{
     time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
-use talpid_future::retry::{retry_future, ConstantInterval};
+use talpid_future::retry::{ConstantInterval, retry_future};
 use talpid_types::ErrorExt;
 use tokio::{fs::File, io::AsyncReadExt};
 
@@ -422,7 +422,7 @@ fn version_check_inner(
     api: &ApiContext,
     // NOTE: This is unused when `update` is disabled
     _min_metadata_version: usize,
-) -> impl Future<Output = Result<VersionCache, Error>> {
+) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
     let v1_endpoint = api.version_proxy.version_check(
         mullvad_version::VERSION.to_owned(),
         PLATFORM,
@@ -552,8 +552,8 @@ fn dev_version_cache() -> VersionCache {
 #[cfg(test)]
 mod test {
     use std::sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     };
 
     use futures::SinkExt;
