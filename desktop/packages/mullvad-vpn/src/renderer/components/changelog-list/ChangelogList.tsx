@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { IChangelog } from '../../../shared/ipc-types';
 import { BodySmall } from '../../lib/components';
 import { Flex } from '../../lib/components';
-import { Colors } from '../../lib/foundations';
 
 const StyledList = styled(Flex)`
   list-style-type: disc;
@@ -21,7 +20,7 @@ export function ChangelogList({ changelog }: ChangelogListProps) {
   return (
     <StyledList as="ul" $flexDirection="column" $gap="medium">
       {changelog.map((item, i) => (
-        <BodySmall as="li" key={`${item}${i}`} color={Colors.white60}>
+        <BodySmall as="li" key={`${item}${i}`} color="whiteAlpha60">
           {item}
         </BodySmall>
       ))}
