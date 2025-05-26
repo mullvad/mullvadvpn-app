@@ -1614,6 +1614,12 @@ msgctxt "notifications"
 msgid "No servers match your settings, try changing server or other settings."
 msgstr ""
 
+#. A link in the in-app banner to encourage the user to update the app.
+#. The in-app banner is is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Please click here to update now"
+msgstr ""
+
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr ""
@@ -1684,7 +1690,12 @@ msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr ""
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+#. The in-app banner which is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version."
+msgstr ""
+
+#. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr ""
