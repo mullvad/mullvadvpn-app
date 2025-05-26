@@ -22,19 +22,22 @@ data class SplitTunnelingViewModelState(
             ?.let { (excluded, included) ->
                 SplitTunnelingUiState.ShowAppList(
                     enabled = enabled,
-                    excludedApps = excluded.sort(),
+                    excludedApps = excluded.sortedWith(descendingByNameComparator),
                     includedApps =
                         if (showSystemApps) {
                                 included
                             } else {
                                 included.filter { appData -> !appData.isSystemApp }
                             }
-                            .sort(),
+                            .sortedWith(descendingByNameComparator),
                     showSystemApps = showSystemApps,
                     isModal = isModal,
                 )
             } ?: SplitTunnelingUiState.Loading(enabled = enabled, isModal)
     }
-}
 
-private fun List<AppData>.sort() = sortedBy { it.name.lowercase() }
+    companion object {
+        private val descendingByNameComparator =
+            compareByDescending<AppData> { it.name.lowercase() }
+    }
+}

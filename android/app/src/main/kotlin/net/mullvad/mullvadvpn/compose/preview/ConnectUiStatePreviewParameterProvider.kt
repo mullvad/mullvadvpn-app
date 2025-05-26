@@ -8,10 +8,10 @@ import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 
 class ConnectUiStatePreviewParameterProvider : PreviewParameterProvider<ConnectUiState> {
-    override val values = sequenceOf(ConnectUiState.INITIAL) + generateOtherStates()
+    override val values = sequenceOf(ConnectUiState.INITIAL) + otherStates
 }
 
-private fun generateOtherStates(): Sequence<ConnectUiState> =
+private val otherStates =
     sequenceOf(
             TunnelStatePreviewData.generateConnectedState(
                 featureIndicators = 8,

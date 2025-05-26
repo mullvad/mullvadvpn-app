@@ -20,7 +20,7 @@ class CustomListLocationUiStatePreviewParameterProvider :
                                 listOf(
                                     RelayLocationListItem(
                                         item =
-                                            RelayItemPreviewData.generateRelayItemCountry(
+                                            generateRelayItemCountry(
                                                 name = "A relay",
                                                 cityNames = listOf("City 1", "City 2"),
                                                 relaysPerCity = 2,
@@ -29,7 +29,7 @@ class CustomListLocationUiStatePreviewParameterProvider :
                                     ),
                                     RelayLocationListItem(
                                         item =
-                                            RelayItemPreviewData.generateRelayItemCountry(
+                                            generateRelayItemCountry(
                                                     name = "Another relay",
                                                     cityNames =
                                                         listOf("City X", "City Y", "City Z"),

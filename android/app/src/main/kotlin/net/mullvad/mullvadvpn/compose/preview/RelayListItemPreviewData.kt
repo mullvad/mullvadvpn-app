@@ -28,7 +28,7 @@ object RelayListItemPreviewData {
                                 ),
                             locations =
                                 listOf(
-                                    RelayItemPreviewData.generateRelayItemCountry(
+                                    generateRelayItemCountry(
                                         name = "Country",
                                         cityNames = listOf("City"),
                                         relaysPerCity = 2,
@@ -48,13 +48,13 @@ object RelayListItemPreviewData {
         add(RelayListItem.LocationHeader)
         val locations =
             listOf(
-                RelayItemPreviewData.generateRelayItemCountry(
+                generateRelayItemCountry(
                     name = "First Country",
                     cityNames = listOf("Capital City", "Minor City"),
                     relaysPerCity = 2,
                     active = true,
                 ),
-                RelayItemPreviewData.generateRelayItemCountry(
+                generateRelayItemCountry(
                     name = "Second Country",
                     cityNames = listOf("Medium City", "Small City", "Vivec City"),
                     relaysPerCity = 1,

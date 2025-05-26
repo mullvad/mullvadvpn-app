@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0" type="baseline" client="gradle" dependencies="true" name="AGP (8.8.0)" variant="all" version="8.8.0">
+<issues format="6" by="lint 8.10.0" type="baseline" client="gradle" dependencies="true" name="AGP (8.10.0)" variant="all" version="8.10.0">
 
     <issue
         id="InvalidPackage"
@@ -22,29 +22,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="185"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf-gradle-plugin&quot; }"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="185"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf-gradle-plugin&quot; }"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="185"
+            line="221"
             column="18"/>
     </issue>
 
@@ -55,29 +33,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="186"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-protoc = { id = &quot;com.google.protobuf:protoc&quot;, version.ref = &quot;protobuf&quot; }"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="186"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-protoc = { id = &quot;com.google.protobuf:protoc&quot;, version.ref = &quot;protobuf&quot; }"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="186"
+            line="222"
             column="20"/>
     </issue>
 
@@ -88,29 +44,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="189"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies io.grpc but with different version"
-        errorLine1="grpc-protoc-gen-grpc-java = { id = &quot;io.grpc:protoc-gen-grpc-java&quot;, version.ref = &quot;grpc&quot; }"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="189"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies io.grpc but with different version"
-        errorLine1="grpc-protoc-gen-grpc-java = { id = &quot;io.grpc:protoc-gen-grpc-java&quot;, version.ref = &quot;grpc&quot; }"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="189"
+            line="225"
             column="30"/>
     </issue>
 
@@ -121,129 +55,33 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="190"
+            line="226"
             column="32"/>
     </issue>
 
     <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies io.grpc but with different version"
-        errorLine1="grpc-protoc-gen-grpc-kotlin = { id = &quot;io.grpc:protoc-gen-grpc-kotlin&quot;, version.ref = &quot;grpc-kotlin-jar&quot; }"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="Aligned16KB"
+        message="The native library `arm64-v8a/libmockkjvmtiagent.so` (from `io.mockk:mockk-agent-android:1.14.2`) is not 16 KB aligned">
         <location
-            file="../gradle/libs.versions.toml"
-            line="190"
-            column="32"/>
+            file="*/caches/8.14.1/transforms/e8800ce70868097d76e61ca399d1fd75/transformed/mockk-agent-android-1.14.2/jni/arm64-v8a/libmockkjvmtiagent.so"/>
     </issue>
 
     <issue
-        id="SimilarGradleDependency"
-        message="There are multiple dependencies io.grpc but with different version"
-        errorLine1="grpc-protoc-gen-grpc-kotlin = { id = &quot;io.grpc:protoc-gen-grpc-kotlin&quot;, version.ref = &quot;grpc-kotlin-jar&quot; }"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="Aligned16KB"
+        message="The native library `arm64-v8a/libmockkjvmtiagent.so` (from `io.mockk:mockk-agent-android:1.14.2`) is not 16 KB aligned">
         <location
-            file="../gradle/libs.versions.toml"
-            line="190"
-            column="32"/>
+            file="*/caches/8.14.1/transforms/d8aff4852c6fc3c718a4affc858d1094/transformed/mockk-agent-android-1.14.2/jni/arm64-v8a/libmockkjvmtiagent.so"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `buildTopText` of class `AutoConnectAndLockdownModeScreenKt` requires synthetic accessor"
-        errorLine1="            @Composable { buildTopText(id = R.string.auto_connect_carousel_first_slide_top_text) },"
-        errorLine2="                          ~~~~~~~~~~~~">
+        id="OldTargetApi"
+        message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the `android.os.Build.VERSION_CODES` javadoc for details."
+        errorLine1="        targetSdk = libs.versions.target.sdk.get().toInt()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/screen/AutoConnectAndLockdownModeScreen.kt"
-            line="302"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `buildTopText` of class `AutoConnectAndLockdownModeScreenKt` requires synthetic accessor"
-        errorLine1="            @Composable { buildTopText(id = R.string.auto_connect_carousel_second_slide_top_text) },"
-        errorLine2="                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/screen/AutoConnectAndLockdownModeScreen.kt"
-            line="308"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `buildLockdownTopText` of class `AutoConnectAndLockdownModeScreenKt` requires synthetic accessor"
-        errorLine1="        annotatedTopText = @Composable { buildLockdownTopText() },"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/screen/AutoConnectAndLockdownModeScreen.kt"
-            line="313"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `generateOtherStates` of class `ConnectUiStatePreviewParameterProviderKt` requires synthetic accessor"
-        errorLine1="    override val values = sequenceOf(ConnectUiState.INITIAL) + generateOtherStates()"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/ConnectUiStatePreviewParameterProvider.kt"
-            line="10"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `generateCountryCode` of class `RelayItemPreviewDataKt` requires synthetic accessor"
-        errorLine1="            id = name.generateCountryCode(),"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/RelayItemPreviewData.kt"
-            line="17"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `generateRelayItemCity` of class `RelayItemPreviewDataKt` requires synthetic accessor"
-        errorLine1="                    generateRelayItemCity("
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/RelayItemPreviewData.kt"
-            line="20"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `generateCountryCode` of class `RelayItemPreviewDataKt` requires synthetic accessor"
-        errorLine1="                        name.generateCountryCode(),"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/RelayItemPreviewData.kt"
-            line="22"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `sort` of class `SplitTunnelingViewModelStateKt` requires synthetic accessor"
-        errorLine1="                    excludedApps = excluded.sort(),"
-        errorLine2="                                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/viewmodel/SplitTunnelingViewModelState.kt"
-            line="25"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `sort` of class `SplitTunnelingViewModelStateKt` requires synthetic accessor"
-        errorLine1="                        if (showSystemApps) {"
-        errorLine2="                        ^">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/viewmodel/SplitTunnelingViewModelState.kt"
-            line="27"
-            column="25"/>
+            file="build.gradle.kts"
+            line="41"
+            column="9"/>
     </issue>
 
 </issues>
