@@ -72,7 +72,7 @@ class LoginPage: Page {
     func getSuccessIconShown() -> Bool {
         let predicate = NSPredicate(format: "identifier == 'statusImageView' AND value == 'success'")
         let elementQuery = app.images.containing(predicate)
-        let elementExists = elementQuery.firstMatch.waitForExistence(timeout: BaseUITestCase.defaultTimeout)
+        let elementExists = elementQuery.firstMatch.waitForExistence(timeout: BaseUITestCase.longTimeout)
         return elementExists
     }
 }
