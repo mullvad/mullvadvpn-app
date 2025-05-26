@@ -67,6 +67,13 @@
     </issue>
 
     <issue
+        id="Aligned16KB"
+        message="The native library `arm64-v8a/libmockkjvmtiagent.so` (from `io.mockk:mockk-agent-android:1.14.2`) is not 16 KB aligned">
+        <location
+            file="*/caches/8.14.1/transforms/d8aff4852c6fc3c718a4affc858d1094/transformed/mockk-agent-android-1.14.2/jni/arm64-v8a/libmockkjvmtiagent.so"/>
+    </issue>
+
+    <issue
         id="OldTargetApi"
         message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the `android.os.Build.VERSION_CODES` javadoc for details."
         errorLine1="        targetSdk = libs.versions.target.sdk.get().toInt()"
