@@ -2171,9 +2171,9 @@ msgctxt "support-view"
 msgid "Try again"
 msgstr ""
 
-#. Button label for upgrading the app to the latest version.
+#. Button label for updating the app to the latest version.
 msgctxt "support-view"
-msgid "Upgrade app"
+msgid "Update app"
 msgstr ""
 
 #. Button label for opening app logs.
