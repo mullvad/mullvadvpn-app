@@ -53,6 +53,10 @@ public struct SelectedRelays: Equatable, Codable, Sendable {
     public let exit: SelectedRelay
     public let retryAttempt: UInt
 
+    public var ingress: SelectedRelay {
+        entry ?? exit
+    }
+
     public init(entry: SelectedRelay?, exit: SelectedRelay, retryAttempt: UInt) {
         self.entry = entry
         self.exit = exit

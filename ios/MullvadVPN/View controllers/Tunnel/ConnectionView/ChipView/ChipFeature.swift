@@ -126,10 +126,17 @@ struct DNSFeature: ChipFeature {
 }
 
 struct IPOverrideFeature: ChipFeature {
+    let state: TunnelState
     let overrides: [IPOverride]
 
     var isEnabled: Bool {
-        !overrides.isEmpty
+        guard
+            let endpoint = state.relays?.ingress.endpoint
+        else { return false }
+        return overrides.contains { override in
+            (override.ipv4Address.map { $0 == endpoint.ipv4Relay.ip } ?? false) ||
+                (override.ipv6Address.map { $0 == endpoint.ipv6Relay?.ip } ?? false)
+        }
     }
 
     var name: String {
