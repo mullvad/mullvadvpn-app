@@ -15,7 +15,11 @@
         ],
         "api-tests": [
             "AccountTests"
+        ],
+        "pr-opened": [
+            "AccountTests/testLogin",
+            "AccountTests/testCreateAccount",
+            "RelayTests"
         ]
     }
 }
-
