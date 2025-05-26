@@ -112,7 +112,7 @@ export class DaemonRpc extends GrpcClient {
       }
     } else if (process.platform === 'linux') {
       const stat = fs.statSync(DAEMON_RPC_PATH);
-      if (stat.uid !== 0 || stat.gid !== 0) {
+      if (stat.uid !== 0) {
         throw new Error('Failed to verify root ownership of socket');
       }
     }
