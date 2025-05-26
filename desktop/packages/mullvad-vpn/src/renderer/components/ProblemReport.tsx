@@ -395,8 +395,8 @@ function OutdatedVersionWarningDialog() {
           aria-description={messages.pgettext('accessibility', 'Opens externally')}>
           <Button.Text>
             {
-              // TRANSLATORS: Button label for upgrading the app to the latest version.
-              messages.pgettext('support-view', 'Upgrade app')
+              // TRANSLATORS: Button label for updating the app to the latest version.
+              messages.pgettext('support-view', 'Update app')
             }
           </Button.Text>
           <Button.Icon icon="external" />
