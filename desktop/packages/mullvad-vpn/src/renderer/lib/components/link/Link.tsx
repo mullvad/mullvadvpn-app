@@ -1,62 +1,66 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-import { Colors, colors, Radius } from '../../foundations';
-import { Text, TextProps } from '../typography';
-import { LinkIcon } from './components';
+import { Colors, colors, Radius, Typography } from '../../foundations';
+import { TransientProps } from '../../types';
+import { LinkIcon, LinkText, StyledIcon as StyledLinkIcon, StyledLinkText } from './components';
+import { useHoverColor } from './hooks';
+import { LinkProvider } from './LinkContext';
 
-export type LinkProps<T extends React.ElementType = 'a'> = TextProps<T> & {
+type LinkBaseProps = {
+  variant?: Typography;
+  color?: Colors;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 };
 
-const StyledText = styled(Text)<{
-  $hoverColor: Colors | undefined;
-}>((props) => ({
-  background: colors.transparent,
-  cursor: 'default',
-  textDecoration: 'none',
-  display: 'inline',
+export type LinkProps = LinkBaseProps &
+  Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, keyof LinkBaseProps>;
 
-  '&&:hover': {
-    textDecorationLine: 'underline',
-    textUnderlineOffset: '2px',
-    color: props.$hoverColor,
-  },
-  '&&:focus-visible': {
-    borderRadius: Radius.radius4,
-    outline: `2px solid ${colors.whiteAlpha60}`,
-    outlineOffset: '2px',
-  },
-}));
-
-const getHoverColor = (color: Colors | undefined) => {
-  switch (color) {
-    case 'whiteAlpha60':
-      return 'white';
-    default:
-      return undefined;
+const StyledLink = styled.a<
+  TransientProps<LinkProps> & {
+    $hoverColor?: Colors;
   }
-};
+>(({ $hoverColor }) => {
+  return css`
+    cursor: default;
+    text-decoration: none;
+    display: inline;
+    width: fit-content;
 
-function Link<T extends React.ElementType = 'a'>({
-  as: forwardedAs,
-  color,
-  ...props
-}: LinkProps<T>) {
-  // If `as` is provided we need to pass it as `forwardedAs` for it to
-  // be correctly passed to the `Text` component.
-  const componentProps = forwardedAs ? { ...props, forwardedAs } : props;
+    &&:hover > ${StyledLinkText} {
+      text-decoration-line: underline;
+      text-underline-offset: 2px;
+      color: ${$hoverColor};
+    }
+
+    &&:focus-visible > ${StyledLinkText} {
+      border-radius: ${Radius.radius4};
+      outline: 2px solid ${colors.white};
+      outline-offset: 2px;
+    }
+
+    > ${StyledLinkIcon}:first-child:not(:only-child) {
+      margin-right: 2px;
+    }
+    > ${StyledLinkIcon}:last-child:not(:only-child) {
+      margin-left: 2px;
+    }
+  `;
+});
+
+function Link({ color, variant, children, ...props }: LinkProps) {
+  const hoverColor = useHoverColor(color);
   return (
-    <StyledText
-      forwardedAs="a"
-      color={color}
-      $hoverColor={getHoverColor(color)}
-      {...componentProps}
-    />
+    <LinkProvider variant={variant} color={color}>
+      <StyledLink $hoverColor={hoverColor} {...props}>
+        {children}
+      </StyledLink>
+    </LinkProvider>
   );
 }
 
 const LinkNamespace = Object.assign(Link, {
+  Text: LinkText,
   Icon: LinkIcon,
 });
 
