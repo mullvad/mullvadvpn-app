@@ -97,6 +97,7 @@
     <string name="created_x">생성 날짜: %1$s</string>
     <string name="creating_new_account">계정 생성 중...</string>
     <string name="critical_error">심각한 오류(주의가 필요함)</string>
+    <string name="current_device">현재 장치</string>
     <string name="current_method">현재: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">이 설정을 활성화하려면 위의 모든 \"%1$s\"를 비활성화하세요.</string>
     <string name="custom_dns_footer">하나 이상의 DNS 서버를 추가하려면 활성화합니다.</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s는 정교하게 네트워크 노이즈를 추가하고 모든 네트워크 패킷을 동일한 크기로 만들어 이를 달성합니다.</string>
     <string name="daita_description_slide_2_third_paragraph">일부 서버에는 %1$s가 활성화되어 있지 않습니다. 따라서 당사는 모든 서버에서 %1$s를 활성화하기 위해 자동으로 멀티홉을 사용합니다.</string>
     <string name="daita_info">“%1$s”을 활성화하면 %2$s가 활성화된 서버를 수동으로 선택해야 합니다. 이로 인해 “위치 선택” 창에서 호환되는 서버를 선택할 때까지 차단된 상태에 빠질 수 있습니다.</string>
+    <string name="daita_multihop">%1$s: 멀티홉</string>
     <string name="delete">삭제</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\"을(를) 삭제하시겠습니까?</string>
     <string name="delete_custom_list_message">\"%1$s\"이(가) 삭제되었습니다</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">이 장치를 제거했습니다. 다시 연결하려면 다시 로그인해야 합니다.</string>
     <string name="device_inactive_title">장치가 비활성 상태입니다.</string>
     <string name="device_inactive_unblock_warning">로그인하면 이 장치에서 인터넷 차단이 해제됩니다.</string>
+    <string name="device_ip_info_first_paragraph">이 기능을 사용하면 IPv4만 사용할지, IPv6만 사용할지, 서버 연결 시 앱이 자동으로 최적의 옵션을 결정하게 허용할지 선택할 수 있습니다.</string>
+    <string name="device_ip_info_second_paragraph">특정 IP 버전으로 인해 발생하는 문제를 알고 있는 경우 유용합니다.</string>
     <string name="device_ip_version_title">장치 IP 버전</string>
     <string name="device_name">장치 이름</string>
     <string name="device_name_info_first_paragraph">이것은 장치에 할당된 이름입니다. Mullvad 계정에 로그인된 각 장치에는 앱이나 웹사이트에서 장치를 관리할 때 장치를 보다 쉽게 식별할 수 있는 고유한 이름이 부여됩니다.</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">텍스트를 통해 가져오기</string>
     <string name="invalid_dns_servers">사용자 지정 DNS 서버 주소 %1$s이(가) 잘못되었습니다.</string>
     <string name="invalid_voucher">유효하지 않은 바우처 코드입니다.</string>
+    <string name="ip_version_v4_unavailable">IPv4를 사용할 수 없습니다. \"장치 IP 버전\" 설정을 변경해 보세요.</string>
+    <string name="ip_version_v6_unavailable">IPv6를 사용할 수 없습니다. \"장치 IP 버전\" 설정을 변경해 보세요.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">이 기능을 활성화하면 VPN 터널에서 IPv4와 함께 IPv6을 사용하여 인터넷 서비스와 통신할 수 있습니다.</string>
@@ -230,6 +236,10 @@
     <string name="login_title">로그인</string>
     <string name="malware_info">경고: 맬웨어 차단기는 안티바이러스가 아니며 하나의 추가 보호 계층일 뿐입니다.</string>
     <string name="manage_account">계정 관리</string>
+    <string name="manage_devices">장치 관리</string>
+    <string name="manage_devices_confirm_removal_description_line1">%1$s을(를) 제거하시겠습니까?</string>
+    <string name="manage_devices_confirm_removal_description_line2">장치가 목록에서 제거되고 로그아웃됩니다.</string>
+    <string name="manage_devices_description">로그인된 모든 장치를 보고 관리하세요. 한 계정에서 최대 5대의 장치를 동시에 보유할 수 있습니다. 사용자가 쉽게 구분할 수 있도록 각 장치에는 로그인 시 이름이 부여됩니다.</string>
     <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt;에서 로그아웃하시겠습니까?</string>
     <string name="max_devices_resolved_description">이제 이 장치에 계속 로그인할 수 있습니다.</string>
     <string name="max_devices_resolved_title">좋습니다!</string>
@@ -385,8 +395,10 @@
     <string name="voucher_is_account_number">바우처 코드 대신 계정 번호를 입력한 것 같습니다. 활성 계정을 변경하려면 먼저 로그아웃하세요.</string>
     <string name="voucher_success_title">바우처가 성공적으로 사용되었습니다.</string>
     <string name="vpn_permission_denied_error">VPN 권한이 거부되었거나 다른 앱에 \"상시 접속 VPN\"이 활성화되어 있을 수 있습니다</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">VPN 권한이 거부되었습니다</string>
     <string name="vpn_permission_error_notification_message">VPN 권한을 요청하려면 연결을 누르세요</string>
     <string name="vpn_permission_error_notification_title">VPN 권한 오류</string>
+    <string name="vpn_settings_not_available">장치에서 VPN 설정을 사용할 수 없습니다</string>
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
     <string name="wg_port_subtitle">이 설정을 활성화하려면 아래 %1$s 난독 처리를 \"자동\" 또는 \"끄기\"로 설정합니다.</string>
     <string name="wireguard_custon_port_title">사용자 지정</string>
@@ -394,7 +406,9 @@
     <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d</string>
     <string name="wireguard_port_info_description">자동 설정은 아래 표시된 유효한 포트 범위에서 임의로 선택합니다.</string>
     <string name="wireguard_port_info_port_range">사용자 지정 포트는 유효한 범위 내의 모든 값이 될 수 있습니다: %1$s</string>
+    <string name="wireguard_port_is_not_supported">선택한 %1$s 포트는 지원되지 않습니다. 다음에서 변경하세요:</string>
     <string name="wireguard_port_title">WireGuard 포트</string>
+    <string name="wireguard_settings">%1$s 설정.</string>
     <string name="x_entry">%1$s(진입)</string>
     <string name="x_exit">%1$s(종료)</string>
     <string name="x_via_x">%2$s을(를) 통한 %1$s</string>

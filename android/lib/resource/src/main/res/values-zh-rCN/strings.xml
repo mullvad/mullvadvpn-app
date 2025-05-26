@@ -97,6 +97,7 @@
     <string name="created_x">创建日期：%1$s</string>
     <string name="creating_new_account">正在创建帐户…</string>
     <string name="critical_error">严重错误（需要注意）</string>
+    <string name="current_device">当前设备</string>
     <string name="current_method">当前：%1$s</string>
     <string name="custom_dns_disable_mode_subtitle">禁用上方的所有“%1$s”以激活此设置。</string>
     <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s 的实现方法是精心添加网络噪声并将所有网络数据包处理为相同的大小。</string>
     <string name="daita_description_slide_2_third_paragraph">我们的部分服务器未启用 %1$s。因此，我们使用多跳自动为任何服务器启用 %1$s。</string>
     <string name="daita_info">启用“%1$s”后，您需要手动选择启用了 %2$s 的服务器。这可能导致您在“选择位置”视图中选择兼容服务器之前处于阻止状态。</string>
+    <string name="daita_multihop">%1$s：多跳</string>
     <string name="delete">删除</string>
     <string name="delete_custom_list_confirmation_description">删除“%1$s”？</string>
     <string name="delete_custom_list_message">“%1$s”已被删除</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">您已移除此设备。要重新连接，您需要重新登录。</string>
     <string name="device_inactive_title">设备处于非活动状态</string>
     <string name="device_inactive_unblock_warning">前往登录将在此设备上解除阻止互联网。</string>
+    <string name="device_ip_info_first_paragraph">此功能允许您选择仅使用 IPv4、仅使用 IPv6，还是允许应用在连接到服务器时自动决定最佳选项。</string>
+    <string name="device_ip_info_second_paragraph">当您了解某个 IP 版本导致的问题时，这会很有用。</string>
     <string name="device_ip_version_title">设备 IP 版本</string>
     <string name="device_name">设备名称</string>
     <string name="device_name_info_first_paragraph">这是为设备分配的名称。每台登录 Mulvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">通过文本导入</string>
     <string name="invalid_dns_servers">自定义 DNS 服务器地址 %1$s 无效</string>
     <string name="invalid_voucher">该优惠券码无效。</string>
+    <string name="ip_version_v4_unavailable">IPv4 不可用，请尝试更改“设备 IP 版本”设置。</string>
+    <string name="ip_version_v6_unavailable">IPv6 不可用，请尝试更改“设备 IP 版本”设置。</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">启用此功能后，IPv6 可以在 VPN 隧道中与 IPv4 一起使用来通过互联网服务通信。</string>
@@ -230,6 +236,10 @@
     <string name="login_title">登录</string>
     <string name="malware_info">警告：恶意软件阻止程序不是防病毒软件，也不应被视为防病毒软件，这只是提供了一层额外的保护。</string>
     <string name="manage_account">管理帐户</string>
+    <string name="manage_devices">管理设备</string>
+    <string name="manage_devices_confirm_removal_description_line1">是否移除“%1$s”？</string>
+    <string name="manage_devices_confirm_removal_description_line2">该设备将从列表中移除并退出登录。</string>
+    <string name="manage_devices_description">查看和管理您所有已登录的设备。一个帐户最多可以同时登录 5 台设备。每台设备登录时都会获得一个名称，以便您能够轻松区分。</string>
     <string name="max_devices_confirm_removal_description">确定要退出&lt;b&gt;%1$s&lt;/b&gt;吗？</string>
     <string name="max_devices_resolved_description">您现在可以继续在此设备上登录。</string>
     <string name="max_devices_resolved_title">太棒了！</string>
@@ -385,8 +395,10 @@
     <string name="voucher_is_account_number">您输入的似乎是帐号，而不是代金券码。如果您想更改有效帐户，请先退出登录。</string>
     <string name="voucher_success_title">优惠券已成功兑换。</string>
     <string name="vpn_permission_denied_error">VPN 权限被拒绝，或其他应用已启用“始终开启 VPN”</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">VPN 权限被拒绝</string>
     <string name="vpn_permission_error_notification_message">请按“连接”以请求 VPN 权限</string>
     <string name="vpn_permission_error_notification_title">VPN 权限错误</string>
+    <string name="vpn_settings_not_available">设备上 VPN 设置不可用</string>
     <string name="we_will_look_into_this">我们将对此进行调查。</string>
     <string name="wg_port_subtitle">将下方的“%1$s 混淆”设为“自动”或“关”可激活此设置。</string>
     <string name="wireguard_custon_port_title">自定义</string>
@@ -394,7 +406,9 @@
     <string name="wireguard_mtu_footer">设置 WireGuard MTU 值。有效范围：%1$d - %2$d。</string>
     <string name="wireguard_port_info_description">自动设置将从下方显示的有效端口范围中随机选择。</string>
     <string name="wireguard_port_info_port_range">自定义端口可以是有效范围内的任何值：%1$s。</string>
+    <string name="wireguard_port_is_not_supported">所选 %1$s 端口不受支持，请在以下位置更改：</string>
     <string name="wireguard_port_title">WireGuard 端口</string>
+    <string name="wireguard_settings">%1$s 设置。</string>
     <string name="x_entry">%1$s（入口）</string>
     <string name="x_exit">%1$s（出口）</string>
     <string name="x_via_x">%1$s，经由 %2$s</string>

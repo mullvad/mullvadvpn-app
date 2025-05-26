@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2025-04-15 12:04\n"
+"PO-Revision-Date: 2025-05-27 09:40\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -196,6 +196,10 @@ msgstr "အက်စ်တိုးနီးယား"
 msgid "Finland"
 msgstr "ဖင်လန်"
 
+#. BR FOR
+msgid "Fortaleza"
+msgstr "Fortaleza"
+
 #. FR
 msgid "France"
 msgstr "ပြင်သစ်"
@@ -283,6 +287,10 @@ msgstr "ဂျပန်"
 #. ZA JNB
 msgid "Johannesburg"
 msgstr "ဂျိုဟန်နက်စ်ဘတ်"
+
+#. US MKC
+msgid "Kansas City, MO"
+msgstr "Kansas City, MO"
 
 #. UA IEV
 msgid "Kiev"

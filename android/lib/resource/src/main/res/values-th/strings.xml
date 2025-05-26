@@ -97,6 +97,7 @@
     <string name="created_x">วันที่สร้าง: %1$s</string>
     <string name="creating_new_account">กำลังสร้างบัญชี...</string>
     <string name="critical_error">ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)</string>
+    <string name="current_device">อุปกรณ์ปัจจุบัน</string>
     <string name="current_method">ปัจจุบัน: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">ปิดใช้งาน \"%1$s\" ด้านบนทั้งหมด เพื่อเปิดใช้งานการตั้งค่านี้</string>
     <string name="custom_dns_footer">เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s ได้ดำเนินการนี้ ด้วยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากัน</string>
     <string name="daita_description_slide_2_third_paragraph">ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %1$s ด้วยเหตุนี้เอง เราจึงใช้การมัลติฮอปอัตโนมัติ เพื่อเปิดใช้งาน %1$s กับทุกเซิร์ฟเวอร์</string>
     <string name="daita_info">โดยการเปิดใช้งาน “%1$s” คุณจะต้องเลือกเซิร์ฟเวอร์ที่เปิดใช้งาน %2$s ด้วยตนเอง ซึ่งอาจทำให้คุณอยู่ในสถานะถูกบล็อก จนกว่าคุณจะเลือกเซิร์ฟเวอร์ที่เข้ากันได้ในมุมมอง \"เลือกตำแหน่งที่ตั้ง\"</string>
+    <string name="daita_multihop">%1$s: Multihop</string>
     <string name="delete">ลบ</string>
     <string name="delete_custom_list_confirmation_description">ลบ \"%1$s\" หรือไม่</string>
     <string name="delete_custom_list_message">\"%1$s\" ถูกลบแล้ว</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">คุณได้ลบอุปกรณ์เครื่องนี้แล้ว หากต้องการเชื่อมต่ออีกครั้ง คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง</string>
     <string name="device_inactive_title">อุปกรณ์ไม่ได้ใช้งาน</string>
     <string name="device_inactive_unblock_warning">การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้</string>
+    <string name="device_ip_info_first_paragraph">ฟีเจอร์นี้ช่วยให้คุณเลือกได้ว่าจะใช้เฉพาะ IPv4 หรือเฉพาะ IPv6 เท่านั้น หรือให้แอปตัดสินใจเลือกตัวเลือกที่ดีที่สุดโดยอัตโนมัติ ในขณะที่เชื่อมต่อกับเซิร์ฟเวอร์</string>
+    <string name="device_ip_info_second_paragraph">นี่จะมีประโยชน์อย่างมาก เมื่อคุณทราบถึงปัญหาที่เกิดจากเวอร์ชัน IP บางเวอร์ชัน</string>
     <string name="device_ip_version_title">เวอร์ชัน IP ของอุปกรณ์</string>
     <string name="device_name">ชื่ออุปกรณ์</string>
     <string name="device_name_info_first_paragraph">นี่เป็นชื่อที่มอบหมายให้กับอุปกรณ์ อุปกรณ์แต่ละเครื่องที่ลงชื่อเข้าใช้บนบัญชี Mullvad จะได้รับชื่อเฉพาะ ที่จะช่วยคุณระบุอุปกรณ์ ในขณะที่คุณจัดการอุปกรณ์ของคุณในแอปหรือบนเว็บไซต์</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">นำเข้าผ่านข้อความ</string>
     <string name="invalid_dns_servers">ที่อยู่เซิร์ฟเวอร์ DNS %1$s ที่กำหนดเองไม่ถูกต้อง</string>
     <string name="invalid_voucher">รหัสบัตรกำนัลไม่ถูกต้อง</string>
+    <string name="ip_version_v4_unavailable">IPv4 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า \"เวอร์ชัน IP อุปกรณ์\"</string>
+    <string name="ip_version_v6_unavailable">IPv6 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า \"เวอร์ชัน IP อุปกรณ์\"</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณจะสามารถใช้งาน IPv6 ร่วมกับ IPv4 ในอุโมงค์ VPN เพื่อสื่อสารกับบริการอินเทอร์เน็ตได้</string>
@@ -230,6 +236,10 @@
     <string name="login_title">เข้าสู่ระบบ</string>
     <string name="malware_info">คำเตือน: ตัวบล็อกมัลแวร์ไม่ใช่แอนตี้ไวรัส และไม่ควรนำมาใช้ในรูปแบบดังกล่าว นี่เป็นเพียงชั้นการป้องกันเพิ่มเติมเท่านั้น</string>
     <string name="manage_account">จัดการบัญชี</string>
+    <string name="manage_devices">จัดการอุปกรณ์</string>
+    <string name="manage_devices_confirm_removal_description_line1">ลบ %1$s หรือไม่</string>
+    <string name="manage_devices_confirm_removal_description_line2">อุปกรณ์จะถูกลบออกจากรายการและออกจากระบบ</string>
+    <string name="manage_devices_description">ดูและจัดการอุปกรณ์ทั้งหมดที่คุณลงชื่อเข้าใช้ คุณสามารถมีอุปกรณ์ได้สูงสุด 5 เครื่องในหนึ่งบัญชีในเวลาเดียวกัน แต่ละอุปกรณ์จะได้รับชื่อในขณะที่ลงชื่อเข้าใช้ เพื่อช่วยให้คุณแยกแยะอุปกรณ์แต่ละเครื่องได้อย่างง่ายดาย</string>
     <string name="max_devices_confirm_removal_description">คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบบน &lt;b&gt;%1$s&lt;/b&gt;</string>
     <string name="max_devices_resolved_description">คุณสามารถดำเนินการเข้าสู่ระบบต่อบนอุปกรณ์เครื่องนี้ได้แล้ว</string>
     <string name="max_devices_resolved_title">เยี่ยมยอด!</string>
@@ -385,8 +395,10 @@
     <string name="voucher_is_account_number">ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน</string>
     <string name="voucher_success_title">แลกบัตรกำนัลสำเร็จแล้ว</string>
     <string name="vpn_permission_denied_error">สิทธิ์ VPN ถูกปฏิเสธ หรือไม่ก็แอปอื่นเปิดใช้งาน \"เปิด VPN เสมอ\"</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">การอนุญาต VPN ถูกปฏิเสธ</string>
     <string name="vpn_permission_error_notification_message">กรุณากดเชื่อมต่อ เพื่อขออนุญาตสิทธิ์ VPN</string>
     <string name="vpn_permission_error_notification_title">เกิดข้อผิดพลาดในการอนุญาต VPN</string>
+    <string name="vpn_settings_not_available">การตั้งค่า VPN ไม่สามารถใช้งานได้บนอุปกรณ์</string>
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
     <string name="wg_port_subtitle">ตั้งค่าการทำให้ข้อมูลยุ่งเหยิง %1$s ให้เป็น \"อัตโนมัติ\" หรือ \"ปิด\" ที่ด้านล่าง เพื่อเปิดใช้งานการตั้งค่านี้</string>
     <string name="wireguard_custon_port_title">กำหนดเอง</string>
@@ -394,7 +406,9 @@
     <string name="wireguard_mtu_footer">ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %1$d - %2$d</string>
     <string name="wireguard_port_info_description">การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากช่วงพอร์ตที่ใช้งานได้ต่างๆ ซึ่งแสดงอยู่ด้านล่าง</string>
     <string name="wireguard_port_info_port_range">พอร์ตแบบกำหนดเองอาจมีค่าใดๆ ก็ได้ ภายในช่วงที่ใช้งานได้: %1$s</string>
+    <string name="wireguard_port_is_not_supported">ไม่รองรับพอร์ต %1$s ที่เลือก โปรดเปลี่ยนพอร์ตภายใต้ส่วน</string>
     <string name="wireguard_port_title">พอร์ต WireGuard</string>
+    <string name="wireguard_settings">การตั้งค่า %1$s</string>
     <string name="x_entry">%1$s (ขาเข้า)</string>
     <string name="x_exit">%1$s (ขาออก)</string>
     <string name="x_via_x">%1$s ผ่าน %2$s</string>

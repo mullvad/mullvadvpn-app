@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2025-04-11 07:48\n"
+"PO-Revision-Date: 2025-05-26 11:59\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -196,6 +196,10 @@ msgstr "Viro"
 msgid "Finland"
 msgstr "Suomi"
 
+#. BR FOR
+msgid "Fortaleza"
+msgstr "Fortaleza"
+
 #. FR
 msgid "France"
 msgstr "Ranska"
@@ -283,6 +287,10 @@ msgstr "Japani"
 #. ZA JNB
 msgid "Johannesburg"
 msgstr "Johannesburg"
+
+#. US MKC
+msgid "Kansas City, MO"
+msgstr "Kansas City, MO"
 
 #. UA IEV
 msgid "Kiev"

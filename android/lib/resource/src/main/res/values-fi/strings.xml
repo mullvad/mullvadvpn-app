@@ -97,6 +97,7 @@
     <string name="created_x">Luotu: %1$s</string>
     <string name="creating_new_account">Luodaan tiliä...</string>
     <string name="critical_error">Vakava virhe (vaatii huomiotasi)</string>
+    <string name="current_device">Nykyinen laite</string>
     <string name="current_method">Nykyinen: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Ota tämä asetus käyttöön poistamalla kaikki %1$s käytöstä yllä.</string>
     <string name="custom_dns_footer">Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen.</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s tekee tämän lisäämällä varovasti verkkokohinaa ja tekemällä kaikista paketeista saman kokoisia.</string>
     <string name="daita_description_slide_2_third_paragraph">Kaikissa palvelimissamme ei ole %1$s-tukea. Siksi käytämme multihopia automaattisesti mahdollistaaksemme %1$s:n millä tahansa palvelimella.</string>
     <string name="daita_info">Kun \"%1$s\" otetaan käyttöön, sinun on valittava manuaalisesti palvelin, jossa on %2$s-tuki. Tämä voi aiheuttaa sen, että päädyt estettyyn tilaan, kunnes olet valinnut yhteensopivan palvelimen \"Valitse sijainti\" -näkymästä.</string>
+    <string name="daita_multihop">%1$s: multihop</string>
     <string name="delete">Poista</string>
     <string name="delete_custom_list_confirmation_description">Poistetaanko \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" poistettiin</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">Olet poistanut tämän laitteen. Jos haluat muodostaa yhteyden uudelleen, sinun täytyy kirjautua takaisin sisään.</string>
     <string name="device_inactive_title">Laite ei ole aktiivinen</string>
     <string name="device_inactive_unblock_warning">Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta.</string>
+    <string name="device_ip_info_first_paragraph">Tämä ominaisuus antaa sinun valita, käytetäänkö vain IPv4:ää, vain IPv6:ta vai annetaanko sovelluksen päättää paras vaihtoehto automaattisesti, kun se muodostaa yhteyttä palvelimeen.</string>
+    <string name="device_ip_info_second_paragraph">Se voi olla hyödyllistä, kun olet tietoinen tietyn IP-version aiheuttamista ongelmista.</string>
     <string name="device_ip_version_title">Laitteen IP-versio</string>
     <string name="device_name">Laitteen nimi</string>
     <string name="device_name_info_first_paragraph">Tämä on laitteelle annettu nimi. Jokainen Mullvad-tilille kirjautunut laite saa yksilöllisen nimen, jonka avulla sen voi tunnistaa laitteiden hallinnassa sovelluksessa tai verkkosivustolla.</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">Tuo tekstinä</string>
     <string name="invalid_dns_servers">Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä</string>
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
+    <string name="ip_version_v4_unavailable">IPv4 ei ole käytettävissä, kokeile vaihtaa Laitteen IP-versio -asetus.</string>
+    <string name="ip_version_v6_unavailable">IPv6 ei ole käytettävissä, kokeile vaihtaa Laitteen IP-versio -asetus.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">Kun tämä ominaisuus on käytössä, IPv6:ta voidaan käyttää IPv4:n rinnalla VPN-tunnelissa yhteydenpidossa internetpalveluiden kanssa.</string>
@@ -230,6 +236,10 @@
     <string name="login_title">Kirjaudu sisään</string>
     <string name="malware_info">Varoitus: haittaohjelmien estotoiminto ei ole virustorjuntaohjelma, eikä sitä pidä käyttää sellaisena – kyseessä on vain ylimääräinen suojauskerros.</string>
     <string name="manage_account">Tilin hallinta</string>
+    <string name="manage_devices">Hallitse laitteita</string>
+    <string name="manage_devices_confirm_removal_description_line1">Poistetaanko %1$s?</string>
+    <string name="manage_devices_confirm_removal_description_line2">Laite poistetaan luettelosta ja kirjataan ulos.</string>
+    <string name="manage_devices_description">Tarkastele ja hallinnoi kaikkia kirjautuneita laitteitasi. Sinulla voi olla enintään viisi laitetta yhdellä tilillä samaan aikaan. Kukin laite saa nimen, kun se kirjataan sisään, jotta erotat ne helposti.</string>
     <string name="max_devices_confirm_removal_description">Haluatko varmasti kirjautua ulos laitteelta &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Voit nyt jatkaa kirjautumista tällä laitteella.</string>
     <string name="max_devices_resolved_title">Mahtavaa!</string>
@@ -385,8 +395,10 @@
     <string name="voucher_is_account_number">Näytät syöttäneen tilin numeron etusetelin koodin sijaan. Jos haluat vaihtaa tiliä, kirjaudu ensin ulos nykyiseltä tililtä.</string>
     <string name="voucher_success_title">Kupongin lunastus onnistui.</string>
     <string name="vpn_permission_denied_error">VPN:n käyttöoikeus evättiin tai toisella sovelluksella on aina päällä oleva VPN käytössä</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">VPN:n käyttöoikeus evättiin</string>
     <string name="vpn_permission_error_notification_message">Pyydä VPN:n käyttölupa yhteydenluontipainiketta painamalla</string>
     <string name="vpn_permission_error_notification_title">VPN-lupavirhe</string>
+    <string name="vpn_settings_not_available">VPN-asetukset eivät olet käytettävissä laitteella</string>
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
     <string name="wg_port_subtitle">Jotta voit käyttää tätä asetusta, poista %1$s-hämäysteknologia käytöstä tai säädä sen asetukseksi \"Automaattinen\" alta.</string>
     <string name="wireguard_custon_port_title">Mukautettu</string>
@@ -394,7 +406,9 @@
     <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Automaattinen asetus valitsee satunnaisesti käytettävissä olevista, alla luetelluista porteista.</string>
     <string name="wireguard_port_info_port_range">Mukautettu portti voi olla mikä tahansa sallittu arvo: %1$s.</string>
+    <string name="wireguard_port_is_not_supported">Valittua %1$s-porttia ei tueta, vaihda se</string>
     <string name="wireguard_port_title">WireGuard-portti</string>
+    <string name="wireguard_settings">%1$s-asetuksissa.</string>
     <string name="x_entry">%1$s (tulo)</string>
     <string name="x_exit">%1$s (lähtö)</string>
     <string name="x_via_x">%1$s, yhteys: %2$s</string>

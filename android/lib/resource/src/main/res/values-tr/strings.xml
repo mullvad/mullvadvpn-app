@@ -97,6 +97,7 @@
     <string name="created_x">Oluşturma tarihi: %1$s</string>
     <string name="creating_new_account">Hesap oluşturuluyor...</string>
     <string name="critical_error">Kritik hata (Lütfen dikkatli olun)</string>
+    <string name="current_device">Mevcut cihaz</string>
     <string name="current_method">Geçerli: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Bu ayarı etkinleştirmek için yukarıdaki \"%1$s\" seçeneklerinin tümünü devre dışı bırakın.</string>
     <string name="custom_dns_footer">En az bir DNS sunucusu eklemek için etkinleştirin.</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur.</string>
     <string name="daita_description_slide_2_third_paragraph">%1$s, tüm sunucularımızda etkin değildir. Bu nedenle, %1$s özelliğini herhangi bir sunucuda etkinleştirmek için otomatik olarak çoklu geçişi kullanırız.</string>
     <string name="daita_info">\"%1$s\" seçeneğini etkinleştirdiğinizde %2$s özellikli bir sunucuyu manuel olarak seçmeniz gerekir. Bu, \"Konum seç\" görünümünde uyumlu bir sunucu seçilene kadar engellenmiş durumda kalmanıza neden olabilir.</string>
+    <string name="daita_multihop">%1$s: Çoklu geçiş</string>
     <string name="delete">Sil</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" silinsin mi\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" silindi</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">Bu cihazı kaldırdın. Tekrar bağlanmak için yeniden giriş yapmanız gerekecek.</string>
     <string name="device_inactive_title">Cihaz etkin değil</string>
     <string name="device_inactive_unblock_warning">Giriş yapmak bu cihazdaki internet engelini kaldıracaktır.</string>
+    <string name="device_ip_info_first_paragraph">Bu özellik, yalnızca IPv4 veya IPv6 kullanmayı seçmenize ya da uygulamanın sunucuya bağlanırken en uygun seçeneği otomatik olarak belirlemesine olanak tanır.</string>
+    <string name="device_ip_info_second_paragraph">Bu, belirli bir IP sürümünün neden olduğu sorunların farkında olduğunuzda faydalı olabilir.</string>
     <string name="device_ip_version_title">Cihaz IP sürümü</string>
     <string name="device_name">Cihaz adı</string>
     <string name="device_name_info_first_paragraph">Bu, cihaza atanan addır. Mullvad hesabında oturum açan her cihaza, uygulamadaki veya web sitesindeki cihazlarınızı yönetirken tanımlamanıza yardımcı olacak benzersiz bir ad verilir.</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">Metin yoluyla içe aktar</string>
     <string name="invalid_dns_servers">Özel DNS sunucu adresleri (%1$s) geçersiz</string>
     <string name="invalid_voucher">Kupon kodu geçersiz.</string>
+    <string name="ip_version_v4_unavailable">IPv4 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin.</string>
+    <string name="ip_version_v6_unavailable">IPv6 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">Bu özellik etkinleştirildiğinde IPv6, internet hizmetleriyle iletişim kurmak için VPN tünelinde IPv4 ile birlikte kullanılabilir.</string>
@@ -230,6 +236,10 @@
     <string name="login_title">Oturum Aç</string>
     <string name="malware_info">Uyarı: Kötü amaçlı yazılım engelleyici, virüsten koruma yazılımı değildir ve bu şekilde değerlendirilmemelidir. Sadece ek bir koruma seviyesi sağlamaktadır.</string>
     <string name="manage_account">Hesabı yönet</string>
+    <string name="manage_devices">Cihazları yönet</string>
+    <string name="manage_devices_confirm_removal_description_line1">%1$s kaldırılsın mı?</string>
+    <string name="manage_devices_confirm_removal_description_line2">Cihaz listeden kaldırılacak ve oturum kapatılacak.</string>
+    <string name="manage_devices_description">Oturum açtığınız tüm cihazlarınızı görüntüleyin ve yönetin. Bir hesapta aynı anda en fazla 5 cihaz bulunabilir. Kolayca ayırt edebilmeniz için her cihaza giriş sırasında bir ad atanır.</string>
     <string name="max_devices_confirm_removal_description">&lt;b&gt;%1$s&lt;/b&gt; adlı cihazdan çıkış yapmak istediğinizden emin misiniz?</string>
     <string name="max_devices_resolved_description">Artık bu cihazda oturum açmaya devam edebilirsiniz.</string>
     <string name="max_devices_resolved_title">Süper!</string>
@@ -385,8 +395,10 @@
     <string name="voucher_is_account_number">Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın.</string>
     <string name="voucher_success_title">Kupon başarıyla kullanıldı.</string>
     <string name="vpn_permission_denied_error">VPN izni reddedildi veya başka bir uygulamada \"VPN her zaman açık\" seçeneği etkinleştirildi</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">VPN izni reddedildi</string>
     <string name="vpn_permission_error_notification_message">VPN izni istemek için lütfen bağlantıya dokunun</string>
     <string name="vpn_permission_error_notification_title">VPN izin hatası</string>
+    <string name="vpn_settings_not_available">Cihazda VPN Ayarları mevcut değil</string>
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>
     <string name="wg_port_subtitle">Bu ayarı etkinleştirmek için aşağıdaki %1$s gizlemeyi \"Otomatik\" veya \"Kapalı\" olarak ayarlayın.</string>
     <string name="wireguard_custon_port_title">Özel</string>
@@ -394,7 +406,9 @@
     <string name="wireguard_mtu_footer">WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Otomatik ayar, aşağıda gösterilen geçerli port aralıklarından rastgele seçim yapar.</string>
     <string name="wireguard_port_info_port_range">Özel port, geçerli aralıklar içindeki herhangi bir değer olabilir: %1$s.</string>
+    <string name="wireguard_port_is_not_supported">Seçilen %1$s portu desteklenmiyor, lütfen portu değiştirin:</string>
     <string name="wireguard_port_title">WireGuard portu</string>
+    <string name="wireguard_settings">%1$s ayarları.</string>
     <string name="x_entry">%1$s (Giriş)</string>
     <string name="x_exit">%1$s (Çıkış)</string>
     <string name="x_via_x">%2$s aracılığıyla %1$s</string>

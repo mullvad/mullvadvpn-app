@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2025-04-11 07:48\n"
+"PO-Revision-Date: 2025-05-26 11:59\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -175,6 +175,7 @@ msgstr "YHTEYDEN SUOJAAMINEN EPÄONNISTUI"
 msgid "Filter"
 msgstr "Suodatin"
 
+#. Button label for system settings.
 msgid "Go to System Settings"
 msgstr "Siirry järjestelmäasetuksiin"
 
@@ -334,6 +335,13 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "Pyyhi tilin numero %(accountNumber)s"
 
+#. Accessibility label for link to wireguard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to %(wireGuard)s settings."
+msgstr "Siirry %(wireGuard)s-asetuksiin."
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -375,6 +383,7 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "Uusi versio on asennettu. Voit tarkastella muutoslokia napsauttamalla tästä."
 
+#. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "Avautuu ulkoiseen selainikkunaan"
@@ -422,6 +431,7 @@ msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "Ei saatavilla"
 
+#. Button label for logging out.
 msgctxt "account-view"
 msgid "Log out"
 msgstr "Kirjaudu ulos"
@@ -660,6 +670,14 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
+#. This is used as a feature indicator to show that DAITA is enabled through
+#. multihop.
+#. Available placeholders:
+#. %(DAITA)s - Is a non-translatable feature "DAITA"
+msgctxt "connect-view"
+msgid "%(DAITA)s: Multihop"
+msgstr "%(DAITA)s: multihop"
+
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "Käytössä olevat ominaisuudet"
@@ -672,6 +690,7 @@ msgctxt "connect-view"
 msgid "Connection details"
 msgstr "Yhteyden tiedot"
 
+#. Button label for disconnecting from the VPN.
 msgctxt "connect-view"
 msgid "Disconnect"
 msgstr "Katkaise yhteys"
@@ -692,6 +711,7 @@ msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr "Tässä tulee tilisi numero. Laita se talteen!"
 
+#. Button label for opening privacy information link.
 msgctxt "connect-view"
 msgid "Learn about privacy"
 msgstr "Lisätietoja yksityisyydestä"
@@ -700,6 +720,7 @@ msgctxt "connect-view"
 msgid "Out of time"
 msgstr "Ei käyttöaikaa"
 
+#. Button label for navigating to the voucher redemption view.
 msgctxt "connect-view"
 msgid "Redeem voucher"
 msgstr "Lunasta kuponki"
@@ -708,6 +729,7 @@ msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
 msgstr "Muista, että asetuksen poistaminen käytöstä sallii verkkoliikenteen ilman VPN-yhteyttä, kunnes otat sen takaisin käyttöön lisäasetuksista."
 
+#. Button label for starting the app.
 msgctxt "connect-view"
 msgid "Start using the app"
 msgstr "Aloita sovelluksen käyttö"
@@ -820,6 +842,7 @@ msgctxt "device-management"
 msgid "Failed to remove device"
 msgstr "Laitteen poistaminen epäonnistui"
 
+#. Button label for navigating to login.
 msgctxt "device-management"
 msgid "Go to login"
 msgstr "Siirry kirjautumiseen"
@@ -856,7 +879,7 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "Liikaa laitteita"
 
-#. Confirmation button when logging out other device.
+#. Button label for confirming logout of another device.
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "Kyllä, kirjaa laite ulos"
@@ -944,6 +967,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)s:n tuki päättyy. Vaihda sijainti tai"
 
+#. Link in notication to go to WireGuard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "%(wireGuard)s settings."
+msgstr "%(wireGuard)s-asetuksissa."
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "TILIN KÄYTTÖAIKA PÄÄTTYY PIAN"
@@ -1020,9 +1050,17 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "Lue lisää"
 
+#. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "Lähetä ongelmaraportti"
+
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please change it under "
+msgstr "Valittua %(wireGuard)s-porttia ei tueta, vaihda se "
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1068,6 +1106,7 @@ msgctxt "launch-view"
 msgid "Restarting your computer."
 msgstr "Käynnistämällä tietokoneesi uudelleen."
 
+#. Button label for problem report view.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "Lähetä ongelmaraportti"
@@ -1259,6 +1298,16 @@ msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "Sovelluskohtaisen yhdistämisen käyttöönotto epäonnistui. Yritä muodostaa yhteys uudelleen tai poista sovelluskohtainen yhdistäminen käytöstä."
 
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv4 ei ole käytettävissä, kokeile vaihtaa <b>%(ipVersionFeatureName)</b>-asetus."
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv6 ei ole käytettävissä, kokeile vaihtaa <b>%(ipVersionFeatureName)</b>-asetus."
+
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "Lukitustila on käytössä ja yhteys estetty"
@@ -1422,14 +1471,17 @@ msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr "Siirtoprotokolla"
 
+#. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr "Peruuta"
 
+#. Input field label for voucher code.
 msgctxt "redeem-voucher-alert"
 msgid "Enter voucher code"
 msgstr "Syötä kuponkikoodi"
 
+#. Button label for redeeming a voucher.
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
 msgstr "Lunasta kuponki"
@@ -1438,6 +1490,7 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "Ilmeni virhe."
 
+#. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
 msgstr "Lunasta"
@@ -1694,6 +1747,7 @@ msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr "Poissuljetut sovellukset"
 
+#. Button label for browsing applications with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "Etsi jokin muu sovellus"
@@ -1702,6 +1756,7 @@ msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
 msgstr "Jos sovellus on jo käynnissä, sulje %(applicationName)s ennen sen käynnistämistä täältä. Muuten sitä ei välttämättä suljeta ulos VPN-tunnelista."
 
+#. Button label for launching an application with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "Käynnistä"
@@ -1740,10 +1795,12 @@ msgctxt "support-view"
 msgid "Beta program"
 msgstr "Beetaohjelma"
 
+#. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "Jatka silti"
 
+#. Button text to edit the message after a failed attempt to send the problem report.
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "Muokkaa viestiä"
@@ -1778,10 +1835,12 @@ msgctxt "support-view"
 msgid "Report a problem"
 msgstr "Raportoi ongelma"
 
+#. Button label for sending the problem report.
 msgctxt "support-view"
 msgid "Send"
 msgstr "Lähetä"
 
+#. Button label for sending the problem report without an email address.
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr "Lähetä silti"
@@ -1815,14 +1874,17 @@ msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "Jotta voimme olla avuksi parhaamme mukaan, sovelluksesi lokitiedosto liitetään tähän viestiin. Tietosi pysyvät suojattuina ja yksityisinä, ja ne anonymisoidaan salatun kanavan kautta ennen lähetystä."
 
+#. Button label for retrying problem report submission after a failure.
 msgctxt "support-view"
 msgid "Try again"
 msgstr "Yritä uudelleen"
 
+#. Button label for upgrading the app to the latest version.
 msgctxt "support-view"
 msgid "Upgrade app"
 msgstr "Päivitä sovellus"
 
+#. Button label for opening app logs.
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "Tarkastele sovelluslokeja"
@@ -2003,6 +2065,7 @@ msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "Lisää palvelin"
 
+#. Button label to add a private IP DNS server despite warning.
 msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "Lisää silti"
@@ -2295,6 +2358,10 @@ msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr "Kvanttihyökkäyksiä kestävä tunneli"
 
+msgctxt "wireguard-settings-view"
+msgid "QUIC"
+msgstr "QUIC"
+
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2504,6 +2571,9 @@ msgstr "Luo uusi luettelo"
 msgid "Critical error (your attention is required)"
 msgstr "Vakava virhe (vaatii huomiotasi)"
 
+msgid "Current device"
+msgstr "Nykyinen laite"
+
 msgid "Current: %s"
 msgstr "Nykyinen: %s"
 
@@ -2609,6 +2679,12 @@ msgstr "Google Play -maksu odottaa"
 msgid "Google Play unavailable"
 msgstr "Google Play ei ole käytettävissä"
 
+msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv4 ei ole käytettävissä, kokeile vaihtaa Laitteen IP-versio -asetus."
+
+msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv6 ei ole käytettävissä, kokeile vaihtaa Laitteen IP-versio -asetus."
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta."
 
@@ -2626,6 +2702,9 @@ msgstr "Tunnelin IPv6"
 
 msgid "Invalid or missing value \"%s\""
 msgstr "Arvo \"%s\" puuttuu tai on virheellinen"
+
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr "Se voi olla hyödyllistä, kun olet tietoinen tietyn IP-version aiheuttamista ongelmista."
 
 msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr "Näytät syöttäneen tilin numeron etusetelin koodin sijaan. Jos haluat vaihtaa tiliä, kirjaudu ensin ulos nykyiseltä tililtä."
@@ -2647,6 +2726,9 @@ msgstr "Varmistaa, että laite on aina yhteydessä VPN-tunnelin kautta."
 
 msgid "Manage account"
 msgstr "Tilin hallinta"
+
+msgid "Manage devices"
+msgstr "Hallitse laitteita"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvad-palvelut eivät ole käytettävissä"
@@ -2723,6 +2805,9 @@ msgstr "Poista"
 msgid "Remove %s from %s"
 msgstr "Poista %s kohteesta %s"
 
+msgid "Remove %s?"
+msgstr "Poistetaanko %s?"
+
 msgid "Remove custom port"
 msgstr "Poista mukautettu portti"
 
@@ -2786,14 +2871,20 @@ msgstr "Lukitustila löytyy Android-järjestelmäasetuksista nimellä \"Estä yh
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"Nykyinen\" menetelmä edustaa sitä, mitä menetelmää sovellus käyttää APIn tavoittamiseen."
 
+msgid "The device will be removed from the list and logged out."
+msgstr "Laite poistetaan luettelosta ja kirjataan ulos."
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamista käyttöön VPN-asetuksista."
+
+msgid "The selected %s port is not supported, please change it under"
+msgstr "Valittua %s-porttia ei tueta, vaihda se"
 
 msgid "This address has already been entered."
 msgstr "Tämä osoite on annettu jo."
 
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr "Tämä mahdollistaa pääsyn WireGuardiin laitteille, jotka tukevat vain IPv6-protokollaa."
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
+msgstr "Tämä ominaisuus antaa sinun valita, käytetäänkö vain IPv4:ää, vain IPv6:ta vai annetaanko sovelluksen päättää paras vaihtoehto automaattisesti, kun se muodostaa yhteyttä palvelimeen."
 
 msgid "This field is required"
 msgstr "Tämä kenttä on pakollinen"
@@ -2812,9 +2903,6 @@ msgstr "Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, et
 
 msgid "Toggle VPN"
 msgstr "Vaihda VPN:ää"
-
-msgid "Type at least 2 characters to start searching."
-msgstr "Aloita haku kirjoittamalla vähintään 2 merkkiä."
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Palomuurisääntöjä ei voida käyttää. Suorita vianetsintä tai lähetä ongelmaraportti."
@@ -2843,8 +2931,14 @@ msgstr "Päivitä luettelon nimi"
 msgid "Use method"
 msgstr "Käytä menetelmä"
 
+msgid "VPN Settings not available on device"
+msgstr "VPN-asetukset eivät olet käytettävissä laitteella"
+
 msgid "VPN permission error"
 msgstr "VPN-lupavirhe"
+
+msgid "VPN permission was denied"
+msgstr "VPN:n käyttöoikeus evättiin"
 
 msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
 msgstr "VPN:n käyttöoikeus evättiin tai toisella sovelluksella on aina päällä oleva VPN käytössä"
@@ -2872,6 +2966,9 @@ msgstr "Kuponkia vahvistetaan…"
 
 msgid "Version"
 msgstr "Versio"
+
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "Tarkastele ja hallinnoi kaikkia kirjautuneita laitteitasi. Sinulla voi olla enintään viisi laitetta yhdellä tilillä samaan aikaan. Kukin laite saa nimen, kun se kirjataan sisään, jotta erotat ne helposti."
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Vahvistamme ostostasi parhaillaan. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu."

@@ -97,6 +97,7 @@
     <string name="created_x">建立日期：%1$s</string>
     <string name="creating_new_account">正在建立帳戶…</string>
     <string name="critical_error">嚴重錯誤 (需注意)</string>
+    <string name="current_device">目前裝置</string>
     <string name="current_method">目前：%1$s</string>
     <string name="custom_dns_disable_mode_subtitle">停用上方所有「%1$s」以啟動此設定。</string>
     <string name="custom_dns_footer">啟用以新增至少一個 DNS 伺服器。</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s 會仔細加入網路噪音，讓所有網路資料封包大小皆相同，以達到此目的。</string>
     <string name="daita_description_slide_2_third_paragraph">我們有些伺服器並未啟用 %1$s。因此，我們使用多點跳躍自動來為任意伺服器啟用 %1$s 。</string>
     <string name="daita_info">啟用「%1$s」後，您必須手動選取已啟用 %2$s 的伺服器。這有可能導致您後來處於封鎖狀態，直到您在「選取位置」檢視圖中選到相容的伺服器為止。</string>
+    <string name="daita_multihop">%1$s：多點跳躍</string>
     <string name="delete">刪除</string>
     <string name="delete_custom_list_confirmation_description">要刪除「%1$s」嗎？</string>
     <string name="delete_custom_list_message">「%1$s」已刪除</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">您已移除此裝置。若要重新連線，您需要重新登入。</string>
     <string name="device_inactive_title">裝置處於非活動狀態</string>
     <string name="device_inactive_unblock_warning">若前往登入，則會在此裝置上解除對網際網路的封鎖。</string>
+    <string name="device_ip_info_first_paragraph">此功能可讓您選擇是否僅使用 IPv4、僅使用 IPv6，或允許應用程式在連線至伺服器時自動決定最佳選項。</string>
+    <string name="device_ip_info_second_paragraph">當您知道某個 IP 版本會導致問題時，這項功能可能會有所幫助。</string>
     <string name="device_ip_version_title">裝置 IP 版本</string>
     <string name="device_name">裝置名稱</string>
     <string name="device_name_info_first_paragraph">這是系統指派給裝置的名稱。每台登入 Mulvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">透過文字匯入</string>
     <string name="invalid_dns_servers">自訂 DNS 伺服器位址 %1$s 無效</string>
     <string name="invalid_voucher">憑證兌換碼無效。</string>
+    <string name="ip_version_v4_unavailable">無法使用 IPv4，請嘗試變更「裝置 IP 版本」設定。</string>
+    <string name="ip_version_v6_unavailable">無法使用 IPv6，請嘗試變更「裝置 IP 版本」設定。</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">啟用此功能後，即可在 VPN 通道中同時使用 IPv6 和 IPv4，以便與網際網路服務進行通訊。</string>
@@ -230,6 +236,10 @@
     <string name="login_title">登入</string>
     <string name="malware_info">警告：惡意軟體封鎖程式並非防毒軟體，只是提供了一層額外保護，不應將其視為防毒軟體。</string>
     <string name="manage_account">管理帳戶</string>
+    <string name="manage_devices">管理裝置</string>
+    <string name="manage_devices_confirm_removal_description_line1">是否移除 %1$s？</string>
+    <string name="manage_devices_confirm_removal_description_line2">裝置將從清單中移除並登出。</string>
+    <string name="manage_devices_description">檢視並管理所有已登入的裝置。一個帳戶最多能同時登入 5 台裝置。每台裝置登入時都會獲得一個名稱，以協助您輕鬆區分。</string>
     <string name="max_devices_confirm_removal_description">確定要將 &lt;b&gt;%1$s&lt;/b&gt; 登出嗎？</string>
     <string name="max_devices_resolved_description">現在，您可以繼續在此裝置上登入。</string>
     <string name="max_devices_resolved_title">太好了！</string>
@@ -385,8 +395,10 @@
     <string name="voucher_is_account_number">您輸入的似乎是帳戶，而不是憑證代碼。如果您想變更有效帳戶，請先登出。</string>
     <string name="voucher_success_title">憑證已成功兌換。</string>
     <string name="vpn_permission_denied_error">VPN 權限遭到拒絕，或者已有其他應用程式啟用「一律啟用 VPN」</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">VPN 權限遭拒</string>
     <string name="vpn_permission_error_notification_message">請按「連線」請求 VPN 權限</string>
     <string name="vpn_permission_error_notification_title">VPN 權限錯誤</string>
+    <string name="vpn_settings_not_available">裝置上的 VPN 設定無法使用</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
     <string name="wg_port_subtitle">若要啟用此設定，請將 %1$s 混淆設為「自動」或「關閉」。</string>
     <string name="wireguard_custon_port_title">自訂</string>
@@ -394,7 +406,9 @@
     <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>
     <string name="wireguard_port_info_description">自動設定將會隨機從下方顯示的有效連接埠範圍中進行選擇。</string>
     <string name="wireguard_port_info_port_range">自訂連接埠可以是有效範圍內的任何值：%1$s。</string>
+    <string name="wireguard_port_is_not_supported">不支援所選的 %1$s 連接埠，請至下列位置變更：</string>
     <string name="wireguard_port_title">WireGuard 連接埠</string>
+    <string name="wireguard_settings">%1$s 設定。</string>
     <string name="x_entry">%1$s (入口)</string>
     <string name="x_exit">%1$s (出口)</string>
     <string name="x_via_x">%1$s，經由 %2$s</string>
