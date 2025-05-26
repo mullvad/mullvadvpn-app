@@ -55,25 +55,38 @@ export class UnsupportedVersionNotificationProvider
     return {
       indicator: 'error',
       title: messages.pgettext('in-app-notifications', 'UNSUPPORTED VERSION'),
-      subtitle: this.getMessage(),
-      action: this.context.suggestedUpgrade
-        ? {
-            type: 'navigate-internal',
-            link: {
-              to: RoutePath.appUpgrade,
-            },
-          }
-        : {
-            type: 'navigate-external',
-            link: {
-              to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-            },
-          },
+      subtitle: [
+        {
+          content:
+            // TRANSLATORS: The in-app banner which is displayed to the user when the running app becomes unsupported.
+            messages.pgettext(
+              'notifications',
+              'Your privacy might be at risk with this unsupported app version.',
+            ),
+        },
+        {
+          // TRANSLATORS: A link in the in-app banner which is displayed to the user when the running app becomes unsupported.
+          content: messages.pgettext('notifications', 'Please click here to update now'),
+          action: this.context.suggestedUpgrade
+            ? {
+                type: 'navigate-internal',
+                link: {
+                  to: RoutePath.appUpgrade,
+                },
+              }
+            : {
+                type: 'navigate-external',
+                link: {
+                  to: getDownloadUrl(this.context.suggestedIsBeta ?? false),
+                },
+              },
+        },
+      ],
     };
   }
 
   private getMessage(): string {
-    // TRANSLATORS: The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+    // TRANSLATORS: The system notification which are displayed to the user when the running app becomes unsupported.
     return messages.pgettext(
       'notifications',
       'Your privacy might be at risk with this unsupported app version. Please update now.',
