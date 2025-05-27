@@ -1,7 +1,7 @@
 #![allow(clippy::disallowed_types)]
 use std::{io, time::Duration};
 
-use futures::{channel::mpsc, future::BoxFuture, pin_mut, FutureExt, SinkExt, StreamExt};
+use futures::{FutureExt, SinkExt, StreamExt, channel::mpsc, future::BoxFuture, pin_mut};
 use hyper_util::rt::TokioIo;
 use mullvad_management_interface::{ManagementServiceClient, MullvadProxyClient};
 use test_rpc::transport::{ConnectionHandle, GrpcForwarder};
@@ -38,7 +38,7 @@ impl<Request> Service<Request> for DummyService {
         Box::pin(async move {
             notifier_tx
                 .unbounded_send(TokioIo::new(channel_in))
-                .map_err(|_| io::Error::new(io::ErrorKind::Other, "stream receiver is down"))?;
+                .map_err(|_| io::Error::other("stream receiver is down"))?;
             Ok(TokioIo::new(channel_out))
         })
     }

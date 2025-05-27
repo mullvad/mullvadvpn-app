@@ -1,8 +1,8 @@
 #![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
 
 use super::windows::{
-    get_device_path, get_process_creation_time, get_process_device_path, open_process,
-    ProcessAccess,
+    ProcessAccess, get_device_path, get_process_creation_time, get_process_device_path,
+    open_process,
 };
 use bitflags::bitflags;
 use memoffset::offset_of;
@@ -12,7 +12,7 @@ use std::{
     ffi::{OsStr, OsString},
     fs::{self, OpenOptions},
     io,
-    mem::{self, size_of, MaybeUninit},
+    mem::{self, MaybeUninit, size_of},
     net::{Ipv4Addr, Ipv6Addr},
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
@@ -30,13 +30,13 @@ use windows_sys::Win32::{
         ERROR_ACCESS_DENIED, ERROR_FILE_NOT_FOUND, ERROR_INVALID_PARAMETER, ERROR_IO_PENDING,
         HANDLE, NTSTATUS, WAIT_ABANDONED, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0,
     },
-    Networking::WinSock::{IN6_ADDR, IN_ADDR},
+    Networking::WinSock::{IN_ADDR, IN6_ADDR},
     Storage::FileSystem::FILE_FLAG_OVERLAPPED,
     System::{
         Diagnostics::ToolHelp::TH32CS_SNAPPROCESS,
-        Ioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
-        Threading::{WaitForMultipleObjects, WaitForSingleObject, INFINITE},
         IO::{DeviceIoControl, GetOverlappedResult, OVERLAPPED},
+        Ioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
+        Threading::{INFINITE, WaitForMultipleObjects, WaitForSingleObject},
     },
 };
 
@@ -350,8 +350,7 @@ impl DeviceHandle {
 
         let raw_state: u64 = unsafe { deserialize_buffer(&buffer[0..size_of::<u64>()]) };
 
-        DriverState::try_from(raw_state)
-            .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
+        DriverState::try_from(raw_state).map_err(io::Error::other)
     }
 
     pub fn set_config<T: AsRef<OsStr>>(&self, apps: &[T]) -> io::Result<()> {
@@ -864,10 +863,7 @@ pub unsafe fn device_io_control_buffer_async(
     };
 
     if result != 0 {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            "Expected pending operation",
-        ));
+        return Err(io::Error::other("Expected pending operation"));
     }
 
     let last_error = io::Error::last_os_error();
@@ -926,7 +922,7 @@ pub unsafe fn wait_for_single_object(object: HANDLE, timeout: Option<Duration>) 
     match result {
         WAIT_OBJECT_0 => Ok(()),
         WAIT_FAILED => Err(io::Error::last_os_error()),
-        WAIT_ABANDONED => Err(io::Error::new(io::ErrorKind::Other, "abandoned mutex")),
+        WAIT_ABANDONED => Err(io::Error::other("abandoned mutex")),
         error => Err(io::Error::from_raw_os_error(error as i32)),
     }
 }
@@ -950,7 +946,7 @@ pub unsafe fn wait_for_multiple_objects(objects: &[HANDLE], wait_all: bool) -> i
         let signaled_index = if result < objects_len {
             result
         } else if result >= WAIT_ABANDONED_0 && result < WAIT_ABANDONED_0 + objects_len {
-            return Err(io::Error::new(io::ErrorKind::Other, "abandoned mutex"));
+            return Err(io::Error::other("abandoned mutex"));
         } else {
             return Err(io::Error::last_os_error());
         };
