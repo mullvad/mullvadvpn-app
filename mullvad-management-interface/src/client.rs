@@ -22,7 +22,7 @@ use mullvad_types::{
     device::{Device, DeviceId, DeviceState},
     features::FeatureIndicators,
     relay_constraints::{
-        BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
+        AllowedIps, BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
     },
     settings::DnsOptions,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
@@ -777,6 +777,16 @@ impl MullvadProxyClient {
 
     pub async fn enable_relay(&mut self, relay: String) -> Result<()> {
         self.0.enable_relay(relay).await.map_err(Error::Rpc)?;
+        Ok(())
+    }
+
+    pub async fn set_wireguard_allowed_ips(&mut self, allowed_ips: AllowedIps) -> Result<()> {
+        self.0
+            .set_wireguard_allowed_ips(types::AllowedIpsList {
+                values: allowed_ips.0.iter().map(ToString::to_string).collect(),
+            })
+            .await
+            .map_err(Error::Rpc)?;
         Ok(())
     }
 }
