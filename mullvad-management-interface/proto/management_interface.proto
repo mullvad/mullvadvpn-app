@@ -526,8 +526,9 @@ enum IpVersion {
 message WireguardConstraints {
   optional uint32 port = 1;
   optional IpVersion ip_version = 2;
-  bool use_multihop = 3;
-  LocationConstraint entry_location = 4;
+  repeated string allowed_ips = 3;
+  bool use_multihop = 4;
+  LocationConstraint entry_location = 5;
 }
 
 message CustomRelaySettings {

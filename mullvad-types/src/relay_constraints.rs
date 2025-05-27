@@ -8,6 +8,7 @@ use crate::{
     relay_list::{Relay, RelayEndpointData},
     CustomTunnelEndpoint, Intersection,
 };
+use ipnetwork::IpNetwork;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
@@ -407,8 +408,40 @@ impl fmt::Display for OpenVpnConstraints {
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
+    pub allowed_ips: Constraint<Vec<IpNetwork>>,
     pub use_multihop: bool,
     pub entry_location: Constraint<LocationConstraint>,
+}
+
+/// Returns a vector of IP networks representing all of the internet, 0.0.0.0/0.
+/// This may be used in [`crate::net::wireguard::PeerConfig`] to route all traffic
+/// to the tunnel interface.
+pub fn resolve_allowed_ips(
+    allowed_ips: Constraint<Vec<ipnetwork::IpNetwork>>,
+) -> Vec<ipnetwork::IpNetwork> {
+    let all_of_the_internet = vec![
+        "0.0.0.0/0".parse().expect("Failed to parse ipv6 network"),
+        "::0/0".parse().expect("Failed to parse ipv6 network"),
+    ];
+    match allowed_ips {
+        Constraint::Any => all_of_the_internet,
+        Constraint::Only(ips) if ips.is_empty() => all_of_the_internet,
+        Constraint::Only(ips) => ips,
+    }
+}
+
+pub fn allowed_ups_from_strings(
+    allowed_ips: Vec<String>,
+) -> Result<Constraint<Vec<IpNetwork>>, Box<dyn std::error::Error>> {
+    let parsed_ips = allowed_ips
+        .into_iter()
+        .map(|ip| ip.parse::<IpNetwork>())
+        .collect::<Result<Vec<_>, _>>()?;
+    if parsed_ips.is_empty() {
+        Ok(Constraint::Any)
+    } else {
+        Ok(Constraint::Only(parsed_ips))
+    }
 }
 
 impl WireguardConstraints {

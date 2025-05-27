@@ -13,14 +13,13 @@ use ipnetwork::IpNetwork;
 use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadWireguardEndpoint,
-    relay_constraints::TransportPort,
+    relay_constraints::{resolve_allowed_ips, TransportPort},
     relay_list::{
         BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
         WireguardEndpointData,
     },
 };
 use talpid_types::net::{
-    all_of_the_internet,
     proxy::Shadowsocks,
     wireguard::{PeerConfig, PublicKey},
     Endpoint, IpVersion, TransportProtocol,
@@ -79,7 +78,7 @@ fn wireguard_singlehop_endpoint(
     let peer_config = PeerConfig {
         public_key: get_public_key(exit)?.clone(),
         endpoint,
-        allowed_ips: all_of_the_internet(),
+        allowed_ips: resolve_allowed_ips(query.allowed_ips.clone()),
         // This will be filled in later, not the relay selector's problem
         psk: None,
         // This will be filled in later
@@ -120,7 +119,7 @@ fn wireguard_multihop_endpoint(
         endpoint: exit_endpoint,
         // The exit peer should be able to route incoming VPN traffic to the rest of
         // the internet.
-        allowed_ips: all_of_the_internet(),
+        allowed_ips: resolve_allowed_ips(query.allowed_ips.clone()),
         // This will be filled in later, not the relay selector's problem
         psk: None,
         // This will be filled in later

@@ -6,9 +6,9 @@ use mullvad_types::{
     constraints::{Constraint, Match},
     location::CountryCode,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
-        OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelayOverride,
-        RelaySettings, TransportPort, WireguardConstraints,
+        resolve_allowed_ips, GeographicLocationConstraint, LocationConstraint,
+        LocationConstraintFormatter, OpenVpnConstraints, Ownership, Provider, Providers,
+        RelayConstraints, RelayOverride, RelaySettings, TransportPort, WireguardConstraints,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -18,9 +18,7 @@ use std::{
     io::BufRead,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
-use talpid_types::net::{
-    all_of_the_internet, openvpn, wireguard, Endpoint, IpVersion, TransportProtocol, TunnelType,
-};
+use talpid_types::net::{openvpn, wireguard, Endpoint, IpVersion, TransportProtocol, TunnelType};
 
 use super::{relay_constraints::LocationArgs, BooleanOption};
 use crate::{cmds::receive_confirmation, print_option};
@@ -538,7 +536,7 @@ impl Relay {
                 },
                 peer: wireguard::PeerConfig {
                     public_key: peer_pubkey,
-                    allowed_ips: all_of_the_internet(),
+                    allowed_ips: resolve_allowed_ips(Constraint::Any),
                     endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port),
                     psk: None,
                     constant_packet_size: false,

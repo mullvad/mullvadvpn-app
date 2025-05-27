@@ -330,6 +330,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
             let WireguardConstraints {
                 port,
                 ip_version,
+                allowed_ips,
                 use_multihop,
                 entry_location,
             } = wireguard_constraints;
@@ -341,6 +342,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
             WireguardRelayQuery {
                 port,
                 ip_version,
+                allowed_ips,
                 use_multihop: Constraint::Only(use_multihop),
                 entry_location,
                 obfuscation: ObfuscationQuery::from(obfuscation_settings),
