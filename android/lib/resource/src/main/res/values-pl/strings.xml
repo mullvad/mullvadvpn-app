@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">Nie wszystkie nasze serwery obsługują %1$s. Dlatego automatycznie używamy funkcji wielokrotnego przeskoku, aby umożliwić działanie %1$s z dowolnym serwerem.</string>
     <string name="daita_info">Po włączeniu opcji „%1$s” trzeba ręcznie wybrać serwer, który obsługuje %2$s. Może to skutkować zablokowaniem, dopóki nie wybierzesz zgodnego serwera w widoku „Wybierz lokalizację”.</string>
     <string name="daita_multihop">%1$s: wielokrotny przeskok</string>
+    <string name="days_were_added_30">Do konta dodano 30 dni.</string>
     <string name="delete">Usuń</string>
     <string name="delete_custom_list_confirmation_description">Usunąć „%1$s”?</string>
     <string name="delete_custom_list_message">Usunięto „%1$s”</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
     <string name="payment_billing_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Upewnij się, że masz najnowszą wersję aplikacji Google Play.</string>
     <string name="payment_billing_error_dialog_title">Sklep Google Play jest niedostępny</string>
-    <string name="payment_completed_dialog_message">Do konta dodano 30 dni.</string>
     <string name="payment_completed_dialog_title">Dodano czas</string>
     <string name="payment_obfuscation_id_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Spróbuj ponownie później.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Usługi Mullvad są niedostępne</string>

@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">No todos nuestros servidores están habilitados para %1$s. Por lo tanto, utilizamos el salto múltiple de forma automática para habilitar %1$s con cualquier servidor.</string>
     <string name="daita_info">Si habilita «%1$s», deberá seleccionar manualmente un servidor que esté habilitado para %2$s. Esto puede provocar que termine bloqueado hasta que seleccione un servidor compatible en la vista «Seleccionar ubicación».</string>
     <string name="daita_multihop">%1$s: Salto múltiple</string>
+    <string name="days_were_added_30">Se han añadido 30 días a su cuenta.</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">¿Eliminar «%1$s»?</string>
     <string name="delete_custom_list_message">Se ha eliminado «%1$s»</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">Para empezar a usar la aplicación, primero necesita agregar tiempo a su cuenta.</string>
     <string name="payment_billing_error_dialog_message">No hemos podido iniciar el proceso de pago. Asegúrese de tener la última versión de Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play no disponible</string>
-    <string name="payment_completed_dialog_message">Se han añadido 30 días a su cuenta.</string>
     <string name="payment_completed_dialog_title">Se añadió correctamente el tiempo</string>
     <string name="payment_obfuscation_id_error_dialog_message">No hemos podido iniciar el proceso de pago. Inténtelo de nuevo más tarde.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Servicios de Mullvad no disponibles</string>

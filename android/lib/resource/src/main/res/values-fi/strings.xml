@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">Kaikissa palvelimissamme ei ole %1$s-tukea. Siksi käytämme multihopia automaattisesti mahdollistaaksemme %1$s:n millä tahansa palvelimella.</string>
     <string name="daita_info">Kun \"%1$s\" otetaan käyttöön, sinun on valittava manuaalisesti palvelin, jossa on %2$s-tuki. Tämä voi aiheuttaa sen, että päädyt estettyyn tilaan, kunnes olet valinnut yhteensopivan palvelimen \"Valitse sijainti\" -näkymästä.</string>
     <string name="daita_multihop">%1$s: multihop</string>
+    <string name="days_were_added_30">Tilillesi lisättiin 30 päivää käyttöaikaa.</string>
     <string name="delete">Poista</string>
     <string name="delete_custom_list_confirmation_description">Poistetaanko \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" poistettiin</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi.</string>
     <string name="payment_billing_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Varmista, että käytät Google Playn uusinta versiota.</string>
     <string name="payment_billing_error_dialog_title">Google Play ei ole käytettävissä</string>
-    <string name="payment_completed_dialog_message">Tilillesi lisättiin 30 päivää käyttöaikaa.</string>
     <string name="payment_completed_dialog_title">Aika lisättiin onnistuneesti</string>
     <string name="payment_obfuscation_id_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Yritä myöhemmin uudelleen.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-palvelut eivät ole käytettävissä</string>

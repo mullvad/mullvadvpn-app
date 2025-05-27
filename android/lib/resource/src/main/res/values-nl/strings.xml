@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">Niet al onze servers zijn geschikt voor %1$s. Daarom gebruiken we automatisch multihop om %1$s in te schakelen bij elke server.</string>
     <string name="daita_info">Als u \"%1$s\" inschakelt, moet u handmatig een server selecteren die %2$s ondersteunt. Hierdoor kunt u in een geblokkeerde toestand terechtkomen totdat u een compatibele server hebt geselecteerd in het dialoogvenster \"Locatie selecteren\".</string>
     <string name="daita_multihop">%1$s: multihop</string>
+    <string name="days_were_added_30">Er zijn 30 dagen toegevoegd aan uw account.</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" verwijderen?</string>
     <string name="delete_custom_list_message">\"%1$s\" is verwijderd</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">Om de app te gebruiken, moet u eerst tijd toevoegen aan uw account.</string>
     <string name="payment_billing_error_dialog_message">We kunnen het betalingsproces niet starten. Controleer of u de nieuwste versie van Google Play hebt.</string>
     <string name="payment_billing_error_dialog_title">Google Play niet beschikbaar</string>
-    <string name="payment_completed_dialog_message">Er zijn 30 dagen toegevoegd aan uw account.</string>
     <string name="payment_completed_dialog_title">Tijd is toegevoegd</string>
     <string name="payment_obfuscation_id_error_dialog_message">We kunnen het betalingsproces niet starten, probeer het later opnieuw.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-diensten niet beschikbaar</string>
