@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %1$s ด้วยเหตุนี้เอง เราจึงใช้การมัลติฮอปอัตโนมัติ เพื่อเปิดใช้งาน %1$s กับทุกเซิร์ฟเวอร์</string>
     <string name="daita_info">โดยการเปิดใช้งาน “%1$s” คุณจะต้องเลือกเซิร์ฟเวอร์ที่เปิดใช้งาน %2$s ด้วยตนเอง ซึ่งอาจทำให้คุณอยู่ในสถานะถูกบล็อก จนกว่าคุณจะเลือกเซิร์ฟเวอร์ที่เข้ากันได้ในมุมมอง \"เลือกตำแหน่งที่ตั้ง\"</string>
     <string name="daita_multihop">%1$s: Multihop</string>
+    <string name="days_were_added_30">30 วัน ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
     <string name="delete">ลบ</string>
     <string name="delete_custom_list_confirmation_description">ลบ \"%1$s\" หรือไม่</string>
     <string name="delete_custom_list_message">\"%1$s\" ถูกลบแล้ว</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
     <string name="payment_billing_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดตรวจสอบให้แน่ใจว่า คุณมี Google Play เวอร์ชันล่าสุด </string>
     <string name="payment_billing_error_dialog_title">Google Play ไม่พร้อมใช้งาน</string>
-    <string name="payment_completed_dialog_message">30 วัน ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
     <string name="payment_completed_dialog_title">เพิ่มเวลาสำเร็จแล้ว</string>
     <string name="payment_obfuscation_id_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดลองอีกครั้งในภายหลัง</string>
     <string name="payment_obfuscation_id_error_dialog_title">บริการ Mullavad ไม่พร้อมใช้งาน</string>
