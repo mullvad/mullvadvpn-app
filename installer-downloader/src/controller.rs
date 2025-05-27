@@ -109,10 +109,7 @@ impl AppController {
                         self_.hide_stable_text();
 
                         self_.show_error_message(crate::delegate::ErrorMessage {
-                            // TODO: Convert to static string.
-                            status_text:
-                                "Failed to create temporary directory for artifacts. Sue me"
-                                    .to_owned(),
+                            status_text: resource::CREATE_TEMPDIR_FAILED.to_owned(),
                             cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT
                                 .to_owned(),
                             retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT
