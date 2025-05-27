@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">我們有些伺服器並未啟用 %1$s。因此，我們使用多點跳躍自動來為任意伺服器啟用 %1$s 。</string>
     <string name="daita_info">啟用「%1$s」後，您必須手動選取已啟用 %2$s 的伺服器。這有可能導致您後來處於封鎖狀態，直到您在「選取位置」檢視圖中選到相容的伺服器為止。</string>
     <string name="daita_multihop">%1$s：多點跳躍</string>
+    <string name="days_were_added_30">已為您的帳戶新增 30 天。</string>
     <string name="delete">刪除</string>
     <string name="delete_custom_list_confirmation_description">要刪除「%1$s」嗎？</string>
     <string name="delete_custom_list_message">「%1$s」已刪除</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>
     <string name="payment_billing_error_dialog_message">我們無法啟動付款流程，請確認您是否擁有最新版本的 Google Play。</string>
     <string name="payment_billing_error_dialog_title">Google Play 無法使用</string>
-    <string name="payment_completed_dialog_message">已為您的帳戶新增 30 天。</string>
     <string name="payment_completed_dialog_title">已成功新增時間</string>
     <string name="payment_obfuscation_id_error_dialog_message">我們無法啟動付款流程，請稍後再試一次。</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad 服務無法使用</string>

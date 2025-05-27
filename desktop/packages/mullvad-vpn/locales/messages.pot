@@ -2760,6 +2760,9 @@ msgstr ""
 msgid "30 days was added to your account."
 msgstr ""
 
+msgid "90 days was added to your account."
+msgstr ""
+
 msgid "API reachable, adding method..."
 msgstr ""
 
@@ -2784,10 +2787,19 @@ msgstr ""
 msgid "Add 30 days time (%s)"
 msgstr ""
 
+msgid "Add 90 days time"
+msgstr ""
+
+msgid "Add 90 days time (%s)"
+msgstr ""
+
 msgid "Add DNS server"
 msgstr ""
 
 msgid "Add locations"
+msgstr ""
+
+msgid "Add time"
 msgstr ""
 
 msgid "Adding method..."
@@ -2961,6 +2973,9 @@ msgstr ""
 msgid "Failed to apply patch"
 msgstr ""
 
+msgid "Failed to load products, please try again"
+msgstr ""
+
 msgid "Failed to set to current - API not reachable"
 msgstr ""
 
@@ -3019,6 +3034,9 @@ msgid "Lets you select apps that should access the Internet directly without goi
 msgstr ""
 
 msgid "List name"
+msgstr ""
+
+msgid "Loading products"
 msgstr ""
 
 msgid "Locations"
@@ -3129,6 +3147,9 @@ msgstr ""
 msgid "Reset to default"
 msgstr ""
 
+msgid "Retry"
+msgstr ""
+
 msgid "Search"
 msgstr ""
 
@@ -3196,6 +3217,9 @@ msgid "This field is required"
 msgstr ""
 
 msgid "This is already set as current"
+msgstr ""
+
+msgid "Time added"
 msgstr ""
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."

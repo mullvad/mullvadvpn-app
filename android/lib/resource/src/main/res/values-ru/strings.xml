@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">%1$s поддерживается не на всех серверах. Поэтому, чтобы функция %1$s работала с любым сервером, мы автоматически используем многократный переход.</string>
     <string name="daita_info">После включения параметра «%1$s» вы должны будете вручную выбрать сервер, который поддерживает %2$s. В результате вы можете оказаться заблокированы, пока не выберете совместимый сервер в окне выбора местоположения.</string>
     <string name="daita_multihop">%1$s: многократный переход</string>
+    <string name="days_were_added_30">На учетную запись добавлено 30 дней.</string>
     <string name="delete">Удалить</string>
     <string name="delete_custom_list_confirmation_description">Удалить список «%1$s»?</string>
     <string name="delete_custom_list_message">Список «%1$s» удален</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">Чтобы пользоваться приложением, нужно добавить время на учетную запись.</string>
     <string name="payment_billing_error_dialog_message">Не удалось начать процесс оплаты — убедитесь, что у вас установлена последняя версия Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play недоступен</string>
-    <string name="payment_completed_dialog_message">На учетную запись добавлено 30 дней.</string>
     <string name="payment_completed_dialog_title">Время добавлено</string>
     <string name="payment_obfuscation_id_error_dialog_message">Не удалось начать процесс оплаты. Повторите попытку позже.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Службы Mullvad недоступны</string>
