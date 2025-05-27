@@ -120,11 +120,8 @@ impl AppController {
                 }
             };
 
-            if cfg!(target_os = "windows") {
-                let metadata_path = working_dir.directory.join("metadata.json");
-                // TODO: all non-pure stuff should be encapsulated in traits
-                version_provider.set_metadata_dump_path(metadata_path);
-            }
+            let metadata_path = working_dir.directory.join("metadata.json");
+            version_provider.set_metadata_dump_path(metadata_path);
 
             let version_info = fetch_app_version_info::<D, C>(
                 queue.clone(),
