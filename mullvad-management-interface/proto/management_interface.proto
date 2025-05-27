@@ -46,6 +46,7 @@ service ManagementService {
   rpc SetAutoConnect(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
   rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
+  rpc SetWireguardAllowedIps(AllowedIpsList) returns (google.protobuf.Empty) {}
   rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetQuantumResistantTunnel(QuantumResistantState) returns (google.protobuf.Empty) {}
   rpc SetEnableDaita(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
@@ -792,3 +793,7 @@ message PlayPurchase {
 }
 
 message PlayPurchasePaymentToken { string token = 1; }
+
+message AllowedIpsList {
+  repeated string values = 1;
+}

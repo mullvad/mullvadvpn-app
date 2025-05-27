@@ -290,6 +290,8 @@ pub enum DaemonCommand {
     /// Toggle macOS network check leak
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(ResponseTx<(), settings::Error>, Option<u16>),
+    /// Set allowed IPs for wireguard tunnels
+    SetWireguardAllowedIps(ResponseTx<(), settings::Error>, Vec<String>),
     /// Set automatic key rotation interval for wireguard tunnels
     SetWireguardRotationInterval(ResponseTx<(), settings::Error>, Option<RotationInterval>),
     /// Get the daemon settings
@@ -1409,6 +1411,9 @@ impl Daemon {
             }
             ClearAllRelayOverrides(tx) => self.on_clear_all_relay_overrides(tx).await,
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu).await,
+            SetWireguardAllowedIps(tx, allowed_ips) => {
+                self.on_set_wireguard_allowed_ips(tx, allowed_ips).await
+            }
             SetWireguardRotationInterval(tx, interval) => {
                 self.on_set_wireguard_rotation_interval(tx, interval).await
             }
@@ -2763,6 +2768,56 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_wireguard_rotation_interval response");
+            }
+        }
+    }
+
+    async fn on_set_wireguard_allowed_ips(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        allowed_ips: Vec<String>,
+    ) {
+        use mullvad_types::relay_constraints::allowed_ups_from_strings;
+
+        let allowed_ips_constraint = match allowed_ups_from_strings(allowed_ips) {
+            Ok(constraint) => constraint,
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Invalid WireGuard allowed IPs")
+                );
+                Self::oneshot_send(
+                    tx,
+                    Err(settings::Error::ParseIp(error.to_string())),
+                    "set_wireguard_allowed_ips response",
+                );
+                return;
+            }
+        };
+
+        match self
+            .settings
+            .update(move |settings| {
+                if let RelaySettings::Normal(ref mut relay_settings) = settings.relay_settings {
+                    relay_settings.wireguard_constraints.allowed_ips = allowed_ips_constraint;
+                }
+            })
+            .await
+        {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "set_wireguard_allowed_ips response");
+                if settings_changed {
+                    if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
+                        log::info!(
+                            "Initiating tunnel restart because the WireGuard allowed IPs setting changed"
+                        );
+                        self.reconnect_tunnel();
+                    }
+                }
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_wireguard_allowed_ips response");
             }
         }
     }

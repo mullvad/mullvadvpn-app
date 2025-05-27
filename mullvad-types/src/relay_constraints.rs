@@ -432,7 +432,7 @@ pub fn resolve_allowed_ips(
 
 pub fn allowed_ups_from_strings(
     allowed_ips: Vec<String>,
-) -> Result<Constraint<Vec<IpNetwork>>, Box<dyn std::error::Error>> {
+) -> Result<Constraint<Vec<IpNetwork>>, <IpNetwork as std::str::FromStr>::Err> {
     let parsed_ips = allowed_ips
         .into_iter()
         .map(|ip| ip.parse::<IpNetwork>())

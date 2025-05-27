@@ -632,6 +632,18 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
+    async fn set_wireguard_allowed_ips(
+        &self,
+        request: Request<types::AllowedIpsList>,
+    ) -> ServiceResult<()> {
+        let allowed_ips = request.into_inner().values;
+        log::debug!("set_wireguard_allowed_ips({:?})", allowed_ips);
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetWireguardAllowedIps(tx, allowed_ips))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
+    }
+
     // Custom lists
     //
 
