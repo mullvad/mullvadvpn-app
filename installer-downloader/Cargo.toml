@@ -31,6 +31,7 @@ tokio = { workspace = true, features = ["rt-multi-thread", "fs"] }
 
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
+mullvad-version = { path = "../mullvad-version" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 native-windows-gui = { version = "1.0.12", features = ["embed-resource", "frame", "image-decoder", "progress-bar"], default-features = false }

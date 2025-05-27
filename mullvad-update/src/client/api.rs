@@ -59,6 +59,7 @@ pub struct HttpVersionInfoProvider {
     /// Accepted root certificate. Defaults are used unless specified
     pinned_certificate: Option<reqwest::Certificate>,
 
+    // TODO: move to AppCache
     dump_to_path: Option<PathBuf>,
 }
 
@@ -68,7 +69,7 @@ impl VersionInfoProvider for HttpVersionInfoProvider {
         VersionInfo::try_from_response(params, response.signed)
     }
 
-    fn dump_metadata_to_file(&mut self, path: PathBuf) {
+    fn set_metadata_dump_path(&mut self, path: PathBuf) {
         self.dump_to_path = Some(path);
     }
 }

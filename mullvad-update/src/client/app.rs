@@ -56,7 +56,7 @@ pub trait AppDownloader: Send + 'static {
 /// A cache where we can find past [DownloadedInstaller]s
 pub trait AppCache: Send {
     fn new(directory: PathBuf, version_params: VersionParameters) -> Self;
-    fn find_app(
+    fn get_app(
         self,
     ) -> impl Future<Output = anyhow::Result<(Version, impl DownloadedInstaller)>> + Send;
 }

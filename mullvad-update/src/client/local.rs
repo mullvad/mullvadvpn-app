@@ -22,13 +22,10 @@ pub const METADATA_FILENAME: &str = "metadata.json";
 
 impl AppCache for AppCacheDir {
     fn new(directory: PathBuf, version_params: VersionParameters) -> Self {
-        Self {
-            directory,
-            version_params,
-        }
+        Self { directory, version_params }
     }
 
-    async fn find_app(self) -> anyhow::Result<(Version, impl DownloadedInstaller)> {
+    async fn get_app(self) -> anyhow::Result<(Version, impl DownloadedInstaller)> {
         let metadata_file = self.directory.join(METADATA_FILENAME);
         let raw_json = fs::read(metadata_file)
             .await
@@ -51,3 +48,15 @@ impl AppCache for AppCacheDir {
     }
 }
 
+/// App cacher that does not return anything
+pub struct NoopAppCacheDir;
+
+impl AppCache for NoopAppCacheDir {
+    fn new(_directory: PathBuf, _version_params: VersionParameters) -> Self {
+        NoopAppCacheDir
+    }
+
+    async fn get_app(self) -> anyhow::Result<(Version, impl DownloadedInstaller)> {
+        Err::<(_, InstallerFile<false>), _>(anyhow::anyhow!("No cache"))
+    }
+}

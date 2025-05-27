@@ -2096,6 +2096,7 @@ dependencies = [
  "log",
  "mullvad-paths",
  "mullvad-update",
+ "mullvad-version",
  "native-windows-gui",
  "objc_id",
  "rand 0.8.5",

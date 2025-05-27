@@ -58,7 +58,13 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     let platform = MetaRepositoryPlatform::current().expect("current platform must be supported");
     let version_provider = HttpVersionInfoProvider::from(platform);
 
-    AppController::initialize::<_, _, Downloader<T>, AppCacheDir, DirProvider>(
+    #[cfg(target_os = "windows")]
+    type CacheDir = AppCacheDir;
+
+    #[cfg(target_os = "macos")]
+    todo!("no-op cache dir");
+
+    AppController::initialize::<_, Downloader<T>, CacheDir, DirProvider>(
         delegate,
         version_provider,
         environment,
@@ -70,13 +76,12 @@ impl AppController {
     ///
     /// This function lets the caller provide a version information provider, download client, etc.,
     /// which is useful for testing.
-    pub fn initialize<D, V, A, C, DirProvider>(
+    pub fn initialize<D, A, C, DirProvider>(
         delegate: &mut D,
-        mut version_provider: V,
+        mut version_provider: impl VersionInfoProvider + Send + 'static,
         environment: Environment,
     ) where
         D: AppDelegate + 'static,
-        V: VersionInfoProvider + Send + 'static,
         A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
         C: AppCache,
         DirProvider: DirectoryProvider + 'static,
@@ -121,10 +126,10 @@ impl AppController {
             if cfg!(target_os = "windows") {
                 let metadata_path = working_dir.directory.join("metadata.json");
                 // TODO: all non-pure stuff should be encapsulated in traits
-                version_provider.dump_metadata_to_file(metadata_path);
+                version_provider.set_metadata_dump_path(metadata_path);
             }
 
-            let version_info = fetch_app_version_info::<D, V, C>(
+            let version_info = fetch_app_version_info::<D, C>(
                 queue.clone(),
                 version_provider,
                 &working_dir,
@@ -178,15 +183,14 @@ impl AppController {
 }
 
 /// Background task that fetches app version data.
-async fn fetch_app_version_info<Delegate, VersionProvider, Cache>(
+async fn fetch_app_version_info<Delegate, Cache>(
     queue: Delegate::Queue,
-    version_provider: VersionProvider,
+    version_provider: impl VersionInfoProvider + Send,
     working_directory: &WorkingDirectory,
     Environment { architecture }: Environment,
 ) -> VersionInfo
 where
     Delegate: AppDelegate + 'static,
-    VersionProvider: VersionInfoProvider + Send,
     Cache: AppCache,
 {
     loop {
@@ -216,9 +220,9 @@ where
         // Check if we've already downloaded an istaller.
         // If so, the user will be given the option to run it.
         let (cached_app_version, cached_app_installer) = Cache::new(working_directory.directory.clone(), version_params)
-            .find_app()
+            .get_app()
             .await
-            .inspect_err(|e| log::warn!("Couldn't find a downloaded installer: {e:#}"))
+            .inspect_err(|e| log::info!("Couldn't find a downloaded installer: {e:#}"))
             .ok()
             .unzip();
 
