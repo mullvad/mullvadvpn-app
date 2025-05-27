@@ -3,6 +3,7 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     constraints::Constraint,
+    relay_constraints::{RelaySettings, WireguardConstraints},
     wireguard::{QuantumResistantState, RotationInterval, DEFAULT_ROTATION_INTERVAL},
 };
 
@@ -44,6 +45,13 @@ pub enum TunnelOptions {
         /// Configure whether to enable DAITA direct only
         #[arg(long)]
         daita_direct_only: Option<BooleanOption>,
+        /// Limit the allowed IP ranges for traffic in the tunnel. Use comma-separated values (e.g., "10.0.0.0/8,192.168.0.0/16")
+        /// An empty string will set the default allowed network, which is all traffic (0.0.0.0/0,::/0).
+        ///
+        /// This feature may be used to prevent traffic from going outside a SOCK5 proxy, see <https://mullvad.net/en/help/socks5-proxy>.
+        /// Use with caution, as it can restrict your access to the internet and may break app features.
+        #[arg(long)]
+        allowed_ips: Option<String>,
         /// The key rotation interval. Number of hours, or 'any'
         #[arg(long)]
         rotation_interval: Option<Constraint<RotationInterval>>,
@@ -73,7 +81,8 @@ impl Tunnel {
 
     async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let tunnel_options = rpc.get_settings().await?.tunnel_options;
+        let settings = rpc.get_settings().await?;
+        let tunnel_options = settings.tunnel_options;
 
         println!("OpenVPN options");
 
@@ -117,6 +126,29 @@ impl Tunnel {
             },
         );
 
+        // Get the WireGuard allowed IPs
+        let wireguard_constraints = match settings.relay_settings {
+            RelaySettings::Normal(settings) => settings.wireguard_constraints,
+            RelaySettings::CustomTunnelEndpoint(_) => WireguardConstraints::default(),
+        };
+
+        print_option!(
+            "Allowed IPs",
+            match wireguard_constraints.allowed_ips {
+                mullvad_types::constraints::Constraint::Any => "all traffic (default)".to_string(),
+                mullvad_types::constraints::Constraint::Only(ips) => {
+                    if ips.is_empty() {
+                        "all traffic (default)".to_string()
+                    } else {
+                        ips.iter()
+                            .map(|ip| ip.to_string())
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    }
+                }
+            },
+        );
+
         println!("Generic options");
 
         print_option!(
@@ -139,6 +171,7 @@ impl Tunnel {
                 quantum_resistant,
                 daita,
                 daita_direct_only,
+                allowed_ips,
                 rotation_interval,
                 rotate_key,
             } => {
@@ -147,6 +180,7 @@ impl Tunnel {
                     quantum_resistant,
                     daita,
                     daita_direct_only,
+                    allowed_ips,
                     rotation_interval,
                     rotate_key,
                 )
@@ -179,6 +213,7 @@ impl Tunnel {
         quantum_resistant: Option<QuantumResistantState>,
         daita: Option<BooleanOption>,
         daita_direct_only: Option<BooleanOption>,
+        allowed_ips: Option<String>,
         rotation_interval: Option<Constraint<RotationInterval>>,
         rotate_key: Option<RotateKey>,
     ) -> Result<()> {
@@ -192,6 +227,19 @@ impl Tunnel {
         if let Some(quantum_resistant) = quantum_resistant {
             rpc.set_quantum_resistant_tunnel(quantum_resistant).await?;
             println!("Quantum resistant setting has been updated");
+        }
+
+        if let Some(allowed_ips_str) = allowed_ips {
+            let ips: Vec<String> = if allowed_ips_str.is_empty() {
+                Vec::new()
+            } else {
+                allowed_ips_str
+                    .split(',')
+                    .map(|s| s.trim().to_string())
+                    .collect()
+            };
+            rpc.set_wireguard_allowed_ips(ips).await?;
+            println!("WireGuard allowed IPs have been updated");
         }
 
         if let Some(enable_daita) = daita {
