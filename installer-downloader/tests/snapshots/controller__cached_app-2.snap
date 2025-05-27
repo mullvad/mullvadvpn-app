@@ -1,7 +1,7 @@
 ---
 source: installer-downloader/tests/controller.rs
-assertion_line: 217
 expression: delegate.state
+snapshot_kind: text
 ---
 status_text: ""
 download_text: ""
@@ -15,8 +15,8 @@ beta_text_visible: false
 stable_text_visible: false
 error_message_visible: true
 error_message:
-  status_text: Failed to create temporary directory for artifacts. Sue me
-  cancel_button_text: Cancel
+  status_text: "Failed to load new version details, please try again or install the already downloaded version (2042.1337)."
+  cancel_button_text: Install
   retry_button_text: Try again
 quit: false
 call_log:
@@ -30,8 +30,11 @@ call_log:
   - on_cancel
   - on_beta_link
   - on_stable_link
-  - clear_status_text
+  - show_download_button
+  - "set_status_text: Loading version details..."
+  - hide_error_message
   - hide_download_button
-  - hide_beta_text
-  - hide_stable_text
-  - "show_error_message: Failed to create temporary directory for artifacts. Sue me. retry: Try again. cancel: Cancel"
+  - clear_status_text
+  - on_error_message_retry
+  - "show_error_message: Failed to load new version details, please try again or install the already downloaded version (2042.1337).. retry: Try again. cancel: Install"
+  - on_error_message_cancel

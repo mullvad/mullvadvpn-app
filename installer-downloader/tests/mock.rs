@@ -6,7 +6,9 @@ use installer_downloader::delegate::{AppDelegate, AppDelegateQueue, ErrorMessage
 use installer_downloader::environment::{Architecture, Environment};
 use installer_downloader::temp::DirectoryProvider;
 use installer_downloader::ui_downloader::UiAppDownloaderParameters;
-use mullvad_update::app::{AppCache, AppDownloader, DownloadError, DownloadedInstaller, VerifiedInstaller};
+use mullvad_update::app::{
+    AppCache, AppDownloader, DownloadError, DownloadedInstaller, VerifiedInstaller,
+};
 use mullvad_update::fetch::ProgressUpdater;
 use mullvad_update::version::{Version, VersionInfo, VersionParameters};
 use mullvad_update::version_provider::VersionInfoProvider;
@@ -71,7 +73,7 @@ pub type FakeAppDownloaderHappyPath = FakeAppDownloader<true, true, true>;
 /// Cache for which all steps immediately succeed
 pub type FakeAppCacheHappyPath = FakeAppCache<true, FakeInstaller<true, true, true>>;
 
-/// Cache for which all steps immediately succeed
+/// Cache for which the verification step fails
 pub type FakeAppCacheVerifyFail = FakeAppCache<true, FakeInstaller<true, false, false>>;
 
 /// A cache that returns nothing.
