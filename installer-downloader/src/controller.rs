@@ -315,9 +315,11 @@ where
 
                 let _ = done_rx.await;
 
-                // FIXME:
-                tokio::time::sleep(std::time::Duration::from_secs(3)).await;
-                std::process::exit(0);
+                queue.queue_main(|self_| {
+                    self_.quit();
+                });
+
+                std::future::pending::<()>().await;
             }
         }
     }
