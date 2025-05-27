@@ -3,7 +3,7 @@
 use crate::{
     delegate::{AppDelegate, AppDelegateQueue},
     environment::Environment,
-    resource,
+    resource::{self, VERIFYING_CACHED},
     temp::DirectoryProvider,
     ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater},
 };
@@ -219,12 +219,13 @@ where
 
         // Check if we've already downloaded an istaller.
         // If so, the user will be given the option to run it.
-        let (cached_app_version, cached_app_installer) = Cache::new(working_directory.directory.clone(), version_params)
-            .get_app()
-            .await
-            .inspect_err(|e| log::info!("Couldn't find a downloaded installer: {e:#}"))
-            .ok()
-            .unzip();
+        let (cached_app_version, cached_app_installer) =
+            Cache::new(working_directory.directory.clone(), version_params)
+                .get_app()
+                .await
+                .inspect_err(|e| log::info!("Couldn't find a downloaded installer: {e:#}"))
+                .ok()
+                .unzip();
 
         enum Action {
             Retry,
@@ -288,21 +289,35 @@ where
                     unreachable!(); // :(
                 };
 
-                queue.queue_main(|self_| {
-                    self_.show_download_button();
-                    self_.set_status_text("todo lol");
-                    self_.hide_error_message();
-                });
+                let (done_tx, done_rx) = oneshot::channel();
 
-                queue.queue_main(|delegate| {
-                    let ui_installer = UiAppDownloader::new(&*delegate, installer);
+                queue.queue_main(|self_| {
+                    self_.hide_error_message();
+                    self_.clear_download_text();
+                    self_.hide_download_button();
+                    self_.hide_beta_text();
+                    self_.hide_stable_text();
+                    self_.show_cancel_button();
+                    self_.enable_cancel_button(); // TODO cancel button?
+                    self_.hide_download_progress();
+                    self_.set_status_text(VERIFYING_CACHED);
+
+                    let ui_installer = UiAppDownloader::new(&*self_, installer);
 
                     tokio::spawn(async move {
                         if let Err(err) = app::install_and_upgrade(ui_installer).await {
                             log::error!("install_and_upgrade failed: {err:?}");
                         }
+
+                        let _ = done_tx.send(());
                     });
                 });
+
+                let _ = done_rx.await;
+
+                // FIXME:
+                tokio::time::sleep(std::time::Duration::from_secs(3)).await;
+                std::process::exit(0);
             }
         }
     }

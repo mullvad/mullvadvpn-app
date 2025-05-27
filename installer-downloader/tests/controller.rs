@@ -9,8 +9,9 @@
 use insta::assert_yaml_snapshot;
 use installer_downloader::controller::AppController;
 use mock::{
-    FakeAppDelegate, FakeAppDownloaderHappyPath, FakeAppDownloaderVerifyFail,
-    FakeDirectoryProvider, FakeVersionInfoProvider, FakeAppCacheEmpty, FakeAppCacheHappyPath, FakeAppCacheVerifyFail, FAKE_ENVIRONMENT,
+    FakeAppCacheEmpty, FakeAppCacheHappyPath, FakeAppCacheVerifyFail, FakeAppDelegate,
+    FakeAppDownloaderHappyPath, FakeAppDownloaderVerifyFail, FakeDirectoryProvider,
+    FakeVersionInfoProvider, FAKE_ENVIRONMENT,
 };
 use std::{
     sync::{atomic::AtomicBool, Arc},
@@ -23,7 +24,12 @@ mod mock;
 #[tokio::test(start_paused = true)]
 async fn test_fetch_version() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<_, FakeAppDownloaderHappyPath, FakeAppCacheEmpty, FakeDirectoryProvider<true>>(
+    AppController::initialize::<
+        _,
+        FakeAppDownloaderHappyPath,
+        FakeAppCacheEmpty,
+        FakeDirectoryProvider<true>,
+    >(
         &mut delegate,
         FakeVersionInfoProvider::default(),
         FAKE_ENVIRONMENT,
@@ -52,7 +58,12 @@ async fn test_fetch_version() {
 #[tokio::test(start_paused = true)]
 async fn test_download() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<_, FakeAppDownloaderHappyPath, FakeAppCacheEmpty, FakeDirectoryProvider<true>>(
+    AppController::initialize::<
+        _,
+        FakeAppDownloaderHappyPath,
+        FakeAppCacheEmpty,
+        FakeDirectoryProvider<true>,
+    >(
         &mut delegate,
         FakeVersionInfoProvider::default(),
         FAKE_ENVIRONMENT,
@@ -99,7 +110,12 @@ async fn test_download() {
 async fn test_failed_fetch_version() {
     let mut delegate = FakeAppDelegate::default();
     let fail_fetching = Arc::new(AtomicBool::new(true));
-    AppController::initialize::<_, FakeAppDownloaderHappyPath, FakeAppCacheEmpty, FakeDirectoryProvider<true>>(
+    AppController::initialize::<
+        _,
+        FakeAppDownloaderHappyPath,
+        FakeAppCacheEmpty,
+        FakeDirectoryProvider<true>,
+    >(
         &mut delegate,
         FakeVersionInfoProvider {
             fail_fetching: fail_fetching.clone(),
@@ -145,7 +161,12 @@ async fn test_failed_fetch_version() {
 #[tokio::test(start_paused = true)]
 async fn test_failed_verification() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<_, FakeAppDownloaderVerifyFail, FakeAppCacheEmpty, FakeDirectoryProvider<true>>(
+    AppController::initialize::<
+        _,
+        FakeAppDownloaderVerifyFail,
+        FakeAppCacheEmpty,
+        FakeDirectoryProvider<true>,
+    >(
         &mut delegate,
         FakeVersionInfoProvider::default(),
         FAKE_ENVIRONMENT,
@@ -183,7 +204,12 @@ async fn test_failed_verification() {
 #[tokio::test(start_paused = true)]
 async fn test_failed_directory_creation() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<_, FakeAppDownloaderHappyPath, FakeAppCacheEmpty, FakeDirectoryProvider<false>>(
+    AppController::initialize::<
+        _,
+        FakeAppDownloaderHappyPath,
+        FakeAppCacheEmpty,
+        FakeDirectoryProvider<false>,
+    >(
         &mut delegate,
         FakeVersionInfoProvider::default(),
         FAKE_ENVIRONMENT,
@@ -221,7 +247,12 @@ async fn test_failed_directory_creation() {
 #[tokio::test(start_paused = true)]
 async fn test_cached_app() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<_, FakeAppDownloaderHappyPath, FakeAppCacheHappyPath, FakeDirectoryProvider<false>>(
+    AppController::initialize::<
+        _,
+        FakeAppDownloaderHappyPath,
+        FakeAppCacheHappyPath,
+        FakeDirectoryProvider<true>,
+    >(
         &mut delegate,
         FakeVersionInfoProvider {
             fail_fetching: Arc::new(AtomicBool::new(true)),
@@ -245,7 +276,22 @@ async fn test_cached_app() {
 
     tokio::time::sleep(Duration::from_secs(1)).await;
 
+    let queue = delegate.queue.clone();
+    queue.run_callbacks(&mut delegate);
+
+    // "" TODO
+    assert_yaml_snapshot!(delegate.state);
+
+    // Try to install cached version
+    let cb = delegate
+        .cancel_callback // TODO: it's weird that this is called `cancel`
+        .take()
+        .expect("no download callback registered");
+    cb();
+
     // Wait for queued actions to complete
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
     let queue = delegate.queue.clone();
     queue.run_callbacks(&mut delegate);
 
@@ -254,16 +300,20 @@ async fn test_cached_app() {
     let queue = delegate.queue.clone();
     queue.run_callbacks(&mut delegate);
 
-    // "Download failed"
+    // "" TODO
     assert_yaml_snapshot!(delegate.state);
 }
-
 
 /// Test version check failing and using the app cache instead, but the cache contains a bad file.
 #[tokio::test(start_paused = true)]
 async fn test_cached_app_verify_fail() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<_, FakeAppDownloaderHappyPath, FakeAppCacheVerifyFail, FakeDirectoryProvider<false>>(
+    AppController::initialize::<
+        _,
+        FakeAppDownloaderHappyPath,
+        FakeAppCacheVerifyFail,
+        FakeDirectoryProvider<true>,
+    >(
         &mut delegate,
         FakeVersionInfoProvider {
             fail_fetching: Arc::new(AtomicBool::new(true)),

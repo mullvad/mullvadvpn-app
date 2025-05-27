@@ -71,6 +71,9 @@ pub const DOWNLOAD_FAILED_RETRY_BUTTON_TEXT: &str = "Try again";
 /// Displayed when download fails (cancel button)
 pub const DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT: &str = "Cancel";
 
+/// Displayed verifying a cached app installer.
+pub const VERIFYING_CACHED: &str = "Verifying...";
+
 /// Displayed when download fails
 pub const VERIFICATION_FAILED_DESC: &str = "Failed to verify download, please try downloading again or contact our support by sending an email to support@mullvadvpn.net with a description of what happened.";
 
