@@ -10,7 +10,7 @@ use crate::{
     version::{VersionInfo, VersionParameters},
 };
 
-use super::app::{AppCache, DownloadedInstaller, InstallerFile};
+use super::app::{AppCache, InstallerFile};
 
 pub struct AppCacheDir {
     /// Path to directory containing the metadata file and the downloaded installer.
@@ -21,19 +21,26 @@ pub struct AppCacheDir {
 pub const METADATA_FILENAME: &str = "metadata.json";
 
 impl AppCache for AppCacheDir {
+    type Installer = InstallerFile<false>;
+
     fn new(directory: PathBuf, version_params: VersionParameters) -> Self {
-        Self { directory, version_params }
+        Self {
+            directory,
+            version_params,
+        }
     }
 
-    async fn get_app(self) -> anyhow::Result<(Version, impl DownloadedInstaller)> {
+    async fn get_app(self) -> anyhow::Result<(Version, InstallerFile<false>)> {
         let metadata_file = self.directory.join(METADATA_FILENAME);
         let raw_json = fs::read(metadata_file)
             .await
             .context("Failed to read metadata.json")?;
 
-        let response =
-            SignedResponse::deserialize_and_verify(&raw_json, self.version_params.lowest_metadata_version)
-                .context("Failed to deserialize or verify metadata.json")?;
+        let response = SignedResponse::deserialize_and_verify(
+            &raw_json,
+            self.version_params.lowest_metadata_version,
+        )
+        .context("Failed to deserialize or verify metadata.json")?;
 
         let version_info = VersionInfo::try_from_response(&self.version_params, response.signed)?;
 
@@ -41,8 +48,12 @@ impl AppCache for AppCacheDir {
         let version_info = version_info.stable;
         let version = version_info.version;
 
-        let installer = 
-        InstallerFile::<false>::from_version(&self.directory, version.clone(), version_info.size, version_info.sha256);
+        let installer = InstallerFile::<false>::from_version(
+            &self.directory,
+            version.clone(),
+            version_info.size,
+            version_info.sha256,
+        );
 
         Ok((version, installer))
     }
@@ -52,11 +63,13 @@ impl AppCache for AppCacheDir {
 pub struct NoopAppCacheDir;
 
 impl AppCache for NoopAppCacheDir {
+    type Installer = InstallerFile<false>;
+
     fn new(_directory: PathBuf, _version_params: VersionParameters) -> Self {
         NoopAppCacheDir
     }
 
-    async fn get_app(self) -> anyhow::Result<(Version, impl DownloadedInstaller)> {
-        Err::<(_, InstallerFile<false>), _>(anyhow::anyhow!("No cache"))
+    async fn get_app(self) -> anyhow::Result<(Version, InstallerFile<false>)> {
+        Err(anyhow::anyhow!("No cache"))
     }
 }

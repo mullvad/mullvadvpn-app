@@ -83,7 +83,7 @@ impl AppController {
     ) where
         D: AppDelegate + 'static,
         A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
-        C: AppCache,
+        C: AppCache + 'static,
         DirProvider: DirectoryProvider + 'static,
     {
         delegate.hide_download_progress();
@@ -188,7 +188,7 @@ async fn fetch_app_version_info<Delegate, Cache>(
 ) -> VersionInfo
 where
     Delegate: AppDelegate + 'static,
-    Cache: AppCache,
+    Cache: AppCache + 'static,
 {
     loop {
         queue.queue_main(|self_| {
@@ -216,21 +216,21 @@ where
 
         // Check if we've already downloaded an istaller.
         // If so, the user will be given the option to run it.
-        let (cached_app_version, cached_app_installer) =
-            Cache::new(working_directory.directory.clone(), version_params)
-                .get_app()
-                .await
-                .inspect_err(|e| log::info!("Couldn't find a downloaded installer: {e:#}"))
-                .ok()
-                .unzip();
+        let mut cached_app = Cache::new(working_directory.directory.clone(), version_params)
+            .get_app()
+            .await
+            .inspect_err(|e| log::info!("Couldn't find a downloaded installer: {e:#}"))
+            .ok();
 
-        enum Action {
+        enum Action<Cache: AppCache> {
             Retry,
             Cancel,
-            InstallExistingVersion,
+            InstallExistingVersion {
+                cached_app_installer: Cache::Installer,
+            },
         }
 
-        let (action_tx, mut action_rx) = mpsc::channel(1);
+        let (action_tx, mut action_rx) = mpsc::channel::<Action<Cache>>(1);
 
         // show error message (needs to happen on the UI (main) thread)
         // send Action when user presses a button to continue
@@ -244,7 +244,7 @@ where
                 let _ = retry_tx.try_send(Action::Retry);
             });
 
-            if let Some(version) = cached_app_version {
+            if let Some((version, cached_app_installer)) = cached_app.take() {
                 self_.show_error_message(crate::delegate::ErrorMessage {
                     status_text: resource::FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD
                         .replace("%s", &version.to_string()),
@@ -253,7 +253,9 @@ where
                     retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
                 });
                 self_.on_error_message_cancel(move || {
-                    let _ = cancel_tx.try_send(Action::InstallExistingVersion);
+                    let _ = cancel_tx.try_send(Action::InstallExistingVersion {
+                        cached_app_installer: cached_app_installer.clone(),
+                    });
                 });
             } else {
                 self_.show_error_message(crate::delegate::ErrorMessage {
@@ -281,11 +283,9 @@ where
                     self_.quit();
                 });
             }
-            Action::InstallExistingVersion => {
-                let Some(installer) = cached_app_installer else {
-                    unreachable!(); // :(
-                };
-
+            Action::InstallExistingVersion {
+                cached_app_installer: installer,
+            } => {
                 let (done_tx, done_rx) = oneshot::channel();
 
                 queue.queue_main(|self_| {

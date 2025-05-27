@@ -103,15 +103,11 @@ pub struct FakeAppDownloader<
 }
 
 #[derive(Default)]
-
-pub struct FakeAppCache<
-    const HAS_APP: bool,
-    Installer: DownloadedInstaller + Default,
-> {
+pub struct FakeAppCache<const HAS_APP: bool, Installer: DownloadedInstaller + Clone + Default> {
     _phantom: PhantomData<Installer>,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct FakeInstaller<
     const EXE_SUCCEED: bool,
     const VERIFY_SUCCEED: bool,
@@ -135,24 +131,29 @@ impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: 
     }
 }
 
-impl <const HAS_APP: bool, Installer: DownloadedInstaller + Default> AppCache for FakeAppCache<HAS_APP, Installer> {
+impl<const HAS_APP: bool, Installer: DownloadedInstaller + Clone + Default> AppCache
+    for FakeAppCache<HAS_APP, Installer>
+{
+    type Installer = Installer;
+
     fn new(_directory: PathBuf, _version_params: VersionParameters) -> Self {
         Self::default()
     }
 
-    async fn get_app(
-        self,
-    ) -> anyhow::Result<(mullvad_version::Version, impl DownloadedInstaller)> {
+    async fn get_app(self) -> anyhow::Result<(mullvad_version::Version, Self::Installer)> {
         if HAS_APP {
-            let version = mullvad_version::Version { year: 2042, incremental: 1337, pre_stable: None, dev: None };
+            let version = mullvad_version::Version {
+                year: 2042,
+                incremental: 1337,
+                pre_stable: None,
+                dev: None,
+            };
             let installer = Installer::default();
             Ok((version, installer))
         } else {
             anyhow::bail!("AppCache is empty")
         }
     }
-
-    
 }
 
 impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: bool>
