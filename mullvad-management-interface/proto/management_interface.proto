@@ -48,6 +48,7 @@ service ManagementService {
   rpc SetAutoConnect(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
   rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
+  rpc SetWireguardAllowedIps(AllowedIpsList) returns (google.protobuf.Empty) {}
   rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetQuantumResistantTunnel(QuantumResistantState) returns (google.protobuf.Empty) {}
   rpc SetEnableDaita(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
@@ -562,8 +563,9 @@ enum IpVersion {
 message WireguardConstraints {
   optional uint32 port = 1;
   optional IpVersion ip_version = 2;
-  bool use_multihop = 3;
-  LocationConstraint entry_location = 4;
+  repeated string allowed_ips = 3;
+  bool use_multihop = 4;
+  LocationConstraint entry_location = 5;
 }
 
 message CustomRelaySettings {
@@ -831,3 +833,5 @@ message PlayPurchase {
 }
 
 message PlayPurchasePaymentToken { string token = 1; }
+
+message AllowedIpsList { repeated string values = 1; }
