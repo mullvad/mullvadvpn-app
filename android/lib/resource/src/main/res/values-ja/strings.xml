@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">すべてのサーバーが%1$sに対応しているわけではないため、どのサーバーでも%1$sが有効になるようにマルチホップを自動的に使用しています。</string>
     <string name="daita_info">“%1$s” を有効化した場合、%2$s対応のサーバーを手動で選択する必要があります。これにより、“場所を選択する” で互換性のあるサーバーを選択するまでブロック状態となる可能性があります。</string>
     <string name="daita_multihop">%1$s: マルチホップ</string>
+    <string name="days_were_added_30">アカウントに30日分が追加されました。</string>
     <string name="delete">削除</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" を削除しますか？</string>
     <string name="delete_custom_list_message">\"%1$s\" は削除されました</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
     <string name="payment_billing_error_dialog_message">決済処理を開始できませんでした。最新バージョンのGoogle Playを使用していることを確認してください。</string>
     <string name="payment_billing_error_dialog_title">Google Playを使用できません</string>
-    <string name="payment_completed_dialog_message">アカウントに30日分が追加されました。</string>
     <string name="payment_completed_dialog_title">時間を正常に追加しました</string>
     <string name="payment_obfuscation_id_error_dialog_message">決済処理を開始できませんでした。後でもう一度お試しください。</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvadサービスを使用できません</string>

@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">일부 서버에는 %1$s가 활성화되어 있지 않습니다. 따라서 당사는 모든 서버에서 %1$s를 활성화하기 위해 자동으로 멀티홉을 사용합니다.</string>
     <string name="daita_info">“%1$s”을 활성화하면 %2$s가 활성화된 서버를 수동으로 선택해야 합니다. 이로 인해 “위치 선택” 창에서 호환되는 서버를 선택할 때까지 차단된 상태에 빠질 수 있습니다.</string>
     <string name="daita_multihop">%1$s: 멀티홉</string>
+    <string name="days_were_added_30">귀하의 계정에 30일이 추가되었습니다.</string>
     <string name="delete">삭제</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\"을(를) 삭제하시겠습니까?</string>
     <string name="delete_custom_list_message">\"%1$s\"이(가) 삭제되었습니다</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">앱 사용을 시작하려면, 먼저 계정에 시간을 추가해야 합니다.</string>
     <string name="payment_billing_error_dialog_message">결제 프로세스를 시작할 수 없습니다. Google Play가 최신 버전인지 확인하세요.</string>
     <string name="payment_billing_error_dialog_title">Google Play 사용 불가</string>
-    <string name="payment_completed_dialog_message">귀하의 계정에 30일이 추가되었습니다.</string>
     <string name="payment_completed_dialog_title">시간이 성공적으로 추가되었습니다.</string>
     <string name="payment_obfuscation_id_error_dialog_message">결제 프로세스를 시작할 수 없습니다. 나중에 다시 시도해 주세요.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad 서비스 사용 불가</string>

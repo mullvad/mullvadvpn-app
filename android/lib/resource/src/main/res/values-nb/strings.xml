@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">Ikke alle serverne våre er %1$s-aktiverte. Derfor bruker vi automatisk multihopp for å aktivere %1$s med alle servere.</string>
     <string name="daita_info">Hvis du aktiverer «%1$s», må du manuelt velge en server som har aktivert %2$s. Dette kan føre til at du havner i en blokkert tilstand inntil du har valgt en kompatibel server under «Velg plassering».</string>
     <string name="daita_multihop">%1$s: Multihopp</string>
+    <string name="days_were_added_30">30 dager ble lagt til kontoen din.</string>
     <string name="delete">Slett</string>
     <string name="delete_custom_list_confirmation_description">Slette «%1$s»?</string>
     <string name="delete_custom_list_message">«%1$s» ble slettet</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">For å starte bruken av appen, må du først legge til tid til kontoen.</string>
     <string name="payment_billing_error_dialog_message">Vi kunne ikke starte betalingsprosessen. Kontroller om du har siste versjon av Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play utilgjengelig</string>
-    <string name="payment_completed_dialog_message">30 dager ble lagt til kontoen din.</string>
     <string name="payment_completed_dialog_title">Tid ble lagt til</string>
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunne ikke starte betalingsprosessen. Prøv igjen senere.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjenester utilgjengelig</string>
