@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">Nicht alle unsere Server sind %1$s-fähig. Daher verwenden wir automatisch Multihop, um %1$s mit jedem Server zu aktivieren.</string>
     <string name="daita_info">Wenn Sie „%1$s“ aktivieren, müssen Sie manuell einen Server auswählen, der %2$s-fähig ist. Dies kann dazu führen, dass Sie in einem blockierten Zustand landen, bis Sie einen kompatiblen Server in der Ansicht „Standort auswählen“ ausgewählt haben.</string>
     <string name="daita_multihop">%1$s: Multihop</string>
+    <string name="days_were_added_30">30 Tage wurden zu Ihrem Konto hinzugefügt.</string>
     <string name="delete">Löschen</string>
     <string name="delete_custom_list_confirmation_description">„%1$s“ löschen?</string>
     <string name="delete_custom_list_message">„%1$s“ wurde gelöscht</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">Um mit der Nutzung dieser App zu beginnen, müssen Sie erst einmal Zeit zu Ihrem Konto hinzufügen.</string>
     <string name="payment_billing_error_dialog_message">Wir konnten den Zahlungsvorgang nicht starten. Bitte vergewissern Sie sich, dass Sie die neueste Version von Google Play haben.</string>
     <string name="payment_billing_error_dialog_title">Google Play nicht verfügbar</string>
-    <string name="payment_completed_dialog_message">30 Tage wurden zu Ihrem Konto hinzugefügt.</string>
     <string name="payment_completed_dialog_title">Zeit erfolgreich hinzugefügt</string>
     <string name="payment_obfuscation_id_error_dialog_message">Wir konnten den Zahlungsvorgang nicht starten, bitte versuchen Sie es später noch einmal.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-Dienste nicht verfügbar</string>
