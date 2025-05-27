@@ -68,8 +68,8 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
 
         await singleHopPostQuantumKeyExchanging.start()
 
-        wait(
-            for: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
@@ -110,8 +110,8 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
             })
         await singleHopPostQuantumKeyExchanging.start()
 
-        wait(
-            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
@@ -147,8 +147,8 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
         })
         await multiHopPeerExchanger.start()
 
-        wait(
-            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+        await fulfillment(
+            of: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
             timeout: .UnitTest.invertedTimeout
         )
     }
