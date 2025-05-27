@@ -544,16 +544,6 @@ pub struct GenericTunnelOptions {
     pub enable_ipv6: bool,
 }
 
-/// Returns a vector of IP networks representing all of the internet, 0.0.0.0/0.
-/// This may be used in [`crate::net::wireguard::PeerConfig`] to route all traffic
-/// to the tunnel interface.
-pub fn all_of_the_internet() -> Vec<ipnetwork::IpNetwork> {
-    vec![
-        "0.0.0.0/0".parse().expect("Failed to parse ipv6 network"),
-        "::0/0".parse().expect("Failed to parse ipv6 network"),
-    ]
-}
-
 /// Details about the hosts's connectivity.
 ///
 /// Information about the host's connectivity, such as the preesence of

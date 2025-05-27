@@ -39,6 +39,9 @@ pub enum Error {
 
     #[error("Failed to apply settings update")]
     UpdateFailed(Box<dyn std::error::Error + Send + Sync>),
+
+    #[error("Failed to parse IP network from string: {0}")]
+    ParseIp(String),
 }
 
 /// Converts an [Error] to a management interface status
@@ -57,9 +60,10 @@ impl From<Error> for mullvad_management_interface::Status {
                 let custom_list_err = *err.downcast::<CustomListError>().unwrap();
                 handle_custom_list_error(custom_list_err)
             }
-            Error::SerializeError(..) | Error::ParseError(..) | Error::UpdateFailed(..) => {
-                Status::new(Code::Internal, error.to_string())
-            }
+            Error::SerializeError(..)
+            | Error::ParseError(..)
+            | Error::UpdateFailed(..)
+            | Error::ParseIp(..) => Status::new(Code::Internal, error.to_string()),
         }
     }
 }

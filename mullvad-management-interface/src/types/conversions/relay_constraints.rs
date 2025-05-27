@@ -1,6 +1,11 @@
 use crate::types::{conversions::net::try_tunnel_type_from_i32, proto, FromProtobufTypeError};
 use mullvad_types::{
-    constraints::Constraint, custom_list::Id, relay_constraints::GeographicLocationConstraint,
+    constraints::Constraint,
+    custom_list::Id,
+    relay_constraints::{
+        allowed_ip::{self, AllowedIps},
+        GeographicLocationConstraint,
+    },
 };
 use std::str::FromStr;
 use talpid_types::net::proxy::CustomProxy;
@@ -24,10 +29,15 @@ impl TryFrom<&proto::WireguardConstraints>
             )),
             None => None,
         };
+        let allowed_ips = AllowedIps::from_strings(&constraints.allowed_ips).map_err(|e| {
+            log::error!("Failed to parse allowed IPs: {}", e);
+            FromProtobufTypeError::InvalidArgument("invalid allowed IPs")
+        })?;
 
         Ok(mullvad_constraints::WireguardConstraints {
             port: Constraint::from(constraints.port.map(|port| port as u16)),
             ip_version: Constraint::from(ip_version),
+            allowed_ips,
             use_multihop: constraints.use_multihop,
             entry_location: constraints
                 .entry_location
@@ -252,6 +262,14 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                             .ip_version
                             .option()
                             .map(|ipv| i32::from(proto::IpVersion::from(ipv))),
+                        allowed_ips: allowed_ip::resolve_from_constraint(
+                            &constraints.wireguard_constraints.allowed_ips,
+                            None,
+                            None,
+                        )
+                        .into_iter()
+                        .map(|ip| ip.to_string())
+                        .collect(),
                         use_multihop: constraints.wireguard_constraints.multihop(),
                         entry_location: constraints
                             .wireguard_constraints
