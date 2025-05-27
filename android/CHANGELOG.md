@@ -29,6 +29,10 @@ Line wrap the file at 100 chars.                                              Th
   is drastically smaller.
 
 
+## [android/2025.4] - 2025-05-28
+Identical to `android/2025.4-beta2` except for updated translations.
+
+
 ## [android/2025.4-beta2] - 2025-05-20
 ### Changed
 - Improve error message when the app cannot connect due to an invalid port.
