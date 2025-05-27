@@ -46,7 +46,7 @@ pub struct AppDownloaderParameters<AppProgress> {
 }
 
 /// See the [module-level documentation](self).
-pub trait AppDownloader: Send {
+pub trait AppDownloader: Send + 'static {
     /// Download the app binary.
     fn download_executable(
         self,

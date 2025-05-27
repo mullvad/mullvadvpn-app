@@ -215,11 +215,12 @@ where
 
         // Check if we've already downloaded an istaller.
         // If so, the user will be given the option to run it.
-        let cached_app: Option<_> = Cache::new(working_directory.directory.clone(), version_params)
+        let (cached_app_version, cached_app_installer) = Cache::new(working_directory.directory.clone(), version_params)
             .find_app()
             .await
             .inspect_err(|e| log::warn!("Couldn't find a downloaded installer: {e:#}"))
-            .ok();
+            .ok()
+            .unzip();
 
         enum Action {
             Retry,
@@ -241,7 +242,7 @@ where
                 let _ = retry_tx.try_send(Action::Retry);
             });
 
-            if let Some((version, _installer)) = cached_app {
+            if let Some(version) = cached_app_version {
                 self_.show_error_message(crate::delegate::ErrorMessage {
                     status_text: resource::FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD
                         .replace("%s", &version.to_string()),
@@ -279,7 +280,7 @@ where
                 });
             }
             Action::InstallExistingVersion => {
-                let Some((_version, installer)) = cached_app else {
+                let Some(installer) = cached_app_installer else {
                     unreachable!(); // :(
                 };
 

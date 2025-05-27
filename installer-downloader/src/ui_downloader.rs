@@ -12,7 +12,7 @@ use mullvad_update::{
 
 /// [AppDownloader] that delegates the actual work to some underlying `downloader` and uses it to
 /// update a UI.
-pub struct UiAppDownloader<Delegate: AppDelegate, Downloader> {
+pub struct UiAppDownloader<Delegate: AppDelegate + 'static, Downloader> {
     downloader: Downloader,
     /// Queue used to control the app UI
     queue: Delegate::Queue,
