@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 
 import { InAppNotificationSubtitle } from '../../shared/notifications';
 import { LabelTiny } from '../lib/components';
@@ -11,10 +10,6 @@ export type NotificationSubtitleProps = {
   subtitle?: string | InAppNotificationSubtitle[];
 };
 
-const StyledExternalLink = styled(ExternalLink)`
-  display: flex;
-`;
-
 const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
   const content = formatHtml(subtitle.content);
   if (subtitle.action) {
@@ -22,15 +17,15 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
       case 'navigate-internal':
         return (
           <InternalLink variant="labelTiny" {...subtitle.action.link}>
-            {content}
+            <InternalLink.Text>{content}</InternalLink.Text>
           </InternalLink>
         );
       case 'navigate-external':
         return (
-          <StyledExternalLink variant="labelTiny" {...subtitle.action.link}>
-            {content}
-            <ExternalLink.Icon icon="external" size="small" />
-          </StyledExternalLink>
+          <ExternalLink variant="labelTiny" {...subtitle.action.link}>
+            <ExternalLink.Text>{content}</ExternalLink.Text>
+            <ExternalLink.Icon icon="external" />
+          </ExternalLink>
         );
       default:
         break;
