@@ -118,6 +118,7 @@
     <string name="daita_description_slide_2_third_paragraph">Tous nos serveurs ne sont pas compatibles %1$s. C\'est pourquoi nous utilisons automatiquement le multihop pour activer %1$s avec n\'importe quel serveur.</string>
     <string name="daita_info">Si vous activez « %1$s », vous devez sélectionner manuellement un serveur avec %2$s activé. Vous risquez alors de vous retrouver dans une situation de blocage tant que vous n\'avez pas sélectionné un serveur compatible dans la vue « Sélectionner une localisation ».</string>
     <string name="daita_multihop">%1$s : multihop</string>
+    <string name="days_were_added_30">30 jours ont été ajoutés à votre compte.</string>
     <string name="delete">Supprimer</string>
     <string name="delete_custom_list_confirmation_description">Supprimer « %1$s » ?</string>
     <string name="delete_custom_list_message">« %1$s » a été supprimé</string>
@@ -282,7 +283,6 @@
     <string name="pay_to_start_using">Pour commencer à utiliser l\'application, vous devez d\'abord ajouter du temps à votre compte.</string>
     <string name="payment_billing_error_dialog_message">Nous n\'avons pas pu lancer le processus de paiement, merci de vérifier que vous disposez de la dernière version de Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play indisponible</string>
-    <string name="payment_completed_dialog_message">30 jours ont été ajoutés à votre compte.</string>
     <string name="payment_completed_dialog_title">Le temps a bien été ajouté</string>
     <string name="payment_obfuscation_id_error_dialog_message">Nous n\'avons pas pu lancer le processus de paiement, merci de réessayer plus tard.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Services Mullvad indisponibles</string>
