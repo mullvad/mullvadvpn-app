@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2025-04-11 07:48\n"
+"PO-Revision-Date: 2025-05-26 11:59\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -169,6 +169,7 @@ msgstr "ไม่สามารถเชื่อมต่ออย่างป
 msgid "Filter"
 msgstr "ตัวกรอง"
 
+#. Button label for system settings.
 msgid "Go to System Settings"
 msgstr "ไปที่การตั้งค่าระบบ"
 
@@ -328,6 +329,13 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "ลืมหมายเลขบัญชี %(accountNumber)s"
 
+#. Accessibility label for link to wireguard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to %(wireGuard)s settings."
+msgstr "ไปที่การตั้งค่า %(wireGuard)s"
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -369,6 +377,7 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "ติดตั้งเวอร์ชันใหม่แล้ว คลิกที่นี่ เพื่อดูบันทึกการเปลี่ยนแปลง"
 
+#. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "เปิดจากภายนอก"
@@ -416,6 +425,7 @@ msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "ไม่พร้อมใช้งานในปัจจุบัน"
 
+#. Button label for logging out.
 msgctxt "account-view"
 msgid "Log out"
 msgstr "ลงชื่อออก"
@@ -654,6 +664,14 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
+#. This is used as a feature indicator to show that DAITA is enabled through
+#. multihop.
+#. Available placeholders:
+#. %(DAITA)s - Is a non-translatable feature "DAITA"
+msgctxt "connect-view"
+msgid "%(DAITA)s: Multihop"
+msgstr "%(DAITA)s: Multihop"
+
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "คุณลักษณะที่ใช้งาน"
@@ -666,6 +684,7 @@ msgctxt "connect-view"
 msgid "Connection details"
 msgstr "รายละเอียดการเชื่อมต่อ"
 
+#. Button label for disconnecting from the VPN.
 msgctxt "connect-view"
 msgid "Disconnect"
 msgstr "ตัดการเชื่อมต่อ"
@@ -686,6 +705,7 @@ msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr "นี่คือหมายเลขบัญชีของคุณ จดบันทึกไว้ด้วยนะ!"
 
+#. Button label for opening privacy information link.
 msgctxt "connect-view"
 msgid "Learn about privacy"
 msgstr "เรียนรู้เกี่ยวกับความเป็นส่วนตัว"
@@ -694,6 +714,7 @@ msgctxt "connect-view"
 msgid "Out of time"
 msgstr "หมดเวลา"
 
+#. Button label for navigating to the voucher redemption view.
 msgctxt "connect-view"
 msgid "Redeem voucher"
 msgstr "แลกบัตรกำนัล"
@@ -702,6 +723,7 @@ msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
 msgstr "โปรดจำไว้ว่า การปิดใช้งานตัวเลือกนี้จะเป็นการอนุญาตให้มีการรับส่งข้อมูลทางเครือข่าย ในขณะที่ VPN ถูกตัดการเชื่อมต่ออยู่ จนกว่าคุณจะเปิดใช้งานตัวเลือกนี้ในการตั้งค่าขั้นสูงอีกครั้ง"
 
+#. Button label for starting the app.
 msgctxt "connect-view"
 msgid "Start using the app"
 msgstr "เริ่มใช้แอป"
@@ -814,6 +836,7 @@ msgctxt "device-management"
 msgid "Failed to remove device"
 msgstr "ไม่สามารถลบอุปกรณ์ได้"
 
+#. Button label for navigating to login.
 msgctxt "device-management"
 msgid "Go to login"
 msgstr "ไปเข้าสู่ระบบ"
@@ -850,7 +873,7 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "มีอุปกรณ์มากเกินไป"
 
-#. Confirmation button when logging out other device.
+#. Button label for confirming logout of another device.
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "ใช่ นำอุปกรณ์ออกจากระบบ"
@@ -938,6 +961,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "การสนับสนุน %(openVpn)s กำลังจะสิ้นสุดลง เปลี่ยนตำแหน่งที่ตั้ง หรือ"
 
+#. Link in notication to go to WireGuard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "%(wireGuard)s settings."
+msgstr "การตั้งค่า %(wireGuard)s"
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "เครดิตในบัญชีจะหมดอายุในเร็ว ๆ นี้"
@@ -1014,9 +1044,17 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "อ่านเพิ่มเติม"
 
+#. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "ส่งรายงานปัญหา"
+
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please change it under "
+msgstr "ไม่รองรับพอร์ต %(wireGuard)s ที่เลือก โปรดเปลี่ยนพอร์ตภายใต้ส่วน"
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1062,6 +1100,7 @@ msgctxt "launch-view"
 msgid "Restarting your computer."
 msgstr "รีสตาร์ตคอมพิวเตอร์ของคุณ"
 
+#. Button label for problem report view.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "ส่งรายงานปัญหา"
@@ -1253,6 +1292,16 @@ msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "ล้มเหลวในการเปิดใช้การแยกอุโมงค์ โปรดลองเชื่อมต่อใหม่อีกครั้ง หรือปิดใช้งานการแยกอุโมงค์"
 
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv4 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า <b>%(ipVersionFeatureName)</b>"
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv6 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า <b>%(ipVersionFeatureName)</b>"
+
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "เปิดใช้โหมดล็อกดาวน์ ปิดกั้นการเชื่อมต่อแล้ว"
@@ -1416,14 +1465,17 @@ msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr "โพรโทคอลการส่งข้อมูล"
 
+#. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr "ยกเลิก"
 
+#. Input field label for voucher code.
 msgctxt "redeem-voucher-alert"
 msgid "Enter voucher code"
 msgstr "ป้อนรหัสบัตรกำนัล"
 
+#. Button label for redeeming a voucher.
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
 msgstr "แลกบัตรกำนัล"
@@ -1432,6 +1484,7 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "เกิดข้อผิดพลาดขึ้น"
 
+#. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
 msgstr "แลกรับ"
@@ -1688,6 +1741,7 @@ msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr "แอปที่ยกเว้น"
 
+#. Button label for browsing applications with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "ค้นหาแอปอื่น"
@@ -1696,6 +1750,7 @@ msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
 msgstr "ในกรณีที่แอปกำลังทำงานอยู่ ให้ปิด %(applicationName)s ก่อนที่จะเปิดแอปจากที่นี่ มิฉะนั้น แอปจะไม่ถูกแยกออกจากช่องทาง VPN"
 
+#. Button label for launching an application with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "เปิด"
@@ -1734,10 +1789,12 @@ msgctxt "support-view"
 msgid "Beta program"
 msgstr "โปรแกรมรุ่นเบต้า"
 
+#. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "ดำเนินการต่อไป"
 
+#. Button text to edit the message after a failed attempt to send the problem report.
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "แก้ไขข้อความ"
@@ -1772,10 +1829,12 @@ msgctxt "support-view"
 msgid "Report a problem"
 msgstr "รายงานปัญหา"
 
+#. Button label for sending the problem report.
 msgctxt "support-view"
 msgid "Send"
 msgstr "ส่ง"
 
+#. Button label for sending the problem report without an email address.
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr "ส่งต่อไป"
@@ -1809,14 +1868,17 @@ msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "ไฟล์บันทึกล็อกของแอปของคุณจะถูกแนบไปกับข้อความนี้ เพื่อที่เราจะช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เนื่องจากจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส"
 
+#. Button label for retrying problem report submission after a failure.
 msgctxt "support-view"
 msgid "Try again"
 msgstr "ลองอีกครั้ง"
 
+#. Button label for upgrading the app to the latest version.
 msgctxt "support-view"
 msgid "Upgrade app"
 msgstr "อัปเกรดแอป"
 
+#. Button label for opening app logs.
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "ดูบันทึกของแอป"
@@ -1997,6 +2059,7 @@ msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "เพิ่มเซิร์ฟเวอร์"
 
+#. Button label to add a private IP DNS server despite warning.
 msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "เพิ่มต่อไป"
@@ -2289,6 +2352,10 @@ msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr "ช่องทางการสกัดกั้นควอนตัม"
 
+msgctxt "wireguard-settings-view"
+msgid "QUIC"
+msgstr "QUIC"
+
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2498,6 +2565,9 @@ msgstr "สร้างรายการใหม่"
 msgid "Critical error (your attention is required)"
 msgstr "ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)"
 
+msgid "Current device"
+msgstr "อุปกรณ์ปัจจุบัน"
+
 msgid "Current: %s"
 msgstr "ปัจจุบัน: %s"
 
@@ -2603,6 +2673,12 @@ msgstr "กำลังชำระเงิน Google Play"
 msgid "Google Play unavailable"
 msgstr "Google Play ไม่พร้อมใช้งาน"
 
+msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv4 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า \"เวอร์ชัน IP อุปกรณ์\""
+
+msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv6 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า \"เวอร์ชัน IP อุปกรณ์\""
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "หากมีการใช้งานคุณลักษณะการแยกอุโมงค์ แอปจะขอให้ระบบของคุณระบุแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด รายการนี้จะได้รับการเรียกใช้งานในมุมมองการแยกอุโมงค์เท่านั้น รายการแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด จะไม่ถูกส่งออกจากอุปกรณ์"
 
@@ -2620,6 +2696,9 @@ msgstr "IPv6 แบบภายในอุโมงค์"
 
 msgid "Invalid or missing value \"%s\""
 msgstr "ค่า \"%s\" ไม่ถูกต้องหรือหายไป"
+
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr "นี่จะมีประโยชน์อย่างมาก เมื่อคุณทราบถึงปัญหาที่เกิดจากเวอร์ชัน IP บางเวอร์ชัน"
 
 msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr "ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน"
@@ -2641,6 +2720,9 @@ msgstr "ตรวจสอบให้แน่ใจว่า อุปกร�
 
 msgid "Manage account"
 msgstr "จัดการบัญชี"
+
+msgid "Manage devices"
+msgstr "จัดการอุปกรณ์"
 
 msgid "Mullvad services unavailable"
 msgstr "บริการ Mullavad ไม่พร้อมใช้งาน"
@@ -2717,6 +2799,9 @@ msgstr "ลบ"
 msgid "Remove %s from %s"
 msgstr "ลบ %s ออกจาก %s"
 
+msgid "Remove %s?"
+msgstr "ลบ %s หรือไม่"
+
 msgid "Remove custom port"
 msgstr "นำพอร์ตแบบกำหนดเองออก"
 
@@ -2780,14 +2865,20 @@ msgstr "โหมดล็อกดาวน์ถูกเรียกว่า
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "วิธีการ \"ปัจจุบัน\" แสดงถึงวิธีที่แอปใช้ในการเข้าถึง API"
 
+msgid "The device will be removed from the list and logged out."
+msgstr "อุปกรณ์จะถูกลบออกจากรายการและออกจากระบบ"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "เซิร์ฟเวอร์ DNS ท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้งาน \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการตั้งค่า VPN"
+
+msgid "The selected %s port is not supported, please change it under"
+msgstr "ไม่รองรับพอร์ต %s ที่เลือก โปรดเปลี่ยนพอร์ตภายใต้ส่วน"
 
 msgid "This address has already been entered."
 msgstr "ที่อยู่นี้ได้รับการป้อนไปแล้ว"
 
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr "นี่จะช่วยให้อุปกรณ์ที่รองรับเฉพาะ IPv6 สามารถเข้าถึง WireGuard ได้"
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
+msgstr "ฟีเจอร์นี้ช่วยให้คุณเลือกได้ว่าจะใช้เฉพาะ IPv4 หรือเฉพาะ IPv6 เท่านั้น หรือให้แอปตัดสินใจเลือกตัวเลือกที่ดีที่สุดโดยอัตโนมัติ ในขณะที่เชื่อมต่อกับเซิร์ฟเวอร์"
 
 msgid "This field is required"
 msgstr "จำเป็นต้องกรอกช่องนี้"
@@ -2806,9 +2897,6 @@ msgstr "แอปจะตรวจสอบเวอร์ชันโดยอ
 
 msgid "Toggle VPN"
 msgstr "เปิด/ปิด VPN"
-
-msgid "Type at least 2 characters to start searching."
-msgstr "พิมพ์อย่างน้อย 2 ตัวอักษร เพื่อเริ่มการค้นหา"
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "ไม่สามารถใช้กฎไฟร์วอลล์ได้ โปรดแก้ไขปัญหา หรือส่งรายงานปัญหา"
@@ -2837,8 +2925,14 @@ msgstr "อัปเดตชื่อรายการ"
 msgid "Use method"
 msgstr "ใช้วิธีการ"
 
+msgid "VPN Settings not available on device"
+msgstr "การตั้งค่า VPN ไม่สามารถใช้งานได้บนอุปกรณ์"
+
 msgid "VPN permission error"
 msgstr "เกิดข้อผิดพลาดในการอนุญาต VPN"
+
+msgid "VPN permission was denied"
+msgstr "การอนุญาต VPN ถูกปฏิเสธ"
 
 msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
 msgstr "สิทธิ์ VPN ถูกปฏิเสธ หรือไม่ก็แอปอื่นเปิดใช้งาน \"เปิด VPN เสมอ\""
@@ -2866,6 +2960,9 @@ msgstr "กำลังตรวจสอบยืนยันบัตรกำ
 
 msgid "Version"
 msgstr "เวอร์ชัน"
+
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "ดูและจัดการอุปกรณ์ทั้งหมดที่คุณลงชื่อเข้าใช้ คุณสามารถมีอุปกรณ์ได้สูงสุด 5 เครื่องในหนึ่งบัญชีในเวลาเดียวกัน แต่ละอุปกรณ์จะได้รับชื่อในขณะที่ลงชื่อเข้าใช้ เพื่อช่วยให้คุณแยกแยะอุปกรณ์แต่ละเครื่องได้อย่างง่ายดาย"
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "เรากำลังตรวจสอบยืนยันการซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ คุณจะได้รับเวลาเพิ่ม หากการตรวจสอบยืนยันสำเร็จ"
