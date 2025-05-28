@@ -7,14 +7,16 @@ export function ManualDownloadLink() {
 
   return (
     <ExternalLink variant="labelTiny" to={downloadUrl}>
-      {
-        // TRANSLATORS: Link shown to optionally manually download the update
-        // TRANSLATORS: due to repeated errors in the upgrade process.
-        messages.pgettext(
-          'app-upgrade-view',
-          'Having problems? Try downloading the app from our website',
-        )
-      }
+      <ExternalLink.Text>
+        {
+          // TRANSLATORS: Link shown to optionally manually download the update
+          // TRANSLATORS: due to repeated errors in the upgrade process.
+          messages.pgettext(
+            'app-upgrade-view',
+            'Having problems? Try downloading the app from our website',
+          )
+        }
+      </ExternalLink.Text>
       <ExternalLink.Icon
         aria-description={messages.pgettext('accessibility', 'Opens externally')}
         icon="external"
