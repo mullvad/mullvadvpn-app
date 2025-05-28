@@ -202,10 +202,12 @@ impl HttpVersionInfoProvider {
 
 #[cfg(test)]
 mod test {
+    use async_tempfile::TempDir;
     use insta::assert_yaml_snapshot;
     use vec1::vec1;
 
     use super::*;
+    use crate::format::SignedResponse;
 
     // These tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
     // then most likely the snapshots need to be updated. The most convenient way to review
@@ -231,11 +233,13 @@ mod test {
 
         let url = format!("{}/version", server.url());
 
+        let temp_dump = TempDir::new().await.unwrap().join("metadata.json");
+
         // Construct query and provider
         let info_provider = HttpVersionInfoProvider {
             url,
             pinned_certificate: None,
-            dump_to_path: None,
+            dump_to_path: Some(temp_dump.clone()),
         };
 
         let info = info_provider
@@ -245,6 +249,13 @@ mod test {
 
         // Expect: Our query should yield some version response
         assert_yaml_snapshot!(info);
+
+        // Expect: Dumped data should exist and look the same
+        let cached_data = fs::read(temp_dump).await.expect("expected dumped info");
+        let cached_info =
+            SignedResponse::deserialize_and_verify_with_keys(&verifying_keys, &cached_data, 0)
+                .unwrap();
+        assert_eq!(cached_info, info);
 
         Ok(())
     }
