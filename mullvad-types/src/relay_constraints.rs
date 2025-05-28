@@ -438,12 +438,20 @@ pub fn resolve_allowed_ips(
     }
 }
 
-pub fn allowed_ips_from_strings(
-    allowed_ips: &[String],
-) -> Result<Vec<IpNetwork>, <IpNetwork as std::str::FromStr>::Err> {
+pub fn allowed_ips_from_strings(allowed_ips: &[String]) -> Result<Vec<IpNetwork>, String> {
     allowed_ips
         .iter()
-        .map(|ip| ip.parse::<IpNetwork>())
+        .map(|ip| {
+            let parsed = ip.parse::<IpNetwork>().map_err(|e| e.to_string())?;
+            // Validate that the network does not contain non-zero host bits
+            // This is required by WireGuard
+            if parsed.network() != parsed.ip() {
+                return Err(format!(
+                    "Invalid IP network: '{parsed}'. All host bits must be zero."
+                ));
+            }
+            Ok(parsed)
+        })
         .collect::<Result<Vec<_>, _>>()
 }
 
