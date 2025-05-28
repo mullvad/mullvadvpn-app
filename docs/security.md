@@ -337,6 +337,9 @@ The GUI only communicates with the system service (`mullvad-daemon`), it makes n
 network connections. Except when the user sends a problem report, then it spawn the
 `mullvad-problem-report` tool, which in turn communicate over TLS with our API.
 
+## Mullvad VPN loader
+
+See the threat model [document](../mullvad-update/threat-model.md) for the Mullvad VPN loader.
 
 [disconnected]: #disconnected
 [connecting]: #connecting
