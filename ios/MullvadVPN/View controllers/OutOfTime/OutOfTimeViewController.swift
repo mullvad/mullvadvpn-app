@@ -31,7 +31,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         .lightContent
     }
 
-    nonisolated(unsafe) var preferredHeaderBarPresentation: HeaderBarPresentation {
+    nonisolated var preferredHeaderBarPresentation: HeaderBarPresentation {
         let tunnelState = interactor.tunnelStatus.state
 
         return HeaderBarPresentation(

@@ -446,4 +446,4 @@ extension PacketTunnelProvider: EphemeralPeerReceiving {
         // and it will not try to reconnect
         actor.reconnect(to: .random, reconnectReason: .connectionLoss)
     }
-}
+} // swiftlint:disable:this file_length

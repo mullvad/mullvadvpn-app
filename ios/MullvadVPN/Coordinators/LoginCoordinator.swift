@@ -107,11 +107,9 @@ final class LoginCoordinator: Coordinator, Presenting, @preconcurrency DeviceMan
     }
 
     private func returnToLogin(repeatLogin: Bool) {
-        guard let loginController else { return }
-
-        navigationController.dismiss(animated: true) {
-            if let lastLoginAction = self.lastLoginAction, repeatLogin {
-                self.loginController?.start(action: lastLoginAction)
+        navigationController.dismiss(animated: true) { [weak self] in
+            if let lastLoginAction = self?.lastLoginAction, repeatLogin {
+                self?.loginController?.start(action: lastLoginAction)
             }
         }
     }
