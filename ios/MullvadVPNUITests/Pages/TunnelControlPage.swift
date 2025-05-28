@@ -199,9 +199,21 @@ class TunnelControlPage: Page {
         return self
     }
 
+    /// Verify that the app attempts to connect over Multihop.
+    @discardableResult func verifyNotConnectingOverMultihop() -> Self {
+        XCTAssertFalse(app.staticTexts["Multihop"].exists)
+        return self
+    }
+
     /// Verify that the app attempts to connect using DAITA.
     @discardableResult func verifyConnectingUsingDAITA() -> Self {
         XCTAssertTrue(app.staticTexts["DAITA"].exists)
+        return self
+    }
+
+    /// Verify that the app attempts to connect using DAITA.
+    @discardableResult func verifyConnectingUsingDAITAThroughMultihop() -> Self {
+        XCTAssertTrue(app.staticTexts["DAITA: Multihop"].exists)
         return self
     }
 
