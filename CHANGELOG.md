@@ -63,6 +63,11 @@ supported.
   in the bin but still leaving behind a launch daemon. This fixes CVE-2025-46351 reported by
   Egor Filatov (Positive Technologies).
 
+#### Windows
+- Enable control flow integrity checks (CFG) for some C++ code. This excludes `wintun`,
+  `wireguard-nt`, and OpenVPN. This addresses `MLLVD-CR-24-101` to the extent that we found
+  it valuable.
+
 
 ## [2025.6] - 2025-05-13
 This release is identical to 2025.6-beta2.
