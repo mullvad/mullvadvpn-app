@@ -12,7 +12,7 @@ struct MullvadList<Content: View, Data: RandomAccessCollection<ID>, ID: Hashable
 
     @State var itemHeight: CGFloat = 0
     var maxListHeight: CGFloat {
-        var height = itemHeight * CGFloat(data.count)
+        let height = itemHeight * CGFloat(data.count)
         return height > 0 ? height : .infinity
     }
 
