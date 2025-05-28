@@ -61,6 +61,25 @@ impl SwiftMullvadApiResponse {
         }
     }
 
+    pub fn access_method_error(err: mullvad_api::access_mode::Error) -> Self {
+        let to_cstr_pointer = |str| {
+            CString::new(str)
+                .map(|cstr| cstr.into_raw().cast())
+                .unwrap_or(null_mut())
+        };
+        let error_description = to_cstr_pointer(err.to_string());
+
+        Self {
+            body: null_mut(),
+            body_size: 0,
+            etag: null_mut(),
+            status_code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
+            error_description,
+            server_response_code: null_mut(),
+            success: false,
+        }
+    }
+
     pub fn rest_error(err: mullvad_api::rest::Error) -> Self {
         if err.is_aborted() {
             return Self::cancelled();

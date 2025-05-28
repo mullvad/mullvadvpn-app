@@ -1,10 +1,11 @@
-use std::ffi::CStr;
+use std::ffi::{c_void, CStr};
 use std::os::raw::c_char;
 
 use mullvad_api::{
     rest::{self, MullvadRestHandle},
     ApiProxy, RelayListProxy,
 };
+use mullvad_types::access_method::AccessMethodSetting;
 
 use super::{
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
@@ -78,6 +79,7 @@ pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
+    access_method_setting: *const c_void,
 ) -> SwiftCancelHandle {
     let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
 
@@ -90,16 +92,48 @@ pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
     // SAFETY: See notes for `into_rust`
     let retry_strategy = unsafe { retry_strategy.into_rust() };
     let completion = completion_handler.clone();
+    // SAFETY: `access_method_setting` must be a raw pointer resulting from a call to `convert_builtin_access_method_setting`
+    let access_method_setting: AccessMethodSetting =
+        unsafe { *Box::from_raw(access_method_setting as *mut _) };
+
     let task = tokio_handle.clone().spawn(async move {
-        match mullvad_ios_api_addrs_available_inner(api_context.rest_handle(), retry_strategy).await
+        match api_context
+            .access_mode_handler
+            .resolve(access_method_setting.clone())
+            .await
         {
-            Ok(_) => completion.finish(SwiftMullvadApiResponse::ok()),
+            Ok(maybe_resolved_connection_mode) => match maybe_resolved_connection_mode {
+                Some(resolved_connection_mode) => {
+                    let oneshot_client = api_context.api_client.mullvad_rest_handle(
+                        resolved_connection_mode.connection_mode.into_provider(),
+                    );
+
+                    match mullvad_ios_api_addrs_available_inner(oneshot_client, retry_strategy)
+                        .await
+                    {
+                        Ok(_) => completion.finish(SwiftMullvadApiResponse::ok()),
+                        Err(err) => {
+                            log::error!("{err:?}");
+                            completion.finish(SwiftMullvadApiResponse::rest_error(err));
+                        }
+                    }
+                }
+                None => {
+                    log::error!("Invalid access method configuration, {access_method_setting:?}");
+                    completion.finish(SwiftMullvadApiResponse::access_method_error(
+                        mullvad_api::access_mode::Error::Resolve {
+                            access_method: access_method_setting.access_method,
+                        },
+                    ));
+                }
+            },
             Err(err) => {
                 log::error!("{err:?}");
-                completion.finish(SwiftMullvadApiResponse::rest_error(err));
+                completion.finish(SwiftMullvadApiResponse::access_method_error(err));
             }
         }
     });
+
     RequestCancelHandle::new(task, completion_handler.clone()).into_swift()
 }
 

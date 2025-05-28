@@ -52,7 +52,7 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     }
 
     func startProxyConfigurationTest(_ completion: (@Sendable (Bool) -> Void)?) {
-        guard let config = try? subject.value.intoPersistentProxyConfiguration() else { return }
+        guard let config = try? subject.value.intoPersistentAccessMethod() else { return }
 
         let subject = subject
         subject.value.testingStatus = .inProgress

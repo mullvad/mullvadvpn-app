@@ -279,6 +279,14 @@ extension REST {
         ) -> any MullvadTypes.Cancellable {
             AnyCancellable()
         }
+
+        public func checkApiAvailability(
+            retryStrategy: REST.RetryStrategy,
+            accessMethod: MullvadTypes.PersistentAccessMethod,
+            completion: @escaping ProxyCompletionHandler<Bool>
+        ) -> any MullvadTypes.Cancellable {
+            AnyCancellable()
+        }
     }
 
     // MARK: - Response types

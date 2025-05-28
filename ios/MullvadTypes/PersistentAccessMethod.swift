@@ -24,7 +24,7 @@ public struct PersistentAccessMethodStore: Codable {
 }
 
 /// Persistent access method model.
-public struct PersistentAccessMethod: Identifiable, Codable, Equatable {
+public struct PersistentAccessMethod: Identifiable, Codable, Equatable, Sendable {
     /// The unique identifier used for referencing the access method entry in a persistent store.
     public var id: UUID
 
@@ -63,7 +63,7 @@ public struct PersistentAccessMethod: Identifiable, Codable, Equatable {
 }
 
 /// Persistent proxy configuration.
-public enum PersistentProxyConfiguration: Codable, Equatable {
+public enum PersistentProxyConfiguration: Codable, Equatable, Sendable {
     /// Direct communication without proxy.
     case direct
 
@@ -98,7 +98,7 @@ extension PersistentProxyConfiguration {
     }
 
     /// Socks v5 proxy configuration.
-    public struct SocksConfiguration: Codable, Equatable {
+    public struct SocksConfiguration: Codable, Equatable, Sendable {
         /// Proxy server address.
         public var server: AnyIPAddress
 
@@ -132,7 +132,7 @@ extension PersistentProxyConfiguration {
     }
 
     /// Shadowsocks configuration.
-    public struct ShadowsocksConfiguration: Codable, Equatable {
+    public struct ShadowsocksConfiguration: Codable, Equatable, Sendable {
         /// Server address.
         public var server: AnyIPAddress
 
