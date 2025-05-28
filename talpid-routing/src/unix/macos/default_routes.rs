@@ -4,10 +4,7 @@ use futures::{
     channel::mpsc::{self, UnboundedReceiver, UnboundedSender},
     select_biased, FutureExt, StreamExt,
 };
-use tokio::{
-    runtime,
-    time::{sleep_until, Instant},
-};
+use tokio::time::{sleep_until, Instant};
 
 use crate::imp::imp::interface::NetworkServiceDetails;
 
@@ -65,9 +62,7 @@ impl DefaultRouteMonitor {
             primary_interfaces: IpMap::new(),
         };
 
-        tokio::task::spawn_blocking(move || {
-            runtime::Handle::current().block_on(monitor.run());
-        });
+        tokio::task::spawn(monitor.run());
 
         let route_v4_rx =
             filter_duplicates(delay_nones_except_first(NO_ROUTE_GRACE_TIME, route_v4_rx));
