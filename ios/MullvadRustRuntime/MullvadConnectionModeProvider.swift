@@ -25,21 +25,21 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
         directMethod.id.uuidString,
         directMethod.name,
         directMethod.isEnabled,
-        UInt8(KindDirect.rawValue),
+        directMethod.kind(),
         nil
     )
     let bridgesMethodRaw = convert_builtin_access_method_setting(
         bridgesMethod.id.uuidString,
         bridgesMethod.name,
         bridgesMethod.isEnabled,
-        UInt8(KindBridge.rawValue),
+        bridgesMethod.kind(),
         nil
     )
     let encryptedDNSMethodRaw = convert_builtin_access_method_setting(
         encryptedDNSMethod.id.uuidString,
         encryptedDNSMethod.name,
         encryptedDNSMethod.isEnabled,
-        UInt8(KindEncryptedDnsProxy.rawValue),
+        encryptedDNSMethod.kind(),
         nil
     )
 
@@ -59,7 +59,7 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
                 method.id.uuidString,
                 method.name,
                 method.isEnabled,
-                UInt8(KindShadowsocks.rawValue),
+                method.kind(),
                 shadowsocksConfiguration
             )
             rawCustomMethods.append(shadowsocksMethodRaw)
@@ -77,7 +77,7 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
                 method.id.uuidString,
                 method.name,
                 method.isEnabled,
-                UInt8(KindSocks5Local.rawValue),
+                method.kind(),
                 socks5Configuration
             )
             rawCustomMethods.append(socks5MethodRaw)
@@ -96,4 +96,64 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
             )
         }
     )
+}
+
+public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> UnsafeMutableRawPointer? {
+    switch accessMethod.proxyConfiguration {
+    case .direct, .bridges, .encryptedDNS:
+        return convert_builtin_access_method_setting(
+            accessMethod.id.uuidString,
+            accessMethod.name,
+            accessMethod.isEnabled,
+            accessMethod.kind(),
+            nil
+        )
+    case let .shadowsocks(configuration):
+        let serverAddress = configuration.server.rawValue.map { $0 }
+        let shadowsocksConfiguration = new_shadowsocks_access_method_setting(
+            serverAddress,
+            UInt(serverAddress.count),
+            configuration.port,
+            configuration.password,
+            configuration.cipher.rawValue.rawValue
+        )
+        let shadowsocksMethodRaw = convert_builtin_access_method_setting(
+            accessMethod.id.uuidString,
+            accessMethod.name,
+            accessMethod.isEnabled,
+            accessMethod.kind(),
+            shadowsocksConfiguration
+        )
+        return shadowsocksMethodRaw
+    case let .socks5(configuration):
+        let serverAddress = configuration.server.rawValue.map { $0 }
+        let socks5Configuration = new_socks5_access_method_setting(
+            serverAddress,
+            UInt(serverAddress.count),
+            configuration.port,
+            configuration.credential?.username,
+            configuration.credential?.password
+        )
+        let socks5MethodRaw = convert_builtin_access_method_setting(
+            accessMethod.id.uuidString,
+            accessMethod.name,
+            accessMethod.isEnabled,
+            accessMethod.kind(),
+            socks5Configuration
+        )
+        return socks5MethodRaw
+    }
+}
+
+fileprivate
+extension PersistentAccessMethod {
+    func kind() -> UInt8 {
+        switch kind {
+        case .direct: UInt8(KindDirect.rawValue)
+        case .bridges: UInt8(KindBridge.rawValue)
+        case .encryptedDNS: UInt8(KindEncryptedDnsProxy.rawValue)
+        case .shadowsocks: UInt8(KindShadowsocks.rawValue)
+        case .socks5: UInt8(KindSocks5Local.rawValue)
+        }
+    }
 }

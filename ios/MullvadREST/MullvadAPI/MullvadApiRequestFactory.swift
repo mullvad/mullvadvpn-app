@@ -114,6 +114,13 @@ public struct MullvadApiRequestFactory: Sendable {
                     accountNumber,
                     request.publicKey.rawValue.map { $0 }
                 ))
+            case let .checkApiAvailability(retryStrategy, accessMethod):
+                return MullvadApiCancellable(handle: mullvad_ios_api_addrs_available(
+                    apiContext.context,
+                    rawCompletionPointer,
+                    retryStrategy.toRustStrategy(),
+                    convertAccessMethod(accessMethod: accessMethod)
+                ))
             case let .legacyStorekitPayment(
                 retryStrategy: retryStrategy,
                 accountNumber: accountNumber,

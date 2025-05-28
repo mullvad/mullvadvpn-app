@@ -373,7 +373,8 @@ struct SwiftCancelHandle mullvad_ios_get_addresses(struct SwiftApiContext api_co
  */
 struct SwiftCancelHandle mullvad_ios_api_addrs_available(struct SwiftApiContext api_context,
                                                          void *completion_cookie,
-                                                         struct SwiftRetryStrategy retry_strategy);
+                                                         struct SwiftRetryStrategy retry_strategy,
+                                                         const void *access_method_setting);
 
 /**
  * # Safety

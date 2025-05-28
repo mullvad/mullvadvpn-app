@@ -17,14 +17,24 @@ class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {
     private var cancellable: MullvadTypes.Cancellable?
     private let transportProvider: ProxyConfigurationTransportProvider
     private var headRequest: REST.APIAvailabilityTestRequest?
+    private let apiProxy: APIQuerying
 
-    init(transportProvider: ProxyConfigurationTransportProvider) {
+    init(transportProvider: ProxyConfigurationTransportProvider, apiProxy: APIQuerying) {
         self.transportProvider = transportProvider
+        self.apiProxy = apiProxy
     }
 
-    func start(configuration: PersistentProxyConfiguration, completion: @escaping @Sendable (Error?) -> Void) {
+    func start(configuration: PersistentAccessMethod, completion: @escaping @Sendable (Error?) -> Void) {
+        #if DEBUG
+        cancellable = apiProxy.checkApiAvailability(retryStrategy: .noRetry, accessMethod: configuration) { success in
+            switch success {
+            case .success: completion(nil)
+            case let .failure(error): completion(error)
+            }
+        }
+        #else
         do {
-            let transport = try transportProvider.makeTransport(with: configuration)
+            let transport = try transportProvider.makeTransport(with: configuration.proxyConfiguration)
             let request = REST.APIAvailabilityTestRequest(transport: transport)
             headRequest = request
             cancellable = request.makeRequest { error in
@@ -35,6 +45,7 @@ class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {
         } catch {
             completion(error)
         }
+        #endif
     }
 
     func cancel() {
