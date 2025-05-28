@@ -12,8 +12,11 @@ export type NotificationSubtitleProps = {
   subtitle?: string | InAppNotificationSubtitle[];
 };
 
-const StyledLink = styled(Link)({
-  ...buttonReset,
+const StyledLink = styled(Link)(() => {
+  const { color: _, ...reset } = buttonReset;
+  return {
+    ...reset,
+  };
 });
 
 const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
