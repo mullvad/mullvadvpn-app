@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"682c1c83-31375\"",
+  "etag": "W/\"68354a97-31258\"",
   "countries": [
     {
       "name": "Albania",
@@ -8561,7 +8561,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "DataPacket",
               "weight": 200,
@@ -19561,33 +19561,6 @@
           "latitude": 40.789543,
           "longitude": -74.0565,
           "relays": [
-            {
-              "hostname": "us-uyk-wg-103",
-              "ipv4_addr_in": "173.205.85.34",
-              "ipv6_addr_in": "2607:fcd0:ccc0:1d05::c41f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": true,
-              "owned": false,
-              "provider": "Quadranet",
-              "weight": 0,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "Tysz0Ii2m+DsyhcWoQWxsXUdJxu1lKln4F7ML+nWPXA=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Secaucus, NJ",
-                "city_code": "uyk",
-                "latitude": 40.789543,
-                "longitude": -74.0565
-              }
-            },
             {
               "hostname": "us-uyk-wg-201",
               "ipv4_addr_in": "104.36.50.3",
