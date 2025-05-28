@@ -11,6 +11,8 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
+import net.mullvad.mullvadvpn.test.api.connectioncheck.ConnectionCheckApi
+import net.mullvad.mullvadvpn.test.api.relay.RelayApi
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.interactor.DaitaOption
@@ -29,8 +31,6 @@ import net.mullvad.mullvadvpn.test.common.page.setObfuscationStory
 import net.mullvad.mullvadvpn.test.common.page.toggleInTunnelIpv6Story
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
-import net.mullvad.mullvadvpn.test.e2e.api.connectioncheck.ConnectionCheckApi
-import net.mullvad.mullvadvpn.test.e2e.api.relay.RelayApi
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.ClearFirewallRules
 import net.mullvad.mullvadvpn.test.e2e.misc.LocalNetworkPermission
@@ -54,8 +54,12 @@ class ConnectionTest : EndToEndTest() {
     // It does not use the GrantPermissionExtension due to a crash.
     @RegisterExtension @JvmField val localNetworkPermission = LocalNetworkPermission()
 
-    private val connCheckClient = ConnectionCheckApi()
-    private val relayClient = RelayApi()
+    private val connCheckClient = ConnectionCheckApi(BuildConfig.INFRASTRUCTURE_BASE_DOMAIN)
+    private val relayClient =
+        RelayApi(
+            billingFlavor = BuildConfig.FLAVOR_billing,
+            baseDomain = BuildConfig.INFRASTRUCTURE_BASE_DOMAIN,
+        )
     private val firewallClient by lazy { FirewallClient() }
     private val relayProvider = RelayProvider(BuildConfig.FLAVOR_billing)
 

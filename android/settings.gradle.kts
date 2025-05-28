@@ -112,7 +112,9 @@ include(
 include(
     ":test",
     ":test:arch",
+    ":test:benchmark",
     ":test:common",
+    ":test:api",
     ":test:e2e",
     ":test:mockapi",
     ":test:detekt",

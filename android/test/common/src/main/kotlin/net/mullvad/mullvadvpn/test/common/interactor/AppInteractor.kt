@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
@@ -95,6 +96,7 @@ class AppInteractor(
         daita: DaitaOption? = null,
         multihop: Boolean? = null,
         deviceIpVersion: Constraint<IpVersion>? = null,
+        location: RelayItemId? = null,
     ) = coroutineScope {
         try {
             val job = launch {
@@ -117,6 +119,7 @@ class AppInteractor(
                         is DaitaOption.DirectOnly -> service.setDaitaDirectOnly(it.enabled)
                     }
                 }
+                location?.let { service.setRelayLocation(it) }
                 cancel()
             }
             job.join()

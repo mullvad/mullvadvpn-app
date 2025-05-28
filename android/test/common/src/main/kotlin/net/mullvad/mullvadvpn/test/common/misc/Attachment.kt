@@ -26,6 +26,10 @@ object Attachment {
         }
     }
 
+    fun saveAttachment(fileName: String, data: String) {
+        saveAttachment(fileName, data.toByteArray())
+    }
+
     private fun createAttachmentsDirectoryIfNotExists() {
         if (!testAttachmentsDirectory.exists() && !testAttachmentsDirectory.mkdirs()) {
             fail("Failed to create directory ${testAttachmentsDirectory.absolutePath}")
