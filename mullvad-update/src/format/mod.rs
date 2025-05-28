@@ -24,6 +24,7 @@ pub mod serializer;
 /// This type does not implement [serde::Deserialize] to prevent accidental deserialization without
 /// signature verification.
 #[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(PartialEq))]
 pub struct SignedResponse {
     /// Signatures of the canonicalized JSON of `signed`
     pub signatures: Vec<ResponseSignature>,
@@ -34,7 +35,7 @@ pub struct SignedResponse {
 /// Helper type that leaves the signed data untouched
 /// Note that deserializing doesn't verify anything
 #[derive(Deserialize, Serialize)]
-#[cfg_attr(test, derive(Debug))]
+#[cfg_attr(test, derive(Debug, PartialEq))]
 struct PartialSignedResponse {
     /// Signatures of the canonicalized JSON of `signed`
     pub signatures: Vec<ResponseSignature>,
@@ -45,7 +46,7 @@ struct PartialSignedResponse {
 /// Signed JSON response, not including the signature
 #[derive(Default, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-#[cfg_attr(test, derive(Clone))]
+#[cfg_attr(test, derive(Clone, PartialEq))]
 pub struct Response {
     /// Version counter
     pub metadata_version: usize,
@@ -57,7 +58,7 @@ pub struct Response {
 
 /// App release
 #[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(test, derive(Clone))]
+#[cfg_attr(test, derive(Clone, PartialEq))]
 pub struct Release {
     /// Mullvad app version
     pub version: mullvad_version::Version,
@@ -82,6 +83,7 @@ fn is_complete_rollout(b: impl std::borrow::Borrow<f32>) -> bool {
 
 /// App installer
 #[derive(Debug, Deserialize, Serialize, Clone)]
+#[cfg_attr(test, derive(PartialEq))]
 pub struct Installer {
     /// Installer architecture
     pub architecture: Architecture,
@@ -114,6 +116,7 @@ impl Display for Architecture {
 
 /// JSON response signature
 #[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(test, derive(PartialEq))]
 #[serde(tag = "keytype")]
 #[serde(rename_all = "lowercase")]
 pub enum ResponseSignature {

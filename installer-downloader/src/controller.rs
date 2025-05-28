@@ -3,15 +3,17 @@
 use crate::{
     delegate::{AppDelegate, AppDelegateQueue},
     environment::Environment,
-    resource,
+    resource::{self, VERIFYING_CACHED},
     temp::DirectoryProvider,
     ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater},
 };
 
 use mullvad_update::{
-    api::{HttpVersionInfoProvider, MetaRepositoryPlatform, VersionInfoProvider},
-    app::{self, AppDownloader, HttpAppDownloader},
+    api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
+    app::{self, AppCache, AppDownloader, HttpAppDownloader},
+    local::AppCacheDir,
     version::{Version, VersionInfo, VersionParameters},
+    version_provider::VersionInfoProvider,
 };
 use rand::seq::SliceRandom;
 use std::path::PathBuf;
@@ -31,6 +33,17 @@ enum TaskMessage {
 /// See the [module-level docs](self).
 pub struct AppController {}
 
+struct WorkingDirectory {
+    pub directory: PathBuf,
+}
+
+impl WorkingDirectory {
+    pub async fn new<D: DirectoryProvider>() -> anyhow::Result<WorkingDirectory> {
+        let directory = D::create_download_dir().await?;
+        Ok(Self { directory })
+    }
+}
+
 /// Public entry function for registering a [AppDelegate].
 ///
 /// This function uses the Mullvad API to fetch the current releases, a hardcoded public key to
@@ -45,7 +58,13 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     let platform = MetaRepositoryPlatform::current().expect("current platform must be supported");
     let version_provider = HttpVersionInfoProvider::from(platform);
 
-    AppController::initialize::<_, Downloader<T>, _, DirProvider>(
+    #[cfg(target_os = "windows")]
+    type CacheDir = AppCacheDir;
+
+    #[cfg(target_os = "macos")]
+    todo!("no-op cache dir");
+
+    AppController::initialize::<_, Downloader<T>, CacheDir, DirProvider>(
         delegate,
         version_provider,
         environment,
@@ -57,14 +76,14 @@ impl AppController {
     ///
     /// This function lets the caller provide a version information provider, download client, etc.,
     /// which is useful for testing.
-    pub fn initialize<D, A, V, DirProvider>(
+    pub fn initialize<D, A, C, DirProvider>(
         delegate: &mut D,
-        version_provider: V,
+        mut version_provider: impl VersionInfoProvider + Send + 'static,
         environment: Environment,
     ) where
         D: AppDelegate + 'static,
-        V: VersionInfoProvider + Send + 'static,
         A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
+        C: AppCache + 'static,
         DirProvider: DirectoryProvider + 'static,
     {
         delegate.hide_download_progress();
@@ -78,8 +97,39 @@ impl AppController {
         let queue = delegate.queue();
         let task_tx_clone = task_tx.clone();
         tokio::spawn(async move {
-            let version_info =
-                fetch_app_version_info::<D, V>(queue.clone(), version_provider, environment).await;
+            let working_dir = match WorkingDirectory::new::<DirProvider>().await {
+                Ok(directory) => directory,
+                Err(err) => {
+                    log::error!("Failed to create temporary directory: {err:?}");
+
+                    queue.queue_main(move |self_| {
+                        self_.clear_status_text();
+                        self_.hide_download_button();
+                        self_.hide_beta_text();
+                        self_.hide_stable_text();
+
+                        self_.show_error_message(crate::delegate::ErrorMessage {
+                            status_text: resource::CREATE_TEMPDIR_FAILED.to_owned(),
+                            cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT
+                                .to_owned(),
+                            retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT
+                                .to_owned(),
+                        });
+                    });
+                    return;
+                }
+            };
+
+            let metadata_path = working_dir.directory.join("metadata.json");
+            version_provider.set_metadata_dump_path(metadata_path);
+
+            let version_info = fetch_app_version_info::<D, C>(
+                queue.clone(),
+                version_provider,
+                &working_dir,
+                environment,
+            )
+            .await;
             let version_label = format_latest_version(&version_info.stable);
             let has_beta = version_info.beta.is_some();
             queue.queue_main(move |self_| {
@@ -90,10 +140,11 @@ impl AppController {
                 }
             });
 
-            ActionMessageHandler::<D, A>::run::<DirProvider>(
+            ActionMessageHandler::<D, A>::run(
                 queue,
                 task_tx_clone,
                 task_rx,
+                working_dir,
                 version_info,
             )
             .await;
@@ -126,14 +177,15 @@ impl AppController {
 }
 
 /// Background task that fetches app version data.
-async fn fetch_app_version_info<Delegate, VersionProvider>(
+async fn fetch_app_version_info<Delegate, Cache>(
     queue: Delegate::Queue,
-    version_provider: VersionProvider,
+    version_provider: impl VersionInfoProvider + Send,
+    working_directory: &WorkingDirectory,
     Environment { architecture }: Environment,
 ) -> VersionInfo
 where
-    Delegate: AppDelegate,
-    VersionProvider: VersionInfoProvider + Send,
+    Delegate: AppDelegate + 'static,
+    Cache: AppCache + 'static,
 {
     loop {
         queue.queue_main(|self_| {
@@ -149,8 +201,9 @@ where
             lowest_metadata_version: 0,
         };
 
-        let err = match version_provider.get_version_info(version_params).await {
+        let err = match version_provider.get_version_info(&version_params).await {
             Ok(version_info) => {
+                //anyhow::anyhow!("test")
                 return version_info;
             }
             Err(err) => err,
@@ -158,12 +211,23 @@ where
 
         log::error!("Failed to get version info: {err:?}");
 
-        enum Action {
+        // Check if we've already downloaded an istaller.
+        // If so, the user will be given the option to run it.
+        let mut cached_app = Cache::new(working_directory.directory.clone(), version_params)
+            .get_app()
+            .await
+            .inspect_err(|e| log::info!("Couldn't find a downloaded installer: {e:#}"))
+            .ok();
+
+        enum Action<Cache: AppCache> {
             Retry,
             Cancel,
+            InstallExistingVersion {
+                cached_app_installer: Cache::Installer,
+            },
         }
 
-        let (action_tx, mut action_rx) = mpsc::channel(1);
+        let (action_tx, mut action_rx) = mpsc::channel::<Action<Cache>>(1);
 
         // show error message (needs to happen on the UI (main) thread)
         // send Action when user presses a button to continue
@@ -176,14 +240,30 @@ where
             self_.on_error_message_retry(move || {
                 let _ = retry_tx.try_send(Action::Retry);
             });
-            self_.on_error_message_cancel(move || {
-                let _ = cancel_tx.try_send(Action::Cancel);
-            });
-            self_.show_error_message(crate::delegate::ErrorMessage {
-                status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
-                cancel_button_text: resource::FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT.to_owned(),
-                retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
-            });
+
+            if let Some((version, cached_app_installer)) = cached_app.take() {
+                self_.show_error_message(crate::delegate::ErrorMessage {
+                    status_text: resource::FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD
+                        .replace("%s", &version.to_string()),
+                    cancel_button_text: resource::FETCH_VERSION_ERROR_INSTALL_BUTTON_TEXT
+                        .to_owned(),
+                    retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
+                });
+                self_.on_error_message_cancel(move || {
+                    let _ = cancel_tx.try_send(Action::InstallExistingVersion {
+                        cached_app_installer: cached_app_installer.clone(),
+                    });
+                });
+            } else {
+                self_.show_error_message(crate::delegate::ErrorMessage {
+                    status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
+                    cancel_button_text: resource::FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT.to_owned(),
+                    retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
+                });
+                self_.on_error_message_cancel(move || {
+                    let _ = cancel_tx.try_send(Action::Cancel);
+                });
+            }
         });
 
         // wait for user to press either button
@@ -199,6 +279,41 @@ where
                 queue.queue_main(|self_| {
                     self_.quit();
                 });
+            }
+            Action::InstallExistingVersion {
+                cached_app_installer: installer,
+            } => {
+                let (done_tx, done_rx) = oneshot::channel();
+
+                queue.queue_main(|self_| {
+                    self_.hide_error_message();
+                    self_.clear_download_text();
+                    self_.hide_download_button();
+                    self_.hide_beta_text();
+                    self_.hide_stable_text();
+                    self_.show_cancel_button();
+                    self_.enable_cancel_button(); // TODO cancel button?
+                    self_.hide_download_progress();
+                    self_.set_status_text(VERIFYING_CACHED);
+
+                    let ui_installer = UiAppDownloader::new(&*self_, installer);
+
+                    tokio::spawn(async move {
+                        if let Err(err) = app::install_and_upgrade(ui_installer).await {
+                            log::error!("install_and_upgrade failed: {err:?}");
+                        }
+
+                        let _ = done_tx.send(());
+                    });
+                });
+
+                let _ = done_rx.await;
+
+                queue.queue_main(|self_| {
+                    self_.quit();
+                });
+
+                std::future::pending::<()>().await;
             }
         }
     }
@@ -221,7 +336,7 @@ struct ActionMessageHandler<
     version_info: VersionInfo,
     active_download: Option<JoinHandle<()>>,
     target_version: TargetVersion,
-    temp_dir: anyhow::Result<PathBuf>,
+    working_directory: WorkingDirectory,
 
     _marker: std::marker::PhantomData<A>,
 }
@@ -230,21 +345,20 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
     ActionMessageHandler<D, A>
 {
     /// Run the [ActionMessageHandler] actor until the end of the program/execution
-    async fn run<DP: DirectoryProvider>(
+    async fn run(
         queue: D::Queue,
         tx: mpsc::Sender<TaskMessage>,
         mut rx: mpsc::Receiver<TaskMessage>,
+        working_directory: WorkingDirectory,
         version_info: VersionInfo,
     ) {
-        let temp_dir = DP::create_download_dir().await;
-
         let mut handler = Self {
             queue,
             tx,
             version_info,
             active_download: None,
             target_version: TargetVersion::Stable,
-            temp_dir,
+            working_directory,
 
             _marker: std::marker::PhantomData,
         };
@@ -306,28 +420,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
             });
         });
 
-        // Create temporary dir
-        let download_dir = match &self.temp_dir {
-            Ok(dir) => dir.clone(),
-            Err(error) => {
-                log::error!("Failed to create temporary directory: {error:?}");
-
-                self.queue.queue_main(move |self_| {
-                    self_.clear_status_text();
-                    self_.hide_download_button();
-                    self_.hide_beta_text();
-                    self_.hide_stable_text();
-
-                    self_.show_error_message(crate::delegate::ErrorMessage {
-                        status_text: resource::DOWNLOAD_FAILED_DESC.to_owned(),
-                        cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT.to_owned(),
-                        retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT.to_owned(),
-                    });
-                });
-                return;
-            }
-        };
-
+        let download_dir = self.working_directory.directory.clone();
         log::debug!("Download directory: {}", download_dir.display());
 
         // Begin download
@@ -366,7 +459,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
 
             let ui_downloader = UiAppDownloader::new(self_, downloader);
             let _ = tx.send(tokio::spawn(async move {
-                if let Err(err) = app::install_and_upgrade(ui_downloader).await {
+                if let Err(err) = app::download_install_and_upgrade(ui_downloader).await {
                     log::error!("install_and_upgrade failed: {err:?}");
                 }
             }));

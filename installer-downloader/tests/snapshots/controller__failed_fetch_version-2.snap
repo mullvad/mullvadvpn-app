@@ -1,6 +1,7 @@
 ---
 source: installer-downloader/tests/controller.rs
 expression: delegate.state
+snapshot_kind: text
 ---
 status_text: "Version: 2025.1"
 download_text: ""
@@ -14,7 +15,7 @@ beta_text_visible: false
 stable_text_visible: false
 error_message_visible: false
 error_message:
-  status_text: "Failed to load version details, please try again or make sure you have the latest installer downloader."
+  status_text: "Failed to load version details, please try again or make sure you have the latest installer loader."
   cancel_button_text: Cancel
   retry_button_text: Try again
 quit: false
@@ -35,8 +36,8 @@ call_log:
   - hide_download_button
   - clear_status_text
   - on_error_message_retry
+  - "show_error_message: Failed to load version details, please try again or make sure you have the latest installer loader.. retry: Try again. cancel: Cancel"
   - on_error_message_cancel
-  - "show_error_message: Failed to load version details, please try again or make sure you have the latest installer downloader.. retry: Try again. cancel: Cancel"
   - show_download_button
   - "set_status_text: Loading version details..."
   - hide_error_message
