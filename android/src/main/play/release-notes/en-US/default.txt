@@ -1,2 +1,4 @@
-- Improved invalid WireGuard port error message.
-- Fixed prompt for storing account number in password manager being shown too often.
+- Made feature indicators clickable, allowing for easy access to active features.
+- Added device management that allows for revoking of other devices within the app.
+- Removed permissions that were unintentionally added when adding support for Android Credential Manager.
+- Fixed a few bugs and crashes.
