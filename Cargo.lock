@@ -5339,6 +5339,7 @@ dependencies = [
  "resolv-conf",
  "serde",
  "serde_json",
+ "socket2 0.5.8",
  "system-configuration",
  "talpid-dbus",
  "talpid-macos",
@@ -5357,6 +5358,7 @@ dependencies = [
  "tonic-build",
  "triggered",
  "tun 0.5.5",
+ "typed-builder 0.20.1",
  "which",
  "widestring",
  "windows 0.58.0",
@@ -5392,8 +5394,10 @@ dependencies = [
 name = "talpid-macos"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "libc",
  "log",
+ "tokio",
 ]
 
 [[package]]
