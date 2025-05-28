@@ -41,6 +41,7 @@ use hickory_server::{
     ServerFuture,
 };
 use rand::random;
+use socket2::{Domain, Protocol, Socket, Type};
 use std::sync::LazyLock;
 use talpid_types::drop_guard::{on_drop, OnDrop};
 use tokio::{
@@ -416,8 +417,32 @@ impl LocalResolver {
                 4.. => break,
             };
 
-            match net::UdpSocket::bind((socket_addr, DNS_PORT)).await {
-                Ok(socket) => return Ok((socket, on_drop)),
+            let sock = match Socket::new(Domain::IPV4, Type::DGRAM, Some(Protocol::UDP)) {
+                Ok(sock) => sock,
+                Err(error) => {
+                    log::error!("Failed to open IPv4/UDP socket: {error}");
+                    continue;
+                }
+            };
+
+            // SO_NONBLOCK is required for turning this into a tokio socket.
+            if let Err(error) = sock.set_nonblocking(true) {
+                log::warn!("Failed to set socket as nonblocking: {error}");
+                continue;
+            }
+
+            // SO_REUSEADDR allows us to bind to `127.x.y.z` even if another socket is bound to
+            // `0.0.0.0`. This can happen e.g. when macOS "Internet Sharing" is turned on.
+            if let Err(error) = sock.set_reuse_address(true) {
+                log::warn!("Failed to set SO_REUSEADDR on resolver socket: {error}");
+            }
+
+            match sock.bind(&SocketAddr::from((socket_addr, DNS_PORT)).into()) {
+                Ok(()) => {
+                    let socket =
+                        net::UdpSocket::from_std(sock.into()).expect("socket is non-blocking");
+                    return Ok((socket, on_drop));
+                }
                 Err(err) => log::warn!("Failed to bind DNS server to {socket_addr}: {err}"),
             }
         }
