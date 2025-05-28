@@ -45,7 +45,7 @@ function build_ref() {
     run_git reset --hard
     run_git checkout "$tag"
     run_git submodule update
-    run_git submodule update --init ios/wireguard-apple || true
+    run_git submodule update --init --recursive ios/wireguard-apple || true
     run_git clean -df
 
     local app_build_version="";
