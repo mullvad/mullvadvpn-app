@@ -41,6 +41,7 @@ use hickory_server::{
     ServerFuture,
 };
 use rand::random;
+use socket2::{Domain, Protocol, Socket, Type};
 use std::sync::LazyLock;
 use talpid_types::drop_guard::{on_drop, OnDrop};
 use tokio::{
@@ -416,8 +417,28 @@ impl LocalResolver {
                 4.. => break,
             };
 
-            match net::UdpSocket::bind((socket_addr, DNS_PORT)).await {
-                Ok(socket) => return Ok((socket, on_drop)),
+            let sock = match Socket::new(Domain::IPV4, Type::DGRAM, Some(Protocol::UDP)) {
+                Ok(sock) => sock,
+                Err(error) => {
+                    log::warn!("Failed to set socket as nonblocking: {error}");
+                    continue;
+                }
+            };
+            if let Err(error) = sock.set_nonblocking(true) {
+                log::warn!("Failed to set socket as nonblocking: {error}");
+                continue;
+            }
+            if let Err(error) = sock.set_reuse_port(true) {
+                log::warn!("Failed to set SO_REUSEPORT on resolver socket: {error}");
+                continue;
+            }
+
+            match sock.bind(&SocketAddr::from((socket_addr, DNS_PORT)).into()) {
+                Ok(()) => {
+                    let socket =
+                        net::UdpSocket::from_std(sock.into()).expect("socket is non-blocking");
+                    return Ok((socket, on_drop));
+                }
                 Err(err) => log::warn!("Failed to bind DNS server to {socket_addr}: {err}"),
             }
         }
