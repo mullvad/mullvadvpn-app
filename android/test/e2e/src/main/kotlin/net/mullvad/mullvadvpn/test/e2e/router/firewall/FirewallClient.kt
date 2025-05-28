@@ -17,8 +17,8 @@ import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import net.mullvad.mullvadvpn.test.api.misc.KermitLogger
 import net.mullvad.mullvadvpn.test.e2e.constant.getRaasHost
-import net.mullvad.mullvadvpn.test.e2e.misc.KermitLogger
 
 class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
     suspend fun createRule(rule: DropRule) {

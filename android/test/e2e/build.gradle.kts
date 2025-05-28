@@ -91,6 +91,7 @@ androidComponents {
 }
 
 dependencies {
+    implementation(projects.test.api)
     implementation(projects.test.common)
     implementation(projects.lib.endpoint)
     implementation(projects.lib.ui.tag)

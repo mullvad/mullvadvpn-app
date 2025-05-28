@@ -2,8 +2,8 @@ package net.mullvad.mullvadvpn.test.e2e.constant
 
 import android.os.Bundle
 import androidx.test.platform.app.InstrumentationRegistry
+import net.mullvad.mullvadvpn.test.common.extension.getRequiredArgument
 import net.mullvad.mullvadvpn.test.e2e.BuildConfig
-import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
 
 const val LOG_TAG = "mullvad-e2e"
 
