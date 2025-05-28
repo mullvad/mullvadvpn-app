@@ -34,6 +34,7 @@ include(
 include(
     ":test",
     ":test:arch",
+    ":test:benchmark",
     ":test:common",
     ":test:e2e",
     ":test:mockapi"
