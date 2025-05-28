@@ -68,7 +68,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                         self.errorPresenter.showAlertForError(failure, context: .purchase) {
                             self.didFinish?()
                         }
-                    case let .failure(failure):
+                    case .failure:
                         self.didFinish?()
                     }
                 }
@@ -87,7 +87,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                         self.errorPresenter.showAlertForError(failure, context: .restoration) {
                             self.didFinish?()
                         }
-                    case let .failure(failure):
+                    case .failure:
                         self.didFinish?()
                     }
                 }
