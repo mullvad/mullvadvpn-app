@@ -161,9 +161,7 @@ impl RouteManagerImpl {
         })
     }
 
-    pub(crate) async fn run(mut self, manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>) {
-        let mut manage_rx = manage_rx.fuse();
-
+    pub(crate) async fn run(mut self, mut manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>) {
         let mut completion_tx = None;
 
         loop {
