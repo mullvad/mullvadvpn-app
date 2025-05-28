@@ -60,6 +60,12 @@ public protocol APIQuerying: Sendable {
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
     ) -> Cancellable
+
+    func checkApiAvailability(
+        retryStrategy: REST.RetryStrategy,
+        accessMethod: PersistentAccessMethod,
+        completion: @escaping @Sendable ProxyCompletionHandler<Bool>
+    ) -> Cancellable
 }
 
 extension REST {
@@ -157,6 +163,24 @@ extension REST {
             RESTRequestExecutorStub<REST.CreateApplePaymentResponse>(success: {
                 .timeAdded(0, .now)
             })
+        }
+
+        public func checkApiAvailability(
+            retryStrategy: REST.RetryStrategy,
+            accessMethod: PersistentAccessMethod,
+            completion: @escaping @Sendable ProxyCompletionHandler<Bool>
+        ) -> Cancellable {
+            let responseHandler = rustEmptyResponseHandler()
+            return createNetworkOperation(
+                request: .checkApiAvailability(retryStrategy, accessMethod: accessMethod),
+                responseHandler: responseHandler
+            ) { result in
+                if case let .failure(err) = result {
+                    completion(.failure(err))
+                } else {
+                    completion(.success(true))
+                }
+            }
         }
 
         public func legacyStorekitPayment(
