@@ -2937,10 +2937,12 @@ dependencies = [
  "mullvad-paths",
  "mullvad-relay-selector",
  "mullvad-types",
+ "mullvad-update",
  "mullvad-version",
  "nix 0.23.2",
  "notify 8.0.0",
  "objc2",
+ "rand 0.8.5",
  "regex",
  "serde",
  "serde_json",
@@ -3216,6 +3218,7 @@ dependencies = [
  "intersection-derive",
  "ipnetwork",
  "log",
+ "mullvad-version",
  "regex",
  "serde",
  "talpid-types",
@@ -3235,6 +3238,7 @@ dependencies = [
  "hex",
  "insta",
  "json-canon",
+ "log",
  "mockito",
  "mullvad-version",
  "rand 0.8.5",
@@ -5806,6 +5810,7 @@ dependencies = [
  "futures-core",
  "pin-project-lite",
  "tokio",
+ "tokio-util 0.7.10",
 ]
 
 [[package]]

@@ -14,6 +14,8 @@ import {
   Constraint,
   CustomLists,
   CustomProxy,
+  DaemonAppUpgradeError,
+  DaemonAppUpgradeEvent,
   DaemonEvent,
   DeviceEvent,
   DeviceState,
@@ -25,6 +27,7 @@ import {
   FeatureIndicator,
   FirewallPolicyError,
   FirewallPolicyErrorType,
+  IAppVersionInfo,
   IBridgeConstraints,
   ICustomList,
   IDevice,
@@ -60,6 +63,7 @@ import {
   TunnelType,
   wrapConstraint,
 } from '../shared/daemon-rpc-types';
+import { parseChangelog } from './changelog';
 
 export class ResponseParseError extends Error {
   constructor(message: string) {
@@ -713,6 +717,82 @@ function convertFromObfuscationSettings(
   };
 }
 
+function convertFromAppUpgradeError(error: grpcTypes.AppUpgradeError.Error): DaemonAppUpgradeError {
+  switch (error) {
+    case grpcTypes.AppUpgradeError.Error.DOWNLOAD_FAILED:
+      return 'DOWNLOAD_FAILED';
+    case grpcTypes.AppUpgradeError.Error.VERIFICATION_FAILED:
+      return 'VERIFICATION_FAILED';
+    default:
+      return 'GENERAL_ERROR';
+  }
+}
+
+export function convertFromAppUpgradeEvent(data: grpcTypes.AppUpgradeEvent): DaemonAppUpgradeEvent {
+  const downloadStartingData = data.getDownloadStarting();
+  if (downloadStartingData !== undefined) {
+    return { type: 'APP_UPGRADE_STATUS_DOWNLOAD_STARTED' };
+  }
+
+  const downloadProgressData = data.getDownloadProgress();
+  if (downloadProgressData !== undefined) {
+    const [server, progress, timeLeftDuration] = [
+      downloadProgressData.getServer(),
+      downloadProgressData.getProgress(),
+      downloadProgressData.getTimeLeft(),
+    ];
+
+    const timeLeft = timeLeftDuration?.getSeconds();
+
+    return { type: 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS', server, progress, timeLeft };
+  }
+
+  if (data.hasUpgradeAborted()) {
+    return { type: 'APP_UPGRADE_STATUS_ABORTED' };
+  }
+
+  if (data.hasVerifyingInstaller()) {
+    return { type: 'APP_UPGRADE_STATUS_VERIFYING_INSTALLER' };
+  }
+
+  if (data.hasVerifiedInstaller()) {
+    return { type: 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER' };
+  }
+
+  const errorData = data.getError();
+  if (errorData !== undefined) {
+    const error = errorData.getError();
+
+    return {
+      type: 'APP_UPGRADE_ERROR',
+      error: convertFromAppUpgradeError(error),
+    };
+  }
+
+  // Handle unknown AppUpgradeEvent messages
+  const keys = Object.entries(data.toObject())
+    .filter(([, value]) => value !== undefined)
+    .map(([key]) => key);
+  throw new Error(`Unknown app upgrade event received containing ${keys}`);
+}
+
+export function convertFromAppVersionInfo(data: grpcTypes.AppVersionInfo): IAppVersionInfo {
+  const { suggestedUpgrade, ...appVersionInfo } = data.toObject();
+  const changelog = suggestedUpgrade?.changelog ? parseChangelog(suggestedUpgrade?.changelog) : [];
+
+  if (suggestedUpgrade) {
+    return {
+      ...appVersionInfo,
+      suggestedUpgrade: {
+        ...suggestedUpgrade,
+        changelog,
+      },
+    };
+  }
+
+  return appVersionInfo;
+}
+
 export function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
   const tunnelState = data.getTunnelState();
   if (tunnelState !== undefined) {
@@ -741,7 +821,7 @@ export function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent
 
   const versionInfo = data.getVersionInfo();
   if (versionInfo !== undefined) {
-    return { appVersionInfo: versionInfo.toObject() };
+    return { appVersionInfo: convertFromAppVersionInfo(versionInfo) };
   }
 
   const newAccessMethod = data.getNewAccessMethod();

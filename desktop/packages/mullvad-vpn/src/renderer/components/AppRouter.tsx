@@ -1,9 +1,9 @@
 import { useCallback, useRef } from 'react';
 import { Route, Switch } from 'react-router';
 
+import { RoutePath } from '../../shared/routes';
 import LoginPage from '../components/Login';
 import SelectLocation from '../components/select-location/SelectLocationContainer';
-import { RoutePath } from '../lib/routes';
 import { useViewTransitions } from '../lib/transition-hooks';
 import Account from './Account';
 import ApiAccessMethods from './ApiAccessMethods';
@@ -27,7 +27,6 @@ import MultihopSettings from './MultihopSettings';
 import OpenVpnSettings from './OpenVpnSettings';
 import ProblemReport from './ProblemReport';
 import SelectLanguage from './SelectLanguage';
-import Settings from './Settings';
 import SettingsImport from './SettingsImport';
 import SettingsTextImport from './SettingsTextImport';
 import Shadowsocks from './Shadowsocks';
@@ -36,7 +35,7 @@ import Support from './Support';
 import TooManyDevices from './TooManyDevices';
 import UdpOverTcp from './UdpOverTcp';
 import UserInterfaceSettings from './UserInterfaceSettings';
-import { AppInfoView, ChangelogView } from './views';
+import { AppInfoView, AppUpgradeView, ChangelogView, SettingsView } from './views';
 import VpnSettings from './VpnSettings';
 import WireguardSettings from './WireguardSettings';
 
@@ -62,7 +61,7 @@ export default function AppRouter() {
         <Route exact path={RoutePath.timeAdded} component={TimeAdded} />
         <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
         <Route exact path={RoutePath.account} component={Account} />
-        <Route exact path={RoutePath.settings} component={Settings} />
+        <Route exact path={RoutePath.settings} component={SettingsView} />
         <Route exact path={RoutePath.selectLanguage} component={SelectLanguage} />
         <Route exact path={RoutePath.userInterfaceSettings} component={UserInterfaceSettings} />
         <Route exact path={RoutePath.multihopSettings} component={MultihopSettings} />
@@ -85,6 +84,7 @@ export default function AppRouter() {
         <Route exact path={RoutePath.filter} component={Filter} />
         <Route exact path={RoutePath.appInfo} component={AppInfoView} />
         <Route exact path={RoutePath.changelog} component={ChangelogView} />
+        <Route exact path={RoutePath.appUpgrade} component={AppUpgradeView} />
       </Switch>
     </Focus>
   );

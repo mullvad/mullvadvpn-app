@@ -2,10 +2,10 @@ import { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../shared/gettext';
+import { RoutePath } from '../../../shared/routes';
 import { Icon } from '../../lib/components';
 import { colors, spacings } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
-import { RoutePath } from '../../lib/routes';
 import { useStyledRef } from '../../lib/utility-hooks';
 import { AriaDetails, AriaInput, AriaLabel } from '../AriaGroup';
 import InfoButton from '../InfoButton';

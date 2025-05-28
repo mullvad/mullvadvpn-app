@@ -4,6 +4,7 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../../shared/constants';
 import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
+import { RoutePath } from '../../../shared/routes';
 import { Button, FilterChip, Flex, IconButton, LabelTiny } from '../../lib/components';
 import { FlexColumn } from '../../lib/components/flex-column';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
@@ -11,7 +12,6 @@ import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-loca
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { useNormalRelaySettings, useTunnelProtocol } from '../../lib/relay-settings-hooks';
-import { RoutePath } from '../../lib/routes';
 import { useSelector } from '../../redux/store';
 import { AppNavigationHeader } from '../';
 import * as Cell from '../cell';

@@ -1,0 +1,1 @@
+export const DOWNLOAD_COMPLETE_VALUE = 100;

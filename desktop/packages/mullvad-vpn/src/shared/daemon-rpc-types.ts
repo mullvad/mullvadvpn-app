@@ -1,3 +1,5 @@
+import { IChangelog } from './ipc-types';
+
 export interface IAccountData {
   expiry: string;
 }
@@ -174,6 +176,45 @@ export type DaemonEvent =
   | { device: DeviceEvent }
   | { deviceRemoval: Array<IDevice> }
   | { accessMethodSetting: AccessMethodSetting };
+
+export type DaemonAppUpgradeEventStatusDownloadStarted = {
+  type: 'APP_UPGRADE_STATUS_DOWNLOAD_STARTED';
+};
+
+export type DaemonAppUpgradeEventStatusDownloadProgress = {
+  type: 'APP_UPGRADE_STATUS_DOWNLOAD_PROGRESS';
+  progress: number;
+  server: string;
+  timeLeft?: number;
+};
+
+export type DaemonAppUpgradeEventStatusAborted = {
+  type: 'APP_UPGRADE_STATUS_ABORTED';
+};
+
+export type DaemonAppUpgradeEventStatusVerifyingInstaller = {
+  type: 'APP_UPGRADE_STATUS_VERIFYING_INSTALLER';
+};
+
+export type DaemonAppUpgradeEventStatusVerifiedInstaller = {
+  type: 'APP_UPGRADE_STATUS_VERIFIED_INSTALLER';
+};
+
+export type DaemonAppUpgradeError = 'DOWNLOAD_FAILED' | 'GENERAL_ERROR' | 'VERIFICATION_FAILED';
+
+export type DaemonAppUpgradeEventError = {
+  type: 'APP_UPGRADE_ERROR';
+  error: DaemonAppUpgradeError;
+};
+
+export type DaemonAppUpgradeEventStatus =
+  | DaemonAppUpgradeEventStatusDownloadStarted
+  | DaemonAppUpgradeEventStatusDownloadProgress
+  | DaemonAppUpgradeEventStatusAborted
+  | DaemonAppUpgradeEventStatusVerifyingInstaller
+  | DaemonAppUpgradeEventStatusVerifiedInstaller;
+
+export type DaemonAppUpgradeEvent = DaemonAppUpgradeEventStatus | DaemonAppUpgradeEventError;
 
 export interface ITunnelStateRelayInfo {
   endpoint: ITunnelEndpoint;
@@ -388,9 +429,15 @@ export interface IDnsOptions {
   };
 }
 
+export type AppVersionInfoSuggestedUpgrade = {
+  changelog: IChangelog;
+  verifiedInstallerPath?: string;
+  version: string;
+};
+
 export interface IAppVersionInfo {
   supported: boolean;
-  suggestedUpgrade?: string;
+  suggestedUpgrade?: AppVersionInfoSuggestedUpgrade;
   suggestedIsBeta?: boolean;
 }
 

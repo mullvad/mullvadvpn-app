@@ -517,7 +517,7 @@ internal fun QuantumResistantState.toDomain(): ManagementInterface.QuantumResist
 internal fun ManagementInterface.AppVersionInfo.toDomain(): AppVersionInfo =
     AppVersionInfo(
         supported = supported,
-        suggestedUpgrade = if (hasSuggestedUpgrade()) suggestedUpgrade else null,
+        suggestedUpgrade = if (hasSuggestedUpgrade()) suggestedUpgrade.version else null,
     )
 
 internal fun ConnectivityState.toDomain(): GrpcConnectivityState =

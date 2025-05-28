@@ -2,8 +2,8 @@ import { Action, History as OriginalHistory, Location, LocationDescriptorObject 
 import { useHistory as useReactRouterHistory } from 'react-router';
 
 import { IHistoryObject, LocationState } from '../../shared/ipc-types';
+import { RoutePath } from '../../shared/routes';
 import { GeneratedRoutePath } from './routeHelpers';
-import { RoutePath } from './routes';
 
 export enum TransitionType {
   show,
@@ -216,6 +216,7 @@ export default class History {
       scrollPosition: state?.scrollPosition ?? [0, 0],
       expandedSections: state?.expandedSections ?? {},
       transition: state?.transition ?? TransitionType.none,
+      options: state?.options,
     };
   }
 

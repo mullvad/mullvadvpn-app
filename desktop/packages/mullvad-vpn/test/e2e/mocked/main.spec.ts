@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { RoutePath } from '../../../src/renderer/lib/routes';
+import { RoutePath } from '../../../src/shared/routes';
 import { TestUtils } from '../utils';
 import { startMockedApp } from './mocked-utils';
 

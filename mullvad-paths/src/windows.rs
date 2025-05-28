@@ -1,6 +1,6 @@
 #![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
 
-use crate::{Error, Result};
+use crate::{Error, Result, UserPermissions};
 use once_cell::sync::OnceCell;
 use std::{
     ffi::OsStr,
@@ -15,7 +15,7 @@ use windows_sys::{
     Win32::{
         Foundation::{
             CloseHandle, LocalFree, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ALL,
-            GENERIC_READ, HANDLE, INVALID_HANDLE_VALUE, LUID, S_OK,
+            GENERIC_EXECUTE, GENERIC_READ, GENERIC_WRITE, HANDLE, INVALID_HANDLE_VALUE, LUID, S_OK,
         },
         Security::{
             self, AdjustTokenPrivileges,
@@ -58,9 +58,10 @@ pub fn get_allusersprofile_dir() -> Result<PathBuf> {
 /// file permissions corresponding to Authenticated Users - Read Only and Administrators - Full
 /// Access. Only directories that do not already exist and the leaf directory will have their
 /// permissions set.
-pub fn create_dir(path: PathBuf, set_security_permissions: bool) -> Result<PathBuf> {
-    if set_security_permissions {
-        create_dir_with_permissions_recursive(&path)?;
+#[cfg(windows)]
+pub fn create_dir(path: PathBuf, user_permissions: Option<UserPermissions>) -> Result<PathBuf> {
+    if let Some(user_permissions) = user_permissions {
+        create_dir_recursive_with_permissions(&path, user_permissions)?;
     } else {
         std::fs::create_dir_all(&path).map_err(|e| {
             Error::CreateDirFailed(
@@ -93,12 +94,31 @@ fn get_wide_str<S: AsRef<OsStr>>(string: S) -> Vec<u16> {
     wide_string
 }
 
+impl UserPermissions {
+    fn flags(self) -> u32 {
+        let mut flags = 0;
+        if self.read {
+            flags |= GENERIC_READ;
+        }
+        if self.write {
+            flags |= GENERIC_WRITE;
+        }
+        if self.execute {
+            flags |= GENERIC_EXECUTE;
+        }
+        flags
+    }
+}
+
 /// If directory at path already exists, set permissions for it.
 /// If directory at path don't exist but parent does, create directory and set permissions.
 /// If parent directory at path does not exist then recurse and create parent directory and set
 /// permissions for it, then create child directory and set permissions.
 /// This does not set permissions for parent directories that already exists.
-fn create_dir_with_permissions_recursive(path: &Path) -> Result<()> {
+fn create_dir_recursive_with_permissions(
+    path: &Path,
+    user_permissions: UserPermissions,
+) -> Result<()> {
     // No directory to create
     if path == Path::new("") {
         return Ok(());
@@ -106,13 +126,13 @@ fn create_dir_with_permissions_recursive(path: &Path) -> Result<()> {
 
     match std::fs::create_dir(path) {
         Ok(()) => {
-            return set_security_permissions(path);
+            return set_security_permissions(path, user_permissions);
         }
         // Could not find parent directory, try creating parent
         Err(e) if e.kind() == io::ErrorKind::NotFound => (),
         // Directory already exists, set permissions
         Err(e) if e.kind() == io::ErrorKind::AlreadyExists && path.is_dir() => {
-            return set_security_permissions(path);
+            return set_security_permissions(path, user_permissions);
         }
         Err(e) => {
             return Err(Error::CreateDirFailed(
@@ -124,7 +144,7 @@ fn create_dir_with_permissions_recursive(path: &Path) -> Result<()> {
 
     match path.parent() {
         // Create parent directory
-        Some(parent) => create_dir_with_permissions_recursive(parent)?,
+        Some(parent) => create_dir_recursive_with_permissions(parent, user_permissions)?,
         None => {
             // Reached the top of the tree but when creating directories only got NotFound for some
             // reason
@@ -139,19 +159,19 @@ fn create_dir_with_permissions_recursive(path: &Path) -> Result<()> {
     }
 
     std::fs::create_dir(path).map_err(|e| Error::CreateDirFailed(path.display().to_string(), e))?;
-    set_security_permissions(path)
+    set_security_permissions(path, user_permissions)
 }
 
 /// Recursively creates directories for the given path with permissions that give full access to
 /// admins and read only access to authenticated users. If any of the directories already exist this
 /// will not return an error, instead it will apply the permissions and if successful return Ok(()).
 pub fn create_privileged_directory(path: &Path) -> Result<()> {
-    create_dir_with_permissions_recursive(path)
+    create_dir_recursive_with_permissions(path, UserPermissions::read_only())
 }
 
 /// Sets security permissions for path such that admin has full ownership and access while
 /// authenticated users only have read access.
-fn set_security_permissions(path: &Path) -> Result<()> {
+fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> Result<()> {
     let wide_path = get_wide_str(path);
     let security_information = Security::DACL_SECURITY_INFORMATION
         | Security::PROTECTED_DACL_SECURITY_INFORMATION
@@ -216,7 +236,7 @@ fn set_security_permissions(path: &Path) -> Result<()> {
     };
 
     let authenticated_users_ea = EXPLICIT_ACCESS_W {
-        grfAccessPermissions: GENERIC_READ,
+        grfAccessPermissions: user_permissions.flags(),
         grfAccessMode: SET_ACCESS,
         grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
         Trustee: trustee,

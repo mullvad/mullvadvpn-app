@@ -32,6 +32,10 @@ export interface IGuiSettingsState {
   // changelog after upgrade.
   changelogDisplayedForVersion: string;
 
+  // The last version that the update dialog was dismissed for. This is used to determine
+  // whether to show the update notification.
+  updateDismissedForVersion: string;
+
   // Tells the app whether or not to show the map in the main view.
   animateMap: boolean;
 }

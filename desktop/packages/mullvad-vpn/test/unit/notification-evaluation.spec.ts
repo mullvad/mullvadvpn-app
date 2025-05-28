@@ -10,6 +10,7 @@ import {
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
 } from '../../src/shared/notifications';
+import { RoutePath } from '../../src/shared/routes';
 
 function createController() {
   return new NotificationController({
@@ -17,6 +18,9 @@ function createController() {
       /* no-op */
     },
     openLink: (_url: string, _withAuth?: boolean) => Promise.resolve(),
+    openRoute: (_url: RoutePath) => {
+      /* no-op */
+    },
     showNotificationIcon: (_value: boolean) => {
       /* no-op */
     },
@@ -51,7 +55,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 
@@ -69,7 +72,10 @@ describe('System notifications', () => {
     const controller1 = createController();
     const controller2 = createController();
     const notification = new UpdateAvailableNotificationProvider({
-      suggestedUpgrade: '2100.1',
+      suggestedUpgrade: {
+        changelog: [],
+        version: '2100.1',
+      },
       suggestedIsBeta: false,
     });
 
@@ -88,7 +94,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 
@@ -105,7 +110,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 

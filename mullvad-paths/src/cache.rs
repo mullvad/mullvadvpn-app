@@ -4,10 +4,11 @@ use std::{env, path::PathBuf};
 /// Creates and returns the cache directory pointed to by `MULLVAD_CACHE_DIR`, or the default
 /// one if that variable is unset.
 pub fn cache_dir() -> Result<PathBuf> {
-    #[cfg(unix)]
-    let permissions = crate::unix::Permissions::ReadExecOnly;
-    #[cfg(target_os = "windows")]
-    let permissions = true;
+    let permissions = Some(crate::UserPermissions {
+        read: true,
+        write: false,
+        execute: true,
+    });
     crate::create_dir(get_cache_dir()?, permissions)
 }
 
