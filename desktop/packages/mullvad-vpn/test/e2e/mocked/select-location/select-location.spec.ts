@@ -4,54 +4,16 @@ import { Page } from 'playwright';
 import { getDefaultSettings } from '../../../../src/main/default-settings';
 import { colorTokens } from '../../../../src/renderer/lib/foundations';
 import {
-  IRelayList,
   IRelayListWithEndpointData,
   ISettings,
   IWireguardEndpointData,
+  Ownership,
 } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
+import { RoutesObjectModel } from '../../route-object-models';
 import { MockedTestUtils, startMockedApp } from '../mocked-utils';
-
-const relayList: IRelayList = {
-  countries: [
-    {
-      name: 'Sweden',
-      code: 'se',
-      cities: [
-        {
-          name: 'Gothenburg',
-          code: 'got',
-          latitude: 58,
-          longitude: 12,
-          relays: [
-            {
-              hostname: 'se-got-wg-101',
-              provider: 'mullvad',
-              ipv4AddrIn: '10.0.0.1',
-              includeInCountry: true,
-              active: true,
-              weight: 0,
-              owned: true,
-              endpointType: 'wireguard',
-              daita: true,
-            },
-            {
-              hostname: 'se-got-wg-102',
-              provider: 'mullvad',
-              ipv4AddrIn: '10.0.0.2',
-              includeInCountry: true,
-              active: true,
-              weight: 0,
-              owned: true,
-              endpointType: 'wireguard',
-              daita: true,
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
+import { createHelpers, SelectLocationHelpers } from './helpers';
+import { mockData } from './mock-data';
 
 const wireguardEndpointData: IWireguardEndpointData = {
   portRanges: [],
@@ -60,10 +22,15 @@ const wireguardEndpointData: IWireguardEndpointData = {
 
 let page: Page;
 let util: MockedTestUtils;
+let routes: RoutesObjectModel;
+let helpers: SelectLocationHelpers;
+const { relayList } = mockData;
 
 test.describe('Select location', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
+    routes = new RoutesObjectModel(page, util);
+    helpers = createHelpers(page, routes, util);
     await util.waitForRoute(RoutePath.main);
     await page.getByLabel('Select location').click();
     await util.waitForRoute(RoutePath.selectLocation);
@@ -149,6 +116,105 @@ test.describe('Select location', () => {
 
       const sweden = page.getByText('Sweden');
       await expect(sweden).toBeVisible();
+    });
+  });
+
+  test.describe('Filter', () => {
+    test.beforeEach(async () => {
+      await helpers.resetView();
+      await helpers.resetProviders();
+      await helpers.resetOwnership();
+    });
+
+    test.describe('Filter by provider', () => {
+      test('Should deselect all providers when clicking all providers checkbox', async () => {
+        await routes.filter.expandProviders();
+        await routes.filter.checkAllProvidersCheckbox();
+        expect(await helpers.areAllCheckboxesChecked()).toBe(false);
+
+        await routes.filter.checkAllProvidersCheckbox();
+        expect(await helpers.areAllCheckboxesChecked()).toBe(true);
+      });
+
+      test('Should apply filter when selecting provider', async () => {
+        await routes.filter.expandProviders();
+        await routes.filter.checkAllProvidersCheckbox();
+        expect(await helpers.areAllCheckboxesChecked()).toBe(false);
+
+        // Select one provider
+        const provider = relayList.countries[0].cities[0].relays[0].provider;
+        await routes.filter.checkProviderCheckbox(provider);
+
+        await helpers.updateMockRelayFilter({
+          providers: [provider],
+        });
+
+        await routes.filter.applyFilter();
+        await util.waitForRoute(RoutePath.selectLocation);
+        const providerFilterChip = routes.selectLocation.getFilterChip('Providers: 1');
+        await expect(providerFilterChip).toBeVisible();
+
+        const locatedRelays = helpers.locateRelaysByProvider(relayList, provider);
+        const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+        const relayNames = relays.map((relay) => relay.hostname);
+
+        // Expand all accordions
+        await helpers.expandLocatedRelays(locatedRelays);
+
+        const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+
+        // Expect all filtered relays to have a button
+        await expect(buttons).toHaveCount(relays.length);
+
+        // Clear filter
+        await providerFilterChip.click();
+
+        // Get all relays and expand accordions
+        const allLocatedRelays = helpers.locateRelaysByProvider(relayList);
+        await helpers.expandLocatedRelays(allLocatedRelays);
+
+        // Should not have same length as all relays
+        await expect(buttons).not.toHaveCount(allLocatedRelays.length);
+      });
+    });
+
+    test.describe('Filter by ownership', () => {
+      test('Should apply filter when selecting ownership', async () => {
+        // Select rented only
+        await routes.filter.expandOwnership();
+        await routes.filter.selectOwnershipOption('Rented only');
+        await helpers.updateMockRelayFilter({
+          ownership: Ownership.rented,
+        });
+
+        await routes.filter.applyFilter();
+        await util.waitForRoute(RoutePath.selectLocation);
+
+        const ownerFilterChip = routes.selectLocation.getFilterChip('Rented');
+        await expect(ownerFilterChip).toBeVisible();
+
+        const locatedRelays = helpers.locateRelaysByOwner(relayList, false);
+        const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+        const relayNames = relays.map((relay) => relay.hostname);
+
+        // Expand all accordions
+        await helpers.expandLocatedRelays(locatedRelays);
+
+        const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+
+        // Expect all filtered relays to have a button
+        await expect(buttons).toHaveCount(relays.length);
+
+        // Clear filter
+        await ownerFilterChip.click();
+
+        // Get all relays and expand accordions
+        const allLocatedRelays = helpers.locateRelaysByOwner(relayList);
+        await helpers.expandLocatedRelays(allLocatedRelays);
+
+        // Should not have same length as all relays
+        await expect(buttons).not.toHaveCount(allLocatedRelays.length);
+      });
     });
   });
 });
