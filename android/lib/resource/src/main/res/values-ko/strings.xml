@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">계정 시간이 만료되려고 할 때 알림 표시</string>
     <string name="account_time_notification_channel_name">계정 시간 알림</string>
     <string name="add">추가</string>
-    <string name="add_30_days_time">30일 시간 추가</string>
     <string name="add_30_days_time_x">30일 시간 추가(%1$s)</string>
     <string name="add_a_server">서버 추가</string>
     <string name="add_dns_server_dialog_title">DNS 서버 추가</string>
@@ -281,10 +280,7 @@
     <string name="patch_not_matching_specification">사양과 일치하지 않는 패치</string>
     <string name="pay_to_start_using">앱 사용을 시작하려면, 먼저 계정에 시간을 추가해야 합니다.</string>
     <string name="payment_billing_error_dialog_message">결제 프로세스를 시작할 수 없습니다. Google Play가 최신 버전인지 확인하세요.</string>
-    <string name="payment_billing_error_dialog_title">Google Play 사용 불가</string>
-    <string name="payment_completed_dialog_title">시간이 성공적으로 추가되었습니다.</string>
     <string name="payment_obfuscation_id_error_dialog_message">결제 프로세스를 시작할 수 없습니다. 나중에 다시 시도해 주세요.</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Mullvad 서비스 사용 불가</string>
     <string name="payment_pending_dialog_message">구매를 현재 확인하는 중이므로 다소 시간이 걸릴 수 있습니다. 확인을 성공적으로 마치면 시간이 추가됩니다.</string>
     <string name="payment_status_pending">Google Play 결제 보류 중</string>
     <string name="please_enter_a_valid_ip_address">유효한 IPv4 또는 IPv6 주소를 입력하세요</string>
