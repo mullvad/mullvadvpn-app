@@ -11,7 +11,8 @@ use mullvad_management_interface::{
 use mullvad_types::{
     account::AccountNumber,
     relay_constraints::{
-        BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
+        allowed_ips_from_strings, BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride,
+        RelaySettings,
     },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
@@ -637,6 +638,20 @@ impl ManagementService for ManagementServiceImpl {
             Some(key) => Ok(Response::new(types::PublicKey::from(key))),
             None => Err(Status::not_found("no WireGuard key was found")),
         }
+    }
+
+    async fn set_wireguard_allowed_ips(
+        &self,
+        request: Request<types::AllowedIpsList>,
+    ) -> ServiceResult<()> {
+        let allowed_ips = request.into_inner().values;
+        let parsed_ips = allowed_ips_from_strings(&allowed_ips)
+            .map_err(|e| Status::invalid_argument(format!("Failed to parse allowed IPs: {e}")))?;
+        log::debug!("set_wireguard_allowed_ips({:?})", allowed_ips);
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetWireguardAllowedIps(tx, parsed_ips))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     // Custom lists

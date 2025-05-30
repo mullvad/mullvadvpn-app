@@ -779,6 +779,16 @@ impl MullvadProxyClient {
         self.0.enable_relay(relay).await.map_err(Error::Rpc)?;
         Ok(())
     }
+
+    pub async fn set_wireguard_allowed_ips(&mut self, allowed_ips: Vec<String>) -> Result<()> {
+        self.0
+            .set_wireguard_allowed_ips(types::AllowedIpsList {
+                values: allowed_ips,
+            })
+            .await
+            .map_err(Error::Rpc)?;
+        Ok(())
+    }
 }
 
 #[cfg(not(target_os = "android"))]

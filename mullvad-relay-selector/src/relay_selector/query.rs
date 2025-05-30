@@ -268,6 +268,7 @@ impl From<RelayQuery> for RelaySettings {
 pub struct WireguardRelayQuery {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
+    pub allowed_ips: Constraint<Vec<ipnetwork::IpNetwork>>,
     pub use_multihop: Constraint<bool>,
     pub entry_location: Constraint<LocationConstraint>,
     pub obfuscation: ObfuscationQuery,
@@ -360,6 +361,7 @@ impl WireguardRelayQuery {
         WireguardRelayQuery {
             port: Constraint::Any,
             ip_version: Constraint::Any,
+            allowed_ips: Constraint::Any,
             use_multihop: Constraint::Any,
             entry_location: Constraint::Any,
             obfuscation: ObfuscationQuery::Auto,
@@ -374,6 +376,7 @@ impl WireguardRelayQuery {
         WireguardConstraints {
             port: self.port,
             ip_version: self.ip_version,
+            allowed_ips: self.allowed_ips,
             entry_location: self.entry_location,
             use_multihop: self.use_multihop.unwrap_or(false),
         }
@@ -392,6 +395,7 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
         WireguardConstraints {
             port: value.port,
             ip_version: value.ip_version,
+            allowed_ips: value.allowed_ips,
             entry_location: value.entry_location,
             use_multihop: value.use_multihop.unwrap_or(false),
         }

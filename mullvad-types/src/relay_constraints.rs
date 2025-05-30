@@ -8,6 +8,7 @@ use crate::{
     relay_list::{Relay, RelayEndpointData},
     CustomTunnelEndpoint, Intersection,
 };
+use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
@@ -407,8 +408,59 @@ impl fmt::Display for OpenVpnConstraints {
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
+    pub allowed_ips: Constraint<Vec<IpNetwork>>,
     pub use_multihop: bool,
     pub entry_location: Constraint<LocationConstraint>,
+}
+
+/// Returns a vector of IP networks representing all of the internet, 0.0.0.0/0.
+/// This may be used in [`crate::net::wireguard::PeerConfig`] to route all traffic
+/// to the tunnel interface.
+pub fn resolve_allowed_ips(
+    allowed_ips: Constraint<Vec<ipnetwork::IpNetwork>>,
+    ipv4_gateway: Ipv4Addr,
+    ipv6_gateway: Option<Ipv6Addr>,
+) -> Vec<ipnetwork::IpNetwork> {
+    let all_of_the_internet = vec![
+        "0.0.0.0/0".parse().expect("Failed to parse IPv4 network"),
+        "::0/0".parse().expect("Failed to parse IPv6 network"),
+    ];
+    match allowed_ips {
+        Constraint::Any => all_of_the_internet,
+        Constraint::Only(ips) if ips.is_empty() => all_of_the_internet,
+        Constraint::Only(mut ips) => {
+            ips.push(IpNetwork::V4(Ipv4Network::new(ipv4_gateway, 32).unwrap()));
+            if let Some(ipv6_gateway) = ipv6_gateway {
+                ips.push(IpNetwork::V6(Ipv6Network::new(ipv6_gateway, 128).unwrap()));
+            }
+            ips
+        }
+    }
+}
+
+pub fn allowed_ips_from_strings(allowed_ips: &[String]) -> Result<Vec<IpNetwork>, String> {
+    allowed_ips
+        .iter()
+        .map(|ip| {
+            let parsed = ip.parse::<IpNetwork>().map_err(|e| e.to_string())?;
+            // Validate that the network does not contain non-zero host bits
+            // This is required by WireGuard
+            if parsed.network() != parsed.ip() {
+                return Err(format!(
+                    "Invalid IP network: '{parsed}'. All host bits must be zero."
+                ));
+            }
+            Ok(parsed)
+        })
+        .collect::<Result<Vec<_>, _>>()
+}
+
+pub fn allowed_ips_to_constraint(allowed_ips: Vec<IpNetwork>) -> Constraint<Vec<IpNetwork>> {
+    if allowed_ips.is_empty() {
+        Constraint::Any
+    } else {
+        Constraint::Only(allowed_ips)
+    }
 }
 
 impl WireguardConstraints {
