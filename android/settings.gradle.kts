@@ -36,6 +36,7 @@ include(
     ":test:arch",
     ":test:common",
     ":test:e2e",
-    ":test:mockapi"
+    ":test:mockapi",
+    ":test:detekt",
 )
 include(":lib:ui:tag")
