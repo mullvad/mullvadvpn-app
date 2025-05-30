@@ -236,7 +236,6 @@
     <string name="login_fail_title">Kunne ikke logge inn</string>
     <string name="login_title">Logg inn</string>
     <string name="malware_info">Advarsel: Blokkeringen av skadelig programvare er ikke et antivirusprogram og skal ikke brukes som dette. Det er bare et ekstra lag med beskyttelse.</string>
-    <string name="manage_account">Administrer konto</string>
     <string name="manage_devices">Behandle enheter</string>
     <string name="manage_devices_confirm_removal_description_line1">Fjerne %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Enheten blir fjernet fra listen og logget ut.</string>

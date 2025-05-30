@@ -3048,9 +3048,6 @@ msgstr ""
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr ""
 
-msgid "Manage account"
-msgstr ""
-
 msgid "Manage devices"
 msgstr ""
 
