@@ -236,7 +236,6 @@
     <string name="login_fail_title">Accesso non riuscito</string>
     <string name="login_title">Accedi</string>
     <string name="malware_info">Avvertenza: questa protezione dai malware non è un antivirus e non deve essere trattata come tale, è solo un ulteriore livello di protezione.</string>
-    <string name="manage_account">Gestisci account</string>
     <string name="manage_devices">Gestisci dispositivi</string>
     <string name="manage_devices_confirm_removal_description_line1">Rimuovere %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Il dispositivo verrà rimosso dall\'elenco e disconnesso.</string>

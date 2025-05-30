@@ -236,7 +236,6 @@
     <string name="login_fail_title">ログインに失敗しました</string>
     <string name="login_title">ログイン</string>
     <string name="malware_info">警告: マルウェアブロッカーはウィルス対策ではありませんので、そのような用途には使用しないでください。あくまで追加の保護レイヤーに過ぎません。</string>
-    <string name="manage_account">アカウントを管理する</string>
     <string name="manage_devices">デバイスを管理する</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$sを削除しますか？</string>
     <string name="manage_devices_confirm_removal_description_line2">リストからデバイスが削除され、ログアウトされます。</string>

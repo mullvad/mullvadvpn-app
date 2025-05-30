@@ -236,7 +236,6 @@
     <string name="login_fail_title">登入失敗</string>
     <string name="login_title">登入</string>
     <string name="malware_info">警告：惡意軟體封鎖程式並非防毒軟體，只是提供了一層額外保護，不應將其視為防毒軟體。</string>
-    <string name="manage_account">管理帳戶</string>
     <string name="manage_devices">管理裝置</string>
     <string name="manage_devices_confirm_removal_description_line1">是否移除 %1$s？</string>
     <string name="manage_devices_confirm_removal_description_line2">裝置將從清單中移除並登出。</string>
