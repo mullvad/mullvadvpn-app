@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.lib.model
 
-// All suppported shadowsocks ciphers
+// All supported shadowsocks ciphers
 enum class Cipher(val label: String) {
     AES_128_CFB("aes-128-cfb"),
     AES_128_CFB1("aes-128-cfb1"),

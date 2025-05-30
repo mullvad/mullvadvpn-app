@@ -275,7 +275,7 @@ function featureUnavailableMessage() {
 
   return sprintf(
     messages.pgettext(
-      // TRANSLATORS: Informs the user that the the feature is only available when WireGuard
+      // TRANSLATORS: Informs the user that the feature is only available when WireGuard
       // TRANSLATORS: is selected.
       // TRANSLATORS: Available placeholders:
       // TRANSLATORS: %(wireguard)s - will be replaced with WireGuard

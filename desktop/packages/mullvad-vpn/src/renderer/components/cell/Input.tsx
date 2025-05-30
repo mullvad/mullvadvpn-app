@@ -143,7 +143,7 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
     }
   });
 
-  // If the the initialValue changes in the uncontrolled mode when the user isn't currently writing,
+  // If the initialValue changes in the uncontrolled mode when the user isn't currently writing,
   // then we want to update the value.
   useEffect(() => {
     handleInitialValueChange(props.initialValue);
