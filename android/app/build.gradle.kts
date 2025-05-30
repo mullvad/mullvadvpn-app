@@ -356,7 +356,16 @@ dependencies {
     // Play implementation
     playImplementation(projects.lib.billing)
 
-    implementation(libs.commons.validator)
+    // This dependency can be replaced when minimum SDK is 29 or higher.
+    // It can then be replaced with InetAddress.isNumericAddress
+    implementation(libs.commons.validator) {
+        // This dependency has a known vulnerability
+        // https://osv.dev/vulnerability/GHSA-wxr5-93ph-8wr9
+        // It is not used so let's exclude it.
+        // Unfortunately, this is not possible to do using libs.version.toml
+        // https://github.com/gradle/gradle/issues/26367#issuecomment-2120830998
+        exclude("commons-beanutils", "commons-beanutils")
+    }
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.coresplashscreen)
