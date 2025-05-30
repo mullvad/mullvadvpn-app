@@ -29,7 +29,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp.Companion.Hairline
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -106,10 +105,7 @@ fun AddTimeBottomSheet(
     }
 
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
-    CollectSideEffectWithLifecycle(
-        viewModel.uiSideEffect,
-        minActiveState = Lifecycle.State.RESUMED,
-    ) { sideEffect ->
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is AddMoreTimeSideEffect.OpenAccountManagementPageInBrowser -> {
                 openAccountPage(sideEffect.token)
@@ -192,7 +188,7 @@ fun AddTimeBottomSheetContent(
 }
 
 @Composable
-private fun ColumnScope.Content(
+private fun Content(
     state: AddMoreTimeUiState,
     backgroundColor: Color,
     onBackgroundColor: Color,
@@ -232,7 +228,7 @@ private fun ColumnScope.Content(
 }
 
 @Composable
-private fun ColumnScope.PurchaseState(
+private fun PurchaseState(
     backgroundColor: Color,
     onBackgroundColor: Color,
     purchaseState: PurchaseState,
@@ -290,23 +286,7 @@ private fun ColumnScope.PurchaseState(
 }
 
 @Composable
-private fun ColumnScope.PurchaseStateLoading(title: String) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth().padding(all = Dimens.sideMargin),
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(modifier = Modifier.height(Dimens.mediumPadding))
-        MullvadLinearProgressIndicator()
-    }
-}
-
-@Composable
-private fun ColumnScope.PurchaseStateVerification(
+private fun PurchaseStateVerification(
     onBackgroundColor: Color,
     backgroundColor: Color,
     resetPurchaseState: () -> Unit,
@@ -336,7 +316,23 @@ private fun ColumnScope.PurchaseStateVerification(
 }
 
 @Composable
-private fun ColumnScope.PurchaseStateSuccess(
+private fun PurchaseStateLoading(title: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth().padding(all = Dimens.sideMargin),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Spacer(modifier = Modifier.height(Dimens.mediumPadding))
+        MullvadLinearProgressIndicator()
+    }
+}
+
+@Composable
+private fun PurchaseStateSuccess(
     onBackgroundColor: Color,
     backgroundColor: Color,
     productId: ProductId,
@@ -374,7 +370,7 @@ private fun ColumnScope.PurchaseStateSuccess(
 }
 
 @Composable
-private fun ColumnScope.PurchaseStateError(
+private fun PurchaseStateError(
     onBackgroundColor: Color,
     backgroundColor: Color,
     message: String,
@@ -409,7 +405,7 @@ private fun ColumnScope.PurchaseStateError(
 }
 
 @Composable
-private fun ColumnScope.Products(
+private fun Products(
     billingPaymentState: PaymentState?,
     showSitePayment: Boolean,
     backgroundColor: Color,
