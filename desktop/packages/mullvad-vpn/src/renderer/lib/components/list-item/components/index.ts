@@ -1,4 +1,5 @@
 export * from './list-item-content';
+export * from './list-item-icon';
 export * from './list-item-item';
 export * from './list-item-group';
 export * from './list-item-label';
