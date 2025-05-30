@@ -2781,13 +2781,7 @@ msgstr ""
 msgid "Add %s to list"
 msgstr ""
 
-msgid "Add 30 days time"
-msgstr ""
-
 msgid "Add 30 days time (%s)"
-msgstr ""
-
-msgid "Add 90 days time"
 msgstr ""
 
 msgid "Add 90 days time (%s)"
@@ -2997,9 +2991,6 @@ msgstr ""
 msgid "Google Play payment pending"
 msgstr ""
 
-msgid "Google Play unavailable"
-msgstr ""
-
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr ""
 
@@ -3049,9 +3040,6 @@ msgid "Makes sure the device is always on the VPN tunnel."
 msgstr ""
 
 msgid "Manage devices"
-msgstr ""
-
-msgid "Mullvad services unavailable"
 msgstr ""
 
 msgid "Name was changed to %s"

@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa</string>
     <string name="account_time_notification_channel_name">Muistutukset tilin käyttöajasta</string>
     <string name="add">Lisää</string>
-    <string name="add_30_days_time">Lisää 30 päivää käyttöaikaa</string>
     <string name="add_30_days_time_x">Lisää 30 päivää käyttöaikaa (%1$s)</string>
     <string name="add_a_server">Lisää palvelin</string>
     <string name="add_dns_server_dialog_title">Lisää DNS-palvelin</string>
@@ -281,10 +280,7 @@
     <string name="patch_not_matching_specification">Muutostiedosto ei vastaa määritelmää</string>
     <string name="pay_to_start_using">Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi.</string>
     <string name="payment_billing_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Varmista, että käytät Google Playn uusinta versiota.</string>
-    <string name="payment_billing_error_dialog_title">Google Play ei ole käytettävissä</string>
-    <string name="payment_completed_dialog_title">Aika lisättiin onnistuneesti</string>
     <string name="payment_obfuscation_id_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Yritä myöhemmin uudelleen.</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Mullvad-palvelut eivät ole käytettävissä</string>
     <string name="payment_pending_dialog_message">Vahvistamme ostostasi parhaillaan. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu.</string>
     <string name="payment_status_pending">Google Play -maksu odottaa</string>
     <string name="please_enter_a_valid_ip_address">Anna kelvollinen IPv4- tai IPv6-osoite</string>

@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">在帐户时间即将到期时显示提醒</string>
     <string name="account_time_notification_channel_name">帐户时间提醒</string>
     <string name="add">添加</string>
-    <string name="add_30_days_time">增加 30 天</string>
     <string name="add_30_days_time_x">增加 30 天 (%1$s)</string>
     <string name="add_a_server">添加服务器</string>
     <string name="add_dns_server_dialog_title">添加 DNS 服务器</string>
@@ -281,10 +280,7 @@
     <string name="patch_not_matching_specification">补丁与规范不匹配</string>
     <string name="pay_to_start_using">要开始使用本应用，您首先需要向帐户中充入时间。</string>
     <string name="payment_billing_error_dialog_message">我们无法启动付款流程，请确保拥有最新版本的 Google Play。</string>
-    <string name="payment_billing_error_dialog_title">Google Play 不可用</string>
-    <string name="payment_completed_dialog_title">时间已成功添加</string>
     <string name="payment_obfuscation_id_error_dialog_message">我们无法启动付款流程，请稍后再试。</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Mullvad 服务不可用</string>
     <string name="payment_pending_dialog_message">我们目前正在验证您的购买，这可能需要一些时间。如果验证成功，您的时间将增加。</string>
     <string name="payment_status_pending">Google Play 付款待处理</string>
     <string name="please_enter_a_valid_ip_address">请输入有效的 IPv4 或 IPv6 地址</string>

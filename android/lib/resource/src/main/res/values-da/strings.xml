@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Viser påmindelser, når kontotiden er ved at udløbe</string>
     <string name="account_time_notification_channel_name">Påmindelser om kontotid</string>
     <string name="add">Tilføj</string>
-    <string name="add_30_days_time">Tilføj 30 dages tid</string>
     <string name="add_30_days_time_x">Tilføj 30 dages tid (%1$s)</string>
     <string name="add_a_server">Tilføj en server</string>
     <string name="add_dns_server_dialog_title">Tilføj DNS-server</string>
@@ -281,10 +280,7 @@
     <string name="patch_not_matching_specification">Patch matcher ikke specifikationen</string>
     <string name="pay_to_start_using">For at begynde at bruge appen skal du først føje tid til din konto.</string>
     <string name="payment_billing_error_dialog_message">Vi kunne ikke starte betalingsprocessen. Sørg for, at du har den nyeste version af Google Play.</string>
-    <string name="payment_billing_error_dialog_title">Google Play er ikke tilgængelig</string>
-    <string name="payment_completed_dialog_title">Tid blev tilføjet</string>
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunne ikke starte betalingsprocessen. Prøv igen senere.</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjenester er ikke tilgængelige</string>
     <string name="payment_pending_dialog_message">Vi er i øjeblikket ved at bekræfte dit køb, det kan tage noget tid. Din tid vil blive tilføjet, hvis bekræftelsen lykkes.</string>
     <string name="payment_status_pending">Google Play-betaling afventer</string>
     <string name="please_enter_a_valid_ip_address">Indtast en gyldig IPv4- eller IPv6-adresse</string>

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.AddMoreTimeUiState
+import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PurchaseState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -30,12 +30,12 @@ class AddMoreTimeViewModel(
     private val _uiSideEffect = Channel<AddMoreTimeSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    val uiState: StateFlow<Lc<Unit, AddMoreTimeUiState>> =
+    val uiState: StateFlow<Lc<Unit, AddTimeUiState>> =
         combine(paymentUseCase.paymentAvailability, paymentUseCase.purchaseResult) {
                 paymentAvailability,
                 purchaseResult ->
                 Lc.Content(
-                    AddMoreTimeUiState(
+                    AddTimeUiState(
                         purchaseState = purchaseResult?.toPurchaseState(),
                         billingPaymentState = paymentAvailability?.toPaymentState(),
                         showSitePayment = !isPlayBuild,

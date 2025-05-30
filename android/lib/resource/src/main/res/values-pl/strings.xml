@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Pokazuje przypomnienia, gdy kończy się czas na koncie</string>
     <string name="account_time_notification_channel_name">Przypomnienia o czasie na koncie</string>
     <string name="add">Dodaj</string>
-    <string name="add_30_days_time">Dodaj 30 dni</string>
     <string name="add_30_days_time_x">Dodaj 30 dni (%1$s)</string>
     <string name="add_a_server">Dodaj serwer</string>
     <string name="add_dns_server_dialog_title">Dodaj serwer DNS</string>
@@ -281,10 +280,7 @@
     <string name="patch_not_matching_specification">Poprawka niezgodna ze specyfikacją</string>
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
     <string name="payment_billing_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Upewnij się, że masz najnowszą wersję aplikacji Google Play.</string>
-    <string name="payment_billing_error_dialog_title">Sklep Google Play jest niedostępny</string>
-    <string name="payment_completed_dialog_title">Dodano czas</string>
     <string name="payment_obfuscation_id_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Spróbuj ponownie później.</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Usługi Mullvad są niedostępne</string>
     <string name="payment_pending_dialog_message">Weryfikujemy zakup. Może to zająć trochę czasu. Jeśli weryfikacja powiedzie się, czas zostanie dodany.</string>
     <string name="payment_status_pending">Oczekiwanie na płatność Google Play</string>
     <string name="please_enter_a_valid_ip_address">Wprowadź prawidłowy adres IPv4 lub IPv6</string>

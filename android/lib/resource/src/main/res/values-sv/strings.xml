@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Visar påminnelser när kontots tidsgräns uppnås</string>
     <string name="account_time_notification_channel_name">Påminnelser om kontotid</string>
     <string name="add">Lägg till</string>
-    <string name="add_30_days_time">Lägg till 30 dagar</string>
     <string name="add_30_days_time_x">Lägg till 30 dagar (%1$s)</string>
     <string name="add_a_server">Lägg till en server</string>
     <string name="add_dns_server_dialog_title">Lägg till DNS-server</string>
@@ -281,10 +280,7 @@
     <string name="patch_not_matching_specification">Korrigering överensstämmer inte med specifikationen</string>
     <string name="pay_to_start_using">Om du vill börja använda appen måste du först lägga till tid i ditt konto.</string>
     <string name="payment_billing_error_dialog_message">Vi kunde inte starta betalningsprocessen. Se till att du har den senaste versionen av Google Play.</string>
-    <string name="payment_billing_error_dialog_title">Google Play är inte tillgängligt</string>
-    <string name="payment_completed_dialog_title">Tid har lagts till</string>
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunde inte starta betalningsprocessen, försök igen senare.</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjänster är inte tillgängliga</string>
     <string name="payment_pending_dialog_message">Vi verifierar ditt köp just nu och det kan ta en stund. Din tid läggs till om verifieringen lyckas.</string>
     <string name="payment_status_pending">Google Play-betalning väntar</string>
     <string name="please_enter_a_valid_ip_address">Ange en giltig IPv4- eller IPv6-adress</string>
