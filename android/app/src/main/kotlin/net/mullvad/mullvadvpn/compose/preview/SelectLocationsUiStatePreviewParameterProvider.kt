@@ -6,23 +6,22 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.toLc
 
 class SelectLocationsUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Unit, SelectLocationUiState>> {
     override val values =
         sequenceOf(
             Lc.Loading(Unit),
-            Lc.Content(
-                SelectLocationUiState(
+            SelectLocationUiState(
                     filterChips = emptyList(),
                     multihopEnabled = false,
                     relayListType = RelayListType.EXIT,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                 )
-            ),
-            Lc.Content(
-                SelectLocationUiState(
+                .toLc(),
+            SelectLocationUiState(
                     filterChips =
                         listOf(
                             FilterChip.Ownership(ownership = ModelOwnership.Rented),
@@ -33,18 +32,16 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                 )
-            ),
-            Lc.Content(
-                SelectLocationUiState(
+                .toLc(),
+            SelectLocationUiState(
                     filterChips = emptyList(),
                     multihopEnabled = true,
                     relayListType = RelayListType.ENTRY,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                 )
-            ),
-            Lc.Content(
-                SelectLocationUiState(
+                .toLc(),
+            SelectLocationUiState(
                     filterChips =
                         listOf(
                             FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned),
@@ -55,7 +52,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                 )
-            ),
+                .toLc(),
         )
 }
 

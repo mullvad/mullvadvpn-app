@@ -134,10 +134,10 @@ fun OutOfTimeScreen(
         deviceName = state.deviceName,
         timeLeft = null,
     ) {
-        var addTimeBottomSheetState by remember { mutableStateOf<Unit?>(null) }
+        var addTimeBottomSheetState by remember { mutableStateOf(false) }
         AddTimeBottomSheet(
-            visible = addTimeBottomSheetState != null,
-            onHideBottomSheet = { addTimeBottomSheetState = null },
+            visible = addTimeBottomSheetState,
+            onHideBottomSheet = { addTimeBottomSheetState = false },
             onRedeemVoucherClick = onRedeemVoucherClick,
             onPlayPaymentInfoClick = onPlayPaymentInfoClick,
         )
@@ -164,7 +164,7 @@ fun OutOfTimeScreen(
             ButtonPanel(
                 state = state,
                 onDisconnectClick = onDisconnectClick,
-                onAddMoreTimeClick = { addTimeBottomSheetState = Unit },
+                onAddMoreTimeClick = { addTimeBottomSheetState = true },
             )
         }
     }
