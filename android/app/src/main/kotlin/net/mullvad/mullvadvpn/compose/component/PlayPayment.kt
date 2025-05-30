@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,140 +21,36 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.cell.IconCell
+import net.mullvad.mullvadvpn.compose.preview.PlayPaymentPaymentStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.payment.ProductIds
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
-import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 
-@Preview
+@Preview(
+    "Loading|NoPayment|NoProductsFound|Error.Generic|Error.Billing" +
+        "|PaymentAvailable|PaymentAvailable.Pending|PaymentAvailable.VerificationInProgress"
+)
 @Composable
-private fun PreviewPlayPaymentPaymentAvailable() {
+private fun PreviewPlayPayment(
+    @PreviewParameter(PlayPaymentPaymentStatePreviewParameterProvider::class) state: PaymentState
+) {
     AppTheme {
-        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
+        Column(modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)) {
             PlayPayment(
-                billingPaymentState =
-                    PaymentState.PaymentAvailable(
-                        products =
-                            listOf(
-                                PaymentProduct(
-                                    productId = ProductId("one_month"),
-                                    price = ProductPrice("$10"),
-                                    status = null,
-                                ),
-                                PaymentProduct(
-                                    productId = ProductId("three_months"),
-                                    price = ProductPrice("$30"),
-                                    status = null,
-                                ),
-                            )
-                    ),
+                billingPaymentState = state,
                 onPurchaseBillingProductClick = {},
                 onRetryFetchProducts = {},
                 onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenBottomMargin),
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewPlayPaymentLoading() {
-    AppTheme {
-        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
-            PlayPayment(
-                billingPaymentState = PaymentState.Loading,
-                onPurchaseBillingProductClick = {},
-                onRetryFetchProducts = {},
-                onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenBottomMargin),
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewPlayPaymentPaymentPending() {
-    AppTheme {
-        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
-            PlayPayment(
-                billingPaymentState =
-                    PaymentState.PaymentAvailable(
-                        products =
-                            listOf(
-                                PaymentProduct(
-                                    productId = ProductId("one_month"),
-                                    price = ProductPrice("$10"),
-                                    status = PaymentStatus.PENDING,
-                                ),
-                                PaymentProduct(
-                                    productId = ProductId("three_months"),
-                                    price = ProductPrice("$30"),
-                                    status = null,
-                                ),
-                            )
-                    ),
-                onPurchaseBillingProductClick = {},
-                onRetryFetchProducts = {},
-                onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenBottomMargin),
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewPlayPaymentVerificationInProgress() {
-    AppTheme {
-        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
-            PlayPayment(
-                billingPaymentState =
-                    PaymentState.PaymentAvailable(
-                        products =
-                            listOf(
-                                PaymentProduct(
-                                    productId = ProductId("one_month"),
-                                    price = ProductPrice("$10"),
-                                    status = null,
-                                ),
-                                PaymentProduct(
-                                    productId = ProductId("three_months"),
-                                    price = ProductPrice("$30"),
-                                    status = PaymentStatus.VERIFICATION_IN_PROGRESS,
-                                ),
-                            )
-                    ),
-                onPurchaseBillingProductClick = {},
-                onRetryFetchProducts = {},
-                onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenBottomMargin),
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewPlayPaymentError() {
-    AppTheme {
-        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
-            PlayPayment(
-                billingPaymentState = PaymentState.Error.Billing,
-                onPurchaseBillingProductClick = {},
-                onRetryFetchProducts = {},
-                onInfoClick = {},
-                modifier = Modifier.padding(Dimens.screenBottomMargin),
             )
         }
     }
@@ -225,7 +120,7 @@ private fun PaymentAvailable(
                 PaymentStatus.VERIFICATION_IN_PROGRESS ->
                     stringResource(id = R.string.verifying_purchase)
 
-                else -> null
+                null -> null
             }
         val enabled = statusMessage == null
         statusMessage?.let {
