@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -39,7 +40,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.time.ZonedDateTime
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.NegativeButton
+import net.mullvad.mullvadvpn.compose.button.NegativeOutlinedButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryTextButton
 import net.mullvad.mullvadvpn.compose.component.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
@@ -57,6 +58,7 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
 import net.mullvad.mullvadvpn.lib.ui.tag.MANAGE_DEVICES_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
@@ -192,10 +194,17 @@ fun AccountScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            NegativeButton(
+            NegativeOutlinedButton(
                 text = stringResource(id = R.string.log_out),
                 onClick = onLogoutClick,
                 isLoading = state?.showLogoutLoading == true,
+                isEnabled = state?.showLogoutLoading != true,
+                colors =
+                    ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                        disabledContentColor = MaterialTheme.colorScheme.error.copy(alpha = Alpha20),
+                    ),
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }

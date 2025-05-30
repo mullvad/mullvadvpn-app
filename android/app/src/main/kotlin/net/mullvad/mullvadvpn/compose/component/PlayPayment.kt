@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.button.SmallPrimaryButton
 import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.preview.PlayPaymentPaymentStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.PaymentState
@@ -197,7 +197,7 @@ private fun Error(modifier: Modifier, retryFetchProducts: () -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = Dimens.smallPadding),
         )
-        PrimaryButton(text = stringResource(R.string.retry), onClick = retryFetchProducts)
+        SmallPrimaryButton(text = stringResource(R.string.retry), onClick = retryFetchProducts)
     }
 }
 

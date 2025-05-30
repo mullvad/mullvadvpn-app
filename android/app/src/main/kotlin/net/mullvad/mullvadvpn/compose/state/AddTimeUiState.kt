@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 
-data class AddMoreTimeUiState(
+data class AddTimeUiState(
     val purchaseState: PurchaseState?,
     val billingPaymentState: PaymentState?,
     val showSitePayment: Boolean,

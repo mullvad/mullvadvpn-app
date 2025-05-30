@@ -1,8 +1,10 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,12 +34,12 @@ import androidx.compose.ui.unit.Dp.Companion.Hairline
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.button.SmallPrimaryButton
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.preview.AddMoreTimeUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.AddMoreTimeUiState
+import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.PurchaseState
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -59,7 +61,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewPaymentBottomSheet(
     @PreviewParameter(AddMoreTimeUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, AddMoreTimeUiState>
+    state: Lc<Unit, AddTimeUiState>
 ) {
     AppTheme {
         AddTimeBottomSheetContent(
@@ -145,7 +147,7 @@ fun AddTimeBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTimeBottomSheetContent(
-    state: Lc<Unit, AddMoreTimeUiState>,
+    state: Lc<Unit, AddTimeUiState>,
     sheetState: SheetState,
     onPurchaseBillingProductClick: (ProductId) -> Unit = {},
     onPlayPaymentInfoClick: () -> Unit,
@@ -189,7 +191,7 @@ fun AddTimeBottomSheetContent(
 
 @Composable
 private fun Content(
-    state: AddMoreTimeUiState,
+    state: AddTimeUiState,
     backgroundColor: Color,
     onBackgroundColor: Color,
     onPurchaseBillingProductClick: (ProductId) -> Unit,
@@ -307,7 +309,7 @@ private fun PurchaseStateVerification(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        PrimaryButton(
+        SmallPrimaryButton(
             text = stringResource(R.string.close),
             onClick = resetPurchaseState,
             modifier = Modifier.padding(top = Dimens.mediumPadding),
@@ -361,7 +363,7 @@ private fun PurchaseStateSuccess(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        PrimaryButton(
+        SmallPrimaryButton(
             text = stringResource(R.string.close),
             onClick = onSuccessfulPurchase,
             modifier = Modifier.padding(top = Dimens.mediumPadding),
@@ -391,17 +393,18 @@ private fun PurchaseStateError(
         modifier = Modifier.padding(horizontal = Dimens.sideMargin),
     )
     Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
-    PrimaryButton(
-        text = stringResource(R.string.retry),
-        onClick = { retryPurchase(productId) },
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
-    )
-    Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
-    PrimaryButton(
-        text = stringResource(R.string.close),
-        onClick = resetPurchaseState,
-        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
-    )
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        SmallPrimaryButton(
+            text = stringResource(R.string.retry),
+            onClick = { retryPurchase(productId) },
+            modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+        )
+        SmallPrimaryButton(
+            text = stringResource(R.string.close),
+            onClick = resetPurchaseState,
+            modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+        )
+    }
 }
 
 @Composable
