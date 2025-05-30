@@ -5,14 +5,14 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.toLc
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
 
 class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit, AccountUiState>> {
     override val values =
         sequenceOf(
             Lc.Loading(Unit),
-            Lc.Content(
-                AccountUiState(
+            AccountUiState(
                     deviceName = "Test Name",
                     accountNumber = AccountNumber("1234123412341234"),
                     accountExpiry =
@@ -22,9 +22,8 @@ class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit,
                         ),
                     showLogoutLoading = false,
                 )
-            ),
-            Lc.Content(
-                AccountUiState(
+                .toLc(),
+            AccountUiState(
                     deviceName = "Test Name",
                     accountNumber = AccountNumber("1234123412341234"),
                     accountExpiry =
@@ -34,6 +33,6 @@ class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit,
                         ),
                     showLogoutLoading = true,
                 )
-            ),
+                .toLc(),
         )
 }
