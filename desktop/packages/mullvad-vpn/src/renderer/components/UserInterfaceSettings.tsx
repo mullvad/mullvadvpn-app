@@ -1,24 +1,18 @@
-import { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
+import { Image } from '../lib/components';
 import { useHistory } from '../lib/history';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
-import {
-  LabelStack,
-  Layout,
-  SettingsContainer,
-  SettingsContent,
-  SettingsGroup,
-  SettingsStack,
-} from './Layout';
+import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
+import { NavigationListItem } from './NavigationListItem';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
@@ -240,25 +234,25 @@ function AnimateMapSetting() {
 }
 
 function LanguageButton() {
-  const history = useHistory();
   const { getPreferredLocaleDisplayName } = useAppContext();
   const preferredLocale = useSelector((state) => state.settings.guiSettings.preferredLocale);
   const localeDisplayName = getPreferredLocaleDisplayName(preferredLocale);
 
-  const navigate = useCallback(() => history.push(RoutePath.selectLanguage), [history]);
-
   return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <LabelStack>
-        <Cell.CellImage source="icon-language" />
-        <Cell.Label>
+    <NavigationListItem to={RoutePath.selectLanguage}>
+      <NavigationListItem.Group>
+        <Image source="icon-language" />
+        <NavigationListItem.Label>
           {
             // TRANSLATORS: Navigation button to the 'Language' settings view
             messages.pgettext('user-interface-settings-view', 'Language')
           }
-        </Cell.Label>
-      </LabelStack>
-      <Cell.SubText>{localeDisplayName}</Cell.SubText>
-    </Cell.CellNavigationButton>
+        </NavigationListItem.Label>
+      </NavigationListItem.Group>
+      <NavigationListItem.Group>
+        <NavigationListItem.Text>{localeDisplayName}</NavigationListItem.Text>
+        <NavigationListItem.Icon icon="chevron-right" />
+      </NavigationListItem.Group>
+    </NavigationListItem>
   );
 }
