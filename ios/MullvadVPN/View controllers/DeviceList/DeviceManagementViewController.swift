@@ -200,9 +200,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
         let attributedText = NSAttributedString(
             markdownString: text,
-            options: MarkdownStylingOptions(
-                font: .preferredFont(forTextStyle: .body)
-            )
+            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
         )
 
         let presentation = AlertPresentation(
