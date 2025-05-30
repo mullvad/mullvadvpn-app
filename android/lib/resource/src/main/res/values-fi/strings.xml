@@ -236,7 +236,6 @@
     <string name="login_fail_title">Sisäänkirjautuminen epäonnistui</string>
     <string name="login_title">Kirjaudu sisään</string>
     <string name="malware_info">Varoitus: haittaohjelmien estotoiminto ei ole virustorjuntaohjelma, eikä sitä pidä käyttää sellaisena – kyseessä on vain ylimääräinen suojauskerros.</string>
-    <string name="manage_account">Tilin hallinta</string>
     <string name="manage_devices">Hallitse laitteita</string>
     <string name="manage_devices_confirm_removal_description_line1">Poistetaanko %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Laite poistetaan luettelosta ja kirjataan ulos.</string>
