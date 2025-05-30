@@ -51,18 +51,9 @@ allow = [
     "BSD-3-Clause",
     "BSD-2-Clause",
     "CC0-1.0",
-    # https://github.com/briansmith/ring/issues/902
-    "LicenseRef-ring",
     "Unicode-DFS-2016",
     "Zlib",
     "Unicode-3.0"
-]
-
-[[licenses.clarify]]
-name = "ring"
-expression = "LicenseRef-ring"
-license-files = [
-    { path = "LICENSE", hash = 0xbd0eed23 }
 ]
 
 [licenses.private]
