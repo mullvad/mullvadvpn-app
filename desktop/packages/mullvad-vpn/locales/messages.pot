@@ -3147,9 +3147,6 @@ msgstr ""
 msgid "Reset to default"
 msgstr ""
 
-msgid "Retry"
-msgstr ""
-
 msgid "Search"
 msgstr ""
 
