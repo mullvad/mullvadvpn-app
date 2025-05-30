@@ -236,7 +236,6 @@
     <string name="login_fail_title">Anmeldung fehlgeschlagen</string>
     <string name="login_title">Anmelden</string>
     <string name="malware_info">Der Malware-Blocker ist kein Antivirusprogramm und sollte auch nicht als solches behandelt werden. Es dient lediglich als zusätzliche Schutzschicht.</string>
-    <string name="manage_account">Konto verwalten</string>
     <string name="manage_devices">Geräte verwalten</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$s entfernen?</string>
     <string name="manage_devices_confirm_removal_description_line2">Das Gerät wird aus der Liste entfernt und abgemeldet.</string>

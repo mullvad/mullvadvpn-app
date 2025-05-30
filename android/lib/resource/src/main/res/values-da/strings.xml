@@ -236,7 +236,6 @@
     <string name="login_fail_title">Login mislykkedes</string>
     <string name="login_title">Log ind</string>
     <string name="malware_info">Advarsel: Malware-blokkeren er ikke antivirus og bør ikke behandles som sådan. Dette er blot et ekstra lag af beskyttelse.</string>
-    <string name="manage_account">Administrer konto</string>
     <string name="manage_devices">Administrer enheder</string>
     <string name="manage_devices_confirm_removal_description_line1">Fjern %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Enheden fjernes fra listen og logges ud.</string>
