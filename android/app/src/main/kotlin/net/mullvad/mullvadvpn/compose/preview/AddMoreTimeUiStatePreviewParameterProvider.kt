@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.AddMoreTimeUiState
+import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
@@ -11,25 +11,17 @@ import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.toLc
 
 class AddMoreTimeUiStatePreviewParameterProvider :
-    PreviewParameterProvider<Lc<Unit, AddMoreTimeUiState>> {
-    override val values: Sequence<Lc<Unit, AddMoreTimeUiState>> =
+    PreviewParameterProvider<Lc<Unit, AddTimeUiState>> {
+    override val values: Sequence<Lc<Unit, AddTimeUiState>> =
         sequenceOf(
             Lc.Loading(Unit),
-            AddMoreTimeUiState(
-                    purchaseState = null,
-                    billingPaymentState = null,
-                    showSitePayment = true,
-                )
+            AddTimeUiState(purchaseState = null, billingPaymentState = null, showSitePayment = true)
                 .toLc(),
-            AddMoreTimeUiState(
-                    purchaseState = null,
-                    billingPaymentState = null,
-                    showSitePayment = true,
-                )
+            AddTimeUiState(purchaseState = null, billingPaymentState = null, showSitePayment = true)
                 .toLc(),
         ) +
             generatePaymentStates().map { state ->
-                AddMoreTimeUiState(
+                AddTimeUiState(
                         purchaseState = null,
                         billingPaymentState = state,
                         showSitePayment = false,

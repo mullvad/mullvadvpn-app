@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">အကောင့်အချိန် သက်တမ်းကုန်ခါနီးချိန်၌ သတိပေးချက်များ ပြသပေးပါသည်</string>
     <string name="account_time_notification_channel_name">အကောင့်အချိန် သတိပေးချက်များ</string>
     <string name="add">ပေါင်းထည့်ရန်</string>
-    <string name="add_30_days_time">အချိန် ရက် 30 ကို‌ ပေါင်းထည့်ရန်</string>
     <string name="add_30_days_time_x">အချိန် ရက် 30 ကို‌ ပေါင်းထည့်ရန် (%1$s)</string>
     <string name="add_a_server">ဆာဗာ ပေါင်းထည့်ရန်</string>
     <string name="add_dns_server_dialog_title">DNS ဆာဗာကို ပေါင်းထည့်ရန်</string>
@@ -281,10 +280,7 @@
     <string name="patch_not_matching_specification">ပက်ချ်သည် သတ်မှတ်ချက်နှင့် မကိုက်ညီပါ</string>
     <string name="pay_to_start_using">အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။</string>
     <string name="payment_billing_error_dialog_message">လက်ရှိတွင် ပေးချေမှု လုပ်ငန်းစဉ်ကို စတင်၍ မရနိုင်ပါ၊ Google Play နောက်ဆုံး ဗားရှင်း သင့်တွင်ရှိနေကြောင်း သေချာပါစေ။</string>
-    <string name="payment_billing_error_dialog_title">Google Play ကို မရရှိနိုင်ပါ</string>
-    <string name="payment_completed_dialog_title">အချိန်ကို အောင်မြင်စွာ ပေါင်းထည့်ပြီးပြီ</string>
     <string name="payment_obfuscation_id_error_dialog_message">လက်ရှိတွင် ပေးချေမှု လုပ်ငန်းစဉ်ကို စတင်၍ မရနိုင်ပါ၊ နောက်မှ ထပ်ကြိုးစားကြည့်ပါ။</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Mullvad ဝန်ဆောင်မှုများကို မရရှိနိုင်ပါ</string>
     <string name="payment_pending_dialog_message">သင့်ဝယ်ယူမှုကို လက်ရှိတွင် ကျွန်ုပ်တို့ စစ်ဆေး အတည်ပြုနေဆဲဖြစ်ပြီး အချိန်အနည်းငယ်ကြာနိုင်ပါသည်။ စစ်ဆေး အတည်ပြုမှု အောင်မြင်ပါက သင့်အချိန်များကို ပေါင်းထည့်သွားပါမည်။</string>
     <string name="payment_status_pending">Google Play ပေးချေမှုကို ဆိုင်းငံ့ထားဆဲ</string>
     <string name="please_enter_a_valid_ip_address">မှန်ကန်သော IPv4 သို့မဟုတ် IPv6 လိပ်စာကို ရိုက်ထည့်ပေးပါ</string>
