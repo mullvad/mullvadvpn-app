@@ -385,6 +385,7 @@ class BillingPaymentRepositoryTest {
             val mockBillingPurchase: Purchase = mockk()
             val mockBillingResult: BillingResult = mockk()
             every { mockBillingPurchase.purchaseState } returns Purchase.PurchaseState.PENDING
+            every { mockBillingPurchase.products } returns listOf("MOCK")
             every { mockBillingResult.responseCode } returns BillingResponseCode.OK
             coEvery {
                 mockBillingRepository.startPurchaseFlow(
