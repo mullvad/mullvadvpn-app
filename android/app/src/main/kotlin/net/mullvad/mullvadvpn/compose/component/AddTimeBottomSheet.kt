@@ -57,7 +57,7 @@ import org.koin.androidx.compose.koinViewModel
         "PaymentLoading|NoPayment|NoProductsFound|PaymentAvailable|PaymentPending|PaymentError"
 )
 @Composable
-fun PreviewPaymentBottomSheet(
+private fun PreviewPaymentBottomSheet(
     @PreviewParameter(AddMoreTimeUiStatePreviewParameterProvider::class)
     state: Lc<Unit, AddMoreTimeUiState>
 ) {
