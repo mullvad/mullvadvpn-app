@@ -160,10 +160,10 @@ fun WelcomeScreen(
         onAccountClicked = onAccountClick,
         snackbarHostState = snackbarHostState,
     ) {
-        var addTimeBottomSheetState by remember { mutableStateOf<Unit?>(null) }
+        var addTimeBottomSheetState by remember { mutableStateOf(false) }
         AddTimeBottomSheet(
-            visible = addTimeBottomSheetState != null,
-            onHideBottomSheet = { addTimeBottomSheetState = null },
+            visible = addTimeBottomSheetState,
+            onHideBottomSheet = { addTimeBottomSheetState = false },
             onRedeemVoucherClick = onRedeemVoucherClick,
             onPlayPaymentInfoClick = onPlayPaymentInfoClick,
         )
@@ -188,7 +188,7 @@ fun WelcomeScreen(
             if (state is Lc.Content) {
                 ButtonPanel(
                     showDisconnectButton = state.value.tunnelState.isSecured(),
-                    onAddMoreTimeClick = { addTimeBottomSheetState = Unit },
+                    onAddMoreTimeClick = { addTimeBottomSheetState = true },
                     onDisconnectClick = onDisconnectClick,
                 )
             }

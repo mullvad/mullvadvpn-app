@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -70,7 +71,7 @@ private fun PreviewAccountScreen(
 ) {
     AppTheme {
         AccountScreen(
-            state = state,
+            state = (state as? Lc.Content<AccountUiState>)?.value,
             snackbarHostState = SnackbarHostState(),
             onCopyAccountNumber = {},
             onManageDevicesClick = {},
@@ -114,7 +115,7 @@ fun Account(navigator: DestinationsNavigator) {
     }
 
     AccountScreen(
-        state = state,
+        state = (state as? Lc.Content<AccountUiState>)?.value,
         snackbarHostState = snackbarHostState,
         onManageDevicesClick =
             dropUnlessResumed {
@@ -134,7 +135,7 @@ fun Account(navigator: DestinationsNavigator) {
 @ExperimentalMaterial3Api
 @Composable
 fun AccountScreen(
-    state: Lc<Unit, AccountUiState>,
+    state: AccountUiState?,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onCopyAccountNumber: (String) -> Unit,
     onManageDevicesClick: () -> Unit,
@@ -151,13 +152,15 @@ fun AccountScreen(
         navigationIcon = { NavigateCloseIconButton(onBackClick) },
         snackbarHostState = snackbarHostState,
     ) { modifier ->
-        var addTimeBottomSheetState by remember { mutableStateOf<Unit?>(null) }
-        AddTimeBottomSheet(
-            visible = addTimeBottomSheetState != null,
-            onHideBottomSheet = { addTimeBottomSheetState = null },
-            onRedeemVoucherClick = onRedeemVoucherClick,
-            onPlayPaymentInfoClick = onPlayPaymentInfoClick,
-        )
+        var addTimeBottomSheetState by remember { mutableStateOf<Boolean>(false) }
+        if (!LocalInspectionMode.current) {
+            AddTimeBottomSheet(
+                visible = addTimeBottomSheetState,
+                onHideBottomSheet = { addTimeBottomSheetState = false },
+                onRedeemVoucherClick = onRedeemVoucherClick,
+                onPlayPaymentInfoClick = onPlayPaymentInfoClick,
+            )
+        }
 
         Column(
             horizontalAlignment = Alignment.Start,
@@ -172,18 +175,18 @@ fun AccountScreen(
                 modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize(),
             ) {
                 DeviceNameRow(
-                    deviceName = state.contentOrNull()?.deviceName ?: "",
+                    deviceName = state?.deviceName ?: "",
                     onManageDevicesClick = onManageDevicesClick,
                 )
 
                 AccountNumberRow(
-                    accountNumber = state.contentOrNull()?.accountNumber?.value ?: "",
+                    accountNumber = state?.accountNumber?.value ?: "",
                     onCopyAccountNumber,
                 )
 
                 PaidUntilRow(
-                    accountExpiry = state.contentOrNull()?.accountExpiry,
-                    onOpenPaymentScreen = { addTimeBottomSheetState = Unit },
+                    accountExpiry = state?.accountExpiry,
+                    onOpenPaymentScreen = { addTimeBottomSheetState = true },
                 )
             }
 
@@ -192,7 +195,7 @@ fun AccountScreen(
             NegativeButton(
                 text = stringResource(id = R.string.log_out),
                 onClick = onLogoutClick,
-                isLoading = state.contentOrNull()?.showLogoutLoading == true,
+                isLoading = state?.showLogoutLoading == true,
             )
         }
     }

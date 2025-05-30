@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.isSuccess
+import net.mullvad.mullvadvpn.util.toLc
 
 class AccountViewModel(
     private val accountRepository: AccountRepository,
@@ -42,14 +43,13 @@ class AccountViewModel(
                 accountData(),
                 isLoggingOut,
             ) { deviceState, accountData, isLoggingOut ->
-                Lc.Content(
-                    AccountUiState(
+                AccountUiState(
                         deviceName = deviceState.device.displayName(),
                         accountNumber = deviceState.accountNumber,
                         accountExpiry = accountData?.expiryDate,
                         showLogoutLoading = isLoggingOut,
                     )
-                )
+                    .toLc<Unit, AccountUiState>()
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(Unit))
 
@@ -109,8 +109,8 @@ class AccountViewModel(
 }
 
 data class AccountUiState(
-    val deviceName: String?,
-    val accountNumber: AccountNumber?,
+    val deviceName: String,
+    val accountNumber: AccountNumber,
     val accountExpiry: ZonedDateTime?,
     val showLogoutLoading: Boolean = false,
 )

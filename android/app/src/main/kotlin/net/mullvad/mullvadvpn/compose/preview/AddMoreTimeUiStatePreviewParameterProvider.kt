@@ -8,35 +8,33 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.toLc
 
 class AddMoreTimeUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Unit, AddMoreTimeUiState>> {
     override val values: Sequence<Lc<Unit, AddMoreTimeUiState>> =
         sequenceOf(
             Lc.Loading(Unit),
-            Lc.Content(
-                AddMoreTimeUiState(
+            AddMoreTimeUiState(
                     purchaseState = null,
                     billingPaymentState = null,
                     showSitePayment = true,
                 )
-            ),
-            Lc.Content(
-                AddMoreTimeUiState(
+                .toLc(),
+            AddMoreTimeUiState(
                     purchaseState = null,
                     billingPaymentState = null,
                     showSitePayment = true,
                 )
-            ),
+                .toLc(),
         ) +
             generatePaymentStates().map { state ->
-                Lc.Content(
-                    AddMoreTimeUiState(
+                AddMoreTimeUiState(
                         purchaseState = null,
                         billingPaymentState = state,
                         showSitePayment = false,
                     )
-                )
+                    .toLc()
             }
 
     private fun generatePaymentStates(): Sequence<PaymentState> =
