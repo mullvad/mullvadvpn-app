@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Mostra promemoria quando il tempo dell\'account sta per scadere</string>
     <string name="account_time_notification_channel_name">Promemoria temporali per l\'account</string>
     <string name="add">Aggiungi</string>
-    <string name="add_30_days_time">Aggiungi 30 giorni di tempo</string>
     <string name="add_30_days_time_x">Aggiungi 30 giorni di tempo (%1$s)</string>
     <string name="add_a_server">Aggiungi un server</string>
     <string name="add_dns_server_dialog_title">Aggiungi server DNS</string>
@@ -281,10 +280,7 @@
     <string name="patch_not_matching_specification">La patch non corrisponde alle specifiche</string>
     <string name="pay_to_start_using">Per iniziare a utilizzare l\'app, devi prima aggiungere tempo al tuo account.</string>
     <string name="payment_billing_error_dialog_message">Non siamo riusciti ad avviare il processo di pagamento, assicurati di avere la versione più recente di Google Play.</string>
-    <string name="payment_billing_error_dialog_title">Google Play non disponibile</string>
-    <string name="payment_completed_dialog_title">L\'ora è stata aggiunta correttamente</string>
     <string name="payment_obfuscation_id_error_dialog_message">Non siamo riusciti ad avviare il processo di pagamento, riprova più tardi.</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Servizi Mullvad non disponibili</string>
     <string name="payment_pending_dialog_message">Stiamo verificando il tuo acquisto, l\'operazione potrebbe richiedere del tempo. Il tuo tempo verrà aggiunto quando la verifica avrà avuto esito positivo.</string>
     <string name="payment_status_pending">Pagamento Google Play in sospeso</string>
     <string name="please_enter_a_valid_ip_address">Inserisci un indirizzo IPv4 o IPv6 valido</string>
