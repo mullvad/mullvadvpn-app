@@ -41,6 +41,7 @@ supported.
 
 #### macOS
 - Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
+- Make switching between networks faster.
 
 ### Fixed
 - Automatically connect when IP version becomes available.
