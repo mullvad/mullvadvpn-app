@@ -60,6 +60,7 @@ tun = { workspace = true, features = ["async"] }
 nix = { version = "0.28", features = ["socket", "signal"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+socket2 = { workspace = true }
 talpid-macos = { path = "../talpid-macos" }
 talpid-net = { path = "../talpid-net" }
 

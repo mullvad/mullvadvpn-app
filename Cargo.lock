@@ -5338,6 +5338,7 @@ dependencies = [
  "resolv-conf",
  "serde",
  "serde_json",
+ "socket2 0.5.8",
  "system-configuration",
  "talpid-dbus",
  "talpid-macos",
