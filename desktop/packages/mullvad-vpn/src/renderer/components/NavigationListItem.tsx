@@ -8,7 +8,7 @@ export type NavigationListItemProps = ListItemProps & {
   to: RoutePath;
 };
 
-export function NavigationListItem({ to, children, ...props }: NavigationListItemProps) {
+function NavigationListItem({ to, children, ...props }: NavigationListItemProps) {
   const history = useHistory();
   const navigate = React.useCallback(() => history.push(to), [history, to]);
 
@@ -22,3 +22,12 @@ export function NavigationListItem({ to, children, ...props }: NavigationListIte
     </ListItem>
   );
 }
+const NavigationListItemNamespace = Object.assign(NavigationListItem, {
+  Label: ListItem.Label,
+  Group: ListItem.Group,
+  Text: ListItem.Text,
+  Footer: ListItem.Footer,
+  Icon: ListItem.Icon,
+});
+
+export { NavigationListItemNamespace as NavigationListItem };
