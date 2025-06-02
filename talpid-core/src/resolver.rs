@@ -447,7 +447,6 @@ impl LocalResolver {
             }
             if let Err(error) = sock.set_reuse_address(true) {
                 log::warn!("Failed to set SO_REUSEADDR on resolver socket: {error}");
-                continue;
             }
 
             match sock.bind(&SocketAddr::from((socket_addr, DNS_PORT)).into()) {
