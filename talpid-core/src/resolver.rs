@@ -887,23 +887,6 @@ mod test {
         UdpSocket::bind(addr).expect("Failed to bind to a port that should have been removed");
     }
 
-    #[test_log::test]
-    fn test_shutdown() {
-        must_be_root();
-
-        let _mutex = LOCK.lock().unwrap();
-        let rt = tokio::runtime::Builder::new_multi_thread()
-            .enable_all()
-            .build()
-            .unwrap();
-
-        let handle = rt.block_on(start_resolver());
-        let addr = handle.listening_addr();
-        mem::drop(handle);
-        thread::sleep(Duration::from_millis(300));
-        UdpSocket::bind(addr).expect("Failed to bind to a port that should have been removed");
-    }
-
     /// Test that alias is removed when resolver is dropped
     #[test_log::test]
     fn test_alias_cleanup() {
