@@ -436,6 +436,8 @@ impl TunnelStateMachine {
 
         #[cfg(target_os = "macos")]
         runtime.block_on(self.shared_values.split_tunnel.shutdown());
+        #[cfg(target_os = "macos")]
+        runtime.block_on(self.shared_values.filtering_resolver.stop());
         runtime.block_on(self.shared_values.route_manager.stop());
     }
 }
