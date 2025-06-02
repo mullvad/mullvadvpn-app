@@ -7,7 +7,13 @@ mod tun05_imp {
     use std::{
         net::IpAddr,
         ops::Deref,
-        os::unix::io::{AsRawFd, RawFd},
+        os::{
+            fd::AsFd,
+            unix::{
+                io::{AsRawFd, RawFd},
+                prelude::BorrowedFd,
+            },
+        },
         process::Command,
     };
     use tun::{Configuration, Device};
@@ -99,6 +105,12 @@ mod tun05_imp {
         }
     }
 
+    impl AsFd for UnixTun {
+        fn as_fd(&self) -> BorrowedFd<'_> {
+            self.deref().as_fd()
+        }
+    }
+
     /// A tunnel device
     pub struct TunnelDevice {
         dev: tun::AsyncDevice,
@@ -137,6 +149,16 @@ mod tun05_imp {
                 config.packet_information(true);
             });
             self
+        }
+    }
+
+    impl AsFd for TunnelDevice {
+        fn as_fd(&self) -> BorrowedFd<'_> {
+            // TODO: make sure we uphold safety requirements of BorrowedFd
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            unsafe {
+                BorrowedFd::borrow_raw(self.as_raw_fd())
+            }
         }
     }
 

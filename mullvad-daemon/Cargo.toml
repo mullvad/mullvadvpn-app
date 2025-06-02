@@ -63,7 +63,7 @@ android_logger = "0.8"
 hickory-resolver = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.23"
+nix = { workspace = true, features = ["signal", "user"] }
 simple-signal = "1.1"
 
 [target.'cfg(target_os="linux")'.dependencies]

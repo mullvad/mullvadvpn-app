@@ -18,7 +18,7 @@ use std::borrow::Cow;
 #[cfg(daita)]
 use std::ffi::CString;
 #[cfg(unix)]
-use std::os::unix::io::{AsRawFd, RawFd};
+use std::os::unix::io::AsRawFd;
 #[cfg(unix)]
 use std::sync::{Arc, Mutex};
 use std::{
@@ -334,7 +334,7 @@ impl WgGoTunnel {
         let handle = wireguard_go_rs::Tunnel::turn_on(
             mtu,
             &wg_config_str,
-            tunnel_fd,
+            tunnel_fd.as_raw_fd(),
             Some(logging::wg_go_logging_callback),
             logging_context.ordinal,
         )
@@ -447,7 +447,7 @@ impl WgGoTunnel {
         tun_provider: Arc<Mutex<TunProvider>>,
         config: &Config,
         #[cfg(not(target_os = "android"))] routes: impl Iterator<Item = IpNetwork>,
-    ) -> Result<(Tun, RawFd)> {
+    ) -> Result<(Tun, std::os::fd::OwnedFd)> {
         let mut last_error = None;
         let mut tun_provider = tun_provider.lock().unwrap();
 
@@ -486,7 +486,7 @@ impl WgGoTunnel {
                 .open_tun()
                 .map_err(TunnelError::SetupTunnelDevice)?;
 
-            match nix::unistd::dup(tunnel_device.as_raw_fd()) {
+            match nix::unistd::dup(&tunnel_device) {
                 Ok(fd) => return Ok((tunnel_device, fd)),
                 #[cfg(not(target_os = "macos"))]
                 Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
@@ -529,7 +529,7 @@ impl WgGoTunnel {
 
         let handle = wireguard_go_rs::Tunnel::turn_on(
             &wg_config_str,
-            tunnel_fd,
+            tunnel_fd.as_raw_fd(),
             Some(logging::wg_go_logging_callback),
             logging_context.ordinal,
         )
@@ -611,7 +611,7 @@ impl WgGoTunnel {
             &exit_config_str,
             &entry_config_str,
             &private_ip,
-            tunnel_fd,
+            tunnel_fd.as_raw_fd(),
             Some(logging::wg_go_logging_callback),
             logging_context.ordinal,
         )
