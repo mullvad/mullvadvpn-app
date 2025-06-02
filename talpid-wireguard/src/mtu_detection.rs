@@ -1,4 +1,4 @@
-use std::{io, net::IpAddr, time::Duration};
+use std::{io, net::IpAddr, os::fd::BorrowedFd, time::Duration};
 
 use futures::{future, stream::FuturesUnordered, Future, TryStreamExt};
 use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
@@ -112,10 +112,13 @@ async fn detect_mtu(
     #[cfg(target_os = "macos")]
     {
         use nix::sys::socket::{setsockopt, sockopt};
-        let fd = client.get_socket().get_native_sock();
+
+        // SAFETY: `surge_ping` promises that the socket is open, and won't close as long as we
+        // hold on to `client`.
+        let fd = unsafe { BorrowedFd::borrow_raw(client.get_socket().get_native_sock()) };
         let buf_size = linspace.iter().map(|sz| usize::from(*sz)).sum();
-        setsockopt(fd, sockopt::SndBuf, &buf_size).map_err(Error::MtuSetBufferSize)?;
-        setsockopt(fd, sockopt::RcvBuf, &buf_size).map_err(Error::MtuSetBufferSize)?;
+        setsockopt(&fd, sockopt::SndBuf, &buf_size).map_err(Error::MtuSetBufferSize)?;
+        setsockopt(&fd, sockopt::RcvBuf, &buf_size).map_err(Error::MtuSetBufferSize)?;
     }
 
     // Shared buffer to reduce allocations
