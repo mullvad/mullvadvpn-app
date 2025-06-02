@@ -885,6 +885,8 @@ mod test {
         );
 
         rt.block_on(handle.stop());
+        // TODO: make stop wait for cleanup
+        thread::sleep(Duration::from_millis(300));
 
         assert!(
             matches!(rt.block_on(loopback_alias_exists(addr.ip())), Ok(false)),
