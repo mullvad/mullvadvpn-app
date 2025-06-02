@@ -707,9 +707,11 @@ mod test {
     }
 
     /// Test whether we can successfully bind the socket even if the address is already used to
-    /// in different scenarios.
+    /// in different scenarios. This test must run as root.
     #[test_log::test]
     fn test_bind() {
+        println!("NOTE: this test will fail unless you run it as root.");
+
         let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
 
