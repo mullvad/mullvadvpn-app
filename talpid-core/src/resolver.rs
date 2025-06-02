@@ -684,6 +684,7 @@ mod test {
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
         TokioAsyncResolver,
     };
+    use nix::unistd::Uid;
     use std::{mem, net::UdpSocket, sync::Mutex, thread, time::Duration};
     use typed_builder::TypedBuilder;
 
@@ -704,10 +705,16 @@ mod test {
         TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default())
     }
 
+    fn must_be_root() {
+        assert!(Uid::current().is_root(), "This test must run as root");
+    }
+
     /// Test whether we can successfully bind the socket even if the address is already used to
     /// in different scenarios.
     #[test_log::test]
     fn test_bind() {
+        must_be_root();
+
         let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
 
@@ -809,6 +816,8 @@ mod test {
 
     #[test_log::test]
     fn test_failed_lookup() {
+        must_be_root();
+
         let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
 
@@ -829,8 +838,10 @@ mod test {
 
     #[test_log::test]
     fn test_shutdown() {
+        must_be_root();
+
         let _mutex = LOCK.lock().unwrap();
-        let rt = tokio::runtime::Runtime::new().unwrap();
+        let rt = tokio::runtime::Builder::new_multi_thread().enable_all().build().unwrap();
 
         let handle = rt.block_on(start_resolver());
         let addr = handle.listening_addr();
