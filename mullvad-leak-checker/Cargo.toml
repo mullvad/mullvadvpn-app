@@ -28,7 +28,7 @@ env_logger = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
 pnet_packet.workspace = true
-nix = { version = "0.29.0", features = ["net", "socket", "uio"] }
+nix = { workspace = true, features = ["net", "socket", "uio"] }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { workspace = true, features = ["Win32_NetworkManagement_Ndis"] }

@@ -158,10 +158,7 @@ struct RoutingSocketInner {
 impl RoutingSocketInner {
     fn new() -> io::Result<Self> {
         let fd = socket(AddressFamily::Route, SockType::Raw, SockFlag::empty(), None)?;
-        let _ = fcntl::fcntl(
-            fd.as_raw_fd(),
-            fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_NONBLOCK),
-        )?;
+        let _ = fcntl::fcntl(&fd, fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_NONBLOCK))?;
         let socket = File::from(fd);
         Ok(Self {
             socket: AsyncFd::new(socket)?,
