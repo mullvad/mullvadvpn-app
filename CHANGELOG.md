@@ -41,10 +41,15 @@ supported.
 - Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
 
 ### Fixed
+- Automatically connect when IP version becomes available.
+
 #### Linux
 - Fix syntax error in Apparmor profile.
 - Fix issue where settings were lost after an upgrade if `mullvad-daemon` was not restarted
   before `mullvad-early-boot-blocking.service`. That is, before a reboot.
+
+#### Windows
+- Fix issue where daemon got stuck trying to connect only over IPv4 (or only IPv6).
 
 #### macOS
 - Fully uninstall the app when it is removed by being dropped in the bin.
