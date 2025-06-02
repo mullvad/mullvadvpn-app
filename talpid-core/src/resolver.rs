@@ -92,10 +92,24 @@ const TTL_SECONDS: u32 = 3;
 /// belongs to the documentation range so should never be reachable.
 const RESOLVED_ADDR: Ipv4Addr = Ipv4Addr::new(198, 51, 100, 1);
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct LocalResolverConfig {
+    /// Try to bind to a random address in the `127/8` subnet.
+    pub use_random_loopback: bool,
+}
+
+impl Default for LocalResolverConfig {
+    fn default() -> Self {
+        Self {
+            use_random_loopback: true,
+        }
+    }
+}
+
 /// Starts a resolver. Returns a cloneable handle, which can activate, deactivate and shut down the
 /// resolver. When all instances of a handle are dropped, the server will stop.
-pub async fn start_resolver() -> Result<ResolverHandle, Error> {
-    let (resolver, resolver_handle) = LocalResolver::new().await?;
+pub async fn start_resolver(config: LocalResolverConfig) -> Result<ResolverHandle, Error> {
+    let (resolver, resolver_handle) = LocalResolver::new(config).await?;
     tokio::spawn(resolver.run());
     Ok(resolver_handle)
 }
@@ -294,12 +308,12 @@ impl ResolverHandle {
 
 impl LocalResolver {
     /// Constructs a new filtering resolver and it's handle.
-    async fn new() -> Result<(Self, ResolverHandle), Error> {
+    async fn new(config: LocalResolverConfig) -> Result<(Self, ResolverHandle), Error> {
         let (command_tx, command_rx) = mpsc::unbounded();
         let command_tx = Arc::new(command_tx);
         let weak_tx = Arc::downgrade(&command_tx);
 
-        let (socket, cleanup_ifconfig) = Self::new_random_socket().await?;
+        let (socket, cleanup_ifconfig) = Self::new_random_socket(&config).await?;
         let resolver_addr = socket.local_addr().map_err(Error::GetSocketAddr)?;
         let mut server = Self::new_server(socket, weak_tx.clone())?;
 
@@ -373,11 +387,14 @@ impl LocalResolver {
     ///
     /// We do this to try and avoid collisions with other DNS servers running on the same system.
     ///
+    /// If [LocalResolverConfig::use_random_loopback] is `false`, we will only try to bind to
+    /// `127.0.0.1`.
+    ///
     /// # Returns
     /// - The first successfully bound [UdpSocket]
     /// - An [OnDrop] guard that will delete the IP aliases added, if any.
     ///   If the guard is dropped while the socket is in use, calls to read/write will likely fail.
-    async fn new_random_socket() -> Result<(UdpSocket, OnDrop), Error> {
+    async fn new_random_socket(config: &LocalResolverConfig) -> Result<(UdpSocket, OnDrop), Error> {
         use std::net::Ipv4Addr;
 
         let random_loopback = || async move {
@@ -424,10 +441,12 @@ impl LocalResolver {
 
         for attempt in 0.. {
             let (socket_addr, on_drop) = match attempt {
+                ..3 if !config.use_random_loopback => continue,
                 ..3 => match random_loopback().await {
                     Some(random) => random,
                     None => continue,
                 },
+
                 3 => (Ipv4Addr::LOCALHOST, OnDrop::noop()),
                 4.. => break,
             };
@@ -694,7 +713,13 @@ mod test {
     static LOCK: Mutex<()> = Mutex::new(());
 
     async fn start_resolver() -> ResolverHandle {
-        super::start_resolver().await.unwrap()
+        super::start_resolver(LocalResolverConfig::default())
+            .await
+            .unwrap()
+    }
+
+    fn must_be_root() {
+        assert!(Uid::current().is_root(), "This test must run as root");
     }
 
     fn get_test_resolver(addr: SocketAddr) -> hickory_server::resolver::TokioAsyncResolver {
@@ -730,7 +755,9 @@ mod test {
             )
             .unwrap();
 
-            let handle = super::start_resolver().await.expect("bind should succeed");
+            let handle = super::start_resolver(LocalResolverConfig::default())
+                .await
+                .expect("bind should succeed");
             let test_resolver = get_test_resolver(handle.listening_addr());
             test_resolver
                 .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
@@ -749,7 +776,9 @@ mod test {
             )
             .unwrap();
 
-            let handle = super::start_resolver().await.expect("bind should succeed");
+            let handle = super::start_resolver(LocalResolverConfig::default())
+                .await
+                .expect("bind should succeed");
             let test_resolver = get_test_resolver(handle.listening_addr());
             test_resolver
                 .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
@@ -768,7 +797,9 @@ mod test {
             )
             .unwrap();
 
-            let handle = super::start_resolver().await.expect("bind should fail");
+            let handle = super::start_resolver(LocalResolverConfig::default())
+                .await
+                .expect("bind should fail");
             let test_resolver = get_test_resolver(handle.listening_addr());
             test_resolver
                 .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
@@ -787,7 +818,9 @@ mod test {
             )
             .unwrap();
 
-            let handle = super::start_resolver().await.expect("bind should succeed");
+            let handle = super::start_resolver(LocalResolverConfig::default())
+                .await
+                .expect("bind should succeed");
             let test_resolver = get_test_resolver(handle.listening_addr());
             test_resolver
                 .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
@@ -837,6 +870,29 @@ mod test {
         )
     }
 
+    /// Test that we close the socket when shutting down the local resolver.
+    #[test_log::test]
+    fn test_unbind_socket_on_stop() {
+        must_be_root();
+
+        let _mutex = LOCK.lock().unwrap();
+        let rt = tokio::runtime::Builder::new_multi_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+
+        let config = LocalResolverConfig {
+            // Bind resolver to 127.0.0.1 so that we can easily bind to the same address here.
+            use_random_loopback: false,
+        };
+        let handle = rt.block_on(super::start_resolver(config)).unwrap();
+        let addr = handle.listening_addr();
+        assert_eq!(addr, SocketAddr::from((Ipv4Addr::LOCALHOST, DNS_PORT)));
+        mem::drop(handle);
+        thread::sleep(Duration::from_millis(300));
+        UdpSocket::bind(addr).expect("Failed to bind to a port that should have been removed");
+    }
+
     #[test_log::test]
     fn test_shutdown() {
         must_be_root();
@@ -857,15 +913,13 @@ mod test {
     /// Test that alias is removed when resolver is dropped
     #[test_log::test]
     fn test_alias_cleanup() {
+        must_be_root();
+
         let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Builder::new_multi_thread()
             .enable_all()
             .build()
             .unwrap();
-
-        if unsafe { libc::getuid() } != 0 {
-            panic!("This test must run as root");
-        }
 
         let handle = rt.block_on(start_resolver());
         let addr = handle.listening_addr();
