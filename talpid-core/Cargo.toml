@@ -100,9 +100,11 @@ features = [
     "Win32_System_SystemInformation",
 ]
 
+[target.'cfg(target_os = "macos")'.dev-dependencies]
+typed-builder = "0.20.0"
+
 [build-dependencies]
 tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }
-
 
 [dev-dependencies]
 test-log = "0.2.17"
