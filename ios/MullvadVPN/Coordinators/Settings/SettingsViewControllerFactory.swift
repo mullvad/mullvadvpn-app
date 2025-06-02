@@ -76,7 +76,8 @@ struct SettingsViewControllerFactory {
         return .childCoordinator(VPNSettingsCoordinator(
             navigationController: navigationController,
             interactorFactory: interactorFactory,
-            ipOverrideRepository: ipOverrideRepository
+            ipOverrideRepository: ipOverrideRepository,
+            section: nil
         ))
     }
 

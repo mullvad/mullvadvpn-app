@@ -249,7 +249,12 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         ].compactMap { indexPath(for: $0) }
     }
 
-    init(tableView: UITableView) {
+    var onlyShowSection: Section?
+
+    init(
+        tableView: UITableView,
+        section: VPNSettingsSection? = nil
+    ) {
         self.tableView = tableView
 
         let vpnSettingsCellFactory = VPNSettingsCellFactory(
@@ -257,6 +262,12 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             viewModel: viewModel
         )
         self.vpnSettingsCellFactory = vpnSettingsCellFactory
+
+        self.onlyShowSection = switch section {
+        case .obfuscation: .wireGuardObfuscation
+        case .quantumResistance: .quantumResistance
+        default: nil
+        }
 
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
             vpnSettingsCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
@@ -506,21 +517,44 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
     private func updateSnapshot(animated: Bool = false, completion: (() -> Void)? = nil) {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
-
-        snapshot.appendSections(Section.allCases)
-        snapshot.appendItems([.dnsSettings], toSection: .dnsSettings)
-        snapshot.appendItems([.ipOverrides], toSection: .ipOverrides)
+        if let onlyShowSection {
+            snapshot.appendSections([onlyShowSection])
+        } else {
+            snapshot.appendSections(Section.allCases)
+        }
+        if snapshot.sectionIdentifiers.contains(.dnsSettings) {
+            snapshot.appendItems([.dnsSettings], toSection: .dnsSettings)
+        }
+        if snapshot.sectionIdentifiers.contains(.ipOverrides) {
+            snapshot.appendItems([.ipOverrides], toSection: .ipOverrides)
+        }
         #if DEBUG
-        snapshot.appendItems(
-            [.localNetworkSharing(viewModel.localNetworkSharing)],
-            toSection: .localNetworkSharing
-        )
-        snapshot
-            .appendItems(
-                [.includeAllNetworks(viewModel.includeAllNetworks)],
+        if snapshot.sectionIdentifiers.contains(.localNetworkSharing) {
+            snapshot.appendItems(
+                [.localNetworkSharing(viewModel.localNetworkSharing)],
                 toSection: .localNetworkSharing
             )
+            snapshot
+                .appendItems(
+                    [.includeAllNetworks(viewModel.includeAllNetworks)],
+                    toSection: .localNetworkSharing
+                )
+        }
         #endif
+
+        if onlyShowSection == .wireGuardObfuscation {
+            snapshot
+                .appendItems(
+                    Item.wireGuardObfuscation,
+                    toSection: .wireGuardObfuscation
+                )
+        } else if onlyShowSection == .quantumResistance {
+            snapshot
+                .appendItems(
+                    Item.quantumResistance,
+                    toSection: .quantumResistance
+                )
+        }
 
         applySnapshot(snapshot, animated: animated, completion: completion)
     }
@@ -599,17 +633,19 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
         header.isExpanded = isExpanded(.wireGuardObfuscation)
-        header.didCollapseHandler = { [weak self] header in
-            guard let self else { return }
+        if onlyShowSection == nil || onlyShowSection != .wireGuardObfuscation {
+            header.didCollapseHandler = { [weak self] header in
+                guard let self else { return }
 
-            var snapshot = snapshot()
-            if header.isExpanded {
-                snapshot.deleteItems(Item.wireGuardObfuscation)
-            } else {
-                snapshot.appendItems(Item.wireGuardObfuscation, toSection: .wireGuardObfuscation)
+                var snapshot = snapshot()
+                if header.isExpanded {
+                    snapshot.deleteItems(Item.wireGuardObfuscation)
+                } else {
+                    snapshot.appendItems(Item.wireGuardObfuscation, toSection: .wireGuardObfuscation)
+                }
+                header.isExpanded.toggle()
+                applySnapshot(snapshot, animated: true)
             }
-            header.isExpanded.toggle()
-            applySnapshot(snapshot, animated: true)
         }
 
         header.infoButtonHandler = { [weak self] in

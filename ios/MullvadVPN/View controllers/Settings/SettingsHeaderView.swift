@@ -49,7 +49,12 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         }
     }
 
-    var didCollapseHandler: CollapseHandler?
+    var didCollapseHandler: CollapseHandler? {
+        didSet {
+            collapseButton.isHidden = didCollapseHandler == nil
+        }
+    }
+
     var infoButtonHandler: InfoButtonHandler? { didSet {
         infoButton.isHidden = infoButtonHandler == nil
     }}
@@ -68,6 +73,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
             for: .touchUpInside
         )
 
+        collapseButton.isHidden = true
         collapseButton.addTarget(
             self,
             action: #selector(handleCollapseButton(_:)),

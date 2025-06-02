@@ -11,13 +11,19 @@ import MullvadTypes
 import Routing
 import UIKit
 
-class IPOverrideCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
+class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChildCoordinator {
     private let navigationController: UINavigationController
     private let interactor: IPOverrideInteractor
 
     var presentationContext: UIViewController {
         navigationController
     }
+
+    var presentedViewController: UIViewController {
+        navigationController
+    }
+
+    var didFinish: ((IPOverrideCoordinator) -> Void)?
 
     init(
         navigationController: UINavigationController,
