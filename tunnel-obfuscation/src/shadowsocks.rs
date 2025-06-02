@@ -17,8 +17,6 @@ use shadowsocks::{
     },
     ProxySocket,
 };
-#[cfg(any(target_os = "android", target_os = "linux"))]
-use std::os::fd::AsRawFd;
 use std::{io, net::SocketAddr, sync::Arc};
 use tokio::{net::UdpSocket, sync::oneshot};
 
@@ -181,7 +179,7 @@ async fn create_shadowsocks_socket(
         .map_err(Error::BindRemoteUdp)?;
     #[cfg(target_os = "linux")]
     if let Some(fwmark) = fwmark {
-        setsockopt(socket.as_raw_fd(), sockopt::Mark, &fwmark).map_err(Error::SetFwmark)?;
+        setsockopt(&socket, sockopt::Mark, &fwmark).map_err(Error::SetFwmark)?;
     }
 
     Ok(socket)
