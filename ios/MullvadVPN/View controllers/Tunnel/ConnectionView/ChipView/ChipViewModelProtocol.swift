@@ -10,6 +10,7 @@ import SwiftUI
 
 protocol ChipViewModelProtocol: ObservableObject {
     var chips: [ChipModel] { get }
+    func onPressed(item: ChipModel)
 }
 
 extension ChipViewModelProtocol {
@@ -53,13 +54,15 @@ extension ChipViewModelProtocol {
 }
 
 class MockFeatureIndicatorsViewModel: ChipViewModelProtocol {
+    func onPressed(item: ChipModel) {}
+
     @Published var chips: [ChipModel] = [
-        ChipModel(name: "DAITA"),
-        ChipModel(name: "Obfuscation"),
-        ChipModel(name: "Quantum resistance"),
-        ChipModel(name: "Multihop"),
-        ChipModel(name: "DNS content blockers"),
-        ChipModel(name: "Custom DNS"),
-        ChipModel(name: "Server IP override"),
+        ChipModel(id: .daita, name: "DAITA"),
+        ChipModel(id: .obfuscation, name: "Obfuscation"),
+        ChipModel(id: .quantumResistance, name: "Quantum resistance"),
+        ChipModel(id: .multihop, name: "Multihop"),
+        ChipModel(id: .dns, name: "DNS content blockers"),
+        ChipModel(id: .dns, name: "Custom DNS"),
+        ChipModel(id: .ipOverrides, name: "Server IP override"),
     ]
 }

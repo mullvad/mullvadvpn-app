@@ -151,6 +151,18 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         case .alert:
             presentAlert(animated: animated, context: context, completion: completion)
+        case let .vpnSettings(section):
+            presentVPNSettings(
+                section: section,
+                animated: animated,
+                completion: completion
+            )
+        case .multihop:
+            presentMultihop(animated: animated, completion: completion)
+        case .dnsSettings:
+            presentDNSSettings(animated: animated, completion: completion)
+        case .ipOverrides:
+            presentIPOverride(animated: animated, completion: completion)
         }
     }
 
@@ -502,6 +514,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             self?.router.present(.selectLocation, animated: true)
         }
 
+        tunnelCoordinator.showFeatureSetting = { [weak self] route in
+            self?.router.present(route, animated: true)
+        }
+
         return tunnelCoordinator
     }
 
@@ -605,6 +621,35 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         }
     }
 
+    func presentVPNSettings(
+        section: VPNSettingsSection?,
+        animated: Bool,
+        completion: @escaping @Sendable (Coordinator) -> Void
+    ) {
+        let interactorFactory = SettingsInteractorFactory(
+            tunnelManager: tunnelManager,
+            apiProxy: apiProxy,
+            relayCacheTracker: relayCacheTracker,
+            ipOverrideRepository: ipOverrideRepository
+        )
+        let coordinator = VPNSettingsCoordinator(
+            navigationController: CustomNavigationController(),
+            interactorFactory: interactorFactory,
+            ipOverrideRepository: ipOverrideRepository,
+            route: .vpnSettings(section)
+        )
+
+        coordinator.didFinish = { [weak self] _ in
+            self?.router.dismiss(.vpnSettings(section), animated: true)
+        }
+
+        coordinator.start(animated: animated)
+
+        presentChild(coordinator, animated: animated) {
+            completion(coordinator)
+        }
+    }
+
     private func presentDAITA(animated: Bool, completion: @escaping @Sendable (Coordinator) -> Void) {
         let viewModel = DAITATunnelSettingsViewModel(tunnelManager: tunnelManager)
         let coordinator = DAITASettingsCoordinator(
@@ -615,6 +660,67 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         coordinator.didFinish = { [weak self] _ in
             self?.router.dismiss(.daita, animated: true)
+        }
+
+        coordinator.start(animated: animated)
+
+        presentChild(coordinator, animated: animated) {
+            completion(coordinator)
+        }
+    }
+
+    private func presentMultihop(animated: Bool, completion: @escaping @Sendable (Coordinator) -> Void) {
+        let viewModel = MultihopTunnelSettingsViewModel(
+            tunnelManager: tunnelManager
+        )
+        let coordinator = MultihopSettingsCoordinator(
+            navigationController: CustomNavigationController(),
+            route: .multihop,
+            viewModel: viewModel
+        )
+
+        coordinator.didFinish = { [weak self] _ in
+            self?.router.dismiss(.multihop, animated: true)
+        }
+
+        coordinator.start(animated: animated)
+
+        presentChild(coordinator, animated: animated) {
+            completion(coordinator)
+        }
+    }
+
+    private func presentIPOverride(animated: Bool, completion: @escaping @Sendable (Coordinator) -> Void) {
+        let coordinator = IPOverrideCoordinator(
+            navigationController: CustomNavigationController(),
+            repository: ipOverrideRepository,
+            tunnelManager: tunnelManager,
+            route: .ipOverrides
+        )
+
+        coordinator.didFinish = { [weak self] _ in
+            self?.router.dismiss(.ipOverrides, animated: true)
+        }
+
+        coordinator.start(animated: animated)
+
+        presentChild(coordinator, animated: animated) {
+            completion(coordinator)
+        }
+    }
+
+    private func presentDNSSettings(animated: Bool, completion: @escaping @Sendable (Coordinator) -> Void) {
+        let coordinator = CustomDNSCoordinator(
+            navigationController: CustomNavigationController(),
+            interactor: VPNSettingsInteractor(
+                tunnelManager: tunnelManager,
+                relayCacheTracker: relayCacheTracker
+            ),
+            route: .dnsSettings
+        )
+
+        coordinator.didFinish = { [weak self] _ in
+            self?.router.dismiss(.dnsSettings, animated: true)
         }
 
         coordinator.start(animated: animated)

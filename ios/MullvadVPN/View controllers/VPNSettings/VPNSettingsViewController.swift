@@ -18,17 +18,21 @@ class VPNSettingsViewController: UITableViewController {
     private let interactor: VPNSettingsInteractor
     private var dataSource: VPNSettingsDataSource?
     private let alertPresenter: AlertPresenter
-
+    private let section: VPNSettingsSection?
     weak var delegate: VPNSettingsViewControllerDelegate?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
 
-    init(interactor: VPNSettingsInteractor, alertPresenter: AlertPresenter) {
+    init(
+        interactor: VPNSettingsInteractor,
+        alertPresenter: AlertPresenter,
+        section: VPNSettingsSection?
+    ) {
         self.interactor = interactor
         self.alertPresenter = alertPresenter
-
+        self.section = section
         super.init(style: .grouped)
     }
 
@@ -47,7 +51,11 @@ class VPNSettingsViewController: UITableViewController {
         tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
         tableView.allowsMultipleSelection = true
 
-        dataSource = VPNSettingsDataSource(tableView: tableView)
+        dataSource = VPNSettingsDataSource(
+            tableView: tableView,
+            section: section
+        )
+
         dataSource?.delegate = self
 
         navigationItem.title = NSLocalizedString(
@@ -67,9 +75,10 @@ class VPNSettingsViewController: UITableViewController {
             self?.dataSource?.setAvailablePortRanges(cachedRelays.relays.wireguard.portRanges)
         }
 
+        let showsSingleSection = section != nil
         tableView.tableHeaderView = UIView(frame: CGRect(
             origin: .zero,
-            size: CGSize(width: 0, height: UIMetrics.TableView.sectionSpacing)
+            size: CGSize(width: 0, height: showsSingleSection ? 0 : UIMetrics.TableView.sectionSpacing)
         ))
     }
 }
