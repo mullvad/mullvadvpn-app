@@ -15,7 +15,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
     @Published var ipOverrides: [IPOverride]
     @Published var tunnelState: TunnelState
     @Published var observedState: ObservedState
-
+    var onFeaturePressed: ((FeatureType) -> Void)?
     init(
         tunnelSettings: LatestTunnelSettings,
         ipOverrides: [IPOverride],
@@ -33,7 +33,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
         switch tunnelState {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer,
              .connected, .pendingReconnect:
-            let features: [ChipFeature] = [
+            let features: [any ChipFeature] = [
                 DaitaFeature(state: tunnelState),
                 QuantumResistanceFeature(state: tunnelState),
                 MultihopFeature(state: tunnelState),
@@ -44,9 +44,13 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
 
             return features
                 .filter { $0.isEnabled }
-                .map { ChipModel(name: $0.name) }
+                .map { ChipModel(id: $0.id, name: $0.name) }
         default:
             return []
         }
+    }
+
+    func onPressed(item: ChipModel) {
+        onFeaturePressed?(item.id)
     }
 }
