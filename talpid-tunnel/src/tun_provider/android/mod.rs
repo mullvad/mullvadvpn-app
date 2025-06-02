@@ -13,7 +13,10 @@ use jnix::{
 };
 use std::{
     net::IpAddr,
-    os::unix::io::{AsRawFd, RawFd},
+    os::{
+        fd::{AsFd, BorrowedFd},
+        unix::io::{AsRawFd, RawFd},
+    },
     sync::Arc,
 };
 use talpid_routing::Route;
@@ -430,6 +433,16 @@ impl VpnServiceTun {
 impl AsRawFd for VpnServiceTun {
     fn as_raw_fd(&self) -> RawFd {
         self.tunnel
+    }
+}
+
+impl AsFd for VpnServiceTun {
+    fn as_fd(&self) -> BorrowedFd<'_> {
+        // TODO: ensure we uphold the safety requirements of BorrowedFd
+        #[allow(clippy::undocumented_unsafe_blocks)]
+        unsafe {
+            BorrowedFd::borrow_raw(self.as_raw_fd())
+        }
     }
 }
 
