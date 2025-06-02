@@ -320,6 +320,13 @@ class BaseUITestCase: XCTestCase {
                 .getSuccessIconShown()
 
             if successIconShown == false {
+                // If the login happened too fast, the UI harness will miss the success icon being shown
+                // Check if the app is already on main page, and continue if it is.
+                if app.otherElements[.headerBarView].exists {
+                    successIconShown = true
+                    break
+                }
+
                 // Give it some time to show up. App might be waiting for a network connection to timeout.
                 LoginPage(app).waitForAccountNumberSubmitButton()
             }
