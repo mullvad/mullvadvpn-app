@@ -5357,6 +5357,7 @@ dependencies = [
  "tonic-build",
  "triggered",
  "tun 0.5.5",
+ "typed-builder 0.20.1",
  "which",
  "widestring",
  "windows 0.58.0",

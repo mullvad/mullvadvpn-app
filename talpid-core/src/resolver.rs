@@ -141,6 +141,13 @@ enum ResolverMessage {
         /// Channel for the query response
         response_tx: oneshot::Sender<std::result::Result<Box<dyn LookupObject>, ResolveError>>,
     },
+
+    /// Gracefully stop resolver
+    #[allow(dead_code)]
+    Stop {
+        /// Channel for the query response
+        response_tx: oneshot::Sender<()>,
+    },
 }
 
 /// Configuration for [Resolver]
@@ -238,7 +245,7 @@ impl Resolver {
 /// A handle to control a DNS resolver.
 ///
 /// When all resolver handles are dropped, the resolver will stop.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ResolverHandle {
     tx: Arc<mpsc::UnboundedSender<ResolverMessage>>,
     listening_addr: SocketAddr,
@@ -273,6 +280,16 @@ impl ResolverHandle {
             response_tx,
         });
 
+        let _ = response_rx.await;
+    }
+
+    /// Gracefully shut down resolver
+    #[cfg(test)]
+    pub async fn stop(self) {
+        let (response_tx, response_rx) = oneshot::channel();
+        let _ = self
+            .tx
+            .unbounded_send(ResolverMessage::Stop { response_tx });
         let _ = response_rx.await;
     }
 }
@@ -453,6 +470,7 @@ impl LocalResolver {
     async fn run(mut self) {
         let abort_handle = self.dns_server_task.abort_handle();
         let _abort_dns_server_task = on_drop(|| abort_handle.abort());
+        let mut stop_tx = None;
 
         while let Some(request) = self.rx.next().await {
             match request {
@@ -472,7 +490,18 @@ impl LocalResolver {
                 } => {
                     self.inner_resolver.resolve(dns_query, response_tx);
                 }
+                ResolverMessage::Stop { response_tx } => {
+                    stop_tx = Some(response_tx);
+                    break;
+                }
             }
+        }
+
+        drop(_abort_dns_server_task);
+        let _ = self.dns_server_task.await;
+
+        if let Some(stop_tx) = stop_tx {
+            let _ = stop_tx.send(());
         }
     }
 
@@ -654,6 +683,7 @@ mod test {
         TokioAsyncResolver,
     };
     use std::{mem, net::UdpSocket, sync::Mutex, thread, time::Duration};
+    use typed_builder::TypedBuilder;
 
     /// Can't have multiple local resolvers running at the same time, as they will try to bind to
     /// the same address and port. The tests below use this lock to run sequentially.
@@ -670,6 +700,92 @@ mod test {
             NameServerConfigGroup::from_ips_clear(&[addr.ip()], addr.port(), true),
         );
         TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default())
+    }
+
+    /// Test whether we can successfully bind the socket even if the address is already used to
+    /// in different scenarios.
+    #[test_log::test]
+    fn test_bind() {
+        let _mutex = LOCK.lock().unwrap();
+        let rt = tokio::runtime::Runtime::new().unwrap();
+
+        rt.block_on(async move {
+            // bind() succeeds if wildcard address is bound without REUSEADDR and REUSEPORT
+            let _sock = bind_sock(
+                BuildParams::builder()
+                    .bind_addr(format!("0.0.0.0:{DNS_PORT}").parse().unwrap())
+                    .reuse_addr(false)
+                    .reuse_port(false)
+                    .build(),
+            )
+            .unwrap();
+
+            let handle = super::start_resolver().await.expect("bind should succeed");
+            let test_resolver = get_test_resolver(handle.listening_addr());
+            test_resolver
+                .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
+                .await
+                .expect("lookup should succeed");
+            drop(_sock);
+            handle.stop().await;
+
+            // bind() succeeds if wildcard address is bound without REUSEADDR and REUSEPORT
+            let _sock = bind_sock(
+                BuildParams::builder()
+                    .bind_addr(format!("0.0.0.0:{DNS_PORT}").parse().unwrap())
+                    .reuse_addr(true)
+                    .reuse_port(true)
+                    .build(),
+            )
+            .unwrap();
+
+            let handle = super::start_resolver().await.expect("bind should succeed");
+            let test_resolver = get_test_resolver(handle.listening_addr());
+            test_resolver
+                .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
+                .await
+                .expect("lookup should succeed");
+            drop(_sock);
+            handle.stop().await;
+
+            // bind() succeeds if 127.0.0.1 is already bound without REUSEADDR and REUSEPORT
+            let _sock = bind_sock(
+                BuildParams::builder()
+                    .bind_addr(format!("127.0.0.1:{DNS_PORT}").parse().unwrap())
+                    .reuse_addr(false)
+                    .reuse_port(false)
+                    .build(),
+            )
+            .unwrap();
+
+            let handle = super::start_resolver().await.expect("bind should fail");
+            let test_resolver = get_test_resolver(handle.listening_addr());
+            test_resolver
+                .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
+                .await
+                .expect("lookup should succeed");
+            drop(_sock);
+            handle.stop().await;
+
+            // bind() succeeds if 127.0.0.1 is bound with REUSEADDR and REUSEPORT
+            let _sock = bind_sock(
+                BuildParams::builder()
+                    .bind_addr(format!("127.0.0.1:{DNS_PORT}").parse().unwrap())
+                    .reuse_addr(true)
+                    .reuse_port(true)
+                    .build(),
+            )
+            .unwrap();
+
+            let handle = super::start_resolver().await.expect("bind should succeed");
+            let test_resolver = get_test_resolver(handle.listening_addr());
+            test_resolver
+                .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
+                .await
+                .expect("lookup should succeed");
+            drop(_sock);
+            handle.stop().await;
+        });
     }
 
     #[test_log::test]
@@ -719,5 +835,34 @@ mod test {
         mem::drop(handle);
         thread::sleep(Duration::from_millis(300));
         UdpSocket::bind(addr).expect("Failed to bind to a port that should have been removed");
+    }
+
+    #[derive(TypedBuilder)]
+    struct BuildParams {
+        bind_addr: SocketAddr,
+        reuse_addr: bool,
+        reuse_port: bool,
+        #[builder(default)]
+        connect_addr: Option<SocketAddr>,
+    }
+
+    /// Helper function for creating and binding a UDP socket
+    fn bind_sock(params: BuildParams) -> io::Result<UdpSocket> {
+        let sock = Socket::new(Domain::IPV4, Type::DGRAM, Some(Protocol::UDP))?;
+
+        let addr = params.bind_addr;
+        sock.set_reuse_address(params.reuse_addr)?;
+        sock.set_reuse_port(params.reuse_port)?;
+        sock.bind(&addr.into())?;
+
+        if let Some(addr) = params.connect_addr {
+            sock.connect(&addr.into())?;
+        }
+
+        println!(
+            "Bound to {} (reuseport: {}, reuseaddr: {})",
+            params.bind_addr, params.reuse_port, params.reuse_addr
+        );
+        Ok(sock.into())
     }
 }
