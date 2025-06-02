@@ -143,7 +143,6 @@ enum ResolverMessage {
     },
 
     /// Gracefully stop resolver
-    #[allow(dead_code)]
     Stop {
         /// Channel for the query response
         response_tx: oneshot::Sender<()>,
@@ -284,7 +283,6 @@ impl ResolverHandle {
     }
 
     /// Gracefully shut down resolver
-    #[cfg(test)]
     pub async fn stop(self) {
         let (response_tx, response_rx) = oneshot::channel();
         let _ = self
