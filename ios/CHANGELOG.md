@@ -23,17 +23,21 @@ Line wrap the file at 100 chars.                                              Th
 
 ## Unreleased
 ### Added
-- Make account number copyable on welcome screen.
+### Fixed
+- Fix the app thinking it is offline when another VPN is already running.
+- Make the app feel more responsive when reconnecting.
 
 ### Changed
+
+## [2025.4 - 2025-05-20]
+- Make account number copyable on welcome screen.
 - Improve the filter view to display the number of available servers based on selected criteria.
-- Make the app feel more responsive when reconnecting.
 - Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
   mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
   uses a lot less CPU to compute the keypair, and the public key sent to the server
   is drastically smaller.
 
-## 2025.2 - 2025-02-08
+## [2025.2 - 2025-02-08]
 ### Added
 - Add different themes for app icons
 
