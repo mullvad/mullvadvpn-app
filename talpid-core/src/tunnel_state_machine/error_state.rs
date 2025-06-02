@@ -38,8 +38,11 @@ impl ErrorState {
         if !block_reason.prevents_filtering_resolver() {
             // Set system DNS to our local DNS resolver
             let system_dns = DnsConfig::default().resolve(
-                &[shared_values.filtering_resolver.listening_addr().ip()],
-                shared_values.filtering_resolver.listening_addr().port(),
+                &[
+                    shared_values.filtering_resolver.listening_addr_v4().ip(),
+                    shared_values.filtering_resolver.listening_addr_v6().ip(),
+                ],
+                shared_values.filtering_resolver.listening_addr_v4().port(),
             );
             if let Err(err) = shared_values.dns_monitor.set("lo", system_dns) {
                 log::error!(
