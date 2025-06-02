@@ -313,7 +313,7 @@ impl<'a, S> RecvPacket<'a, S> {
 fn recvmsg_with_control_message<'a, S: SockaddrLike + Copy>(
     socket: RawFd,
     io_vec: &'a mut [IoSliceMut<'_>; 1],
-    control_buf: &mut Vec<u8>,
+    control_buf: &mut [u8],
 ) -> anyhow::Result<Option<RecvPacket<'a, S>>> {
     // MSG_ERRQUEUE asks linux to tell us if we get any ICMP error replies to
     // our Echo packets.

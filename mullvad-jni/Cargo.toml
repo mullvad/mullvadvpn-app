@@ -27,7 +27,6 @@ ipnetwork = { workspace = true }
 jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
 log-panics = "2"
-nix = "0.23"
 rand = "0.8.5"
 
 mullvad-api = { path = "../mullvad-api" }

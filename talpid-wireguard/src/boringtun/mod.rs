@@ -299,8 +299,8 @@ pub fn get_tunnel_for_userspace(
             .open_tun()
             .map_err(TunnelError::SetupTunnelDevice)?;
 
-        match nix::unistd::dup(tunnel_device.as_raw_fd()) {
-            Ok(fd) => return Ok((tunnel_device, fd)),
+        match nix::unistd::dup(&tunnel_device) {
+            Ok(fd) => return Ok((tunnel_device, fd.as_raw_fd())),
             #[cfg(not(target_os = "macos"))]
             Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
             Err(error @ nix::errno::Errno::EBADF) => last_error = Some(error),
