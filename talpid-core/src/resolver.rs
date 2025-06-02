@@ -441,11 +441,15 @@ impl LocalResolver {
                     continue;
                 }
             };
+
+            // SO_NONBLOCK is required for turning this into a tokio socket.
             if let Err(error) = sock.set_nonblocking(true) {
                 log::warn!("Failed to set socket as nonblocking: {error}");
                 continue;
             }
 
+            // SO_REUSEADDR allows us to bind to `127.x.y.z` even if another socket is bound to
+            // `0.0.0.0`. This can happen e.g. when macOS "Internet Sharing" is turned on.
             if let Err(error) = sock.set_reuse_address(true) {
                 log::warn!("Failed to set SO_REUSEADDR on resolver socket: {error}");
             }
