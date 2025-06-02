@@ -437,7 +437,7 @@ impl LocalResolver {
             let sock = match Socket::new(Domain::IPV4, Type::DGRAM, Some(Protocol::UDP)) {
                 Ok(sock) => sock,
                 Err(error) => {
-                    log::warn!("Failed to set socket as nonblocking: {error}");
+                    log::error!("Failed to open IPv4/UDP socket: {error}");
                     continue;
                 }
             };
@@ -445,6 +445,7 @@ impl LocalResolver {
                 log::warn!("Failed to set socket as nonblocking: {error}");
                 continue;
             }
+
             if let Err(error) = sock.set_reuse_address(true) {
                 log::warn!("Failed to set SO_REUSEADDR on resolver socket: {error}");
             }
