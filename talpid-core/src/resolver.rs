@@ -499,7 +499,7 @@ impl LocalResolver {
             }
         }
 
-        drop(_abort_dns_server_task);
+        self.dns_server_task.abort();
         let _ = self.dns_server_task.await;
 
         if let Some(stop_tx) = stop_tx {
@@ -684,8 +684,9 @@ mod test {
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
         TokioAsyncResolver,
     };
+    use ipnetwork::IpNetwork;
     use nix::unistd::Uid;
-    use std::{mem, net::UdpSocket, sync::Mutex, thread, time::Duration};
+    use std::{mem, net::UdpSocket, process::Stdio, sync::Mutex, thread, time::Duration};
     use typed_builder::TypedBuilder;
 
     /// Can't have multiple local resolvers running at the same time, as they will try to bind to
@@ -841,13 +842,83 @@ mod test {
         must_be_root();
 
         let _mutex = LOCK.lock().unwrap();
-        let rt = tokio::runtime::Builder::new_multi_thread().enable_all().build().unwrap();
+        let rt = tokio::runtime::Builder::new_multi_thread()
+            .enable_all()
+            .build()
+            .unwrap();
 
         let handle = rt.block_on(start_resolver());
         let addr = handle.listening_addr();
         mem::drop(handle);
         thread::sleep(Duration::from_millis(300));
         UdpSocket::bind(addr).expect("Failed to bind to a port that should have been removed");
+    }
+
+    /// Test that alias is removed when resolver is dropped
+    #[test_log::test]
+    fn test_alias_cleanup() {
+        let _mutex = LOCK.lock().unwrap();
+        let rt = tokio::runtime::Builder::new_multi_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+
+        if unsafe { libc::getuid() } != 0 {
+            panic!("This test must run as root");
+        }
+
+        let handle = rt.block_on(start_resolver());
+        let addr = handle.listening_addr();
+
+        // Expect to find alias
+        assert!(
+            IpNetwork::new("127.0.0.0".parse().unwrap(), 8)
+                .unwrap()
+                .contains(addr.ip()),
+            "expected loopback addr, got {addr:?}"
+        );
+        assert!(
+            matches!(rt.block_on(loopback_alias_exists(addr.ip())), Ok(true)),
+            "expected alias to be found"
+        );
+        // Ensure we're given a non-127.0.0.1 address, or the test is useless
+        assert_ne!(
+            "127.0.0.1".parse::<IpAddr>().unwrap(),
+            addr.ip(),
+            "expected random loopback address, not 127.0.0.1"
+        );
+
+        rt.block_on(handle.stop());
+        // TODO: make stop wait for cleanup
+        thread::sleep(Duration::from_millis(300));
+
+        assert!(
+            matches!(rt.block_on(loopback_alias_exists(addr.ip())), Ok(false)),
+            "expected alias to be removed"
+        );
+    }
+
+    async fn loopback_alias_exists(addr: IpAddr) -> io::Result<bool> {
+        let output = Command::new("ifconfig")
+            .arg(LOOPBACK)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .stdin(Stdio::null())
+            .output()
+            .await?;
+
+        let mut found = false;
+        let addr_s = addr.to_string();
+
+        for line in output.stdout.split(|c| c.is_ascii_whitespace()) {
+            let line_s = std::str::from_utf8(line).unwrap();
+            if line_s.contains(&addr_s) {
+                found = true;
+                break;
+            }
+        }
+
+        Ok(found)
     }
 
     #[derive(TypedBuilder)]
