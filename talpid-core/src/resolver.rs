@@ -684,7 +684,7 @@ mod test {
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
         TokioAsyncResolver,
     };
-    use std::{mem, net::UdpSocket, sync::Mutex, thread, time::Duration};
+    use std::{net::UdpSocket, sync::Mutex, thread, time::Duration};
     use typed_builder::TypedBuilder;
 
     /// Can't have multiple local resolvers running at the same time, as they will try to bind to
@@ -712,6 +712,10 @@ mod test {
 
         let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
+
+        if unsafe { libc::getuid() } != 0 {
+            panic!("This test must run as root");
+        }
 
         rt.block_on(async move {
             // bind() succeeds if wildcard address is bound without REUSEADDR and REUSEPORT
@@ -832,7 +836,11 @@ mod test {
     #[test_log::test]
     fn test_shutdown() {
         let _mutex = LOCK.lock().unwrap();
-        let rt = tokio::runtime::Runtime::new().unwrap();
+        let rt = tokio::runtime::Builder::new_multi_thread().enable_all().build().unwrap();
+
+        if unsafe { libc::getuid() } != 0 {
+            panic!("This test must run as root");
+        }
 
         let handle = rt.block_on(start_resolver());
         let addr = handle.listening_addr();
