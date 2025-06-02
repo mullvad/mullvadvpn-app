@@ -16,7 +16,10 @@ UNINSTALL_APP_IN_TEST_SUITE_TEAR_DOWN = 1
 // PARTNER_API_TOKEN = 
 
 // Mullvad accounts used by UI tests
-// Note that screenshots tests use the MockRelease configuration, while UI tests use Staging.
+// Note that screenshots tests use the MockRelease configuration (which uses a real account), 
+// while UI tests use Staging (which uses Stagemole).
+// the Debug configuration is provided for developer convenience, and uses real accounts.
+HAS_TIME_ACCOUNT_NUMBER[config=Debug] = 
 HAS_TIME_ACCOUNT_NUMBER[config=Staging] = 
 HAS_TIME_ACCOUNT_NUMBER[config=MockRelease] = 
 
