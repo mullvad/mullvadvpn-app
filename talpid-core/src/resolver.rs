@@ -445,8 +445,8 @@ impl LocalResolver {
                 log::warn!("Failed to set socket as nonblocking: {error}");
                 continue;
             }
-            if let Err(error) = sock.set_reuse_port(true) {
-                log::warn!("Failed to set SO_REUSEPORT on resolver socket: {error}");
+            if let Err(error) = sock.set_reuse_address(true) {
+                log::warn!("Failed to set SO_REUSEADDR on resolver socket: {error}");
                 continue;
             }
 
