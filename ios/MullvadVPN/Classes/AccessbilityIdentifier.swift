@@ -32,6 +32,7 @@ public enum AccessibilityIdentifier: Equatable {
     case revokedDeviceLoginButton
     case dnsSettingsEditButton
     case infoButton
+    case deviceManagementButton
     case copyButton
     case learnAboutPrivacyButton
     case logOutDeviceConfirmButton

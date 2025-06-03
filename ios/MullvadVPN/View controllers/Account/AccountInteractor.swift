@@ -17,6 +17,7 @@ final class AccountInteractor: Sendable {
     let tunnelManager: TunnelManager
     let accountsProxy: RESTAccountHandling
     let apiProxy: APIQuerying
+    let deviceProxy: DeviceHandling
 
     nonisolated(unsafe) var didReceiveDeviceState: (@Sendable (DeviceState) -> Void)?
 
@@ -25,11 +26,13 @@ final class AccountInteractor: Sendable {
     init(
         tunnelManager: TunnelManager,
         accountsProxy: RESTAccountHandling,
-        apiProxy: APIQuerying
+        apiProxy: APIQuerying,
+        deviceProxy: DeviceHandling
     ) {
         self.tunnelManager = tunnelManager
         self.accountsProxy = accountsProxy
         self.apiProxy = apiProxy
+        self.deviceProxy = deviceProxy
 
         let tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, _ in
