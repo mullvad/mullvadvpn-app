@@ -35,7 +35,8 @@ talpid-platform-metadata = { path = "../../talpid-platform-metadata", default-fe
 
 socket2 = { workspace = true, features = ["all"] }
 
-[target."cfg(target_os=\"windows\")".dependencies]
+
+[target.'cfg(windows)'.dependencies]
 talpid-windows = { path = "../../talpid-windows" }
 
 windows-service = "0.6"
@@ -64,4 +65,5 @@ nix = { workspace = true, features = ["user"] }
 rs-release = "0.1.7"
 
 [target.'cfg(target_os = "macos")'.dependencies]
+talpid-macos = { path = "../../talpid-macos" }
 plist = "1"
