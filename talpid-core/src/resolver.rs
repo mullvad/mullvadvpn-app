@@ -46,7 +46,6 @@ use std::sync::LazyLock;
 use talpid_types::drop_guard::{on_drop, OnDrop};
 use tokio::{
     net::{self, UdpSocket},
-    process::Command,
     task::JoinHandle,
 };
 
@@ -403,19 +402,12 @@ impl LocalResolver {
             // TODO: this command requires root privileges and will thus not work in `cargo test`.
             // This means that the tests will fall back to 127.0.0.1, and will not assert that the
             // ifconfig stuff actually works. We probably do want to test this, so what do?
-            let output = Command::new("ifconfig")
-                .args([LOOPBACK, "alias", &format!("{addr}"), "up"])
-                .output()
+            talpid_macos::net::add_alias(LOOPBACK, IpAddr::from(addr))
                 .await
                 .inspect_err(|e| {
-                    log::warn!("Failed to spawn `ifconfig {LOOPBACK} alias {addr} up`: {e}")
+                    log::warn!("Failed to add loopback {LOOPBACK} alias {addr}: {e}");
                 })
                 .ok()?;
-
-            if !output.status.success() {
-                log::warn!("Non-zero exit code from ifconfig: {}", output.status);
-                return None;
-            }
 
             log::debug!("Created loopback address {addr}");
 
@@ -423,13 +415,9 @@ impl LocalResolver {
             let cleanup_ifconfig = on_drop(move || {
                 tokio::task::spawn(async move {
                     log::debug!("Cleaning up loopback address {addr}");
-
-                    let result = Command::new("ifconfig")
-                        .args([LOOPBACK, "delete", &format!("{addr}")])
-                        .output()
-                        .await;
-
-                    if let Err(e) = result {
+                    if let Err(e) =
+                        talpid_macos::net::remove_alias(LOOPBACK, IpAddr::from(addr)).await
+                    {
                         log::warn!("Failed to clean up {LOOPBACK} alias {addr}: {e}");
                     }
                 });

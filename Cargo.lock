@@ -5393,8 +5393,10 @@ dependencies = [
 name = "talpid-macos"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "libc",
  "log",
+ "tokio",
 ]
 
 [[package]]

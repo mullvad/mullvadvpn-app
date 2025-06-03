@@ -11,5 +11,7 @@ rust-version.workspace = true
 workspace = true
 
 [target.'cfg(target_os="macos")'.dependencies]
+anyhow.workspace = true
+log.workspace = true
 libc = "0.2.172"
-log = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
