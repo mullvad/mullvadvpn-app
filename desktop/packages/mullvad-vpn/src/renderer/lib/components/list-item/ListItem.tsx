@@ -5,6 +5,7 @@ import {
   ListItemContent,
   ListItemFooter,
   ListItemGroup,
+  ListItemIcon,
   ListItemItem,
   ListItemLabel,
   ListItemText,
@@ -41,6 +42,7 @@ const ListItemNamespace = Object.assign(ListItem, {
   Trigger: ListItemTrigger,
   Item: ListItemItem,
   Footer: ListItemFooter,
+  Icon: ListItemIcon,
 });
 
 export { ListItemNamespace as ListItem };

@@ -13,6 +13,7 @@ import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
+import { NavigationListItem } from './NavigationListItem';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
@@ -58,16 +59,14 @@ export default function Support() {
 }
 
 function ProblemReportButton() {
-  const history = useHistory();
-  const clickHandler = useCallback(() => history.push(RoutePath.problemReport), [history]);
-
   // TRANSLATORS: Navigation button to the 'Report a problem' help view
   const label = messages.pgettext('support-view', 'Report a problem');
 
   return (
-    <Cell.CellNavigationButton onClick={clickHandler}>
-      <Cell.Label>{label}</Cell.Label>
-    </Cell.CellNavigationButton>
+    <NavigationListItem to={RoutePath.problemReport}>
+      <NavigationListItem.Label>{label}</NavigationListItem.Label>
+      <NavigationListItem.Icon icon="chevron-right" />
+    </NavigationListItem>
   );
 }
 

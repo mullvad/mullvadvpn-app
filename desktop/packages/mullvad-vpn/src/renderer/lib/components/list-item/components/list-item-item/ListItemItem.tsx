@@ -11,7 +11,7 @@ const StyledDiv = styled.div<{ $backgroundColor: string }>`
     return css`
       --background-color: ${$backgroundColor};
       background-color: var(--background-color);
-      min-height: 44px;
+      min-height: 48px;
       width: 100%;
       display: grid;
       grid-template-columns: 1fr;

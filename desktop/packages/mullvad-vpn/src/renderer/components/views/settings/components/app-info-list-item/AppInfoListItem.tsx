@@ -2,13 +2,12 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { Flex, Icon } from '../../../../../lib/components';
+import { Flex } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
-import { ListItem } from '../../../../../lib/components/list-item';
 import { useVersionCurrent, useVersionSuggestedUpgrade } from '../../../../../redux/hooks';
 import { NavigationListItem } from '../../../../NavigationListItem';
 
-const StyledText = styled(ListItem.Text)`
+const StyledText = styled(NavigationListItem.Text)`
   margin-top: -4px;
 `;
 
@@ -19,12 +18,12 @@ export function AppInfoListItem() {
   return (
     <NavigationListItem to={RoutePath.appInfo}>
       <Flex $flexDirection="column">
-        <ListItem.Label>
+        <NavigationListItem.Label>
           {
             // TRANSLATORS: Navigation button to the 'App info' view
             messages.pgettext('settings-view', 'App info')
           }
-        </ListItem.Label>
+        </NavigationListItem.Label>
         {suggestedUpgrade && (
           <StyledText variant="footnoteMini">
             {
@@ -34,11 +33,11 @@ export function AppInfoListItem() {
           </StyledText>
         )}
       </Flex>
-      <ListItem.Group>
-        <ListItem.Text>{current}</ListItem.Text>
+      <NavigationListItem.Group>
+        <NavigationListItem.Text>{current}</NavigationListItem.Text>
         {suggestedUpgrade && <Dot variant="warning" size="small" />}
-        <Icon icon="chevron-right" />
-      </ListItem.Group>
+        <NavigationListItem.Icon icon="chevron-right" />
+      </NavigationListItem.Group>
     </NavigationListItem>
   );
 }
