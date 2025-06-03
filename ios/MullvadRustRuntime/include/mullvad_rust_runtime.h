@@ -89,10 +89,10 @@ typedef struct LateStringDeallocator {
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
   uintptr_t body_size;
-  uint8_t *etag;
+  char *etag;
   uint16_t status_code;
-  uint8_t *error_description;
-  uint8_t *server_response_code;
+  char *error_description;
+  char *server_response_code;
   bool success;
 } SwiftMullvadApiResponse;
 
