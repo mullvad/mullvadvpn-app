@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.activity.compose.LocalActivity
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -9,11 +9,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Redeem
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
@@ -30,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp.Companion.Hairline
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -72,6 +74,7 @@ private fun PreviewPaymentBottomSheet(
                     density = Density(1f),
                     initialValue = SheetValue.Expanded,
                 ),
+            blockAccountPage = false,
             onPurchaseBillingProductClick = {},
             onPlayPaymentInfoClick = {},
             onSitePaymentClick = {},
@@ -79,8 +82,7 @@ private fun PreviewPaymentBottomSheet(
             closeBottomSheet = {},
             onRetryFetchProducts = {},
             resetPurchaseState = {},
-            onSuccessfulPurchase = {},
-            retryPurchase = {},
+            closeSheetAndResetPurchaseState = {},
         )
     }
 }
@@ -89,6 +91,7 @@ private fun PreviewPaymentBottomSheet(
 @Composable
 fun AddTimeBottomSheet(
     visible: Boolean,
+    blockAccountPage: Boolean,
     onRedeemVoucherClick: () -> Unit,
     onPlayPaymentInfoClick: () -> Unit,
     onHideBottomSheet: () -> Unit,
@@ -121,6 +124,7 @@ fun AddTimeBottomSheet(
         AddTimeBottomSheetContent(
             state = uiState,
             sheetState = sheetState,
+            blockAccountPage = blockAccountPage,
             onPurchaseBillingProductClick = {
                 viewModel.startBillingPayment(productId = it, activityProvider = { activity!! })
             },
@@ -129,15 +133,9 @@ fun AddTimeBottomSheet(
             onRetryFetchProducts = viewModel::fetchPaymentAvailability,
             onRedeemVoucherClick = onRedeemVoucherClick,
             resetPurchaseState = { viewModel.onClosePurchaseResultDialog(false) },
-            onSuccessfulPurchase = {
+            closeSheetAndResetPurchaseState = {
                 viewModel.onClosePurchaseResultDialog(true)
                 onCloseBottomSheet(true)
-            },
-            retryPurchase = { productId ->
-                viewModel.startBillingPayment(
-                    productId = productId,
-                    activityProvider = { activity!! },
-                )
             },
             closeBottomSheet = onCloseBottomSheet,
         )
@@ -149,14 +147,14 @@ fun AddTimeBottomSheet(
 fun AddTimeBottomSheetContent(
     state: Lc<Unit, AddTimeUiState>,
     sheetState: SheetState,
+    blockAccountPage: Boolean,
     onPurchaseBillingProductClick: (ProductId) -> Unit = {},
     onPlayPaymentInfoClick: () -> Unit,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onRetryFetchProducts: () -> Unit,
     resetPurchaseState: () -> Unit,
-    retryPurchase: (ProductId) -> Unit,
-    onSuccessfulPurchase: () -> Unit,
+    closeSheetAndResetPurchaseState: () -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surfaceContainer
@@ -173,6 +171,7 @@ fun AddTimeBottomSheetContent(
             is Lc.Content ->
                 Content(
                     state = state.value,
+                    blockAccountPage = blockAccountPage,
                     backgroundColor = backgroundColor,
                     onBackgroundColor = onBackgroundColor,
                     onPurchaseBillingProductClick = onPurchaseBillingProductClick,
@@ -182,8 +181,7 @@ fun AddTimeBottomSheetContent(
                     onRetryFetchProducts = onRetryFetchProducts,
                     closeBottomSheet = closeBottomSheet,
                     resetPurchaseState = resetPurchaseState,
-                    onSuccessfulPurchase = onSuccessfulPurchase,
-                    retryPurchase = retryPurchase,
+                    closeSheetAndResetPurchaseState = closeSheetAndResetPurchaseState,
                 )
         }
     }
@@ -192,6 +190,7 @@ fun AddTimeBottomSheetContent(
 @Composable
 private fun Content(
     state: AddTimeUiState,
+    blockAccountPage: Boolean,
     backgroundColor: Color,
     onBackgroundColor: Color,
     onPurchaseBillingProductClick: (ProductId) -> Unit,
@@ -201,31 +200,34 @@ private fun Content(
     onRetryFetchProducts: () -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit,
     resetPurchaseState: () -> Unit,
-    onSuccessfulPurchase: () -> Unit,
-    retryPurchase: (ProductId) -> Unit,
+    closeSheetAndResetPurchaseState: () -> Unit,
 ) {
-    if (state.purchaseState != null) {
-        PurchaseState(
-            backgroundColor = backgroundColor,
-            onBackgroundColor = onBackgroundColor,
-            purchaseState = state.purchaseState,
-            resetPurchaseState = resetPurchaseState,
-            onSuccessfulPurchase = onSuccessfulPurchase,
-            retryPurchase = retryPurchase,
-        )
-    } else {
-        Products(
-            billingPaymentState = state.billingPaymentState,
-            showSitePayment = state.showSitePayment,
-            backgroundColor = backgroundColor,
-            onBackgroundColor = onBackgroundColor,
-            onPurchaseBillingProductClick = onPurchaseBillingProductClick,
-            onPlayPaymentInfoClick = onPlayPaymentInfoClick,
-            onSitePaymentClick = onSitePaymentClick,
-            onRedeemVoucherClick = onRedeemVoucherClick,
-            onRetryFetchProducts = onRetryFetchProducts,
-            closeBottomSheet = closeBottomSheet,
-        )
+    AnimatedContent(targetState = state) { state ->
+        Column {
+            if (state.purchaseState != null) {
+                PurchaseState(
+                    backgroundColor = backgroundColor,
+                    onBackgroundColor = onBackgroundColor,
+                    purchaseState = state.purchaseState,
+                    resetPurchaseState = resetPurchaseState,
+                    closeSheetAndResetPurchaseState = closeSheetAndResetPurchaseState,
+                )
+            } else {
+                Products(
+                    billingPaymentState = state.billingPaymentState,
+                    showSitePayment = state.showSitePayment,
+                    blockAccountPage = blockAccountPage,
+                    backgroundColor = backgroundColor,
+                    onBackgroundColor = onBackgroundColor,
+                    onPurchaseBillingProductClick = onPurchaseBillingProductClick,
+                    onPlayPaymentInfoClick = onPlayPaymentInfoClick,
+                    onSitePaymentClick = onSitePaymentClick,
+                    onRedeemVoucherClick = onRedeemVoucherClick,
+                    onRetryFetchProducts = onRetryFetchProducts,
+                    closeBottomSheet = closeBottomSheet,
+                )
+            }
+        }
     }
 }
 
@@ -235,8 +237,7 @@ private fun PurchaseState(
     onBackgroundColor: Color,
     purchaseState: PurchaseState,
     resetPurchaseState: () -> Unit,
-    onSuccessfulPurchase: () -> Unit,
-    retryPurchase: (ProductId) -> Unit,
+    closeSheetAndResetPurchaseState: () -> Unit,
 ) {
     when (purchaseState) {
         // Fetching products and obfuscated id loading state
@@ -251,7 +252,7 @@ private fun PurchaseState(
             PurchaseStateVerification(
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
-                resetPurchaseState = resetPurchaseState,
+                closeSheet = closeSheetAndResetPurchaseState,
             )
         }
         // Success state
@@ -260,7 +261,7 @@ private fun PurchaseState(
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
                 productId = purchaseState.productId,
-                onSuccessfulPurchase = onSuccessfulPurchase,
+                onSuccessfulPurchase = closeSheetAndResetPurchaseState,
             )
         }
         // Error states
@@ -269,9 +270,7 @@ private fun PurchaseState(
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
                 message = stringResource(R.string.payment_obfuscation_id_error_dialog_message),
-                productId = purchaseState.productId,
                 resetPurchaseState = resetPurchaseState,
-                retryPurchase = retryPurchase,
             )
         }
         is PurchaseState.Error.OtherError -> {
@@ -279,9 +278,7 @@ private fun PurchaseState(
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
                 message = stringResource(R.string.payment_billing_error_dialog_message),
-                productId = purchaseState.productId,
                 resetPurchaseState = resetPurchaseState,
-                retryPurchase = retryPurchase,
             )
         }
     }
@@ -291,7 +288,7 @@ private fun PurchaseState(
 private fun PurchaseStateVerification(
     onBackgroundColor: Color,
     backgroundColor: Color,
-    resetPurchaseState: () -> Unit,
+    closeSheet: () -> Unit,
 ) {
     SheetTitle(
         title = stringResource(id = R.string.verifying_purchase),
@@ -311,7 +308,7 @@ private fun PurchaseStateVerification(
         )
         SmallPrimaryButton(
             text = stringResource(R.string.close),
-            onClick = resetPurchaseState,
+            onClick = closeSheet,
             modifier = Modifier.padding(top = Dimens.mediumPadding),
         )
     }
@@ -376,9 +373,7 @@ private fun PurchaseStateError(
     onBackgroundColor: Color,
     backgroundColor: Color,
     message: String,
-    productId: ProductId,
     resetPurchaseState: () -> Unit,
-    retryPurchase: (ProductId) -> Unit,
 ) {
     SheetTitle(
         title = stringResource(id = R.string.error_occurred),
@@ -392,24 +387,17 @@ private fun PurchaseStateError(
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(horizontal = Dimens.sideMargin),
     )
-    Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-        SmallPrimaryButton(
-            text = stringResource(R.string.retry),
-            onClick = { retryPurchase(productId) },
-            modifier = Modifier.padding(horizontal = Dimens.sideMargin),
-        )
-        SmallPrimaryButton(
-            text = stringResource(R.string.close),
-            onClick = resetPurchaseState,
-            modifier = Modifier.padding(horizontal = Dimens.sideMargin),
-        )
-    }
+    SmallPrimaryButton(
+        text = stringResource(android.R.string.ok),
+        onClick = resetPurchaseState,
+        modifier = Modifier.padding(top = Dimens.mediumPadding),
+    )
 }
 
 @Composable
 private fun Products(
     billingPaymentState: PaymentState?,
+    blockAccountPage: Boolean,
     showSitePayment: Boolean,
     backgroundColor: Color,
     onBackgroundColor: Color,
@@ -429,19 +417,40 @@ private fun Products(
         PlayPayment(
             modifier = Modifier.fillMaxWidth(),
             billingPaymentState = billingPaymentState,
+            onBackgroundColor = onBackgroundColor,
             onPurchaseBillingProductClick = onPurchaseBillingProductClick,
             onInfoClick = onPlayPaymentInfoClick,
             onRetryFetchProducts = onRetryFetchProducts,
         )
-        HorizontalDivider(color = onBackgroundColor, thickness = Hairline)
     }
     if (showSitePayment) {
+        if (blockAccountPage) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier =
+                    Modifier.padding(start = Dimens.cellStartPadding, end = Dimens.cellStartPadding),
+            ) {
+                Icon(
+                    modifier = Modifier.size(Dimens.smallIconSize),
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    text = stringResource(R.string.app_is_blocking_internet),
+                    modifier = Modifier.padding(start = Dimens.miniPadding),
+                )
+            }
+        }
         IconCell(
             imageVector = Icons.AutoMirrored.Filled.OpenInNew,
             title = stringResource(id = R.string.buy_credit),
             onClick = { onSitePaymentClick() },
             titleColor = onBackgroundColor,
             background = backgroundColor,
+            enabled = !blockAccountPage,
         )
     }
     IconCell(
