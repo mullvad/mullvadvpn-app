@@ -203,7 +203,6 @@ where
 
         let err = match version_provider.get_version_info(&version_params).await {
             Ok(version_info) => {
-                //anyhow::anyhow!("test")
                 return version_info;
             }
             Err(err) => err,
@@ -211,7 +210,7 @@ where
 
         log::error!("Failed to get version info: {err:?}");
 
-        // Check if we've already downloaded an istaller.
+        // Check if we've already downloaded an installer.
         // If so, the user will be given the option to run it.
         let mut cached_app = Cache::new(working_directory.directory.clone(), version_params)
             .get_app()

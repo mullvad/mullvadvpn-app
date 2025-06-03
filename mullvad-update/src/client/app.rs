@@ -156,7 +156,7 @@ impl DownloadedInstaller for InstallerFile<false> {
             // Verification failed
             Err(err) => {
                 // Attempt to clean up
-                let _ = tokio::fs::remove_file(bin_path).await;
+                let _ = tokio::fs::remove_file(&self.path).await;
                 Err(err)
             }
         }
