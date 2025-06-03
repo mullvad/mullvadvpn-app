@@ -148,7 +148,7 @@ impl DownloadedInstaller for InstallerFile<false> {
         {
             // Verification succeeded
             Ok(()) => Ok(InstallerFile::<true> {
-                path: self.path, // TODO: remove clones?
+                path: self.path,
                 app_version: self.app_version,
                 app_size: self.app_size,
                 app_sha256: self.app_sha256,
