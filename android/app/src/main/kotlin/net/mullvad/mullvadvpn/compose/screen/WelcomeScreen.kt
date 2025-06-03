@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -162,13 +163,16 @@ fun WelcomeScreen(
         snackbarHostState = snackbarHostState,
     ) {
         var addTimeBottomSheetState by remember { mutableStateOf(false) }
-        AddTimeBottomSheet(
-            visible = addTimeBottomSheetState,
-            blockAccountPage = state.contentOrNull()?.tunnelState?.blockSitePaymentButton() == true,
-            onHideBottomSheet = { addTimeBottomSheetState = false },
-            onRedeemVoucherClick = onRedeemVoucherClick,
-            onPlayPaymentInfoClick = onPlayPaymentInfoClick,
-        )
+        if (!LocalInspectionMode.current) {
+            AddTimeBottomSheet(
+                visible = addTimeBottomSheetState,
+                internetBlocked =
+                    state.contentOrNull()?.tunnelState?.blockSitePaymentButton() == true,
+                onHideBottomSheet = { addTimeBottomSheetState = false },
+                onRedeemVoucherClick = onRedeemVoucherClick,
+                onPlayPaymentInfoClick = onPlayPaymentInfoClick,
+            )
+        }
 
         Column(
             modifier =
@@ -190,8 +194,10 @@ fun WelcomeScreen(
             if (state is Lc.Content) {
                 ButtonPanel(
                     showDisconnectButton = state.value.tunnelState.isSecured(),
+                    verificationPending = state.value.verificationPending,
                     onAddMoreTimeClick = { addTimeBottomSheetState = true },
                     onDisconnectClick = onDisconnectClick,
+                    onInfoClick = onPlayPaymentInfoClick,
                 )
             }
         }
@@ -331,32 +337,49 @@ fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
 @Composable
 private fun ButtonPanel(
     showDisconnectButton: Boolean,
+    verificationPending: Boolean,
     onAddMoreTimeClick: () -> Unit,
     onDisconnectClick: () -> Unit,
+    onInfoClick: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(top = Dimens.mediumPadding)) {
+    Column(
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(
+                    top = Dimens.mediumPadding,
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                )
+    ) {
         Spacer(modifier = Modifier.padding(top = Dimens.screenTopMargin))
         if (showDisconnectButton) {
             NegativeButton(
                 onClick = onDisconnectClick,
                 text = stringResource(id = R.string.disconnect),
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.buttonSpacing,
-                    ),
+                modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
             )
+        }
+        if (verificationPending) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    text = stringResource(R.string.verifying_purchase),
+                    modifier = Modifier.padding(bottom = Dimens.smallPadding),
+                )
+                IconButton(onClick = onInfoClick) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
         }
         VariantButton(
             onClick = onAddMoreTimeClick,
             text = stringResource(id = R.string.add_time),
-            modifier =
-                Modifier.padding(
-                    start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
-                    bottom = Dimens.buttonSpacing,
-                ),
+            modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
         )
     }
 }

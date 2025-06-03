@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.hasPendingPayment
 import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.toLc
 
@@ -41,13 +42,15 @@ class AccountViewModel(
         combine(
                 deviceRepository.deviceState.filterIsInstance<DeviceState.LoggedIn>(),
                 accountData(),
+                paymentUseCase.paymentAvailability,
                 isLoggingOut,
-            ) { deviceState, accountData, isLoggingOut ->
+            ) { deviceState, accountData, paymentAvailability, isLoggingOut ->
                 AccountUiState(
                         deviceName = deviceState.device.displayName(),
                         accountNumber = deviceState.accountNumber,
                         accountExpiry = accountData?.expiryDate,
                         showLogoutLoading = isLoggingOut,
+                        verificationPending = paymentAvailability.hasPendingPayment(),
                     )
                     .toLc<Unit, AccountUiState>()
             }
@@ -55,7 +58,7 @@ class AccountViewModel(
 
     init {
         updateAccountExpiry()
-        verifyPurchases() // TODO Do we want to keep this?
+        verifyPurchases()
     }
 
     private fun accountData(): Flow<AccountData?> =
@@ -112,5 +115,6 @@ data class AccountUiState(
     val deviceName: String,
     val accountNumber: AccountNumber,
     val accountExpiry: ZonedDateTime?,
-    val showLogoutLoading: Boolean = false,
+    val showLogoutLoading: Boolean,
+    val verificationPending: Boolean,
 )
