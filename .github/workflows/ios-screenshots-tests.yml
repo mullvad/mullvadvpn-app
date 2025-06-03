@@ -57,6 +57,7 @@ jobs:
         working-directory: ios/
 
       - name: Archive test report
+        if: always()
         run: zip -r test-report.zip ios/xcode-test-report.xcresult
 
       - name: Store test report artifact
