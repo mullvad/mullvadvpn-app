@@ -5,6 +5,7 @@ import android.net.ConnectivityManager.NetworkCallback
 import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import co.touchlab.kermit.Logger
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.FlowPreview
@@ -12,6 +13,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -62,6 +64,52 @@ fun ConnectivityManager.defaultNetworkEvents(): Flow<NetworkEvent> = callbackFlo
             }
         }
     registerDefaultNetworkCallback(callback)
+
+    awaitClose { unregisterNetworkCallback(callback) }
+}
+
+fun ConnectivityManager.allNetworkEvents(): Flow<NetworkEvent> = callbackFlow {
+    val callback =
+        object : NetworkCallback() {
+            override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
+                super.onLinkPropertiesChanged(network, linkProperties)
+                trySendBlocking(NetworkEvent.LinkPropertiesChanged(network, linkProperties))
+            }
+
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                trySendBlocking(NetworkEvent.Available(network))
+            }
+
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities,
+            ) {
+                super.onCapabilitiesChanged(network, networkCapabilities)
+                trySendBlocking(NetworkEvent.CapabilitiesChanged(network, networkCapabilities))
+            }
+
+            override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
+                super.onBlockedStatusChanged(network, blocked)
+                trySendBlocking(NetworkEvent.BlockedStatusChanged(network, blocked))
+            }
+
+            override fun onLosing(network: Network, maxMsToLive: Int) {
+                super.onLosing(network, maxMsToLive)
+                trySendBlocking(NetworkEvent.Losing(network, maxMsToLive))
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                trySendBlocking(NetworkEvent.Lost(network))
+            }
+
+            override fun onUnavailable() {
+                super.onUnavailable()
+                trySendBlocking(NetworkEvent.Unavailable)
+            }
+        }
+    registerNetworkCallback(NetworkRequest.Builder().build(), callback)
 
     awaitClose { unregisterNetworkCallback(callback) }
 }
@@ -136,7 +184,12 @@ internal fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
 fun ConnectivityManager.hasInternetConnectivity(
     resolver: UnderlyingConnectivityStatusResolver
 ): Flow<Connectivity> =
-    this.defaultRawNetworkStateFlow()
+    combine(allNetworkEvents(), defaultRawNetworkStateFlow()) { _, defaultEvent ->
+            if (defaultEvent != null) {
+                Logger.d("Last default network event type: ${defaultEvent::class.simpleName}")
+            }
+            defaultEvent
+        }
         .debounce(CONNECTIVITY_DEBOUNCE)
         .map { resolveConnectivityStatus(it, resolver) }
         .distinctUntilChanged()
