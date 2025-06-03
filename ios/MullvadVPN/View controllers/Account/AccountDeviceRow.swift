@@ -17,7 +17,7 @@ class AccountDeviceRow: UIView {
         }
     }
 
-    var infoButtonAction: (() -> Void)?
+    var deviceManagementButtonAction: (() -> Void)?
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -39,14 +39,26 @@ class AccountDeviceRow: UIView {
         return label
     }()
 
-    private let infoButton: UIButton = {
+    private let deviceManagementButton: UIButton = {
         let button = IncreasedHitButton(type: .system)
         button.isExclusiveTouch = true
-        button.setAccessibilityIdentifier(.infoButton)
-        button.tintColor = .white
-        button.setBackgroundImage(UIImage.Buttons.info, for: .normal)
-        button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.accountInfoSize).isActive = true
-        button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
+        button.setAccessibilityIdentifier(.deviceManagementButton)
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.mullvadSmallSemiBold,
+            .foregroundColor: UIColor.primaryTextColor,
+            .underlineStyle: NSUnderlineStyle.single.rawValue,
+        ]
+        let title = NSLocalizedString(
+            "DEVICE_MANAGEMENT",
+            tableName: "Account",
+            value: "Manage devices",
+            comment: ""
+        )
+        let attributeString = NSMutableAttributedString(
+            string: title,
+            attributes: attributes
+        )
+        button.setAttributedTitle(attributeString, for: .normal)
         return button
     }()
 
@@ -58,18 +70,20 @@ class AccountDeviceRow: UIView {
         contentContainerView.alignment = .leading
         contentContainerView.spacing = 8
 
-        addConstrainedSubviews([contentContainerView, infoButton]) {
+        addConstrainedSubviews(
+            [contentContainerView, deviceManagementButton]
+        ) {
             contentContainerView.pinEdgesToSuperview()
-            infoButton.leadingAnchor.constraint(equalToSystemSpacingAfter: deviceLabel.trailingAnchor, multiplier: 1)
-            infoButton.centerYAnchor.constraint(equalTo: deviceLabel.centerYAnchor)
+            deviceManagementButton.centerYAnchor.constraint(equalTo: deviceLabel.centerYAnchor)
+            deviceManagementButton.pinEdgeToSuperview(.trailing(0))
         }
 
         isAccessibilityElement = true
         accessibilityLabel = titleLabel.text
 
-        infoButton.addTarget(
+        deviceManagementButton.addTarget(
             self,
-            action: #selector(didTapInfoButton),
+            action: #selector(didTapDeviceManagementButton),
             for: .touchUpInside
         )
     }
@@ -79,10 +93,10 @@ class AccountDeviceRow: UIView {
     }
 
     func setButtons(enabled: Bool) {
-        infoButton.isEnabled = enabled
+        deviceManagementButton.isEnabled = enabled
     }
 
-    @objc private func didTapInfoButton() {
-        infoButtonAction?()
+    @objc private func didTapDeviceManagementButton() {
+        deviceManagementButtonAction?()
     }
 }

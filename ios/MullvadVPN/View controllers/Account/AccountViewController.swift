@@ -15,7 +15,7 @@ import StoreKit
 import UIKit
 
 enum AccountViewControllerAction: Sendable {
-    case deviceInfo
+    case deviceManagement
     case finish
     case logOut
     case navigateToVoucher
@@ -82,8 +82,8 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             self?.copyAccountToken()
         }
 
-        contentView.accountDeviceRow.infoButtonAction = { [weak self] in
-            self?.actionHandler?(.deviceInfo)
+        contentView.accountDeviceRow.deviceManagementButtonAction = { [weak self] in
+            self?.actionHandler?(.deviceManagement)
         }
 
         contentView.restorePurchasesView.restoreButtonAction = { [weak self] in
