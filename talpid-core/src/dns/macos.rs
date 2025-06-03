@@ -183,6 +183,15 @@ impl State {
             match settings {
                 // Do nothing if the state is already what we want
                 Some(settings) if settings.server_addresses() == desired_set => (),
+                // Ignore loopback addresses
+                Some(settings)
+                    if settings
+                        .server_addresses()
+                        .iter()
+                        .any(|addr| addr.ip().is_loopback()) =>
+                {
+                    log::trace!("Not updating DNS config: localhost is used");
+                }
                 // Apply desired state to service
                 _ => {
                     let path_cf = CFString::new(path);

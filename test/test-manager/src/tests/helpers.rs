@@ -75,16 +75,9 @@ pub async fn install_app(
     rpc.install_app(get_package_desc(app_filename)).await?;
 
     // verify that daemon is running
-    tokio::time::timeout(Duration::from_secs(5), async {
-        loop {
-            if rpc.mullvad_daemon_get_status().await? == ServiceStatus::Running {
-                return Ok::<_, Error>(());
-            }
-            sleep(Duration::from_millis(100)).await;
-        }
-    })
-    .await
-    .map_err(|_timeout| Error::DaemonNotRunning)??;
+    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
+        bail!(Error::DaemonNotRunning);
+    }
 
     // Set the log level to trace
     rpc.set_daemon_log_level(test_rpc::mullvad_daemon::Verbosity::Trace)
