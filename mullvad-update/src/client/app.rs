@@ -142,10 +142,7 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
 
 impl DownloadedInstaller for InstallerFile<false> {
     async fn verify(self) -> Result<impl VerifiedInstaller, DownloadError> {
-        let bin_path = &self.path;
-        let hash = &self.app_sha256;
-
-        match Sha256Verifier::verify(&bin_path, *hash)
+        match Sha256Verifier::verify(&self.path, self.app_sha256)
             .await
             .map_err(DownloadError::Verification)
         {
