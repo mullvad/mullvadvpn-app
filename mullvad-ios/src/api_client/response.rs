@@ -1,5 +1,5 @@
 use std::{
-    ffi::CString,
+    ffi::{c_char, CString},
     ptr::{self, null_mut},
 };
 
@@ -12,10 +12,10 @@ use mullvad_api::{
 pub struct SwiftMullvadApiResponse {
     body: *mut u8,
     body_size: usize,
-    etag: *mut u8,
+    etag: *mut c_char,
     status_code: u16,
-    error_description: *mut u8,
-    server_response_code: *mut u8,
+    error_description: *mut c_char,
+    server_response_code: *mut c_char,
     success: bool,
 }
 
@@ -33,7 +33,7 @@ impl SwiftMullvadApiResponse {
             Some(etag) => {
                 let header_value =
                     CString::new(etag).map_err(|_| rest::Error::InvalidHeaderError)?;
-                header_value.into_raw().cast()
+                header_value.into_raw()
             }
             None => ptr::null_mut(),
         };
@@ -64,7 +64,7 @@ impl SwiftMullvadApiResponse {
     pub fn access_method_error(err: mullvad_api::access_mode::Error) -> Self {
         let to_cstr_pointer = |str| {
             CString::new(str)
-                .map(|cstr| cstr.into_raw().cast())
+                .map(|cstr| cstr.into_raw())
                 .unwrap_or(null_mut())
         };
         let error_description = to_cstr_pointer(err.to_string());
@@ -87,7 +87,7 @@ impl SwiftMullvadApiResponse {
 
         let to_cstr_pointer = |str| {
             CString::new(str)
-                .map(|cstr| cstr.into_raw().cast())
+                .map(|cstr| cstr.into_raw())
                 .unwrap_or(null_mut())
         };
 
@@ -113,7 +113,7 @@ impl SwiftMullvadApiResponse {
     pub fn cancelled() -> Self {
         Self {
             success: false,
-            error_description: c"Request was cancelled".to_owned().into_raw().cast(),
+            error_description: c"Request was cancelled".to_owned().into_raw(),
             body: null_mut(),
             body_size: 0,
             etag: null_mut(),
@@ -125,7 +125,7 @@ impl SwiftMullvadApiResponse {
     pub fn no_tokio_runtime() -> Self {
         Self {
             success: false,
-            error_description: c"Failed to get Tokio runtime".to_owned().into_raw().cast(),
+            error_description: c"Failed to get Tokio runtime".to_owned().into_raw(),
             body: null_mut(),
             body_size: 0,
             etag: null_mut(),
@@ -149,14 +149,14 @@ pub unsafe extern "C" fn mullvad_response_drop(response: SwiftMullvadApiResponse
     }
 
     if !response.etag.is_null() {
-        let _ = CString::from_raw(response.etag.cast());
+        let _ = CString::from_raw(response.etag);
     }
 
     if !response.error_description.is_null() {
-        let _ = CString::from_raw(response.error_description.cast());
+        let _ = CString::from_raw(response.error_description);
     }
 
     if !response.server_response_code.is_null() {
-        let _ = CString::from_raw(response.server_response_code.cast());
+        let _ = CString::from_raw(response.server_response_code);
     }
 }

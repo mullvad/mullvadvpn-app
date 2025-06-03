@@ -102,31 +102,27 @@ pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
             .resolve(access_method_setting.clone())
             .await
         {
-            Ok(maybe_resolved_connection_mode) => match maybe_resolved_connection_mode {
-                Some(resolved_connection_mode) => {
-                    let oneshot_client = api_context.api_client.mullvad_rest_handle(
-                        resolved_connection_mode.connection_mode.into_provider(),
-                    );
+            Ok(Some(resolved_connection_mode)) => {
+                let oneshot_client = api_context
+                    .api_client
+                    .mullvad_rest_handle(resolved_connection_mode.connection_mode.into_provider());
 
-                    match mullvad_ios_api_addrs_available_inner(oneshot_client, retry_strategy)
-                        .await
-                    {
-                        Ok(_) => completion.finish(SwiftMullvadApiResponse::ok()),
-                        Err(err) => {
-                            log::error!("{err:?}");
-                            completion.finish(SwiftMullvadApiResponse::rest_error(err));
-                        }
+                match mullvad_ios_api_addrs_available_inner(oneshot_client, retry_strategy).await {
+                    Ok(_) => completion.finish(SwiftMullvadApiResponse::ok()),
+                    Err(err) => {
+                        log::error!("{err:?}");
+                        completion.finish(SwiftMullvadApiResponse::rest_error(err));
                     }
                 }
-                None => {
-                    log::error!("Invalid access method configuration, {access_method_setting:?}");
-                    completion.finish(SwiftMullvadApiResponse::access_method_error(
-                        mullvad_api::access_mode::Error::Resolve {
-                            access_method: access_method_setting.access_method,
-                        },
-                    ));
-                }
-            },
+            }
+            Ok(None) => {
+                log::error!("Invalid access method configuration, {access_method_setting:?}");
+                completion.finish(SwiftMullvadApiResponse::access_method_error(
+                    mullvad_api::access_mode::Error::Resolve {
+                        access_method: access_method_setting.access_method,
+                    },
+                ));
+            }
             Err(err) => {
                 log::error!("{err:?}");
                 completion.finish(SwiftMullvadApiResponse::access_method_error(err));
