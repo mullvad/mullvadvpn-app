@@ -691,9 +691,7 @@ mod test {
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
         TokioAsyncResolver,
     };
-    use ipnetwork::IpNetwork;
-    use nix::unistd::Uid;
-    use std::{mem, net::UdpSocket, process::Stdio, sync::Mutex, thread, time::Duration};
+    use std::{mem, net::UdpSocket, sync::Mutex, thread, time::Duration};
     use typed_builder::TypedBuilder;
 
     /// Can't have multiple local resolvers running at the same time, as they will try to bind to
@@ -701,13 +699,13 @@ mod test {
     static LOCK: Mutex<()> = Mutex::new(());
 
     async fn start_resolver() -> ResolverHandle {
-        super::start_resolver(LocalResolverConfig::default())
+        // NOTE: We're disabling lo0 aliases
+        super::start_resolver(LocalResolverConfig {
+            // Bind resolver to 127.0.0.1
+            use_random_loopback: false,
+        })
             .await
             .unwrap()
-    }
-
-    fn must_be_root() {
-        assert!(Uid::current().is_root(), "This test must run as root");
     }
 
     fn get_test_resolver(addr: SocketAddr) -> hickory_server::resolver::TokioAsyncResolver {
@@ -721,10 +719,12 @@ mod test {
 
     /// Test whether we can successfully bind the socket even if the address is already used to
     /// in different scenarios.
+    ///
+    /// # Note
+    ///
+    /// This test does not test aliases on lo0, as that requires root privileges.
     #[test_log::test]
     fn test_bind() {
-        must_be_root();
-
         let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
 
@@ -739,9 +739,7 @@ mod test {
             )
             .unwrap();
 
-            let handle = super::start_resolver(LocalResolverConfig::default())
-                .await
-                .expect("bind should succeed");
+            let handle = start_resolver().await;
             let test_resolver = get_test_resolver(handle.listening_addr());
             test_resolver
                 .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
@@ -760,9 +758,7 @@ mod test {
             )
             .unwrap();
 
-            let handle = super::start_resolver(LocalResolverConfig::default())
-                .await
-                .expect("bind should succeed");
+            let handle = start_resolver().await;
             let test_resolver = get_test_resolver(handle.listening_addr());
             test_resolver
                 .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
@@ -771,26 +767,8 @@ mod test {
             drop(_sock);
             handle.stop().await;
 
-            // bind() succeeds if 127.0.0.1 is already bound without REUSEADDR and REUSEPORT
-            let _sock = bind_sock(
-                BindParams::builder()
-                    .bind_addr(format!("127.0.0.1:{DNS_PORT}").parse().unwrap())
-                    .reuse_addr(false)
-                    .reuse_port(false)
-                    .build(),
-            )
-            .unwrap();
-
-            let handle = super::start_resolver(LocalResolverConfig::default())
-                .await
-                .expect("bind should fail");
-            let test_resolver = get_test_resolver(handle.listening_addr());
-            test_resolver
-                .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
-                .await
-                .expect("lookup should succeed");
-            drop(_sock);
-            handle.stop().await;
+            // bind() should succeeds if 127.0.0.1 is already bound without REUSEADDR and REUSEPORT
+            // TODO: We cannot test this as creating an alias requires root privileges.
 
             // bind() succeeds if 127.0.0.1 is bound with REUSEADDR and REUSEPORT
             let _sock = bind_sock(
@@ -802,9 +780,7 @@ mod test {
             )
             .unwrap();
 
-            let handle = super::start_resolver(LocalResolverConfig::default())
-                .await
-                .expect("bind should succeed");
+            let handle = start_resolver().await;
             let test_resolver = get_test_resolver(handle.listening_addr());
             test_resolver
                 .lookup(&ALLOWED_DOMAINS[0], RecordType::A)
@@ -834,8 +810,6 @@ mod test {
 
     #[test_log::test]
     fn test_failed_lookup() {
-        must_be_root();
-
         let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Runtime::new().unwrap();
 
@@ -873,71 +847,6 @@ mod test {
         mem::drop(handle);
         thread::sleep(Duration::from_millis(300));
         UdpSocket::bind(addr).expect("Failed to bind to a port that should have been removed");
-    }
-
-    /// Test that alias is removed when resolver is dropped
-    #[test_log::test]
-    fn test_alias_cleanup() {
-        must_be_root();
-
-        let _mutex = LOCK.lock().unwrap();
-        let rt = tokio::runtime::Builder::new_multi_thread()
-            .enable_all()
-            .build()
-            .unwrap();
-
-        let handle = rt.block_on(start_resolver());
-        let addr = handle.listening_addr();
-
-        // Expect to find alias
-        assert!(
-            IpNetwork::new("127.0.0.0".parse().unwrap(), 8)
-                .unwrap()
-                .contains(addr.ip()),
-            "expected loopback addr, got {addr:?}"
-        );
-        assert!(
-            matches!(rt.block_on(loopback_alias_exists(addr.ip())), Ok(true)),
-            "expected alias to be found"
-        );
-        // Ensure we're given a non-127.0.0.1 address, or the test is useless
-        assert_ne!(
-            "127.0.0.1".parse::<IpAddr>().unwrap(),
-            addr.ip(),
-            "expected random loopback address, not 127.0.0.1"
-        );
-
-        rt.block_on(handle.stop());
-        // TODO: make stop wait for cleanup
-        thread::sleep(Duration::from_millis(300));
-
-        assert!(
-            matches!(rt.block_on(loopback_alias_exists(addr.ip())), Ok(false)),
-            "expected alias to be removed"
-        );
-    }
-
-    async fn loopback_alias_exists(addr: IpAddr) -> io::Result<bool> {
-        let output = Command::new("ifconfig")
-            .arg(LOOPBACK)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .stdin(Stdio::null())
-            .output()
-            .await?;
-
-        let mut found = false;
-        let addr_s = addr.to_string();
-
-        for line in output.stdout.split(|c| c.is_ascii_whitespace()) {
-            let line_s = std::str::from_utf8(line).unwrap();
-            if line_s.contains(&addr_s) {
-                found = true;
-                break;
-            }
-        }
-
-        Ok(found)
     }
 
     #[derive(TypedBuilder)]
