@@ -11,9 +11,10 @@ import MullvadREST
 import MullvadTypes
 import Operations
 import Routing
+import SwiftUI
 import UIKit
 
-final class LoginCoordinator: Coordinator, Presenting, @preconcurrency DeviceManagementViewControllerDelegate {
+final class LoginCoordinator: Coordinator, Presenting {
     private let tunnelManager: TunnelManager
     private let devicesProxy: DeviceHandling
 
@@ -63,16 +64,6 @@ final class LoginCoordinator: Coordinator, Presenting, @preconcurrency DeviceMan
         self.loginController = loginController
     }
 
-    // MARK: - DeviceManagementViewControllerDelegate
-
-    func deviceManagementViewControllerDidCancel(_ controller: DeviceManagementViewController) {
-        returnToLogin(repeatLogin: false)
-    }
-
-    func deviceManagementViewControllerDidFinish(_ controller: DeviceManagementViewController) {
-        returnToLogin(repeatLogin: true)
-    }
-
     // MARK: - Private
 
     private func didFinishLogin(action: LoginAction, error: Error?) -> EndLoginAction {
@@ -119,27 +110,51 @@ final class LoginCoordinator: Coordinator, Presenting, @preconcurrency DeviceMan
             accountNumber: accountNumber,
             devicesProxy: devicesProxy
         )
-        let controller = DeviceManagementViewController(
-            interactor: interactor,
-            alertPresenter: AlertPresenter(context: self)
+        let controller = UIHostingController(
+            rootView: DeviceManagementView(
+                deviceManaging: interactor,
+                style: .tooManyDevices(returnToLogin),
+                onError: { title, error in
+                    let errorDescription = if case let .network(urlError) = error as? REST.Error {
+                        urlError.localizedDescription
+                    } else {
+                        error.localizedDescription
+                    }
+                    let presentation = AlertPresentation(
+                        id: "delete-device-error-alert",
+                        title: title,
+                        message: errorDescription,
+                        buttons: [
+                            AlertAction(
+                                title: NSLocalizedString(
+                                    "ERROR_ALERT_OK_ACTION",
+                                    tableName: "DeviceManagement",
+                                    value: "Got it!",
+                                    comment: ""
+                                ),
+                                style: .default
+                            ),
+                        ]
+                    )
+
+                    let presenter = AlertPresenter(context: self)
+                    presenter.showAlert(presentation: presentation, animated: true)
+                }
+            )
+        )
+        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            systemItem: .cancel,
+            primaryAction: UIAction(handler: { _ in
+                controller.dismiss(animated: true)
+            })
         )
         controller.isModalInPresentation = true
-        controller.delegate = self
-
-        controller.fetchDevices(animateUpdates: false) { [weak self] result in
-            guard let self = self else { return }
-
-            switch result {
-            case .success:
-                Task { @MainActor in
-                    navigationController.present(controller, animated: true) {
-                        completion(nil)
-                    }
-                }
-
-            case let .failure(error):
-                completion(error)
+        navigationController
+            .present(
+                CustomNavigationController(rootViewController: controller),
+                animated: true
+            ) {
+                completion(nil)
             }
-        }
     }
 }
