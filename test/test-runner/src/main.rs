@@ -576,6 +576,40 @@ impl Service for TestServer {
     async fn get_os_version(self, _: context::Context) -> Result<OsVersion, test_rpc::Error> {
         sys::get_os_version()
     }
+
+    #[cfg_attr(not(target_os = "macos"), allow(unused_variables))]
+    async fn ifconfig_alias_add(
+        self,
+        _: context::Context,
+        interface: String,
+        alias: IpAddr,
+    ) -> Result<(), test_rpc::Error> {
+        #[cfg(not(target_os = "macos"))]
+        return Err(test_rpc::Error::TargetNotImplemented);
+
+        #[cfg(target_os = "macos")]
+        talpid_macos::net::add_alias(&interface, alias)
+            .await
+            .map_err(|e| format!("{e:#}"))
+            .map_err(test_rpc::Error::Other)
+    }
+
+    #[cfg_attr(not(target_os = "macos"), allow(unused_variables))]
+    async fn ifconfig_alias_remove(
+        self,
+        _: context::Context,
+        interface: String,
+        alias: IpAddr,
+    ) -> Result<(), test_rpc::Error> {
+        #[cfg(not(target_os = "macos"))]
+        return Err(test_rpc::Error::TargetNotImplemented);
+
+        #[cfg(target_os = "macos")]
+        talpid_macos::net::remove_alias(&interface, alias)
+            .await
+            .map_err(|e| format!("{e:#}"))
+            .map_err(test_rpc::Error::Other)
+    }
 }
 
 fn get_pipe_status() -> ServiceStatus {
