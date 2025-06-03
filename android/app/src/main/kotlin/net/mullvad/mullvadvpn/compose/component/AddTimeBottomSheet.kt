@@ -74,7 +74,7 @@ private fun PreviewPaymentBottomSheet(
                     density = Density(1f),
                     initialValue = SheetValue.Expanded,
                 ),
-            blockAccountPage = false,
+            internetBlocked = false,
             onPurchaseBillingProductClick = {},
             onPlayPaymentInfoClick = {},
             onSitePaymentClick = {},
@@ -91,7 +91,7 @@ private fun PreviewPaymentBottomSheet(
 @Composable
 fun AddTimeBottomSheet(
     visible: Boolean,
-    blockAccountPage: Boolean,
+    internetBlocked: Boolean,
     onRedeemVoucherClick: () -> Unit,
     onPlayPaymentInfoClick: () -> Unit,
     onHideBottomSheet: () -> Unit,
@@ -124,7 +124,7 @@ fun AddTimeBottomSheet(
         AddTimeBottomSheetContent(
             state = uiState,
             sheetState = sheetState,
-            blockAccountPage = blockAccountPage,
+            internetBlocked = internetBlocked,
             onPurchaseBillingProductClick = {
                 viewModel.startBillingPayment(productId = it, activityProvider = { activity!! })
             },
@@ -134,7 +134,7 @@ fun AddTimeBottomSheet(
             onRedeemVoucherClick = onRedeemVoucherClick,
             resetPurchaseState = { viewModel.onClosePurchaseResultDialog(false) },
             closeSheetAndResetPurchaseState = {
-                viewModel.onClosePurchaseResultDialog(true)
+                viewModel.onClosePurchaseResultDialog(it)
                 onCloseBottomSheet(true)
             },
             closeBottomSheet = onCloseBottomSheet,
@@ -147,14 +147,14 @@ fun AddTimeBottomSheet(
 fun AddTimeBottomSheetContent(
     state: Lc<Unit, AddTimeUiState>,
     sheetState: SheetState,
-    blockAccountPage: Boolean,
+    internetBlocked: Boolean,
     onPurchaseBillingProductClick: (ProductId) -> Unit = {},
     onPlayPaymentInfoClick: () -> Unit,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onRetryFetchProducts: () -> Unit,
     resetPurchaseState: () -> Unit,
-    closeSheetAndResetPurchaseState: () -> Unit,
+    closeSheetAndResetPurchaseState: (Boolean) -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surfaceContainer
@@ -171,7 +171,7 @@ fun AddTimeBottomSheetContent(
             is Lc.Content ->
                 Content(
                     state = state.value,
-                    blockAccountPage = blockAccountPage,
+                    internetBlocked = internetBlocked,
                     backgroundColor = backgroundColor,
                     onBackgroundColor = onBackgroundColor,
                     onPurchaseBillingProductClick = onPurchaseBillingProductClick,
@@ -190,7 +190,7 @@ fun AddTimeBottomSheetContent(
 @Composable
 private fun Content(
     state: AddTimeUiState,
-    blockAccountPage: Boolean,
+    internetBlocked: Boolean,
     backgroundColor: Color,
     onBackgroundColor: Color,
     onPurchaseBillingProductClick: (ProductId) -> Unit,
@@ -200,7 +200,7 @@ private fun Content(
     onRetryFetchProducts: () -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit,
     resetPurchaseState: () -> Unit,
-    closeSheetAndResetPurchaseState: () -> Unit,
+    closeSheetAndResetPurchaseState: (Boolean) -> Unit,
 ) {
     AnimatedContent(targetState = state) { state ->
         Column {
@@ -216,7 +216,7 @@ private fun Content(
                 Products(
                     billingPaymentState = state.billingPaymentState,
                     showSitePayment = state.showSitePayment,
-                    blockAccountPage = blockAccountPage,
+                    internetBlocked = internetBlocked,
                     backgroundColor = backgroundColor,
                     onBackgroundColor = onBackgroundColor,
                     onPurchaseBillingProductClick = onPurchaseBillingProductClick,
@@ -237,7 +237,7 @@ private fun PurchaseState(
     onBackgroundColor: Color,
     purchaseState: PurchaseState,
     resetPurchaseState: () -> Unit,
-    closeSheetAndResetPurchaseState: () -> Unit,
+    closeSheetAndResetPurchaseState: (Boolean) -> Unit,
 ) {
     when (purchaseState) {
         // Fetching products and obfuscated id loading state
@@ -288,7 +288,7 @@ private fun PurchaseState(
 private fun PurchaseStateVerification(
     onBackgroundColor: Color,
     backgroundColor: Color,
-    closeSheet: () -> Unit,
+    closeSheet: (Boolean) -> Unit,
 ) {
     SheetTitle(
         title = stringResource(id = R.string.verifying_purchase),
@@ -308,7 +308,7 @@ private fun PurchaseStateVerification(
         )
         SmallPrimaryButton(
             text = stringResource(R.string.close),
-            onClick = closeSheet,
+            onClick = { closeSheet(false) },
             modifier = Modifier.padding(top = Dimens.mediumPadding),
         )
     }
@@ -335,7 +335,7 @@ private fun PurchaseStateSuccess(
     onBackgroundColor: Color,
     backgroundColor: Color,
     productId: ProductId,
-    onSuccessfulPurchase: () -> Unit,
+    onSuccessfulPurchase: (Boolean) -> Unit,
 ) {
     SheetTitle(
         title = stringResource(id = R.string.time_added),
@@ -362,7 +362,7 @@ private fun PurchaseStateSuccess(
         )
         SmallPrimaryButton(
             text = stringResource(R.string.close),
-            onClick = onSuccessfulPurchase,
+            onClick = { onSuccessfulPurchase(true) },
             modifier = Modifier.padding(top = Dimens.mediumPadding),
         )
     }
@@ -397,7 +397,7 @@ private fun PurchaseStateError(
 @Composable
 private fun Products(
     billingPaymentState: PaymentState?,
-    blockAccountPage: Boolean,
+    internetBlocked: Boolean,
     showSitePayment: Boolean,
     backgroundColor: Color,
     onBackgroundColor: Color,
@@ -424,7 +424,7 @@ private fun Products(
         )
     }
     if (showSitePayment) {
-        if (blockAccountPage) {
+        if (internetBlocked) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier =
@@ -450,7 +450,7 @@ private fun Products(
             onClick = { onSitePaymentClick() },
             titleColor = onBackgroundColor,
             background = backgroundColor,
-            enabled = !blockAccountPage,
+            enabled = !internetBlocked,
         )
     }
     IconCell(

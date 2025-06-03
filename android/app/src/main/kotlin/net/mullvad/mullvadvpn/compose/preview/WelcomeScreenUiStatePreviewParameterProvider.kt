@@ -16,6 +16,7 @@ class WelcomeScreenUiStatePreviewParameterProvider :
                     accountNumber = AccountNumber("4444555566667777"),
                     deviceName = "Happy Mole",
                     showSitePayment = false,
+                    verificationPending = true,
                 )
                 .toLc(),
             WelcomeUiState(
@@ -24,6 +25,7 @@ class WelcomeScreenUiStatePreviewParameterProvider :
                     accountNumber = AccountNumber("4444555566667777"),
                     deviceName = "Happy Mole",
                     showSitePayment = true,
+                    verificationPending = false,
                 )
                 .toLc(),
         )

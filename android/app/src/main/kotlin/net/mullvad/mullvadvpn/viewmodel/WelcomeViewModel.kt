@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.hasPendingPayment
 import net.mullvad.mullvadvpn.util.isSuccess
 
 class WelcomeViewModel(
@@ -39,15 +40,18 @@ class WelcomeViewModel(
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), hasAddedTimeEffect())
 
     val uiState =
-        combine(connectionProxy.tunnelState, deviceRepository.deviceState.filterNotNull()) {
-                tunnelState,
-                accountState ->
+        combine(
+                connectionProxy.tunnelState,
+                deviceRepository.deviceState.filterNotNull(),
+                paymentUseCase.paymentAvailability,
+            ) { tunnelState, accountState, paymentAvailability ->
                 Lc.Content(
                     WelcomeUiState(
                         tunnelState = tunnelState,
                         accountNumber = accountState.accountNumber(),
                         deviceName = accountState.displayName(),
                         showSitePayment = !isPlayBuild,
+                        verificationPending = paymentAvailability.hasPendingPayment(),
                     )
                 )
             }
@@ -89,7 +93,6 @@ class WelcomeViewModel(
         }
     }
 
-    // TODO Keep this?
     private fun verifyPurchases() {
         viewModelScope.launch {
             if (paymentUseCase.verifyPurchases().isSuccess()) {

@@ -20,8 +20,8 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.util.hasPendingPayment
 import net.mullvad.mullvadvpn.util.isSuccess
-import net.mullvad.mullvadvpn.util.toPaymentState
 
 class OutOfTimeViewModel(
     private val accountRepository: AccountRepository,
@@ -46,7 +46,7 @@ class OutOfTimeViewModel(
                     tunnelState = tunnelState,
                     deviceName = deviceState?.displayName() ?: "",
                     showSitePayment = !isPlayBuild,
-                    billingPaymentState = paymentAvailability?.toPaymentState(),
+                    verificationPending = paymentAvailability.hasPendingPayment(),
                 )
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), OutOfTimeUiState())
@@ -59,7 +59,6 @@ class OutOfTimeViewModel(
             }
         }
         verifyPurchases()
-        fetchPaymentAvailability()
         viewModelScope.launch { deviceRepository.updateDevice() }
     }
 
@@ -81,26 +80,6 @@ class OutOfTimeViewModel(
             if (paymentUseCase.verifyPurchases().isSuccess()) {
                 updateAccountExpiry()
             }
-        }
-    }
-
-    private fun fetchPaymentAvailability() {
-        viewModelScope.launch { paymentUseCase.queryPaymentAvailability() }
-    }
-
-    fun onClosePurchaseResultDialog(success: Boolean) {
-        // We are closing the dialog without any action, this can happen either if an error occurred
-        // during the purchase or the purchase ended successfully.
-        // If the payment was successful we want to update the account expiry. If not successful we
-        // should check payment availability and verify any purchases to handle potential errors.
-        if (success) {
-            viewModelScope.launch { updateAccountExpiry() }
-        } else {
-            fetchPaymentAvailability()
-            verifyPurchases() // Attempt to verify again
-        }
-        viewModelScope.launch {
-            paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
         }
     }
 
