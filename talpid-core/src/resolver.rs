@@ -731,10 +731,6 @@ mod test {
         TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default())
     }
 
-    fn must_be_root() {
-        assert!(Uid::current().is_root(), "This test must run as root");
-    }
-
     /// Test whether we can successfully bind the socket even if the address is already used to
     /// in different scenarios.
     #[test_log::test]
@@ -873,8 +869,6 @@ mod test {
     /// Test that we close the socket when shutting down the local resolver.
     #[test_log::test]
     fn test_unbind_socket_on_stop() {
-        must_be_root();
-
         let _mutex = LOCK.lock().unwrap();
         let rt = tokio::runtime::Builder::new_multi_thread()
             .enable_all()
