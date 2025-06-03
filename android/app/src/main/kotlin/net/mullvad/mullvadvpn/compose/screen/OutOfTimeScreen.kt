@@ -52,6 +52,7 @@ import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -137,6 +138,7 @@ fun OutOfTimeScreen(
         var addTimeBottomSheetState by remember { mutableStateOf(false) }
         AddTimeBottomSheet(
             visible = addTimeBottomSheetState,
+            blockAccountPage = state.tunnelState.blockSitePaymentButton(),
             onHideBottomSheet = { addTimeBottomSheetState = false },
             onRedeemVoucherClick = onRedeemVoucherClick,
             onPlayPaymentInfoClick = onPlayPaymentInfoClick,
@@ -213,10 +215,8 @@ private fun ButtonPanel(
                 text = stringResource(id = R.string.disconnect),
             )
         }
-        VariantButton(
-            onClick = onAddMoreTimeClick,
-            text = stringResource(id = R.string.add_time),
-            isEnabled = !state.tunnelState.isSecured(),
-        )
+        VariantButton(onClick = onAddMoreTimeClick, text = stringResource(id = R.string.add_time))
     }
 }
+
+private fun TunnelState.blockSitePaymentButton(): Boolean = this !is TunnelState.Disconnected

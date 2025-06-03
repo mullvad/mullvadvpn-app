@@ -64,6 +64,7 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -163,6 +164,7 @@ fun WelcomeScreen(
         var addTimeBottomSheetState by remember { mutableStateOf(false) }
         AddTimeBottomSheet(
             visible = addTimeBottomSheetState,
+            blockAccountPage = state.contentOrNull()?.tunnelState?.blockSitePaymentButton() == true,
             onHideBottomSheet = { addTimeBottomSheetState = false },
             onRedeemVoucherClick = onRedeemVoucherClick,
             onPlayPaymentInfoClick = onPlayPaymentInfoClick,
@@ -355,7 +357,8 @@ private fun ButtonPanel(
                     end = Dimens.sideMargin,
                     bottom = Dimens.buttonSpacing,
                 ),
-            isEnabled = !showDisconnectButton,
         )
     }
 }
+
+private fun TunnelState.blockSitePaymentButton(): Boolean = this !is TunnelState.Disconnected
