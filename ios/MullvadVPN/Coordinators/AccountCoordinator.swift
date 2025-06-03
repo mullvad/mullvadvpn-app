@@ -6,8 +6,10 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadREST
 import Routing
 import StoreKit
+import SwiftUI
 import UIKit
 
 enum AccountDismissReason: Equatable, Sendable {
@@ -54,8 +56,8 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
 
     private func handleViewControllerAction(_ action: AccountViewControllerAction) {
         switch action {
-        case .deviceInfo:
-            showAccountDeviceInfo()
+        case .deviceManagement:
+            navigateToDeviceManagement()
         case .finish:
             didFinish?(self, .none)
         case .logOut:
@@ -122,6 +124,72 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         )
     }
 
+    private func navigateToDeviceManagement() {
+        guard let accountNumber = interactor.deviceState.accountData?.number,
+              let currentDeviceId = interactor.deviceState.deviceData?.identifier else {
+            return
+        }
+        let controller = UIHostingController(
+            rootView: DeviceManagementView(
+                deviceManaging: DeviceManagementInteractor(
+                    accountNumber: accountNumber,
+                    currentDeviceId: currentDeviceId,
+                    devicesProxy: interactor.deviceProxy
+                ),
+                style: .normal,
+                onError: { title, error in
+                    let errorDescription = if case let .network(urlError) = error as? REST.Error {
+                        urlError.localizedDescription
+                    } else {
+                        error.localizedDescription
+                    }
+                    let presentation = AlertPresentation(
+                        id: "device-management-error-alert",
+                        title: title,
+                        message: errorDescription,
+                        buttons: [
+                            AlertAction(
+                                title: NSLocalizedString(
+                                    "ERROR_ALERT_OK_ACTION",
+                                    tableName: "DeviceManagement",
+                                    value: "Got it!",
+                                    comment: ""
+                                ),
+                                style: .default
+                            ),
+                        ]
+                    )
+
+                    let presenter = AlertPresenter(context: self)
+                    presenter.showAlert(presentation: presentation, animated: true)
+                }
+            )
+        )
+        controller.title = NSLocalizedString(
+            "MANAGE_DEVICES_TITLE",
+            tableName: "Manage devices",
+            value: "Manage devices",
+            comment: ""
+        )
+        let doneButton = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction(handler: { _ in
+                controller.dismiss(animated: true)
+            })
+        )
+        controller.navigationItem.rightBarButtonItem = doneButton
+        let subNavigationController = CustomNavigationController(
+            rootViewController: controller
+        )
+        subNavigationController.navigationItem.largeTitleDisplayMode = .always
+        subNavigationController.navigationBar.prefersLargeTitles = true
+        navigationController
+            .present(
+                subNavigationController,
+                animated: true
+            )
+    }
+
     @MainActor
     private func navigateToDeleteAccount() {
         let coordinator = AccountDeletionCoordinator(
@@ -180,39 +248,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         }
 
         alertPresenter.showAlert(presentation: presentation, animated: true)
-    }
-
-    private func showAccountDeviceInfo() {
-        let message = NSLocalizedString(
-            "DEVICE_INFO_DIALOG_MESSAGE_PART_1",
-            tableName: "Account",
-            value: """
-            This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name \
-            that helps you identify it when you manage your devices in the app or on the website.
-            You can have up to 5 devices logged in on one Mullvad account.
-            If you log out, the device and the device name is removed. When \
-            you log back in again, the device will get a new name.
-            """,
-            comment: ""
-        )
-
-        let presentation = AlertPresentation(
-            id: "account-device-info-alert",
-            icon: .info,
-            message: message,
-            buttons: [AlertAction(
-                title: NSLocalizedString(
-                    "DEVICE_INFO_DIALOG_OK_ACTION",
-                    tableName: "Account",
-                    value: "Got it!",
-                    comment: ""
-                ),
-                style: .default
-            )]
-        )
-
-        let presenter = AlertPresenter(context: self)
-        presenter.showAlert(presentation: presentation, animated: true)
     }
 
     private func showRestorePurchasesInfo() {

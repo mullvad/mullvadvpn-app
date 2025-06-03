@@ -28,5 +28,6 @@ extension Color {
 
     enum MullvadList {
         static let separator: Color = .mullvadSecondaryColor
+        static let background: Color = .mullvadPrimaryColor
     }
 }
