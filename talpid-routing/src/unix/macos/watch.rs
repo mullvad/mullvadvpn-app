@@ -83,8 +83,6 @@ impl RoutingTable {
             }
         }
 
-        log::trace!("Add route: {message:?}");
-
         let msg = self
             .alter_routing_table(message, MessageType::RTM_ADD)
             .await;
@@ -133,8 +131,6 @@ impl RoutingTable {
     }
 
     pub async fn delete_route(&mut self, message: &RouteMessage) -> Result<()> {
-        log::trace!("Delete route: {message:?}");
-
         let response = self
             .alter_routing_table(message, MessageType::RTM_DELETE)
             .await?;
