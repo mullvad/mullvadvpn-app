@@ -213,11 +213,14 @@ fun NegativeOutlinedButton(
     modifier: Modifier = Modifier,
     colors: ButtonColors =
         ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colorScheme.error,
-            disabledContentColor = MaterialTheme.colorScheme.error.copy(alpha = Alpha20),
+            contentColor = MaterialTheme.colorScheme.onError,
+            disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = Alpha20),
         ),
     border: BorderStroke =
-        BorderStroke(width = Dimens.borderWidth, color = MaterialTheme.colorScheme.onError),
+        BorderStroke(
+            width = Dimens.outLineButtonBorderWidth,
+            color = MaterialTheme.colorScheme.error,
+        ),
     shape: Shape = MaterialTheme.shapes.large,
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
