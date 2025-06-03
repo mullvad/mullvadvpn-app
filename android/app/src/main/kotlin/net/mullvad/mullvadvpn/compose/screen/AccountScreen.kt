@@ -8,7 +8,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -156,7 +160,7 @@ fun AccountScreen(
         if (!LocalInspectionMode.current) {
             AddTimeBottomSheet(
                 visible = addTimeBottomSheetState,
-                blockAccountPage = false,
+                internetBlocked = false,
                 onHideBottomSheet = { addTimeBottomSheetState = false },
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPlayPaymentInfoClick = onPlayPaymentInfoClick,
@@ -187,7 +191,9 @@ fun AccountScreen(
 
                 PaidUntilRow(
                     accountExpiry = state?.accountExpiry,
+                    verificationPending = state?.verificationPending == true,
                     onOpenPaymentScreen = { addTimeBottomSheetState = true },
+                    onInfoClick = onPlayPaymentInfoClick,
                 )
             }
 
@@ -243,7 +249,12 @@ private fun AccountNumberRow(accountNumber: String, onCopyAccountNumber: (String
 }
 
 @Composable
-private fun PaidUntilRow(accountExpiry: ZonedDateTime?, onOpenPaymentScreen: () -> Unit) {
+private fun PaidUntilRow(
+    accountExpiry: ZonedDateTime?,
+    verificationPending: Boolean,
+    onOpenPaymentScreen: () -> Unit,
+    onInfoClick: () -> Unit,
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             style = MaterialTheme.typography.labelMedium,
@@ -265,6 +276,25 @@ private fun PaidUntilRow(accountExpiry: ZonedDateTime?, onOpenPaymentScreen: () 
                 text = stringResource(R.string.add_time),
                 textDecoration = TextDecoration.Underline,
             )
+        }
+
+        if (verificationPending) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    text = stringResource(R.string.verifying_purchase),
+                    modifier = Modifier.padding(bottom = Dimens.smallPadding),
+                )
+                IconButton(onClick = onInfoClick) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
         }
     }
 }

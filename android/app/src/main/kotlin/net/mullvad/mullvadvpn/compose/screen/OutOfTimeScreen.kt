@@ -5,12 +5,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -22,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -136,13 +142,15 @@ fun OutOfTimeScreen(
         timeLeft = null,
     ) {
         var addTimeBottomSheetState by remember { mutableStateOf(false) }
-        AddTimeBottomSheet(
-            visible = addTimeBottomSheetState,
-            blockAccountPage = state.tunnelState.blockSitePaymentButton(),
-            onHideBottomSheet = { addTimeBottomSheetState = false },
-            onRedeemVoucherClick = onRedeemVoucherClick,
-            onPlayPaymentInfoClick = onPlayPaymentInfoClick,
-        )
+        if (!LocalInspectionMode.current) {
+            AddTimeBottomSheet(
+                visible = addTimeBottomSheetState,
+                internetBlocked = state.tunnelState.blockSitePaymentButton(),
+                onHideBottomSheet = { addTimeBottomSheetState = false },
+                onRedeemVoucherClick = onRedeemVoucherClick,
+                onPlayPaymentInfoClick = onPlayPaymentInfoClick,
+            )
+        }
         Column(
             modifier =
                 Modifier.fillMaxSize()
@@ -167,6 +175,7 @@ fun OutOfTimeScreen(
                 state = state,
                 onDisconnectClick = onDisconnectClick,
                 onAddMoreTimeClick = { addTimeBottomSheetState = true },
+                onInfoClick = onPlayPaymentInfoClick,
             )
         }
     }
@@ -206,14 +215,31 @@ private fun ButtonPanel(
     state: OutOfTimeUiState,
     onDisconnectClick: () -> Unit,
     onAddMoreTimeClick: () -> Unit,
+    onInfoClick: () -> Unit,
 ) {
-
     Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
         if (state.tunnelState.isSecured()) {
             NegativeButton(
                 onClick = onDisconnectClick,
                 text = stringResource(id = R.string.disconnect),
             )
+        }
+        if (state.verificationPending) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    text = stringResource(R.string.verifying_purchase),
+                    modifier = Modifier.padding(bottom = Dimens.smallPadding),
+                )
+                IconButton(onClick = onInfoClick) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
         }
         VariantButton(onClick = onAddMoreTimeClick, text = stringResource(id = R.string.add_time))
     }

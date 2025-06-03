@@ -21,6 +21,7 @@ class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit,
                             DateTimeFormatter.ISO_ZONED_DATE_TIME,
                         ),
                     showLogoutLoading = false,
+                    verificationPending = true,
                 )
                 .toLc(),
             AccountUiState(
@@ -32,6 +33,7 @@ class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit,
                             DateTimeFormatter.ISO_ZONED_DATE_TIME,
                         ),
                     showLogoutLoading = true,
+                    verificationPending = false,
                 )
                 .toLc(),
         )

@@ -8,4 +8,5 @@ data class WelcomeUiState(
     val accountNumber: AccountNumber?,
     val deviceName: String?,
     val showSitePayment: Boolean,
+    val verificationPending: Boolean,
 )
