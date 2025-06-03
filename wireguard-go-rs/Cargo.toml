@@ -12,8 +12,6 @@ thiserror.workspace = true
 log.workspace = true
 zeroize = "1.8.1"
 
-talpid-types.path = "../talpid-types"
-
 # On platforms where maybenot and wireguard-go can be built statically (Linux and macOS) we use
 # this hack to include it. The hack is that we depend on this crate here even if neither
 # wireguard-go-rs nor its upstream dependants use it.

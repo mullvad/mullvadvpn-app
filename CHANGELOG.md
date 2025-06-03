@@ -37,9 +37,6 @@ supported.
   uses a lot less CPU to compute the keypair, and the public key sent to the server
   is drastically smaller.
 
-#### macOS
-- Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
-
 ### Fixed
 - Automatically connect when IP version becomes available.
 
@@ -53,7 +50,6 @@ supported.
 
 #### macOS
 - Fully uninstall the app when it is removed by being dropped in the bin.
-- Add grace period when best default route goes away to reduce frequency of random reconnects.
 
 ### Security
 #### macOS

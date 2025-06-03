@@ -116,7 +116,7 @@ jobs:
 
       - name: Install latest zig
         if: matrix.os == 'windows-latest'
-        uses: mlugg/setup-zig@v1
+        uses: mlugg/setup-zig@v2
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
