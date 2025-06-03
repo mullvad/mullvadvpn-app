@@ -576,6 +576,29 @@ impl Service for TestServer {
     async fn get_os_version(self, _: context::Context) -> Result<OsVersion, test_rpc::Error> {
         sys::get_os_version()
     }
+
+    async fn ifconfig_alias_add(
+        self,
+        _: context::Context,
+        interface: String,
+        alias: IpAddr,
+    ) -> Result<(), test_rpc::Error> {
+        talpid_macos::net::add_alias(&interface, alias)
+            .await
+            .map_err(|e| format!("{e:#}"))
+            .map_err(test_rpc::Error::Other)
+    }
+    async fn ifconfig_alias_remove(
+        self,
+        _: context::Context,
+        interface: String,
+        alias: IpAddr,
+    ) -> Result<(), test_rpc::Error> {
+        talpid_macos::net::remove_alias(&interface, alias)
+            .await
+            .map_err(|e| format!("{e:#}"))
+            .map_err(test_rpc::Error::Other)
+    }
 }
 
 fn get_pipe_status() -> ServiceStatus {

@@ -275,6 +275,11 @@ mod service {
 
         /// Returns operating system details
         async fn get_os_version() -> Result<meta::OsVersion, Error>;
+
+        /// Create an IP alias for the provided interface. (macOS only)
+        async fn ifconfig_alias_add(interface: String, alias: IpAddr) -> Result<(), Error>;
+        /// Remove an IP alias for the provided interface. (macOS only)
+        async fn ifconfig_alias_remove(interface: String, alias: IpAddr) -> Result<(), Error>;
     }
 }
 
