@@ -50,7 +50,6 @@ supported.
 
 #### macOS
 - Fully uninstall the app when it is removed by being dropped in the bin.
-- Add grace period when best default route goes away to reduce frequency of random reconnects.
 
 ### Security
 #### macOS
