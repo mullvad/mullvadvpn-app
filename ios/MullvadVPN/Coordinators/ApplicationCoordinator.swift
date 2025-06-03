@@ -546,7 +546,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         let accountInteractor = AccountInteractor(
             tunnelManager: tunnelManager,
             accountsProxy: accountsProxy,
-            apiProxy: apiProxy
+            apiProxy: apiProxy,
+            deviceProxy: devicesProxy
         )
 
         let coordinator = AccountCoordinator(

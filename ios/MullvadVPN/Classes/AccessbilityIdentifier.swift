@@ -33,6 +33,7 @@ public enum AccessibilityIdentifier: Equatable {
     case revokedDeviceLoginButton
     case dnsSettingsEditButton
     case infoButton
+    case deviceManagementButton
     case copyButton
     case learnAboutPrivacyButton
     case logOutDeviceConfirmButton
@@ -184,6 +185,8 @@ public enum AccessibilityIdentifier: Equatable {
     case deleteAccountTextField
     case socks5AuthenticationSwitch
     case statusImageView
+    case deviceListView
+    case deviceRemovalProgressView
 
     // DNS settings
     case includeAllNetworks

@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Make feature indicators clickable shortcuts to their corresponding settings.
 - Let users cancel sending a problem report.
+- Add possibility to manage devices from account view.
 
 ### Changed
 - Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
