@@ -59,7 +59,9 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rust
-        run: rustup target add ${{ matrix.target }}
+        run: |
+          rustup target add ${{ matrix.target }}
+          rustup component add clippy
 
       - name: Clippy check
         shell: bash
