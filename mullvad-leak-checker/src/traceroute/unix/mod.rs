@@ -23,7 +23,8 @@ use pnet_packet::{
 use socket2::{Domain, Protocol, Socket, Type};
 use tokio::time::{sleep, timeout};
 
-#[cfg(any(target_os = "linux", target_os = "android"))]
+#[cfg_attr(target_os = "linux", allow(dead_code))]
+#[cfg(any(target_os = "android", target_os = "linux"))]
 pub mod android;
 
 #[cfg(any(target_os = "linux", target_os = "android"))]
