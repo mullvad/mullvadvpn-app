@@ -94,6 +94,10 @@ pub enum FirewallPolicy {
         /// Interface to redirect (VPN tunnel) traffic to
         #[cfg(target_os = "macos")]
         redirect_interface: Option<String>,
+        /// Destination port for DNS traffic redirection. Traffic destined to `127.0.0.1:53` will
+        /// be redirected to `127.0.0.1:$dns_redirect_port`.
+        #[cfg(target_os = "macos")]
+        dns_redirect_port: u16,
     },
 
     /// Allow traffic only to server and over tunnel interface
@@ -110,6 +114,10 @@ pub enum FirewallPolicy {
         /// Interface to redirect (VPN tunnel) traffic to
         #[cfg(target_os = "macos")]
         redirect_interface: Option<String>,
+        /// Destination port for DNS traffic redirection. Traffic destined to `127.0.0.1:53` will
+        /// be redirected to `127.0.0.1:$dns_redirect_port`.
+        #[cfg(target_os = "macos")]
+        dns_redirect_port: u16,
     },
 
     /// Block all network traffic in and out from the computer.
@@ -118,6 +126,10 @@ pub enum FirewallPolicy {
         allow_lan: bool,
         /// Host that should be reachable while in the blocked state.
         allowed_endpoint: Option<AllowedEndpoint>,
+        /// Destination port for DNS traffic redirection. Traffic destined to `127.0.0.1:53` will
+        /// be redirected to `127.0.0.1:$dns_redirect_port`.
+        #[cfg(target_os = "macos")]
+        dns_redirect_port: u16,
     },
 }
 
@@ -175,20 +187,6 @@ impl FirewallPolicy {
             FirewallPolicy::Connecting { allow_lan, .. }
             | FirewallPolicy::Connected { allow_lan, .. }
             | FirewallPolicy::Blocked { allow_lan, .. } => *allow_lan,
-        }
-    }
-
-    /// Return the interface to redirect (VPN tunnel) traffic to, if any.
-    #[cfg(target_os = "macos")]
-    pub fn redirect_interface(&self) -> Option<&str> {
-        match self {
-            FirewallPolicy::Connecting {
-                redirect_interface, ..
-            } => redirect_interface.as_deref(),
-            FirewallPolicy::Connected {
-                redirect_interface, ..
-            } => redirect_interface.as_deref(),
-            FirewallPolicy::Blocked { .. } => None,
         }
     }
 }

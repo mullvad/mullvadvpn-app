@@ -9,7 +9,5 @@ pub mod cgroup;
 #[cfg(target_os = "windows")]
 pub mod split_tunnel;
 
-pub mod drop_guard;
-
 mod error;
 pub use error::*;
