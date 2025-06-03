@@ -315,7 +315,7 @@ pub async fn test_settings_ui(
     rpc: ServiceClient,
     _: MullvadProxyClient,
 ) -> Result<(), Error> {
-    let ui_result = run_test(&rpc, &["settings.spec"]).await?;
+    let ui_result = run_test(&rpc, &["vpn-settings.spec"]).await?;
     assert!(ui_result.success());
     Ok(())
 }

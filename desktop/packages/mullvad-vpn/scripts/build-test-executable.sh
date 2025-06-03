@@ -9,13 +9,12 @@ TARGET=${1:-$(rustc -vV | sed -n 's|host: ||p')}
 PRODUCT_VERSION=$(cargo run -q --bin mullvad-version)
 
 ASSETS=(
-    "build-standalone/src/renderer/lib/foundations/*.js"
     "build-standalone/src/renderer/lib/foundations/**/*.js"
     "build-standalone/src/shared/constants/*.js"
     "build-standalone/src/shared/routes.js"
     "build-standalone/test/e2e/utils.js"
+    "build-standalone/test/e2e/route-object-models/**/*.js"
     "build-standalone/test/e2e/shared/*.js"
-    "build-standalone/test/e2e/installed/*.js"
     "build-standalone/test/e2e/installed/**/*.js"
 )
 
@@ -37,6 +36,9 @@ function build_test_executable {
     local node_copy_path="$temp_dir/node$bin_suffix"
     local node_path
     node_path="$(volta which node || which node)"
+
+    # Enable recursive “**” globbing patterns to match files in all subdirectories
+    shopt -s globstar
 
     # pack assets
     cp "$node_path" "$node_copy_path"
