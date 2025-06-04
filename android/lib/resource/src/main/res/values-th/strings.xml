@@ -281,8 +281,6 @@
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
     <string name="payment_billing_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดตรวจสอบให้แน่ใจว่า คุณมี Google Play เวอร์ชันล่าสุด </string>
     <string name="payment_obfuscation_id_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดลองอีกครั้งในภายหลัง</string>
-    <string name="payment_pending_dialog_message">เรากำลังตรวจสอบยืนยันการซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ คุณจะได้รับเวลาเพิ่ม หากการตรวจสอบยืนยันสำเร็จ</string>
-    <string name="payment_status_pending">กำลังชำระเงิน Google Play</string>
     <string name="please_enter_a_valid_ip_address">โปรดป้อนที่อยู่ IPv4 หรือ IPv6 ที่ถูกต้อง</string>
     <string name="please_enter_a_valid_remote_server_port">โปรดป้อนพอร์ตเซิร์ฟเวอร์ระยะไกลที่ถูกต้อง</string>
     <string name="port">พอร์ต</string>

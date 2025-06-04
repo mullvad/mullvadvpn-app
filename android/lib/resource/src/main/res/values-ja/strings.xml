@@ -281,8 +281,6 @@
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
     <string name="payment_billing_error_dialog_message">決済処理を開始できませんでした。最新バージョンのGoogle Playを使用していることを確認してください。</string>
     <string name="payment_obfuscation_id_error_dialog_message">決済処理を開始できませんでした。後でもう一度お試しください。</string>
-    <string name="payment_pending_dialog_message">購入を確認中です。これにはしばらく時間がかかる場合があります。正常に確認されると、この時間が追加されます。</string>
-    <string name="payment_status_pending">Google Playの決済は未完了です</string>
     <string name="please_enter_a_valid_ip_address">有効な IPv4 または IPv6 アドレスを入力してください</string>
     <string name="please_enter_a_valid_remote_server_port">有効なリモートサーバーのポートを入力してください</string>
     <string name="port">ポート</string>

@@ -281,8 +281,6 @@
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
     <string name="payment_billing_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Upewnij się, że masz najnowszą wersję aplikacji Google Play.</string>
     <string name="payment_obfuscation_id_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Spróbuj ponownie później.</string>
-    <string name="payment_pending_dialog_message">Weryfikujemy zakup. Może to zająć trochę czasu. Jeśli weryfikacja powiedzie się, czas zostanie dodany.</string>
-    <string name="payment_status_pending">Oczekiwanie na płatność Google Play</string>
     <string name="please_enter_a_valid_ip_address">Wprowadź prawidłowy adres IPv4 lub IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Wprowadź prawidłowy port serwera zdalnego</string>
     <string name="port">Port</string>

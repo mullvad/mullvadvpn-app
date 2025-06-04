@@ -281,8 +281,6 @@
     <string name="pay_to_start_using">Чтобы пользоваться приложением, нужно добавить время на учетную запись.</string>
     <string name="payment_billing_error_dialog_message">Не удалось начать процесс оплаты — убедитесь, что у вас установлена последняя версия Google Play.</string>
     <string name="payment_obfuscation_id_error_dialog_message">Не удалось начать процесс оплаты. Повторите попытку позже.</string>
-    <string name="payment_pending_dialog_message">Сейчас мы проверяем, прошла ли оплата; нужно немного подождать. Если проверка завершится успешно, мы добавим оплаченное время.</string>
-    <string name="payment_status_pending">Ожидается оплата в Google Play</string>
     <string name="please_enter_a_valid_ip_address">Введите действительный адрес IPv4 или IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Введите действительный порт удаленного сервера</string>
     <string name="port">Порт</string>
