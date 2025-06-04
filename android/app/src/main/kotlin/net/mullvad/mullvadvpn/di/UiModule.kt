@@ -63,7 +63,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseC
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
-import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeViewModel
+import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.viewmodel.ApiAccessMethodDetailsViewModel
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
@@ -279,7 +279,7 @@ val uiModule = module {
     }
     viewModel { DaitaViewModel(get(), get()) }
     viewModel {
-        AddMoreTimeViewModel(
+        AddTimeViewModel(
             paymentUseCase = get(),
             accountRepository = get(),
             isPlayBuild = IS_PLAY_BUILD,

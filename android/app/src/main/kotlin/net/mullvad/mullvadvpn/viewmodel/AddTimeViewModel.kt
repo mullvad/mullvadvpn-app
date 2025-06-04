@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.toPaymentState
 import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeSideEffect.OpenAccountManagementPageInBrowser
 
-class AddMoreTimeViewModel(
+class AddTimeViewModel(
     private val paymentUseCase: PaymentUseCase,
     private val accountRepository: AccountRepository,
     private val isPlayBuild: Boolean,
