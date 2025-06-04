@@ -1,5 +1,4 @@
-CHANGE THIS BEFORE A RELEASE
-Each line is treated as a separate change item shown in the GUI the first time it runs after install.
-Start each line with a capital letter and end each line with a period.
-[macOS, Windows, linux] To make an entry platform specific, start the line with an angle bracket enclosed comma separated list of platforms to show the entry on.
-Only point out the major changes.
+Fix connection issues when switching networks supporting different IP versions.
+[macOS] The app will now be uninstalled if moved to the bin.
+[linux] Fix rare issue where settings would be reset after upgrading.
+Add more and better warnings when a selected relay suddenly becomes unavailable.
