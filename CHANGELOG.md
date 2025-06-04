@@ -23,10 +23,29 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add notification that shows when the user is connected to WireGuard with a port that is not
-supported.
 - Add in-app updates to Windows and macOS. This new feature lets you download, verify, and install
   new versions from within the app.
+
+### Changed
+#### macOS
+- Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
+
+### Fixed
+#### macOS
+- Add grace period when best default route goes away to reduce frequency of random reconnects.
+
+### Security
+#### Windows
+#### Windows
+- Enable control flow integrity checks (CFG) for some C++ code. This excludes `wintun`,
+  `wireguard-nt`, and OpenVPN. This addresses `MLLVD-CR-24-101` to the extent that we found
+  it valuable.
+
+
+## [2025.7-beta1] - 2025-06-04
+### Added
+- Add notification that shows when the user is connected to WireGuard with a port that is not
+supported.
 
 #### Linux
 - The deb package repositores now have static codenames on top of the existing distro version
@@ -38,9 +57,6 @@ supported.
   mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
   uses a lot less CPU to compute the keypair, and the public key sent to the server
   is drastically smaller.
-
-#### macOS
-- Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
 
 ### Fixed
 - Automatically connect when IP version becomes available.
@@ -55,18 +71,12 @@ supported.
 
 #### macOS
 - Fully uninstall the app when it is removed by being dropped in the bin.
-- Add grace period when best default route goes away to reduce frequency of random reconnects.
 
 ### Security
 #### macOS
 - Fix potential local privilege escalation when app was incorrectly removed by being dropped
   in the bin but still leaving behind a launch daemon. This fixes CVE-2025-46351 reported by
   Egor Filatov (Positive Technologies).
-
-#### Windows
-- Enable control flow integrity checks (CFG) for some C++ code. This excludes `wintun`,
-  `wireguard-nt`, and OpenVPN. This addresses `MLLVD-CR-24-101` to the extent that we found
-  it valuable.
 
 
 ## [2025.6] - 2025-05-13
