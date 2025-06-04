@@ -2847,6 +2847,9 @@ msgstr ""
 msgid "Blocking..."
 msgstr ""
 
+msgid "Buy time from website"
+msgstr ""
+
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr ""
 
@@ -3007,6 +3010,9 @@ msgid "Import successful, overrides active"
 msgstr ""
 
 msgid "Importing new overrides might replace some previously imported overrides."
+msgstr ""
+
+msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
 msgstr ""
 
 msgid "In-tunnel IPv6"
