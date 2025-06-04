@@ -77,6 +77,7 @@ data class Dimensions(
     val successIconVerticalPadding: Dp = 26.dp,
     val switchIconSize: Dp = 24.dp,
     val switchLocationRetryMinWidth: Dp = 48.dp,
+    val thinBorderWidth: Dp = 1.dp,
     val tinyPadding: Dp = 4.dp,
     val titleIconSize: Dp = 48.dp,
     val tvDrawerHeaderStartPadding: Dp = 12.dp,

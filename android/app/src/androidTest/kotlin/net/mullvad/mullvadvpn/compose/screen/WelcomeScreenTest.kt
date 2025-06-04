@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.toLc
-import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeViewModel
+import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -31,7 +31,7 @@ import org.koin.dsl.module
 class WelcomeScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
-    private val addTimeViewModel: AddMoreTimeViewModel = mockk(relaxed = true)
+    private val addTimeViewModel: AddTimeViewModel = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {

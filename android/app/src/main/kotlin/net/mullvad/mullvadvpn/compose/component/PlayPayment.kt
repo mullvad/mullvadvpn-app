@@ -27,7 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.Dp.Companion.Hairline
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.SmallPrimaryButton
 import net.mullvad.mullvadvpn.compose.cell.IconCell
@@ -89,11 +88,22 @@ fun PlayPayment(
                 onInfoClick = onInfoClick,
             )
         }
-        is PaymentState.Error -> {
-            Error(modifier = modifier, retryFetchProducts = onRetryFetchProducts)
+        is PaymentState.Error.Generic -> {
+            Error(
+                modifier = modifier,
+                message = stringResource(id = R.string.failed_to_load_products),
+                retryFetchProducts = onRetryFetchProducts,
+            )
+        }
+        is PaymentState.Error.Billing -> {
+            Error(
+                modifier = modifier,
+                message = stringResource(id = R.string.in_app_products_unavailable),
+                retryFetchProducts = onRetryFetchProducts,
+            )
         }
     }
-    HorizontalDivider(color = onBackgroundColor, thickness = Hairline)
+    HorizontalDivider(color = onBackgroundColor, thickness = Dimens.thinBorderWidth)
 }
 
 @Composable
@@ -188,7 +198,10 @@ private fun PaymentAvailable(
                         },
                     endIcon = {
                         Icon(
-                            painter = painterResource(R.drawable.google_pay),
+                            painter =
+                                painterResource(
+                                    R.drawable.google_pay_primary_logo_logo_svgrepo_com
+                                ),
                             contentDescription = null,
                             modifier = Modifier.height(Dimens.smallIconSize),
                         )
@@ -202,14 +215,14 @@ private fun PaymentAvailable(
 }
 
 @Composable
-private fun Error(modifier: Modifier, retryFetchProducts: () -> Unit) {
+private fun Error(modifier: Modifier, message: String, retryFetchProducts: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
             modifier.padding(vertical = Dimens.screenTopMargin, horizontal = Dimens.sideMargin),
     ) {
         Text(
-            text = stringResource(id = R.string.failed_to_load_products),
+            text = message,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,

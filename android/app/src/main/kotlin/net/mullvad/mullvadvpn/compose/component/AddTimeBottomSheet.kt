@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -50,9 +52,11 @@ import net.mullvad.mullvadvpn.lib.payment.ProductIds.ThreeMonths
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeSideEffect
-import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeViewModel
+import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,7 +100,7 @@ fun AddTimeBottomSheet(
     onPlayPaymentInfoClick: () -> Unit,
     onHideBottomSheet: () -> Unit,
 ) {
-    val viewModel: AddMoreTimeViewModel = koinViewModel<AddMoreTimeViewModel>()
+    val viewModel: AddTimeViewModel = koinViewModel<AddTimeViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -232,7 +236,7 @@ private fun Content(
 }
 
 @Composable
-private fun PurchaseState(
+private fun ColumnScope.PurchaseState(
     backgroundColor: Color,
     onBackgroundColor: Color,
     purchaseState: PurchaseState,
@@ -369,7 +373,7 @@ private fun PurchaseStateSuccess(
 }
 
 @Composable
-private fun PurchaseStateError(
+private fun ColumnScope.PurchaseStateError(
     onBackgroundColor: Color,
     backgroundColor: Color,
     message: String,
@@ -390,7 +394,7 @@ private fun PurchaseStateError(
     SmallPrimaryButton(
         text = stringResource(android.R.string.ok),
         onClick = resetPurchaseState,
-        modifier = Modifier.padding(top = Dimens.mediumPadding),
+        modifier = Modifier.padding(top = Dimens.mediumPadding).align(Alignment.CenterHorizontally),
     )
 }
 
@@ -445,12 +449,26 @@ private fun Products(
             }
         }
         IconCell(
-            imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-            title = stringResource(id = R.string.buy_credit),
+            imageVector = Icons.Outlined.Sell,
+            title = stringResource(id = R.string.buy_time_from_website),
             onClick = { onSitePaymentClick() },
-            titleColor = onBackgroundColor,
-            background = backgroundColor,
+            titleColor =
+                onBackgroundColor.copy(
+                    alpha = if (internetBlocked) AlphaDisabled else AlphaVisible
+                ),
+            background =
+                backgroundColor.copy(alpha = if (internetBlocked) AlphaDisabled else AlphaVisible),
             enabled = !internetBlocked,
+            endIcon = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                    tint =
+                        onBackgroundColor.copy(
+                            alpha = if (internetBlocked) AlphaDisabled else AlphaVisible
+                        ),
+                    contentDescription = null,
+                )
+            },
         )
     }
     IconCell(
