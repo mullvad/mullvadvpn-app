@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -69,6 +70,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -367,7 +369,10 @@ private fun ButtonPanel(
                     text = stringResource(R.string.verifying_purchase),
                     modifier = Modifier.padding(bottom = Dimens.smallPadding),
                 )
-                IconButton(onClick = onInfoClick) {
+                IconButton(
+                    onClick = onInfoClick,
+                    modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
+                ) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = null,
