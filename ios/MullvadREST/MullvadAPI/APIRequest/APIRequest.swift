@@ -13,6 +13,7 @@ public enum APIRequest: Codable, Sendable {
     case getAddressList(_ retryStrategy: REST.RetryStrategy)
     case getRelayList(_ retryStrategy: REST.RetryStrategy, etag: String?)
     case sendProblemReport(_ retryStrategy: REST.RetryStrategy, problemReportRequest: ProblemReportRequest)
+    case checkApiAvailability(_ retryStrategy: REST.RetryStrategy, accessMethod: PersistentAccessMethod)
 
     // Account Proxy
     case createAccount(_ retryStrategy: REST.RetryStrategy)
@@ -72,6 +73,8 @@ public enum APIRequest: Codable, Sendable {
             "init-storekit-payment"
         case .checkStorekitPayment:
             "check-storekit-payment"
+        case .checkApiAvailability:
+            "check-api-availability"
         }
     }
 
@@ -90,7 +93,8 @@ public enum APIRequest: Codable, Sendable {
              let .rotateDeviceKey(strategy, _, _, _),
              let .legacyStorekitPayment(strategy, _, _),
              let .initStorekitPayment(strategy, _),
-             let .checkStorekitPayment(strategy, _, _):
+             let .checkStorekitPayment(strategy, _, _),
+             let .checkApiAvailability(strategy, _):
             strategy
         }
     }

@@ -570,7 +570,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         let navigationController = CustomNavigationController()
         navigationController.view.setAccessibilityIdentifier(.settingsContainerView)
 
-        let configurationTester = ProxyConfigurationTester(transportProvider: configuredTransportProvider)
+        let configurationTester = ProxyConfigurationTester(
+            transportProvider: configuredTransportProvider,
+            apiProxy: apiProxy
+        )
 
         let coordinator = SettingsCoordinator(
             navigationController: navigationController,
