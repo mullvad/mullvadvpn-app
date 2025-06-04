@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2025.7-beta1] - 2025-06-04
 ### Added
 - Add notification that shows when the user is connected to WireGuard with a port that is not
 supported.
@@ -56,6 +59,10 @@ supported.
 - Fix potential local privilege escalation when app was incorrectly removed by being dropped
   in the bin but still leaving behind a launch daemon. This fixes CVE-2025-46351 reported by
   Egor Filatov (Positive Technologies).
+
+
+## [2025.6] - 2025-05-13
+This release is identical to 2025.6-beta2.
 
 
 ## [2025.6-beta2] - 2025-05-07
