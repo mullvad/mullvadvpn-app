@@ -68,7 +68,7 @@ struct MullvadListNavigationItemView: View {
                     .primary
             )
         }
-        .accessibilityIdentifier(accessibilityIdentifier?.asString ?? "")
+        .accessibilityIdentifier(accessibilityIdentifier?.asString ?? title)
         .onButtonPressedChange { isPressed in
             self.isPressed = isPressed
         }

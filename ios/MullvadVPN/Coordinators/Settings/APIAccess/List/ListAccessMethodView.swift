@@ -104,6 +104,7 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
             ) {
                 viewModel.addNewMethod()
             }
+            .accessibilityIdentifier(AccessibilityIdentifier.addAccessMethodButton.asString)
             .padding(.horizontal)
             Spacer()
         }
