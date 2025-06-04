@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
-import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeViewModel
+import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -29,7 +29,7 @@ import org.koin.dsl.module
 class AccountScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
-    private val addTimeViewModel: AddMoreTimeViewModel = mockk(relaxed = true)
+    private val addTimeViewModel: AddTimeViewModel = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {

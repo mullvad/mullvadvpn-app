@@ -36,7 +36,7 @@ class AddTimeViewModelTest {
     private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
     private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
 
-    private lateinit var viewModel: AddMoreTimeViewModel
+    private lateinit var viewModel: AddTimeViewModel
 
     @BeforeEach
     fun setUp() {
@@ -50,7 +50,7 @@ class AddTimeViewModelTest {
         coEvery { mockAccountRepository.getAccountData() } returns null
 
         viewModel =
-            AddMoreTimeViewModel(
+            AddTimeViewModel(
                 paymentUseCase = mockPaymentUseCase,
                 accountRepository = mockAccountRepository,
                 isPlayBuild = true,
