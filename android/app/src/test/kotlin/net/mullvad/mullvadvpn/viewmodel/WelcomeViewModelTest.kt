@@ -23,6 +23,10 @@ import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
@@ -166,5 +170,28 @@ class WelcomeViewModelTest {
 
         // Assert
         coVerify { mockConnectionProxy.disconnect() }
+    }
+
+    @Test
+    fun `when there is a pending purchase, uiState should reflect it`() = runTest {
+        // Arrange
+        paymentAvailabilityFlow.value =
+            PaymentAvailability.ProductsAvailable(
+                products =
+                    listOf(
+                        PaymentProduct(
+                            productId = ProductId("test_product_id"),
+                            price = ProductPrice("9.99"),
+                            status = PaymentStatus.PENDING,
+                        )
+                    )
+            )
+
+        // Act, Assert
+        viewModel.uiState.test {
+            val result = awaitItem()
+            assertIs<Lc.Content<WelcomeUiState>>(result)
+            assertEquals(true, result.value.verificationPending)
+        }
     }
 }

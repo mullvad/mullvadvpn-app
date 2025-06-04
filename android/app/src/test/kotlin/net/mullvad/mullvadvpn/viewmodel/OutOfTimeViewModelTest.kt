@@ -13,12 +13,18 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
+import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
@@ -27,6 +33,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -142,5 +149,28 @@ class OutOfTimeViewModelTest {
 
         // Assert
         coVerify { mockConnectionProxy.disconnect() }
+    }
+
+    @Test
+    fun `when there is a pending purchase, uiState should reflect it`() = runTest {
+        // Arrange
+        paymentAvailabilityFlow.value =
+            PaymentAvailability.ProductsAvailable(
+                products =
+                    listOf(
+                        PaymentProduct(
+                            productId = ProductId("test_product_id"),
+                            price = ProductPrice("9.99"),
+                            status = PaymentStatus.PENDING,
+                        )
+                    )
+            )
+
+        // Act, Assert
+        viewModel.uiState.test {
+            val result = awaitItem()
+            assertIs<OutOfTimeUiState>(result)
+            assertEquals(true, result.verificationPending)
+        }
     }
 }
