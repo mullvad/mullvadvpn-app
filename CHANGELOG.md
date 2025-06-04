@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2025.7-beta1] - 2025-06-04
 ### Added
 - Add notification that shows when the user is connected to WireGuard with a port that is not
 supported.
