@@ -24,9 +24,9 @@ import net.mullvad.talpid.model.Connectivity
 import net.mullvad.talpid.model.IpAvailability
 import net.mullvad.talpid.util.NetworkEvent
 import net.mullvad.talpid.util.UnderlyingConnectivityStatusResolver
-import net.mullvad.talpid.util.allNetworkEvents
 import net.mullvad.talpid.util.defaultNetworkEvents
 import net.mullvad.talpid.util.hasInternetConnectivity
+import net.mullvad.talpid.util.nonVpnInternetNetworksEvents
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -36,7 +36,8 @@ class ConnectivityManagerUtilKtTest {
     @BeforeEach
     fun setup() {
         mockkStatic(CONNECTIVITY_MANAGER_UTIL_CLASS)
-        every { connectivityManager.allNetworkEvents() } returns flowOf(NetworkEvent.Unavailable)
+        every { connectivityManager.nonVpnInternetNetworksEvents() } returns
+            flowOf(NetworkEvent.Unavailable)
     }
 
     /** User being online, the listener should emit once with `true` */

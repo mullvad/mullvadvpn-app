@@ -199,9 +199,9 @@ internal fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
  * default network and depending on if it is a VPN. If it is not a VPN we check the network
  * properties directly and if it is a VPN we use a socket to check the underlying network. A
  * debounce is applied to avoid emitting too many events and to avoid setting the app in an offline
- * state when switching networks. The flow is combined with the all network events to fix issues
+ * state when switching networks. The flow is combined with the non-VPN network events to fix issues
  * with the default network not being updated correctly on Android 9 and below when the VPN is
- * turned on. The all network event is not used it is just there to trigger a new connectivity
+ * turned on. The non-VPN network event is not used it is just there to trigger a new connectivity
  * check.
  */
 @OptIn(FlowPreview::class)
