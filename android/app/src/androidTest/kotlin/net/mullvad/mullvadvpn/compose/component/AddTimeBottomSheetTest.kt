@@ -89,7 +89,7 @@ class AddTimeBottomSheetTest {
             )
 
             // Act
-            onNodeWithText("Buy credit").performClick()
+            onNodeWithText("Buy time from website").performClick()
 
             // Assert
             verify(exactly = 1) { mockedClickHandler.invoke() }
@@ -126,7 +126,7 @@ class AddTimeBottomSheetTest {
                 state =
                     AddTimeUiState(
                             purchaseState = null,
-                            billingPaymentState = PaymentState.Error.Billing,
+                            billingPaymentState = PaymentState.Error.Generic,
                             showSitePayment = false,
                         )
                         .toLc()
@@ -335,7 +335,7 @@ class AddTimeBottomSheetTest {
             )
 
             // Assert
-            onNodeWithText("Buy credit").assertDoesNotExist()
+            onNodeWithText("Buy time from website").assertDoesNotExist()
         }
 
     @Test
