@@ -63,6 +63,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.tag.OUT_OF_TIME_SCREEN_TITLE_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -232,7 +233,10 @@ private fun ButtonPanel(
                     text = stringResource(R.string.verifying_purchase),
                     modifier = Modifier.padding(bottom = Dimens.smallPadding),
                 )
-                IconButton(onClick = onInfoClick) {
+                IconButton(
+                    onClick = onInfoClick,
+                    modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
+                ) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = null,

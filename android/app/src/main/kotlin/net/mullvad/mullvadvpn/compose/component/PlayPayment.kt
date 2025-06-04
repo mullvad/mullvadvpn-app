@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -39,6 +40,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 
 @Preview(
     "Loading|NoPayment|NoProductsFound|Error.Generic|Error.Billing" +
@@ -129,7 +131,12 @@ private fun PaymentAvailable(
 
             null -> null
         }
-    Column(modifier = modifier.clickable(enabled = statusMessage != null, onClick = onInfoClick)) {
+    Column(
+        modifier =
+            modifier
+                .clickable(enabled = statusMessage != null, onClick = onInfoClick)
+                .testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG)
+    ) {
         val enabled = statusMessage == null
         statusMessage?.let {
             Row(
