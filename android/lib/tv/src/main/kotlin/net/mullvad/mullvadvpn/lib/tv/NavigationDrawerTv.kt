@@ -216,21 +216,27 @@ private fun NavigationDrawerTvHeader(
                 overflow = TextOverflow.Clip,
             )
             Spacer(Modifier.height(4.dp))
-            Text(
-                text =
-                    stringResource(
-                        id = R.string.top_bar_time_left,
-                        pluralStringResource(
-                            id = R.plurals.days,
-                            daysLeftUntilExpiry?.toInt() ?: 0,
-                            daysLeftUntilExpiry ?: 0,
+            if (daysLeftUntilExpiry != null) {
+                Text(
+                    text =
+                        stringResource(
+                            id = R.string.top_bar_time_left,
+                            if (daysLeftUntilExpiry >= 0) {
+                                pluralStringResource(
+                                    id = R.plurals.days,
+                                    daysLeftUntilExpiry.toInt(),
+                                    daysLeftUntilExpiry.toInt(),
+                                )
+                            } else {
+                                stringResource(id = R.string.out_of_time)
+                            },
                         ),
-                    ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Clip,
-            )
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                )
+            }
         }
     }
 }
