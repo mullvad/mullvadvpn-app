@@ -13,6 +13,7 @@ public enum AccessibilityIdentifier: Equatable {
     case addAccessMethodButton
     case accessMethodAddButton
     case accessMethodTestButton
+    case accessMethodConfirmDeleteButton
     case accountButton
     case accessMethodUnreachableBackButton
     case accessMethodUnreachableSaveButton

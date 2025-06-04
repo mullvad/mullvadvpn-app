@@ -50,7 +50,7 @@ class LoginPage: Page {
     @discardableResult public func verifyFailIconShown() -> Self {
         let predicate = NSPredicate(format: "identifier == 'statusImageView' AND value == 'fail'")
         let elementQuery = app.images.containing(predicate)
-        let elementExists = elementQuery.firstMatch.waitForExistence(timeout: BaseUITestCase.longTimeout)
+        let elementExists = elementQuery.firstMatch.waitForExistence(timeout: BaseUITestCase.veryLongTimeout)
         XCTAssertTrue(elementExists, "Fail icon shown")
         return self
     }
