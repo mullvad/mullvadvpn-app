@@ -2988,7 +2988,7 @@ msgstr ""
 msgid "Going to login will unblock the internet on this device."
 msgstr ""
 
-msgid "Google Play payment pending"
+msgid "Google Play payment pending, this might take some time"
 msgstr ""
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
@@ -3180,6 +3180,9 @@ msgstr ""
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr ""
 
+msgid "The app is blocking internet, please disconnect first"
+msgstr ""
+
 msgid "The device will be removed from the list and logged out."
 msgstr ""
 
@@ -3279,7 +3282,7 @@ msgstr ""
 msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr ""
 
-msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr ""
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
