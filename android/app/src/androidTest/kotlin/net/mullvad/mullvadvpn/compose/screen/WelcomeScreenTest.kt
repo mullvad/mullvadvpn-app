@@ -152,7 +152,7 @@ class WelcomeScreenTest {
             )
 
             // Assert
-            onNodeWithText("Verifying purchase").assertExists()
+            onNodeWithText("Google Play payment pending").assertExists()
         }
 
     @Test

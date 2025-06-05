@@ -362,13 +362,7 @@ private fun ButtonPanel(
             )
         }
         if (verificationPending) {
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    text = stringResource(R.string.verifying_purchase),
-                    modifier = Modifier.padding(bottom = Dimens.smallPadding),
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
                     onClick = onInfoClick,
                     modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
@@ -379,6 +373,11 @@ private fun ButtonPanel(
                         tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
+                Text(
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    text = stringResource(R.string.payment_status_pending_short),
+                )
             }
         }
         VariantButton(
