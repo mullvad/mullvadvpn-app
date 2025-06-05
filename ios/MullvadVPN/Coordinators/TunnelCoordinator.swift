@@ -24,6 +24,7 @@ class TunnelCoordinator: Coordinator, Presenting {
     }
 
     var showSelectLocationPicker: (() -> Void)?
+    var showFeatureSetting: ((AppRoute) -> Void)?
 
     init(
         tunnelManager: TunnelManager,
@@ -48,6 +49,23 @@ class TunnelCoordinator: Coordinator, Presenting {
 
         controller.shouldShowCancelTunnelAlert = { [weak self] in
             self?.showCancelTunnelAlert()
+        }
+
+        controller.shouldShowSettingsForFeature = { [weak self] feature in
+            switch feature {
+            case .daita:
+                self?.showFeatureSetting?(.daita)
+            case .multihop:
+                self?.showFeatureSetting?(.multihop)
+            case .quantumResistance:
+                self?.showFeatureSetting?(.vpnSettings(.quantumResistance))
+            case .obfuscation:
+                self?.showFeatureSetting?(.vpnSettings(.obfuscation))
+            case .dns:
+                self?.showFeatureSetting?(.dnsSettings)
+            case .ipOverrides:
+                self?.showFeatureSetting?(.ipOverrides)
+            }
         }
     }
 

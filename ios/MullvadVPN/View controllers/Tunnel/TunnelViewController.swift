@@ -25,6 +25,7 @@ class TunnelViewController: UIViewController, RootContainment {
 
     var shouldShowSelectLocationPicker: (() -> Void)?
     var shouldShowCancelTunnelAlert: (() -> Void)?
+    var shouldShowSettingsForFeature: ((FeatureType) -> Void)?
 
     let activityIndicator: SpinnerActivityIndicatorView = {
         let activityIndicator = SpinnerActivityIndicatorView(style: .large)
@@ -91,6 +92,9 @@ class TunnelViewController: UIViewController, RootContainment {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        indicatorsViewViewModel.onFeaturePressed = { [weak self] feature in
+            self?.shouldShowSettingsForFeature?(feature)
+        }
 
         interactor.didUpdateDeviceState = { [weak self] _, _ in
             self?.setNeedsHeaderBarStyleAppearanceUpdate()

@@ -83,6 +83,26 @@ enum AppRoute: AppRouteProtocol {
     case settings(SettingsNavigationRoute?)
 
     /**
+     Settings route. Contains sub-route to display.
+     */
+    case vpnSettings(VPNSettingsSection?)
+
+    /**
+     Multihop standalone route (not subsetting).
+     */
+    case multihop
+
+    /**
+     DNS settings standalone route (not subsetting).
+     */
+    case dnsSettings
+
+    /**
+     Ip overrides standalone route (not subsetting).
+     */
+    case ipOverrides
+
+    /**
      DAITA standalone route (not subsetting).
      */
     case daita
@@ -133,7 +153,7 @@ enum AppRoute: AppRouteProtocol {
             return .selectLocation
         case .account:
             return .account
-        case .settings, .daita, .changelog:
+        case .settings, .daita, .changelog, .vpnSettings, .multihop, .dnsSettings, .ipOverrides:
             return .settings
         case let .alert(id):
             return .alert(id)

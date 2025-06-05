@@ -58,35 +58,37 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
         nonisolated(unsafe) var height = CGFloat.zero
 
         return ForEach(chips) { data in
-            ChipView(item: data)
-                .padding(
-                    EdgeInsets(
-                        top: verticalPadding,
-                        leading: 0,
-                        bottom: verticalPadding,
-                        trailing: UIMetrics.FeatureIndicators.chipViewTrailingMargin
-                    )
+            ChipView(item: data) {
+                viewModel.onPressed(item: data)
+            }
+            .padding(
+                EdgeInsets(
+                    top: verticalPadding,
+                    leading: 0,
+                    bottom: verticalPadding,
+                    trailing: UIMetrics.FeatureIndicators.chipViewTrailingMargin
                 )
-                .alignmentGuide(.leading) { dimension in
-                    if abs(width - dimension.width) > containerWidth {
-                        width = 0
-                        height -= dimension.height
-                    }
-                    let result = width
-                    if data.id == chips.last?.id {
-                        width = 0
-                    } else {
-                        width -= dimension.width
-                    }
-                    return result
+            )
+            .alignmentGuide(.leading) { dimension in
+                if abs(width - dimension.width) > containerWidth {
+                    width = 0
+                    height -= dimension.height
                 }
-                .alignmentGuide(.top) { _ in
-                    let result = height
-                    if data.id == chips.last?.id {
-                        height = 0
-                    }
-                    return result
+                let result = width
+                if data.id == chips.last?.id {
+                    width = 0
+                } else {
+                    width -= dimension.width
                 }
+                return result
+            }
+            .alignmentGuide(.top) { _ in
+                let result = height
+                if data.id == chips.last?.id {
+                    height = 0
+                }
+                return result
+            }
         }
     }
 }

@@ -13,12 +13,23 @@ import SwiftUI
 // to be able to fetch the string value at a later point (eg. in ChipViewModelProtocol,
 // when calculating the text widths of the chips).
 
-protocol ChipFeature {
+protocol ChipFeature: Identifiable {
+    var id: FeatureType { get }
     var isEnabled: Bool { get }
     var name: String { get }
 }
 
+enum FeatureType {
+    case daita
+    case multihop
+    case quantumResistance
+    case obfuscation
+    case dns
+    case ipOverrides
+}
+
 struct DaitaFeature: ChipFeature {
+    let id: FeatureType = .daita
     let state: TunnelState
 
     var isEnabled: Bool {
@@ -36,6 +47,7 @@ struct DaitaFeature: ChipFeature {
 }
 
 struct QuantumResistanceFeature: ChipFeature {
+    let id: FeatureType = .quantumResistance
     let state: TunnelState
 
     var isEnabled: Bool {
@@ -53,6 +65,7 @@ struct QuantumResistanceFeature: ChipFeature {
 }
 
 struct MultihopFeature: ChipFeature {
+    let id: FeatureType = .multihop
     let state: TunnelState
     var isEnabled: Bool {
         state.isMultihop
@@ -69,6 +82,7 @@ struct MultihopFeature: ChipFeature {
 }
 
 struct ObfuscationFeature: ChipFeature {
+    let id: FeatureType = .obfuscation
     let settings: LatestTunnelSettings
     let state: ObservedState
 
@@ -100,6 +114,7 @@ struct ObfuscationFeature: ChipFeature {
 }
 
 struct DNSFeature: ChipFeature {
+    let id: FeatureType = .dns
     let settings: LatestTunnelSettings
 
     var isEnabled: Bool {
@@ -126,6 +141,7 @@ struct DNSFeature: ChipFeature {
 }
 
 struct IPOverrideFeature: ChipFeature {
+    let id: FeatureType = .ipOverrides
     let state: TunnelState
     let overrides: [IPOverride]
 
