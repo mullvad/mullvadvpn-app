@@ -31,14 +31,15 @@ test.describe('VPN settings', () => {
   });
 
   test.describe('Launch on startup and auto-connect', () => {
+    test.beforeAll(() => {
+      if (process.platform === 'linux') {
+        expect(autoStartPathExists()).toBeFalsy();
+      }
+    });
     test.afterEach(async () => {
       await routes.vpnSettings.setAutoConnectSwitch(false);
       const autoConnectSwitchChecked = await routes.vpnSettings.getAutoConnectSwitchState();
       expect(autoConnectSwitchChecked).toBe('false');
-
-      if (process.platform === 'linux') {
-        expect(autoStartPathExists()).toBeFalsy();
-      }
 
       await routes.vpnSettings.setLaunchAppOnStartupSwitch(false);
       const launchOnStartupSwitchChecked =
