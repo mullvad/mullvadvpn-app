@@ -34,6 +34,12 @@ pub const DOWNLOAD_BUTTON_SIZE: (usize, usize) = (150, 40);
 /// Failed to create temporary directory
 pub const CREATE_TEMPDIR_FAILED: &str = "Failed to create temporary directory for artifacts. Please check if you have enough space on your hard drive.";
 
+/// Displayed when createing a temporary directory fails (retry button)
+pub const CREATE_TEMPDIR_FAILED_RETRY_BUTTON_TEXT: &str = "Try again";
+
+/// Displayed when createing a temporary directory (cancel button)
+pub const CREATE_TEMPDIR_FAILED_CANCEL_BUTTON_TEXT: &str = "Cancel";
+
 /// Cancel button text
 pub const CANCEL_BUTTON_TEXT: &str = "Cancel";
 

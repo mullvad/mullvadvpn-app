@@ -110,9 +110,9 @@ impl AppController {
 
                         self_.show_error_message(crate::delegate::ErrorMessage {
                             status_text: resource::CREATE_TEMPDIR_FAILED.to_owned(),
-                            cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT
+                            cancel_button_text: resource::CREATE_TEMPDIR_FAILED_CANCEL_BUTTON_TEXT
                                 .to_owned(),
-                            retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT
+                            retry_button_text: resource::CREATE_TEMPDIR_FAILED_RETRY_BUTTON_TEXT
                                 .to_owned(),
                         });
                     });
