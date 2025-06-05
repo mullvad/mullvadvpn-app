@@ -1,13 +1,17 @@
 //! macOS-specific tests.
 
-use anyhow::{bail, ensure};
+use anyhow::{bail, ensure, Context};
 use mullvad_management_interface::MullvadProxyClient;
-use std::net::Ipv4Addr;
+use std::net::{Ipv4Addr, SocketAddr};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
 use super::TestContext;
 
+/// Test that we can add and remove IP "aliases" to network interfaces.
+///
+/// This is effectively testing that macOS behaves as expected, and that future versions of it
+/// don't break this functionality.
 #[test_function(target_os = "macos")]
 async fn test_ifconfig_add_alias(
     _: TestContext,
@@ -31,6 +35,15 @@ async fn test_ifconfig_add_alias(
         alias_exists(&rpc, interface, alias).await?,
         "Alias should have been created!"
     );
+
+    // Assert that we can bind to the alias.
+    rpc.send_udp(
+        None,
+        SocketAddr::from((alias, 0)),
+        SocketAddr::from((Ipv4Addr::LOCALHOST, 1234)),
+    )
+    .await
+    .context("Failed to bind to alias")?;
 
     // Remove alias and assert that it doesn't exist.
     rpc.ifconfig_alias_remove(interface, alias).await?;
