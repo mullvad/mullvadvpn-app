@@ -321,7 +321,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private func presentTOS(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = TermsOfServiceCoordinator(navigationController: navigationContainer)
 
-        coordinator.didFinish = { [weak self] _ in
+        coordinator.didAgreeToTermsOfService = { [weak self] in
             self?.appPreferences.isAgreedToTermsOfService = true
             self?.continueFlow(animated: true)
         }

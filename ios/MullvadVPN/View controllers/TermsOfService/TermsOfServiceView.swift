@@ -1,0 +1,82 @@
+//
+//  TermsOfServiceView.swift
+//  MullvadVPN
+//
+//  Created by Marco Nikic on 2025-06-05.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//
+
+import SwiftUI
+
+struct TermsOfServiceView: View {
+    public var agreeToTermsAndServices: (() -> Void)?
+    let padding = EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16)
+    @ScaledMetric(relativeTo: .footnote)
+    var imageHeight = 20
+
+    let termsOfService = """
+    You have a right to privacy. That’s why we never store activity logs, don’t ask for personal \
+    information, and encourage anonymous payments.
+
+    In some situations, as outlined in our privacy policy, we might process personal data that you \
+    choose to send, for example if you email us.
+
+    We strongly believe in retaining as little data as possible because we want you to remain anonymous.
+    """
+
+    let privacyPolicyLink =
+        LocalizedStringKey(stringLiteral: "[Privacy Policy](\(ApplicationConfiguration.privacyPolicyLink))")
+    var scrollableContent: some View {
+        ScrollView {
+            Text(LocalizedStringKey("Do you agree to remaining anonymous?"))
+                .font(.mullvadLarge)
+                .foregroundStyle(.white)
+                .allowsTightening(true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.bottom, 16)
+            Text(LocalizedStringKey(termsOfService))
+                .font(.mullvadSmall)
+                .foregroundStyle(Color(UIColor.secondaryTextColor))
+        }
+        .padding(padding)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            // Disable scrolling if the contents do not overflow
+            if #available(iOS 16.4, *) {
+                scrollableContent.scrollBounceBehavior(.basedOnSize)
+            } else {
+                scrollableContent
+            }
+            HStack {
+                Text(privacyPolicyLink)
+                    .font(.mullvadSmall)
+                    .underline(true, color: .white)
+                    .foregroundStyle(.white)
+                    .tint(.white)
+                Image(uiImage: UIImage.iconExtLink)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: imageHeight)
+                    .foregroundStyle(.white)
+            }
+            .padding(padding)
+            MainButton(
+                text: LocalizedStringKey("Agree and continue"),
+                style: .default,
+                action: agreeToTermsAndServices ?? {}
+            )
+            .accessibilityIdentifier(AccessibilityIdentifier.agreeButton.asString)
+            .padding(padding)
+            .background(Color(UIColor.secondaryColor))
+        }
+        .accessibilityIdentifier(AccessibilityIdentifier.termsOfServiceView.asString)
+        .background(Color(UIColor.primaryColor))
+    }
+}
+
+#Preview {
+    TermsOfServiceView()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+}

@@ -103,6 +103,10 @@ extension UIImage {
         UIImage(named: "IconTickSml")!
     }
 
+    static var iconExtLink: UIImage {
+        UIImage(named: "IconExtlink")!
+    }
+
     static var checkboxSelected: UIImage {
         UIImage(named: "CheckboxSelected")!
     }
