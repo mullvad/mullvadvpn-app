@@ -11,7 +11,7 @@ Quoting the key conclusions and recommendations chapter of the report:
 > Based on our review of the source code, the new downloader installer solution seems to be
 > well thought out and implemented.
 >
-> Our observations have identified some minor issues and notes.
+> Our observations has identified some minor issues and notes.
 >
 > Our recommendations can be summarized as follows:
 >
