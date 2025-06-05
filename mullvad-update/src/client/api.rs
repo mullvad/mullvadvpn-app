@@ -112,10 +112,14 @@ impl HttpVersionInfoProvider {
         &self,
         lowest_metadata_version: usize,
     ) -> anyhow::Result<format::SignedResponse> {
-        self.get_versions_inner(|raw_json| {
+        let signed_response = self.get_versions_inner(|raw_json| {
             format::SignedResponse::deserialize_and_verify(raw_json, lowest_metadata_version)
         })
-        .await
+        .await?;
+        if let Err(err) = self.cache_response(&signed_response).await {
+            log::error!("Failed to write version metadata: {err}");
+        }
+        Ok(signed_response)
     }
 
     /// Download and verify signed data with the given keys
@@ -141,13 +145,18 @@ impl HttpVersionInfoProvider {
     ) -> anyhow::Result<format::SignedResponse> {
         let raw_json = Self::get(&self.url, self.pinned_certificate.clone()).await?;
         let signed_response = deserialize_fn(&raw_json)?;
-        if let Some(path) = &self.dump_to_path {
-            if let Err(e) = fs::write(path, serde_json::to_string(&signed_response).unwrap()).await
-            {
-                log::error!("Failed to write version metadata to {path:?}: {e:#}");
-            }
-        }
         Ok(signed_response)
+    }
+
+    /// Serialize (signed) API response and try to write it to metadata cache file.
+    /// See [VersionInfoProvider::set_metadata_dump_path].
+    async fn cache_response(&self, response: &format::SignedResponse) -> anyhow::Result<()> {
+        let Some(path) = &self.dump_to_path else {
+            return Ok(());
+        };
+        let contents = serde_json::to_string(response)?;
+        fs::write(path, contents).await?;
+        Ok(())
     }
 
     /// Perform a simple GET request, with a size limit, and return it as bytes
@@ -207,7 +216,7 @@ mod test {
     use vec1::vec1;
 
     use super::*;
-    use crate::format::SignedResponse;
+    use crate::{format::SignedResponse, local::METADATA_FILENAME};
 
     // These tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
     // then most likely the snapshots need to be updated. The most convenient way to review
@@ -233,7 +242,7 @@ mod test {
 
         let url = format!("{}/version", server.url());
 
-        let temp_dump = TempDir::new().await.unwrap().join("metadata.json");
+        let temp_dump = TempDir::new().await.unwrap().join(METADATA_FILENAME);
 
         // Construct query and provider
         let info_provider = HttpVersionInfoProvider {

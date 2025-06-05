@@ -11,7 +11,7 @@ use crate::{
 use mullvad_update::{
     api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
     app::{self, AppCache, AppDownloader, HttpAppDownloader},
-    local::AppCacheDir,
+    local::{AppCacheDir, METADATA_FILENAME},
     version::{Version, VersionInfo, VersionParameters},
     version_provider::VersionInfoProvider,
 };
@@ -120,7 +120,7 @@ impl AppController {
                 }
             };
 
-            let metadata_path = working_dir.directory.join("metadata.json");
+            let metadata_path = working_dir.directory.join(METADATA_FILENAME);
             version_provider.set_metadata_dump_path(metadata_path);
 
             let version_info = fetch_app_version_info::<D, C>(
