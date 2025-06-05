@@ -1871,9 +1871,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.171"
+version = "0.2.172"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c19937216e9d3aa9956d9bb8dfc0b0c8beb6058fc4f7a4dc4d850edf86a237d6"
+checksum = "d750af042f7ef4f724306de029d18836c26c1765a54a6a3f094cbd23a7267ffa"
 
 [[package]]
 name = "libloading"
@@ -3632,6 +3632,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "talpid-macos"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "libc",
+ "log",
+ "tokio",
+]
+
+[[package]]
 name = "talpid-platform-metadata"
 version = "0.0.0"
 dependencies = [
@@ -3816,6 +3826,7 @@ dependencies = [
  "serde_json",
  "socket2 0.5.8",
  "surge-ping",
+ "talpid-macos",
  "talpid-platform-metadata",
  "talpid-windows",
  "tarpc",

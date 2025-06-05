@@ -277,7 +277,7 @@ impl TunnelStateMachine {
         let runtime = tokio::runtime::Handle::current();
 
         #[cfg(target_os = "macos")]
-        let filtering_resolver = crate::resolver::start_resolver().await?;
+        let filtering_resolver = crate::resolver::start_resolver(Default::default()).await?;
 
         #[cfg(windows)]
         let split_tunnel = split_tunnel::SplitTunnel::new(
@@ -436,6 +436,8 @@ impl TunnelStateMachine {
 
         #[cfg(target_os = "macos")]
         runtime.block_on(self.shared_values.split_tunnel.shutdown());
+        #[cfg(target_os = "macos")]
+        runtime.block_on(self.shared_values.filtering_resolver.stop());
         runtime.block_on(self.shared_values.route_manager.stop());
     }
 }

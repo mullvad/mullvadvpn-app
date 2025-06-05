@@ -154,7 +154,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
     let wrapper_closure = quote! {
         |test_context: crate::tests::TestContext,
         rpc: test_rpc::ServiceClient,
-        mullvad_client: Option<MullvadProxyClient>|
+        mullvad_client: Option<::mullvad_management_interface::MullvadProxyClient>|
         {
             let mullvad_client = mullvad_client.expect("Test functions defined using the macro should be given a mullvad client");
             Box::pin(async move {

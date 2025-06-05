@@ -14,6 +14,7 @@ mod test_metadata;
 mod tunnel;
 mod tunnel_state;
 mod ui;
+mod macos;
 
 use itertools::Itertools;
 use mullvad_types::relay_constraints::{GeographicLocationConstraint, LocationConstraint};
