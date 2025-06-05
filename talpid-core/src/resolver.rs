@@ -704,8 +704,8 @@ mod test {
             // Bind resolver to 127.0.0.1
             use_random_loopback: false,
         })
-            .await
-            .unwrap()
+        .await
+        .unwrap()
     }
 
     fn get_test_resolver(addr: SocketAddr) -> hickory_server::resolver::TokioAsyncResolver {
@@ -768,7 +768,7 @@ mod test {
             handle.stop().await;
 
             // bind() should succeeds if 127.0.0.1 is already bound without REUSEADDR and REUSEPORT
-            // TODO: We cannot test this as creating an alias requires root privileges.
+            // NOTE: We cannot test this as creating an alias requires root privileges.
 
             // bind() succeeds if 127.0.0.1 is bound with REUSEADDR and REUSEPORT
             let _sock = bind_sock(
