@@ -232,7 +232,7 @@ fun NegativeOutlinedButton(
         onClick = onClick,
         modifier = modifier.wrapContentHeight().width(IntrinsicSize.Max),
         colors = colors,
-        enabled = isEnabled,
+        enabled = !isLoading && isEnabled,
         border = border,
         contentPadding =
             if (hasIcon) {
