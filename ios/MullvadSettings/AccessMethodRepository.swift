@@ -20,21 +20,36 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
 
     private let direct = PersistentAccessMethod(
         id: AccessMethodRepository.directId,
-        name: "Direct",
+        name: NSLocalizedString(
+            "ACCESS_METHOD_NAME_DIRECT",
+            tableName: "APIAccess",
+            value: "Direct",
+            comment: ""
+        ),
         isEnabled: true,
         proxyConfiguration: .direct
     )
 
     private let bridge = PersistentAccessMethod(
         id: AccessMethodRepository.bridgeId,
-        name: "Mullvad bridges",
+        name: NSLocalizedString(
+            "ACCESS_METHOD_NAME_BRIDGES",
+            tableName: "APIAccess",
+            value: "Mullvad bridges",
+            comment: ""
+        ),
         isEnabled: true,
         proxyConfiguration: .bridges
     )
 
     private let encryptedDNS = PersistentAccessMethod(
         id: AccessMethodRepository.encryptedDNSId,
-        name: "Encrypted DNS proxy",
+        name: NSLocalizedString(
+            "ACCESS_METHOD_NAME_ENCRYPTED_DNS",
+            tableName: "APIAccess",
+            value: "Encrypted DNS proxy",
+            comment: ""
+        ),
         isEnabled: true,
         proxyConfiguration: .encryptedDNS
     )
