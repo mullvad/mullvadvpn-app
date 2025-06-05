@@ -11,6 +11,6 @@ rust-version.workspace = true
 workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
-nix = "0.23"
+nix = { workspace = true }
 thiserror = { workspace = true }
 talpid-types = { path = "../talpid-types" }

@@ -37,7 +37,7 @@ triggered = "0.1.1"
 jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-nix = "0.23"
+nix = { workspace = true, features = ["mount"] }
 inotify = "0.10"
 resolv-conf = "0.7"
 nftnl = { version = "0.7.0", features = ["nftnl-1-1-0"] }
@@ -57,7 +57,7 @@ talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 pcap = { version = "2.1", features = ["capture-stream"] }
 pnet_packet = { workspace = true }
 tun = { workspace = true, features = ["async"] }
-nix = { version = "0.28", features = ["socket", "signal"] }
+nix = { workspace = true, features = ["socket", "signal"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 talpid-macos = { path = "../talpid-macos" }

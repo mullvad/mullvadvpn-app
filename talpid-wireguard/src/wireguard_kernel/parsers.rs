@@ -1,9 +1,12 @@
 use byteorder::{ByteOrder, NativeEndian};
-use nix::sys::{socket::InetAddr, time::TimeSpec};
+use nix::sys::{
+    socket::{SockaddrIn, SockaddrIn6},
+    time::TimeSpec,
+};
 use std::{
     ffi::{CStr, CString},
     mem::{self, transmute},
-    net::IpAddr,
+    net::{IpAddr, SocketAddr},
 };
 
 pub use netlink_packet_utils::parsers::*;
@@ -35,7 +38,7 @@ pub fn parse_wg_key(buffer: &[u8]) -> Result<[u8; 32], DecodeError> {
     }
 }
 
-pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<InetAddr, DecodeError> {
+pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<SocketAddr, DecodeError> {
     let wrong_len = || {
         format!(
             "Unexpected length for sockaddr_in: {}, expected {} or {}",
@@ -59,8 +62,9 @@ pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<InetAddr, DecodeError> {
 
             // SAFETY: sockaddr_in has a defined repr(C) layout and is valid for all bit patterns
             let sockaddr: libc::sockaddr_in = unsafe { transmute(*buffer) };
+            let sockaddr = SockaddrIn::from(sockaddr);
 
-            Ok(InetAddr::V4(sockaddr))
+            Ok(SocketAddr::from(sockaddr))
         }
         AF_INET6 => {
             let buffer: &[u8; size_of::<libc::sockaddr_in6>()] =
@@ -68,8 +72,9 @@ pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<InetAddr, DecodeError> {
 
             // SAFETY: sockaddr_in6 has a defined repr(C) layout and is valid for all bit patterns
             let sockaddr: libc::sockaddr_in6 = unsafe { transmute(*buffer) };
+            let sockaddr = SockaddrIn6::from(sockaddr);
 
-            Ok(InetAddr::V6(sockaddr))
+            Ok(SocketAddr::from(sockaddr))
         }
         unexpected_addr_family => {
             Err(format!("Unexpected address family: {unexpected_addr_family}").into())
