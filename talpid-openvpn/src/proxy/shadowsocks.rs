@@ -1,7 +1,7 @@
 pub use std::io;
 
 use async_trait::async_trait;
-use futures::future::{abortable, AbortHandle, Aborted};
+use futures::future::{AbortHandle, Aborted, abortable};
 use std::net::{Ipv4Addr, SocketAddr};
 use tokio::task::JoinHandle;
 
@@ -11,13 +11,13 @@ use shadowsocks_service::{
     },
     local,
     shadowsocks::{
-        config::{Mode, ServerConfig},
         ServerAddr,
+        config::{Mode, ServerConfig},
     },
 };
 
 use super::{Error, ProxyMonitor, ProxyMonitorCloseHandle};
-use talpid_types::{net::proxy::Shadowsocks, ErrorExt};
+use talpid_types::{ErrorExt, net::proxy::Shadowsocks};
 
 pub struct ShadowsocksProxyMonitor {
     port: u16,
@@ -61,12 +61,10 @@ impl ShadowsocksProxyMonitor {
         let server = ServerConfig::new(
             settings.endpoint,
             settings.password.clone(),
-            settings.cipher.parse().map_err(|_| {
-                io::Error::new(
-                    io::ErrorKind::Other,
-                    format!("Invalid cipher: {}", settings.cipher),
-                )
-            })?,
+            settings
+                .cipher
+                .parse()
+                .map_err(|_| io::Error::other(format!("Invalid cipher: {}", settings.cipher)))?,
         );
 
         config
@@ -101,7 +99,7 @@ impl ShadowsocksProxyMonitor {
     }
 
     fn get_listener_addr(srv: &local::Server) -> io::Result<SocketAddr> {
-        let no_addr_err = || io::Error::new(io::ErrorKind::Other, "Missing listener address");
+        let no_addr_err = || io::Error::other("Missing listener address");
         let socks_server = srv.socks_servers().first().ok_or_else(no_addr_err)?;
         socks_server
             .tcp_server()
