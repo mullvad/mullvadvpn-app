@@ -75,7 +75,7 @@ private fun PreviewAccountScreen(
 ) {
     AppTheme {
         AccountScreen(
-            state = (state as? Lc.Content<AccountUiState>)?.value,
+            state = state.contentOrNull(),
             snackbarHostState = SnackbarHostState(),
             onCopyAccountNumber = {},
             onManageDevicesClick = {},
@@ -119,7 +119,7 @@ fun Account(navigator: DestinationsNavigator) {
     }
 
     AccountScreen(
-        state = (state as? Lc.Content<AccountUiState>)?.value,
+        state = state.contentOrNull(),
         snackbarHostState = snackbarHostState,
         onManageDevicesClick =
             dropUnlessResumed {
@@ -203,7 +203,6 @@ fun AccountScreen(
                 text = stringResource(id = R.string.log_out),
                 onClick = onLogoutClick,
                 isLoading = state?.showLogoutLoading == true,
-                isEnabled = state?.showLogoutLoading != true,
                 modifier = Modifier.fillMaxWidth(),
             )
         }

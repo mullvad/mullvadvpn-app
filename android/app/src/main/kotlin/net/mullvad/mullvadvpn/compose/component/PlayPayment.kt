@@ -133,15 +133,7 @@ private fun PaymentAvailable(
     onInfoClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val statusMessage =
-        when (billingPaymentState.products.status()) {
-            PaymentStatus.PENDING -> stringResource(id = R.string.payment_status_pending_long)
-
-            PaymentStatus.VERIFICATION_IN_PROGRESS ->
-                stringResource(id = R.string.verifying_purchase)
-
-            null -> null
-        }
+    val statusMessage = billingPaymentState.products.status()?.message()
     Column(
         modifier =
             modifier
@@ -242,3 +234,11 @@ private fun Error(modifier: Modifier, message: String, retryFetchProducts: () ->
 private fun List<PaymentProduct>.status(): PaymentStatus? {
     return this.firstOrNull { it.status != null }?.status
 }
+
+@Composable
+private fun PaymentStatus.message(): String =
+    when (this) {
+        PaymentStatus.PENDING -> stringResource(id = R.string.payment_status_pending_long)
+
+        PaymentStatus.VERIFICATION_IN_PROGRESS -> stringResource(id = R.string.verifying_purchase)
+    }
