@@ -49,7 +49,7 @@ grpc = "1.73.0"
 grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
 
-junit = "5.12.2"
+junit = "5.13.0"
 junit5-android = "1.7.0"
 junit5-android-plugin = "1.12.2.0"
 
