@@ -583,6 +583,10 @@ impl Service for TestServer {
         interface: String,
         alias: IpAddr,
     ) -> Result<(), test_rpc::Error> {
+        #[cfg(not(target_os = "macos"))]
+        return Err(test_rpc::Error::TargetNotImplemented);
+
+        #[cfg(target_os = "macos")]
         talpid_macos::net::add_alias(&interface, alias)
             .await
             .map_err(|e| format!("{e:#}"))
@@ -594,6 +598,10 @@ impl Service for TestServer {
         interface: String,
         alias: IpAddr,
     ) -> Result<(), test_rpc::Error> {
+        #[cfg(not(target_os = "macos"))]
+        return Err(test_rpc::Error::TargetNotImplemented);
+
+        #[cfg(target_os = "macos")]
         talpid_macos::net::remove_alias(&interface, alias)
             .await
             .map_err(|e| format!("{e:#}"))

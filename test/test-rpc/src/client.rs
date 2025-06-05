@@ -421,6 +421,7 @@ impl ServiceClient {
             .await?
     }
 
+    #[cfg(target_os = "macos")]
     pub async fn ifconfig_alias_add(
         &self,
         interface: impl Into<String>,
@@ -431,6 +432,7 @@ impl ServiceClient {
             .await?
     }
 
+    #[cfg(target_os = "macos")]
     pub async fn ifconfig_alias_remove(
         &self,
         interface: impl Into<String>,

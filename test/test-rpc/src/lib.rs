@@ -71,6 +71,8 @@ pub enum Error {
     UnknownPid(u32),
     #[error("Failed to join tokio task: {0}")]
     TokioJoinError(String),
+    #[error("gRPC command is not implemented for this target")]
+    TargetNotImplemented,
     #[error("{0}")]
     Other(String),
 }
