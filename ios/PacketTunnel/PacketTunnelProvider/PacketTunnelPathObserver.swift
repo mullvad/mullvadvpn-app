@@ -15,7 +15,7 @@ import PacketTunnelCore
 
 final class PacketTunnelPathObserver: DefaultPathObserverProtocol, Sendable {
     private let eventQueue: DispatchQueue
-    private let pathMonitor: NWPathMonitor
+    private let pathMonitor = NWPathMonitor()
     nonisolated(unsafe) let logger = Logger(label: "PacketTunnelPathObserver")
     private let stateLock = NSLock()
 
@@ -29,8 +29,6 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, Sendable {
 
     init(eventQueue: DispatchQueue) {
         self.eventQueue = eventQueue
-
-        pathMonitor = NWPathMonitor(prohibitedInterfaceTypes: [.other])
     }
 
     func start(_ body: @escaping @Sendable (Network.NWPath.Status) -> Void) {
