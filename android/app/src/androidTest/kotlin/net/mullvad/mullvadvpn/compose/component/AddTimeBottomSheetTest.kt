@@ -19,7 +19,6 @@ import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.PurchaseState
 import net.mullvad.mullvadvpn.lib.payment.ProductIds
-import net.mullvad.mullvadvpn.lib.payment.ProductIds.OneMonth
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -141,7 +140,7 @@ class AddTimeBottomSheetTest {
         composeExtension.use {
             // Arrange
             val mockPaymentProduct: PaymentProduct = mockk()
-            every { mockPaymentProduct.productId } returns ProductId(OneMonth)
+            every { mockPaymentProduct.productId } returns ProductId(ProductIds.OneMonth)
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.status } returns null
             initBottomSheet(

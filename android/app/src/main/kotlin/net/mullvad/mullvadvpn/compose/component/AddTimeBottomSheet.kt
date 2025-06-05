@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Sell
@@ -469,6 +468,10 @@ private fun Products(
                     contentDescription = null,
                 )
             },
+        )
+        HorizontalDivider(
+            modifier = Modifier.height(Dimens.thinBorderWidth),
+            color = onBackgroundColor,
         )
     }
     IconCell(

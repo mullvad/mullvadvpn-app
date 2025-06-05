@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -197,13 +198,19 @@ private fun PaymentAvailable(
                             }
                         },
                     endIcon = {
-                        Icon(
+                        Image(
                             painter =
                                 painterResource(
                                     R.drawable.google_pay_primary_logo_logo_svgrepo_com
                                 ),
                             contentDescription = null,
-                            modifier = Modifier.height(Dimens.smallIconSize),
+                            modifier =
+                                Modifier.height(Dimens.payIconHeight)
+                                    .background(
+                                        MaterialTheme.colorScheme.onSurface,
+                                        MaterialTheme.shapes.extraLarge,
+                                    )
+                                    .padding(all = Dimens.miniPadding),
                         )
                     },
                     onClick = { onPurchaseBillingProductClick(product.productId) },
