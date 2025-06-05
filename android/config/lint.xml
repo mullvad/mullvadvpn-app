@@ -18,4 +18,6 @@
     <issue id="InvalidPackage">
       <ignore path="**/io.grpc/grpc-core/1.70.0/727f3b07d5ef9b21d9eb00c166991ea4273a3794/grpc-core-1.70.0.jar" />
     </issue>
+    <!-- We currently do not support 16 KB page sizes -->
+    <issue id="Aligned16KB" severity="ignore" />
 </lint>
