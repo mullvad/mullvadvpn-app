@@ -133,7 +133,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver, @unchec
     /// Validates the user account with backend before adding the payment to the queue.
     ///
     /// - Parameters:
-    ///   - payment: an intance of `SKPayment`.
+    ///   - payment: an instance of `SKPayment`.
     ///   - accountNumber: the account number to credit.
     func addPayment(_ payment: SKPayment, for accountNumber: String) {
         logger.debug("Validating account before the purchase.")

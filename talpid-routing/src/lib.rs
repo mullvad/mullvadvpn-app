@@ -31,7 +31,7 @@ pub use imp::{
 
 pub use imp::{Error, RouteManagerHandle};
 
-/// Link-layer/MAC adress
+/// Link-layer/MAC address
 #[cfg(target_os = "macos")]
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct MacAddress(pub [u8; 6]);
