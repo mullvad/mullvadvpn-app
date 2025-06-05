@@ -7,6 +7,7 @@
 //
 
 import Routing
+import SwiftUI
 import UIKit
 
 class TermsOfServiceCoordinator: Coordinator, Presenting {
@@ -16,24 +17,16 @@ class TermsOfServiceCoordinator: Coordinator, Presenting {
         navigationController
     }
 
-    var didFinish: ((TermsOfServiceCoordinator) -> Void)?
+    var didAgreeToTermsOfService: (() -> Void)?
 
     init(navigationController: RootContainerViewController) {
         self.navigationController = navigationController
     }
 
     func start() {
-        let controller = TermsOfServiceViewController()
-
-        controller.showPrivacyPolicy = { [weak self] in
-            self?.presentChild(SafariCoordinator(url: ApplicationConfiguration.privacyPolicyURL), animated: true)
-        }
-
-        controller.completionHandler = { [weak self] in
-            guard let self else { return }
-            didFinish?(self)
-        }
-
-        navigationController.pushViewController(controller, animated: false)
+        let termsOfService = TermsOfServiceView(agreeToTermsAndServices: didAgreeToTermsOfService)
+        let hostingController = UIHostingController(rootView: termsOfService)
+        hostingController.view.setAccessibilityIdentifier(.termsOfServiceView)
+        navigationController.pushViewController(hostingController, animated: false)
     }
 }
