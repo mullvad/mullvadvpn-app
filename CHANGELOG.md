@@ -49,7 +49,7 @@ supported.
 
 #### Linux
 - The deb package repositores now have static codenames on top of the existing distro version
-  specific codenames. The stable repository always have the "stable" codename,
+  specific codenames. The stable repository always has the "stable" codename,
   and the beta repository has the "beta" codename.
 
 ### Changed
