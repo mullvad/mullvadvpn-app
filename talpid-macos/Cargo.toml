@@ -14,4 +14,4 @@ workspace = true
 anyhow.workspace = true
 log.workspace = true
 libc = "0.2.172"
-tokio = { workspace = true, features = ["rt-multi-thread"] }
+tokio = { workspace = true, features = ["process"] }
