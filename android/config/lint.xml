@@ -16,6 +16,8 @@
     <issue id="NewerVersionAvailable" severity="ignore" />
     <!-- Ignored, see more: https://github.com/grpc/grpc-java/blob/e8ff6da2cf57a39a62497e9f317e6976b5bfb98c/core/src/main/java/io/grpc/internal/JndiResourceResolverFactory.java#L199 -->
     <issue id="InvalidPackage">
-      <ignore path="**/io.grpc/grpc-core/1.70.0/727f3b07d5ef9b21d9eb00c166991ea4273a3794/grpc-core-1.70.0.jar" />
+      <ignore path="**/io.grpc/grpc-core/1.73.0/48c9fbc150a54442429b22c3f4568e9d86b17f88/grpc-core-1.73.0.jar" />
     </issue>
+    <!-- We currently do not support 16 KB page sizes -->
+    <issue id="Aligned16KB" severity="ignore" />
 </lint>
