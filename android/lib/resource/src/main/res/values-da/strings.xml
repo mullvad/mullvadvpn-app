@@ -97,6 +97,7 @@
     <string name="created_x">Oprettet: %1$s</string>
     <string name="creating_new_account">Opretter konto...</string>
     <string name="critical_error">Kritisk fejl (som kræver din opmærksomhed)</string>
+    <string name="current_device">Nuværende enhed</string>
     <string name="current_method">Aktuel: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Deaktiver alle \"%1$s\" ovenfor for at aktivere denne indstilling.</string>
     <string name="custom_dns_footer">Aktiver for at tilføje mindst én DNS-server.</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s gør dette ved omhyggeligt at tilføje netværksstøj og gøre alle netværkspakker lige store.</string>
     <string name="daita_description_slide_2_third_paragraph">Ikke alle vores servere er %1$s-kompatible. Derfor bruger vi automatisk multihop til at aktivere %1$s med enhver server.</string>
     <string name="daita_info">Hvis du aktiverer \"%1$s\", skal du manuelt vælge en server, der er %2$s-aktiveret. Det kan medføre, at du ender i en blokeret tilstand, indtil du har valgt en kompatibel server i visningen \"Vælg placering\".</string>
+    <string name="daita_multihop">%1$s: Multihop</string>
     <string name="delete">Slet</string>
     <string name="delete_custom_list_confirmation_description">Vil du slette \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" blev slettet</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">Du har fjernet denne enhed. For at oprette forbindelse igen skal du logge ind igen.</string>
     <string name="device_inactive_title">Enheden er inaktiv</string>
     <string name="device_inactive_unblock_warning">Hvis du logger på, ophæves blokeringen af internettet på denne enhed.</string>
+    <string name="device_ip_info_first_paragraph">Denne funktion lader dig vælge, om du kun vil bruge IPv4, kun IPv6 eller om du vil lade appen automatisk vælge den bedste løsning, når du opretter forbindelse til en server.</string>
+    <string name="device_ip_info_second_paragraph">Det kan være brugbart, hvis man opdager problemer, der skyldes en bestemt IP-version.</string>
     <string name="device_ip_version_title">Enhedens IP-version</string>
     <string name="device_name">Enhedsnavn</string>
     <string name="device_name_info_first_paragraph">Dette er det navn, der er tildelt enheden. Hver enhed, der er logget på en Mullvad-konto, får et unikt navn, der hjælper dig med at identificere den, når du administrerer dine enheder i appen eller på webstedet.</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">Importer via tekst</string>
     <string name="invalid_dns_servers">Tilpassede DNS-serveradresser %1$s er ugyldige</string>
     <string name="invalid_voucher">Kuponkode er ugyldig.</string>
+    <string name="ip_version_v4_unavailable">IPv4 er ikke tilgængelig, prøv at ændre indstillingen \"Enhedens IP-version\".</string>
+    <string name="ip_version_v6_unavailable">IPv6 er ikke tilgængelig, prøv at ændre indstillingen \"Enhedens IP-version\".</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">Når denne funktion er aktiveret, kan IPv6 bruges sammen med IPv4 i VPN-tunnelen til at kommunikere med internettjenester.</string>
@@ -230,6 +236,10 @@
     <string name="login_title">Log ind</string>
     <string name="malware_info">Advarsel: Malware-blokkeren er ikke antivirus og bør ikke behandles som sådan. Dette er blot et ekstra lag af beskyttelse.</string>
     <string name="manage_account">Administrer konto</string>
+    <string name="manage_devices">Administrer enheder</string>
+    <string name="manage_devices_confirm_removal_description_line1">Fjern %1$s?</string>
+    <string name="manage_devices_confirm_removal_description_line2">Enheden fjernes fra listen og logges ud.</string>
+    <string name="manage_devices_description">Vis og administrer alle dine enheder, der er logget på. Du kan have op til 5 enheder på en konto ad gangen. Hver enhed tildeles et navn, når du logger på, så du let kan se forskel på dem.</string>
     <string name="max_devices_confirm_removal_description">Er du sikker på, at du vil logge &lt;b&gt;%1$s&lt;/b&gt; ud?</string>
     <string name="max_devices_resolved_description">Du kan nu fortsætte med at logge ind på denne enhed.</string>
     <string name="max_devices_resolved_title">Super!</string>
@@ -384,8 +394,10 @@
     <string name="voucher_is_account_number">Det ser ud til, at du har indtastet et kontonummer i stedet for en rabatkuponkode. Hvis du vil ændre den aktive konto, skal du først logge ud.</string>
     <string name="voucher_success_title">Indløsning af kuponen lykkedes.</string>
     <string name="vpn_permission_denied_error">VPN-tilladelse blev afvist, eller en anden app har \"VPN altid aktiveret\"</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">VPN-tilladelse blev afvist</string>
     <string name="vpn_permission_error_notification_message">Tryk på Opret forbindelse for at anmode om VPN-tilladelse</string>
     <string name="vpn_permission_error_notification_title">VPN-tilladelsesfejl</string>
+    <string name="vpn_settings_not_available">VPN-indstillinger er ikke tilgængelige på enheden</string>
     <string name="we_will_look_into_this">Vi vil undersøge dette.</string>
     <string name="wg_port_subtitle">Sæt %1$s-tilsløring til \"Automatisk\" eller \"Fra\" nedenfor for at aktivere denne indstilling.</string>
     <string name="wireguard_custon_port_title">Brugerdefineret</string>
@@ -393,7 +405,9 @@
     <string name="wireguard_mtu_footer">Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Den automatiske indstilling vælger tilfældigt fra de gyldige rækker af porte nedenfor.</string>
     <string name="wireguard_port_info_port_range">Den brugerdefinerede port kan være en hvilken som helst værdi inden for de gyldige intervaller: %1$s.</string>
+    <string name="wireguard_port_is_not_supported">Den valgte port til %1$s understøttes ikke, ændr den under</string>
     <string name="wireguard_port_title">WireGuard-port</string>
+    <string name="wireguard_settings">%1$s-indstillinger.</string>
     <string name="x_entry">%1$s (indgang)</string>
     <string name="x_exit">%1$s (udgang)</string>
     <string name="x_via_x">%1$s via %2$s</string>
