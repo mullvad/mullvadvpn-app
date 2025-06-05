@@ -280,7 +280,10 @@
     <string name="patch_not_matching_specification">Patch matcher ikke specifikationen</string>
     <string name="pay_to_start_using">For at begynde at bruge appen skal du først føje tid til din konto.</string>
     <string name="payment_billing_error_dialog_message">Vi kunne ikke starte betalingsprocessen. Sørg for, at du har den nyeste version af Google Play.</string>
+    <string name="payment_billing_error_dialog_title">Google Play er ikke tilgængelig</string>
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunne ikke starte betalingsprocessen. Prøv igen senere.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjenester er ikke tilgængelige</string>
+    <string name="payment_status_pending_short">Google Play-betaling afventer</string>
     <string name="please_enter_a_valid_ip_address">Indtast en gyldig IPv4- eller IPv6-adresse</string>
     <string name="please_enter_a_valid_remote_server_port">Indtast en gyldig fjernserverport</string>
     <string name="port">Port</string>

@@ -279,14 +279,7 @@ private fun PaidUntilRow(
         }
 
         if (verificationPending) {
-            Row(verticalAlignment = Alignment.Bottom) {
-                Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    text = stringResource(R.string.verifying_purchase),
-                    modifier = Modifier.padding(bottom = Dimens.smallPadding),
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onInfoClick) {
                     Icon(
                         imageVector = Icons.Default.Info,
@@ -294,6 +287,11 @@ private fun PaidUntilRow(
                         tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
+                Text(
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    text = stringResource(R.string.payment_status_pending_short),
+                )
             }
         }
     }

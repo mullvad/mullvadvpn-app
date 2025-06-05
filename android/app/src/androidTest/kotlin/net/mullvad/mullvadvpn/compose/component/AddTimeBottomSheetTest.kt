@@ -88,7 +88,7 @@ class AddTimeBottomSheetTest {
             )
 
             // Act
-            onNodeWithText("Buy time from website").performClick()
+            onNodeWithText("Buy credit").performClick()
 
             // Assert
             verify(exactly = 1) { mockedClickHandler.invoke() }

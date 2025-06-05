@@ -280,7 +280,10 @@
     <string name="patch_not_matching_specification">补丁与规范不匹配</string>
     <string name="pay_to_start_using">要开始使用本应用，您首先需要向帐户中充入时间。</string>
     <string name="payment_billing_error_dialog_message">我们无法启动付款流程，请确保拥有最新版本的 Google Play。</string>
+    <string name="payment_billing_error_dialog_title">Google Play 不可用</string>
     <string name="payment_obfuscation_id_error_dialog_message">我们无法启动付款流程，请稍后再试。</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Mullvad 服务不可用</string>
+    <string name="payment_status_pending_short">Google Play 付款待处理</string>
     <string name="please_enter_a_valid_ip_address">请输入有效的 IPv4 或 IPv6 地址</string>
     <string name="please_enter_a_valid_remote_server_port">请输入有效的远程服务器端口</string>
     <string name="port">端口</string>

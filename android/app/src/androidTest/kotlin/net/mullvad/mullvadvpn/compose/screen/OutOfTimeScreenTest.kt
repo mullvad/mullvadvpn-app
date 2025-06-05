@@ -139,6 +139,6 @@ class OutOfTimeScreenTest {
             initScreen(state = OutOfTimeUiState(showSitePayment = true, verificationPending = true))
 
             // Assert
-            onNodeWithText("Verifying purchase").assertExists()
+            onNodeWithText("Google Play payment pending").assertExists()
         }
 }

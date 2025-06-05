@@ -120,7 +120,7 @@ class AccountScreenTest {
             )
 
             // Assert
-            onNodeWithText("Verifying purchase").assertExists()
+            onNodeWithText("Google Play payment pending").assertExists()
         }
 
     companion object {

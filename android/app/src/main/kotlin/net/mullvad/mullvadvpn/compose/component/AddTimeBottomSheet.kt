@@ -272,6 +272,7 @@ private fun ColumnScope.PurchaseState(
             PurchaseStateError(
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
+                title = stringResource(R.string.payment_obfuscation_id_error_dialog_title),
                 message = stringResource(R.string.payment_obfuscation_id_error_dialog_message),
                 resetPurchaseState = resetPurchaseState,
             )
@@ -280,6 +281,7 @@ private fun ColumnScope.PurchaseState(
             PurchaseStateError(
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
+                title = stringResource(R.string.payment_billing_error_dialog_title),
                 message = stringResource(R.string.payment_billing_error_dialog_message),
                 resetPurchaseState = resetPurchaseState,
             )
@@ -375,11 +377,12 @@ private fun PurchaseStateSuccess(
 private fun ColumnScope.PurchaseStateError(
     onBackgroundColor: Color,
     backgroundColor: Color,
+    title: String,
     message: String,
     resetPurchaseState: () -> Unit,
 ) {
     SheetTitle(
-        title = stringResource(id = R.string.error_occurred),
+        title = title,
         onBackgroundColor = onBackgroundColor,
         backgroundColor = backgroundColor,
     )
@@ -449,7 +452,7 @@ private fun Products(
         }
         IconCell(
             imageVector = Icons.Outlined.Sell,
-            title = stringResource(id = R.string.buy_time_from_website),
+            title = stringResource(id = R.string.buy_credit),
             onClick = { onSitePaymentClick() },
             titleColor =
                 onBackgroundColor.copy(

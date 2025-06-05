@@ -280,7 +280,10 @@
     <string name="patch_not_matching_specification">Patch entspricht nicht der Spezifikation</string>
     <string name="pay_to_start_using">Um mit der Nutzung dieser App zu beginnen, müssen Sie erst einmal Zeit zu Ihrem Konto hinzufügen.</string>
     <string name="payment_billing_error_dialog_message">Wir konnten den Zahlungsvorgang nicht starten. Bitte vergewissern Sie sich, dass Sie die neueste Version von Google Play haben.</string>
+    <string name="payment_billing_error_dialog_title">Google Play nicht verfügbar</string>
     <string name="payment_obfuscation_id_error_dialog_message">Wir konnten den Zahlungsvorgang nicht starten, bitte versuchen Sie es später noch einmal.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Mullvad-Dienste nicht verfügbar</string>
+    <string name="payment_status_pending_short">Google-Play-Zahlung ausstehend</string>
     <string name="please_enter_a_valid_ip_address">Bitte geben Sie eine gültige IPv4- oder IPv6-Adresse ein</string>
     <string name="please_enter_a_valid_remote_server_port">Bitte geben Sie einen gültigen Remote-Server-Port ein</string>
     <string name="port">Port</string>

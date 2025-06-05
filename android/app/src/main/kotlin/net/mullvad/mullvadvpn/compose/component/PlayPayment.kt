@@ -135,7 +135,7 @@ private fun PaymentAvailable(
 ) {
     val statusMessage =
         when (billingPaymentState.products.status()) {
-            PaymentStatus.PENDING -> stringResource(id = R.string.payment_status_pending)
+            PaymentStatus.PENDING -> stringResource(id = R.string.payment_status_pending_long)
 
             PaymentStatus.VERIFICATION_IN_PROGRESS ->
                 stringResource(id = R.string.verifying_purchase)

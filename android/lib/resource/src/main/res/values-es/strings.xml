@@ -280,7 +280,10 @@
     <string name="patch_not_matching_specification">El parche no coincide con la especificación</string>
     <string name="pay_to_start_using">Para empezar a usar la aplicación, primero necesita agregar tiempo a su cuenta.</string>
     <string name="payment_billing_error_dialog_message">No hemos podido iniciar el proceso de pago. Asegúrese de tener la última versión de Google Play.</string>
+    <string name="payment_billing_error_dialog_title">Google Play no disponible</string>
     <string name="payment_obfuscation_id_error_dialog_message">No hemos podido iniciar el proceso de pago. Inténtelo de nuevo más tarde.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Servicios de Mullvad no disponibles</string>
+    <string name="payment_status_pending_short">Pago a Google Play pendiente</string>
     <string name="please_enter_a_valid_ip_address">Escriba una dirección IPv4 o IPv6 válida</string>
     <string name="please_enter_a_valid_remote_server_port">Introduzca un puerto de servidor remoto válido</string>
     <string name="port">Puerto</string>

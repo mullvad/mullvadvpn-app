@@ -2847,9 +2847,6 @@ msgstr ""
 msgid "Blocking..."
 msgstr ""
 
-msgid "Buy time from website"
-msgstr ""
-
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr ""
 
@@ -2991,7 +2988,13 @@ msgstr ""
 msgid "Going to login will unblock the internet on this device."
 msgstr ""
 
+msgid "Google Play payment pending"
+msgstr ""
+
 msgid "Google Play payment pending, this might take some time"
+msgstr ""
+
+msgid "Google Play unavailable"
 msgstr ""
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
@@ -3046,6 +3049,9 @@ msgid "Makes sure the device is always on the VPN tunnel."
 msgstr ""
 
 msgid "Manage devices"
+msgstr ""
+
+msgid "Mullvad services unavailable"
 msgstr ""
 
 msgid "Name was changed to %s"
