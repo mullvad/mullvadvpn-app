@@ -19,30 +19,16 @@ jobs:
     env:
       SOURCE_PACKAGES_PATH: .spm
       TEST_ACCOUNT: ${{ secrets.IOS_TEST_ACCOUNT_NUMBER }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout submodules
+      - name: Setup project
+        uses: ./.github/actions/ios/setup-project-toolchain
+
+      - name: Add test account to config
         run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --recursive ios/wireguard-apple
-
-      - name: Setup go-lang
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.21.13
-
-      - name: Configure Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '16.1'
-      - name: Configure Rust
-        run: rustup target add aarch64-apple-ios-sim x86_64-apple-ios
-
-      - name: Configure Xcode project
-        run: |
-          for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
           sed -i "" \
             "/HAS_TIME_ACCOUNT_NUMBER =/ s#= .*#= 1234123412341234#" \
             UITests.xcconfig
@@ -51,11 +37,6 @@ jobs:
       - name: Bundle
         run: bundle install
         working-directory: ios
-
-      - name: Install protobuf
-        run: |
-          brew update
-          brew install protobuf
 
       - name: Create screenshots
         run: bundle exec fastlane snapshot --cloned_source_packages_path "$SOURCE_PACKAGES_PATH"

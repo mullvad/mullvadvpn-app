@@ -109,7 +109,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
-            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper
+            accessMethodWrapper: transportStrategy.opaqueAccessMethodSettingsWrapper,
+            addressCacheProvider: addressCache
         )
 
         accessMethodReceiver = MullvadAccessMethodReceiver(
@@ -321,7 +322,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.appRefresh.identifier,
             using: .main
         ) { [self] task in
-
             nonisolated(unsafe) let handle = relayCacheTracker.updateRelays { result in
                 task.setTaskCompleted(success: result.isSuccess)
             }

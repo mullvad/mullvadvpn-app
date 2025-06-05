@@ -156,8 +156,15 @@ function checkout_ref {
 
     # Clean our working dir and check out the code we want to build
     rm -r dist/ 2&>/dev/null || true
-    git reset --hard
+
+    # Reset to main in case there is some issue on the current branch that prevents resetting to it.
+    git reset --hard origin/main
+
     git checkout "$ref"
+
+    # Return an error if it's not possible to reset to the current branch. Some errors will result in exit code 0 from `checkout` but >0 from `reset`.
+    git reset --hard || return 1
+
     git submodule update
     git submodule update --init wireguard-go-rs/libwg/wireguard-go || true
     git clean -df

@@ -21,9 +21,11 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.util.Lc
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("TooManyFunctions")
@@ -34,6 +36,7 @@ class SelectLocationViewModel(
     private val relayListRepository: RelayListRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val filterChipUseCase: FilterChipUseCase,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
     private val _relayListType: MutableStateFlow<RelayListType> =
         MutableStateFlow(RelayListType.EXIT)
@@ -43,14 +46,23 @@ class SelectLocationViewModel(
                 filterChips(),
                 wireguardConstraintsRepository.wireguardConstraints,
                 _relayListType,
-            ) { filterChips, wireguardConstraints, relayListSelection ->
-                SelectLocationUiState.Data(
-                    filterChips = filterChips,
-                    multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
-                    relayListType = relayListSelection,
+                relayListRepository.relayList,
+                settingsRepository.settingsUpdates,
+            ) { filterChips, wireguardConstraints, relayListSelection, relayList, settings ->
+                Lc.Content(
+                    SelectLocationUiState(
+                        filterChips = filterChips,
+                        multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
+                        relayListType = relayListSelection,
+                        isSearchButtonEnabled =
+                            relayList.isNotEmpty() &&
+                                (relayListSelection == RelayListType.EXIT ||
+                                    settings?.entryBlocked() != true),
+                        isFilterButtonEnabled = relayList.isNotEmpty(),
+                    )
                 )
             }
-            .stateIn(viewModelScope, SharingStarted.Lazily, SelectLocationUiState.Loading)
+            .stateIn(viewModelScope, SharingStarted.Lazily, Lc.Loading(Unit))
 
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()

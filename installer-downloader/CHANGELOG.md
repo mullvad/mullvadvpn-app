@@ -20,6 +20,15 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Fix
+- Fix downloads hanging indefinitely on switching networks
+#### macOS
+- Fix rendering issues on old (unsupported) macOS versions.
+
+## [1.0.0] - 2025-05-13
+### Fixed
+#### Windows
+- Use default font instead of Segoe Fluent Icons for back arrow.
 
 
 ## [0.3.0] - 2025-05-06

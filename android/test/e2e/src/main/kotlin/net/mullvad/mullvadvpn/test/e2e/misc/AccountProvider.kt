@@ -4,15 +4,13 @@ import androidx.test.platform.app.InstrumentationRegistry
 import net.mullvad.mullvadvpn.test.e2e.api.mullvad.MullvadApi
 import net.mullvad.mullvadvpn.test.e2e.api.mullvad.removeAllDevices
 import net.mullvad.mullvadvpn.test.e2e.api.partner.PartnerApi
-import net.mullvad.mullvadvpn.test.e2e.constant.INVALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY
-import net.mullvad.mullvadvpn.test.e2e.constant.PARTNER_AUTH
-import net.mullvad.mullvadvpn.test.e2e.constant.VALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY
-import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
+import net.mullvad.mullvadvpn.test.e2e.constant.getInvalidAccountNumber
+import net.mullvad.mullvadvpn.test.e2e.constant.getPartnerAuth
+import net.mullvad.mullvadvpn.test.e2e.constant.getValidAccountNumber
 
 object AccountProvider {
     private val mullvadClient = MullvadApi()
-    private val partnerAuth: String? =
-        InstrumentationRegistry.getArguments().getString(PARTNER_AUTH, null)
+    private val partnerAuth: String? = InstrumentationRegistry.getArguments().getPartnerAuth()
     private val partnerClient: PartnerApi by lazy { PartnerApi(partnerAuth!!) }
 
     suspend fun getValidAccountNumber() =
@@ -23,14 +21,10 @@ object AccountProvider {
             partnerClient.addTime(accountNumber = accountNumber, daysToAdd = 1)
             accountNumber
         } else {
-            val validAccountNumber =
-                InstrumentationRegistry.getArguments()
-                    .getRequiredArgument(VALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY)
+            val validAccountNumber = InstrumentationRegistry.getArguments().getValidAccountNumber()
             mullvadClient.removeAllDevices(validAccountNumber)
             validAccountNumber
         }
 
-    fun getInvalidAccountNumber() =
-        InstrumentationRegistry.getArguments()
-            .getRequiredArgument(INVALID_TEST_ACCOUNT_NUMBER_ARGUMENT_KEY)
+    fun getInvalidAccountNumber() = InstrumentationRegistry.getArguments().getInvalidAccountNumber()
 }

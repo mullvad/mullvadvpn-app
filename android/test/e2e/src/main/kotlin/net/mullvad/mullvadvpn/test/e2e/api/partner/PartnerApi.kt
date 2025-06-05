@@ -64,7 +64,7 @@ class PartnerApi(base64AuthCredentials: String) {
 
     companion object {
         private const val BASE_URL = "partner.${BuildConfig.INFRASTRUCTURE_BASE_DOMAIN}"
-        private const val ACCOUNT_PATH = "${BuildConfig.API_VERSION}/accounts"
+        private const val ACCOUNT_PATH = "v1/accounts"
     }
 }
 

@@ -6,14 +6,14 @@ import { strings, urls } from '../../shared/constants';
 import { IDnsOptions, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
+import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import { Button } from '../lib/components';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
-import { Colors, spacings } from '../lib/foundations';
+import { colors, spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
-import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
@@ -28,6 +28,7 @@ import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import { NavigationContainer } from './NavigationContainer';
+import { NavigationListItem } from './NavigationListItem';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
@@ -40,7 +41,7 @@ const StyledTitleLabel = styled(Cell.SectionTitle)({
 });
 
 const StyledSectionItem = styled(Cell.Container)({
-  backgroundColor: Colors.blue40,
+  backgroundColor: colors.blue40,
 });
 
 const LanIpRanges = styled.ul({
@@ -758,11 +759,13 @@ function TunnelProtocolSetting() {
             </Cell.CellFooterText>
           </AriaDescription>
           <ExternalLink variant="labelTiny" to={urls.removingOpenVpnBlog}>
-            {sprintf(
-              // TRANSLATORS: Link in tunnel protocol selector footer to blog post
-              // TRANSLATORS: about OpenVPN support ending.
-              messages.pgettext('vpn-settings-view', 'Read more'),
-            )}
+            <ExternalLink.Text>
+              {sprintf(
+                // TRANSLATORS: Link in tunnel protocol selector footer to blog post
+                // TRANSLATORS: about OpenVPN support ending.
+                messages.pgettext('vpn-settings-view', 'Read more'),
+              )}
+            </ExternalLink.Text>
             <ExternalLink.Icon icon="external" size="small" />
           </ExternalLink>
         </Cell.CellFooter>
@@ -785,52 +788,48 @@ function mapRelaySettingsToProtocol(relaySettings: RelaySettingsRedux) {
 }
 
 function WireguardSettingsButton() {
-  const history = useHistory();
   const tunnelProtocol = useSelector((state) =>
     mapRelaySettingsToProtocol(state.settings.relaySettings),
   );
 
-  const navigate = useCallback(() => history.push(RoutePath.wireguardSettings), [history]);
-
   return (
-    <Cell.CellNavigationButton onClick={navigate} disabled={tunnelProtocol === 'openvpn'}>
-      <Cell.Label>
+    <NavigationListItem to={RoutePath.wireguardSettings} disabled={tunnelProtocol === 'openvpn'}>
+      <NavigationListItem.Label>
         {sprintf(
           // TRANSLATORS: %(wireguard)s will be replaced with the string "WireGuard"
           messages.pgettext('vpn-settings-view', '%(wireguard)s settings'),
           { wireguard: strings.wireguard },
         )}
-      </Cell.Label>
-    </Cell.CellNavigationButton>
+      </NavigationListItem.Label>
+      <NavigationListItem.Icon icon="chevron-right" />
+    </NavigationListItem>
   );
 }
 
 function OpenVpnSettingsButton() {
-  const history = useHistory();
   const tunnelProtocol = useTunnelProtocol();
 
-  const navigate = useCallback(() => history.push(RoutePath.openVpnSettings), [history]);
-
   return (
-    <Cell.CellNavigationButton onClick={navigate} disabled={tunnelProtocol === 'wireguard'}>
-      <Cell.Label>
+    <NavigationListItem to={RoutePath.openVpnSettings} disabled={tunnelProtocol === 'wireguard'}>
+      <NavigationListItem.Label>
         {sprintf(
           // TRANSLATORS: %(openvpn)s will be replaced with the string "OpenVPN"
           messages.pgettext('vpn-settings-view', '%(openvpn)s settings'),
           { openvpn: strings.openvpn },
         )}
-      </Cell.Label>
-    </Cell.CellNavigationButton>
+      </NavigationListItem.Label>
+      <NavigationListItem.Icon icon="chevron-right" />
+    </NavigationListItem>
   );
 }
 
 function IpOverrideButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.settingsImport), [history]);
-
   return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>{messages.pgettext('vpn-settings-view', 'Server IP override')}</Cell.Label>
-    </Cell.CellNavigationButton>
+    <NavigationListItem to={RoutePath.settingsImport}>
+      <NavigationListItem.Label>
+        {messages.pgettext('vpn-settings-view', 'Server IP override')}
+      </NavigationListItem.Label>
+      <NavigationListItem.Icon icon="chevron-right" />
+    </NavigationListItem>
   );
 }

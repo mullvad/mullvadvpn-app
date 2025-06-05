@@ -97,6 +97,7 @@
     <string name="created_x">Erstellt: %1$s</string>
     <string name="creating_new_account">Konto wird erstellt ...</string>
     <string name="critical_error">Kritischer Fehler (Ihre Aufmerksamkeit ist erforderlich)</string>
+    <string name="current_device">Aktuelles Gerät</string>
     <string name="current_method">Aktuell: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Deaktivieren Sie oben alle „%1$s“, um diese Einstellung zu aktivieren.</string>
     <string name="custom_dns_footer">Aktivieren, um mindestens einen DNS-Server hinzuzufügen.</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s tut dies, indem es Netzwerkrauschen gezielt hinzufügt und alle Netzwerkpakete gleich groß macht.</string>
     <string name="daita_description_slide_2_third_paragraph">Nicht alle unsere Server sind %1$s-fähig. Daher verwenden wir automatisch Multihop, um %1$s mit jedem Server zu aktivieren.</string>
     <string name="daita_info">Wenn Sie „%1$s“ aktivieren, müssen Sie manuell einen Server auswählen, der %2$s-fähig ist. Dies kann dazu führen, dass Sie in einem blockierten Zustand landen, bis Sie einen kompatiblen Server in der Ansicht „Standort auswählen“ ausgewählt haben.</string>
+    <string name="daita_multihop">%1$s: Multihop</string>
     <string name="delete">Löschen</string>
     <string name="delete_custom_list_confirmation_description">„%1$s“ löschen?</string>
     <string name="delete_custom_list_message">„%1$s“ wurde gelöscht</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">Sie haben dieses Gerät entfernt. Um sich erneut zu verbinden, müssen Sie sich erneut anmelden.</string>
     <string name="device_inactive_title">Gerät ist inaktiv</string>
     <string name="device_inactive_unblock_warning">Wenn Sie mit der Anmeldung fortfahren, wird die Internetsperre auf diesem Gerät aufgehoben.</string>
+    <string name="device_ip_info_first_paragraph">Mit dieser Funktion können Sie auswählen, ob nur IPv4 oder IPv6 genutzt werden soll, oder der App erlauben, beim Verbinden mit einem Server automatisch die beste Option zu suchen.</string>
+    <string name="device_ip_info_second_paragraph">Dies kann nützlich sein, wenn Sie von Problemen wissen, die durch eine bestimmte IP-Version verursacht werden.</string>
     <string name="device_ip_version_title">Geräte-IP-Version</string>
     <string name="device_name">Gerätename</string>
     <string name="device_name_info_first_paragraph">Dies ist der dem Gerät zugewiesene Name. Jedes Gerät, das in einem Mullvad-Konto angemeldet ist, erhält einen eindeutigen Namen, mit dem Sie es identifizieren können, wenn Sie Ihre Geräte in der App oder auf der Website verwalten.</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">Import via Text</string>
     <string name="invalid_dns_servers">Eigene DNS-Server Adressen %1$s sind ungültig</string>
     <string name="invalid_voucher">Der Gutscheincode ist ungültig.</string>
+    <string name="ip_version_v4_unavailable">IPv4 ist nicht verfügbar, bitte versuchen Sie, die Einstellung „Geräte-IP-Version“ zu ändern.</string>
+    <string name="ip_version_v6_unavailable">IPv6 ist nicht verfügbar, bitte versuchen Sie, die Einstellung „Geräte-IP-Version“ zu ändern.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">Wenn diese Funktion aktiviert ist, kann IPv6 neben IPv4 im VPN-Tunnel für die Kommunikation mit Internetdiensten verwendet werden.</string>
@@ -230,6 +236,10 @@
     <string name="login_title">Anmelden</string>
     <string name="malware_info">Der Malware-Blocker ist kein Antivirusprogramm und sollte auch nicht als solches behandelt werden. Es dient lediglich als zusätzliche Schutzschicht.</string>
     <string name="manage_account">Konto verwalten</string>
+    <string name="manage_devices">Geräte verwalten</string>
+    <string name="manage_devices_confirm_removal_description_line1">%1$s entfernen?</string>
+    <string name="manage_devices_confirm_removal_description_line2">Das Gerät wird aus der Liste entfernt und abgemeldet.</string>
+    <string name="manage_devices_description">Lassen Sie all Ihre angemeldeten Geräte anzeigen und verwalten Sie sie. Sie können bis zu fünf Geräte gleichzeitig bei einem Konto haben. Jedes Gerät bekommt beim Anmelden einen Namen, damit Sie sie leicht unterscheiden können.</string>
     <string name="max_devices_confirm_removal_description">Möchten Sie &lt;b&gt;%1$s&lt;/b&gt; wirklich abmelden?</string>
     <string name="max_devices_resolved_description">Sie können jetzt mit der Anmeldung auf diesem Gerät fortfahren.</string>
     <string name="max_devices_resolved_title">Super!</string>
@@ -305,7 +315,6 @@
     <string name="search">Suche</string>
     <string name="search_location_empty_text">Kein Ergebnis für „%1$s“, bitte versuchen Sie einen anderen Suchbegriff</string>
     <string name="search_placeholder">Suchen nach …</string>
-    <string name="search_query_empty">Geben Sie mindestens 2 Zeichen ein, um die Suche zu starten.</string>
     <string name="select_location">Ort auswählen</string>
     <string name="send">Senden</string>
     <string name="send_anyway">Trotzdem senden</string>
@@ -385,8 +394,10 @@
     <string name="voucher_is_account_number">Anscheinend haben Sie eine Kontonummer statt eines Gutscheincodes eingegeben. Wenn Sie das aktive Konto wechseln möchten, melden Sie sich bitte zuerst ab.</string>
     <string name="voucher_success_title">Der Gutschein wurde erfolgreich eingelöst.</string>
     <string name="vpn_permission_denied_error">VPN-Berechtigung wurde abgelehnt oder bei einer anderen App ist „Alway-on VPN“ aktiviert</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">VPN-Berechtigung wurde abgelehnt</string>
     <string name="vpn_permission_error_notification_message">Drücken Sie auf „Verbinden“, um die VPN-Berechtigung anzufordern</string>
     <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
+    <string name="vpn_settings_not_available">VPN-Einstellungen auf dem Gerät nicht verfügbar</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
     <string name="wg_port_subtitle">%1$s-Verschleierung unten auf „Automatisch“ oder „Aus“ einstellen, um diese Einstellung zu aktivieren.</string>
     <string name="wireguard_custon_port_title">Benutzerdefiniert</string>
@@ -394,7 +405,9 @@
     <string name="wireguard_mtu_footer">WireGuard-MTU-Wert einstellen. Gültiger Bereich: %1$d – %2$d.</string>
     <string name="wireguard_port_info_description">Die automatische Einstellung wählt zufällig aus den unten gezeigten gültigen Portbereichen.</string>
     <string name="wireguard_port_info_port_range">Der benutzerdefinierte Port kann ein beliebiger Wert innerhalb dieser gültigen Bereiche sein: %1$s.</string>
+    <string name="wireguard_port_is_not_supported">Der ausgewählte %1$s-Port wird nicht unterstützt, bitte ändern Sie ihn unter</string>
     <string name="wireguard_port_title">WireGuard-Port</string>
+    <string name="wireguard_settings">%1$s-Einstellungen.</string>
     <string name="x_entry">%1$s (Eingang)</string>
     <string name="x_exit">%1$s (Ausgang)</string>
     <string name="x_via_x">%1$s über %2$s</string>

@@ -19,7 +19,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -169,7 +169,7 @@ fun PaymentDialog(
                         painter = painterResource(id = R.drawable.icon_fail),
                         contentDescription = null,
                     )
-                PaymentDialogIcon.LOADING -> MullvadCircularProgressIndicatorMedium()
+                PaymentDialogIcon.LOADING -> MullvadCircularProgressIndicatorLarge()
                 else -> {}
             }
         },

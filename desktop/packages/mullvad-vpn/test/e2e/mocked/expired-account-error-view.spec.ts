@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { colors } from '../../../src/renderer/lib/foundations';
-import { RoutePath } from '../../../src/renderer/lib/routes';
+import { colorTokens } from '../../../src/renderer/lib/foundations';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
+import { RoutePath } from '../../../src/shared/routes';
 import { getBackgroundColor } from '../utils';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
@@ -28,11 +28,11 @@ test('App should show Expired Account Error View', async () => {
   await expect(page.locator('text=Out of time')).toBeVisible();
   const buyMoreButton = page.locator('button:has-text("Buy more credit")');
   await expect(buyMoreButton).toBeVisible();
-  expect(await getBackgroundColor(buyMoreButton)).toBe(colors['--color-green']);
+  expect(await getBackgroundColor(buyMoreButton)).toBe(colorTokens.green);
 
   const redeemVoucherButton = page.locator('button:has-text("Redeem voucher")');
   await expect(redeemVoucherButton).toBeVisible();
-  expect(await getBackgroundColor(redeemVoucherButton)).toBe(colors['--color-green']);
+  expect(await getBackgroundColor(redeemVoucherButton)).toBe(colorTokens.green);
 });
 
 test('App should show out of time view after running out of time', async () => {

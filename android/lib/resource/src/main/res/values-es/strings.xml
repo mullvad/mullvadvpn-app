@@ -97,6 +97,7 @@
     <string name="created_x">Creado: %1$s</string>
     <string name="creating_new_account">Creando cuenta…</string>
     <string name="critical_error">Error crítico (precisa su atención)</string>
+    <string name="current_device">Dispositivo actual</string>
     <string name="current_method">Actual: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Deshabilite todos los «%1$s» de arriba para activar este ajuste.</string>
     <string name="custom_dns_footer">Active esta opción para agregar como mínimo un servidor DNS.</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s lo realiza añadiendo con cuidado ruido de red y haciendo que todos los paquetes de red tengan el mismo tamaño.</string>
     <string name="daita_description_slide_2_third_paragraph">No todos nuestros servidores están habilitados para %1$s. Por lo tanto, utilizamos el salto múltiple de forma automática para habilitar %1$s con cualquier servidor.</string>
     <string name="daita_info">Si habilita «%1$s», deberá seleccionar manualmente un servidor que esté habilitado para %2$s. Esto puede provocar que termine bloqueado hasta que seleccione un servidor compatible en la vista «Seleccionar ubicación».</string>
+    <string name="daita_multihop">%1$s: Salto múltiple</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">¿Eliminar «%1$s»?</string>
     <string name="delete_custom_list_message">Se ha eliminado «%1$s»</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">Ha quitado este dispositivo. Vuelva a iniciar la sesión para conectarse.</string>
     <string name="device_inactive_title">El dispositivo está inactivo</string>
     <string name="device_inactive_unblock_warning">Al iniciar la sesión, se desbloqueará el acceso a Internet en este dispositivo.</string>
+    <string name="device_ip_info_first_paragraph">Esta característica le permite elegir si utilizar solo IPv4 o solo IPv6, o permitir que la aplicación decida automáticamente la mejor opción al conectarse a un servidor.</string>
+    <string name="device_ip_info_second_paragraph">Puede resultar útil si sabe que una determinada versión de IP está causando problemas.</string>
     <string name="device_ip_version_title">Versión de IP del dispositivo</string>
     <string name="device_name">Nombre del dispositivo</string>
     <string name="device_name_info_first_paragraph">Este es el nombre asignado al dispositivo. Cada dispositivo conectado a una cuenta de Mullvad recibe un nombre único que ayuda a identificarlo cuando gestiona sus dispositivos en la aplicación o en el sitio web.</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">Importación a través de texto</string>
     <string name="invalid_dns_servers">Las direcciones del servidor DNS personalizado %1$s no son válidas</string>
     <string name="invalid_voucher">El código del cupón no es válido.</string>
+    <string name="ip_version_v4_unavailable">IPv4 no disponible. Intente cambiar el ajuste «Versión de IP del dispositivo».</string>
+    <string name="ip_version_v6_unavailable">IPv6 no disponible. Intente cambiar el ajuste «Versión de IP del dispositivo».</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">Cuando esta característica está habilitada, se puede usar IPv6 junto a IPv4 en el túnel VPN para comunicarse con los servicios de internet.</string>
@@ -230,6 +236,10 @@
     <string name="login_title">Iniciar sesión</string>
     <string name="malware_info">Advertencia: El bloqueador de malware no es un antivirus y no debe considerarse como tal, tan solo es un nivel de protección adicional.</string>
     <string name="manage_account">Administrar cuenta</string>
+    <string name="manage_devices">Gestionar dispositivos</string>
+    <string name="manage_devices_confirm_removal_description_line1">¿Quitar %1$s?</string>
+    <string name="manage_devices_confirm_removal_description_line2">El dispositivo se quitará de la lista y se cerrará la sesión en él.</string>
+    <string name="manage_devices_description">Vea y gestione todos los dispositivos con sesión iniciada. Puede tener hasta 5 dispositivos en una cuenta a la vez. Cada dispositivo recibe un nombre al iniciar sesión para ayudarle a distinguirlo fácilmente.</string>
     <string name="max_devices_confirm_removal_description">¿Seguro que quiere cerrar la sesión de &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Ya puede iniciar sesión en este dispositivo.</string>
     <string name="max_devices_resolved_title">¡Genial!</string>
@@ -305,7 +315,6 @@
     <string name="search">Buscar</string>
     <string name="search_location_empty_text">No hay resultados para «%1$s», intente una búsqueda diferente</string>
     <string name="search_placeholder">Buscar...</string>
-    <string name="search_query_empty">Escriba al menos 2 caracteres para iniciar la búsqueda.</string>
     <string name="select_location">Seleccionar ubicación</string>
     <string name="send">Enviar</string>
     <string name="send_anyway">Enviar de todos modos</string>
@@ -385,8 +394,10 @@
     <string name="voucher_is_account_number">Parece que ha introducido un número de cuenta en lugar de un código de cupón. Si desea cambiar la cuenta activa, cierre primero la sesión.</string>
     <string name="voucher_success_title">El cupón se canjeó correctamente.</string>
     <string name="vpn_permission_denied_error">Se ha denegado el permiso de VPN u otra aplicación tiene habilitada la opción «VPN siempre activa»</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">Se ha denegado el permiso de VPN</string>
     <string name="vpn_permission_error_notification_message">Pulse conectar para solicitar el permiso de VPN</string>
     <string name="vpn_permission_error_notification_title">Error en la autorización de la VPN</string>
+    <string name="vpn_settings_not_available">Configuración de VPN no disponible en el dispositivo</string>
     <string name="we_will_look_into_this">Revisaremos esto.</string>
     <string name="wg_port_subtitle">Establezca la ofuscación de %1$s en «Automática» o «Desactivada» a continuación para activar esta configuración.</string>
     <string name="wireguard_custon_port_title">Personalizado</string>
@@ -394,7 +405,9 @@
     <string name="wireguard_mtu_footer">Establezca el valor de MTU de WireGuard. Intervalo válido: %1$d-%2$d.</string>
     <string name="wireguard_port_info_description">El ajuste automático se elegirá al azar entre los rangos de puertos válidos que se muestran a continuación.</string>
     <string name="wireguard_port_info_port_range">El puerto personalizado pueder ser cualquier valor dentro de los rangos válidos: %1$s.</string>
+    <string name="wireguard_port_is_not_supported">No se admite el puerto de %1$s seleccionado. Cámbielo en</string>
     <string name="wireguard_port_title">Puerto de WireGuard</string>
+    <string name="wireguard_settings">configuración de %1$s.</string>
     <string name="x_entry">%1$s (Entrada)</string>
     <string name="x_exit">%1$s (Salida)</string>
     <string name="x_via_x">%1$s a través de %2$s</string>

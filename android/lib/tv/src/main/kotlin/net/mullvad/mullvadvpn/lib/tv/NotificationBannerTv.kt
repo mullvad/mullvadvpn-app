@@ -24,7 +24,9 @@ fun PreviewNotificationBannerTv() {
             onClickShowAccount = {},
             onClickShowChangelog = {},
             onClickDismissChangelog = {},
-        ) {}
+            onClickDismissNewDevice = {},
+            onClickShowWireguardPortSettings = {},
+        )
     }
 }
 
@@ -38,6 +40,7 @@ fun NotificationBannerTv(
     onClickShowChangelog: () -> Unit,
     onClickDismissChangelog: () -> Unit,
     onClickDismissNewDevice: () -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) {
     AnimatedNotificationBanner(
         modifier = modifier,
@@ -59,5 +62,6 @@ fun NotificationBannerTv(
         onClickShowChangelog = onClickShowChangelog,
         onClickDismissChangelog = onClickDismissChangelog,
         onClickDismissNewDevice = onClickDismissNewDevice,
+        onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
     )
 }

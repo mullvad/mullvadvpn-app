@@ -4,13 +4,12 @@ use std::{env, path::PathBuf};
 /// Creates and returns the cache directory pointed to by `MULLVAD_CACHE_DIR`, or the default
 /// one if that variable is unset.
 pub fn cache_dir() -> Result<PathBuf> {
-    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-    let permissions = None;
-    #[cfg(target_os = "macos")]
-    let permissions = Some(std::os::unix::fs::PermissionsExt::from_mode(0o755));
-    #[cfg(target_os = "windows")]
-    let permissions = true;
-    crate::create_and_return(get_cache_dir, permissions)
+    let permissions = Some(crate::UserPermissions {
+        read: true,
+        write: false,
+        execute: true,
+    });
+    crate::create_dir(get_cache_dir()?, permissions)
 }
 
 pub fn get_cache_dir() -> Result<PathBuf> {
@@ -28,7 +27,7 @@ pub fn get_default_cache_dir() -> Result<PathBuf> {
 
 #[cfg(windows)]
 pub fn get_default_cache_dir() -> Result<PathBuf> {
-    let dir = crate::get_allusersprofile_dir()?
+    let dir = crate::windows::get_allusersprofile_dir()?
         .join(crate::PRODUCT_NAME)
         .join("cache");
     Ok(dir)

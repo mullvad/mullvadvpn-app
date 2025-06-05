@@ -10,6 +10,9 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[features]
+boringtun = ["talpid-wireguard/boringtun"]
+
 [dependencies]
 chrono = { workspace = true, features = ["clock"] }
 thiserror = { workspace = true }
@@ -104,4 +107,5 @@ tonic-build = { workspace = true, default-features = false, features = ["transpo
 
 
 [dev-dependencies]
+test-log = "0.2.17"
 tokio = { workspace = true, features = ["io-util", "test-util", "time"] }

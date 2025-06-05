@@ -5,8 +5,9 @@ import { Icon, IconProps } from '../../icon';
 type LinkIconProps = IconProps;
 
 export const StyledIcon = styled(Icon)`
-  vertical-align: middle;
-  display: inline-flex;
+  vertical-align: text-bottom;
+  display: inline-block;
+  flex-shrink: 0;
 `;
 
 export function LinkIcon({ ...props }: LinkIconProps) {

@@ -280,6 +280,7 @@ class ConnectViewModelTest {
         runTest {
             // Arrange
             val mockErrorState: ErrorState = mockk()
+            every { mockErrorState.cause } returns mockk()
             val expectedConnectNotificationState =
                 InAppNotification.TunnelStateError(mockErrorState)
 

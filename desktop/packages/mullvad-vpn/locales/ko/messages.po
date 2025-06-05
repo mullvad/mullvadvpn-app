@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2025-04-11 07:48\n"
+"PO-Revision-Date: 2025-05-26 11:59\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -169,6 +169,7 @@ msgstr "보안 연결 실패"
 msgid "Filter"
 msgstr "필터"
 
+#. Button label for system settings.
 msgid "Go to System Settings"
 msgstr "시스템 설정으로 이동"
 
@@ -328,6 +329,13 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "계정 번호 %(accountNumber)s 삭제하기"
 
+#. Accessibility label for link to wireguard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to %(wireGuard)s settings."
+msgstr "%(wireGuard)s 설정으로 이동합니다."
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -369,6 +377,7 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "새 버전이 설치되었습니다. 변경 로그를 확인하려면 여기를 클릭하세요"
 
+#. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "외부에서 열립니다"
@@ -416,6 +425,7 @@ msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "현재 사용 가능"
 
+#. Button label for logging out.
 msgctxt "account-view"
 msgid "Log out"
 msgstr "로그아웃"
@@ -654,6 +664,14 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s(%(hostname)s)"
 
+#. This is used as a feature indicator to show that DAITA is enabled through
+#. multihop.
+#. Available placeholders:
+#. %(DAITA)s - Is a non-translatable feature "DAITA"
+msgctxt "connect-view"
+msgid "%(DAITA)s: Multihop"
+msgstr "%(DAITA)s: 멀티홉"
+
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "활성 기능"
@@ -666,6 +684,7 @@ msgctxt "connect-view"
 msgid "Connection details"
 msgstr "연결 세부 정보"
 
+#. Button label for disconnecting from the VPN.
 msgctxt "connect-view"
 msgid "Disconnect"
 msgstr "연결 끊기"
@@ -686,6 +705,7 @@ msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr "계정 번호는 다음과 같습니다. 저장하세요!"
 
+#. Button label for opening privacy information link.
 msgctxt "connect-view"
 msgid "Learn about privacy"
 msgstr "개인정보 보호에 대해 알아보기"
@@ -694,6 +714,7 @@ msgctxt "connect-view"
 msgid "Out of time"
 msgstr "시간 초과"
 
+#. Button label for navigating to the voucher redemption view.
 msgctxt "connect-view"
 msgid "Redeem voucher"
 msgstr "바우처 사용"
@@ -702,6 +723,7 @@ msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
 msgstr "이 기능을 끄면 고급 설정에서 다시 켤 때까지, VPN 연결이 끊어진 동안에 네트워크 트래픽이 허용됩니다."
 
+#. Button label for starting the app.
 msgctxt "connect-view"
 msgid "Start using the app"
 msgstr "앱 사용 시작"
@@ -814,6 +836,7 @@ msgctxt "device-management"
 msgid "Failed to remove device"
 msgstr "장치를 제거하지 못함"
 
+#. Button label for navigating to login.
 msgctxt "device-management"
 msgid "Go to login"
 msgstr "로그인하기"
@@ -850,7 +873,7 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "장치가 너무 많음"
 
-#. Confirmation button when logging out other device.
+#. Button label for confirming logout of another device.
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "예, 장치에서 로그아웃"
@@ -938,6 +961,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)s 지원이 종료됩니다. 위치를 전환하거나"
 
+#. Link in notication to go to WireGuard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "%(wireGuard)s settings."
+msgstr "%(wireGuard)s 설정."
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "계정 크레딧이 곧 만료됩니다"
@@ -1014,9 +1044,17 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "자세히 알아보기"
 
+#. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "문제 보고서 보내기"
+
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please change it under "
+msgstr "선택한 %(wireGuard)s 포트는 지원되지 않습니다. 다음에서 변경하세요: "
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1062,6 +1100,7 @@ msgctxt "launch-view"
 msgid "Restarting your computer."
 msgstr "컴퓨터를 다시 시작합니다."
 
+#. Button label for problem report view.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "문제 보고서 보내기"
@@ -1253,6 +1292,16 @@ msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "분할 터널링을 활성화하지 못했습니다. 다시 연결하거나 분할 터널링을 비활성화하세요."
 
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv4를 사용할 수 없습니다. <b>%(ipVersionFeatureName)</b> 설정을 변경해 보세요."
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv6를 사용할 수 없습니다. <b>%(ipVersionFeatureName)</b> 설정을 변경해 보세요."
+
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "잠금 모드 활성, 연결 차단"
@@ -1416,14 +1465,17 @@ msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr "전송 프로토콜"
 
+#. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr "취소"
 
+#. Input field label for voucher code.
 msgctxt "redeem-voucher-alert"
 msgid "Enter voucher code"
 msgstr "바우처 코드 입력"
 
+#. Button label for redeeming a voucher.
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
 msgstr "바우처 사용"
@@ -1432,6 +1484,7 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "오류가 발생했습니다."
 
+#. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
 msgstr "사용"
@@ -1688,6 +1741,7 @@ msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr "제외된 앱"
 
+#. Button label for browsing applications with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "다른 앱 찾기"
@@ -1696,6 +1750,7 @@ msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
 msgstr "이미 실행 중인 경우 여기에서 실행하기 전에 %(applicationName)s을(를) 닫으세요. 그렇지 않으면 VPN 터널에서 제외되지 않을 수 있습니다."
 
+#. Button label for launching an application with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "실행"
@@ -1734,10 +1789,12 @@ msgctxt "support-view"
 msgid "Beta program"
 msgstr "베타 프로그램"
 
+#. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "그래도 계속 사용"
 
+#. Button text to edit the message after a failed attempt to send the problem report.
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "메시지 편집"
@@ -1772,10 +1829,12 @@ msgctxt "support-view"
 msgid "Report a problem"
 msgstr "문제 신고"
 
+#. Button label for sending the problem report.
 msgctxt "support-view"
 msgid "Send"
 msgstr "전송"
 
+#. Button label for sending the problem report without an email address.
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr "그래도 전송"
@@ -1809,14 +1868,17 @@ msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "보다 효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다."
 
+#. Button label for retrying problem report submission after a failure.
 msgctxt "support-view"
 msgid "Try again"
 msgstr "다시 시도"
 
+#. Button label for upgrading the app to the latest version.
 msgctxt "support-view"
 msgid "Upgrade app"
 msgstr "앱 업그레이드"
 
+#. Button label for opening app logs.
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "앱 로그 보기"
@@ -1997,6 +2059,7 @@ msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "서버 추가"
 
+#. Button label to add a private IP DNS server despite warning.
 msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "추가"
@@ -2289,6 +2352,10 @@ msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr "양자 저항 터널"
 
+msgctxt "wireguard-settings-view"
+msgid "QUIC"
+msgstr "QUIC"
+
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2498,6 +2565,9 @@ msgstr "새 목록 생성"
 msgid "Critical error (your attention is required)"
 msgstr "심각한 오류(주의가 필요함)"
 
+msgid "Current device"
+msgstr "현재 장치"
+
 msgid "Current: %s"
 msgstr "현재: %s"
 
@@ -2603,6 +2673,12 @@ msgstr "Google Play 결제 보류 중"
 msgid "Google Play unavailable"
 msgstr "Google Play 사용 불가"
 
+msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv4를 사용할 수 없습니다. \"장치 IP 버전\" 설정을 변경해 보세요."
+
+msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv6를 사용할 수 없습니다. \"장치 IP 버전\" 설정을 변경해 보세요."
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "분할 터널링 기능을 사용하는 경우, 이 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 장치에서 전송되지 않습니다."
 
@@ -2620,6 +2696,9 @@ msgstr "터널 내 IPv6"
 
 msgid "Invalid or missing value \"%s\""
 msgstr "\"%s\"에 대해 유효하지 않거나 누락된 값"
+
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr "특정 IP 버전으로 인해 발생하는 문제를 알고 있는 경우 유용합니다."
 
 msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr "바우처 코드 대신 계정 번호를 입력한 것 같습니다. 활성 계정을 변경하려면 먼저 로그아웃하세요."
@@ -2641,6 +2720,9 @@ msgstr "장치가 항상 VPN 터널에 있어야 합니다."
 
 msgid "Manage account"
 msgstr "계정 관리"
+
+msgid "Manage devices"
+msgstr "장치 관리"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvad 서비스 사용 불가"
@@ -2717,6 +2799,9 @@ msgstr "제거"
 msgid "Remove %s from %s"
 msgstr "%s 제거(%s에서)"
 
+msgid "Remove %s?"
+msgstr "%s을(를) 제거하시겠습니까?"
+
 msgid "Remove custom port"
 msgstr "사용자 지정 포트 제거"
 
@@ -2780,14 +2865,20 @@ msgstr "잠금 모드는 Android 시스템 설정에서 \"VPN 없이 연결 차�
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"현재\" 방법은 앱이 API에 연결하기 위해 사용하는 방법을 나타냅니다."
 
+msgid "The device will be removed from the list and logged out."
+msgstr "장치가 목록에서 제거되고 로그아웃됩니다."
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "VPN 설정에서 \"로컬 네트워크 공유\"를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다."
+
+msgid "The selected %s port is not supported, please change it under"
+msgstr "선택한 %s 포트는 지원되지 않습니다. 다음에서 변경하세요:"
 
 msgid "This address has already been entered."
 msgstr "이 주소는 이미 입력되었습니다."
 
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr "이를 통해 IPv6만 지원하는 장치에서 WireGuard에 액세스할 수 있습니다."
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
+msgstr "이 기능을 사용하면 IPv4만 사용할지, IPv6만 사용할지, 서버 연결 시 앱이 자동으로 최적의 옵션을 결정하게 허용할지 선택할 수 있습니다."
 
 msgid "This field is required"
 msgstr "이 필드는 필수입니다"
@@ -2806,9 +2897,6 @@ msgstr "가장 안전한 버전인지 확인하고 현재 실행 중인 버전�
 
 msgid "Toggle VPN"
 msgstr "VPN 전환"
-
-msgid "Type at least 2 characters to start searching."
-msgstr "검색을 시작하려면 2자 이상 입력하세요."
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "방화벽 규칙을 적용할 수 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요."
@@ -2837,8 +2925,14 @@ msgstr "목록 이름 업데이트"
 msgid "Use method"
 msgstr "방법 사용"
 
+msgid "VPN Settings not available on device"
+msgstr "장치에서 VPN 설정을 사용할 수 없습니다"
+
 msgid "VPN permission error"
 msgstr "VPN 권한 오류"
+
+msgid "VPN permission was denied"
+msgstr "VPN 권한이 거부되었습니다"
 
 msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
 msgstr "VPN 권한이 거부되었거나 다른 앱에 \"상시 접속 VPN\"이 활성화되어 있을 수 있습니다"
@@ -2866,6 +2960,9 @@ msgstr "바우처 확인 중…"
 
 msgid "Version"
 msgstr "버전"
+
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "로그인된 모든 장치를 보고 관리하세요. 한 계정에서 최대 5대의 장치를 동시에 보유할 수 있습니다. 사용자가 쉽게 구분할 수 있도록 각 장치에는 로그인 시 이름이 부여됩니다."
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "구매를 현재 확인하는 중이므로 다소 시간이 걸릴 수 있습니다. 확인을 성공적으로 마치면 시간이 추가됩니다."

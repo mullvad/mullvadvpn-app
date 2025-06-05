@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2025-04-11 07:48\n"
+"PO-Revision-Date: 2025-05-26 11:59\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d tane daha..."
@@ -175,6 +175,7 @@ msgstr "GÜVENLİ BAĞLANTI OLUŞTURULAMADI"
 msgid "Filter"
 msgstr "Filtrele"
 
+#. Button label for system settings.
 msgid "Go to System Settings"
 msgstr "Sistem Ayarlarına Git"
 
@@ -334,6 +335,13 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "%(accountNumber)s hesap numarasını unut"
 
+#. Accessibility label for link to wireguard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to %(wireGuard)s settings."
+msgstr "%(wireGuard)s ayarlarına git."
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -375,6 +383,7 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "Yeni sürüm yüklendi, değişiklik günlüğünü görmek için buraya tıklayın"
 
+#. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "Harici bir tarayıcı penceresini açar"
@@ -422,6 +431,7 @@ msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "Şu an kullanılamıyor"
 
+#. Button label for logging out.
 msgctxt "account-view"
 msgid "Log out"
 msgstr "Oturumu kapat"
@@ -660,6 +670,14 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
+#. This is used as a feature indicator to show that DAITA is enabled through
+#. multihop.
+#. Available placeholders:
+#. %(DAITA)s - Is a non-translatable feature "DAITA"
+msgctxt "connect-view"
+msgid "%(DAITA)s: Multihop"
+msgstr "%(DAITA)s: Çoklu geçiş"
+
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "Aktif özellikler"
@@ -672,6 +690,7 @@ msgctxt "connect-view"
 msgid "Connection details"
 msgstr "Bağlantı ayrıntıları"
 
+#. Button label for disconnecting from the VPN.
 msgctxt "connect-view"
 msgid "Disconnect"
 msgstr "Bağlantıyı kes"
@@ -692,6 +711,7 @@ msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr "İşte hesap numaranız. Kaydedin!"
 
+#. Button label for opening privacy information link.
 msgctxt "connect-view"
 msgid "Learn about privacy"
 msgstr "Gizlilik hakkında bilgi edinin"
@@ -700,6 +720,7 @@ msgctxt "connect-view"
 msgid "Out of time"
 msgstr "Süre doldu"
 
+#. Button label for navigating to the voucher redemption view.
 msgctxt "connect-view"
 msgid "Redeem voucher"
 msgstr "Kuponu kullan"
@@ -708,6 +729,7 @@ msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
 msgstr "Devre dışı bırakmanın, Gelişmiş ayarlar altında tekrar etkinleştirene kadar VPN bağlantısını keserek ağ trafiğine izin verdiğini unutmayın."
 
+#. Button label for starting the app.
 msgctxt "connect-view"
 msgid "Start using the app"
 msgstr "Uygulamayı kullanmaya başlayın"
@@ -820,6 +842,7 @@ msgctxt "device-management"
 msgid "Failed to remove device"
 msgstr "Cihaz kaldırılamadı"
 
+#. Button label for navigating to login.
 msgctxt "device-management"
 msgid "Go to login"
 msgstr "Giriş sayfasına git"
@@ -856,7 +879,7 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "Cihaz sayısı çok fazla"
 
-#. Confirmation button when logging out other device.
+#. Button label for confirming logout of another device.
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "Evet, cihazdan çıkış yap"
@@ -944,6 +967,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)s desteği sona eriyor. Konumu değiştirin veya"
 
+#. Link in notication to go to WireGuard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "%(wireGuard)s settings."
+msgstr "%(wireGuard)s ayarları."
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "HESAP KREDİSİNİN SÜRESİ YAKINDA DOLACAK"
@@ -1020,9 +1050,17 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "Devamını oku"
 
+#. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "Hata raporu gönder"
+
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please change it under "
+msgstr "Seçilen %(wireGuard)s portu desteklenmiyor, lütfen portu değiştirin: "
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1068,6 +1106,7 @@ msgctxt "launch-view"
 msgid "Restarting your computer."
 msgstr "Bilgisayarınızı yeniden başlatma."
 
+#. Button label for problem report view.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "Hata raporu gönder"
@@ -1259,6 +1298,16 @@ msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "Bölünmüş tünelleme etkinleştirilemedi. Lütfen yeniden bağlanmayı deneyin veya bölünmüş tünellemeyi devre dışı bırakın."
 
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv4 mevcut değil, lütfen <b>%(ipVersionFeatureName)</b> ayarını değiştirmeyi deneyin."
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv6 mevcut değil, lütfen <b>%(ipVersionFeatureName)</b> ayarını değiştirmeyi deneyin."
+
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "Kilitleme modu etkin, bağlantı engellendi"
@@ -1422,14 +1471,17 @@ msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr "Taşıma protokolü"
 
+#. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr "İptal et"
 
+#. Input field label for voucher code.
 msgctxt "redeem-voucher-alert"
 msgid "Enter voucher code"
 msgstr "Kupon kodunu girin"
 
+#. Button label for redeeming a voucher.
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
 msgstr "Kuponu kullan"
@@ -1438,6 +1490,7 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "Bir hata oluştu."
 
+#. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
 msgstr "Kullan"
@@ -1694,6 +1747,7 @@ msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr "Hariç tutulan uygulamalar"
 
+#. Button label for browsing applications with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "Başka bir uygulama bul"
@@ -1702,6 +1756,7 @@ msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
 msgstr "Zaten çalışıyorsa, buradan başlatmadan önce %(applicationName)s uygulamasını kapatın. Aksi takdirde VPN tünelinin dışında tutulmayacaktır."
 
+#. Button label for launching an application with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "Başlat"
@@ -1740,10 +1795,12 @@ msgctxt "support-view"
 msgid "Beta program"
 msgstr "Beta program"
 
+#. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "Yine de devam et"
 
+#. Button text to edit the message after a failed attempt to send the problem report.
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "Mesajı düzenle"
@@ -1778,10 +1835,12 @@ msgctxt "support-view"
 msgid "Report a problem"
 msgstr "Bir sorun bildir"
 
+#. Button label for sending the problem report.
 msgctxt "support-view"
 msgid "Send"
 msgstr "Gönder"
 
+#. Button label for sending the problem report without an email address.
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr "Yine de gönder"
@@ -1815,14 +1874,17 @@ msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "Size daha etkili bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır."
 
+#. Button label for retrying problem report submission after a failure.
 msgctxt "support-view"
 msgid "Try again"
 msgstr "Tekrar dene"
 
+#. Button label for upgrading the app to the latest version.
 msgctxt "support-view"
 msgid "Upgrade app"
 msgstr "Uygulamayı yükselt"
 
+#. Button label for opening app logs.
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "Uygulama kayıtlarını görüntüle"
@@ -2003,6 +2065,7 @@ msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "Sunucu ekle"
 
+#. Button label to add a private IP DNS server despite warning.
 msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "Yine de ekle"
@@ -2295,6 +2358,10 @@ msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr "Kuantuma dayanıklı tünel"
 
+msgctxt "wireguard-settings-view"
+msgid "QUIC"
+msgstr "QUIC"
+
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2504,6 +2571,9 @@ msgstr "Yeni liste oluştur"
 msgid "Critical error (your attention is required)"
 msgstr "Kritik hata (Lütfen dikkatli olun)"
 
+msgid "Current device"
+msgstr "Mevcut cihaz"
+
 msgid "Current: %s"
 msgstr "Geçerli: %s"
 
@@ -2609,6 +2679,12 @@ msgstr "Google Play ödemesi bekleniyor"
 msgid "Google Play unavailable"
 msgstr "Google Play kullanılamıyor"
 
+msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv4 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin."
+
+msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv6 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin."
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü tüm uygulamaların bir listesi için sisteminizi sorgular. Bu liste yalnızca bölünmüş tünelleme görünümünde alınır. Yüklü uygulamaların listesi hiçbir zaman cihazdan gönderilmez."
 
@@ -2626,6 +2702,9 @@ msgstr "Tünel içi IPv6"
 
 msgid "Invalid or missing value \"%s\""
 msgstr "Geçersiz veya eksik \"%s\" değeri"
+
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr "Bu, belirli bir IP sürümünün neden olduğu sorunların farkında olduğunuzda faydalı olabilir."
 
 msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr "Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın."
@@ -2647,6 +2726,9 @@ msgstr "Cihazın her zaman VPN tünelinde olduğundan emin olun."
 
 msgid "Manage account"
 msgstr "Hesabı yönet"
+
+msgid "Manage devices"
+msgstr "Cihazları yönet"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvad hizmetleri kullanılamıyor"
@@ -2723,6 +2805,9 @@ msgstr "Kaldır"
 msgid "Remove %s from %s"
 msgstr "%s, %s listesinden kaldırıldı"
 
+msgid "Remove %s?"
+msgstr "%s kaldırılsın mı?"
+
 msgid "Remove custom port"
 msgstr "Özel portu kaldır"
 
@@ -2786,14 +2871,20 @@ msgstr "Android sistem ayarlarında \"Kilitleme modu VPN üzerinden olmayan bağ
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"Geçerli\" yöntem, uygulamanın API'ye ulaşmak için kullandığı yöntemi temsil eder."
 
+msgid "The device will be removed from the list and logged out."
+msgstr "Cihaz listeden kaldırılacak ve oturum kapatılacak."
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "VPN ayarlarındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu etkinleşmez."
+
+msgid "The selected %s port is not supported, please change it under"
+msgstr "Seçilen %s portu desteklenmiyor, lütfen portu değiştirin:"
 
 msgid "This address has already been entered."
 msgstr "Bu adres zaten girilmiş."
 
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr "Bu, sadece IPv6'yı destekleyen cihazlar için WireGuard'a erişim izni sağlar."
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
+msgstr "Bu özellik, yalnızca IPv4 veya IPv6 kullanmayı seçmenize ya da uygulamanın sunucuya bağlanırken en uygun seçeneği otomatik olarak belirlemesine olanak tanır."
 
 msgid "This field is required"
 msgstr "Bu alan gereklidir"
@@ -2812,9 +2903,6 @@ msgstr "Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalı�
 
 msgid "Toggle VPN"
 msgstr "VPN'i aç/kapat"
-
-msgid "Type at least 2 characters to start searching."
-msgstr "Arama yapmak için en az 2 karakter girin."
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Güvenlik duvarı kuralları uygulanamıyor. Lütfen sorunu çözmeye çalışın veya bir hata raporu gönderin."
@@ -2843,8 +2931,14 @@ msgstr "Liste adını güncelle"
 msgid "Use method"
 msgstr "Yöntemi kullan"
 
+msgid "VPN Settings not available on device"
+msgstr "Cihazda VPN Ayarları mevcut değil"
+
 msgid "VPN permission error"
 msgstr "VPN izin hatası"
+
+msgid "VPN permission was denied"
+msgstr "VPN izni reddedildi"
 
 msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
 msgstr "VPN izni reddedildi veya başka bir uygulamada \"VPN her zaman açık\" seçeneği etkinleştirildi"
@@ -2872,6 +2966,9 @@ msgstr "Kupon doğrulanıyor…"
 
 msgid "Version"
 msgstr "Sürüm"
+
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "Oturum açtığınız tüm cihazlarınızı görüntüleyin ve yönetin. Bir hesapta aynı anda en fazla 5 cihaz bulunabilir. Kolayca ayırt edebilmeniz için her cihaza giriş sırasında bir ad atanır."
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Şu anda satın alma işleminizi doğruluyoruz. Bu işlem biraz zaman alabilir. Süreniz, doğrulama işleminin başarılı olması durumunda eklenecektir."

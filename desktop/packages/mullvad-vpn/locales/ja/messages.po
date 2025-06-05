@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2025-04-11 07:48\n"
+"PO-Revision-Date: 2025-05-26 11:59\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -169,6 +169,7 @@ msgstr "セキュリティ保護接続を確立できませんでした"
 msgid "Filter"
 msgstr "絞り込み"
 
+#. Button label for system settings.
 msgid "Go to System Settings"
 msgstr "システム設定に移動"
 
@@ -328,6 +329,13 @@ msgctxt "accessibility"
 msgid "Forget account number %(accountNumber)s"
 msgstr "アカウント番号 %(accountNumber)s との連携を解除します"
 
+#. Accessibility label for link to wireguard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to %(wireGuard)s settings."
+msgstr "%(wireGuard)s設定に移動します。"
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -369,6 +377,7 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr "新バージョンがインストールされました。ここをクリックすると変更履歴を確認できます"
 
+#. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr "外部ブラウザで開く"
@@ -416,6 +425,7 @@ msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr "現在使用不可"
 
+#. Button label for logging out.
 msgctxt "account-view"
 msgid "Log out"
 msgstr "ログアウト"
@@ -654,6 +664,14 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
+#. This is used as a feature indicator to show that DAITA is enabled through
+#. multihop.
+#. Available placeholders:
+#. %(DAITA)s - Is a non-translatable feature "DAITA"
+msgctxt "connect-view"
+msgid "%(DAITA)s: Multihop"
+msgstr "%(DAITA)s: マルチホップ"
+
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "有効な機能"
@@ -666,6 +684,7 @@ msgctxt "connect-view"
 msgid "Connection details"
 msgstr "接続の詳細"
 
+#. Button label for disconnecting from the VPN.
 msgctxt "connect-view"
 msgid "Disconnect"
 msgstr "接続解除"
@@ -686,6 +705,7 @@ msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr "これがあなたのアカウント番号です。保存してください！"
 
+#. Button label for opening privacy information link.
 msgctxt "connect-view"
 msgid "Learn about privacy"
 msgstr "プライバシーに関する詳細"
@@ -694,6 +714,7 @@ msgctxt "connect-view"
 msgid "Out of time"
 msgstr "時間切れ"
 
+#. Button label for navigating to the voucher redemption view.
 msgctxt "connect-view"
 msgid "Redeem voucher"
 msgstr "バウチャーを使用する"
@@ -702,6 +723,7 @@ msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
 msgstr "この設定をオフにすると、\"詳細\" 設定で再びオンに戻すまで、VPN接続が解除されている間もネットワーク通信が許可されます。"
 
+#. Button label for starting the app.
 msgctxt "connect-view"
 msgid "Start using the app"
 msgstr "アプリの使用を開始"
@@ -814,6 +836,7 @@ msgctxt "device-management"
 msgid "Failed to remove device"
 msgstr "デバイスを削除できませんでした"
 
+#. Button label for navigating to login.
 msgctxt "device-management"
 msgid "Go to login"
 msgstr "ログインに進む"
@@ -850,7 +873,7 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr "デバイスが多すぎます"
 
-#. Confirmation button when logging out other device.
+#. Button label for confirming logout of another device.
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "はい。デバイスをログアウトさせます"
@@ -938,6 +961,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)sのサポートが終了します。場所を切り替えるか、"
 
+#. Link in notication to go to WireGuard settings.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "%(wireGuard)s settings."
+msgstr "%(wireGuard)s設定で変更してください。"
+
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "アカウントのクレジットがもうすぐ無効になります。"
@@ -1014,9 +1044,17 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "続きを読む"
 
+#. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "問題の報告を送信"
+
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please change it under "
+msgstr "選択した%(wireGuard)sポートには対応していません。"
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1062,6 +1100,7 @@ msgctxt "launch-view"
 msgid "Restarting your computer."
 msgstr "コンピューターを再起動する。"
 
+#. Button label for problem report view.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "問題の報告を送信"
@@ -1253,6 +1292,16 @@ msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "スプリットトンネリングを有効化できませんでした。もう一度接続するか、スプリットトンネリングを無効化してください。"
 
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv4は利用できません。<b>%(ipVersionFeatureName)</b>の設定を変更してみてください。"
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
+msgstr "IPv6は利用できません。<b>%(ipVersionFeatureName)</b>の設定を変更してみてください。"
+
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr "ロックダウンモードがアクティブです。接続はブロックされています"
@@ -1416,14 +1465,17 @@ msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr "転送プロトコル"
 
+#. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr "キャンセル"
 
+#. Input field label for voucher code.
 msgctxt "redeem-voucher-alert"
 msgid "Enter voucher code"
 msgstr "バウチャーコードを入力"
 
+#. Button label for redeeming a voucher.
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
 msgstr "バウチャーを使用する"
@@ -1432,6 +1484,7 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr "エラー発生。"
 
+#. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
 msgstr "使用する"
@@ -1688,6 +1741,7 @@ msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr "除外対象アプリ"
 
+#. Button label for browsing applications with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr "その他のアプリを探す"
@@ -1696,6 +1750,7 @@ msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
 msgstr "すでに実行中の場合は、ここから起動する前に %(applicationName)sを閉じてください。そうしないと、VPNトンネルから除外されない可能性があります。"
 
+#. Button label for launching an application with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "起動する"
@@ -1734,10 +1789,12 @@ msgctxt "support-view"
 msgid "Beta program"
 msgstr "ベータプログラム"
 
+#. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "それでも続ける"
 
+#. Button text to edit the message after a failed attempt to send the problem report.
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "メッセージを編集する"
@@ -1772,10 +1829,12 @@ msgctxt "support-view"
 msgid "Report a problem"
 msgstr "問題を報告する"
 
+#. Button label for sending the problem report.
 msgctxt "support-view"
 msgid "Send"
 msgstr "送信"
 
+#. Button label for sending the problem report without an email address.
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr "とにかく送信する"
@@ -1809,14 +1868,17 @@ msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr "さらに効率よく問題解決できるよう、お使いのアプリのログファイルがこのメッセージに添付されます。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全は確保され、公開されることはありません。"
 
+#. Button label for retrying problem report submission after a failure.
 msgctxt "support-view"
 msgid "Try again"
 msgstr "再試行"
 
+#. Button label for upgrading the app to the latest version.
 msgctxt "support-view"
 msgid "Upgrade app"
 msgstr "アプリを更新する"
 
+#. Button label for opening app logs.
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "アプリのログを表示"
@@ -1997,6 +2059,7 @@ msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr "サーバーを追加"
 
+#. Button label to add a private IP DNS server despite warning.
 msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr "追加を続ける"
@@ -2289,6 +2352,10 @@ msgctxt "wireguard-settings-view"
 msgid "Quantum-resistant tunnel"
 msgstr "耐量子トンネル"
 
+msgctxt "wireguard-settings-view"
+msgid "QUIC"
+msgstr "QUIC"
+
 #. The hint displayed below the WireGuard MTU input field.
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2498,6 +2565,9 @@ msgstr "リストの新規作成"
 msgid "Critical error (your attention is required)"
 msgstr "重大なエラー (ご注意ください)"
 
+msgid "Current device"
+msgstr "現在のデバイス"
+
 msgid "Current: %s"
 msgstr "現在の設定: %s"
 
@@ -2603,6 +2673,12 @@ msgstr "Google Playの決済は未完了です"
 msgid "Google Play unavailable"
 msgstr "Google Playを使用できません"
 
+msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv4は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。"
+
+msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
+msgstr "IPv6は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。"
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "スプリットトンネリング機能が使用されている場合、アプリはシステムにインストール済みの全アプリケーションのリストを照会します。このリストはスプリットトンネリングビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。"
 
@@ -2620,6 +2696,9 @@ msgstr "トンネル内のIPv6"
 
 msgid "Invalid or missing value \"%s\""
 msgstr "値 \"%s\" は無効であるか、または見つかりません"
+
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr "特定のIPバージョンが問題の原因であることが分かっている場合に役立つ場合があります。"
 
 msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr "バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。"
@@ -2641,6 +2720,9 @@ msgstr "デバイスが必ずVPNトンネルを使用するようにします。
 
 msgid "Manage account"
 msgstr "アカウントを管理する"
+
+msgid "Manage devices"
+msgstr "デバイスを管理する"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvadサービスを使用できません"
@@ -2717,6 +2799,9 @@ msgstr "削除"
 msgid "Remove %s from %s"
 msgstr "%sを%sから削除する"
 
+msgid "Remove %s?"
+msgstr "%sを削除しますか？"
+
 msgid "Remove custom port"
 msgstr "カスタムポートを削除"
 
@@ -2780,14 +2865,20 @@ msgstr "このロックダウンモードは、Androidのシステム設定で�
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"現在の設定\" の方法は、アプリが API に到達するために使用する方法を指しています。"
 
+msgid "The device will be removed from the list and logged out."
+msgstr "リストからデバイスが削除され、ログアウトされます。"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "VPN設定で [ローカルネットワーク共有] を有効にしない限り、ローカルDNSサーバーは機能しません。"
+
+msgid "The selected %s port is not supported, please change it under"
+msgstr "選択した%sポートには対応していません。"
 
 msgid "This address has already been entered."
 msgstr "このアドレスは入力済みです。"
 
-msgid "This allows access to WireGuard for devices that only support IPv6."
-msgstr "これにより、IPv6のみをサポートするデバイスでもWireGuardにアクセスできるようになります。"
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
+msgstr "この機能では、サーバーに接続する際にIPv4のみを使用するか、IPv6のみを使用するか、最適なオプションをアプリに自動選択させるかを選択できます。"
 
 msgid "This field is required"
 msgstr "このフィールドは必須です"
@@ -2806,9 +2897,6 @@ msgstr "このアプリは最も安全なバージョンを使用しているこ
 
 msgid "Toggle VPN"
 msgstr "VPNの切り替え"
-
-msgid "Type at least 2 characters to start searching."
-msgstr "検索を開始するには2文字以上を入力してください。"
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "ファイアウォールのルールを適用できません。問題に対処するか、問題の報告を送信してください。"
@@ -2837,8 +2925,14 @@ msgstr "リスト名の更新"
 msgid "Use method"
 msgstr "この方法を使用する"
 
+msgid "VPN Settings not available on device"
+msgstr "デバイスのVPN設定を利用できません"
+
 msgid "VPN permission error"
 msgstr "VPN許可エラー"
+
+msgid "VPN permission was denied"
+msgstr "VPNへアクセスする許可がありません"
 
 msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
 msgstr "VPNへのアクセス許可が拒否されたか、別のアプリで「Always-on VPN」が有効になっています"
@@ -2866,6 +2960,9 @@ msgstr "バウチャーを確認中…"
 
 msgid "Version"
 msgstr "バージョン"
+
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "ログイン中のすべてのデバイスを表示・管理します。1つのアカウントで最大5台のデバイスを同時に利用できます。各デバイスは識別しやすくするため、ログイン時に名前が付けられます。"
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "購入を確認中です。これにはしばらく時間がかかる場合があります。正常に確認されると、この時間が追加されます。"

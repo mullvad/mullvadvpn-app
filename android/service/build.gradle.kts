@@ -1,5 +1,3 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -8,13 +6,12 @@ plugins {
 
 android {
     namespace = "net.mullvad.mullvadvpn.service"
-    compileSdk = Versions.compileSdkVersion
-    buildToolsVersion = Versions.buildToolsVersion
+    compileSdk = libs.versions.compile.sdk.get().toInt()
+    buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig {
-        minSdk = Versions.minSdkVersion
-        val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
-        val shouldRequireBundleRelayFile = isReleaseBuild() && !isDevBuild(localProperties)
+        minSdk = libs.versions.min.sdk.get().toInt()
+        val shouldRequireBundleRelayFile = isReleaseBuild() && !isDevBuild()
         buildConfigField(
             "Boolean",
             "REQUIRE_BUNDLED_RELAY_FILE",
@@ -28,7 +25,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = Versions.jvmTarget
+        jvmTarget = libs.versions.jvm.target.get()
         allWarningsAsErrors = true
     }
 
@@ -49,14 +46,17 @@ android {
             isDefault = true
             // Not used for production builds.
             buildConfigField("String", "API_ENDPOINT", "\"\"")
+            buildConfigField("String", "API_IP", "\"\"")
         }
         create(Flavors.DEVMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             buildConfigField("String", "API_ENDPOINT", "\"api-app.devmole.eu\"")
+            buildConfigField("String", "API_IP", "\"185.217.116.4\"")
         }
         create(Flavors.STAGEMOLE) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             buildConfigField("String", "API_ENDPOINT", "\"api-app.stagemole.eu\"")
+            buildConfigField("String", "API_IP", "\"185.217.116.132\"")
         }
     }
 

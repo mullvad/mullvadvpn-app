@@ -73,7 +73,10 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -82,7 +85,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewSelectLocationScreen(
     @PreviewParameter(SelectLocationsUiStatePreviewParameterProvider::class)
-    state: SelectLocationUiState
+    state: Lc<Unit, SelectLocationUiState>
 ) {
     AppTheme {
         SelectLocationScreen(
@@ -227,7 +230,7 @@ fun SelectLocation(
 @Suppress("LongMethod", "LongParameterList")
 @Composable
 fun SelectLocationScreen(
-    state: SelectLocationUiState,
+    state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectRelay: (item: RelayItem) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
@@ -261,23 +264,29 @@ fun SelectLocationScreen(
         modifier = Modifier.testTag(SELECT_LOCATION_SCREEN_TEST_TAG),
         snackbarHostState = snackbarHostState,
         actions = {
+            val isSearchButtonEnabled = state.contentOrNull()?.isSearchButtonEnabled == true
             IconButton(
-                enabled = state is SelectLocationUiState.Data,
-                onClick = {
-                    if (state is SelectLocationUiState.Data) onSearchClick(state.relayListType)
-                },
+                enabled = isSearchButtonEnabled,
+                onClick = { state.contentOrNull()?.let { onSearchClick(it.relayListType) } },
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = stringResource(id = R.string.search),
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint =
+                        MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = if (isSearchButtonEnabled) AlphaVisible else AlphaDisabled
+                        ),
                 )
             }
-            IconButton(enabled = state is SelectLocationUiState.Data, onClick = onFilterClick) {
+            val isFilterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
+            IconButton(enabled = isFilterButtonEnabled, onClick = onFilterClick) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
                     contentDescription = stringResource(id = R.string.filter),
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint =
+                        MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = if (isFilterButtonEnabled) AlphaVisible else AlphaDisabled
+                        ),
                 )
             }
         },
@@ -299,21 +308,26 @@ fun SelectLocationScreen(
             modifier = modifier.background(backgroundColor).fillMaxSize(),
             verticalArrangement =
                 when (state) {
-                    SelectLocationUiState.Loading -> Arrangement.Center
-                    is SelectLocationUiState.Data -> Arrangement.Top
+                    is Lc.Loading -> Arrangement.Center
+                    is Lc.Content -> Arrangement.Top
                 },
         ) {
             when (state) {
-                SelectLocationUiState.Loading -> {
+                is Lc.Loading -> {
                     Loading()
                 }
-                is SelectLocationUiState.Data -> {
+                is Lc.Content -> {
+                    if (state.value.multihopEnabled) {
+                        MultihopBar(state.value.relayListType, onSelectRelayList)
+                    }
+
                     AnimatedContent(
-                        targetState = state.filterChips,
+                        targetState = state.value.filterChips,
                         label = "Select location top bar",
                     ) { filterChips ->
                         if (filterChips.isNotEmpty()) {
                             FilterRow(
+                                modifier = Modifier.padding(bottom = Dimens.smallPadding),
                                 filters = filterChips,
                                 onRemoveOwnershipFilter = removeOwnershipFilter,
                                 onRemoveProviderFilter = removeProviderFilter,
@@ -321,16 +335,12 @@ fun SelectLocationScreen(
                         }
                     }
 
-                    if (state.multihopEnabled) {
-                        MultihopBar(state.relayListType, onSelectRelayList)
-                    }
-
-                    if (state.filterChips.isNotEmpty() || state.multihopEnabled) {
-                        Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
+                    if (state.value.multihopEnabled && state.value.filterChips.isEmpty()) {
+                        Spacer(modifier = Modifier.height(Dimens.smallPadding))
                     }
 
                     RelayLists(
-                        state = state,
+                        state = state.value,
                         backgroundColor = backgroundColor,
                         onSelectRelay = onSelectRelay,
                         openDaitaSettings = openDaitaSettings,
@@ -348,7 +358,12 @@ fun SelectLocationScreen(
 private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayListType) -> Unit) {
     SingleChoiceSegmentedButtonRow(
         modifier =
-            Modifier.fillMaxWidth().padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
+            Modifier.fillMaxWidth()
+                .padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    bottom = Dimens.smallPadding,
+                )
     ) {
         MullvadSegmentedStartButton(
             selected = relayListType == RelayListType.ENTRY,
@@ -365,7 +380,7 @@ private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayL
 
 @Composable
 private fun RelayLists(
-    state: SelectLocationUiState.Data,
+    state: SelectLocationUiState,
     backgroundColor: Color,
     onSelectRelay: (RelayItem) -> Unit,
     openDaitaSettings: () -> Unit,

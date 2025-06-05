@@ -97,6 +97,7 @@
     <string name="created_x">Gemaakt: %1$s</string>
     <string name="creating_new_account">Account aanmaken...</string>
     <string name="critical_error">Kritieke fout (uw aandacht is vereist)</string>
+    <string name="current_device">Huidig apparaat</string>
     <string name="current_method">Huidig: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Schakel alle \"%1$s\" hierboven uit om deze instelling te activeren.</string>
     <string name="custom_dns_footer">Schakel in om minimaal één DNS-server toe te voegen.</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s doet dit door zorgvuldig netwerkruis toe te voegen en alle netwerkpakketten even groot te maken.</string>
     <string name="daita_description_slide_2_third_paragraph">Niet al onze servers zijn geschikt voor %1$s. Daarom gebruiken we automatisch multihop om %1$s in te schakelen bij elke server.</string>
     <string name="daita_info">Als u \"%1$s\" inschakelt, moet u handmatig een server selecteren die %2$s ondersteunt. Hierdoor kunt u in een geblokkeerde toestand terechtkomen totdat u een compatibele server hebt geselecteerd in het dialoogvenster \"Locatie selecteren\".</string>
+    <string name="daita_multihop">%1$s: multihop</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" verwijderen?</string>
     <string name="delete_custom_list_message">\"%1$s\" is verwijderd</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">U hebt dit apparaat verwijderd. U moet zich opnieuw aanmelden om het opnieuw te verbinden.</string>
     <string name="device_inactive_title">Apparaat is niet actief</string>
     <string name="device_inactive_unblock_warning">Als u naar aanmelden gaat, wordt het blokkeren van internet op dit apparaat opgeheven.</string>
+    <string name="device_ip_info_first_paragraph">Met deze functie kunt u kiezen om alleen IPv4 of alleen IPv6 te gebruiken, of om de app automatisch de beste optie te laten kiezen als er verbinding met een server wordt gemaakt.</string>
+    <string name="device_ip_info_second_paragraph">Het kan handig zijn als u weet dat een bepaalde IP-versie problemen veroorzaakt.</string>
     <string name="device_ip_version_title">IP-versie apparaat</string>
     <string name="device_name">Apparaatnaam</string>
     <string name="device_name_info_first_paragraph">Dit is de naam die aan het apparaat is toegewezen. Elk apparaat dat is aangemeld op een Mullvad-account, krijgt een unieke naam waarmee u het kunt identificeren wanneer u uw apparaten beheert in de app of op de website.</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">Importeren via tekst</string>
     <string name="invalid_dns_servers">Aangepaste DNS-serveradressen %1$s zijn ongeldig</string>
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
+    <string name="ip_version_v4_unavailable">IPv4 is niet beschikbaar. Probeer de instelling \"IP-versie apparaat\" te wijzigen.</string>
+    <string name="ip_version_v6_unavailable">IPv6 is niet beschikbaar. Probeer de instelling \"IP-versie apparaat\" te wijzigen.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">Als deze functie is ingeschakeld, kan IPv6 naast IPv4 worden gebruikt in de VPN-tunnel om te communiceren met internetdiensten.</string>
@@ -230,6 +236,10 @@
     <string name="login_title">Aanmelden</string>
     <string name="malware_info">Waarschuwing: de malwareblocker is geen antivirus en mag niet als zodanig behandeld worden. Dit is slechts een extra beschermingslaag.</string>
     <string name="manage_account">Account beheren</string>
+    <string name="manage_devices">Apparaten beheren</string>
+    <string name="manage_devices_confirm_removal_description_line1">%1$s verwijderen?</string>
+    <string name="manage_devices_confirm_removal_description_line2">Het apparaat wordt uit de lijst verwijderd en wordt uitgelogd.</string>
+    <string name="manage_devices_description">Bekijk en beheer al uw ingelogde apparaten. U kunt per account maximaal 5 apparaten tegelijkertijd hebben. Elk apparaat krijgt een naam bij het inloggen, zodat u ze eenvoudig uit elkaar kunt houden.</string>
     <string name="max_devices_confirm_removal_description">Weet u zeker dat u &lt;b&gt;%1$s&lt;/b&gt; wilt afmelden?</string>
     <string name="max_devices_resolved_description">U kunt nu doorgaan met het aanmelden bij dit apparaat.</string>
     <string name="max_devices_resolved_title">Super!</string>
@@ -305,7 +315,6 @@
     <string name="search">Zoeken</string>
     <string name="search_location_empty_text">Geen resultaat voor \"%1$s\", probeer een andere zoekopdracht</string>
     <string name="search_placeholder">Zoeken naar...</string>
-    <string name="search_query_empty">Voer minimaal 2 tekens in om te beginnen met zoeken.</string>
     <string name="select_location">Locatie selecteren</string>
     <string name="send">Verzenden</string>
     <string name="send_anyway">Toch verzenden</string>
@@ -385,8 +394,10 @@
     <string name="voucher_is_account_number">Het lijkt erop dat u een accountnummer hebt ingevoerd in plaats van een vouchercode. Als u het actieve account wilt wijzigen, meld u dan eerst af.</string>
     <string name="voucher_success_title">Voucher is ingewisseld.</string>
     <string name="vpn_permission_denied_error">VPN-toegang is geweigerd of \"VPN altijd aan\" is geactiveerd in een andere app</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">VPN-toestemming is geweigerd</string>
     <string name="vpn_permission_error_notification_message">Druk op Verbinding maken om VPN-toestemming te verzoeken</string>
     <string name="vpn_permission_error_notification_title">VPN-machtigingsfout</string>
+    <string name="vpn_settings_not_available">VPN-instellingen niet beschikbaar op apparaat</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
     <string name="wg_port_subtitle">Stel %1$s-obfuscatie hieronder in op \"Automatisch\" of \"Uit\" om deze instelling te activeren.</string>
     <string name="wireguard_custon_port_title">Aangepast</string>
@@ -394,7 +405,9 @@
     <string name="wireguard_mtu_footer">Stel de MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Bij de automatische instelling wordt willekeurig gekozen uit de hieronder weergegeven geldige poortbereiken.</string>
     <string name="wireguard_port_info_port_range">De aangepaste poort kan elke waarde zijn binnen de geldige bereiken: %1$s.</string>
+    <string name="wireguard_port_is_not_supported">De geselecteerde %1$s-poort wordt niet ondersteund. Wijzig de poort in de</string>
     <string name="wireguard_port_title">WireGuard-poort</string>
+    <string name="wireguard_settings">%1$s-instellingen.</string>
     <string name="x_entry">%1$s (ingang)</string>
     <string name="x_exit">%1$s (uitgang)</string>
     <string name="x_via_x">%1$s via %2$s</string>

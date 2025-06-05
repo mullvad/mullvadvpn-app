@@ -49,6 +49,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -151,6 +152,7 @@ private fun PreviewAccountScreen(
         ConnectScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
+            {},
             {},
             {},
             {},
@@ -304,12 +306,15 @@ fun Connect(
                 dropUnlessResumed { feature: FeatureIndicator ->
                     navigator.navigate(feature.destination())
                 },
+            onClickShowWireguardPortSettings =
+                dropUnlessResumed { navigator.navigate(VpnSettingsDestination()) },
         )
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
+@Suppress("LongParameterList")
 fun ConnectScreen(
     state: ConnectUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -326,6 +331,7 @@ fun ConnectScreen(
     onAccountClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) {
     val contentFocusRequester = remember { FocusRequester() }
 
@@ -346,6 +352,7 @@ fun ConnectScreen(
                 onDismissChangelogClick,
                 onDismissNewDeviceClick,
                 onNavigateToFeature,
+                onClickShowWireguardPortSettings,
             )
         }
 
@@ -384,6 +391,7 @@ fun ConnectScreen(
 }
 
 @Composable
+@Suppress("LongParameterList")
 private fun Content(
     focusRequester: FocusRequester,
     paddingValues: PaddingValues,
@@ -399,8 +407,11 @@ private fun Content(
     onDismissChangelogClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) {
-    val screenHeight = LocalWindowInfo.current.containerSize.height.dp
+    val screenHeight =
+        with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
+
     val indicatorPercentOffset =
         if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
         else TALL_SCREEN_INDICATOR_BIAS
@@ -446,6 +457,7 @@ private fun Content(
                 onClickShowChangelog = onChangelogClick,
                 onClickDismissChangelog = onDismissChangelogClick,
                 onClickDismissNewDevice = onDismissNewDeviceClick,
+                onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
             )
             ConnectionCard(
                 state = state,
@@ -690,14 +702,9 @@ private fun ButtonPanel(
             action.invoke()
         }
     }
-    Column(modifier = Modifier.padding(vertical = Dimens.tinyPadding)) {
+    Column(modifier = Modifier.padding(top = Dimens.tinyPadding)) {
         SwitchLocationButton(
-            text =
-                if (state.selectedRelayItemTitle != null) {
-                    state.selectedRelayItemTitle
-                } else {
-                    stringResource(id = R.string.switch_location)
-                },
+            text = state.selectedRelayItemTitle ?: stringResource(id = R.string.switch_location),
             onSwitchLocation = onSwitchLocationClick,
             reconnectClick = {
                 handleThrottledAction {
@@ -713,7 +720,7 @@ private fun ButtonPanel(
                     .focusRequester(selectButtonFocusRequester),
             reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG,
         )
-        Spacer(Modifier.height(Dimens.buttonVerticalPadding))
+        Spacer(Modifier.height(Dimens.buttonSpacing))
 
         ConnectionButton(
             modifier = Modifier.fillMaxWidth().testTag(CONNECT_BUTTON_TEST_TAG),

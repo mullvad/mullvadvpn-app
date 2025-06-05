@@ -34,6 +34,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install libdbus-1-dev
 
+      - name: Install Rust components
+        shell: bash
+        run: rustup component add clippy
+
       - name: Clippy check
         working-directory: test
         shell: bash
@@ -54,6 +58,10 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Rust components
+        shell: bash
+        run: rustup component add clippy
 
       - name: Clippy check
         working-directory: test

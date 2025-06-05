@@ -20,7 +20,7 @@ const INCLUDE_LOG_FILE_EXT: &str = "log";
 /// Ignore log files that contain ".old"
 const EXCLUDE_LOG_FILE_CONTAIN: &str = ".old";
 /// Maximum number of lines that each log file may contain
-const TRUNCATE_LOG_FILE_LINES: usize = 100;
+const TRUNCATE_LOG_FILE_LINES: usize = 200;
 
 pub static LOGGER: LazyLock<StdOutBuffer> = LazyLock::new(|| {
     let (sender, listener) = channel(MAX_OUTPUT_BUFFER);
@@ -135,7 +135,9 @@ async fn read_truncated<T: AsRef<Path>>(
         output.push(line);
     }
     if let Some(max_number_of_lines) = truncate_lines {
-        output.truncate(max_number_of_lines);
+        if output.len() > max_number_of_lines {
+            output = output.split_off(output.len() - max_number_of_lines);
+        }
     }
     Ok(output.join("\n"))
 }

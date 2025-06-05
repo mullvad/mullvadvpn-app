@@ -60,7 +60,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
         view.addSubview(contentView)
 
-        contentView.backButton.addTarget(
+        contentView.cancelButton.addTarget(
             self,
             action: #selector(didTapBackButton(_:)),
             for: .touchUpInside
@@ -200,9 +200,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
         let attributedText = NSAttributedString(
             markdownString: text,
-            options: MarkdownStylingOptions(
-                font: .preferredFont(forTextStyle: .body)
-            )
+            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
         )
 
         let presentation = AlertPresentation(

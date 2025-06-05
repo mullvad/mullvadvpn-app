@@ -24,6 +24,8 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.performLongClick
+import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -43,7 +45,7 @@ class SelectLocationScreenTest {
     fun setup() {
         MockKAnnotations.init(this)
         loadKoinModules(module { viewModel { listViewModel } })
-        every { listViewModel.uiState } returns MutableStateFlow(SelectLocationListUiState.Loading)
+        every { listViewModel.uiState } returns MutableStateFlow(Lce.Loading(Unit))
     }
 
     @AfterEach
@@ -52,7 +54,7 @@ class SelectLocationScreenTest {
     }
 
     private fun ComposeContext.initScreen(
-        state: SelectLocationUiState = SelectLocationUiState.Loading,
+        state: Lc<Unit, SelectLocationUiState> = Lc.Loading(Unit),
         onSelectRelay: (item: RelayItem) -> Unit = {},
         onSearchClick: (RelayListType) -> Unit = {},
         onBackClick: () -> Unit = {},
@@ -104,19 +106,26 @@ class SelectLocationScreenTest {
             // Arrange
             every { listViewModel.uiState } returns
                 MutableStateFlow(
-                    SelectLocationListUiState.Content(
-                        relayListItems =
-                            DUMMY_RELAY_COUNTRIES.map { RelayListItem.GeoLocationItem(item = it) },
-                        customLists = emptyList(),
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems =
+                                DUMMY_RELAY_COUNTRIES.map {
+                                    RelayListItem.GeoLocationItem(item = it)
+                                },
+                            customLists = emptyList(),
+                        )
                     )
                 )
             initScreen(
                 state =
-                    SelectLocationUiState.Data(
-                        // searchTerm = "",
-                        filterChips = emptyList(),
-                        multihopEnabled = false,
-                        relayListType = RelayListType.EXIT,
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.EXIT,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                        )
                     )
             )
 
@@ -135,17 +144,23 @@ class SelectLocationScreenTest {
             // Arrange
             every { listViewModel.uiState } returns
                 MutableStateFlow(
-                    SelectLocationListUiState.Content(
-                        relayListItems = listOf(RelayListItem.CustomListFooter(false)),
-                        customLists = emptyList(),
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems = listOf(RelayListItem.CustomListFooter(false)),
+                            customLists = emptyList(),
+                        )
                     )
                 )
             initScreen(
                 state =
-                    SelectLocationUiState.Data(
-                        filterChips = emptyList(),
-                        multihopEnabled = false,
-                        relayListType = RelayListType.EXIT,
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.EXIT,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                        )
                     )
             )
 
@@ -160,18 +175,24 @@ class SelectLocationScreenTest {
             val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
             every { listViewModel.uiState } returns
                 MutableStateFlow(
-                    SelectLocationListUiState.Content(
-                        relayListItems = listOf(RelayListItem.CustomListItem(customList)),
-                        customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems = listOf(RelayListItem.CustomListItem(customList)),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                        )
                     )
                 )
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    SelectLocationUiState.Data(
-                        filterChips = emptyList(),
-                        multihopEnabled = false,
-                        relayListType = RelayListType.EXIT,
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.EXIT,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                        )
                     ),
                 onSelectRelay = mockedOnSelectRelay,
             )
@@ -190,19 +211,25 @@ class SelectLocationScreenTest {
             val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
             every { listViewModel.uiState } returns
                 MutableStateFlow(
-                    SelectLocationListUiState.Content(
-                        relayListItems = listOf(RelayListItem.CustomListItem(item = customList)),
-                        customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems =
+                                listOf(RelayListItem.CustomListItem(item = customList)),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                        )
                     )
                 )
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    SelectLocationUiState.Data(
-                        // searchTerm = "",
-                        filterChips = emptyList(),
-                        multihopEnabled = false,
-                        relayListType = RelayListType.EXIT,
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.EXIT,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                        )
                     ),
                 onSelectRelay = mockedOnSelectRelay,
             )
@@ -221,18 +248,24 @@ class SelectLocationScreenTest {
             val relayItem = DUMMY_RELAY_COUNTRIES[0]
             every { listViewModel.uiState } returns
                 MutableStateFlow(
-                    SelectLocationListUiState.Content(
-                        relayListItems = listOf(RelayListItem.GeoLocationItem(relayItem)),
-                        customLists = emptyList(),
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems = listOf(RelayListItem.GeoLocationItem(relayItem)),
+                            customLists = emptyList(),
+                        )
                     )
                 )
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    SelectLocationUiState.Data(
-                        filterChips = emptyList(),
-                        multihopEnabled = false,
-                        relayListType = RelayListType.EXIT,
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.EXIT,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                        )
                     ),
                 onSelectRelay = mockedOnSelectRelay,
             )

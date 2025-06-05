@@ -12,21 +12,32 @@ import {
   InconsistentVersionNotificationProvider,
   ReconnectingNotificationProvider,
   UnsupportedVersionNotificationProvider,
-  UpdateAvailableNotificationProvider,
 } from '../../shared/notifications';
+import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
+import {
+  useAppUpgradeDownloadProgressValue,
+  useAppUpgradeEventType,
+  useHasAppUpgradeError,
+} from '../hooks';
 import useActions from '../lib/actionsHook';
 import { Button } from '../lib/components';
 import { TransitionType, useHistory } from '../lib/history';
 import {
+  AppUpgradeErrorNotificationProvider,
+  AppUpgradeProgressNotificationProvider,
+  AppUpgradeReadyNotificationProvider,
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
   NoOpenVpnServerAvailableNotificationProvider,
   OpenVpnSupportEndingNotificationProvider,
+  UnsupportedWireGuardPortNotificationProvider,
 } from '../lib/notifications';
+import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/app-upgrade-available';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
-import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
+import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
+import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
@@ -55,8 +66,10 @@ export default function NotificationArea(props: IProps) {
   const version = useSelector((state: IReduxState) => state.version);
   const tunnelProtocol = useTunnelProtocol();
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
+  const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
 
-  const blockWhenDisconnected = useSelector(
+  const blockWhenDisconnectedSetting = useSelector(
     (state: IReduxState) => state.settings.blockWhenDisconnected,
   );
   const hasExcludedApps = useSelector(
@@ -66,7 +79,8 @@ export default function NotificationArea(props: IProps) {
 
   const { hideNewDeviceBanner } = useActions(accountActions);
 
-  const { setDisplayedChangelog } = useAppContext();
+  const { setDisplayedChangelog, setDismissedUpgrade, appUpgrade, appUpgradeInstallerStart } =
+    useAppContext();
 
   const currentVersion = useSelector((state) => state.version.current);
   const displayedForVersion = useSelector(
@@ -86,18 +100,58 @@ export default function NotificationArea(props: IProps) {
     await setSplitTunnelingState(false);
   }, [setSplitTunnelingState]);
 
+  const updateDismissedForVersion = useSelector(
+    (state) => state.settings.guiSettings.updateDismissedForVersion,
+  );
+  const hasAppUpgradeError = useHasAppUpgradeError();
+  const { error } = useAppUpgradeError();
+
+  const restartAppUpgrade = useCallback(() => {
+    appUpgrade();
+  }, [appUpgrade]);
+  const restartAppUpgradeInstaller = useCallback(() => {
+    appUpgradeInstallerStart();
+  }, [appUpgradeInstallerStart]);
+
+  const { suggestedUpgrade } = useVersionSuggestedUpgrade();
+
+  const appUpgradeDownloadProgressValue = useAppUpgradeDownloadProgressValue();
+  const appUpgradeEventType = useAppUpgradeEventType();
+  const appUpgradeStep = convertEventTypeToStep(appUpgradeEventType); // TODO: Remove and read value from redux
+
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
     new BlockWhenDisconnectedNotificationProvider({
       tunnelState,
-      blockWhenDisconnected,
+      blockWhenDisconnectedSetting,
       hasExcludedApps,
+    }),
+    new AppUpgradeErrorNotificationProvider({
+      hasAppUpgradeError,
+      appUpgradeError: error,
+      restartAppUpgrade,
+      restartAppUpgradeInstaller,
+    }),
+    new AppUpgradeReadyNotificationProvider({
+      appUpgradeEventType,
+      suggestedUpgradeVersion: suggestedUpgrade?.version,
+    }),
+    new AppUpgradeProgressNotificationProvider({
+      appUpgradeStep,
+      appUpgradeEventType,
+      appUpgradeDownloadProgressValue,
     }),
     new NoOpenVpnServerAvailableNotificationProvider({
       connection,
       tunnelProtocol,
       relayLocations: fullRelayList,
+    }),
+    new UnsupportedWireGuardPortNotificationProvider({
+      connection,
+      relaySettings,
+      tunnelProtocol,
+      allowedPortRanges,
     }),
     new ErrorNotificationProvider({
       tunnelState,
@@ -127,7 +181,13 @@ export default function NotificationArea(props: IProps) {
       changelog,
       close,
     }),
-    new UpdateAvailableNotificationProvider(version),
+    new AppUpgradeAvailableNotificationProvider({
+      platform: window.env.platform,
+      suggestedUpgradeVersion: suggestedUpgrade?.version,
+      suggestedIsBeta: version.suggestedIsBeta,
+      updateDismissedForVersion,
+      close: setDismissedUpgrade,
+    }),
     new OpenVpnSupportEndingNotificationProvider({ tunnelProtocol }),
   );
 
@@ -192,11 +252,11 @@ function NotificationActionWrapper({
   const handleClick = useCallback(() => {
     if (action) {
       switch (action.type) {
-        case 'open-url':
-          if (action.withAuth) {
-            return openUrlWithAuth(action.url);
+        case 'navigate-external':
+          if (action.link.withAuth) {
+            return openUrlWithAuth(action.link.to);
           } else {
-            return openUrl(action.url);
+            return openUrl(action.link.to);
           }
         case 'troubleshoot-dialog':
           setIsModalOpen(true);
@@ -218,7 +278,7 @@ function NotificationActionWrapper({
   let actionComponent: React.ReactElement | undefined;
   if (action) {
     switch (action.type) {
-      case 'open-url':
+      case 'navigate-external':
         actionComponent = <NotificationOpenLinkAction onClick={handleClick} />;
         break;
       case 'troubleshoot-dialog':

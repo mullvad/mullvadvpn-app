@@ -7,13 +7,30 @@
 //
 
 import Foundation
-import Network
+@preconcurrency import Network
 import XCTest
+
+enum TransportProtocol: Codable {
+    case transport(NetworkTransportProtocol)
+    case application(ApplicationProtocol)
+
+    var rawValue: String {
+        switch self {
+        case let .transport(transport): transport.rawValue
+        case let .application(application): application.rawValue
+        }
+    }
+}
+
+enum ApplicationProtocol: String, Codable {
+    case wireguard
+}
 
 enum NetworkTransportProtocol: String, Codable {
     case TCP = "tcp"
     case UDP = "udp"
     case ICMP = "icmp"
+    case ICMP6 = "icmp_v6"
 }
 
 enum NetworkingError: Error {
@@ -43,7 +60,7 @@ class Networking {
         let socketHost = NWEndpoint.Host(host)
         let socketPort = try XCTUnwrap(NWEndpoint.Port(port))
         let connection = NWConnection(host: socketHost, port: socketPort, using: .tcp)
-        var connectionError: Error?
+        nonisolated(unsafe) var connectionError: Error?
 
         let connectionStateDeterminedExpectation = XCTestExpectation(
             description: "Completion handler for the reach ad serving domain request is invoked"
@@ -156,9 +173,9 @@ class Networking {
         var request = URLRequest(url: mullvadDNSLeakURL)
         request.setValue("application/json", forHTTPHeaderField: "accept")
 
-        var requestData: Data?
-        var requestResponse: URLResponse?
-        var requestError: Error?
+        nonisolated(unsafe) var requestData: Data?
+        nonisolated(unsafe) var requestResponse: URLResponse?
+        nonisolated(unsafe) var requestError: Error?
         let completionHandlerInvokedExpectation = XCTestExpectation(
             description: "Completion handler for the request is invoked"
         )

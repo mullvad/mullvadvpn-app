@@ -1,13 +1,25 @@
 import { ExternalLinkProps } from '../../renderer/components/ExternalLink';
 import { InternalLinkProps } from '../../renderer/components/InternalLink';
+import { ButtonProps } from '../../renderer/lib/components';
+import { RoutePath } from '../../shared/routes';
 import { Url } from '../constants';
 
-export type NotificationAction = {
-  type: 'open-url';
-  url: Url;
-  text?: string;
-  withAuth?: boolean;
-};
+export type SystemNotificationAction =
+  | {
+      type: 'navigate-internal';
+      link: {
+        to: RoutePath;
+        text?: string;
+      };
+    }
+  | {
+      type: 'navigate-external';
+      link: {
+        to: Url;
+        text?: string;
+        withAuth?: boolean;
+      };
+    };
 
 export interface InAppNotificationTroubleshootInfo {
   details: string;
@@ -22,7 +34,6 @@ export interface InAppNotificationTroubleshootButton {
 }
 
 export type InAppNotificationAction =
-  | NotificationAction
   | {
       type: 'troubleshoot-dialog';
       troubleshoot: InAppNotificationTroubleshootInfo;
@@ -37,7 +48,11 @@ export type InAppNotificationAction =
     }
   | {
       type: 'navigate-external';
-      link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label'>;
+      link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label' | 'withAuth'>;
+    }
+  | {
+      type: 'run-function';
+      button: Pick<ButtonProps, 'onClick' | 'aria-label'>;
     };
 
 export type InAppNotificationIndicatorType = 'success' | 'warning' | 'error';
@@ -67,7 +82,7 @@ export interface SystemNotification {
   throttle?: boolean;
   presentOnce?: { value: boolean; name: string };
   suppressInDevelopment?: boolean;
-  action?: NotificationAction;
+  action?: SystemNotificationAction;
 }
 
 export interface InAppNotification {

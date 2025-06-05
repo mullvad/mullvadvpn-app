@@ -143,7 +143,7 @@ fun EditCustomListScreen(
                 EditCustomListUiState.NotFound -> {
                     Text(
                         text = stringResource(id = R.string.not_found),
-                        modifier = Modifier.padding(Dimens.screenVerticalMargin),
+                        modifier = Modifier.padding(Dimens.sideMargin),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )

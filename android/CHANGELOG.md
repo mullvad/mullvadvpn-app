@@ -22,6 +22,23 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+- Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
+  mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
+  uses a lot less CPU to compute the keypair, and the public key sent to the server
+  is drastically smaller.
+
+
+## [android/2025.4] - 2025-05-28
+Identical to `android/2025.4-beta2` except for updated translations.
+
+
+## [android/2025.4-beta2] - 2025-05-20
+### Changed
+- Improve error message when the app cannot connect due to an invalid port.
+
+### Fixed
+- Fix password prompt appearing every time when returning to the welcome screen.
 
 
 ## [android/2025.4-beta1] - 2025-05-06

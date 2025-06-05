@@ -76,7 +76,7 @@ if [[ $deb == "true" ]]; then
         \"apt update $silent_stderr $silent_stdout; \
         apt install -y curl $silent_stderr $silent_stdout; \
         curl -fsSLo /usr/share/keyrings/mullvad-keyring.asc $repository_server_public_url/deb/mullvad-keyring.asc; \
-        echo \\\"deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=amd64] $repository_server_public_url/deb/$release_channel bookworm main\\\" > /etc/apt/sources.list.d/mullvad.list; \
+        echo \\\"deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=amd64] $repository_server_public_url/deb/$release_channel $release_channel main\\\" > /etc/apt/sources.list.d/mullvad.list; \
         apt update $silent_stderr $silent_stdout; \
         apt list mullvad-* $silent_stderr | grep 'amd64'\" $silent_stderr"
 fi

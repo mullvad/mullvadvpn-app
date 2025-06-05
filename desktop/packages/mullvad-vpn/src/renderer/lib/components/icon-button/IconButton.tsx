@@ -1,8 +1,8 @@
 import React, { forwardRef } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-import { Colors } from '../../foundations';
-import { buttonReset } from '../../styles';
+import { colors } from '../../foundations';
+import { ButtonBase } from '../button';
 import { IconProps, iconSizes } from '../icon/Icon';
 import { IconButtonIcon } from './components/IconButtonIcon';
 import { IconButtonProvider } from './IconButtonContext';
@@ -12,35 +12,29 @@ export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
   size?: IconProps['size'];
 }
 
-const StyledButton = styled.button({
-  ...buttonReset,
+const StyledButton = styled(ButtonBase)<{ $size: IconButtonProps['size'] }>`
+  ${({ $size = 'medium' }) => {
+    const size = iconSizes[$size];
+    return css`
+      --size: ${size}px;
 
-  background: 'transparent',
-  height: 'var(--size)',
-  width: 'var(--size)',
-  borderRadius: '100%',
-  '&:focus-visible': {
-    outline: `2px solid ${Colors.white}`,
-    outlineOffset: '1px',
-  },
-});
+      background: ${colors.transparent};
+      height: var(--size);
+      width: var(--size);
+      border-radius: 100%;
+      &:focus-visible {
+        outline: 2px solid ${colors.white};
+        outline-offset: 1px;
+      }
+    `;
+  }}
+`;
 
 const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ variant = 'primary', size: sizeProp = 'medium', disabled, style, ...props }, ref) => {
-    const size = iconSizes[sizeProp];
+  ({ variant = 'primary', size = 'medium', disabled, style, ...props }, ref) => {
     return (
-      <IconButtonProvider size={sizeProp} variant={variant} disabled={disabled}>
-        <StyledButton
-          ref={ref}
-          disabled={disabled}
-          style={
-            {
-              '--size': `${size}px`,
-              ...style,
-            } as React.CSSProperties
-          }
-          {...props}
-        />
+      <IconButtonProvider size={size} variant={variant} disabled={disabled}>
+        <StyledButton ref={ref} disabled={disabled} $size={size} {...props} />
       </IconButtonProvider>
     );
   },

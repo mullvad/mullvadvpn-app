@@ -6,11 +6,11 @@ use super::{
 use crate::dns::DnsConfig;
 #[cfg(not(target_os = "android"))]
 use crate::firewall::FirewallPolicy;
-use futures::StreamExt;
 #[cfg(target_os = "macos")]
-use std::net::Ipv4Addr;
+use crate::resolver::LOCAL_DNS_RESOLVER;
+use futures::StreamExt;
 use talpid_types::{
-    tunnel::{ErrorStateCause, FirewallPolicyError},
+    tunnel::{ErrorStateCause, FirewallPolicyError, ParameterGenerationError},
     ErrorExt,
 };
 
@@ -38,8 +38,8 @@ impl ErrorState {
         if !block_reason.prevents_filtering_resolver() {
             // Set system DNS to our local DNS resolver
             let system_dns = DnsConfig::default().resolve(
-                &[Ipv4Addr::LOCALHOST.into()],
-                shared_values.filtering_resolver.listening_port(),
+                &[shared_values.filtering_resolver.listening_addr().ip()],
+                shared_values.filtering_resolver.listening_addr().port(),
             );
             if let Err(err) = shared_values.dns_monitor.set("lo", system_dns) {
                 log::error!(
@@ -80,8 +80,6 @@ impl ErrorState {
         let policy = FirewallPolicy::Blocked {
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: Some(shared_values.allowed_endpoint.clone()),
-            #[cfg(target_os = "macos")]
-            dns_redirect_port: shared_values.filtering_resolver.listening_port(),
         };
 
         #[cfg(target_os = "linux")]
@@ -187,15 +185,35 @@ impl TunnelState for ErrorState {
             Some(TunnelCommand::Connectivity(connectivity)) => {
                 shared_values.connectivity = connectivity;
                 if !connectivity.is_offline()
-                    && matches!(self.block_reason, ErrorStateCause::IsOffline)
+                    // Reconnect if we're no longer offline
+                    && (matches!(self.block_reason, ErrorStateCause::IsOffline)
+                    // Try to reconnect if missing IP connectivity becomes available
+                    || matches!(self.block_reason, ErrorStateCause::TunnelParameterError(ParameterGenerationError::IpVersionUnavailable { family }) if connectivity.has_family(family)))
                 {
+                    #[cfg(target_os = "macos")]
+                    if !*LOCAL_DNS_RESOLVER {
+                        // This is probably unnecessary, since DNS is already configured on the
+                        // primary interface.
+                        Self::reset_dns(shared_values);
+                    }
+
+                    #[cfg(not(target_os = "macos"))]
                     Self::reset_dns(shared_values);
+
                     NewState(ConnectingState::enter(shared_values, 0))
                 } else {
                     SameState(self)
                 }
             }
             Some(TunnelCommand::Connect) => {
+                #[cfg(target_os = "macos")]
+                if !*LOCAL_DNS_RESOLVER {
+                    // This is probably unnecessary, since DNS is already configured on the
+                    // primary interface.
+                    Self::reset_dns(shared_values);
+                }
+
+                #[cfg(not(target_os = "macos"))]
                 Self::reset_dns(shared_values);
 
                 NewState(ConnectingState::enter(shared_values, 0))

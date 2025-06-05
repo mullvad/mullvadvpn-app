@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Colors } from '../../foundations';
+import { colors } from '../../foundations';
 
 export interface DotProps {
   variant?: 'primary' | 'success' | 'warning' | 'error';
@@ -8,8 +8,8 @@ export interface DotProps {
 }
 
 const StyledDiv = styled.div<{ $size: string; $color: string }>`
-  width: ${({ $size }) => $size};
-  height: ${({ $size }) => $size};
+  min-width: ${({ $size }) => $size};
+  min-height: ${({ $size }) => $size};
   border-radius: 50%;
   background-color: ${({ $color }) => $color};
 `;
@@ -20,13 +20,13 @@ const sizes = {
   medium: '12px',
 };
 
-const colors = {
-  primary: Colors.white80,
-  success: Colors.green,
-  warning: Colors.yellow,
-  error: Colors.red,
+const dotColors = {
+  primary: colors.whiteAlpha80,
+  success: colors.green,
+  warning: colors.yellow,
+  error: colors.red,
 };
 
 export const Dot = ({ variant = 'primary', size = 'medium', ...props }: DotProps) => {
-  return <StyledDiv $size={sizes[size]} $color={colors[variant]} {...props} />;
+  return <StyledDiv $size={sizes[size]} $color={dotColors[variant]} {...props} />;
 };

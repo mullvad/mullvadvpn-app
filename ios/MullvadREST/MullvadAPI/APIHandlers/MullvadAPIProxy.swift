@@ -28,6 +28,13 @@ public protocol APIQuerying: Sendable {
         receiptString: Data
     ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse>
 
+    func legacyStorekitPayment(
+        accountNumber: String,
+        request: LegacyStorekitRequest,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.CreateApplePaymentResponse>
+    ) -> Cancellable
+
     func sendProblemReport(
         _ body: ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
@@ -53,6 +60,12 @@ public protocol APIQuerying: Sendable {
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
     ) -> Cancellable
+
+    func checkApiAvailability(
+        retryStrategy: REST.RetryStrategy,
+        accessMethod: PersistentAccessMethod,
+        completion: @escaping @Sendable ProxyCompletionHandler<Bool>
+    ) -> Cancellable
 }
 
 extension REST {
@@ -74,7 +87,7 @@ extension REST {
 
         public func getAddressList(
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
+            completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
             let responseHandler = rustResponseHandler(
                 decoding: [AnyIPEndpoint].self,
@@ -91,7 +104,7 @@ extension REST {
         public func getRelays(
             etag: String?,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
+            completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
         ) -> Cancellable {
             if var etag {
                 // Enforce weak validator to account for some backend caching quirks.
@@ -121,15 +134,6 @@ extension REST {
             )
         }
 
-        public func createApplePayment(
-            accountNumber: String,
-            receiptString: Data
-        ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse> {
-            RESTRequestExecutorStub<REST.CreateApplePaymentResponse>(success: {
-                .timeAdded(42, .distantFuture)
-            })
-        }
-
         public func sendProblemReport(
             _ body: ProblemReportRequest,
             retryStrategy: REST.RetryStrategy,
@@ -151,11 +155,76 @@ extension REST {
             AnyCancellable()
         }
 
+        /// Not implemented. Use `RESTAPIProxy` instead.
+        public func createApplePayment(
+            accountNumber: String,
+            receiptString: Data
+        ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse> {
+            RESTRequestExecutorStub<REST.CreateApplePaymentResponse>(success: {
+                .timeAdded(0, .now)
+            })
+        }
+
+        public func checkApiAvailability(
+            retryStrategy: REST.RetryStrategy,
+            accessMethod: PersistentAccessMethod,
+            completion: @escaping @Sendable ProxyCompletionHandler<Bool>
+        ) -> Cancellable {
+            let responseHandler = rustEmptyResponseHandler()
+            return createNetworkOperation(
+                request: .checkApiAvailability(retryStrategy, accessMethod: accessMethod),
+                responseHandler: responseHandler
+            ) { result in
+                if case let .failure(err) = result {
+                    completion(.failure(err))
+                } else {
+                    completion(.success(true))
+                }
+            }
+        }
+
+        public func legacyStorekitPayment(
+            accountNumber: String,
+            request: LegacyStorekitRequest,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
+        ) -> Cancellable {
+            let responseHandler: REST.RustResponseHandler<REST.CreateApplePaymentResponse> =
+                rustCustomResponseHandler { [weak self] data, _ in
+                    guard let serverResponse = try? self?.responseDecoder.decode(
+                        CreateApplePaymentRawResponse.self,
+                        from: data
+                    ) else {
+                        return nil
+                    }
+
+                    return if serverResponse.timeAdded > 0 {
+                        .timeAdded(
+                            serverResponse.timeAdded,
+                            serverResponse.newExpiry
+                        )
+                    } else {
+                        .noTimeAdded(serverResponse.newExpiry)
+                    }
+                }
+
+            return createNetworkOperation(
+                request:
+                .legacyStorekitPayment(
+                    retryStrategy: retryStrategy,
+                    accountNumber: accountNumber,
+                    request: request
+                ),
+                responseHandler: responseHandler,
+                completionHandler: completionHandler
+            )
+        }
+
         public func initStorekitPayment(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<String>
-        ) -> any MullvadTypes.Cancellable {
+        ) -> Cancellable {
             struct InitStorekitPaymentResponse: Codable {
                 let paymentToken: String
             }
@@ -178,7 +247,7 @@ extension REST {
             transaction: StorekitTransaction,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>
-        ) -> any MullvadTypes.Cancellable {
+        ) -> Cancellable {
             let responseHandler = rustEmptyResponseHandler()
 
             return createNetworkOperation(
@@ -221,11 +290,7 @@ extension REST {
         case newContent(_ etag: String?, _ rawData: Data)
     }
 
-    private struct CreateApplePaymentRequest: Encodable, Sendable {
-        let receiptString: Data
-    }
-
-    public enum CreateApplePaymentResponse: Sendable {
+    public enum CreateApplePaymentResponse: Sendable, Decodable {
         case noTimeAdded(_ expiry: Date)
         case timeAdded(_ timeAdded: Int, _ newExpiry: Date)
 
@@ -261,7 +326,7 @@ extension REST {
     }
 }
 
-// TODO: Remove when "createApplePayment" func is implemented.
+// TODO: Remove when Mullvad API is production ready.
 private struct RESTRequestExecutorStub<Success: Sendable>: RESTRequestExecutor {
     var success: (() -> Success)?
 

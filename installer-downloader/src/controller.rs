@@ -146,7 +146,7 @@ where
             // For the downloader, the rollout version is always preferred
             rollout: mullvad_update::version::IGNORE,
             // The downloader allows any version
-            lowest_metadata_version: 0,
+            lowest_metadata_version: mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
         };
 
         let err = match version_provider.get_version_info(version_params).await {
@@ -264,8 +264,8 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
     }
 
     fn handle_try_beta(&mut self) {
-        log::error!("Attempted 'try beta' without beta version");
         let Some(beta_info) = self.version_info.beta.as_ref() else {
+            log::error!("Attempted 'try beta' without beta version");
             return;
         };
 
@@ -328,7 +328,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
             }
         };
 
-        log::debug!("Download directory: {}", download_dir.display());
+        log::trace!("Download directory: {}", download_dir.display());
 
         // Begin download
         let (tx, rx) = oneshot::channel();

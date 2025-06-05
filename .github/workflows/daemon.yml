@@ -121,10 +121,15 @@ jobs:
         config:
           - os: windows-latest
             arch: x64
-          - os: [self-hosted, ARM64, Windows]
+          - os: windows-11-arm
             arch: arm64
     runs-on: ${{ matrix.config.os }}
     steps:
+      # By default, the longest path a filename can have in git on Windows is 260 character.
+      - name: Set git config for long paths
+        run: |
+          git config --system core.longpaths true
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -134,8 +139,6 @@ jobs:
           git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Install Protoc
-        # NOTE: ARM runner already has protoc
-        if: ${{ matrix.config.arch != 'arm64' }}
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -166,11 +169,15 @@ jobs:
       # The x64 toolchain is needed to build talpid-openvpn-plugin
       # TODO: Remove once fixed
       - name: Install Rust x64 target
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         if: ${{ matrix.config.arch == 'arm64' }}
-        run: rustup target add x86_64-pc-windows-msvc
+        with:
+          target: x86_64-pc-windows-msvc
 
       - name: Install Rust
-        run: rustup target add i686-pc-windows-msvc
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: i686-pc-windows-msvc
 
       - name: Install msbuild
         uses: microsoft/setup-msbuild@v1.0.2
@@ -178,9 +185,7 @@ jobs:
           vs-version: 16
 
       - name: Install latest zig
-        # NOTE: This action doesn't support ARM64 for the time being (2025-01-27)
-        if: ${{ matrix.config.arch == 'x64' }}
-        uses: mlugg/setup-zig@v1
+        uses: mlugg/setup-zig@v2
 
       - name: Install Go
         uses: actions/setup-go@v5

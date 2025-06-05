@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +35,7 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.CheckableRelayLocationCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
@@ -44,6 +46,7 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.CustomListLocationUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -55,6 +58,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -100,7 +104,7 @@ fun CustomListLocations(
         onExpand = customListsViewModel::onExpand,
         onBackClick =
             dropUnlessResumed {
-                if (state.hasUnsavedChanges) {
+                if (state.content.contentOrNull()?.hasUnsavedChanges == true) {
                     navigator.navigate(DiscardChangesDestination)
                 } else {
                     backNavigator.navigateBack()
@@ -118,6 +122,8 @@ fun CustomListLocationsScreen(
     onExpand: (RelayItem.Location, selected: Boolean) -> Unit,
     onBackClick: () -> Unit,
 ) {
+    BackHandler(onBack = onBackClick)
+
     ScaffoldWithSmallTopBar(
         appBarTitle =
             stringResource(
@@ -128,7 +134,12 @@ fun CustomListLocationsScreen(
                 }
             ),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        actions = { Actions(isSaveEnabled = state.saveEnabled, onSaveClick = onSaveClick) },
+        actions = {
+            Actions(
+                isSaveEnabled = state.content.contentOrNull()?.saveEnabled == true,
+                onSaveClick = onSaveClick,
+            )
+        },
     ) { modifier ->
         Column(modifier = modifier) {
             SearchTextField(
@@ -154,16 +165,16 @@ fun CustomListLocationsScreen(
                         .fillMaxWidth(),
                 state = lazyListState,
             ) {
-                when (state) {
-                    is CustomListLocationsUiState.Loading -> {
+                when (state.content) {
+                    is Lce.Loading -> {
                         loading()
                     }
-                    is CustomListLocationsUiState.Content.Empty -> {
-                        empty(searchTerm = state.searchTerm)
+                    is Lce.Error -> {
+                        empty()
                     }
-                    is CustomListLocationsUiState.Content.Data -> {
+                    is Lce.Content -> {
                         content(
-                            uiState = state,
+                            uiState = state.content.value,
                             onRelaySelectedChanged = onRelaySelectionClick,
                             onExpand = onExpand,
                         )
@@ -171,8 +182,8 @@ fun CustomListLocationsScreen(
                 }
             }
 
-            if (state is CustomListLocationsUiState.Content.Data && !state.newList) {
-                val firstChecked = state.locations.indexOfFirst { it.checked }
+            if (state.content is Lce.Content && !state.newList) {
+                val firstChecked = state.content.value.locations.indexOfFirst { it.checked }
                 LaunchedEffect(Unit) {
                     if (firstChecked != -1) {
                         lazyListState.scrollToItem(firstChecked)
@@ -204,33 +215,48 @@ private fun LazyListScope.loading() {
     }
 }
 
-private fun LazyListScope.empty(searchTerm: String) {
+private fun LazyListScope.empty() {
     item(key = CommonContentKey.EMPTY, contentType = ContentType.EMPTY_TEXT) {
-        LocationsEmptyText(searchTerm = searchTerm)
+        EmptyRelayListText()
     }
 }
 
 private fun LazyListScope.content(
-    uiState: CustomListLocationsUiState.Content.Data,
+    uiState: CustomListLocationsData,
     onExpand: (RelayItem.Location, expand: Boolean) -> Unit,
     onRelaySelectedChanged: (RelayItem.Location, selected: Boolean) -> Unit,
 ) {
-    itemsIndexed(uiState.locations, key = { index, listItem -> listItem.item.id }) { index, listItem
-        ->
-        Column(modifier = Modifier.animateItem()) {
-            if (index != 0) {
-                HorizontalDivider()
-            }
-            CheckableRelayLocationCell(
-                item = listItem.item,
-                onRelayCheckedChange = { isChecked ->
-                    onRelaySelectedChanged(listItem.item, isChecked)
-                },
-                checked = listItem.checked,
-                depth = listItem.depth,
-                onExpand = { expand -> onExpand(listItem.item, expand) },
-                expanded = listItem.expanded,
-            )
+    if (uiState.locations.isEmpty()) {
+        item(key = CommonContentKey.EMPTY, contentType = ContentType.EMPTY_TEXT) {
+            LocationsEmptyText(searchTerm = uiState.searchTerm)
         }
+    } else {
+        itemsIndexed(uiState.locations, key = { index, listItem -> listItem.item.id }) {
+            index,
+            listItem ->
+            Column(modifier = Modifier.animateItem()) {
+                if (index != 0) {
+                    HorizontalDivider()
+                }
+                CheckableRelayLocationCell(
+                    item = listItem.item,
+                    onRelayCheckedChange = { isChecked ->
+                        onRelaySelectedChanged(listItem.item, isChecked)
+                    },
+                    checked = listItem.checked,
+                    depth = listItem.depth,
+                    onExpand = { expand -> onExpand(listItem.item, expand) },
+                    expanded = listItem.expanded,
+                )
+            }
+        }
+    }
+}
+
+private fun Lce<Boolean, CustomListLocationsUiState, Boolean>.newList(): Boolean {
+    return when (this) {
+        is Lce.Content -> this.value.newList
+        is Lce.Loading -> this.value
+        is Lce.Error -> this.error
     }
 }

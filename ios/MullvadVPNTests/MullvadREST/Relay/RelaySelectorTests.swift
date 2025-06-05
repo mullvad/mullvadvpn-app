@@ -15,7 +15,6 @@ import Network
 import XCTest
 
 private let portRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
-private let defaultPort: UInt16 = 443
 
 class RelaySelectorTests: XCTestCase {
     let sampleRelays = ServerRelaysResponseStubs.sampleRelays
@@ -114,25 +113,13 @@ class RelaySelectorTests: XCTestCase {
         XCTAssertEqual(result.endpoint.ipv4Relay.port, 1)
     }
 
-    func testRandomPortSelectionWithFailedAttempts() throws {
+    func testRandomPortSelection() throws {
         let constraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")]))
         )
         let allPorts = portRanges.flatMap { $0 }
 
-        var result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
-        XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
-
-        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 1)
-        XCTAssertEqual(result.endpoint.ipv4Relay.port, defaultPort)
-
-        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 2)
-        XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
-
-        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 3)
-        XCTAssertEqual(result.endpoint.ipv4Relay.port, defaultPort)
-
-        result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 4)
+        let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
         XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
     }
 

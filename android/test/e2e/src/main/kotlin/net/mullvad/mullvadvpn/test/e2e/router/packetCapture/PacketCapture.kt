@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.test.e2e.router.packetCapture
 
+import androidx.test.platform.app.InstrumentationRegistry
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -20,7 +21,7 @@ import java.util.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import net.mullvad.mullvadvpn.test.e2e.BuildConfig
+import net.mullvad.mullvadvpn.test.e2e.constant.getRaasHost
 import net.mullvad.mullvadvpn.test.e2e.misc.Networking
 import net.mullvad.mullvadvpn.test.e2e.serializer.PacketCaptureSessionSerializer
 import org.junit.jupiter.api.fail
@@ -60,7 +61,8 @@ class PacketCapture {
 
 private fun defaultHttpClient(): HttpClient =
     HttpClient(CIO) {
-        defaultRequest { url("http://${BuildConfig.TEST_ROUTER_API_HOST}") }
+        defaultRequest { url("http://${InstrumentationRegistry.getArguments().getRaasHost()}") }
+        engine { requestTimeout = REQUEST_TIMEOUT_MS }
 
         install(ContentNegotiation) {
             json(
@@ -123,3 +125,6 @@ class PacketCaptureClient(private val httpClient: HttpClient = defaultHttpClient
 data class PacketCaptureResult(val streams: List<Stream>, val pcap: ByteArray)
 
 @Serializable data class StartCaptureRequestJson(val label: PacketCaptureSession)
+
+// 30 seconds timeout, double the default timeout
+private const val REQUEST_TIMEOUT_MS = 30000L

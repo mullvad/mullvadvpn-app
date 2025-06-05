@@ -1,13 +1,15 @@
 package net.mullvad.mullvadvpn.test.e2e
 
+import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.misc.Attachment
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.SettingsPage
-import net.mullvad.mullvadvpn.test.common.page.SystemVpnConfigurationAlert
 import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.WireGuardCustomPortDialog
 import net.mullvad.mullvadvpn.test.common.page.disableObfuscationStory
@@ -17,9 +19,12 @@ import net.mullvad.mullvadvpn.test.common.page.enableShadowsocksStory
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
+import net.mullvad.mullvadvpn.test.e2e.constant.getTrafficGeneratorHost
+import net.mullvad.mullvadvpn.test.e2e.constant.getTrafficGeneratorPort
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.NetworkTrafficChecker
 import net.mullvad.mullvadvpn.test.e2e.misc.NoTrafficToHostRule
+import net.mullvad.mullvadvpn.test.e2e.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.e2e.misc.SomeTrafficToHostRule
 import net.mullvad.mullvadvpn.test.e2e.misc.SomeTrafficToOtherHostsRule
 import net.mullvad.mullvadvpn.test.e2e.misc.TrafficGenerator
@@ -29,7 +34,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
-class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
+class LeakTest : EndToEndTest() {
 
     @RegisterExtension @JvmField val accountTestRule = AccountTestRule()
 
@@ -37,9 +42,11 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @JvmField
     val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
 
+    val relayProvider = RelayProvider()
+
     @BeforeEach
     fun setupVPNSettings() {
-        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
 
         on<ConnectPage> { clickSettings() }
 
@@ -73,18 +80,18 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         }
 
         on<SelectLocationPage> {
-            clickLocationExpandButton(DEFAULT_COUNTRY)
-            clickLocationExpandButton(DEFAULT_CITY)
-            clickLocationCell(DEFAULT_RELAY)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+            clickLocationCell(relayProvider.getDefaultRelay().relay)
         }
 
-        on<SystemVpnConfigurationAlert> { clickOk() }
+        device.acceptVpnPermissionDialog()
 
         on<ConnectPage> { waitForConnectedLabel() }
 
         // Capture generated traffic to a specific host
-        val targetIpAddress = BuildConfig.TRAFFIC_GENERATION_IP_ADDRESS
-        val targetPort = 80
+        val targetIpAddress = InstrumentationRegistry.getArguments().getTrafficGeneratorHost()
+        val targetPort = InstrumentationRegistry.getArguments().getTrafficGeneratorPort()
         val captureResult =
             PacketCapture().capturePackets {
                 TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
@@ -121,18 +128,18 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         }
 
         on<SelectLocationPage> {
-            clickLocationExpandButton(DEFAULT_COUNTRY)
-            clickLocationExpandButton(DEFAULT_CITY)
-            clickLocationCell(DEFAULT_RELAY)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+            clickLocationCell(relayProvider.getDefaultRelay().relay)
         }
 
-        on<SystemVpnConfigurationAlert> { clickOk() }
+        device.acceptVpnPermissionDialog()
 
         on<ConnectPage> { waitForConnectedLabel() }
 
         // Capture generated traffic to a specific host
-        val targetIpAddress = BuildConfig.TRAFFIC_GENERATION_IP_ADDRESS
-        val targetPort = 80
+        val targetIpAddress = InstrumentationRegistry.getArguments().getTrafficGeneratorHost()
+        val targetPort = InstrumentationRegistry.getArguments().getTrafficGeneratorPort()
         val captureResult: PacketCaptureResult =
             PacketCapture().capturePackets {
                 TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
@@ -170,56 +177,57 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
     @Test
     @HasDependencyOnLocalAPI
-    fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() = runTest {
-        app.launch()
-        // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
-        on<ConnectPage> { disableObfuscationStory() }
-        on<ConnectPage> { disablePostQuantumStory() }
-        on<ConnectPage> { clickSelectLocation() }
+    fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() =
+        runTest(timeout = 2.minutes) {
+            app.launch()
+            // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
+            on<ConnectPage> { disableObfuscationStory() }
+            on<ConnectPage> { disablePostQuantumStory() }
+            on<ConnectPage> { clickSelectLocation() }
 
-        on<SelectLocationPage> {
-            clickLocationExpandButton(DAITA_COMPATIBLE_COUNTRY)
-            clickLocationExpandButton(DAITA_COMPATIBLE_CITY)
-            clickLocationCell(DAITA_COMPATIBLE_RELAY)
-        }
-
-        on<SystemVpnConfigurationAlert> { clickOk() }
-
-        on<ConnectPage> { waitForConnectedLabel() }
-
-        // Capture generated traffic to a specific host
-        val targetIpAddress = BuildConfig.TRAFFIC_GENERATION_IP_ADDRESS
-        val targetPort = 80
-        val captureResult: PacketCaptureResult =
-            PacketCapture().capturePackets {
-                TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
-                    delay(
-                        1000.milliseconds
-                    ) // Give it some time for generating traffic in tunnel before changing
-                    // settings
-
-                    on<ConnectPage> { enableDAITAStory() }
-                    on<ConnectPage> { enableShadowsocksStory() }
-                    on<ConnectPage> { waitForConnectedLabel() }
-
-                    delay(
-                        1000.milliseconds
-                    ) // Give it some time for generating traffic in tunnel after enabling
-                    // settings
-                }
+            on<SelectLocationPage> {
+                clickLocationExpandButton(relayProvider.getDaitaRelay().country)
+                clickLocationExpandButton(relayProvider.getDaitaRelay().city)
+                clickLocationCell(relayProvider.getDaitaRelay().relay)
             }
 
-        val capturedStreams = captureResult.streams
-        val capturedPcap = captureResult.pcap
-        val timestamp = System.currentTimeMillis()
-        Attachment.saveAttachment(
-            "capture-${javaClass.enclosingMethod}-$timestamp.pcap",
-            capturedPcap,
-        )
+            device.acceptVpnPermissionDialog()
 
-        NetworkTrafficChecker.checkTrafficStreamsAgainstRules(
-            capturedStreams,
-            NoTrafficToHostRule(targetIpAddress),
-        )
-    }
+            on<ConnectPage> { waitForConnectedLabel() }
+
+            // Capture generated traffic to a specific host
+            val targetIpAddress = InstrumentationRegistry.getArguments().getTrafficGeneratorHost()
+            val targetPort = InstrumentationRegistry.getArguments().getTrafficGeneratorPort()
+            val captureResult: PacketCaptureResult =
+                PacketCapture().capturePackets {
+                    TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
+                        delay(
+                            1000.milliseconds
+                        ) // Give it some time for generating traffic in tunnel before changing
+                        // settings
+
+                        on<ConnectPage> { enableDAITAStory() }
+                        on<ConnectPage> { enableShadowsocksStory() }
+                        on<ConnectPage> { waitForConnectedLabel() }
+
+                        delay(
+                            1000.milliseconds
+                        ) // Give it some time for generating traffic in tunnel after enabling
+                        // settings
+                    }
+                }
+
+            val capturedStreams = captureResult.streams
+            val capturedPcap = captureResult.pcap
+            val timestamp = System.currentTimeMillis()
+            Attachment.saveAttachment(
+                "capture-${javaClass.enclosingMethod}-$timestamp.pcap",
+                capturedPcap,
+            )
+
+            NetworkTrafficChecker.checkTrafficStreamsAgainstRules(
+                capturedStreams,
+                NoTrafficToHostRule(targetIpAddress),
+            )
+        }
 }

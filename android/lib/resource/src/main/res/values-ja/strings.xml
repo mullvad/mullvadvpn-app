@@ -97,6 +97,7 @@
     <string name="created_x">作成日: %1$s</string>
     <string name="creating_new_account">アカウントを作成中...</string>
     <string name="critical_error">重大なエラー (ご注意ください)</string>
+    <string name="current_device">現在のデバイス</string>
     <string name="current_method">現在の設定: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">この設定を有効にするには、上の [%1$s] をすべて無効にしてください。</string>
     <string name="custom_dns_footer">1つ以上のDNSサーバーを追加するには有効にしてください。</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">%1$sはネットワークノイズを入念に追加し、すべてのネットワークパケットを同じサイズにすることによってこれを実現しています。</string>
     <string name="daita_description_slide_2_third_paragraph">すべてのサーバーが%1$sに対応しているわけではないため、どのサーバーでも%1$sが有効になるようにマルチホップを自動的に使用しています。</string>
     <string name="daita_info">“%1$s” を有効化した場合、%2$s対応のサーバーを手動で選択する必要があります。これにより、“場所を選択する” で互換性のあるサーバーを選択するまでブロック状態となる可能性があります。</string>
+    <string name="daita_multihop">%1$s: マルチホップ</string>
     <string name="delete">削除</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" を削除しますか？</string>
     <string name="delete_custom_list_message">\"%1$s\" は削除されました</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">このデバイスを削除しました。再度接続するには、ログインし直す必要があります。</string>
     <string name="device_inactive_title">デバイスが無効です</string>
     <string name="device_inactive_unblock_warning">ログインに進むと、このデバイスのインターネットのブロックが解除されます。</string>
+    <string name="device_ip_info_first_paragraph">この機能では、サーバーに接続する際にIPv4のみを使用するか、IPv6のみを使用するか、最適なオプションをアプリに自動選択させるかを選択できます。</string>
+    <string name="device_ip_info_second_paragraph">特定のIPバージョンが問題の原因であることが分かっている場合に役立つ場合があります。</string>
     <string name="device_ip_version_title">デバイスのIPバージョン</string>
     <string name="device_name">デバイス名</string>
     <string name="device_name_info_first_paragraph">これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">テキストでインポート</string>
     <string name="invalid_dns_servers">カスタムDNSサーバーアドレス %1$s は無効です</string>
     <string name="invalid_voucher">バウチャーコードが無効です。</string>
+    <string name="ip_version_v4_unavailable">IPv4は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。</string>
+    <string name="ip_version_v6_unavailable">IPv6は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">この機能が有効である場合、VPNトンネルにIPv6とIPv4を併用してインターネットサービスと通信できます。</string>
@@ -230,6 +236,10 @@
     <string name="login_title">ログイン</string>
     <string name="malware_info">警告: マルウェアブロッカーはウィルス対策ではありませんので、そのような用途には使用しないでください。あくまで追加の保護レイヤーに過ぎません。</string>
     <string name="manage_account">アカウントを管理する</string>
+    <string name="manage_devices">デバイスを管理する</string>
+    <string name="manage_devices_confirm_removal_description_line1">%1$sを削除しますか？</string>
+    <string name="manage_devices_confirm_removal_description_line2">リストからデバイスが削除され、ログアウトされます。</string>
+    <string name="manage_devices_description">ログイン中のすべてのデバイスを表示・管理します。1つのアカウントで最大5台のデバイスを同時に利用できます。各デバイスは識別しやすくするため、ログイン時に名前が付けられます。</string>
     <string name="max_devices_confirm_removal_description">本当に&lt;b&gt;%1$s&lt;/b&gt;をログアウトしますか？</string>
     <string name="max_devices_resolved_description">このデバイスでログインを続けられるようになりました。</string>
     <string name="max_devices_resolved_title">素晴らしい！</string>
@@ -305,7 +315,6 @@
     <string name="search">検索</string>
     <string name="search_location_empty_text">「%1$s」の結果はありません。別の検索をお試しください。</string>
     <string name="search_placeholder">検索...</string>
-    <string name="search_query_empty">検索を開始するには2文字以上を入力してください。</string>
     <string name="select_location">場所を選択する</string>
     <string name="send">送信</string>
     <string name="send_anyway">とにかく送信する</string>
@@ -385,8 +394,10 @@
     <string name="voucher_is_account_number">バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。</string>
     <string name="voucher_success_title">バウチャーを正常に使用しました。</string>
     <string name="vpn_permission_denied_error">VPNへのアクセス許可が拒否されたか、別のアプリで「Always-on VPN」が有効になっています</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">VPNへアクセスする許可がありません</string>
     <string name="vpn_permission_error_notification_message">[接続] を押してVPNへのアクセス許可をリクエストしてください</string>
     <string name="vpn_permission_error_notification_title">VPN許可エラー</string>
+    <string name="vpn_settings_not_available">デバイスのVPN設定を利用できません</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
     <string name="wg_port_subtitle">この設定を有効化するには、以下の%1$sの難読化を「自動」または「オフ」に設定してください。</string>
     <string name="wireguard_custon_port_title">カスタム</string>
@@ -394,7 +405,9 @@
     <string name="wireguard_mtu_footer">WireGuard MTUの値を設定します。有効範囲: %1$d ～ %2$d</string>
     <string name="wireguard_port_info_description">自動設定では、以下の有効なポート範囲からランダムに選択されます。</string>
     <string name="wireguard_port_info_port_range">カスタムポートは次の有効範囲内の任意の値に設定できます: %1$s。</string>
+    <string name="wireguard_port_is_not_supported">選択した%1$sポートには対応していません。</string>
     <string name="wireguard_port_title">WireGuardポート</string>
+    <string name="wireguard_settings">%1$s設定で変更してください。</string>
     <string name="x_entry">%1$s (入口)</string>
     <string name="x_exit">%1$s (出口)</string>
     <string name="x_via_x">%1$s (%2$s経由)</string>

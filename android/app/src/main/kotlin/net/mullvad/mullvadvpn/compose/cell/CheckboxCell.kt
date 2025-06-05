@@ -3,11 +3,9 @@ package net.mullvad.mullvadvpn.compose.cell
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,8 +31,8 @@ internal fun CheckboxCell(
     checked: Boolean,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
-    background: Color = MaterialTheme.colorScheme.surfaceContainerLow,
-    startPadding: Dp = Dimens.mediumPadding,
+    background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    startPadding: Dp = Dimens.smallPadding,
     endPadding: Dp = Dimens.cellEndPadding,
     minHeight: Dp = Dimens.cellHeight,
 ) {
@@ -49,8 +47,6 @@ internal fun CheckboxCell(
                 .padding(start = startPadding, end = endPadding),
     ) {
         MullvadCheckbox(checked = checked, onCheckedChange = onCheckedChange)
-
-        Spacer(modifier = Modifier.size(Dimens.mediumPadding))
 
         Text(
             text = title,

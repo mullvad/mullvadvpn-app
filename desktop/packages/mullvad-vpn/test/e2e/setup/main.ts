@@ -29,6 +29,7 @@ class ApplicationMain {
     unpinnedWindow: process.platform !== 'win32' && process.platform !== 'darwin',
     browsedForSplitTunnelingApplications: [],
     changelogDisplayedForVersion: '',
+    updateDismissedForVersion: '',
     animateMap: true,
   };
 
@@ -154,7 +155,7 @@ class ApplicationMain {
       autoStart: false,
       accountData: this.accountData,
       accountHistory: undefined,
-      tunnelState: { state: 'disconnected', location: this.location },
+      tunnelState: { state: 'disconnected', location: this.location, lockedDown: false },
       settings: this.settings,
       isPerformingPostUpgrade: false,
       deviceState: this.deviceState,

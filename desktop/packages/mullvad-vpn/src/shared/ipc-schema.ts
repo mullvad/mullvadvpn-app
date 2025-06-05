@@ -33,6 +33,7 @@ interface ILogEntry {
   message: string;
 }
 import { MapData } from '../renderer/lib/3dmap';
+import { AppUpgradeError, AppUpgradeEvent } from './app-upgrade';
 import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
 import {
   IChangelog,
@@ -40,6 +41,7 @@ import {
   IHistoryObject,
   IWindowShapeParameters,
 } from './ipc-types';
+import { RoutePath } from './routes';
 
 export interface ITranslations {
   locale: string;
@@ -155,14 +157,21 @@ export const ipcSchema = {
   },
   upgradeVersion: {
     '': notifyRenderer<IAppVersionInfo>(),
+    dismissedUpgrade: send<string>(),
   },
   app: {
     quit: send<void>(),
     openUrl: invoke<string, void>(),
+    openRoute: notifyRenderer<RoutePath>(),
     showOpenDialog: invoke<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(),
     showLaunchDaemonSettings: invoke<void, void>(),
     showFullDiskAccessSettings: invoke<void, void>(),
     getPathBaseName: invoke<string, string>(),
+    upgrade: send<void>(),
+    upgradeAbort: send<void>(),
+    upgradeEvent: notifyRenderer<AppUpgradeEvent>(),
+    upgradeError: notifyRenderer<AppUpgradeError>(),
+    upgradeInstallerStart: send<string>(),
   },
   tunnel: {
     '': notifyRenderer<TunnelState>(),

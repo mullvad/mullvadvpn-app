@@ -563,7 +563,7 @@ fun VpnSettingsContent(
                                 )
                             },
                             bodyView = {},
-                            background = MaterialTheme.colorScheme.surfaceContainerLow,
+                            background = MaterialTheme.colorScheme.surfaceContainerHighest,
                             startPadding = Dimens.cellStartPaddingLarge,
                         )
                     }
@@ -619,6 +619,7 @@ fun VpnSettingsContent(
                         InformationComposeCell(
                             title = stringResource(R.string.device_ip_version_title),
                             onInfoClicked = navigateToDeviceIpInfo,
+                            onCellClicked = navigateToDeviceIpInfo,
                             modifier = Modifier.animateItem(),
                         )
                     }
@@ -659,7 +660,6 @@ fun VpnSettingsContent(
                             isToggled = it.enabled,
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockAds(it) },
-                            background = MaterialTheme.colorScheme.surfaceContainerLow,
                             startPadding = Dimens.indentedCellStartPadding,
                             modifier = Modifier.animateItem(),
                         )
@@ -672,7 +672,6 @@ fun VpnSettingsContent(
                             isToggled = it.enabled,
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockAdultContent(it) },
-                            background = MaterialTheme.colorScheme.surfaceContainerLow,
                             startPadding = Dimens.indentedCellStartPadding,
                             modifier = Modifier.animateItem(),
                         )
@@ -684,7 +683,6 @@ fun VpnSettingsContent(
                             isToggled = it.enabled,
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockGambling(it) },
-                            background = MaterialTheme.colorScheme.surfaceContainerLow,
                             startPadding = Dimens.indentedCellStartPadding,
                             modifier = Modifier.animateItem(),
                         )
@@ -699,7 +697,6 @@ fun VpnSettingsContent(
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockMalware(it) },
                             onInfoClicked = { navigateToMalwareInfo() },
-                            background = MaterialTheme.colorScheme.surfaceContainerLow,
                             startPadding = Dimens.indentedCellStartPadding,
                         )
                     }
@@ -712,7 +709,6 @@ fun VpnSettingsContent(
                             isToggled = it.enabled,
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockSocialMedia(it) },
-                            background = MaterialTheme.colorScheme.surfaceContainerLow,
                             startPadding = Dimens.indentedCellStartPadding,
                         )
                     }
@@ -725,7 +721,6 @@ fun VpnSettingsContent(
                             isToggled = it.enabled,
                             isEnabled = it.featureEnabled,
                             onCellClicked = { onToggleBlockTrackers(it) },
-                            background = MaterialTheme.colorScheme.surfaceContainerLow,
                             startPadding = Dimens.indentedCellStartPadding,
                         )
                     }

@@ -9,9 +9,7 @@ use futures::{FutureExt, StreamExt};
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
-use talpid_types::net::{
-    AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, IpAvailability, TunnelParameters,
-};
+use talpid_types::net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::ErrorExt;
 
@@ -59,8 +57,8 @@ impl ConnectingState {
         if *LOCAL_DNS_RESOLVER {
             // Set system DNS to our local DNS resolver
             let system_dns = DnsConfig::default().resolve(
-                &[std::net::Ipv4Addr::LOCALHOST.into()],
-                shared_values.filtering_resolver.listening_port(),
+                &[shared_values.filtering_resolver.listening_addr().ip()],
+                shared_values.filtering_resolver.listening_addr().port(),
             );
             let _ = shared_values
                 .dns_monitor
@@ -75,8 +73,10 @@ impl ConnectingState {
                 });
         }
 
-        let ip_availability = match shared_values.connectivity {
-            talpid_types::net::Connectivity::Offline => {
+        let ip_availability = match shared_values.connectivity.availability() {
+            Some(ip_availability) => ip_availability,
+            // If we're offline, enter the offline state
+            None => {
                 // FIXME: Temporary: Nudge route manager to update the default interface
                 #[cfg(target_os = "macos")]
                 {
@@ -85,8 +85,6 @@ impl ConnectingState {
                 }
                 return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
             }
-            talpid_types::net::Connectivity::PresumeOnline => IpAvailability::Ipv4,
-            talpid_types::net::Connectivity::Online(ip_availability) => ip_availability,
         };
 
         match shared_values.runtime.block_on(
@@ -200,8 +198,6 @@ impl ConnectingState {
             allowed_tunnel_traffic,
             #[cfg(target_os = "macos")]
             redirect_interface,
-            #[cfg(target_os = "macos")]
-            dns_redirect_port: shared_values.filtering_resolver.listening_port(),
         };
         shared_values
             .firewall

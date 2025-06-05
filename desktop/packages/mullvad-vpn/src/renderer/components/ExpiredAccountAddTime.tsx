@@ -7,15 +7,15 @@ import { formatDate } from '../../shared/account-expiry';
 import { urls } from '../../shared/constants';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
+import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Button, Flex } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
-import { Colors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
 import { generateRoutePath } from '../lib/routeHelpers';
-import { RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
@@ -36,7 +36,7 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
 export const StyledContainer = styled(Container)({
   paddingTop: '22px',
   minHeight: '100%',
-  backgroundColor: Colors.darkBlue,
+  backgroundColor: colors.darkBlue,
 });
 
 export const StyledBody = styled.div({
@@ -54,7 +54,7 @@ export const StyledTitle = styled.span(hugeText, {
 
 export const StyledLabel = styled.span(tinyText, {
   lineHeight: '20px',
-  color: Colors.white,
+  color: colors.white,
   marginBottom: '9px',
 });
 

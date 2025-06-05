@@ -71,10 +71,6 @@ class TunnelControlPage: Page {
         return connectionAttempts
     }
 
-    func getInIPv4AddressLabel() -> String {
-        app.staticTexts[AccessibilityIdentifier.connectionPanelInAddressRow].label.components(separatedBy: ":")[0]
-    }
-
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
@@ -131,23 +127,13 @@ class TunnelControlPage: Page {
 
     /// Verify that the app attempts to connect over UDP before switching to TCP. For testing blocked UDP traffic.
     @discardableResult func verifyConnectingOverTCPAfterUDPAttempts() -> Self {
-        let connectionAttempts = waitForConnectionAttempts(4, timeout: 30)
+        let connectionAttempts = waitForConnectionAttempts(3, timeout: 30)
 
         // TODO: Revisit this when QUIC obfuscation is added
-        // Should do four connection attempts but due to UI bug sometimes only two are displayed, sometimes all four
-        if connectionAttempts.count == 4 { // Expected retries flow
+        // Should do three connection attempts but due to UI bug sometimes only two are displayed, sometimes all three
+        if connectionAttempts.count == 3 { // Expected retries flow
             for (attemptIndex, attempt) in connectionAttempts.enumerated() {
-                if attemptIndex < 3 {
-                    XCTAssertEqual(attempt.protocolName, "UDP")
-                } else if attemptIndex == 3 {
-                    XCTAssertEqual(attempt.protocolName, "TCP")
-                } else {
-                    XCTFail("Unexpected connection attempt")
-                }
-            }
-        } else if connectionAttempts.count == 3 { // Most of the times this incorrect flow is shown
-            for (attemptIndex, attempt) in connectionAttempts.enumerated() {
-                if attemptIndex == 0 || attemptIndex == 1 {
+                if attemptIndex < 2 {
                     XCTAssertEqual(attempt.protocolName, "UDP")
                 } else if attemptIndex == 2 {
                     XCTAssertEqual(attempt.protocolName, "TCP")
@@ -155,8 +141,18 @@ class TunnelControlPage: Page {
                     XCTFail("Unexpected connection attempt")
                 }
             }
+        } else if connectionAttempts.count == 2 { // Most of the times this incorrect flow is shown
+            for (attemptIndex, attempt) in connectionAttempts.enumerated() {
+                if attemptIndex == 0 {
+                    XCTAssertEqual(attempt.protocolName, "UDP")
+                } else if attemptIndex == 1 {
+                    XCTAssertEqual(attempt.protocolName, "TCP")
+                } else {
+                    XCTFail("Unexpected connection attempt")
+                }
+            }
         } else {
-            XCTFail("Unexpected number of connection attempts, expected 3~4, got \(connectionAttempts.count)")
+            XCTFail("Unexpected number of connection attempts, expected 2~3, got \(connectionAttempts.count)")
         }
 
         return self
@@ -164,9 +160,9 @@ class TunnelControlPage: Page {
 
     /// Verify that connection attempts are made in the correct order
     @discardableResult func verifyConnectionAttemptsOrder() -> Self {
-        var connectionAttempts = waitForConnectionAttempts(4, timeout: 80)
+        var connectionAttempts = waitForConnectionAttempts(3, timeout: 80)
         var totalAttemptsOffset = 0
-        XCTAssertEqual(connectionAttempts.count, 4)
+        XCTAssertEqual(connectionAttempts.count, 3)
 
         /// Sometimes, the UI will only show an IP address for the first connection attempt, which gets skipped by
         /// `waitForConnectionAttempts`, and offsets expected attempts count by 1, but still counts towards
@@ -177,7 +173,7 @@ class TunnelControlPage: Page {
             totalAttemptsOffset = 1
         }
         for (attemptIndex, attempt) in connectionAttempts.enumerated() {
-            if attemptIndex < 3 - totalAttemptsOffset {
+            if attemptIndex < 2 - totalAttemptsOffset {
                 XCTAssertEqual(attempt.protocolName, "UDP")
             } else {
                 XCTAssertEqual(attempt.protocolName, "TCP")

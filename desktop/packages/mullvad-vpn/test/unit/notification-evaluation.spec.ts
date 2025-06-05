@@ -10,6 +10,7 @@ import {
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
 } from '../../src/shared/notifications';
+import { RoutePath } from '../../src/shared/routes';
 
 function createController() {
   return new NotificationController({
@@ -17,6 +18,9 @@ function createController() {
       /* no-op */
     },
     openLink: (_url: string, _withAuth?: boolean) => Promise.resolve(),
+    openRoute: (_url: RoutePath) => {
+      /* no-op */
+    },
     showNotificationIcon: (_value: boolean) => {
       /* no-op */
     },
@@ -51,7 +55,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 
@@ -69,7 +72,10 @@ describe('System notifications', () => {
     const controller1 = createController();
     const controller2 = createController();
     const notification = new UpdateAvailableNotificationProvider({
-      suggestedUpgrade: '2100.1',
+      suggestedUpgrade: {
+        changelog: [],
+        version: '2100.1',
+      },
       suggestedIsBeta: false,
     });
 
@@ -88,7 +94,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 
@@ -105,7 +110,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 
@@ -118,12 +122,12 @@ describe('System notifications', () => {
   it('Tunnel state notifications should respect notification setting', () => {
     const controller = createController();
 
-    const disconnectedState: TunnelState = { state: 'disconnected' };
+    const disconnectedState: TunnelState = { state: 'disconnected', lockedDown: false };
     const connectingState: TunnelState = { state: 'connecting', featureIndicators: undefined };
-    const result1 = controller.notifyTunnelState(disconnectedState, false, false, false, true);
-    const result2 = controller.notifyTunnelState(disconnectedState, false, false, false, false);
-    const result3 = controller.notifyTunnelState(connectingState, false, false, false, true);
-    const result4 = controller.notifyTunnelState(connectingState, false, false, false, false);
+    const result1 = controller.notifyTunnelState(disconnectedState, false, false, true);
+    const result2 = controller.notifyTunnelState(disconnectedState, false, false, false);
+    const result3 = controller.notifyTunnelState(connectingState, false, false, true);
+    const result4 = controller.notifyTunnelState(connectingState, false, false, false);
 
     expect(result1).to.be.true;
     expect(result2).to.be.false;
@@ -136,7 +140,7 @@ describe('System notifications', () => {
         cause: ErrorStateCause.isOffline,
       },
     };
-    const result5 = controller.notifyTunnelState(blockingErrorState, false, false, false, false);
+    const result5 = controller.notifyTunnelState(blockingErrorState, false, false, false);
     expect(result5).to.be.false;
 
     const nonBlockingErrorState: TunnelState = {
@@ -148,7 +152,7 @@ describe('System notifications', () => {
         },
       },
     };
-    const result6 = controller.notifyTunnelState(nonBlockingErrorState, false, false, false, false);
+    const result6 = controller.notifyTunnelState(nonBlockingErrorState, false, false, false);
     expect(result6).to.be.true;
   });
 });

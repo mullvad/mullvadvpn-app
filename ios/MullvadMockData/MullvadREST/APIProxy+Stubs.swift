@@ -53,19 +53,36 @@ struct APIProxyStub: APIQuerying {
         AnyCancellable()
     }
 
+    func legacyStorekitPayment(
+        accountNumber: String,
+        request: LegacyStorekitRequest,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
+    ) -> any Cancellable {
+        AnyCancellable()
+    }
+
     func initStorekitPayment(
         accountNumber: String,
-        retryStrategy: MullvadREST.REST.RetryStrategy,
-        completionHandler: @escaping MullvadREST.ProxyCompletionHandler<String>
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<String>
     ) -> any MullvadTypes.Cancellable {
         AnyCancellable()
     }
 
     func checkStorekitPayment(
         accountNumber: String,
-        transaction: MullvadTypes.StorekitTransaction,
-        retryStrategy: MullvadREST.REST.RetryStrategy,
-        completionHandler: @escaping MullvadREST.ProxyCompletionHandler<Void>
+        transaction: StorekitTransaction,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<Void>
+    ) -> any MullvadTypes.Cancellable {
+        AnyCancellable()
+    }
+
+    func checkApiAvailability(
+        retryStrategy: REST.RetryStrategy,
+        accessMethod: PersistentAccessMethod,
+        completion: @escaping ProxyCompletionHandler<Bool>
     ) -> any MullvadTypes.Cancellable {
         AnyCancellable()
     }

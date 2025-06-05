@@ -9,10 +9,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.core.text.HtmlCompat
 import java.net.InetAddress
@@ -75,6 +78,7 @@ fun InAppNotification.toNotificationData(
     onClickShowChangelog: () -> Unit,
     onClickDismissChangelog: () -> Unit,
     onClickDismissNewDevice: () -> Unit,
+    onClickShowWireguardPortSettings: () -> Unit,
 ) =
     when (this) {
         is InAppNotification.NewDevice ->
@@ -86,7 +90,7 @@ fun InAppNotification.toNotificationData(
                         stringResource(id = R.string.new_device_notification_message, deviceName)
                             .formatWithHtml()
                     ),
-                statusLevel = StatusLevel.Info,
+                statusLevel = statusLevel,
                 action =
                     NotificationAction(
                         Icons.Default.Clear,
@@ -98,7 +102,7 @@ fun InAppNotification.toNotificationData(
             NotificationData(
                 title = stringResource(id = R.string.account_credit_expires_soon),
                 message = LocalContext.current.resources.getExpiryQuantityString(expiry),
-                statusLevel = StatusLevel.Error,
+                statusLevel = statusLevel,
                 action =
                     if (isPlayBuild) null
                     else
@@ -111,14 +115,15 @@ fun InAppNotification.toNotificationData(
         InAppNotification.TunnelStateBlocked ->
             NotificationData(
                 title = stringResource(id = R.string.blocking_internet),
-                statusLevel = StatusLevel.Error,
+                statusLevel = StatusLevel.None,
             )
-        is InAppNotification.TunnelStateError -> errorMessageBannerData(error)
+        is InAppNotification.TunnelStateError ->
+            errorMessageBannerData(statusLevel, error, onClickShowWireguardPortSettings)
         is InAppNotification.UnsupportedVersion ->
             NotificationData(
                 title = stringResource(id = R.string.unsupported_version),
                 message = stringResource(id = R.string.unsupported_version_description),
-                statusLevel = StatusLevel.Error,
+                statusLevel = statusLevel,
                 action =
                     NotificationAction(
                         Icons.AutoMirrored.Default.OpenInNew,
@@ -145,7 +150,7 @@ fun InAppNotification.toNotificationData(
                         contentDescription =
                             stringResource(id = R.string.new_changelog_notification_message),
                     ),
-                statusLevel = StatusLevel.Info,
+                statusLevel = statusLevel,
                 action =
                     NotificationAction(
                         Icons.Default.Clear,
@@ -156,11 +161,15 @@ fun InAppNotification.toNotificationData(
     }
 
 @Composable
-private fun errorMessageBannerData(error: ErrorState) =
+private fun errorMessageBannerData(
+    statusLevel: StatusLevel,
+    error: ErrorState,
+    onClickShowWireguardPortSettings: () -> Unit,
+) =
     NotificationData(
         title = error.title().formatWithHtml(),
-        message = NotificationMessage.Text(error.message().formatWithHtml()),
-        statusLevel = StatusLevel.Error,
+        message = NotificationMessage.Text(error.message(onClickShowWireguardPortSettings)),
+        statusLevel = statusLevel,
     )
 
 @Composable
@@ -191,11 +200,13 @@ private fun ErrorState.title(): String {
 }
 
 @Composable
-private fun ErrorState.message(): String {
+private fun ErrorState.message(onClickShowWireguardPortSettings: () -> Unit): AnnotatedString {
     val cause = this.cause
     return when {
-        isBlocking -> cause.errorMessageId()
-        else -> stringResource(R.string.failed_to_block_internet)
+        cause is ErrorStateCause.NoRelaysMatchSelectedPort ->
+            cause.message(onClickShowWireguardPortSettings)
+        isBlocking -> cause.errorMessageId().formatWithHtml()
+        else -> stringResource(R.string.failed_to_block_internet).formatWithHtml()
     }
 }
 
@@ -220,6 +231,8 @@ private fun ErrorStateCause.errorMessageId(): String =
                 R.string.invalid_dns_servers,
                 addresses.joinToString { address -> address.addressString() },
             )
+        is ErrorStateCause.NoRelaysMatchSelectedPort ->
+            stringResource(R.string.wireguard_port_is_not_supported)
     }
 
 private fun AuthFailedError.errorMessageId(): Int =
@@ -248,4 +261,34 @@ private fun InetAddress.addressString(): String {
     val address = hostNameAndAddress[1]
 
     return address
+}
+
+@Composable
+private fun ErrorStateCause.NoRelaysMatchSelectedPort.message(
+    onClickShowWireguardPortSettings: () -> Unit
+) = buildAnnotatedString {
+    append(
+        stringResource(R.string.wireguard_port_is_not_supported, stringResource(R.string.wireguard))
+    )
+    append(" ")
+    withStyle(
+        SpanStyle(
+            color = MaterialTheme.colorScheme.onSurface,
+            textDecoration = TextDecoration.Underline,
+        )
+    ) {
+        withLink(
+            LinkAnnotation.Clickable(
+                tag = stringResource(R.string.wireguard),
+                linkInteractionListener =
+                    object : LinkInteractionListener {
+                        override fun onClick(link: LinkAnnotation) {
+                            onClickShowWireguardPortSettings()
+                        }
+                    },
+            )
+        ) {
+            append(stringResource(R.string.wireguard_settings, stringResource(R.string.wireguard)))
+        }
+    }
 }

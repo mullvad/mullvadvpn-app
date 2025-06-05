@@ -5,15 +5,15 @@ import styled from 'styled-components';
 import { IDevice } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
+import { RoutePath } from '../../shared/routes';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { Button, Flex, IconButton, Spinner } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
-import { Colors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { TransitionType, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { IconBadge, IconBadgeProps } from '../lib/icon-badge';
-import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
@@ -42,7 +42,7 @@ const StyledBody = styled.div({
 const StyledTitle = styled.span(bigText, {
   lineHeight: '38px',
   margin: `0 ${measurements.horizontalViewMargin} 8px`,
-  color: Colors.white,
+  color: colors.white,
 });
 
 const StyledLabel = styled.span({
@@ -50,7 +50,7 @@ const StyledLabel = styled.span({
   fontSize: '12px',
   fontWeight: 600,
   lineHeight: '20px',
-  color: Colors.white,
+  color: colors.white,
   margin: `0 ${measurements.horizontalViewMargin} 18px`,
 });
 
@@ -74,7 +74,7 @@ const StyledDeviceName = styled.span(normalText, {
 const StyledDeviceDate = styled.span(tinyText, {
   fontSize: '10px',
   lineHeight: '10px',
-  color: Colors.white60,
+  color: colors.whiteAlpha60,
 });
 
 export default function TooManyDevices() {
@@ -256,7 +256,7 @@ function Device(props: IDeviceProps) {
       <ModalAlert
         isOpen={confirmationVisible}
         type={ModalAlertType.warning}
-        iconColor={Colors.red}
+        iconColor={colors.red}
         buttons={[
           <Button variant="destructive" key="remove" onClick={onRemove} disabled={deleting}>
             <Button.Text>
@@ -290,7 +290,7 @@ function Device(props: IDeviceProps) {
       <ModalAlert
         isOpen={error}
         type={ModalAlertType.warning}
-        iconColor={Colors.red}
+        iconColor={colors.red}
         buttons={[
           <Button key="close" onClick={resetError}>
             <Button.Text>{messages.gettext('Close')}</Button.Text>

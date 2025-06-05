@@ -6,7 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
+@preconcurrency import Combine
 import MullvadSettings
 
 struct IPOverrideRepositoryStub: IPOverrideRepositoryProtocol {

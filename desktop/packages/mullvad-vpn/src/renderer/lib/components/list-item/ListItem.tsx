@@ -5,6 +5,7 @@ import {
   ListItemContent,
   ListItemFooter,
   ListItemGroup,
+  ListItemIcon,
   ListItemItem,
   ListItemLabel,
   ListItemText,
@@ -26,7 +27,7 @@ const StyledFlex = styled(Flex)`
 const ListItem = ({ level = 0, disabled, children }: ListItemProps) => {
   return (
     <ListItemProvider level={level} disabled={disabled}>
-      <StyledFlex $flexDirection="column" $gap="tiny">
+      <StyledFlex $flexDirection="column" $gap="tiny" $flex={1}>
         {children}
       </StyledFlex>
     </ListItemProvider>
@@ -41,6 +42,7 @@ const ListItemNamespace = Object.assign(ListItem, {
   Trigger: ListItemTrigger,
   Item: ListItemItem,
   Footer: ListItemFooter,
+  Icon: ListItemIcon,
 });
 
 export { ListItemNamespace as ListItem };

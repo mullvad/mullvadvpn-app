@@ -19,10 +19,11 @@ Quoting the key conclusions and recommendations chapter of the report:
 > * Consider if the TOCTOU is really mitigated by the randomly generated directory name
 > * Increase the number of characters in the randomly generated directory name
 
-The [full audit report] can be found next to this file.
+The [full audit report] can be found next to this file, or [on Assured's website].
 
 [Assured Security Consultants]: https://www.assured.se/
 [full audit report]: ./2025-03-20-assured-MUL020_Installer_Downloader_Audit.pdf
+[on Assured's website]: https://www.assured.se/publications/Assured_Mullvad_Installer_Downloader_Audit_2025.pdf
 
 ## Overview of findings
 

@@ -6,6 +6,7 @@ use tokio::net::UdpSocket;
 use std::{
     net::{Ipv4Addr, SocketAddr},
     path::PathBuf,
+    sync::Arc,
     time::Duration,
 };
 
@@ -76,11 +77,12 @@ async fn main() {
         auth,
     } = ClientArgs::parse();
 
-    let tls_config = match root_cert_path {
+    let mut tls_config = match root_cert_path {
         Some(path) => mullvad_masque_proxy::client::client_tls_config_from_cert_path(path.as_ref())
             .expect("Failed to get TLS config"),
         None => mullvad_masque_proxy::client::default_tls_config(),
     };
+    Arc::get_mut(&mut tls_config).unwrap().key_log = Arc::new(rustls::KeyLogFile::new());
 
     let _keylog = rustls::KeyLogFile::new();
 

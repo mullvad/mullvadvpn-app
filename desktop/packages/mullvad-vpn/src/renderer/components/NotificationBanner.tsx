@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
 import { IconButton } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
 import { useEffectEvent, useLastDefinedValue, useStyledRef } from '../lib/utility-hooks';
 import { tinyText } from './common-styles';
@@ -12,11 +12,11 @@ import { tinyText } from './common-styles';
 const NOTIFICATION_AREA_ID = 'notification-area';
 
 export const NotificationTitle = styled.span(tinyText, {
-  color: Colors.white,
+  color: colors.white,
 });
 
 export const NotificationSubtitleText = styled.span(tinyText, {
-  color: Colors.white60,
+  color: colors.whiteAlpha60,
 });
 
 interface INotificationSubtitleProps {
@@ -90,9 +90,9 @@ interface INotificationIndicatorProps {
 }
 
 const notificationIndicatorTypeColorMap = {
-  success: Colors.green,
-  warning: Colors.yellow,
-  error: Colors.red,
+  success: colors.green,
+  warning: colors.yellow,
+  error: colors.red,
 };
 
 export const NotificationIndicator = styled.div<INotificationIndicatorProps>((props) => ({
@@ -101,7 +101,9 @@ export const NotificationIndicator = styled.div<INotificationIndicatorProps>((pr
   borderRadius: '5px',
   marginTop: '4px',
   marginRight: '8px',
-  backgroundColor: props.$type ? notificationIndicatorTypeColorMap[props.$type] : 'transparent',
+  backgroundColor: props.$type
+    ? notificationIndicatorTypeColorMap[props.$type]
+    : colors.transparent,
 }));
 
 interface ICollapsibleProps {
@@ -114,7 +116,7 @@ const Collapsible = styled.div<ICollapsibleProps>((props) => {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: props.$alignBottom ? 'flex-end' : 'flex-start',
-    backgroundColor: Colors.darkerBlue,
+    backgroundColor: colors.darkerBlue50,
     overflow: 'hidden',
     // Using auto as the initial value prevents transition if a notification is visible on mount.
     height: props.$height === undefined ? 'auto' : `${props.$height}px`,

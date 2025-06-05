@@ -169,6 +169,7 @@ fun ScaffoldWithMediumTopBar(
     actions: @Composable RowScope.() -> Unit = {},
     scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    bottomBar: @Composable () -> Unit = {},
     content: @Composable (modifier: Modifier) -> Unit,
 ) {
     val appBarState = rememberTopAppBarState()
@@ -186,6 +187,7 @@ fun ScaffoldWithMediumTopBar(
                 scrollBehavior = scrollBehavior,
             )
         },
+        bottomBar = bottomBar,
         snackbarHost = {
             SnackbarHost(
                 snackbarHostState,
@@ -241,7 +243,7 @@ fun ScaffoldWithLargeTopBarAndButton(
                 modifier =
                     Modifier.padding(
                         horizontal = Dimens.sideMargin,
-                        vertical = Dimens.screenVerticalMargin,
+                        vertical = Dimens.screenBottomMargin,
                     ),
                 trailingIcon = {
                     Icon(
@@ -270,6 +272,7 @@ fun ScaffoldWithSmallTopBar(
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    bottomBar: @Composable () -> Unit = {},
     content: @Composable (modifier: Modifier) -> Unit,
 ) {
     Scaffold(
@@ -287,6 +290,7 @@ fun ScaffoldWithSmallTopBar(
                 snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
             )
         },
+        bottomBar = bottomBar,
         content = { content(Modifier.fillMaxSize().padding(it)) },
     )
 }

@@ -1,64 +1,35 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
 
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinx.serialization)
-
-    id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
+    alias(libs.plugins.junit5.android)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.test.e2e"
-    compileSdk = Versions.compileSdkVersion
-    buildToolsVersion = Versions.buildToolsVersion
+    compileSdk = libs.versions.compile.sdk.get().toInt()
+    buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig {
-        minSdk = Versions.minSdkVersion
+        minSdk = libs.versions.min.sdk.get().toInt()
         testApplicationId = "net.mullvad.mullvadvpn.test.e2e"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["runnerBuilder"] =
             "de.mannodermaus.junit5.AndroidJUnit5Builder"
         targetProjectPath = ":app"
 
-        fun Properties.addRequiredPropertyAsBuildConfigField(name: String) {
-            val value =
-                System.getenv(name)
-                    ?: getProperty(name)
-                    ?: throw GradleException("Missing property: $name")
+        testInstrumentationRunnerArguments += buildMap {
+            put("clearPackageData", "true")
 
-            buildConfigField(type = "String", name = name, value = "\"$value\"")
-        }
-
-        Properties().apply {
-            load(project.file("e2e.properties").inputStream())
-            addRequiredPropertyAsBuildConfigField("API_VERSION")
-            addRequiredPropertyAsBuildConfigField("TRAFFIC_GENERATION_IP_ADDRESS")
-            addRequiredPropertyAsBuildConfigField("TEST_ROUTER_API_HOST")
-        }
-
-        fun MutableMap<String, String>.addOptionalPropertyAsArgument(name: String) {
-            val value =
-                rootProject.properties.getOrDefault(name, null) as? String
-                    ?: gradleLocalProperties(rootProject.projectDir, providers).getProperty(name)
-
-            if (value != null) {
-                put(name, value)
-            }
-        }
-
-        testInstrumentationRunnerArguments +=
-            mutableMapOf<String, String>().apply {
-                put("clearPackageData", "true")
-                addOptionalPropertyAsArgument("enable_highly_rate_limited_tests")
-                addOptionalPropertyAsArgument("valid_test_account_number")
-                addOptionalPropertyAsArgument("invalid_test_account_number")
-                project.findProperty("test.e2e.enableAccessToLocalApiTests")?.let {
-                    put("enable_access_to_local_api_tests", it.toString())
+            // Add all properties starting with "test.e2e" to the testInstrumentationRunnerArguments
+            properties.forEach {
+                if (it.key.startsWith("mullvad.test.e2e")) {
+                    put(it.key, it.value.toString())
                 }
             }
+        }
     }
 
     flavorDimensions += FlavorDimensions.BILLING
@@ -93,7 +64,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = Versions.jvmTarget
+        jvmTarget = libs.versions.jvm.target.get()
         allWarningsAsErrors = true
     }
 
@@ -118,7 +89,7 @@ android {
 
 junitPlatform {
     instrumentationTests {
-        version.set(Versions.junit5Android)
+        version.set(libs.versions.junit5.android.asProvider())
         includeExtensions.set(true)
     }
 }
@@ -147,9 +118,9 @@ dependencies {
     implementation(libs.androidx.test.rules)
     implementation(libs.androidx.test.uiautomator)
     implementation(libs.kermit)
-    implementation(Dependencies.junitJupiterApi)
-    implementation(Dependencies.junit5AndroidTestExtensions)
-    implementation(Dependencies.junit5AndroidTestRunner)
+    implementation(libs.junit.jupiter.api)
+    implementation(libs.junit5.android.test.extensions)
+    implementation(libs.junit5.android.test.runner)
     implementation(libs.kotlin.stdlib)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
@@ -162,7 +133,7 @@ dependencies {
     androidTestUtil(libs.androidx.test.orchestrator)
 
     // Needed or else the app crashes when launched
-    implementation(Dependencies.junit5AndroidTestCompose)
+    implementation(libs.junit5.android.test.compose)
     implementation(libs.compose.material3)
 
     // Need these for forcing later versions of dependencies

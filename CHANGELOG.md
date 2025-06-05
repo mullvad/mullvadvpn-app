@@ -22,19 +22,70 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add in-app updates to Windows and macOS. This new feature lets you download, verify, and install
+  new versions from within the app.
+
+### Changed
+#### macOS
+- Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
+
 ### Fixed
+#### macOS
+- Add grace period when best default route goes away to reduce frequency of random reconnects.
+
+### Security
+#### Windows
+#### Windows
+- Enable control flow integrity checks (CFG) for some C++ code. This excludes `wintun`,
+  `wireguard-nt`, and OpenVPN. This addresses `MLLVD-CR-24-101` to the extent that we found
+  it valuable.
+
+
+## [2025.7-beta1] - 2025-06-04
+### Added
+- Add notification that shows when the user is connected to WireGuard with a port that is not
+supported.
+
+#### Linux
+- The deb package repositores now have static codenames on top of the existing distro version
+  specific codenames. The stable repository always have the "stable" codename,
+  and the beta repository has the "beta" codename.
+
+### Changed
+- Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
+  mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
+  uses a lot less CPU to compute the keypair, and the public key sent to the server
+  is drastically smaller.
+
+### Fixed
+- Automatically connect when IP version becomes available.
+
 #### Linux
 - Fix syntax error in Apparmor profile.
+- Fix issue where settings were lost after an upgrade if `mullvad-daemon` was not restarted
+  before `mullvad-early-boot-blocking.service`. That is, before a reboot.
+
+#### Windows
+- Fix issue where daemon got stuck trying to connect only over IPv4 (or only IPv6).
 
 #### macOS
 - Fully uninstall the app when it is removed by being dropped in the bin.
-- Add grace period when best default route goes away to reduce frequency of random reconnects.
 
 ### Security
 #### macOS
 - Fix potential local privilege escalation when app was incorrectly removed by being dropped
   in the bin but still leaving behind a launch daemon. This fixes CVE-2025-46351 reported by
   Egor Filatov (Positive Technologies).
+
+
+## [2025.6] - 2025-05-13
+This release is identical to 2025.6-beta2.
+
+
+## [2025.6-beta2] - 2025-05-07
+### Fixed
+- Fix "No OpenVPN servers" warning being displayed erroneously.
 
 
 ## [2025.6-beta1] - 2025-04-15

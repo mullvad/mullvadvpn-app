@@ -4,17 +4,14 @@ The tests in this module are end-to-end tests that rely on the publicly accessib
 
 ## How to run the tests
 ### Locally
-Set account numbers in the below command and then execute the command in the `android` directory to run the tests on a local device:
+
+Configure all the `mullvad.test.e2e.xxxx` properties located in `android/gradle.properties` by adding them into your `<GRADLE_USER_HOME>/gradle.properties`.
+
+You can also set these properties or override them when executing the command in the following way:
 ```
 ./gradlew :test:e2e:connectedDebugAndroidTest \
-    -Pvalid_test_account_number=XXXX \
-    -Pinvalid_test_account_number=XXXX
-```
-
-For convenience, the numbers can also be set in `<REPO-ROOT>/android/local.properties` in the following way:
-```
-valid_test_account_number=XXXX
-invalid_test_account_number=XXXX
+    -Pmullvad.test.e2e.prod.accountNumber.valid=XXXX \
+    -Pmullvad.test.e2e.prod.accountNumber.invalid==XXXX
 ```
 
 It's also possible to provide the numbers to the test runner during test execution. However note that this requires [the APKs to be installed manually](https://developer.android.com/training/testing/instrumented-tests/androidx-test-libraries/runner#architecture).
@@ -22,13 +19,11 @@ It's also possible to provide the numbers to the test runner during test executi
 adb shell 'CLASSPATH=$(pm path androidx.test.services) app_process / \
     androidx.test.services.shellexecutor.ShellMain am instrument -w \
     -e clearPackageData true \
-    -e valid_test_account_number XXXX \
-    -e invalid_test_account_number XXXX \
+    -e mullvad.test.e2e.prod.accountNumber.valid XXXX \
+    -e mullvad.test.e2e.prod.accountNumber.invalid XXXX \
     -e targetInstrumentation net.mullvad.mullvadvpn.test.e2e/androidx.test.runner.AndroidJUnitRunner \
     androidx.test.orchestrator/.AndroidTestOrchestrator'
 ```
-
-If you want to run tests that make use of APIs hosted at Mullvad HQ you need to set `ENABLE_ACCESS_TO_LOCAL_API_TESTS=true` in `e2e.properties` or pass it as a command line argument when launching tests.
 
 ### Firebase Test Lab
 Firebase Test Lab can be used to run the tests on vast collection of physical and virtual devices.
@@ -43,7 +38,7 @@ gcloud firebase test android run \
     --test ./android/test/e2e/build/outputs/apk/debug/e2e-debug.apk \
     --device model=redfin,version=30,locale=en,orientation=portrait \
     --use-orchestrator \
-    --environment-variables clearPackageData=true,valid_test_account_number=XXXX,invalid_test_account_number=XXXX
+    --environment-variables clearPackageData=true,ORG_GRADLE_PROJECT_mullvad.test.e2e.prod.accountNumber.valid=XXXX,ORG_GRADLE_PROJECT_mullvad.test.e2e.prod.accountNumber.invalid=XXXX
 ```
 
 If using gcloud via the docker image, the following can be executed in the `android` directory to run the tests (on a Pixel 5e):
@@ -54,7 +49,7 @@ docker run --rm --volumes-from gcloud-config -v ${PWD}:/android gcr.io/google.co
     --test ./android/test/e2e/build/outputs/apk/debug/e2e-debug.apk \
     --device model=redfin,version=30,locale=en,orientation=portrait \
     --use-orchestrator \
-    --environment-variables clearPackageData=true,valid_test_account_number=XXXX,invalid_test_account_number=XXXX
+    --environment-variables clearPackageData=true,ORG_GRADLE_PROJECT_mullvad.test.e2e.prod.accountNumber.valid=XXXX,ORG_GRADLE_PROJECT_mullvad.test.e2e.prod.accountNumber.invalid=XXXX
 ```
 
 ## Test artefacts

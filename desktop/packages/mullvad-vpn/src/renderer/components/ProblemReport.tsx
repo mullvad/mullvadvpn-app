@@ -15,6 +15,8 @@ import {
 import { messages } from '../../shared/gettext';
 import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
+import { usePushAppUpgrade } from '../history/hooks';
+import { useIsPlatformLinux } from '../hooks';
 import useActions from '../lib/actionsHook';
 import { Button, Flex, Spinner } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
@@ -336,8 +338,18 @@ function OutdatedVersionWarningDialog() {
   const isOffline = useSelector((state) => state.connection.isBlocked);
   const suggestedIsBeta = useSelector((state) => state.version.suggestedIsBeta ?? false);
   const outdatedVersion = useSelector((state) => !!state.version.suggestedUpgrade);
+  const pushAppUpgrade = usePushAppUpgrade();
 
-  const [showOutdatedVersionWarning, setShowOutdatedVersionWarning] = useState(outdatedVersion);
+  const { location } = useHistory();
+  const { state } = location;
+  const hasSuppressOutdatedVersionWarning = state?.options?.some(
+    (option) => option.type === 'suppress-outdated-version-warning',
+  );
+  const showOutdatedVersionWarningInitial = outdatedVersion && !hasSuppressOutdatedVersionWarning;
+
+  const [showOutdatedVersionWarning, setShowOutdatedVersionWarning] = useState(
+    showOutdatedVersionWarningInitial,
+  );
 
   const acknowledgeOutdatedVersion = useCallback(() => {
     setShowOutdatedVersionWarning(false);
@@ -346,6 +358,16 @@ function OutdatedVersionWarningDialog() {
   const openDownloadLink = useCallback(async () => {
     await openUrl(getDownloadUrl(suggestedIsBeta));
   }, [openUrl, suggestedIsBeta]);
+
+  const isLinux = useIsPlatformLinux();
+  const upgradeAction = useCallback(async () => {
+    if (isLinux) {
+      await openDownloadLink();
+    } else {
+      acknowledgeOutdatedVersion();
+      pushAppUpgrade();
+    }
+  }, [isLinux, openDownloadLink, pushAppUpgrade, acknowledgeOutdatedVersion]);
 
   const outdatedVersionCancel = useCallback(() => {
     acknowledgeOutdatedVersion();
@@ -357,6 +379,8 @@ function OutdatedVersionWarningDialog() {
     'You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report.',
   );
 
+  const disabled = isLinux && isOffline;
+
   return (
     <ModalAlert
       isOpen={showOutdatedVersionWarning}
@@ -366,13 +390,13 @@ function OutdatedVersionWarningDialog() {
         <Button
           key="upgrade"
           variant="success"
-          disabled={isOffline}
-          onClick={openDownloadLink}
+          disabled={disabled}
+          onClick={upgradeAction}
           aria-description={messages.pgettext('accessibility', 'Opens externally')}>
           <Button.Text>
             {
-              // TRANSLATORS: Button label for upgrading the app to the latest version.
-              messages.pgettext('support-view', 'Upgrade app')
+              // TRANSLATORS: Button label for updating the app to the latest version.
+              messages.pgettext('support-view', 'Update app')
             }
           </Button.Text>
           <Button.Icon icon="external" />

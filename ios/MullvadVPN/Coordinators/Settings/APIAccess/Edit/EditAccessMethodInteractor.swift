@@ -15,18 +15,44 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     let repository: AccessMethodRepositoryProtocol
     let proxyConfigurationTester: ProxyConfigurationTesterProtocol
 
+    init(
+        subject: CurrentValueSubject<AccessMethodViewModel, Never>,
+        repository: AccessMethodRepositoryProtocol,
+        proxyConfigurationTester: ProxyConfigurationTesterProtocol
+    ) {
+        self.subject = subject
+        self.repository = repository
+        self.proxyConfigurationTester = proxyConfigurationTester
+        checkIfSwitchCanBeToggled()
+    }
+
+    // The access method can only be disabled if at least one other method is enabled
+    private func checkIfSwitchCanBeToggled() {
+        let enabledMethodsCount = repository.fetchAll().count { $0.isEnabled }
+        if enabledMethodsCount < 2 {
+            subject.value.canBeToggled = !subject.value.isEnabled
+        } else {
+            subject.value.canBeToggled = true
+        }
+    }
+
     func saveAccessMethod() {
         guard let persistentMethod = try? subject.value.intoPersistentAccessMethod() else { return }
 
         repository.save(persistentMethod)
+        checkIfSwitchCanBeToggled()
     }
 
     func deleteAccessMethod() {
         repository.delete(id: subject.value.id)
+        // Enable direct access if all methods are disabled
+        if repository.fetchAll().count(where: { $0.isEnabled }) == 0 {
+            repository.save(repository.directAccess)
+        }
     }
 
     func startProxyConfigurationTest(_ completion: (@Sendable (Bool) -> Void)?) {
-        guard let config = try? subject.value.intoPersistentProxyConfiguration() else { return }
+        guard let config = try? subject.value.intoPersistentAccessMethod() else { return }
 
         let subject = subject
         subject.value.testingStatus = .inProgress

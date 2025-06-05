@@ -5,27 +5,20 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
-internal object RelayItemPreviewData {
-    fun generateRelayItemCountry(
-        name: String,
-        cityNames: List<String>,
-        relaysPerCity: Int,
-        active: Boolean = true,
-    ) =
-        RelayItem.Location.Country(
-            name = name,
-            id = name.generateCountryCode(),
-            cities =
-                cityNames.map { cityName ->
-                    generateRelayItemCity(
-                        cityName,
-                        name.generateCountryCode(),
-                        relaysPerCity,
-                        active,
-                    )
-                },
-        )
-}
+fun generateRelayItemCountry(
+    name: String,
+    cityNames: List<String>,
+    relaysPerCity: Int,
+    active: Boolean = true,
+) =
+    RelayItem.Location.Country(
+        name = name,
+        id = name.generateCountryCode(),
+        cities =
+            cityNames.map { cityName ->
+                generateRelayItemCity(cityName, name.generateCountryCode(), relaysPerCity, active)
+            },
+    )
 
 private fun generateRelayItemCity(
     name: String,

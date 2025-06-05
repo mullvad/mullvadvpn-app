@@ -15,7 +15,7 @@ enum MullvadAPIError: Error {
     case requestError
 }
 
-class MullvadAPIWrapper {
+class MullvadAPIWrapper: @unchecked Sendable {
     private var mullvadAPI: MullvadApi
     private let throttleQueue = DispatchQueue(label: "MullvadAPIWrapperThrottleQueue", qos: .userInitiated)
     private var lastCallDate: Date?
@@ -38,7 +38,7 @@ class MullvadAPIWrapper {
     }
 
     /// Throttle what's in the callback. This is used for throttling requests to the app API. All requests should be throttled or else we might be rate limited. The API allows maximum 5 requests per second. Note that the implementation assumes what is being throttled is synchronous.
-    private func throttle(callback: @escaping () -> Void) {
+    private func throttle(callback: @Sendable @escaping () -> Void) {
         throttleQueue.async {
             let now = Date()
             var delay: TimeInterval = 0
@@ -85,7 +85,7 @@ class MullvadAPIWrapper {
     }
 
     func createAccount() -> String {
-        var accountNumber = String()
+        nonisolated(unsafe) var accountNumber = String()
         let requestCompletedExpectation = XCTestExpectation(description: "Create account request completed")
 
         throttle {
@@ -150,7 +150,7 @@ class MullvadAPIWrapper {
     }
 
     func getAccountExpiry(_ account: String) throws -> Date {
-        var accountExpiryDate: Date = .distantPast
+        nonisolated(unsafe) var accountExpiryDate: Date = .distantPast
         let requestCompletedExpectation = XCTestExpectation(description: "Get account expiry request completed")
 
         throttle {
@@ -171,7 +171,7 @@ class MullvadAPIWrapper {
     }
 
     func getDevices(_ account: String) throws -> [Device] {
-        var devices: [Device] = []
+        nonisolated(unsafe) var devices: [Device] = []
         let requestCompletedExpectation = XCTestExpectation(description: "Get devices request completed")
 
         throttle {

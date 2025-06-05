@@ -153,7 +153,7 @@ val uiModule = module {
     single { WireguardConstraintsRepository(get()) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) }
-    single { TunnelStateNotificationUseCase(get()) }
+    single { TunnelStateNotificationUseCase(get(), get(), get()) }
     single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
     single { NewDeviceNotificationUseCase(get(), get()) }
     single { NewChangelogNotificationUseCase(get()) }
@@ -232,7 +232,7 @@ val uiModule = module {
     viewModel { WireguardCustomPortDialogViewModel(get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
-    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }

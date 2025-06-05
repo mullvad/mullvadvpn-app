@@ -52,7 +52,7 @@ public final class Promise<Success, Failure: Error>: @unchecked Sendable {
 // allows the waiter to wait to `receive()` from another operation
 // asynchronously. It is important not to forget to call `send`, otherwise this
 // operation will block indefinitely.
-public struct OneshotChannel {
+public struct OneshotChannel: Sendable {
     private var continuation: AsyncStream<Void>.Continuation?
     private var stream: AsyncStream<Void>
 

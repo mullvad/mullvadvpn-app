@@ -104,10 +104,6 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
         SelectLocationPage(app)
             .tapFilterButton()
 
-        SelectLocationFilterPage(app)
-            .tapOwnershipCellExpandButton()
-            .tapProvidersCellExpandButton()
-
         snapshot("RelayFilter")
     }
 

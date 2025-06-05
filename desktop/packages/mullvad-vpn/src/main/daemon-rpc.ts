@@ -1,4 +1,5 @@
 import * as grpc from '@grpc/grpc-js';
+import fs from 'fs';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb.js';
 import { BoolValue, StringValue } from 'google-protobuf/google/protobuf/wrappers_pb.js';
 import { types as grpcTypes } from 'management-interface';
@@ -12,6 +13,7 @@ import {
   BridgeState,
   CustomListError,
   CustomProxy,
+  DaemonAppUpgradeEvent,
   DaemonEvent,
   DeviceState,
   IAppVersionInfo,
@@ -31,6 +33,8 @@ import {
 import { ConnectionObserver, GrpcClient, noConnectionError } from './grpc-client';
 import {
   convertFromApiAccessMethodSetting,
+  convertFromAppUpgradeEvent,
+  convertFromAppVersionInfo,
   convertFromDaemonEvent,
   convertFromDevice,
   convertFromDeviceState,
@@ -47,7 +51,9 @@ import {
 } from './grpc-type-convertions';
 
 const DAEMON_RPC_PATH =
-  process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
+  process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
+const DAEMON_RPC_PATH_PREFIX = 'unix://';
+const DAEMON_RPC_PATH_PREFIXED = `${DAEMON_RPC_PATH_PREFIX}${DAEMON_RPC_PATH}`;
 
 export class SubscriptionListener<T> {
   // Only meant to be used by DaemonRpc
@@ -74,10 +80,13 @@ export class SubscriptionListener<T> {
 
 export class DaemonRpc extends GrpcClient {
   private nextSubscriptionId = 0;
-  private subscriptions: Map<number, grpc.ClientReadableStream<grpcTypes.DaemonEvent>> = new Map();
+  private subscriptions: Map<
+    number,
+    grpc.ClientReadableStream<grpcTypes.DaemonEvent | grpcTypes.AppUpgradeEvent>
+  > = new Map();
 
   public constructor(connectionObserver?: ConnectionObserver) {
-    super(DAEMON_RPC_PATH, connectionObserver);
+    super(DAEMON_RPC_PATH_PREFIXED, connectionObserver);
   }
 
   public disconnect() {
@@ -86,6 +95,62 @@ export class DaemonRpc extends GrpcClient {
     }
 
     super.disconnect();
+  }
+
+  public async verifyDaemonOwnership() {
+    if (process.platform === 'win32') {
+      try {
+        const { pipeIsAdminOwned } = await import('windows-utils');
+        pipeIsAdminOwned(DAEMON_RPC_PATH);
+      } catch {
+        throw new Error('Failed to verify admin ownership of named pipe');
+      }
+    } else {
+      const stat = fs.statSync(DAEMON_RPC_PATH);
+      if (stat.uid !== 0) {
+        throw new Error('Failed to verify root ownership of socket');
+      }
+    }
+  }
+
+  public subscribeAppUpgradeEventListener(listener: SubscriptionListener<DaemonAppUpgradeEvent>) {
+    const call = this.isConnected && this.client.appUpgradeEventsListen(new Empty());
+    if (!call) {
+      throw noConnectionError;
+    }
+    const subscriptionId = this.subscriptionId();
+    listener.subscriptionId = subscriptionId;
+    this.subscriptions.set(subscriptionId, call);
+
+    call.on('data', (data: grpcTypes.AppUpgradeEvent) => {
+      try {
+        const appUpgradeEvent = convertFromAppUpgradeEvent(data);
+        listener.onEvent(appUpgradeEvent);
+      } catch (e) {
+        const error = e as Error;
+        listener.onError(error);
+      }
+    });
+
+    call.on('error', (error) => {
+      listener.onError(error);
+      this.removeSubscription(subscriptionId);
+    });
+  }
+
+  public appUpgrade() {
+    void this.callEmpty(this.client.appUpgrade);
+  }
+
+  public appUpgradeAbort() {
+    void this.callEmpty(this.client.appUpgradeAbort);
+  }
+
+  public unsubscribeAppUpgradeEventListener(listener: SubscriptionListener<DaemonAppUpgradeEvent>) {
+    const id = listener.subscriptionId;
+    if (id !== undefined) {
+      this.removeSubscription(id);
+    }
   }
 
   public subscribeDaemonEventListener(listener: SubscriptionListener<DaemonEvent>) {
@@ -428,7 +493,9 @@ export class DaemonRpc extends GrpcClient {
 
   public async getVersionInfo(): Promise<IAppVersionInfo> {
     const response = await this.callEmpty<grpcTypes.AppVersionInfo>(this.client.getVersionInfo);
-    return response.toObject();
+    const versionInfo = convertFromAppVersionInfo(response);
+
+    return versionInfo;
   }
 
   public async addSplitTunnelingApplication(path: string): Promise<void> {

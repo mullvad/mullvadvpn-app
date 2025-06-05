@@ -1,4 +1,4 @@
-use crate::{account_history, device, version_check, DaemonCommand, DaemonCommandSender};
+use crate::{account_history, device, DaemonCommand, DaemonCommandSender};
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
@@ -38,14 +38,20 @@ pub enum Error {
     SetupError(#[source] mullvad_management_interface::Error),
 }
 
+pub type AppUpgradeBroadcast = tokio::sync::broadcast::Sender<version::AppUpgradeEvent>;
+
 struct ManagementServiceImpl {
     daemon_tx: DaemonCommandSender,
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
+    pub app_upgrade_broadcast: AppUpgradeBroadcast,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
 type EventsListenerReceiver = UnboundedReceiverStream<Result<types::DaemonEvent, Status>>;
 type EventsListenerSender = tokio::sync::mpsc::UnboundedSender<Result<types::DaemonEvent, Status>>;
+
+type AppUpgradeEventListenerReceiver =
+    Box<dyn futures::Stream<Item = Result<types::AppUpgradeEvent, Status>> + Send + Unpin>;
 
 const INVALID_VOUCHER_MESSAGE: &str = "This voucher code is invalid";
 const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
@@ -54,6 +60,7 @@ const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
 impl ManagementService for ManagementServiceImpl {
     type GetSplitTunnelProcessesStream = UnboundedReceiverStream<Result<i32, Status>>;
     type EventsListenStream = EventsListenerReceiver;
+    type AppUpgradeEventsListenStream = AppUpgradeEventListenerReceiver;
 
     // Control and get the tunnel state
     //
@@ -139,7 +146,7 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("get_current_version");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetCurrentVersion(tx))?;
-        let version = self.wait_for_result(rx).await?;
+        let version = self.wait_for_result(rx).await?.to_string();
         Ok(Response::new(version))
     }
 
@@ -1115,6 +1122,53 @@ impl ManagementService for ManagementServiceImpl {
         self.wait_for_result(rx).await?;
         Ok(Response::new(()))
     }
+
+    // App upgrade
+
+    async fn app_upgrade(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("app_upgrade");
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::AppUpgrade(tx))?;
+
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_version_check_error)?;
+
+        Ok(Response::new(()))
+    }
+
+    async fn app_upgrade_abort(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("app_upgrade_abort");
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::AppUpgradeAbort(tx))?;
+
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_version_check_error)?;
+
+        Ok(Response::new(()))
+    }
+
+    async fn app_upgrade_events_listen(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<Self::AppUpgradeEventsListenStream> {
+        log::debug!("app_upgrade_events_listen");
+        let rx = self.app_upgrade_broadcast.subscribe();
+        let upgrade_event_stream =
+            tokio_stream::wrappers::BroadcastStream::new(rx).map(|result| match result {
+                Ok(event) => Ok(event.into()),
+                Err(error) => Err(Status::internal(format!(
+                    "Failed to receive app upgrade event: {error}"
+                ))),
+            });
+
+        Ok(Response::new(
+            Box::new(upgrade_event_stream) as Self::AppUpgradeEventsListenStream
+        ))
+    }
 }
 
 impl ManagementServiceImpl {
@@ -1147,15 +1201,19 @@ impl ManagementInterfaceServer {
     pub fn start(
         daemon_tx: DaemonCommandSender,
         rpc_socket_path: impl AsRef<Path>,
+        app_upgrade_broadcast: tokio::sync::broadcast::Sender<version::AppUpgradeEvent>,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
+
         // NOTE: It is important that the channel buffer size is kept at 0. When sending a signal
         // to abort the gRPC server, the sender can be awaited to know when the gRPC server has
         // received and started processing the shutdown signal.
         let (server_abort_tx, server_abort_rx) = mpsc::channel(0);
+
         let server = ManagementServiceImpl {
             daemon_tx,
             subscriptions: subscriptions.clone(),
+            app_upgrade_broadcast,
         };
         let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
             server,
@@ -1257,7 +1315,7 @@ impl ManagementInterfaceEventBroadcaster {
     /// Notify that info about the latest available app version changed.
     /// Or some flag about the currently running version is changed.
     pub(crate) fn notify_app_version(&self, app_version_info: version::AppVersionInfo) {
-        log::debug!("Broadcasting new app version info");
+        log::debug!("Broadcasting app version info:\n{app_version_info}");
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::VersionInfo(
                 types::AppVersionInfo::from(app_version_info),
@@ -1393,11 +1451,11 @@ fn map_account_history_error(error: account_history::Error) -> Status {
     }
 }
 
-fn map_version_check_error(error: version_check::Error) -> Status {
+fn map_version_check_error(error: crate::version::Error) -> Status {
     match error {
-        version_check::Error::Download(..)
-        | version_check::Error::ReadVersionCache(..)
-        | version_check::Error::ApiCheck(..) => Status::unavailable(error.to_string()),
+        crate::version::Error::Download(..)
+        | crate::version::Error::ReadVersionCache(..)
+        | crate::version::Error::ApiCheck(..) => Status::unavailable(error.to_string()),
         _ => Status::unknown(error.to_string()),
     }
 }

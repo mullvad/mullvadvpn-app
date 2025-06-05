@@ -12,14 +12,14 @@ struct ProblemReportViewModel {
     let email: String
     let message: String
 
-    let navigationTitle = NSLocalizedString(
+    static let navigationTitle = NSLocalizedString(
         "NAVIGATION_TITLE",
         tableName: "ProblemReport",
         value: "Report a problem",
         comment: ""
     )
 
-    let subheadLabelText = NSLocalizedString(
+    static let subheadLabelText = NSLocalizedString(
         "SUBHEAD_LABEL",
         tableName: "ProblemReport",
         value: """
@@ -30,14 +30,14 @@ struct ProblemReportViewModel {
         comment: ""
     )
 
-    let emailPlaceholderText = NSLocalizedString(
+    static let emailPlaceholderText = NSLocalizedString(
         "EMAIL_TEXTFIELD_PLACEHOLDER",
         tableName: "ProblemReport",
         value: "Your email (optional)",
         comment: ""
     )
 
-    let messageTextViewPlaceholder = NSLocalizedString(
+    static let messageTextViewPlaceholder = NSLocalizedString(
         "DESCRIPTION_TEXTVIEW_PLACEHOLDER",
         tableName: "ProblemReport",
         value: """
@@ -47,21 +47,21 @@ struct ProblemReportViewModel {
         comment: ""
     )
 
-    let viewLogsButtonTitle = NSLocalizedString(
+    static let viewLogsButtonTitle = NSLocalizedString(
         "VIEW_APP_LOGS_BUTTON_TITLE",
         tableName: "ProblemReport",
         value: "View app logs",
         comment: ""
     )
 
-    let sendLogsButtonTitle = NSLocalizedString(
+    static let sendLogsButtonTitle = NSLocalizedString(
         "SEND_BUTTON_TITLE",
         tableName: "ProblemReport",
         value: "Send",
         comment: ""
     )
 
-    let emptyEmailAlertWarning = NSLocalizedString(
+    static let emptyEmailAlertWarning = NSLocalizedString(
         "EMPTY_EMAIL_ALERT_MESSAGE",
         tableName: "ProblemReport",
         value: """
@@ -71,14 +71,14 @@ struct ProblemReportViewModel {
         comment: ""
     )
 
-    let confirmEmptyEmailTitle = NSLocalizedString(
+    static let confirmEmptyEmailTitle = NSLocalizedString(
         "EMPTY_EMAIL_ALERT_SEND_ANYWAY_ACTION",
         tableName: "ProblemReport",
         value: "Send anyway",
         comment: ""
     )
 
-    let cancelEmptyEmailTitle = NSLocalizedString(
+    static let cancelEmptyEmailTitle = NSLocalizedString(
         "EMPTY_EMAIL_ALERT_CANCEL_ACTION",
         tableName: "ProblemReport",
         value: "Cancel",

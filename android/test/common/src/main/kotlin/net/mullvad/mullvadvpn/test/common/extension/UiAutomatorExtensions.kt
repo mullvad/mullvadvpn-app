@@ -1,13 +1,15 @@
 package net.mullvad.mullvadvpn.test.common.extension
 
-import android.os.Build
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
+import androidx.test.uiautomator.StableResult
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiObject2Condition
 import androidx.test.uiautomator.Until
+import androidx.test.uiautomator.waitForAppToBeVisible
+import androidx.test.uiautomator.waitForStableInActiveWindow
 import co.touchlab.kermit.Logger
 import java.lang.Thread.sleep
 import java.util.regex.Pattern
@@ -15,10 +17,6 @@ import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
 
 fun UiDevice.findObjectByCaseInsensitiveText(text: String): UiObject2 {
-    return findObjectWithTimeout(By.text(Pattern.compile(text, Pattern.CASE_INSENSITIVE)))
-}
-
-fun UiObject2.findObjectByCaseInsensitiveText(text: String): UiObject2 {
     return findObjectWithTimeout(By.text(Pattern.compile(text, Pattern.CASE_INSENSITIVE)))
 }
 
@@ -89,40 +87,6 @@ fun UiDevice.clickObjectAwaitIsChecked(selector: BySelector, timeout: Long = LON
     )
 }
 
-fun UiDevice.clickAgreeOnPrivacyDisclaimer() {
-    findObjectWithTimeout(By.text("Agree and continue")).click()
-}
-
-// The dialog will only be shown when there's a new version code and bundled release notes.
-fun UiDevice.dismissChangelogDialogIfShown() {
-    try {
-        findObjectWithTimeout(By.text("Got it!")).click()
-    } catch (e: IllegalArgumentException) {
-        // This is OK since it means the changes dialog wasn't shown.
-    }
-}
-
-fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
-    timeout: Long = DEFAULT_TIMEOUT
-) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-        // Skipping as notification permissions are not shown.
-        return
-    }
-
-    val selector = By.text("Allow")
-
-    wait(Until.hasObject(selector), timeout)
-
-    try {
-        findObjectWithTimeout(selector).click()
-    } catch (e: IllegalArgumentException) {
-        throw IllegalArgumentException(
-            "Failed to allow notification permission within timeout ($timeout ms)"
-        )
-    }
-}
-
 fun UiDevice.pressBackTwice() {
     pressBack()
     pressBack()
@@ -143,3 +107,22 @@ fun UiObject2.findObjectWithTimeout(
         )
     }
 }
+
+fun UiDevice.acceptVpnPermissionDialog() {
+    findObjectWithTimeout(By.text("Connection request"))
+    // Accept Creating the VPN Permission profile
+    findObjectWithTimeout(By.text("OK")).click()
+    waitForAppToBeVisible(currentPackageName)
+}
+
+fun UiDevice.waitForStableInActiveWindowSafe(): StableResult? =
+    try {
+        // Wait for stable is not very stable, but it is our best best to wait for animation to
+        // settle. For now we will just catch the exception and sleep for a bit and hope for the
+        // best.
+        waitForStableInActiveWindow()
+    } catch (e: Exception) {
+        Logger.e("waitForStableInActiveWindow failed", e)
+        sleep(1000)
+        null
+    }

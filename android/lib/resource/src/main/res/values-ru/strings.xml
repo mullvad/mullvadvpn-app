@@ -97,6 +97,7 @@
     <string name="created_x">Создано: %1$s</string>
     <string name="creating_new_account">Создание учетной записи...</string>
     <string name="critical_error">Критическая ошибка (требуется ваше участие)</string>
+    <string name="current_device">Текущее устройство</string>
     <string name="current_method">Текущий: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Чтобы активировать этот параметр, отключите все %1$s выше.</string>
     <string name="custom_dns_footer">Чтобы добавить как минимум один DNS-сервер, включите этот параметр.</string>
@@ -116,6 +117,7 @@
     <string name="daita_description_slide_2_second_paragraph">Для этого %1$s добавляет в трафик сетевой шум, а все пакеты приводятся к одному размеру.</string>
     <string name="daita_description_slide_2_third_paragraph">%1$s поддерживается не на всех серверах. Поэтому, чтобы функция %1$s работала с любым сервером, мы автоматически используем многократный переход.</string>
     <string name="daita_info">После включения параметра «%1$s» вы должны будете вручную выбрать сервер, который поддерживает %2$s. В результате вы можете оказаться заблокированы, пока не выберете совместимый сервер в окне выбора местоположения.</string>
+    <string name="daita_multihop">%1$s: многократный переход</string>
     <string name="delete">Удалить</string>
     <string name="delete_custom_list_confirmation_description">Удалить список «%1$s»?</string>
     <string name="delete_custom_list_message">Список «%1$s» удален</string>
@@ -125,6 +127,8 @@
     <string name="device_inactive_description">Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход.</string>
     <string name="device_inactive_title">Устройство неактивно</string>
     <string name="device_inactive_unblock_warning">Вход в профиль разблокирует Интернет на этом устройстве.</string>
+    <string name="device_ip_info_first_paragraph">Позволяет настроить выбор используемого протокола: только IPv4, только IPv6 или разрешить приложению выбирать лучший вариант при подключении к серверу.</string>
+    <string name="device_ip_info_second_paragraph">Может быть полезно, если вам известно, что с определенной версией IP есть проблемы.</string>
     <string name="device_ip_version_title">Версия IP на устройстве</string>
     <string name="device_name">Имя устройства</string>
     <string name="device_name_info_first_paragraph">Это имя, присвоенное устройству. Каждое устройство, подключенное к учетной записи Mullvad, получает уникальное имя, которое помогает вам идентифицировать его при управлении устройствами в приложении или на сайте.</string>
@@ -199,6 +203,8 @@
     <string name="import_overrides_text_title">Импортировать через текст</string>
     <string name="invalid_dns_servers">Пользовательские адреса DNS-серверов %1$s недопустимы</string>
     <string name="invalid_voucher">Код ваучера недействителен.</string>
+    <string name="ip_version_v4_unavailable">Протокол IPv4 недоступен, попробуйте изменить настройку «Версия IP на устройстве».</string>
+    <string name="ip_version_v6_unavailable">Протокол IPv6 недоступен, попробуйте изменить настройку «Версия IP на устройстве».</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">Когда эта функция включена, IPv6 может использоваться наряду с IPv4 для связи с интернет-сервисами через VPN-туннель.</string>
@@ -230,6 +236,10 @@
     <string name="login_title">Вход</string>
     <string name="malware_info">Внимание! Блокировщик вредоносного ПО — это просто дополнительный уровень защиты, а не антивирус.</string>
     <string name="manage_account">Управление учетной записью</string>
+    <string name="manage_devices">Управление устройствами</string>
+    <string name="manage_devices_confirm_removal_description_line1">Удалить устройство «%1$s»?</string>
+    <string name="manage_devices_confirm_removal_description_line2">Устройство будет удалено из списка. На нем будет выполнен выход из системы.</string>
+    <string name="manage_devices_description">Просмотр подключенных устройств и управление ими. К одной учетной записи можно подключить 5 устройств. При входе каждому устройству присваивается имя, чтобы помочь различать их.</string>
     <string name="max_devices_confirm_removal_description">Действительно выйти из профиля на устройстве &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Теперь можно войти в учетную запись на этом устройстве.</string>
     <string name="max_devices_resolved_title">Отлично!</string>
@@ -305,7 +315,6 @@
     <string name="search">Поиск</string>
     <string name="search_location_empty_text">По запросу «%1$s» ничего не найдено — попробуйте другой запрос</string>
     <string name="search_placeholder">Поиск...</string>
-    <string name="search_query_empty">Чтобы начать поиск, введите не менее двух символов.</string>
     <string name="select_location">Выбор местоположения</string>
     <string name="send">Отправить</string>
     <string name="send_anyway">Все равно отправить</string>
@@ -385,8 +394,10 @@
     <string name="voucher_is_account_number">Вы ввели номер учетной записи вместо кода ваучера. Чтобы изменить активную учетную запись, сначала выйдите из системы.</string>
     <string name="voucher_success_title">Ваучер погашен.</string>
     <string name="vpn_permission_denied_error">Нет разрешения на использование VPN или другое приложение работает в режиме «Постоянная VPN»</string>
+    <string name="vpn_permission_denied_error_no_vpn_settings">Нет разрешения на использование VPN</string>
     <string name="vpn_permission_error_notification_message">Чтобы запросить разрешение для VPN, нажмите «Подключить»</string>
     <string name="vpn_permission_error_notification_title">Ошибка разрешения для VPN</string>
+    <string name="vpn_settings_not_available">Настройки VPN недоступны на устройстве</string>
     <string name="we_will_look_into_this">Мы рассмотрим эту проблему.</string>
     <string name="wg_port_subtitle">Чтобы активировать эту настройку, установите для параметра обфускации %1$s значение «Автоматически» или «Выкл.» (см. ниже).</string>
     <string name="wireguard_custon_port_title">Пользовательский</string>
@@ -394,7 +405,9 @@
     <string name="wireguard_mtu_footer">Установите значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">При автоматической настройке порт будет выбираться случайным образом из допустимого диапазона, показанного ниже.</string>
     <string name="wireguard_port_info_port_range">Пользовательский порт может принимать любое значение внутри допустимых диапазонов: %1$s.</string>
+    <string name="wireguard_port_is_not_supported">Выбранный порт %1$s не поддерживается. Измените его в</string>
     <string name="wireguard_port_title">Порт WireGuard</string>
+    <string name="wireguard_settings">настройках %1$s.</string>
     <string name="x_entry">%1$s (вход)</string>
     <string name="x_exit">%1$s (выход)</string>
     <string name="x_via_x">%1$s через %2$s</string>

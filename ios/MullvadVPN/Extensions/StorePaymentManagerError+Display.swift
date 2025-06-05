@@ -75,7 +75,7 @@ extension StorePaymentManagerError: DisplayError {
                 comment: ""
             )
             var errorString = String(format: errorFormat, reason)
-            errorString.append("\n\n")
+            errorString.append("\n")
             errorString.append(recoverySuggestion)
             return errorString
 

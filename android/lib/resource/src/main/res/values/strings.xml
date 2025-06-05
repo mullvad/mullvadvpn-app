@@ -389,7 +389,6 @@
     <string name="x_exit">%s (Exit)</string>
     <string name="filters">Filters:</string>
     <string name="removed_provider">%s (removed)</string>
-    <string name="search_query_empty">Type at least 2 characters to start searching.</string>
     <string name="daita_description_slide_1_first_paragraph">Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) hides patterns in your encrypted VPN traffic.</string>
     <string name="daita_description_slide_1_third_paragraph">By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</string>
@@ -418,4 +417,6 @@
     <string name="daita_multihop">%s: Multihop</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN permission was denied</string>
     <string name="vpn_settings_not_available">VPN Settings not available on device</string>
+    <string name="wireguard_port_is_not_supported">The selected %s port is not supported, please change it under</string>
+    <string name="wireguard_settings">%s settings.</string>
 </resources>

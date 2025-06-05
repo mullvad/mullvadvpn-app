@@ -159,6 +159,8 @@ repositories_were_updated="false"
 for repository in "${REPOSITORIES[@]}"; do
     deb_remote_repo_dir="deb/$repository"
     rpm_remote_repo_dir="rpm/$repository"
+    # Stable or beta
+    release_channel="$repository"
 
     repository_inbox_dir="$inbox_dir/$repository"
     if ! process_inbox "$repository_inbox_dir"; then
@@ -179,7 +181,7 @@ for repository in "${REPOSITORIES[@]}"; do
 
     deb_repo_dir="$repository_inbox_dir/repos/deb"
     rm -rf "$deb_repo_dir" && mkdir -p "$deb_repo_dir" || exit 1
-    "$SCRIPT_DIR/prepare-apt-repository.sh" "$deb_repo_dir" "${artifact_dirs[@]}"
+    "$SCRIPT_DIR/prepare-apt-repository.sh" "$release_channel" "$deb_repo_dir" "${artifact_dirs[@]}"
 
     # Generate rpm repository from all the .latest artifacts
 

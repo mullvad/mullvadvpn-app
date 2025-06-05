@@ -114,7 +114,12 @@ fun PrivacyDisclaimerScreen(state: PrivacyDisclaimerViewState, onAcceptClicked: 
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.surface)
                 .verticalScroll(scrollState)
-                .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
+                .padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    top = Dimens.screenTopMargin,
+                    bottom = Dimens.screenBottomMargin,
+                )
                 .drawVerticalScrollbar(
                     state = scrollState,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar),

@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { InAppNotificationSubtitle } from '../../shared/notifications';
-import { LabelTiny } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { LabelTiny, Link } from '../lib/components';
 import { formatHtml } from '../lib/html-formatter';
+import { buttonReset } from '../lib/styles';
 import { ExternalLink } from './ExternalLink';
 import { InternalLink } from './InternalLink';
 
@@ -12,9 +12,12 @@ export type NotificationSubtitleProps = {
   subtitle?: string | InAppNotificationSubtitle[];
 };
 
-const StyledExternalLink = styled(ExternalLink)`
-  display: flex;
-`;
+const StyledLink = styled(Link)(() => {
+  const { color: _, ...reset } = buttonReset;
+  return {
+    ...reset,
+  };
+});
 
 const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
   const content = formatHtml(subtitle.content);
@@ -23,16 +26,23 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
       case 'navigate-internal':
         return (
           <InternalLink variant="labelTiny" {...subtitle.action.link}>
-            {content}
+            <InternalLink.Text>{content}</InternalLink.Text>
           </InternalLink>
         );
       case 'navigate-external':
         return (
-          <StyledExternalLink variant="labelTiny" {...subtitle.action.link}>
-            {content}
-            <ExternalLink.Icon icon="external" size="small" />
-          </StyledExternalLink>
+          <ExternalLink variant="labelTiny" {...subtitle.action.link}>
+            <ExternalLink.Text>{content}</ExternalLink.Text>
+            <ExternalLink.Icon icon="external" />
+          </ExternalLink>
         );
+      case 'run-function':
+        return (
+          <StyledLink color="white" forwardedAs="button" {...subtitle.action.button}>
+            <StyledLink.Text>{content}</StyledLink.Text>
+          </StyledLink>
+        );
+
       default:
         break;
     }
@@ -47,14 +57,14 @@ export const NotificationSubtitle = ({ subtitle, ...props }: NotificationSubtitl
 
   if (!Array.isArray(subtitle)) {
     return (
-      <LabelTiny color={Colors.white60} {...props}>
+      <LabelTiny color="whiteAlpha60" {...props}>
         {formatHtml(subtitle)}
       </LabelTiny>
     );
   }
 
   return (
-    <LabelTiny color={Colors.white60} {...props}>
+    <LabelTiny color="whiteAlpha60" {...props}>
       {subtitle.map((subtitle, index, arr) => {
         const content = formatSubtitle(subtitle);
 

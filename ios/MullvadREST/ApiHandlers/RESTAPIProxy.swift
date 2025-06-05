@@ -252,21 +252,39 @@ extension REST {
         }
 
         /// Not implemented. Use `MullvadAPIProxy` instead.
+        public func legacyStorekitPayment(
+            accountNumber: String,
+            request: LegacyStorekitRequest,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
+        ) -> any Cancellable {
+            AnyCancellable()
+        }
+
+        /// Not implemented. Use `MullvadAPIProxy` instead.
         public func initStorekitPayment(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<String>
-        ) -> any MullvadTypes.Cancellable {
+        ) -> any Cancellable {
             AnyCancellable()
         }
 
         /// Not implemented. Use `MullvadAPIProxy` instead.
         public func checkStorekitPayment(
             accountNumber: String,
-            transaction: MullvadTypes.StorekitTransaction,
+            transaction: StorekitTransaction,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>
-        ) -> any MullvadTypes.Cancellable {
+        ) -> any Cancellable {
+            AnyCancellable()
+        }
+
+        public func checkApiAvailability(
+            retryStrategy: REST.RetryStrategy,
+            accessMethod: PersistentAccessMethod,
+            completion: @escaping ProxyCompletionHandler<Bool>
+        ) -> any Cancellable {
             AnyCancellable()
         }
     }

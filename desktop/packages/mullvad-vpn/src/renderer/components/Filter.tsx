@@ -10,25 +10,24 @@ import {
   filterLocations,
   filterLocationsByEndPointType,
 } from '../lib/filter-locations';
-import { Colors } from '../lib/foundations';
+import { colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useNormalRelaySettings, useTunnelProtocol } from '../lib/relay-settings-hooks';
-import { useBoolean } from '../lib/utility-hooks';
 import { IRelayLocationCountryRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
-import Accordion from './Accordion';
-import { AriaInputGroup, AriaLabel } from './AriaGroup';
+import { AriaInputGroup } from './AriaGroup';
 import * as Cell from './cell';
 import Selector from './cell/Selector';
 import { normalText } from './common-styles';
+import { FilterAccordion } from './FilterAccordion';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
-  backgroundColor: Colors.darkBlue,
+  backgroundColor: colors.darkBlue,
   flex: 1,
 });
 
@@ -207,8 +206,6 @@ interface IFilterByOwnershipProps {
 }
 
 function FilterByOwnership(props: IFilterByOwnershipProps) {
-  const [expanded, , , toggleExpanded] = useBoolean(false);
-
   const values = useMemo(
     () =>
       [
@@ -226,14 +223,7 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
 
   return (
     <AriaInputGroup>
-      <Cell.CellButton onClick={toggleExpanded}>
-        <AriaLabel>
-          <Cell.Label>{messages.pgettext('filter-view', 'Ownership')}</Cell.Label>
-        </AriaLabel>
-        <Icon color={Colors.white80} icon={expanded ? 'chevron-up' : 'chevron-down'} />
-      </Cell.CellButton>
-
-      <Accordion expanded={expanded}>
+      <FilterAccordion title={messages.pgettext('filter-view', 'Ownership')}>
         <StyledSelector
           items={values}
           value={props.ownership}
@@ -241,7 +231,7 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
           automaticLabel={messages.gettext('Any')}
           automaticValue={Ownership.any}
         />
-      </Accordion>
+      </FilterAccordion>
     </AriaInputGroup>
   );
 }
@@ -254,8 +244,6 @@ interface IFilterByProviderProps {
 
 function FilterByProvider(props: IFilterByProviderProps) {
   const { setProviders } = props;
-
-  const [expanded, , , toggleExpanded] = useBoolean(false);
 
   const onToggle = useCallback(
     (provider: string) =>
@@ -273,25 +261,19 @@ function FilterByProvider(props: IFilterByProviderProps) {
   }, [setProviders]);
 
   return (
-    <>
-      <Cell.CellButton onClick={toggleExpanded}>
-        <Cell.Label>{messages.pgettext('filter-view', 'Providers')}</Cell.Label>
-        <Icon color={Colors.white80} icon={expanded ? 'chevron-up' : 'chevron-down'} />
-      </Cell.CellButton>
-      <Accordion expanded={expanded}>
-        <CheckboxRow
-          label={messages.pgettext('filter-view', 'All providers')}
-          $bold
-          checked={Object.values(props.providers).every((value) => value)}
-          onChange={toggleAll}
-        />
-        {Object.entries(props.providers)
-          .filter(([provider]) => props.availableOptions.includes(provider))
-          .map(([provider, checked]) => (
-            <CheckboxRow key={provider} label={provider} checked={checked} onChange={onToggle} />
-          ))}
-      </Accordion>
-    </>
+    <FilterAccordion title={messages.pgettext('filter-view', 'Providers')}>
+      <CheckboxRow
+        label={messages.pgettext('filter-view', 'All providers')}
+        $bold
+        checked={Object.values(props.providers).every((value) => value)}
+        onChange={toggleAll}
+      />
+      {Object.entries(props.providers)
+        .filter(([provider]) => props.availableOptions.includes(provider))
+        .map(([provider, checked]) => (
+          <CheckboxRow key={provider} label={provider} checked={checked} onChange={onToggle} />
+        ))}
+    </FilterAccordion>
   );
 }
 
@@ -310,20 +292,20 @@ const StyledCheckbox = styled.div({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: Colors.white,
+  backgroundColor: colors.white,
   borderRadius: '4px',
 });
 
 const StyledRow = styled(Cell.Row)({
-  backgroundColor: Colors.blue40,
+  backgroundColor: colors.blue40,
   '&&:hover': {
-    backgroundColor: Colors.blue80,
+    backgroundColor: colors.blue80,
   },
 });
 
 const StyledRowTitle = styled.label<IStyledRowTitleProps>(normalText, (props) => ({
   fontWeight: props.$bold ? 600 : 400,
-  color: Colors.white,
+  color: colors.white,
   marginLeft: '22px',
 }));
 
@@ -341,7 +323,7 @@ function CheckboxRow(props: ICheckboxRowProps) {
   return (
     <StyledRow onClick={onToggle}>
       <StyledCheckbox role="checkbox" aria-label={props.label} aria-checked={props.checked}>
-        {props.checked && <Icon icon="checkmark" color={Colors.green} />}
+        {props.checked && <Icon icon="checkmark" color="green" />}
       </StyledCheckbox>
       <StyledRowTitle aria-hidden $bold={props.$bold}>
         {props.label}

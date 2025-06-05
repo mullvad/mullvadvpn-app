@@ -3,13 +3,13 @@
 //  MullvadVPNUITests
 //
 //  Created by Niklas Berglund on 2024-06-25.
-//  Copyright © 2024 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import Network
+@preconcurrency import Network
 import XCTest
 
-class TrafficGenerator {
+class TrafficGenerator: @unchecked Sendable {
     let destinationHost: String
     let port: Int
     var connection: NWConnection

@@ -154,7 +154,7 @@ private fun ReportProblemScreen(
                         .padding(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
-                            bottom = Dimens.verticalSpace,
+                            bottom = Dimens.screenBottomMargin,
                         )
                         .height(IntrinsicSize.Max),
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
@@ -242,7 +242,7 @@ fun ProblemMessageTextField(
 @Composable
 private fun ColumnScope.SendingContent() {
     MullvadCircularProgressIndicatorLarge(modifier = Modifier.align(Alignment.CenterHorizontally))
-    Spacer(modifier = Modifier.height(Dimens.problemReportIconToTitlePadding))
+    Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
     Text(
         text = stringResource(id = R.string.sending),
         style = MaterialTheme.typography.headlineLarge,
@@ -256,11 +256,11 @@ private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) 
     Icon(
         painter = painterResource(id = R.drawable.icon_success),
         contentDescription = stringResource(id = R.string.sent),
-        modifier = Modifier.align(Alignment.CenterHorizontally).size(Dimens.dialogIconHeight),
+        modifier = Modifier.align(Alignment.CenterHorizontally),
         tint = Color.Unspecified,
     )
 
-    Spacer(modifier = Modifier.height(Dimens.problemReportIconToTitlePadding))
+    Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
     Text(
         text = stringResource(id = R.string.sent),
         style = MaterialTheme.typography.headlineLarge,
@@ -310,10 +310,10 @@ private fun ColumnScope.ErrorContent(retry: () -> Unit, onDismiss: () -> Unit) {
     Icon(
         painter = painterResource(id = R.drawable.icon_fail),
         contentDescription = stringResource(id = R.string.failed_to_send),
-        modifier = Modifier.size(Dimens.dialogIconHeight).align(Alignment.CenterHorizontally),
+        modifier = Modifier.align(Alignment.CenterHorizontally),
         tint = Color.Unspecified,
     )
-    Spacer(modifier = Modifier.height(Dimens.problemReportIconToTitlePadding))
+    Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
     Text(
         text = stringResource(id = R.string.failed_to_send),
         style = MaterialTheme.typography.headlineLarge,

@@ -39,7 +39,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
                 MultihopFeature(state: tunnelState),
                 ObfuscationFeature(settings: tunnelSettings, state: observedState),
                 DNSFeature(settings: tunnelSettings),
-                IPOverrideFeature(overrides: ipOverrides),
+                IPOverrideFeature(state: tunnelState, overrides: ipOverrides),
             ]
 
             return features

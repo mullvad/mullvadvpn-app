@@ -126,6 +126,7 @@ public enum AccessibilityIdentifier: Equatable {
     case addLocationsView
     case addAccessMethodTableView
     case apiAccessView
+    case apiAccessListView
     case alertContainerView
     case alertTitle
     case appLogsView
@@ -194,9 +195,7 @@ public enum AccessibilityIdentifier: Equatable {
     case wireGuardObfuscationOff
     case wireGuardObfuscationUdpOverTcp
     case wireGuardObfuscationShadowsocks
-    #if DEBUG
     case wireGuardObfuscationQuic
-    #endif
     case wireGuardObfuscationUdpOverTcpPort
     case wireGuardObfuscationShadowsocksPort
     case wireGuardPort(UInt16?)

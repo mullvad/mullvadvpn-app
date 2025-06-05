@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
@@ -20,6 +19,7 @@ import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.util.Lce
 
 class SelectLocationListViewModel(
     private val relayListType: RelayListType,
@@ -34,25 +34,27 @@ class SelectLocationListViewModel(
     private val _expandedItems: MutableStateFlow<Set<String>> =
         MutableStateFlow(initialExpand(initialSelection()))
 
-    val uiState: StateFlow<SelectLocationListUiState> =
+    val uiState: StateFlow<Lce<Unit, SelectLocationListUiState, Unit>> =
         combine(
                 relayListItems(),
                 customListsRelayItemUseCase(),
                 settingsRepository.settingsUpdates,
             ) { relayListItems, customLists, settings ->
                 if (relayListType == RelayListType.ENTRY && settings?.entryBlocked() == true) {
-                    SelectLocationListUiState.EntryBlocked
+                    Lce.Error(Unit)
                 } else {
-                    SelectLocationListUiState.Content(
-                        relayListItems = relayListItems,
-                        customLists = customLists,
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems = relayListItems,
+                            customLists = customLists,
+                        )
                     )
                 }
             }
-            .stateIn(viewModelScope, SharingStarted.Lazily, SelectLocationListUiState.Loading)
+            .stateIn(viewModelScope, SharingStarted.Lazily, Lce.Loading(Unit))
 
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
-        _expandedItems.onToggleExpand(item, parent, expand)
+        _expandedItems.onToggleExpandSet(item, parent, expand)
     }
 
     private fun relayListItems() =
@@ -62,16 +64,30 @@ class SelectLocationListViewModel(
             selectedLocationUseCase(),
             _expandedItems,
         ) { relayCountries, customLists, selectedItem, expandedItems ->
-            relayListItems(
-                relayCountries = relayCountries,
-                relayListType = relayListType,
-                customLists = customLists,
-                selectedByThisEntryExitList =
-                    selectedItem.selectedByThisEntryExitList(relayListType),
-                selectedByOtherEntryExitList =
-                    selectedItem.selectedByOtherEntryExitList(relayListType, customLists),
-                expandedItems = expandedItems,
-            )
+            // If we have no locations we have an empty relay list
+            // and we should show an error
+            if (relayCountries.isEmpty()) {
+                emptyLocationsRelayListItems(
+                    relayListType = relayListType,
+                    customLists = customLists,
+                    selectedByThisEntryExitList =
+                        selectedItem.selectedByThisEntryExitList(relayListType),
+                    selectedByOtherEntryExitList =
+                        selectedItem.selectedByOtherEntryExitList(relayListType, customLists),
+                    expandedItems = expandedItems,
+                )
+            } else {
+                relayListItems(
+                    relayCountries = relayCountries,
+                    relayListType = relayListType,
+                    customLists = customLists,
+                    selectedByThisEntryExitList =
+                        selectedItem.selectedByThisEntryExitList(relayListType),
+                    selectedByOtherEntryExitList =
+                        selectedItem.selectedByOtherEntryExitList(relayListType, customLists),
+                    expandedItems = expandedItems,
+                )
+            }
         }
 
     private fun initialExpand(item: RelayItemId?): Set<String> = buildSet {
@@ -97,11 +113,4 @@ class SelectLocationListViewModel(
                 wireguardConstraintsRepository.wireguardConstraints.value?.entryLocation
             RelayListType.EXIT -> relayListRepository.selectedLocation.value
         }?.getOrNull()
-
-    // If Daita is enabled without direct only, it is not possible to manually select the entry
-    // location.
-    private fun Settings.entryBlocked() =
-        tunnelOptions.wireguard.daitaSettings.enabled &&
-            !tunnelOptions.wireguard.daitaSettings.directOnly &&
-            relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
 }

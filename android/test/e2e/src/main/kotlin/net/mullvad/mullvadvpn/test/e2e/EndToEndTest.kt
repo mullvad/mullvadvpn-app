@@ -1,22 +1,28 @@
 package net.mullvad.mullvadvpn.test.e2e
 
 import android.Manifest
-import android.content.Context
+import android.app.Activity
+import android.app.Application
 import android.os.Build
+import android.os.Bundle
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import co.touchlab.kermit.Logger
 import de.mannodermaus.junit5.extensions.GrantPermissionExtension
+import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
+import net.mullvad.mullvadvpn.test.common.misc.ActivityLifecycleCallbacksAdapter
 import net.mullvad.mullvadvpn.test.common.misc.CaptureScreenRecordingsExtension
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
 import net.mullvad.mullvadvpn.test.e2e.constant.LOG_TAG
+import net.mullvad.mullvadvpn.test.e2e.router.firewall.FirewallClient
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.RegisterExtension
 
 @ExtendWith(CaptureScreenRecordingsExtension::class)
-abstract class EndToEndTest(private val infra: String) {
+abstract class EndToEndTest {
 
     @RegisterExtension @JvmField val rule = CaptureScreenshotOnFailedTestRule(LOG_TAG)
 
@@ -33,7 +39,8 @@ abstract class EndToEndTest(private val infra: String) {
         })
 
     lateinit var device: UiDevice
-    lateinit var targetContext: Context
+    lateinit var targetApplication: Application
+    lateinit var targetActivity: Activity
     lateinit var app: AppInteractor
 
     @BeforeEach
@@ -41,25 +48,42 @@ abstract class EndToEndTest(private val infra: String) {
         Logger.setTag(LOG_TAG)
 
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        targetApplication =
+            InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
+                as Application
 
-        val targetPackageNameSuffix =
-            when (infra) {
-                "devmole" -> ".devmole"
-                "stagemole" -> ".stagemole"
-                else -> ""
-            }
+        app = AppInteractor(device, targetApplication)
 
-        app = AppInteractor(device, targetContext, "net.mullvad.mullvadvpn$targetPackageNameSuffix")
+        registerActivityLifecycleCallbacks(targetApplication)
     }
 
-    companion object {
-        const val DEFAULT_COUNTRY = "Sweden"
-        const val DEFAULT_CITY = "Gothenburg"
-        const val DEFAULT_RELAY = "se-got-wg-001"
+    private fun registerActivityLifecycleCallbacks(app: Application) =
+        app.registerActivityLifecycleCallbacks(
+            object : ActivityLifecycleCallbacksAdapter() {
+                override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                    Logger.d("onActivityCreated")
+                    targetActivity = activity
+                }
+            }
+        )
 
-        const val DAITA_COMPATIBLE_COUNTRY = "Relay Software Country"
-        const val DAITA_COMPATIBLE_CITY = "Relay Software city"
-        const val DAITA_COMPATIBLE_RELAY = "se-got-wg-002"
+    companion object {
+        val firewallClient = FirewallClient()
+
+        @JvmStatic
+        @BeforeAll
+        // There are certain scenarios where old rules from previous tests runs may remain on
+        // the router and cause issues, so attempt to clear them before any test setup is done.
+        fun clearFirewallRules() {
+            runBlocking {
+                try {
+                    firewallClient.removeAllRules()
+                } catch (e: Exception) {
+                    // If the router can't be reached we ignore the error because the e2e
+                    // test that is about to be run may not require router access.
+                    Logger.e("firewallClient.removeAllRules() failed")
+                }
+            }
+        }
     }
 }

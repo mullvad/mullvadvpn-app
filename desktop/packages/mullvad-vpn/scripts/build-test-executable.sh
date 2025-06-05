@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 set -eu
+# Enable recursive “**” globbing patterns to match files in all subdirectories
+shopt -s globstar
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR/.."
@@ -9,13 +11,12 @@ TARGET=${1:-$(rustc -vV | sed -n 's|host: ||p')}
 PRODUCT_VERSION=$(cargo run -q --bin mullvad-version)
 
 ASSETS=(
-    "build-standalone/src/renderer/lib/routes.js"
-    "build-standalone/src/renderer/lib/foundations/*.js"
     "build-standalone/src/renderer/lib/foundations/**/*.js"
     "build-standalone/src/shared/constants/*.js"
+    "build-standalone/src/shared/routes.js"
     "build-standalone/test/e2e/utils.js"
+    "build-standalone/test/e2e/route-object-models/**/*.js"
     "build-standalone/test/e2e/shared/*.js"
-    "build-standalone/test/e2e/installed/*.js"
     "build-standalone/test/e2e/installed/**/*.js"
 )
 

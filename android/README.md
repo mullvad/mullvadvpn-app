@@ -68,7 +68,7 @@ strict. See each `build.gradle.kts`for more information.
 
 See the [locale README][desktop-locales-readme] for how to easily update translations. It also
 includes documentation for which phrases and terms shouldn't be translated (Do Not Translate).
-Also see the [translations converter README](translations-converter-readme) for documentation about
+Also see the [translations converter README][translations-converter-readme] for documentation about
 the tool used to sync translations between the Android and Desktop apps.
 
 [desktop-locales-readme]: ../desktop/packages/mullvad-vpn/locales/README.md

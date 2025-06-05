@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import log from '../../shared/logging';
 import { Icon, IconProps, Spinner } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
-import { Colors } from '../lib/foundations';
+import { Colors, colors } from '../lib/foundations';
 import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { ButtonGroup } from './ButtonGroup';
@@ -28,7 +28,7 @@ const ModalContent = styled.div({
 });
 
 const ModalBackground = styled.div<{ $visible: boolean }>((props) => ({
-  backgroundColor: props.$visible ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)',
+  backgroundColor: props.$visible ? colors.blackAlpha50 : colors.transparent,
   backdropFilter: props.$visible ? 'blur(1.5px)' : '',
   position: 'absolute',
   display: 'flex',
@@ -128,13 +128,13 @@ const StyledModalAlert = styled.div<{ $visible: boolean; $closing: boolean }>((p
   return {
     display: 'flex',
     flexDirection: 'column',
-    backgroundColor: Colors.darkBlue,
+    backgroundColor: colors.darkBlue,
     borderRadius: '11px',
     padding: '16px 0 16px 16px',
     maxHeight: '80vh',
     opacity: props.$visible && !props.$closing ? 1 : 0,
     transform,
-    boxShadow: ' 0px 15px 35px 5px rgba(0,0,0,0.5)',
+    boxShadow: `0px 15px 35px 5px ${colors.blackAlpha50}`,
     transition: 'all 150ms ease-out',
   };
 });
@@ -310,19 +310,19 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
 
   private renderTypeIcon(type: ModalAlertType) {
     let source: IconProps['icon'] | undefined = undefined;
-    let color = undefined;
+    let color: Colors | undefined = undefined;
     switch (type) {
       case ModalAlertType.info:
         source = 'info-circle';
-        color = Colors.white;
+        color = 'white';
         break;
       case ModalAlertType.caution:
         source = 'alert-circle';
-        color = Colors.white;
+        color = 'white';
         break;
       case ModalAlertType.warning:
         source = 'alert-circle';
-        color = Colors.red;
+        color = 'red';
         break;
       case ModalAlertType.loading:
         return <Spinner size="big" />;
@@ -343,13 +343,13 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
 }
 
 const ModalTitle = styled.h1(normalText, {
-  color: Colors.white,
+  color: colors.white,
   fontWeight: 600,
   margin: '18px 0 0 0',
 });
 
 export const ModalMessage = styled.span(tinyText, {
-  color: Colors.white80,
+  color: colors.whiteAlpha60,
   marginTop: '16px',
 
   [`${ModalTitle} ~ &&`]: {
@@ -360,5 +360,5 @@ export const ModalMessage = styled.span(tinyText, {
 export const ModalMessageList = styled.ul({
   listStyle: 'disc outside',
   paddingLeft: '20px',
-  color: Colors.white80,
+  color: colors.whiteAlpha80,
 });

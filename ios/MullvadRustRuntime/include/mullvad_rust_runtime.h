@@ -61,6 +61,14 @@ typedef struct SwiftShadowsocksLoaderWrapper {
   struct SwiftShadowsocksLoaderWrapperContext _0;
 } SwiftShadowsocksLoaderWrapper;
 
+typedef struct SwiftAddressCacheProviderContext {
+  const void *address_cache;
+} SwiftAddressCacheProviderContext;
+
+typedef struct SwiftAddressCacheWrapper {
+  struct SwiftAddressCacheProviderContext _0;
+} SwiftAddressCacheWrapper;
+
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
 } SwiftCancelHandle;
@@ -69,13 +77,22 @@ typedef struct SwiftRetryStrategy {
   struct RetryStrategy *_0;
 } SwiftRetryStrategy;
 
+/**
+ * A struct used to deallocate a pointer to a C String later than when the pointer's control is relinquished from Swift.
+ * Use the `deallocate_ptr` function on `ptr` to call the custom deallocator provided by Swift.
+ */
+typedef struct LateStringDeallocator {
+  const char *ptr;
+  void (*deallocate_ptr)(const char*);
+} LateStringDeallocator;
+
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
   uintptr_t body_size;
-  uint8_t *etag;
+  char *etag;
   uint16_t status_code;
-  uint8_t *error_description;
-  uint8_t *server_response_code;
+  char *error_description;
+  char *server_response_code;
   bool success;
 } SwiftMullvadApiResponse;
 
@@ -161,7 +178,8 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
                                                          const char *address,
                                                          const char *domain,
                                                          struct SwiftShadowsocksLoaderWrapper bridge_provider,
-                                                         struct SwiftAccessMethodSettingsWrapper settings_provider);
+                                                         struct SwiftAccessMethodSettingsWrapper settings_provider,
+                                                         struct SwiftAddressCacheWrapper address_cache);
 
 /**
  * # Safety
@@ -181,7 +199,8 @@ struct SwiftApiContext mullvad_api_init_new(const char *host,
                                             const char *address,
                                             const char *domain,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
-                                            struct SwiftAccessMethodSettingsWrapper settings_provider);
+                                            struct SwiftAccessMethodSettingsWrapper settings_provider,
+                                            struct SwiftAddressCacheWrapper address_cache);
 
 /**
  * # Safety
@@ -202,7 +221,8 @@ struct SwiftApiContext mullvad_api_init_inner(const char *host,
                                               const char *domain,
                                               bool disable_tls,
                                               struct SwiftShadowsocksLoaderWrapper bridge_provider,
-                                              struct SwiftAccessMethodSettingsWrapper settings_provider);
+                                              struct SwiftAccessMethodSettingsWrapper settings_provider,
+                                              struct SwiftAddressCacheWrapper address_cache);
 
 /**
  * Converts parameters into a `Box<AccessMethodSetting>` raw representation that
@@ -299,6 +319,25 @@ struct SwiftCancelHandle mullvad_ios_delete_account(struct SwiftApiContext api_c
                                                     const char *account_number);
 
 /**
+ * Return the latest available endpoint, or a default one if none are cached
+ *
+ * # SAFETY
+ * `rawAddressCacheProvider` **must** be provided by a call to `init_swift_address_cache_wrapper`
+ * It is okay to persist it, and use it accross multiple threads.
+ */
+extern struct LateStringDeallocator swift_get_cached_endpoint(const void *rawAddressCacheProvider);
+
+/**
+ * Called by the Swift side in order to provide an object to rust that provides API addresses in a UTF-8 string form
+ *
+ * # SAFETY
+ * `address_cache` **must be** pointing to a valid instance of a `DefaultAddressCacheProvider`
+ * That instance's lifetime has to be equivalent to a `'static` lifetime in Rust
+ * This function does not take ownership of `address_cache`
+ */
+struct SwiftAddressCacheWrapper init_swift_address_cache_wrapper(const void *address_cache);
+
+/**
  * # Safety
  *
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
@@ -316,6 +355,26 @@ struct SwiftCancelHandle mullvad_ios_delete_account(struct SwiftApiContext api_c
 struct SwiftCancelHandle mullvad_ios_get_addresses(struct SwiftApiContext api_context,
                                                    void *completion_cookie,
                                                    struct SwiftRetryStrategy retry_strategy);
+
+/**
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
+ *
+ * `retry_strategy` must have been created by a call to either of the following functions
+ * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_ios_api_addrs_available(struct SwiftApiContext api_context,
+                                                         void *completion_cookie,
+                                                         struct SwiftRetryStrategy retry_strategy,
+                                                         const void *access_method_setting);
 
 /**
  * # Safety
@@ -345,10 +404,9 @@ struct SwiftCancelHandle mullvad_ios_get_relays(struct SwiftApiContext api_conte
  *
  * # Safety
  *
- * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`. This function
- * is not safe to call multiple times with the same `SwiftCancelHandle`.
+ * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
  */
-void mullvad_api_cancel_task(struct SwiftCancelHandle handle_ptr);
+void mullvad_api_cancel_task(struct SwiftCancelHandle *handle_ptr);
 
 /**
  * Called by the Swift side to signal that the Rust `SwiftCancelHandle` can be safely
@@ -356,10 +414,9 @@ void mullvad_api_cancel_task(struct SwiftCancelHandle handle_ptr);
  *
  * # Safety
  *
- * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`. This function
- * is not safe to call multiple times with the same `SwiftCancelHandle`.
+ * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
  */
-void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
+void mullvad_api_cancel_task_drop(struct SwiftCancelHandle *handle_ptr);
 
 /**
  * Maps to `mullvadApiCompletionFinish` on Swift side to facilitate callback based completion flow when doing
@@ -670,6 +727,34 @@ extern const void *swift_get_shadowsocks_bridges(const void *rawBridgeProvider);
  * This function does not take ownership of `shadowsocks_loader`
  */
 struct SwiftShadowsocksLoaderWrapper init_swift_shadowsocks_loader_wrapper(const void *shadowsocks_loader);
+
+/**
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
+ * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
+ * when completion finishes (in completion.finish).
+ *
+ * `retry_strategy` must have been created by a call to either of the following functions
+ * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+ *
+ * `account_number` must be a pointer to a null terminated string.
+ *
+ * `body` must be a pointer to a contiguous memory segment
+ *
+ * `body_size` must be the size of the body
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_ios_legacy_storekit_payment(struct SwiftApiContext api_context,
+                                                             void *completion_cookie,
+                                                             struct SwiftRetryStrategy retry_strategy,
+                                                             const char *account_number,
+                                                             const uint8_t *body,
+                                                             uintptr_t body_size);
 
 /**
  * # Safety

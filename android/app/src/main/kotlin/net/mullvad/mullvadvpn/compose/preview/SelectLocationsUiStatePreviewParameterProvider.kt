@@ -5,39 +5,56 @@ import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.ModelOwnership
+import net.mullvad.mullvadvpn.util.Lc
 
 class SelectLocationsUiStatePreviewParameterProvider :
-    PreviewParameterProvider<SelectLocationUiState> {
+    PreviewParameterProvider<Lc<Unit, SelectLocationUiState>> {
     override val values =
         sequenceOf(
-            SelectLocationUiState.Loading,
-            SelectLocationUiState.Data(
-                filterChips = emptyList(),
-                multihopEnabled = false,
-                relayListType = RelayListType.EXIT,
+            Lc.Loading(Unit),
+            Lc.Content(
+                SelectLocationUiState(
+                    filterChips = emptyList(),
+                    multihopEnabled = false,
+                    relayListType = RelayListType.EXIT,
+                    isSearchButtonEnabled = true,
+                    isFilterButtonEnabled = true,
+                )
             ),
-            SelectLocationUiState.Data(
-                filterChips =
-                    listOf(
-                        FilterChip.Ownership(ownership = ModelOwnership.Rented),
-                        FilterChip.Provider(PROVIDER_COUNT),
-                    ),
-                multihopEnabled = false,
-                relayListType = RelayListType.EXIT,
+            Lc.Content(
+                SelectLocationUiState(
+                    filterChips =
+                        listOf(
+                            FilterChip.Ownership(ownership = ModelOwnership.Rented),
+                            FilterChip.Provider(PROVIDER_COUNT),
+                        ),
+                    multihopEnabled = false,
+                    relayListType = RelayListType.EXIT,
+                    isSearchButtonEnabled = true,
+                    isFilterButtonEnabled = true,
+                )
             ),
-            SelectLocationUiState.Data(
-                filterChips = emptyList(),
-                multihopEnabled = true,
-                relayListType = RelayListType.ENTRY,
+            Lc.Content(
+                SelectLocationUiState(
+                    filterChips = emptyList(),
+                    multihopEnabled = true,
+                    relayListType = RelayListType.ENTRY,
+                    isSearchButtonEnabled = true,
+                    isFilterButtonEnabled = true,
+                )
             ),
-            SelectLocationUiState.Data(
-                filterChips =
-                    listOf(
-                        FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned),
-                        FilterChip.Provider(PROVIDER_COUNT),
-                    ),
-                multihopEnabled = true,
-                relayListType = RelayListType.ENTRY,
+            Lc.Content(
+                SelectLocationUiState(
+                    filterChips =
+                        listOf(
+                            FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned),
+                            FilterChip.Provider(PROVIDER_COUNT),
+                        ),
+                    multihopEnabled = true,
+                    relayListType = RelayListType.ENTRY,
+                    isSearchButtonEnabled = true,
+                    isFilterButtonEnabled = true,
+                )
             ),
         )
 }

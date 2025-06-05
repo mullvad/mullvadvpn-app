@@ -1,16 +1,16 @@
 import { expect } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { colors } from '../../../src/renderer/lib/foundations';
+import { colorTokens } from '../../../src/renderer/lib/foundations';
 import { anyOf } from '../utils';
 
-const DISCONNECTED_COLOR = colors['--color-red'];
-const CONNECTED_COLOR = colors['--color-green'];
-const WHITE_COLOR = colors['--color-white'];
+const DISCONNECTED_COLOR = colorTokens.red;
+const CONNECTED_COLOR = colorTokens.green;
+const WHITE_COLOR = colorTokens.white;
 
-const DISCONNECTED_BUTTON_COLOR = anyOf(colors['--color-red'], colors['--color-red-80']);
-const DISCONNECTING_BUTTON_COLOR = anyOf(colors['--color-green-40']);
-const CONNECTED_BUTTON_COLOR = anyOf(colors['--color-green'], colors['--color-green-90']);
+const DISCONNECTED_BUTTON_COLOR = anyOf(colorTokens.red, colorTokens.red80);
+const DISCONNECTING_BUTTON_COLOR = anyOf(colorTokens.green40);
+const CONNECTED_BUTTON_COLOR = anyOf(colorTokens.green, colorTokens.green80);
 
 const getLabel = (page: Page) => page.locator('span[role="status"]');
 const getHeader = (page: Page) => page.locator('header');
