@@ -15,6 +15,8 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject {
     let tunnelManager: TunnelManager
     var tunnelObserver: TunnelObserver?
 
+    var isAutomaticRoutingActive: Bool
+
     var didFailDAITAValidation: (((item: DAITASettingsPromptItem, setting: DAITASettings)) -> Void)?
 
     var value: DAITASettings {
@@ -30,9 +32,20 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject {
         self.tunnelManager = tunnelManager
         value = tunnelManager.settings.daita
 
-        tunnelObserver = TunnelBlockObserver(didUpdateTunnelSettings: { [weak self] _, newSettings in
-            self?.value = newSettings.daita
+        var isAutomaticRoutingActive: Bool {
+            tunnelManager.tunnelStatus.state.isMultihop && !tunnelManager.settings.tunnelMultihopState.isEnabled
+        }
+        self.isAutomaticRoutingActive = isAutomaticRoutingActive
+
+        let tunnelObserver = TunnelBlockObserver(didUpdateTunnelStatus: { [weak self] _, _ in
+            if isAutomaticRoutingActive != self?.isAutomaticRoutingActive {
+                self?.isAutomaticRoutingActive = isAutomaticRoutingActive
+                self?.objectWillChange.send()
+            }
         })
+        self.tunnelObserver = tunnelObserver
+
+        tunnelManager.addObserver(tunnelObserver)
     }
 
     func evaluate(setting: DAITASettings) {
