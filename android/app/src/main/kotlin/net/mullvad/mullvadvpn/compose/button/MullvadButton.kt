@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.button
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,12 +13,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -204,6 +207,51 @@ fun PrimaryTextButton(
 }
 
 @Composable
+fun NegativeOutlinedButton(
+    onClick: () -> Unit,
+    text: String,
+    modifier: Modifier = Modifier,
+    colors: ButtonColors =
+        ButtonDefaults.outlinedButtonColors(
+            contentColor = MaterialTheme.colorScheme.onError,
+            disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = Alpha20),
+        ),
+    border: BorderStroke =
+        BorderStroke(
+            width = Dimens.outLineButtonBorderWidth,
+            color = MaterialTheme.colorScheme.error,
+        ),
+    shape: Shape = MaterialTheme.shapes.large,
+    isEnabled: Boolean = true,
+    isLoading: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+) {
+    val hasIcon = leadingIcon != null || trailingIcon != null
+    OutlinedButton(
+        onClick = onClick,
+        modifier = modifier.wrapContentHeight().width(IntrinsicSize.Max),
+        colors = colors,
+        enabled = !isLoading && isEnabled,
+        border = border,
+        contentPadding =
+            if (hasIcon) {
+                PaddingValues(vertical = Dimens.buttonSpacing)
+            } else {
+                ButtonDefaults.TextButtonContentPadding
+            },
+        shape = shape,
+    ) {
+        BaseButtonContent(
+            text = text,
+            isLoading = isLoading,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
+        )
+    }
+}
+
+@Composable
 private fun BaseButton(
     onClick: () -> Unit,
     colors: ButtonColors,
@@ -235,6 +283,22 @@ private fun BaseButton(
             trailingIcon = trailingIcon,
         )
     }
+}
+
+@Composable
+fun SmallPrimaryButton(
+    onClick: () -> Unit,
+    text: String,
+    modifier: Modifier = Modifier,
+    colors: ButtonColors =
+        ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = Alpha20),
+            disabledContainerColor = MaterialTheme.colorScheme.primaryDisabled,
+        ),
+) {
+    Button(onClick = onClick, modifier = modifier, colors = colors) { Text(text = text) }
 }
 
 @Composable

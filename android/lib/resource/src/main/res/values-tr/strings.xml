@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları gösterir</string>
     <string name="account_time_notification_channel_name">Hesap süresi hatırlatıcıları</string>
     <string name="add">Ekle</string>
-    <string name="add_30_days_time">30 gün süre ekleyin</string>
     <string name="add_30_days_time_x">30 gün süre ekleyin (%1$s)</string>
     <string name="add_a_server">Sunucu ekle</string>
     <string name="add_dns_server_dialog_title">DNS sunucusu ekle</string>
@@ -118,6 +117,7 @@
     <string name="daita_description_slide_2_third_paragraph">%1$s, tüm sunucularımızda etkin değildir. Bu nedenle, %1$s özelliğini herhangi bir sunucuda etkinleştirmek için otomatik olarak çoklu geçişi kullanırız.</string>
     <string name="daita_info">\"%1$s\" seçeneğini etkinleştirdiğinizde %2$s özellikli bir sunucuyu manuel olarak seçmeniz gerekir. Bu, \"Konum seç\" görünümünde uyumlu bir sunucu seçilene kadar engellenmiş durumda kalmanıza neden olabilir.</string>
     <string name="daita_multihop">%1$s: Çoklu geçiş</string>
+    <string name="days_were_added_30">Hesabınıza 30gün eklendi.</string>
     <string name="delete">Sil</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" silinsin mi\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" silindi</string>
@@ -235,7 +235,6 @@
     <string name="login_fail_title">Oturum açma başarısız</string>
     <string name="login_title">Oturum Aç</string>
     <string name="malware_info">Uyarı: Kötü amaçlı yazılım engelleyici, virüsten koruma yazılımı değildir ve bu şekilde değerlendirilmemelidir. Sadece ek bir koruma seviyesi sağlamaktadır.</string>
-    <string name="manage_account">Hesabı yönet</string>
     <string name="manage_devices">Cihazları yönet</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$s kaldırılsın mı?</string>
     <string name="manage_devices_confirm_removal_description_line2">Cihaz listeden kaldırılacak ve oturum kapatılacak.</string>
@@ -282,12 +281,9 @@
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
     <string name="payment_billing_error_dialog_message">Ödeme işlemini başlatamadık. Lütfen Google Play\'in en son sürümüne sahip olduğunuzdan emin olun.</string>
     <string name="payment_billing_error_dialog_title">Google Play kullanılamıyor</string>
-    <string name="payment_completed_dialog_message">Hesabınıza 30gün eklendi.</string>
-    <string name="payment_completed_dialog_title">Süre başarıyla eklendi</string>
     <string name="payment_obfuscation_id_error_dialog_message">Ödeme işlemini başlatamadık, lütfen daha sonra tekrar deneyin.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad hizmetleri kullanılamıyor</string>
-    <string name="payment_pending_dialog_message">Şu anda satın alma işleminizi doğruluyoruz. Bu işlem biraz zaman alabilir. Süreniz, doğrulama işleminin başarılı olması durumunda eklenecektir.</string>
-    <string name="payment_status_pending">Google Play ödemesi bekleniyor</string>
+    <string name="payment_status_pending_short">Google Play ödemesi bekleniyor</string>
     <string name="please_enter_a_valid_ip_address">Lütfen geçerli bir IPv4 veya IPv6 adresi girin</string>
     <string name="please_enter_a_valid_remote_server_port">Lütfen geçerli bir uzak sunucu portu girin</string>
     <string name="port">Port</string>

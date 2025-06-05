@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Mostra promemoria quando il tempo dell\'account sta per scadere</string>
     <string name="account_time_notification_channel_name">Promemoria temporali per l\'account</string>
     <string name="add">Aggiungi</string>
-    <string name="add_30_days_time">Aggiungi 30 giorni di tempo</string>
     <string name="add_30_days_time_x">Aggiungi 30 giorni di tempo (%1$s)</string>
     <string name="add_a_server">Aggiungi un server</string>
     <string name="add_dns_server_dialog_title">Aggiungi server DNS</string>
@@ -118,6 +117,7 @@
     <string name="daita_description_slide_2_third_paragraph">Non tutti i nostri server sono abilitati per %1$s. Pertanto, utilizziamo automaticamente il multihop per abilitare %1$s con un server qualsiasi.</string>
     <string name="daita_info">Abilitando “%1$s” dovrai selezionare manualmente un server abilitato per %2$s. Questo può comportare uno stato di blocco finché non selezioni un server compatibile nella vista “Seleziona posizione”.</string>
     <string name="daita_multihop">%1$s: Multihop</string>
+    <string name="days_were_added_30">30 giorni aggiunti al tuo account.</string>
     <string name="delete">Elimina</string>
     <string name="delete_custom_list_confirmation_description">Eliminare \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" eliminato</string>
@@ -235,7 +235,6 @@
     <string name="login_fail_title">Accesso non riuscito</string>
     <string name="login_title">Accedi</string>
     <string name="malware_info">Avvertenza: questa protezione dai malware non è un antivirus e non deve essere trattata come tale, è solo un ulteriore livello di protezione.</string>
-    <string name="manage_account">Gestisci account</string>
     <string name="manage_devices">Gestisci dispositivi</string>
     <string name="manage_devices_confirm_removal_description_line1">Rimuovere %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Il dispositivo verrà rimosso dall\'elenco e disconnesso.</string>
@@ -282,12 +281,9 @@
     <string name="pay_to_start_using">Per iniziare a utilizzare l\'app, devi prima aggiungere tempo al tuo account.</string>
     <string name="payment_billing_error_dialog_message">Non siamo riusciti ad avviare il processo di pagamento, assicurati di avere la versione più recente di Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play non disponibile</string>
-    <string name="payment_completed_dialog_message">30 giorni aggiunti al tuo account.</string>
-    <string name="payment_completed_dialog_title">L\'ora è stata aggiunta correttamente</string>
     <string name="payment_obfuscation_id_error_dialog_message">Non siamo riusciti ad avviare il processo di pagamento, riprova più tardi.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Servizi Mullvad non disponibili</string>
-    <string name="payment_pending_dialog_message">Stiamo verificando il tuo acquisto, l\'operazione potrebbe richiedere del tempo. Il tuo tempo verrà aggiunto quando la verifica avrà avuto esito positivo.</string>
-    <string name="payment_status_pending">Pagamento Google Play in sospeso</string>
+    <string name="payment_status_pending_short">Pagamento Google Play in sospeso</string>
     <string name="please_enter_a_valid_ip_address">Inserisci un indirizzo IPv4 o IPv6 valido</string>
     <string name="please_enter_a_valid_remote_server_port">Inserisci una porta di server remoto valida</string>
     <string name="port">Porta</string>

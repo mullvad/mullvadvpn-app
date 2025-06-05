@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa</string>
     <string name="account_time_notification_channel_name">Muistutukset tilin käyttöajasta</string>
     <string name="add">Lisää</string>
-    <string name="add_30_days_time">Lisää 30 päivää käyttöaikaa</string>
     <string name="add_30_days_time_x">Lisää 30 päivää käyttöaikaa (%1$s)</string>
     <string name="add_a_server">Lisää palvelin</string>
     <string name="add_dns_server_dialog_title">Lisää DNS-palvelin</string>
@@ -118,6 +117,7 @@
     <string name="daita_description_slide_2_third_paragraph">Kaikissa palvelimissamme ei ole %1$s-tukea. Siksi käytämme multihopia automaattisesti mahdollistaaksemme %1$s:n millä tahansa palvelimella.</string>
     <string name="daita_info">Kun \"%1$s\" otetaan käyttöön, sinun on valittava manuaalisesti palvelin, jossa on %2$s-tuki. Tämä voi aiheuttaa sen, että päädyt estettyyn tilaan, kunnes olet valinnut yhteensopivan palvelimen \"Valitse sijainti\" -näkymästä.</string>
     <string name="daita_multihop">%1$s: multihop</string>
+    <string name="days_were_added_30">Tilillesi lisättiin 30 päivää käyttöaikaa.</string>
     <string name="delete">Poista</string>
     <string name="delete_custom_list_confirmation_description">Poistetaanko \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" poistettiin</string>
@@ -235,7 +235,6 @@
     <string name="login_fail_title">Sisäänkirjautuminen epäonnistui</string>
     <string name="login_title">Kirjaudu sisään</string>
     <string name="malware_info">Varoitus: haittaohjelmien estotoiminto ei ole virustorjuntaohjelma, eikä sitä pidä käyttää sellaisena – kyseessä on vain ylimääräinen suojauskerros.</string>
-    <string name="manage_account">Tilin hallinta</string>
     <string name="manage_devices">Hallitse laitteita</string>
     <string name="manage_devices_confirm_removal_description_line1">Poistetaanko %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Laite poistetaan luettelosta ja kirjataan ulos.</string>
@@ -282,12 +281,9 @@
     <string name="pay_to_start_using">Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi.</string>
     <string name="payment_billing_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Varmista, että käytät Google Playn uusinta versiota.</string>
     <string name="payment_billing_error_dialog_title">Google Play ei ole käytettävissä</string>
-    <string name="payment_completed_dialog_message">Tilillesi lisättiin 30 päivää käyttöaikaa.</string>
-    <string name="payment_completed_dialog_title">Aika lisättiin onnistuneesti</string>
     <string name="payment_obfuscation_id_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Yritä myöhemmin uudelleen.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-palvelut eivät ole käytettävissä</string>
-    <string name="payment_pending_dialog_message">Vahvistamme ostostasi parhaillaan. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu.</string>
-    <string name="payment_status_pending">Google Play -maksu odottaa</string>
+    <string name="payment_status_pending_short">Google Play -maksu odottaa</string>
     <string name="please_enter_a_valid_ip_address">Anna kelvollinen IPv4- tai IPv6-osoite</string>
     <string name="please_enter_a_valid_remote_server_port">Anna kelvollinen etäpalvelimen portti</string>
     <string name="port">Portti</string>

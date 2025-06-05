@@ -5,10 +5,12 @@ import arrow.core.Either
 import arrow.core.right
 import arrow.resilience.Schedule
 import arrow.resilience.retryEither
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transform
 import net.mullvad.mullvadvpn.constant.VERIFICATION_BACK_OFF_FACTOR
 import net.mullvad.mullvadvpn.constant.VERIFICATION_INITIAL_BACK_OFF_DURATION
@@ -50,12 +52,16 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
                     delay(EXTRA_LOADING_DELAY_MS)
                 }
             }
+            .onEach { Logger.d("Purchase state: ${it::class.simpleName}") }
             .collect(_purchaseResult)
     }
 
     @Suppress("ensure every public functions method is named 'invoke' with operator modifier")
     override suspend fun queryPaymentAvailability() {
-        paymentRepository.queryPaymentAvailability().collect(_paymentAvailability)
+        paymentRepository
+            .queryPaymentAvailability()
+            .onEach { Logger.d("Payment availability: ${it::class.simpleName}") }
+            .collect(_paymentAvailability)
     }
 
     @Suppress("ensure every public functions method is named 'invoke' with operator modifier")

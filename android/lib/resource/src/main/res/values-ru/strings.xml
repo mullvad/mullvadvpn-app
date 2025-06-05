@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Показывает уведомления, когда время на учетной записи скоро закончится</string>
     <string name="account_time_notification_channel_name">Напоминания о времени на учетной записи</string>
     <string name="add">Добавить</string>
-    <string name="add_30_days_time">Добавить 30 дней</string>
     <string name="add_30_days_time_x">Добавить 30 дней (%1$s)</string>
     <string name="add_a_server">Добавить сервер</string>
     <string name="add_dns_server_dialog_title">Добавить DNS-сервер</string>
@@ -118,6 +117,7 @@
     <string name="daita_description_slide_2_third_paragraph">%1$s поддерживается не на всех серверах. Поэтому, чтобы функция %1$s работала с любым сервером, мы автоматически используем многократный переход.</string>
     <string name="daita_info">После включения параметра «%1$s» вы должны будете вручную выбрать сервер, который поддерживает %2$s. В результате вы можете оказаться заблокированы, пока не выберете совместимый сервер в окне выбора местоположения.</string>
     <string name="daita_multihop">%1$s: многократный переход</string>
+    <string name="days_were_added_30">На учетную запись добавлено 30 дней.</string>
     <string name="delete">Удалить</string>
     <string name="delete_custom_list_confirmation_description">Удалить список «%1$s»?</string>
     <string name="delete_custom_list_message">Список «%1$s» удален</string>
@@ -235,7 +235,6 @@
     <string name="login_fail_title">Ошибка входа</string>
     <string name="login_title">Вход</string>
     <string name="malware_info">Внимание! Блокировщик вредоносного ПО — это просто дополнительный уровень защиты, а не антивирус.</string>
-    <string name="manage_account">Управление учетной записью</string>
     <string name="manage_devices">Управление устройствами</string>
     <string name="manage_devices_confirm_removal_description_line1">Удалить устройство «%1$s»?</string>
     <string name="manage_devices_confirm_removal_description_line2">Устройство будет удалено из списка. На нем будет выполнен выход из системы.</string>
@@ -282,12 +281,9 @@
     <string name="pay_to_start_using">Чтобы пользоваться приложением, нужно добавить время на учетную запись.</string>
     <string name="payment_billing_error_dialog_message">Не удалось начать процесс оплаты — убедитесь, что у вас установлена последняя версия Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play недоступен</string>
-    <string name="payment_completed_dialog_message">На учетную запись добавлено 30 дней.</string>
-    <string name="payment_completed_dialog_title">Время добавлено</string>
     <string name="payment_obfuscation_id_error_dialog_message">Не удалось начать процесс оплаты. Повторите попытку позже.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Службы Mullvad недоступны</string>
-    <string name="payment_pending_dialog_message">Сейчас мы проверяем, прошла ли оплата; нужно немного подождать. Если проверка завершится успешно, мы добавим оплаченное время.</string>
-    <string name="payment_status_pending">Ожидается оплата в Google Play</string>
+    <string name="payment_status_pending_short">Ожидается оплата в Google Play</string>
     <string name="please_enter_a_valid_ip_address">Введите действительный адрес IPv4 или IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Введите действительный порт удаленного сервера</string>
     <string name="port">Порт</string>

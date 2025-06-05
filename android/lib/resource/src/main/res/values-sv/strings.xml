@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Visar påminnelser när kontots tidsgräns uppnås</string>
     <string name="account_time_notification_channel_name">Påminnelser om kontotid</string>
     <string name="add">Lägg till</string>
-    <string name="add_30_days_time">Lägg till 30 dagar</string>
     <string name="add_30_days_time_x">Lägg till 30 dagar (%1$s)</string>
     <string name="add_a_server">Lägg till en server</string>
     <string name="add_dns_server_dialog_title">Lägg till DNS-server</string>
@@ -118,6 +117,7 @@
     <string name="daita_description_slide_2_third_paragraph">Det är inte alla våra servrar som är %1$s-aktiverade. Därför använder vi multihopp automatiskt för att aktivera %1$s med alla servrar.</string>
     <string name="daita_info">Om du aktiverar \"%1$s\" måste du manuellt välja en server som är %2$s-aktiverad. Det kan leda till ett blockerat tillstånd tills du väljer en kompatibel server i \"Välj plats\"-vyn.</string>
     <string name="daita_multihop">%1$s: Multihopp</string>
+    <string name="days_were_added_30">30 dagar har lagts till i ditt konto.</string>
     <string name="delete">Ta bort</string>
     <string name="delete_custom_list_confirmation_description">Ta bort \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" har tagits bort</string>
@@ -235,7 +235,6 @@
     <string name="login_fail_title">Inloggningen misslyckades</string>
     <string name="login_title">Logga in</string>
     <string name="malware_info">Varning! Blockering av skadlig kod är inte ett antivirusprogram och bör inte behandlas som ett. Det här är bara ett extra skyddslager.</string>
-    <string name="manage_account">Hantera konto</string>
     <string name="manage_devices">Hantera enheter</string>
     <string name="manage_devices_confirm_removal_description_line1">Ta bort %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Enheten kommer att tas bort från listan och loggas ut.</string>
@@ -282,12 +281,9 @@
     <string name="pay_to_start_using">Om du vill börja använda appen måste du först lägga till tid i ditt konto.</string>
     <string name="payment_billing_error_dialog_message">Vi kunde inte starta betalningsprocessen. Se till att du har den senaste versionen av Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play är inte tillgängligt</string>
-    <string name="payment_completed_dialog_message">30 dagar har lagts till i ditt konto.</string>
-    <string name="payment_completed_dialog_title">Tid har lagts till</string>
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunde inte starta betalningsprocessen, försök igen senare.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjänster är inte tillgängliga</string>
-    <string name="payment_pending_dialog_message">Vi verifierar ditt köp just nu och det kan ta en stund. Din tid läggs till om verifieringen lyckas.</string>
-    <string name="payment_status_pending">Google Play-betalning väntar</string>
+    <string name="payment_status_pending_short">Google Play-betalning väntar</string>
     <string name="please_enter_a_valid_ip_address">Ange en giltig IPv4- eller IPv6-adress</string>
     <string name="please_enter_a_valid_remote_server_port">Ange en giltig fjärrserverport</string>
     <string name="port">Port</string>
