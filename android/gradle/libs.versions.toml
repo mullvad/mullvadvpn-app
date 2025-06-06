@@ -13,19 +13,19 @@ ndk = "27.2.12479018"
 # https://github.com/gradle/gradle/issues/19228
 # Find the relevant AAPT version here:
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
-android-gradle-plugin = "8.10.0"
+android-gradle-plugin = "8.10.1"
 android-gradle-aapt = "12782657"
 android-billingclient = "7.1.1"
 
 # AndroidX
 androidx-activitycompose = "1.10.1"
-androidx-appcompat = "1.7.0"
+androidx-appcompat = "1.7.1"
 androidx-ktx = "1.16.0"
 androidx-credentials = "1.5.0"
 androidx-coresplashscreen = "1.1.0-rc01"
 androidx-datastore = "1.1.7"
 androidx-espresso = "3.6.1"
-androidx-lifecycle = "2.9.0"
+androidx-lifecycle = "2.9.1"
 androidx-test = "1.6.1"
 androidx-testmonitor = "1.7.2"
 androidx-testorchestrator = "1.5.1"
@@ -45,11 +45,11 @@ compose-material-icons-extended = "1.7.8"
 drawablepainter = "0.37.3"
 
 # Update suppression for 'InvalidPackage' in config/lint.xml
-grpc = "1.72.0"
+grpc = "1.73.0"
 grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
 
-junit = "5.12.2"
+junit = "5.13.0"
 junit5-android = "1.7.0"
 junit5-android-plugin = "1.12.2.0"
 
@@ -71,7 +71,7 @@ kotlinx-serialization = "1.8.1"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.5"
-protobuf = "4.31.0"
+protobuf = "4.31.1"
 
 # Rust Android Gradle
 rust-android-gradle = "0.9.6"
