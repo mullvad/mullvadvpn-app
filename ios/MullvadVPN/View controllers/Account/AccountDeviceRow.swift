@@ -27,14 +27,16 @@ class AccountDeviceRow: UIView {
             value: "Device name",
             comment: ""
         )
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.font = .mullvadTiny
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor(white: 1.0, alpha: 0.6)
         return label
     }()
 
     private let deviceLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 17)
+        label.font = .mullvadSmall
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
         return label
     }()
@@ -43,6 +45,7 @@ class AccountDeviceRow: UIView {
         let button = IncreasedHitButton(type: .system)
         button.isExclusiveTouch = true
         button.setAccessibilityIdentifier(.infoButton)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         button.setBackgroundImage(UIImage.Buttons.info, for: .normal)
         button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.accountInfoSize).isActive = true

@@ -68,6 +68,7 @@ class SwitchCellContentView: UIView, UIContentView, UITextFieldDelegate {
         let textProperties = actualConfiguration.textProperties
 
         textLabel.font = textProperties.font
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = textProperties.color
 
         textLabel.text = actualConfiguration.text

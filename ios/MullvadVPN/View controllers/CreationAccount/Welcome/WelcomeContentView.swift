@@ -24,7 +24,7 @@ final class WelcomeContentView: UIView, Sendable {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .largeTitle, weight: .bold)
+        label.font = .mullvadLarge
         label.textColor = .white
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
@@ -40,7 +40,7 @@ final class WelcomeContentView: UIView, Sendable {
 
     private let subtitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .mullvadSmall
         label.textColor = .white
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
@@ -60,7 +60,7 @@ final class WelcomeContentView: UIView, Sendable {
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = .zero
-        label.font = .preferredFont(forTextStyle: .title2, weight: .bold)
+        label.font = .mullvadMedium
         label.textColor = .white
         return label
     }()
@@ -68,6 +68,7 @@ final class WelcomeContentView: UIView, Sendable {
     private let copyButton: UIButton = {
         let button = UIButton(type: .system)
         button.setAccessibilityIdentifier(.copyButton)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
@@ -77,7 +78,7 @@ final class WelcomeContentView: UIView, Sendable {
         let label = UILabel()
         label.adjustsFontForContentSizeCategory = true
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .mullvadSmall
         label.textColor = .white
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -87,6 +88,7 @@ final class WelcomeContentView: UIView, Sendable {
     private let infoButton: UIButton = {
         let button = IncreasedHitButton(type: .system)
         button.setAccessibilityIdentifier(.infoButton)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage.Buttons.info, for: .normal)
@@ -97,7 +99,7 @@ final class WelcomeContentView: UIView, Sendable {
 
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .mullvadSmall
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
         label.numberOfLines = .zero

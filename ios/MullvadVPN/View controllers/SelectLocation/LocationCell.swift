@@ -18,7 +18,8 @@ class LocationCell: UITableViewCell {
 
     private let locationLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16)
+        label.font = .mullvadSmall
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
         label.lineBreakMode = .byTruncatingTail
         label.numberOfLines = 1
@@ -34,6 +35,7 @@ class LocationCell: UITableViewCell {
 
     private let tickImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage.tick)
+        imageView.adjustsImageSizeForAccessibilityContentSizeCategory = true
         imageView.tintColor = .white
         return imageView
     }()
@@ -54,6 +56,7 @@ class LocationCell: UITableViewCell {
     private let collapseButton: UIButton = {
         let button = UIButton(type: .custom)
         button.isAccessibilityElement = false
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         return button
     }()
