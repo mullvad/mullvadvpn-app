@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ</string>
     <string name="account_time_notification_channel_name">การแจ้งเตือนเวลาบัญชี</string>
     <string name="add">เพิ่ม</string>
-    <string name="add_30_days_time">เพิ่มเวลา 30 วัน</string>
     <string name="add_30_days_time_x">เพิ่มเวลา 30 วัน (%1$s)</string>
     <string name="add_a_server">เพิ่มเซิร์ฟเวอร์</string>
     <string name="add_dns_server_dialog_title">เพิ่มเซิร์ฟเวอร์ DNS</string>
@@ -118,6 +117,7 @@
     <string name="daita_description_slide_2_third_paragraph">ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %1$s ด้วยเหตุนี้เอง เราจึงใช้การมัลติฮอปอัตโนมัติ เพื่อเปิดใช้งาน %1$s กับทุกเซิร์ฟเวอร์</string>
     <string name="daita_info">โดยการเปิดใช้งาน “%1$s” คุณจะต้องเลือกเซิร์ฟเวอร์ที่เปิดใช้งาน %2$s ด้วยตนเอง ซึ่งอาจทำให้คุณอยู่ในสถานะถูกบล็อก จนกว่าคุณจะเลือกเซิร์ฟเวอร์ที่เข้ากันได้ในมุมมอง \"เลือกตำแหน่งที่ตั้ง\"</string>
     <string name="daita_multihop">%1$s: Multihop</string>
+    <string name="days_were_added_30">30 วัน ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
     <string name="delete">ลบ</string>
     <string name="delete_custom_list_confirmation_description">ลบ \"%1$s\" หรือไม่</string>
     <string name="delete_custom_list_message">\"%1$s\" ถูกลบแล้ว</string>
@@ -235,7 +235,6 @@
     <string name="login_fail_title">การเข้าสู่ระบบล้มเหลว</string>
     <string name="login_title">เข้าสู่ระบบ</string>
     <string name="malware_info">คำเตือน: ตัวบล็อกมัลแวร์ไม่ใช่แอนตี้ไวรัส และไม่ควรนำมาใช้ในรูปแบบดังกล่าว นี่เป็นเพียงชั้นการป้องกันเพิ่มเติมเท่านั้น</string>
-    <string name="manage_account">จัดการบัญชี</string>
     <string name="manage_devices">จัดการอุปกรณ์</string>
     <string name="manage_devices_confirm_removal_description_line1">ลบ %1$s หรือไม่</string>
     <string name="manage_devices_confirm_removal_description_line2">อุปกรณ์จะถูกลบออกจากรายการและออกจากระบบ</string>
@@ -282,12 +281,9 @@
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
     <string name="payment_billing_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดตรวจสอบให้แน่ใจว่า คุณมี Google Play เวอร์ชันล่าสุด </string>
     <string name="payment_billing_error_dialog_title">Google Play ไม่พร้อมใช้งาน</string>
-    <string name="payment_completed_dialog_message">30 วัน ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
-    <string name="payment_completed_dialog_title">เพิ่มเวลาสำเร็จแล้ว</string>
     <string name="payment_obfuscation_id_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดลองอีกครั้งในภายหลัง</string>
     <string name="payment_obfuscation_id_error_dialog_title">บริการ Mullavad ไม่พร้อมใช้งาน</string>
-    <string name="payment_pending_dialog_message">เรากำลังตรวจสอบยืนยันการซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ คุณจะได้รับเวลาเพิ่ม หากการตรวจสอบยืนยันสำเร็จ</string>
-    <string name="payment_status_pending">กำลังชำระเงิน Google Play</string>
+    <string name="payment_status_pending_short">กำลังชำระเงิน Google Play</string>
     <string name="please_enter_a_valid_ip_address">โปรดป้อนที่อยู่ IPv4 หรือ IPv6 ที่ถูกต้อง</string>
     <string name="please_enter_a_valid_remote_server_port">โปรดป้อนพอร์ตเซิร์ฟเวอร์ระยะไกลที่ถูกต้อง</string>
     <string name="port">พอร์ต</string>

@@ -78,7 +78,7 @@ class PlayPaymentUseCaseTest {
     @Test
     fun `resetPurchaseResult call should result in purchaseResult null`() = runTest {
         // Arrange
-        val completedSuccess = PurchaseResult.Completed.Success
+        val completedSuccess = PurchaseResult.Completed.Success(ProductId("one_month"))
         val productId = ProductId("productId")
         val paymentRepositoryPurchaseResultFlow = flow { emit(completedSuccess) }
         every { mockPaymentRepository.purchaseProduct(any(), any()) } returns

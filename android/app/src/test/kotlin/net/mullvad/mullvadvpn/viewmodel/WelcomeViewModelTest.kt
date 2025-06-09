@@ -7,7 +7,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
@@ -15,9 +14,8 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -26,6 +24,9 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
@@ -33,6 +34,7 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -63,8 +65,6 @@ class WelcomeViewModelTest {
 
     @BeforeEach
     fun setup() {
-        mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
-
         every { mockDeviceRepository.deviceState } returns deviceStateFlow
 
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionStateFlow
@@ -120,7 +120,8 @@ class WelcomeViewModelTest {
             awaitItem()
             tunnelState.emit(tunnelUiStateTestItem)
             val result = awaitItem()
-            assertEquals(tunnelUiStateTestItem, result.tunnelState)
+            assertIs<Lc.Content<WelcomeUiState>>(result)
+            assertEquals(tunnelUiStateTestItem, result.value.tunnelState)
         }
     }
 
@@ -139,7 +140,9 @@ class WelcomeViewModelTest {
                 paymentAvailabilityFlow.value = null
                 deviceStateFlow.value =
                     DeviceState.LoggedIn(accountNumber = expectedAccountNumber, device = device)
-                assertEquals(expectedAccountNumber, awaitItem().accountNumber)
+                val result = awaitItem()
+                assertIs<Lc.Content<WelcomeUiState>>(result)
+                assertEquals(expectedAccountNumber, result.value.accountNumber)
             }
         }
 
@@ -158,66 +161,6 @@ class WelcomeViewModelTest {
     }
 
     @Test
-    fun `when paymentAvailability emits ProductsUnavailable uiState should include state NoPayment`() =
-        runTest {
-            // Arrange
-            val productsUnavailable = PaymentAvailability.ProductsUnavailable
-
-            // Act, Assert
-            viewModel.uiState.test {
-                // Default item
-                awaitItem()
-                paymentAvailabilityFlow.tryEmit(productsUnavailable)
-                val result = awaitItem().billingPaymentState
-                assertIs<PaymentState.NoPayment>(result)
-            }
-        }
-
-    @Test
-    fun `when paymentAvailability emits ErrorOther uiState should include state ErrorGeneric`() =
-        runTest {
-            // Arrange
-            val paymentOtherError = PaymentAvailability.Error.Other(mockk())
-            paymentAvailabilityFlow.tryEmit(paymentOtherError)
-
-            // Act, Assert
-            viewModel.uiState.test {
-                val result = awaitItem().billingPaymentState
-                assertIs<PaymentState.Error.Generic>(result)
-            }
-        }
-
-    @Test
-    fun `when paymentAvailability emits ErrorBillingUnavailable uiState should include state ErrorBilling`() =
-        runTest { // Arrange
-            val paymentBillingError = PaymentAvailability.Error.BillingUnavailable
-            paymentAvailabilityFlow.value = paymentBillingError
-
-            // Act, Assert
-            viewModel.uiState.test {
-                val result = awaitItem().billingPaymentState
-                assertIs<PaymentState.Error.Billing>(result)
-            }
-        }
-
-    @Test
-    fun `when paymentAvailability emits ProductsAvailable uiState should include state Available with products`() =
-        runTest {
-            // Arrange
-            val mockProduct: PaymentProduct = mockk()
-            val expectedProductList = listOf(mockProduct)
-            val productsAvailable = PaymentAvailability.ProductsAvailable(listOf(mockProduct))
-            paymentAvailabilityFlow.value = productsAvailable
-
-            // Act, Assert
-            viewModel.uiState.test {
-                val result = awaitItem().billingPaymentState
-                assertIs<PaymentState.PaymentAvailable>(result)
-                assertLists(expectedProductList, result.products)
-            }
-        }
-
-    @Test
     fun `when on disconnect click is called should call connection proxy disconnect`() = runTest {
         // Arrange
         coEvery { mockConnectionProxy.disconnect() } returns true.right()
@@ -229,8 +172,26 @@ class WelcomeViewModelTest {
         coVerify { mockConnectionProxy.disconnect() }
     }
 
-    companion object {
-        private const val PURCHASE_RESULT_EXTENSIONS_CLASS =
-            "net.mullvad.mullvadvpn.util.PurchaseResultExtensionsKt"
+    @Test
+    fun `when there is a pending purchase, uiState should reflect it`() = runTest {
+        // Arrange
+        paymentAvailabilityFlow.value =
+            PaymentAvailability.ProductsAvailable(
+                products =
+                    listOf(
+                        PaymentProduct(
+                            productId = ProductId("test_product_id"),
+                            price = ProductPrice("9.99"),
+                            status = PaymentStatus.PENDING,
+                        )
+                    )
+            )
+
+        // Act, Assert
+        viewModel.uiState.test {
+            val result = awaitItem()
+            assertIs<Lc.Content<WelcomeUiState>>(result)
+            assertEquals(true, result.value.verificationPending)
+        }
     }
 }

@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Viser påminnelser når tidsavbrudd for kontoen er i ferd med å inntreffe</string>
     <string name="account_time_notification_channel_name">Påminnelser om tidsavbrudd for konto</string>
     <string name="add">Legg til</string>
-    <string name="add_30_days_time">Legg til 30 dager</string>
     <string name="add_30_days_time_x">Legg til 30 dager (%1$s)</string>
     <string name="add_a_server">Legg til en server</string>
     <string name="add_dns_server_dialog_title">Legg til DNS-server</string>
@@ -118,6 +117,7 @@
     <string name="daita_description_slide_2_third_paragraph">Ikke alle serverne våre er %1$s-aktiverte. Derfor bruker vi automatisk multihopp for å aktivere %1$s med alle servere.</string>
     <string name="daita_info">Hvis du aktiverer «%1$s», må du manuelt velge en server som har aktivert %2$s. Dette kan føre til at du havner i en blokkert tilstand inntil du har valgt en kompatibel server under «Velg plassering».</string>
     <string name="daita_multihop">%1$s: Multihopp</string>
+    <string name="days_were_added_30">30 dager ble lagt til kontoen din.</string>
     <string name="delete">Slett</string>
     <string name="delete_custom_list_confirmation_description">Slette «%1$s»?</string>
     <string name="delete_custom_list_message">«%1$s» ble slettet</string>
@@ -235,7 +235,6 @@
     <string name="login_fail_title">Kunne ikke logge inn</string>
     <string name="login_title">Logg inn</string>
     <string name="malware_info">Advarsel: Blokkeringen av skadelig programvare er ikke et antivirusprogram og skal ikke brukes som dette. Det er bare et ekstra lag med beskyttelse.</string>
-    <string name="manage_account">Administrer konto</string>
     <string name="manage_devices">Behandle enheter</string>
     <string name="manage_devices_confirm_removal_description_line1">Fjerne %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Enheten blir fjernet fra listen og logget ut.</string>
@@ -282,12 +281,9 @@
     <string name="pay_to_start_using">For å starte bruken av appen, må du først legge til tid til kontoen.</string>
     <string name="payment_billing_error_dialog_message">Vi kunne ikke starte betalingsprosessen. Kontroller om du har siste versjon av Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play utilgjengelig</string>
-    <string name="payment_completed_dialog_message">30 dager ble lagt til kontoen din.</string>
-    <string name="payment_completed_dialog_title">Tid ble lagt til</string>
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunne ikke starte betalingsprosessen. Prøv igjen senere.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjenester utilgjengelig</string>
-    <string name="payment_pending_dialog_message">Vi behandler kjøpet. Det kan ta litt tid. Hvis kjøpet blir bekreftet, legges tiden din til.</string>
-    <string name="payment_status_pending">Google Play-betaling venter</string>
+    <string name="payment_status_pending_short">Google Play-betaling venter</string>
     <string name="please_enter_a_valid_ip_address">Skriv inn en gyldig IPv4- eller IPv6-adresse</string>
     <string name="please_enter_a_valid_remote_server_port">Skriv inn en gyldig ekstern server-port</string>
     <string name="port">Port</string>

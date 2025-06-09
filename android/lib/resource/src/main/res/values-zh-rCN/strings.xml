@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">在帐户时间即将到期时显示提醒</string>
     <string name="account_time_notification_channel_name">帐户时间提醒</string>
     <string name="add">添加</string>
-    <string name="add_30_days_time">增加 30 天</string>
     <string name="add_30_days_time_x">增加 30 天 (%1$s)</string>
     <string name="add_a_server">添加服务器</string>
     <string name="add_dns_server_dialog_title">添加 DNS 服务器</string>
@@ -118,6 +117,7 @@
     <string name="daita_description_slide_2_third_paragraph">我们的部分服务器未启用 %1$s。因此，我们使用多跳自动为任何服务器启用 %1$s。</string>
     <string name="daita_info">启用“%1$s”后，您需要手动选择启用了 %2$s 的服务器。这可能导致您在“选择位置”视图中选择兼容服务器之前处于阻止状态。</string>
     <string name="daita_multihop">%1$s：多跳</string>
+    <string name="days_were_added_30">已向您的帐户增加 30 天。</string>
     <string name="delete">删除</string>
     <string name="delete_custom_list_confirmation_description">删除“%1$s”？</string>
     <string name="delete_custom_list_message">“%1$s”已被删除</string>
@@ -235,7 +235,6 @@
     <string name="login_fail_title">登录失败</string>
     <string name="login_title">登录</string>
     <string name="malware_info">警告：恶意软件阻止程序不是防病毒软件，也不应被视为防病毒软件，这只是提供了一层额外的保护。</string>
-    <string name="manage_account">管理帐户</string>
     <string name="manage_devices">管理设备</string>
     <string name="manage_devices_confirm_removal_description_line1">是否移除“%1$s”？</string>
     <string name="manage_devices_confirm_removal_description_line2">该设备将从列表中移除并退出登录。</string>
@@ -282,12 +281,9 @@
     <string name="pay_to_start_using">要开始使用本应用，您首先需要向帐户中充入时间。</string>
     <string name="payment_billing_error_dialog_message">我们无法启动付款流程，请确保拥有最新版本的 Google Play。</string>
     <string name="payment_billing_error_dialog_title">Google Play 不可用</string>
-    <string name="payment_completed_dialog_message">已向您的帐户增加 30 天。</string>
-    <string name="payment_completed_dialog_title">时间已成功添加</string>
     <string name="payment_obfuscation_id_error_dialog_message">我们无法启动付款流程，请稍后再试。</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad 服务不可用</string>
-    <string name="payment_pending_dialog_message">我们目前正在验证您的购买，这可能需要一些时间。如果验证成功，您的时间将增加。</string>
-    <string name="payment_status_pending">Google Play 付款待处理</string>
+    <string name="payment_status_pending_short">Google Play 付款待处理</string>
     <string name="please_enter_a_valid_ip_address">请输入有效的 IPv4 或 IPv6 地址</string>
     <string name="please_enter_a_valid_remote_server_port">请输入有效的远程服务器端口</string>
     <string name="port">端口</string>
