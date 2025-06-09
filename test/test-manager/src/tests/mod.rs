@@ -6,6 +6,7 @@ mod daita;
 mod dns;
 mod helpers;
 mod install;
+mod macos;
 mod relay_ip_overrides;
 mod settings;
 mod software;
@@ -14,7 +15,6 @@ mod test_metadata;
 mod tunnel;
 mod tunnel_state;
 mod ui;
-mod macos;
 
 use itertools::Itertools;
 use mullvad_types::relay_constraints::{GeographicLocationConstraint, LocationConstraint};
