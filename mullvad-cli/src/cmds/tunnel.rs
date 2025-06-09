@@ -3,6 +3,7 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     constraints::Constraint,
+    relay_constraints::{AllowedIps, RelaySettings, WireguardConstraints},
     wireguard::{QuantumResistantState, RotationInterval, DEFAULT_ROTATION_INTERVAL},
 };
 
@@ -44,6 +45,15 @@ pub enum TunnelOptions {
         /// Configure whether to enable DAITA direct only
         #[arg(long)]
         daita_direct_only: Option<BooleanOption>,
+        /// Specify custom allowed IPs for WireGuard tunnels. Use comma-separated values of IPs and IP ranges in CIDR notation.
+        /// A empty string resets to the default value, where all traffic is allowed, i.e. (0.0.0.0/0,::/0).
+        /// For CIDR ranges, host bits must be zero (e.g., "10.0.0.0/24" is valid, "10.0.0.1/24" is not).
+        ///
+        /// Example: "10.0.0.0/24,192.168.1.1,fd00::/8"
+        ///
+        /// WARNING: Setting this value incorrectly may cause internet access to be blocked or the app to not work properly.
+        #[arg(long)]
+        allowed_ips: Option<String>,
         /// The key rotation interval. Number of hours, or 'any'
         #[arg(long)]
         rotation_interval: Option<Constraint<RotationInterval>>,
@@ -117,6 +127,22 @@ impl Tunnel {
             },
         );
 
+        // Get the WireGuard allowed IPs
+        let wireguard_constraints = match rpc.get_settings().await?.relay_settings {
+            RelaySettings::Normal(settings) => settings.wireguard_constraints,
+            RelaySettings::CustomTunnelEndpoint(_) => WireguardConstraints::default(),
+        };
+
+        print_option!(
+            "Allowed IPs",
+            match wireguard_constraints.allowed_ips {
+                mullvad_types::constraints::Constraint::Any => "all traffic (default)".to_string(),
+                mullvad_types::constraints::Constraint::Only(ips) => {
+                    ips.to_string()
+                }
+            },
+        );
+
         println!("Generic options");
 
         print_option!(
@@ -139,6 +165,7 @@ impl Tunnel {
                 quantum_resistant,
                 daita,
                 daita_direct_only,
+                allowed_ips,
                 rotation_interval,
                 rotate_key,
             } => {
@@ -147,6 +174,7 @@ impl Tunnel {
                     quantum_resistant,
                     daita,
                     daita_direct_only,
+                    allowed_ips,
                     rotation_interval,
                     rotate_key,
                 )
@@ -179,6 +207,7 @@ impl Tunnel {
         quantum_resistant: Option<QuantumResistantState>,
         daita: Option<BooleanOption>,
         daita_direct_only: Option<BooleanOption>,
+        allowed_ips: Option<String>,
         rotation_interval: Option<Constraint<RotationInterval>>,
         rotate_key: Option<RotateKey>,
     ) -> Result<()> {
@@ -192,6 +221,13 @@ impl Tunnel {
         if let Some(quantum_resistant) = quantum_resistant {
             rpc.set_quantum_resistant_tunnel(quantum_resistant).await?;
             println!("Quantum resistant setting has been updated");
+        }
+
+        if let Some(allowed_ips_str) = allowed_ips {
+            let ips = AllowedIps::parse(allowed_ips_str.split(','))?;
+
+            rpc.set_wireguard_allowed_ips(ips).await?;
+            println!("WireGuard allowed IPs have been updated")
         }
 
         if let Some(enable_daita) = daita {

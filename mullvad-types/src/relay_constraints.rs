@@ -407,8 +407,138 @@ impl fmt::Display for OpenVpnConstraints {
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
+    pub allowed_ips: Constraint<AllowedIps>,
     pub use_multihop: bool,
     pub entry_location: Constraint<LocationConstraint>,
+}
+
+pub use allowed_ip::AllowedIps;
+pub mod allowed_ip {
+    use std::net::{Ipv4Addr, Ipv6Addr};
+
+    use crate::constraints::Constraint;
+    use ipnetwork::IpNetwork;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+    pub struct AllowedIps(pub Vec<IpNetwork>);
+
+    impl Default for AllowedIps {
+        fn default() -> Self {
+            AllowedIps::allow_all()
+        }
+    }
+
+    impl std::fmt::Display for AllowedIps {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.write_str(
+                &self
+                    .0
+                    .iter()
+                    .map(|net| net.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", "),
+            )
+        }
+    }
+
+    #[derive(Debug, thiserror::Error)]
+    pub enum AllowedIpParseError {
+        #[error("Failed to parse IP network: {0}")]
+        Parse(#[from] ipnetwork::IpNetworkError),
+        #[error("IP network {0} has non-zero host bits (should be {1})")]
+        NonZeroHostBits(IpNetwork, std::net::IpAddr),
+    }
+
+    /// Represents a collection of allowed IP networks.
+    ///
+    /// Provides utility methods to construct `AllowedIps` from various sources,
+    /// including allowing all IPs, parsing from string representations, and
+    /// converting into a constraint.
+    impl AllowedIps {
+        /// Creates an `AllowedIps` instance that allows all IP addresses.
+        ///
+        /// # Returns
+        ///
+        /// An `AllowedIps` containing all possible IP networks.
+        pub fn allow_all() -> Self {
+            AllowedIps(vec![
+                "0.0.0.0/0".parse().expect("Failed to parse ipv4 network"),
+                "::0/0".parse().expect("Failed to parse ipv6 network"),
+            ])
+        }
+
+        /// Constructs an `AllowedIps` from an iterator of string representations of IP networks.
+        ///
+        /// Each string should be a valid CIDR notation (e.g., "192.168.1.0/24").
+        /// Ignores empty strings. Returns an error if any string is not a valid network or if it contains non-zero host bits.
+        ///
+        /// # Errors
+        ///
+        /// Returns `AllowedIpParseError::Parse` if parsing fails, or
+        /// `AllowedIpParseError::NonZeroHostBits` if the network contains non-zero host bits.
+        pub fn parse<I, S>(allowed_ips: I) -> Result<AllowedIps, AllowedIpParseError>
+        where
+            I: IntoIterator<Item = S>,
+            S: AsRef<str>,
+        {
+            let mut networks = vec![];
+            for s in allowed_ips {
+                let s = s.as_ref().trim();
+                if !s.is_empty() {
+                    let net: IpNetwork = s.parse().map_err(AllowedIpParseError::Parse)?;
+                    if net.network() != net.ip() {
+                        return Err(AllowedIpParseError::NonZeroHostBits(net, net.network()));
+                    }
+                    networks.push(net);
+                }
+            }
+            Ok(AllowedIps(networks))
+        }
+
+        /// Converts the `AllowedIps` into a `Constraint<AllowedIps>`.
+        /// If the list of ip ranges is empty, it returns `Constraint::Any`, otherwise it returns `Constraint::Only(self)`.
+        pub fn to_constraint(self) -> Constraint<AllowedIps> {
+            if self.0.is_empty() {
+                Constraint::Any
+            } else {
+                Constraint::Only(self)
+            }
+        }
+
+        /// Resolves the allowed IPs to a `Vec<IpNetwork>`, adding the host IPv4 and IPv6 addresses if provided.
+        pub fn resolve(
+            self,
+            host_ipv4: Option<Ipv4Addr>,
+            host_ipv6: Option<Ipv6Addr>,
+        ) -> Vec<IpNetwork> {
+            let mut networks = self.0;
+            if let Some(host_ipv6) = host_ipv6 {
+                networks.push(IpNetwork::V6(host_ipv6.into()));
+            }
+            if let Some(host_ipv4) = host_ipv4 {
+                networks.push(IpNetwork::V4(host_ipv4.into()));
+            }
+            log::trace!("Resolved allowed IPs: {networks:?}");
+            networks
+        }
+    }
+
+    /// Resolves the allowed IPs from a `Constraint<AllowedIps>`, adding the host IPv4 and IPv6 addresses if provided.
+    /// If the constraint is `Constraint::Any` or `Constraint::Only` with an empty list, it allows all IPs.
+    /// Returns a vector of `IpNetwork` containing the resolved allowed IPs.
+    pub fn resolve_from_constraint(
+        allowed_ips: &Constraint<AllowedIps>,
+        host_ipv4: Option<Ipv4Addr>,
+        host_ipv6: Option<Ipv6Addr>,
+    ) -> Vec<IpNetwork> {
+        match allowed_ips {
+            Constraint::Any => AllowedIps::allow_all(),
+            Constraint::Only(ips) if ips.0.is_empty() => AllowedIps::allow_all(),
+            Constraint::Only(ips) => ips.clone(),
+        }
+        .resolve(host_ipv4, host_ipv6)
+    }
 }
 
 impl WireguardConstraints {

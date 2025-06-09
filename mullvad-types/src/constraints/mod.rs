@@ -130,15 +130,16 @@ macro_rules! impl_intersection_partialeq {
     };
 }
 
+// Note that deriving `Intersection` for using `impl_intersection_partialeq`
+// may not do what you expect for data structures that represent/wrap sets, such as
+// `Vec<T>` or `HashSet<T>`. `Constraint::Only` will only match if the
+// `Vec<T>` or `HashSet<T>` is exactly the same, not if they contain overlapping elements.
 impl_intersection_partialeq!(u16);
 impl_intersection_partialeq!(bool);
-
-// NOTE: this implementation does not do what you may expect of an intersection
 impl_intersection_partialeq!(relay_constraints::Providers);
-// NOTE: should take actual intersection
 impl_intersection_partialeq!(relay_constraints::LocationConstraint);
 impl_intersection_partialeq!(relay_constraints::Ownership);
-// NOTE: it contains an inner constraint
 impl_intersection_partialeq!(talpid_types::net::TransportProtocol);
 impl_intersection_partialeq!(talpid_types::net::TunnelType);
 impl_intersection_partialeq!(talpid_types::net::IpVersion);
+impl_intersection_partialeq!(relay_constraints::AllowedIps);
