@@ -88,7 +88,7 @@ class AddTimeBottomSheetTest {
             )
 
             // Act
-            onNodeWithText("Buy credit").performClick()
+            onNodeWithText(BUY_CREDIT_TEXT).performClick()
 
             // Assert
             verify(exactly = 1) { mockedClickHandler.invoke() }
@@ -334,7 +334,7 @@ class AddTimeBottomSheetTest {
             )
 
             // Assert
-            onNodeWithText("Buy time from website").assertDoesNotExist()
+            onNodeWithText(BUY_CREDIT_TEXT).assertDoesNotExist()
         }
 
     @Test
@@ -355,4 +355,8 @@ class AddTimeBottomSheetTest {
             // Assert
             onNodeWithText("The app is blocking internet, please disconnect first").assertExists()
         }
+
+    companion object {
+        private const val BUY_CREDIT_TEXT = "Buy credit"
+    }
 }
