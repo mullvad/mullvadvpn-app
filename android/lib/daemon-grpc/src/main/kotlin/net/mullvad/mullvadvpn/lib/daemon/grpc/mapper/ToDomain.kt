@@ -613,9 +613,10 @@ internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
         else -> throw NullPointerException("Device state is null")
     }
 
-internal fun ManagementInterface.AccountData.toDomain(): AccountData =
+internal fun ManagementInterface.AccountData.toDomain(accountNumber: AccountNumber): AccountData =
     AccountData(
-        AccountId(UUID.fromString(id)),
+        id = AccountId(UUID.fromString(id)),
+        accountNumber = accountNumber,
         expiryDate = Instant.ofEpochSecond(expiry.seconds).atDefaultZone(),
     )
 

@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
   mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
   uses a lot less CPU to compute the keypair, and the public key sent to the server
   is drastically smaller.
+- Use AlarmManger to schedule account out of time notifications.
 
 
 ## [android/2025.4] - 2025-05-28
