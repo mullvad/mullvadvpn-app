@@ -21,7 +21,6 @@ import {
 import ExpiredAccountErrorView from './ExpiredAccountErrorView';
 import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
-import Launch from './Launch';
 import MainView from './main-view/MainView';
 import MultihopSettings from './MultihopSettings';
 import OpenVpnSettings from './OpenVpnSettings';
@@ -35,7 +34,7 @@ import Support from './Support';
 import TooManyDevices from './TooManyDevices';
 import UdpOverTcp from './UdpOverTcp';
 import UserInterfaceSettings from './UserInterfaceSettings';
-import { AppInfoView, AppUpgradeView, ChangelogView, SettingsView } from './views';
+import { AppInfoView, AppUpgradeView, ChangelogView, Launch, SettingsView } from './views';
 import VpnSettings from './VpnSettings';
 import WireguardSettings from './WireguardSettings';
 
