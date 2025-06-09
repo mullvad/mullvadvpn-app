@@ -34,8 +34,9 @@ class AccountDeletionContentView: UIView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .title2, weight: .bold)
+        label.font = .mullvadLarge
         label.numberOfLines = .zero
+        label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.textColor = .white
         label.text = NSLocalizedString(
@@ -50,8 +51,9 @@ class AccountDeletionContentView: UIView {
     private let messageLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .body, weight: .bold)
+        label.font = .mullvadSmallSemiBold
         label.numberOfLines = .zero
+        label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.textColor = .white
         return label
@@ -60,8 +62,9 @@ class AccountDeletionContentView: UIView {
     private let tipLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .footnote, weight: .bold)
+        label.font = .mullvadMiniSemiBold
         label.numberOfLines = .zero
+        label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.textColor = .white
         label.text = NSLocalizedString(
@@ -82,7 +85,7 @@ class AccountDeletionContentView: UIView {
         let groupingStyle = AccountTextField.GroupingStyle.lastPart
         let textField = AccountTextField(groupingStyle: groupingStyle)
         textField.setAccessibilityIdentifier(.deleteAccountTextField)
-        textField.font = .preferredFont(forTextStyle: .body, weight: .bold)
+        textField.font = .mullvadSmallSemiBold
         textField.placeholder = Array(repeating: "X", count: 4).joined()
         textField.placeholderTextColor = .lightGray
         textField.textContentType = .username
@@ -94,6 +97,7 @@ class AccountDeletionContentView: UIView {
         textField.keyboardType = .numberPad
         textField.returnKeyType = .done
         textField.enablesReturnKeyAutomatically = false
+        textField.adjustsFontForContentSizeCategory = true
         textField.backgroundColor = .white
         textField.borderStyle = .line
         return textField
@@ -161,6 +165,7 @@ class AccountDeletionContentView: UIView {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .body)
         label.numberOfLines = 2
+        label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.textColor = .red
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)

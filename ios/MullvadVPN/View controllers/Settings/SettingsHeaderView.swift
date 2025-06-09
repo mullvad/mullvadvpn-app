@@ -15,7 +15,8 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
     let titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.font = .systemFont(ofSize: 17)
+        titleLabel.font = .mullvadSmallSemiBold
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.textColor = UIColor.Cell.titleTextColor
         titleLabel.numberOfLines = 0
         return titleLabel
@@ -24,6 +25,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
     let infoButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setAccessibilityIdentifier(.infoButton)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         button.setImage(UIImage.Buttons.info, for: .normal)
         return button
@@ -31,6 +33,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
 
     let collapseButton: UIButton = {
         let button = UIButton(type: .custom)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.setAccessibilityIdentifier(.expandButton)
         button.tintColor = .white
         return button
