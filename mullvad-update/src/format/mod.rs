@@ -58,7 +58,7 @@ pub struct Response {
 
 /// App release
 #[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(test, derive(Clone, PartialEq))]
+#[cfg_attr(test, derive(Clone))]
 pub struct Release {
     /// Mullvad app version
     pub version: mullvad_version::Version,
@@ -70,6 +70,18 @@ pub struct Release {
     #[serde(default = "complete_rollout")]
     #[serde(skip_serializing_if = "is_complete_rollout")]
     pub rollout: f32,
+}
+
+impl PartialEq for Release {
+    fn eq(&self, other: &Self) -> bool {
+        self.version.eq(&other.version)
+    }
+}
+
+impl PartialOrd for Release {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.version.partial_cmp(&other.version)
+    }
 }
 
 /// A full rollout includes all users
