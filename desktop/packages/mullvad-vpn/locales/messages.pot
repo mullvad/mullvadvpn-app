@@ -2760,6 +2760,9 @@ msgstr ""
 msgid "30 days was added to your account."
 msgstr ""
 
+msgid "90 days was added to your account."
+msgstr ""
+
 msgid "API reachable, adding method..."
 msgstr ""
 
@@ -2778,16 +2781,19 @@ msgstr ""
 msgid "Add %s to list"
 msgstr ""
 
-msgid "Add 30 days time"
+msgid "Add 30 days time (%s)"
 msgstr ""
 
-msgid "Add 30 days time (%s)"
+msgid "Add 90 days time (%s)"
 msgstr ""
 
 msgid "Add DNS server"
 msgstr ""
 
 msgid "Add locations"
+msgstr ""
+
+msgid "Add time"
 msgstr ""
 
 msgid "Adding method..."
@@ -2961,6 +2967,9 @@ msgstr ""
 msgid "Failed to apply patch"
 msgstr ""
 
+msgid "Failed to load products, please try again"
+msgstr ""
+
 msgid "Failed to set to current - API not reachable"
 msgstr ""
 
@@ -2980,6 +2989,9 @@ msgid "Going to login will unblock the internet on this device."
 msgstr ""
 
 msgid "Google Play payment pending"
+msgstr ""
+
+msgid "Google Play payment pending, this might take some time"
 msgstr ""
 
 msgid "Google Play unavailable"
@@ -3003,6 +3015,9 @@ msgstr ""
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr ""
 
+msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
+msgstr ""
+
 msgid "In-tunnel IPv6"
 msgstr ""
 
@@ -3021,6 +3036,9 @@ msgstr ""
 msgid "List name"
 msgstr ""
 
+msgid "Loading products"
+msgstr ""
+
 msgid "Locations"
 msgstr ""
 
@@ -3028,9 +3046,6 @@ msgid "Locations were changed for \"%s\""
 msgstr ""
 
 msgid "Makes sure the device is always on the VPN tunnel."
-msgstr ""
-
-msgid "Manage account"
 msgstr ""
 
 msgid "Manage devices"
@@ -3177,6 +3192,9 @@ msgstr ""
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr ""
 
+msgid "The app is blocking internet, please disconnect first"
+msgstr ""
+
 msgid "The device will be removed from the list and logged out."
 msgstr ""
 
@@ -3196,6 +3214,9 @@ msgid "This field is required"
 msgstr ""
 
 msgid "This is already set as current"
+msgstr ""
+
+msgid "Time added"
 msgstr ""
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
@@ -3273,7 +3294,7 @@ msgstr ""
 msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr ""
 
-msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr ""
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."

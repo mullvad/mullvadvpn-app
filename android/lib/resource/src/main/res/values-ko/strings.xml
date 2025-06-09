@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">계정 시간이 만료되려고 할 때 알림 표시</string>
     <string name="account_time_notification_channel_name">계정 시간 알림</string>
     <string name="add">추가</string>
-    <string name="add_30_days_time">30일 시간 추가</string>
     <string name="add_30_days_time_x">30일 시간 추가(%1$s)</string>
     <string name="add_a_server">서버 추가</string>
     <string name="add_dns_server_dialog_title">DNS 서버 추가</string>
@@ -118,6 +117,7 @@
     <string name="daita_description_slide_2_third_paragraph">일부 서버에는 %1$s가 활성화되어 있지 않습니다. 따라서 당사는 모든 서버에서 %1$s를 활성화하기 위해 자동으로 멀티홉을 사용합니다.</string>
     <string name="daita_info">“%1$s”을 활성화하면 %2$s가 활성화된 서버를 수동으로 선택해야 합니다. 이로 인해 “위치 선택” 창에서 호환되는 서버를 선택할 때까지 차단된 상태에 빠질 수 있습니다.</string>
     <string name="daita_multihop">%1$s: 멀티홉</string>
+    <string name="days_were_added_30">귀하의 계정에 30일이 추가되었습니다.</string>
     <string name="delete">삭제</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\"을(를) 삭제하시겠습니까?</string>
     <string name="delete_custom_list_message">\"%1$s\"이(가) 삭제되었습니다</string>
@@ -235,7 +235,6 @@
     <string name="login_fail_title">로그인 실패</string>
     <string name="login_title">로그인</string>
     <string name="malware_info">경고: 맬웨어 차단기는 안티바이러스가 아니며 하나의 추가 보호 계층일 뿐입니다.</string>
-    <string name="manage_account">계정 관리</string>
     <string name="manage_devices">장치 관리</string>
     <string name="manage_devices_confirm_removal_description_line1">%1$s을(를) 제거하시겠습니까?</string>
     <string name="manage_devices_confirm_removal_description_line2">장치가 목록에서 제거되고 로그아웃됩니다.</string>
@@ -282,12 +281,9 @@
     <string name="pay_to_start_using">앱 사용을 시작하려면, 먼저 계정에 시간을 추가해야 합니다.</string>
     <string name="payment_billing_error_dialog_message">결제 프로세스를 시작할 수 없습니다. Google Play가 최신 버전인지 확인하세요.</string>
     <string name="payment_billing_error_dialog_title">Google Play 사용 불가</string>
-    <string name="payment_completed_dialog_message">귀하의 계정에 30일이 추가되었습니다.</string>
-    <string name="payment_completed_dialog_title">시간이 성공적으로 추가되었습니다.</string>
     <string name="payment_obfuscation_id_error_dialog_message">결제 프로세스를 시작할 수 없습니다. 나중에 다시 시도해 주세요.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad 서비스 사용 불가</string>
-    <string name="payment_pending_dialog_message">구매를 현재 확인하는 중이므로 다소 시간이 걸릴 수 있습니다. 확인을 성공적으로 마치면 시간이 추가됩니다.</string>
-    <string name="payment_status_pending">Google Play 결제 보류 중</string>
+    <string name="payment_status_pending_short">Google Play 결제 보류 중</string>
     <string name="please_enter_a_valid_ip_address">유효한 IPv4 또는 IPv6 주소를 입력하세요</string>
     <string name="please_enter_a_valid_remote_server_port">유효한 원격 서버 포트를 입력하세요</string>
     <string name="port">포트</string>

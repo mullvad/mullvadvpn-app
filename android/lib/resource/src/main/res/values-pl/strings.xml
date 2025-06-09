@@ -7,7 +7,6 @@
     <string name="account_time_notification_channel_description">Pokazuje przypomnienia, gdy kończy się czas na koncie</string>
     <string name="account_time_notification_channel_name">Przypomnienia o czasie na koncie</string>
     <string name="add">Dodaj</string>
-    <string name="add_30_days_time">Dodaj 30 dni</string>
     <string name="add_30_days_time_x">Dodaj 30 dni (%1$s)</string>
     <string name="add_a_server">Dodaj serwer</string>
     <string name="add_dns_server_dialog_title">Dodaj serwer DNS</string>
@@ -118,6 +117,7 @@
     <string name="daita_description_slide_2_third_paragraph">Nie wszystkie nasze serwery obsługują %1$s. Dlatego automatycznie używamy funkcji wielokrotnego przeskoku, aby umożliwić działanie %1$s z dowolnym serwerem.</string>
     <string name="daita_info">Po włączeniu opcji „%1$s” trzeba ręcznie wybrać serwer, który obsługuje %2$s. Może to skutkować zablokowaniem, dopóki nie wybierzesz zgodnego serwera w widoku „Wybierz lokalizację”.</string>
     <string name="daita_multihop">%1$s: wielokrotny przeskok</string>
+    <string name="days_were_added_30">Do konta dodano 30 dni.</string>
     <string name="delete">Usuń</string>
     <string name="delete_custom_list_confirmation_description">Usunąć „%1$s”?</string>
     <string name="delete_custom_list_message">Usunięto „%1$s”</string>
@@ -235,7 +235,6 @@
     <string name="login_fail_title">Błąd logowania</string>
     <string name="login_title">Logowanie</string>
     <string name="malware_info">Ostrzeżenie: funkcja blokowania złośliwego oprogramowania nie jest programem antywirusowym i nie należy jej tak traktować. To jedynie dodatkowa warstwa zabezpieczeń.</string>
-    <string name="manage_account">Zarządzaj kontem</string>
     <string name="manage_devices">Zarządzaj urządzeniami</string>
     <string name="manage_devices_confirm_removal_description_line1">Usunąć %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Urządzenie zostanie usunięte z listy i wylogowane.</string>
@@ -282,12 +281,9 @@
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
     <string name="payment_billing_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Upewnij się, że masz najnowszą wersję aplikacji Google Play.</string>
     <string name="payment_billing_error_dialog_title">Sklep Google Play jest niedostępny</string>
-    <string name="payment_completed_dialog_message">Do konta dodano 30 dni.</string>
-    <string name="payment_completed_dialog_title">Dodano czas</string>
     <string name="payment_obfuscation_id_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Spróbuj ponownie później.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Usługi Mullvad są niedostępne</string>
-    <string name="payment_pending_dialog_message">Weryfikujemy zakup. Może to zająć trochę czasu. Jeśli weryfikacja powiedzie się, czas zostanie dodany.</string>
-    <string name="payment_status_pending">Oczekiwanie na płatność Google Play</string>
+    <string name="payment_status_pending_short">Oczekiwanie na płatność Google Play</string>
     <string name="please_enter_a_valid_ip_address">Wprowadź prawidłowy adres IPv4 lub IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Wprowadź prawidłowy port serwera zdalnego</string>
     <string name="port">Port</string>
