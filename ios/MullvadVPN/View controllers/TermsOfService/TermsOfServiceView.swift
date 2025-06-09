@@ -31,7 +31,6 @@ struct TermsOfServiceView: View {
             Text(LocalizedStringKey("Do you agree to remaining anonymous?"))
                 .font(.mullvadLarge)
                 .foregroundStyle(.white)
-                .allowsTightening(true)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 16)
             Text(termsOfService)
