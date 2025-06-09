@@ -74,7 +74,8 @@ class EditAccessMethodViewController: UIViewController {
 
     private func createTitle() -> UIView {
         let label = UILabel()
-        label.font = UIFont.preferredFont(forTextStyle: .largeTitle, weight: .bold)
+        label.font = .mullvadBig
+        label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
         label.lineBreakStrategy = []

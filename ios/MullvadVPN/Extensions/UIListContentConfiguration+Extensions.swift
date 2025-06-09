@@ -12,8 +12,11 @@ extension UIListContentConfiguration {
     /// Returns cell configured with default text attribute used in Mullvad UI.
     static func mullvadCell(tableStyle: UITableView.Style, isEnabled: Bool = true) -> UIListContentConfiguration {
         var configuration = cell()
-        configuration.textProperties.font = .systemFont(ofSize: 17)
+        configuration.textProperties.font = .mullvadSmall
+        configuration.textProperties.adjustsFontForContentSizeCategory = true
         configuration.textProperties.color = .Cell.titleTextColor.withAlphaComponent(isEnabled ? 1 : 0.8)
+        configuration.secondaryTextProperties.font = .mullvadSmall
+        configuration.secondaryTextProperties.adjustsFontForContentSizeCategory = true
 
         applyMargins(to: &configuration, tableStyle: tableStyle)
 
@@ -23,10 +26,12 @@ extension UIListContentConfiguration {
     /// Returns value cell configured with default text attribute used in Mullvad UI.
     static func mullvadValueCell(tableStyle: UITableView.Style, isEnabled: Bool = true) -> UIListContentConfiguration {
         var configuration = valueCell()
-        configuration.textProperties.font = .systemFont(ofSize: 17)
+        configuration.textProperties.font = .mullvadSmall
+        configuration.textProperties.adjustsFontForContentSizeCategory = true
         configuration.textProperties.color = .Cell.titleTextColor.withAlphaComponent(isEnabled ? 1 : 0.8)
         configuration.secondaryTextProperties.color = .Cell.detailTextColor.withAlphaComponent(0.8)
-        configuration.secondaryTextProperties.font = .systemFont(ofSize: 17)
+        configuration.secondaryTextProperties.font = .mullvadSmall
+        configuration.secondaryTextProperties.adjustsFontForContentSizeCategory = true
 
         applyMargins(to: &configuration, tableStyle: tableStyle)
 
@@ -37,7 +42,8 @@ extension UIListContentConfiguration {
     static func mullvadGroupedHeader(tableStyle: UITableView.Style) -> UIListContentConfiguration {
         var configuration = groupedHeader()
         configuration.textProperties.color = .TableSection.headerTextColor
-        configuration.textProperties.font = .systemFont(ofSize: 13)
+        configuration.textProperties.font = .mullvadTiny
+        configuration.textProperties.adjustsFontForContentSizeCategory = true
 
         applyMargins(to: &configuration, tableStyle: tableStyle)
 
@@ -48,7 +54,8 @@ extension UIListContentConfiguration {
     static func mullvadGroupedFooter(tableStyle: UITableView.Style) -> UIListContentConfiguration {
         var configuration = groupedFooter()
         configuration.textProperties.color = .TableSection.footerTextColor
-        configuration.textProperties.font = .systemFont(ofSize: 13)
+        configuration.textProperties.font = .mullvadMini
+        configuration.textProperties.adjustsFontForContentSizeCategory = true
 
         applyMargins(to: &configuration, tableStyle: tableStyle)
 

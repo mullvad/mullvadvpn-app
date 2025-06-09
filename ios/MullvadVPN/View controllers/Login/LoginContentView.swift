@@ -13,17 +13,19 @@ class LoginContentView: UIView {
 
     let titleLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 32)
+        textLabel.font = .mullvadBig
         textLabel.textColor = .white
         textLabel.translatesAutoresizingMaskIntoConstraints = false
+        textLabel.adjustsFontForContentSizeCategory = true
         return textLabel
     }()
 
     let messageLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 17)
+        textLabel.font = .mullvadTinySemiBold
         textLabel.textColor = UIColor.white.withAlphaComponent(0.6)
         textLabel.translatesAutoresizingMaskIntoConstraints = false
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.numberOfLines = 0
         return textLabel
     }()
@@ -71,9 +73,11 @@ class LoginContentView: UIView {
 
     let footerLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 17)
+        textLabel.font = .mullvadSmall
         textLabel.textColor = UIColor.white.withAlphaComponent(0.6)
         textLabel.translatesAutoresizingMaskIntoConstraints = false
+        textLabel.adjustsFontForContentSizeCategory = true
+        textLabel.numberOfLines = 0
         textLabel.text = NSLocalizedString(
             "CREATE_BUTTON_HEADER_LABEL",
             tableName: "Login",

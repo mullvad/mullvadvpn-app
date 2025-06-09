@@ -267,7 +267,7 @@ class MethodSettingsViewController: UITableViewController {
         let validationResult = Result { try subject.value.validate() }
         let validationError = validationResult.error as? AccessMethodValidationError
 
-        // Only look for format errors for test(save validation.
+        // Only look for format errors for test (save validation).
         contentValidationErrors = validationError?.fieldErrors.filter { error in
             error.kind != .emptyValue
         } ?? []

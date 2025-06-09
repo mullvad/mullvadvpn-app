@@ -56,7 +56,8 @@ class AboutViewController: UIViewController {
             let label = UILabel()
 
             label.text = header
-            label.font = .systemFont(ofSize: 28, weight: .bold)
+            label.font = .mullvadLarge
+            label.adjustsFontForContentSizeCategory = true
             label.textColor = .primaryTextColor
             label.numberOfLines = 0
             label.textAlignment = .center
@@ -69,7 +70,8 @@ class AboutViewController: UIViewController {
             let label = UILabel()
 
             label.text = preamble
-            label.font = .systemFont(ofSize: 18)
+            label.font = .mullvadSmall
+            label.adjustsFontForContentSizeCategory = true
             label.textColor = .primaryTextColor
             label.numberOfLines = 0
             label.textAlignment = .center
@@ -82,7 +84,8 @@ class AboutViewController: UIViewController {
             let label = UILabel()
 
             label.text = text
-            label.font = .systemFont(ofSize: 15)
+            label.font = .mullvadTiny
+            label.adjustsFontForContentSizeCategory = true
             label.textColor = .secondaryTextColor
             label.numberOfLines = 0
 

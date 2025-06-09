@@ -11,7 +11,8 @@ import UIKit
 class IPOverrideStatusView: UIView {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .bold)
+        label.font = .mullvadTinySemiBold
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
         return label
     }()
@@ -22,7 +23,8 @@ class IPOverrideStatusView: UIView {
 
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.font = .mullvadMiniSemiBold
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .white.withAlphaComponent(0.6)
         label.numberOfLines = 0
         return label

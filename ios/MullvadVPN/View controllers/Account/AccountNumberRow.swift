@@ -32,14 +32,16 @@ class AccountNumberRow: UIView {
             value: "Account number",
             comment: ""
         )
-        textLabel.font = UIFont.systemFont(ofSize: 14)
+        textLabel.font = .mullvadTiny
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = UIColor(white: 1.0, alpha: 0.6)
         return textLabel
     }()
 
     private let accountNumberLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.monospacedSystemFont(ofSize: 17, weight: .regular)
+        textLabel.font = .mullvadMiniSemiBold
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = .white
         return textLabel
     }()
@@ -47,12 +49,14 @@ class AccountNumberRow: UIView {
     private let showHideButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintColor = .white
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
     }()
 
     private let copyButton: UIButton = {
         let button = UIButton(type: .system)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
