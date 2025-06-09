@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import net.mullvad.mullvadvpn.data.mock
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.ErrorState
@@ -90,8 +91,7 @@ class OutOfTimeUseCaseTest {
     fun `tunnel is connected should emit false`() =
         scope.runTest {
             // Arrange
-            val expiredAccountExpiry =
-                AccountData(mockk(relaxed = true), ZonedDateTime.now().plusDays(1))
+            val expiredAccountExpiry = AccountData.mock(ZonedDateTime.now().plusDays(1))
             val tunnelStateChanges =
                 listOf(
                     TunnelState.Disconnected(),
@@ -119,8 +119,7 @@ class OutOfTimeUseCaseTest {
     fun `account expiry that has expired should emit true`() =
         scope.runTest {
             // Arrange
-            val expiredAccountExpiry =
-                AccountData(mockk(relaxed = true), ZonedDateTime.now().minusDays(1))
+            val expiredAccountExpiry = AccountData.mock(ZonedDateTime.now().minusDays(1))
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 assertEquals(null, awaitItem())
@@ -133,8 +132,7 @@ class OutOfTimeUseCaseTest {
     fun `account expiry that has not expired should emit false`() =
         scope.runTest {
             // Arrange
-            val notExpiredAccountExpiry =
-                AccountData(mockk(relaxed = true), ZonedDateTime.now().plusDays(1))
+            val notExpiredAccountExpiry = AccountData.mock(ZonedDateTime.now().plusDays(1))
 
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
@@ -148,8 +146,7 @@ class OutOfTimeUseCaseTest {
     fun `account that expires without new expiry event should emit true`() =
         scope.runTest {
             // Arrange
-            val expiredAccountExpiry =
-                AccountData(mockk(relaxed = true), ZonedDateTime.now().plusSeconds(100))
+            val expiredAccountExpiry = AccountData.mock(ZonedDateTime.now().plusSeconds(100))
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 // Initial event
@@ -172,10 +169,8 @@ class OutOfTimeUseCaseTest {
     fun `account that is about to expire but is refilled should emit false`() =
         scope.runTest {
             // Arrange
-            val initialAccountExpiry =
-                AccountData(mockk(relaxed = true), ZonedDateTime.now().plusSeconds(100))
-            val updatedExpiry =
-                AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
+            val initialAccountExpiry = AccountData.mock(ZonedDateTime.now().plusSeconds(100))
+            val updatedExpiry = AccountData.mock(initialAccountExpiry.expiryDate.plusDays(30))
 
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
@@ -202,10 +197,8 @@ class OutOfTimeUseCaseTest {
     fun `expired account that is refilled should emit false`() =
         scope.runTest {
             // Arrange
-            val initialAccountExpiry =
-                AccountData(mockk(relaxed = true), ZonedDateTime.now().plusSeconds(100))
-            val updatedExpiry =
-                AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
+            val initialAccountExpiry = AccountData.mock(ZonedDateTime.now().plusSeconds(100))
+            val updatedExpiry = AccountData.mock(initialAccountExpiry.expiryDate.plusDays(30))
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 // Initial event

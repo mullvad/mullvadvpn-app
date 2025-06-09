@@ -8,7 +8,6 @@ import androidx.core.app.NotificationCompat
 import java.time.Duration
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
-import net.mullvad.mullvadvpn.lib.common.util.createAccountUri
 import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.service.R
 
@@ -22,18 +21,12 @@ internal fun Notification.AccountExpiry.toNotification(context: Context) =
         .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
         .build()
 
-private fun Notification.AccountExpiry.contentIntent(context: Context): PendingIntent {
-
+private fun contentIntent(context: Context): PendingIntent {
     val intent =
-        if (websiteAuthToken == null) {
-            Intent().apply {
-                setClassName(context.packageName, MAIN_ACTIVITY_CLASS)
-                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                action = Intent.ACTION_MAIN
-            }
-        } else {
-            val uri = createAccountUri(context.getString(R.string.account_url), websiteAuthToken)
-            Intent(Intent.ACTION_VIEW, uri)
+        Intent().apply {
+            setClassName(context.packageName, MAIN_ACTIVITY_CLASS)
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            action = Intent.ACTION_MAIN
         }
     return PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
 }

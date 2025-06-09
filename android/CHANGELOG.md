@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
   is drastically smaller.
 - Update the UI and flow for adding time.
 - Change so that search no longer require at least 2 letters.
+- Use AlarmManger to schedule account out of time notifications.
 
 ### Removed
 - Remove logging from Google in-app purchase component in an experimental and non-supported way.

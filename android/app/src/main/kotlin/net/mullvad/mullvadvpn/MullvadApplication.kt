@@ -4,6 +4,9 @@ import android.app.Application
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import net.mullvad.mullvadvpn.di.appModule
+import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
+import net.mullvad.mullvadvpn.service.notifications.NotificationManager
+import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
@@ -19,5 +22,9 @@ class MullvadApplication : Application() {
         }
         startKoin { androidContext(this@MullvadApplication) }
         loadKoinModules(listOf(appModule))
+        with(getKoin()) {
+            get<NotificationChannelFactory>()
+            get<NotificationManager>()
+        }
     }
 }

@@ -389,7 +389,9 @@ class ManagementService(
     suspend fun getAccountData(
         accountNumber: AccountNumber
     ): Either<GetAccountDataError, AccountData> =
-        Either.catch { grpc.getAccountData(StringValue.of(accountNumber.value)).toDomain() }
+        Either.catch {
+                grpc.getAccountData(StringValue.of(accountNumber.value)).toDomain(accountNumber)
+            }
             .onLeft { Logger.e("Get account data error") }
             .mapLeft(GetAccountDataError::Unknown)
 

@@ -7,8 +7,9 @@ import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
+import org.koin.core.component.KoinComponent
 
-class BootCompletedReceiver : BroadcastReceiver() {
+class AutoStartVpnBootCompletedReceiver : BroadcastReceiver(), KoinComponent {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             context?.let { startAndConnectTunnel(context) }

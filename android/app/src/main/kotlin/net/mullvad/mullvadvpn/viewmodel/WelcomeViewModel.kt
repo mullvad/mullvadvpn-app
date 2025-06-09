@@ -77,7 +77,10 @@ class WelcomeViewModel(
         accountRepository.accountData
             .filterNotNull()
             .filter { it.expiryDate.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNowInstant() }
-            .onEach { paymentUseCase.resetPurchaseResult() }
+            .onEach {
+                paymentUseCase.resetPurchaseResult()
+                accountRepository.resetIsNewAccount()
+            }
             .map { UiSideEffect.OpenConnectScreen }
 
     fun onSitePaymentClick() {
