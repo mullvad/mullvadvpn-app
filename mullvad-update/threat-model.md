@@ -1,24 +1,26 @@
 # Introduction
 
-This threat model describes the Mullvad VPN loader on the two platforms it supports (Windows and
-macOS). The loader is used by Mullvad users to install and upgrade the Mullvad VPN app on their
-devices. It is responsible for verifying the integrity of the software that it downloads and
-installs on the user's device to ensure that the software has not been tampered with. It allows the
-app to be hosted on untrusted third-party CDNs without compromising security.
+This threat model describes the code backing Mullvad VPN loader and in-app updates on the two
+platforms it supports (Windows and macOS). The loader is used by Mullvad users to install and
+upgrade the Mullvad VPN app on their devices, and in-app updates allows users to update the app
+from within the app. `mullvad-update` is responsible for verifying the integrity of the software
+that it downloads and installs on the user's device to ensure that the software has not been
+tampered with. It allows the app to be hosted on untrusted third-party CDNs without compromising
+security.
 
-The loader performs network requests towards Mullvad API endpoints and above mentioned third-party
+These tools perform network requests towards Mullvad API endpoints and above mentioned third-party
 CDNs, and requires both read & write access to the target device file system.
 
 ## Acquiring Mullvad VPN loader
 
-The application is either downloaded from Mullvad’s website or the Mullvad VPN app GitHub
+The loader application is initially downloaded from Mullvad’s website or the Mullvad VPN app GitHub
 repository. For the installation artifacts on our website and GitHub, we provides detached PGP
 signatures for integrity verification.
 
 # Who do we trust
 
-Some Mullvad employees - Access to publish metadata information to be consumed by the loader is
-segmented and has been granted to select individuals which are trusted within the company to make
+Some Mullvad employees - Access to publish metadata information to be consumed by `mullvad-update`
+is segmented and has been granted to select individuals which are trusted within the company to make
 app releases.
 
 
@@ -49,8 +51,6 @@ With the goal to …
 
 * Compromising the Mullvad API, and (e.g.) returning outdated or fake version metadata
 
-* Having physical access to the target device
-
 # Countermeasures
 
 Here are countermeasures we have identified against the above attackers which have been implemented
@@ -65,7 +65,7 @@ in the loader:
 
 * Only allow trusted people to publish metadata via secured Qubes machines
 
-* On Windows, only read/use downloaded software artifacts from a location that the loader (or
+* When relevant, only read/use downloaded software artifacts from a location that the loader (or
   admin) controls, to prevent privilege escalation
 
 * The size of the downloaded software package is checked to be the correct size, and if larger the
@@ -76,5 +76,3 @@ in the loader:
 * Most attacks involving physical access to the user's computer are not covered by the threat model
 
 * Malicious code that runs as your user account
-
-* Attacks against the app installer are not covered by this threat model
