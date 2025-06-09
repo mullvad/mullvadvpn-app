@@ -104,6 +104,10 @@ impl<Delegate: AppDelegate, Downloader: DownloadedInstaller + Send + 'static> Do
             }
         }
     }
+
+    fn version(&self) -> &mullvad_version::Version {
+        self.downloader.version()
+    }
 }
 
 impl<Delegate: AppDelegate, I: VerifiedInstaller + Send + 'static> VerifiedInstaller

@@ -142,16 +142,11 @@ impl<const HAS_APP: bool, Installer: DownloadedInstaller + Clone + Default> AppC
         Self::default()
     }
 
-    async fn get_app(self) -> anyhow::Result<(mullvad_version::Version, Self::Installer)> {
+    async fn get_downloaded_installers(
+        self,
+    ) -> Result<impl Iterator<Item = Installer>, anyhow::Error> {
         if HAS_APP {
-            let version = mullvad_version::Version {
-                year: 2042,
-                incremental: 1337,
-                pre_stable: None,
-                dev: None,
-            };
-            let installer = Installer::default();
-            Ok((version, installer))
+            Ok(std::iter::once(Installer::default()))
         } else {
             anyhow::bail!("AppCache is empty")
         }
@@ -168,6 +163,15 @@ impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: 
             Err(DownloadError::Verification(anyhow::anyhow!(
                 "verification failed"
             )))
+        }
+    }
+
+    fn version(&self) -> &mullvad_version::Version {
+        &mullvad_version::Version {
+            year: 2042,
+            incremental: 1337,
+            pre_stable: None,
+            dev: None,
         }
     }
 }

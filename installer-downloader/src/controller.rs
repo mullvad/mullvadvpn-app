@@ -10,7 +10,7 @@ use crate::{
 
 use mullvad_update::{
     api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
-    app::{self, AppCache, AppDownloader, HttpAppDownloader},
+    app::{self, AppCache, AppDownloader, DownloadedInstaller, HttpAppDownloader},
     local::{AppCacheDir, METADATA_FILENAME},
     version::{Version, VersionInfo, VersionParameters},
     version_provider::VersionInfoProvider,
@@ -210,14 +210,6 @@ where
 
         log::error!("Failed to get version info: {err:?}");
 
-        // Check if we've already downloaded an installer.
-        // If so, the user will be given the option to run it.
-        let mut cached_app = Cache::new(working_directory.directory.clone(), version_params)
-            .get_app()
-            .await
-            .inspect_err(|e| log::info!("Couldn't find a downloaded installer: {e:#}"))
-            .ok();
-
         enum Action<Cache: AppCache> {
             Retry,
             Cancel,
@@ -228,42 +220,68 @@ where
 
         let (action_tx, mut action_rx) = mpsc::channel::<Action<Cache>>(1);
 
-        // show error message (needs to happen on the UI (main) thread)
-        // send Action when user presses a button to continue
-        queue.queue_main(move |self_| {
-            self_.hide_download_button();
+        // Check if we've already downloaded an installer.
+        // If so, the user will be given the option to run it.
+        match Cache::new(working_directory.directory.clone(), version_params)
+            .get_downloaded_installers()
+            .await
+        {
+            Ok(mut cached_app_installer) => {
+                let cached_app_installer = cached_app_installer.next().unwrap(); // TODO: Fix
+                queue.queue_main(move |self_| {
+                    self_.hide_download_button();
 
-            let (retry_tx, cancel_tx) = (action_tx.clone(), action_tx);
+                    let (retry_tx, cancel_tx) = (action_tx.clone(), action_tx);
 
-            self_.clear_status_text();
-            self_.on_error_message_retry(move || {
-                let _ = retry_tx.try_send(Action::Retry);
-            });
+                    self_.clear_status_text();
+                    self_.on_error_message_retry(move || {
+                        let _ = retry_tx.try_send(Action::Retry);
+                    });
 
-            if let Some((version, cached_app_installer)) = cached_app.take() {
-                self_.show_error_message(crate::delegate::ErrorMessage {
-                    status_text: resource::FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD
-                        .replace("%s", &version.to_string()),
-                    cancel_button_text: resource::FETCH_VERSION_ERROR_INSTALL_BUTTON_TEXT
-                        .to_owned(),
-                    retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
-                });
-                self_.on_error_message_cancel(move || {
-                    let _ = cancel_tx.try_send(Action::InstallExistingVersion {
-                        cached_app_installer: cached_app_installer.clone(),
+                    self_.show_error_message(crate::delegate::ErrorMessage {
+                        status_text: resource::FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD
+                            .replace("%s", &cached_app_installer.version().to_string()),
+                        cancel_button_text: resource::FETCH_VERSION_ERROR_INSTALL_BUTTON_TEXT
+                            .to_owned(),
+                        retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT
+                            .to_owned(),
+                    });
+                    self_.on_error_message_cancel(move || {
+                        let _ = cancel_tx.try_send(Action::InstallExistingVersion {
+                            cached_app_installer: cached_app_installer.clone(),
+                        });
                     });
                 });
-            } else {
-                self_.show_error_message(crate::delegate::ErrorMessage {
-                    status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
-                    cancel_button_text: resource::FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT.to_owned(),
-                    retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
-                });
-                self_.on_error_message_cancel(move || {
-                    let _ = cancel_tx.try_send(Action::Cancel);
-                });
             }
-        });
+            Err(e) => {
+                log::info!("Couldn't find a downloaded installer: {e:#}");
+                // show error message (needs to happen on the UI (main) thread)
+                // send Action when user presses a button to continue
+                queue.queue_main(move |self_| {
+                    self_.hide_download_button();
+
+                    let (retry_tx, cancel_tx) = (action_tx.clone(), action_tx);
+
+                    self_.clear_status_text();
+                    self_.on_error_message_retry(move || {
+                        let _ = retry_tx.try_send(Action::Retry);
+                    });
+
+                    {
+                        self_.show_error_message(crate::delegate::ErrorMessage {
+                            status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
+                            cancel_button_text: resource::FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT
+                                .to_owned(),
+                            retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT
+                                .to_owned(),
+                        });
+                        self_.on_error_message_cancel(move || {
+                            let _ = cancel_tx.try_send(Action::Cancel);
+                        });
+                    }
+                })
+            }
+        };
 
         // wait for user to press either button
         let action = action_rx.recv().await.expect("sender unexpectedly dropped");

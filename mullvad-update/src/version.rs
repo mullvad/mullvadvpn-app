@@ -9,7 +9,7 @@ use std::cmp::Ordering;
 use anyhow::Context;
 use mullvad_version::PreStableType;
 
-use crate::format;
+use crate::format::{self, Installer};
 
 /// Query type for [VersionInfo]
 #[derive(Debug)]
@@ -77,39 +77,14 @@ impl VersionInfo {
         params: &VersionParameters,
         response: format::Response,
     ) -> anyhow::Result<Self> {
-        let mut releases = response.releases;
-
-        // Sort releases by version
-        releases.sort_by(|a, b| a.version.partial_cmp(&b.version).unwrap_or(Ordering::Equal));
+        let releases = sort_releases(params, response.releases);
 
         // Fail if there are duplicate versions.
-        // Check this before anything else so that it's rejected indepentently of `params`.
+        // Check this before anything else so that it's rejected independently of `params`.
         // Important! This must occur after sorting
         if let Some(dup_version) = Self::find_duplicate_version(&releases) {
             anyhow::bail!("API response contains at least one duplicated version: {dup_version}");
         }
-
-        // Filter releases based on rollout and architecture
-        let releases: Vec<_> = releases
-            .into_iter()
-            // Filter out releases that are not rolled out to us
-            .filter(|release| release.rollout >= params.rollout)
-            // Include only installers for the requested architecture
-            .flat_map(|release| {
-                release
-                    .installers
-                    .into_iter()
-                    .filter(|installer| params.architecture == installer.architecture)
-                    // Map each artifact to a [IntermediateVersion]
-                    .map(move |installer| {
-                        IntermediateVersion {
-                            version: release.version.clone(),
-                            changelog: release.changelog.clone(),
-                            installer,
-                        }
-                    })
-            })
-            .collect();
 
         // Find latest stable version
         let stable = releases
@@ -137,12 +112,63 @@ impl VersionInfo {
     /// Returns the first duplicated version found in `releases`.
     /// `None` is returned if there are no duplicates.
     /// NOTE: `releases` MUST be sorted on the version number
-    fn find_duplicate_version(releases: &[format::Release]) -> Option<&mullvad_version::Version> {
+    fn find_duplicate_version(
+        releases: &[IntermediateVersion],
+    ) -> Option<&mullvad_version::Version> {
         releases
             .windows(2)
             .find(|pair| pair[0].version == pair[1].version)
             .map(|pair| &pair[0].version)
     }
+}
+
+// TODO document order
+fn sort_releases(
+    params: &VersionParameters,
+    mut releases: Vec<format::Release>,
+) -> Vec<IntermediateVersion> {
+    // Sort releases by version
+    releases.sort_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
+
+    // Filter releases based on rollout and architecture
+    releases
+        .into_iter()
+        // Filter out releases that are not rolled out to us
+        .filter(|release| release.rollout >= params.rollout) // TODO: ignore for offline case?
+        // Include only installers for the requested architecture
+        .flat_map(|release| {
+            release
+                .installers
+                .into_iter()
+                .filter(|installer| params.architecture == installer.architecture)
+                // Map each artifact to a [IntermediateVersion]
+                .map(move |installer| {
+                    IntermediateVersion {
+                        version: release.version.clone(),
+                        changelog: release.changelog.clone(),
+                        installer,
+                    }
+                })
+        })
+        .collect()
+}
+
+/// TODO: Document
+pub fn get_installers(
+    mut releases: Vec<format::Release>,
+) -> Vec<(mullvad_version::Version, Installer)> {
+    // Sort releases by version
+    releases.sort_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
+
+    releases
+        .into_iter()
+        .flat_map(|release| {
+            release
+                .installers
+                .into_iter()
+                .map(move |installer| (release.version.clone(), installer))
+        })
+        .collect()
 }
 
 impl TryFrom<IntermediateVersion> for Version {

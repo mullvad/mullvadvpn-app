@@ -32,6 +32,12 @@ pub struct SignedResponse {
     pub signed: Response,
 }
 
+impl SignedResponse {
+    pub fn get_releases(self) -> Vec<Release> {
+        self.signed.releases
+    }
+}
+
 /// Helper type that leaves the signed data untouched
 /// Note that deserializing doesn't verify anything
 #[derive(Deserialize, Serialize)]

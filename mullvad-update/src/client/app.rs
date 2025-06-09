@@ -9,7 +9,7 @@ use std::{
     time::Duration,
 };
 
-use mullvad_version::Version;
+use anyhow::{bail, Context};
 use tokio::{process::Command, time::timeout};
 
 use crate::{
@@ -58,12 +58,16 @@ pub trait AppCache: Send {
     type Installer: DownloadedInstaller + Clone;
 
     fn new(directory: PathBuf, version_params: VersionParameters) -> Self;
-    fn get_app(self) -> impl Future<Output = anyhow::Result<(Version, Self::Installer)>> + Send;
+    fn get_downloaded_installers(
+        self,
+    ) -> impl Future<Output = anyhow::Result<impl Iterator<Item = Self::Installer>>> + Send;
 }
 
 pub trait DownloadedInstaller: Send + 'static {
     /// Verify the app signature.
     fn verify(self) -> impl Future<Output = Result<impl VerifiedInstaller, DownloadError>> + Send;
+
+    fn version(&self) -> &mullvad_version::Version;
 }
 
 pub trait VerifiedInstaller: Send {
@@ -161,6 +165,10 @@ impl DownloadedInstaller for InstallerFile<false> {
             }
         }
     }
+
+    fn version(&self) -> &mullvad_version::Version {
+        &self.app_version
+    }
 }
 
 impl VerifiedInstaller for InstallerFile<true> {
@@ -198,18 +206,41 @@ fn bin_path(cache_dir: &Path, app_version: &mullvad_version::Version) -> PathBuf
 
 impl InstallerFile<false> {
     /// Create an unverified [InstallerFile] from a cache_dir and some metadata.
-    pub fn from_version(
+    pub fn try_from_version(
+        cache_dir: &Path,
+        version: crate::version::Version,
+    ) -> anyhow::Result<Self> {
+        let path = bin_path(cache_dir, &version.version);
+        if !path.exists() {
+            bail!("Installer file does not exist at path: {}", path.display());
+        }
+        Ok(Self {
+            path,
+            app_version: version.version,
+            app_size: version.size,
+            app_sha256: version.sha256,
+        })
+    }
+
+    pub fn try_from_installer(
         cache_dir: &Path,
         app_version: mullvad_version::Version,
-        app_size: usize,
-        app_sha256: [u8; 32],
-    ) -> Self {
-        Self {
-            path: bin_path(cache_dir, &app_version),
-            app_version,
-            app_size,
-            app_sha256,
+        installer: crate::format::Installer,
+    ) -> anyhow::Result<Self> {
+        let path = bin_path(cache_dir, &app_version);
+        if !path.exists() {
+            bail!("Installer file does not exist at path: {}", path.display());
         }
+        let app_sha256 = hex::decode(installer.sha256)
+            .context("Invalid checksum hex")?
+            .try_into()
+            .map_err(|_| anyhow::anyhow!("Invalid checksum length"))?;
+        Ok(Self {
+            path,
+            app_version,
+            app_size: installer.size,
+            app_sha256,
+        })
     }
 }
 
