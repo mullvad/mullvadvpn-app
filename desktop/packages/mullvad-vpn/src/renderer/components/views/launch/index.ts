@@ -1,1 +1,1 @@
-export * from './Launch';
+export * from './LaunchView';
