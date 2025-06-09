@@ -1,20 +1,20 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { messages } from '../../shared/gettext';
-import { RoutePath } from '../../shared/routes';
-import { useAppContext } from '../context';
-import { Button } from '../lib/components';
-import { colors } from '../lib/foundations';
-import { TransitionType, useHistory } from '../lib/history';
-import { useBoolean } from '../lib/utility-hooks';
-import { useSelector } from '../redux/store';
-import { measurements, tinyText } from './common-styles';
-import ErrorView from './ErrorView';
-import { Footer } from './Layout';
-import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
+import { messages } from '../../../../shared/gettext';
+import { RoutePath } from '../../../../shared/routes';
+import { useAppContext } from '../../../context';
+import { Button } from '../../../lib/components';
+import { colors } from '../../../lib/foundations';
+import { TransitionType, useHistory } from '../../../lib/history';
+import { useBoolean } from '../../../lib/utility-hooks';
+import { useSelector } from '../../../redux/store';
+import { measurements, tinyText } from '../../common-styles';
+import ErrorView from '../../ErrorView';
+import { Footer } from '../../Layout';
+import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from '../../Modal';
 
-export default function Launch() {
+export function Launch() {
   const daemonAllowed = useSelector((state) => state.userInterface.daemonAllowed);
   const footer = daemonAllowed === false ? <MacOsPermissionFooter /> : <DefaultFooter />;
 
