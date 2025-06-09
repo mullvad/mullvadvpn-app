@@ -25,7 +25,7 @@ class TermsOfServiceCoordinator: Coordinator, Presenting {
 
     func start() {
         let termsOfService = TermsOfServiceView(agreeToTermsAndServices: didAgreeToTermsOfService)
-        let hostingController = UIHostingController(rootView: termsOfService)
+        let hostingController = UIHostingRootController(rootView: termsOfService)
         hostingController.view.setAccessibilityIdentifier(.termsOfServiceView)
         navigationController.pushViewController(hostingController, animated: false)
     }
