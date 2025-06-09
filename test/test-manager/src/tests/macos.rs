@@ -36,6 +36,24 @@ async fn test_ifconfig_add_alias(
         "Alias should have been created!"
     );
 
+    // Ensure that we clean up the alias after the test, even if it fails
+    let rpc2 = rpc.clone();
+    let _cleanup_guard = scopeguard::guard((), |()| {
+        log::info!("Cleaning up after test_ifconfig_add_alias");
+
+        let Ok(runtime_handle) = tokio::runtime::Handle::try_current() else {
+            log::error!("Missing tokio runtime");
+            return;
+        };
+
+        runtime_handle.spawn(async move {
+            // Ensure that the alias is removed even if the test fails.
+            if let Err(e) = rpc2.ifconfig_alias_remove(interface, alias).await {
+                log::error!("Failed to remove alias {alias} from interface {interface}: {e}");
+            }
+        });
+    });
+
     // Assert that we can bind to the alias.
     rpc.send_udp(
         None,
