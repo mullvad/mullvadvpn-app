@@ -945,7 +945,7 @@ impl Daemon {
             },
             target_state,
             #[cfg(target_os = "linux")]
-            exclude_pids: split_tunnel::PidManager::new().map_err(Error::InitSplitTunneling)?,
+            exclude_pids: split_tunnel::PidManager::default(),
             rx: internal_event_rx,
             tx: internal_event_tx,
             reconnection_job: None,
