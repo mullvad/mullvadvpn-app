@@ -420,4 +420,24 @@ impl ServiceClient {
             .get_os_version(tarpc::context::current())
             .await?
     }
+
+    pub async fn ifconfig_alias_add(
+        &self,
+        interface: impl Into<String>,
+        alias: impl Into<IpAddr>,
+    ) -> Result<(), Error> {
+        self.client
+            .ifconfig_alias_add(tarpc::context::current(), interface.into(), alias.into())
+            .await?
+    }
+
+    pub async fn ifconfig_alias_remove(
+        &self,
+        interface: impl Into<String>,
+        alias: impl Into<IpAddr>,
+    ) -> Result<(), Error> {
+        self.client
+            .ifconfig_alias_remove(tarpc::context::current(), interface.into(), alias.into())
+            .await?
+    }
 }
