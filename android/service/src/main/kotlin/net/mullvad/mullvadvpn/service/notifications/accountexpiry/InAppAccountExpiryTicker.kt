@@ -8,17 +8,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import net.mullvad.mullvadvpn.lib.common.util.millisFromNow
 
-sealed interface AccountExpiryTicker {
-    data object NotWithinThreshold : AccountExpiryTicker
+sealed interface InAppAccountExpiryTicker {
+    data object NotWithinThreshold : InAppAccountExpiryTicker
 
-    data class Tick(val expiresIn: Duration) : AccountExpiryTicker
+    data class Tick(val expiresIn: Duration) : InAppAccountExpiryTicker
 
     companion object {
         fun tickerFlow(
             expiry: ZonedDateTime,
             tickStart: Duration,
             updateInterval: (expiry: ZonedDateTime) -> Duration,
-        ): Flow<AccountExpiryTicker> = flow {
+        ): Flow<InAppAccountExpiryTicker> = flow {
             expiry.millisFromNow().let { expiryMillis ->
                 if (expiryMillis <= 0) {
                     // Has expired.
