@@ -272,6 +272,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         var contentConfiguration = ButtonCellContentConfiguration()
         contentConfiguration.style = .tableInsetGroupedDanger
         contentConfiguration.text = itemIdentifier.text
+        contentConfiguration.accessibilityIdentifier = .deleteButton
         contentConfiguration.primaryAction = UIAction { [weak self] _ in
             self?.onDelete()
         }
@@ -398,6 +399,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
                         comment: ""
                     ),
                     style: .destructive,
+                    accessibilityId: .accessMethodConfirmDeleteButton,
                     handler: { [weak self] in
                         guard let self else { return }
                         interactor.deleteAccessMethod()

@@ -29,4 +29,8 @@ class APIAccessPage: Page {
     func getAccessMethodCell(accessibilityId: AccessibilityIdentifier) -> XCUIElement {
         app.buttons[accessibilityId]
     }
+
+    func editAccessMethod(_ named: String) {
+        app.buttons[named].tap()
+    }
 }

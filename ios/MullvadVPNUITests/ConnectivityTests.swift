@@ -56,11 +56,6 @@ class ConnectivityTests: LoggedOutUITestCase {
     /// Get the app into a blocked state by connecting to a relay then applying a filter which don't find this relay, then verify that app can still communicate by logging out and verifying that the device was successfully removed
     // swiftlint:disable:next function_body_length
     func testAPIReachableWhenBlocked() throws {
-        let skipReason = """
-            URLSession doesn't work when the app is in a blocked state.
-        Thus, we should disable this test until we have migrated over to `Rust API client`.
-        """
-        try XCTSkipIf(true, skipReason)
         let hasTimeAccountNumber = getAccountWithTime()
         addTeardownBlock {
             // Reset any filters
@@ -99,7 +94,6 @@ class ConnectivityTests: LoggedOutUITestCase {
             .tapFilterButton()
 
         SelectLocationFilterPage(app)
-            .tapOwnershipCellExpandButton()
             .tapMullvadOwnershipCell()
             .tapApplyButton()
 
@@ -121,7 +115,6 @@ class ConnectivityTests: LoggedOutUITestCase {
             .tapFilterButton()
 
         SelectLocationFilterPage(app)
-            .tapOwnershipCellExpandButton()
             .tapRentedOwnershipCell()
             .tapApplyButton()
 
@@ -146,13 +139,8 @@ class ConnectivityTests: LoggedOutUITestCase {
     // swiftlint:disable function_body_length
     /// Test that the app is functioning when API is down. To simulate API being down we create a dummy access method
     func testAppStillFunctioningWhenAPIDown() throws {
-        let skipReason = """
-            This test is currently skipped due to a bug in iOS 18 where ATS shuts down the
-        connection to the API in the blocked state, despite being explicitly disabled,
-        and after the checks in SSLPinningURLSessionDelegate return no error.
-        """
-        try XCTSkipIf(true, skipReason)
         let hasTimeAccountNumber = getAccountWithTime()
+        let customAccessMethodName = "Disable-access-dummy"
 
         addTeardownBlock {
             HeaderBar(self.app)
@@ -162,6 +150,14 @@ class ConnectivityTests: LoggedOutUITestCase {
                 .tapAPIAccessCell()
 
             self.toggleAllAccessMethodsEnabledSwitchesIfOff()
+
+            APIAccessPage(self.app)
+                .editAccessMethod(customAccessMethodName)
+
+            EditAccessMethodPage(self.app)
+                .tapDeleteButton()
+                .confirmAccessMethodDeletion()
+
             self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
         }
 
@@ -179,8 +175,6 @@ class ConnectivityTests: LoggedOutUITestCase {
         SettingsPage(app)
             .tapAPIAccessCell()
 
-        toggleAllAccessMethodsEnabledSwitches()
-
         APIAccessPage(app)
             .tapAddButton()
 
@@ -188,7 +182,7 @@ class ConnectivityTests: LoggedOutUITestCase {
 
         AddAccessMethodPage(app)
             .tapNameCell()
-            .enterText("Disable-access-dummy")
+            .enterText(customAccessMethodName)
             .tapTypeCell()
             .tapSOCKS5TypeValueCell()
             .tapServerCell()
@@ -202,6 +196,8 @@ class ConnectivityTests: LoggedOutUITestCase {
 
         AddAccessMethodAPIUnreachableAlert(app)
             .tapSaveButton()
+
+        disableBuiltinAccessMethods()
 
         SettingsPage(app)
             .swipeDownToDismissModal()
@@ -289,9 +285,15 @@ class ConnectivityTests: LoggedOutUITestCase {
 
     // swiftlint:enable function_body_length
 
-    /// Toggle enabled switch for all existing access methods. It is a precondition that the app is currently showing API access view.
-    private func toggleAllAccessMethodsEnabledSwitches() {
-        for cell in APIAccessPage(app).getAccessMethodCells() {
+    /// Toggle enabled switch for all existing access methods.
+    /// Preconditions:
+    /// - The app is currently showing API access view.
+    /// - There is one custom access method enabled
+    /// - The extra access method is not disabled
+    private func disableBuiltinAccessMethods() {
+        var accessMethods = APIAccessPage(app).getAccessMethodCells()
+        accessMethods.removeLast()
+        for cell in accessMethods {
             cell.tap()
             EditAccessMethodPage(app)
                 .tapEnableMethodSwitch()
