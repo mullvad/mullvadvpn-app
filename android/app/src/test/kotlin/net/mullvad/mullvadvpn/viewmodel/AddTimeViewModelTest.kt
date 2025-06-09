@@ -17,12 +17,14 @@ import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.PurchaseState
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.BeforeEach
@@ -32,9 +34,11 @@ class AddTimeViewModelTest {
 
     private val mockPaymentUseCase: PaymentUseCase = mockk()
     private val mockAccountRepository: AccountRepository = mockk()
+    private val mockConnectionProxy: ConnectionProxy = mockk()
 
     private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
     private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
+    private val tunnelState = MutableStateFlow(TunnelState.Disconnected(null))
 
     private lateinit var viewModel: AddTimeViewModel
 
@@ -42,6 +46,7 @@ class AddTimeViewModelTest {
     fun setUp() {
         every { mockPaymentUseCase.paymentAvailability } returns paymentAvailability
         every { mockPaymentUseCase.purchaseResult } returns purchaseResult
+        every { mockConnectionProxy.tunnelState } returns tunnelState
 
         coEvery { mockPaymentUseCase.verifyPurchases() } returns
             VerificationResult.NothingToVerify.right()
@@ -53,6 +58,7 @@ class AddTimeViewModelTest {
             AddTimeViewModel(
                 paymentUseCase = mockPaymentUseCase,
                 accountRepository = mockAccountRepository,
+                connectionProxy = mockConnectionProxy,
                 isPlayBuild = true,
             )
     }

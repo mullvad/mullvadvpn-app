@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.isSuccess
@@ -25,19 +26,23 @@ import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeSideEffect.OpenAccountManagem
 class AddTimeViewModel(
     private val paymentUseCase: PaymentUseCase,
     private val accountRepository: AccountRepository,
+    private val connectionProxy: ConnectionProxy,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<AddMoreTimeSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     val uiState: StateFlow<Lc<Unit, AddTimeUiState>> =
-        combine(paymentUseCase.paymentAvailability, paymentUseCase.purchaseResult) {
-                paymentAvailability,
-                purchaseResult ->
+        combine(
+                paymentUseCase.paymentAvailability,
+                paymentUseCase.purchaseResult,
+                connectionProxy.tunnelState,
+            ) { paymentAvailability, purchaseResult, tunnelState ->
                 Lc.Content(
                     AddTimeUiState(
                         purchaseState = purchaseResult?.toPurchaseState(),
                         billingPaymentState = paymentAvailability?.toPaymentState(),
+                        tunnelStateBlocked = tunnelState.isBlocked(),
                         showSitePayment = !isPlayBuild,
                     )
                 )

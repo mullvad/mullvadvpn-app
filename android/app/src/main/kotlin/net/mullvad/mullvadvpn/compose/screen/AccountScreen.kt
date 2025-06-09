@@ -160,7 +160,6 @@ fun AccountScreen(
         if (!LocalInspectionMode.current) {
             AddTimeBottomSheet(
                 visible = addTimeBottomSheetState,
-                internetBlocked = false,
                 onHideBottomSheet = { addTimeBottomSheetState = false },
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPlayPaymentInfoClick = onPlayPaymentInfoClick,

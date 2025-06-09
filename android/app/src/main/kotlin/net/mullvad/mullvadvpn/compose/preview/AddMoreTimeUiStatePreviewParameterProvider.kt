@@ -15,9 +15,19 @@ class AddMoreTimeUiStatePreviewParameterProvider :
     override val values: Sequence<Lc<Unit, AddTimeUiState>> =
         sequenceOf(
             Lc.Loading(Unit),
-            AddTimeUiState(purchaseState = null, billingPaymentState = null, showSitePayment = true)
+            AddTimeUiState(
+                    purchaseState = null,
+                    billingPaymentState = null,
+                    showSitePayment = true,
+                    tunnelStateBlocked = false,
+                )
                 .toLc(),
-            AddTimeUiState(purchaseState = null, billingPaymentState = null, showSitePayment = true)
+            AddTimeUiState(
+                    purchaseState = null,
+                    billingPaymentState = null,
+                    showSitePayment = true,
+                    tunnelStateBlocked = false,
+                )
                 .toLc(),
         ) +
             generatePaymentStates().map { state ->
@@ -25,6 +35,7 @@ class AddMoreTimeUiStatePreviewParameterProvider :
                         purchaseState = null,
                         billingPaymentState = state,
                         showSitePayment = false,
+                        tunnelStateBlocked = false,
                     )
                     .toLc()
             }

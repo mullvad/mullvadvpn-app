@@ -77,7 +77,6 @@ private fun PreviewPaymentBottomSheet(
                     density = Density(1f),
                     initialValue = SheetValue.Expanded,
                 ),
-            internetBlocked = false,
             onPurchaseBillingProductClick = {},
             onPlayPaymentInfoClick = {},
             onSitePaymentClick = {},
@@ -94,7 +93,6 @@ private fun PreviewPaymentBottomSheet(
 @Composable
 fun AddTimeBottomSheet(
     visible: Boolean,
-    internetBlocked: Boolean,
     onRedeemVoucherClick: () -> Unit,
     onPlayPaymentInfoClick: () -> Unit,
     onHideBottomSheet: () -> Unit,
@@ -127,7 +125,6 @@ fun AddTimeBottomSheet(
         AddTimeBottomSheetContent(
             state = uiState,
             sheetState = sheetState,
-            internetBlocked = internetBlocked,
             onPurchaseBillingProductClick = {
                 viewModel.startBillingPayment(productId = it, activityProvider = { activity!! })
             },
@@ -150,7 +147,6 @@ fun AddTimeBottomSheet(
 fun AddTimeBottomSheetContent(
     state: Lc<Unit, AddTimeUiState>,
     sheetState: SheetState,
-    internetBlocked: Boolean,
     onPurchaseBillingProductClick: (ProductId) -> Unit = {},
     onPlayPaymentInfoClick: () -> Unit,
     onSitePaymentClick: () -> Unit,
@@ -174,7 +170,7 @@ fun AddTimeBottomSheetContent(
             is Lc.Content ->
                 Content(
                     state = state.value,
-                    internetBlocked = internetBlocked,
+                    internetBlocked = state.value.tunnelStateBlocked,
                     backgroundColor = backgroundColor,
                     onBackgroundColor = onBackgroundColor,
                     onPurchaseBillingProductClick = onPurchaseBillingProductClick,

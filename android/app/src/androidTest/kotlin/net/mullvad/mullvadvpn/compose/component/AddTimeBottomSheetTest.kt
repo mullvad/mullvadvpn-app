@@ -44,7 +44,6 @@ class AddTimeBottomSheetTest {
                 density = Density(1f),
                 initialValue = SheetValue.Expanded,
             ),
-        internetBlocked: Boolean = false,
         onPurchaseBillingProductClick: (ProductId) -> Unit = {},
         onPlayPaymentInfoClick: () -> Unit = {},
         onSitePaymentClick: () -> Unit = {},
@@ -58,7 +57,6 @@ class AddTimeBottomSheetTest {
             AddTimeBottomSheetContent(
                 state = state,
                 sheetState = sheetState,
-                internetBlocked = internetBlocked,
                 onPurchaseBillingProductClick = onPurchaseBillingProductClick,
                 onPlayPaymentInfoClick = onPlayPaymentInfoClick,
                 onSitePaymentClick = onSitePaymentClick,
@@ -82,6 +80,7 @@ class AddTimeBottomSheetTest {
                             purchaseState = null,
                             billingPaymentState = null,
                             showSitePayment = true,
+                            tunnelStateBlocked = false,
                         )
                         .toLc(),
                 onSitePaymentClick = mockedClickHandler,
@@ -104,6 +103,7 @@ class AddTimeBottomSheetTest {
                     AddTimeUiState(
                             purchaseState = null,
                             billingPaymentState = null,
+                            tunnelStateBlocked = false,
                             showSitePayment = true,
                         )
                         .toLc(),
@@ -126,6 +126,7 @@ class AddTimeBottomSheetTest {
                     AddTimeUiState(
                             purchaseState = null,
                             billingPaymentState = PaymentState.Error.Generic,
+                            tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
                         .toLc()
@@ -149,6 +150,7 @@ class AddTimeBottomSheetTest {
                             purchaseState = null,
                             billingPaymentState =
                                 PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                            tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
                         .toLc()
@@ -172,6 +174,7 @@ class AddTimeBottomSheetTest {
                             purchaseState = null,
                             billingPaymentState =
                                 PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                            tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
                         .toLc()
@@ -197,6 +200,7 @@ class AddTimeBottomSheetTest {
                             purchaseState = null,
                             billingPaymentState =
                                 PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                            tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
                         .toLc(),
@@ -224,6 +228,7 @@ class AddTimeBottomSheetTest {
                             purchaseState = null,
                             billingPaymentState =
                                 PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                            tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
                         .toLc()
@@ -248,6 +253,7 @@ class AddTimeBottomSheetTest {
                             purchaseState = null,
                             billingPaymentState =
                                 PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                            tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
                         .toLc(),
@@ -271,6 +277,7 @@ class AddTimeBottomSheetTest {
                             purchaseState =
                                 PurchaseState.Success(ProductId(ProductIds.ThreeMonths)),
                             billingPaymentState = null,
+                            tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
                         .toLc()
@@ -289,6 +296,7 @@ class AddTimeBottomSheetTest {
                 AddTimeUiState(
                         purchaseState = PurchaseState.VerifyingPurchase,
                         billingPaymentState = null,
+                        tunnelStateBlocked = false,
                         showSitePayment = false,
                     )
                     .toLc()
@@ -307,6 +315,7 @@ class AddTimeBottomSheetTest {
                     AddTimeUiState(
                             purchaseState = PurchaseState.Error.OtherError(ProductId("ProductId")),
                             billingPaymentState = null,
+                            tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
                         .toLc()
@@ -328,6 +337,7 @@ class AddTimeBottomSheetTest {
                     AddTimeUiState(
                             purchaseState = null,
                             billingPaymentState = null,
+                            tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
                         .toLc()
@@ -346,10 +356,10 @@ class AddTimeBottomSheetTest {
                     AddTimeUiState(
                             purchaseState = null,
                             billingPaymentState = null,
+                            tunnelStateBlocked = true,
                             showSitePayment = true,
                         )
-                        .toLc(),
-                internetBlocked = true,
+                        .toLc()
             )
 
             // Assert

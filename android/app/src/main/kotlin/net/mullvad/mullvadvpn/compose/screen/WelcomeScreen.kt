@@ -167,7 +167,6 @@ fun WelcomeScreen(
         if (!LocalInspectionMode.current) {
             AddTimeBottomSheet(
                 visible = addTimeBottomSheetState,
-                internetBlocked = state.contentOrNull()?.tunnelState?.isSecured() == true,
                 onHideBottomSheet = { addTimeBottomSheetState = false },
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPlayPaymentInfoClick = onPlayPaymentInfoClick,

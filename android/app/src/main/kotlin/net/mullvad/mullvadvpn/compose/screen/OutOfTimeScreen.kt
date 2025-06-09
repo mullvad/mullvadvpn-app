@@ -145,7 +145,6 @@ fun OutOfTimeScreen(
         if (!LocalInspectionMode.current) {
             AddTimeBottomSheet(
                 visible = addTimeBottomSheetState,
-                internetBlocked = state.tunnelState.isSecured(),
                 onHideBottomSheet = { addTimeBottomSheetState = false },
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPlayPaymentInfoClick = onPlayPaymentInfoClick,

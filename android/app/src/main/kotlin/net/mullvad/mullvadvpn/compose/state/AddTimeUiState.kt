@@ -6,6 +6,7 @@ data class AddTimeUiState(
     val purchaseState: PurchaseState?,
     val billingPaymentState: PaymentState?,
     val showSitePayment: Boolean,
+    val tunnelStateBlocked: Boolean,
 )
 
 sealed interface PurchaseState {

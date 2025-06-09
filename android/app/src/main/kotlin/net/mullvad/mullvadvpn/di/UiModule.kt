@@ -282,6 +282,7 @@ val uiModule = module {
         AddTimeViewModel(
             paymentUseCase = get(),
             accountRepository = get(),
+            connectionProxy = get(),
             isPlayBuild = IS_PLAY_BUILD,
         )
     }
