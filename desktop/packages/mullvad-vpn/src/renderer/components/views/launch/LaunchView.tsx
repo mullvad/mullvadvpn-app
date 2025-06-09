@@ -14,7 +14,7 @@ import ErrorView from '../../ErrorView';
 import { Footer } from '../../Layout';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from '../../Modal';
 
-export function Launch() {
+export function LaunchView() {
   const daemonAllowed = useSelector((state) => state.userInterface.daemonAllowed);
   const footer = daemonAllowed === false ? <MacOsPermissionFooter /> : <DefaultFooter />;
 
