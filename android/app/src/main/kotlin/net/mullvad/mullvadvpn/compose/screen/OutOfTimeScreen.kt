@@ -58,7 +58,6 @@ import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
-import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -146,7 +145,7 @@ fun OutOfTimeScreen(
         if (!LocalInspectionMode.current) {
             AddTimeBottomSheet(
                 visible = addTimeBottomSheetState,
-                internetBlocked = state.tunnelState.blockSitePaymentButton(),
+                internetBlocked = state.tunnelState.isSecured(),
                 onHideBottomSheet = { addTimeBottomSheetState = false },
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPlayPaymentInfoClick = onPlayPaymentInfoClick,
@@ -247,5 +246,3 @@ private fun ButtonPanel(
         VariantButton(onClick = onAddMoreTimeClick, text = stringResource(id = R.string.add_time))
     }
 }
-
-private fun TunnelState.blockSitePaymentButton(): Boolean = this !is TunnelState.Disconnected
