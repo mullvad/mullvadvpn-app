@@ -11,7 +11,6 @@ rust-version.workspace = true
 workspace = true
 
 [target.'cfg(windows)'.dependencies]
-log = { workspace = true }
 thiserror = { workspace = true }
 socket2 = { workspace = true }
 futures = { workspace = true }
