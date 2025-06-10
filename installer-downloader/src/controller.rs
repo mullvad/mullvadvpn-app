@@ -62,7 +62,7 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     type CacheDir = AppCacheDir;
 
     #[cfg(target_os = "macos")]
-    todo!("no-op cache dir");
+    type CacheDir = NoopAppCacheDir;
 
     AppController::initialize::<_, Downloader<T>, CacheDir, DirProvider>(
         delegate,
@@ -220,9 +220,7 @@ where
         };
 
         let err = match version_provider.get_version_info(&version_params).await {
-            Ok(version_info) => {
-                return version_info;
-            }
+            Ok(version_info) => return version_info,
             Err(err) => err,
         };
 
