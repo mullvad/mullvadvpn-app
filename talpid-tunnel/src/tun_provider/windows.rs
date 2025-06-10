@@ -1,6 +1,5 @@
 use super::TunConfig;
 use std::{io, net::IpAddr, ops::Deref};
-use talpid_windows::net::AddressFamily;
 use tun07 as tun;
 use tun07::{AbstractDevice, AsyncDevice, Configuration};
 
@@ -57,18 +56,26 @@ impl WindowsTunProvider {
 
     /// Open a tunnel using the current tunnel config.
     pub fn open_tun(&mut self) -> Result<WindowsTun, Error> {
+        let (first_addr, remaining_addrs) = self
+            .config
+            .addresses
+            .split_first()
+            .map(|(first, rest)| (Some(first), rest))
+            .unwrap_or((None, &[]));
+
         let mut tunnel_device = {
             #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
+            // TODO: set alias
             // TODO: have tun either not use netsh or not set any default address at all
             // TODO: tun can only set a single address
-            if let Some(addr) = self.config.addresses.first() {
-                builder.config.address(addr);
+            if let Some(addr) = first_addr {
+                builder.config.address(*addr);
             }
             builder.create()?
         };
 
-        for ip in self.config.addresses.iter() {
+        for ip in remaining_addrs {
             tunnel_device.set_ip(*ip)?;
         }
 
@@ -133,39 +140,6 @@ impl TunnelDevice {
     fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
         // TODO: Expose luid from wintun-bindings.
         // Also, maybe, update wintun-bindings to use Windows APIs instead of netsh
-        let name = self.get_name()?;
-        let luid = talpid_windows::net::luid_from_alias(&name).map_err(Error::GetDeviceLuid)?;
-        let mut has_desired_entry = false;
-
-        let family = match ip {
-            IpAddr::V4(_) => AddressFamily::Ipv4,
-            IpAddr::V6(_) => AddressFamily::Ipv6,
-        };
-
-        // Check if IP is already set, and maybe unset existing entries
-        let table = talpid_windows::net::get_unicast_table(Some(family))
-            .map_err(Error::GetDeviceAddresses)?;
-        for row in &table {
-            // SAFETY: This is always valid as u64 ('Value')
-            if unsafe { row.InterfaceLuid.Value != luid.Value } {
-                continue;
-            }
-            let Ok(addr) = talpid_windows::net::try_socketaddr_from_inet_sockaddr(row.Address)
-            else {
-                continue;
-            };
-            has_desired_entry |= addr.ip() == ip;
-            if !has_desired_entry {
-                // Remove irrelevant IP addresses
-                talpid_windows::net::remove_ip_address_for_interface(&row)
-                    .map_err(Error::RemoveIpAddress)?;
-            }
-        }
-
-        if has_desired_entry {
-            return Ok(());
-        }
-
         let name = self.get_name()?;
         let luid = talpid_windows::net::luid_from_alias(&name).map_err(Error::GetDeviceLuid)?;
         talpid_windows::net::add_ip_address_for_interface(luid, ip).map_err(Error::SetIp)
