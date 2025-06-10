@@ -19,8 +19,8 @@ use windows_sys::{
             IpHelper::{
                 CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
                 ConvertInterfaceLuidToGuid, ConvertInterfaceLuidToIndex,
-                CreateUnicastIpAddressEntry, FreeMibTable, GetIpInterfaceEntry,
-                GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
+                CreateUnicastIpAddressEntry, DeleteUnicastIpAddressEntry, FreeMibTable,
+                GetIpInterfaceEntry, GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
                 InitializeUnicastIpAddressEntry, MibAddInstance, NotifyIpInterfaceChange,
                 SetIpInterfaceEntry, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW,
                 MIB_UNICASTIPADDRESS_TABLE,
@@ -64,6 +64,10 @@ pub enum Error {
     #[cfg(windows)]
     #[error("Failed to create unicast IP address")]
     CreateUnicastEntry(#[source] io::Error),
+
+    /// Error returned from `DeleteUnicastIpAddressEntry`
+    #[error("Failed to delete unicast IP address")]
+    DeleteUnicastEntry(#[source] io::Error),
 
     /// Unexpected DAD state returned for a unicast address
     #[cfg(windows)]
@@ -305,6 +309,16 @@ pub async fn wait_for_addresses(luid: NET_LUID_LH) -> Result<()> {
         let _ = tx.send(addr_check_thread());
     });
     rx.await.map_err(|_| Error::UnicastSenderDropped)?
+}
+
+/// Remove unicast IP addresses for the given interface.
+pub fn remove_ip_address_for_interface(row: &MIB_UNICASTIPADDRESS_ROW) -> Result<()> {
+    if let Ok(ip) = try_socketaddr_from_inet_sockaddr(row.Address).map(|addr| addr.ip()) {
+        log::debug!("Removing IP address entry: {ip}");
+    }
+    // SAFETY: `row` is a valid IP address entry
+    win32_err!(unsafe { DeleteUnicastIpAddressEntry(row) }).map_err(Error::DeleteUnicastEntry)?;
+    Ok(())
 }
 
 /// Returns the first unicast IP address for the given interface.

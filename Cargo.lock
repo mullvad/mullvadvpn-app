@@ -5563,6 +5563,7 @@ name = "talpid-windows"
 version = "0.0.0"
 dependencies = [
  "futures",
+ "log",
  "socket2 0.5.8",
  "talpid-types",
  "thiserror 2.0.9",
