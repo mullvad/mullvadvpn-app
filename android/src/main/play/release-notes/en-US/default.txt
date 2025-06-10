@@ -1,0 +1,2 @@
+- Add support for purchasing 90 days.
+- Fixes and improvements.
