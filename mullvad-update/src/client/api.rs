@@ -112,10 +112,11 @@ impl HttpVersionInfoProvider {
         &self,
         lowest_metadata_version: usize,
     ) -> anyhow::Result<format::SignedResponse> {
-        let signed_response = self.get_versions_inner(|raw_json| {
-            format::SignedResponse::deserialize_and_verify(raw_json, lowest_metadata_version)
-        })
-        .await?;
+        let signed_response = self
+            .get_versions_inner(|raw_json| {
+                format::SignedResponse::deserialize_and_verify(raw_json, lowest_metadata_version)
+            })
+            .await?;
         if let Err(err) = self.cache_response(&signed_response).await {
             log::error!("Failed to write version metadata: {err}");
         }
