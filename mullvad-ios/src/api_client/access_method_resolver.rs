@@ -1,3 +1,5 @@
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+
 use mullvad_api::{
     access_mode::AccessMethodResolver,
     proxy::{ApiConnectionMode, ProxyConfig},
@@ -80,7 +82,10 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
 
     async fn default_connection_mode(&self) -> AllowedEndpoint {
         // TODO: Call the iOS Address cache implementation instead of returning the default endpoint
-        let endpoint = ApiConnectionMode::Direct.get_endpoint().unwrap();
+        let endpoint = Endpoint::from_socket_address(
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(45, 83, 223, 209)), 443),
+            TransportProtocol::Tcp,
+        );
         AllowedEndpoint {
             endpoint,
             clients: AllowedClients::All,
