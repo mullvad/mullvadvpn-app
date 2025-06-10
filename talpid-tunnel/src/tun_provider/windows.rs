@@ -52,9 +52,9 @@ impl WindowsTunProvider {
         let mut tunnel_device = {
             #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
-            #[cfg(target_os = "linux")]
-            if let Some(ref name) = self.config.name {
-                builder.name(name);
+            // TODO: have tun either not use netsh or not set any default address at all
+            if let Some(addr) = self.config.addresses.first() {
+                builder.config.address(addr);
             }
             builder.create()?
         };
