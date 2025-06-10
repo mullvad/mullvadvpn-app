@@ -7,6 +7,7 @@
 use std::cmp::Ordering;
 
 use anyhow::Context;
+use itertools::Itertools;
 use mullvad_version::PreStableType;
 
 use crate::format::{self, Installer};
@@ -77,80 +78,58 @@ impl VersionInfo {
         params: &VersionParameters,
         response: format::Response,
     ) -> anyhow::Result<Self> {
-        let releases = sort_releases(params, response.releases);
-
         // Fail if there are duplicate versions.
         // Check this before anything else so that it's rejected independently of `params`.
-        // Important! This must occur after sorting
-        if let Some(dup_version) = Self::find_duplicate_version(&releases) {
-            anyhow::bail!("API response contains at least one duplicated version: {dup_version}");
+        if !response.releases.iter().map(|r| &r.version).all_unique() {
+            anyhow::bail!("API response contains multiple release for the same version");
         }
 
-        // Find latest stable version
-        let stable = releases
-            .iter()
-            .rfind(|release| release.version.pre_stable.is_none() && !release.version.is_dev());
-        let Some(stable) = stable.cloned() else {
-            anyhow::bail!("No stable version found");
-        };
-
-        // Find the latest beta version
-        let beta = releases
-            .iter()
-            // Find most recent beta version
-            .rfind(|release| matches!(release.version.pre_stable, Some(PreStableType::Beta(_))) && !release.version.is_dev())
-            // If the latest beta version is older than latest stable, dispose of it
-            .filter(|release| release.version > stable.version)
-            .cloned();
-
-        Ok(Self {
-            stable: Version::try_from(stable)?,
-            beta: beta.map(Version::try_from).transpose()?,
-        })
-    }
-
-    /// Returns the first duplicated version found in `releases`.
-    /// `None` is returned if there are no duplicates.
-    /// NOTE: `releases` MUST be sorted on the version number
-    fn find_duplicate_version(
-        releases: &[IntermediateVersion],
-    ) -> Option<&mullvad_version::Version> {
-        releases
-            .windows(2)
-            .find(|pair| pair[0].version == pair[1].version)
-            .map(|pair| &pair[0].version)
-    }
-}
-
-// TODO document order
-fn sort_releases(
-    params: &VersionParameters,
-    mut releases: Vec<format::Release>,
-) -> Vec<IntermediateVersion> {
-    // Sort releases by version
-    releases.sort_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
-
-    // Filter releases based on rollout and architecture
-    releases
+        // Filter releases based on rollout, architecture and dev versions.
+        let available_versions: Vec<Version> = response.releases
         .into_iter()
         // Filter out releases that are not rolled out to us
-        .filter(|release| release.rollout >= params.rollout) // TODO: ignore for offline case?
-        // Include only installers for the requested architecture
-        .flat_map(|release| {
-            release
-                .installers
+        .filter(|release| release.rollout >= params.rollout)
+        // Filter out dev versions
+        .filter(|release| !release.version.is_dev())
+        .flat_map(|format::Release { version, changelog, installers, .. }| {
+            installers
                 .into_iter()
-                .filter(|installer| params.architecture == installer.architecture)
+                // Find installer for the requested architecture (assumed to be unique)
+                .find(|installer| params.architecture == installer.architecture)
                 // Map each artifact to a [IntermediateVersion]
-                .map(move |installer| {
-                    IntermediateVersion {
-                        version: release.version.clone(),
-                        changelog: release.changelog.clone(),
-                        installer,
-                    }
+                .map(|Installer { urls, size, sha256,.. }| {
+                    anyhow::Ok(Version {
+                        version,
+                        size,
+                        urls,
+                        changelog,
+                        sha256: hex::decode(sha256)
+                        .context("Invalid checksum hex")?
+                        .try_into()
+                        .map_err(|_| anyhow::anyhow!("Invalid checksum length"))?,
+                    })
                 })
-        })
-        .collect()
+        }).try_collect()?;
+
+        // Find latest stable version
+        let stable = available_versions
+            .iter()
+            .filter(|release| release.version.pre_stable.is_none())
+            .max_by(|a, b| a.version.partial_cmp(&b.version).unwrap_or(Ordering::Equal))
+            .context("No stable version found")?
+            .clone();
+
+        // Find the latest beta version
+        let beta = available_versions
+            .iter()
+            .filter(|release| matches!(release.version.pre_stable, Some(PreStableType::Beta(_))))
+            // If the latest beta version is older than latest stable, dispose of it
+            .filter(|release| release.version > stable.version)
+            .max_by(|a, b| a.version.partial_cmp(&b.version).unwrap_or(Ordering::Equal))
+            .cloned();
+
+        Ok(Self { stable, beta })
+    }
 }
 
 /// TODO: Document
