@@ -10,9 +10,6 @@ pub enum Error {
     #[error("Failed to set IPv6 address")]
     SetIp(#[source] talpid_windows::net::Error),
 
-    #[error("Failed to remove existing IP address")]
-    RemoveIpAddress(#[source] talpid_windows::net::Error),
-
     /// Unable to open a tunnel device
     #[error("Unable to open a tunnel device")]
     CreateDevice(#[source] tun::Error),
@@ -20,10 +17,6 @@ pub enum Error {
     /// Failed to enable/disable link device
     #[error("Failed to enable/disable link device")]
     ToggleDevice(#[source] tun::Error),
-
-    /// Failed to get tunnel IP address table
-    #[error("Failed to get tunnel IP address table")]
-    GetDeviceAddresses(#[source] io::Error),
 
     /// Failed to get device luid
     #[error("Failed to get tunnel device luid")]
