@@ -1,0 +1,4 @@
+- [x] Dump `metadata.json` to the temporary directory
+- [ ] Check if Mullvad app installer exists on disk
+- [ ] Fall back to checking for a local installer if network is down & Mullvad app installer exists on disk
+- [ ]

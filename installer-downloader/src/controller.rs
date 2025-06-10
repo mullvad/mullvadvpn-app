@@ -16,7 +16,7 @@ use mullvad_update::{
     version_provider::VersionInfoProvider,
 };
 use rand::seq::SliceRandom;
-use std::path::PathBuf;
+use std::{cmp::Ordering, path::PathBuf};
 use tokio::{
     sync::{mpsc, oneshot},
     task::JoinHandle,
@@ -222,12 +222,20 @@ where
 
         // Check if we've already downloaded an installer.
         // If so, the user will be given the option to run it.
-        match Cache::new(working_directory.directory.clone(), version_params)
-            .get_downloaded_installers()
-            .await
-        {
-            Ok(mut cached_app_installer) => {
-                let cached_app_installer = cached_app_installer.next().unwrap(); // TODO: Fix
+        let cache = Cache::new(working_directory.directory.clone(), version_params);
+        // TODO: Handle error
+        let metadata = cache.get_metadata().await.unwrap();
+        // Present the 'first' available installer. In this case, we will always present
+        // the latest app version installer available, as we suspect that this is the app
+        // version the user wants to install. This could be made more dynamic (i.e. a user
+        // interaction instead).
+        let mut installers = cache.get_cached_installers(metadata);
+        // Pick the latest installer
+        // TODO: Why not just implement `Ord` on Installer?
+        installers.sort_by(|this, that| this.partial_cmp(that).unwrap_or(Ordering::Equal));
+        let installer = installers.last().cloned();
+        match installer {
+            Some(cached_app_installer) => {
                 queue.queue_main(move |self_| {
                     self_.hide_download_button();
 
@@ -253,8 +261,9 @@ where
                     });
                 });
             }
-            Err(e) => {
-                log::info!("Couldn't find a downloaded installer: {e:#}");
+            // empty vec of installers
+            _ => {
+                log::info!("Couldn't find a downloaded installer");
                 // show error message (needs to happen on the UI (main) thread)
                 // send Action when user presses a button to continue
                 queue.queue_main(move |self_| {

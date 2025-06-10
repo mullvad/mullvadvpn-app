@@ -10,6 +10,7 @@ use mullvad_update::app::{
     AppCache, AppDownloader, DownloadError, DownloadedInstaller, VerifiedInstaller,
 };
 use mullvad_update::fetch::ProgressUpdater;
+use mullvad_update::format::SignedResponse;
 use mullvad_update::version::{Version, VersionInfo, VersionParameters};
 use mullvad_update::version_provider::VersionInfoProvider;
 use std::io;
@@ -142,14 +143,19 @@ impl<const HAS_APP: bool, Installer: DownloadedInstaller + Clone + Default> AppC
         Self::default()
     }
 
-    async fn get_downloaded_installers(
+    async fn get_cached_installers(
         self,
+        _metadata: SignedResponse,
     ) -> Result<impl Iterator<Item = Installer>, anyhow::Error> {
         if HAS_APP {
             Ok(std::iter::once(Installer::default()))
         } else {
             anyhow::bail!("AppCache is empty")
         }
+    }
+
+    async fn get_metadata(&self) -> anyhow::Result<mullvad_update::format::SignedResponse> {
+        anyhow::bail!("No metadata")
     }
 }
 

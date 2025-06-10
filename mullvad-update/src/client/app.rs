@@ -14,6 +14,7 @@ use tokio::{process::Command, time::timeout};
 
 use crate::{
     fetch::{self, ProgressUpdater},
+    format::SignedResponse,
     verify::{AppVerifier, Sha256Verifier},
     version::VersionParameters,
 };
@@ -55,12 +56,11 @@ pub trait AppDownloader: Send + 'static {
 
 /// A cache where we can find past [DownloadedInstaller]s
 pub trait AppCache: Send {
-    type Installer: DownloadedInstaller + Clone;
+    type Installer: DownloadedInstaller + Clone + PartialOrd + Send + Sync;
 
     fn new(directory: PathBuf, version_params: VersionParameters) -> Self;
-    fn get_downloaded_installers(
-        self,
-    ) -> impl Future<Output = anyhow::Result<impl Iterator<Item = Self::Installer>>> + Send;
+    fn get_metadata(&self) -> impl Future<Output = anyhow::Result<SignedResponse>> + Send;
+    fn get_cached_installers(self, metadata: SignedResponse) -> Vec<Self::Installer>;
 }
 
 pub trait DownloadedInstaller: Send + 'static {
@@ -121,6 +121,20 @@ pub struct InstallerFile<const VERIFIED: bool> {
     pub app_version: mullvad_version::Version,
     pub app_size: usize,
     pub app_sha256: [u8; 32],
+}
+
+// TODO: Explain
+impl<const VERIFIED: bool> PartialOrd for InstallerFile<VERIFIED> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.app_version.partial_cmp(&other.app_version)
+    }
+}
+
+// TODO: Explain
+impl<const VERIFIED: bool> PartialEq for InstallerFile<VERIFIED> {
+    fn eq(&self, other: &Self) -> bool {
+        self.app_version == other.app_version
+    }
 }
 
 impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgress> {
