@@ -3,7 +3,10 @@ use std::{
     io::{self, BufRead, BufReader, Write},
     path::{Path, PathBuf},
 };
-use talpid_types::cgroup::{find_net_cls_mount, SPLIT_TUNNEL_CGROUP_NAME};
+use talpid_types::{
+    cgroup::{find_net_cls_mount, SPLIT_TUNNEL_CGROUP_NAME},
+    ErrorExt,
+};
 
 const DEFAULT_NET_CLS_DIR: &str = "/sys/fs/cgroup/net_cls";
 const NET_CLS_DIR_OVERRIDE_ENV_VAR: &str = "TALPID_NET_CLS_MOUNT_DIR";
@@ -70,7 +73,10 @@ impl Default for PidManager {
         let inner = match Self::new_inner() {
             Ok(net_cls_path) => Inner::Ok { net_cls_path },
             Err(err) => {
-                log::error!("{}", err.display_chain_with_msg("Failed to enable split tunneling"));
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to enable split tunneling")
+                );
                 Inner::Failed { err }
             }
         };
@@ -195,6 +201,11 @@ impl PidManager {
         }
 
         Ok(())
+    }
+
+    /// Return whether it is enabled
+    pub fn is_enabled(&self) -> bool {
+        matches!(self.inner, Inner::Ok { .. })
     }
 
     fn open_parent_cgroup_handle(net_cls_path: &Path) -> io::Result<fs::File> {
