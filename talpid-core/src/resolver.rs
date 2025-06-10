@@ -691,7 +691,7 @@ mod test {
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
         TokioAsyncResolver,
     };
-    use std::{net::UdpSocket, sync::Mutex};
+    use std::{net::UdpSocket, sync::Mutex, thread};
     use typed_builder::TypedBuilder;
 
     /// Can't have multiple local resolvers running at the same time, as they will try to bind to
@@ -747,6 +747,7 @@ mod test {
                 .expect("lookup should succeed");
             drop(_sock);
             handle.stop().await;
+            thread::sleep(Duration::from_millis(300));
 
             // bind() succeeds if wildcard address is bound with REUSEADDR and REUSEPORT
             let _sock = bind_sock(
@@ -826,6 +827,7 @@ mod test {
         let addr = handle.listening_addr();
         assert_eq!(addr, SocketAddr::from((Ipv4Addr::LOCALHOST, DNS_PORT)));
         rt.block_on(handle.stop());
+        thread::sleep(Duration::from_millis(300));
         UdpSocket::bind(addr).expect("Failed to bind to a port that should have been removed");
     }
 
