@@ -97,26 +97,44 @@ impl AppController {
         let queue = delegate.queue();
         let task_tx_clone = task_tx.clone();
         tokio::spawn(async move {
-            let working_dir = match WorkingDirectory::new::<DirProvider>().await {
-                Ok(directory) => directory,
-                Err(err) => {
-                    log::error!("Failed to create temporary directory: {err:?}");
+            let working_dir = loop {
+                match WorkingDirectory::new::<DirProvider>().await {
+                    Ok(directory) => break directory,
+                    Err(err) => {
+                        log::error!("Failed to create temporary directory: {err:?}");
 
-                    queue.queue_main(move |self_| {
-                        self_.clear_status_text();
-                        self_.hide_download_button();
-                        self_.hide_beta_text();
-                        self_.hide_stable_text();
+                        let (retry_tx, mut retry_rx) = mpsc::channel(1);
 
-                        self_.show_error_message(crate::delegate::ErrorMessage {
-                            status_text: resource::CREATE_TEMPDIR_FAILED.to_owned(),
-                            cancel_button_text: resource::CREATE_TEMPDIR_FAILED_CANCEL_BUTTON_TEXT
-                                .to_owned(),
-                            retry_button_text: resource::CREATE_TEMPDIR_FAILED_RETRY_BUTTON_TEXT
-                                .to_owned(),
+                        queue.queue_main(move |self_| {
+                            self_.clear_status_text();
+                            self_.hide_download_button();
+                            self_.hide_beta_text();
+                            self_.hide_stable_text();
+
+                            let cancel_tx = retry_tx.clone();
+                            self_.on_error_message_cancel(move || {
+                                let _ = cancel_tx.try_send(false);
+                            });
+                            self_.on_error_message_retry(move || {
+                                let _ = retry_tx.try_send(true);
+                            });
+
+                            self_.show_error_message(crate::delegate::ErrorMessage {
+                                status_text: resource::CREATE_TEMPDIR_FAILED.to_owned(),
+                                cancel_button_text:
+                                    resource::CREATE_TEMPDIR_FAILED_CANCEL_BUTTON_TEXT.to_owned(),
+                                retry_button_text:
+                                    resource::CREATE_TEMPDIR_FAILED_RETRY_BUTTON_TEXT.to_owned(),
+                            });
                         });
-                    });
-                    return;
+
+                        if !retry_rx.recv().await.unwrap() {
+                            queue.queue_main(|self_| {
+                                self_.quit();
+                            });
+                            std::future::pending::<()>().await;
+                        }
+                    }
                 }
             };
 
