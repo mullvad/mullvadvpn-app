@@ -245,11 +245,11 @@ where
         // the latest app version installer available, as we suspect that this is the app
         // version the user wants to install. This could be made more dynamic (i.e. a user
         // interaction instead).
-        let mut installers = cache.get_cached_installers(metadata);
-        // Pick the latest installer
-        // TODO: Why not just implement `Ord` on Installer?
-        installers.sort_by(|this, that| this.partial_cmp(that).unwrap_or(Ordering::Equal));
-        let installer = installers.last().cloned();
+        let installer = cache
+            .get_cached_installers(metadata)
+            .into_iter()
+            .max_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
+
         match installer {
             Some(cached_app_installer) => {
                 queue.queue_main(move |self_| {

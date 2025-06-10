@@ -132,24 +132,6 @@ impl VersionInfo {
     }
 }
 
-/// TODO: Document
-pub fn get_installers(
-    mut releases: Vec<format::Release>,
-) -> Vec<(mullvad_version::Version, Installer)> {
-    // Sort releases by version
-    releases.sort_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
-
-    releases
-        .into_iter()
-        .flat_map(|release| {
-            release
-                .installers
-                .into_iter()
-                .map(move |installer| (release.version.clone(), installer))
-        })
-        .collect()
-}
-
 impl TryFrom<IntermediateVersion> for Version {
     type Error = anyhow::Error;
 

@@ -39,19 +39,23 @@ impl AppCache for AppCacheDir {
         Ok(response)
     }
 
-    /// TODO: Document me. Especially _when_ an empty vec is returned.
+    /// Get an iterator of cached installers for the current architecture
     fn get_cached_installers(self, metadata: SignedResponse) -> Vec<Self::Installer> {
         let releases = metadata.get_releases();
-        // installers are sorted by version here
-        crate::version::get_installers(releases)
+        releases
             .into_iter()
-            .filter(move |(_, installer)| {
-                installer.architecture == self.version_params.architecture
+            // Map releases to their version and its installer for the current architecture
+            .flat_map(move |release| {
+                release
+                    .installers
+                    .into_iter()
+                    .find(|installer| installer.architecture == self.version_params.architecture)
+                    .map(|installer| (release.version, installer))
             })
+            // Map to an `InstallerFile`, and filter out installers not present in cache
             .filter_map(move |(version, installer)| {
                 InstallerFile::<false>::try_from_installer(&self.directory, version, installer).ok()
-            })
-            .collect()
+            }).collect()
     }
 }
 

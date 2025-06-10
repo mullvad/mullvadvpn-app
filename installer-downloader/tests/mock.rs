@@ -105,12 +105,12 @@ pub struct FakeAppDownloader<
     params: UiAppDownloaderParameters<FakeAppDelegate>,
 }
 
-#[derive(Default)]
+#[derive(Default, PartialEq, PartialOrd)]
 pub struct FakeAppCache<const HAS_APP: bool, Installer: DownloadedInstaller + Clone + Default> {
     _phantom: PhantomData<Installer>,
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, PartialEq, PartialOrd)]
 pub struct FakeInstaller<
     const EXE_SUCCEED: bool,
     const VERIFY_SUCCEED: bool,
@@ -134,8 +134,9 @@ impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: 
     }
 }
 
-impl<const HAS_APP: bool, Installer: DownloadedInstaller + Clone + Default> AppCache
-    for FakeAppCache<HAS_APP, Installer>
+impl<const HAS_APP: bool, Installer> AppCache for FakeAppCache<HAS_APP, Installer>
+where
+    Installer: DownloadedInstaller + Clone + Default + PartialEq + PartialOrd,
 {
     type Installer = Installer;
 
@@ -143,19 +144,19 @@ impl<const HAS_APP: bool, Installer: DownloadedInstaller + Clone + Default> AppC
         Self::default()
     }
 
-    async fn get_cached_installers(
-        self,
-        _metadata: SignedResponse,
-    ) -> Result<impl Iterator<Item = Installer>, anyhow::Error> {
+    fn get_cached_installers(self, _metadata: SignedResponse) -> Vec<Self::Installer> {
         if HAS_APP {
-            Ok(std::iter::once(Installer::default()))
+            vec![Installer::default()]
         } else {
-            anyhow::bail!("AppCache is empty")
+            vec![]
         }
     }
-
-    async fn get_metadata(&self) -> anyhow::Result<mullvad_update::format::SignedResponse> {
-        anyhow::bail!("No metadata")
+    #[allow(clippy::manual_async_fn)]
+    fn get_metadata(
+        &self,
+    ) -> impl std::future::Future<Output = anyhow::Result<mullvad_update::format::SignedResponse>> + Send
+    {
+        async { Err(anyhow::anyhow!("No metadata")) }
     }
 }
 
