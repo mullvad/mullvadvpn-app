@@ -239,16 +239,16 @@ where
         // Check if we've already downloaded an installer.
         // If so, the user will be given the option to run it.
         let cache = Cache::new(working_directory.directory.clone(), version_params);
-        // TODO: Handle error
-        let metadata = cache.get_metadata().await.unwrap();
         // Present the 'first' available installer. In this case, we will always present
         // the latest app version installer available, as we suspect that this is the app
         // version the user wants to install. This could be made more dynamic (i.e. a user
         // interaction instead).
-        let installer = cache
-            .get_cached_installers(metadata)
-            .into_iter()
-            .max_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
+        let installer = cache.get_metadata().await.ok().and_then(|m| {
+            cache
+                .get_cached_installers(m)
+                .into_iter()
+                .max_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal))
+        });
 
         match installer {
             Some(cached_app_installer) => {
@@ -277,7 +277,6 @@ where
                     });
                 });
             }
-            // empty vec of installers
             _ => {
                 log::info!("Couldn't find a downloaded installer");
                 // show error message (needs to happen on the UI (main) thread)
