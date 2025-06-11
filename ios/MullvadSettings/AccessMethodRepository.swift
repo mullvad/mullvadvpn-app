@@ -22,36 +22,21 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
     // to on-device storage, they will not be relocalised if the user changes language.
     private let direct = PersistentAccessMethod(
         id: AccessMethodRepository.directId,
-        name: NSLocalizedString(
-            "ACCESS_METHOD_NAME_DIRECT",
-            tableName: "APIAccess",
-            value: "Direct",
-            comment: ""
-        ),
+        name: "Direct",
         isEnabled: true,
         proxyConfiguration: .direct
     )
 
     private let bridge = PersistentAccessMethod(
         id: AccessMethodRepository.bridgeId,
-        name: NSLocalizedString(
-            "ACCESS_METHOD_NAME_BRIDGES",
-            tableName: "APIAccess",
-            value: "Mullvad bridges",
-            comment: ""
-        ),
+        name: "Mullvad bridges",
         isEnabled: true,
         proxyConfiguration: .bridges
     )
 
     private let encryptedDNS = PersistentAccessMethod(
         id: AccessMethodRepository.encryptedDNSId,
-        name: NSLocalizedString(
-            "ACCESS_METHOD_NAME_ENCRYPTED_DNS",
-            tableName: "APIAccess",
-            value: "Encrypted DNS proxy",
-            comment: ""
-        ),
+        name: "Encrypted DNS proxy",
         isEnabled: true,
         proxyConfiguration: .encryptedDNS
     )
