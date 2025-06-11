@@ -80,10 +80,7 @@ val appModule = module {
         )
     } bind NotificationProvider::class
     single {
-        AccountExpiryScheduledNotificationProvider(
-            get<NotificationChannel.AccountUpdates>().id,
-            get(),
-        )
+        AccountExpiryScheduledNotificationProvider(get<NotificationChannel.AccountUpdates>().id)
     } bind NotificationProvider::class
 }
 

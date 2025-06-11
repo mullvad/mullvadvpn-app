@@ -8,15 +8,10 @@ import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.lib.model.NotificationChannelId
 import net.mullvad.mullvadvpn.lib.model.NotificationId
 import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
-import net.mullvad.mullvadvpn.service.MullvadVpnService
-import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
-class AccountExpiryScheduledNotificationProvider(
-    private val channelId: NotificationChannelId,
-    private val accountRepository: AccountRepository,
-) : NotificationProvider<Notification.AccountExpiry> {
+class AccountExpiryScheduledNotificationProvider(private val channelId: NotificationChannelId) :
+    NotificationProvider<Notification.AccountExpiry> {
 
     private val notificationChannel: Channel<NotificationUpdate<Notification.AccountExpiry>> =
         Channel(Channel.CONFLATED)
@@ -29,10 +24,6 @@ class AccountExpiryScheduledNotificationProvider(
             Notification.AccountExpiry(
                 channelId = channelId,
                 actions = emptyList(),
-                websiteAuthToken =
-                    if (MullvadVpnService.daemonInitialized.get() && !IS_PLAY_BUILD)
-                        accountRepository.getWebsiteAuthToken()
-                    else null,
                 durationUntilExpiry = durationUntilExpiry,
             )
 
