@@ -49,7 +49,7 @@ git = "https://github.com/mullvad/boringtun"
 rev = "c29681df54e1c10ba06d9ca7ff98722c9dcb5a81"
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.23"
+nix = { workspace = true, features = ["fs"] }
 libc = "0.2.150"
 
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]

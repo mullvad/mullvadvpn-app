@@ -20,4 +20,4 @@ shadowsocks = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
 
 [target.'cfg(target_os="linux")'.dependencies]
-nix = "0.23"
+nix = { workspace = true }

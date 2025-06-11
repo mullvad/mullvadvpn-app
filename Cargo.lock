@@ -735,7 +735,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "117725a109d387c937a1533ce01b450cbde6b88abceea8473c4d7a85853cda3c"
 dependencies = [
  "lazy_static",
- "windows-sys 0.48.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -2901,7 +2901,7 @@ dependencies = [
  "mullvad-types",
  "mullvad-version",
  "natord",
- "nix 0.29.0",
+ "nix 0.30.1",
  "serde",
  "serde_json",
  "talpid-types",
@@ -2940,7 +2940,7 @@ dependencies = [
  "mullvad-types",
  "mullvad-update",
  "mullvad-version",
- "nix 0.23.2",
+ "nix 0.30.1",
  "notify 8.0.0",
  "objc2",
  "rand 0.8.5",
@@ -2984,7 +2984,7 @@ dependencies = [
 name = "mullvad-exclude"
 version = "0.0.0"
 dependencies = [
- "nix 0.23.2",
+ "nix 0.30.1",
  "talpid-types",
  "thiserror 2.0.9",
 ]
@@ -3039,7 +3039,6 @@ dependencies = [
  "mullvad-daemon",
  "mullvad-problem-report",
  "mullvad-types",
- "nix 0.23.2",
  "rand 0.8.5",
  "talpid-platform-metadata",
  "talpid-tunnel",
@@ -3057,7 +3056,7 @@ dependencies = [
  "env_logger 0.11.7",
  "futures",
  "log",
- "nix 0.29.0",
+ "nix 0.30.1",
  "pnet_packet 0.35.0",
  "reqwest",
  "serde",
@@ -3077,7 +3076,7 @@ dependencies = [
  "log",
  "mullvad-paths",
  "mullvad-types",
- "nix 0.23.2",
+ "nix 0.30.1",
  "parity-tokio-ipc",
  "prost 0.13.3",
  "prost-types 0.13.3",
@@ -3446,7 +3445,6 @@ dependencies = [
  "cfg-if",
  "cfg_aliases 0.1.1",
  "libc",
- "memoffset 0.9.1",
 ]
 
 [[package]]
@@ -3454,6 +3452,18 @@ name = "nix"
 version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71e2746dc3a24dd78b3cfcb7be93368c6de9963d30f43a6a73998a9cf4b17b46"
+dependencies = [
+ "bitflags 2.9.0",
+ "cfg-if",
+ "cfg_aliases 0.2.1",
+ "libc",
+]
+
+[[package]]
+name = "nix"
+version = "0.30.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "74523f3a35e05aba87a1d978330aef40f67b0304ac79c1c00b294c9830543db6"
 dependencies = [
  "bitflags 2.9.0",
  "cfg-if",
@@ -5328,8 +5338,7 @@ dependencies = [
  "memoffset 0.6.5",
  "mnl",
  "nftnl",
- "nix 0.23.2",
- "nix 0.28.0",
+ "nix 0.30.1",
  "once_cell",
  "parking_lot",
  "pcap",
@@ -5406,7 +5415,7 @@ version = "0.0.0"
 dependencies = [
  "libc",
  "log",
- "nix 0.29.0",
+ "nix 0.30.1",
  "socket2 0.5.8",
  "talpid-types",
  "thiserror 2.0.9",
@@ -5483,7 +5492,7 @@ dependencies = [
  "log",
  "netlink-packet-route",
  "netlink-sys",
- "nix 0.28.0",
+ "nix 0.30.1",
  "rtnetlink",
  "system-configuration",
  "talpid-types",
@@ -5498,7 +5507,7 @@ dependencies = [
 name = "talpid-time"
 version = "0.0.0"
 dependencies = [
- "nix 0.29.0",
+ "nix 0.30.1",
  "tokio",
 ]
 
@@ -5589,7 +5598,7 @@ dependencies = [
  "netlink-packet-route",
  "netlink-packet-utils",
  "netlink-proto",
- "nix 0.23.2",
+ "nix 0.30.1",
  "once_cell",
  "parking_lot",
  "proptest",
@@ -6124,7 +6133,7 @@ dependencies = [
  "async-trait",
  "log",
  "mullvad-masque-proxy",
- "nix 0.23.2",
+ "nix 0.30.1",
  "shadowsocks",
  "thiserror 2.0.9",
  "tokio",
