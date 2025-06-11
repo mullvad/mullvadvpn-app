@@ -53,7 +53,7 @@ pub const LATEST_VERSION_PREFIX: &str = "Version";
 pub const FETCH_VERSION_ERROR_DESC: &str = "Failed to load version details, please try again or make sure you have the latest installer loader.";
 
 /// Displayed while fetching version info from the API failed
-pub const FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD: &str = "Failed to load new version details, please try again or install the already downloaded version (%s).";
+pub const FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD: &str = "Failed to fetch new version details, please try again or install the already downloaded version (%s).";
 
 /// Displayed while fetching version info from the API failed (retry button)
 pub const FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT: &str = "Try again";
