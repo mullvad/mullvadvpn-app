@@ -331,7 +331,7 @@ where
                     self_.hide_beta_text();
                     self_.hide_stable_text();
                     self_.show_cancel_button();
-                    self_.enable_cancel_button(); // TODO cancel button?
+                    self_.disable_cancel_button();
                     self_.hide_download_progress();
                     self_.set_status_text(VERIFYING_CACHED);
 
