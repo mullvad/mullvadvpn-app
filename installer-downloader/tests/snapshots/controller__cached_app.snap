@@ -1,7 +1,6 @@
 ---
 source: installer-downloader/tests/controller.rs
 expression: delegate.state
-snapshot_kind: text
 ---
 status_text: ""
 download_text: ""
@@ -15,7 +14,7 @@ beta_text_visible: false
 stable_text_visible: false
 error_message_visible: true
 error_message:
-  status_text: "Failed to load new version details, please try again or install the already downloaded version (2042.1337)."
+  status_text: "Failed to fetch new version details, please try again or install the already downloaded version (2042.1337)."
   cancel_button_text: Install
   retry_button_text: Try again
 quit: false
@@ -36,5 +35,5 @@ call_log:
   - hide_download_button
   - clear_status_text
   - on_error_message_retry
-  - "show_error_message: Failed to load new version details, please try again or install the already downloaded version (2042.1337).. retry: Try again. cancel: Install"
+  - "show_error_message: Failed to fetch new version details, please try again or install the already downloaded version (2042.1337).. retry: Try again. cancel: Install"
   - on_error_message_cancel
