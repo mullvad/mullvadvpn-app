@@ -18,6 +18,8 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
 
     private let logger = Logger(label: "AccessMethodRepository")
 
+    // The access method names will be localised on creation time. As they are persisted
+    // to on-device storage, they will not be relocalised if the user changes language.
     private let direct = PersistentAccessMethod(
         id: AccessMethodRepository.directId,
         name: "Direct",
