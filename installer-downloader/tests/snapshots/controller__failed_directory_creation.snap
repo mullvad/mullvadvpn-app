@@ -1,7 +1,6 @@
 ---
 source: installer-downloader/tests/controller.rs
 expression: delegate.state
-snapshot_kind: text
 ---
 status_text: ""
 download_text: ""
@@ -34,4 +33,6 @@ call_log:
   - hide_download_button
   - hide_beta_text
   - hide_stable_text
+  - on_error_message_cancel
+  - on_error_message_retry
   - "show_error_message: Failed to create temporary directory for artifacts. Please check if you have enough space on your hard drive.. retry: Try again. cancel: Cancel"
