@@ -10,7 +10,6 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
 import arrow.atomic.AtomicInt
 import co.touchlab.kermit.Logger
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
@@ -173,7 +172,6 @@ class MullvadVpnService : TalpidVpnService() {
                 apiEndpointOverride = apiEndpointOverride,
                 extraMetadata = mapOf("flavor" to BuildConfig.FLAVOR),
             )
-            daemonInitialized.set(true)
             Logger.i("MullvadVpnService: Daemon initialized")
         }
 
@@ -202,23 +200,20 @@ class MullvadVpnService : TalpidVpnService() {
         return true
     }
 
-    override fun onDestroy() =
-        try {
-            super.onDestroy()
-            Logger.i("MullvadVpnService: onDestroy")
-            // Shutting down the daemon gracefully
-            managementService.stop()
+    override fun onDestroy() {
+        super.onDestroy()
+        Logger.i("MullvadVpnService: onDestroy")
+        // Shutting down the daemon gracefully
+        managementService.stop()
 
-            Logger.i("Shutdown MullvadDaemon")
-            MullvadDaemon.shutdown()
+        Logger.i("Shutdown MullvadDaemon")
+        MullvadDaemon.shutdown()
 
-            Logger.i("Enter Idle")
-            managementService.enterIdle()
+        Logger.i("Enter Idle")
+        managementService.enterIdle()
 
-            Logger.i("Shutdown complete")
-        } finally {
-            daemonInitialized.set(false)
-        }
+        Logger.i("Shutdown complete")
+    }
 
     // If an intent is from the system it is because of the OS starting/stopping the VPN.
     private fun Intent?.isFromSystem(): Boolean {
@@ -236,7 +231,5 @@ class MullvadVpnService : TalpidVpnService() {
         init {
             System.loadLibrary("mullvad_jni")
         }
-
-        val daemonInitialized = AtomicBoolean()
     }
 }
