@@ -10,7 +10,7 @@ use mullvad_update::app::{
     AppCache, AppDownloader, DownloadError, DownloadedInstaller, VerifiedInstaller,
 };
 use mullvad_update::fetch::ProgressUpdater;
-use mullvad_update::format::SignedResponse;
+use mullvad_update::format::{Response, SignedResponse};
 use mullvad_update::version::{Version, VersionInfo, VersionParameters};
 use mullvad_update::version_provider::VersionInfoProvider;
 use std::io;
@@ -154,9 +154,13 @@ where
     #[allow(clippy::manual_async_fn)]
     fn get_metadata(
         &self,
-    ) -> impl std::future::Future<Output = anyhow::Result<mullvad_update::format::SignedResponse>> + Send
-    {
-        async { Err(anyhow::anyhow!("No metadata")) }
+    ) -> impl std::future::Future<Output = anyhow::Result<SignedResponse>> + Send {
+        async {
+            Ok(SignedResponse {
+                signatures: vec![],
+                signed: Response::default(),
+            })
+        }
     }
 }
 
