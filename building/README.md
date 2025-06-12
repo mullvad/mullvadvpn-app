@@ -23,7 +23,16 @@ docker:
 ```
 
 Sign in to ghcr.io with a classic auth token. Read more here:
-https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic
+https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic.
+The TLDR is basically:
+1. Go to https://github.com/settings/tokens/new?scopes=write:packages
+2. Create a new token named `build@app-build-linux3` with `write:packages` as the only permission.
+3. Log podman ino to ghcr.io with the new token. :
+   ```
+   $ podman login ghcr.io -u <YOUR_PERSONAL_GITHUB_USERNAME>
+   Password: <Here you paste the token generated above>
+   ```
+
 
 Build and publish the container image. Tag it with the github hash of the current commit.
 This also adds the container GPG signatures to the sigstore and commits that to git.
