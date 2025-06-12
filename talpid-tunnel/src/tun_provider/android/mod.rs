@@ -197,7 +197,7 @@ impl AndroidTunProvider {
     }
 
     /// Allow a socket to bypass the tunnel.
-    pub fn bypass(&mut self, socket: RawFd) -> Result<(), Error> {
+    pub fn bypass(&mut self, socket: &impl AsRawFd) -> Result<(), Error> {
         let env = JnixEnv::from(
             self.jvm
                 .attach_current_thread_as_daemon()
@@ -212,7 +212,7 @@ impl AndroidTunProvider {
                 self.object.as_obj(),
                 create_tun_method,
                 JavaType::Primitive(Primitive::Boolean),
-                &[JValue::Int(socket)],
+                &[JValue::Int(socket.as_raw_fd())],
             )
             .map_err(|cause| Error::CallMethod("bypass", cause))?;
 
@@ -404,7 +404,7 @@ impl VpnServiceTun {
     }
 
     /// Allow a socket to bypass the tunnel.
-    pub fn bypass(&mut self, socket: RawFd) -> Result<(), Error> {
+    pub fn bypass(&mut self, socket: &impl AsFd) -> Result<(), Error> {
         let env = JnixEnv::from(
             self.jvm
                 .attach_current_thread_as_daemon()
@@ -419,7 +419,7 @@ impl VpnServiceTun {
                 self.object.as_obj(),
                 create_tun_method,
                 JavaType::Primitive(Primitive::Boolean),
-                &[JValue::Int(socket)],
+                &[JValue::Int(socket.as_fd().as_raw_fd())],
             )
             .map_err(|cause| Error::CallMethod("bypass", cause))?;
 

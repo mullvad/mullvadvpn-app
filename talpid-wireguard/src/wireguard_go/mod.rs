@@ -18,8 +18,6 @@ use std::borrow::Cow;
 #[cfg(daita)]
 use std::ffi::CString;
 #[cfg(unix)]
-use std::os::unix::io::AsRawFd;
-#[cfg(unix)]
 use std::sync::{Arc, Mutex};
 use std::{
     future::Future,
@@ -300,10 +298,10 @@ impl WgGoTunnelState {
             let socket_v6 = self.tunnel_handle.get_socket_v6();
             let mut provider = tun_provider.lock().unwrap();
             provider
-                .bypass(socket_v4)
+                .bypass(&socket_v4)
                 .map_err(super::TunnelError::BypassError)?;
             provider
-                .bypass(socket_v6)
+                .bypass(&socket_v6)
                 .map_err(super::TunnelError::BypassError)?;
         }
 
@@ -334,7 +332,7 @@ impl WgGoTunnel {
         let handle = wireguard_go_rs::Tunnel::turn_on(
             mtu,
             &wg_config_str,
-            tunnel_fd.as_raw_fd(),
+            tunnel_fd,
             Some(logging::wg_go_logging_callback),
             logging_context.ordinal,
         )
@@ -529,7 +527,7 @@ impl WgGoTunnel {
 
         let handle = wireguard_go_rs::Tunnel::turn_on(
             &wg_config_str,
-            tunnel_fd.as_raw_fd(),
+            tunnel_fd,
             Some(logging::wg_go_logging_callback),
             logging_context.ordinal,
         )
@@ -611,7 +609,7 @@ impl WgGoTunnel {
             &exit_config_str,
             &entry_config_str,
             &private_ip,
-            tunnel_fd.as_raw_fd(),
+            tunnel_fd,
             Some(logging::wg_go_logging_callback),
             logging_context.ordinal,
         )
@@ -658,8 +656,8 @@ impl WgGoTunnel {
         let socket_v4 = handle.get_socket_v4();
         let socket_v6 = handle.get_socket_v6();
 
-        tunnel_device.bypass(socket_v4)?;
-        tunnel_device.bypass(socket_v6)?;
+        tunnel_device.bypass(&socket_v4)?;
+        tunnel_device.bypass(&socket_v6)?;
 
         Ok(())
     }

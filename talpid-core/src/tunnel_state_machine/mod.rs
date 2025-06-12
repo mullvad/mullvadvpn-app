@@ -604,7 +604,7 @@ impl SharedTunnelStateValues {
 
     #[cfg(target_os = "android")]
     pub fn bypass_socket(&mut self, fd: RawFd, tx: oneshot::Sender<()>) {
-        if let Err(err) = self.tun_provider.lock().unwrap().bypass(fd) {
+        if let Err(err) = self.tun_provider.lock().unwrap().bypass(&fd) {
             log::error!("Failed to bypass socket {}", err);
         }
         let _ = tx.send(());
