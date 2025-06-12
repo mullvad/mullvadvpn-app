@@ -57,6 +57,8 @@ struct ObfuscatorPortSelector {
             )
         #if DEBUG
         case .quic:
+            let filteredRelays = obfuscateQUICRelays(tunnelSettings: tunnelSettings)
+
             port = .only(443)
         #endif
         default:
@@ -95,6 +97,33 @@ struct ObfuscatorPortSelector {
             return relays
         }
 
+        let filteredRelays = relays.wireguard.relays.filter { relay in
+            relay.shadowsocksExtraAddrIn != nil
+        }
+
+        return REST.ServerRelaysResponse(
+            locations: relays.locations,
+            wireguard: REST.ServerWireguardTunnels(
+                ipv4Gateway: relays.wireguard.ipv4Gateway,
+                ipv6Gateway: relays.wireguard.ipv6Gateway,
+                portRanges: relays.wireguard.portRanges,
+                relays: filteredRelays,
+                shadowsocksPortRanges: relays.wireguard.shadowsocksPortRanges
+            ),
+            bridge: relays.bridge
+        )
+    }
+
+    private func obfuscateQUICRelays(tunnelSettings: LatestTunnelSettings) -> REST.ServerRelaysResponse {
+        let relays = relays
+        let wireGuardObfuscation = tunnelSettings.wireGuardObfuscation
+
+        return wireGuardObfuscation.state == .quic
+            ? filterQUICRelays(from: relays)
+            : relays
+    }
+
+    private func filterQUICRelays(from relays: REST.ServerRelaysResponse) -> REST.ServerRelaysResponse {
         let filteredRelays = relays.wireguard.relays.filter { relay in
             relay.shadowsocksExtraAddrIn != nil
         }
