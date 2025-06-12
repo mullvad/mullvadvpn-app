@@ -325,8 +325,6 @@ extension RelaySelectorTests {
                         includeInCountry: true,
                         daita: true,
                         shadowsocksExtraAddrIn: nil,
-                        quicHostname: nil,
-                        masqueExtraAddrIn: nil,
                         features: nil
                     ),
                 ],
