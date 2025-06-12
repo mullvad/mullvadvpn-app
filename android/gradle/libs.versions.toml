@@ -1,8 +1,10 @@
 [versions]
 
 jvm-target = "17"
+# Updating the sdk version requires updating the version used in the build container.
+# See Bump SDK or container image template in Linear for more details.
 compile-sdk = "36"
-build-tools = "35.0.0"
+build-tools = "36.0.0"
 min-sdk = "26"
 target-sdk = "36"
 ndk = "27.2.12479018"
