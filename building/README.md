@@ -42,7 +42,7 @@ The single sigstore addition (signed) commit can be pushed directly to the main 
 ./build-and-publish-container-image.sh (linux|android)
 
 # Pushes the new sigstore entry
-GIT_SSH_COMMAND="ssh -i /path/to/deploy-key" git push
+GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519-mullvadvpn-app-deploy" git push
 ```
 
 When satisfied with how the new image works, the `building/{linux,android}-container-image.txt`
