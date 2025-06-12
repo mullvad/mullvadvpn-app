@@ -30,7 +30,7 @@ class HeaderBarView: UIView {
 
     private lazy var deviceNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.font = .mullvadMiniSemiBold
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
         label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         label.setAccessibilityIdentifier(.headerDeviceNameLabel)
@@ -39,7 +39,7 @@ class HeaderBarView: UIView {
 
     private lazy var timeLeftLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.font = .mullvadMiniSemiBold
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return label
@@ -159,9 +159,9 @@ class HeaderBarView: UIView {
         super.init(frame: frame)
         directionalLayoutMargins = NSDirectionalEdgeInsets(
             top: 0,
-            leading: UIMetrics.contentLayoutMargins.leading,
+            leading: 16,
             bottom: 0,
-            trailing: UIMetrics.contentLayoutMargins.trailing
+            trailing: 16
         )
 
         accessibilityContainerType = .semanticGroup

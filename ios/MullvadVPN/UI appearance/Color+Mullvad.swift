@@ -12,6 +12,7 @@ extension Color {
     static let mullvadTextPrimaryDisabled: Color = .mullvadTextPrimary.opacity(
         0.2
     )
+    static let secondaryTextColor: Color = UIColor.secondaryTextColor.color
 
     enum MullvadButton {
         static let primary: Color = .mullvadPrimaryColor
