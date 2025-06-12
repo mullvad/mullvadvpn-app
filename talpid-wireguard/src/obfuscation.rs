@@ -117,7 +117,7 @@ async fn bypass_vpn(
     // Exclude remote obfuscation socket or bridge
     log::debug!("Excluding remote socket fd from the tunnel");
     let _ = tokio::task::spawn_blocking(move || {
-        if let Err(error) = tun_provider.lock().unwrap().bypass(remote_socket_fd) {
+        if let Err(error) = tun_provider.lock().unwrap().bypass(&remote_socket_fd) {
             log::error!("Failed to exclude remote socket fd: {error}");
         }
     })
