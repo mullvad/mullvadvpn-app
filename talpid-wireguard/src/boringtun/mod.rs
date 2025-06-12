@@ -90,9 +90,7 @@ pub async fn open_boringtun_tunnel(
         let mut config = tun07::Configuration::default();
         config.raw_fd(fd);
 
-        boringtun_config.on_bind = Some(Box::new(move |socket| {
-            tun.bypass(socket.as_raw_fd()).unwrap()
-        }));
+        boringtun_config.on_bind = Some(Box::new(move |socket| tun.bypass(socket).unwrap()));
 
         let device = tun07::Device::new(&config).unwrap();
         tun07::AsyncDevice::new(device).unwrap()

@@ -8,18 +8,22 @@
 
 use core::ffi::{c_char, CStr};
 use core::mem::ManuallyDrop;
-#[cfg(target_os = "windows")]
-use core::mem::MaybeUninit;
 use core::slice;
-#[cfg(target_os = "windows")]
-use std::ffi::CString;
 use talpid_types::drop_guard::on_drop;
-#[cfg(target_os = "windows")]
-use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
 use zeroize::Zeroize;
 
-#[cfg(unix)]
-pub type Fd = std::os::unix::io::RawFd;
+#[cfg(target_os = "android")]
+use std::os::fd::BorrowedFd;
+
+#[cfg(not(target_os = "windows"))]
+use std::os::fd::{IntoRawFd, OwnedFd};
+
+#[cfg(target_os = "windows")]
+use core::mem::MaybeUninit;
+#[cfg(target_os = "windows")]
+use std::ffi::CString;
+#[cfg(target_os = "windows")]
+use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
 
 pub type WgLogLevel = u32;
 
@@ -84,17 +88,19 @@ impl Tunnel {
     pub fn turn_on(
         #[cfg(not(target_os = "android"))] mtu: isize,
         settings: &CStr,
-        device: Fd,
+        device: OwnedFd,
         logging_callback: Option<LoggingCallback>,
         logging_context: LoggingContext,
     ) -> Result<Self, Error> {
-        // SAFETY: pointer is valid for the lifetime of this function
+        // SAFETY:
+        // - pointer is valid for the lifetime of `wgTurnOn`.
+        // - OwnedFd asserts that fd is open, and into_raw_fd will transfer ownership to Go.
         let code = unsafe {
             ffi::wgTurnOn(
                 #[cfg(not(target_os = "android"))]
                 mtu,
                 settings.as_ptr(),
-                device,
+                device.into_raw_fd(), // Transfer ownership of the fd to Go
                 logging_callback,
                 logging_context,
             )
@@ -181,17 +187,19 @@ impl Tunnel {
         exit_settings: &CStr,
         entry_settings: &CStr,
         private_ip: &CStr,
-        device: Fd,
+        device: OwnedFd,
         logging_callback: Option<LoggingCallback>,
         logging_context: LoggingContext,
     ) -> Result<Self, Error> {
-        // SAFETY: pointer is valid for the lifetime of this function
+        // SAFETY:
+        // - pointers are valid for the lifetime of `wgTurnOnMultihop`.
+        // - OwnedFd asserts that fd is open, and into_raw_fd will transfer ownership to Go.
         let code = unsafe {
             ffi::wgTurnOnMultihop(
                 exit_settings.as_ptr(),
                 entry_settings.as_ptr(),
                 private_ip.as_ptr(),
-                device,
+                device.into_raw_fd(), // Transfer ownership of the fd to Go
                 logging_callback,
                 logging_context,
             )
@@ -279,16 +287,22 @@ impl Tunnel {
 
     /// Get the file descriptor of the tunnel IPv4 socket.
     #[cfg(target_os = "android")]
-    pub fn get_socket_v4(&self) -> Fd {
-        // SAFETY: self.handle is a valid pointer to an active wireguard-go tunnel.
-        unsafe { ffi::wgGetSocketV4(self.handle) }
+    pub fn get_socket_v4(&self) -> BorrowedFd {
+        // SAFETY:
+        // - self.handle is a valid pointer to an active wireguard-go tunnel.
+        // - file descriptor won't be closed until wgTurnOff is called,
+        //   which can't happen while `self` is borrowed.
+        unsafe { BorrowedFd::borrow_raw(ffi::wgGetSocketV4(self.handle)) }
     }
 
     /// Get the file descriptor of the tunnel IPv6 socket.
     #[cfg(target_os = "android")]
-    pub fn get_socket_v6(&self) -> Fd {
-        // SAFETY: self.handle is a valid pointer to an active wireguard-go tunnel.
-        unsafe { ffi::wgGetSocketV6(self.handle) }
+    pub fn get_socket_v6(&self) -> BorrowedFd {
+        // SAFETY:
+        // - self.handle is a valid pointer to an active wireguard-go tunnel.
+        // - file descriptor won't be closed until wgTurnOff is called,
+        //   which can't happen while `self` is borrowed.
+        unsafe { BorrowedFd::borrow_raw(ffi::wgGetSocketV6(self.handle)) }
     }
 }
 
@@ -329,10 +343,11 @@ impl Error {
 }
 
 mod ffi {
-    #[cfg(not(target_os = "windows"))]
-    use super::Fd;
     use super::{LoggingCallback, LoggingContext};
     use core::ffi::{c_char, c_void};
+
+    #[cfg(not(target_os = "windows"))]
+    use std::os::fd::RawFd;
 
     unsafe extern "C" {
         /// Creates a new wireguard tunnel, uses the specific interface name, and file descriptors
@@ -345,7 +360,7 @@ mod ffi {
         pub fn wgTurnOn(
             mtu: isize,
             settings: *const c_char,
-            fd: Fd,
+            fd: RawFd,
             logging_callback: Option<LoggingCallback>,
             logging_context: LoggingContext,
         ) -> i32;
@@ -353,7 +368,7 @@ mod ffi {
         #[cfg(target_os = "android")]
         pub fn wgTurnOn(
             settings: *const c_char,
-            fd: Fd,
+            fd: RawFd,
             logging_callback: Option<LoggingCallback>,
             logging_context: LoggingContext,
         ) -> i32;
@@ -380,7 +395,7 @@ mod ffi {
             exit_settings: *const c_char,
             entry_settings: *const c_char,
             private_ip: *const c_char,
-            fd: Fd,
+            fd: RawFd,
             logging_callback: Option<LoggingCallback>,
             logging_context: LoggingContext,
         ) -> i32;
@@ -433,11 +448,11 @@ mod ffi {
 
         /// Get the file descriptor of the tunnel IPv4 socket.
         #[cfg(target_os = "android")]
-        pub fn wgGetSocketV4(handle: i32) -> Fd;
+        pub fn wgGetSocketV4(handle: i32) -> RawFd;
 
         /// Get the file descriptor of the tunnel IPv6 socket.
         #[cfg(target_os = "android")]
-        pub fn wgGetSocketV6(handle: i32) -> Fd;
+        pub fn wgGetSocketV6(handle: i32) -> RawFd;
 
         /// Rebind endpoint sockets
         #[cfg(target_os = "windows")]
