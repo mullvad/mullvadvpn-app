@@ -26,6 +26,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add in-app updates to Windows and macOS. This new feature lets you download, verify, and install
   new versions from within the app.
 
+#### Linux
+- Make it possible to run the app with cgroups v1 fully disabled. Note that split tunneling is
+  currently unavailable when this is the case.
+
 ### Changed
 #### macOS
 - Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
