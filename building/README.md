@@ -27,11 +27,14 @@ https://docs.github.com/en/packages/working-with-a-github-packages-registry/work
 The TLDR is basically:
 1. Go to https://github.com/settings/tokens/new?scopes=write:packages
 2. Create a new token named `build@app-build-linux3` with `write:packages` as the only permission.
-3. Log podman ino to ghcr.io with the new token. :
+   Set a very short expiry time on the token, since it's tied to your personal account.
+3. Log podman in to ghcr.io with the new token. :
    ```
    $ podman login ghcr.io -u <YOUR_PERSONAL_GITHUB_USERNAME>
    Password: <Here you paste the token generated above>
    ```
+   This login session is valid as long as the token is valid. You can revoke the token on github
+   as soon as the container building and pushing is done.
 
 
 Build and publish the container image. Tag it with the github hash of the current commit.
