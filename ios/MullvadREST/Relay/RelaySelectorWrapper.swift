@@ -108,12 +108,8 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                     throw NoRelaysSatisfyingConstraintsError(.invalidPort)
                 }
             }
-        case .on, .udpOverTcp, .shadowsocks:
+        case .on, .udpOverTcp, .shadowsocks, .quic:
             break
-        #if DEBUG
-        case .quic:
-            break
-        #endif
         }
     }
 }

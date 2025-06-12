@@ -58,8 +58,6 @@ class ServerRelayTests: XCTestCase {
             shadowsocksExtraAddrIn: [
                 "185.213.193.139",
             ],
-            quicHostname: "cat.pictures.com",
-            masqueExtraAddrIn: ["1.2.3.4", "::1"],
             features: .init(
                 daita: .init(),
                 quic: .init(
@@ -151,8 +149,6 @@ class ServerRelayTests: XCTestCase {
             includeInCountry: true,
             daita: false,
             shadowsocksExtraAddrIn: shadowSocksExtraAddrIn,
-            quicHostname: nil,
-            masqueExtraAddrIn: nil,
             features: nil
         )
     }

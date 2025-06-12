@@ -79,8 +79,6 @@ extension REST {
         public let includeInCountry: Bool
         public let daita: Bool?
         public let shadowsocksExtraAddrIn: [String]?
-        public let quicHostname: String?
-        public let masqueExtraAddrIn: [String]?
         public let features: Features?
 
         public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
@@ -106,8 +104,6 @@ extension REST {
                         true
                     }
                 },
-                quicHostname: quicHostname,
-                masqueExtraAddrIn: masqueExtraAddrIn,
                 features: features
             )
         }
@@ -127,8 +123,6 @@ extension REST {
                 includeInCountry: includeInCountry,
                 daita: daita,
                 shadowsocksExtraAddrIn: shadowsocksExtraAddrIn,
-                quicHostname: quicHostname,
-                masqueExtraAddrIn: masqueExtraAddrIn,
                 features: features
             )
         }
@@ -147,8 +141,6 @@ extension REST {
                 includeInCountry: includeInCountry,
                 daita: daita,
                 shadowsocksExtraAddrIn: shadowsocksExtraAddrIn,
-                quicHostname: quicHostname,
-                masqueExtraAddrIn: masqueExtraAddrIn,
                 features: features
             )
         }
