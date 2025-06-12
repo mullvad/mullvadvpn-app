@@ -40,7 +40,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Security
 #### Windows
-#### Windows
 - Enable control flow integrity checks (CFG) for some C++ code. This excludes `wintun`,
   `wireguard-nt`, and OpenVPN. This addresses `MLLVD-CR-24-101` to the extent that we found
   it valuable.
