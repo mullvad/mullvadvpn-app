@@ -7,12 +7,8 @@ use tun07::{AbstractDevice, AsyncDevice, Configuration};
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     /// Failed to set IP address
-    #[error("Failed to set IPv4 address")]
-    SetIpv4(#[source] tun::Error),
-
-    /// Failed to set IP address
     #[error("Failed to set IPv6 address")]
-    SetIpv6(#[source] io::Error),
+    SetIp(#[source] talpid_windows::net::Error),
 
     /// Unable to open a tunnel device
     #[error("Unable to open a tunnel device")]
@@ -21,6 +17,10 @@ pub enum Error {
     /// Failed to enable/disable link device
     #[error("Failed to enable/disable link device")]
     ToggleDevice(#[source] tun::Error),
+
+    /// Failed to get device luid
+    #[error("Failed to get tunnel device luid")]
+    GetDeviceLuid(#[source] io::Error),
 
     /// Failed to get device name
     #[error("Failed to get tunnel device name")]
@@ -49,17 +49,26 @@ impl WindowsTunProvider {
 
     /// Open a tunnel using the current tunnel config.
     pub fn open_tun(&mut self) -> Result<WindowsTun, Error> {
+        let (first_addr, remaining_addrs) = self
+            .config
+            .addresses
+            .split_first()
+            .map(|(first, rest)| (Some(first), rest))
+            .unwrap_or((None, &[]));
+
         let mut tunnel_device = {
             #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
-            #[cfg(target_os = "linux")]
-            if let Some(ref name) = self.config.name {
-                builder.name(name);
+            // TODO: set alias
+            // TODO: have tun either not use netsh or not set any default address at all
+            // TODO: tun can only set a single address
+            if let Some(addr) = first_addr {
+                builder.config.address(*addr);
             }
             builder.create()?
         };
 
-        for ip in self.config.addresses.iter() {
+        for ip in remaining_addrs {
             tunnel_device.set_ip(*ip)?;
         }
 
@@ -122,13 +131,11 @@ impl Default for TunnelDeviceBuilder {
 
 impl TunnelDevice {
     fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
-        match ip {
-            IpAddr::V4(ipv4) => self.dev.set_address(ipv4.into()).map_err(Error::SetIpv4),
-            IpAddr::V6(_ipv6) => {
-                // TODO
-                todo!("ipv6 not implemented");
-            }
-        }
+        // TODO: Expose luid from wintun-bindings.
+        // Also, maybe, update wintun-bindings to use Windows APIs instead of netsh
+        let name = self.get_name()?;
+        let luid = talpid_windows::net::luid_from_alias(&name).map_err(Error::GetDeviceLuid)?;
+        talpid_windows::net::add_ip_address_for_interface(luid, ip).map_err(Error::SetIp)
     }
 
     fn set_up(&mut self, up: bool) -> Result<(), Error> {
