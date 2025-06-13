@@ -9,6 +9,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +28,7 @@ import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.Lc
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -63,6 +65,11 @@ class AddTimeViewModelTest {
             )
     }
 
+    @AfterEach
+    fun tearDown() {
+        unmockkAll()
+    }
+
     @Test
     fun `when paymentAvailability emits ProductsUnavailable uiState should be NoPayment`() =
         runTest {
@@ -77,26 +84,29 @@ class AddTimeViewModelTest {
         }
 
     @Test
-    fun `when paymentAvailability emits ErrorOther uiState should be null`() = runTest {
-        // Arrange
-        paymentAvailability.tryEmit(PaymentAvailability.Error.Other(mockk()))
+    fun `when paymentAvailability emits ErrorOther uiState payment state should be error generic`() =
+        runTest {
+            // Arrange
+            paymentAvailability.tryEmit(PaymentAvailability.Error.Other(Throwable()))
 
-        // Act, Assert
-        viewModel.uiState.test {
-            awaitItem() // Default state
-            val result = awaitItem()
-            assertIs<Lc.Content<AddTimeUiState>>(result)
-            assertIs<PaymentState.Error.Generic>(result.value.billingPaymentState)
+            // Act, Assert
+            viewModel.uiState.test {
+                awaitItem() // Default state
+                val result = awaitItem()
+                assertIs<Lc.Content<AddTimeUiState>>(result)
+                assertIs<PaymentState.Error.Generic>(result.value.billingPaymentState)
+            }
         }
-    }
 
     @Test
     fun `when paymentAvailability emits ErrorBillingUnavailable uiState should be ErrorBilling`() =
         runTest {
+            // Arrange
+            paymentAvailability.tryEmit(PaymentAvailability.Error.BillingUnavailable)
+
             // Act, Assert
             viewModel.uiState.test {
                 awaitItem() // Default state
-                paymentAvailability.tryEmit(PaymentAvailability.Error.BillingUnavailable)
                 val result = awaitItem()
                 assertIs<Lc.Content<AddTimeUiState>>(result)
                 assertIs<PaymentState.Error.Billing>(result.value.billingPaymentState)
@@ -110,12 +120,11 @@ class AddTimeViewModelTest {
             val mockProduct: PaymentProduct = mockk()
             val expectedProductList = listOf(mockProduct)
 
+            paymentAvailability.tryEmit(PaymentAvailability.ProductsAvailable(listOf(mockProduct)))
+
             // Act, Assert
             viewModel.uiState.test {
                 awaitItem() // Default state
-                paymentAvailability.tryEmit(
-                    PaymentAvailability.ProductsAvailable(listOf(mockProduct))
-                )
                 val result = awaitItem()
                 assertIs<Lc.Content<AddTimeUiState>>(result)
                 assertIs<PaymentState.PaymentAvailable>(result.value.billingPaymentState)
@@ -187,11 +196,11 @@ class AddTimeViewModelTest {
         // Arrange
         val result = PurchaseState.Success(ProductId("one_month"))
         val purchaseResultData = PurchaseResult.Completed.Success(ProductId("one_month"))
+        purchaseResult.value = purchaseResultData
 
         // Act, Assert
         viewModel.uiState.test {
             awaitItem()
-            purchaseResult.value = purchaseResultData
             val item = awaitItem()
             assertIs<Lc.Content<AddTimeUiState>>(item)
             assertEquals(result, item.value.purchaseState)
