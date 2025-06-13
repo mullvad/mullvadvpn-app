@@ -3238,6 +3238,7 @@ dependencies = [
  "json-canon",
  "log",
  "mockito",
+ "mullvad-api-constants",
  "mullvad-version",
  "rand 0.8.5",
  "reqwest",
