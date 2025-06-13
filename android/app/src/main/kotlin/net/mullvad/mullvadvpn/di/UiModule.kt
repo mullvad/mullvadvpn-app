@@ -1,10 +1,7 @@
 package net.mullvad.mullvadvpn.di
 
 import android.content.ComponentName
-import android.content.Context
 import android.content.pm.PackageManager
-import androidx.datastore.core.DataStore
-import androidx.datastore.dataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
@@ -15,7 +12,7 @@ import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
-import net.mullvad.mullvadvpn.receiver.BootCompletedReceiver
+import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
@@ -29,10 +26,6 @@ import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
-import net.mullvad.mullvadvpn.repository.UserPreferences
-import net.mullvad.mullvadvpn.repository.UserPreferencesMigration
-import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
-import net.mullvad.mullvadvpn.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.service.DaemonConfig
 import net.mullvad.mullvadvpn.ui.MainActivity
@@ -114,13 +107,11 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val uiModule = module {
-    single<DataStore<UserPreferences>> { androidContext().userPreferencesStore }
-
     single<PackageManager> { androidContext().packageManager }
     single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
 
     single<ComponentName>(named(BOOT_COMPLETED_RECEIVER_COMPONENT_NAME)) {
-        ComponentName(androidContext(), BootCompletedReceiver::class.java)
+        ComponentName(androidContext(), AutoStartVpnBootCompletedReceiver::class.java)
     }
 
     viewModel { SplitTunnelingViewModel(get(), get(), get(), Dispatchers.Default) }
@@ -132,7 +123,6 @@ val uiModule = module {
     single { androidContext().contentResolver }
 
     single { ChangelogRepository(get(), get(), get()) }
-    single { UserPreferencesRepository(get(), get()) }
     single { SettingsRepository(get()) }
     single { MullvadProblemReport(get(), get<DaemonConfig>().apiEndpointOverride, get()) }
     single { RelayOverridesRepository(get()) }
@@ -294,10 +284,3 @@ val uiModule = module {
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
 const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"
-
-private val Context.userPreferencesStore: DataStore<UserPreferences> by
-    dataStore(
-        fileName = APP_PREFERENCES_NAME,
-        serializer = UserPreferencesSerializer,
-        produceMigrations = UserPreferencesMigration::migrations,
-    )

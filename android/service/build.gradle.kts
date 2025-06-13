@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.junit5.android)
 }
 
 android {
@@ -79,4 +80,13 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
+
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter.params)
+    testImplementation(libs.turbine)
+    testImplementation(projects.lib.commonTest)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 }

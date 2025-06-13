@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
-import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -103,7 +103,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
             // Set expiry to to be in the final update interval.
             val inLastUpdate =
                 ZonedDateTime.now()
-                    .plus(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL)
+                    .plus(ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL)
                     .minusSeconds(1)
             val expiry = setExpiry(inLastUpdate)
 
@@ -113,9 +113,9 @@ class AccountExpiryInAppNotificationUseCaseTest {
             expectNoEvents()
 
             // Advance past the delay before the while loop:
-            advanceTimeBy(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.toMillis())
+            advanceTimeBy(ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL.toMillis())
             // Advance past the delay after the while loop:
-            advanceTimeBy(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.toMillis())
+            advanceTimeBy(ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL.toMillis())
             assertEquals(Duration.ZERO, getExpiryNotificationDuration(expectMostRecentItem()))
             expectNoEvents()
 

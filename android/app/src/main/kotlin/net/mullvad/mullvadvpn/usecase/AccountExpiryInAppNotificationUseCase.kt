@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
-import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL
-import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryTicker
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.InAppAccountExpiryTicker
 
 class AccountExpiryInAppNotificationUseCase(private val accountRepository: AccountRepository) {
 
@@ -18,15 +18,15 @@ class AccountExpiryInAppNotificationUseCase(private val accountRepository: Accou
         accountRepository.accountData
             .flatMapLatest { accountData ->
                 if (accountData != null) {
-                    AccountExpiryTicker.tickerFlow(
+                    InAppAccountExpiryTicker.tickerFlow(
                             expiry = accountData.expiryDate,
                             tickStart = ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD,
-                            updateInterval = { ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL },
+                            updateInterval = { ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL },
                         )
                         .map { tick ->
                             when (tick) {
-                                AccountExpiryTicker.NotWithinThreshold -> emptyList()
-                                is AccountExpiryTicker.Tick ->
+                                InAppAccountExpiryTicker.NotWithinThreshold -> emptyList()
+                                is InAppAccountExpiryTicker.Tick ->
                                     listOf(InAppNotification.AccountExpiry(tick.expiresIn))
                             }
                         }

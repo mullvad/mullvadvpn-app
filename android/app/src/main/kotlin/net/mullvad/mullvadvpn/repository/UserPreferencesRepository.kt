@@ -3,6 +3,9 @@ package net.mullvad.mullvadvpn.repository
 import androidx.datastore.core.DataStore
 import co.touchlab.kermit.Logger
 import java.io.IOException
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -39,4 +42,18 @@ class UserPreferencesRepository(
             prefs.toBuilder().setLastShownChangelogVersionCode(buildVersion.code).build()
         }
     }
+
+    suspend fun setAccountExpiry(expiry: ZonedDateTime) {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setAccountExpiryUnixTimeSeconds(expiry.toEpochSecond()).build()
+        }
+    }
+
+    // Returns the account expiry time or null if the account expiry has not been set yet.
+    suspend fun accountExpiry(): ZonedDateTime? =
+        preferences().let { prefs ->
+            val expiryTime = prefs.accountExpiryUnixTimeSeconds
+            if (expiryTime == 0L) return null
+            Instant.ofEpochSecond(expiryTime).atZone(ZoneId.systemDefault())
+        }
 }
