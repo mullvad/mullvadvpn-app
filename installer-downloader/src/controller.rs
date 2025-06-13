@@ -261,6 +261,11 @@ where
                     self_.on_error_message_retry(move || {
                         let _ = retry_tx.try_send(Action::Retry);
                     });
+                    self_.on_error_message_cancel(move || {
+                        let _ = cancel_tx.try_send(Action::InstallExistingVersion {
+                            cached_app_installer: cached_app_installer.clone(),
+                        });
+                    });
 
                     self_.show_error_message(crate::delegate::ErrorMessage {
                         status_text: resource::FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD
@@ -269,11 +274,6 @@ where
                             .to_owned(),
                         retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT
                             .to_owned(),
-                    });
-                    self_.on_error_message_cancel(move || {
-                        let _ = cancel_tx.try_send(Action::InstallExistingVersion {
-                            cached_app_installer: cached_app_installer.clone(),
-                        });
                     });
                 });
             }
@@ -290,6 +290,9 @@ where
                     self_.on_error_message_retry(move || {
                         let _ = retry_tx.try_send(Action::Retry);
                     });
+                    self_.on_error_message_cancel(move || {
+                        let _ = cancel_tx.try_send(Action::Cancel);
+                    });
 
                     self_.show_error_message(crate::delegate::ErrorMessage {
                         status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
@@ -297,9 +300,6 @@ where
                             .to_owned(),
                         retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT
                             .to_owned(),
-                    });
-                    self_.on_error_message_cancel(move || {
-                        let _ = cancel_tx.try_send(Action::Cancel);
                     });
                 })
             }
