@@ -190,7 +190,7 @@ private fun ColumnScope.Content(showSitePayment: Boolean) {
     )
     Text(
         text = stringResource(id = R.string.out_of_time),
-        style = MaterialTheme.typography.headlineLarge,
+        style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.testTag(OUT_OF_TIME_SCREEN_TITLE_TEST_TAG),
     )
@@ -203,7 +203,7 @@ private fun ColumnScope.Content(showSitePayment: Boolean) {
                     append(stringResource(R.string.add_time_to_account))
                 }
             },
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(top = Dimens.mediumPadding),
     )

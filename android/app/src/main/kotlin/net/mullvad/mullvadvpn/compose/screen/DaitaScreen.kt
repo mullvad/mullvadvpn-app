@@ -187,6 +187,7 @@ private fun DescriptionText(
 ) {
     SwitchComposeSubtitleCell(
         modifier = Modifier.padding(vertical = Dimens.smallPadding),
+        style = MaterialTheme.typography.labelLarge,
         text =
             buildString {
                 appendLine(firstParagraph)

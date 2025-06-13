@@ -135,6 +135,7 @@ private fun Content(
     Column(modifier) {
         BaseSubtitleCell(
             text = stringResource(R.string.manage_devices_description),
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         ManageDevicesItems(

@@ -19,6 +19,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.R
@@ -202,16 +203,18 @@ fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
 fun SwitchComposeSubtitleCell(
     text: String,
     modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.labelMedium,
     color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
-    BaseSubtitleCell(text = text, modifier = modifier, color = color)
+    BaseSubtitleCell(text = text, modifier = modifier, style = style, color = color)
 }
 
 @Composable
 fun SwitchComposeSubtitleCell(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.labelMedium,
     color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
-    BaseSubtitleCell(text = text, modifier = modifier, color = color)
+    BaseSubtitleCell(text = text, modifier = modifier, style = style, color = color)
 }
