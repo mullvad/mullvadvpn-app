@@ -30,6 +30,8 @@ class CheckboxView: UIView {
             checkboxSelectedView.pinEdgesToSuperview()
             checkboxUnselectedView.pinEdgesToSuperview()
         }
+        checkboxSelectedView.adjustsImageSizeForAccessibilityContentSizeCategory = true
+        checkboxUnselectedView.adjustsImageSizeForAccessibilityContentSizeCategory = true
     }
 
     required init?(coder aDecoder: NSCoder) {

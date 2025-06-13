@@ -26,6 +26,7 @@ class RestorePurchasesView: UIView {
         let label = UILabel()
         label.setAccessibilityIdentifier(.restorePurchasesButton)
         label.attributedText = makeAttributedString()
+        label.adjustsFontForContentSizeCategory = true
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapRestoreButton)))
         return label
@@ -69,7 +70,7 @@ class RestorePurchasesView: UIView {
         )
 
         return NSAttributedString(string: text, attributes: [
-            .font: UIFont.systemFont(ofSize: 13, weight: .semibold),
+            .font: UIFont.mullvadMini,
             .foregroundColor: UIColor.white,
             .underlineStyle: NSUnderlineStyle.single.rawValue,
         ])

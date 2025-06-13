@@ -28,6 +28,8 @@ extension ProblemReportViewController {
     func makeSubheaderLabel() -> UILabel {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
+        textLabel.font = .mullvadTinySemiBold
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.numberOfLines = 0
         textLabel.textColor = .white
         textLabel.text = ProblemReportViewModel.subheadLabelText
@@ -47,7 +49,8 @@ extension ProblemReportViewController {
         textField.borderStyle = .none
         textField.backgroundColor = .white
         textField.inputAccessoryView = emailAccessoryToolbar
-        textField.font = UIFont.systemFont(ofSize: 17)
+        textField.font = .mullvadSmall
+        textField.adjustsFontForContentSizeCategory = true
         textField.placeholder = ProblemReportViewModel.emailPlaceholderText
         return textField
     }
@@ -57,7 +60,8 @@ extension ProblemReportViewController {
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.backgroundColor = .white
         textView.inputAccessoryView = messageAccessoryToolbar
-        textView.font = UIFont.systemFont(ofSize: 17)
+        textView.font = .mullvadSmall
+        textView.adjustsFontForContentSizeCategory = true
         textView.placeholder = ProblemReportViewModel.messageTextViewPlaceholder
         textView.contentInsetAdjustmentBehavior = .never
 

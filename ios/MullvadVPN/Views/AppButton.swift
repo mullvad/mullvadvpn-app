@@ -115,7 +115,7 @@ class AppButton: CustomButton {
         config.titleTextAttributesTransformer =
             UIConfigurationTextAttributesTransformer { [weak self] attributeContainer in
                 var updatedAttributeContainer = attributeContainer
-                updatedAttributeContainer.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+                updatedAttributeContainer.font = .mullvadSmallSemiBold
                 updatedAttributeContainer.foregroundColor = self?.state.customButtonTitleColor
                 return updatedAttributeContainer
             }

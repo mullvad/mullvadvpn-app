@@ -73,6 +73,7 @@ class LocationSectionHeaderFooterView: UIView, UIContentView {
         nameLabel.textColor = configuration.style.textColor
         nameLabel.text = configuration.name
         nameLabel.font = configuration.style.font
+        nameLabel.adjustsFontForContentSizeCategory = true
         nameLabel.textAlignment = configuration.style.textAlignment
         actionButton.isHidden = isActionHidden
         actionButton.accessibilityIdentifier = nil

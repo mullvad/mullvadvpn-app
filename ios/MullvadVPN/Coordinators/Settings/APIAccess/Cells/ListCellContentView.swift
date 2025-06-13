@@ -59,6 +59,7 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         let textProperties = actualConfiguration.textProperties
 
         textLabel.font = textProperties.font
+        textLabel.adjustsFontForContentSizeCategory = textProperties.adjustsFontForContentSizeCategory
         textLabel.textColor = textProperties.color
 
         textLabel.text = actualConfiguration.text
@@ -68,6 +69,7 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         let textProperties = actualConfiguration.secondaryTextProperties
 
         secondaryTextLabel.font = textProperties.font
+        secondaryTextLabel.adjustsFontForContentSizeCategory = textProperties.adjustsFontForContentSizeCategory
         secondaryTextLabel.textColor = textProperties.color
 
         secondaryTextLabel.text = actualConfiguration.secondaryText
@@ -77,6 +79,7 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         let textProperties = actualConfiguration.tertiaryTextProperties
 
         tertiaryTextLabel.font = textProperties.font
+        tertiaryTextLabel.adjustsFontForContentSizeCategory = textProperties.adjustsFontForContentSizeCategory
         tertiaryTextLabel.textColor = textProperties.color
 
         tertiaryTextLabel.text = actualConfiguration.tertiaryText

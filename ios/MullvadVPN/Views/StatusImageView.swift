@@ -45,10 +45,6 @@ class StatusImageView: UIImageView {
         }
     }
 
-    override var intrinsicContentSize: CGSize {
-        CGSize(width: 60, height: 60)
-    }
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         image = style.image
@@ -58,6 +54,7 @@ class StatusImageView: UIImageView {
         self.style = style
         super.init(image: style.image)
         image = style.image
+        self.adjustsImageSizeForAccessibilityContentSizeCategory = true
         setAccessibilityIdentifier(.statusImageView)
     }
 

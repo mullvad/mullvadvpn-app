@@ -24,6 +24,7 @@ class InfoHeaderView: UIView, UITextViewDelegate {
 
         infoLabel.backgroundColor = .clear
         infoLabel.attributedText = makeAttributedString()
+        infoLabel.adjustsFontForContentSizeCategory = true
         infoLabel.numberOfLines = 0
         infoLabel.accessibilityTraits = .link
 
@@ -38,12 +39,12 @@ class InfoHeaderView: UIView, UITextViewDelegate {
     }
 
     private let defaultTextAttributes: [NSAttributedString.Key: Any] = [
-        .font: UIFont.systemFont(ofSize: 13),
+        .font: UIFont.mullvadTiny,
         .foregroundColor: UIColor.ContentHeading.textColor,
     ]
 
     private let defaultLinkAttributes: [NSAttributedString.Key: Any] = [
-        .font: UIFont.boldSystemFont(ofSize: 13),
+        .font: UIFont.mullvadTiny,
         .foregroundColor: UIColor.ContentHeading.linkColor,
         .attachment: "#",
     ]

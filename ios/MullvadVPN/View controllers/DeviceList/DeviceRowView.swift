@@ -15,7 +15,8 @@ class DeviceRowView: UIView {
     let textLabel: UILabel = {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.font = UIFont.systemFont(ofSize: 17)
+        textLabel.font = .mullvadSmallSemiBold
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = .white
         return textLabel
     }()
@@ -29,7 +30,8 @@ class DeviceRowView: UIView {
     let creationDateLabel: UILabel = {
         let creationDateLabel = UILabel()
         creationDateLabel.translatesAutoresizingMaskIntoConstraints = false
-        creationDateLabel.font = UIFont.systemFont(ofSize: 14)
+        creationDateLabel.font = .mullvadMiniSemiBold
+        creationDateLabel.adjustsFontForContentSizeCategory = true
         creationDateLabel.textColor = .white.withAlphaComponent(0.6)
         return creationDateLabel
     }()

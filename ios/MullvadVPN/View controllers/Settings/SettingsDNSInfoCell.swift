@@ -17,6 +17,7 @@ class SettingsDNSInfoCell: UITableViewCell {
         backgroundColor = .secondaryColor
         contentView.directionalLayoutMargins = UIMetrics.SettingsCell.layoutMargins
 
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textColor = UIColor.Cell.titleTextColor
         titleLabel.numberOfLines = 0
