@@ -261,9 +261,10 @@ where
                     self_.on_error_message_retry(move || {
                         let _ = retry_tx.try_send(Action::Retry);
                     });
+                    let cached_app_installer2 = cached_app_installer.clone();
                     self_.on_error_message_cancel(move || {
                         let _ = cancel_tx.try_send(Action::InstallExistingVersion {
-                            cached_app_installer: cached_app_installer.clone(),
+                            cached_app_installer: cached_app_installer2.clone(),
                         });
                     });
 
