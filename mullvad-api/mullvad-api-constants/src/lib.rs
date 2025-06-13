@@ -7,6 +7,6 @@ pub mod env {
     pub const DISABLE_TLS_VAR: &str = "MULLVAD_API_DISABLE_TLS";
 }
 
-pub const API_HOST_DEFAULT: &'static str = "api.mullvad.net";
+pub const API_HOST_DEFAULT: &str = "api.mullvad.net";
 pub const API_IP_DEFAULT: IpAddr = IpAddr::V4(Ipv4Addr::new(45, 83, 223, 196));
 pub const API_PORT_DEFAULT: u16 = 443;
