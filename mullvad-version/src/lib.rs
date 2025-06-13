@@ -9,7 +9,7 @@ use regex_lite::Regex;
 #[cfg(has_version)]
 pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Version {
     pub year: u32,
     pub incremental: u32,
