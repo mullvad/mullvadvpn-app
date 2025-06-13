@@ -73,17 +73,17 @@ reason = "This CVE only affect Multiplatform Gradle Projects, which this project
 # netty: Denial of Service attack on windows app
 [[IgnoredVulns]]
 id = "CVE-2024-47535" # GHSA-xq3w-v528-46rv
-ignoreUntil = 2025-06-13
+ignoreUntil = 2025-09-13
 reason = "Only impacting Windows."
 
 # netty: Denial of Service attack on windows app
 [[IgnoredVulns]]
 id = "CVE-2025-25193" # GHSA-389x-839f-4rhx
-ignoreUntil = 2025-06-13
+ignoreUntil = 2025-09-13
 reason = "Only impacting Windows."
 
 # netty: Crash when using native SSLEngine
 [[IgnoredVulns]]
 id = "CVE-2025-24970" # GHSA-4g8c-wm8x-jfhw
-ignoreUntil = 2025-06-13
+ignoreUntil = 2025-09-13
 reason = "Netty is not used in conjunction with SSL."
