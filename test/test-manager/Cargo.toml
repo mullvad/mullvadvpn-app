@@ -54,6 +54,7 @@ tower = { workspace = true }
 colored = { workspace = true }
 
 mullvad-api = { path = "../../mullvad-api", features = ["api-override"] }
+mullvad-api-constants = { path = "../../mullvad-api/mullvad-api-constants" }
 mullvad-management-interface = { path = "../../mullvad-management-interface" }
 mullvad-relay-selector = { path = "../../mullvad-relay-selector" }
 mullvad-types = { path = "../../mullvad-types" }
