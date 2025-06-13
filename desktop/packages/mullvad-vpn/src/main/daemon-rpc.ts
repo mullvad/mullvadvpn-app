@@ -510,6 +510,11 @@ export class DaemonRpc extends GrpcClient {
     await this.callBool(this.client.setSplitTunnelState, enabled);
   }
 
+  public async splitTunnelIsEnabled(): Promise<boolean> {
+    const isEnabled = await this.callEmpty<BoolValue>(this.client.splitTunnelIsEnabled);
+    return isEnabled.getValue();
+  }
+
   public async needFullDiskPermissions(): Promise<boolean> {
     const needFullDiskPermissions = await this.callEmpty<BoolValue>(
       this.client.needFullDiskPermissions,
