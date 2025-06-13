@@ -70,3 +70,21 @@ reason = "wireguard-go does not use net/http"
 id = "CVE-2025-22872" # GO-2025-3595
 ignoreUntil = 2025-09-12
 reason = "wireguard-go does not use x/net/html"
+
+# Inconsistent handling of O_CREATE|O_EXCL on Unix and Windows in os in syscall
+[[IgnoredVulns]]
+id = "CVE-2025-0913" # GO-2025-3750
+ignoreUntil = 2025-09-12
+reason = "wireguard-go does not use OpenFile on Windows"
+
+# Sensitive headers not cleared on cross-origin redirect in net/http
+[[IgnoredVulns]]
+id = "CVE-2025-4673" # GO-2025-3751
+ignoreUntil = 2025-09-12
+reason = "wireguard-go does not use Proxy-Authorization or Proxy-Authenticate headers"
+
+# Usage of ExtKeyUsageAny disables policy validation in crypto/x509
+[[IgnoredVulns]]
+id = "CVE-2025-22874" # GO-2025-3749
+ignoreUntil = 2025-09-12
+reason = "wireguard-go does not use crypto/x509"
