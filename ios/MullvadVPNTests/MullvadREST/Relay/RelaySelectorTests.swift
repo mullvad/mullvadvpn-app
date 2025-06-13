@@ -324,7 +324,10 @@ extension RelaySelectorTests {
                         publicKey: PrivateKey().publicKey.rawValue,
                         includeInCountry: true,
                         daita: true,
-                        shadowsocksExtraAddrIn: nil
+                        shadowsocksExtraAddrIn: nil,
+                        quicHostname: nil,
+                        masqueExtraAddrIn: nil,
+                        features: nil
                     ),
                 ],
                 shadowsocksPortRanges: []
