@@ -9,7 +9,7 @@ use regex_lite::Regex;
 #[cfg(has_version)]
 pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Version {
     pub year: u32,
     pub incremental: u32,
@@ -19,7 +19,7 @@ pub struct Version {
     pub dev: Option<String>,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum PreStableType {
     Alpha(u32),
     Beta(u32),

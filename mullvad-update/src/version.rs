@@ -7,9 +7,10 @@
 use std::cmp::Ordering;
 
 use anyhow::Context;
+use itertools::Itertools;
 use mullvad_version::PreStableType;
 
-use crate::format;
+use crate::format::{self, Installer};
 
 /// Lowest version to accept using 'verify'
 pub const MIN_VERIFY_METADATA_VERSION: usize = 0;
@@ -63,14 +64,6 @@ pub struct Version {
     pub sha256: [u8; 32],
 }
 
-/// Helper used to lift the relevant installer out of the array in [format::Release]
-#[derive(Clone)]
-struct IntermediateVersion {
-    version: mullvad_version::Version,
-    changelog: String,
-    installer: format::Installer,
-}
-
 impl VersionInfo {
     /// Convert signed response data to public version type
     /// NOTE: `response` is assumed to be verified and untampered. It is not verified.
@@ -78,91 +71,57 @@ impl VersionInfo {
         params: &VersionParameters,
         response: format::Response,
     ) -> anyhow::Result<Self> {
-        let mut releases = response.releases;
-
-        // Sort releases by version
-        releases.sort_by(|a, b| a.version.partial_cmp(&b.version).unwrap_or(Ordering::Equal));
-
         // Fail if there are duplicate versions.
-        // Check this before anything else so that it's rejected indepentently of `params`.
-        // Important! This must occur after sorting
-        if let Some(dup_version) = Self::find_duplicate_version(&releases) {
-            anyhow::bail!("API response contains at least one duplicated version: {dup_version}");
+        // Check this before anything else so that it's rejected independently of `params`.
+        if !response.releases.iter().map(|r| &r.version).all_unique() {
+            anyhow::bail!("API response contains multiple release for the same version");
         }
 
-        // Filter releases based on rollout and architecture
-        let releases: Vec<_> = releases
-            .into_iter()
-            // Filter out releases that are not rolled out to us
-            .filter(|release| release.rollout >= params.rollout)
-            // Include only installers for the requested architecture
-            .flat_map(|release| {
-                release
-                    .installers
-                    .into_iter()
-                    .filter(|installer| params.architecture == installer.architecture)
-                    // Map each artifact to a [IntermediateVersion]
-                    .map(move |installer| {
-                        IntermediateVersion {
-                            version: release.version.clone(),
-                            changelog: release.changelog.clone(),
-                            installer,
-                        }
+        // Filter releases based on rollout, architecture and dev versions.
+        let available_versions: Vec<Version> = response.releases
+        .into_iter()
+        // Filter out releases that are not rolled out to us
+        .filter(|release| release.rollout >= params.rollout)
+        // Filter out dev versions
+        .filter(|release| !release.version.is_dev())
+        .flat_map(|format::Release { version, changelog, installers, .. }| {
+            installers
+                .into_iter()
+                // Find installer for the requested architecture (assumed to be unique)
+                .find(|installer| params.architecture == installer.architecture)
+                // Map each artifact to a [Version]
+                .map(|Installer { urls, size, sha256,.. }| {
+                    anyhow::Ok(Version {
+                        version,
+                        size,
+                        urls,
+                        changelog,
+                        sha256: hex::decode(sha256)
+                        .context("Invalid checksum hex")?
+                        .try_into()
+                        .map_err(|_| anyhow::anyhow!("Invalid checksum length"))?,
                     })
-            })
-            .collect();
+                })
+        }).try_collect()?;
 
         // Find latest stable version
-        let stable = releases
+        let stable = available_versions
             .iter()
-            .rfind(|release| release.version.pre_stable.is_none() && !release.version.is_dev());
-        let Some(stable) = stable.cloned() else {
-            anyhow::bail!("No stable version found");
-        };
+            .filter(|release| release.version.pre_stable.is_none())
+            .max_by(|a, b| a.version.partial_cmp(&b.version).unwrap_or(Ordering::Equal))
+            .context("No stable version found")?
+            .clone();
 
         // Find the latest beta version
-        let beta = releases
+        let beta = available_versions
             .iter()
-            // Find most recent beta version
-            .rfind(|release| matches!(release.version.pre_stable, Some(PreStableType::Beta(_))) && !release.version.is_dev())
+            .filter(|release| matches!(release.version.pre_stable, Some(PreStableType::Beta(_))))
             // If the latest beta version is older than latest stable, dispose of it
             .filter(|release| release.version > stable.version)
+            .max_by(|a, b| a.version.partial_cmp(&b.version).unwrap_or(Ordering::Equal))
             .cloned();
 
-        Ok(Self {
-            stable: Version::try_from(stable)?,
-            beta: beta.map(Version::try_from).transpose()?,
-        })
-    }
-
-    /// Returns the first duplicated version found in `releases`.
-    /// `None` is returned if there are no duplicates.
-    /// NOTE: `releases` MUST be sorted on the version number
-    fn find_duplicate_version(releases: &[format::Release]) -> Option<&mullvad_version::Version> {
-        releases
-            .windows(2)
-            .find(|pair| pair[0].version == pair[1].version)
-            .map(|pair| &pair[0].version)
-    }
-}
-
-impl TryFrom<IntermediateVersion> for Version {
-    type Error = anyhow::Error;
-
-    fn try_from(version: IntermediateVersion) -> Result<Self, Self::Error> {
-        // Convert hex checksum to bytes
-        let sha256 = hex::decode(version.installer.sha256)
-            .context("Invalid checksum hex")?
-            .try_into()
-            .map_err(|_| anyhow::anyhow!("Invalid checksum length"))?;
-
-        Ok(Version {
-            version: version.version,
-            size: version.installer.size,
-            urls: version.installer.urls,
-            changelog: version.changelog,
-            sha256,
-        })
+        Ok(Self { stable, beta })
     }
 }
 

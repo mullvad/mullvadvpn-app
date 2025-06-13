@@ -20,7 +20,7 @@ chrono = { workspace = true }
 clap = { workspace = true }
 thiserror = { workspace = true }
 futures = { workspace = true }
-itertools = "0.10"
+itertools = { workspace = true }
 natord = "1.0.9"
 
 mullvad-types = { path = "../mullvad-types", features = ["clap"] }

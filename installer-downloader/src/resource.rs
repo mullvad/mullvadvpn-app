@@ -31,6 +31,15 @@ pub const DOWNLOAD_BUTTON_TEXT: &str = "Download & install";
 /// Dimensions of download button (including padding)
 pub const DOWNLOAD_BUTTON_SIZE: (usize, usize) = (150, 40);
 
+/// Failed to create temporary directory
+pub const CREATE_TEMPDIR_FAILED: &str = "Failed to create temporary directory for artifacts. Please check if you have enough space on your hard drive.";
+
+/// Displayed when createing a temporary directory fails (retry button)
+pub const CREATE_TEMPDIR_FAILED_RETRY_BUTTON_TEXT: &str = "Try again";
+
+/// Displayed when createing a temporary directory (cancel button)
+pub const CREATE_TEMPDIR_FAILED_CANCEL_BUTTON_TEXT: &str = "Cancel";
+
 /// Cancel button text
 pub const CANCEL_BUTTON_TEXT: &str = "Cancel";
 
@@ -41,13 +50,20 @@ pub const FETCH_VERSION_DESC: &str = "Loading version details...";
 pub const LATEST_VERSION_PREFIX: &str = "Version";
 
 /// Displayed while fetching version info from the API failed
-pub const FETCH_VERSION_ERROR_DESC: &str = "Failed to load version details, please try again or make sure you have the latest installer downloader.";
+pub const FETCH_VERSION_ERROR_DESC: &str = "Failed to load version details, please try again or make sure you have the latest installer loader.";
+
+/// Displayed while fetching version info from the API failed
+pub const FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD: &str = "Failed to fetch new version details, please try again or install the already downloaded version (%s).";
 
 /// Displayed while fetching version info from the API failed (retry button)
 pub const FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT: &str = "Try again";
 
 /// Displayed while fetching version info from the API failed (cancel button)
 pub const FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT: &str = "Cancel";
+
+/// Displayed while fetching version info from the API failed,
+/// but there exists a previously downloaded installer (install button)
+pub const FETCH_VERSION_ERROR_INSTALL_BUTTON_TEXT: &str = "Install";
 
 /// The first part of "Downloading from \<some url\>... (x%)", displayed during download
 pub const DOWNLOADING_DESC_PREFIX: &str = "Downloading from";
@@ -63,6 +79,9 @@ pub const DOWNLOAD_FAILED_RETRY_BUTTON_TEXT: &str = "Try again";
 
 /// Displayed when download fails (cancel button)
 pub const DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT: &str = "Cancel";
+
+/// Displayed verifying a cached app installer.
+pub const VERIFYING_CACHED: &str = "Verifying...";
 
 /// Displayed when download fails
 pub const VERIFICATION_FAILED_DESC: &str = "Failed to verify download, please try downloading again or contact our support by sending an email to support@mullvadvpn.net with a description of what happened.";

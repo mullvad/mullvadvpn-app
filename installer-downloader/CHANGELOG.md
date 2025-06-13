@@ -20,7 +20,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-### Fix
+### Added
+#### Windows
+- Add support for installing previously downloaded apps when internet access is unavailable.
+
+### Fixed
 - Fix downloads hanging indefinitely on switching networks
 #### macOS
 - Fix rendering issues on old (unsupported) macOS versions.
