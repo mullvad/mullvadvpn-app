@@ -35,8 +35,8 @@ call_log:
   - hide_download_button
   - clear_status_text
   - on_error_message_retry
-  - "show_error_message: Failed to fetch new version details, please try again or install the already downloaded version (2042.1337).. retry: Try again. cancel: Install"
   - on_error_message_cancel
+  - "show_error_message: Failed to fetch new version details, please try again or install the already downloaded version (2042.1337).. retry: Try again. cancel: Install"
   - hide_error_message
   - clear_download_text
   - hide_download_button
