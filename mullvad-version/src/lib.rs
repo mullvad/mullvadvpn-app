@@ -65,7 +65,8 @@ impl PartialOrd for Version {
         let dev_ordering = match (self.is_dev(), other.is_dev()) {
             (true, false) => Some(Ordering::Greater),
             (false, true) => Some(Ordering::Less),
-            (_, _) => None,
+            (false, false) => Some(Ordering::Equal),
+            (true, true) => None,
         };
 
         let release_ordering = self
@@ -234,6 +235,15 @@ mod tests {
         assert_eq!(parse("2021.1-alpha7"), parse("2021.1-alpha7"));
         assert_eq!(parse("2021.1-dev-abc123"), parse("2021.1-dev-abc123"));
         assert_ne!(parse("2021.1-dev-abc123"), parse("2021.1-dev-def123"));
+    }
+
+    #[test]
+    fn test_version_ordering_and_equality() {
+        let v = parse("2021.3");
+
+        // A version is equal to itself
+        assert_eq!(v, v);
+        assert_eq!(v.partial_cmp(&v), Some(Ordering::Equal));
     }
 
     #[test]
