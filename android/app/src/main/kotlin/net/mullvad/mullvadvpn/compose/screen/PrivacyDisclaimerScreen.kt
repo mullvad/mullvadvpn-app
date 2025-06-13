@@ -147,7 +147,7 @@ private fun Content(isPlayBuild: Boolean) {
         Text(
             text = stringResource(id = R.string.privacy_disclaimer_body_first_paragraph),
             color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
@@ -155,7 +155,7 @@ private fun Content(isPlayBuild: Boolean) {
         Text(
             text = stringResource(id = R.string.privacy_disclaimer_body_second_paragraph),
             color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
@@ -164,7 +164,7 @@ private fun Content(isPlayBuild: Boolean) {
             Text(
                 text = buildPrivacyPolicyAnnotatedString(isPlayBuild),
                 modifier = Modifier.padding(end = Dimens.miniPadding),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
             )
 
             Icon(

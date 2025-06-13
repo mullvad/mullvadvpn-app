@@ -212,7 +212,7 @@ fun AccountScreen(
 private fun DeviceNameRow(deviceName: String, onManageDevicesClick: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelLarge,
             text = stringResource(id = R.string.device_name),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -234,7 +234,7 @@ private fun DeviceNameRow(deviceName: String, onManageDevicesClick: () -> Unit) 
 private fun AccountNumberRow(accountNumber: String, onCopyAccountNumber: (String) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelLarge,
             text = stringResource(id = R.string.account_number),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -255,7 +255,7 @@ private fun PaidUntilRow(
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelLarge,
             text = stringResource(id = R.string.paid_until),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

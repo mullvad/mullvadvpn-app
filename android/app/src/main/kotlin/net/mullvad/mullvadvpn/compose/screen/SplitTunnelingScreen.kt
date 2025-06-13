@@ -173,7 +173,8 @@ private fun LazyListScope.description() {
                 buildString {
                     appendLine(stringResource(id = R.string.split_tunneling_description))
                     append(stringResource(id = R.string.split_tunneling_description_warning))
-                }
+                },
+            style = MaterialTheme.typography.labelLarge,
         )
     }
 }

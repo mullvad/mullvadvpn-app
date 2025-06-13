@@ -115,7 +115,7 @@ private fun LazyListScope.entryBlocked(openDaitaSettings: () -> Unit) {
                     stringResource(id = R.string.daita),
                     stringResource(R.string.direct_only),
                 ),
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = Dimens.mediumPadding),

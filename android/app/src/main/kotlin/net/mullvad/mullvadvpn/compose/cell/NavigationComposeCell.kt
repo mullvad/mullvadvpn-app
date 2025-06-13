@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -67,6 +68,7 @@ fun NavigationComposeCell(
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
+    textStyle: TextStyle = MaterialTheme.typography.titleMedium,
     bodyView: @Composable () -> Unit = {
         Icon(Icons.Default.ChevronRight, contentDescription = title, tint = textColor)
     },
@@ -80,6 +82,7 @@ fun NavigationComposeCell(
         headlineContent = {
             NavigationTitleView(
                 title = title,
+                style = textStyle,
                 modifier = Modifier.weight(1f, true),
                 showWarning = showWarning,
             )
@@ -95,6 +98,7 @@ internal fun NavigationTitleView(
     title: String,
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
+    style: TextStyle = MaterialTheme.typography.titleMedium,
 ) {
     if (showWarning) {
         Icon(
@@ -106,7 +110,7 @@ internal fun NavigationTitleView(
     }
     Text(
         text = title,
-        style = MaterialTheme.typography.titleMedium,
+        style = style,
         color = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier,
         maxLines = 1,

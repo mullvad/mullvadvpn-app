@@ -80,8 +80,8 @@ fun ResetServerIpOverridesConfirmationDialog(
         text = {
             Text(
                 text = stringResource(id = R.string.server_ip_overrides_reset_body),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelLarge,
             )
         },
         onDismissRequest = onNavigateBack,

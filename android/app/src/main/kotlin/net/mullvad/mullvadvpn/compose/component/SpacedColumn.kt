@@ -13,12 +13,14 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 fun SpacedColumn(
     modifier: Modifier = Modifier,
     spacing: Dp = Dimens.listItemDivider,
-    alignment: Alignment.Vertical = Alignment.Bottom,
+    verticalAlignment: Alignment.Vertical = Alignment.Bottom,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(spacing, alignment),
+        verticalArrangement = Arrangement.spacedBy(spacing, verticalAlignment),
+        horizontalAlignment = horizontalAlignment,
         content = content,
     )
 }

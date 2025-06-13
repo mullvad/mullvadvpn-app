@@ -119,13 +119,13 @@ fun DeviceRevokedScreen(
             )
             Text(
                 text = stringResource(id = R.string.device_inactive_title),
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface,
             )
 
             Text(
                 text = stringResource(id = R.string.device_inactive_description),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = Dimens.smallPadding),
             )
@@ -133,7 +133,7 @@ fun DeviceRevokedScreen(
             if (state == DeviceRevokedUiState.SECURED) {
                 Text(
                     text = stringResource(id = R.string.device_inactive_unblock_warning),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(top = Dimens.mediumPadding),
                 )

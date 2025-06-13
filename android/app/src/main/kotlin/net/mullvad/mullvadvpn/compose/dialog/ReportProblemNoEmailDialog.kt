@@ -26,7 +26,8 @@ fun ReportProblemNoEmail(resultBackNavigator: ResultBackNavigator<Boolean>) {
         message = stringResource(id = R.string.confirm_no_email),
         confirmationText = stringResource(id = R.string.send_anyway),
         cancelText = stringResource(id = R.string.back),
-        messageStyle = MaterialTheme.typography.bodySmall,
+        messageStyle = MaterialTheme.typography.labelLarge,
+        messageColor = MaterialTheme.colorScheme.onSurfaceVariant,
         onBack = dropUnlessResumed { resultBackNavigator.navigateBack() },
         onConfirm = dropUnlessResumed { resultBackNavigator.navigateBack(result = true) },
     )

@@ -54,6 +54,7 @@ private fun MtuBodyView(mtuValue: Mtu?, modifier: Modifier) {
         Text(
             text = mtuValue?.value?.toString() ?: stringResource(id = R.string.hint_default),
             color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -62,7 +63,7 @@ private fun MtuBodyView(mtuValue: Mtu?, modifier: Modifier) {
 fun MtuSubtitle(modifier: Modifier = Modifier) {
     BaseSubtitleCell(
         text = stringResource(R.string.wireguard_mtu_footer, MTU_MIN_VALUE, MTU_MAX_VALUE),
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier,
     )
