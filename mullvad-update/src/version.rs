@@ -64,14 +64,6 @@ pub struct Version {
     pub sha256: [u8; 32],
 }
 
-/// Helper used to lift the relevant installer out of the array in [format::Release]
-#[derive(Clone)]
-struct IntermediateVersion {
-    version: mullvad_version::Version,
-    changelog: String,
-    installer: format::Installer,
-}
-
 impl VersionInfo {
     /// Convert signed response data to public version type
     /// NOTE: `response` is assumed to be verified and untampered. It is not verified.
@@ -97,7 +89,7 @@ impl VersionInfo {
                 .into_iter()
                 // Find installer for the requested architecture (assumed to be unique)
                 .find(|installer| params.architecture == installer.architecture)
-                // Map each artifact to a [IntermediateVersion]
+                // Map each artifact to a [Version]
                 .map(|Installer { urls, size, sha256,.. }| {
                     anyhow::Ok(Version {
                         version,
@@ -130,26 +122,6 @@ impl VersionInfo {
             .cloned();
 
         Ok(Self { stable, beta })
-    }
-}
-
-impl TryFrom<IntermediateVersion> for Version {
-    type Error = anyhow::Error;
-
-    fn try_from(version: IntermediateVersion) -> Result<Self, Self::Error> {
-        // Convert hex checksum to bytes
-        let sha256 = hex::decode(version.installer.sha256)
-            .context("Invalid checksum hex")?
-            .try_into()
-            .map_err(|_| anyhow::anyhow!("Invalid checksum length"))?;
-
-        Ok(Version {
-            version: version.version,
-            size: version.installer.size,
-            urls: version.installer.urls,
-            changelog: version.changelog,
-            sha256,
-        })
     }
 }
 
