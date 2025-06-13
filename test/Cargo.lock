@@ -2102,6 +2102,7 @@ dependencies = [
  "ipnetwork",
  "libc",
  "log",
+ "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
  "mullvad-types",
@@ -2119,6 +2120,10 @@ dependencies = [
  "tower 0.5.1",
  "uuid",
 ]
+
+[[package]]
+name = "mullvad-api-constants"
+version = "0.0.0"
 
 [[package]]
 name = "mullvad-encrypted-dns-proxy"
@@ -2219,6 +2224,7 @@ dependencies = [
  "itertools 0.14.0",
  "json-canon",
  "log",
+ "mullvad-api-constants",
  "mullvad-version",
  "reqwest",
  "serde",
