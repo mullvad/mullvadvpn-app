@@ -31,18 +31,28 @@ enum FeatureType {
 struct DaitaFeature: ChipFeature {
     let id: FeatureType = .daita
     let state: TunnelState
+    let settings: LatestTunnelSettings
 
     var isEnabled: Bool {
         state.isDaita ?? false
     }
 
     var name: String {
-        NSLocalizedString(
-            "FEATURE_INDICATORS_CHIP_DAITA",
-            tableName: "FeatureIndicatorsChip",
-            value: "DAITA",
-            comment: ""
-        )
+        // When multihop is enabled via DAITA without being explicitly enabled
+        // by the user, display combined indicator instead.
+        state.isMultihop && !settings.tunnelMultihopState.isEnabled
+            ? NSLocalizedString(
+                "FEATURE_INDICATORS_CHIP_DAITA_MULTIHOP",
+                tableName: "FeatureIndicatorsChip",
+                value: "DAITA: Multihop",
+                comment: ""
+            )
+            : NSLocalizedString(
+                "FEATURE_INDICATORS_CHIP_DAITA",
+                tableName: "FeatureIndicatorsChip",
+                value: "DAITA",
+                comment: ""
+            )
     }
 }
 
@@ -67,8 +77,12 @@ struct QuantumResistanceFeature: ChipFeature {
 struct MultihopFeature: ChipFeature {
     let id: FeatureType = .multihop
     let state: TunnelState
+    let settings: LatestTunnelSettings
+
     var isEnabled: Bool {
-        state.isMultihop
+        // Multihop indicator should only be visible when user has explicitly turned on
+        // multihop, not when using multihop via DAITA.
+        state.isMultihop && settings.tunnelMultihopState.isEnabled
     }
 
     var name: String {

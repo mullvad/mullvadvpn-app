@@ -509,6 +509,14 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         TunnelControlPage(app)
             .waitForConnectedLabel()
+            .verifyConnectingUsingDAITAThroughMultihop()
+            .verifyNotConnectingOverMultihop()
+            .tapSelectLocationButton()
+
+        SelectLocationPage(app)
+            .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicCountryName)
+
+        TunnelControlPage(app)
             .verifyConnectingUsingDAITA()
             .tapDisconnectButton()
     }

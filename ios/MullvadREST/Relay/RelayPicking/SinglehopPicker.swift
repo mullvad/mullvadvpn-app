@@ -22,22 +22,21 @@ struct SinglehopPicker: RelayPicking {
             // If DAITA is on, Direct only is off and obfuscation is on, and no supported relays are found, we should see if
             // the obfuscated subset of exit relays is the cause of this. We can do this by checking if relay selection would
             // have been successful with all relays available. If that's the case, throw error and point to obfuscation.
-            do {
-                _ = try pick(from: obfuscation.unfilteredRelays)
+            if (try? pick(from: obfuscation.unfilteredRelays)) != nil {
                 throw NoRelaysSatisfyingConstraintsError(.noObfuscatedRelaysFound)
-            } catch let error as NoRelaysSatisfyingConstraintsError where error.reason == .noDaitaRelaysFound {
-                // If DAITA is on, Direct only is off and obfuscation has been ruled out, and no supported relays are found,
-                // we should try to find the nearest available relay that supports DAITA and use it as entry in a multihop selection.
-                if daitaSettings.isAutomaticRouting {
-                    return try MultihopPicker(
-                        obfuscation: obfuscation,
-                        constraints: constraints,
-                        connectionAttemptCount: connectionAttemptCount,
-                        daitaSettings: daitaSettings
-                    ).pick()
-                } else {
-                    throw error
-                }
+            }
+
+            // If DAITA is on, Direct only is off and obfuscation has been ruled out, and no supported relays are found,
+            // we should try to find the nearest available relay that supports DAITA and use it as entry in a multihop selection.
+            if daitaSettings.isAutomaticRouting {
+                return try MultihopPicker(
+                    obfuscation: obfuscation,
+                    constraints: constraints,
+                    connectionAttemptCount: connectionAttemptCount,
+                    daitaSettings: daitaSettings
+                ).pick()
+            } else {
+                throw error
             }
         }
     }

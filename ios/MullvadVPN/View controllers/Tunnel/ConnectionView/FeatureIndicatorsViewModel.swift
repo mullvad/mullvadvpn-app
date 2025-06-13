@@ -34,9 +34,9 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer,
              .connected, .pendingReconnect:
             let features: [any ChipFeature] = [
-                DaitaFeature(state: tunnelState),
+                DaitaFeature(state: tunnelState, settings: tunnelSettings),
                 QuantumResistanceFeature(state: tunnelState),
-                MultihopFeature(state: tunnelState),
+                MultihopFeature(state: tunnelState, settings: tunnelSettings),
                 ObfuscationFeature(settings: tunnelSettings, state: observedState),
                 DNSFeature(settings: tunnelSettings),
                 IPOverrideFeature(state: tunnelState, overrides: ipOverrides),
