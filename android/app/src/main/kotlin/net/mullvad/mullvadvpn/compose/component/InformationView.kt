@@ -30,10 +30,10 @@ fun InformationView(
 ) {
     return if (content.isNotEmpty()) {
         AutoResizeText(
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleMedium,
             text = content,
-            minTextSize = MaterialTheme.typography.labelMedium.fontSize,
-            maxTextSize = MaterialTheme.typography.titleSmall.fontSize,
+            minTextSize = MaterialTheme.typography.bodySmall.fontSize,
+            maxTextSize = MaterialTheme.typography.titleMedium.fontSize,
             maxLines = maxLines,
             modifier = modifier.padding(vertical = Dimens.smallPadding),
         )
@@ -43,8 +43,8 @@ fun InformationView(
                 AutoResizeText(
                     style = MaterialTheme.typography.titleMedium,
                     text = content,
-                    minTextSize = MaterialTheme.typography.labelMedium.fontSize,
-                    maxTextSize = MaterialTheme.typography.titleSmall.fontSize,
+                    minTextSize = MaterialTheme.typography.bodySmall.fontSize,
+                    maxTextSize = MaterialTheme.typography.titleMedium.fontSize,
                     maxLines = maxLines,
                     modifier = modifier.padding(vertical = Dimens.smallPadding),
                 )

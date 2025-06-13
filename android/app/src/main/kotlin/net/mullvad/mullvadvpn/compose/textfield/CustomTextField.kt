@@ -122,7 +122,7 @@ fun ErrorSupportingText(text: String) {
         )
         Text(
             text = text,
-            color = MaterialTheme.colorScheme.onSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(horizontal = Dimens.smallPadding),
         )

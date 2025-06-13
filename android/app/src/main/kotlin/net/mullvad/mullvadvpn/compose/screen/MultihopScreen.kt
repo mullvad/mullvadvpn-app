@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.tv.material3.MaterialTheme
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -113,6 +114,7 @@ fun MultihopScreen(
 private fun Description() {
     SwitchComposeSubtitleCell(
         modifier = Modifier.padding(vertical = Dimens.mediumPadding),
+        style = MaterialTheme.typography.labelLarge,
         text = stringResource(R.string.multihop_description),
     )
 }

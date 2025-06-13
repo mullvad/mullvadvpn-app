@@ -63,7 +63,7 @@ fun SearchTextField(
 
     BasicTextField(
         value = searchTerm,
-        textStyle = MaterialTheme.typography.labelLarge.copy(color = textColor),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(color = textColor),
         onValueChange = { text: String ->
             searchTerm = text
             onValueChange.invoke(text)
@@ -92,7 +92,7 @@ fun SearchTextField(
                         )
                     },
                     placeholder = {
-                        Text(text = placeHolder, style = MaterialTheme.typography.labelLarge)
+                        Text(text = placeHolder, style = MaterialTheme.typography.bodyLarge)
                     },
                     trailingIcon = {
                         if (searchTerm.isNotEmpty()) {

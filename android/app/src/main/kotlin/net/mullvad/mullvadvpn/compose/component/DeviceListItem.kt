@@ -17,8 +17,6 @@ import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.lib.common.util.formatDate
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
-import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 
 @Composable
 fun DeviceListItem(
@@ -28,9 +26,9 @@ fun DeviceListItem(
     onDeviceRemovalClicked: () -> Unit,
 ) {
     TwoRowCell(
-        titleStyle = MaterialTheme.typography.listItemText,
+        titleStyle = MaterialTheme.typography.titleMedium,
         titleColor = MaterialTheme.colorScheme.onPrimary,
-        subtitleStyle = MaterialTheme.typography.listItemSubText,
+        subtitleStyle = MaterialTheme.typography.labelLarge,
         subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
         titleText = device.displayName(),
         subtitleText = stringResource(id = R.string.created_x, device.creationDate.formatDate()),
@@ -44,7 +42,7 @@ fun DeviceListItem(
                     modifier = Modifier.padding(Dimens.smallPadding),
                     text = stringResource(R.string.current_device),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

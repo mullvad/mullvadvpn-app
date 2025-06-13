@@ -37,7 +37,6 @@ import net.mullvad.mullvadvpn.compose.util.isBelowMaxSize
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 
 @Preview
 @Composable
@@ -94,7 +93,7 @@ fun SplitTunnelingCell(
         headlineContent = {
             Text(
                 text = title,
-                style = MaterialTheme.typography.listItemText,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier.weight(1f)

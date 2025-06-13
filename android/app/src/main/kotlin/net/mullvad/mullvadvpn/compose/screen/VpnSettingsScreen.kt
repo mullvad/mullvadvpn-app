@@ -560,6 +560,7 @@ fun VpnSettingsContent(
                                 Text(
                                     text = stringResource(id = R.string.add_a_server),
                                     color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge,
                                 )
                             },
                             bodyView = {},
@@ -583,7 +584,7 @@ fun VpnSettingsContent(
                     item(key = it::class.simpleName) {
                         BaseSubtitleCell(
                             text = textResource(id = R.string.custom_dns_footer),
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.animateItem(),
                         )
@@ -608,7 +609,7 @@ fun VpnSettingsContent(
                                 id = R.string.custom_dns_disable_mode_subtitle,
                                 textResource(id = R.string.dns_content_blockers),
                             ),
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.animateItem(),
                         )
@@ -971,7 +972,7 @@ fun VpnSettingsContent(
                                     id = R.string.wg_port_subtitle,
                                     stringResource(R.string.wireguard),
                                 ),
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.animateItem(),
                         )
