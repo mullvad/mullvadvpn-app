@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp.Companion.Hairline
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -323,12 +325,15 @@ private fun ApiAccessMethodTypeSelection(
         title = formData.apiAccessMethodTypes.text(),
         colors = apiAccessTextFieldColors(),
     ) { close ->
-        ApiAccessMethodTypes.entries.forEach {
+        ApiAccessMethodTypes.entries.forEachIndexed { index, item ->
+            if (index > 0) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.surface, thickness = Hairline)
+            }
             MullvadDropdownMenuItem(
-                text = it.text(),
+                text = item.text(),
                 onClick = {
                     close()
-                    onTypeSelected(it)
+                    onTypeSelected(item)
                 },
                 content = {
                     Icon(
@@ -337,7 +342,7 @@ private fun ApiAccessMethodTypeSelection(
                         modifier =
                             Modifier.padding(end = Dimens.selectableCellTextMargin)
                                 .alpha(
-                                    if (it == formData.apiAccessMethodTypes) AlphaVisible
+                                    if (item == formData.apiAccessMethodTypes) AlphaVisible
                                     else AlphaInvisible
                                 ),
                     )
@@ -500,12 +505,15 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
         title = cipher.label,
         colors = apiAccessTextFieldColors(),
     ) { close ->
-        Cipher.listAll().forEach {
+        Cipher.listAll().forEachIndexed { index, item ->
+            if (index > 0) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.surface, thickness = Hairline)
+            }
             MullvadDropdownMenuItem(
-                text = it.label,
+                text = item.label,
                 onClick = {
                     close()
-                    onCipherChange(it)
+                    onCipherChange(item)
                 },
                 content = {
                     Icon(
@@ -513,7 +521,7 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
                         contentDescription = null,
                         modifier =
                             Modifier.padding(end = Dimens.selectableCellTextMargin)
-                                .alpha(if (it == cipher) AlphaVisible else AlphaInvisible),
+                                .alpha(if (item == cipher) AlphaVisible else AlphaInvisible),
                     )
                 },
             )
@@ -556,6 +564,7 @@ private fun EnableAuthentication(
                 )
             },
         )
+        HorizontalDivider(color = MaterialTheme.colorScheme.surface, thickness = Hairline)
         MullvadDropdownMenuItem(
             text = stringResource(id = R.string.off),
             onClick = {

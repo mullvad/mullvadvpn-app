@@ -75,7 +75,7 @@ fun ConnectionDetails(
         Text(
             text = stringResource(R.string.connection_details_in),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier =
@@ -90,7 +90,7 @@ fun ConnectionDetails(
         Text(
             text = inIPV4,
             color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier =
@@ -113,7 +113,7 @@ fun ConnectionDetails(
                         append(stringResource(R.string.ipv4))
                     },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier =
@@ -142,7 +142,7 @@ fun ConnectionDetails(
                             modifier = Modifier.testTag(LOCATION_INFO_CONNECTION_OUT_TEST_TAG),
                             text = outIPV4,
                             color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -164,7 +164,7 @@ fun ConnectionDetails(
                         append(stringResource(R.string.ipv6))
                     },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier =
@@ -192,7 +192,7 @@ fun ConnectionDetails(
                         Text(
                             text = outIPV6,
                             color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )

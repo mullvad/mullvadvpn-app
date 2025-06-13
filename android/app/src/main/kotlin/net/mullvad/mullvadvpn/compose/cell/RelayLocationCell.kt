@@ -227,6 +227,7 @@ private fun Name(
                 )
                 .padding(horizontal = Dimens.smallPadding, vertical = Dimens.mediumPadding),
         maxLines = 1,
+        style = MaterialTheme.typography.bodyLarge,
         overflow = TextOverflow.Ellipsis,
     )
 }

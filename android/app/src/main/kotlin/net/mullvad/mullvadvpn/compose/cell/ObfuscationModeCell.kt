@@ -33,8 +33,6 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
-import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
-import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 
 @Preview
 @Composable
@@ -74,10 +72,10 @@ fun ObfuscationModeCell(
     ) {
         TwoRowCell(
             modifier = Modifier.weight(1f),
-            titleStyle = MaterialTheme.typography.listItemText,
+            titleStyle = MaterialTheme.typography.bodyLarge,
             titleColor = MaterialTheme.colorScheme.onSurface,
-            subtitleStyle = MaterialTheme.typography.listItemSubText,
-            subtitleColor = MaterialTheme.colorScheme.onSurface,
+            subtitleStyle = MaterialTheme.typography.labelLarge,
+            subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant,
             titleText = obfuscationMode.toTitle(),
             subtitleText = stringResource(id = R.string.port_x, port.toSubTitle()),
             onCellClicked = { onSelected(obfuscationMode) },

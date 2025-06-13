@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 fun LocationsEmptyText(searchTerm: String) {
     Text(
         text = textResource(R.string.search_location_empty_text, searchTerm),
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.bodyMedium,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 2,
