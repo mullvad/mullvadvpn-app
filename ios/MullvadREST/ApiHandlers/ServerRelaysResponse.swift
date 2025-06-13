@@ -50,7 +50,23 @@ extension REST {
         }
     }
 
+    // swiftlint:disable nesting
     public struct ServerRelay: Codable, Equatable, Sendable {
+        public struct Features: Codable, Equatable, Sendable {
+            public struct DAITA: Codable, Equatable, Sendable {
+                // this structure intentionally left blank
+            }
+
+            public struct QUIC: Codable, Equatable, Sendable {
+                public let addrIn: [String]
+                public let domain: String
+                public let token: String
+            }
+
+            public let daita: DAITA?
+            public let quic: QUIC?
+        }
+
         public let hostname: String
         public let active: Bool
         public let owned: Bool
@@ -63,6 +79,9 @@ extension REST {
         public let includeInCountry: Bool
         public let daita: Bool?
         public let shadowsocksExtraAddrIn: [String]?
+        public let quicHostname: String?
+        public let masqueExtraAddrIn: [String]?
+        public let features: Features?
 
         public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
             ServerRelay(
@@ -86,10 +105,14 @@ extension REST {
                     default:
                         true
                     }
-                }
+                },
+                quicHostname: quicHostname,
+                masqueExtraAddrIn: masqueExtraAddrIn,
+                features: features
             )
         }
 
+        // this is for the legacy DAITA flag, which will be deprecated in favour of a DAITA structure under Features
         public func override(daita: Bool) -> Self {
             ServerRelay(
                 hostname: hostname,
@@ -103,10 +126,39 @@ extension REST {
                 publicKey: publicKey,
                 includeInCountry: includeInCountry,
                 daita: daita,
-                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn
+                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn,
+                quicHostname: quicHostname,
+                masqueExtraAddrIn: masqueExtraAddrIn,
+                features: features
             )
         }
+
+        public func override(features: ServerRelay.Features) -> Self {
+            ServerRelay(
+                hostname: hostname,
+                active: active,
+                owned: owned,
+                location: location,
+                provider: provider,
+                weight: weight,
+                ipv4AddrIn: ipv4AddrIn,
+                ipv6AddrIn: ipv6AddrIn,
+                publicKey: publicKey,
+                includeInCountry: includeInCountry,
+                daita: daita,
+                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn,
+                quicHostname: quicHostname,
+                masqueExtraAddrIn: masqueExtraAddrIn,
+                features: features
+            )
+        }
+
+        public var hasDaita: Bool {
+            (features?.daita != nil) || daita == true
+        }
     }
+
+    // swiftlint:enable nesting
 
     public struct ServerWireguardTunnels: Codable, Equatable, Sendable {
         public let ipv4Gateway: IPv4Address

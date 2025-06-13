@@ -85,12 +85,12 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     /// > Info: `relayCacheLock` does not need to be accessed here, this method should be ran from `init` only.
     private func hotfixRelaysThatDoNotHaveDaita() throws {
         guard let cachedRelays else { return }
-        let daitaPropertyMissing = cachedRelays.relays.wireguard.relays.first { $0.daita ?? false } == nil
+        let daitaPropertyMissing = cachedRelays.relays.wireguard.relays.first { $0.hasDaita } == nil
         // If the cached relays already have daita information, this fix is not necessary
         guard daitaPropertyMissing else { return }
 
         let preBundledRelays = try cache.readPrebundledRelays().relays
-        let preBundledDaitaRelays = preBundledRelays.wireguard.relays.filter { $0.daita == true }
+        let preBundledDaitaRelays = preBundledRelays.wireguard.relays.filter { $0.hasDaita }
         var cachedRelaysWithFixedDaita = cachedRelays.relays.wireguard.relays
 
         // For each daita enabled relay in the prebundled relays
