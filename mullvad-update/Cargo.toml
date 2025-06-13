@@ -32,6 +32,7 @@ sha2 = { workspace = true, optional = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "fs", "process", "macros"], optional = true }
 vec1 = { workspace = true }
 
+mullvad-api-constants = { path = "../mullvad-api/mullvad-api-constants" }
 mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 
 # features required by binaries

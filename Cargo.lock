@@ -2861,6 +2861,7 @@ dependencies = [
  "libc",
  "log",
  "mockito",
+ "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
  "mullvad-types",
@@ -2878,6 +2879,10 @@ dependencies = [
  "tower 0.5.1",
  "uuid",
 ]
+
+[[package]]
+name = "mullvad-api-constants"
+version = "0.0.0"
 
 [[package]]
 name = "mullvad-cli"
@@ -3233,6 +3238,7 @@ dependencies = [
  "json-canon",
  "log",
  "mockito",
+ "mullvad-api-constants",
  "mullvad-version",
  "rand 0.8.5",
  "reqwest",

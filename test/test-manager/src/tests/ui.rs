@@ -165,7 +165,7 @@ async fn test_custom_access_methods_gui(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    use mullvad_api::env;
+    use mullvad_api_constants::env;
     use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 
     // For this test to work, we need to supply the following env-variables:
