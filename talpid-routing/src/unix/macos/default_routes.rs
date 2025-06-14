@@ -14,7 +14,7 @@ use super::{
     DefaultRoute,
 };
 
-/// Grace time during which we don't act if the best default route dissapears.
+/// Grace time during which we don't act if the best default route disappears.
 //
 // 5 seconds seemed to be a reasonable value when testing.
 // Increasing this value will increase the time it takes the daemon to realize when there's no
