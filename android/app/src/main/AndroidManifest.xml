@@ -27,6 +27,7 @@
     <application android:name=".MullvadApplication"
                  android:banner="@mipmap/ic_banner"
                  android:allowBackup="false"
+                 android:memtagMode="async"
                  android:fullBackupContent="@xml/full_backup_content"
                  android:dataExtractionRules="@xml/data_extraction_rules"
                  android:icon="@mipmap/ic_launcher"
