@@ -205,7 +205,7 @@ mod test {
     use vec1::vec1;
 
     use super::*;
-    use crate::{format::SignedResponse, local::METADATA_FILENAME};
+    use crate::format::SignedResponse;
 
     // These tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
     // then most likely the snapshots need to be updated. The most convenient way to review
@@ -232,7 +232,7 @@ mod test {
         let url = format!("{}/version", server.url());
 
         let temp_dump_dir = TempDir::new().await.unwrap();
-        let temp_dump = temp_dump_dir.join(METADATA_FILENAME);
+        let temp_dump = temp_dump_dir.join("metadata.json");
 
         // Construct query and provider
         let info_provider = HttpVersionInfoProvider {
