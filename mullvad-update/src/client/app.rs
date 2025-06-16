@@ -244,7 +244,7 @@ impl InstallerFile<false> {
     }
 }
 
-impl<const VERIFIED: bool> InstallerFile<VERIFIED> {
+impl InstallerFile<true> {
     fn launch_path(&self) -> PathBuf {
         #[cfg(target_os = "windows")]
         {
