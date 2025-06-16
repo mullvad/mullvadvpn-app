@@ -1749,6 +1749,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "itertools"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2093,6 +2102,7 @@ dependencies = [
  "ipnetwork",
  "libc",
  "log",
+ "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
  "mullvad-types",
@@ -2110,6 +2120,10 @@ dependencies = [
  "tower 0.5.1",
  "uuid",
 ]
+
+[[package]]
+name = "mullvad-api-constants"
+version = "0.0.0"
 
 [[package]]
 name = "mullvad-encrypted-dns-proxy"
@@ -2173,7 +2187,7 @@ dependencies = [
  "chrono",
  "intersection-derive",
  "ipnetwork",
- "itertools 0.12.1",
+ "itertools 0.14.0",
  "log",
  "mullvad-types",
  "rand 0.8.5",
@@ -2207,8 +2221,10 @@ dependencies = [
  "chrono",
  "ed25519-dalek",
  "hex",
+ "itertools 0.14.0",
  "json-canon",
  "log",
+ "mullvad-api-constants",
  "mullvad-version",
  "reqwest",
  "serde",
@@ -3730,6 +3746,7 @@ dependencies = [
  "libc",
  "log",
  "mullvad-api",
+ "mullvad-api-constants",
  "mullvad-management-interface",
  "mullvad-relay-selector",
  "mullvad-types",

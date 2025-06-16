@@ -160,7 +160,7 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
             keyExchanger: peerExchangeActor,
             enablePostQuantum: false,
             enableDaita: true
-        ) { params in
+        ) { _ in
             reconfigurationExpectation.fulfill()
         } onFinish: {
             negotiationSuccessful.fulfill()

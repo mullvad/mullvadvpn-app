@@ -568,7 +568,10 @@ mod test {
     use super::downloader::ProgressUpdater;
     use futures::channel::mpsc::unbounded;
     use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeEvent};
-    use mullvad_update::{app::DownloadError, fetch::ProgressUpdater as _};
+    use mullvad_update::{
+        app::{DownloadError, DownloadedInstaller, VerifiedInstaller},
+        fetch::ProgressUpdater as _,
+    };
     use tokio::sync::broadcast::error::TryRecvError;
 
     use super::*;
@@ -582,17 +585,27 @@ mod test {
     struct SuccessfulAppDownloader(AppDownloaderParameters<ProgressUpdater>);
 
     impl AppDownloader for SuccessfulAppDownloader {
-        async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
+        async fn download_executable(
+            mut self,
+        ) -> std::result::Result<impl DownloadedInstaller, DownloadError> {
             tokio::time::sleep(DOWNLOAD_DURATION).await;
             self.0.app_progress.set_progress(1.0);
-            Ok(())
+            Ok(self)
+        }
+    }
+
+    impl DownloadedInstaller for SuccessfulAppDownloader {
+        fn version(&self) -> &mullvad_version::Version {
+            &self.0.app_version
         }
 
-        async fn verify(&mut self) -> std::result::Result<(), DownloadError> {
-            Ok(())
+        async fn verify(self) -> std::result::Result<impl VerifiedInstaller, DownloadError> {
+            Ok(self)
         }
+    }
 
-        async fn install(&mut self) -> std::result::Result<(), DownloadError> {
+    impl VerifiedInstaller for SuccessfulAppDownloader {
+        async fn install(self) -> std::result::Result<(), DownloadError> {
             Ok(())
         }
     }
@@ -609,16 +622,26 @@ mod test {
     struct FailingAppDownloader;
 
     impl AppDownloader for FailingAppDownloader {
-        async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
-            Err(DownloadError::FetchApp(anyhow::anyhow!("Download failed")))
+        async fn download_executable(
+            self,
+        ) -> std::result::Result<impl DownloadedInstaller, DownloadError> {
+            Err::<Self, _>(DownloadError::FetchApp(anyhow::anyhow!("Download failed")))
+        }
+    }
+
+    impl DownloadedInstaller for FailingAppDownloader {
+        fn version(&self) -> &mullvad_version::Version {
+            unreachable!()
         }
 
-        async fn verify(&mut self) -> std::result::Result<(), DownloadError> {
-            Ok(())
+        async fn verify(self) -> std::result::Result<impl VerifiedInstaller, DownloadError> {
+            Ok(self)
         }
+    }
 
-        async fn install(&mut self) -> std::result::Result<(), DownloadError> {
-            Ok(())
+    impl VerifiedInstaller for FailingAppDownloader {
+        async fn install(self) -> std::result::Result<(), DownloadError> {
+            unreachable!()
         }
     }
 
@@ -634,18 +657,33 @@ mod test {
     struct FailingAppVerifier;
 
     impl AppDownloader for FailingAppVerifier {
-        async fn download_executable(&mut self) -> std::result::Result<(), DownloadError> {
-            Ok(())
+        async fn download_executable(
+            self,
+        ) -> std::result::Result<impl DownloadedInstaller, DownloadError> {
+            Ok(self)
+        }
+    }
+
+    impl DownloadedInstaller for FailingAppVerifier {
+        fn version(&self) -> &mullvad_version::Version {
+            &mullvad_version::Version {
+                year: 2042,
+                incremental: 1337,
+                pre_stable: None,
+                dev: None,
+            }
         }
 
-        async fn verify(&mut self) -> std::result::Result<(), DownloadError> {
-            Err(DownloadError::Verification(anyhow::anyhow!(
+        async fn verify(self) -> std::result::Result<impl VerifiedInstaller, DownloadError> {
+            Err::<Self, _>(DownloadError::Verification(anyhow::anyhow!(
                 "Verification failed"
             )))
         }
+    }
 
-        async fn install(&mut self) -> std::result::Result<(), DownloadError> {
-            Ok(())
+    impl VerifiedInstaller for FailingAppVerifier {
+        async fn install(self) -> std::result::Result<(), DownloadError> {
+            unreachable!()
         }
     }
 

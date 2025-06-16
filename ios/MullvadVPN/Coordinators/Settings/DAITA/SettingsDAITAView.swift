@@ -15,6 +15,16 @@ struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObserva
     var body: some View {
         SettingsInfoContainerView {
             VStack(alignment: .leading, spacing: 8) {
+                if isAutomaticRoutingActive {
+                    DAITAMultihopNotice()
+                        .padding(EdgeInsets(
+                            top: -UIMetrics.contentInsets.top,
+                            leading: UIMetrics.contentInsets.toEdgeInsets.leading,
+                            bottom: 8,
+                            trailing: UIMetrics.contentInsets.toEdgeInsets.trailing
+                        ))
+                }
+
                 SettingsInfoView(viewModel: dataViewModel)
 
                 VStack {
@@ -92,6 +102,11 @@ extension SettingsDAITAView {
                 tunnelViewModel.evaluate(setting: settings)
             }
         )
+    }
+
+    var isAutomaticRoutingActive: Bool {
+        let viewModel = tunnelViewModel as? DAITATunnelSettingsViewModel
+        return viewModel?.isAutomaticRoutingActive ?? false
     }
 }
 

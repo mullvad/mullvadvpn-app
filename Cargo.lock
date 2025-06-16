@@ -2242,7 +2242,7 @@ dependencies = [
 
 [[package]]
 name = "installer-downloader"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2254,6 +2254,7 @@ dependencies = [
  "log",
  "mullvad-paths",
  "mullvad-update",
+ "mullvad-version",
  "native-windows-gui",
  "objc_id",
  "rand 0.8.5",
@@ -2359,15 +2360,6 @@ dependencies = [
  "hermit-abi",
  "libc",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "itertools"
-version = "0.10.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
-dependencies = [
- "either",
 ]
 
 [[package]]
@@ -2869,6 +2861,7 @@ dependencies = [
  "libc",
  "log",
  "mockito",
+ "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
  "mullvad-types",
@@ -2888,6 +2881,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-api-constants"
+version = "0.0.0"
+
+[[package]]
 name = "mullvad-cli"
 version = "0.0.0"
 dependencies = [
@@ -2896,7 +2893,7 @@ dependencies = [
  "clap",
  "clap_complete",
  "futures",
- "itertools 0.10.5",
+ "itertools 0.14.0",
  "mullvad-management-interface",
  "mullvad-types",
  "mullvad-version",
@@ -3160,7 +3157,7 @@ dependencies = [
  "chrono",
  "intersection-derive",
  "ipnetwork",
- "itertools 0.12.1",
+ "itertools 0.14.0",
  "log",
  "mullvad-types",
  "proptest",
@@ -3237,9 +3234,11 @@ dependencies = [
  "ed25519-dalek",
  "hex",
  "insta",
+ "itertools 0.14.0",
  "json-canon",
  "log",
  "mockito",
+ "mullvad-api-constants",
  "mullvad-version",
  "rand 0.8.5",
  "reqwest",

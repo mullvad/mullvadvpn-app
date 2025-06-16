@@ -25,12 +25,14 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 zeroize = { version = "1.8", features = ["zeroize_derive"] }
 log = { workspace = true }
+itertools = { workspace = true }
 
 reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"], optional = true }
 sha2 = { workspace = true, optional = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "fs", "process", "macros"], optional = true }
 vec1 = { workspace = true }
 
+mullvad-api-constants = { path = "../mullvad-api/mullvad-api-constants" }
 mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 
 # features required by binaries

@@ -7,14 +7,7 @@ use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
-use std::{
-    collections::BTreeMap,
-    future::Future,
-    io,
-    net::{IpAddr, Ipv4Addr, SocketAddr},
-    path::Path,
-    sync::Arc,
-};
+use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;
 
 pub mod availability;
@@ -72,12 +65,7 @@ const APPLE_PAYMENT_URL_PREFIX: &str = "payments/apple/v2";
 #[cfg(target_os = "android")]
 const GOOGLE_PAYMENTS_URL_PREFIX: &str = "payments/google-play/v1";
 
-pub mod env {
-    pub const API_HOST_VAR: &str = "MULLVAD_API_HOST";
-    pub const API_ADDR_VAR: &str = "MULLVAD_API_ADDR";
-    pub const API_FORCE_DIRECT_VAR: &str = "MULLVAD_API_FORCE_DIRECT";
-    pub const DISABLE_TLS_VAR: &str = "MULLVAD_API_DISABLE_TLS";
-}
+use mullvad_api_constants::*;
 
 /// A hostname and socketaddr to reach the Mullvad REST API over.
 #[derive(Debug, Clone)]
@@ -120,10 +108,6 @@ pub struct ApiEndpoint {
 }
 
 impl ApiEndpoint {
-    const API_HOST_DEFAULT: &'static str = "api.mullvad.net";
-    const API_IP_DEFAULT: IpAddr = IpAddr::V4(Ipv4Addr::new(45, 83, 223, 196));
-    const API_PORT_DEFAULT: u16 = 443;
-
     /// Returns the endpoint to connect to the API over.
     ///
     /// # Panics
@@ -155,12 +139,12 @@ impl ApiEndpoint {
                     api_addr = env::API_ADDR_VAR,
                     api_host = env::API_HOST_VAR
                 );
-                api.address = format!("{}:{}", host, ApiEndpoint::API_PORT_DEFAULT)
+                api.address = format!("{}:{}", host, API_PORT_DEFAULT)
                     .to_socket_addrs()
                     .unwrap_or_else(|_| {
                         panic!(
                             "Unable to resolve API IP address from host {host}:{port}",
-                            port = ApiEndpoint::API_PORT_DEFAULT,
+                            port = API_PORT_DEFAULT,
                         )
                     })
                     .next();
@@ -264,20 +248,16 @@ impl ApiEndpoint {
     }
 
     /// Read the [`Self::host`] value, falling back to
-    /// [`Self::API_HOST_DEFAULT`] as default value if it does not exist.
+    /// [`API_HOST_DEFAULT`] as default value if it does not exist.
     pub fn host(&self) -> &str {
-        self.host
-            .as_deref()
-            .unwrap_or(ApiEndpoint::API_HOST_DEFAULT)
+        self.host.as_deref().unwrap_or(API_HOST_DEFAULT)
     }
 
     /// Read the [`Self::address`] value, falling back to
     /// [`Self::API_IP_DEFAULT`] as default value if it does not exist.
     pub fn address(&self) -> SocketAddr {
-        self.address.unwrap_or(SocketAddr::new(
-            ApiEndpoint::API_IP_DEFAULT,
-            ApiEndpoint::API_PORT_DEFAULT,
-        ))
+        self.address
+            .unwrap_or(SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT))
     }
 
     /// Try to read the value of an environment variable. Returns `None` if the
