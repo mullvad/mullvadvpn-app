@@ -15,6 +15,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
+import net.mullvad.mullvadvpn.data.mock
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
@@ -149,9 +150,7 @@ class WelcomeViewModelTest {
     @Test
     fun `when user has added time then uiSideEffect should emit OpenConnectScreen`() = runTest {
         // Arrange
-        accountExpiryStateFlow.emit(
-            AccountData(mockk(relaxed = true), ZonedDateTime.now().plusDays(1))
-        )
+        accountExpiryStateFlow.emit(AccountData.mock(ZonedDateTime.now().plusDays(1)))
 
         // Act, Assert
         viewModel.uiSideEffect.test {

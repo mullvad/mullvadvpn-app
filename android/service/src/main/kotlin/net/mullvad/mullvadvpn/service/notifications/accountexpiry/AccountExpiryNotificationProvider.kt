@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service.notifications.accountexpiry
 
+import co.touchlab.kermit.Logger
 import java.time.Duration
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -10,7 +11,7 @@ import net.mullvad.mullvadvpn.lib.model.NotificationId
 import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
-class AccountExpiryScheduledNotificationProvider(private val channelId: NotificationChannelId) :
+class AccountExpiryNotificationProvider(private val channelId: NotificationChannelId) :
     NotificationProvider<Notification.AccountExpiry> {
 
     private val notificationChannel: Channel<NotificationUpdate<Notification.AccountExpiry>> =
@@ -28,6 +29,12 @@ class AccountExpiryScheduledNotificationProvider(private val channelId: Notifica
             )
 
         val notificationUpdate = NotificationUpdate.Notify(NOTIFICATION_ID, notification)
+        notificationChannel.send(notificationUpdate)
+    }
+
+    suspend fun cancelNotification() {
+        Logger.d("Cancelling existing account expiry notification")
+        val notificationUpdate = NotificationUpdate.Cancel(NOTIFICATION_ID)
         notificationChannel.send(notificationUpdate)
     }
 

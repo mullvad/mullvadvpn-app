@@ -26,8 +26,9 @@ import net.mullvad.mullvadvpn.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
-import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryScheduledNotificationProvider
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.service.notifications.tunnelstate.TunnelStateNotificationProvider
+import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationActionUseCase
 import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.createdAtStart
@@ -61,6 +62,7 @@ val appModule = module {
     single { LocaleRepository(get()) }
     single { RelayLocationTranslationRepository(get(), get(), MainScope()) }
     single { ScheduleNotificationAlarmUseCase(get()) }
+    single { AccountExpiryNotificationActionUseCase(get(), get()) }
 
     single { NotificationChannel.TunnelUpdates } bind NotificationChannel::class
     single { NotificationChannel.AccountUpdates } bind NotificationChannel::class
@@ -79,9 +81,8 @@ val appModule = module {
             MainScope(),
         )
     } bind NotificationProvider::class
-    single {
-        AccountExpiryScheduledNotificationProvider(get<NotificationChannel.AccountUpdates>().id)
-    } bind NotificationProvider::class
+    single { AccountExpiryNotificationProvider(get<NotificationChannel.AccountUpdates>().id) } bind
+        NotificationProvider::class
 }
 
 private val Context.userPreferencesStore: DataStore<UserPreferences> by

@@ -17,11 +17,8 @@ import arrow.core.merge
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
@@ -36,12 +33,14 @@ import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationActionUseCase
+import net.mullvad.mullvadvpn.usecase.NotificationAction
 import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.android.ext.android.inject
@@ -66,8 +65,10 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
     private val managementService by inject<ManagementService>()
-    private val accountRepository by inject<AccountRepository>()
     private val scheduleNotificationAlarmUseCase by inject<ScheduleNotificationAlarmUseCase>()
+    private val accountExpiryNotificationActionUseCase by
+        inject<AccountExpiryNotificationActionUseCase>()
+    private val accountExpiryNotificationProvider by inject<AccountExpiryNotificationProvider>()
 
     private var isReadyNextDraw: Boolean = false
 
@@ -109,14 +110,24 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         }
 
         lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                accountRepository.accountData
-                    .filterNotNull()
-                    .map { it.expiryDate }
-                    .distinctUntilChanged()
-                    .collect { expiryDate ->
-                        scheduleNotificationAlarmUseCase(this@MainActivity, expiryDate)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                accountExpiryNotificationActionUseCase().collect { action ->
+                    when (action) {
+                        NotificationAction.CancelExisting -> {
+                            accountExpiryNotificationProvider.cancelNotification()
+                            scheduleNotificationAlarmUseCase(
+                                context = this@MainActivity,
+                                accountExpiry = null,
+                            )
+                        }
+
+                        is NotificationAction.ScheduleAlarm ->
+                            scheduleNotificationAlarmUseCase(
+                                context = this@MainActivity,
+                                accountExpiry = action.alarmTime,
+                            )
                     }
+                }
             }
         }
     }

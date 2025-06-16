@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import co.touchlab.kermit.Logger
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.receiver.NotificationAlarmReceiver
 import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
@@ -13,20 +14,24 @@ import net.mullvad.mullvadvpn.service.notifications.accountexpiry.accountExpiryN
 class ScheduleNotificationAlarmUseCase(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(context: Context, accountExpiry: ZonedDateTime) {
+    suspend operator fun invoke(context: Context, accountExpiry: ZonedDateTime?) {
         val appContext = context.applicationContext
         val alarmManager = appContext.getSystemService(AlarmManager::class.java) ?: return
+        cancelExisting(appContext, alarmManager)
+
+        if (accountExpiry == null) return
 
         val triggerAt =
             accountExpiryNotificationTriggerAt(now = ZonedDateTime.now(), expiry = accountExpiry)
         val triggerAtMillis = triggerAt.toInstant().toEpochMilli()
 
-        cancelExisting(appContext, alarmManager)
-
         val intent = alarmIntent(appContext, accountExpiry)
         alarmManager.set(AlarmManager.RTC, triggerAtMillis, intent)
-        Logger.d("Scheduling next account expiry alarm for $triggerAt")
 
+        // Change to UTC to avoid leaking the user's time zone in the logs
+        Logger.d(
+            "Scheduling next account expiry alarm for ${triggerAt.withZoneSameInstant(ZoneOffset.UTC)}"
+        )
         userPreferencesRepository.setAccountExpiry(accountExpiry)
     }
 

@@ -15,6 +15,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.data.mock
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
@@ -128,7 +129,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
     }
 
     private fun setExpiry(expiryDateTime: ZonedDateTime): ZonedDateTime {
-        val expiry = AccountData(mockk(relaxed = true), expiryDateTime)
+        val expiry = AccountData.mock(expiryDateTime)
         accountExpiry.value = expiry
         return expiryDateTime
     }

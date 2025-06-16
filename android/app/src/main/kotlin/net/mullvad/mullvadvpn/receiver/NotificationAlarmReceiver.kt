@@ -7,14 +7,14 @@ import co.touchlab.kermit.Logger
 import java.time.Duration
 import java.time.ZonedDateTime
 import kotlinx.coroutines.runBlocking
-import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryScheduledNotificationProvider
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 import net.mullvad.mullvadvpn.util.serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class NotificationAlarmReceiver : BroadcastReceiver(), KoinComponent {
-    private val notificationProvider by inject<AccountExpiryScheduledNotificationProvider>()
+    private val notificationProvider by inject<AccountExpiryNotificationProvider>()
     private val scheduleNotificationAlarmUseCase by inject<ScheduleNotificationAlarmUseCase>()
 
     override fun onReceive(context: Context?, intent: Intent?) {
