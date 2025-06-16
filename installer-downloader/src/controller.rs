@@ -262,12 +262,17 @@ where
                     self_.on_error_message_retry(move || {
                         let _ = retry_tx.try_send(Action::Retry);
                     });
-                    let cached_app_installer2 = cached_app_installer.clone();
-                    self_.on_error_message_cancel(move || {
-                        let _ = cancel_tx.try_send(Action::InstallExistingVersion {
-                            cached_app_installer: cached_app_installer2.clone(),
-                        });
-                    });
+
+                    let on_cancel = {
+                        let cached_app_installer = cached_app_installer.clone();
+                        move || {
+                            let cancel_action = Action::InstallExistingVersion {
+                                cached_app_installer: cached_app_installer.clone(),
+                            };
+                            let _ = cancel_tx.try_send(cancel_action);
+                        }
+                    };
+                    self_.on_error_message_cancel(on_cancel);
 
                     self_.show_error_message(crate::delegate::ErrorMessage {
                         status_text: resource::FETCH_VERSION_ERROR_DESC_WITH_EXISTING_DOWNLOAD
