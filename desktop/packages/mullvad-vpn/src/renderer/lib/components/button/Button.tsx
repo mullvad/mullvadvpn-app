@@ -40,7 +40,7 @@ const styles = {
   },
 };
 
-export const StyledButton = styled(ButtonBase)<ButtonProps>`
+export const StyledButton = styled.button<ButtonProps>`
   ${({ width: sizeProp = 'fill', variant: variantProp = 'primary' }) => {
     const variant = styles.variants[variantProp];
     const size = styles.flex[sizeProp];

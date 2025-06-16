@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../foundations';
-import { ButtonBase } from '../../button';
 import { useAccordionContext } from '../AccordionContext';
 import { StyledAccordionHeader } from './AccordionHeader';
 
@@ -10,7 +9,7 @@ export type AccordionTriggerProps = {
   children?: React.ReactNode;
 };
 
-const StyledAccordionTrigger = styled(ButtonBase)`
+const StyledAccordionTrigger = styled.button`
   background-color: transparent;
   &&:hover > ${StyledAccordionHeader} {
     background-color: ${colors.blue60};
