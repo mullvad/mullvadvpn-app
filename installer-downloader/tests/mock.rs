@@ -144,13 +144,14 @@ where
         Self::default()
     }
 
-    fn get_cached_installers(self, _metadata: SignedResponse) -> Vec<Self::Installer> {
+    async fn get_cached_installers(self, _metadata: SignedResponse) -> Vec<Self::Installer> {
         if HAS_APP {
             vec![Installer::default()]
         } else {
             vec![]
         }
     }
+
     #[allow(clippy::manual_async_fn)]
     fn get_metadata(
         &self,
