@@ -325,6 +325,7 @@ where
                 queue.queue_main(|self_| {
                     self_.quit();
                 });
+                std::future::pending::<()>().await;
             }
             Action::InstallExistingVersion {
                 cached_app_installer: installer,
@@ -375,6 +376,7 @@ where
                         queue.queue_main(|self_| {
                             self_.quit();
                         });
+                        std::future::pending::<()>().await;
                     }
                     Some(Action::InstallExistingVersion { .. }) => unreachable!(),
                 }

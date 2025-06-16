@@ -206,35 +206,22 @@ pub fn bin_path(app_version: &mullvad_version::Version, cache_dir: &Path) -> Pat
 
 impl InstallerFile<false> {
     /// Create an unverified [InstallerFile] from a cache_dir and some metadata.
-    pub fn try_from_version(
-        cache_dir: &Path,
-        version: crate::version::Version,
-    ) -> anyhow::Result<Self> {
-        let path = bin_path(&version.version, cache_dir);
-        if !path.exists() {
-            bail!("Installer file does not exist at path: {}", path.display());
-        }
-        Ok(Self {
-            path,
-            app_version: version.version,
-            app_size: version.size,
-            app_sha256: version.sha256,
-        })
-    }
-
     pub fn try_from_installer(
         cache_dir: &Path,
         app_version: mullvad_version::Version,
         installer: crate::format::Installer,
     ) -> anyhow::Result<Self> {
         let path = bin_path(&app_version, cache_dir);
-        if !path.exists() {
-            bail!("Installer file does not exist at path: {}", path.display());
+        // Sanity check (without verifying) installer to avoid returning partial downloads
+        let metadata = path.metadata().context("Failed to get file metadata")?;
+        if usize::try_from(metadata.len()).context("Invalid file size")? != installer.size {
+            bail!("Unexpected file size");
         }
         let app_sha256 = hex::decode(installer.sha256)
             .context("Invalid checksum hex")?
             .try_into()
             .map_err(|_| anyhow::anyhow!("Invalid checksum length"))?;
+
         Ok(Self {
             path,
             app_version,
