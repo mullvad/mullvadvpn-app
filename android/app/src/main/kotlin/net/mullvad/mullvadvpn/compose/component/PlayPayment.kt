@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -23,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -189,22 +187,6 @@ private fun PaymentAvailable(
                                 error("ProductId ${product.productId.value} is not supported")
                             }
                         },
-                    endIcon = {
-                        Image(
-                            painter =
-                                painterResource(
-                                    R.drawable.google_pay_primary_logo_logo_svgrepo_com
-                                ),
-                            contentDescription = null,
-                            modifier =
-                                Modifier.height(Dimens.payIconHeight)
-                                    .background(
-                                        MaterialTheme.colorScheme.onSurface,
-                                        MaterialTheme.shapes.extraLarge,
-                                    )
-                                    .padding(all = Dimens.miniPadding),
-                        )
-                    },
                     onClick = { onPurchaseBillingProductClick(product.productId) },
                     enabled = enabled,
                 )
