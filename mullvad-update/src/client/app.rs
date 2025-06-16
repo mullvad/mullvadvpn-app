@@ -9,7 +9,7 @@ use std::{
     time::Duration,
 };
 
-use anyhow::Context;
+use anyhow::{bail, Context};
 use tokio::{process::Command, time::timeout};
 
 use crate::{
@@ -18,8 +18,6 @@ use crate::{
     verify::{AppVerifier, Sha256Verifier},
     version::VersionParameters,
 };
-
-use super::verify;
 
 #[derive(Debug, thiserror::Error)]
 pub enum DownloadError {
@@ -74,10 +72,7 @@ pub trait AppCache: Send {
 
     fn new(directory: PathBuf, version_params: VersionParameters) -> Self;
     fn get_metadata(&self) -> impl Future<Output = anyhow::Result<SignedResponse>> + Send;
-    fn get_cached_installers(
-        self,
-        metadata: SignedResponse,
-    ) -> impl Future<Output = Vec<Self::Installer>> + Send;
+    fn get_cached_installers(self, metadata: SignedResponse) -> Vec<Self::Installer>;
 }
 
 /// How long to wait for the installer to exit before returning
@@ -211,20 +206,35 @@ pub fn bin_path(app_version: &mullvad_version::Version, cache_dir: &Path) -> Pat
 
 impl InstallerFile<false> {
     /// Create an unverified [InstallerFile] from a cache_dir and some metadata.
-    pub async fn try_from_installer(
+    pub fn try_from_version(
+        cache_dir: &Path,
+        version: crate::version::Version,
+    ) -> anyhow::Result<Self> {
+        let path = bin_path(&version.version, cache_dir);
+        if !path.exists() {
+            bail!("Installer file does not exist at path: {}", path.display());
+        }
+        Ok(Self {
+            path,
+            app_version: version.version,
+            app_size: version.size,
+            app_sha256: version.sha256,
+        })
+    }
+
+    pub fn try_from_installer(
         cache_dir: &Path,
         app_version: mullvad_version::Version,
         installer: crate::format::Installer,
     ) -> anyhow::Result<Self> {
         let path = bin_path(&app_version, cache_dir);
+        if !path.exists() {
+            bail!("Installer file does not exist at path: {}", path.display());
+        }
         let app_sha256 = hex::decode(installer.sha256)
             .context("Invalid checksum hex")?
             .try_into()
             .map_err(|_| anyhow::anyhow!("Invalid checksum length"))?;
-
-        // Check if the supposed installer makes sense
-        let () = verify::Sha256Verifier::verify(&path, app_sha256).await?;
-
         Ok(Self {
             path,
             app_version,

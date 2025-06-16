@@ -243,18 +243,13 @@ where
         // the latest app version installer available, as we suspect that this is the app
         // version the user wants to install. This could be made more dynamic (i.e. a user
         // interaction instead).
-        let installer = match cache.get_metadata().await.ok() {
-            Some(response) => cache
-                .get_cached_installers(response)
-                .await
-                .into_iter()
-                .max_by(|a, b| {
-                    a.version()
-                        .partial_cmp(b.version())
-                        .unwrap_or(Ordering::Equal)
-                }),
-            None => None,
-        };
+        let installer = cache.get_metadata().await.ok().and_then(|m| {
+            cache.get_cached_installers(m).into_iter().max_by(|a, b| {
+                a.version()
+                    .partial_cmp(b.version())
+                    .unwrap_or(Ordering::Equal)
+            })
+        });
 
         match installer {
             Some(cached_app_installer) => {

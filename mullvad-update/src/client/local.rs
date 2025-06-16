@@ -42,12 +42,9 @@ impl AppCache for AppCacheDir {
     }
 
     /// Get an iterator of cached installers for the current architecture
-    async fn get_cached_installers(self, metadata: SignedResponse) -> Vec<Self::Installer> {
+    fn get_cached_installers(self, metadata: SignedResponse) -> Vec<Self::Installer> {
         let releases = metadata.get_releases();
-        let directory = &self.directory;
-        let mut installers = vec![];
-
-        for installer in releases
+        releases
             .into_iter()
             // Map releases to their version and its installer for the current architecture
             .flat_map(move |release| {
@@ -58,15 +55,9 @@ impl AppCache for AppCacheDir {
                     .map(|installer| (release.version, installer))
             })
             // Map to an `InstallerFile`, and filter out installers not present in cache
-            .map(move |(version, installer)| {
-                InstallerFile::<false>::try_from_installer(directory, version, installer)
-            })
-        {
-            if let Ok(installer) = installer.await {
-                installers.push(installer);
-            }
-        }
-        installers
+            .filter_map(move |(version, installer)| {
+                InstallerFile::<false>::try_from_installer(&self.directory, version, installer).ok()
+            }).collect()
     }
 }
 
@@ -80,7 +71,7 @@ impl AppCache for NoopAppCacheDir {
         NoopAppCacheDir
     }
 
-    async fn get_cached_installers(self, _metadata: SignedResponse) -> Vec<Self::Installer> {
+    fn get_cached_installers(self, _metadata: SignedResponse) -> Vec<Self::Installer> {
         vec![]
     }
 
