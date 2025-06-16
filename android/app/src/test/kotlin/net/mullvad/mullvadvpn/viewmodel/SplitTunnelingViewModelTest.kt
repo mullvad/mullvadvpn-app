@@ -183,6 +183,25 @@ class SplitTunnelingViewModelTest {
         }
     }
 
+    @Test
+    fun `apps should be sorted by name in descending order`() = runTest {
+        // Arrange
+        val app1 = AppData("com.example.app1", 0, "App A")
+        val app2 = AppData("com.example.app2", 0, "App B")
+        val app3 = AppData("com.example.app3", 0, "App Z")
+        val appList = listOf(app2, app1, app3)
+        val expectedState =
+            SplitTunnelingUiState.ShowAppList(
+                enabled = true,
+                includedApps = listOf(app1, app2, app3),
+                showSystemApps = false,
+            )
+        initTestSubject(appList = appList)
+
+        // Assert
+        testSubject.uiState.test { assertEquals(expectedState, awaitItem()) }
+    }
+
     private fun initTestSubject(appList: List<AppData>) {
         every { mockedApplicationsProvider.getAppsList() } returns appList
         testSubject =

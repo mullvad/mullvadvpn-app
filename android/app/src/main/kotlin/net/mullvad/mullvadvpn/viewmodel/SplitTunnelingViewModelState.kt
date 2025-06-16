@@ -37,7 +37,6 @@ data class SplitTunnelingViewModelState(
     }
 
     companion object {
-        private val descendingByNameComparator =
-            compareByDescending<AppData> { it.name.lowercase() }
+        private val descendingByNameComparator = compareBy<AppData> { it.name.lowercase() }
     }
 }
