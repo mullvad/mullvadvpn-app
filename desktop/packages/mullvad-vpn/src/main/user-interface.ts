@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import { app, BrowserWindow, dialog, Menu, nativeImage, screen, Tray } from 'electron';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
@@ -62,6 +62,19 @@ export default class UserInterface implements WindowControllerDelegate {
   }
 
   public registerIpcListeners() {
+    IpcMainEventChannel.daemon.handleTryStart(() => {
+      const child = spawn('cmd.exe', {
+        detached: true,
+        stdio: 'ignore',
+        windowsVerbatimArguments: true,
+      });
+
+      child.once('error', (error) => {
+        log.error(`Could not start daemon: ${error.message}`);
+        IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
+      });
+    });
+
     IpcMainEventChannel.app.handleShowOpenDialog(async (options) => {
       this.browsingFiles = true;
       const response = await dialog.showOpenDialog({
