@@ -45,6 +45,7 @@ use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
+use mullvad_types::relay_constraints::GeographicLocationConstraint;
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
 #[cfg(daita)]
@@ -70,6 +71,7 @@ use mullvad_types::{
 };
 use relay_list::{RelayListUpdater, RelayListUpdaterHandle, RELAYS_FILENAME};
 use settings::SettingsPersister;
+use std::collections::BTreeSet;
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
 #[cfg(target_os = "android")]
@@ -81,6 +83,8 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
+#[cfg(target_os = "android")]
+use talpid_core::connectivity_listener::ConnectivityListener;
 use talpid_core::{
     mpsc::Sender,
     split_tunnel,
@@ -310,7 +314,11 @@ pub enum DaemonCommand {
     /// Return a public key of the currently set wireguard private key, if there is one
     GetWireguardKey(ResponseTx<Option<PublicKey>, Error>),
     /// Create custom list
-    CreateCustomList(ResponseTx<mullvad_types::custom_list::Id, Error>, String),
+    CreateCustomList(
+        ResponseTx<mullvad_types::custom_list::Id, Error>,
+        String,
+        BTreeSet<GeographicLocationConstraint>,
+    ),
     /// Delete custom list
     DeleteCustomList(ResponseTx<(), Error>, mullvad_types::custom_list::Id),
     /// Update a custom list with a given id
@@ -1442,7 +1450,9 @@ impl Daemon {
             ResetSettings(tx) => self.on_reset_settings(tx).await,
             RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx),
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
-            CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
+            CreateCustomList(tx, name, locations) => {
+                self.on_create_custom_list(tx, name, locations).await
+            }
             DeleteCustomList(tx, id) => self.on_delete_custom_list(tx, id).await,
             UpdateCustomList(tx, update) => self.on_update_custom_list(tx, update).await,
             ClearCustomLists(tx) => self.on_clear_custom_lists(tx).await,
@@ -2865,8 +2875,9 @@ impl Daemon {
         &mut self,
         tx: ResponseTx<mullvad_types::custom_list::Id, Error>,
         name: String,
+        locations: BTreeSet<GeographicLocationConstraint>,
     ) {
-        let result = self.create_custom_list(name).await;
+        let result = self.create_custom_list(name, locations).await;
         Self::oneshot_send(tx, result, "create_custom_list response");
     }
 

@@ -76,6 +76,7 @@ import net.mullvad.mullvadvpn.lib.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState as ModelDnsState
 import net.mullvad.mullvadvpn.lib.model.DnsState
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
@@ -576,9 +577,17 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun createCustomList(
-        name: CustomListName
+        name: CustomListName,
+        locations: List<GeoLocationId>,
     ): Either<CreateCustomListError, CustomListId> =
-        Either.catch { grpc.createCustomList(StringValue.of(name.value)) }
+        Either.catch {
+                grpc.createCustomList(
+                    ManagementInterface.NewCustomList.newBuilder()
+                        .setName(name.value)
+                        .addAllLocations(locations.map(GeoLocationId::fromDomain))
+                        .build()
+                )
+            }
             .map { CustomListId(it.value) }
             .mapLeftStatus {
                 when (it.status.code) {

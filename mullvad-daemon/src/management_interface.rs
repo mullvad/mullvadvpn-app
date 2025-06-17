@@ -4,10 +4,12 @@ use futures::{
     StreamExt,
 };
 use mullvad_api::{rest::Error as RestError, StatusCode};
+use mullvad_management_interface::types::FromProtobufTypeError;
 use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, ServerJoinHandle, Status,
 };
+use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::{
     account::AccountNumber,
     relay_constraints::{
@@ -20,6 +22,7 @@ use mullvad_types::{
     version,
     wireguard::{RotationInterval, RotationIntervalError},
 };
+use std::collections::BTreeSet;
 use std::{
     path::Path,
     str::FromStr,
@@ -663,13 +666,22 @@ impl ManagementService for ManagementServiceImpl {
     // Custom lists
     //
 
-    async fn create_custom_list(&self, request: Request<String>) -> ServiceResult<String> {
-        log::debug!("create_custom_list");
+    async fn create_custom_list(
+        &self,
+        request: Request<types::NewCustomList>,
+    ) -> ServiceResult<String> {
+        log::debug!("create_custom_list_with_location");
+        let request = request.into_inner();
+        let locations = request
+            .locations
+            .into_iter()
+            .map(GeographicLocationConstraint::try_from)
+            .collect::<Result<BTreeSet<_>, FromProtobufTypeError>>()?;
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::CreateCustomList(tx, request.into_inner()))?;
+        self.send_command_to_daemon(DaemonCommand::CreateCustomList(tx, request.name, locations))?;
         self.wait_for_result(rx)
             .await?
-            .map(|response| Response::new(response.to_string()))
+            .map(|id| Response::new(id.to_string()))
             .map_err(map_daemon_error)
     }
 

@@ -571,9 +571,13 @@ impl MullvadProxyClient {
     }
 
     pub async fn create_custom_list(&mut self, name: String) -> Result<Id> {
+        let request = types::NewCustomList {
+            name,
+            locations: Vec::new(),
+        };
         let id = self
             .0
-            .create_custom_list(name)
+            .create_custom_list(request)
             .await
             .map_err(map_custom_list_error)?
             .into_inner();
