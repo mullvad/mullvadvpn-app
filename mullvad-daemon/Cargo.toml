@@ -11,6 +11,8 @@ rust-version.workspace = true
 workspace = true
 
 [features]
+default = ["resource"]
+resource = ["winres"]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override"]
 boringtun = ["talpid-core/boringtun"]
@@ -96,7 +98,7 @@ features = [
 ]
 
 [target.'cfg(windows)'.build-dependencies]
-winres = "0.1"
+winres = { version = "0.1", optional = true }
 mullvad-version = { path = "../mullvad-version" }
 
 [target.'cfg(windows)'.build-dependencies.windows-sys]

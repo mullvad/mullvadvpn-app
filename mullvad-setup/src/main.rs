@@ -7,6 +7,12 @@ use talpid_core::firewall::{self, Firewall};
 use talpid_future::retry::{retry_future, ConstantInterval};
 use talpid_types::ErrorExt;
 
+#[cfg(target_os = "windows")]
+mod service;
+
+#[cfg(target_os = "windows")]
+mod elevate;
+
 static APP_VERSION: LazyLock<Version> =
     LazyLock::new(|| Version::from_str(mullvad_version::VERSION).unwrap());
 
@@ -63,6 +69,30 @@ pub enum Error {
 
     #[error("Cannot parse the version string")]
     ParseVersionStringError,
+
+    #[cfg(target_os = "windows")]
+    #[error("Failed to check if running as admin")]
+    AdminCheck(#[source] std::io::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error("Failed to start system service")]
+    StartService(#[source] windows_service::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error("Failed to query system service")]
+    QueryServiceStatus(#[source] windows_service::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error("Starting system service timed out")]
+    StartServiceTimeout,
+
+    #[cfg(target_os = "windows")]
+    #[error("Failed to open service")]
+    OpenService,
+
+    #[cfg(target_os = "windows")]
+    #[error("Failed to open service control manager")]
+    OpenServiceControlManager,
 }
 
 #[derive(Debug, Parser)]
@@ -86,6 +116,9 @@ enum Cli {
         #[arg(required = true)]
         old_version: String,
     },
+    /// Start the Mullvad daemon service
+    #[cfg(target_os = "windows")]
+    StartService,
 }
 
 #[tokio::main]
@@ -103,6 +136,8 @@ async fn main() {
                 Err(error) => Err(error),
             }
         }
+        #[cfg(target_os = "windows")]
+        Cli::StartService => service::start().await,
     };
 
     if let Err(e) = result {
