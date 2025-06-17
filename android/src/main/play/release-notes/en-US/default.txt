@@ -1,0 +1,4 @@
+- Added support for purchasing 90 days.
+- Improved Post quantum performance.
+- Improved the add time flow.
+- Fixed issue with offline detection on Android 9 and below.
