@@ -32,9 +32,12 @@ Line wrap the file at 100 chars.                                              Th
   uses a lot less CPU to compute the keypair, and the public key sent to the server
   is drastically smaller.
 
-## [2025.5 - 2025-06-XX]
+## [2025.5 - 2025-06-17]
 ### Changed
 - Make the app feel more responsive when reconnecting.
+
+### Fixed
+- Fix app thinking the device is offline when another VPN is already active.
 
 ## [2025.4 - 2025-05-20]
 ### Added
