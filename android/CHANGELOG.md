@@ -21,12 +21,24 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [Unreleased]
+## [android/2025.5-beta1] - 2025-06-17
+### Added
+- Add the ability to purchase 90 days (3 months).
+
 ### Changed
 - Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
   mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
   uses a lot less CPU to compute the keypair, and the public key sent to the server
   is drastically smaller.
+- Update the UI and flow for adding time.
+- Change so that search no longer require at least 2 letters.
+
+### Removed
+- Remove logging from Google in-app purchase component in an experimental and non-supported way.
+  Only affects our Google Play builds.
+
+### Fixed
+- Fix offline detection on Android 9 and below.
 
 
 ## [android/2025.4] - 2025-05-28
