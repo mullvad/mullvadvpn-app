@@ -155,7 +155,7 @@ impl Bridge {
                 let list =
                     super::custom_list::find_list_by_name(&mut rpc, &custom_list_name).await?;
                 let location =
-                    Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
+                    Constraint::Only(LocationConstraint::CustomList { list_id: list.id() });
                 Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
             }
             SetCommands::Ownership { ownership } => {

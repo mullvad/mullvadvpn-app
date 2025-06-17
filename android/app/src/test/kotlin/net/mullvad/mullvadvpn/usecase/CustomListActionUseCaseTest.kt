@@ -62,12 +62,8 @@ class CustomListActionUseCaseTest {
                     undo = action.not(createdId),
                 )
                 .right()
-        coEvery { mockCustomListsRepository.createCustomList(name) } returns createdId.right()
-        coEvery {
-            mockCustomListsRepository.updateCustomList(
-                CustomList(createdId, name, listOf(locationId))
-            )
-        } returns Unit.right()
+        coEvery { mockCustomListsRepository.createCustomList(name, listOf(locationId)) } returns
+            createdId.right()
         relayListFlow.value =
             listOf(
                 RelayItem.Location.Country(
@@ -91,7 +87,7 @@ class CustomListActionUseCaseTest {
         val locationId = GeoLocationId.Country("AB")
         val action = CustomListAction.Create(name = name, locations = listOf(locationId))
         val expectedError = CreateWithLocationsError.Create(CustomListAlreadyExists).left()
-        coEvery { mockCustomListsRepository.createCustomList(name) } returns
+        coEvery { mockCustomListsRepository.createCustomList(name, listOf(locationId)) } returns
             CustomListAlreadyExists.left()
 
         // Act

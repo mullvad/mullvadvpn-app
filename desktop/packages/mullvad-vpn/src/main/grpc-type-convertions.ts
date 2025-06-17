@@ -47,6 +47,7 @@ import {
   LoggedInDeviceState,
   LoggedOutDeviceState,
   NewAccessMethodSetting,
+  NewCustomList,
   ObfuscationSettings,
   ObfuscationType,
   Ownership,
@@ -1343,6 +1344,14 @@ function convertFromSocksAuth(auth: grpcTypes.SocksAuth): SocksAuth {
     username: auth.getUsername(),
     password: auth.getPassword(),
   };
+}
+
+export function convertToNewCustomList(customList: NewCustomList): grpcTypes.NewCustomList {
+  const newCustomList = new grpcTypes.NewCustomList();
+  newCustomList.setName(customList.name);
+  const locations = customList.locations.map(convertToGeographicConstraint);
+  newCustomList.setLocationsList(locations);
+  return newCustomList;
 }
 
 export function ensureExists<T>(value: T | undefined, errorMessage: string): T {
