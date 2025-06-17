@@ -85,7 +85,10 @@ extension IPOverrideWrapperTests {
             publicKey: Data(),
             includeInCountry: true,
             daita: false,
-            shadowsocksExtraAddrIn: nil
+            shadowsocksExtraAddrIn: nil,
+            quicHostname: nil,
+            masqueExtraAddrIn: nil,
+            features: nil
         )
     }
 
