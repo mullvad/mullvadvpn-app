@@ -36,6 +36,7 @@ import { MapData } from '../renderer/lib/3dmap';
 import { AppUpgradeError, AppUpgradeEvent } from './app-upgrade';
 import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
 import {
+  DaemonStatus,
   IChangelog,
   ICurrentAppVersionInfo,
   IHistoryObject,
@@ -142,6 +143,8 @@ export const ipcSchema = {
     connected: notifyRenderer<void>(),
     disconnected: notifyRenderer<void>(),
     prepareRestart: send<boolean>(),
+    tryStart: send<void>(),
+    tryStartEvent: notifyRenderer<DaemonStatus>(),
   },
   relays: {
     '': notifyRenderer<IRelayListWithEndpointData>(),
