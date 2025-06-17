@@ -18,6 +18,7 @@ import {
 } from './ipc-event-channel';
 import { WebContentsConsoleInput } from './logging';
 import { isMacOs11OrNewer } from './platform-version';
+import { resolveBin } from './proc';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController, { WindowControllerDelegate } from './window-controller';
 
@@ -63,16 +64,34 @@ export default class UserInterface implements WindowControllerDelegate {
 
   public registerIpcListeners() {
     IpcMainEventChannel.daemon.handleTryStart(() => {
-      const child = spawn('cmd.exe', {
-        detached: true,
-        stdio: 'ignore',
-        windowsVerbatimArguments: true,
-      });
+      try {
+        const SETUP_PATH = `"${resolveBin('mullvad-setup')}"`;
 
-      child.once('error', (error) => {
-        log.error(`Could not start daemon: ${error.message}`);
+        // TODO: Absolute path to powershell? This varies, however.
+        const child = spawn('powershell.exe', ['-Command', 'Start-Process', SETUP_PATH, 'start-service', '-Verb', 'RunAs', '-WindowStyle', 'Hidden', '-Wait'],
+          {
+            detached: false,
+            stdio: 'ignore',
+            windowsVerbatimArguments: true,
+        });
+        child.once('error', (error) => {
+          log.error(`Start service failed: ${error.message}`);
+          IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
+        });
+
+        child.once('exit', (code) => {
+          if (code !== 0) {
+            log.error(`mullvad-setup exited unexpectedly with exit code: ${code}`);
+            IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
+          }
+        });
+      } catch (e) {
+        const error = e as Error;
+        log.error(
+          `Failed to start mullvad-setup. Error: ${error.message}`,
+        );
         IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
-      });
+      }
     });
 
     IpcMainEventChannel.app.handleShowOpenDialog(async (options) => {
