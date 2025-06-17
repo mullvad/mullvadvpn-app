@@ -1,7 +1,11 @@
 #![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
 
 use crate::cli;
-use mullvad_daemon::{runtime::new_multi_thread, DaemonShutdownHandle};
+use mullvad_daemon::{
+    runtime::new_multi_thread,
+    service::{SERVICE_DISPLAY_NAME, SERVICE_NAME},
+    DaemonShutdownHandle,
+};
 use std::{
     env,
     ffi::{c_void, OsString},
@@ -33,8 +37,6 @@ use windows_sys::Win32::{
     },
 };
 
-static SERVICE_NAME: &str = "MullvadVPN";
-static SERVICE_DISPLAY_NAME: &str = "Mullvad VPN Service";
 static SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
 const SERVICE_RECOVERY_LAST_RESTART_DELAY: Duration = Duration::from_secs(60 * 10);

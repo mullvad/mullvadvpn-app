@@ -3203,6 +3203,8 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.9",
  "tokio",
+ "windows-service",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]

@@ -31,3 +31,10 @@ mullvad-version = { path = "../mullvad-version" }
 talpid-core = { path = "../talpid-core" }
 talpid-future = { path = "../talpid-future" }
 talpid-types = { path = "../talpid-types" }
+
+[target.'cfg(windows)'.dependencies]
+windows-service = "0.6.0"
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+workspace = true
+features = ["Win32_Foundation"]
