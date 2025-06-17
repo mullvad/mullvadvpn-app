@@ -1,0 +1,5 @@
+- Added support for purchasing 90 days.
+- Removed logging from Google Play in-app purchases.
+- Improved the Quantum-resistant tunnel performance.
+- Improved and unified the flow for adding time.
+- Fixed issue with offline detection on Android 9 and below.
