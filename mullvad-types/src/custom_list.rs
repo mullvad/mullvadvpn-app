@@ -144,7 +144,10 @@ pub struct CustomList {
 }
 
 impl CustomList {
-    pub fn new(name: String) -> Result<Self, Error> {
+    pub fn new(
+        name: String,
+        locations: BTreeSet<GeographicLocationConstraint>,
+    ) -> Result<Self, Error> {
         if name.chars().count() > CUSTOM_LIST_NAME_MAX_SIZE {
             return Err(Error::NameTooLong);
         }
@@ -152,7 +155,7 @@ impl CustomList {
         Ok(CustomList {
             id: Id(uuid::Uuid::new_v4()),
             name,
-            locations: BTreeSet::new(),
+            locations,
         })
     }
 }

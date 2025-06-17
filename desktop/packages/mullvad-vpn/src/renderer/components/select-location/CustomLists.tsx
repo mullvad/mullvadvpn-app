@@ -5,6 +5,7 @@ import {
   CustomListError,
   type CustomLists,
   type RelayLocation,
+  RelayLocationGeographical,
 } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
@@ -81,7 +82,9 @@ export default function CustomLists(props: CustomListsProps) {
 
   const createList = useCallback(
     async (name: string): Promise<void | CustomListError> => {
-      const result = await createCustomList(name);
+      const locations = new Array<RelayLocationGeographical>();
+      const newCustomList = { name, locations };
+      const result = await createCustomList(newCustomList);
       // If an error is returned it should be passed as the return value.
       if (result) {
         return result;

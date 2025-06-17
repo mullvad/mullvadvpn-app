@@ -1,18 +1,24 @@
 use crate::{Daemon, Error};
 use mullvad_relay_selector::SelectorConfig;
+use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::{
     constraints::Constraint,
     custom_list::{CustomList, Id},
     relay_constraints::{BridgeState, LocationConstraint, RelaySettings, ResolvedBridgeSettings},
 };
+use std::collections::BTreeSet;
 use talpid_types::net::TunnelType;
 
 impl Daemon {
     /// Create a new custom list.
     ///
     /// Returns an error if the name is not unique.
-    pub async fn create_custom_list(&mut self, name: String) -> Result<Id, crate::Error> {
-        let new_list = CustomList::new(name).map_err(crate::Error::CustomListError)?;
+    pub async fn create_custom_list(
+        &mut self,
+        name: String,
+        locations: BTreeSet<GeographicLocationConstraint>,
+    ) -> Result<Id, crate::Error> {
+        let new_list = CustomList::new(name, locations).map_err(crate::Error::CustomListError)?;
         let id = new_list.id;
 
         self.settings
