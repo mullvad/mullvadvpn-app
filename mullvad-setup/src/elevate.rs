@@ -1,6 +1,6 @@
 //! Helpers for restarting and elevating the current program to admin.
 //! Using `ShellExecuteExW` rather than a manifest lets us hide the new window instead of opening
-//! cmd without switching the subsystem to Windows.
+//! cmd without changing the subsystem to Windows.
 
 use std::ffi::OsStr;
 use std::io;
@@ -61,13 +61,11 @@ pub fn is_running_as_admin() -> io::Result<bool> {
 /// Note that `stdout` and `stderr` will be lost.
 pub fn rerun_as_admin() -> ! {
     let exe_path = std::env::current_exe().unwrap();
+    let exe_path_w = to_wide_null(exe_path.as_os_str());
 
     let verb = "runas";
-
-    let exe_path_w = to_wide_null(exe_path.as_os_str());
     let verb_w = to_wide_null(OsStr::new(verb));
 
-    // Convert arguments into quoted space-delimited args
     let args = args_to_quoted_args(std::env::args().skip(1));
     let args_w = to_wide_null(OsStr::new(&args));
 
@@ -79,7 +77,8 @@ pub fn rerun_as_admin() -> ! {
     sei.lpParameters = args_w.as_ptr();
     sei.nShow = SW_HIDE;
 
-    // SAFETY: `sei` is a valid SHELLEXECUTEINFOW instance.
+    // SAFETY: `sei` is a valid SHELLEXECUTEINFOW instance, and all of the pointers
+    // are valid until `rerun_as_admin` returns.
     let success = unsafe { ShellExecuteExW(&mut sei) };
     if success == 0 {
         // SAFETY: The handle must be closed due to SEE_MASK_NOCLOSEPROCESS
