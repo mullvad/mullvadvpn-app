@@ -10,9 +10,6 @@ use talpid_types::ErrorExt;
 #[cfg(target_os = "windows")]
 mod service;
 
-#[cfg(target_os = "windows")]
-mod elevate;
-
 static APP_VERSION: LazyLock<Version> =
     LazyLock::new(|| Version::from_str(mullvad_version::VERSION).unwrap());
 
@@ -69,10 +66,6 @@ pub enum Error {
 
     #[error("Cannot parse the version string")]
     ParseVersionStringError,
-
-    #[cfg(target_os = "windows")]
-    #[error("Failed to check if running as admin")]
-    AdminCheck(#[source] std::io::Error),
 
     #[cfg(target_os = "windows")]
     #[error("Failed to start system service")]

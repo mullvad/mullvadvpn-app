@@ -3,7 +3,6 @@ use std::{
     time::Duration,
 };
 
-use super::elevate::*;
 use super::Error;
 
 use windows_service::{
@@ -18,10 +17,6 @@ const SERVICE_DESC: &str = "Mullvad VPN";
 const WAIT_STATUS_TIMEOUT: Duration = Duration::from_secs(8);
 
 pub async fn start() -> Result<(), Error> {
-    if !is_running_as_admin().map_err(Error::AdminCheck)? {
-        rerun_as_admin();
-    }
-
     tokio::task::spawn_blocking(|| start_and_wait_for_service())
         .await
         .unwrap()
