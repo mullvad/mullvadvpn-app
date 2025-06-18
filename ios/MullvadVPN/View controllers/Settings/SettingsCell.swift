@@ -37,6 +37,15 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
     let rightContentContainer = UIView()
     var infoButtonHandler: InfoButtonHandler? { didSet {
         infoButton.isHidden = infoButtonHandler == nil
+
+        let buttonWidth: CGFloat = 24
+        let buttonAreaWidth = UIMetrics.contentLayoutMargins.leading + UIMetrics
+            .contentLayoutMargins.trailing + 24
+
+        infoButton.widthAnchor
+            .constraint(
+                equalToConstant: infoButton.isHidden ? 0 : buttonAreaWidth
+            ).isActive = true
     }}
 
     var disclosureType: SettingsDisclosureType = .none {
@@ -77,7 +86,6 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
     }()
 
     private var subCellLeadingIndentation: CGFloat = 0
-    private let buttonWidth: CGFloat = 24
 
     private let infoButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -109,9 +117,6 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
 
         setLayoutMargins()
 
-        let buttonAreaWidth = UIMetrics.contentLayoutMargins.leading + UIMetrics
-            .contentLayoutMargins.trailing + buttonWidth
-
         let infoButtonConstraint = infoButton.trailingAnchor.constraint(
             greaterThanOrEqualTo: mainContentContainer.trailingAnchor
         )
@@ -121,7 +126,11 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
             switch style {
             case .subtitle:
                 titleLabel.pinEdgesToSuperview(.init([.top(0), .leading(0)]))
+                titleLabel.trailingAnchor
+                    .constraint(lessThanOrEqualTo: mainContentContainer.trailingAnchor)
                 detailTitleLabel.pinEdgesToSuperview(.all().excluding([.top, .trailing]))
+                detailTitleLabel.trailingAnchor
+                    .constraint(lessThanOrEqualTo: mainContentContainer.trailingAnchor)
                 detailTitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor)
                 infoButtonConstraint
 
@@ -136,7 +145,6 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
                 constant: -UIMetrics.interButtonSpacing
             )
             infoButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor)
-            infoButton.widthAnchor.constraint(equalToConstant: buttonAreaWidth)
         }
 
         contentView.addConstrainedSubviews([leftContentContainer, mainContentContainer, rightContentContainer]) {

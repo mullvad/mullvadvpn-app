@@ -17,7 +17,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = .systemFont(ofSize: 17)
         titleLabel.textColor = UIColor.Cell.titleTextColor
-        titleLabel.numberOfLines = 0
+        titleLabel.numberOfLines = 1
         return titleLabel
     }()
 
