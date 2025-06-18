@@ -80,7 +80,7 @@ pub enum Error {
 
     #[cfg(target_os = "windows")]
     #[error("Failed to query system service")]
-    QueryServiceStatus,
+    QueryServiceStatus(#[source] windows_service::Error),
 
     #[cfg(target_os = "windows")]
     #[error("Starting system service timed out")]

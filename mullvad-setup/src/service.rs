@@ -55,9 +55,7 @@ fn start_and_wait_for_service() -> Result<(), Error> {
 fn wait_for_status(service: &Service, target_state: ServiceState) -> Result<(), Error> {
     let initial_time = std::time::Instant::now();
     loop {
-        let status = service
-            .query_status()
-            .map_err(|_| Error::QueryServiceStatus)?;
+        let status = service.query_status().map_err(Error::QueryServiceStatus)?;
 
         if status.current_state == target_state {
             break;
