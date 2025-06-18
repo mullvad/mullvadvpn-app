@@ -33,7 +33,7 @@ class HeaderBarView: UIView {
         label.font = .mullvadMiniSemiBold
         label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
-        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         label.setAccessibilityIdentifier(.headerDeviceNameLabel)
         return label
     }()
@@ -43,7 +43,7 @@ class HeaderBarView: UIView {
         label.font = .mullvadMiniSemiBold
         label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
-        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return label
     }()
 

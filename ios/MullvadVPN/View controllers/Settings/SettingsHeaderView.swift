@@ -18,7 +18,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         titleLabel.font = .mullvadSmallSemiBold
         titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.textColor = UIColor.Cell.titleTextColor
-        titleLabel.numberOfLines = 0
+        titleLabel.numberOfLines = 1
         return titleLabel
     }()
 
