@@ -6,7 +6,6 @@ fn main() -> anyhow::Result<()> {
         .as_str()
         .contains("windows")
     {
-        // This crate only makes sense on x64 Windows
         return Ok(());
     }
 
