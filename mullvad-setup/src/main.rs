@@ -81,11 +81,11 @@ pub enum Error {
 
     #[cfg(target_os = "windows")]
     #[error("Failed to open service")]
-    OpenService,
+    OpenService(#[source] windows_service::Error),
 
     #[cfg(target_os = "windows")]
     #[error("Failed to open service control manager")]
-    OpenServiceControlManager,
+    OpenServiceControlManager(#[source] windows_service::Error),
 }
 
 #[derive(Debug, Parser)]

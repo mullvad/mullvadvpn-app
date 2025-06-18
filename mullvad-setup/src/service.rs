@@ -29,11 +29,11 @@ fn start_and_wait_for_service() -> Result<(), Error> {
         None::<OsString>,
         ServiceManagerAccess::CONNECT | ServiceManagerAccess::CREATE_SERVICE,
     )
-    .map_err(|_| Error::OpenServiceControlManager)?;
+    .map_err(Error::OpenServiceControlManager)?;
 
     let service = scm
         .open_service(SERVICE_NAME, ServiceAccess::all())
-        .map_err(|_err| Error::OpenService)?;
+        .map_err(Error::OpenService)?;
 
     if let Err(error) = service.start::<&OsStr>(&[]) {
         if let windows_service::Error::Winapi(error) = &error {
