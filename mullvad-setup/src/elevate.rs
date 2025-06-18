@@ -108,7 +108,7 @@ fn to_wide_null(s: &OsStr) -> Vec<u16> {
     s.encode_wide().chain(once(0)).collect()
 }
 
-/// Convert argument into a space-delimited string of arguments.
+/// Convert arguments into a space-delimited string of arguments.
 /// Arguments that contain spaces or quotes are quoted, and quotes
 /// within arguments are escaped.
 fn args_to_quoted_args(args: impl IntoIterator<Item = String>) -> String {
