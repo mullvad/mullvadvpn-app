@@ -116,7 +116,7 @@ enum Cli {
         #[arg(required = true)]
         old_version: String,
     },
-    // TODO: Hide
+    /// Start the Mullvad daemon service
     #[cfg(target_os = "windows")]
     StartService,
 }
