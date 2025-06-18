@@ -137,6 +137,10 @@ function newConfig() {
           to: '.',
         },
         { from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-daemon.exe')), to: '.' },
+        {
+          from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-setup.exe')),
+          to: '.',
+        },
         { from: distAssets(path.join('${env.DIST_SUBDIR}', 'talpid_openvpn_plugin.dll')), to: '.' },
         {
           from: root(
