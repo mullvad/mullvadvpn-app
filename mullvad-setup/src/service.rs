@@ -16,6 +16,7 @@ const SERVICE_NAME: &str = "mullvadvpn";
 const SERVICE_DESC: &str = "Mullvad VPN";
 const WAIT_STATUS_TIMEOUT: Duration = Duration::from_secs(8);
 
+/// Start Mullvad VPN service and wait until it is running
 pub async fn start() -> Result<(), Error> {
     tokio::task::spawn_blocking(|| start_and_wait_for_service())
         .await
