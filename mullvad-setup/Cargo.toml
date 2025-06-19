@@ -52,9 +52,3 @@ features = [
 winres = "0.1"
 anyhow.workspace = true
 mullvad-version = { path = "../mullvad-version" }
-
-[package.metadata.winres]
-ProductName = "Mullvad VPN"
-CompanyName = "Mullvad VPN AB"
-LegalCopyright = "(c) 2025 Mullvad VPN AB"
-InternalName = "mullvad-setup"
