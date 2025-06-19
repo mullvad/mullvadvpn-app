@@ -36,7 +36,7 @@ talpid-types = { path = "../talpid-types" }
 windows-service = "0.6.0"
 anyhow.workspace = true
 
-[dependencies.windows-sys]
+[target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
 features = [
     "Win32_Foundation",
@@ -51,7 +51,6 @@ features = [
 [build-dependencies]
 winres = "0.1"
 anyhow.workspace = true
-windows-sys = { workspace = true, features = ["Win32_System_SystemServices"] }
 mullvad-version = { path = "../mullvad-version" }
 
 [package.metadata.winres]
