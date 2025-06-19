@@ -68,9 +68,10 @@ export default class UserInterface implements WindowControllerDelegate {
 
       try {
         const SETUP_PATH = `"${resolveBin('mullvad-setup')}"`;
+        const SYSTEM_ROOT_PATH = process.env.SYSTEMROOT || process.env.windir || 'C:\\Windows';
+        const PWSH_PATH = `${SYSTEM_ROOT_PATH}\\System32\\WindowsPowershell\\v1.0\\powershell.exe`;
 
-        // TODO: Absolute path to powershell? This varies, however.
-        const child = spawn('powershell.exe', ['-Command', 'Start-Process', SETUP_PATH, 'start-service', '-Verb', 'RunAs', '-WindowStyle', 'Hidden', '-Wait'],
+        const child = spawn(PWSH_PATH, ['-Command', 'Start-Process', SETUP_PATH, 'start-service', '-Verb', 'RunAs', '-WindowStyle', 'Hidden', '-Wait'],
           {
             detached: false,
             stdio: 'ignore',
