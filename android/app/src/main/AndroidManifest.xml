@@ -122,13 +122,33 @@
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".receiver.BootCompletedReceiver"
-                          android:enabled="false"
-                          android:exported="false">
-                    <intent-filter>
-                        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-                        <action android:name="android.intent.action.BOOT_COMPLETED" />
-                    </intent-filter>
-                </receiver>
+        <receiver
+                android:name=".receiver.NotificationAlarmReceiver"
+                android:exported="false" />
+        <receiver
+                android:name=".receiver.TimeChangedReceiver"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+                android:name=".receiver.AutoStartVpnBootCompletedReceiver"
+                android:enabled="false"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+                android:name=".receiver.ScheduleNotificationBootCompletedReceiver"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
