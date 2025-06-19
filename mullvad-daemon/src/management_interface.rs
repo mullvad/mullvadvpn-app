@@ -1,12 +1,12 @@
-use crate::{account_history, device, DaemonCommand, DaemonCommandSender};
+use crate::{DaemonCommand, DaemonCommandSender, account_history, device};
 use futures::{
-    channel::{mpsc, oneshot},
     StreamExt,
+    channel::{mpsc, oneshot},
 };
-use mullvad_api::{rest::Error as RestError, StatusCode};
+use mullvad_api::{StatusCode, rest::Error as RestError};
 use mullvad_management_interface::{
-    types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, ServerJoinHandle, Status,
+    types::{self, daemon_event, management_service_server::ManagementService},
 };
 use mullvad_types::{
     account::AccountNumber,
@@ -1207,6 +1207,7 @@ impl ManagementService for ManagementServiceImpl {
     }
 }
 
+#[allow(clippy::result_large_err)]
 impl ManagementServiceImpl {
     /// Sends a command to the daemon and maps the error to an RPC error.
     fn send_command_to_daemon(&self, command: DaemonCommand) -> Result<(), Status> {
