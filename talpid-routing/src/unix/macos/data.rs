@@ -968,7 +968,7 @@ impl RouteSocketAddress {
     }
 }
 
-/// Route socket addreses should be ordered by their corresponding address flag when a route
+/// Route socket addresses should be ordered by their corresponding address flag when a route
 /// message is constructed
 impl std::cmp::PartialOrd for RouteSocketAddress {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
@@ -1031,7 +1031,7 @@ impl Iterator for RouteSockAddrIterator<'_> {
         // Will return None if it runs out of set flags.
         let current_flag = self.flags_iter.next()?;
 
-        // Any undefiend flags are all returned as a clump in the final iteration.
+        // Any undefined flags are all returned as a clump in the final iteration.
         let no_undefined_flags = AddressFlag::all().contains(current_flag);
         debug_assert!(
             no_undefined_flags,
