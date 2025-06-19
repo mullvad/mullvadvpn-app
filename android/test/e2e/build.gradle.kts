@@ -87,13 +87,6 @@ android {
     buildFeatures { buildConfig = true }
 }
 
-junitPlatform {
-    instrumentationTests {
-        version.set(libs.versions.junit5.android.asProvider())
-        includeExtensions.set(true)
-    }
-}
-
 androidComponents {
     beforeVariants { variantBuilder ->
         variantBuilder.enable =
