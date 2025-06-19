@@ -191,7 +191,7 @@ pub async fn set_test_location(
 
     let mut custom_list = find_custom_list(mullvad_client, &custom_list_name).await?;
 
-    assert_eq!(list_id, custom_list.id);
+    assert_eq!(list_id, custom_list.id());
     for location in locations {
         custom_list.locations.insert(location);
     }
