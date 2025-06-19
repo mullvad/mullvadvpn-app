@@ -60,20 +60,3 @@ impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
         })
     }
 }
-
-impl TryFrom<proto::NewCustomList> for mullvad_types::custom_list::CustomList {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(custom_list: proto::NewCustomList) -> Result<Self, Self::Error> {
-        let locations = custom_list
-            .locations
-            .into_iter()
-            .map(GeographicLocationConstraint::try_from)
-            .collect::<Result<BTreeSet<_>, Self::Error>>()?;
-        Ok(Self {
-            id: Id::default(),
-            name: custom_list.name,
-            locations,
-        })
-    }
-}
