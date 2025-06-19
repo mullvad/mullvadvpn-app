@@ -67,15 +67,29 @@ export default class UserInterface implements WindowControllerDelegate {
       IpcMainEventChannel.daemon.notifyTryStartEvent?.('start-requested');
 
       try {
-        const SETUP_PATH = `"${resolveBin('mullvad-setup')}"`;
+        const SETUP_PATH = `"\\"${resolveBin('mullvad-setup')}\\""`;
+        const SYSTEM_ROOT_PATH = process.env.SYSTEMROOT || process.env.windir || 'C:\\Windows';
+        const PWSH_PATH = `${SYSTEM_ROOT_PATH}\\System32\\WindowsPowershell\\v1.0\\powershell.exe`;
 
-        // TODO: Absolute path to powershell? This varies, however.
-        const child = spawn('powershell.exe', ['-Command', 'Start-Process', SETUP_PATH, 'start-service', '-Verb', 'RunAs', '-WindowStyle', 'Hidden', '-Wait'],
+        const child = spawn(
+          PWSH_PATH,
+          [
+            '-Command',
+            'Start-Process',
+            SETUP_PATH,
+            'start-service',
+            '-Verb',
+            'RunAs',
+            '-WindowStyle',
+            'Hidden',
+            '-Wait',
+          ],
           {
             detached: false,
             stdio: 'ignore',
             windowsVerbatimArguments: true,
-        });
+          },
+        );
         child.once('error', (error) => {
           log.error(`"mullvad-setup.exe start-service" failed: ${error.message}`);
           IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
@@ -83,7 +97,9 @@ export default class UserInterface implements WindowControllerDelegate {
 
         child.once('exit', (code) => {
           if (code !== 0) {
-            log.error(`"mullvad-setup.exe start-service" exited unexpectedly with exit code: ${code}`);
+            log.error(
+              `"mullvad-setup.exe start-service" exited unexpectedly with exit code: ${code}`,
+            );
             IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
           } else {
             log.info('"mullvad-setup.exe start-service" succeeded');
@@ -92,9 +108,7 @@ export default class UserInterface implements WindowControllerDelegate {
         });
       } catch (e) {
         const error = e as Error;
-        log.error(
-          `Failed to run "mullvad-setup.exe start-service". Error: ${error.message}`,
-        );
+        log.error(`Failed to run "mullvad-setup.exe start-service". Error: ${error.message}`);
         IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
       }
     });
