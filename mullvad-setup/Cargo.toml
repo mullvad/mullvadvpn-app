@@ -23,7 +23,7 @@ mullvad-management-interface = { path = "../mullvad-management-interface" }
 
 tokio = { workspace = true, features =  ["rt-multi-thread"] }
 
-mullvad-daemon = { path = "../mullvad-daemon", default-features = false }
+mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-api = { path = "../mullvad-api" }
 mullvad-types = { path = "../mullvad-types" }

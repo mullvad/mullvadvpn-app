@@ -1,7 +1,6 @@
 use std::{env, fs, path::PathBuf, process::Command};
 
 #[cfg(windows)]
-#[cfg(feature = "resource")]
 fn make_lang_id(p: u16, s: u16) -> u16 {
     (s << 10) | p
 }
@@ -11,7 +10,6 @@ fn main() {
     fs::write(out_dir.join("git-commit-date.txt"), commit_date()).unwrap();
 
     #[cfg(windows)]
-    #[cfg(feature = "resource")]
     {
         let mut res = winres::WindowsResource::new();
         res.set("ProductVersion", mullvad_version::VERSION);
