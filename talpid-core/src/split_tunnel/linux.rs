@@ -1,9 +1,12 @@
 use std::{
     env, fs,
     io::{self, BufRead, BufReader, Write},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
-use talpid_types::cgroup::{find_net_cls_mount, SPLIT_TUNNEL_CGROUP_NAME};
+use talpid_types::{
+    cgroup::{find_net_cls_mount, SPLIT_TUNNEL_CGROUP_NAME},
+    ErrorExt,
+};
 
 const DEFAULT_NET_CLS_DIR: &str = "/sys/fs/cgroup/net_cls";
 const NET_CLS_DIR_OVERRIDE_ENV_VAR: &str = "TALPID_NET_CLS_MOUNT_DIR";
@@ -25,6 +28,10 @@ pub enum Error {
     /// Unable to create cgroup.
     #[error("Unable to create cgroup for excluded processes")]
     CreateCGroup(#[source] io::Error),
+
+    /// Split tunneling is unavailable
+    #[error("Failed to set up split tunneling")]
+    Unavailable,
 
     /// Unable to set class ID for cgroup.
     #[error("Unable to set cgroup class ID")]
@@ -49,20 +56,39 @@ pub enum Error {
 
 /// Manages PIDs in the Linux Cgroup excluded from the VPN tunnel.
 pub struct PidManager {
-    net_cls_path: PathBuf,
+    inner: Inner,
 }
 
-impl PidManager {
+enum Inner {
+    Ok { net_cls_path: PathBuf },
+    Failed { err: Error },
+}
+
+impl Default for PidManager {
     /// Creates a new PID Cgroup manager.
     ///
     /// Finds the corresponding Cgroup to use. Will mount a `net_cls` filesystem
     /// if none exists.
-    pub fn new() -> Result<PidManager, Error> {
-        let manager = PidManager {
-            net_cls_path: Self::create_cgroup()?,
+    fn default() -> Self {
+        let inner = match Self::new_inner() {
+            Ok(net_cls_path) => Inner::Ok { net_cls_path },
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to enable split tunneling")
+                );
+                Inner::Failed { err }
+            }
         };
-        manager.setup_exclusion_group()?;
-        Ok(manager)
+        PidManager { inner }
+    }
+}
+
+impl PidManager {
+    fn new_inner() -> Result<PathBuf, Error> {
+        let net_cls_path = Self::create_cgroup()?;
+        Self::setup_exclusion_group(&net_cls_path)?;
+        Ok(net_cls_path)
     }
 
     /// Set up cgroup used to track PIDs for split tunneling.
@@ -92,8 +118,8 @@ impl PidManager {
         Ok(net_cls_dir)
     }
 
-    fn setup_exclusion_group(&self) -> Result<(), Error> {
-        let exclusions_dir = self.net_cls_path.join(SPLIT_TUNNEL_CGROUP_NAME);
+    fn setup_exclusion_group(net_cls_path: &Path) -> Result<(), Error> {
+        let exclusions_dir = net_cls_path.join(SPLIT_TUNNEL_CGROUP_NAME);
         if !exclusions_dir.exists() {
             fs::create_dir(exclusions_dir.clone()).map_err(Error::CreateCGroup)?;
         }
@@ -103,10 +129,20 @@ impl PidManager {
             .map_err(Error::SetCGroupClassId)
     }
 
+    fn get_net_cls_path(&self) -> Result<&Path, Error> {
+        match &self.inner {
+            Inner::Ok { net_cls_path } => Ok(net_cls_path),
+            Inner::Failed { err } => {
+                log::error!("Failed to get netcls path: {err}");
+                Err(Error::Unavailable)
+            }
+        }
+    }
+
     /// Add a PID to the Cgroup to have it excluded from the tunnel.
     pub fn add(&self, pid: i32) -> Result<(), Error> {
         let exclusions_path = self
-            .net_cls_path
+            .get_net_cls_path()?
             .join(SPLIT_TUNNEL_CGROUP_NAME)
             .join("cgroup.procs");
 
@@ -125,8 +161,7 @@ impl PidManager {
     pub fn remove(&self, pid: i32) -> Result<(), Error> {
         // FIXME: We remove PIDs from our cgroup here by adding
         //        them to the parent cgroup. This seems wrong.
-        let mut file = self
-            .open_parent_cgroup_handle()
+        let mut file = Self::open_parent_cgroup_handle(self.get_net_cls_path()?)
             .map_err(Error::RemoveCGroupPid)?;
 
         file.write_all(pid.to_string().as_bytes())
@@ -136,7 +171,7 @@ impl PidManager {
     /// Return a list of all PIDs currently in the Cgroup excluded from the tunnel.
     pub fn list(&self) -> Result<Vec<i32>, Error> {
         let exclusions_path = self
-            .net_cls_path
+            .get_net_cls_path()?
             .join(SPLIT_TUNNEL_CGROUP_NAME)
             .join("cgroup.procs");
 
@@ -158,8 +193,7 @@ impl PidManager {
     pub fn clear(&self) -> Result<(), Error> {
         let pids = self.list()?;
 
-        let mut file = self
-            .open_parent_cgroup_handle()
+        let mut file = Self::open_parent_cgroup_handle(self.get_net_cls_path()?)
             .map_err(Error::RemoveCGroupPid)?;
         for pid in pids {
             file.write_all(pid.to_string().as_bytes())
@@ -169,11 +203,16 @@ impl PidManager {
         Ok(())
     }
 
-    fn open_parent_cgroup_handle(&self) -> io::Result<fs::File> {
+    /// Return whether it is enabled
+    pub fn is_enabled(&self) -> bool {
+        matches!(self.inner, Inner::Ok { .. })
+    }
+
+    fn open_parent_cgroup_handle(net_cls_path: &Path) -> io::Result<fs::File> {
         fs::OpenOptions::new()
             .write(true)
             .create(true)
             .truncate(false)
-            .open(self.net_cls_path.join("cgroup.procs"))
+            .open(net_cls_path.join("cgroup.procs"))
     }
 }

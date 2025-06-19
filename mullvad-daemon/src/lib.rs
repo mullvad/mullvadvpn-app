@@ -344,6 +344,9 @@ pub enum DaemonCommand {
     /// Remove settings and clear the cache
     #[cfg(not(target_os = "android"))]
     FactoryReset(ResponseTx<(), Error>),
+    /// Return whether split tunneling is available
+    #[cfg(target_os = "linux")]
+    SplitTunnelIsEnabled(oneshot::Sender<bool>),
     /// Request list of processes excluded from the tunnel
     #[cfg(target_os = "linux")]
     GetSplitTunnelProcesses(ResponseTx<Vec<i32>, split_tunnel::Error>),
@@ -945,7 +948,7 @@ impl Daemon {
             },
             target_state,
             #[cfg(target_os = "linux")]
-            exclude_pids: split_tunnel::PidManager::new().map_err(Error::InitSplitTunneling)?,
+            exclude_pids: split_tunnel::PidManager::default(),
             rx: internal_event_rx,
             tx: internal_event_tx,
             reconnection_job: None,
@@ -1453,6 +1456,8 @@ impl Daemon {
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
             FactoryReset(tx) => self.on_factory_reset(tx).await,
+            #[cfg(target_os = "linux")]
+            SplitTunnelIsEnabled(tx) => self.on_split_tunnel_is_enabled(tx),
             #[cfg(target_os = "linux")]
             GetSplitTunnelProcesses(tx) => self.on_get_split_tunnel_processes(tx),
             #[cfg(target_os = "linux")]
@@ -2027,6 +2032,12 @@ impl Daemon {
                 .unwrap_or(Ok(()));
             Self::oneshot_send(tx, result, "factory_reset response");
         }));
+    }
+
+    #[cfg(target_os = "linux")]
+    fn on_split_tunnel_is_enabled(&mut self, tx: oneshot::Sender<bool>) {
+        let enabled = self.exclude_pids.is_enabled();
+        Self::oneshot_send(tx, enabled, "split_tunnel_is_enabled response");
     }
 
     #[cfg(target_os = "linux")]
