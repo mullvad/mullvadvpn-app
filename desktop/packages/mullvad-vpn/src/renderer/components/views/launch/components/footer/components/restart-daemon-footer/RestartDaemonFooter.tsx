@@ -20,7 +20,7 @@ export function RestartDaemonFooter() {
   return (
     <>
       <FlexColumn $gap="medium">
-        <Button onClick={handleTryAgain} disabled={daemonStatus === 'start-requested'}>
+        <Button onClick={handleTryAgain} disabled={daemonStatus !== 'stopped'}>
           <Button.Text>
             {
               // TRANSLATORS: Button label for trying to restart the daemon again.
@@ -28,7 +28,7 @@ export function RestartDaemonFooter() {
             }
           </Button.Text>
         </Button>
-        <Button onClick={showDialog} disabled={daemonStatus === 'start-requested'}>
+        <Button onClick={showDialog} disabled={daemonStatus !== 'stopped'}>
           <Button.Text>
             {
               // TRANSLATORS: Button label for opening dialog with troubleshooting details.
