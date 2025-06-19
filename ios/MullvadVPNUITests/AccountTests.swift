@@ -53,6 +53,71 @@ class AccountTests: LoggedOutUITestCase {
             .verifyFailIconShown()
     }
 
+    func testCanNotRemoveCurrentDevice() throws {
+        // Setup
+        let temporaryAccountNumber = createTemporaryAccountWithoutTime()
+
+        // Teardown
+        addTeardownBlock {
+            self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+        }
+
+        LoginPage(app)
+            .tapAccountNumberTextField()
+            .enterText(temporaryAccountNumber)
+            .tapAccountNumberSubmitButton()
+
+        OutOfTimePage(app)
+
+        HeaderBar(app)
+            .tapAccountButton()
+
+        AccountPage(app)
+            .tapDeviceManagementButton()
+
+        DeviceManagementPage(app)
+            .verifyCurrentDeviceExists()
+            .verifyNoDeviceCanBeRemoved()
+    }
+
+    func testRemoveOtherDevice() throws {
+        let otherDevicesCount = 2
+        // Setup
+        let temporaryAccountNumber = createTemporaryAccountWithoutTime()
+        mullvadAPIWrapper.addDevices(otherDevicesCount, account: temporaryAccountNumber)
+
+        // Teardown
+        addTeardownBlock {
+            self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+        }
+
+        LoginPage(app)
+            .tapAccountNumberTextField()
+            .enterText(temporaryAccountNumber)
+            .tapAccountNumberSubmitButton()
+
+        OutOfTimePage(app)
+
+        HeaderBar(app)
+            .tapAccountButton()
+
+        AccountPage(app)
+            .tapDeviceManagementButton()
+
+        DeviceManagementPage(app)
+            .waitForDeviceList()
+            .verifyRemovableDeviceCount(otherDevicesCount)
+            .tapRemoveDeviceButton(cellIndex: 1)
+
+        DeviceManagementLogOutDeviceConfirmationAlert(app)
+            .tapYesLogOutDeviceButton()
+
+        DeviceManagementPage(app)
+            .waitForDeviceList()
+            .waitForNoLoading()
+            .verifyRemovableDeviceCount(otherDevicesCount - 1)
+    }
+
     /// Verify logging in works. Will retry x number of times since login request sometimes time out.
     func testLogin() throws {
         let hasTimeAccountNumber = getAccountWithTime()
@@ -106,12 +171,15 @@ class AccountTests: LoggedOutUITestCase {
             .tapAccountNumberSubmitButton()
 
         DeviceManagementPage(app)
+            .waitForDeviceList()
             .tapRemoveDeviceButton(cellIndex: 0)
 
         DeviceManagementLogOutDeviceConfirmationAlert(app)
             .tapYesLogOutDeviceButton()
 
         DeviceManagementPage(app)
+            .waitForDeviceList()
+            .waitForNoLoading()
             .tapContinueWithLoginButton()
 
         // First taken back to login page and automatically being logged in
