@@ -446,9 +446,7 @@ export default class AppRenderer {
   };
 
   public tryStartDaemon = () => {
-    this.reduxActions.userInterface.setDaemonStatus('start-requested');
     if (window.env.platform === 'win32') IpcRendererEventChannel.daemon.tryStart();
-    else this.reduxActions.userInterface.setDaemonStatus('stopped');
   };
 
   public appUpgrade = () => {
