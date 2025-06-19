@@ -670,7 +670,7 @@ impl ManagementService for ManagementServiceImpl {
         &self,
         request: Request<types::NewCustomList>,
     ) -> ServiceResult<String> {
-        log::debug!("create_custom_list_with_location");
+        log::debug!("create_custom_list");
         let request = request.into_inner();
         let locations = request
             .locations

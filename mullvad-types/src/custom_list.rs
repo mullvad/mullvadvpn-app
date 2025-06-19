@@ -20,7 +20,7 @@ pub enum Error {
     ListExists,
 }
 
-#[derive(Default, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Id(uuid::Uuid);
 
 impl Deref for Id {
@@ -144,10 +144,7 @@ pub struct CustomList {
 }
 
 impl CustomList {
-    pub fn new(
-        name: String,
-        locations: BTreeSet<GeographicLocationConstraint>,
-    ) -> Result<Self, Error> {
+    pub fn new(name: String) -> Result<Self, Error> {
         if name.chars().count() > CUSTOM_LIST_NAME_MAX_SIZE {
             return Err(Error::NameTooLong);
         }
@@ -155,7 +152,11 @@ impl CustomList {
         Ok(CustomList {
             id: Id(uuid::Uuid::new_v4()),
             name,
-            locations,
+            locations: Default::default(),
         })
+    }
+
+    pub fn append(&mut self, mut locations: BTreeSet<GeographicLocationConstraint>) {
+        self.locations.append(&mut locations);
     }
 }

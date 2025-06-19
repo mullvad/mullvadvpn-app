@@ -18,7 +18,9 @@ impl Daemon {
         name: String,
         locations: BTreeSet<GeographicLocationConstraint>,
     ) -> Result<Id, crate::Error> {
-        let new_list = CustomList::new(name, locations).map_err(crate::Error::CustomListError)?;
+        let mut new_list = CustomList::new(name).map_err(crate::Error::CustomListError)?;
+        new_list.append(locations);
+
         let id = new_list.id;
 
         self.settings
