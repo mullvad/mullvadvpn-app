@@ -75,20 +75,22 @@ export default class UserInterface implements WindowControllerDelegate {
             windowsVerbatimArguments: true,
         });
         child.once('error', (error) => {
-          log.error(`Start service failed: ${error.message}`);
+          log.error(`"mullvad-setup.exe start-service" failed: ${error.message}`);
           IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
         });
 
         child.once('exit', (code) => {
           if (code !== 0) {
-            log.error(`mullvad-setup exited unexpectedly with exit code: ${code}`);
+            log.error(`"mullvad-setup.exe start-service" exited unexpectedly with exit code: ${code}`);
             IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
+          } else {
+            log.info('"mullvad-setup.exe start-service" succeeded');
           }
         });
       } catch (e) {
         const error = e as Error;
         log.error(
-          `Failed to start mullvad-setup. Error: ${error.message}`,
+          `Failed to run "mullvad-setup.exe start-service". Error: ${error.message}`,
         );
         IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
       }
