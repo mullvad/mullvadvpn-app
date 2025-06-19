@@ -21,7 +21,7 @@ impl Daemon {
         let mut new_list = CustomList::new(name).map_err(crate::Error::CustomListError)?;
         new_list.append(locations);
 
-        let id = new_list.id;
+        let id = new_list.id();
 
         self.settings
             .try_update(|settings| settings.custom_lists.add(new_list))
@@ -65,7 +65,7 @@ impl Daemon {
     /// - there is no existing list with the same ID,
     /// - or the existing list has a different name.
     pub async fn update_custom_list(&mut self, new_list: CustomList) -> Result<(), Error> {
-        let list_id = new_list.id;
+        let list_id = new_list.id();
         let settings_changed = self
             .settings
             .try_update(|settings| settings.custom_lists.update(new_list))

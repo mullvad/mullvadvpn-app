@@ -584,9 +584,9 @@ impl MullvadProxyClient {
         Id::from_str(&id).map_err(|_| Error::CustomListListNotFound)
     }
 
-    pub async fn delete_custom_list(&mut self, id: String) -> Result<()> {
+    pub async fn delete_custom_list(&mut self, id: Id) -> Result<()> {
         self.0
-            .delete_custom_list(id)
+            .delete_custom_list(id.to_string())
             .await
             .map_err(map_custom_list_error)?;
         Ok(())
