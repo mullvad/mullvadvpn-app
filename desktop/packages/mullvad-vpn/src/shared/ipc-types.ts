@@ -35,3 +35,5 @@ export interface IHistoryObject {
 }
 
 export type ScrollPositions = Record<string, [number, number]>;
+
+export type DaemonStatus = 'start-requested' | 'running' | 'stopped';

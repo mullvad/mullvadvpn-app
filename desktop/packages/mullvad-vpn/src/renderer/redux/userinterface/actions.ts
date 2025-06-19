@@ -1,5 +1,5 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
-import { IChangelog } from '../../../shared/ipc-types';
+import { DaemonStatus, IChangelog } from '../../../shared/ipc-types';
 import { LocationType } from '../../components/select-location/select-location-types';
 
 export interface IUpdateLocaleAction {
@@ -29,6 +29,11 @@ export interface ISetMacOsScrollbarVisibility {
 export interface ISetConnectedToDaemon {
   type: 'SET_CONNECTED_TO_DAEMON';
   connectedToDaemon: boolean;
+}
+
+export interface ISetDaemonStatus {
+  type: 'SET_DAEMON_STATUS';
+  daemonStatus: DaemonStatus;
 }
 
 export interface ISetDaemonAllowed {
@@ -63,6 +68,7 @@ export type UserInterfaceAction =
   | ISetWindowFocusedAction
   | ISetMacOsScrollbarVisibility
   | ISetConnectedToDaemon
+  | ISetDaemonStatus
   | ISetDaemonAllowed
   | ISetChangelog
   | ISetIsPerformingPostUpgrade
@@ -112,6 +118,13 @@ function setConnectedToDaemon(connectedToDaemon: boolean): ISetConnectedToDaemon
   };
 }
 
+function setDaemonStatus(daemonStatus: DaemonStatus): ISetDaemonStatus {
+  return {
+    type: 'SET_DAEMON_STATUS',
+    daemonStatus: daemonStatus,
+  };
+}
+
 function setDaemonAllowed(daemonAllowed: boolean): ISetDaemonAllowed {
   return {
     type: 'SET_DAEMON_ALLOWED',
@@ -154,6 +167,7 @@ export default {
   setWindowFocused,
   setMacOsScrollbarVisibility,
   setConnectedToDaemon,
+  setDaemonStatus,
   setDaemonAllowed,
   setChangelog,
   setIsPerformingPostUpgrade,
