@@ -146,6 +146,15 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
         }
     }
 
+    var isBlockingInternet: Bool {
+        switch self {
+        case .connected, .disconnected:
+            false
+        default:
+            true
+        }
+    }
+
     var relays: SelectedRelays? {
         switch self {
         case let .connected(relays, _, _),

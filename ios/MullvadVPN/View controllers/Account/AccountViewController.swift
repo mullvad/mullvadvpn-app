@@ -94,6 +94,13 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             self?.actionHandler?(.restorePurchasesInfo)
         }
 
+        interactor.didReceiveTunnelState = { [weak self] in
+            guard let self else { return }
+            Task { @MainActor in
+                applyViewState(animated: true)
+            }
+        }
+
         interactor.didReceiveDeviceState = { [weak self] deviceState in
             Task { @MainActor in
                 self?.updateView(from: deviceState)
@@ -160,7 +167,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         applyViewState(animated: animated)
     }
 
-    private func updateView(from deviceState: DeviceState?) {
+    private func updateView(from deviceState: DeviceState) {
         guard case let .loggedIn(accountData, deviceData) = deviceState else {
             return
         }
@@ -172,9 +179,10 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
     private func applyViewState(animated: Bool) {
         let isInteractionEnabled = paymentState.allowsViewInteraction
-        let purchaseButton = contentView.purchaseButton
 
-        purchaseButton.isEnabled = !isFetchingProducts && isInteractionEnabled
+        contentView.purchaseButton.isEnabled = !isFetchingProducts
+            && isInteractionEnabled
+            && !interactor.tunnelState.isBlockingInternet
         contentView.accountDeviceRow.setButtons(enabled: isInteractionEnabled)
         contentView.accountTokenRowView.setButtons(enabled: isInteractionEnabled)
         contentView.restorePurchasesView.setButtons(enabled: isInteractionEnabled)

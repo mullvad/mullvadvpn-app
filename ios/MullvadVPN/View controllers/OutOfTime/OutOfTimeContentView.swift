@@ -113,6 +113,10 @@ class OutOfTimeContentView: UIView {
         }
     }
 
+    func enablePurchaseButton(_ enabled: Bool) {
+        purchaseButton.isEnabled = enabled
+    }
+
     // MARK: - Private Functions
 
     func setUpSubviews() {

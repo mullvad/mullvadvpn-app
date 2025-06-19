@@ -106,6 +106,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     private func applyViewState() {
         let tunnelState = interactor.tunnelStatus.state
         contentView.enableDisconnectButton(tunnelState.isSecured, animated: true)
+        contentView.enablePurchaseButton(!tunnelState.isSecured)
 
         if tunnelState.isSecured {
             contentView.setBodyLabelText(
