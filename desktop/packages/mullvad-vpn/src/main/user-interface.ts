@@ -18,9 +18,9 @@ import {
 } from './ipc-event-channel';
 import { WebContentsConsoleInput } from './logging';
 import { isMacOs11OrNewer } from './platform-version';
+import { resolveBin } from './proc';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController, { WindowControllerDelegate } from './window-controller';
-import { resolveBin } from './proc';
 
 const execAsync = promisify(exec);
 
