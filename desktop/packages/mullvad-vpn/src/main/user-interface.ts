@@ -64,6 +64,8 @@ export default class UserInterface implements WindowControllerDelegate {
 
   public registerIpcListeners() {
     IpcMainEventChannel.daemon.handleTryStart(() => {
+      IpcMainEventChannel.daemon.notifyTryStartEvent?.('start-requested');
+
       try {
         const SETUP_PATH = `"${resolveBin('mullvad-setup')}"`;
 
@@ -85,6 +87,7 @@ export default class UserInterface implements WindowControllerDelegate {
             IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
           } else {
             log.info('"mullvad-setup.exe start-service" succeeded');
+            // 'running' is set from onDaemonConnected event handler
           }
         });
       } catch (e) {
