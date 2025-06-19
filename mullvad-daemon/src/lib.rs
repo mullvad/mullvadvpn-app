@@ -101,6 +101,12 @@ use tokio::io;
 #[cfg(target_os = "android")]
 use talpid_core::connectivity_listener::ConnectivityListener;
 
+#[cfg(target_os = "windows")]
+pub mod service {
+    pub const SERVICE_NAME: &str = "MullvadVPN";
+    pub const SERVICE_DISPLAY_NAME: &str = "Mullvad VPN Service";
+}
+
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
 
