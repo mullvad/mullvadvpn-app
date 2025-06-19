@@ -67,7 +67,7 @@ export default class UserInterface implements WindowControllerDelegate {
       IpcMainEventChannel.daemon.notifyTryStartEvent?.('start-requested');
 
       try {
-        const SETUP_PATH = `"${resolveBin('mullvad-setup')}"`;
+        const SETUP_PATH = `"\\"${resolveBin('mullvad-setup')}\\""`;
         const SYSTEM_ROOT_PATH = process.env.SYSTEMROOT || process.env.windir || 'C:\\Windows';
         const PWSH_PATH = `${SYSTEM_ROOT_PATH}\\System32\\WindowsPowershell\\v1.0\\powershell.exe`;
 
