@@ -3190,7 +3190,6 @@ dependencies = [
 name = "mullvad-setup"
 version = "0.0.0"
 dependencies = [
- "anyhow",
  "clap",
  "env_logger 0.11.7",
  "mullvad-api",
@@ -3206,7 +3205,6 @@ dependencies = [
  "tokio",
  "windows-service",
  "windows-sys 0.52.0",
- "winres",
 ]
 
 [[package]]
