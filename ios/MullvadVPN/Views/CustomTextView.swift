@@ -41,7 +41,7 @@ class CustomTextView: UITextView {
 
     override var font: UIFont? {
         didSet {
-            placeholderTextLabel.font = font ?? UIFont.preferredFont(forTextStyle: .body)
+            placeholderTextLabel.font = font ?? .mullvadSmall
         }
     }
 
@@ -94,6 +94,7 @@ class CustomTextView: UITextView {
         placeholderTextLabel.textColor = UIColor.TextField.placeholderTextColor
         placeholderTextLabel.highlightedTextColor = UIColor.TextField.placeholderTextColor
         placeholderTextLabel.translatesAutoresizingMaskIntoConstraints = false
+        placeholderTextLabel.adjustsFontForContentSizeCategory = true
         placeholderTextLabel.numberOfLines = 0
         addSubview(placeholderTextLabel)
 

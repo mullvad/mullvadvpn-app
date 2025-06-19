@@ -50,6 +50,7 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
 
             if let image {
                 disclosureImageView.image = image
+                disclosureImageView.adjustsImageSizeForAccessibilityContentSizeCategory = true
                 disclosureImageView.sizeToFit()
                 accessoryView = disclosureImageView
             } else {
@@ -60,7 +61,8 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 17)
+        label.font = .mullvadSmallSemiBold
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor.Cell.titleTextColor
         label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
@@ -69,7 +71,8 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
 
     let detailTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 13)
+        label.font = .mullvadTiny
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor.Cell.detailTextColor
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -84,6 +87,7 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
         button.setAccessibilityIdentifier(.infoButton)
         button.tintColor = .white
         button.setImage(UIImage.Buttons.info, for: .normal)
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.isHidden = true
         return button
     }()

@@ -52,7 +52,8 @@ class AccountExpiryRow: UIView {
             value: "Paid until",
             comment: ""
         )
-        textLabel.font = UIFont.systemFont(ofSize: 14)
+        textLabel.font = .mullvadTiny
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = UIColor(white: 1.0, alpha: 0.6)
         return textLabel
     }()
@@ -60,7 +61,8 @@ class AccountExpiryRow: UIView {
     private let valueLabel: UILabel = {
         let valueLabel = UILabel()
         valueLabel.translatesAutoresizingMaskIntoConstraints = false
-        valueLabel.font = UIFont.systemFont(ofSize: 17)
+        valueLabel.font = .mullvadSmall
+        valueLabel.adjustsFontForContentSizeCategory = true
         valueLabel.textColor = .white
         valueLabel.setAccessibilityIdentifier(.accountPagePaidUntilLabel)
         return valueLabel

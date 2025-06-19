@@ -24,7 +24,8 @@ class OutOfTimeContentView: UIView {
             value: "Out of time",
             comment: ""
         )
-        label.font = UIFont.systemFont(ofSize: 32)
+        label.font = .mullvadLarge
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
         return label
     }()
@@ -33,6 +34,7 @@ class OutOfTimeContentView: UIView {
         let label = UILabel()
         label.textColor = .white
         label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
@@ -147,7 +149,7 @@ class OutOfTimeContentView: UIView {
     func setBodyLabelText(_ text: String) {
         bodyLabel.attributedText = NSAttributedString(
             markdownString: text,
-            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
+            options: MarkdownStylingOptions(font: .mullvadSmall)
         )
     }
 }

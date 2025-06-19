@@ -71,6 +71,7 @@ class TextCellContentView: UIView, UIContentView, UIGestureRecognizerDelegate, S
 
         textLabel.font = textProperties.font
         textLabel.textColor = textProperties.color
+        textLabel.adjustsFontForContentSizeCategory = true
 
         textLabel.text = actualConfiguration.text
     }
@@ -178,6 +179,7 @@ extension TextCellContentConfiguration.TextFieldProperties {
     @MainActor
     func apply(to textField: CustomTextField) {
         textField.font = font
+        textField.adjustsFontForContentSizeCategory = adjustsFontForContentSizeCategory
         textField.backgroundColor = .clear
         textField.textColor = textColor
         textField.placeholderTextColor = placeholderColor

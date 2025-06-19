@@ -30,7 +30,8 @@ class DeviceManagementContentView: UIView {
 
     let titleLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 32)
+        textLabel.font = .mullvadLarge
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = .white
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         return textLabel
@@ -38,7 +39,8 @@ class DeviceManagementContentView: UIView {
 
     let messageLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 17)
+        textLabel.font = .mullvadSmall
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = .white
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.numberOfLines = 0

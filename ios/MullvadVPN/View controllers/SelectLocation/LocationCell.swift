@@ -18,7 +18,8 @@ class LocationCell: UITableViewCell {
 
     private let locationLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16)
+        label.font = .mullvadSmall
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
         label.lineBreakMode = .byTruncatingTail
         label.numberOfLines = 1
@@ -34,6 +35,7 @@ class LocationCell: UITableViewCell {
 
     private let tickImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage.tick)
+        imageView.adjustsImageSizeForAccessibilityContentSizeCategory = true
         imageView.tintColor = .white
         return imageView
     }()
@@ -54,6 +56,7 @@ class LocationCell: UITableViewCell {
     private let collapseButton: UIButton = {
         let button = UIButton(type: .custom)
         button.isAccessibilityElement = false
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.tintColor = .white
         return button
     }()
@@ -165,11 +168,8 @@ class LocationCell: UITableViewCell {
             statusIndicator.centerXAnchor.constraint(equalTo: tickImageView.centerXAnchor)
             statusIndicator.centerYAnchor.constraint(equalTo: tickImageView.centerYAnchor)
 
-            checkboxButton.pinEdgesToSuperview(PinnableEdges([.top(0), .bottom(0)]))
+            checkboxButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
             checkboxButton.trailingAnchor.constraint(equalTo: locationLabel.leadingAnchor, constant: 14)
-            checkboxButton.widthAnchor.constraint(
-                equalToConstant: UIMetrics.contentLayoutMargins.leading + UIMetrics.contentLayoutMargins.trailing + 24
-            )
 
             locationLabel.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .bottom(0)]))
             locationLabel.leadingAnchor.constraint(

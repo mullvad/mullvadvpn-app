@@ -34,7 +34,7 @@ final class RedeemVoucherContentView: UIView {
 
     private let title: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .title1, weight: .bold).withSize(32)
+        label.font = .mullvadLarge
         label.text = NSLocalizedString(
             "REDEEM_VOUCHER_TITLE",
             tableName: "RedeemVoucher",
@@ -43,12 +43,13 @@ final class RedeemVoucherContentView: UIView {
         )
         label.textColor = .white
         label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
     private let enterVoucherLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .body, weight: .semibold).withSize(15)
+        label.font = .mullvadTinySemiBold
 
         label.text = NSLocalizedString(
             "REDEEM_VOUCHER_INSTRUCTION",
@@ -58,12 +59,14 @@ final class RedeemVoucherContentView: UIView {
         )
         label.textColor = .white
         label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
     private let textField: VoucherTextField = {
         let textField = VoucherTextField()
-        textField.font = UIFont.monospacedSystemFont(ofSize: 15, weight: .regular)
+        textField.font = UIFontMetrics(forTextStyle: .subheadline)
+            .scaledFont(for: .monospacedSystemFont(ofSize: 15, weight: .regular))
         textField.placeholder = Array(repeating: "XXXX", count: 4).joined(separator: "-")
         textField.placeholderTextColor = .lightGray
         textField.backgroundColor = .white
@@ -72,6 +75,7 @@ final class RedeemVoucherContentView: UIView {
         textField.autocapitalizationType = .allCharacters
         textField.returnKeyType = .done
         textField.autocorrectionType = .no
+        textField.adjustsFontForContentSizeCategory = true
         return textField
     }()
 
@@ -85,8 +89,9 @@ final class RedeemVoucherContentView: UIView {
 
     private let statusLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.font = .mullvadMiniSemiBold
         label.numberOfLines = 2
+        label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.textColor = .red
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
