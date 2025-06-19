@@ -474,6 +474,11 @@ export interface ICustomList {
   locations: Array<RelayLocationGeographical>;
 }
 
+export type NewCustomList = {
+  name: string;
+  locations: Array<RelayLocationGeographical>;
+};
+
 export type CustomListError = { type: 'name already exists' };
 
 export interface ISettings {

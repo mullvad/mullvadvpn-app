@@ -24,6 +24,7 @@ import {
   IRelayListWithEndpointData,
   ISettings,
   NewAccessMethodSetting,
+  NewCustomList,
   ObfuscationSettings,
   ObfuscationType,
   RelaySettings,
@@ -45,6 +46,7 @@ import {
   convertToCustomList,
   convertToCustomProxy,
   convertToNewApiAccessMethodSetting,
+  convertToNewCustomList,
   convertToNormalBridgeSettings,
   convertToRelayConstraints,
   ensureExists,
@@ -573,9 +575,12 @@ export class DaemonRpc extends GrpcClient {
     await this.call<grpcTypes.DeviceRemoval, Empty>(this.client.removeDevice, grpcDeviceRemoval);
   }
 
-  public async createCustomList(name: string): Promise<void | CustomListError> {
+  public async createCustomList(newCustomList: NewCustomList): Promise<void | CustomListError> {
     try {
-      await this.callString<Empty>(this.client.createCustomList, name);
+      await this.call<grpcTypes.NewCustomList, StringValue>(
+        this.client.createCustomList,
+        convertToNewCustomList(newCustomList),
+      );
     } catch (e) {
       const error = e as grpc.ServiceError;
       if (error.code === 6) {

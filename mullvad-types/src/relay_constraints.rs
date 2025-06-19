@@ -109,7 +109,7 @@ impl fmt::Display for LocationConstraintFormatter<'_> {
             LocationConstraint::CustomList { list_id } => self
                 .custom_lists
                 .iter()
-                .find(|list| &list.id == list_id)
+                .find(|list| list.id() == *list_id)
                 .map(|custom_list| write!(f, "{}", custom_list.name))
                 .unwrap_or_else(|| write!(f, "invalid custom list")),
         }

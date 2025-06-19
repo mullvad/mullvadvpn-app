@@ -20,6 +20,7 @@ import {
   IRelayListWithEndpointData,
   ISettings,
   NewAccessMethodSetting,
+  NewCustomList,
   ObfuscationSettings,
   RelaySettings,
   TunnelState,
@@ -147,7 +148,7 @@ export const ipcSchema = {
     '': notifyRenderer<IRelayListWithEndpointData>(),
   },
   customLists: {
-    createCustomList: invoke<string, void | CustomListError>(),
+    createCustomList: invoke<NewCustomList, void | CustomListError>(),
     deleteCustomList: invoke<string, void>(),
     updateCustomList: invoke<ICustomList, void | CustomListError>(),
   },

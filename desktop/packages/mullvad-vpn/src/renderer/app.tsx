@@ -29,6 +29,7 @@ import {
   ISettings,
   liftConstraint,
   NewAccessMethodSetting,
+  NewCustomList,
   ObfuscationSettings,
   RelaySettings,
   TunnelState,
@@ -408,8 +409,8 @@ export default class AppRenderer {
   public getPathBaseName = (path: string) => IpcRendererEventChannel.app.getPathBaseName(path);
   public showOpenDialog = (options: Electron.OpenDialogOptions) =>
     IpcRendererEventChannel.app.showOpenDialog(options);
-  public createCustomList = (name: string) =>
-    IpcRendererEventChannel.customLists.createCustomList(name);
+  public createCustomList = (newCustomList: NewCustomList) =>
+    IpcRendererEventChannel.customLists.createCustomList(newCustomList);
   public deleteCustomList = (id: string) =>
     IpcRendererEventChannel.customLists.deleteCustomList(id);
   public updateCustomList = (customList: ICustomList) =>

@@ -235,7 +235,7 @@ impl<'a> ResolvedLocationConstraint<'a> {
                 }
                 LocationConstraint::CustomList { list_id } => custom_lists
                     .iter()
-                    .find(|list| list.id == *list_id)
+                    .find(|list| list.id() == *list_id)
                     .map(|custom_list| {
                         ResolvedLocationConstraint(custom_list.locations.iter().collect())
                     })

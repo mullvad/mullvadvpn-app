@@ -28,7 +28,8 @@ class CustomListsRepository(
             .mapNotNull { it.customLists }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
-    suspend fun createCustomList(name: CustomListName) = managementService.createCustomList(name)
+    suspend fun createCustomList(name: CustomListName, location: List<GeoLocationId>) =
+        managementService.createCustomList(name, location)
 
     suspend fun deleteCustomList(id: CustomListId) = managementService.deleteCustomList(id)
 
