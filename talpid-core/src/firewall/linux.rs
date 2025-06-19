@@ -12,9 +12,12 @@ use std::{
     net::{IpAddr, Ipv4Addr},
     sync::LazyLock,
 };
-use talpid_types::net::{
-    AllowedEndpoint, AllowedTunnelTraffic, Endpoint, TransportProtocol, ALLOWED_LAN_MULTICAST_NETS,
-    ALLOWED_LAN_NETS,
+use talpid_types::{
+    cgroup::find_net_cls_mount,
+    net::{
+        AllowedEndpoint, AllowedTunnelTraffic, Endpoint, TransportProtocol,
+        ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS,
+    },
 };
 
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
@@ -52,6 +55,10 @@ pub enum Error {
     /// Unable to translate network interface name into index.
     #[error("Unable to translate network interface name \"{0}\" into index")]
     LookupIfaceIndexError(String, #[source] crate::linux::IfaceIndexLookupError),
+
+    /// Failed to check if the net_cls mount exists.
+    #[error("An error occurred when checking for net_cls")]
+    FindNetClsMount(#[source] io::Error),
 }
 
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
@@ -303,7 +310,19 @@ impl<'a> PolicyBatch<'a> {
     /// policy.
     pub fn finalize(mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
-        self.add_split_tunneling_rules(policy, fwmark)?;
+
+        // if cgroups v1 doesn't exist, split tunneling won't work.
+        // checking if the `net_cls` mount exists is a cheeky way of checking this.
+        if find_net_cls_mount()
+            .map_err(Error::FindNetClsMount)?
+            .is_some()
+        {
+            self.add_split_tunneling_rules(policy, fwmark)?;
+        } else {
+            // skipping add_split_tunneling_rules as it won't cause traffic to leak
+            log::warn!("net_cls mount not found, skipping add_split_tunneling_rules");
+        }
+
         self.add_dhcp_client_rules();
         self.add_ndp_rules();
         self.add_policy_specific_rules(policy, fwmark)?;
@@ -311,6 +330,10 @@ impl<'a> PolicyBatch<'a> {
         Ok(self.batch.finalize())
     }
 
+    /// Allow split-tunneled traffic outside the tunnel.
+    ///
+    /// This is acheived by setting `fwmark` on connections initated by processes in the cgroup
+    /// defined by [split_tunnel::NET_CLS_CLASSID].
     fn add_split_tunneling_rules(&mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<()> {
         // Send select DNS requests in the tunnel
         if let FirewallPolicy::Connected {
