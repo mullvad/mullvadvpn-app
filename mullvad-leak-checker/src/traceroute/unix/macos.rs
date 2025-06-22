@@ -43,7 +43,7 @@ impl Traceroute for TracerouteMacos {
         interface: &Interface,
         ip_version: Ip,
     ) -> anyhow::Result<()> {
-        // can't use the same method as desktop-linux here beacuse reasons
+        // can't use the same method as desktop-linux here because reasons
         bind_socket_to_interface(socket, interface, ip_version)
     }
 }
