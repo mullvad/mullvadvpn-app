@@ -578,7 +578,7 @@ class ManagementService(
 
     suspend fun createCustomList(
         name: CustomListName,
-        locations: List<GeoLocationId>,
+        locations: List<GeoLocationId> = emptyList(),
     ): Either<CreateCustomListError, CustomListId> =
         Either.catch {
                 grpc.createCustomList(

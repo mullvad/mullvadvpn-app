@@ -93,11 +93,10 @@ class CustomListsRepositoryTest {
         val customListId = CustomListId("1")
         val expectedResult = customListId.right()
         val customListName = CustomListName.fromString("CUSTOM")
-        coEvery { mockManagementService.createCustomList(customListName, emptyList()) } returns
-            expectedResult
+        coEvery { mockManagementService.createCustomList(customListName) } returns expectedResult
 
         // Act
-        val result = customListsRepository.createCustomList(customListName, emptyList())
+        val result = customListsRepository.createCustomList(customListName)
 
         // Assert
         assertEquals(expectedResult, result)
@@ -108,11 +107,10 @@ class CustomListsRepositoryTest {
         // Arrange
         val expectedResult = CustomListAlreadyExists.left()
         val customListName = CustomListName.fromString("CUSTOM")
-        coEvery { mockManagementService.createCustomList(customListName, emptyList()) } returns
-            expectedResult
+        coEvery { mockManagementService.createCustomList(customListName) } returns expectedResult
 
         // Act
-        val result = customListsRepository.createCustomList(customListName, emptyList())
+        val result = customListsRepository.createCustomList(customListName)
 
         // Assert
         assertEquals(expectedResult, result)
