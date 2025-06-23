@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.lib.ui.component"
+    namespace = "net.mullvad.mullvadvpn.lib.ui.designsystem"
     compileSdk = libs.versions.compile.sdk.get().toInt()
     buildToolsVersion = libs.versions.build.tools.get()
 
@@ -31,15 +31,13 @@ android {
 }
 
 dependencies {
-    implementation(projects.lib.ui.tag)
-
-    implementation(libs.compose.material3)
-    implementation(libs.compose.ui)
-    implementation(libs.compose.constrainlayout)
-    implementation(libs.kotlin.stdlib)
-    implementation(libs.compose.icons.extended)
-    implementation(libs.androidx.ktx)
-    implementation(projects.lib.resource)
     implementation(projects.lib.theme)
     implementation(projects.lib.model)
+    implementation(projects.lib.ui.tag)
+
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.tooling)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.icons.extended)
 }
