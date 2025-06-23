@@ -29,7 +29,9 @@ include(
     ":lib:talpid",
     ":lib:theme",
     ":lib:tv",
+    ":lib:ui:designsystem",
     ":lib:ui:component",
+    ":lib:ui:tag"
 )
 include(
     ":test",
@@ -38,4 +40,3 @@ include(
     ":test:e2e",
     ":test:mockapi"
 )
-include(":lib:ui:tag")
