@@ -19,6 +19,7 @@ final class AccountInteractor: Sendable {
     let apiProxy: APIQuerying
     let deviceProxy: DeviceHandling
 
+    nonisolated(unsafe) var didReceiveTunnelState: (() -> Void)?
     nonisolated(unsafe) var didReceiveDeviceState: (@Sendable (DeviceState) -> Void)?
 
     nonisolated(unsafe) private var tunnelObserver: TunnelObserver?
@@ -35,13 +36,22 @@ final class AccountInteractor: Sendable {
         self.deviceProxy = deviceProxy
 
         let tunnelObserver =
-            TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, _ in
-                self?.didReceiveDeviceState?(deviceState)
-            })
+            TunnelBlockObserver(
+                didUpdateTunnelStatus: { [weak self] _, _ in
+                    self?.didReceiveTunnelState?()
+                },
+                didUpdateDeviceState: { [weak self] _, deviceState, _ in
+                    self?.didReceiveDeviceState?(deviceState)
+                }
+            )
 
         tunnelManager.addObserver(tunnelObserver)
 
         self.tunnelObserver = tunnelObserver
+    }
+
+    var tunnelState: TunnelState {
+        tunnelManager.tunnelStatus.state
     }
 
     var deviceState: DeviceState {
