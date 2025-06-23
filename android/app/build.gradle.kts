@@ -348,6 +348,7 @@ dependencies {
     implementation(projects.lib.shared)
     implementation(projects.lib.talpid)
     implementation(projects.lib.tv)
+    implementation(projects.lib.ui.designsystem)
     implementation(projects.lib.ui.component)
     implementation(projects.lib.ui.tag)
     implementation(projects.tile)
