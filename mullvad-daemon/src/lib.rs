@@ -83,8 +83,6 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
-#[cfg(target_os = "android")]
-use talpid_core::connectivity_listener::ConnectivityListener;
 use talpid_core::{
     mpsc::Sender,
     split_tunnel,
