@@ -51,8 +51,9 @@ final class AccountInputGroupView: UIView {
 
     private let privateTextField: AccountTextField = {
         let textField = AccountTextField()
-        textField.font = accountNumberFont()
+        textField.font = .mullvadMedium
         textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.adjustsFontForContentSizeCategory = true
         textField.placeholder = "0000 0000 0000 0000"
         textField.placeholderTextColor = .lightGray
         textField.textContentType = .username
@@ -107,7 +108,7 @@ final class AccountInputGroupView: UIView {
         button.configuration?
             .titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributeContainer in
                 var updatedAttributeContainer = attributeContainer
-                updatedAttributeContainer.font = AccountInputGroupView.accountNumberFont()
+                updatedAttributeContainer.font = .mullvadMedium
                 updatedAttributeContainer.foregroundColor = .AccountTextField.NormalState.textColor
                 return updatedAttributeContainer
             }
@@ -374,10 +375,6 @@ final class AccountInputGroupView: UIView {
     }
 
     // MARK: - Private
-
-    private static func accountNumberFont() -> UIFont {
-        UIFont.monospacedSystemFont(ofSize: 20, weight: .regular)
-    }
 
     private func addTextFieldNotificationObservers() {
         let notificationCenter = NotificationCenter.default

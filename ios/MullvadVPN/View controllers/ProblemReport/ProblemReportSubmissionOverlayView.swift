@@ -156,7 +156,8 @@ class ProblemReportSubmissionOverlayView: UIView {
 
     let titleLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 32)
+        textLabel.font = .mullvadLarge
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = .white
         textLabel.numberOfLines = 0
         return textLabel
@@ -300,7 +301,8 @@ class ProblemReportSubmissionOverlayView: UIView {
         bodyLabelContainer.subviews.forEach { $0.removeFromSuperview() }
         state.body?.forEach { attributedString in
             let textLabel = UILabel()
-            textLabel.font = UIFont.systemFont(ofSize: 17)
+            textLabel.font = .mullvadSmall
+            textLabel.adjustsFontForContentSizeCategory = true
             textLabel.textColor = .white.withAlphaComponent(0.6)
             textLabel.numberOfLines = 0
             textLabel.attributedText = attributedString
