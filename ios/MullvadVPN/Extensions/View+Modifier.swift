@@ -23,4 +23,19 @@ extension View {
      ```
      */
     func apply<V: View>(@ViewBuilder _ block: (Self) -> V) -> V { block(self) }
+
+    /**
+     Uses the AccessibilityIdentifier you specify to identify the view.
+      # Discussion #
+     Use this value for testing. It isn’t visible to the user.
+     */
+    func accessibilityIdentifier(_ id: AccessibilityIdentifier?) -> some View {
+        apply {
+            if let id {
+                $0.accessibilityIdentifier(id.asString)
+            } else {
+                $0
+            }
+        }
+    }
 }

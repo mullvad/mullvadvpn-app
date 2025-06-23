@@ -42,6 +42,11 @@ class AccountPage: Page {
         return self
     }
 
+    @discardableResult func tapDeviceManagementButton() -> Self {
+        app.buttons[AccessibilityIdentifier.deviceManagementButton.asString].tap()
+        return self
+    }
+
     func getDeviceName() throws -> String {
         let deviceNameLabel = app.otherElements[AccessibilityIdentifier.accountPageDeviceNameLabel]
         return try XCTUnwrap(deviceNameLabel.value as? String, "Failed to read device name from label")
