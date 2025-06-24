@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose)
 }
 
 android {
@@ -9,6 +10,8 @@ android {
     buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig { minSdk = libs.versions.min.sdk.get().toInt() }
+
+    buildFeatures { compose = true }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -32,7 +35,9 @@ dependencies {
     implementation(projects.lib.model)
     implementation(projects.lib.ui.tag)
 
-    implementation(libs.compose.material3)
     implementation(libs.compose.ui)
+    implementation(libs.compose.ui.tooling)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
     implementation(libs.compose.icons.extended)
 }
