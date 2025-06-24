@@ -81,7 +81,10 @@ export default function CustomLists(props: CustomListsProps) {
 
   const createList = useCallback(
     async (name: string): Promise<void | CustomListError> => {
-      const result = await createCustomList(name);
+      const result = await createCustomList({
+        name,
+        locations: [],
+      });
       // If an error is returned it should be passed as the return value.
       if (result) {
         return result;

@@ -20,7 +20,7 @@ pub enum Error {
     ListExists,
 }
 
-#[derive(Default, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Id(uuid::Uuid);
 
 impl Deref for Id {
@@ -138,21 +138,41 @@ impl DerefMut for CustomListsSettings {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CustomList {
-    pub id: Id,
+    id: Id,
     pub name: String,
     pub locations: BTreeSet<GeographicLocationConstraint>,
 }
 
 impl CustomList {
+    /// Create a new [CustomList] with a given name. This function will check that the name
+    /// is appropriate (see implementation for details) and generate a new unique [Id].
     pub fn new(name: String) -> Result<Self, Error> {
         if name.chars().count() > CUSTOM_LIST_NAME_MAX_SIZE {
             return Err(Error::NameTooLong);
         }
 
-        Ok(CustomList {
-            id: Id(uuid::Uuid::new_v4()),
-            name,
-            locations: BTreeSet::new(),
-        })
+        let id = Id(uuid::Uuid::new_v4());
+        let mut custom_list = Self::with_id(id);
+        custom_list.name = name;
+
+        Ok(custom_list)
+    }
+
+    /// Instantiate an empty custom list with a pre-existing [Id]. This is useful when
+    /// serializing/deserializing, and most likely you want to use [CustomList::new] instead.
+    pub fn with_id(id: Id) -> Self {
+        Self {
+            id,
+            name: Default::default(),
+            locations: Default::default(),
+        }
+    }
+
+    pub fn id(&self) -> Id {
+        self.id
+    }
+
+    pub fn append(&mut self, mut locations: BTreeSet<GeographicLocationConstraint>) {
+        self.locations.append(&mut locations);
     }
 }
