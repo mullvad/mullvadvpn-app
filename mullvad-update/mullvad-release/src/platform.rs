@@ -181,8 +181,8 @@ impl Platform {
 
         // Increment metadata version
         let new_version = response.signed.metadata_version + 1;
-
         println!("Incrementing metadata version to {new_version}");
+        response.signed.metadata_version = new_version;
 
         // Sign it
         let signed_response = format::SignedResponse::sign(secret, response.signed)?;
