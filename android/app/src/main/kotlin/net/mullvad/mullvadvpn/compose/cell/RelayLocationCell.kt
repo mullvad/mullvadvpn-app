@@ -1,17 +1,12 @@
 package net.mullvad.mullvadvpn.compose.cell
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -20,7 +15,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,10 +26,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ExpandChevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
 import net.mullvad.mullvadvpn.compose.preview.RelayItemCheckableCellPreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.screen.location.clip
+import net.mullvad.mullvadvpn.compose.state.ItemPosition
 import net.mullvad.mullvadvpn.compose.state.RelayListItemState
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -43,6 +40,8 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
+import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 
@@ -55,6 +54,7 @@ private fun PreviewCheckableRelayLocationCell(
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
             relayItems.map {
+                Spacer(Modifier.size(1.dp))
                 CheckableRelayLocationCell(
                     item = it,
                     checked = false,
@@ -73,109 +73,80 @@ fun StatusRelayItemCell(
     item: RelayItem,
     isSelected: Boolean,
     state: RelayListItemState?,
+    itemPosition: ItemPosition,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     onToggleExpand: ((Boolean) -> Unit),
     isExpanded: Boolean = false,
     depth: Int = 0,
-    activeColor: Color = MaterialTheme.colorScheme.selected,
-    inactiveColor: Color = MaterialTheme.colorScheme.error,
-    disabledColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
-    RelayItemCell(
-        modifier = modifier,
-        item = item,
-        isSelected = isSelected,
-        state = state,
-        onClick = onClick,
-        onLongClick = onLongClick,
-        onToggleExpand = onToggleExpand,
-        isExpanded = isExpanded,
-        depth = depth,
+    // TODO Fix colors
+    val activeColor = MaterialTheme.colorScheme.selected
+    val inactiveColor = MaterialTheme.colorScheme.error
+    val disabledColor = MaterialTheme.colorScheme.onSurfaceVariant
+    RelayListItem(
+        modifier = modifier.clip(itemPosition),
+        selected = isSelected,
         content = {
-            if (isSelected) {
-                Icon(imageVector = Icons.Default.Check, contentDescription = null)
-            } else {
-                Box(
-                    modifier =
-                        Modifier.padding(4.dp)
-                            .size(Dimens.relayCircleSize)
-                            .background(
-                                color =
-                                    when {
-                                        item is RelayItem.CustomList && item.locations.isEmpty() ->
-                                            disabledColor
-                                        state != null -> disabledColor
-                                        item.active -> activeColor
-                                        else -> inactiveColor
-                                    },
-                                shape = CircleShape,
-                            )
-                )
+            Row(
+                modifier =
+                    Modifier.fillMaxSize()
+                        .padding(start = depth * Dimens.mediumPadding)
+                        .padding(Dimens.mediumPadding),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (isSelected) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = Dimens.smallPadding),
+                    )
+                } else if (!item.active) {
+                    // TODO Fix design of this
+                    Box(
+                        modifier =
+                            Modifier.padding(start = Dimens.smallPadding)
+                                .size(Dimens.relayCircleSize)
+                                .padding(2.dp)
+                                .background(
+                                    color =
+                                        when {
+                                            item is RelayItem.CustomList &&
+                                                item.locations.isEmpty() -> disabledColor
+
+                                            state != null -> disabledColor
+                                            item.active -> activeColor
+                                            else -> inactiveColor
+                                        },
+                                    shape = CircleShape,
+                                )
+                    )
+                }
+
+                Name(name = item.name, state = state, active = item.active)
             }
         },
-    )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun RelayItemCell(
-    modifier: Modifier = Modifier,
-    item: RelayItem,
-    isSelected: Boolean,
-    state: RelayListItemState?,
-    onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null,
-    onToggleExpand: (Boolean) -> Unit,
-    isExpanded: Boolean,
-    depth: Int,
-    content: @Composable (RowScope.() -> Unit)? = null,
-) {
-
-    val leadingContentStartPadding = Dimens.cellStartPadding
-    val leadingContentStarPaddingModifier = Dimens.mediumPadding
-    val startPadding = leadingContentStartPadding + leadingContentStarPaddingModifier * depth
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-                .background(
-                    when {
-                        isSelected -> MaterialTheme.colorScheme.selected
-                        else -> depth.toBackgroundColor()
-                    }
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        // Duplicate row is needed for selection of the item on TV.
-        Row(
-            modifier =
-                Modifier.combinedClickable(
-                        enabled = state == null && item.active,
-                        onClick = onClick,
-                        onLongClick = onLongClick,
+        onClick = onClick,
+        onLongClick = onLongClick,
+        trailingContent =
+            if (item.hasChildren) {
+                {
+                    ExpandChevron(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        isExpanded = isExpanded,
+                        modifier =
+                            Modifier.clickable { onToggleExpand(!isExpanded) }
+                                .fillMaxSize()
+                                .padding(Dimens.mediumPadding)
+                                .testTag(EXPAND_BUTTON_TEST_TAG),
                     )
-                    .padding(start = startPadding)
-                    .weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (content != null) {
-                content()
-            }
-            Name(name = item.name, state = state, active = item.active)
-        }
-
-        if (item.hasChildren) {
-            ExpandButton(
-                color = MaterialTheme.colorScheme.onSurface,
-                isExpanded = isExpanded,
-                onClick = { onToggleExpand(!isExpanded) },
-                modifier = Modifier.testTag(EXPAND_BUTTON_TEST_TAG),
-            )
-        }
-    }
+                }
+            } else {
+                null
+            },
+        colors = RelayListItemDefaults.colors(containerColor = depth.toBackgroundColor()),
+    )
 }
 
 @Composable
@@ -188,21 +159,38 @@ fun CheckableRelayLocationCell(
     onExpand: (Boolean) -> Unit,
     depth: Int,
 ) {
-    RelayItemCell(
+    RelayListItem(
         modifier = modifier,
-        item = item,
-        isSelected = false,
-        state = null,
-        onClick = { onRelayCheckedChange(!checked) },
-        onToggleExpand = onExpand,
-        isExpanded = expanded,
-        depth = depth,
+        selected = false,
         content = {
-            MullvadCheckbox(
-                checked = checked,
-                onCheckedChange = { isChecked -> onRelayCheckedChange(isChecked) },
-            )
+            Row(
+                modifier =
+                    Modifier.padding(start = depth * Dimens.mediumPadding)
+                        .padding(Dimens.mediumPadding),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Name(name = item.name, state = null, active = item.active)
+            }
         },
+        leadingContent = {
+            MullvadCheckbox(checked = checked, onCheckedChange = onRelayCheckedChange)
+        },
+        onClick = { onRelayCheckedChange(!checked) },
+        onLongClick = null,
+        trailingContent = {
+            if (item.hasChildren) {
+                ExpandChevron(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    isExpanded = expanded,
+                    modifier =
+                        Modifier.clickable { onExpand(!expanded) }
+                            .fillMaxSize()
+                            .padding(Dimens.mediumPadding)
+                            .testTag(EXPAND_BUTTON_TEST_TAG),
+                )
+            }
+        },
+        colors = RelayListItemDefaults.colors(containerColor = depth.toBackgroundColor()),
     )
 }
 
@@ -215,42 +203,16 @@ private fun Name(
 ) {
     Text(
         text = state?.let { name.withSuffix(state) } ?: name,
-        color = MaterialTheme.colorScheme.onSurface,
         modifier =
-            modifier
-                .alpha(
-                    if (state == null && active) {
-                        AlphaVisible
-                    } else {
-                        AlphaInactive
-                    }
-                )
-                .padding(horizontal = Dimens.smallPadding, vertical = Dimens.mediumPadding),
+            modifier.alpha(
+                if (state == null && active) {
+                    AlphaVisible
+                } else {
+                    AlphaInactive
+                }
+            ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-    )
-}
-
-@Composable
-private fun RowScope.ExpandButton(
-    modifier: Modifier,
-    color: Color,
-    isExpanded: Boolean,
-    onClick: (expand: Boolean) -> Unit,
-) {
-    VerticalDivider(
-        color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding),
-    )
-    ExpandChevron(
-        color = color,
-        isExpanded = isExpanded,
-        modifier =
-            modifier
-                .fillMaxHeight()
-                .clickable { onClick(!isExpanded) }
-                .padding(horizontal = Dimens.largePadding)
-                .align(Alignment.CenterVertically),
     )
 }
 

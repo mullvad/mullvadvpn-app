@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
@@ -44,10 +43,11 @@ private typealias Content = Lce.Content<SelectLocationListUiState>
 
 @Composable
 fun SelectLocationList(
-    backgroundColor: Color,
     relayListType: RelayListType,
     onSelectRelay: (RelayItem) -> Unit,
     openDaitaSettings: () -> Unit,
+    onAddCustomList: () -> Unit,
+    onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     val viewModel =
@@ -67,6 +67,7 @@ fun SelectLocationList(
     LazyColumn(
         modifier =
             Modifier.fillMaxSize()
+                .padding(horizontal = Dimens.mediumPadding)
                 .drawVerticalScrollbar(
                     lazyListState,
                     MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
@@ -89,12 +90,18 @@ fun SelectLocationList(
             }
             is Content -> {
                 relayListContent(
-                    backgroundColor = backgroundColor,
                     relayListItems = stateActual.value.relayListItems,
                     customLists = stateActual.value.customLists,
                     onSelectRelay = onSelectRelay,
                     onToggleExpand = viewModel::onToggleExpand,
                     onUpdateBottomSheetState = onUpdateBottomSheetState,
+                    customListHeader = {
+                        CustomListHeader(
+                            onAddCustomList,
+                            if (stateActual.value.customLists.isNotEmpty()) onEditCustomLists
+                            else null,
+                        )
+                    },
                 )
             }
         }

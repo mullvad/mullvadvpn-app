@@ -41,6 +41,7 @@ sealed interface RelayListItem {
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
+        val itemPosition: ItemPosition = ItemPosition.Single,
     ) : SelectableItem {
         override val key = item.id
         override val depth: Int = 0
@@ -54,6 +55,7 @@ sealed interface RelayListItem {
         override val expanded: Boolean,
         override val depth: Int = 0,
         override val state: RelayListItemState? = null,
+        val itemPosition: ItemPosition,
     ) : SelectableItem {
         override val key = parentId to item.id
 
@@ -78,6 +80,7 @@ sealed interface RelayListItem {
         override val depth: Int = 0,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
+        val itemPosition: ItemPosition,
     ) : SelectableItem {
         override val key = item.id
         override val contentType = RelayListItemContentType.LOCATION_ITEM
@@ -92,4 +95,28 @@ sealed interface RelayListItem {
         override val key = "empty_relay_list"
         override val contentType = RelayListItemContentType.EMPTY_RELAY_LIST
     }
+}
+
+sealed interface ItemPosition {
+    data object Top : ItemPosition
+
+    data object Middle : ItemPosition
+
+    data object Bottom : ItemPosition
+
+    data object Single : ItemPosition
+
+    fun roundTop(): Boolean =
+        when (this) {
+            is Single,
+            Top -> true
+            else -> false
+        }
+
+    fun roundBottom(): Boolean =
+        when (this) {
+            is Single,
+            Bottom -> true
+            else -> false
+        }
 }

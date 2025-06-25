@@ -20,4 +20,5 @@ data class RelayLocationListItem(
     val depth: Int = 0,
     val checked: Boolean = false,
     val expanded: Boolean = false,
+    val itemPosition: ItemPosition = ItemPosition.Single,
 )
