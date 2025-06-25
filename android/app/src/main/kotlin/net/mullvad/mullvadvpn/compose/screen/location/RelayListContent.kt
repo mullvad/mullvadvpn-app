@@ -1,7 +1,10 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -139,24 +142,20 @@ private fun LazyItemScope.RelayLocationItem(
 
 @Composable
 fun Modifier.clip(positionClassification: PositionClassification): Modifier =
-    when (positionClassification) {
-        PositionClassification.Top ->
-            clip(
-                MaterialTheme.shapes.large.copy(
-                    bottomStart = CornerSize(0.dp),
-                    bottomEnd = CornerSize(0.dp),
-                )
+    clip(
+        with(MaterialTheme.shapes.large) {
+            val topCornerSize =
+                animateDpAsState(if (positionClassification.roundTop()) 16.dp else 0.dp)
+            val bottomCornerSize =
+                animateDpAsState(if (positionClassification.roundBottom()) 16.dp else 0.dp)
+            copy(
+                topStart = CornerSize(topCornerSize.value),
+                topEnd = CornerSize(topCornerSize.value),
+                bottomStart = CornerSize(bottomCornerSize.value),
+                bottomEnd = CornerSize(bottomCornerSize.value),
             )
-        PositionClassification.Middle -> this
-        PositionClassification.Bottom ->
-            clip(
-                MaterialTheme.shapes.large.copy(
-                    topStart = CornerSize(0.dp),
-                    topEnd = CornerSize(0.dp),
-                )
-            )
-        PositionClassification.Single -> clip(MaterialTheme.shapes.large)
-    }
+        }
+    )
 
 @Composable
 private fun LazyItemScope.CustomListEntryItem(
