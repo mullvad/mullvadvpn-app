@@ -247,10 +247,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         mut access_method_settings: Settings,
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
-        access_method_event_sender: mpsc::UnboundedSender<(
-            AccessMethodEvent,
-            oneshot::Sender<()>,
-        )>,
+        access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
     ) -> Result<(AccessModeSelectorHandle, AccessModeConnectionModeProvider)> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
@@ -383,13 +380,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
     async fn set_current(&mut self, access_method: AccessMethodSetting) {
         let resolved = Self::resolve_with_default(&access_method, &mut self.method_resolver).await;
 
-        #[cfg(not(target_os = "ios"))]
-        self.notify_daemon(&resolved);
-
-        // Notify REST client
-        let _ = self
-            .connection_mode_provider_sender
-            .unbounded_send(resolved.connection_mode.clone());
+        self.notify_connection_mode(resolved.clone());
 
         self.current = resolved;
 
@@ -399,8 +390,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         );
     }
 
-    #[cfg(not(target_os = "ios"))]
-    fn notify_daemon(&mut self, resolved: &ResolvedConnectionMode) {
+    fn notify_connection_mode(&mut self, resolved: ResolvedConnectionMode) {
         // Note: If the daemon is busy waiting for a call to this function
         // to complete while we wait for the daemon to fully handle this
         // `NewAccessMethodEvent`, then we find ourselves in a deadlock.
@@ -408,21 +398,21 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         // `MullvadRestHandle`, which will call and await `next` on a Stream
         // created from this `AccessModeSelector` instance. As such, the
         // completion channel is discarded in this instance.
-        let setting = resolved.setting.clone();
-        #[cfg(not(target_os = "android"))]
-        let endpoint = resolved.endpoint.clone();
+        let access_method_event = AccessMethodEvent::New {
+            setting: resolved.setting,
+            connection_mode: resolved.connection_mode.clone(),
+            #[cfg(not(target_os = "android"))]
+            endpoint: resolved.endpoint.clone(),
+        };
         let sender = self.access_method_event_sender.clone();
-        let connection_mode = resolved.connection_mode.clone();
         tokio::spawn(async move {
-            let _ = AccessMethodEvent::New {
-                setting,
-                connection_mode,
-                #[cfg(not(target_os = "android"))]
-                endpoint,
-            }
-            .send(sender)
-            .await;
+            let _ = access_method_event.send(sender).await;
         });
+
+        // Notify REST client
+        let _ = self
+            .connection_mode_provider_sender
+            .unbounded_send(resolved.connection_mode);
     }
 
     /// Find the next access method to use.
