@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 - Let users cancel sending a problem report.
 - Add possibility to manage devices from account view.
 - Add support for Dynamic Type to allow fonts to scale according to user's system settings.
+- Add notification that shows when the user is connected to WireGuard with a port that is not 
+  supported.
 
 ### Changed
 - Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
