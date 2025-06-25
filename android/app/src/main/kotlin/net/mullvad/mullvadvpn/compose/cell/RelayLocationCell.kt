@@ -4,17 +4,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
@@ -43,6 +41,8 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
+import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 
@@ -79,11 +79,8 @@ fun StatusRelayItemCell(
     onToggleExpand: ((Boolean) -> Unit),
     isExpanded: Boolean = false,
     depth: Int = 0,
-    activeColor: Color = MaterialTheme.colorScheme.selected,
-    inactiveColor: Color = MaterialTheme.colorScheme.error,
-    disabledColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
-    RelayItemCell(
+    RelayItemCell1(
         modifier = modifier,
         item = item,
         isSelected = isSelected,
@@ -93,28 +90,64 @@ fun StatusRelayItemCell(
         onToggleExpand = onToggleExpand,
         isExpanded = isExpanded,
         depth = depth,
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun RelayItemCell1(
+    modifier: Modifier = Modifier,
+    item: RelayItem,
+    isSelected: Boolean,
+    state: RelayListItemState?,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
+    onToggleExpand: (Boolean) -> Unit,
+    isExpanded: Boolean,
+    depth: Int,
+    content: @Composable (RowScope.() -> Unit)? = null,
+) {
+    RelayListItem(
+        modifier = modifier,
+        selected = isSelected,
         content = {
-            if (isSelected) {
-                Icon(imageVector = Icons.Default.Check, contentDescription = null)
-            } else {
-                Box(
-                    modifier =
-                        Modifier.padding(4.dp)
-                            .size(Dimens.relayCircleSize)
-                            .background(
-                                color =
-                                    when {
-                                        item is RelayItem.CustomList && item.locations.isEmpty() ->
-                                            disabledColor
-                                        state != null -> disabledColor
-                                        item.active -> activeColor
-                                        else -> inactiveColor
-                                    },
-                                shape = CircleShape,
-                            )
-                )
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .padding(start = Dimens.smallPadding * depth),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (isSelected) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = Dimens.smallPadding),
+                    )
+                }
+
+                Name(name = item.name, state = state, active = item.active)
             }
         },
+        onClick = onClick,
+        onLongClick = onLongClick,
+        trailingContent =
+            if (item.hasChildren) {
+                {
+                    ExpandChevron(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        isExpanded = isExpanded,
+                        modifier =
+                            Modifier.clickable { onToggleExpand(!isExpanded) }
+                                .padding(16.dp)
+                                .testTag(EXPAND_BUTTON_TEST_TAG),
+                    )
+                }
+            } else {
+                {}
+            },
+        colors = RelayListItemDefaults.colors(containerColor = depth.toBackgroundColor()),
     )
 }
 
@@ -215,24 +248,21 @@ private fun Name(
 ) {
     Text(
         text = state?.let { name.withSuffix(state) } ?: name,
-        color = MaterialTheme.colorScheme.onSurface,
         modifier =
-            modifier
-                .alpha(
-                    if (state == null && active) {
-                        AlphaVisible
-                    } else {
-                        AlphaInactive
-                    }
-                )
-                .padding(horizontal = Dimens.smallPadding, vertical = Dimens.mediumPadding),
+            modifier.alpha(
+                if (state == null && active) {
+                    AlphaVisible
+                } else {
+                    AlphaInactive
+                }
+            ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
     )
 }
 
 @Composable
-private fun RowScope.ExpandButton(
+private fun ExpandButton(
     modifier: Modifier,
     color: Color,
     isExpanded: Boolean,
@@ -249,8 +279,7 @@ private fun RowScope.ExpandButton(
             modifier
                 .fillMaxHeight()
                 .clickable { onClick(!isExpanded) }
-                .padding(horizontal = Dimens.largePadding)
-                .align(Alignment.CenterVertically),
+                .padding(horizontal = Dimens.largePadding),
     )
 }
 

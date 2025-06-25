@@ -67,6 +67,7 @@ fun SelectLocationList(
     LazyColumn(
         modifier =
             Modifier.fillMaxSize()
+                .padding(horizontal = Dimens.mediumPadding)
                 .drawVerticalScrollbar(
                     lazyListState,
                     MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),

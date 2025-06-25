@@ -1,17 +1,21 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.StatusRelayItemCell
@@ -23,10 +27,12 @@ import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.S
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsEntryBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowEditCustomListBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowLocationBottomSheet
+import net.mullvad.mullvadvpn.compose.state.PositionClassification
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 
@@ -55,9 +61,6 @@ fun LazyListScope.relayListContent(
         contentType = { _, item -> item.contentType },
         itemContent = { index: Int, listItem: RelayListItem ->
             Column(modifier = Modifier.animateItem()) {
-                if (index != 0) {
-                    HorizontalDivider(color = backgroundColor)
-                }
                 when (listItem) {
                     RelayListItem.CustomListHeader -> customListHeader()
                     is RelayListItem.CustomListItem ->
@@ -66,6 +69,7 @@ fun LazyListScope.relayListContent(
                             onSelectRelay,
                             { onUpdateBottomSheetState(ShowEditCustomListBottomSheet(it)) },
                             { customListId, expand -> onToggleExpand(customListId, null, expand) },
+                            modifier = Modifier.positionalPadding(listItem.positionClassification),
                         )
                     is RelayListItem.CustomListEntryItem ->
                         CustomListEntryItem(
@@ -88,10 +92,11 @@ fun LazyListScope.relayListContent(
                             { expand: Boolean ->
                                 onToggleExpand(listItem.item.id, listItem.parentId, expand)
                             },
+                            modifier = Modifier.positionalPadding(listItem.positionClassification),
                         )
                     is RelayListItem.CustomListFooter -> CustomListFooter(listItem)
                     RelayListItem.LocationHeader -> locationHeader()
-                    is RelayListItem.GeoLocationItem ->
+                    is RelayListItem.GeoLocationItem -> {
                         RelayLocationItem(
                             listItem,
                             { onSelectRelay(listItem.item) },
@@ -101,7 +106,9 @@ fun LazyListScope.relayListContent(
                                 )
                             },
                             { expand -> onToggleExpand(listItem.item.id, null, expand) },
+                            modifier = Modifier.positionalPadding(listItem.positionClassification),
                         )
+                    }
                     is RelayListItem.LocationsEmptyText -> LocationsEmptyText(listItem.searchTerm)
                     is RelayListItem.EmptyRelayList -> EmptyRelayListText()
                 }
@@ -111,11 +118,22 @@ fun LazyListScope.relayListContent(
 }
 
 @Composable
+fun Modifier.positionalPadding(positionClassification: PositionClassification): Modifier =
+    when (positionClassification) {
+        PositionClassification.Top,
+        PositionClassification.Single -> padding(top = Dimens.miniPadding)
+        PositionClassification.Middle -> padding(top = Dimens.listItemDivider)
+        PositionClassification.Bottom ->
+            padding(top = Dimens.listItemDivider, bottom = Dimens.miniPadding)
+    }
+
+@Composable
 private fun LazyItemScope.RelayLocationItem(
     relayItem: RelayListItem.GeoLocationItem,
     onSelectRelay: () -> Unit,
     onLongClick: () -> Unit,
     onExpand: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val location = relayItem.item
     StatusRelayItemCell(
@@ -127,9 +145,29 @@ private fun LazyItemScope.RelayLocationItem(
         onToggleExpand = { onExpand(it) },
         isExpanded = relayItem.expanded,
         depth = relayItem.depth,
-        modifier = Modifier.testTag(LOCATION_CELL_TEST_TAG),
+        modifier =
+            modifier
+                .testTag(LOCATION_CELL_TEST_TAG)
+                .clip(positionClassification = relayItem.positionClassification),
     )
 }
+
+@Composable
+fun Modifier.clip(positionClassification: PositionClassification): Modifier =
+    clip(
+        with(MaterialTheme.shapes.large) {
+            val topCornerSize =
+                animateDpAsState(if (positionClassification.roundTop()) 16.dp else 0.dp)
+            val bottomCornerSize =
+                animateDpAsState(if (positionClassification.roundBottom()) 16.dp else 0.dp)
+            copy(
+                topStart = CornerSize(topCornerSize.value),
+                topEnd = CornerSize(topCornerSize.value),
+                bottomStart = CornerSize(bottomCornerSize.value),
+                bottomEnd = CornerSize(bottomCornerSize.value),
+            )
+        }
+    )
 
 @Composable
 private fun LazyItemScope.CustomListEntryItem(
@@ -137,6 +175,7 @@ private fun LazyItemScope.CustomListEntryItem(
     onSelectRelay: () -> Unit,
     onShowEditCustomListEntryBottomSheet: (() -> Unit)?,
     onToggleExpand: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val customListEntryItem = itemState.item
     StatusRelayItemCell(
@@ -148,6 +187,7 @@ private fun LazyItemScope.CustomListEntryItem(
         onToggleExpand = onToggleExpand,
         isExpanded = itemState.expanded,
         depth = itemState.depth,
+        modifier = modifier.clip(positionClassification = itemState.positionClassification),
     )
 }
 
@@ -157,6 +197,7 @@ private fun LazyItemScope.CustomListItem(
     onSelectRelay: (item: RelayItem) -> Unit,
     onShowEditBottomSheet: (RelayItem.CustomList) -> Unit,
     onExpand: ((CustomListId, Boolean) -> Unit),
+    modifier: Modifier = Modifier,
 ) {
     val customListItem = itemState.item
     StatusRelayItemCell(
@@ -167,6 +208,7 @@ private fun LazyItemScope.CustomListItem(
         onLongClick = { onShowEditBottomSheet(customListItem) },
         onToggleExpand = { onExpand(customListItem.id, it) },
         isExpanded = itemState.expanded,
+        modifier = modifier.clip(positionClassification = itemState.positionClassification),
     )
 }
 
