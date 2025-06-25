@@ -17,16 +17,6 @@ enum SwiftAccessMethodKind {
 };
 typedef uint8_t SwiftAccessMethodKind;
 
-/**
- * SAFETY: `TunnelObfuscatorProtocol` values must either be `0` or `1`
- */
-enum TunnelObfuscatorProtocol {
-  UdpOverTcp = 0,
-  Shadowsocks,
-  Quic,
-};
-typedef uint8_t TunnelObfuscatorProtocol;
-
 typedef struct ApiContext ApiContext;
 
 /**
@@ -930,10 +920,21 @@ int32_t start_shadowsocks_proxy(const uint8_t *forward_address,
  */
 int32_t stop_shadowsocks_proxy(struct ProxyHandle *proxy_config);
 
-int32_t start_tunnel_obfuscator_proxy(const uint8_t *peer_address,
-                                      uintptr_t peer_address_len,
-                                      uint16_t peer_port,
-                                      TunnelObfuscatorProtocol obfuscation_protocol,
-                                      struct ProxyHandle *proxy_handle);
+int32_t start_udp2tcp_obfuscator_proxy(const uint8_t *peer_address,
+                                       uintptr_t peer_address_len,
+                                       uint16_t peer_port,
+                                       struct ProxyHandle *proxy_handle);
+
+int32_t start_shadowsocks_obfuscator_proxy(const uint8_t *peer_address,
+                                           uintptr_t peer_address_len,
+                                           uint16_t peer_port,
+                                           struct ProxyHandle *proxy_handle);
+
+int32_t start_quic_obfuscator_proxy(const uint8_t *peer_address,
+                                    uintptr_t peer_address_len,
+                                    uint16_t peer_port,
+                                    const char *hostname,
+                                    const char *token,
+                                    struct ProxyHandle *proxy_handle);
 
 int32_t stop_tunnel_obfuscator_proxy(struct ProxyHandle *proxy_handle);

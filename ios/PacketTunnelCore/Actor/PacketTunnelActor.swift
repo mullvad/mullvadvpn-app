@@ -215,40 +215,6 @@ extension PacketTunnelActor {
     }
 
     /**
-     Reconnect tunnel to new relays. Enters error state on failure.
-
-     - Parameters:
-     - nextRelay: next relays to connect to
-     - reason: reason for reconnect
-     */
-    private func reconnect(to nextRelays: NextRelays, reason: ActorReconnectReason) async {
-        do {
-            switch state {
-            // There is no connection monitoring going on when exchanging keys.
-            // The procedure starts from scratch for each reconnection attempts.
-            case .connecting, .connected, .reconnecting, .error, .negotiatingEphemeralPeer:
-                switch reason {
-                case .connectionLoss:
-                    // Tunnel monitor is already paused at this point. Avoid calling stop() to prevent the reset of
-                    // internal state
-                    break
-                case .userInitiated:
-                    tunnelMonitor.stop()
-                }
-
-                try await tryStart(nextRelays: nextRelays, reason: reason)
-
-            case .disconnected, .disconnecting, .initial:
-                break
-            }
-        } catch {
-            logger.error(error: error, message: "Failed to reconnect the tunnel.")
-
-            await setErrorStateInternal(with: error)
-        }
-    }
-
-    /**
      Entry point for attempting to start the tunnel by performing the following steps:
 
      - Read settings
@@ -430,7 +396,9 @@ extension PacketTunnelActor {
         let obfuscated = protocolObfuscator.obfuscate(
             connectionState.connectedEndpoint,
             settings: settings.tunnelSettings,
-            retryAttempts: connectionState.selectedRelays.retryAttempt
+            retryAttempts: connectionState.selectedRelays.retryAttempt,
+            relayFeatures: connectionState.selectedRelays.entry?.features ?? connectionState.selectedRelays.exit
+                .features
         )
         let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp
 

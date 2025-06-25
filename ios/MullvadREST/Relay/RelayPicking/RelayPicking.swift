@@ -39,7 +39,8 @@ extension RelayPicking {
         return SelectedRelay(
             endpoint: match.endpoint,
             hostname: match.relay.hostname,
-            location: match.location
+            location: match.location,
+            features: match.relay.features
         )
     }
 

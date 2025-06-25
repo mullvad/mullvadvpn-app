@@ -138,7 +138,8 @@ final class AppMessageHandlerTests: XCTestCase {
             exit: SelectedRelay(
                 endpoint: match.endpoint,
                 hostname: match.relay.hostname,
-                location: match.location
+                location: match.location,
+                features: nil
             ),
             retryAttempt: 0
         )

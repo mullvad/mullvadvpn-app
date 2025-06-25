@@ -54,9 +54,9 @@ constraints the following default ones will take effect
 #### Tunnel protocol is Wireguard
 
 - The first attempt will connect to a Wireguard relay on a random port
-- The second attempt will connect to a Wireguard relay on port 443
-- The third attempt will connect to a Wireguard relay over IPv6 (if IPv6 is configured on the host) on a random port
-- The fourth attempt will connect to a Wireguard relay on a random port using Shadowsocks for obfuscation
+- The second attempt will connect to a Wireguard relay over IPv6 (if IPv6 is configured on the host) on a random port
+- The third attempt will connect to a Wireguard relay on a random port using Shadowsocks for obfuscation
+- The fourth attempt will connect to a Wireguard relay using QUIC for obfuscation (if QUIC is implemented)
 - The fifth attempt will connect to a Wireguard relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
 - The sixth attempt will connect to a Wireguard relay over IPv6 on a random port using UDP2TCP obfuscation (if IPv6 is configured on the host)
 
@@ -73,8 +73,8 @@ Note: This is not applicable to Android nor iOS.
 The iOS platform does not support OpenVPN, or connecting to a relay over IPv6.
 As such, the above algorithm is simplified to the following version:
   - The first attempt will connect to a Wireguard relay on a random port
-  - The second attempt will connect to a Wireguard relay on port 443
-  - The third attempt will connect to a Wireguard relay on a random port using Shadowsocks for obfuscation
+  - The second attempt will connect to a Wireguard relay on a random port using Shadowsocks for obfuscation
+  - The third attempt will connect to a Wireguard relay using QUIC for obfuscation
   - The fourth attempt will connect to a Wireguard relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
 
 ### Random Ports for UDP2TCP and Shadowsocks

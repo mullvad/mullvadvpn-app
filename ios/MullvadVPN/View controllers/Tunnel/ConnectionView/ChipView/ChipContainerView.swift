@@ -115,7 +115,8 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
                             cityCode: "gbg",
                             latitude: 1234,
                             longitude: 1234
-                        )
+                        ),
+                        features: nil
                     ),
                     retryAttempt: 0
                 ),

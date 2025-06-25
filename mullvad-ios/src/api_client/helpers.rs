@@ -1,9 +1,11 @@
 use std::{
-    ffi::{c_char, c_void, CStr},
+    ffi::{c_char, c_void},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
 use talpid_types::net::proxy::{Shadowsocks, Socks5Remote, SocksAuth};
+
+use super::get_string;
 
 /// Constructs a new IP address from a pointer containing bytes representing an IP address.
 ///
@@ -30,16 +32,6 @@ pub(crate) unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<I
     }
 }
 
-/// Converts a pointer to a C style string into an owned Rust `String`
-///
-/// # SAFETY
-/// `c_str` must point to a valid, null terminated C string.
-pub unsafe fn convert_c_string(c_str: *const c_char) -> String {
-    // SAFETY: c_str points to a valid region of memory and contains a null terminator.
-    let str = unsafe { CStr::from_ptr(c_str) };
-    String::from_utf8_lossy(str.to_bytes()).into_owned()
-}
-
 /// Converts parameters into a boxed `Shadowsocks` configuration that is safe
 /// to send across the FFI boundary
 ///
@@ -60,8 +52,8 @@ pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
         return std::ptr::null();
     };
 
-    let password = convert_c_string(c_password);
-    let cipher = convert_c_string(c_cipher);
+    let password = get_string(c_password);
+    let cipher = get_string(c_cipher);
 
     let shadowsocks_configuration = Shadowsocks {
         endpoint,
@@ -97,8 +89,8 @@ pub unsafe extern "C" fn new_socks5_access_method_setting(
         if c_username.is_null() || c_password.is_null() {
             None
         } else {
-            let username = convert_c_string(c_username);
-            let password = convert_c_string(c_password);
+            let username = get_string(c_username);
+            let password = get_string(c_password);
             SocksAuth::new(username, password).ok()
         }
     };
