@@ -14,7 +14,7 @@ import Network
 public enum TunnelObfuscationProtocol {
     case udpOverTcp
     case shadowsocks
-    case quic
+    case quic(hostname: String, token: String)
 }
 
 public protocol TunnelObfuscation {
@@ -74,22 +74,34 @@ public final class TunnelObfuscator: TunnelObfuscation {
         stateLock.withLock {
             guard !isStarted else { return }
 
-            let obfuscationProtocol = switch obfuscationProtocol {
-            case .udpOverTcp: TunnelObfuscatorProtocol(0)
-            case .shadowsocks: TunnelObfuscatorProtocol(1)
-            case .quic: TunnelObfuscatorProtocol(2)
-            }
-
             let result = withUnsafeMutablePointer(to: &proxyHandle) { proxyHandlePointer in
                 let addressData = remoteAddress.rawValue
 
-                return start_tunnel_obfuscator_proxy(
-                    addressData.map { $0 },
-                    UInt(addressData.count),
-                    tcpPort,
-                    obfuscationProtocol,
-                    proxyHandlePointer
-                )
+                return switch obfuscationProtocol {
+                case .udpOverTcp:
+                    start_udp2tcp_obfuscator_proxy(
+                        addressData.map { $0 },
+                        UInt(addressData.count),
+                        tcpPort,
+                        proxyHandlePointer
+                    )
+                case .shadowsocks:
+                    start_shadowsocks_obfuscator_proxy(
+                        addressData.map { $0 },
+                        UInt(addressData.count),
+                        tcpPort,
+                        proxyHandlePointer
+                    )
+                case let .quic(hostname, token):
+                    start_quic_obfuscator_proxy(
+                        addressData.map { $0 },
+                        UInt(addressData.count),
+                        tcpPort,
+                        hostname,
+                        token,
+                        proxyHandlePointer
+                    )
+                }
             }
 
             assert(result == 0)

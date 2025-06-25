@@ -1,6 +1,7 @@
-use super::helpers::convert_c_string;
 use libc::c_char;
 use std::{ffi::c_void, net::SocketAddr};
+
+use super::get_string;
 
 extern "C" {
     /// Return the latest available endpoint, or a default one if none are cached
@@ -58,7 +59,7 @@ impl SwiftAddressCacheProviderContext {
         // SAFETY: The pointer contained in the late deallocator returned by `swift_get_cached_endpoint`
         // is guaranteed to point to a valid UTF-8 String
         // It is also guaranteed to be a valid representation of either an IPv4 or IPv6 address
-        let cached_address = unsafe { convert_c_string(deallocator.ptr) }
+        let cached_address = get_string(deallocator.ptr)
             .parse()
             .expect("Invalid socket address in cache");
 

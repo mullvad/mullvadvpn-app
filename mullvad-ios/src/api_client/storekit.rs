@@ -7,13 +7,7 @@ use mullvad_api::{
 use mullvad_types::account::AccountNumber;
 
 use super::{
-    cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    completion::{CompletionCookie, SwiftCompletionHandler},
-    do_request,
-    helpers::convert_c_string,
-    response::SwiftMullvadApiResponse,
-    retry_strategy::{RetryStrategy, SwiftRetryStrategy},
-    SwiftApiContext,
+    cancellation::{RequestCancelHandle, SwiftCancelHandle}, completion::{CompletionCookie, SwiftCompletionHandler}, do_request, get_string, response::SwiftMullvadApiResponse, retry_strategy::{RetryStrategy, SwiftRetryStrategy}, SwiftApiContext
 };
 
 /// # Safety
@@ -58,7 +52,7 @@ pub unsafe extern "C" fn mullvad_ios_legacy_storekit_payment(
     let completion = completion_handler.clone();
 
     // SAFETY: See param documentation for `account_number`.
-    let account_number = unsafe { AccountNumber::from(convert_c_string(account_number)) };
+    let account_number = AccountNumber::from(get_string(account_number));
 
     // SAFETY: See param documentation for `body`.
     let body = unsafe { std::slice::from_raw_parts(body, body_size) }.to_vec();
@@ -133,7 +127,7 @@ pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
     let completion = completion_handler.clone();
 
     // SAFETY: See param documentation for `account_number`.
-    let account_number = unsafe { AccountNumber::from(convert_c_string(account_number)) };
+    let account_number = AccountNumber::from(get_string(account_number));
 
     let task = tokio_handle.spawn(async move {
         match mullvad_ios_init_storekit_payment_inner(
@@ -208,7 +202,7 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
     let completion = completion_handler.clone();
 
     // SAFETY: See param documentation for `account_number`.
-    let account_number = unsafe { AccountNumber::from(convert_c_string(account_number)) };
+    let account_number = AccountNumber::from(get_string(account_number));
 
     // SAFETY: See param documentation for `body`.
     let body = unsafe { std::slice::from_raw_parts(body, body_size) }.to_vec();

@@ -21,7 +21,8 @@ public protocol ProtocolObfuscation {
     func obfuscate(
         _ endpoint: MullvadEndpoint,
         settings: LatestTunnelSettings,
-        retryAttempts: UInt
+        retryAttempts: UInt,
+        relayFeatures: REST.ServerRelay.Features?
     ) -> ProtocolObfuscationResult
     var transportLayer: TransportLayer? { get }
     var remotePort: UInt16 { get }
@@ -46,7 +47,8 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
     public func obfuscate(
         _ endpoint: MullvadEndpoint,
         settings: LatestTunnelSettings,
-        retryAttempts: UInt = 0
+        retryAttempts: UInt = 0,
+        relayFeatures: REST.ServerRelay.Features?
     ) -> ProtocolObfuscationResult {
         let obfuscationMethod = ObfuscationMethodSelector.obfuscationMethodBy(
             connectionAttemptCount: retryAttempts,
@@ -55,17 +57,29 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
 
         remotePort = endpoint.ipv4Relay.port
 
-        guard obfuscationMethod != .off else {
+        #if DEBUG
+        let obfuscationProtocol: TunnelObfuscationProtocol? = switch obfuscationMethod {
+        case .udpOverTcp:
+                .udpOverTcp
+        case .shadowsocks:
+                .shadowsocks
+        case .quic:
+            if let relayFeatures = relayFeatures?.quic {
+                .quic(hostname: relayFeatures.domain, token: relayFeatures.token)
+            } else {
+                nil
+            }
+        default:
+            // This is fine, since ObfuscationMethodSelector.obfuscationMethodBy` above should never
+            // return .automatic.
+            nil
+        }
+
+        guard let obfuscationProtocol else {
             tunnelObfuscator = nil
             return .init(endpoint: endpoint, method: .off)
         }
 
-        #if DEBUG
-        let obfuscationProtocol: TunnelObfuscationProtocol = switch obfuscationMethod {
-        case .shadowsocks: .shadowsocks
-        case .quic: .quic
-        default: .udpOverTcp
-        }
         let obfuscator = Obfuscator(
             remoteAddress: endpoint.ipv4Relay.ip,
             tcpPort: remotePort,
