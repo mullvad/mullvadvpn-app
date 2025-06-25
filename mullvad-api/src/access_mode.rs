@@ -234,7 +234,6 @@ pub struct AccessModeSelector<B: AccessMethodResolver> {
     cmd_rx: mpsc::UnboundedReceiver<Message>,
     method_resolver: B,
     access_method_settings: Settings,
-    #[cfg(not(target_os = "ios"))]
     access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
     connection_mode_provider_sender: mpsc::UnboundedSender<ApiConnectionMode>,
     current: ResolvedConnectionMode,
@@ -248,7 +247,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         mut access_method_settings: Settings,
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
-        #[cfg(not(target_os = "ios"))] access_method_event_sender: mpsc::UnboundedSender<(
+        access_method_event_sender: mpsc::UnboundedSender<(
             AccessMethodEvent,
             oneshot::Sender<()>,
         )>,
@@ -277,7 +276,6 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
             cmd_rx,
             method_resolver,
             access_method_settings,
-            #[cfg(not(target_os = "ios"))]
             access_method_event_sender,
             connection_mode_provider_sender: change_tx,
             current: initial_connection_mode,

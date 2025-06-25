@@ -251,14 +251,19 @@ pub extern "C" fn mullvad_api_init_inner(
     );
 
     let api_context = tokio_handle.clone().block_on(async move {
+        let (tx, rx) = mpsc::unbounded_channel::<(AccessMethodEvent, oneshot::Sender<()>)>();
         let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
             method_resolver,
             access_method_settings,
             #[cfg(feature = "api-override")]
             endpoint.clone(),
+            tx,
         )
         .await
         .expect("Could now spawn AccessModeSelector");
+
+        // TODO: do something with rx, and somehow let the `AccessMethodEvent`s it 
+        // receives be sent back to the Swift side
 
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.
