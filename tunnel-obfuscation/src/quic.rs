@@ -12,9 +12,6 @@ use crate::Obfuscator;
 
 type Result<T> = std::result::Result<T, Error>;
 
-/// Authentication header to set for the CONNECT request
-const AUTH_HEADER: &str = "Bearer test";
-
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to bind UDP socket")]
@@ -36,6 +33,8 @@ pub struct Settings {
     pub wireguard_endpoint: SocketAddr,
     /// Hostname to use for QUIC
     pub hostname: String,
+    /// Auth token to use for QUIC. Should be prefixed with "Bearer".
+    pub token: String,
     /// fwmark to apply to use for the QUIC connection
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u32>,
@@ -48,6 +47,7 @@ impl Quic {
             .map_err(Error::BindError)?;
 
         let local_endpoint = local_socket.local_addr().unwrap();
+        let token = settings.token.clone();
 
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)
@@ -55,7 +55,7 @@ impl Quic {
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
-            .auth_header(Some(AUTH_HEADER.to_owned()));
+            .auth_header(Some(format!("Bearer {token}").to_owned()));
 
         #[cfg(target_os = "linux")]
         let config_builder = config_builder.fwmark(settings.fwmark);

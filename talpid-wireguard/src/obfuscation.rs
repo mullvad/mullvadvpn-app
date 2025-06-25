@@ -16,6 +16,9 @@ use tunnel_obfuscation::{
     create_obfuscator, quic, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
 };
 
+/// Test authentication header to set for the CONNECT request. Real header should be prefixed with "Bearer".
+const AUTH_HEADER: &str = "Bearer test";
+
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
 /// to point to an endpoint on localhost
 pub async fn apply_obfuscation_config(
@@ -101,6 +104,7 @@ fn settings_from_config(
                 quic_endpoint: *endpoint,
                 wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
                 hostname: hostname.to_owned(),
+                token: AUTH_HEADER.to_owned(),
                 #[cfg(target_os = "linux")]
                 fwmark,
             })
