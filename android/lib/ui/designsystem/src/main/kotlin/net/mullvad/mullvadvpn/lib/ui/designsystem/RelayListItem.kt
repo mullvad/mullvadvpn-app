@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -44,7 +45,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 private val LIST_ITEM_BUTTON_WIDTH = 56.dp
 private val LIST_ITEM_SPACER = 2.dp
@@ -58,55 +58,66 @@ fun RelayListItem(
     colors: RelayListItemColors = RelayListItemDefaults.colors(),
     shape: Shape = ListItemDefaults.shape,
 ) {
-    Row(
-        modifier = modifier.clip(shape).defaultMinSize(minHeight = 56.dp).height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    ProvideContentColorTextStyle(
+        colors.headlineColor,
+        MaterialTheme.typography.titleMedium,
     ) {
-        if (leadingContent != null) {
-            Box(
-                Modifier.background(colors.containerColor)
-                    .fillMaxHeight()
-                    .width(LIST_ITEM_BUTTON_WIDTH),
-                contentAlignment = Alignment.Center,
-            ) {
-                ProvideContentColorTextStyle(
-                    colors.headlineColor,
-                    MaterialTheme.typography.titleMedium,
+        Row(
+            modifier =
+                Modifier.clip(shape).defaultMinSize(minHeight = 56.dp).height(IntrinsicSize.Min)
+                    .let {
+                        if (leadingContent == null && trailingContent == null) {
+                            it.background(colors.containerColor())
+                        } else {
+                            it
+                        }
+                    }.then(modifier),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (leadingContent != null) {
+                Box(
+                    Modifier.background(colors.containerColor)
+                        .fillMaxHeight()
+                        .width(LIST_ITEM_BUTTON_WIDTH),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    leadingContent()
+                    ProvideContentColorTextStyle(
+                        colors.headlineColor,
+                        MaterialTheme.typography.titleMedium,
+                    ) {
+                        leadingContent()
+                    }
                 }
             }
-        }
 
-        Row(
-            Modifier.weight(1f, fill = true)
-                .background(colors.containerColor)
-                .fillMaxHeight()
-                .padding(Dimens.mediumPadding)
-        ) {
-            if (leadingContent == null) {
-                Spacer(Modifier.width(LIST_ITEM_BUTTON_WIDTH + LIST_ITEM_SPACER))
-            }
-            ProvideContentColorTextStyle(
-                colors.headlineColor,
-                MaterialTheme.typography.titleMedium,
+            Row(
+                Modifier.weight(1f, fill = true).background(colors.containerColor).fillMaxHeight(),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                content()
-            }
-        }
-
-        if (trailingContent != null) {
-            Box(
-                Modifier.background(color = colors.containerColor)
-                    .width(LIST_ITEM_BUTTON_WIDTH)
-                    .fillMaxHeight()
-            ) {
+                if (leadingContent == null) {
+                    Spacer(Modifier.width(LIST_ITEM_BUTTON_WIDTH + LIST_ITEM_SPACER))
+                }
                 ProvideContentColorTextStyle(
                     colors.headlineColor,
                     MaterialTheme.typography.titleMedium,
                 ) {
-                    trailingContent()
+                    content()
+                }
+            }
+
+            if (trailingContent != null) {
+                Box(
+                    Modifier.background(color = colors.containerColor)
+                        .width(LIST_ITEM_BUTTON_WIDTH)
+                        .fillMaxHeight()
+                ) {
+                    ProvideContentColorTextStyle(
+                        colors.headlineColor,
+                        MaterialTheme.typography.titleMedium,
+                    ) {
+                        trailingContent()
+                    }
                 }
             }
         }
@@ -210,7 +221,7 @@ object RelayListTokens {
     const val RelayListItemDisabledTrailingIconOpacity = 0.38f
 }
 
-@Preview(backgroundColor = 0xFF808080, showBackground = true)
+@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @PreviewFontScale
 @Composable
 private fun PreviewRelayListItem() {
@@ -220,8 +231,8 @@ private fun PreviewRelayListItem() {
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             RelayListItem(
-                modifier = Modifier.fillMaxWidth(),
-                content = { Text("Hello world") },
+                modifier = Modifier.fillMaxWidth().clickable {},
+                content = { Text("Hello world", modifier = Modifier.padding(16.dp).fillMaxSize()) },
                 shape = RoundedCornerShape(bottomEnd = 16.dp, bottomStart = 16.dp),
             )
             RelayListItem(
@@ -229,6 +240,11 @@ private fun PreviewRelayListItem() {
                 content = {
                     Text(
                         "Hello world fsadhkuhfiuskahf iuhsadhuf sa",
+                        modifier =
+                            Modifier.clickable { /* Handle click */ }
+                                .padding(16.dp)
+                                .fillMaxSize()
+                                .wrapContentHeight(align = Alignment.CenterVertically),
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -252,7 +268,10 @@ private fun PreviewRelayListItem() {
             RelayListItem(
                 modifier = Modifier.fillMaxWidth(),
                 content = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.clickable { /* Handle click */ }.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Icon(imageVector = Icons.Default.Check, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
                         Text(
@@ -281,7 +300,9 @@ private fun PreviewRelayListItem() {
                 modifier = Modifier.fillMaxWidth(),
                 content = {
                     Text(
-                        "Hello world fsadhkuhfiuskahf iuhsadhuf sa",
+                        "Hello world iuhsadhuf sa",
+                        modifier =
+                            Modifier.clickable { /* Handle click */ }.padding(16.dp).fillMaxSize(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
