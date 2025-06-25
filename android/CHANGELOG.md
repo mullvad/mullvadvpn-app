@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add Memory Tagging (MTE) opt-in flag to enable it by default on supported Android versions and
+  devices.
 
 
 ## [android/2025.5-beta1] - 2025-06-17
