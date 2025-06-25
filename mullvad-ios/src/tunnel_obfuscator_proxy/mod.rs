@@ -1,4 +1,3 @@
-use ffi::TunnelObfuscatorProtocol;
 use std::{
     io,
     net::{Ipv4Addr, SocketAddr},
@@ -17,27 +16,26 @@ pub struct TunnelObfuscatorRuntime {
 }
 
 impl TunnelObfuscatorRuntime {
-    pub fn new(peer: SocketAddr, obfuscation_protocol: TunnelObfuscatorProtocol) -> Self {
-        let settings: ObfuscationSettings = match obfuscation_protocol {
-            TunnelObfuscatorProtocol::UdpOverTcp => {
-                ObfuscationSettings::Udp2Tcp(udp2tcp::Settings { peer })
-            }
-            TunnelObfuscatorProtocol::Shadowsocks => {
-                ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
-                    shadowsocks_endpoint: peer,
-                    wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
-                })
-            }
-            TunnelObfuscatorProtocol::Quic => {
-                ObfuscationSettings::Quic(quic::Settings {
-                    quic_endpoint: peer,
-                    wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
-                    // TODO: fetch the real hostname from the relay list
-                    hostname: "www.mullvad.net".to_string(),
-                })
-            }
-        };
+    pub fn new_udp2tcp(peer: SocketAddr) -> Self {
+        let settings = ObfuscationSettings::Udp2Tcp(udp2tcp::Settings { peer });
+        Self { settings }
+    }
 
+    pub fn new_shadowsocks(peer: SocketAddr) -> Self {
+        let settings = ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
+            shadowsocks_endpoint: peer,
+            wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
+        });
+        Self { settings }
+    }
+
+    pub fn new_quic(peer: SocketAddr, hostname: String, token: String) -> Self {
+        let settings = ObfuscationSettings::Quic(quic::Settings {
+            quic_endpoint: peer,
+            wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
+            hostname,
+            token,
+        });
         Self { settings }
     }
 
