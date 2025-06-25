@@ -3,10 +3,10 @@
 This threat model describes the code backing Mullvad VPN loader and in-app updates on the two
 platforms it supports (Windows and macOS). The loader is a graphical application used by Mullvad
 users to install and upgrade the Mullvad VPN app on their devices, and in-app updates allows users
-to update the app from within the app. `mullvad-update` is responsible for verifying the integrity
-of the software that it downloads and installs on the user's device to ensure that the software has
-not been tampered with. It allows the app to be hosted on untrusted third-party CDNs without
-compromising security.
+to update the app from within the app. The library crate `mullvad-update` is responsible for
+verifying the integrity of the software that it downloads and installs on the user's device to
+ensure that the software has not been tampered with. It allows the app to be hosted on untrusted
+third-party CDNs without compromising security.
 
 These tools perform network requests towards Mullvad API endpoints and above mentioned third-party
 CDNs, and requires both read & write access to the target device file system.
