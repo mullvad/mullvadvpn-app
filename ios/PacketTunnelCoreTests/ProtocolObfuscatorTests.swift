@@ -33,14 +33,14 @@ final class ProtocolObfuscatorTests: XCTestCase {
 
     func testObfuscateOffDoesNotChangeEndpoint() {
         let settings = settings(.off, obfuscationPort: .automatic)
-        let nonObfuscated = obfuscator.obfuscate(endpoint, settings: settings)
+        let nonObfuscated = obfuscator.obfuscate(endpoint, settings: settings, relayFeatures: nil)
 
         XCTAssertEqual(endpoint, nonObfuscated.endpoint)
     }
 
     func testObfuscateUdpOverTcp() throws {
         let settings = settings(.udpOverTcp, obfuscationPort: .automatic)
-        let obfuscated = obfuscator.obfuscate(endpoint, settings: settings)
+        let obfuscated = obfuscator.obfuscate(endpoint, settings: settings, relayFeatures: nil)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
         validate(obfuscated.endpoint, against: obfuscationProtocol)
@@ -48,7 +48,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
 
     func testObfuscateShadowsocks() throws {
         let settings = settings(.shadowsocks, obfuscationPort: .automatic)
-        let obfuscated = obfuscator.obfuscate(endpoint, settings: settings)
+        let obfuscated = obfuscator.obfuscate(endpoint, settings: settings, relayFeatures: nil)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
         validate(obfuscated.endpoint, against: obfuscationProtocol)
@@ -58,7 +58,12 @@ final class ProtocolObfuscatorTests: XCTestCase {
         let settings = settings(.automatic, obfuscationPort: .automatic)
 
         try (UInt(0) ... 2).forEach { attempt in
-            let obfuscated = obfuscator.obfuscate(endpoint, settings: settings, retryAttempts: attempt)
+            let obfuscated = obfuscator.obfuscate(
+                endpoint,
+                settings: settings,
+                retryAttempts: attempt,
+                relayFeatures: nil
+            )
 
             switch attempt {
             case 0:

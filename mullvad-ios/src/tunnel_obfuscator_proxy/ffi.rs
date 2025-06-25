@@ -1,52 +1,124 @@
+use libc::c_char;
+
 use super::{TunnelObfuscatorHandle, TunnelObfuscatorRuntime};
 use crate::ProxyHandle;
 use std::{net::SocketAddr, sync::Once};
 
-use crate::api_client::helpers::parse_ip_addr;
+use crate::{api_client::helpers::parse_ip_addr, get_string};
 
 static INIT_LOGGING: Once = Once::new();
 
-/// SAFETY: `TunnelObfuscatorProtocol` values must either be `0` or `1`
-#[repr(u8)]
-pub enum TunnelObfuscatorProtocol {
-    UdpOverTcp = 0,
-    Shadowsocks,
-    Quic,
+macro_rules! throw_int_error {
+    ($result:expr) => {
+        match $result {
+            Ok(value) => value,
+            Err(value) => return value,
+        }
+    };
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn start_tunnel_obfuscator_proxy(
+pub unsafe extern "C" fn start_udp2tcp_obfuscator_proxy(
     peer_address: *const u8,
     peer_address_len: usize,
     peer_port: u16,
-    obfuscation_protocol: TunnelObfuscatorProtocol,
     proxy_handle: *mut ProxyHandle,
 ) -> i32 {
+    init_logging();
+
+    let peer_sock_addr = throw_int_error!(get_socket_address(peer_address, peer_address_len, peer_port));
+    let result = TunnelObfuscatorRuntime::new_udp2tcp(peer_sock_addr).run();
+
+    start(proxy_handle, result)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn start_shadowsocks_obfuscator_proxy(
+    peer_address: *const u8,
+    peer_address_len: usize,
+    peer_port: u16,
+    proxy_handle: *mut ProxyHandle,
+) -> i32 {
+    init_logging();
+
+    let peer_sock_addr = throw_int_error!(get_socket_address(peer_address, peer_address_len, peer_port));
+    let result = TunnelObfuscatorRuntime::new_shadowsocks(peer_sock_addr).run();
+
+    start(proxy_handle, result)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn start_quic_obfuscator_proxy(
+    peer_address: *const u8,
+    peer_address_len: usize,
+    peer_port: u16,
+    hostname: *const c_char,
+    token: *const c_char,
+    proxy_handle: *mut ProxyHandle,
+) -> i32 {
+    init_logging();
+
+    let peer_sock_addr = throw_int_error!(get_socket_address(peer_address, peer_address_len, peer_port));
+    let hostname = get_string(hostname);
+    let token = get_string(token);
+    let result = TunnelObfuscatorRuntime::new_quic(peer_sock_addr, hostname, token).run();
+
+    start(proxy_handle, result)
+}
+
+fn init_logging() {
     INIT_LOGGING.call_once(|| {
         let _ = oslog::OsLogger::new("net.mullvad.MullvadVPN.TunnelObfuscatorProxy")
             .level_filter(log::LevelFilter::Info)
             .init();
     });
+}
 
-    let peer_sock_addr: SocketAddr =
-        if let Some(ip_address) = parse_ip_addr(peer_address, peer_address_len) {
+/// Constructs a new IP address from a pointer containing bytes representing an IP address.
+///
+/// SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
+unsafe fn get_socket_address(
+    peer_address: *const u8,
+    peer_address_len: usize,
+    peer_port: u16,
+) -> Result<SocketAddr, i32> {
+    let peer_sock_addr =
+        // SAFETY: See notes for `parse_ip_addr`.
+        if let Some(ip_address) = unsafe { parse_ip_addr(peer_address, peer_address_len) } {
             SocketAddr::new(ip_address, peer_port)
         } else {
-            return -1;
+            return Err(-1);
         };
+    Ok(peer_sock_addr)
+}
 
-    let result = TunnelObfuscatorRuntime::new(peer_sock_addr, obfuscation_protocol).run();
-
+/// # Safety
+///
+/// Behavior is undefined if any of the following conditions are violated:
+///
+/// * `proxy_handle` must be [valid] for writes.
+/// * `proxy_handle` must be properly aligned. Use [`write_unaligned`] if this is not the
+///   case.
+unsafe fn start(
+    proxy_handle: *mut ProxyHandle,
+    result: Result<(SocketAddr, TunnelObfuscatorHandle), std::io::Error>,
+) -> i32 {
     match result {
         Ok((local_endpoint, obfuscator_handle)) => {
             let boxed_handle = Box::new(obfuscator_handle);
-            std::ptr::write(
-                proxy_handle,
-                ProxyHandle {
-                    context: Box::into_raw(boxed_handle) as *mut _,
-                    port: local_endpoint.port(),
-                },
-            );
+            let source_handle = ProxyHandle {
+                context: Box::into_raw(boxed_handle) as *mut _,
+                port: local_endpoint.port(),
+            };
+            
+            // SAFETY: Caller guarantees that this pointer is valid.
+            unsafe {
+                std::ptr::write(
+                    proxy_handle,
+                    source_handle
+                )
+            };
+
             0
         }
         Err(err) => {

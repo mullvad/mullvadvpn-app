@@ -1,9 +1,9 @@
-use std::{ffi::c_char, ffi::CStr, future::Future, sync::Arc};
+use std::{ffi::c_char, future::Future, sync::Arc};
 
+use crate::get_string;
 use access_method_resolver::SwiftAccessMethodResolver;
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
 use address_cache_provider::SwiftAddressCacheWrapper;
-use helpers::convert_c_string;
 use mullvad_api::{
     access_mode::{AccessModeSelector, AccessModeSelectorHandle},
     rest::{self, MullvadRestHandle},
@@ -108,8 +108,8 @@ pub unsafe extern "C" fn mullvad_api_use_access_method(
     access_method_id: *const c_char,
 ) {
     let api_context = api_context.rust_context();
-    // SAFETY: See Safety notes for `convert_c_string`
-    let id = unsafe { convert_c_string(access_method_id) };
+    // SAFETY: See Safety notes for `get_string`
+    let id = get_string(access_method_id);
 
     let Some(id) = Id::from_string(id) else {
         return;
@@ -214,14 +214,9 @@ pub extern "C" fn mullvad_api_init_inner(
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
 ) -> SwiftApiContext {
-    // Safety: See notes for `convert_c_string`
-    let (host, address, domain) = unsafe {
-        (
-            convert_c_string(host),
-            convert_c_string(address),
-            convert_c_string(domain),
-        )
-    };
+    // Safety: See notes for `get_string`
+    let (host, address, domain) =
+        unsafe { (get_string(host), get_string(address), get_string(domain)) };
 
     // The iOS client provides a different default endpoint based on its configuration
     // Debug and Release builds use the standard endpoints
@@ -313,18 +308,4 @@ where
     };
 
     retry_future(future_factory, should_retry, retry_strategy.delays()).await
-}
-
-/// Try to convert a C string to an owned [String]. if `ptr` is null, an empty [String] is
-/// returned.
-///
-/// # Safety
-/// - `ptr` must uphold all safety invariants as required by [CStr::from_ptr].
-fn get_string(ptr: *const c_char) -> String {
-    if ptr.is_null() {
-        return String::new();
-    }
-    // Safety: See function doc comment.
-    let cstr = unsafe { CStr::from_ptr(ptr) };
-    cstr.to_str().map(ToOwned::to_owned).unwrap_or_default()
 }
