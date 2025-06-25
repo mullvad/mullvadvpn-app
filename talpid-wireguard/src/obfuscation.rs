@@ -103,6 +103,10 @@ fn settings_from_config(
                 hostname: hostname.to_owned(),
                 #[cfg(target_os = "linux")]
                 fwmark,
+                #[cfg(target_os = "ios")]
+                hostname,
+                #[cfg(target_os = "ios")]
+                token,
             })
         }
     }

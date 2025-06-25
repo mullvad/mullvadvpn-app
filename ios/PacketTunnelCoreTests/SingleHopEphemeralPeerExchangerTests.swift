@@ -35,7 +35,12 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
             numberOfFailedAttempts: 0
         )
 
-        exitRelay = SelectedRelay(endpoint: match.endpoint, hostname: match.relay.hostname, location: match.location)
+        exitRelay = SelectedRelay(
+            endpoint: match.endpoint,
+            hostname: match.relay.hostname,
+            location: match.location,
+            features: nil
+        )
     }
 
     func testEphemeralPeerExchangeFailsWhenNegotiationCannotStart() async {

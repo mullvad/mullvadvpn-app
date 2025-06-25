@@ -11,7 +11,7 @@ use mullvad_types::access_method::{
 };
 use talpid_types::net::proxy::{self, Shadowsocks, Socks5Remote};
 
-use super::helpers::convert_c_string;
+use crate::get_string;
 
 /// Converts parameters into a `Box<AccessMethodSetting>` raw representation that
 /// can be passed across the FFI boundary
@@ -54,9 +54,9 @@ fn convert_builtin_access_method_setting_inner(
     proxy_configuration: *const c_void,
 ) -> Option<AccessMethodSetting> {
     // SAFETY: See `convert_builtin_access_method_setting`
-    let id = Id::from_string(unsafe { convert_c_string(unique_identifier) })?;
+    let id = unsafe { Id::from_string(get_string(unique_identifier))? };
     // SAFETY: See `convert_builtin_access_method_setting`
-    let name = unsafe { convert_c_string(name) };
+    let name = unsafe { get_string(name) };
     match method_kind {
         SwiftAccessMethodKind::KindDirect => Some(AccessMethodSetting::with_id(
             id,
