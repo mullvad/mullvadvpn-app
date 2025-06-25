@@ -83,9 +83,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardObfuscationAutomatic
         case wireGuardObfuscationUdpOverTcp
         case wireGuardObfuscationShadowsocks
-        #if DEBUG
         case wireGuardObfuscationQuic
-        #endif
         case wireGuardObfuscationOff
         case wireGuardObfuscationPort(_ port: WireGuardObfuscationUdpOverTcpPort)
         case quantumResistanceAutomatic
@@ -151,10 +149,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .wireGuardObfuscationUdpOverTcp
             case .wireGuardObfuscationShadowsocks:
                 .wireGuardObfuscationShadowsocks
-            #if DEBUG
             case .wireGuardObfuscationQuic:
                 .wireGuardObfuscationQuic
-            #endif
             case .wireGuardObfuscationOff:
                 .wireGuardObfuscationOff
             case .wireGuardObfuscationPort:
@@ -182,13 +178,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .wireGuardPort
             case .wireGuardCustomPort:
                 .wireGuardCustomPort
-            #if DEBUG
             case .wireGuardObfuscationAutomatic, .wireGuardObfuscationOff, .wireGuardObfuscationQuic:
                 .wireGuardObfuscation
-            #else
-            case .wireGuardObfuscationAutomatic, .wireGuardObfuscationOff:
-                .wireGuardObfuscation
-            #endif
             case .wireGuardObfuscationUdpOverTcp, .wireGuardObfuscationShadowsocks:
                 .wireGuardObfuscationOption
             case .wireGuardObfuscationPort:
@@ -228,9 +219,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .off: .wireGuardObfuscationOff
         case .on, .udpOverTcp: .wireGuardObfuscationUdpOverTcp
         case .shadowsocks: .wireGuardObfuscationShadowsocks
-        #if DEBUG
         case .quic: .wireGuardObfuscationQuic
-        #endif
         }
 
         let quantumResistanceItem: Item = switch viewModel.quantumResistance {
