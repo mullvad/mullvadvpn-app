@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel.location
 
+import net.mullvad.mullvadvpn.compose.state.PositionClassification
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.RelayListItemState
 import net.mullvad.mullvadvpn.compose.state.RelayListType
@@ -176,19 +177,26 @@ private fun createCustomListRelayItems(
                             selectedByOtherId = selectedByOtherEntryExitList,
                         ),
                     expanded = expanded,
+                    positionClassification =
+                        if (expanded) {
+                            PositionClassification.Top
+                        } else {
+                            PositionClassification.Single
+                        },
                 )
             )
 
             if (expanded) {
                 addAll(
-                    customList.locations.flatMap {
+                    customList.locations.flatMapIndexed { index, item ->
                         createCustomListEntry(
                             parent = customList,
-                            item = it,
+                            item = item,
                             relayListType = relayListType,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                             depth = 1,
                             isExpanded = isExpanded,
+                            isLast = index == customList.locations.lastIndex,
                         )
                     }
                 )
@@ -205,13 +213,14 @@ private fun createLocationSection(
 ): List<RelayListItem> = buildList {
     add(RelayListItem.LocationHeader)
     addAll(
-        countries.flatMap { country ->
+        countries.flatMapIndexed { index, country ->
             createGeoLocationEntry(
                 item = country,
                 selectedByThisEntryExitList = selectedByThisEntryExitList,
                 relayListType = relayListType,
                 selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                 isExpanded = isExpanded,
+                isLast = true,
             )
         }
     )
@@ -234,6 +243,7 @@ private fun createLocationSectionSearching(
                     relayListType = relayListType,
                     selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                     isExpanded = isExpanded,
+                    isLast = true,
                 )
             }
         )
@@ -247,6 +257,7 @@ private fun createCustomListEntry(
     selectedByOtherEntryExitList: RelayItemId?,
     depth: Int = 1,
     isExpanded: (String) -> Boolean,
+    isLast: Boolean,
 ): List<RelayListItem.CustomListEntryItem> = buildList {
     val expanded = isExpanded(item.id.expandKey(parent.id))
     add(
@@ -261,6 +272,12 @@ private fun createCustomListEntry(
                 ),
             expanded = expanded,
             depth = depth,
+            positionClassification =
+                if (!expanded && isLast) {
+                    PositionClassification.Bottom
+                } else {
+                    PositionClassification.Middle
+                },
         )
     )
 
@@ -268,27 +285,29 @@ private fun createCustomListEntry(
         when (item) {
             is RelayItem.Location.City ->
                 addAll(
-                    item.relays.flatMap {
+                    item.relays.flatMapIndexed { index, relay ->
                         createCustomListEntry(
                             parent = parent,
-                            item = it,
+                            item = relay,
                             relayListType = relayListType,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                             depth = depth + 1,
                             isExpanded = isExpanded,
+                            isLast = isLast && index == item.relays.lastIndex,
                         )
                     }
                 )
             is RelayItem.Location.Country ->
                 addAll(
-                    item.cities.flatMap {
+                    item.cities.flatMapIndexed { index, city ->
                         createCustomListEntry(
                             parent = parent,
-                            item = it,
+                            item = city,
                             relayListType = relayListType,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                             depth = depth + 1,
                             isExpanded = isExpanded,
+                            isLast = isLast && index == item.cities.lastIndex,
                         )
                     }
                 )
@@ -304,6 +323,7 @@ private fun createGeoLocationEntry(
     selectedByOtherEntryExitList: RelayItemId?,
     depth: Int = 0,
     isExpanded: (String) -> Boolean,
+    isLast: Boolean,
 ): List<RelayListItem.GeoLocationItem> = buildList {
     val expanded = isExpanded(item.id.expandKey())
 
@@ -318,6 +338,24 @@ private fun createGeoLocationEntry(
                 ),
             depth = depth,
             expanded = expanded,
+            positionClassification =
+                when (item) {
+                    is RelayItem.Location.Country -> {
+                        if (expanded) {
+                            PositionClassification.Top
+                        } else {
+                            PositionClassification.Single
+                        }
+                    }
+
+                    else -> {
+                        if (isLast && !expanded) {
+                            PositionClassification.Bottom
+                        } else {
+                            PositionClassification.Middle
+                        }
+                    }
+                },
         )
     )
 
@@ -325,27 +363,29 @@ private fun createGeoLocationEntry(
         when (item) {
             is RelayItem.Location.City ->
                 addAll(
-                    item.relays.flatMap {
+                    item.relays.flatMapIndexed { index, relay ->
                         createGeoLocationEntry(
-                            item = it,
+                            item = relay,
                             relayListType = relayListType,
                             selectedByThisEntryExitList = selectedByThisEntryExitList,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                             depth = depth + 1,
                             isExpanded = isExpanded,
+                            isLast = isLast && index == item.relays.lastIndex,
                         )
                     }
                 )
             is RelayItem.Location.Country ->
                 addAll(
-                    item.cities.flatMap {
+                    item.cities.flatMapIndexed { index, city ->
                         createGeoLocationEntry(
-                            item = it,
+                            item = city,
                             relayListType = relayListType,
                             selectedByThisEntryExitList = selectedByThisEntryExitList,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                             depth = depth + 1,
                             isExpanded = isExpanded,
+                            isLast = isLast && index == item.cities.lastIndex,
                         )
                     }
                 )

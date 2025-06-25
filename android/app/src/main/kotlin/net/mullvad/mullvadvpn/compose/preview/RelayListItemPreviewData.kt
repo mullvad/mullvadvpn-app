@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.preview
 
+import net.mullvad.mullvadvpn.compose.state.PositionClassification
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.RelayListItemState
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -39,6 +40,7 @@ object RelayListItemPreviewData {
                     isSelected = false,
                     state = null,
                     expanded = false,
+                    positionClassification = PositionClassification.Single,
                 )
             }
             if (!isSearching) {
@@ -69,6 +71,7 @@ object RelayListItemPreviewData {
                     depth = 0,
                     expanded = true,
                     state = null,
+                    positionClassification = PositionClassification.Middle
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[0],
@@ -76,6 +79,7 @@ object RelayListItemPreviewData {
                     depth = 1,
                     expanded = false,
                     state = null,
+                    positionClassification = PositionClassification.Middle
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1],
@@ -83,6 +87,7 @@ object RelayListItemPreviewData {
                     depth = 1,
                     expanded = true,
                     state = null,
+                    positionClassification = PositionClassification.Middle
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[0],
@@ -90,6 +95,7 @@ object RelayListItemPreviewData {
                     depth = 2,
                     expanded = false,
                     state = RelayListItemState.USED_AS_EXIT,
+                    positionClassification = PositionClassification.Middle
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[1],
@@ -97,6 +103,7 @@ object RelayListItemPreviewData {
                     depth = 2,
                     expanded = false,
                     state = null,
+                    positionClassification = PositionClassification.Middle
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[1],
@@ -104,6 +111,7 @@ object RelayListItemPreviewData {
                     depth = 0,
                     expanded = false,
                     state = null,
+                    positionClassification = PositionClassification.Bottom
                 ),
             )
         )

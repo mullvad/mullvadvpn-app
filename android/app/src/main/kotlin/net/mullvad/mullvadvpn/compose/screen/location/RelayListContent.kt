@@ -5,13 +5,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.StatusRelayItemCell
@@ -23,6 +26,7 @@ import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.S
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsEntryBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowEditCustomListBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowLocationBottomSheet
+import net.mullvad.mullvadvpn.compose.state.PositionClassification
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -127,9 +131,32 @@ private fun LazyItemScope.RelayLocationItem(
         onToggleExpand = { onExpand(it) },
         isExpanded = relayItem.expanded,
         depth = relayItem.depth,
-        modifier = Modifier.testTag(LOCATION_CELL_TEST_TAG),
+        modifier =
+            Modifier.testTag(LOCATION_CELL_TEST_TAG)
+                .clip(positionClassification = relayItem.positionClassification),
     )
 }
+
+@Composable
+fun Modifier.clip(positionClassification: PositionClassification): Modifier =
+    when (positionClassification) {
+        PositionClassification.Top ->
+            clip(
+                MaterialTheme.shapes.large.copy(
+                    bottomStart = CornerSize(0.dp),
+                    bottomEnd = CornerSize(0.dp),
+                )
+            )
+        PositionClassification.Middle -> this
+        PositionClassification.Bottom ->
+            clip(
+                MaterialTheme.shapes.large.copy(
+                    topStart = CornerSize(0.dp),
+                    topEnd = CornerSize(0.dp),
+                )
+            )
+        PositionClassification.Single -> clip(MaterialTheme.shapes.large)
+    }
 
 @Composable
 private fun LazyItemScope.CustomListEntryItem(
@@ -148,6 +175,7 @@ private fun LazyItemScope.CustomListEntryItem(
         onToggleExpand = onToggleExpand,
         isExpanded = itemState.expanded,
         depth = itemState.depth,
+        modifier = Modifier.clip(positionClassification = itemState.positionClassification),
     )
 }
 
@@ -167,6 +195,7 @@ private fun LazyItemScope.CustomListItem(
         onLongClick = { onShowEditBottomSheet(customListItem) },
         onToggleExpand = { onExpand(customListItem.id, it) },
         isExpanded = itemState.expanded,
+        modifier = Modifier.clip(positionClassification = itemState.positionClassification),
     )
 }
 
