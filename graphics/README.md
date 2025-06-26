@@ -45,13 +45,6 @@ following command:
 rsvg-convert ./icon-square.svg -w 512 -h 512 -o ../android/app/src/main/play/listings/en-US/graphics/icon/icon.png
 ```
 
-#### iOS
-
-`icon-square.svg` is used to generate the app icon for iOS. To regenerate the assets run:
-```
-ios/convert-assets.rb --app-icon
-```
-
 ### `icon-android.svg` & `icon-android-mono.svg`
 
 The icon `icon-android.svg` is used for Android adaptive icon. The icon converted to
