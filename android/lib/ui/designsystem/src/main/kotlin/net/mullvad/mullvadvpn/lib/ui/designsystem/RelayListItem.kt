@@ -47,9 +47,9 @@ import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
-private val LIST_ITEM_BUTTON_WIDTH = 56.dp
 private val LIST_ITEM_MIN_HEIGHT = 56.dp
 private val LIST_ITEM_SPACER = 2.dp
+private val LIST_ITEM_BUTTON_WIDTH = 56.dp
 
 @Composable
 fun RelayListItem(

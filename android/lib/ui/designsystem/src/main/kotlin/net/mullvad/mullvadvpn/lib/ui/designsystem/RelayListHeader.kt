@@ -20,13 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Composable
 fun RelayListHeader(
     content: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     actions: @Composable (RowScope.() -> Unit)? = null,
-    colors: RelayListItemColors = RelayListItemDefaults.colors(),
 ) {
     ProvideContentColorTextStyle(
         MaterialTheme.colorScheme.onBackground,
@@ -34,14 +34,16 @@ fun RelayListHeader(
     ) {
         Row(
             modifier =
-                Modifier.defaultMinSize(minHeight = 48.dp).height(IntrinsicSize.Min).then(modifier),
+                Modifier.padding(horizontal = Dimens.tinyPadding)
+                    .defaultMinSize(minHeight = 48.dp)
+                    .height(IntrinsicSize.Min)
+                    .then(modifier),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             content()
             HorizontalDivider(
-                Modifier.weight(1f, true)
-                    .padding(start = 8.dp),
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
+                Modifier.weight(1f, true).padding(start = Dimens.smallPadding),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
             )
             actions?.invoke(this)
         }
