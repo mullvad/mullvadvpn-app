@@ -25,6 +25,18 @@ body {
   display: flex;
 }
 
+button {
+  border-radius: 0;
+  text-align: inherit;
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  cursor: default;
+  border: none;
+  color: inherit;
+  font: inherit;
+}
+
 #app {
   height: 100%;
   width: 100%;

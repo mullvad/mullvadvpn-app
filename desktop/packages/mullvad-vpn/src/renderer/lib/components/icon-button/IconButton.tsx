@@ -2,7 +2,6 @@ import React, { forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 
 import { colors } from '../../foundations';
-import { ButtonBase } from '../button';
 import { IconProps, iconSizes } from '../icon/Icon';
 import { IconButtonIcon } from './components/IconButtonIcon';
 import { IconButtonProvider } from './IconButtonContext';
@@ -12,7 +11,7 @@ export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
   size?: IconProps['size'];
 }
 
-const StyledButton = styled(ButtonBase)<{ $size: IconButtonProps['size'] }>`
+const StyledButton = styled.button<{ $size: IconButtonProps['size'] }>`
   ${({ $size = 'medium' }) => {
     const size = iconSizes[$size];
     return css`

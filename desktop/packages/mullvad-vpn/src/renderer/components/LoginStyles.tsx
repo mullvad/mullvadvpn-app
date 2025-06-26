@@ -2,8 +2,6 @@ import styled from 'styled-components';
 
 import { Icon } from '../lib/components';
 import { colors, spacings } from '../lib/foundations';
-import { buttonReset } from '../lib/styles';
-import * as Cell from './cell';
 import { hugeText, largeText, measurements, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
 import { Footer } from './Layout';
@@ -23,7 +21,6 @@ export const StyledAccountDropdownItem = styled.li({
 });
 
 const baseButtonStyles = {
-  ...buttonReset,
   width: '100%',
   height: '100%',
   backgroundColor: colors.whiteAlpha60,
@@ -47,25 +44,6 @@ export const StyledAccountDropdownItemIconButton = styled.button({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-});
-
-export const StyledAccountDropdownTrailingButton = styled.button({
-  ...buttonReset,
-  backgroundColor: colors.transparent,
-  cursor: 'pointer',
-  '&:focus-visible': {
-    outline: `2px solid ${colors.white}`,
-    outlineOffset: '2px',
-  },
-});
-
-export const StyledAccountDropdownItemButtonLabel = styled(Cell.Label)(largeText, {
-  margin: '0',
-  color: colors.blue80,
-  borderWidth: 0,
-  textAlign: 'left',
-  marginLeft: 0,
-  cursor: 'default',
 });
 
 export const StyledTopInfo = styled.div({

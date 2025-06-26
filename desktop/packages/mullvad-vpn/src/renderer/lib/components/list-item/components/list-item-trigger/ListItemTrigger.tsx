@@ -1,11 +1,10 @@
 import styled, { css } from 'styled-components';
 
 import { colors } from '../../../../foundations';
-import { ButtonBase } from '../../../button';
 import { ListItemProps } from '../../ListItem';
 import { useListItem } from '../../ListItemContext';
 
-const StyledButton = styled(ButtonBase)<Pick<ListItemProps, 'disabled'>>`
+const StyledButton = styled.button<Pick<ListItemProps, 'disabled'>>`
   display: flex;
   width: 100%;
   --background: transparent;
