@@ -138,6 +138,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
+    access_method_change_callback: Option<unsafe extern "C" fn()>,
 ) -> SwiftApiContext {
     mullvad_api_init_inner(
         host,
@@ -147,6 +148,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
         bridge_provider,
         settings_provider,
         address_cache,
+        access_method_change_callback,
     )
 }
 
@@ -170,6 +172,7 @@ pub extern "C" fn mullvad_api_init_new(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
+    access_method_change_callback: Option<unsafe extern "C" fn()>,
 ) -> SwiftApiContext {
     #[cfg(feature = "api-override")]
     return mullvad_api_init_inner(
@@ -180,6 +183,7 @@ pub extern "C" fn mullvad_api_init_new(
         bridge_provider,
         settings_provider,
         address_cache,
+        access_method_change_callback,
     );
     #[cfg(not(feature = "api-override"))]
     mullvad_api_init_inner(
@@ -189,6 +193,7 @@ pub extern "C" fn mullvad_api_init_new(
         bridge_provider,
         settings_provider,
         address_cache,
+        access_method_change_callback,
     )
 }
 
@@ -213,6 +218,7 @@ pub extern "C" fn mullvad_api_init_inner(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
+    access_method_change_callback: Option<unsafe extern "C" fn()>,
 ) -> SwiftApiContext {
     // Safety: See notes for `convert_c_string`
     let (host, address, domain) = unsafe {
@@ -262,7 +268,18 @@ pub extern "C" fn mullvad_api_init_inner(
         .await
         .expect("Could now spawn AccessModeSelector");
 
-        // TODO: do something with rx, and somehow let the `AccessMethodEvent`s it 
+        tokio::spawn(async move {
+            // SAFETY: The callback is expected to be called from the Swift side
+            if let Some(callback) = access_method_change_callback {
+                while let Some((event, sender)) = rx.recv().await {
+                    // SAFETY: The callback is expected to be safe to call
+                    unsafe { callback() };
+                    log::warn!("ASDASDASDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASDASDASDASD");
+                }
+            }
+        });
+
+        // TODO: do something with rx, and somehow let the `AccessMethodEvent`s it
         // receives be sent back to the Swift side
 
         // It is imperative that the REST runtime is created within an async context, otherwise
