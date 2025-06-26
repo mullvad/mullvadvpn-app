@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -112,13 +113,10 @@ fun RelayItemCell1(
         selected = isSelected,
         content = {
             Row(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                        .padding(start = Dimens.smallPadding * depth),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+                modifier = Modifier.let {
+                    if(!item.hasChildren) it.padding(start = 58.dp) else it
+
+                }.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (isSelected) {
                     Icon(
                         imageVector = Icons.Default.Check,
@@ -130,23 +128,34 @@ fun RelayItemCell1(
                 Name(name = item.name, state = state, active = item.active)
             }
         },
-        onClick = onClick,
-        onLongClick = onLongClick,
-        trailingContent =
+        leadingContent =
             if (item.hasChildren) {
                 {
                     ExpandChevron(
                         color = MaterialTheme.colorScheme.onSurface,
                         isExpanded = isExpanded,
                         modifier =
-                            Modifier.clickable { onToggleExpand(!isExpanded) }
+                            Modifier.fillMaxSize()
                                 .padding(16.dp)
-                                .testTag(EXPAND_BUTTON_TEST_TAG),
+                                .testTag(EXPAND_BUTTON_TEST_TAG)
+                                .clickable { onToggleExpand(!isExpanded) },
                     )
                 }
             } else {
-                {}
+                null
             },
+        onClick = onClick,
+        onLongClick = onLongClick,
+        trailingContent = {
+            Icon(
+                modifier =
+                    Modifier.fillMaxSize()
+                        .padding(16.dp)
+                        .clickable(enabled = true, onClick = onLongClick ?: {}),
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+            )
+        },
         colors = RelayListItemDefaults.colors(containerColor = depth.toBackgroundColor()),
     )
 }
@@ -249,13 +258,14 @@ private fun Name(
     Text(
         text = state?.let { name.withSuffix(state) } ?: name,
         modifier =
-            modifier.alpha(
-                if (state == null && active) {
-                    AlphaVisible
-                } else {
-                    AlphaInactive
-                }
-            ),
+            modifier
+                .alpha(
+                    if (state == null && active) {
+                        AlphaVisible
+                    } else {
+                        AlphaInactive
+                    }
+                ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
     )
