@@ -2,9 +2,5 @@ Make feature indicators clickable shortcuts to their corresponding settings.
 Let users cancel sending a problem report.
 Add possibility to manage devices from account view.
 Add support for Dynamic Type to allow fonts to scale according to user's system settings.
-Add notification that shows when the user is connected to WireGuard with a port that is not
-  supported.
-Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
-  mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC
-  uses a lot less CPU to compute the keypair, and the public key sent to the server
-  is drastically smaller.
+Add notification that shows when the user is connected to WireGuard with a port that is not supported.
+Replace Classic McEliece with HQC as one of the post-quantum safe key exchange mechanisms used for the quantum-resistant tunnels. The main benefits here are that HQC uses a lot less CPU to compute the keypair, and the public key sent to the server is drastically smaller.
