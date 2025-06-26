@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [android/2025.5-beta1] - 2025-06-17
 ### Added
 - Add the ability to purchase 90 days (3 months).
+- Opted into Memory Tagging
 
 ### Changed
 - Replace Classic McEliece with HQC as one of the post-quantum safe key exchange
