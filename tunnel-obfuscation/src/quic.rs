@@ -36,6 +36,8 @@ pub struct Settings {
     pub wireguard_endpoint: SocketAddr,
     /// Hostname to use for QUIC
     pub hostname: String,
+    /// Auth token to use for QUIC
+    pub token: String,
     /// fwmark to apply to use for the QUIC connection
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u32>,

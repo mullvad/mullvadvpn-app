@@ -11,6 +11,8 @@ import MullvadSettings
 public struct ObfuscationMethodSelector {
     /// This retry logic used is explained at the following link:
     /// https://github.com/mullvad/mullvadvpn-app/blob/main/docs/relay-selector.md#default-constraints-for-tunnel-endpoints
+    ///
+    /// - Warning: This method should never return `.automatic`.
     public static func obfuscationMethodBy(
         connectionAttemptCount: UInt,
         tunnelSettings: LatestTunnelSettings
