@@ -86,8 +86,6 @@ extension IPOverrideWrapperTests {
             includeInCountry: true,
             daita: false,
             shadowsocksExtraAddrIn: nil,
-            quicHostname: nil,
-            masqueExtraAddrIn: nil,
             features: nil
         )
     }

@@ -89,8 +89,6 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: true,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
-                    quicHostname: nil,
-                    masqueExtraAddrIn: nil,
                     features: .init(daita: .init(), quic: nil)
                 ),
                 REST.ServerRelay(
@@ -106,9 +104,10 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: false,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
-                    quicHostname: nil,
-                    masqueExtraAddrIn: nil,
-                    features: nil
+                    features: .init(
+                        daita: nil,
+                        quic: .init(addrIn: ["0.0.0.0"], domain: "quic.domain", token: "")
+                    )
                 ),
                 REST.ServerRelay(
                     hostname: "se2-wireguard",
@@ -123,8 +122,6 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: false,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
-                    quicHostname: nil,
-                    masqueExtraAddrIn: nil,
                     features: nil
                 ),
                 REST.ServerRelay(
@@ -140,8 +137,6 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: false,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
-                    quicHostname: nil,
-                    masqueExtraAddrIn: nil,
                     features: nil
                 ),
                 REST.ServerRelay(
@@ -157,8 +152,6 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: false,
                     shadowsocksExtraAddrIn: ["0.0.0.0"],
-                    quicHostname: nil,
-                    masqueExtraAddrIn: nil,
                     features: nil
                 ),
                 REST.ServerRelay(
@@ -174,8 +167,6 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: true,
                     shadowsocksExtraAddrIn: nil,
-                    quicHostname: nil,
-                    masqueExtraAddrIn: nil,
                     features: .init(daita: .init(), quic: nil)
                 ),
                 REST.ServerRelay(
@@ -191,8 +182,6 @@ public enum ServerRelaysResponseStubs {
                     includeInCountry: true,
                     daita: true,
                     shadowsocksExtraAddrIn: nil,
-                    quicHostname: nil,
-                    masqueExtraAddrIn: nil,
                     features: .init(daita: .init(), quic: nil)
                 ),
             ],
