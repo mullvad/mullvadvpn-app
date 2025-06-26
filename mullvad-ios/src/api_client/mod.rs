@@ -3,9 +3,10 @@ use std::{ffi::c_char, ffi::CStr, future::Future, sync::Arc};
 use access_method_resolver::SwiftAccessMethodResolver;
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
 use address_cache_provider::SwiftAddressCacheWrapper;
+use futures::{channel::{mpsc, oneshot}, StreamExt};
 use helpers::convert_c_string;
 use mullvad_api::{
-    access_mode::{AccessModeSelector, AccessModeSelectorHandle},
+    access_mode::{AccessMethodEvent, AccessModeSelector, AccessModeSelectorHandle},
     rest::{self, MullvadRestHandle},
     ApiEndpoint, Runtime,
 };
@@ -257,7 +258,7 @@ pub extern "C" fn mullvad_api_init_inner(
     );
 
     let api_context = tokio_handle.clone().block_on(async move {
-        let (tx, rx) = mpsc::unbounded_channel::<(AccessMethodEvent, oneshot::Sender<()>)>();
+        let (tx, mut rx) = mpsc::unbounded::<(AccessMethodEvent, oneshot::Sender<()>)>();
         let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
             method_resolver,
             access_method_settings,
@@ -271,10 +272,10 @@ pub extern "C" fn mullvad_api_init_inner(
         tokio::spawn(async move {
             // SAFETY: The callback is expected to be called from the Swift side
             if let Some(callback) = access_method_change_callback {
-                while let Some((event, sender)) = rx.recv().await {
+                while let Some((event, sender)) = rx.next().await {
                     // SAFETY: The callback is expected to be safe to call
                     unsafe { callback() };
-                    log::warn!("ASDASDASDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASDASDASDASD");
+                    log::warn!("ASDASDASDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASDASDASDASD {event:?}");
                 }
             }
         });

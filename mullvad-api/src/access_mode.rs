@@ -26,6 +26,7 @@ pub enum Message {
     ),
 }
 
+#[derive(Debug)]
 pub enum AccessMethodEvent {
     /// A [`AccessMethodEvent::New`] event is emitted when the active access
     /// method changes.
