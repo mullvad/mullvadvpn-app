@@ -20,10 +20,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -46,6 +48,8 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.CustomListLocationUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.screen.location.clip
+import net.mullvad.mullvadvpn.compose.screen.location.positionalPadding
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
@@ -131,7 +135,7 @@ fun CustomListLocationsScreen(
                     R.string.add_locations
                 } else {
                     R.string.edit_locations
-                }
+                },
             ),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         actions = {
@@ -144,7 +148,8 @@ fun CustomListLocationsScreen(
         Column(modifier = modifier) {
             SearchTextField(
                 modifier =
-                    Modifier.fillMaxWidth()
+                    Modifier
+                        .fillMaxWidth()
                         .height(Dimens.searchFieldHeight)
                         .padding(horizontal = Dimens.searchFieldHorizontalPadding),
                 backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -158,7 +163,8 @@ fun CustomListLocationsScreen(
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier =
-                    Modifier.drawVerticalScrollbar(
+                    Modifier
+                        .drawVerticalScrollbar(
                             state = lazyListState,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                         )
@@ -169,9 +175,11 @@ fun CustomListLocationsScreen(
                     is Lce.Loading -> {
                         loading()
                     }
+
                     is Lce.Error -> {
                         empty()
                     }
+
                     is Lce.Content -> {
                         content(
                             uiState = state.content.value,
@@ -231,32 +239,22 @@ private fun LazyListScope.content(
             LocationsEmptyText(searchTerm = uiState.searchTerm)
         }
     } else {
-        itemsIndexed(uiState.locations, key = { index, listItem -> listItem.item.id }) {
-            index,
-            listItem ->
-            Column(modifier = Modifier.animateItem()) {
-                if (index != 0) {
-                    HorizontalDivider()
-                }
-                CheckableRelayLocationCell(
-                    item = listItem.item,
-                    onRelayCheckedChange = { isChecked ->
-                        onRelaySelectedChanged(listItem.item, isChecked)
-                    },
-                    checked = listItem.checked,
-                    depth = listItem.depth,
-                    onExpand = { expand -> onExpand(listItem.item, expand) },
-                    expanded = listItem.expanded,
-                )
-            }
+        itemsIndexed(uiState.locations, key = { index, listItem -> listItem.item.id }) { index,
+                                                                                         listItem ->
+            CheckableRelayLocationCell(
+                modifier = Modifier
+                    .animateItem()
+                    .positionalPadding(listItem.positionClassification)
+                    .clip(listItem.positionClassification),
+                item = listItem.item,
+                onRelayCheckedChange = { isChecked ->
+                    onRelaySelectedChanged(listItem.item, isChecked)
+                },
+                checked = listItem.checked,
+                depth = listItem.depth,
+                onExpand = { expand -> onExpand(listItem.item, expand) },
+                expanded = listItem.expanded,
+            )
         }
-    }
-}
-
-private fun Lce<Boolean, CustomListLocationsUiState, Boolean>.newList(): Boolean {
-    return when (this) {
-        is Lce.Content -> this.value.newList
-        is Lce.Loading -> this.value
-        is Lce.Error -> this.error
     }
 }

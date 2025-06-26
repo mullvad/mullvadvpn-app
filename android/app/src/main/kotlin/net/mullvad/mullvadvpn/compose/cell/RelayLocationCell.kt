@@ -114,8 +114,9 @@ fun RelayItemCell1(
         content = {
             Row(
                 modifier =
-                    Modifier.let { if (!item.hasChildren) it.padding(start = 58.dp) else it }
-                        .padding(16.dp),
+                    Modifier
+                            .let { if (!item.hasChildren) it.padding(start = 58.dp) else it }
+                            .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (isSelected) {
@@ -136,10 +137,11 @@ fun RelayItemCell1(
                         color = MaterialTheme.colorScheme.onSurface,
                         isExpanded = isExpanded,
                         modifier =
-                            Modifier.clickable { onToggleExpand(!isExpanded) }
-                                .fillMaxSize()
-                                .padding(16.dp)
-                                .testTag(EXPAND_BUTTON_TEST_TAG),
+                            Modifier
+                                    .clickable { onToggleExpand(!isExpanded) }
+                                    .fillMaxSize()
+                                    .padding(16.dp)
+                                    .testTag(EXPAND_BUTTON_TEST_TAG),
                     )
                 }
             } else {
@@ -150,75 +152,16 @@ fun RelayItemCell1(
         trailingContent = {
             Icon(
                 modifier =
-                    Modifier.clickable(enabled = true, onClick = onLongClick ?: {})
-                        .fillMaxSize()
-                        .padding(16.dp),
+                    Modifier
+                            .clickable(enabled = true, onClick = onLongClick ?: {})
+                            .fillMaxSize()
+                            .padding(16.dp),
                 imageVector = Icons.Default.Add,
                 contentDescription = null,
             )
         },
         colors = RelayListItemDefaults.colors(containerColor = depth.toBackgroundColor()),
     )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun RelayItemCell(
-    modifier: Modifier = Modifier,
-    item: RelayItem,
-    isSelected: Boolean,
-    state: RelayListItemState?,
-    onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null,
-    onToggleExpand: (Boolean) -> Unit,
-    isExpanded: Boolean,
-    depth: Int,
-    content: @Composable (RowScope.() -> Unit)? = null,
-) {
-
-    val leadingContentStartPadding = Dimens.cellStartPadding
-    val leadingContentStarPaddingModifier = Dimens.mediumPadding
-    val startPadding = leadingContentStartPadding + leadingContentStarPaddingModifier * depth
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-                .background(
-                    when {
-                        isSelected -> MaterialTheme.colorScheme.selected
-                        else -> depth.toBackgroundColor()
-                    }
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        // Duplicate row is needed for selection of the item on TV.
-        Row(
-            modifier =
-                Modifier.combinedClickable(
-                        enabled = state == null && item.active,
-                        onClick = onClick,
-                        onLongClick = onLongClick,
-                    )
-                    .padding(start = startPadding)
-                    .weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (content != null) {
-                content()
-            }
-            Name(name = item.name, state = state, active = item.active)
-        }
-
-        if (item.hasChildren) {
-            ExpandButton(
-                color = MaterialTheme.colorScheme.onSurface,
-                isExpanded = isExpanded,
-                onClick = { onToggleExpand(!isExpanded) },
-                modifier = Modifier.testTag(EXPAND_BUTTON_TEST_TAG),
-            )
-        }
-    }
 }
 
 @Composable
@@ -231,21 +174,39 @@ fun CheckableRelayLocationCell(
     onExpand: (Boolean) -> Unit,
     depth: Int,
 ) {
-    RelayItemCell(
+    RelayListItem(
         modifier = modifier,
-        item = item,
-        isSelected = false,
-        state = null,
-        onClick = { onRelayCheckedChange(!checked) },
-        onToggleExpand = onExpand,
-        isExpanded = expanded,
-        depth = depth,
+        selected = false,
         content = {
-            MullvadCheckbox(
-                checked = checked,
-                onCheckedChange = { isChecked -> onRelayCheckedChange(isChecked) },
-            )
+            Row(
+                modifier =
+                    Modifier
+                        .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Name(name = item.name, state = null, active = item.active)
+            }
         },
+        leadingContent = {
+            MullvadCheckbox(checked = checked, onCheckedChange = onRelayCheckedChange)
+        },
+        onClick = { onRelayCheckedChange(!checked) },
+        onLongClick = null,
+        trailingContent = {
+            if (item.hasChildren) {
+                ExpandChevron(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    isExpanded = expanded,
+                    modifier =
+                        Modifier
+                                .clickable { onExpand(!expanded) }
+                                .fillMaxSize()
+                                .padding(16.dp)
+                                .testTag(EXPAND_BUTTON_TEST_TAG),
+                )
+            }
+        },
+        colors = RelayListItemDefaults.colors(containerColor = depth.toBackgroundColor()),
     )
 }
 
@@ -264,7 +225,7 @@ private fun Name(
                     AlphaVisible
                 } else {
                     AlphaInactive
-                }
+                },
             ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -287,9 +248,9 @@ private fun ExpandButton(
         isExpanded = isExpanded,
         modifier =
             modifier
-                .fillMaxHeight()
-                .clickable { onClick(!isExpanded) }
-                .padding(horizontal = Dimens.largePadding),
+                    .fillMaxHeight()
+                    .clickable { onClick(!isExpanded) }
+                    .padding(horizontal = Dimens.largePadding),
     )
 }
 
