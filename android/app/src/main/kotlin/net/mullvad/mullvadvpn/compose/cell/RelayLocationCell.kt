@@ -3,15 +3,11 @@ package net.mullvad.mullvadvpn.compose.cell
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -114,9 +110,8 @@ fun RelayItemCell1(
         content = {
             Row(
                 modifier =
-                    Modifier
-                            .let { if (!item.hasChildren) it.padding(start = 58.dp) else it }
-                            .padding(16.dp),
+                    Modifier.let { if (!item.hasChildren) it.padding(start = 58.dp) else it }
+                        .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (isSelected) {
@@ -137,11 +132,10 @@ fun RelayItemCell1(
                         color = MaterialTheme.colorScheme.onSurface,
                         isExpanded = isExpanded,
                         modifier =
-                            Modifier
-                                    .clickable { onToggleExpand(!isExpanded) }
-                                    .fillMaxSize()
-                                    .padding(16.dp)
-                                    .testTag(EXPAND_BUTTON_TEST_TAG),
+                            Modifier.clickable { onToggleExpand(!isExpanded) }
+                                .fillMaxSize()
+                                .padding(16.dp)
+                                .testTag(EXPAND_BUTTON_TEST_TAG),
                     )
                 }
             } else {
@@ -152,10 +146,9 @@ fun RelayItemCell1(
         trailingContent = {
             Icon(
                 modifier =
-                    Modifier
-                            .clickable(enabled = true, onClick = onLongClick ?: {})
-                            .fillMaxSize()
-                            .padding(16.dp),
+                    Modifier.clickable(enabled = true, onClick = onLongClick ?: {})
+                        .fillMaxSize()
+                        .padding(16.dp),
                 imageVector = Icons.Default.Add,
                 contentDescription = null,
             )
@@ -179,9 +172,7 @@ fun CheckableRelayLocationCell(
         selected = false,
         content = {
             Row(
-                modifier =
-                    Modifier
-                        .padding(16.dp),
+                modifier = Modifier.padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Name(name = item.name, state = null, active = item.active)
@@ -198,11 +189,10 @@ fun CheckableRelayLocationCell(
                     color = MaterialTheme.colorScheme.onSurface,
                     isExpanded = expanded,
                     modifier =
-                        Modifier
-                                .clickable { onExpand(!expanded) }
-                                .fillMaxSize()
-                                .padding(16.dp)
-                                .testTag(EXPAND_BUTTON_TEST_TAG),
+                        Modifier.clickable { onExpand(!expanded) }
+                            .fillMaxSize()
+                            .padding(16.dp)
+                            .testTag(EXPAND_BUTTON_TEST_TAG),
                 )
             }
         },
@@ -225,7 +215,7 @@ private fun Name(
                     AlphaVisible
                 } else {
                     AlphaInactive
-                },
+                }
             ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -248,9 +238,9 @@ private fun ExpandButton(
         isExpanded = isExpanded,
         modifier =
             modifier
-                    .fillMaxHeight()
-                    .clickable { onClick(!isExpanded) }
-                    .padding(horizontal = Dimens.largePadding),
+                .fillMaxHeight()
+                .clickable { onClick(!isExpanded) }
+                .padding(horizontal = Dimens.largePadding),
     )
 }
 

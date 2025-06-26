@@ -51,53 +51,59 @@ class CustomListLocationsViewModel(
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
     private val _expandOverrides = MutableStateFlow<Map<RelayItemId, Boolean>>(mapOf())
 
-    val uiState = combine(
-        _searchTerm,
-        relayListRepository.relayList,
-        _selectedLocations,
-        _expandOverrides,
-    ) { searchTerm, relayCountries, selectedLocations, expandOverrides ->
-        when {
-            selectedLocations == null -> CustomListLocationsUiState(
-                newList = navArgs.newList,
-                content = Lce.Loading(Unit),
-            )
+    val uiState =
+        combine(_searchTerm, relayListRepository.relayList, _selectedLocations, _expandOverrides) {
+                searchTerm,
+                relayCountries,
+                selectedLocations,
+                expandOverrides ->
+                when {
+                    selectedLocations == null ->
+                        CustomListLocationsUiState(
+                            newList = navArgs.newList,
+                            content = Lce.Loading(Unit),
+                        )
 
-            relayCountries.isEmpty() -> CustomListLocationsUiState(
-                newList = navArgs.newList,
-                content = Lce.Error(Unit),
-            )
+                    relayCountries.isEmpty() ->
+                        CustomListLocationsUiState(
+                            newList = navArgs.newList,
+                            content = Lce.Error(Unit),
+                        )
 
-            else -> {
-                val (expandSet, filteredRelayCountries) = searchRelayListLocations(
-                    searchTerm,
-                    relayCountries,
-                )
-                val expandedLocations = expandSet.with(expandOverrides)
-                CustomListLocationsUiState(
-                    newList = navArgs.newList,
-                    content = Lce.Content(
-                        CustomListLocationsData(
-                            searchTerm = searchTerm,
-                            locations = filteredRelayCountries.flatMap {
-                                it.toRelayItems(
-                                    isSelected = { it in selectedLocations },
-                                    isExpanded = { it in expandedLocations },
-                                    isLastChild = true,
-                                )
-                            },
-                            saveEnabled = selectedLocations.isNotEmpty() && selectedLocations != _initialLocations.value,
-                            hasUnsavedChanges = selectedLocations != _initialLocations.value,
-                        ),
-                    ),
-                )
+                    else -> {
+                        val (expandSet, filteredRelayCountries) =
+                            searchRelayListLocations(searchTerm, relayCountries)
+                        val expandedLocations = expandSet.with(expandOverrides)
+                        CustomListLocationsUiState(
+                            newList = navArgs.newList,
+                            content =
+                                Lce.Content(
+                                    CustomListLocationsData(
+                                        searchTerm = searchTerm,
+                                        locations =
+                                            filteredRelayCountries.flatMap {
+                                                it.toRelayItems(
+                                                    isSelected = { it in selectedLocations },
+                                                    isExpanded = { it in expandedLocations },
+                                                    isLastChild = true,
+                                                )
+                                            },
+                                        saveEnabled =
+                                            selectedLocations.isNotEmpty() &&
+                                                selectedLocations != _initialLocations.value,
+                                        hasUnsavedChanges =
+                                            selectedLocations != _initialLocations.value,
+                                    )
+                                ),
+                        )
+                    }
+                }
             }
-        }
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(),
-        CustomListLocationsUiState(newList = navArgs.newList, content = Lce.Loading(Unit)),
-    )
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                CustomListLocationsUiState(newList = navArgs.newList, content = Lce.Loading(Unit)),
+            )
 
     init {
         viewModelScope.launch { fetchInitialSelectedLocations() }
@@ -106,30 +112,34 @@ class CustomListLocationsViewModel(
     private fun searchRelayListLocations(
         searchTerm: String,
         relayCountries: List<RelayItem.Location.Country>,
-    ) = if (searchTerm.isNotEmpty()) {
-        val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
-        exp.toSet() to filteredRelayCountries
-    } else {
-        initialExpands(
-            _selectedLocations.value?.calculateLocationsToSave() ?: emptyList(),
-        ) to relayCountries
-    }
+    ) =
+        if (searchTerm.isNotEmpty()) {
+            val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
+            exp.toSet() to filteredRelayCountries
+        } else {
+            initialExpands(_selectedLocations.value?.calculateLocationsToSave() ?: emptyList()) to
+                relayCountries
+        }
 
     fun save() {
         viewModelScope.launch {
             _selectedLocations.value?.let { selectedLocations ->
                 val locationsToSave = selectedLocations.calculateLocationsToSave()
-                val result = either {
-                    val success = customListActionUseCase(
-                        CustomListAction.UpdateLocations(
-                            navArgs.customListId,
-                            locationsToSave.map { it.id },
-                        ),
-                    ).bind()
-                    calculateResultData(success, locationsToSave)
-                }.getOrElse { CustomListActionResultData.GenericError }
+                val result =
+                    either {
+                            val success =
+                                customListActionUseCase(
+                                        CustomListAction.UpdateLocations(
+                                            navArgs.customListId,
+                                            locationsToSave.map { it.id },
+                                        )
+                                    )
+                                    .bind()
+                            calculateResultData(success, locationsToSave)
+                        }
+                        .getOrElse { CustomListActionResultData.GenericError }
                 _uiSideEffect.send(
-                    CustomListLocationsSideEffect.ReturnWithResultData(result = result),
+                    CustomListLocationsSideEffect.ReturnWithResultData(result = result)
                 )
             }
         }
@@ -182,18 +192,23 @@ class CustomListLocationsViewModel(
         val updateSelectionList = this.toMutableSet()
         when (relayItem) {
             is RelayItem.Location.City -> {
-                availableLocations.find { it.id == relayItem.id.country }
+                availableLocations
+                    .find { it.id == relayItem.id.country }
                     ?.let { updateSelectionList.remove(it) }
             }
 
             is RelayItem.Location.Relay -> {
-                availableLocations.flatMap { country -> country.cities }
-                    .find { it.id == relayItem.id.city }?.let { updateSelectionList.remove(it) }
-                availableLocations.find { it.id == relayItem.id.country }
+                availableLocations
+                    .flatMap { country -> country.cities }
+                    .find { it.id == relayItem.id.city }
+                    ?.let { updateSelectionList.remove(it) }
+                availableLocations
+                    .find { it.id == relayItem.id.country }
                     ?.let { updateSelectionList.remove(it) }
             }
 
-            is RelayItem.Location.Country -> {/* Do nothing */
+            is RelayItem.Location.Country -> {
+                /* Do nothing */
             }
         }
 
@@ -214,7 +229,8 @@ class CustomListLocationsViewModel(
                     saveSelectionList.removeAll(relayItem.relays)
                 }
 
-                is RelayItem.Location.Relay -> {/* Do nothing */
+                is RelayItem.Location.Relay -> {
+                    /* Do nothing */
                 }
             }
         }
@@ -238,26 +254,27 @@ class CustomListLocationsViewModel(
         isSelected: (RelayItem) -> Boolean,
         isExpanded: (RelayItemId) -> Boolean,
         depth: Int = 0,
-        isLastChild: Boolean
-    ): List<RelayLocationListItem> =
-        buildList {
-            val expanded = isExpanded(id)
-            add(
-                RelayLocationListItem(
-                    item = this@toRelayItems,
-                    depth = depth,
-                    checked = isSelected(this@toRelayItems),
-                    expanded = expanded,
-                    when {
-                        this@toRelayItems is RelayItem.Location.Country -> if (!expanded) PositionClassification.Single else PositionClassification.Top
-                        isLastChild && !expanded -> PositionClassification.Bottom
-                        else -> PositionClassification.Middle
-                    },
-                ),
+        isLastChild: Boolean,
+    ): List<RelayLocationListItem> = buildList {
+        val expanded = isExpanded(id)
+        add(
+            RelayLocationListItem(
+                item = this@toRelayItems,
+                depth = depth,
+                checked = isSelected(this@toRelayItems),
+                expanded = expanded,
+                when {
+                    this@toRelayItems is RelayItem.Location.Country ->
+                        if (!expanded) PositionClassification.Single else PositionClassification.Top
+                    isLastChild && !expanded -> PositionClassification.Bottom
+                    else -> PositionClassification.Middle
+                },
             )
-            if (expanded) {
-                when (this@toRelayItems) {
-                    is RelayItem.Location.City -> addAll(
+        )
+        if (expanded) {
+            when (this@toRelayItems) {
+                is RelayItem.Location.City ->
+                    addAll(
                         relays.flatMapIndexed { index, relay ->
                             relay.toRelayItems(
                                 isSelected = isSelected,
@@ -265,10 +282,11 @@ class CustomListLocationsViewModel(
                                 depth = depth + 1,
                                 isLastChild = isLastChild && index == relays.lastIndex,
                             )
-                        },
+                        }
                     )
 
-                    is RelayItem.Location.Country -> addAll(
+                is RelayItem.Location.Country ->
+                    addAll(
                         cities.flatMapIndexed { index, item ->
                             item.toRelayItems(
                                 isSelected = isSelected,
@@ -276,47 +294,54 @@ class CustomListLocationsViewModel(
                                 depth = depth + 1,
                                 isLastChild = isLastChild && index == cities.lastIndex,
                             )
-                        },
+                        }
                     )
 
-                    is RelayItem.Location.Relay -> {/* Do nothing */
-                    }
+                is RelayItem.Location.Relay -> {
+                    /* Do nothing */
                 }
             }
         }
+    }
 
     private fun calculateResultData(
         success: LocationsChanged,
         locationsToSave: List<RelayItem.Location>,
-    ) = if (navArgs.newList) {
-        CustomListActionResultData.Success.CreatedWithLocations(
-            customListName = success.name,
-            locationNames = locationsToSave.map { it.name },
-            undo = CustomListAction.Delete(id = success.id),
-        )
-    } else {
-        when {
-            success.addedLocations.size == 1 && success.removedLocations.isEmpty() -> CustomListActionResultData.Success.LocationAdded(
+    ) =
+        if (navArgs.newList) {
+            CustomListActionResultData.Success.CreatedWithLocations(
                 customListName = success.name,
-                relayListRepository.find(success.addedLocations.first())!!.name,
-                undo = success.undo,
+                locationNames = locationsToSave.map { it.name },
+                undo = CustomListAction.Delete(id = success.id),
             )
+        } else {
+            when {
+                success.addedLocations.size == 1 && success.removedLocations.isEmpty() ->
+                    CustomListActionResultData.Success.LocationAdded(
+                        customListName = success.name,
+                        relayListRepository.find(success.addedLocations.first())!!.name,
+                        undo = success.undo,
+                    )
 
-            success.removedLocations.size == 1 && success.addedLocations.isEmpty() -> CustomListActionResultData.Success.LocationRemoved(
-                customListName = success.name,
-                locationName = relayListRepository.find(success.removedLocations.first())!!.name,
-                undo = success.undo,
-            )
+                success.removedLocations.size == 1 && success.addedLocations.isEmpty() ->
+                    CustomListActionResultData.Success.LocationRemoved(
+                        customListName = success.name,
+                        locationName =
+                            relayListRepository.find(success.removedLocations.first())!!.name,
+                        undo = success.undo,
+                    )
 
-            else -> CustomListActionResultData.Success.LocationChanged(
-                customListName = success.name,
-                undo = success.undo,
-            )
+                else ->
+                    CustomListActionResultData.Success.LocationChanged(
+                        customListName = success.name,
+                        undo = success.undo,
+                    )
+            }
         }
-    }
 
     private fun Set<RelayItemId>.with(overrides: Map<RelayItemId, Boolean>): Set<RelayItemId> =
-        this + overrides.filterValues { expanded -> expanded }.keys - overrides.filterValues { expanded -> !expanded }.keys
+        this + overrides.filterValues { expanded -> expanded }.keys -
+            overrides.filterValues { expanded -> !expanded }.keys
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""

@@ -71,7 +71,7 @@ object RelayListItemPreviewData {
                     depth = 0,
                     expanded = true,
                     state = null,
-                    positionClassification = PositionClassification.Middle
+                    positionClassification = PositionClassification.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[0],
@@ -79,7 +79,7 @@ object RelayListItemPreviewData {
                     depth = 1,
                     expanded = false,
                     state = null,
-                    positionClassification = PositionClassification.Middle
+                    positionClassification = PositionClassification.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1],
@@ -87,7 +87,7 @@ object RelayListItemPreviewData {
                     depth = 1,
                     expanded = true,
                     state = null,
-                    positionClassification = PositionClassification.Middle
+                    positionClassification = PositionClassification.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[0],
@@ -95,7 +95,7 @@ object RelayListItemPreviewData {
                     depth = 2,
                     expanded = false,
                     state = RelayListItemState.USED_AS_EXIT,
-                    positionClassification = PositionClassification.Middle
+                    positionClassification = PositionClassification.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[1],
@@ -103,7 +103,7 @@ object RelayListItemPreviewData {
                     depth = 2,
                     expanded = false,
                     state = null,
-                    positionClassification = PositionClassification.Middle
+                    positionClassification = PositionClassification.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[1],
@@ -111,7 +111,7 @@ object RelayListItemPreviewData {
                     depth = 0,
                     expanded = false,
                     state = null,
-                    positionClassification = PositionClassification.Bottom
+                    positionClassification = PositionClassification.Bottom,
                 ),
             )
         )
