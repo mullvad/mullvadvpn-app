@@ -2,11 +2,10 @@ package net.mullvad.mullvadvpn.lib.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontWeight
-import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale
 
 /*
 The app currently uses the following text styles directly in the code:
-headlineLarge (30sp 700 weight) -> Used for title in PrivacyDisclaimer, Welcome and Login
+headlineLarge (32sp 700 weight) -> Used for title in PrivacyDisclaimer, Welcome and Login
 headlineSmall (24sp 600 weight) -> Used for title in OutOfTime, DeviceRevoked, ReportAProblem etc
 titleLarge (22sp 600 weight) -> Used for Connection status and location
 titleMedium (16sp 600 weight) -> Used for cell header text and button text
@@ -17,12 +16,11 @@ labelLarge (14sp 500 weight) -> Cell that are not header cells, Dialog texts, de
  */
 
 internal val MullvadMaterial3Typography =
-    Typography(
-        headlineLarge =
-            Typography()
-                .headlineLarge
-                .copy(fontSize = TypeScale.TextHuge, fontWeight = FontWeight.Bold),
-        headlineSmall = Typography().headlineSmall.copy(fontWeight = FontWeight.SemiBold),
-        titleLarge = Typography().titleLarge.copy(fontWeight = FontWeight.SemiBold),
-        titleMedium = Typography().titleMedium.copy(fontWeight = FontWeight.SemiBold),
-    )
+    with(Typography()) {
+        this.copy(
+            headlineLarge = headlineLarge.merge(fontWeight = FontWeight.Bold),
+            headlineSmall = headlineSmall.merge(fontWeight = FontWeight.SemiBold),
+            titleLarge = titleLarge.merge(fontWeight = FontWeight.SemiBold),
+            titleMedium = titleMedium.merge(fontWeight = FontWeight.SemiBold),
+        )
+    }
