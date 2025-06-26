@@ -8,19 +8,23 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.StatusRelayItemCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
-import net.mullvad.mullvadvpn.compose.cell.ThreeDotCell
 import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsBottomSheet
@@ -33,6 +37,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeader
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 
@@ -214,9 +219,16 @@ private fun LazyItemScope.CustomListItem(
 
 @Composable
 private fun LazyItemScope.CustomListHeader(onShowCustomListBottomSheet: () -> Unit) {
-    ThreeDotCell(
-        text = stringResource(R.string.custom_lists),
-        onClickDots = onShowCustomListBottomSheet,
+    RelayListHeader(
+        { Text(stringResource(R.string.custom_lists), overflow = TextOverflow.Ellipsis) },
+        actions = {
+            IconButton(onClick = onShowCustomListBottomSheet) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = stringResource(id = R.string.custom_lists),
+                )
+            }
+        },
         modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG),
     )
 }
@@ -236,5 +248,9 @@ private fun LazyItemScope.CustomListFooter(item: RelayListItem.CustomListFooter)
 
 @Composable
 private fun LazyItemScope.RelayLocationHeader() {
-    HeaderCell(text = stringResource(R.string.all_locations))
+    RelayListHeader(
+        content = {
+            Text(text = stringResource(R.string.all_locations), overflow = TextOverflow.Ellipsis)
+        }
+    )
 }

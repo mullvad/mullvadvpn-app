@@ -113,10 +113,11 @@ fun RelayItemCell1(
         selected = isSelected,
         content = {
             Row(
-                modifier = Modifier.let {
-                    if(!item.hasChildren) it.padding(start = 58.dp) else it
-
-                }.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                modifier =
+                    Modifier.let { if (!item.hasChildren) it.padding(start = 58.dp) else it }
+                        .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 if (isSelected) {
                     Icon(
                         imageVector = Icons.Default.Check,
@@ -135,10 +136,10 @@ fun RelayItemCell1(
                         color = MaterialTheme.colorScheme.onSurface,
                         isExpanded = isExpanded,
                         modifier =
-                            Modifier.fillMaxSize()
+                            Modifier.clickable { onToggleExpand(!isExpanded) }
+                                .fillMaxSize()
                                 .padding(16.dp)
-                                .testTag(EXPAND_BUTTON_TEST_TAG)
-                                .clickable { onToggleExpand(!isExpanded) },
+                                .testTag(EXPAND_BUTTON_TEST_TAG),
                     )
                 }
             } else {
@@ -149,9 +150,9 @@ fun RelayItemCell1(
         trailingContent = {
             Icon(
                 modifier =
-                    Modifier.fillMaxSize()
-                        .padding(16.dp)
-                        .clickable(enabled = true, onClick = onLongClick ?: {}),
+                    Modifier.clickable(enabled = true, onClick = onLongClick ?: {})
+                        .fillMaxSize()
+                        .padding(16.dp),
                 imageVector = Icons.Default.Add,
                 contentDescription = null,
             )
@@ -258,14 +259,13 @@ private fun Name(
     Text(
         text = state?.let { name.withSuffix(state) } ?: name,
         modifier =
-            modifier
-                .alpha(
-                    if (state == null && active) {
-                        AlphaVisible
-                    } else {
-                        AlphaInactive
-                    }
-                ),
+            modifier.alpha(
+                if (state == null && active) {
+                    AlphaVisible
+                } else {
+                    AlphaInactive
+                }
+            ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
     )
