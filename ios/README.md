@@ -87,17 +87,6 @@ Whenever we want to start adding translations for real, this script can be
 resurrected from the git history if we deem it to be the best path forward.
 Look for `ios/requirements.txt`.
 
-## Icons and assets
-
-For a general overview of icons and graphics read [the graphics readme](../graphics/README.md).
-
-To copy graphical assets from the desktop GUI and generate iOS assets, run:
-```bash
-ios/convert-assets.rb --app-icon
-ios/convert-assets.rb --import-desktop-assets
-ios/convert-assets.rb --additional-assets
-```
-
 ## Cached relays
 
 The script `relays-prebuild.sh` runs on each Xcode build and will download and cache a list of relays if it is not already present for a given configuration.
