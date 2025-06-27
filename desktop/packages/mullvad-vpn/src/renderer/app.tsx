@@ -36,7 +36,12 @@ import {
 } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
-import { IChangelog, ICurrentAppVersionInfo, IHistoryObject } from '../shared/ipc-types';
+import {
+  DaemonStatus,
+  IChangelog,
+  ICurrentAppVersionInfo,
+  IHistoryObject,
+} from '../shared/ipc-types';
 import log, { ConsoleOutput } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import { RoutePath } from '../shared/routes';
@@ -174,6 +179,10 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.relays.listen((relayListPair: IRelayListWithEndpointData) => {
       this.setRelayListPair(relayListPair);
+    });
+
+    IpcRendererEventChannel.daemon.listenTryStartEvent((status: DaemonStatus) => {
+      this.reduxActions.userInterface.setDaemonStatus(status);
     });
 
     IpcRendererEventChannel.app.listenUpgradeEvent((appUpgradeEvent) => {
@@ -436,6 +445,11 @@ export default class AppRenderer {
   public daemonPrepareRestart = (shutdown: boolean): void => {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
+
+  public tryStartDaemon = () => {
+    if (window.env.platform === 'win32') IpcRendererEventChannel.daemon.tryStart();
+  };
+
   public appUpgrade = () => {
     const reduxState = this.reduxStore.getState();
     const appUpgradeError = reduxState.appUpgrade.error;
@@ -804,12 +818,14 @@ export default class AppRenderer {
     this.connectedToDaemon = true;
     this.reduxActions.userInterface.setConnectedToDaemon(true);
     this.reduxActions.userInterface.setDaemonAllowed(true);
+    this.reduxActions.userInterface.setDaemonStatus('running');
     this.resetNavigation();
   }
 
   private onDaemonDisconnected() {
     this.connectedToDaemon = false;
     this.reduxActions.userInterface.setConnectedToDaemon(false);
+    this.reduxActions.userInterface.setDaemonStatus('stopped');
     this.resetNavigation();
   }
 
