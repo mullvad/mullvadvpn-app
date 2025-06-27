@@ -268,10 +268,10 @@ export default class UserInterface implements WindowControllerDelegate {
         // make the window visible on all workspaces and prevent the icon from showing in the dock
         // and app switcher.
         if (unpinnedWindow) {
-          void app.dock.show();
+          void app.dock?.show();
         } else {
           appWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-          app.dock.hide();
+          app.dock?.hide();
         }
 
         return appWindow;

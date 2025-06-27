@@ -156,6 +156,12 @@ class ApplicationMain
       app.commandLine.appendSwitch('wm-window-animations-disabled');
     }
 
+    // Work around upstream change to make GTK 4 the default, use GTK 3 instead.
+    // Change was introduced in Electron 36: https://www.electronjs.org/blog/electron-36-0
+    if (process.platform === 'linux') {
+      app.commandLine.appendSwitch('gtk-version', '3');
+    }
+
     // Display correct colors regardless of monitor color profile.
     app.commandLine.appendSwitch('force-color-profile', 'srgb');
 

@@ -20,6 +20,14 @@ export class SelectLocationRouteObjectModel {
     }
   }
 
+  getEntryButton() {
+    return this.selectors.entryButton();
+  }
+
+  getExitButton() {
+    return this.selectors.exitButton();
+  }
+
   getRelaysMatching(relayNames: string[]) {
     return this.selectors.relaysMatching(relayNames);
   }
