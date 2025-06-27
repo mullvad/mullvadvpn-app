@@ -3,9 +3,10 @@ use std::{ffi::c_char, ffi::CStr, future::Future, sync::Arc};
 use access_method_resolver::SwiftAccessMethodResolver;
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
 use address_cache_provider::SwiftAddressCacheWrapper;
+use futures::{channel::{mpsc, oneshot}, StreamExt};
 use helpers::convert_c_string;
 use mullvad_api::{
-    access_mode::{AccessModeSelector, AccessModeSelectorHandle},
+    access_mode::{AccessMethodEvent, AccessModeSelector, AccessModeSelectorHandle},
     rest::{self, MullvadRestHandle},
     ApiEndpoint, Runtime,
 };
@@ -138,6 +139,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
+    access_method_change_callback: Option<unsafe extern "C" fn()>,
 ) -> SwiftApiContext {
     mullvad_api_init_inner(
         host,
@@ -147,6 +149,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
         bridge_provider,
         settings_provider,
         address_cache,
+        access_method_change_callback,
     )
 }
 
@@ -170,6 +173,7 @@ pub extern "C" fn mullvad_api_init_new(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
+    access_method_change_callback: Option<unsafe extern "C" fn()>,
 ) -> SwiftApiContext {
     #[cfg(feature = "api-override")]
     return mullvad_api_init_inner(
@@ -180,6 +184,7 @@ pub extern "C" fn mullvad_api_init_new(
         bridge_provider,
         settings_provider,
         address_cache,
+        access_method_change_callback,
     );
     #[cfg(not(feature = "api-override"))]
     mullvad_api_init_inner(
@@ -189,6 +194,7 @@ pub extern "C" fn mullvad_api_init_new(
         bridge_provider,
         settings_provider,
         address_cache,
+        access_method_change_callback,
     )
 }
 
@@ -213,6 +219,7 @@ pub extern "C" fn mullvad_api_init_inner(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
+    access_method_change_callback: Option<unsafe extern "C" fn()>,
 ) -> SwiftApiContext {
     // Safety: See notes for `convert_c_string`
     let (host, address, domain) = unsafe {
@@ -251,14 +258,30 @@ pub extern "C" fn mullvad_api_init_inner(
     );
 
     let api_context = tokio_handle.clone().block_on(async move {
+        let (tx, mut rx) = mpsc::unbounded::<(AccessMethodEvent, oneshot::Sender<()>)>();
         let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
             method_resolver,
             access_method_settings,
             #[cfg(feature = "api-override")]
             endpoint.clone(),
+            tx,
         )
         .await
         .expect("Could now spawn AccessModeSelector");
+
+        tokio::spawn(async move {
+            // SAFETY: The callback is expected to be called from the Swift side
+            if let Some(callback) = access_method_change_callback {
+                while let Some((event, sender)) = rx.next().await {
+                    // SAFETY: The callback is expected to be safe to call
+                    unsafe { callback() };
+                    log::warn!("ASDASDASDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASDASDASDASD {event:?}");
+                }
+            }
+        });
+
+        // TODO: do something with rx, and somehow let the `AccessMethodEvent`s it
+        // receives be sent back to the Swift side
 
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.

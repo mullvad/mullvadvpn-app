@@ -44,7 +44,8 @@ public struct MullvadApiContext: @unchecked Sendable {
                 domain,
                 shadowsocksBridgeProviderWrapper,
                 accessMethodWrapper,
-                addressCacheWrapper
+                addressCacheWrapper,
+                { print("***") }
             )
         case false:
             mullvad_api_init_new(
@@ -53,7 +54,8 @@ public struct MullvadApiContext: @unchecked Sendable {
                 domain,
                 shadowsocksBridgeProviderWrapper,
                 accessMethodWrapper,
-                addressCacheWrapper
+                addressCacheWrapper,
+                { print("***") }
             )
         }
 
