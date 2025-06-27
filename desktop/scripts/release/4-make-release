@@ -15,15 +15,7 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-# Duplicated from /scripts/utils/gh-ready-check
-if ! command -v gh > /dev/null; then
-    echo "gh (GitHub CLI) is required to run this script"
-    exit 1
-fi
-if ! gh auth status > /dev/null; then
-    echo "Authentication through gh (GitHub CLI) is required to run this script"
-    exit 1
-fi
+./gh-ready-check
 
 PRODUCT_VERSION=$1
 
