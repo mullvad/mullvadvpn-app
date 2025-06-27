@@ -20,3 +20,5 @@ export CARGO_REGISTRY_VOLUME_NAME="cargo-registry"
 # Where buildserver-build.sh should move artifacts (on Linux) and where
 # buildserver-upload.sh should pick artifacts to upload
 export UPLOAD_DIR="PLEASE CONFIGURE ME"
+
+export CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
