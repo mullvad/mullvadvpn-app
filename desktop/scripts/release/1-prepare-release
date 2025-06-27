@@ -10,7 +10,7 @@ cd "$SCRIPT_DIR"
 
 REPO_ROOT=../../../
 
-source $REPO_ROOT/scripts/utils/log
+source ./log
 source $REPO_ROOT/scripts/utils/print-and-run
 
 

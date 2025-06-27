@@ -14,7 +14,7 @@ PRODUCT_VERSION_PATH=$REPO_ROOT/dist-assets/desktop-product-version.txt
 PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
 
 ./gh-ready-check
-source $REPO_ROOT/scripts/utils/log
+source ./log
 
 function verify_repository_versions {
   print_versions_args=( --staging )
