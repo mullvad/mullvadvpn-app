@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">Påminnelser om tidsavbrudd for konto</string>
     <string name="add">Legg til</string>
     <string name="add_30_days_time_x">Legg til 30 dager (%1$s)</string>
+    <string name="add_90_days_time_x">Legg til 90 dager (%1$s)</string>
     <string name="add_a_server">Legg til en server</string>
     <string name="add_dns_server_dialog_title">Legg til DNS-server</string>
     <string name="add_location_to_list">Legg %1$s til i listen</string>
     <string name="add_locations">Legg til plasseringer</string>
     <string name="add_method">Legg til metode</string>
+    <string name="add_time">Legg til tid</string>
     <string name="add_time_to_account">Du kan enten kjøpe kreditt på nettsiden vår eller løse inn en kupong.</string>
     <string name="added_to_your_account">%1$s ble lagt til kontoen din.</string>
     <string name="adding_method">Legger til metoden ...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">API ikke tilgjengelig</string>
     <string name="api_unreachable_save_anyway">API ikke tilgjengelig, lagre metoden uansett?</string>
     <string name="app_info">Appinfo</string>
+    <string name="app_is_blocking_internet">Denne appen blokkerer internett. Koble fra først</string>
     <string name="apply">Angi</string>
     <string name="at_least_on_method_needs_to_enabled">Minst én metode må være aktivert</string>
     <string name="auth_failed">Kunne ikke autentisere konto. Send inn en problemrapport.</string>
@@ -61,7 +64,7 @@
     <string name="buy_credit">Kjøp kreditt</string>
     <string name="cancel">Avbryt</string>
     <string name="changelog_empty">Det ble ikke lagt til noen endringslogg for denne versjonen</string>
-    <string name="changelog_title">Nytt</string>
+    <string name="changelog_title">Dette er nytt</string>
     <string name="cipher">Chiffer</string>
     <string name="clear_input">Fjern inndata</string>
     <string name="close">Lukk</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">Hvis du aktiverer «%1$s», må du manuelt velge en server som har aktivert %2$s. Dette kan føre til at du havner i en blokkert tilstand inntil du har valgt en kompatibel server under «Velg plassering».</string>
     <string name="daita_multihop">%1$s: Multihopp</string>
     <string name="days_were_added_30">30 dager ble lagt til kontoen din.</string>
+    <string name="days_were_added_90">90 dager ble lagt til kontoen din.</string>
     <string name="delete">Slett</string>
     <string name="delete_custom_list_confirmation_description">Slette «%1$s»?</string>
     <string name="delete_custom_list_message">«%1$s» ble slettet</string>
@@ -160,7 +164,6 @@
     <string name="enable">Aktiver</string>
     <string name="enable_anyway">Aktiver uansett</string>
     <string name="enable_custom_dns">Bruk egendefinert DNS-server</string>
-    <string name="enable_direct_only">Aktiver %1$s</string>
     <string name="enable_ipv6">IPv6 i tunnel</string>
     <string name="enable_method">Aktiver metoden</string>
     <string name="encrypted_dns_proxy_info_message_part1">Med metoden «Kryptert DNS-proxy» vil appen kommunisere med Mullvad API gjennom en proxy-adresse. Dette gjøres ved å hente en adresse fra en DNS over HTTPS-server (DoH) og deretter bruke den til å nå API-serverne våre.</string>
@@ -176,6 +179,7 @@
     <string name="failed_to_block_internet">Kunne ikke blokkere all nettverkstrafikk. Feilsøk eller send inn en problemrapport.</string>
     <string name="failed_to_create_account">Kunne ikke opprette konto</string>
     <string name="failed_to_fetch_devices">Kunne ikke hente liste over enheter</string>
+    <string name="failed_to_load_products">Kunne ikke laste opp produkter. Prøv på nytt</string>
     <string name="failed_to_remove_device">Kunne ikke fjerne enhet</string>
     <string name="failed_to_send">Kunne ikke sende</string>
     <string name="failed_to_send_details">Hvis du avslutter skjemaet og prøver igjen senere, vil informasjonen du allerede har lagt inn fortsatt være der.</string>
@@ -184,7 +188,6 @@
     <string name="faqs_and_guides">Ofte stilte spørsmål og veiledninger</string>
     <string name="feature_custom_dns">Tilpasset DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$s til …</string>
     <string name="feature_quantum_resistant">Kvantemotstand</string>
     <string name="feature_udp_2_tcp">Tilsløring</string>
     <string name="filter">Filter</string>
@@ -201,7 +204,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">Importering av nye overstyringer kan erstatte tidligere importerte overstyringer.</string>
     <string name="import_overrides_import">Importer</string>
     <string name="import_overrides_text_title">Importer via tekst</string>
-    <string name="invalid_dns_servers">Egendefinerte DNS-serveradresser %1$s er ugyldige</string>
+    <string name="in_app_products_unavailable">Produkter i appen er ikke tilgjengelige. Sørg for at du har den nyeste versjonen av Google Play.</string>
     <string name="invalid_voucher">Ugyldig kupongkode.</string>
     <string name="ip_version_v4_unavailable">IPv4 er ikke tilgjengelig. Prøv å endre innstillingen «Enhetens IP-versjon».</string>
     <string name="ip_version_v6_unavailable">IPv6 er ikke tilgjengelig. Prøv å endre innstillingen «Enhetens IP-versjon».</string>
@@ -215,14 +218,13 @@
     <string name="less_than_a_day_left">mindre enn én dag igjen</string>
     <string name="less_than_one_day">mindre enn én dag</string>
     <string name="list_name">Listenavn</string>
+    <string name="loading_products">Laster inn produkter</string>
     <string name="loading_verifying">Bekrefter kjøp ...</string>
     <string name="local_network_sharing">Deling over lokalt nettverk</string>
     <string name="local_network_sharing_additional_info">Den gjør det ved å tillate nettverkkommunikasjon utenfor tunnelen til lokale multicast- og sendingsintervall, samt mellom følgende privat IP-intervall:</string>
     <string name="local_network_sharing_info">Funksjonen gir tilgang til andre enheter på det lokale nettverket for ting som deling, utskrift, strømming osv.</string>
     <string name="local_network_sharing_info_block_connections_warning">OBS: Hvis «Blokker tilkoblinger uten VPN» er aktivert, vil «Deling av lokalt nettverk» ikke fungere.</string>
     <string name="location_added">%1$s (lagt til)</string>
-    <string name="location_was_added_to_list">%1$s ble lagt til «%2$s»</string>
-    <string name="location_was_removed_from_list">%1$s ble fjernet fra «%2$s»</string>
     <string name="locations">Plasseringer</string>
     <string name="locations_were_changed_for">Plasseringer ble endret for «%1$s»</string>
     <string name="log_out">Logg ut</string>
@@ -283,6 +285,8 @@
     <string name="payment_billing_error_dialog_title">Google Play utilgjengelig</string>
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunne ikke starte betalingsprosessen. Prøv igjen senere.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjenester utilgjengelig</string>
+    <string name="payment_pending_dialog_message">Vi behandler fortsatt kjøpet ditt. Det kan ta en stund. Hvis kjøpet blir bekreftet, legges tiden til.</string>
+    <string name="payment_status_pending_long">Google Play-betaling venter. Dette kan ta en stund</string>
     <string name="payment_status_pending_short">Google Play-betaling venter</string>
     <string name="please_enter_a_valid_ip_address">Skriv inn en gyldig IPv4- eller IPv6-adresse</string>
     <string name="please_enter_a_valid_remote_server_port">Skriv inn en gyldig ekstern server-port</string>
@@ -301,12 +305,12 @@
     <string name="redeem">Løs inn</string>
     <string name="redeem_voucher">Løs inn kupong</string>
     <string name="remove_button">Fjern</string>
-    <string name="remove_location_from_list">Fjern %1$s fra %2$s</string>
     <string name="removed_provider">%1$s (fjernet)</string>
     <string name="rented">Leid</string>
     <string name="rented_only">Kun leid</string>
     <string name="report_a_problem">Rapporter et problem</string>
     <string name="reset_to_default_button">Tilbakestill til standard</string>
+    <string name="retry">Prøv på nytt</string>
     <string name="save">Lagre</string>
     <string name="search">Søk</string>
     <string name="search_location_empty_text">Ingen resultater for «%1$s». Prøv et annet søk</string>
@@ -341,10 +345,8 @@
     <string name="settings_changes_effect_warning_content_blocker">Endringer til DNS-relaterte innstillinger vil kanskje ikke tre i kraft umiddelbart på grunn av bufrede resultater.</string>
     <string name="settings_changes_effect_warning_short">DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart</string>
     <string name="settings_patch_error_failed_to_apply_patch">Kunne ikke bruke oppdatering</string>
-    <string name="settings_patch_error_invalid_or_missing_value">Ugyldig eller mangler verdien «%1$s»</string>
     <string name="settings_patch_error_recursion_limit">Rekursjonsgrense</string>
     <string name="settings_patch_error_unable_to_parse">Kunne ikke analysere oppdatering</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">Ukjent eller forbudt nøkkel «%1$s»</string>
     <string name="settings_patch_success">Importering vellykket. Overstyringer aktive</string>
     <string name="settings_vpn">VPN-innstillinger</string>
     <string name="share">Del …</string>
@@ -360,6 +362,7 @@
     <string name="testing_name">Tester %1$s ...</string>
     <string name="this_field_is_required">Feltet er påkrevd</string>
     <string name="this_is_already_set_as_current">Denne er allerede angitt som gjeldende</string>
+    <string name="time_added">Tid lagt til</string>
     <string name="to_add_locations_to_a_list">Hvis du vil legge til plasseringer i en liste, trykker du på ︙ eller trykker på og holder inne et land, en by eller en server.</string>
     <string name="to_create_a_custom_list">For å opprette en egendefinert liste trykker du på ︙</string>
     <string name="toggle_vpn">Velg VPN</string>
@@ -398,7 +401,6 @@
     <string name="wg_port_subtitle">Angi %1$s-tilsløring til «Automatisk» eller «Av» nedenfor for å aktivere denne innstillingen.</string>
     <string name="wireguard_custon_port_title">Egendefinert</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_mtu_footer">Angi WireGuard MTU-verdi. Verdiområde: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Den automatiske innstillingen vil tilfeldig velge fra utvalget av gyldige porter vist under.</string>
     <string name="wireguard_port_info_port_range">Den egendefinerte porten kan ha en hvilken som helst verdi innen det gyldige utvalget: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Valgt %1$s-port støttes ikke. Du kan endre i</string>

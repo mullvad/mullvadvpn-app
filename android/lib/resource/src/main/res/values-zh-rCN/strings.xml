@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">帐户时间提醒</string>
     <string name="add">添加</string>
     <string name="add_30_days_time_x">增加 30 天 (%1$s)</string>
+    <string name="add_90_days_time_x">添加 90 天 (%1$s)</string>
     <string name="add_a_server">添加服务器</string>
     <string name="add_dns_server_dialog_title">添加 DNS 服务器</string>
     <string name="add_location_to_list">将%1$s添加到列表中</string>
     <string name="add_locations">添加位置</string>
     <string name="add_method">添加方法</string>
+    <string name="add_time">添加时间</string>
     <string name="add_time_to_account">在我们的网站上购买额度或兑换优惠券。</string>
     <string name="added_to_your_account">%1$s已添加到您的帐户中。</string>
     <string name="adding_method">正在添加方法…</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">无法通过 API 访问</string>
     <string name="api_unreachable_save_anyway">无法通过 API 访问，是否仍然保存方法？</string>
     <string name="app_info">应用信息</string>
+    <string name="app_is_blocking_internet">应用正在阻止互联网，请先断开连接</string>
     <string name="apply">应用</string>
     <string name="at_least_on_method_needs_to_enabled">至少需要启用一个方法</string>
     <string name="auth_failed">无法验证帐户。请发送问题报告。</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">启用“%1$s”后，您需要手动选择启用了 %2$s 的服务器。这可能导致您在“选择位置”视图中选择兼容服务器之前处于阻止状态。</string>
     <string name="daita_multihop">%1$s：多跳</string>
     <string name="days_were_added_30">已向您的帐户增加 30 天。</string>
+    <string name="days_were_added_90">90 天已添加到您的帐户中。</string>
     <string name="delete">删除</string>
     <string name="delete_custom_list_confirmation_description">删除“%1$s”？</string>
     <string name="delete_custom_list_message">“%1$s”已被删除</string>
@@ -160,7 +164,6 @@
     <string name="enable">启用</string>
     <string name="enable_anyway">仍然启用</string>
     <string name="enable_custom_dns">使用自定义 DNS 服务器</string>
-    <string name="enable_direct_only">启用“%1$s”</string>
     <string name="enable_ipv6">隧道内 IPv6</string>
     <string name="enable_method">启用方法</string>
     <string name="encrypted_dns_proxy_info_message_part1">利用“加密 DNS 代理”方法，应用将通过代理地址与我们的 Mullvad API 进行通信。通信时，应用从 DNS over HTTPS (DoH) 服务器获取地址，然后使用该地址连接我们的 API 服务器。</string>
@@ -176,6 +179,7 @@
     <string name="failed_to_block_internet">无法阻止所有网络流量。请排查问题或发送问题报告。</string>
     <string name="failed_to_create_account">无法创建帐户</string>
     <string name="failed_to_fetch_devices">无法获取设备列表</string>
+    <string name="failed_to_load_products">无法加载产品，请重试</string>
     <string name="failed_to_remove_device">无法移除设备</string>
     <string name="failed_to_send">无法发送</string>
     <string name="failed_to_send_details">如果您退出窗体并稍后再试，您输入的信息仍会在这里。</string>
@@ -184,7 +188,6 @@
     <string name="faqs_and_guides">常见问题解答与指南</string>
     <string name="feature_custom_dns">自定义 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">其他 %1$s 个…</string>
     <string name="feature_quantum_resistant">量子阻力</string>
     <string name="feature_udp_2_tcp">混淆</string>
     <string name="filter">筛选</string>
@@ -201,7 +204,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">导入新覆盖设置可能会替换一些先前导入的覆盖设置。</string>
     <string name="import_overrides_import">导入</string>
     <string name="import_overrides_text_title">通过文本导入</string>
-    <string name="invalid_dns_servers">自定义 DNS 服务器地址 %1$s 无效</string>
+    <string name="in_app_products_unavailable">应用内商品不可用，请确保您的 Google Play 是最新版本。</string>
     <string name="invalid_voucher">该优惠券码无效。</string>
     <string name="ip_version_v4_unavailable">IPv4 不可用，请尝试更改“设备 IP 版本”设置。</string>
     <string name="ip_version_v6_unavailable">IPv6 不可用，请尝试更改“设备 IP 版本”设置。</string>
@@ -215,14 +218,13 @@
     <string name="less_than_a_day_left">剩余时间不足 1 天</string>
     <string name="less_than_one_day">不足 1 天</string>
     <string name="list_name">列表名称</string>
+    <string name="loading_products">正在加载商品</string>
     <string name="loading_verifying">正在验证购买…</string>
     <string name="local_network_sharing">本地网络共享</string>
     <string name="local_network_sharing_additional_info">此功能通过允许隧道以外到本地组播和广播范围以及与以下私有 IP 范围的网络通信来实现访问。</string>
     <string name="local_network_sharing_info">此功能允许访问本地网络中的其他设备，以实现共享、打印、流式传输等</string>
     <string name="local_network_sharing_info_block_connections_warning">注意：如果启用了“屏蔽未使用 VPN 的所有连接”，将无法使用“本地网络共享”功能。</string>
     <string name="location_added">%1$s（已添加）</string>
-    <string name="location_was_added_to_list">%1$s已添加到“%2$s”中</string>
-    <string name="location_was_removed_from_list">“%1$s”已从“%2$s”中移除</string>
     <string name="locations">位置</string>
     <string name="locations_were_changed_for">已更改“%1$s”的位置</string>
     <string name="log_out">退出</string>
@@ -283,6 +285,8 @@
     <string name="payment_billing_error_dialog_title">Google Play 不可用</string>
     <string name="payment_obfuscation_id_error_dialog_message">我们无法启动付款流程，请稍后再试。</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad 服务不可用</string>
+    <string name="payment_pending_dialog_message">我们目前仍在验证您的购买，这可能需要一些时间。如果验证成功，您的时间将被添加。</string>
+    <string name="payment_status_pending_long">Google Play 付款待处理，这可能需要一些时间</string>
     <string name="payment_status_pending_short">Google Play 付款待处理</string>
     <string name="please_enter_a_valid_ip_address">请输入有效的 IPv4 或 IPv6 地址</string>
     <string name="please_enter_a_valid_remote_server_port">请输入有效的远程服务器端口</string>
@@ -301,12 +305,12 @@
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
     <string name="remove_button">移除</string>
-    <string name="remove_location_from_list">将 %1$s 从 %2$s 中移除</string>
     <string name="removed_provider">%1$s（已移除）</string>
     <string name="rented">租用</string>
     <string name="rented_only">仅租用</string>
     <string name="report_a_problem">报告问题</string>
     <string name="reset_to_default_button">重置为默认值</string>
+    <string name="retry">重试</string>
     <string name="save">保存</string>
     <string name="search">搜索</string>
     <string name="search_location_empty_text">“%1$s”无结果，请尝试其他搜索</string>
@@ -341,10 +345,8 @@
     <string name="settings_changes_effect_warning_content_blocker">由于缓存结果，对 DNS 相关设置的更改可能不会立即生效。</string>
     <string name="settings_changes_effect_warning_short">DNS 设置可能不会立即生效</string>
     <string name="settings_patch_error_failed_to_apply_patch">无法应用补丁</string>
-    <string name="settings_patch_error_invalid_or_missing_value">值“%1$s”无效或者缺失</string>
     <string name="settings_patch_error_recursion_limit">递归限制</string>
     <string name="settings_patch_error_unable_to_parse">无法解析补丁</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">未知或禁止的键“%1$s”</string>
     <string name="settings_patch_success">导入成功，覆盖设置已激活</string>
     <string name="settings_vpn">VPN 设置</string>
     <string name="share">共享…</string>
@@ -360,6 +362,7 @@
     <string name="testing_name">正在测试 %1$s…</string>
     <string name="this_field_is_required">此字段为必填项</string>
     <string name="this_is_already_set_as_current">它已被设置为当前方法</string>
+    <string name="time_added">时间已添加</string>
     <string name="to_add_locations_to_a_list">要将位置添加到列表中，请按“︙”或长按国家/地区、城市或服务器。</string>
     <string name="to_create_a_custom_list">要创建自定义列表，请按“︙”</string>
     <string name="toggle_vpn">切换 VPN</string>
@@ -398,7 +401,6 @@
     <string name="wg_port_subtitle">将下方的“%1$s 混淆”设为“自动”或“关”可激活此设置。</string>
     <string name="wireguard_custon_port_title">自定义</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_mtu_footer">设置 WireGuard MTU 值。有效范围：%1$d - %2$d。</string>
     <string name="wireguard_port_info_description">自动设置将从下方显示的有效端口范围中随机选择。</string>
     <string name="wireguard_port_info_port_range">自定义端口可以是有效范围内的任何值：%1$s。</string>
     <string name="wireguard_port_is_not_supported">所选 %1$s 端口不受支持，请在以下位置更改：</string>

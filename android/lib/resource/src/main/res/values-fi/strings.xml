@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">Muistutukset tilin käyttöajasta</string>
     <string name="add">Lisää</string>
     <string name="add_30_days_time_x">Lisää 30 päivää käyttöaikaa (%1$s)</string>
+    <string name="add_90_days_time_x">Lisää 90 päivää käyttöaikaa (%1$s)</string>
     <string name="add_a_server">Lisää palvelin</string>
     <string name="add_dns_server_dialog_title">Lisää DNS-palvelin</string>
     <string name="add_location_to_list">Lisää %1$s luetteloon</string>
     <string name="add_locations">Lisää sijainteja</string>
     <string name="add_method">Lisää menetelmä</string>
+    <string name="add_time">Lisää käyttöaikaa</string>
     <string name="add_time_to_account">Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki.</string>
     <string name="added_to_your_account">%1$s lisättiin tilillesi.</string>
     <string name="adding_method">Lisätään menetelmää...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">Ohjelmointirajapinta ei ole saavutettavissa</string>
     <string name="api_unreachable_save_anyway">API ei ole tavoitettavissa. Tallennetaanko menetelmä silti?</string>
     <string name="app_info">Sovelluksen tiedot</string>
+    <string name="app_is_blocking_internet">Sovellus estää internetyhteyden, katkaise sen yhteys ensin</string>
     <string name="apply">Ota käyttöön</string>
     <string name="at_least_on_method_needs_to_enabled">Vähintään yhden menetelmän on oltava käytössä</string>
     <string name="auth_failed">Tilin todentaminen ei onnistu. Lähetä ongelmaraportti.</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">Kun \"%1$s\" otetaan käyttöön, sinun on valittava manuaalisesti palvelin, jossa on %2$s-tuki. Tämä voi aiheuttaa sen, että päädyt estettyyn tilaan, kunnes olet valinnut yhteensopivan palvelimen \"Valitse sijainti\" -näkymästä.</string>
     <string name="daita_multihop">%1$s: multihop</string>
     <string name="days_were_added_30">Tilillesi lisättiin 30 päivää käyttöaikaa.</string>
+    <string name="days_were_added_90">Tilillesi lisättiin 90 päivää käyttöaikaa.</string>
     <string name="delete">Poista</string>
     <string name="delete_custom_list_confirmation_description">Poistetaanko \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" poistettiin</string>
@@ -160,7 +164,6 @@
     <string name="enable">Ota käyttöön</string>
     <string name="enable_anyway">Ota silti käyttöön</string>
     <string name="enable_custom_dns">Käytä mukautettua DNS-palvelinta</string>
-    <string name="enable_direct_only">Ota %1$s käyttöön</string>
     <string name="enable_ipv6">Tunnelin IPv6</string>
     <string name="enable_method">Ota menetelmä käyttöön</string>
     <string name="encrypted_dns_proxy_info_message_part1">Sovellus kommunikoi Mullvad API:n kanssa välityspalvelinosoitteen kautta \"Salattu DNS-välityspalvelin\" -menetelmällä, joka toimii niin, että sovellus hakee osoitteen DNS over HTTPS (DoH) -palvelimelta ja käyttää sitä API-palvelimillemme pääsemiseen.</string>
@@ -176,6 +179,7 @@
     <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen ei onnistu. Käytä vianetsintää tai lähetä ongelmaraportti.</string>
     <string name="failed_to_create_account">Tilin luonti epäonnistui</string>
     <string name="failed_to_fetch_devices">Laiteluettelon nouto epäonnistui</string>
+    <string name="failed_to_load_products">Tuotteiden lataaminen epäonnistui, yritä uudelleen</string>
     <string name="failed_to_remove_device">Laitteen poistaminen epäonnistui</string>
     <string name="failed_to_send">Lähetys epäonnistui</string>
     <string name="failed_to_send_details">Jos poistut lomakkeelta ja yrität myöhemmin uudelleen, jo syöttämäsi tiedot säilyvät lomakkeella.</string>
@@ -184,7 +188,6 @@
     <string name="faqs_and_guides">Usein kysytyt kysymykset ja oppaat</string>
     <string name="feature_custom_dns">Mukautettu DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$s lisää...</string>
     <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
     <string name="feature_udp_2_tcp">Hämäysteknologia</string>
     <string name="filter">Suodatin</string>
@@ -201,10 +204,10 @@
     <string name="import_overrides_bottom_sheet_override_warning">Uusien ohitusten tuonti saattaa korvata joitain aiemmin tuotuja ohituksia.</string>
     <string name="import_overrides_import">Tuo</string>
     <string name="import_overrides_text_title">Tuo tekstinä</string>
-    <string name="invalid_dns_servers">Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä</string>
+    <string name="in_app_products_unavailable">Sovelluksen sisäiset tuotteet eivät ole käytettävissä. Varmista, että sinulla on Google Playn uusin versio.</string>
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
-    <string name="ip_version_v4_unavailable">IPv4 ei ole käytettävissä, kokeile vaihtaa Laitteen IP-versio -asetus.</string>
-    <string name="ip_version_v6_unavailable">IPv6 ei ole käytettävissä, kokeile vaihtaa Laitteen IP-versio -asetus.</string>
+    <string name="ip_version_v4_unavailable">IPv4 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus.</string>
+    <string name="ip_version_v6_unavailable">IPv6 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus.</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="ipv6_info">Kun tämä ominaisuus on käytössä, IPv6:ta voidaan käyttää IPv4:n rinnalla VPN-tunnelissa yhteydenpidossa internetpalveluiden kanssa.</string>
@@ -215,14 +218,13 @@
     <string name="less_than_a_day_left">alle vuorokausi jäljellä</string>
     <string name="less_than_one_day">alle vuorokausi</string>
     <string name="list_name">Luettelon nimi</string>
+    <string name="loading_products">Ladataan tuotteita</string>
     <string name="loading_verifying">Ostosta vahvistetaan...</string>
     <string name="local_network_sharing">Paikallisen verkon jakaminen</string>
     <string name="local_network_sharing_additional_info">Ominaisuus siis sallii verkkoviestinnän tunnelin ulkopuolella paikallisille lähetys- ja monilähetysalueille sekä näillä yksityisillä IP-alueilla kumpaankin suuntaan:</string>
     <string name="local_network_sharing_info">Tämä ominaisuus mahdollistaa pääsyn muihin paikallisverkon laitteisiin esimerkiksi jakamisen, tulostamisen, suoratoiston jne. tarpeisiin.</string>
     <string name="local_network_sharing_info_block_connections_warning">Huomio: jos yhteyksien estäminen ilman VPN:ää on sallittu, paikallisen verkon jakaminen ei toimi.</string>
     <string name="location_added">%1$s (lisätty)</string>
-    <string name="location_was_added_to_list">%1$s lisättiin luetteloon\"%2$s\"</string>
-    <string name="location_was_removed_from_list">%1$s poistettiin kohteesta \"%2$s\"</string>
     <string name="locations">Sijainnit</string>
     <string name="locations_were_changed_for">Kohteen \"%1$s\" sijainteja vaihdettiin</string>
     <string name="log_out">Kirjaudu ulos</string>
@@ -237,7 +239,7 @@
     <string name="malware_info">Varoitus: haittaohjelmien estotoiminto ei ole virustorjuntaohjelma, eikä sitä pidä käyttää sellaisena – kyseessä on vain ylimääräinen suojauskerros.</string>
     <string name="manage_devices">Hallitse laitteita</string>
     <string name="manage_devices_confirm_removal_description_line1">Poistetaanko %1$s?</string>
-    <string name="manage_devices_confirm_removal_description_line2">Laite poistetaan luettelosta ja kirjataan ulos.</string>
+    <string name="manage_devices_confirm_removal_description_line2">Laite poistetaan luettelosta, ja sinut kirjataan ulos laitteelta.</string>
     <string name="manage_devices_description">Tarkastele ja hallinnoi kaikkia kirjautuneita laitteitasi. Sinulla voi olla enintään viisi laitetta yhdellä tilillä samaan aikaan. Kukin laite saa nimen, kun se kirjataan sisään, jotta erotat ne helposti.</string>
     <string name="max_devices_confirm_removal_description">Haluatko varmasti kirjautua ulos laitteelta &lt;b&gt;%1$s&lt;/b&gt;?</string>
     <string name="max_devices_resolved_description">Voit nyt jatkaa kirjautumista tällä laitteella.</string>
@@ -283,6 +285,8 @@
     <string name="payment_billing_error_dialog_title">Google Play ei ole käytettävissä</string>
     <string name="payment_obfuscation_id_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Yritä myöhemmin uudelleen.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-palvelut eivät ole käytettävissä</string>
+    <string name="payment_pending_dialog_message">Vahvistamme vielä ostostasi. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu.</string>
+    <string name="payment_status_pending_long">Google Play -maksu odottaa. Tässä voi kestää jonkin aikaa.</string>
     <string name="payment_status_pending_short">Google Play -maksu odottaa</string>
     <string name="please_enter_a_valid_ip_address">Anna kelvollinen IPv4- tai IPv6-osoite</string>
     <string name="please_enter_a_valid_remote_server_port">Anna kelvollinen etäpalvelimen portti</string>
@@ -301,12 +305,12 @@
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
     <string name="remove_button">Poista</string>
-    <string name="remove_location_from_list">Poista %1$s kohteesta %2$s</string>
     <string name="removed_provider">%1$s (poistettu)</string>
     <string name="rented">Vuokrattu</string>
     <string name="rented_only">Vain vuokratut</string>
-    <string name="report_a_problem">Raportoi ongelma</string>
+    <string name="report_a_problem">Ilmoita ongelmasta</string>
     <string name="reset_to_default_button">Palauta oletusarvo</string>
+    <string name="retry">Yritä uudelleen</string>
     <string name="save">Tallenna</string>
     <string name="search">Haku</string>
     <string name="search_location_empty_text">Haulle \"%1$s\" ei löytynyt tuloksia. Kokeile toista hakua.</string>
@@ -341,10 +345,8 @@
     <string name="settings_changes_effect_warning_content_blocker">DNS-asetuksiin tehdyt muutokset eivät välttämättä astu voimaan välittömästi välimuistissa olevien tulosten vuoksi.</string>
     <string name="settings_changes_effect_warning_short">Uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi</string>
     <string name="settings_patch_error_failed_to_apply_patch">Muutostiedoston käyttöönotto ei onnistunut</string>
-    <string name="settings_patch_error_invalid_or_missing_value">Arvo \"%1$s\" puuttuu tai on virheellinen</string>
     <string name="settings_patch_error_recursion_limit">Toistorajoitus</string>
     <string name="settings_patch_error_unable_to_parse">Muutostiedoston jäsentäminen ei onnistu</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">Tuntematon tai kielletty avain \"%1$s\"</string>
     <string name="settings_patch_success">Tuonti onnistui ja ohituksia on käytössä</string>
     <string name="settings_vpn">VPN-asetukset</string>
     <string name="share">Jaa…</string>
@@ -360,6 +362,7 @@
     <string name="testing_name">Testataan menetelmää %1$s...</string>
     <string name="this_field_is_required">Tämä kenttä on pakollinen</string>
     <string name="this_is_already_set_as_current">Tämä on jo asetettu nykyiseksi</string>
+    <string name="time_added">Käyttöaikaa lisätty</string>
     <string name="to_add_locations_to_a_list">Jos haluat lisätä luetteloon sijainteja, paina \"︙\" tai paina pitkään maata, kaupunkia tai palvelinta.</string>
     <string name="to_create_a_custom_list">Voit luoda mukautetun luettelon painamalla \"︙\"</string>
     <string name="toggle_vpn">Vaihda VPN:ää</string>
@@ -398,10 +401,9 @@
     <string name="wg_port_subtitle">Jotta voit käyttää tätä asetusta, poista %1$s-hämäysteknologia käytöstä tai säädä sen asetukseksi \"Automaattinen\" alta.</string>
     <string name="wireguard_custon_port_title">Mukautettu</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Automaattinen asetus valitsee satunnaisesti käytettävissä olevista, alla luetelluista porteista.</string>
     <string name="wireguard_port_info_port_range">Mukautettu portti voi olla mikä tahansa sallittu arvo: %1$s.</string>
-    <string name="wireguard_port_is_not_supported">Valittua %1$s-porttia ei tueta, vaihda se</string>
+    <string name="wireguard_port_is_not_supported">Valittua %1$s-porttia ei tueta. Vaihda portti</string>
     <string name="wireguard_port_title">WireGuard-portti</string>
     <string name="wireguard_settings">%1$s-asetuksissa.</string>
     <string name="x_entry">%1$s (tulo)</string>

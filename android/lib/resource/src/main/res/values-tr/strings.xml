@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">Hesap süresi hatırlatıcıları</string>
     <string name="add">Ekle</string>
     <string name="add_30_days_time_x">30 gün süre ekleyin (%1$s)</string>
+    <string name="add_90_days_time_x">90 gün uzatın (%1$s)</string>
     <string name="add_a_server">Sunucu ekle</string>
     <string name="add_dns_server_dialog_title">DNS sunucusu ekle</string>
     <string name="add_location_to_list">%1$s konumunu listeye ekle</string>
     <string name="add_locations">Konum ekle</string>
     <string name="add_method">Yöntem ekle</string>
+    <string name="add_time">Süre ekle</string>
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
     <string name="added_to_your_account">%1$s, hesabınıza eklendi.</string>
     <string name="adding_method">Yöntem ekleniyor...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">Erişilemez API</string>
     <string name="api_unreachable_save_anyway">API\'ye erişilemiyor, yöntem yine de kaydedilsin mi?</string>
     <string name="app_info">Uygulama bilgileri</string>
+    <string name="app_is_blocking_internet">Uygulama internet bağlantısını engelliyor. Lütfen önce bağlantıyı kesin</string>
     <string name="apply">Uygula</string>
     <string name="at_least_on_method_needs_to_enabled">En az bir yöntemin etkinleştirilmesi gerekiyor</string>
     <string name="auth_failed">Hesap doğrulanamıyor. Lütfen bir hata raporu gönderin.</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">\"%1$s\" seçeneğini etkinleştirdiğinizde %2$s özellikli bir sunucuyu manuel olarak seçmeniz gerekir. Bu, \"Konum seç\" görünümünde uyumlu bir sunucu seçilene kadar engellenmiş durumda kalmanıza neden olabilir.</string>
     <string name="daita_multihop">%1$s: Çoklu geçiş</string>
     <string name="days_were_added_30">Hesabınıza 30gün eklendi.</string>
+    <string name="days_were_added_90">Hesabınıza 90 gün eklendi.</string>
     <string name="delete">Sil</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" silinsin mi\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" silindi</string>
@@ -160,7 +164,6 @@
     <string name="enable">Etkinleştir</string>
     <string name="enable_anyway">Yine de etkinleştir</string>
     <string name="enable_custom_dns">Özel DNS sunucusu kullanın</string>
-    <string name="enable_direct_only">%1$s ayarını etkinleştir</string>
     <string name="enable_ipv6">Tünel içi IPv6</string>
     <string name="enable_method">Yöntemi etkinleştir</string>
     <string name="encrypted_dns_proxy_info_message_part1">\"Şifreli DNS proxy\'si\" yönteminde, uygulama bir proxy adresi üzerinden Mullvad API ile iletişim kurar. Bunun için bir DNS over HTTPS (DoH) sunucusundan bir adres alır ve bu adresi kullanarak API sunucularımıza bağlanır.</string>
@@ -176,6 +179,7 @@
     <string name="failed_to_block_internet">Tüm ağ trafiği engellenemiyor. Lütfen sorunu çözmeyi deneyin veya bir hata raporu gönderin.</string>
     <string name="failed_to_create_account">Hesap oluşturulamadı</string>
     <string name="failed_to_fetch_devices">Cihaz listesi alınamadı</string>
+    <string name="failed_to_load_products">Ürünler yüklenemedi, lütfen tekrar deneyin</string>
     <string name="failed_to_remove_device">Cihaz kaldırılamadı</string>
     <string name="failed_to_send">Gönderme başarısız</string>
     <string name="failed_to_send_details">Formdan çıkıp daha sonra tekrar denerseniz, girmiş olduğunuz bilgiler hala burada olacaktır.</string>
@@ -184,7 +188,6 @@
     <string name="faqs_and_guides">SSS ve Kılavuzlar</string>
     <string name="feature_custom_dns">Özel DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$s tane daha...</string>
     <string name="feature_quantum_resistant">Kuantum direnci</string>
     <string name="feature_udp_2_tcp">Gizleme</string>
     <string name="filter">Filtrele</string>
@@ -201,7 +204,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">Yeni geçersiz kılmaların içe aktarılması, önceden içe aktarılan bazı geçersiz kılmaların yerine geçebilir.</string>
     <string name="import_overrides_import">İçe aktar</string>
     <string name="import_overrides_text_title">Metin yoluyla içe aktar</string>
-    <string name="invalid_dns_servers">Özel DNS sunucu adresleri (%1$s) geçersiz</string>
+    <string name="in_app_products_unavailable">Uygulama içi ürünler kullanılamıyor. Lütfen Google Play\'in en yeni sürümüne sahip olduğunuzdan emin olun.</string>
     <string name="invalid_voucher">Kupon kodu geçersiz.</string>
     <string name="ip_version_v4_unavailable">IPv4 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin.</string>
     <string name="ip_version_v6_unavailable">IPv6 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin.</string>
@@ -215,14 +218,13 @@
     <string name="less_than_a_day_left">bir günden az kaldı</string>
     <string name="less_than_one_day">bir günden az</string>
     <string name="list_name">Liste adı</string>
+    <string name="loading_products">Ürünler yükleniyor</string>
     <string name="loading_verifying">Satın alma işlemi doğrulanıyor...</string>
     <string name="local_network_sharing">Yerel ağ paylaşımı</string>
     <string name="local_network_sharing_additional_info">Bunu, yerel çok noktaya yayın ve yayın aralıklarının yanı sıra aşağıdaki özel IP aralıkları arasında tünel dışı ağ iletişimine izin vererek yapar:</string>
     <string name="local_network_sharing_info">Bu özellik; paylaşım, yazdırma, akış sağlama gibi özellikler için yerel ağdaki diğer cihazlara erişim izni verir.</string>
     <string name="local_network_sharing_info_block_connections_warning">Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği etkinse \"Yerel ağ paylaşımı\" etkinleşmez.</string>
     <string name="location_added">%1$s (eklendi)</string>
-    <string name="location_was_added_to_list">%1$s, \"%2$s\" listesine eklendi</string>
-    <string name="location_was_removed_from_list">%1$s, \"%2$s\" listesinden kaldırıldı</string>
     <string name="locations">Konumlar</string>
     <string name="locations_were_changed_for">\"%1$s\" için konumlar değiştirildi</string>
     <string name="log_out">Oturumu kapat</string>
@@ -283,6 +285,8 @@
     <string name="payment_billing_error_dialog_title">Google Play kullanılamıyor</string>
     <string name="payment_obfuscation_id_error_dialog_message">Ödeme işlemini başlatamadık, lütfen daha sonra tekrar deneyin.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad hizmetleri kullanılamıyor</string>
+    <string name="payment_pending_dialog_message">Satın alma işleminiz doğrulanıyor. Bu işlem biraz zaman alabilir. Süreniz, doğrulama işleminin başarılı olması durumunda eklenecektir.</string>
+    <string name="payment_status_pending_long">Google Play ödemesi bekleniyor. Bu işlem biraz zaman alabilir</string>
     <string name="payment_status_pending_short">Google Play ödemesi bekleniyor</string>
     <string name="please_enter_a_valid_ip_address">Lütfen geçerli bir IPv4 veya IPv6 adresi girin</string>
     <string name="please_enter_a_valid_remote_server_port">Lütfen geçerli bir uzak sunucu portu girin</string>
@@ -301,12 +305,12 @@
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
     <string name="remove_button">Kaldır</string>
-    <string name="remove_location_from_list">%1$s, %2$s listesinden kaldırıldı</string>
     <string name="removed_provider">%1$s (kaldırıldı)</string>
     <string name="rented">Kiralananlar</string>
     <string name="rented_only">Sadece kiralananlar</string>
     <string name="report_a_problem">Bir sorun bildir</string>
     <string name="reset_to_default_button">Varsayılana sıfırla</string>
+    <string name="retry">Tekrar dene</string>
     <string name="save">Kaydet</string>
     <string name="search">Ara</string>
     <string name="search_location_empty_text">\"%1$s\" için sonuç yok, lütfen farklı bir arama yapın</string>
@@ -341,10 +345,8 @@
     <string name="settings_changes_effect_warning_content_blocker">DNS ile ilgili ayarlarda yapılan değişiklikler, önbelleğe alınan sonuçlar nedeniyle hemen etkili olmayabilir.</string>
     <string name="settings_changes_effect_warning_short">DNS ayarları hemen etkili olmayabilir</string>
     <string name="settings_patch_error_failed_to_apply_patch">Yama uygulanamadı</string>
-    <string name="settings_patch_error_invalid_or_missing_value">Geçersiz veya eksik \"%1$s\" değeri</string>
     <string name="settings_patch_error_recursion_limit">Yineleme sınırı</string>
     <string name="settings_patch_error_unable_to_parse">Yama ayrıştırılamıyor</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">Bilinmeyen veya yasaklanmış \"%1$s\" anahtarı</string>
     <string name="settings_patch_success">İçe aktarma başarılı, geçersiz kılmalar etkin</string>
     <string name="settings_vpn">VPN ayarları</string>
     <string name="share">Paylaş…</string>
@@ -360,6 +362,7 @@
     <string name="testing_name">%1$s test ediliyor...</string>
     <string name="this_field_is_required">Bu alan gereklidir</string>
     <string name="this_is_already_set_as_current">Bu, zaten geçerli olarak ayarlı yöntemdir</string>
+    <string name="time_added">Süre eklendi</string>
     <string name="to_add_locations_to_a_list">Listeye konum eklemek için \"︙\" düğmesine basın veya bir ülke, şehir veya sunucunun üzerine uzun basın.</string>
     <string name="to_create_a_custom_list">Özel bir liste oluşturmak için \"︙\" düğmesine basın</string>
     <string name="toggle_vpn">VPN\'i aç/kapat</string>
@@ -398,7 +401,6 @@
     <string name="wg_port_subtitle">Bu ayarı etkinleştirmek için aşağıdaki %1$s gizlemeyi \"Otomatik\" veya \"Kapalı\" olarak ayarlayın.</string>
     <string name="wireguard_custon_port_title">Özel</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_mtu_footer">WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Otomatik ayar, aşağıda gösterilen geçerli port aralıklarından rastgele seçim yapar.</string>
     <string name="wireguard_port_info_port_range">Özel port, geçerli aralıklar içindeki herhangi bir değer olabilir: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Seçilen %1$s portu desteklenmiyor, lütfen portu değiştirin:</string>

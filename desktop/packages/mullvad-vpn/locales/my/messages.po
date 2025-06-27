@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2025-05-27 09:40\n"
+"PO-Revision-Date: 2025-06-27 06:04\n"
 
 msgid "%(amount)d more..."
 msgstr "နောက်ထပ် %(amount)d လုံး..."
@@ -336,6 +336,11 @@ msgctxt "accessibility"
 msgid "Go to %(wireGuard)s settings."
 msgstr "%(wireGuard)s ဆက်တင်များသို့ သွားရန်"
 
+#. Accessibility label for link to app upgrade view.
+msgctxt "accessibility"
+msgid "Go to app update page"
+msgstr "အက်ပ်အပ်ဒိတ် စာမျက်နှာသို့ သွားပါ"
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -372,6 +377,15 @@ msgstr "အကောင့်နံပါတ် %(accountNumber)s ဖြင်�
 msgctxt "accessibility"
 msgid "More information"
 msgstr "နောက်ထပ်အချက်အလက်"
+
+#. Accessbility label for link to go to download page.
+msgctxt "accessibility"
+msgid "New version available, click here to go to download page, opens externally"
+msgstr "ဗားရှင်းအသစ်ကို ရရှိနိုင်ပါပြီ၊ ဒေါင်းလုဒ်စာမျက်နှာသို့ သွားရန် ဤနေရာကို နှိပ်ပါ၊ ပြင်ပတွင် ဖွင့်ပါလိမ့်မည်"
+
+msgctxt "accessibility"
+msgid "New version available, click here to go to update view"
+msgstr "ဗားရှင်းအသစ်ကို ရရှိနိုင်ပါပြီ၊ အပ်ဒိတ်အကြောင်း ပြသမှုသို့ သွားရန် ဤနေရာကို နှိပ်ပါ"
 
 msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
@@ -615,21 +629,202 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "\"Mullvad ပေါင်းကူးများ\" နည်းလမ်းဖြင့်ဆိုလျှင် အက်ပ်သည် Mullvad API ဆာဗာအား Mullvad ပေါင်းကူး ဆာဗာမှတစ်ဆင့် ဆက်သွယ်ပါသည်။ Shadowsock များဖြင့် ရှုပ်ထွေးအောင် ပြုလုပ်ထားသည့် ဒေတာကူးလူးမှုများကို ပေးပို့ခြင်းဖြင့် ၎င်းက အဆိုပါကိစ္စကို ဆောင်ရွက်ပါသည်။"
 
+#. Title of the app info view.
 msgctxt "app-info-view"
 msgid "App info"
 msgstr "အက်ပ်အချက်အလက်"
 
+#. Description for version list item when app is out of sync.
 msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "အက်ပ်သည် ကောင်းစွာ အလုပ်မလုပ်ပါ။ ထွက်ပြီး ပြန်ဖွင့်ပေးပါ။"
 
+#. Label for switch to toggle beta program.
 msgctxt "app-info-view"
-msgid "App version"
-msgstr "အက်ပ်ဗားရှင်း"
+msgid "Beta program"
+msgstr "အစမ်းပရိုဂရမ်"
 
 msgctxt "app-info-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "အပ်ဒိတ်ကို ရရှိနိုင်ပါပြီ၊ အစဉ် အပ်ဒိတ်ဖြစ်နေစေရန် နောက်ဆုံးထွက် အက်ပ်ဗားရှင်းကို ထည့်သွင်းပါ။"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "အက်ပ်၏ အစမ်းဗားရှင်းအသစ်များ ထွက်ရှိသည့်အခါ အသိပေးချက်ရရှိနိုင်ရန်အတွက် ဖွင့်ပါ။"
+
+msgctxt "app-info-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "အစမ်းဗားရှင်းတစ်ခုကို အသုံးပြုနေစဉ်တွင် ဤရွေးချယ်စရာကို မရရှိနိုင်ပါ။"
+
+#. Label for update available list item.
+msgctxt "app-info-view"
+msgid "Update available"
+msgstr "အပ်ဒိတ်ရရှိနိုင်ပါပြီ"
+
+#. Label for version list item.
+msgctxt "app-info-view"
+msgid "Version"
+msgstr "ဗားရှင်း"
+
+#. Label for changelog list item.
+msgctxt "app-info-view"
+msgid "What’s new"
+msgstr "အသစ်ပါလာသော အကြောင်းအရာများ"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion is within a few seconds.
+msgctxt "app-upgrade-view"
+msgid "A few seconds remaining..."
+msgstr "စက္ကန့်အနည်းငယ် ကျန်နေပါသေးသည်..."
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in minutes.
+#. Available placeholders:
+#. %(minutes)s - Will be replaced with remaining minutes until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(minutes)s minutes remaining..."
+msgstr "%(minutes)s မိနစ်ခန့် ကျန်နေပါသေးသည်..."
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in seconds.
+#. Available placeholders:
+#. %(second)s - Will be replaced with remaining seconds until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(seconds)s seconds remaining..."
+msgstr "%(seconds)s စက္ကန့်ခန့် ကျန်နေပါသေးသည်..."
+
+#. Label displayed when an error occurred due to the connection being blocked
+msgctxt "app-upgrade-view"
+msgid "Connection blocked. Try changing server or other settings."
+msgstr "ချိတ်ဆက်မှုကို ပိတ်ပင်ထားပါသည်။ ဆာဗာ သို့မဟုတ် အခြားဆက်တင်များကို ပြောင်းကြည့်ပါ။"
+
+#. Label displayed when an error occurred due to the installer failing to start
+#. and the suggested resolution is to download the update again.
+msgctxt "app-upgrade-view"
+msgid "Could not open installer, please try again or send a problem report."
+msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲကို ဖွင့်၍ မရနိုင်ပါ၊ ထပ်ကြိုးစားကြည့်ပါ သို့မဟုတ် ပြဿနာ ရီပို့တ်တစ်ခုကို ပေးပို့ပါ။"
+
+#. Button text to download and install an update
+msgctxt "app-upgrade-view"
+msgid "Download & install"
+msgstr "ဒေါင်းလုဒ်လုပ်ပြီး ထည့်သွင်းရန်"
+
+#. Status text displayed below a progress bar when the download of an update is complete
+msgctxt "app-upgrade-view"
+msgid "Download complete!"
+msgstr "ဒေါင်းလုဒ် ပြီးစီးပါပြီ။"
+
+#. Status text displayed below a progress bar when the download of an update fails
+msgctxt "app-upgrade-view"
+msgid "Download failed"
+msgstr "ဒေါင်းလုဒ် မအောင်မြင်ပါ"
+
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Download failed, please check your connection/firewall and try again, or send a problem report."
+msgstr "ဒေါင်းလုဒ် မအောင်မြင်ပါ၊ သင့်ချိတ်ဆက်မှု/ Firewall ကို စစ်ဆေးကြည့်ပြီး ထပ်ကြိုးစားကြည့်ပါ သို့မဟုတ် ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။"
+
+#. Status text displayed below a progress bar when the download of an update has been paused
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Download paused"
+msgstr "ဒေါင်းလုဒ်ကို ခေတ္တရပ်ထားသည်"
+
+#. Label displayed above a progress bar informing the user which server
+#. the update is downloading from
+msgctxt "app-upgrade-view"
+msgid "Downloading from: %(server)s"
+msgstr "ဖော်ပြပါမှ ဒေါင်းလုဒ်လုပ်နေသည်- %(server)s"
+
+#. Label displayed above a progress bar when a download is in progress
+msgctxt "app-upgrade-view"
+msgid "Downloading..."
+msgstr "ဒေါင်းလုဒ်လုပ်နေဆဲ..."
+
+#. Link shown to optionally manually download the update
+#. due to repeated errors in the upgrade process.
+msgctxt "app-upgrade-view"
+msgid "Having problems? Try downloading the app from our website"
+msgstr "ပြဿနာတစ်ခုခု ကြုံနေပါသလား။ အက်ပ်ကို ကျွန်ုပ်တို့၏ ဝဘ်ဆိုက်မှ ဒေါင်းလုဒ်လုပ်ကြည့်ပါ"
+
+#. Button text to install an update
+msgctxt "app-upgrade-view"
+msgid "Install update"
+msgstr "အပ်ဒိတ်ကို ထည့်သွင်းရန်"
+
+#. Label displayed when an error occurred within the installer
+msgctxt "app-upgrade-view"
+msgid "Installer quit unexpectedly, please try again or send a problem report."
+msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲမှ မမျှော်လင့်ဘဲ ရုတ်တရက် ထွက်သွားသည်၊ ထပ်ကြိုးစားကြည့်ပါ သို့မဟုတ် ပြဿနာ ရီပို့တ်တစ်ခုကို ပေးပို့ပေးပါ။"
+
+#. Text displayed when there are no updates for this platform in the next app version
+msgctxt "app-upgrade-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "ဤဖြန့်ချိမှုတွင် ဤပလက်ဖောင်းအတွက် အပ်ဒိတ်များ သို့မဟုတ် အပြောင်းအလဲများကို ပြုလုပ်ထားခြင်း မရှိပါ။"
+
+#. Button text to pause the download of an update
+msgctxt "app-upgrade-view"
+msgid "Pause"
+msgstr "ခေတ္တရပ်ရန်"
+
+#. Button text to report a problem
+msgctxt "app-upgrade-view"
+msgid "Report a problem"
+msgstr "ပြဿနာကို ရီပို့(တ်)လုပ်ရန်"
+
+#. Button text to resume updating
+msgctxt "app-upgrade-view"
+msgid "Resume"
+msgstr "ပြန်ဆက်လုပ်ရန်"
+
+#. Button text to try again
+msgctxt "app-upgrade-view"
+msgid "Retry"
+msgstr "ပြန်ကြိုးစားကြည့်ရန်"
+
+#. Button text to try download again
+msgctxt "app-upgrade-view"
+msgid "Retry download"
+msgstr "ဒေါင်းလုဒ်ပြန်လုပ်ကြည့်ရန်"
+
+#. Status text displayed below a progress bar when the download of an update is starting
+msgctxt "app-upgrade-view"
+msgid "Starting download..."
+msgstr "စတင်၍ ဒေါင်းလုဒ်လုပ်နေသည်..."
+
+#. Button text to when starting the installer for an update
+msgctxt "app-upgrade-view"
+msgid "Starting installer..."
+msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲကို စတင်လုပ်ဆောင်နေသည်..."
+
+#. Label displayed when an unknown error occurred
+msgctxt "app-upgrade-view"
+msgid "Unknown error occurred. Please try again or send a problem report."
+msgstr "အမျိုးအမည်မသိ ချွတ်ယွင်းချက် ဖြစ်ပေါ်သည်။ ထပ်ကြိုးစားကြည့်ပါ သို့မဟုတ် ပြဿနာ ရီပို့တ် ပေးပို့ပါ။"
+
+#. Title in navigation bar
+#. Main title for the update available view
+msgctxt "app-upgrade-view"
+msgid "Update available"
+msgstr "အပ်ဒိတ် ရရှိနိုင်ပါပြီ"
+
+#. Label displayed when an error occurred due to the installer failed verification
+msgctxt "app-upgrade-view"
+msgid "Verification failed, please try again or send a problem report."
+msgstr "စစ်ဆေးမှု မအောင်မြင်ပါ၊ ထပ်ကြိုးစားကြည့်ပါ သို့မဟုတ် ပြဿနာ ရီပို့တ် ပေးပို့ပေးပါ။"
+
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Verification successful!"
+msgstr "စစ်ဆေးမှု အောင်မြင်သည်"
+
+#. Label displayed above a progress bar when the update is being verified
+msgctxt "app-upgrade-view"
+msgid "Verifying installer..."
+msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲကို စစ်ဆေးနေသည်..."
+
+#. Heading which shows the version of the app which can be upgraded to.
+#. Available placeholders:
+#. %(version)s - The new version of the app.
+msgctxt "app-upgrade-view"
+msgid "Version %(version)s"
+msgstr "ဗားရှင်း %(version)s"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -647,10 +842,13 @@ msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "မှားနေသည့် အကောင့်နံပါတ်ဖြင့် စနစ်တွင်း ဝင်ရောက်ထားပါသည်။ စနစ်တွင်းမှ ထွက်ပြီး အခြားတစ်ခုဖြင့် ကြိုးစားကြည့်ပါ။"
 
+#. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
 msgstr "ဤပလက်ဖောင်းအတွက် ဤဖြန့်ချိမှုတွင် မည်သည့်အပ်ဒိတ် သို့မဟုတ် အပြောင်းအလဲကိုမျှ ပြုလုပ်ထားခြင်း မရှိပါ။"
 
+#. Heading for the view of the changes and updates in the
+#. current version compared to the old version.
 msgctxt "changelog-view"
 msgid "What’s new"
 msgstr "အသစ်ထူးသော အကြောင်းအရာ"
@@ -961,6 +1159,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)s အကူအညီ ပြီးဆုံးတော့မည်။ တည်နေရာ ပြောင်းပါ သို့မဟုတ်"
 
+#. Notification subtitle when the app upgrade is ready to install.
+#. Available placeholders:
+#. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
+msgctxt "in-app-notifications"
+msgid "%(suggestedUpgradeVersion)s is ready to be installed."
+msgstr "%(suggestedUpgradeVersion)s သည် ထည့်သွင်းရန် အဆင်သင့်ဖြစ်ပါပြီ။"
+
 #. Link in notication to go to WireGuard settings.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
@@ -992,14 +1197,72 @@ msgctxt "in-app-notifications"
 msgid "change tunnel protocol to %(wireGuard)s."
 msgstr "Tunnel ပရိုတိုကောလ်ကို %(wireGuard)s သို့ပြောင်းပါ။"
 
+#. Notification subtitle when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "Click here to install update."
+msgstr "အပ်ဒိတ်ကို ထည့်သွင်းရန် ဤနေရာကို နှိပ်ပါ။"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "Click here to retry"
+msgstr "ပြန်ကြိုးစားကြည့်ရန် ဤနေရာကို နှိပ်ပါ"
+
+#. Notification subtitle when the download of the installer failed
+#. and the user can try downloading again.
+msgctxt "in-app-notifications"
+msgid "Click here to retry download"
+msgstr "ဒေါင်းလုဒ်ပြန်လုပ်ကြည့်ရန် ဤနေရာကို နှိပ်ပါ"
+
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
 msgstr "အသစ်ထူးသော အကြောင်းအရာကို ကြည့်ရန် ဤနေရာကို နှိပ်ပါ"
+
+#. Link text to go to the app upgrade view
+msgctxt "in-app-notifications"
+msgid "Click here to update"
+msgstr "အပ်ဒိတ်လုပ်ရန် ဤနေရာကို နှိပ်ပါ"
+
+#. Notification subtitle when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "Could not download installer."
+msgstr "ထည့်သွင်းမှု ဆော့ဖ်ဝဲကို ဒေါင်းလုဒ်လုပ်၍ မရနိုင်ပါ။"
+
+#. Generic notification subtitle when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "Could not upgrade the app."
+msgstr "အက်ပ်ကို အဆင့်မြှင့်တင်၍ မရနိုင်ပါ။"
+
+#. Notification title when app upgrade is verifying the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD COMPLETE! VERIFYING..."
+msgstr "ဒေါင်းလုဒ်ပြီးစီးပါပြီ။ စစ်ဆေးနေဆဲ..."
+
+#. Notification title when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD FAILED"
+msgstr "ဒေါင်းလုဒ် မအောင်မြင်ပါ"
+
+#. Generic notification title when app upgrade is downloading the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE..."
+msgstr "အပ်ဒိတ်ကို ဒေါင်းလုဒ်လုပ်နေဆဲ..."
+
+#. Notification title when the app upgrade is in progress.
+#. Available placeholders:
+#. - %(appUpgradeDownloadProgressValue)s: The download progress value.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
+msgstr "အပ်ဒိတ်ကို ဒေါင်းလုဒ်လုပ်နေဆဲ... %(appUpgradeDownloadProgressValue)s%%"
 
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr "အပ်ဒိတ်ဖြစ်နေစေရန် နောက်ဆုံးထွက် အက်ပ်ဗားရှင်းကို ထည့်သွင်းပါ။"
+
+#. Notification title when the installer failed.
+msgctxt "in-app-notifications"
+msgid "INSTALLER FAILED"
+msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲ မအောင်မြင်ပါ"
 
 msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
@@ -1044,10 +1307,40 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "ပိုမိုဖတ်ရှုရန်"
 
+#. Notification title when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "READY TO INSTALL UPDATE"
+msgstr "အပ်ဒိတ်ကို ထည့်သွင်းရန် အဆင်သင့်ဖြစ်ပါပြီ"
+
+#. Accessibility label for the button to retry download of the installer.
+msgctxt "in-app-notifications"
+msgid "Retry download of the installer"
+msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲကို ဒေါင်းလုဒ်ပြန်လုပ်ကြည့်ရန်"
+
+#. Accessibility label for the button to retry the installation.
+msgctxt "in-app-notifications"
+msgid "Retry installation"
+msgstr "ပြန်ထည့်သွင်းကြည့်ရန်"
+
 #. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "ပြဿနာ ရီပို့တ် ပေးပို့ရန်"
+
+#. Notification subtitle when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "The installer could not be verified."
+msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲကို စစ်ဆေး မရပါ။"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not complete successfully."
+msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲ၏ လုပ်ဆောင်မှု မပြီးစီးခဲ့ပါ။"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not start successfully."
+msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲကို စတင်၍ မရခဲ့ပါ။"
 
 #. Notification subtitle indicating the user is using an unsupported port for WireGuard.
 #. Available placeholders:
@@ -1071,6 +1364,26 @@ msgstr "တွဲဖက်မလုပ်ဆောင်နိုင်သည့
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "အပ်ဒိတ် ရရှိနိုင်ပါပြီ"
+
+#. Generic notification title when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "UPDATE FAILED"
+msgstr "အပ်ဒိတ်မအောင်မြင်ပါ"
+
+#. Notification title when app upgrade is ready for the user to launch the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! INSTALLER READY!"
+msgstr "စစ်ဆေးမှု ပြီးစီးပါပြီ။ ထည့်သွင်းမှုဆော့ဖ်ဝဲ အဆင်သင့်ဖြစ်ပါပြီ။"
+
+#. Notification title when app upgrade is launching the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! LAUNCHING INSTALLER..."
+msgstr "စစ်ဆေးမှု ပြီးစီးပါပြီ။ ထည့်သွင်းမှုဆော့ဖ်ဝဲကို စတင်နေသည်..."
+
+#. Notification title when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION FAILED"
+msgstr "စစ်ဆေးမှု မအောင်မြင်ပါ"
 
 msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
@@ -1218,11 +1531,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "API ရယူသုံးစွဲခွင့်"
 
-#. Title label in navigation bar
-msgctxt "navigation-bar"
-msgid "Settings"
-msgstr "ဆက်တင်"
-
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
@@ -1294,13 +1602,13 @@ msgstr "Split Tunneling ကို ဖွင့်၍မရခဲ့ပါ။ ပ
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv4 ကို မရရှိနိုင်ပါသဖြင့် <b>%(ipVersionFeatureName)</b> ဆက်တင်ကို ပြောင်းလဲကြည့်ပါ။"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv4 ကို မရရှိနိုင်ပါ၊ <b>%(ipVersionFeatureName)s</b> ဆက်တင်ကို ပြောင်းကြည့်ပါ။"
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv4 ကို မရရှိနိုင်ပါသဖြင့် <b>%(ipVersionFeatureName)</b> ဆက်တင်ကို ပြောင်းလဲကြည့်ပါ။"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv6 ကို မရရှိနိုင်ပါ၊ <b>%(ipVersionFeatureName)s</b> ဆက်တင်ကို ပြောင်းကြည့်ပါ။"
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -1309,6 +1617,12 @@ msgstr "လော့ခ်ဒေါင်းစနစ် သက်ဝင်န�
 msgctxt "notifications"
 msgid "No servers match your settings, try changing server or other settings."
 msgstr "သင့်ဆက်တင်နှင့် ကိုက်ညီသော ဆာဗာများ မရှိပါ၊ ဆာဗာ သို့မဟုတ် အခြားဆက်တင်တို့ကို ပြောင်းလဲရန် ကြိုးစားကြည့်ပါ။"
+
+#. A link in the in-app banner to encourage the user to update the app.
+#. The in-app banner is is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Please click here to update now"
+msgstr "ယခု အပ်ဒိတ်လုပ်ရန် ဤနေရာကို နှိပ်ပါ"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -1380,7 +1694,12 @@ msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr "သင့်စက်သည် အော့ဖ်လိုင်း ဖြစ်နေပါသည်။ သင့်စက် အွန်လိုင်း ပြန်ဖြစ်သည်နှင့် Tunnel သည် အော်တို ချိတ်ဆက်သွားပါမည်။"
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+#. The in-app banner which is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version."
+msgstr "ဤပံ့ပိုးမှုမရှိသော အက်ပ်ဗားရှင်းသည် သင်၏ ကိုယ်ရေးအချက်အလက် လုံခြုံရေးအတွက် အန္တရာယ်ရှိနိုင်ပါသည်။"
+
+#. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။"
@@ -1687,6 +2006,7 @@ msgctxt "settings-view"
 msgid "API access"
 msgstr "API ရယူသုံးစွဲခွင့်"
 
+#. Navigation button to the 'App info' view
 msgctxt "settings-view"
 msgid "App info"
 msgstr "အက်ပ်အချက်အလက်"
@@ -1695,9 +2015,21 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "မာလ်တီဟော့ပ်"
 
+#. Title label in navigation bar
+#. Main title for settings view
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "ဆက်တင်များ"
+
+#. Navigation button to the 'Support' view
 msgctxt "settings-view"
 msgid "Support"
 msgstr "အကူအညီ"
+
+#. Label for the app info list item indicating that an update is available and can be downloaded
+msgctxt "settings-view"
+msgid "Update available"
+msgstr "အပ်ဒိတ်ရရှိနိုင်ပါပြီ"
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1708,10 +2040,6 @@ msgstr "သုံးစွဲသူ ကြားခံစနစ် ဆက်တ�
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN ဆက်တင်များ"
-
-msgctxt "settings-view"
-msgid "What’s new"
-msgstr "အသစ်ထူးသော အကြောင်းအရာ"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1785,10 +2113,6 @@ msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "ရွေးချယ်မှုကို စတင်ဆောင်ရွက်၍ မရနိုင်ပါ။ %(detailedErrorMessage)s"
 
-msgctxt "support-view"
-msgid "Beta program"
-msgstr "စမ်းသပ် ပရိုဂရမ်"
-
 #. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -1798,10 +2122,6 @@ msgstr "မည်သို့ပင်ဖြစ်စေ ဆက်လုပ်�
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "မက်ဆေ့ချ် တည်းဖြတ်ရန်"
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "အက်ပ်၏ စမ်းသပ်ဗားရှင်း အသစ်ကို ဖြန့်ချိသည့်အခါ အသိပေးစေရန် ဖွင့်ထားပါ။"
 
 msgctxt "support-view"
 msgid "Failed to send"
@@ -1857,10 +2177,6 @@ msgid "Thanks!"
 msgstr "ကျေးဇူးတင်ပါသည်။"
 
 msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
-msgstr "စမ်းသပ်ဗားရှင်းကို သုံးနေစဉ် ဤရွေးချယ်မှုကို မရရှိနိုင်ပါ။"
-
-msgctxt "support-view"
 msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
 msgstr "သင့်အား ပို၍ အကူအညီပေးနိုင်ရန် အင်္ဂလိပ်ဘာသာ သို့မဟုတ် ဆွီဒင်ဘာသာဖြင့် ရေးပြီး မည်သည့်နိုင်ငံမှ သင်ချိတ်ဆက်နေသည်ကို ထည့်သွင်းဖော်ပြပါ။"
 
@@ -1873,10 +2189,10 @@ msgctxt "support-view"
 msgid "Try again"
 msgstr "ထပ်ကြိုးစားရန်"
 
-#. Button label for upgrading the app to the latest version.
+#. Button label for updating the app to the latest version.
 msgctxt "support-view"
-msgid "Upgrade app"
-msgstr "အက်ပ်ကို အဆင့်မြှင့်တင်ရန်"
+msgid "Update app"
+msgstr "အက်ပ်ကို အပ်ဒိတ်လုပ်ရန်"
 
 #. Button label for opening app logs.
 msgctxt "support-view"
@@ -2409,6 +2725,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။"
 
+msgid "%1$s more..."
+msgstr "နောက်ထပ် %1$s ..."
+
+msgid "%1$s was added to \"%2$s\""
+msgstr "%1$s ကို \"%2$s\" တွင် ထည့်ထားပါသည်"
+
+msgid "%1$s was removed from \"%2$s\""
+msgstr "%1$s ကို \"%2$s\" မှ ဖယ်ရှားထားပါသည်"
+
 msgid "%s (Entry)"
 msgstr "%s (အဝင်)"
 
@@ -2424,17 +2749,8 @@ msgstr "%s (ဖယ်ရှားထား)"
 msgid "%s custom port"
 msgstr "%s စိတ်ကြိုက်ပေါ့တ်"
 
-msgid "%s more..."
-msgstr "နောက်ထပ် %s ခု..."
-
-msgid "%s was added to \"%s\""
-msgstr "%s ကို \"%s\" တွင် ထည့်လိုက်ပြီ"
-
 msgid "%s was added to your account."
 msgstr "%s ကို သင့်အကောင့်တွင် ထည့်လိုက်ပြီ။"
-
-msgid "%s was removed from \"%s\""
-msgstr "%s ကို \"%s\" မှ ဖယ်ရှားလိုက်ပြီ"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. အောက်ရှိ \"VPN ဆက်တင်များသို့ သွားရန်\" ခလုတ်ကိုနှိပ်ပြီးနောက် \"Mullvad VPN\" အမည်ဘေးရှိ ခွေးသွားစိတ်ပုံကို နှိပ်ပါ။"
@@ -2447,6 +2763,9 @@ msgstr "3. လော့ခ်ဒေါင်းစနစ်ကို ဖွင�
 
 msgid "30 days was added to your account."
 msgstr "သင့်အကောင့်ထဲသို့ ရက် 30 ကို ပေါင်းထည့်ပြီးပါပြီ။"
+
+msgid "90 days was added to your account."
+msgstr "သင့်အကောင့်အတွက် ရက် 90 တိုးထားပါသည်။"
 
 msgid "API reachable, adding method..."
 msgstr "API နှင့် ချိတ်၍ရသည်၊ နည်းလမ်း ထည့်နေဆဲ…"
@@ -2466,17 +2785,20 @@ msgstr "အကောင့်အချိန် သတိပေးချက်�
 msgid "Add %s to list"
 msgstr "%s ကို စာရင်းတွင် ထည့်ပါ"
 
-msgid "Add 30 days time"
-msgstr "အချိန် ရက် 30 ကို‌ ပေါင်းထည့်ရန်"
-
 msgid "Add 30 days time (%s)"
 msgstr "အချိန် ရက် 30 ကို‌ ပေါင်းထည့်ရန် (%s)"
+
+msgid "Add 90 days time (%s)"
+msgstr "အချိန် ရက် 90 တိုးရန် (%s)"
 
 msgid "Add DNS server"
 msgstr "DNS ဆာဗာကို ပေါင်းထည့်ရန်"
 
 msgid "Add locations"
 msgstr "တည်နေရာများ ပေါင်းထည့်ရန်"
+
+msgid "Add time"
+msgstr "အချိန်တိုးရန်"
 
 msgid "Adding method..."
 msgstr "နည်းလမ်း ထည့်နေဆဲ..."
@@ -2571,8 +2893,8 @@ msgstr "လက်ရှိစက်"
 msgid "Current: %s"
 msgstr "လက်ရှိ- %s"
 
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "စိတ်ကြိုက် DNS ဆာဗာလိပ်စာများ %s မှားနေပါသည်"
+msgid "Custom DNS server addresses %1$s are invalid"
+msgstr "စိတ်ကြိုက် DNS ဆာဗာ လိပ်စာများ %1$s သည် မမှန်ကန်ပါ"
 
 msgid "DNS settings might not go into effect immediately"
 msgstr "DNS ဆက်တင်ကို ချက်ချင်း အကျိုးမရောက်နိုင်ပါ။"
@@ -2628,8 +2950,8 @@ msgstr "တည်နေရာများကို တည်းဖြတ်ရ�
 msgid "Edit name"
 msgstr "အမည် တည်းဖြတ်ရန်"
 
-msgid "Enable %s"
-msgstr "%s ကို ဖွင့်ရန်"
+msgid "Enable %1$s"
+msgstr "%1$s ကို ဖွင့်ရန်"
 
 msgid "Enable method"
 msgstr "နည်းလမ်းကို ဖွင့်ရန်"
@@ -2648,6 +2970,9 @@ msgstr "ချိတ်ဆက်မှု မအောင်မြင်ခဲ�
 
 msgid "Failed to apply patch"
 msgstr "ပတ်(ချ်) သုံးခြင်း မအောင်မြင်ပါ"
+
+msgid "Failed to load products, please try again"
+msgstr "ထုတ်ကုန်များကို လုပ်ဆောင်၍ မရပါ၊ ထပ်ကြိုးစားကြည့်ပါ"
 
 msgid "Failed to set to current - API not reachable"
 msgstr "လက်ရှိသို့ သတ်မှတ်၍ မရခဲ့ပါ - API နှင့် ချိတ်၍မရပါ"
@@ -2670,6 +2995,9 @@ msgstr "ဝင်ရောက်ရန်သွားခြင်းဖြင်
 msgid "Google Play payment pending"
 msgstr "Google Play ပေးချေမှုကို ဆိုင်းငံ့ထားဆဲ"
 
+msgid "Google Play payment pending, this might take some time"
+msgstr "Google Play ငွေပေးချေမှုကို စောင့်ဆိုင်းနေပါသည်၊ အချိန်အနည်းငယ် ကြာနိုင်ပါသည်"
+
 msgid "Google Play unavailable"
 msgstr "Google Play ကို မရရှိနိုင်ပါ"
 
@@ -2691,11 +3019,14 @@ msgstr "ထည့်သွင်းမှု အောင်မြင်ပါ�
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "ကျော်လွန် ပယ်ဖျက်မှု အသစ်များကို ထည့်သွင်းခြင်းသည် ယခင်ထည့်သွင်းထားသော ကျော်လွန် ပယ်ဖျက်မှု အချို့ကို အစားထိုးနိုင်ပါသည်။"
 
+msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
+msgstr "အက်ပ်တွင်း ထုတ်ကုန်များကို မရရှိနိုင်ပါ၊ Google Play ၏ နောက်ဆုံးထွက်ဗာရှင်းကို ထည့်ပေးပါ။"
+
 msgid "In-tunnel IPv6"
 msgstr "Tunnel-အဝင် IPv6"
 
-msgid "Invalid or missing value \"%s\""
-msgstr "\"%s\" တန်ဖိုး မမှန်ကန်ပါ သို့မဟုတ် မရှိပါ"
+msgid "Invalid or missing value \"%1$s\""
+msgstr "မမှန်ကန်ပါ သို့မဟုတ် \"%1$s\" တန်ဖိုး ပျောက်နေသည်"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "အချို့သော IP ဗားရှင်းတစ်ခုကြောင့် ဖြစ်ပေါ်လာသော ပြဿနာများကို သင်သိရှိပါက ၎င်းက အသုံးဝင်နိုင်သည်။"
@@ -2709,6 +3040,9 @@ msgstr "VPN Tunnel ကို မဝင်ရောက်ဘဲ အင်တာ�
 msgid "List name"
 msgstr "စာရင်း အမည်"
 
+msgid "Loading products"
+msgstr "ထုတ်ကုန်များကို လုပ်ဆောင်နေသည်"
+
 msgid "Locations"
 msgstr "တည်နေရာများ"
 
@@ -2717,9 +3051,6 @@ msgstr "\"%s\" အတွက် တည်နေရာများကို ပြ
 
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "စက်သည် VPN Tunnel ကို အမြဲဖွင့်ထားကြောင်း သေချာပါစေ။"
-
-msgid "Manage account"
-msgstr "အကောင့် စီမံခန့်ခွဲရန်"
 
 msgid "Manage devices"
 msgstr "စက်များကို စီမံရန်"
@@ -2796,8 +3127,8 @@ msgstr "ထပ်တလဲလဲ လုပ်ဆောင်မှု ကန့�
 msgid "Remove"
 msgstr "ဖယ်ရှားရန်"
 
-msgid "Remove %s from %s"
-msgstr "%s ကို %s မှ ဖယ်ရှားရန်"
+msgid "Remove %1$s from %2$s"
+msgstr "%2$s မှ %1$s ကို ဖယ်ရှားရန်"
 
 msgid "Remove %s?"
 msgstr "%s ကို ဖယ်ရှားမလား။"
@@ -2823,8 +3154,8 @@ msgstr "ရှာဖွေမှု"
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အောက်ရှိ %s obfuscation ကို \"အော်တိုမက်တစ်\" သို့မဟုတ် \"ပိတ်\" ဟု သတ်မှတ်ပါ။"
 
-msgid "Set WireGuard MTU value. Valid range: %d - %d."
-msgstr "WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %d - %d ။"
+msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
+msgstr "WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။  အကျုံးဝင်သော အပိုင်းအခြား- %1$d - %2$d ။"
 
 msgid "Set port"
 msgstr "ပေါ့တ် သတ်မှတ်ရန်"
@@ -2865,6 +3196,9 @@ msgstr "လော့ခ်ဒေါင်းစနစ်ကို Android စန
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"လက်ရှိ\" စနစ်သည် API နှင့်ချိတ်ရန် အက်ပ်က အသုံးပြုသည့် နည်းလမ်းကို ဆိုလိုသည်။"
 
+msgid "The app is blocking internet, please disconnect first"
+msgstr "အက်ပ်သည် အင်တာနက်ကို ပိတ်ပင်နေသည်၊ ဦးစွာ ချိတ်ဆက်မှုဖြုတ်ပေးပါ"
+
 msgid "The device will be removed from the list and logged out."
 msgstr "စက်ကို စာရင်းမှ ဖယ်ရှားပြီး စနစ်မှ ထွက်သွားလိမ့်မည်။"
 
@@ -2885,6 +3219,9 @@ msgstr "ဤအကွက်ကို မဖြစ်မနေဖြည့်ရ�
 
 msgid "This is already set as current"
 msgstr "၎င်းကို လက်ရှိအဖြစ် သတ်မှတ်ထားပြီးပါပြီ"
+
+msgid "Time added"
+msgstr "အချိန်တိုးထားသည်"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "စာရင်းထဲသို့ တည်နေရာများကို ပေါင်းထည့်ရန် \"︙\" ကို နှိပ်ပါ သို့မဟုတ် နိုင်ငံ၊ မြို့၊ ဆာဗာကို နှိပ်ပါ။"
@@ -2913,8 +3250,8 @@ msgstr "Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရ
 msgid "Undo"
 msgstr "မလုပ်တော့ပါ"
 
-msgid "Unknown or prohibited key \"%s\""
-msgstr "မသိသော သို့မဟုတ် တားမြစ်ထားသော ကီး \"%s\""
+msgid "Unknown or prohibited key \"%1$s\""
+msgstr "အမျိုးအမည် မသိ သို့မဟုတ် တားမြစ်ထားသော ကီး \"%1$s\""
 
 msgid "Update DNS server"
 msgstr "DNS ဆာဗာကို အပ်ဒိတ်လုပ်ရန်"
@@ -2958,14 +3295,11 @@ msgstr "ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ..."
 msgid "Verifying voucher…"
 msgstr "ဘောက်ချာကို စစ်ဆေးနေဆဲ…"
 
-msgid "Version"
-msgstr "ဗားရှင်း"
-
 msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr "သင်ဝင်ရောက်ထားသည့် စက်ပစ္စည်းအားလုံးကို ကြည့်ရှုစီမံပါ။ အကောင့်တစ်ခုဖြင့် တစ်ချိန်တည်းတွင် စက်ပစ္စည်း ၅ ခုအထိသုံးနိုင်သည်။ စက်ပစ္စည်းတစ်ခုစီသည် ၎င်းတို့ကို အလွယ်တကူခွဲ၍သိနိုင်ရန် လော့ဂ်အင်ဝင်သည့်အခါ အမည်တစ်ခုရရှိမည်ဖြစ်သည်။"
 
-msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
-msgstr "သင့်ဝယ်ယူမှုကို လက်ရှိတွင် ကျွန်ုပ်တို့ စစ်ဆေး အတည်ပြုနေဆဲဖြစ်ပြီး အချိန်အနည်းငယ်ကြာနိုင်ပါသည်။ စစ်ဆေး အတည်ပြုမှု အောင်မြင်ပါက သင့်အချိန်များကို ပေါင်းထည့်သွားပါမည်။"
+msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "ကျွန်ုပ်တို့သည် သင့်ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ ဖြစ်သည်၊ အချိန်အနည်းငယ် ကြာနိုင်သည်။ စစ်ဆေးမှု အောင်မြင်ပါက သင့်အချိန်ကို တိုးလိုက်ပါမည်။"
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "လက်ရှိတွင် ပေးချေမှု လုပ်ငန်းစဉ်ကို စတင်၍ မရနိုင်ပါ၊ Google Play နောက်ဆုံး ဗားရှင်း သင့်တွင်ရှိနေကြောင်း သေချာပါစေ။"

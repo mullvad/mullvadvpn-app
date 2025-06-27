@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">Przypomnienia o czasie na koncie</string>
     <string name="add">Dodaj</string>
     <string name="add_30_days_time_x">Dodaj 30 dni (%1$s)</string>
+    <string name="add_90_days_time_x">Dodaj 90 dni (%1$s)</string>
     <string name="add_a_server">Dodaj serwer</string>
     <string name="add_dns_server_dialog_title">Dodaj serwer DNS</string>
     <string name="add_location_to_list">Dodaj lokalizację %1$s do listy</string>
     <string name="add_locations">Dodaj lokalizacje</string>
     <string name="add_method">Dodaj metodę</string>
+    <string name="add_time">Dodaj czas</string>
     <string name="add_time_to_account">Doładuj w naszej witrynie internetowej lub zrealizuj kupon.</string>
     <string name="added_to_your_account">Do konta dodano %1$s.</string>
     <string name="adding_method">Dodawanie metody...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">API nieosiągalny</string>
     <string name="api_unreachable_save_anyway">Interfejs API nieosiągalny, zapisać metodę mimo to?</string>
     <string name="app_info">Informacje o aplikacji</string>
+    <string name="app_is_blocking_internet">Aplikacja blokuje dostęp do Internetu. Rozłącz się najpierw</string>
     <string name="apply">Zastosuj</string>
     <string name="at_least_on_method_needs_to_enabled">Należy włączyć co najmniej jedną metodę</string>
     <string name="auth_failed">Nie można uwierzytelnić konta. Wyślij zgłoszenie problemu.</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">Po włączeniu opcji „%1$s” trzeba ręcznie wybrać serwer, który obsługuje %2$s. Może to skutkować zablokowaniem, dopóki nie wybierzesz zgodnego serwera w widoku „Wybierz lokalizację”.</string>
     <string name="daita_multihop">%1$s: wielokrotny przeskok</string>
     <string name="days_were_added_30">Do konta dodano 30 dni.</string>
+    <string name="days_were_added_90">Do konta dodano 90 dni.</string>
     <string name="delete">Usuń</string>
     <string name="delete_custom_list_confirmation_description">Usunąć „%1$s”?</string>
     <string name="delete_custom_list_message">Usunięto „%1$s”</string>
@@ -160,7 +164,6 @@
     <string name="enable">Włącz</string>
     <string name="enable_anyway">Mimo to włącz</string>
     <string name="enable_custom_dns">Użyj niestandardowego serwera DNS</string>
-    <string name="enable_direct_only">Włącz %1$s</string>
     <string name="enable_ipv6">Protokół IPv6 w tunelu</string>
     <string name="enable_method">Włącz metodę</string>
     <string name="encrypted_dns_proxy_info_message_part1">Dzięki metodzie „szyfrowany serwer proxy DNS” aplikacja będzie komunikować się z naszym interfejsem API Mullvad za pośrednictwem adresu serwera proxy. Odbywa się to poprzez pobranie adresu z serwera DNS over HTTPS (DoH), a następnie użycie go do połączenia z naszymi serwerami interfejsu API.</string>
@@ -176,6 +179,7 @@
     <string name="failed_to_block_internet">Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub wyślij zgłoszenie problemu.</string>
     <string name="failed_to_create_account">Nie można utworzyć konta</string>
     <string name="failed_to_fetch_devices">Nie udało się pobrać listy urządzeń</string>
+    <string name="failed_to_load_products">Nie udało się załadować produktów. Spróbuj ponownie</string>
     <string name="failed_to_remove_device">Niepowodzenie usunięcia urządzenia</string>
     <string name="failed_to_send">Błąd wysyłania</string>
     <string name="failed_to_send_details">Jeśli wyjdziesz z formularza i spróbujesz ponownie później, zastaniesz już wprowadzone dane.</string>
@@ -184,7 +188,6 @@
     <string name="faqs_and_guides">Często zadawane pytania i poradniki</string>
     <string name="feature_custom_dns">Niestandardowy serwer DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">Jeszcze %1$s...</string>
     <string name="feature_quantum_resistant">Odporność na ataki z użyciem komputerów kwantowych</string>
     <string name="feature_udp_2_tcp">Zaciemnianie</string>
     <string name="filter">Filtruj</string>
@@ -201,7 +204,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">Wskutek importu nowych zastąpień zastąpione mogą zostać niektóre wcześniej zaimportowane zastąpienia.</string>
     <string name="import_overrides_import">Importuj</string>
     <string name="import_overrides_text_title">Import tekstowy</string>
-    <string name="invalid_dns_servers">Niestandardowe adresy serwerów DNS %1$s są nieprawidłowe</string>
+    <string name="in_app_products_unavailable">Produkty w aplikacji są niedostępne. Upewnij się, że masz najnowszą wersję Google Play.</string>
     <string name="invalid_voucher">Nieprawidłowy kod kuponu.</string>
     <string name="ip_version_v4_unavailable">Protokół IPv4 jest niedostępny, spróbuj zmienić ustawienie „Wersja protokołu IP urządzenia”.</string>
     <string name="ip_version_v6_unavailable">Protokół IPv6 jest niedostępny, spróbuj zmienić ustawienie „Wersja protokołu IP urządzenia”.</string>
@@ -215,14 +218,13 @@
     <string name="less_than_a_day_left">pozostał mniej niż jeden dzień</string>
     <string name="less_than_one_day">mniej niż jeden dzień</string>
     <string name="list_name">Nazwa listy</string>
+    <string name="loading_products">Ładowanie produktów</string>
     <string name="loading_verifying">Weryfikowanie zakupu...</string>
     <string name="local_network_sharing">Udostępnianie sieci lokalnej</string>
     <string name="local_network_sharing_additional_info">Zapewnia to poprzez umożliwienie komunikacji sieciowej poza tunelem do lokalnych zakresów adresów IP multiemisji i emisji, a także do i z następujących prywatnych zakresów adresów IP:</string>
     <string name="local_network_sharing_info">Funkcja ta umożliwia dostęp do innych urządzeń w sieci lokalnej, np. w celu udostępniania, drukowania, transmisji strumieniowej itd.</string>
     <string name="local_network_sharing_info_block_connections_warning">Uwaga: Jeśli opcja „Blokuj połączenia bez VPN” jest włączona, funkcja „Udostępnianie sieci lokalnej” nie będzie działać.</string>
     <string name="location_added">%1$s (dodano)</string>
-    <string name="location_was_added_to_list">Lokalizację %1$s dodano do listy „%2$s”</string>
-    <string name="location_was_removed_from_list">Usunięto %1$s z „%2$s”</string>
     <string name="locations">Lokalizacje</string>
     <string name="locations_were_changed_for">Zmieniono lokalizacje dla „%1$s”</string>
     <string name="log_out">Wyloguj się</string>
@@ -283,6 +285,8 @@
     <string name="payment_billing_error_dialog_title">Sklep Google Play jest niedostępny</string>
     <string name="payment_obfuscation_id_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Spróbuj ponownie później.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Usługi Mullvad są niedostępne</string>
+    <string name="payment_pending_dialog_message">Nadal weryfikujemy zakup. Może to zająć trochę czasu. Jeśli weryfikacja powiedzie się, czas zostanie dodany.</string>
+    <string name="payment_status_pending_long">Płatność w Google Play oczekuje na realizację. Może to chwilę potrwać</string>
     <string name="payment_status_pending_short">Oczekiwanie na płatność Google Play</string>
     <string name="please_enter_a_valid_ip_address">Wprowadź prawidłowy adres IPv4 lub IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Wprowadź prawidłowy port serwera zdalnego</string>
@@ -301,12 +305,12 @@
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>
     <string name="remove_button">Usuń</string>
-    <string name="remove_location_from_list">Usuń %1$s z %2$s</string>
     <string name="removed_provider">%1$s (usunięto)</string>
     <string name="rented">Wynajmowane</string>
     <string name="rented_only">Wyłącznie wynajmowane</string>
     <string name="report_a_problem">Zgłoś problem</string>
     <string name="reset_to_default_button">Przywróć domyślne</string>
+    <string name="retry">Ponów próbę</string>
     <string name="save">Zapisz</string>
     <string name="search">Wyszukaj</string>
     <string name="search_location_empty_text">Brak wyników dla hasła „%1$s”, spróbuj innego wyszukiwania</string>
@@ -341,10 +345,8 @@
     <string name="settings_changes_effect_warning_content_blocker">Zmiany w ustawieniach związanych z usługą DNS mogą nie zostać wprowadzone natychmiast ze względu na zbuforowane wyniki.</string>
     <string name="settings_changes_effect_warning_short">Ustawienia usługi DNS mogą nie zostać zastosowane natychmiast</string>
     <string name="settings_patch_error_failed_to_apply_patch">Nie udało się zastosować poprawki</string>
-    <string name="settings_patch_error_invalid_or_missing_value">Nieprawidłowa lub brakująca wartość „%1$s”</string>
     <string name="settings_patch_error_recursion_limit">Limit rekursji</string>
     <string name="settings_patch_error_unable_to_parse">Nie można przetworzyć poprawki</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">Nieznany lub zabroniony klucz „%1$s”</string>
     <string name="settings_patch_success">Import zakończony powodzeniem, zastąpienia są aktywne</string>
     <string name="settings_vpn">Ustawienia VPN</string>
     <string name="share">Udostępnij…</string>
@@ -360,6 +362,7 @@
     <string name="testing_name">Testowanie %1$s...</string>
     <string name="this_field_is_required">To pole jest wymagane</string>
     <string name="this_is_already_set_as_current">Już ustawiona jako bieżąca</string>
+    <string name="time_added">Dodano czas</string>
     <string name="to_add_locations_to_a_list">Aby dodać lokalizacje do listy, naciśnij przycisk „︙” lub naciśnij i przytrzymaj kraj, miasto albo serwer.</string>
     <string name="to_create_a_custom_list">Aby utworzyć listę niestandardową, naciśnij przycisk „︙”</string>
     <string name="toggle_vpn">Przełącz VPN</string>
@@ -398,7 +401,6 @@
     <string name="wg_port_subtitle">Aby aktywować to ustawienie, ustaw poniżej zaciemnianie %1$s na „Automatyczne” lub „Wył.”.</string>
     <string name="wireguard_custon_port_title">Niestandardowy</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
-    <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Ustawienie automatyczne skutkuje wyborem losowym prawidłowego zakresu portów spośród zakresów przedstawionych poniżej.</string>
     <string name="wireguard_port_info_port_range">Port niestandardowy może mieć dowolną wartość z następujących prawidłowych zakresów: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Wybrany port %1$s nie jest obsługiwany, zmień go w obszarze</string>

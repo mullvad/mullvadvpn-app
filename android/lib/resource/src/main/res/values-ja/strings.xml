@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">アカウント時間のリマインダー</string>
     <string name="add">追加</string>
     <string name="add_30_days_time_x">30日分を追加する (%1$s)</string>
+    <string name="add_90_days_time_x">90日分を追加 (%1$s)</string>
     <string name="add_a_server">サーバーを追加</string>
     <string name="add_dns_server_dialog_title">DNS サーバーを追加</string>
     <string name="add_location_to_list">%1$s をリストに追加する</string>
     <string name="add_locations">場所の追加</string>
     <string name="add_method">方法の追加</string>
+    <string name="add_time">時間を追加</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
     <string name="added_to_your_account">ご利用のアカウントに %1$s が追加されました。</string>
     <string name="adding_method">方法を追加しています...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">API到達不能</string>
     <string name="api_unreachable_save_anyway">API に到達できません。方法を保存しますか？</string>
     <string name="app_info">アプリ情報</string>
+    <string name="app_is_blocking_internet">アプリがインターネットをブロックしています。先に切断してください</string>
     <string name="apply">適用</string>
     <string name="at_least_on_method_needs_to_enabled">方法は少なくとも 1 つは有効化する必要があります</string>
     <string name="auth_failed">アカウントを認証できません。問題の報告を送信してください。</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">“%1$s” を有効化した場合、%2$s対応のサーバーを手動で選択する必要があります。これにより、“場所を選択する” で互換性のあるサーバーを選択するまでブロック状態となる可能性があります。</string>
     <string name="daita_multihop">%1$s: マルチホップ</string>
     <string name="days_were_added_30">アカウントに30日分が追加されました。</string>
+    <string name="days_were_added_90">アカウントに90日分が追加されました。</string>
     <string name="delete">削除</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" を削除しますか？</string>
     <string name="delete_custom_list_message">\"%1$s\" は削除されました</string>
@@ -160,7 +164,6 @@
     <string name="enable">有効にする</string>
     <string name="enable_anyway">それでも有効にする</string>
     <string name="enable_custom_dns">カスタムDNSサーバーを使う</string>
-    <string name="enable_direct_only">%1$sを有効にする</string>
     <string name="enable_ipv6">トンネル内のIPv6</string>
     <string name="enable_method">方法を有効化する</string>
     <string name="encrypted_dns_proxy_info_message_part1">[暗号化DNSプロキシ] 方式を使用すると、アプリはプロキシアドレスを通じてMullvad APIと通信します。これはDNS over HTTPS (DoH) サーバーからアドレスを取得し、APIサーバーへのアクセスに利用することで行われます。</string>
@@ -176,6 +179,7 @@
     <string name="failed_to_block_internet">すべてのネットワークトラフィックをブロックできません。問題に対処するか、問題の報告を送信してください。</string>
     <string name="failed_to_create_account">アカウントを作成できませんでした</string>
     <string name="failed_to_fetch_devices">デバイスのリストを取得できませんでした</string>
+    <string name="failed_to_load_products">製品を読み込めませんでした。再試行してください</string>
     <string name="failed_to_remove_device">デバイスを削除できませんでした</string>
     <string name="failed_to_send">送信に失敗しました</string>
     <string name="failed_to_send_details">フォームを終了して後で再試行しても、入力済みの情報は引き続きここに表示されます。</string>
@@ -184,7 +188,6 @@
     <string name="faqs_and_guides">よくある質問とガイド</string>
     <string name="feature_custom_dns">カスタムDNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">その他%1$s件…</string>
     <string name="feature_quantum_resistant">耐量子</string>
     <string name="feature_udp_2_tcp">難読化</string>
     <string name="filter">絞り込み</string>
@@ -201,7 +204,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">新しいオーバーライドをインポートすると、以前インポートしたオーバーライドが置き換えられる可能性があります。</string>
     <string name="import_overrides_import">インポート</string>
     <string name="import_overrides_text_title">テキストでインポート</string>
-    <string name="invalid_dns_servers">カスタムDNSサーバーアドレス %1$s は無効です</string>
+    <string name="in_app_products_unavailable">アプリ内アイテムを利用できません。最新バージョンのGoogle Playを使用していることを確認してください。</string>
     <string name="invalid_voucher">バウチャーコードが無効です。</string>
     <string name="ip_version_v4_unavailable">IPv4は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。</string>
     <string name="ip_version_v6_unavailable">IPv6は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。</string>
@@ -215,14 +218,13 @@
     <string name="less_than_a_day_left">残り1日未満</string>
     <string name="less_than_one_day">1日未満</string>
     <string name="list_name">リスト名</string>
+    <string name="loading_products">製品を読み込み中</string>
     <string name="loading_verifying">購入を確認中...</string>
     <string name="local_network_sharing">ローカルネットワーク共有</string>
     <string name="local_network_sharing_additional_info">これは、トンネル外のネットワーク通信をローカルのマルチキャストおよびブロードキャスト範囲、および以下のプライベート IP 範囲との間で許可することによって行われます。</string>
     <string name="local_network_sharing_info">この機能は、共有、印刷、ストリーミングなどのため、ローカルネットワーク上の他デバイスへのアクセスを許可します。</string>
     <string name="local_network_sharing_info_block_connections_warning">注意: [VPN 以外の接続のブロック] が有効の場合、[ローカルネットワーク共有] は機能しません。</string>
     <string name="location_added">%1$s (追加済み)</string>
-    <string name="location_was_added_to_list">%1$s が \"%2$s\" に追加されました</string>
-    <string name="location_was_removed_from_list">%1$sが \"%2$s\" から削除されました</string>
     <string name="locations">場所</string>
     <string name="locations_were_changed_for">\"%1$s\" の場所が変更されました</string>
     <string name="log_out">ログアウト</string>
@@ -283,6 +285,8 @@
     <string name="payment_billing_error_dialog_title">Google Playを使用できません</string>
     <string name="payment_obfuscation_id_error_dialog_message">決済処理を開始できませんでした。後でもう一度お試しください。</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvadサービスを使用できません</string>
+    <string name="payment_pending_dialog_message">現在購入の確認を行っており、これには時間がかかる場合があります。確認が完了すると、時間が追加されます。</string>
+    <string name="payment_status_pending_long">Google Playの決済は未完了です。これには時間がかかる場合があります</string>
     <string name="payment_status_pending_short">Google Playの決済は未完了です</string>
     <string name="please_enter_a_valid_ip_address">有効な IPv4 または IPv6 アドレスを入力してください</string>
     <string name="please_enter_a_valid_remote_server_port">有効なリモートサーバーのポートを入力してください</string>
@@ -301,12 +305,12 @@
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
     <string name="remove_button">削除</string>
-    <string name="remove_location_from_list">%1$sを%2$sから削除する</string>
     <string name="removed_provider">%1$s (削除済み)</string>
     <string name="rented">レンタルサーバー</string>
     <string name="rented_only">レンタルサーバーのみ</string>
-    <string name="report_a_problem">問題を報告する</string>
+    <string name="report_a_problem">問題を報告</string>
     <string name="reset_to_default_button">デフォルトにリセット</string>
+    <string name="retry">再試行</string>
     <string name="save">保存</string>
     <string name="search">検索</string>
     <string name="search_location_empty_text">「%1$s」の結果はありません。別の検索をお試しください。</string>
@@ -341,10 +345,8 @@
     <string name="settings_changes_effect_warning_content_blocker">結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。</string>
     <string name="settings_changes_effect_warning_short">DNS設定はすぐに適用されない可能性があります</string>
     <string name="settings_patch_error_failed_to_apply_patch">パッチを適用できませんでした</string>
-    <string name="settings_patch_error_invalid_or_missing_value">値 \"%1$s\" は無効であるか、または見つかりません</string>
     <string name="settings_patch_error_recursion_limit">繰り返しの制限</string>
     <string name="settings_patch_error_unable_to_parse">パッチを解析できません</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">キー \"%1$s\" は不明であるか、禁止されています</string>
     <string name="settings_patch_success">インポートが正常に完了しました。オーバーライドは有効です</string>
     <string name="settings_vpn">VPN設定</string>
     <string name="share">共有…</string>
@@ -360,6 +362,7 @@
     <string name="testing_name">%1$s をテストしています...</string>
     <string name="this_field_is_required">このフィールドは必須です</string>
     <string name="this_is_already_set_as_current">これはすでに現在の設定として設定されています</string>
+    <string name="time_added">時間が追加されました</string>
     <string name="to_add_locations_to_a_list">リストに場所を追加するには、\"︙\" を押すか、または、国、都市、サーバーを長押ししてください。</string>
     <string name="to_create_a_custom_list">カスタムリストを作成するには、\"︙\" を押してください</string>
     <string name="toggle_vpn">VPNの切り替え</string>
@@ -398,7 +401,6 @@
     <string name="wg_port_subtitle">この設定を有効化するには、以下の%1$sの難読化を「自動」または「オフ」に設定してください。</string>
     <string name="wireguard_custon_port_title">カスタム</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_mtu_footer">WireGuard MTUの値を設定します。有効範囲: %1$d ～ %2$d</string>
     <string name="wireguard_port_info_description">自動設定では、以下の有効なポート範囲からランダムに選択されます。</string>
     <string name="wireguard_port_info_port_range">カスタムポートは次の有効範囲内の任意の値に設定できます: %1$s。</string>
     <string name="wireguard_port_is_not_supported">選択した%1$sポートには対応していません。</string>

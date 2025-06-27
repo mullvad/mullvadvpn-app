@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">Recordatorios de tiempo de la cuenta</string>
     <string name="add">Añadir</string>
     <string name="add_30_days_time_x">Añadir 30 días (%1$s)</string>
+    <string name="add_90_days_time_x">Añadir 90 días (%1$s)</string>
     <string name="add_a_server">Añadir un servidor</string>
     <string name="add_dns_server_dialog_title">Añadir servidor DNS</string>
     <string name="add_location_to_list">Añadir %1$s a la lista</string>
     <string name="add_locations">Añadir ubicaciones</string>
     <string name="add_method">Añadir método</string>
+    <string name="add_time">Añadir tiempo</string>
     <string name="add_time_to_account">Compre crédito en nuestro sitio web o canjee un cupón.</string>
     <string name="added_to_your_account">%1$s se ha añadido a su cuenta.</string>
     <string name="adding_method">Añadiendo método...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">API inaccesible</string>
     <string name="api_unreachable_save_anyway">API inaccesible, ¿guardar el método de todos modos?</string>
     <string name="app_info">Información de la aplicación</string>
+    <string name="app_is_blocking_internet">La aplicación está bloqueando Internet. Primero desconéctela</string>
     <string name="apply">Aplicar</string>
     <string name="at_least_on_method_needs_to_enabled">Se debe habilitar al menos un método</string>
     <string name="auth_failed">No se puede autenticar la cuenta. Envíe un informe de problemas.</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">Si habilita «%1$s», deberá seleccionar manualmente un servidor que esté habilitado para %2$s. Esto puede provocar que termine bloqueado hasta que seleccione un servidor compatible en la vista «Seleccionar ubicación».</string>
     <string name="daita_multihop">%1$s: Salto múltiple</string>
     <string name="days_were_added_30">Se han añadido 30 días a su cuenta.</string>
+    <string name="days_were_added_90">Se han añadido 90 días a su cuenta.</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">¿Eliminar «%1$s»?</string>
     <string name="delete_custom_list_message">Se ha eliminado «%1$s»</string>
@@ -160,7 +164,6 @@
     <string name="enable">Habilitar</string>
     <string name="enable_anyway">Habilitar de todos modos</string>
     <string name="enable_custom_dns">Usar servidor DNS personalizado</string>
-    <string name="enable_direct_only">Habilitar %1$s</string>
     <string name="enable_ipv6">Tunelización IPv6</string>
     <string name="enable_method">Habilitar método</string>
     <string name="encrypted_dns_proxy_info_message_part1">Con el método «Proxy DNS cifrado», la aplicación se comunicará con nuestra API de Mullvad a través de una dirección proxy. Para ello, recupera una dirección de un servidor DNS sobre HTTPS (DoH) y luego la utiliza para contactar con nuestros servidores API.</string>
@@ -176,6 +179,7 @@
     <string name="failed_to_block_internet">No se puede bloquear todo el tráfico de red. Intente solucionar el problema o envíe un informe de problemas.</string>
     <string name="failed_to_create_account">No se puede crear la cuenta</string>
     <string name="failed_to_fetch_devices">No se pudo obtener la lista de dispositivos</string>
+    <string name="failed_to_load_products">Error al cargar los productos. Inténtelo de nuevo</string>
     <string name="failed_to_remove_device">No se pudo quitar el dispositivo</string>
     <string name="failed_to_send">No se pudo enviar</string>
     <string name="failed_to_send_details">Si cierra el formulario y vuelve a intentarlo más tarde, la información que haya escrito seguirá estando disponible.</string>
@@ -184,7 +188,6 @@
     <string name="faqs_and_guides">Preguntas frecuentes y guías</string>
     <string name="feature_custom_dns">DNS personalizado</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$s más...</string>
     <string name="feature_quantum_resistant">Resistencia cuántica</string>
     <string name="feature_udp_2_tcp">Ofuscación</string>
     <string name="filter">Filtrar</string>
@@ -201,7 +204,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">Importar nuevas anulaciones podría reemplazar algunas anulaciones anteriormente importadas.</string>
     <string name="import_overrides_import">Importar</string>
     <string name="import_overrides_text_title">Importación a través de texto</string>
-    <string name="invalid_dns_servers">Las direcciones del servidor DNS personalizado %1$s no son válidas</string>
+    <string name="in_app_products_unavailable">Productos en la aplicación no disponibles. Asegúrese de tener la última versión de Google Play.</string>
     <string name="invalid_voucher">El código del cupón no es válido.</string>
     <string name="ip_version_v4_unavailable">IPv4 no disponible. Intente cambiar el ajuste «Versión de IP del dispositivo».</string>
     <string name="ip_version_v6_unavailable">IPv6 no disponible. Intente cambiar el ajuste «Versión de IP del dispositivo».</string>
@@ -215,14 +218,13 @@
     <string name="less_than_a_day_left">queda menos de un día</string>
     <string name="less_than_one_day">menos de un día</string>
     <string name="list_name">Nombre de la lista</string>
+    <string name="loading_products">Cargando productos</string>
     <string name="loading_verifying">Verificando la compra…</string>
     <string name="local_network_sharing">Uso compartido de la red local</string>
     <string name="local_network_sharing_additional_info">Lo realiza permitiendo la comnunicación de red fuera del túnel hacia rangos de emisión y multidifusión locales y también hacia y desde estos rangos de IP privados:</string>
     <string name="local_network_sharing_info">Esta característica permite el acceso a otros dispositivos de la red local, como para compartir, imprimir, transmitir, etc.</string>
     <string name="local_network_sharing_info_block_connections_warning">Atención: si «Bloquear conexiones sin VPN» está activado, «Uso compartido de la red local» no funcionará.</string>
     <string name="location_added">%1$s (añadido)</string>
-    <string name="location_was_added_to_list">%1$s se ha añadido a «%2$s»</string>
-    <string name="location_was_removed_from_list">%1$s se ha eliminado de «%2$s»</string>
     <string name="locations">Ubicaciones</string>
     <string name="locations_were_changed_for">Se han cambiado las ubicaciones para «%1$s»</string>
     <string name="log_out">Cerrar sesión</string>
@@ -283,6 +285,8 @@
     <string name="payment_billing_error_dialog_title">Google Play no disponible</string>
     <string name="payment_obfuscation_id_error_dialog_message">No hemos podido iniciar el proceso de pago. Inténtelo de nuevo más tarde.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Servicios de Mullvad no disponibles</string>
+    <string name="payment_pending_dialog_message">Seguimos verificando su compra. Esto podría tardar algún tiempo. Su tiempo se añadirá si pasa la verificación.</string>
+    <string name="payment_status_pending_long">Pago de Google Play pendiente. Esto puede tardar algún tiempo</string>
     <string name="payment_status_pending_short">Pago a Google Play pendiente</string>
     <string name="please_enter_a_valid_ip_address">Escriba una dirección IPv4 o IPv6 válida</string>
     <string name="please_enter_a_valid_remote_server_port">Introduzca un puerto de servidor remoto válido</string>
@@ -301,12 +305,12 @@
     <string name="redeem">Canjear</string>
     <string name="redeem_voucher">Canjear cupón</string>
     <string name="remove_button">Quitar</string>
-    <string name="remove_location_from_list">Quitar %1$s de %2$s</string>
     <string name="removed_provider">%1$s (eliminado)</string>
     <string name="rented">Alquilados</string>
     <string name="rented_only">Solo alquilados</string>
     <string name="report_a_problem">Informar de un problema</string>
     <string name="reset_to_default_button">Restablecer a valores predeterminados</string>
+    <string name="retry">Reintentar</string>
     <string name="save">Guardar</string>
     <string name="search">Buscar</string>
     <string name="search_location_empty_text">No hay resultados para «%1$s», intente una búsqueda diferente</string>
@@ -341,10 +345,8 @@
     <string name="settings_changes_effect_warning_content_blocker">Los cambios en la configuración relacionada con el DNS no surtirán efecto inmediatamente debido a los resultados en caché.</string>
     <string name="settings_changes_effect_warning_short">La configuración de DNS podría no surtir efecto inmediatamente</string>
     <string name="settings_patch_error_failed_to_apply_patch">Error al aplicar el parche</string>
-    <string name="settings_patch_error_invalid_or_missing_value">El valor «%1$s» falta o no es válido</string>
     <string name="settings_patch_error_recursion_limit">Límite de recursión</string>
     <string name="settings_patch_error_unable_to_parse">No se puede analizar el parche</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">Clave «%1$s» desconocida o prohibida</string>
     <string name="settings_patch_success">Importación realizada correctamente. Anulaciones activas</string>
     <string name="settings_vpn">Configuración de VPN</string>
     <string name="share">Compartir…</string>
@@ -360,6 +362,7 @@
     <string name="testing_name">Probando %1$s...</string>
     <string name="this_field_is_required">Este campo es obligatorio</string>
     <string name="this_is_already_set_as_current">Este ya está configurado como actual</string>
+    <string name="time_added">Tiempo añadido</string>
     <string name="to_add_locations_to_a_list">Para añadir ubicaciones a una lista, pulse «︙» o mantenga pulsado unos segundos un país, ciudad o servidor.</string>
     <string name="to_create_a_custom_list">Para crear una lista personalizada, pulse «︙»</string>
     <string name="toggle_vpn">Alternar VPN</string>
@@ -398,7 +401,6 @@
     <string name="wg_port_subtitle">Establezca la ofuscación de %1$s en «Automática» o «Desactivada» a continuación para activar esta configuración.</string>
     <string name="wireguard_custon_port_title">Personalizado</string>
     <string name="wireguard_mtu">MTU de WireGuard</string>
-    <string name="wireguard_mtu_footer">Establezca el valor de MTU de WireGuard. Intervalo válido: %1$d-%2$d.</string>
     <string name="wireguard_port_info_description">El ajuste automático se elegirá al azar entre los rangos de puertos válidos que se muestran a continuación.</string>
     <string name="wireguard_port_info_port_range">El puerto personalizado pueder ser cualquier valor dentro de los rangos válidos: %1$s.</string>
     <string name="wireguard_port_is_not_supported">No se admite el puerto de %1$s seleccionado. Cámbielo en</string>

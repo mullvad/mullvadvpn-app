@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">계정 시간 알림</string>
     <string name="add">추가</string>
     <string name="add_30_days_time_x">30일 시간 추가(%1$s)</string>
+    <string name="add_90_days_time_x">90일 시간 추가(%1$s)</string>
     <string name="add_a_server">서버 추가</string>
     <string name="add_dns_server_dialog_title">DNS 서버 추가</string>
     <string name="add_location_to_list">목록에 %1$s 추가</string>
     <string name="add_locations">위치 추가</string>
     <string name="add_method">방법 추가</string>
+    <string name="add_time">시간 추가</string>
     <string name="add_time_to_account">웹 사이트에서 크레딧을 구매하거나 바우처를 사용하세요.</string>
     <string name="added_to_your_account">%1$s이(가) 계정에 추가되었습니다.</string>
     <string name="adding_method">방법 추가 중...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">API 연결 불가</string>
     <string name="api_unreachable_save_anyway">API 연결 불가, 그래도 이 방법을 저장하시겠습니까?</string>
     <string name="app_info">앱 정보</string>
+    <string name="app_is_blocking_internet">해당 앱이 인터넷을 차단하고 있습니다. 먼저 연결 해제하세요</string>
     <string name="apply">적용</string>
     <string name="at_least_on_method_needs_to_enabled">1개 이상의 방법이 활성화되어 있어야 합니다</string>
     <string name="auth_failed">계정을 인증할 수 없습니다. 문제 보고서를 보내주세요.</string>
@@ -61,7 +64,7 @@
     <string name="buy_credit">크레딧 구매</string>
     <string name="cancel">취소</string>
     <string name="changelog_empty">이 버전에 추가된 변경 로그 없음</string>
-    <string name="changelog_title">업데이트 내역</string>
+    <string name="changelog_title">새로운 기능</string>
     <string name="cipher">암호</string>
     <string name="clear_input">입력 지우기</string>
     <string name="close">닫기</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">“%1$s”을 활성화하면 %2$s가 활성화된 서버를 수동으로 선택해야 합니다. 이로 인해 “위치 선택” 창에서 호환되는 서버를 선택할 때까지 차단된 상태에 빠질 수 있습니다.</string>
     <string name="daita_multihop">%1$s: 멀티홉</string>
     <string name="days_were_added_30">귀하의 계정에 30일이 추가되었습니다.</string>
+    <string name="days_were_added_90">계정에 90일이 추가되었습니다.</string>
     <string name="delete">삭제</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\"을(를) 삭제하시겠습니까?</string>
     <string name="delete_custom_list_message">\"%1$s\"이(가) 삭제되었습니다</string>
@@ -160,7 +164,6 @@
     <string name="enable">사용</string>
     <string name="enable_anyway">그래도 사용</string>
     <string name="enable_custom_dns">사용자 지정 DNS 서버 사용</string>
-    <string name="enable_direct_only">%1$s 활성화</string>
     <string name="enable_ipv6">터널 내 IPv6</string>
     <string name="enable_method">방법 활성화</string>
     <string name="encrypted_dns_proxy_info_message_part1">앱은 \"암호화된 DNS 프록시\" 방식을 사용하여 프록시 주소를 통해 Mullvad API와 통신합니다. 이는 DoH(DNS over HTTPS) 서버에서 주소를 검색한 다음, 그 주소를 사용해 당사 API 서버에 도달하는 방식으로 이루어집니다.</string>
@@ -176,6 +179,7 @@
     <string name="failed_to_block_internet">모든 네트워크 트래픽을 차단할 수는 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요.</string>
     <string name="failed_to_create_account">계정을 만들지 못함</string>
     <string name="failed_to_fetch_devices">장치 목록을 가져오지 못함</string>
+    <string name="failed_to_load_products">제품을 로드하지 못했습니다. 다시 시도해 주세요</string>
     <string name="failed_to_remove_device">장치를 제거하지 못함</string>
     <string name="failed_to_send">전송하지 못함</string>
     <string name="failed_to_send_details">양식을 종료한 후 나중에 다시 시도해도 이미 입력한 정보는 그대로 유지됩니다.</string>
@@ -184,7 +188,6 @@
     <string name="faqs_and_guides">FAQ 및 가이드</string>
     <string name="feature_custom_dns">사용자 지정 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$s개 더 보기...</string>
     <string name="feature_quantum_resistant">양자 저항</string>
     <string name="feature_udp_2_tcp">난독 처리</string>
     <string name="filter">필터</string>
@@ -201,7 +204,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">새로운 재정의를 가져오면 이전에 가져온 일부 재정의가 교체될 수 있습니다.</string>
     <string name="import_overrides_import">가져오기</string>
     <string name="import_overrides_text_title">텍스트를 통해 가져오기</string>
-    <string name="invalid_dns_servers">사용자 지정 DNS 서버 주소 %1$s이(가) 잘못되었습니다.</string>
+    <string name="in_app_products_unavailable">인앱 제품을 사용할 수 없습니다. Google Play의 최신 버전을 사용 중인지 확인해 주세요.</string>
     <string name="invalid_voucher">유효하지 않은 바우처 코드입니다.</string>
     <string name="ip_version_v4_unavailable">IPv4를 사용할 수 없습니다. \"장치 IP 버전\" 설정을 변경해 보세요.</string>
     <string name="ip_version_v6_unavailable">IPv6를 사용할 수 없습니다. \"장치 IP 버전\" 설정을 변경해 보세요.</string>
@@ -215,14 +218,13 @@
     <string name="less_than_a_day_left">1일 이내</string>
     <string name="less_than_one_day">1일 미만</string>
     <string name="list_name">목록 이름</string>
+    <string name="loading_products">제품을 로드하는 중</string>
     <string name="loading_verifying">구매 확인 중...</string>
     <string name="local_network_sharing">로컬 네트워크 공유</string>
     <string name="local_network_sharing_additional_info">이를 위해 터널 외부에서 로컬 멀티캐스트 및 브로드캐스트 범위는 물론 다음 개인 IP 범위와의 네트워크 통신을 허용합니다.</string>
     <string name="local_network_sharing_info">이 기능을 사용하면 공유, 인쇄, 스트리밍 등을 위해 로컬 네트워크의 다른 장치에 액세스할 수 있습니다.</string>
     <string name="local_network_sharing_info_block_connections_warning">주의: \"VPN 없이 연결 차단\"이 활성화되어 있는 경우, \"로컬 네트워크 공유\"가 작동하지 않습니다.</string>
     <string name="location_added">%1$s(추가됨)</string>
-    <string name="location_was_added_to_list">%1$s이(가) \"%2$s\"에 추가되었습니다</string>
-    <string name="location_was_removed_from_list">%1$s이(가) \"%2$s\"에서 제거되었습니다</string>
     <string name="locations">위치</string>
     <string name="locations_were_changed_for">\"%1$s\"에 대해 위치가 변경되었습니다</string>
     <string name="log_out">로그아웃</string>
@@ -283,6 +285,8 @@
     <string name="payment_billing_error_dialog_title">Google Play 사용 불가</string>
     <string name="payment_obfuscation_id_error_dialog_message">결제 프로세스를 시작할 수 없습니다. 나중에 다시 시도해 주세요.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad 서비스 사용 불가</string>
+    <string name="payment_pending_dialog_message">아직 구매를 확인하고 있으며, 다소 시간이 걸릴 수 있습니다. 확인이 완료되면 시간이 추가됩니다.</string>
+    <string name="payment_status_pending_long">Google Play 결제가 보류 중입니다. 다소 시간이 소요될 수 있습니다</string>
     <string name="payment_status_pending_short">Google Play 결제 보류 중</string>
     <string name="please_enter_a_valid_ip_address">유효한 IPv4 또는 IPv6 주소를 입력하세요</string>
     <string name="please_enter_a_valid_remote_server_port">유효한 원격 서버 포트를 입력하세요</string>
@@ -301,12 +305,12 @@
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
     <string name="remove_button">제거</string>
-    <string name="remove_location_from_list">%1$s 제거(%2$s에서)</string>
     <string name="removed_provider">%1$s(제거됨)</string>
     <string name="rented">대여</string>
     <string name="rented_only">대여만</string>
-    <string name="report_a_problem">문제 신고</string>
+    <string name="report_a_problem">문제 보고</string>
     <string name="reset_to_default_button">기본값으로 재설정</string>
+    <string name="retry">다시 시도</string>
     <string name="save">저장</string>
     <string name="search">검색</string>
     <string name="search_location_empty_text">\"%1$s\" 검색 결과가 없습니다. 다른 검색어를 시도하세요</string>
@@ -341,10 +345,8 @@
     <string name="settings_changes_effect_warning_content_blocker">DNS 관련 설정에 대한 변경 사항은 캐시된 결과로 인해 즉시 적용되지 않을 수도 있습니다.</string>
     <string name="settings_changes_effect_warning_short">DNS 설정이 즉시 적용되지 않을 수도 있습니다</string>
     <string name="settings_patch_error_failed_to_apply_patch">패치 적용 실패</string>
-    <string name="settings_patch_error_invalid_or_missing_value">\"%1$s\"에 대해 유효하지 않거나 누락된 값</string>
     <string name="settings_patch_error_recursion_limit">반복 제한</string>
     <string name="settings_patch_error_unable_to_parse">패치를 파싱할 수 없음</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">알 수 없거나 금지된 키 \"%1$s\"</string>
     <string name="settings_patch_success">가져오기 성공, 재정의 활성화</string>
     <string name="settings_vpn">VPN 설정</string>
     <string name="share">공유…</string>
@@ -360,6 +362,7 @@
     <string name="testing_name">%1$s 테스트 중...</string>
     <string name="this_field_is_required">이 필드는 필수입니다</string>
     <string name="this_is_already_set_as_current">이미 현재로 설정되어 있습니다</string>
+    <string name="time_added">시간 추가됨</string>
     <string name="to_add_locations_to_a_list">목록에 위치를 추가하려면 \"︙\"를 누르거나 국가, 도시 또는 서버를 길게 누릅니다.</string>
     <string name="to_create_a_custom_list">사용자 지정 목록을 생성하려면 \"︙\"를 누릅니다</string>
     <string name="toggle_vpn">VPN 전환</string>
@@ -398,7 +401,6 @@
     <string name="wg_port_subtitle">이 설정을 활성화하려면 아래 %1$s 난독 처리를 \"자동\" 또는 \"끄기\"로 설정합니다.</string>
     <string name="wireguard_custon_port_title">사용자 지정</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d</string>
     <string name="wireguard_port_info_description">자동 설정은 아래 표시된 유효한 포트 범위에서 임의로 선택합니다.</string>
     <string name="wireguard_port_info_port_range">사용자 지정 포트는 유효한 범위 내의 모든 값이 될 수 있습니다: %1$s</string>
     <string name="wireguard_port_is_not_supported">선택한 %1$s 포트는 지원되지 않습니다. 다음에서 변경하세요:</string>
