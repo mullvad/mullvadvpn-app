@@ -64,6 +64,11 @@
             extensions = [ "rust-analyzer" ];
             targets = targetArchitectures;
           };
+        go_1_24_2 = import (fetchTarball {
+          url = "https://github.com/NixOS/nixpkgs/archive/1f426f65ac4e6bf808923eb6f8b8c2bfba3d18c5.tar.gz";
+          sha256 = "0xi47nilddmwnq0wxsg7wsvpqz9xq12mvn11a9kqr9qbdpwhsh71";
+        } ) { inherit system; };
+
       in {
         overlay = final: prev: {
           inherit (self.packages.${system}) android-sdk;
@@ -79,8 +84,8 @@
           packages = [
             android-sdk
             rust-toolchain
+            go_1_24_2.go
             pkgs.protoc-gen-grpc-java
-            pkgs.go
             pkgs.gcc
             pkgs.gnumake
             pkgs.protobuf
@@ -110,7 +115,7 @@
               name = "ANDROID_HOME";
               value = "${android-sdk}/share/android-sdk";
             }
-            {
+            # {
             #   name = "ANDROID_SDK_ROOT";
             #   value = "${android-sdk}/share/android-sdk";
             # }
