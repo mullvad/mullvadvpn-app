@@ -53,6 +53,14 @@ jobs:
           git submodule update --init wireguard-go-rs/libwg/wireguard-go
           git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
+      - name: Print versions
+        working-directory: android
+        run: ./building/container-run.sh android "go version && cargo --version && rustc --version && java --version"
+
+      - name: Print env
+        working-directory: android
+        run: ./building/container-run.sh android printenv
+
       - name: Build app
         run: ./building/containerized-build.sh android --fdroid
 

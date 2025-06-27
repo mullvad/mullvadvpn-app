@@ -107,9 +107,13 @@
                 "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android-sdk}/share/android-sdk/build-tools/${androidVersion}/aapt2";
             }
             {
-              name = "ANDROID_SDK_ROOT";
+              name = "ANDROID_HOME";
               value = "${android-sdk}/share/android-sdk";
             }
+            {
+            #   name = "ANDROID_SDK_ROOT";
+            #   value = "${android-sdk}/share/android-sdk";
+            # }
             {
               name = "ANDROID_NDK_ROOT";
               value = "${android-sdk}/share/android-sdk/ndk/${ndkVersion2}";
