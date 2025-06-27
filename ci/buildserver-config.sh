@@ -21,4 +21,7 @@ export CARGO_REGISTRY_VOLUME_NAME="cargo-registry"
 # buildserver-upload.sh should pick artifacts to upload
 export UPLOAD_DIR="PLEASE CONFIGURE ME"
 
+export RELEASE_SCRIPT_DIR="PLEASE CONFIGURE ME"
+export RELEASE_INBOX_DIR="/tmp/release-inbox"
+
 export CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"

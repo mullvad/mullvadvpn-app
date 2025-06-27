@@ -35,11 +35,13 @@ while true; do
             continue
         fi
 
+        release="false"
         if [[ "$platform" == "installer-downloader" ]]; then
             upload_path="desktop/installer-downloader"
         elif [[ $version == *"-dev-"* ]]; then
             upload_path="$platform/builds"
         else
+            release="true"
             upload_path="$platform/releases"
         fi
 
@@ -60,11 +62,17 @@ while true; do
 
             if [[ $filename == MullvadVPN-* || $filename == Install* ]]; then
                 rm -f "$file.asc"
-                gpg -u $CODE_SIGNING_KEY_FINGERPRINT --pinentry-mode loopback --sign --armor --detach-sign "$file"
+                gpg -u "$CODE_SIGNING_KEY_FINGERPRINT" --pinentry-mode loopback --sign --armor --detach-sign "$file"
                 rsync_upload "$file.asc" "$file_upload_dir/" || continue
-                rm -f "$file.asc"
             fi
 
+            if [[ $release == "true" ]] && [[ $filename == MullvadVPN-* ]]; then
+                version_inbox_dir="$RELEASE_INBOX_DIR/$version"
+                mkdir -p "$version_inbox_dir"
+                cp "$file" "$file.asc" "$version_inbox_dir"
+            fi
+
+            rm -f "$file.asc"
             # shellcheck disable=SC2216
             yes | rm "$file"
         done
