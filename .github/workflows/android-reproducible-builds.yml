@@ -17,10 +17,6 @@ on:
     branches:
       - 'prepare-android/**'
   push:
-    branches:
-      - 'prepare-android/**'
-    tags:
-      - 'android/**'
 
 permissions: {}
 
@@ -42,8 +38,8 @@ jobs:
     outputs:
       COMMIT_HASH: ${{ steps.hash.outputs.commit_hash }}
 
-  build-fdroid-app:
-    name: Build fdroid container
+  build-using-container:
+    name: Build fdroid variant using container
     runs-on: ubuntu-latest
     needs: set-up-env
     steps:
@@ -63,13 +59,13 @@ jobs:
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
-          name: container-app
+          name: apk-container
           path: android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
           if-no-files-found: error
           retention-days: 7
 
-  build-fdroid-app-server:
-    name: Build fdroid with fdroid server
+  build-using-fdroidserver:
+    name: Build fdroid variant using fdroidserver
     runs-on: ubuntu-latest
     needs: set-up-env
     steps:
@@ -111,45 +107,85 @@ jobs:
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
-          name: fdroidserver-app
+          name: apk-fdroidserver
           path: |
             build/net\.mullvad\.mullvadvpn/android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  build-using-nix:
+    name: Build fdroid variant using nix
+    runs-on: ubuntu-24.04
+    needs: set-up-env
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
+
+      - name: Fetch submodules and tags
+        run: |
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+          git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Print versions
+        working-directory: android
+        run: nix develop -c go version && cargo --version && rustc --version && java --version 
+
+      - name: Print env
+        working-directory: android
+        run: nix develop -c printenv
+
+      - name: Build app
+        working-directory: android
+        run: nix develop -c ./gradlew assembleOssProdFdroid
+
+      - name: Upload apks
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-nix
+          path: android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
           if-no-files-found: error
           retention-days: 7
 
   compare-builds:
     name: Check builds
     runs-on: ubuntu-latest
-    needs: [build-fdroid-app, build-fdroid-app-server]
+    needs: [build-using-container, build-using-fdroidserver, build-using-nix]
     steps:
-      - name: Download container apk
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: container-app
-          path: container
+          path: artifacts
+          pattern: apk-*
+          merge-multiple: false
 
-      - name: Download server apk
-        uses: actions/download-artifact@v4
-        with:
-          name: fdroidserver-app
-          path: fdroidserver
+      - name: List files
+        working-directory: ./artifacts
+        run: ls -R
 
       - name: Print checksums
-        run: |
-          echo "Container build checksum"
-          md5sum container/app-oss-prod-fdroid-unsigned.apk
-          echo "Fdroidserver build checksum"
-          md5sum fdroidserver/app-oss-prod-fdroid-unsigned.apk
+        working-directory: ./artifacts
+        run: sha256sum */*
 
       - name: Compare files
-        run: diff container/app-oss-prod-fdroid-unsigned.apk fdroidserver/app-oss-prod-fdroid-unsigned.apk
+        working-directory: ./artifacts
+        run: >-
+          diff3
+          apk-container/app-oss-prod-fdroid-unsigned.apk
+          apk-fdroidserver/app-oss-prod-fdroid-unsigned.apk
+          apk-nix/app-oss-prod-fdroid-unsigned.apk
 
   # Included in this workflow since it's the only place
   # release artifacts are built. Should eventually be moved.
   check-permissions:
     name: Check APK permissions
     runs-on: ubuntu-latest
-    needs: [set-up-env, build-fdroid-app]
+    needs: [set-up-env, build-using-container]
     steps:
       - name: Install apktool
         run: sudo apt-get install -y apktool
@@ -162,11 +198,11 @@ jobs:
       - name: Download container apk
         uses: actions/download-artifact@v4
         with:
-          name: container-app
+          name: apk-container
 
       - name: Extract resources
         run: |
-          apktool d app-oss-prod-fdroid-unsigned.apk -s -o output
+          apktool d apk-container/app-oss-prod-fdroid-unsigned.apk -s -o output
 
       - name: Compare manifest permissions with checked in snapshot
         run: |
