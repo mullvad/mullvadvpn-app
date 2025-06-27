@@ -12,6 +12,7 @@ workspace = true
 
 [features]
 boringtun = ["dep:boringtun", "dep:tun07", "talpid-tunnel/boringtun"]
+default = ["boringtun"]
 
 [dependencies]
 async-trait = "0.1"
@@ -45,8 +46,10 @@ tokio-stream = { version = "0.1", features = ["io-util"] }
 [dependencies.boringtun]
 optional = true
 features = ["device"]
-git = "https://github.com/mullvad/boringtun"
-rev = "c29681df54e1c10ba06d9ca7ff98722c9dcb5a81"
+#git = "https://github.com/mullvad/boringtun"
+#rev = "c29681df54e1c10ba06d9ca7ff98722c9dcb5a81"
+#branch = "io-traits"
+path = "../../boringtun/boringtun"
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["fs"] }

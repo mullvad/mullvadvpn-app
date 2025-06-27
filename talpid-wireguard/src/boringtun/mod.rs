@@ -3,11 +3,11 @@ use crate::{
     stats::{Stats, StatsMap},
     Tunnel, TunnelError,
 };
-use boringtun::device::{
+use boringtun::{device::{
     api::{command::*, ApiClient, ApiServer},
     peer::AllowedIP,
     DeviceConfig, DeviceHandle,
-};
+}, udp::{UdpSocketFactory}};
 
 #[cfg(not(target_os = "android"))]
 use ipnetwork::IpNetwork;
@@ -22,8 +22,10 @@ use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
 use tun07::AbstractDevice;
 
+type NormalDeviceHandle = DeviceHandle<UdpSocketFactory, Arc<tun07::AsyncDevice>, Arc<tun07::AsyncDevice>>;
+
 pub struct BoringTun {
-    device_handle: DeviceHandle,
+    device_handle: NormalDeviceHandle,
     config_tx: ApiClient,
     config: Config,
 
@@ -99,7 +101,8 @@ pub async fn open_boringtun_tunnel(
     let interface_name = async_tun.deref().tun_name().unwrap();
 
     log::info!("passing tunnel dev to boringtun");
-    let device_handle: DeviceHandle = DeviceHandle::new(async_tun, boringtun_config)
+    let async_tun = Arc::new(async_tun);
+    let device_handle: NormalDeviceHandle = NormalDeviceHandle::new(UdpSocketFactory, async_tun.clone(), async_tun, boringtun_config)
         .await
         .map_err(TunnelError::BoringTunDevice)?;
 
