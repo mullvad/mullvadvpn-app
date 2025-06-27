@@ -32,58 +32,5 @@ source "$SCRIPT_DIR/release-config.sh"
 
 rm -rf "$ARTIFACT_DIR" && mkdir -p "$ARTIFACT_DIR" || exit 1
 
-function publish_release {
-    echo ">>> Downloading changelog"
-    local changelog_path
-    changelog_path=$(mktemp)
-    curl -o "$changelog_path" --progress-bar \
-      "https://raw.githubusercontent.com/mullvad/mullvadvpn-app/refs/tags/$PRODUCT_VERSION/CHANGELOG.md"
-
-    changelog_end_version_pattern="20[0-9]\{2\}\.[0-9]\{1,2\}"
-    if [[ $PRODUCT_VERSION == *-beta* ]]; then
-        changelog_end_version_pattern=".*"
-    fi
-
-    changelog_extract=$(sed -n "/^## \[$PRODUCT_VERSION\]/,/^## \[$changelog_end_version_pattern\]/p" "$changelog_path")
-
-    changelog=$(echo "$changelog_extract" | sed '$d' | \
-        awk 'NF { last = last ? last ORS $0 : $0 } END { print last }')
-
-    release_flags=(
-      --draft
-      --repo "git@github.com:mullvad/mullvadvpn-app"
-      --verify-tag
-      --notes-file -
-      --title "$PRODUCT_VERSION"
-    )
-
-    previous_release=$(echo "$changelog_extract" | tail -1 | grep -oP '## \[\K[^\]]+')
-
-    body="This release is for desktop only."
-    if [[ $PRODUCT_VERSION == *-beta* ]]; then
-        body+="\n\nHere is a list of all changes since last release [$previous_release](https://github.com/mullvad/mullvadvpn-app/releases/tag/$previous_release):"
-        release_flags+=(--prerelease)
-    else
-        body+="\n\nHere is a list of all changes since last stable release [$previous_release](https://github.com/mullvad/mullvadvpn-app/releases/tag/$previous_release):"
-        release_flags+=(--latest)
-    fi
-
-    version_count=$(echo "$changelog" | grep -c "^## ")
-    if [ "$version_count" -eq 1 ]; then
-        changelog=$(echo "$changelog" | tail -n +2)
-    fi
-
-    body+="\n$changelog"
-
-    echo ""
-    echo ">>> Creating GitHub release"
-    # shellcheck disable=SC2059
-    # shellcheck disable=SC2046
-    printf "$body" | gh release create "${release_flags[@]}" "$PRODUCT_VERSION" $(printf "%s " "$ARTIFACT_DIR"/*)
-
-    echo ""
-    echo "The above URL contains the text \"untagged\", but don't worry it is tagged properly and everything will look correct once it's published."
-}
-
 ./download-release-artifacts "$PRODUCT_VERSION" "$ARTIFACT_DIR"
-publish_release
+./publish-github-release.sh "$PRODUCT_VERSION" "$ARTIFACT_DIR"
