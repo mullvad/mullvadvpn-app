@@ -49,12 +49,16 @@ mod gettext {
 
     static ESCAPED_SINGLE_QUOTES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\'").unwrap());
     static ESCAPED_DOUBLE_QUOTES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"\\""#).unwrap());
-    static PARAMETERS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"%\([^)]*\)").unwrap());
+    // Look for both %(...) and %(1-9)$(...) as we now push the latter to the common translation file
+    static NAMED_PARAMETERS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"%\([^)]*\)").unwrap());
+    static ORDERED_PARAMETERS: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"%[0-9]*\$").unwrap());
 
     impl Normalize for MsgString {
         fn normalize(&self) -> String {
             // Mark where parameters are positioned, removing the parameter name
-            let string = PARAMETERS.replace_all(self, "%");
+            let string = NAMED_PARAMETERS.replace_all(self, "%");
+            let string = ORDERED_PARAMETERS.replace_all(&string, "%");
             // Remove escaped single-quotes
             let string = ESCAPED_SINGLE_QUOTES.replace_all(&string, r"'");
             // Remove escaped double-quotes

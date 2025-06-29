@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2025-05-26 11:59\n"
+"PO-Revision-Date: 2025-06-27 06:04\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d mehr …"
@@ -342,6 +342,11 @@ msgctxt "accessibility"
 msgid "Go to %(wireGuard)s settings."
 msgstr "%(wireGuard)s-Einstellungen öffnen."
 
+#. Accessibility label for link to app upgrade view.
+msgctxt "accessibility"
+msgid "Go to app update page"
+msgstr "Zur App-Update-Seite gehen"
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -378,6 +383,15 @@ msgstr "Mit Kontonummer %(accountNumber)s anmelden"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "Weitere Informationen"
+
+#. Accessbility label for link to go to download page.
+msgctxt "accessibility"
+msgid "New version available, click here to go to download page, opens externally"
+msgstr "Es ist eine neue Version verfügbar. Klicken Sie hier, um zur Download-Seite zu gehen. Diese wird extern geöffnet"
+
+msgctxt "accessibility"
+msgid "New version available, click here to go to update view"
+msgstr "Es ist eine neue Version verfügbar. Klicken Sie hier, um zur Update-Ansicht zu gehen"
 
 msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
@@ -621,21 +635,202 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "Mit „Mullvad-Brücken“ kommuniziert die App mit einem Mullvad API-Server über einen Mullvad Brücken-Server. Dazu sendet sie den von Shadowsocks verschleierten Traffic."
 
+#. Title of the app info view.
 msgctxt "app-info-view"
 msgid "App info"
 msgstr "App-Info"
 
+#. Description for version list item when app is out of sync.
 msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Die App ist nicht synchronisiert. Bitte verlassen Sie die App und starten Sie sie neu."
 
+#. Label for switch to toggle beta program.
 msgctxt "app-info-view"
-msgid "App version"
-msgstr "App-Version"
+msgid "Beta program"
+msgstr "Beta-Programm"
 
 msgctxt "app-info-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "Update verfügbar. Installieren Sie die neueste Version der App, um auf dem neuesten Stand zu bleiben."
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "Aktivieren, um benachrichtigt zu werden, wenn neue Beta-Versionen der App veröffentlicht werden."
+
+msgctxt "app-info-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "Diese Option ist in Beta-Versionen nicht verfügbar."
+
+#. Label for update available list item.
+msgctxt "app-info-view"
+msgid "Update available"
+msgstr "Update verfügbar"
+
+#. Label for version list item.
+msgctxt "app-info-view"
+msgid "Version"
+msgstr "Version"
+
+#. Label for changelog list item.
+msgctxt "app-info-view"
+msgid "What’s new"
+msgstr "Was ist neu?"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion is within a few seconds.
+msgctxt "app-upgrade-view"
+msgid "A few seconds remaining..."
+msgstr "Noch ein paar Sekunden …"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in minutes.
+#. Available placeholders:
+#. %(minutes)s - Will be replaced with remaining minutes until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(minutes)s minutes remaining..."
+msgstr "Noch ungefähr %(minutes)s Minuten …"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in seconds.
+#. Available placeholders:
+#. %(second)s - Will be replaced with remaining seconds until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(seconds)s seconds remaining..."
+msgstr "Noch ungefähr %(seconds)s Sekunden …"
+
+#. Label displayed when an error occurred due to the connection being blocked
+msgctxt "app-upgrade-view"
+msgid "Connection blocked. Try changing server or other settings."
+msgstr "Verbindung blockiert. Versuchen Sie, den Server oder andere Einstellungen zu ändern."
+
+#. Label displayed when an error occurred due to the installer failing to start
+#. and the suggested resolution is to download the update again.
+msgctxt "app-upgrade-view"
+msgid "Could not open installer, please try again or send a problem report."
+msgstr "Installationsprogramm konnte nicht geöffnet werden, bitte versuchen Sie es erneut oder senden Sie einen Problembericht."
+
+#. Button text to download and install an update
+msgctxt "app-upgrade-view"
+msgid "Download & install"
+msgstr "Herunterladen & installieren"
+
+#. Status text displayed below a progress bar when the download of an update is complete
+msgctxt "app-upgrade-view"
+msgid "Download complete!"
+msgstr "Download abgeschlossen!"
+
+#. Status text displayed below a progress bar when the download of an update fails
+msgctxt "app-upgrade-view"
+msgid "Download failed"
+msgstr "Download fehlgeschlagen"
+
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Download failed, please check your connection/firewall and try again, or send a problem report."
+msgstr "Download fehlgeschlagen, bitte überprüfen Sie Ihre Internetverbindung/Firewall und versuchen Sie es erneut oder senden Sie einen Problembericht."
+
+#. Status text displayed below a progress bar when the download of an update has been paused
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Download paused"
+msgstr "Download pausiert"
+
+#. Label displayed above a progress bar informing the user which server
+#. the update is downloading from
+msgctxt "app-upgrade-view"
+msgid "Downloading from: %(server)s"
+msgstr "Herunterladen von: %(server)s"
+
+#. Label displayed above a progress bar when a download is in progress
+msgctxt "app-upgrade-view"
+msgid "Downloading..."
+msgstr "Herunterladen …"
+
+#. Link shown to optionally manually download the update
+#. due to repeated errors in the upgrade process.
+msgctxt "app-upgrade-view"
+msgid "Having problems? Try downloading the app from our website"
+msgstr "Sie haben Probleme? Versuchen Sie, die App von unserer Website herunterzuladen"
+
+#. Button text to install an update
+msgctxt "app-upgrade-view"
+msgid "Install update"
+msgstr "Update installieren"
+
+#. Label displayed when an error occurred within the installer
+msgctxt "app-upgrade-view"
+msgid "Installer quit unexpectedly, please try again or send a problem report."
+msgstr "Das Installationsprogramm wurde unerwartet beendet, bitte versuchen Sie es erneut oder senden Sie einen Problembericht."
+
+#. Text displayed when there are no updates for this platform in the next app version
+msgctxt "app-upgrade-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "In dieser Version wurden keine Aktualisierungen oder Änderungen für diese Plattform vorgenommen."
+
+#. Button text to pause the download of an update
+msgctxt "app-upgrade-view"
+msgid "Pause"
+msgstr "Pause"
+
+#. Button text to report a problem
+msgctxt "app-upgrade-view"
+msgid "Report a problem"
+msgstr "Problem melden"
+
+#. Button text to resume updating
+msgctxt "app-upgrade-view"
+msgid "Resume"
+msgstr "Fortfahren"
+
+#. Button text to try again
+msgctxt "app-upgrade-view"
+msgid "Retry"
+msgstr "Erneut versuchen"
+
+#. Button text to try download again
+msgctxt "app-upgrade-view"
+msgid "Retry download"
+msgstr "Herunterladen erneut versuchen"
+
+#. Status text displayed below a progress bar when the download of an update is starting
+msgctxt "app-upgrade-view"
+msgid "Starting download..."
+msgstr "Download wird gestartet …"
+
+#. Button text to when starting the installer for an update
+msgctxt "app-upgrade-view"
+msgid "Starting installer..."
+msgstr "Installationsprogramm wird gestartet …"
+
+#. Label displayed when an unknown error occurred
+msgctxt "app-upgrade-view"
+msgid "Unknown error occurred. Please try again or send a problem report."
+msgstr "Ein unbekannter Fehler ist aufgetreten. Bitte versuchen Sie es erneut oder senden Sie einen Problembericht."
+
+#. Title in navigation bar
+#. Main title for the update available view
+msgctxt "app-upgrade-view"
+msgid "Update available"
+msgstr "Update verfügbar"
+
+#. Label displayed when an error occurred due to the installer failed verification
+msgctxt "app-upgrade-view"
+msgid "Verification failed, please try again or send a problem report."
+msgstr "Verifizierung fehlgeschlagen, bitte versuchen Sie es erneut oder senden Sie einen Problembericht."
+
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Verification successful!"
+msgstr "Verifizierung erfolgreich!"
+
+#. Label displayed above a progress bar when the update is being verified
+msgctxt "app-upgrade-view"
+msgid "Verifying installer..."
+msgstr "Installationsprogramm wird verifiziert …"
+
+#. Heading which shows the version of the app which can be upgraded to.
+#. Available placeholders:
+#. %(version)s - The new version of the app.
+msgctxt "app-upgrade-view"
+msgid "Version %(version)s"
+msgstr "Version %(version)s"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -653,10 +848,13 @@ msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "Sie sind mit einer ungültigen Kontonummer angemeldet. Bitte melden Sie sich ab und versuchen Sie es mit einer anderen."
 
+#. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
 msgstr "In dieser Version wurden keine Aktualisierungen oder Änderungen für diese Plattform vorgenommen."
 
+#. Heading for the view of the changes and updates in the
+#. current version compared to the old version.
 msgctxt "changelog-view"
 msgid "What’s new"
 msgstr "Was ist neu?"
@@ -967,6 +1165,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)s wird nicht mehr unterstützt. Wechseln Sie den Ort oder"
 
+#. Notification subtitle when the app upgrade is ready to install.
+#. Available placeholders:
+#. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
+msgctxt "in-app-notifications"
+msgid "%(suggestedUpgradeVersion)s is ready to be installed."
+msgstr "%(suggestedUpgradeVersion)s ist bereit für die Installation."
+
 #. Link in notication to go to WireGuard settings.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
@@ -998,14 +1203,72 @@ msgctxt "in-app-notifications"
 msgid "change tunnel protocol to %(wireGuard)s."
 msgstr "ändern Sie das Tunnelprotokoll zu %(wireGuard)s."
 
+#. Notification subtitle when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "Click here to install update."
+msgstr "Klicken Sie hier, um das Update zu installieren."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "Click here to retry"
+msgstr "Klicken Sie hier, um es erneut zu versuchen"
+
+#. Notification subtitle when the download of the installer failed
+#. and the user can try downloading again.
+msgctxt "in-app-notifications"
+msgid "Click here to retry download"
+msgstr "Klicken Sie hier, um den Download erneut zu versuchen"
+
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
 msgstr "Klicken Sie hier, um die Änderungen zu sehen."
+
+#. Link text to go to the app upgrade view
+msgctxt "in-app-notifications"
+msgid "Click here to update"
+msgstr "Klicken Sie hier zum Aktualisieren"
+
+#. Notification subtitle when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "Could not download installer."
+msgstr "Installationsprogramm konnte nicht heruntergeladen werden."
+
+#. Generic notification subtitle when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "Could not upgrade the app."
+msgstr "Es konnte kein App-Upgrade durchgeführt werden."
+
+#. Notification title when app upgrade is verifying the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD COMPLETE! VERIFYING..."
+msgstr "DOWNLOAD ABGESCHLOSSEN! VERIFIZIERUNG LÄUFT …"
+
+#. Notification title when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD FAILED"
+msgstr "DOWNLOAD FEHLGESCHLAGEN"
+
+#. Generic notification title when app upgrade is downloading the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE..."
+msgstr "UPDATE WIRD HERUNTERGELADEN …"
+
+#. Notification title when the app upgrade is in progress.
+#. Available placeholders:
+#. - %(appUpgradeDownloadProgressValue)s: The download progress value.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
+msgstr "UPDATE WIRD HERUNTERGELADEN … %(appUpgradeDownloadProgressValue)s%%"
 
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr "Installieren Sie die neueste Version der App, um auf dem neuesten Stand zu sein."
+
+#. Notification title when the installer failed.
+msgctxt "in-app-notifications"
+msgid "INSTALLER FAILED"
+msgstr "INSTALLATIONSPROGRAMM FEHLGESCHLAGEN"
 
 msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
@@ -1050,10 +1313,40 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "Mehr erfahren"
 
+#. Notification title when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "READY TO INSTALL UPDATE"
+msgstr "BEREIT ZUM INSTALLIEREN DES UPDATES"
+
+#. Accessibility label for the button to retry download of the installer.
+msgctxt "in-app-notifications"
+msgid "Retry download of the installer"
+msgstr "Installationsprogramm erneut herunterladen"
+
+#. Accessibility label for the button to retry the installation.
+msgctxt "in-app-notifications"
+msgid "Retry installation"
+msgstr "Installation erneut versuchen"
+
 #. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "Problembericht senden"
+
+#. Notification subtitle when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "The installer could not be verified."
+msgstr "Das Installationsprogramm konnte nicht verifiziert werden."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not complete successfully."
+msgstr "Das Installationsprogramm wurde nicht erfolgreich abgeschlossen."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not start successfully."
+msgstr "Das Installationsprogramm wurde nicht erfolgreich gestartet."
 
 #. Notification subtitle indicating the user is using an unsupported port for WireGuard.
 #. Available placeholders:
@@ -1077,6 +1370,26 @@ msgstr "NICHT UNTERSTÜTZTE VERSION"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "UPDATE VERFÜGBAR"
+
+#. Generic notification title when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "UPDATE FAILED"
+msgstr "UPDATE FEHLGESCHLAGEN"
+
+#. Notification title when app upgrade is ready for the user to launch the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! INSTALLER READY!"
+msgstr "VERIFIZIERUNG ABGESCHLOSSEN! INSTALLATIONSPROGRAMM BEREIT!"
+
+#. Notification title when app upgrade is launching the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! LAUNCHING INSTALLER..."
+msgstr "VERIFIZIERUNG ABGESCHLOSSEN! INSTALLATIONSPROGRAMM WIRD GESTARTET …"
+
+#. Notification title when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION FAILED"
+msgstr "VERIFIZIERUNG FEHLGESCHLAGEN"
 
 msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
@@ -1224,11 +1537,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "API-Zugriff"
 
-#. Title label in navigation bar
-msgctxt "navigation-bar"
-msgid "Settings"
-msgstr "Einstellungen"
-
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
@@ -1300,13 +1608,13 @@ msgstr "Split Tunneling konnte nicht aktiviert werden. Versuchen Sie, die Verbin
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv4 ist nicht verfügbar, bitte versuchen Sie, die Einstellung <b>%(ipVersionFeatureName)</b> zu ändern."
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv4 ist nicht verfügbar, bitte versuchen Sie, die Einstellung <b>%(ipVersionFeatureName)s</b> zu ändern."
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv6 ist nicht verfügbar, bitte versuchen Sie, die Einstellung <b>%(ipVersionFeatureName)</b> zu ändern."
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv6 ist nicht verfügbar, bitte versuchen Sie, die Einstellung <b>%(ipVersionFeatureName)s</b> zu ändern."
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -1315,6 +1623,12 @@ msgstr "Sperrmodus aktiv, Verbindung blockiert"
 msgctxt "notifications"
 msgid "No servers match your settings, try changing server or other settings."
 msgstr "Kein Server entspricht Ihren Einstellungen. Versuchen Sie, den Server oder andere Einstellungen zu ändern."
+
+#. A link in the in-app banner to encourage the user to update the app.
+#. The in-app banner is is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Please click here to update now"
+msgstr "Bitte klicken Sie hier, um jetzt ein Update durchzuführen"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -1386,7 +1700,12 @@ msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr "Ihr Gerät ist offline. Der Tunnel wird automatisch verbunden, sobald Ihr Gerät wieder online ist."
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+#. The in-app banner which is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version."
+msgstr "Ihre Recht auf Datenschutz könnte durch diese nicht unterstützen Version der App kompromittiert werden."
+
+#. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der App gefährdet sein. Bitte aktualisieren Sie sie."
@@ -1693,6 +2012,7 @@ msgctxt "settings-view"
 msgid "API access"
 msgstr "API-Zugriff"
 
+#. Navigation button to the 'App info' view
 msgctxt "settings-view"
 msgid "App info"
 msgstr "App-Info"
@@ -1701,9 +2021,21 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "Multihop"
 
+#. Title label in navigation bar
+#. Main title for settings view
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "Einstellungen"
+
+#. Navigation button to the 'Support' view
 msgctxt "settings-view"
 msgid "Support"
 msgstr "Support"
+
+#. Label for the app info list item indicating that an update is available and can be downloaded
+msgctxt "settings-view"
+msgid "Update available"
+msgstr "Update verfügbar"
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1714,10 +2046,6 @@ msgstr "UI-Einstellungen"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN-Einstellungen"
-
-msgctxt "settings-view"
-msgid "What’s new"
-msgstr "Was ist neu?"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1792,10 +2120,6 @@ msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "Auswahl konnte nicht gestartet werden. %(detailedErrorMessage)s"
 
-msgctxt "support-view"
-msgid "Beta program"
-msgstr "Beta-Programm"
-
 #. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -1805,10 +2129,6 @@ msgstr "Trotzdem fortfahren"
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "Nachricht bearbeiten"
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "Aktivieren, um benachrichtigt zu werden, wenn neue Beta-Versionen der App veröffentlicht werden."
 
 msgctxt "support-view"
 msgid "Failed to send"
@@ -1864,10 +2184,6 @@ msgid "Thanks!"
 msgstr "Danke!"
 
 msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
-msgstr "Diese Option ist in Beta-Versionen nicht verfügbar."
-
-msgctxt "support-view"
 msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
 msgstr "Um Ihnen besser weiterhelfen zu können, schreiben Sie uns bitte auf Englisch oder Schwedisch und geben Sie an, aus welchem Land Sie die Verbindung herstellen."
 
@@ -1880,9 +2196,9 @@ msgctxt "support-view"
 msgid "Try again"
 msgstr "Erneut versuchen"
 
-#. Button label for upgrading the app to the latest version.
+#. Button label for updating the app to the latest version.
 msgctxt "support-view"
-msgid "Upgrade app"
+msgid "Update app"
 msgstr "App aktualisieren"
 
 #. Button label for opening app logs.
@@ -2416,6 +2732,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll."
 
+msgid "%1$s more..."
+msgstr "%1$s weitere …"
+
+msgid "%1$s was added to \"%2$s\""
+msgstr "%1$s wurde zu „%2$s“ hinzugefügt"
+
+msgid "%1$s was removed from \"%2$s\""
+msgstr "%1$s wurde von „%2$s“ entfernt"
+
 msgid "%s (Entry)"
 msgstr "%s (Eingang)"
 
@@ -2431,17 +2756,8 @@ msgstr "%s (entfernt)"
 msgid "%s custom port"
 msgstr "%s – eigener Port"
 
-msgid "%s more..."
-msgstr "%s weitere …"
-
-msgid "%s was added to \"%s\""
-msgstr "%s wurde zu „%s“ hinzugefügt"
-
 msgid "%s was added to your account."
 msgstr "%s wurde zu Ihrem Konto hinzugefügt."
-
-msgid "%s was removed from \"%s\""
-msgstr "%s wurde von „%s“ entfernt"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. Nachdem Sie unten auf „VPN-Einstellungen öffnen“ geklickt haben, klicken Sie auf das Zahnrad neben „Mullvad-VPN“."
@@ -2454,6 +2770,9 @@ msgstr "3. Um den Sperrmodus zu aktivieren, klicken Sie auf den Kippschalter neb
 
 msgid "30 days was added to your account."
 msgstr "30 Tage wurden zu Ihrem Konto hinzugefügt."
+
+msgid "90 days was added to your account."
+msgstr "90 Tage wurden zu Ihrem Konto hinzugefügt."
 
 msgid "API reachable, adding method..."
 msgstr "API erreichbar, Methode hinzufügen …"
@@ -2473,17 +2792,20 @@ msgstr "Erinnerungen an die Kontozeit"
 msgid "Add %s to list"
 msgstr "%s zur Liste hinzufügen"
 
-msgid "Add 30 days time"
-msgstr "30 Tage Zeit hinzufügen"
-
 msgid "Add 30 days time (%s)"
 msgstr "30 Tage Zeit hinzufügen (%s)"
+
+msgid "Add 90 days time (%s)"
+msgstr "90 Tage Zeit hinzufügen (%s)"
 
 msgid "Add DNS server"
 msgstr "DNS-Server hinzufügen"
 
 msgid "Add locations"
 msgstr "Standorte hinzufügen"
+
+msgid "Add time"
+msgstr "Zeit hinzufügen"
 
 msgid "Adding method..."
 msgstr "Methode hinzufügen …"
@@ -2578,8 +2900,8 @@ msgstr "Aktuelles Gerät"
 msgid "Current: %s"
 msgstr "Aktuell: %s"
 
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "Eigene DNS-Server Adressen %s sind ungültig"
+msgid "Custom DNS server addresses %1$s are invalid"
+msgstr "Eigene DNS-Server Adressen %1$s sind ungültig"
 
 msgid "DNS settings might not go into effect immediately"
 msgstr "Die DNS-Einstellungen werden möglicherweise nicht sofort wirksam"
@@ -2635,8 +2957,8 @@ msgstr "Standorte bearbeiten"
 msgid "Edit name"
 msgstr "Name bearbeiten"
 
-msgid "Enable %s"
-msgstr "%s aktivieren"
+msgid "Enable %1$s"
+msgstr "%1$s aktivieren"
 
 msgid "Enable method"
 msgstr "Methode aktivieren"
@@ -2655,6 +2977,9 @@ msgstr "VERBINDUNG FEHLGESCHLAGEN"
 
 msgid "Failed to apply patch"
 msgstr "Patch konnte nicht angewendet werden"
+
+msgid "Failed to load products, please try again"
+msgstr "Fehler beim Laden der Produkte, bitte versuchen Sie es erneut"
 
 msgid "Failed to set to current - API not reachable"
 msgstr "Konnte nicht als aktuelle gesetzt werden – API nicht erreichbar"
@@ -2677,6 +3002,9 @@ msgstr "Wenn Sie mit der Anmeldung fortfahren, wird die Internetsperre auf diese
 msgid "Google Play payment pending"
 msgstr "Google-Play-Zahlung ausstehend"
 
+msgid "Google Play payment pending, this might take some time"
+msgstr "Google-Play-Zahlung ausstehend, es könnte eine Weile dauern"
+
 msgid "Google Play unavailable"
 msgstr "Google Play nicht verfügbar"
 
@@ -2698,11 +3026,14 @@ msgstr "Import erfolgreich, Überschreibungen aktiv"
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "Der Import neuer Überschreibungen kann einige zuvor importierte Überschreibungen ersetzen."
 
+msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
+msgstr "In-App-Produkte nicht verfügbar, bitte vergewissern Sie sich, dass sie die neueste Version von Google Play haben."
+
 msgid "In-tunnel IPv6"
 msgstr "In-Tunnel-IPv6"
 
-msgid "Invalid or missing value \"%s\""
-msgstr "Ungültiger oder fehlender Wert „%s“"
+msgid "Invalid or missing value \"%1$s\""
+msgstr "Ungültiger oder fehlender Wert „%1$s“"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "Dies kann nützlich sein, wenn Sie von Problemen wissen, die durch eine bestimmte IP-Version verursacht werden."
@@ -2716,6 +3047,9 @@ msgstr "Hiermit können Sie Apps auswählen, die ohne den VPN-Tunnel direkt auf 
 msgid "List name"
 msgstr "Name der Liste"
 
+msgid "Loading products"
+msgstr "Produkte werden geladen"
+
 msgid "Locations"
 msgstr "Standorte"
 
@@ -2724,9 +3058,6 @@ msgstr "Standorte wurden geändert für „%s“"
 
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Gewährleistet, dass sich das Gerät immer im VPN-Tunnel befindet."
-
-msgid "Manage account"
-msgstr "Konto verwalten"
 
 msgid "Manage devices"
 msgstr "Geräte verwalten"
@@ -2803,8 +3134,8 @@ msgstr "Rekursionslimit"
 msgid "Remove"
 msgstr "Entfernen"
 
-msgid "Remove %s from %s"
-msgstr "%s von %s entfernen"
+msgid "Remove %1$s from %2$s"
+msgstr "%1$s von %2$s entfernen"
 
 msgid "Remove %s?"
 msgstr "%s entfernen?"
@@ -2830,8 +3161,8 @@ msgstr "Suche"
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "%s-Verschleierung unten auf „Automatisch“ oder „Aus“ einstellen, um diese Einstellung zu aktivieren."
 
-msgid "Set WireGuard MTU value. Valid range: %d - %d."
-msgstr "WireGuard-MTU-Wert einstellen. Gültiger Bereich: %d – %d."
+msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
+msgstr "WireGuard-MTU-Wert einstellen. Gültiger Bereich: %1$d–%2$d."
 
 msgid "Set port"
 msgstr "Port festlegen"
@@ -2872,6 +3203,9 @@ msgstr "Der Sperrmodus heißt in den Android-Systemeinstellungen „Verbindungen
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "Die „aktuelle“ Methode gibt an, welche Methode die App verwendet, um die API zu erreichen."
 
+msgid "The app is blocking internet, please disconnect first"
+msgstr "Die App blockiert das Internet, bitte trennen Sie zuerst die Verbindung"
+
 msgid "The device will be removed from the list and logged out."
 msgstr "Das Gerät wird aus der Liste entfernt und abgemeldet."
 
@@ -2892,6 +3226,9 @@ msgstr "Dieses Feld ist erforderlich"
 
 msgid "This is already set as current"
 msgstr "Diese ist bereits die aktuelle"
+
+msgid "Time added"
+msgstr "Zeit hinzugefügt"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "Um Standorte zu einer Liste hinzuzufügen, drücken Sie auf „︙“ oder drücken Sie lange auf ein Land, eine Stadt oder einen Server."
@@ -2920,8 +3257,8 @@ msgstr "Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Alw
 msgid "Undo"
 msgstr "Rückgängig"
 
-msgid "Unknown or prohibited key \"%s\""
-msgstr "Unbekannter oder verbotener Schlüssel „%s“"
+msgid "Unknown or prohibited key \"%1$s\""
+msgstr "Unbekannter oder verbotener Schlüssel „%1$s“"
 
 msgid "Update DNS server"
 msgstr "DNS-Server aktualisieren"
@@ -2965,14 +3302,11 @@ msgstr "Kauf verifizieren …"
 msgid "Verifying voucher…"
 msgstr "Gutschein verifizieren …"
 
-msgid "Version"
-msgstr "Version"
-
 msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr "Lassen Sie all Ihre angemeldeten Geräte anzeigen und verwalten Sie sie. Sie können bis zu fünf Geräte gleichzeitig bei einem Konto haben. Jedes Gerät bekommt beim Anmelden einen Namen, damit Sie sie leicht unterscheiden können."
 
-msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
-msgstr "Wir verifizieren gerade Ihren Kauf, dies kann einige Zeit dauern. Ihre Zeit wird hinzugefügt, wenn die Verifizierung erfolgreich ist."
+msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "Wir verifizieren gerade noch Ihren Kauf, dies kann einige Zeit dauern. Ihre Zeit wird hinzugefügt, wenn die Verifizierung erfolgreich ist."
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "Wir konnten den Zahlungsvorgang nicht starten. Bitte vergewissern Sie sich, dass Sie die neueste Version von Google Play haben."

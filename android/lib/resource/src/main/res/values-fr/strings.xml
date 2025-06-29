@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">Rappels de temps pour le compte</string>
     <string name="add">Ajouter</string>
     <string name="add_30_days_time_x">Ajouter 30 jours de temps (%1$s)</string>
+    <string name="add_90_days_time_x">Ajouter 90 jours de temps (%1$s)</string>
     <string name="add_a_server">Ajouter un serveur</string>
     <string name="add_dns_server_dialog_title">Ajouter un serveur DNS</string>
     <string name="add_location_to_list">Ajouter %1$s à la liste</string>
     <string name="add_locations">Ajouter des localisations</string>
     <string name="add_method">Ajouter un mode</string>
+    <string name="add_time">Ajouter du temps</string>
     <string name="add_time_to_account">Achetez du crédit sur notre site web ou échangez un bon.</string>
     <string name="added_to_your_account">%1$s a été ajouté à votre compte.</string>
     <string name="adding_method">Ajout de la méthode...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">API injoignable</string>
     <string name="api_unreachable_save_anyway">API injoignable, enregistrer quand même la méthode ?</string>
     <string name="app_info">Infos sur l\'application</string>
+    <string name="app_is_blocking_internet">L\'application bloque Internet. Veuillez d\'abord vous déconnecter</string>
     <string name="apply">Appliquer</string>
     <string name="at_least_on_method_needs_to_enabled">Au moins une méthode doit être activée</string>
     <string name="auth_failed">Impossible d\'authentifier le compte. Veuillez envoyer un rapport de problème.</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">Si vous activez « %1$s », vous devez sélectionner manuellement un serveur avec %2$s activé. Vous risquez alors de vous retrouver dans une situation de blocage tant que vous n\'avez pas sélectionné un serveur compatible dans la vue « Sélectionner une localisation ».</string>
     <string name="daita_multihop">%1$s : multihop</string>
     <string name="days_were_added_30">30 jours ont été ajoutés à votre compte.</string>
+    <string name="days_were_added_90">90 jours ont été ajoutés à votre compte.</string>
     <string name="delete">Supprimer</string>
     <string name="delete_custom_list_confirmation_description">Supprimer « %1$s » ?</string>
     <string name="delete_custom_list_message">« %1$s » a été supprimé</string>
@@ -176,6 +180,7 @@
     <string name="failed_to_block_internet">Impossible de bloquer tout le trafic réseau. Veuillez dépanner ou envoyer un rapport de problème.</string>
     <string name="failed_to_create_account">Échec de la création du compte</string>
     <string name="failed_to_fetch_devices">Impossible de récupérer la liste des appareils</string>
+    <string name="failed_to_load_products">Échec du chargement des produits. Veuillez réessayer</string>
     <string name="failed_to_remove_device">Impossible de supprimer l\'appareil</string>
     <string name="failed_to_send">Échec de l\'envoi</string>
     <string name="failed_to_send_details">Si vous quittez le formulaire et réessayez plus tard, les informations que vous avez déjà saisies seront toujours là.</string>
@@ -184,7 +189,7 @@
     <string name="faqs_and_guides">FAQ et guides</string>
     <string name="feature_custom_dns">DNS personnalisé</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$s autre(s)...</string>
+    <string name="feature_indicators_show_more">%1$s de plus…</string>
     <string name="feature_quantum_resistant">Résistance quantique</string>
     <string name="feature_udp_2_tcp">Dissimulation</string>
     <string name="filter">Filtrer</string>
@@ -201,6 +206,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">L\'importation de nouvelles substitutions peut remplacer certaines substitutions importées précédemment.</string>
     <string name="import_overrides_import">Importer</string>
     <string name="import_overrides_text_title">Importer par texte</string>
+    <string name="in_app_products_unavailable">Produits dans l\'application indisponibles. Veuillez vous assurer que vous avez la dernière version de Google Play.</string>
     <string name="invalid_dns_servers">Les adresses de serveur DNS personnalisées %1$s ne sont pas valides</string>
     <string name="invalid_voucher">Le code du bon n\'est pas valide.</string>
     <string name="ip_version_v4_unavailable">L\'IPv4 n\'est pas disponible. Veuillez essayer de modifier le paramètre « Version de l\'IP de l\'appareil ».</string>
@@ -215,13 +221,14 @@
     <string name="less_than_a_day_left">moins d\'un jour restant</string>
     <string name="less_than_one_day">moins d\'un jour</string>
     <string name="list_name">Nom de la liste</string>
+    <string name="loading_products">Chargement des produits</string>
     <string name="loading_verifying">Vérification de l\'achat...</string>
     <string name="local_network_sharing">Partage réseau local</string>
     <string name="local_network_sharing_additional_info">Pour ce faire, il autorise la communication réseau à l\'extérieur du tunnel vers les plages locales de multidiffusion et de diffusion, ainsi que vers et à partir de ces plages IP privées :</string>
     <string name="local_network_sharing_info">Cette fonctionnalité permet d\'accéder à d\'autres appareils sur le réseau local, par exemple pour le partage, l\'impression, le streaming, etc.</string>
     <string name="local_network_sharing_info_block_connections_warning">Attention : si l\'option « Bloquer les connexions sans VPN » est activée, l\'option « Partage réseau local » ne fonctionne pas.</string>
     <string name="location_added">%1$s (ajouté)</string>
-    <string name="location_was_added_to_list">%1$s a été ajouté à « %2$s »</string>
+    <string name="location_was_added_to_list">%1$s a été ajouté à « %2$s »</string>
     <string name="location_was_removed_from_list">%1$s a été retiré de « %2$s »</string>
     <string name="locations">Localisations</string>
     <string name="locations_were_changed_for">Les localisations ont été modifiées pour « %1$s »</string>
@@ -283,6 +290,8 @@
     <string name="payment_billing_error_dialog_title">Google Play indisponible</string>
     <string name="payment_obfuscation_id_error_dialog_message">Nous n\'avons pas pu lancer le processus de paiement, merci de réessayer plus tard.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Services Mullvad indisponibles</string>
+    <string name="payment_pending_dialog_message">Nous vérifions encore votre achat, ce qui peut prendre un certain temps. Votre temps sera ajouté si la vérification réussit.</string>
+    <string name="payment_status_pending_long">Paiement Google Play en attente. Cela peut prendre du temps</string>
     <string name="payment_status_pending_short">Paiement Google Play en attente</string>
     <string name="please_enter_a_valid_ip_address">Merci de saisir une adresse IPv4 ou IPv6 valide</string>
     <string name="please_enter_a_valid_remote_server_port">Merci de saisir un port de serveur distant valide</string>
@@ -307,6 +316,7 @@
     <string name="rented_only">Loués uniquement</string>
     <string name="report_a_problem">Signaler un problème</string>
     <string name="reset_to_default_button">Réinitialiser à la valeur par défaut</string>
+    <string name="retry">Réessayer</string>
     <string name="save">Enregistrer</string>
     <string name="search">Recherche</string>
     <string name="search_location_empty_text">Aucun résultat pour « %1$s ». Veuillez essayer une autre recherche</string>
@@ -360,6 +370,7 @@
     <string name="testing_name">Test de %1$s...</string>
     <string name="this_field_is_required">Ce champ est requis</string>
     <string name="this_is_already_set_as_current">Déjà définie comme méthode actuelle</string>
+    <string name="time_added">Temps ajouté</string>
     <string name="to_add_locations_to_a_list">Pour ajouter des localisations à une liste, appuyez sur la touche « ︙ » ou appuyez longuement sur un pays, une ville ou un serveur.</string>
     <string name="to_create_a_custom_list">Appuyez sur « ︙ » pour créer une liste personnalisée</string>
     <string name="toggle_vpn">Activer/désactiver le VPN</string>

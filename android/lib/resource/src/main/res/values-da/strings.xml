@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">Påmindelser om kontotid</string>
     <string name="add">Tilføj</string>
     <string name="add_30_days_time_x">Tilføj 30 dages tid (%1$s)</string>
+    <string name="add_90_days_time_x">Tilføj 90 dages tid (%1$s)</string>
     <string name="add_a_server">Tilføj en server</string>
     <string name="add_dns_server_dialog_title">Tilføj DNS-server</string>
     <string name="add_location_to_list">Føj %1$s til listen</string>
     <string name="add_locations">Tilføj placeringer</string>
     <string name="add_method">Tilføj metode</string>
+    <string name="add_time">Tilføj tid</string>
     <string name="add_time_to_account">Køb enten kredit på vores hjemmeside, eller indløs en kupon.</string>
     <string name="added_to_your_account">%1$s blev føjet til din konto.</string>
     <string name="adding_method">Tilføjer metode...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">API utilgængelig</string>
     <string name="api_unreachable_save_anyway">API utilgængelig, gemme metode alligevel?</string>
     <string name="app_info">App-oplysninger</string>
+    <string name="app_is_blocking_internet">Appen blokerer for internet, afbryd først forbindelsen</string>
     <string name="apply">Anvend</string>
     <string name="at_least_on_method_needs_to_enabled">Mindst én metode skal aktiveres</string>
     <string name="auth_failed">Kan ikke godkende konto. Indsend en problemrapport.</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">Hvis du aktiverer \"%1$s\", skal du manuelt vælge en server, der er %2$s-aktiveret. Det kan medføre, at du ender i en blokeret tilstand, indtil du har valgt en kompatibel server i visningen \"Vælg placering\".</string>
     <string name="daita_multihop">%1$s: Multihop</string>
     <string name="days_were_added_30">30 dage blev føjet til din konto.</string>
+    <string name="days_were_added_90">90 dage blev føjet til din konto.</string>
     <string name="delete">Slet</string>
     <string name="delete_custom_list_confirmation_description">Vil du slette \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" blev slettet</string>
@@ -176,6 +180,7 @@
     <string name="failed_to_block_internet">Kan ikke blokere al netværkstrafik. Udfør fejlfinding, eller indsend en problemrapport.</string>
     <string name="failed_to_create_account">Kunne ikke oprette konto</string>
     <string name="failed_to_fetch_devices">Kunne ikke hente listen over enheder</string>
+    <string name="failed_to_load_products">Kunne ikke indlæse produkter, prøv igen</string>
     <string name="failed_to_remove_device">Enheden kunne ikke fjernes</string>
     <string name="failed_to_send">Kunne ikke sende</string>
     <string name="failed_to_send_details">Hvis du lukker formularen og prøver igen senere, vil de oplysninger, du allerede har indtastet, stadig være her.</string>
@@ -184,7 +189,7 @@
     <string name="faqs_and_guides">Ofte stillede spørgsmål og vejledninger</string>
     <string name="feature_custom_dns">Brugerdefineret DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$s mere...</string>
+    <string name="feature_indicators_show_more">%1$s mere ...</string>
     <string name="feature_quantum_resistant">Kvantemodstand</string>
     <string name="feature_udp_2_tcp">Tilsløring</string>
     <string name="filter">Filter</string>
@@ -201,6 +206,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">Import af nye tilsidesættelser vil muligvis erstatte nogle tidligere importerede tilsidesættelser.</string>
     <string name="import_overrides_import">Importer</string>
     <string name="import_overrides_text_title">Importer via tekst</string>
+    <string name="in_app_products_unavailable">Produkter i appen er ikke tilgængelige, sørg for at du har den nyeste version af Google Play.</string>
     <string name="invalid_dns_servers">Tilpassede DNS-serveradresser %1$s er ugyldige</string>
     <string name="invalid_voucher">Kuponkode er ugyldig.</string>
     <string name="ip_version_v4_unavailable">IPv4 er ikke tilgængelig, prøv at ændre indstillingen \"Enhedens IP-version\".</string>
@@ -215,6 +221,7 @@
     <string name="less_than_a_day_left">mindre end én dag tilbage</string>
     <string name="less_than_one_day">mindre end én dag</string>
     <string name="list_name">Listenavn</string>
+    <string name="loading_products">Indlæser produkter</string>
     <string name="loading_verifying">Bekræfter køb...</string>
     <string name="local_network_sharing">Lokal netværksdeling</string>
     <string name="local_network_sharing_additional_info">Det opnås ved at tillade netværkskommunikation uden for tunnelen til lokale multicast- og broadcast-områder samt til og fra disse private IP-intervaller:</string>
@@ -283,6 +290,8 @@
     <string name="payment_billing_error_dialog_title">Google Play er ikke tilgængelig</string>
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunne ikke starte betalingsprocessen. Prøv igen senere.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjenester er ikke tilgængelige</string>
+    <string name="payment_pending_dialog_message">Vi er stadig ved at bekræfte dit køb, det kan tage noget tid. Din tid vil blive tilføjet, hvis bekræftelsen lykkes.</string>
+    <string name="payment_status_pending_long">Google Play-betaling afventer, det kan tage lidt tid</string>
     <string name="payment_status_pending_short">Google Play-betaling afventer</string>
     <string name="please_enter_a_valid_ip_address">Indtast en gyldig IPv4- eller IPv6-adresse</string>
     <string name="please_enter_a_valid_remote_server_port">Indtast en gyldig fjernserverport</string>
@@ -307,6 +316,7 @@
     <string name="rented_only">Kun lejet</string>
     <string name="report_a_problem">Rapporter et problem</string>
     <string name="reset_to_default_button">Nulstil til standard</string>
+    <string name="retry">Prøv igen</string>
     <string name="save">Gem</string>
     <string name="search">Søg</string>
     <string name="search_location_empty_text">Intet resultat for \"%1$s\". Prøv en anden søgning</string>
@@ -360,6 +370,7 @@
     <string name="testing_name">Tester %1$s...</string>
     <string name="this_field_is_required">Dette felt er påkrævet</string>
     <string name="this_is_already_set_as_current">Den er allerede indstillet som aktuel</string>
+    <string name="time_added">Tid tilføjet</string>
     <string name="to_add_locations_to_a_list">Tryk på \" ︙ \" eller tryk langvarigt på et land, en by eller en server for at tilføje placeringer til en liste.</string>
     <string name="to_create_a_custom_list">Tryk på \" ︙ \" for at oprette en brugerdefineret liste</string>
     <string name="toggle_vpn">Slå VPN til/fra</string>

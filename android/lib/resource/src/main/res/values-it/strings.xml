@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">Promemoria temporali per l\'account</string>
     <string name="add">Aggiungi</string>
     <string name="add_30_days_time_x">Aggiungi 30 giorni di tempo (%1$s)</string>
+    <string name="add_90_days_time_x">Aggiungi 90 giorni di tempo (%1$s)</string>
     <string name="add_a_server">Aggiungi un server</string>
     <string name="add_dns_server_dialog_title">Aggiungi server DNS</string>
     <string name="add_location_to_list">Aggiungi %1$s all\'elenco</string>
     <string name="add_locations">Aggiungi posizioni</string>
     <string name="add_method">Aggiungi metodo</string>
+    <string name="add_time">Aggiungi tempo</string>
     <string name="add_time_to_account">Acquista credito sul nostro sito web o riscatta un voucher.</string>
     <string name="added_to_your_account">%1$s aggiunto al tuo account.</string>
     <string name="adding_method">Aggiunta metodo...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">API non raggiungibile</string>
     <string name="api_unreachable_save_anyway">API non raggiungibile, salvare comunque il metodo?</string>
     <string name="app_info">Info app</string>
+    <string name="app_is_blocking_internet">L\'app sta bloccando Internet, effettua prima la disconnessione</string>
     <string name="apply">Applica</string>
     <string name="at_least_on_method_needs_to_enabled">È necessario abilitare almeno un metodo</string>
     <string name="auth_failed">Impossibile autenticare l\'account. Invia una segnalazione del problema.</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">Abilitando “%1$s” dovrai selezionare manualmente un server abilitato per %2$s. Questo può comportare uno stato di blocco finché non selezioni un server compatibile nella vista “Seleziona posizione”.</string>
     <string name="daita_multihop">%1$s: Multihop</string>
     <string name="days_were_added_30">30 giorni aggiunti al tuo account.</string>
+    <string name="days_were_added_90">90 giorni aggiunti al tuo account.</string>
     <string name="delete">Elimina</string>
     <string name="delete_custom_list_confirmation_description">Eliminare \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" eliminato</string>
@@ -176,6 +180,7 @@
     <string name="failed_to_block_internet">Impossibile bloccare tutto il traffico di rete. Consulta la risoluzione dei problemi o invia una segnalazione del problema.</string>
     <string name="failed_to_create_account">Impossibile creare l\'account</string>
     <string name="failed_to_fetch_devices">Impossibile recuperare l\'elenco dei dispositivi</string>
+    <string name="failed_to_load_products">Impossibile caricare i prodotti, riprova</string>
     <string name="failed_to_remove_device">Impossibile rimuovere il dispositivo</string>
     <string name="failed_to_send">Impossibile inviare</string>
     <string name="failed_to_send_details">Se esci dal modulo e riprovi più tardi, le informazioni già inserite saranno ancora qui.</string>
@@ -201,6 +206,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">L\'importazione di nuove sovrascritture potrebbe sostituire alcune sovrascritture precedentemente importate.</string>
     <string name="import_overrides_import">Importa</string>
     <string name="import_overrides_text_title">Importa tramite testo</string>
+    <string name="in_app_products_unavailable">Prodotti in-app non disponibili. Assicurati di disporre della versione più recente di Google Play.</string>
     <string name="invalid_dns_servers">Gli indirizzi del server DNS personalizzato %1$s non sono validi</string>
     <string name="invalid_voucher">Il codice voucher non è valido.</string>
     <string name="ip_version_v4_unavailable">IPv4 non disponibile, prova a cambiare l\'impostazione \"Versione IP dispositivo\".</string>
@@ -215,13 +221,14 @@
     <string name="less_than_a_day_left">meno di un giorno rimanente</string>
     <string name="less_than_one_day">meno di un giorno</string>
     <string name="list_name">Nome dell\'elenco</string>
+    <string name="loading_products">Caricamento prodotti</string>
     <string name="loading_verifying">Verifica dell\'acquisto...</string>
     <string name="local_network_sharing">Condivisione rete locale</string>
     <string name="local_network_sharing_additional_info">Lo fa consentendo la comunicazione di rete al di fuori del tunnel verso intervalli multicast e broadcast locali, nonché da e verso questi intervalli IP privati:</string>
     <string name="local_network_sharing_info">Questa funzione consente l\'accesso ad altri dispositivi sulla rete locale, ad esempio per la condivisione, la stampa, lo streaming, ecc.</string>
     <string name="local_network_sharing_info_block_connections_warning">Attenzione: se è abilitato \"Blocca connessioni senza VPN\", \"Condivisione rete locale\" non funzionerà.</string>
     <string name="location_added">%1$s (aggiunto)</string>
-    <string name="location_was_added_to_list">%1$s aggiunto a \"%2$s\"</string>
+    <string name="location_was_added_to_list">Aggiunta di %1$s a \"%2$s\"</string>
     <string name="location_was_removed_from_list">Rimozione di %1$s da \"%2$s\"</string>
     <string name="locations">Posizioni</string>
     <string name="locations_were_changed_for">Le posizioni sono state modificate per \"%1$s\"</string>
@@ -283,6 +290,8 @@
     <string name="payment_billing_error_dialog_title">Google Play non disponibile</string>
     <string name="payment_obfuscation_id_error_dialog_message">Non siamo riusciti ad avviare il processo di pagamento, riprova più tardi.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Servizi Mullvad non disponibili</string>
+    <string name="payment_pending_dialog_message">Stiamo ancora verificando il tuo acquisto, l\'operazione potrebbe richiedere del tempo. Il tuo tempo verrà aggiunto quando la verifica avrà avuto esito positivo.</string>
+    <string name="payment_status_pending_long">Pagamento Google Play in sospeso, potrebbe richiedere del tempo</string>
     <string name="payment_status_pending_short">Pagamento Google Play in sospeso</string>
     <string name="please_enter_a_valid_ip_address">Inserisci un indirizzo IPv4 o IPv6 valido</string>
     <string name="please_enter_a_valid_remote_server_port">Inserisci una porta di server remoto valida</string>
@@ -307,6 +316,7 @@
     <string name="rented_only">Solo noleggiati</string>
     <string name="report_a_problem">Segnala un problema</string>
     <string name="reset_to_default_button">Ripristina predefiniti</string>
+    <string name="retry">Riprova</string>
     <string name="save">Salva</string>
     <string name="search">Cerca</string>
     <string name="search_location_empty_text">Nessun risultato per \"%1$s\", prova una ricerca diversa</string>
@@ -360,6 +370,7 @@
     <string name="testing_name">Test di %1$s...</string>
     <string name="this_field_is_required">Questo campo è obbligatorio</string>
     <string name="this_is_already_set_as_current">È già impostato come attuale</string>
+    <string name="time_added">Tempo aggiunto</string>
     <string name="to_add_locations_to_a_list">Per aggiungere posizioni a un elenco, premi \"︙\" o tieni premuto su un Paese, una città o un server.</string>
     <string name="to_create_a_custom_list">Per creare un elenco personalizzato, premi \"︙\"</string>
     <string name="toggle_vpn">Attiva/disattiva VPN</string>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2025-05-26 11:59\n"
+"PO-Revision-Date: 2025-06-27 06:04\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -336,6 +336,11 @@ msgctxt "accessibility"
 msgid "Go to %(wireGuard)s settings."
 msgstr "ไปที่การตั้งค่า %(wireGuard)s"
 
+#. Accessibility label for link to app upgrade view.
+msgctxt "accessibility"
+msgid "Go to app update page"
+msgstr "ไปที่หน้าอัปเดตแอป"
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -372,6 +377,15 @@ msgstr "เข้าสู่ระบบด้วยหมายเลขบั
 msgctxt "accessibility"
 msgid "More information"
 msgstr "ข้อมูลเพิ่มเติม"
+
+#. Accessbility label for link to go to download page.
+msgctxt "accessibility"
+msgid "New version available, click here to go to download page, opens externally"
+msgstr "เวอร์ชันใหม่พร้อมใช้งานแล้ว คลิกที่นี่เพื่อไปที่หน้าดาวน์โหลด เปิดภายนอก"
+
+msgctxt "accessibility"
+msgid "New version available, click here to go to update view"
+msgstr "เวอร์ชันใหม่พร้อมให้ใช้งานแล้ว คลิกที่นี่เพื่อไปอัปเดตมุมมอง"
 
 msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
@@ -615,21 +629,202 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "การใช้วิธี \"Mullvad bridges\" จะทำให้แอปสื่อสารกับเซิร์ฟเวอร์ Mullvad API ผ่านเซิร์ฟเวอร์ Mullvad bridge โดยการรับส่งข้อมูลที่ Shadowsocks ทำให้ข้อมูลยุ่งเหยิง"
 
+#. Title of the app info view.
 msgctxt "app-info-view"
 msgid "App info"
 msgstr "ข้อมูลแอป"
 
+#. Description for version list item when app is out of sync.
 msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "แอปไม่ได้รับการซิงค์ โปรดออกและเปิดแอปใหม่"
 
+#. Label for switch to toggle beta program.
 msgctxt "app-info-view"
-msgid "App version"
-msgstr "เวอร์ชันแอป"
+msgid "Beta program"
+msgstr "โปรแกรมเบต้า"
 
 msgctxt "app-info-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "มีอัปเดตพร้อมใช้งาน ติดตั้งแอปเวอร์ชันล่าสุด เพื่อรับข้อมูลการอัปเดตล่าสุด"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "เปิดใช้งานเพื่อรับการแจ้งเตือนเมื่อมีการเปิดตัวเวอร์ชันเบต้าใหม่ของแอป"
+
+msgctxt "app-info-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "ตัวเลือกนี้จะใช้ไม่ได้ในขณะที่ใช้เวอร์ชันเบต้า"
+
+#. Label for update available list item.
+msgctxt "app-info-view"
+msgid "Update available"
+msgstr "มีการอัปเดตให้ใช้งาน"
+
+#. Label for version list item.
+msgctxt "app-info-view"
+msgid "Version"
+msgstr "เวอร์ชัน"
+
+#. Label for changelog list item.
+msgctxt "app-info-view"
+msgid "What’s new"
+msgstr "มีอะไรใหม่"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion is within a few seconds.
+msgctxt "app-upgrade-view"
+msgid "A few seconds remaining..."
+msgstr "เหลืออีกไม่กี่วินาที..."
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in minutes.
+#. Available placeholders:
+#. %(minutes)s - Will be replaced with remaining minutes until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(minutes)s minutes remaining..."
+msgstr "เหลือเวลาอีกประมาณ %(minutes)s นาที..."
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in seconds.
+#. Available placeholders:
+#. %(second)s - Will be replaced with remaining seconds until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(seconds)s seconds remaining..."
+msgstr "เหลือเวลาอีกประมาณ %(seconds)s วินาที..."
+
+#. Label displayed when an error occurred due to the connection being blocked
+msgctxt "app-upgrade-view"
+msgid "Connection blocked. Try changing server or other settings."
+msgstr "การเชื่อมต่อถูกปิดกั้น ลองเปลี่ยนเซิร์ฟเวอร์หรือการตั้งค่าอื่นๆ"
+
+#. Label displayed when an error occurred due to the installer failing to start
+#. and the suggested resolution is to download the update again.
+msgctxt "app-upgrade-view"
+msgid "Could not open installer, please try again or send a problem report."
+msgstr "ไม่สามารถเปิดโปรแกรมติดตั้งได้ โปรดลองอีกครั้งหรือส่งรายงานปัญหา"
+
+#. Button text to download and install an update
+msgctxt "app-upgrade-view"
+msgid "Download & install"
+msgstr "ดาวน์โหลดและติดตั้ง"
+
+#. Status text displayed below a progress bar when the download of an update is complete
+msgctxt "app-upgrade-view"
+msgid "Download complete!"
+msgstr "ดาวน์โหลดเสร็จแล้ว!"
+
+#. Status text displayed below a progress bar when the download of an update fails
+msgctxt "app-upgrade-view"
+msgid "Download failed"
+msgstr "การดาวน์โหลดล้มเหลว"
+
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Download failed, please check your connection/firewall and try again, or send a problem report."
+msgstr "การดาวน์โหลดล้มเหลว โปรดตรวจสอบการเชื่อมต่อ/ไฟร์วอลล์ของคุณและลองอีกครั้งหรือส่งรายงานปัญหา"
+
+#. Status text displayed below a progress bar when the download of an update has been paused
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Download paused"
+msgstr "การดาวน์โหลดถูกหยุดชั่วคราว"
+
+#. Label displayed above a progress bar informing the user which server
+#. the update is downloading from
+msgctxt "app-upgrade-view"
+msgid "Downloading from: %(server)s"
+msgstr "กำลังดาวน์โหลดจาก: %(server)s"
+
+#. Label displayed above a progress bar when a download is in progress
+msgctxt "app-upgrade-view"
+msgid "Downloading..."
+msgstr "กำลังดาวน์โหลด..."
+
+#. Link shown to optionally manually download the update
+#. due to repeated errors in the upgrade process.
+msgctxt "app-upgrade-view"
+msgid "Having problems? Try downloading the app from our website"
+msgstr "มีปัญหาหรือไม่ ลองดาวน์โหลดแอปจากเว็บไซต์ของเรา"
+
+#. Button text to install an update
+msgctxt "app-upgrade-view"
+msgid "Install update"
+msgstr "ติดตั้งการอัปเดต..."
+
+#. Label displayed when an error occurred within the installer
+msgctxt "app-upgrade-view"
+msgid "Installer quit unexpectedly, please try again or send a problem report."
+msgstr "โปรแกรมติดตั้งหยุดทำงานอย่างไม่คาดคิด โปรดลองอีกครั้งหรือส่งรายงานปัญหา"
+
+#. Text displayed when there are no updates for this platform in the next app version
+msgctxt "app-upgrade-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "ไม่มีอัปเดตหรือการเปลี่ยนแปลงในรุ่นนี้สำหรับแพลตฟอร์มนี้"
+
+#. Button text to pause the download of an update
+msgctxt "app-upgrade-view"
+msgid "Pause"
+msgstr "หยุดชั่วคราว"
+
+#. Button text to report a problem
+msgctxt "app-upgrade-view"
+msgid "Report a problem"
+msgstr "รายงานปัญหา"
+
+#. Button text to resume updating
+msgctxt "app-upgrade-view"
+msgid "Resume"
+msgstr "ดำเนินการต่อ"
+
+#. Button text to try again
+msgctxt "app-upgrade-view"
+msgid "Retry"
+msgstr "ลองอีกครั้ง"
+
+#. Button text to try download again
+msgctxt "app-upgrade-view"
+msgid "Retry download"
+msgstr "ลองดาวน์โหลดอีกครั้ง"
+
+#. Status text displayed below a progress bar when the download of an update is starting
+msgctxt "app-upgrade-view"
+msgid "Starting download..."
+msgstr "กำลังเริ่มดาวน์โหลด..."
+
+#. Button text to when starting the installer for an update
+msgctxt "app-upgrade-view"
+msgid "Starting installer..."
+msgstr "กำลังเริ่มโปรแกรมติดตั้ง..."
+
+#. Label displayed when an unknown error occurred
+msgctxt "app-upgrade-view"
+msgid "Unknown error occurred. Please try again or send a problem report."
+msgstr "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ โปรดลองอีกครั้งหรือส่งรายงานปัญหา"
+
+#. Title in navigation bar
+#. Main title for the update available view
+msgctxt "app-upgrade-view"
+msgid "Update available"
+msgstr "มีการอัปเดตให้ใช้งาน"
+
+#. Label displayed when an error occurred due to the installer failed verification
+msgctxt "app-upgrade-view"
+msgid "Verification failed, please try again or send a problem report."
+msgstr "การตรวจสอบล้มเหลว โปรดลองอีกครั้งหรือส่งรายงานปัญหา"
+
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Verification successful!"
+msgstr "การตรวจสอบสำเร็จ!"
+
+#. Label displayed above a progress bar when the update is being verified
+msgctxt "app-upgrade-view"
+msgid "Verifying installer..."
+msgstr "กำลังตรวจสอบโปรแกรมติดตั้ง..."
+
+#. Heading which shows the version of the app which can be upgraded to.
+#. Available placeholders:
+#. %(version)s - The new version of the app.
+msgctxt "app-upgrade-view"
+msgid "Version %(version)s"
+msgstr "เวอร์ชัน %(version)s"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -647,10 +842,13 @@ msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "คุณกำลังเข้าสู่ระบบโดยใช้หมายเลขบัญชีที่ไม่ถูกต้อง โปรดออกจากระบบแล้วลองใช้บัญชีอื่น"
 
+#. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
 msgstr "ไม่มีอัปเดตหรือการเปลี่ยนแปลงในรุ่นนี้สำหรับแพลตฟอร์มนี้"
 
+#. Heading for the view of the changes and updates in the
+#. current version compared to the old version.
 msgctxt "changelog-view"
 msgid "What’s new"
 msgstr "มีอะไรใหม่"
@@ -961,6 +1159,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "การสนับสนุน %(openVpn)s กำลังจะสิ้นสุดลง เปลี่ยนตำแหน่งที่ตั้ง หรือ"
 
+#. Notification subtitle when the app upgrade is ready to install.
+#. Available placeholders:
+#. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
+msgctxt "in-app-notifications"
+msgid "%(suggestedUpgradeVersion)s is ready to be installed."
+msgstr "%(suggestedUpgradeVersion)s พร้อมที่จะติดตั้งแล้ว"
+
 #. Link in notication to go to WireGuard settings.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
@@ -992,14 +1197,72 @@ msgctxt "in-app-notifications"
 msgid "change tunnel protocol to %(wireGuard)s."
 msgstr "เปลี่ยนโพรโทคอลอุโมงค์เป็น %(wireGuard)s"
 
+#. Notification subtitle when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "Click here to install update."
+msgstr "คลิกที่นี่เพื่อติดตั้งการอัปเดต"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "Click here to retry"
+msgstr "คลิกที่นี่เพื่อลองอีกครั้ง"
+
+#. Notification subtitle when the download of the installer failed
+#. and the user can try downloading again.
+msgctxt "in-app-notifications"
+msgid "Click here to retry download"
+msgstr "คลิกที่นี่เพื่อลองดาวน์โหลดอีกครั้ง"
+
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
 msgstr "คลิกที่นี่ เพื่อดูว่ามีอะไรใหม่"
+
+#. Link text to go to the app upgrade view
+msgctxt "in-app-notifications"
+msgid "Click here to update"
+msgstr "คลิกที่นี่เพื่ออัปเดต"
+
+#. Notification subtitle when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "Could not download installer."
+msgstr "ไม่สามารถดาวน์โหลดโปรแกรมติดตั้งได้"
+
+#. Generic notification subtitle when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "Could not upgrade the app."
+msgstr "ไม่สามารถอัปเกรดแอปได้"
+
+#. Notification title when app upgrade is verifying the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD COMPLETE! VERIFYING..."
+msgstr "ดาวน์โหลดเสร็จสมบูรณ์! กำลังตรวจสอบ..."
+
+#. Notification title when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD FAILED"
+msgstr "การดาวน์โหลดล้มเหลว"
+
+#. Generic notification title when app upgrade is downloading the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE..."
+msgstr "กำลังดาวน์โหลดอัปเดต..."
+
+#. Notification title when the app upgrade is in progress.
+#. Available placeholders:
+#. - %(appUpgradeDownloadProgressValue)s: The download progress value.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
+msgstr "กำลังดาวน์โหลดอัปเดต... %(appUpgradeDownloadProgressValue)s%%"
 
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr "ติดตั้งแอปเวอร์ชันล่าสุดเพื่อรับข้อมูลการอัปเดตล่าสุด"
+
+#. Notification title when the installer failed.
+msgctxt "in-app-notifications"
+msgid "INSTALLER FAILED"
+msgstr "โปรแกรมติดตั้งล้มเหลว"
 
 msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
@@ -1044,10 +1307,40 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "อ่านเพิ่มเติม"
 
+#. Notification title when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "READY TO INSTALL UPDATE"
+msgstr "พร้อมที่จะติดตั้งการอัปเดต"
+
+#. Accessibility label for the button to retry download of the installer.
+msgctxt "in-app-notifications"
+msgid "Retry download of the installer"
+msgstr "ลองดาวน์โหลดโปรแกรมติดตั้งอีกครั้ง"
+
+#. Accessibility label for the button to retry the installation.
+msgctxt "in-app-notifications"
+msgid "Retry installation"
+msgstr "ลองติดตั้งใหม่อีกครั้ง"
+
 #. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "ส่งรายงานปัญหา"
+
+#. Notification subtitle when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "The installer could not be verified."
+msgstr "ไม่สามารถดำเนินการตรวจสอบโปรแกรมติดตั้งได้"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not complete successfully."
+msgstr "โปรแกรมติดตั้งไม่เสร็จสมบูรณ์"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not start successfully."
+msgstr "โปรแกรมติดตั้งไม่สามารถเริ่มต้นได้สำเร็จ"
 
 #. Notification subtitle indicating the user is using an unsupported port for WireGuard.
 #. Available placeholders:
@@ -1071,6 +1364,26 @@ msgstr "เวอร์ชันที่ไม่รองรับ"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "มีการอัปเดตให้ใช้งาน"
+
+#. Generic notification title when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "UPDATE FAILED"
+msgstr "การอัปเดตล้มเหลว"
+
+#. Notification title when app upgrade is ready for the user to launch the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! INSTALLER READY!"
+msgstr "การตรวจสอบเสร็จสมบูรณ์! โปรแกรมติดตั้งพร้อมแล้ว!"
+
+#. Notification title when app upgrade is launching the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! LAUNCHING INSTALLER..."
+msgstr "การตรวจสอบเสร็จสมบูรณ์! กำลังเปิดโปรแกรมติดตั้ง..."
+
+#. Notification title when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION FAILED"
+msgstr "การตรวจสอบล้มเหลว"
 
 msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
@@ -1218,11 +1531,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "การเข้าถึง API"
 
-#. Title label in navigation bar
-msgctxt "navigation-bar"
-msgid "Settings"
-msgstr "การตั้งค่า"
-
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
@@ -1294,13 +1602,13 @@ msgstr "ล้มเหลวในการเปิดใช้การแย
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv4 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า <b>%(ipVersionFeatureName)</b>"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv4 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า <b>%(ipVersionFeatureName)s</b>"
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv6 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า <b>%(ipVersionFeatureName)</b>"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv6 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า <b>%(ipVersionFeatureName)s</b>"
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -1309,6 +1617,12 @@ msgstr "เปิดใช้โหมดล็อกดาวน์ ปิด�
 msgctxt "notifications"
 msgid "No servers match your settings, try changing server or other settings."
 msgstr "ไม่มีเซิร์ฟเวอร์ที่ตรงกับการตั้งค่าของคุณ โปรดลองเปลี่ยนเซิร์ฟเวอร์ หรือการตั้งค่าอื่นๆ"
+
+#. A link in the in-app banner to encourage the user to update the app.
+#. The in-app banner is is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Please click here to update now"
+msgstr "โปรดคลิกที่นี่เพื่ออัปเดตทันที"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -1380,7 +1694,12 @@ msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr "อุปกรณ์ของคุณออฟไลน์อยู่ อุโมงค์จะเชื่อมต่อโดยอัตโนมัติ หลังจากที่อุปกรณ์ของคุณกลับมาออนไลน์"
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+#. The in-app banner which is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version."
+msgstr "ความเป็นส่วนตัวของคุณอาจมีความเสี่ยงกับแอปเวอร์ชันที่ไม่รองรับนี้"
+
+#. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "ความเป็นส่วนตัวของคุณอาจมีความเสี่ยง ในขณะที่ใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุนนี้ โปรดอัปเดตตอนนี้เลย"
@@ -1687,6 +2006,7 @@ msgctxt "settings-view"
 msgid "API access"
 msgstr "การเข้าถึง API"
 
+#. Navigation button to the 'App info' view
 msgctxt "settings-view"
 msgid "App info"
 msgstr "ข้อมูลแอป"
@@ -1695,9 +2015,21 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "มัลติฮอป"
 
+#. Title label in navigation bar
+#. Main title for settings view
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "การตั้งค่า"
+
+#. Navigation button to the 'Support' view
 msgctxt "settings-view"
 msgid "Support"
 msgstr "การสนับสนุน"
+
+#. Label for the app info list item indicating that an update is available and can be downloaded
+msgctxt "settings-view"
+msgid "Update available"
+msgstr "มีการอัปเดตให้ใช้งาน"
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1708,10 +2040,6 @@ msgstr "การตั้งค่าอินเทอร์เฟซผู้
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "การตั้งค่า VPN"
-
-msgctxt "settings-view"
-msgid "What’s new"
-msgstr "มีอะไรใหม่"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1785,10 +2113,6 @@ msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "ไม่สามารถเปิดรายการที่เลือกได้ %(detailedErrorMessage)s"
 
-msgctxt "support-view"
-msgid "Beta program"
-msgstr "โปรแกรมรุ่นเบต้า"
-
 #. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -1798,10 +2122,6 @@ msgstr "ดำเนินการต่อไป"
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "แก้ไขข้อความ"
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "เปิดใช้งานเพื่อรับการแจ้งเตือน เมื่อมีการแผยแพร่แอปเวอร์ชันเบต้ารุ่นใหม่"
 
 msgctxt "support-view"
 msgid "Failed to send"
@@ -1857,10 +2177,6 @@ msgid "Thanks!"
 msgstr "ขอบคุณ!"
 
 msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
-msgstr "ตัวเลือกนี้จะไม่พร้อมใช้งาน ในขณะที่ใช้งานแอปเวอร์ชันเบต้า"
-
-msgctxt "support-view"
 msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
 msgstr "โปรดเขียนเป็นภาษาอังกฤษหรือสวีเดน พร้อมระบุประเทศต้นทางที่คุณเชื่อมต่อ เพื่อให้รับความช่วยเหลือได้ดียิ่งขึ้น"
 
@@ -1873,10 +2189,10 @@ msgctxt "support-view"
 msgid "Try again"
 msgstr "ลองอีกครั้ง"
 
-#. Button label for upgrading the app to the latest version.
+#. Button label for updating the app to the latest version.
 msgctxt "support-view"
-msgid "Upgrade app"
-msgstr "อัปเกรดแอป"
+msgid "Update app"
+msgstr "อัปเดตแอป"
 
 #. Button label for opening app logs.
 msgctxt "support-view"
@@ -2409,6 +2725,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN"
 
+msgid "%1$s more..."
+msgstr "อีก %1$s..."
+
+msgid "%1$s was added to \"%2$s\""
+msgstr "เพิ่ม %1$s ลงใน \"%2$s\" แล้ว"
+
+msgid "%1$s was removed from \"%2$s\""
+msgstr "%1$s ถูกลบออกจาก \"%2$s” แล้ว"
+
 msgid "%s (Entry)"
 msgstr "%s (ขาเข้า)"
 
@@ -2424,17 +2749,8 @@ msgstr "%s (ลบแล้ว)"
 msgid "%s custom port"
 msgstr "พอร์ต %s แบบกำหนดเอง"
 
-msgid "%s more..."
-msgstr "อีก %s..."
-
-msgid "%s was added to \"%s\""
-msgstr "%s ได้ถูกเพิ่มไปยัง \"%s\""
-
 msgid "%s was added to your account."
 msgstr "%s ถูกเพิ่มลงในบัญชีของคุณแล้ว"
-
-msgid "%s was removed from \"%s\""
-msgstr "%s ได้ถูกลบออกจาก \"%s\" แล้ว"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. หลังจากคลิกปุ่ม \"ไปที่การตั้งค่า VPN\" ที่ด้านล่าง ให้คลิกล้อเฟืองที่อยู่ถัดจากชื่อ \"Mullvad VPN\""
@@ -2447,6 +2763,9 @@ msgstr "3. ในการเปิดโหมดล็อกดาวน์ �
 
 msgid "30 days was added to your account."
 msgstr "30 วัน ถูกเพิ่มลงในบัญชีของคุณแล้ว"
+
+msgid "90 days was added to your account."
+msgstr "เพิ่ม 90 วันในบัญชีของคุณแล้ว"
 
 msgid "API reachable, adding method..."
 msgstr "เข้าถึง API ได้ กำลังเพิ่มวิธีการ..."
@@ -2466,17 +2785,20 @@ msgstr "การแจ้งเตือนเวลาบัญชี"
 msgid "Add %s to list"
 msgstr "เพิ่ม %s ลงในรายการ"
 
-msgid "Add 30 days time"
-msgstr "เพิ่มเวลา 30 วัน"
-
 msgid "Add 30 days time (%s)"
 msgstr "เพิ่มเวลา 30 วัน (%s)"
+
+msgid "Add 90 days time (%s)"
+msgstr "เพิ่มเวลา 90 วัน (%s)"
 
 msgid "Add DNS server"
 msgstr "เพิ่มเซิร์ฟเวอร์ DNS"
 
 msgid "Add locations"
 msgstr "เพิ่มตำแหน่งที่ตั้ง"
+
+msgid "Add time"
+msgstr "เพิ่มเวลา"
 
 msgid "Adding method..."
 msgstr "กำลังเพิ่มวิธีการ..."
@@ -2571,8 +2893,8 @@ msgstr "อุปกรณ์ปัจจุบัน"
 msgid "Current: %s"
 msgstr "ปัจจุบัน: %s"
 
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "ที่อยู่เซิร์ฟเวอร์ DNS %s ที่กำหนดเองไม่ถูกต้อง"
+msgid "Custom DNS server addresses %1$s are invalid"
+msgstr "ที่อยู่เซิร์ฟเวอร์ DNS ที่กำหนดเอง %1$s ไม่ถูกต้อง"
 
 msgid "DNS settings might not go into effect immediately"
 msgstr "การตั้งค่า DNS อาจไม่มีผลทันที"
@@ -2628,8 +2950,8 @@ msgstr "แก้ไขตำแหน่งที่ตั้ง"
 msgid "Edit name"
 msgstr "แก้ไขชื่อ"
 
-msgid "Enable %s"
-msgstr "เปิดใช้งาน %s"
+msgid "Enable %1$s"
+msgstr "เปิดใช้งาน %1$s"
 
 msgid "Enable method"
 msgstr "เปิดใช้งานวิธีการ"
@@ -2648,6 +2970,9 @@ msgstr "ไม่สามารถเชื่อมต่อได้"
 
 msgid "Failed to apply patch"
 msgstr "ล้มเหลวในการปรับใช้แพตช์"
+
+msgid "Failed to load products, please try again"
+msgstr "ไม่สามารถโหลดผลิตภัณฑ์ได้ โปรดลองอีกครั้ง"
 
 msgid "Failed to set to current - API not reachable"
 msgstr "ไม่สามารถตั้งค่าเป็นปัจจุบันได้ - ไม่สามารถเข้าถึง API ได้"
@@ -2670,6 +2995,9 @@ msgstr "การไปที่ส่วนเข้าสู่ระบบจ
 msgid "Google Play payment pending"
 msgstr "กำลังชำระเงิน Google Play"
 
+msgid "Google Play payment pending, this might take some time"
+msgstr "การชำระเงินผ่าน Google Play อยู่ระหว่างดำเนินการ อาจใช้เวลาสักครู่"
+
 msgid "Google Play unavailable"
 msgstr "Google Play ไม่พร้อมใช้งาน"
 
@@ -2691,11 +3019,14 @@ msgstr "นำเข้าสำเร็จ เปิดใช้โอเว�
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "การนำเข้าโอเวอร์ไรด์ใหม่ อาจแทนที่โอเวอร์ไรด์ที่นำเข้าก่อนหน้านี้"
 
+msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
+msgstr "ผลิตภัณฑ์ในแอปไม่พร้อมใช้งาน โปรดตรวจสอบให้แน่ใจว่าคุณมี Google Play เวอร์ชันล่าสุด"
+
 msgid "In-tunnel IPv6"
 msgstr "IPv6 แบบภายในอุโมงค์"
 
-msgid "Invalid or missing value \"%s\""
-msgstr "ค่า \"%s\" ไม่ถูกต้องหรือหายไป"
+msgid "Invalid or missing value \"%1$s\""
+msgstr "ค่า \"%1$s” ไม่ถูกต้องหรือขาดหายไป"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "นี่จะมีประโยชน์อย่างมาก เมื่อคุณทราบถึงปัญหาที่เกิดจากเวอร์ชัน IP บางเวอร์ชัน"
@@ -2709,6 +3040,9 @@ msgstr "ช่วยให้คุณเลือกแอปที่เข้
 msgid "List name"
 msgstr "ชื่อรายการ"
 
+msgid "Loading products"
+msgstr "กำลังโหลดผลิตภัณฑ์"
+
 msgid "Locations"
 msgstr "ตำแหน่งที่ตั้ง"
 
@@ -2717,9 +3051,6 @@ msgstr "ตำแหน่งที่ตั้งสำหรับ \"%s\" ม�
 
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "ตรวจสอบให้แน่ใจว่า อุปกรณ์อยู่ในช่องทาง VPN เสมอ"
-
-msgid "Manage account"
-msgstr "จัดการบัญชี"
 
 msgid "Manage devices"
 msgstr "จัดการอุปกรณ์"
@@ -2796,8 +3127,8 @@ msgstr "ขีดจำกัดการเรียกซ้ำ"
 msgid "Remove"
 msgstr "ลบ"
 
-msgid "Remove %s from %s"
-msgstr "ลบ %s ออกจาก %s"
+msgid "Remove %1$s from %2$s"
+msgstr "ลบ %1$s จาก %2$s"
 
 msgid "Remove %s?"
 msgstr "ลบ %s หรือไม่"
@@ -2823,8 +3154,8 @@ msgstr "ค้นหา"
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "ตั้งค่าการทำให้ข้อมูลยุ่งเหยิง %s ให้เป็น \"อัตโนมัติ\" หรือ \"ปิด\" ที่ด้านล่าง เพื่อเปิดใช้งานการตั้งค่านี้"
 
-msgid "Set WireGuard MTU value. Valid range: %d - %d."
-msgstr "ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %d - %d"
+msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
+msgstr "ตั้งค่า WireGuard MTU ช่วงที่ถูกต้อง: %1$d - %2$d"
 
 msgid "Set port"
 msgstr "ตั้งค่าพอร์ต"
@@ -2865,6 +3196,9 @@ msgstr "โหมดล็อกดาวน์ถูกเรียกว่า
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "วิธีการ \"ปัจจุบัน\" แสดงถึงวิธีที่แอปใช้ในการเข้าถึง API"
 
+msgid "The app is blocking internet, please disconnect first"
+msgstr "แอปกำลังปิดกั้นอินเทอร์เน็ต โปรดตัดการเชื่อมต่อก่อน"
+
 msgid "The device will be removed from the list and logged out."
 msgstr "อุปกรณ์จะถูกลบออกจากรายการและออกจากระบบ"
 
@@ -2885,6 +3219,9 @@ msgstr "จำเป็นต้องกรอกช่องนี้"
 
 msgid "This is already set as current"
 msgstr "นี่ได้รับการตั้งค่าเป็นปัจจุบันแล้ว"
+
+msgid "Time added"
+msgstr "เพิ่มเวลาแล้ว"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "กด \"︙\" หรือกดประเทศ เมือง หรือเซิร์ฟเวอร์ค้างไว้ เพื่อเพิ่มตำแหน่งที่ตั้งลงในรายการ"
@@ -2913,8 +3250,8 @@ msgstr "ไม่สามารถเริ่มการเชื่อมต
 msgid "Undo"
 msgstr "เลิกทำ"
 
-msgid "Unknown or prohibited key \"%s\""
-msgstr "คีย์ที่ไม่รู้จัก หรือต้องห้าม \"%s\""
+msgid "Unknown or prohibited key \"%1$s\""
+msgstr "คีย์ \"%1$s\" ไม่รู้จักหรือไม่ได้รับอนุญาต"
 
 msgid "Update DNS server"
 msgstr "อัปเดตเซิร์ฟเวอร์ DNS"
@@ -2958,14 +3295,11 @@ msgstr "กำลังตรวจสอบยืนยันการซื้
 msgid "Verifying voucher…"
 msgstr "กำลังตรวจสอบยืนยันบัตรกำนัล…"
 
-msgid "Version"
-msgstr "เวอร์ชัน"
-
 msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr "ดูและจัดการอุปกรณ์ทั้งหมดที่คุณลงชื่อเข้าใช้ คุณสามารถมีอุปกรณ์ได้สูงสุด 5 เครื่องในหนึ่งบัญชีในเวลาเดียวกัน แต่ละอุปกรณ์จะได้รับชื่อในขณะที่ลงชื่อเข้าใช้ เพื่อช่วยให้คุณแยกแยะอุปกรณ์แต่ละเครื่องได้อย่างง่ายดาย"
 
-msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
-msgstr "เรากำลังตรวจสอบยืนยันการซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ คุณจะได้รับเวลาเพิ่ม หากการตรวจสอบยืนยันสำเร็จ"
+msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "เรากำลังตรวจสอบการสั่งซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ หากการตรวจสอบเสร็จสมบูรณ์ เราจะเพิ่มเวลาของคุณ"
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดตรวจสอบให้แน่ใจว่า คุณมี Google Play เวอร์ชันล่าสุด "

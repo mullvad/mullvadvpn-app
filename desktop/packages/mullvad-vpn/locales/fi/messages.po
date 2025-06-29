@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2025-05-26 11:59\n"
+"PO-Revision-Date: 2025-06-27 06:04\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -342,6 +342,11 @@ msgctxt "accessibility"
 msgid "Go to %(wireGuard)s settings."
 msgstr "Siirry %(wireGuard)s-asetuksiin."
 
+#. Accessibility label for link to app upgrade view.
+msgctxt "accessibility"
+msgid "Go to app update page"
+msgstr "Siirry sovelluksen päivityssivulle"
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -378,6 +383,15 @@ msgstr "Kirjaudu sisään tilille numero %(accountNumber)s"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "Lisätietoja"
+
+#. Accessbility label for link to go to download page.
+msgctxt "accessibility"
+msgid "New version available, click here to go to download page, opens externally"
+msgstr "Uusi versio on saatavilla. Siirry lataussivulle napsauttamalla tätä (avautuu ulkoisesti)."
+
+msgctxt "accessibility"
+msgid "New version available, click here to go to update view"
+msgstr "Uusi versio on saatavilla. Siirry päivitysnäkymään napsauttamalla tätä."
 
 msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
@@ -621,21 +635,202 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "Kun käytössä on Mullvadin siltausmenetelmä, sovellus kommunikoi Mullvadin ohjelmointirajapinnan palvelimen kanssa Mullvadin siltauspalvelimen kautta. Se tekee tämän lähettämällä liikenteen Shadowsocksin peittämänä."
 
+#. Title of the app info view.
 msgctxt "app-info-view"
 msgid "App info"
 msgstr "Sovelluksen tiedot"
 
+#. Description for version list item when app is out of sync.
 msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Sovellusta ei ole synkronoitu. Sulje sovellus ja käynnistä se uudelleen."
 
+#. Label for switch to toggle beta program.
 msgctxt "app-info-view"
-msgid "App version"
-msgstr "Sovelluksen versio"
+msgid "Beta program"
+msgstr "Beetaohjelma"
 
 msgctxt "app-info-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "Päivitys on saatavilla. Pysy ajan tasalla asentamalla sovelluksen uusin versio."
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "Ota käyttöön, niin saat ilmoituksen uusista sovelluksen beetaversioista."
+
+msgctxt "app-info-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "Tämä toiminto ei ole käytössä beetaversiossa."
+
+#. Label for update available list item.
+msgctxt "app-info-view"
+msgid "Update available"
+msgstr "Päivitys saatavilla"
+
+#. Label for version list item.
+msgctxt "app-info-view"
+msgid "Version"
+msgstr "Versio"
+
+#. Label for changelog list item.
+msgctxt "app-info-view"
+msgid "What’s new"
+msgstr "Uutta"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion is within a few seconds.
+msgctxt "app-upgrade-view"
+msgid "A few seconds remaining..."
+msgstr "Muutama sekunti jäljellä..."
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in minutes.
+#. Available placeholders:
+#. %(minutes)s - Will be replaced with remaining minutes until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(minutes)s minutes remaining..."
+msgstr "Noin %(minutes)s minuuttia jäljellä..."
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in seconds.
+#. Available placeholders:
+#. %(second)s - Will be replaced with remaining seconds until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(seconds)s seconds remaining..."
+msgstr "Noin %(seconds)s sekuntia jäljellä..."
+
+#. Label displayed when an error occurred due to the connection being blocked
+msgctxt "app-upgrade-view"
+msgid "Connection blocked. Try changing server or other settings."
+msgstr "Yhteys estetty. Kokeile vaihtaa palvelinta tai muuttaa muita asetuksia."
+
+#. Label displayed when an error occurred due to the installer failing to start
+#. and the suggested resolution is to download the update again.
+msgctxt "app-upgrade-view"
+msgid "Could not open installer, please try again or send a problem report."
+msgstr "Asennusohjelman avaaminen ei onnistunut. Yritä uudelleen tai lähetä ongelmaraportti."
+
+#. Button text to download and install an update
+msgctxt "app-upgrade-view"
+msgid "Download & install"
+msgstr "Lataa ja asenna"
+
+#. Status text displayed below a progress bar when the download of an update is complete
+msgctxt "app-upgrade-view"
+msgid "Download complete!"
+msgstr "Lataus valmis!"
+
+#. Status text displayed below a progress bar when the download of an update fails
+msgctxt "app-upgrade-view"
+msgid "Download failed"
+msgstr "Lataus epäonnistui"
+
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Download failed, please check your connection/firewall and try again, or send a problem report."
+msgstr "Lataus epäonnistui. Tarkista yhteys tai palomuuri ja yritä uudelleen tai lähetä ongelmaraportti."
+
+#. Status text displayed below a progress bar when the download of an update has been paused
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Download paused"
+msgstr "Lataus keskeytetty"
+
+#. Label displayed above a progress bar informing the user which server
+#. the update is downloading from
+msgctxt "app-upgrade-view"
+msgid "Downloading from: %(server)s"
+msgstr "Ladataan palvelimelta: %(server)s"
+
+#. Label displayed above a progress bar when a download is in progress
+msgctxt "app-upgrade-view"
+msgid "Downloading..."
+msgstr "Ladataan..."
+
+#. Link shown to optionally manually download the update
+#. due to repeated errors in the upgrade process.
+msgctxt "app-upgrade-view"
+msgid "Having problems? Try downloading the app from our website"
+msgstr "Kohtasitko ongelmia? Kokeile ladata sovellus verkkosivustoltamme"
+
+#. Button text to install an update
+msgctxt "app-upgrade-view"
+msgid "Install update"
+msgstr "Asenna päivitys"
+
+#. Label displayed when an error occurred within the installer
+msgctxt "app-upgrade-view"
+msgid "Installer quit unexpectedly, please try again or send a problem report."
+msgstr "Asennusohjelma sulkeutui odottamattomasti. Yritä uudelleen tai lähetä ongelmaraportti."
+
+#. Text displayed when there are no updates for this platform in the next app version
+msgctxt "app-upgrade-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "Versioon ei sisälly alustan ​​päivityksiä tai muutoksia."
+
+#. Button text to pause the download of an update
+msgctxt "app-upgrade-view"
+msgid "Pause"
+msgstr "Keskeytä"
+
+#. Button text to report a problem
+msgctxt "app-upgrade-view"
+msgid "Report a problem"
+msgstr "Ilmoita ongelmasta"
+
+#. Button text to resume updating
+msgctxt "app-upgrade-view"
+msgid "Resume"
+msgstr "Jatka"
+
+#. Button text to try again
+msgctxt "app-upgrade-view"
+msgid "Retry"
+msgstr "Yritä uudelleen"
+
+#. Button text to try download again
+msgctxt "app-upgrade-view"
+msgid "Retry download"
+msgstr "Yritä latausta uudelleen"
+
+#. Status text displayed below a progress bar when the download of an update is starting
+msgctxt "app-upgrade-view"
+msgid "Starting download..."
+msgstr "Latausta aloitetaan..."
+
+#. Button text to when starting the installer for an update
+msgctxt "app-upgrade-view"
+msgid "Starting installer..."
+msgstr "Käynnistetään asennusohjelmaa..."
+
+#. Label displayed when an unknown error occurred
+msgctxt "app-upgrade-view"
+msgid "Unknown error occurred. Please try again or send a problem report."
+msgstr "Tapahtui tuntematon virhe. Yritä uudelleen tai lähetä ongelmaraportti."
+
+#. Title in navigation bar
+#. Main title for the update available view
+msgctxt "app-upgrade-view"
+msgid "Update available"
+msgstr "Päivitys saatavilla"
+
+#. Label displayed when an error occurred due to the installer failed verification
+msgctxt "app-upgrade-view"
+msgid "Verification failed, please try again or send a problem report."
+msgstr "Vahvistus epäonnistui. Yritä uudelleen tai lähetä ongelmaraportti."
+
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Verification successful!"
+msgstr "Vahvistus onnistui!"
+
+#. Label displayed above a progress bar when the update is being verified
+msgctxt "app-upgrade-view"
+msgid "Verifying installer..."
+msgstr "Vahvistetaan asennusohjelmaa..."
+
+#. Heading which shows the version of the app which can be upgraded to.
+#. Available placeholders:
+#. %(version)s - The new version of the app.
+msgctxt "app-upgrade-view"
+msgid "Version %(version)s"
+msgstr "Versio %(version)s"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -653,10 +848,13 @@ msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "Olet kirjautunut sisään virheellisellä tilinumerolla. Kirjaudu ulos ja kokeile toista."
 
+#. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
 msgstr "Versioon ei sisälly alustan ​​päivityksiä tai muutoksia."
 
+#. Heading for the view of the changes and updates in the
+#. current version compared to the old version.
 msgctxt "changelog-view"
 msgid "What’s new"
 msgstr "Uutta"
@@ -967,6 +1165,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)s:n tuki päättyy. Vaihda sijainti tai"
 
+#. Notification subtitle when the app upgrade is ready to install.
+#. Available placeholders:
+#. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
+msgctxt "in-app-notifications"
+msgid "%(suggestedUpgradeVersion)s is ready to be installed."
+msgstr "%(suggestedUpgradeVersion)s on valmis asennettavaksi."
+
 #. Link in notication to go to WireGuard settings.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
@@ -998,14 +1203,72 @@ msgctxt "in-app-notifications"
 msgid "change tunnel protocol to %(wireGuard)s."
 msgstr "vaihda tunneliprotokolla %(wireGuard)siin."
 
+#. Notification subtitle when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "Click here to install update."
+msgstr "Asenna päivitys napsauttamalla tätä."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "Click here to retry"
+msgstr "Yritä uudelleen napsauttamalla tätä"
+
+#. Notification subtitle when the download of the installer failed
+#. and the user can try downloading again.
+msgctxt "in-app-notifications"
+msgid "Click here to retry download"
+msgstr "Yritä latausta uudelleen napsauttamalla tätä"
+
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
 msgstr "Katso uudet ominaisuudet napsauttamalla tästä."
+
+#. Link text to go to the app upgrade view
+msgctxt "in-app-notifications"
+msgid "Click here to update"
+msgstr "Päivitä napsauttamalla tätä"
+
+#. Notification subtitle when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "Could not download installer."
+msgstr "Asennusohjelman lataaminen ei onnistunut."
+
+#. Generic notification subtitle when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "Could not upgrade the app."
+msgstr "Sovelluksen päivittäminen ei onnistunut."
+
+#. Notification title when app upgrade is verifying the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD COMPLETE! VERIFYING..."
+msgstr "LATAUS ON VALMIS! VAHVISTETAAN..."
+
+#. Notification title when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD FAILED"
+msgstr "LATAUS EPÄONNISTUI"
+
+#. Generic notification title when app upgrade is downloading the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE..."
+msgstr "LADATAAN PÄIVITYSTÄ..."
+
+#. Notification title when the app upgrade is in progress.
+#. Available placeholders:
+#. - %(appUpgradeDownloadProgressValue)s: The download progress value.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
+msgstr "LADATAAN PÄIVITYSTÄ... %(appUpgradeDownloadProgressValue)s %%"
 
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr "Pysy ajan tasalla asentamalla sovelluksen uusin versio."
+
+#. Notification title when the installer failed.
+msgctxt "in-app-notifications"
+msgid "INSTALLER FAILED"
+msgstr "ASENNUSOHJELMA EPÄONNISTUI"
 
 msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
@@ -1050,10 +1313,40 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "Lue lisää"
 
+#. Notification title when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "READY TO INSTALL UPDATE"
+msgstr "VALMIS PÄIVITYKSEN ASENNUKSEEN"
+
+#. Accessibility label for the button to retry download of the installer.
+msgctxt "in-app-notifications"
+msgid "Retry download of the installer"
+msgstr "Yritä asennusohjelman latausta uudelleen"
+
+#. Accessibility label for the button to retry the installation.
+msgctxt "in-app-notifications"
+msgid "Retry installation"
+msgstr "Yritä asennusta uudelleen"
+
 #. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "Lähetä ongelmaraportti"
+
+#. Notification subtitle when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "The installer could not be verified."
+msgstr "Asennusohjelmaa ei voitu vahvistaa."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not complete successfully."
+msgstr "Asennusohjelmaa ei suoritettu onnistuneesti."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not start successfully."
+msgstr "Asennusohjelman käynnistys ei onnistunut."
 
 #. Notification subtitle indicating the user is using an unsupported port for WireGuard.
 #. Available placeholders:
@@ -1077,6 +1370,26 @@ msgstr "EI-TUETTU VERSIO"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "PÄIVITYS SAATAVILLA"
+
+#. Generic notification title when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "UPDATE FAILED"
+msgstr "PÄIVITYS EPÄONNISTUI"
+
+#. Notification title when app upgrade is ready for the user to launch the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! INSTALLER READY!"
+msgstr "VAHVISTUS ON SUORITETTU! ASENNUSOHJELMA ON VALMIS."
+
+#. Notification title when app upgrade is launching the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! LAUNCHING INSTALLER..."
+msgstr "VAHVISTUS ON SUORITETTU! KÄYNNISTETÄÄN ASENNUSOHJELMAA..."
+
+#. Notification title when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION FAILED"
+msgstr "VAHVISTUS EPÄONNISTUI"
 
 msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
@@ -1224,11 +1537,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "Ohjelmointirajapinnan käyttö"
 
-#. Title label in navigation bar
-msgctxt "navigation-bar"
-msgid "Settings"
-msgstr "Asetukset"
-
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
@@ -1300,13 +1608,13 @@ msgstr "Sovelluskohtaisen yhdistämisen käyttöönotto epäonnistui. Yritä muo
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv4 ei ole käytettävissä, kokeile vaihtaa <b>%(ipVersionFeatureName)</b>-asetus."
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv4 ei ole käytettävissä. Kokeile vaihtaa <b>%(ipVersionFeatureName)s</b>-asetus."
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv6 ei ole käytettävissä, kokeile vaihtaa <b>%(ipVersionFeatureName)</b>-asetus."
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv6 ei ole käytettävissä. Kokeile vaihtaa <b>%(ipVersionFeatureName)s</b>-asetus."
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -1315,6 +1623,12 @@ msgstr "Lukitustila on käytössä ja yhteys estetty"
 msgctxt "notifications"
 msgid "No servers match your settings, try changing server or other settings."
 msgstr "Mikään palvelin ei vastaa asetuksiasi. Kokeile vaihtaa palvelinta tai muuttaa muita asetuksia."
+
+#. A link in the in-app banner to encourage the user to update the app.
+#. The in-app banner is is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Please click here to update now"
+msgstr "Päivitä nyt napsauttamalla tätä"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -1386,7 +1700,12 @@ msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr "Laitteesi on offline-tilassa. Kun laitteesi on taas online-tilassa, tunneli muodostaa yhteyden automaattisesti."
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+#. The in-app banner which is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version."
+msgstr "Yksityisyytesi saattaa olla vaarassa, koska tätä sovellusversiota ei tueta."
+
+#. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "Yksityisyytesi saattaa olla vaarassa tämän sovellusversion, jota ei tueta, vuoksi. Päivitä versio heti."
@@ -1693,6 +2012,7 @@ msgctxt "settings-view"
 msgid "API access"
 msgstr "Ohjelmointirajapinnan käyttö"
 
+#. Navigation button to the 'App info' view
 msgctxt "settings-view"
 msgid "App info"
 msgstr "Sovelluksen tiedot"
@@ -1701,9 +2021,21 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "Multihop"
 
+#. Title label in navigation bar
+#. Main title for settings view
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "Asetukset"
+
+#. Navigation button to the 'Support' view
 msgctxt "settings-view"
 msgid "Support"
 msgstr "Tuki"
+
+#. Label for the app info list item indicating that an update is available and can be downloaded
+msgctxt "settings-view"
+msgid "Update available"
+msgstr "Päivitys saatavilla"
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1714,10 +2046,6 @@ msgstr "Käyttöliittymän asetukset"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN-asetukset"
-
-msgctxt "settings-view"
-msgid "What’s new"
-msgstr "Uutta"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1791,10 +2119,6 @@ msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "Valinnan käynnistäminen ei onnistu. %(detailedErrorMessage)s"
 
-msgctxt "support-view"
-msgid "Beta program"
-msgstr "Beetaohjelma"
-
 #. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -1804,10 +2128,6 @@ msgstr "Jatka silti"
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "Muokkaa viestiä"
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "Ota käyttöön, niin saat ilmoituksen uusista sovelluksen beetaversioista."
 
 msgctxt "support-view"
 msgid "Failed to send"
@@ -1863,10 +2183,6 @@ msgid "Thanks!"
 msgstr "Kiitos!"
 
 msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
-msgstr "Tämä toiminto ei ole käytössä beetaversiossa."
-
-msgctxt "support-view"
 msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
 msgstr "Jotta voisimme avustaa sinua paremmin, kirjoita englanniksi tai ruotsiksi ja mainitse, mistä maasta muodostat yhteyden."
 
@@ -1879,9 +2195,9 @@ msgctxt "support-view"
 msgid "Try again"
 msgstr "Yritä uudelleen"
 
-#. Button label for upgrading the app to the latest version.
+#. Button label for updating the app to the latest version.
 msgctxt "support-view"
-msgid "Upgrade app"
+msgid "Update app"
 msgstr "Päivitä sovellus"
 
 #. Button label for opening app logs.
@@ -2415,6 +2731,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys."
 
+msgid "%1$s more..."
+msgstr "%1$s lisää..."
+
+msgid "%1$s was added to \"%2$s\""
+msgstr "%1$s lisättiin luetteloon \"%2$s\""
+
+msgid "%1$s was removed from \"%2$s\""
+msgstr "%1$s poistettiin luettelosta \"%2$s\""
+
 msgid "%s (Entry)"
 msgstr "%s (tulo)"
 
@@ -2430,17 +2755,8 @@ msgstr "%s (poistettu)"
 msgid "%s custom port"
 msgstr "Mukautettu %s-portti"
 
-msgid "%s more..."
-msgstr "%s lisää..."
-
-msgid "%s was added to \"%s\""
-msgstr "%s lisättiin luetteloon\"%s\""
-
 msgid "%s was added to your account."
 msgstr "%s lisättiin tilillesi."
-
-msgid "%s was removed from \"%s\""
-msgstr "%s poistettiin kohteesta \"%s\""
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. Napsautettuasi alla olevaa \"Siirry VPN-asetuksiin\" -painiketta napsauta Mullvad VPN:n nimen vierestä löytyvää hammaspyöräkuvaketta."
@@ -2453,6 +2769,9 @@ msgstr "3. Ota lukitustila käyttöön napsauttamalla kohdan \"Estä yhteydet il
 
 msgid "30 days was added to your account."
 msgstr "Tilillesi lisättiin 30 päivää käyttöaikaa."
+
+msgid "90 days was added to your account."
+msgstr "Tilillesi lisättiin 90 päivää käyttöaikaa."
 
 msgid "API reachable, adding method..."
 msgstr "API tavoitettavissa, menetelmää lisätään..."
@@ -2472,17 +2791,20 @@ msgstr "Muistutukset tilin käyttöajasta"
 msgid "Add %s to list"
 msgstr "Lisää %s luetteloon"
 
-msgid "Add 30 days time"
-msgstr "Lisää 30 päivää käyttöaikaa"
-
 msgid "Add 30 days time (%s)"
 msgstr "Lisää 30 päivää käyttöaikaa (%s)"
+
+msgid "Add 90 days time (%s)"
+msgstr "Lisää 90 päivää käyttöaikaa (%s)"
 
 msgid "Add DNS server"
 msgstr "Lisää DNS-palvelin"
 
 msgid "Add locations"
 msgstr "Lisää sijainteja"
+
+msgid "Add time"
+msgstr "Lisää käyttöaikaa"
 
 msgid "Adding method..."
 msgstr "Lisätään menetelmää..."
@@ -2577,8 +2899,8 @@ msgstr "Nykyinen laite"
 msgid "Current: %s"
 msgstr "Nykyinen: %s"
 
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "Mukautetut DNS-palvelimen osoitteet %s ovat virheellisiä"
+msgid "Custom DNS server addresses %1$s are invalid"
+msgstr "Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä"
 
 msgid "DNS settings might not go into effect immediately"
 msgstr "Uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi"
@@ -2634,8 +2956,8 @@ msgstr "Muokkaa sijainteja"
 msgid "Edit name"
 msgstr "Muokkaa nimeä"
 
-msgid "Enable %s"
-msgstr "Ota %s käyttöön"
+msgid "Enable %1$s"
+msgstr "Ota %1$s käyttöön"
 
 msgid "Enable method"
 msgstr "Ota menetelmä käyttöön"
@@ -2654,6 +2976,9 @@ msgstr "YHDISTÄMINEN EPÄONNISTUI"
 
 msgid "Failed to apply patch"
 msgstr "Muutostiedoston käyttöönotto ei onnistunut"
+
+msgid "Failed to load products, please try again"
+msgstr "Tuotteiden lataaminen epäonnistui, yritä uudelleen"
 
 msgid "Failed to set to current - API not reachable"
 msgstr "Nykyisen asetus epäonnistui – APIa ei tavoiteta"
@@ -2676,14 +3001,17 @@ msgstr "Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä lait
 msgid "Google Play payment pending"
 msgstr "Google Play -maksu odottaa"
 
+msgid "Google Play payment pending, this might take some time"
+msgstr "Google Play -maksu odottaa. Tässä voi kestää jonkin aikaa."
+
 msgid "Google Play unavailable"
 msgstr "Google Play ei ole käytettävissä"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
-msgstr "IPv4 ei ole käytettävissä, kokeile vaihtaa Laitteen IP-versio -asetus."
+msgstr "IPv4 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus."
 
 msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
-msgstr "IPv6 ei ole käytettävissä, kokeile vaihtaa Laitteen IP-versio -asetus."
+msgstr "IPv6 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus."
 
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta."
@@ -2697,11 +3025,14 @@ msgstr "Tuonti onnistui ja ohituksia on käytössä"
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "Uusien ohitusten tuonti saattaa korvata joitain aiemmin tuotuja ohituksia."
 
+msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
+msgstr "Sovelluksen sisäiset tuotteet eivät ole käytettävissä. Varmista, että sinulla on Google Playn uusin versio."
+
 msgid "In-tunnel IPv6"
 msgstr "Tunnelin IPv6"
 
-msgid "Invalid or missing value \"%s\""
-msgstr "Arvo \"%s\" puuttuu tai on virheellinen"
+msgid "Invalid or missing value \"%1$s\""
+msgstr "Arvo \"%1$s\" puuttuu tai on virheellinen"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "Se voi olla hyödyllistä, kun olet tietoinen tietyn IP-version aiheuttamista ongelmista."
@@ -2715,6 +3046,9 @@ msgstr "Voit valita sovelluksia, joiden pitäisi muodostaa yhteys Internetiin su
 msgid "List name"
 msgstr "Luettelon nimi"
 
+msgid "Loading products"
+msgstr "Ladataan tuotteita"
+
 msgid "Locations"
 msgstr "Sijainnit"
 
@@ -2723,9 +3057,6 @@ msgstr "Kohteen \"%s\" sijainteja vaihdettiin"
 
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Varmistaa, että laite on aina yhteydessä VPN-tunnelin kautta."
-
-msgid "Manage account"
-msgstr "Tilin hallinta"
 
 msgid "Manage devices"
 msgstr "Hallitse laitteita"
@@ -2802,8 +3133,8 @@ msgstr "Toistorajoitus"
 msgid "Remove"
 msgstr "Poista"
 
-msgid "Remove %s from %s"
-msgstr "Poista %s kohteesta %s"
+msgid "Remove %1$s from %2$s"
+msgstr "Poista %1$s luettelosta %2$s"
 
 msgid "Remove %s?"
 msgstr "Poistetaanko %s?"
@@ -2829,8 +3160,8 @@ msgstr "Haku"
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "Jotta voit käyttää tätä asetusta, poista %s-hämäysteknologia käytöstä tai säädä sen asetukseksi \"Automaattinen\" alta."
 
-msgid "Set WireGuard MTU value. Valid range: %d - %d."
-msgstr "Aseta WireGuardin MTU-arvo väliltä %d–%d."
+msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
+msgstr "Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d."
 
 msgid "Set port"
 msgstr "Määritä portti"
@@ -2871,14 +3202,17 @@ msgstr "Lukitustila löytyy Android-järjestelmäasetuksista nimellä \"Estä yh
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"Nykyinen\" menetelmä edustaa sitä, mitä menetelmää sovellus käyttää APIn tavoittamiseen."
 
+msgid "The app is blocking internet, please disconnect first"
+msgstr "Sovellus estää internetyhteyden, katkaise sen yhteys ensin"
+
 msgid "The device will be removed from the list and logged out."
-msgstr "Laite poistetaan luettelosta ja kirjataan ulos."
+msgstr "Laite poistetaan luettelosta, ja sinut kirjataan ulos laitteelta."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamista käyttöön VPN-asetuksista."
 
 msgid "The selected %s port is not supported, please change it under"
-msgstr "Valittua %s-porttia ei tueta, vaihda se"
+msgstr "Valittua %s-porttia ei tueta. Vaihda portti"
 
 msgid "This address has already been entered."
 msgstr "Tämä osoite on annettu jo."
@@ -2891,6 +3225,9 @@ msgstr "Tämä kenttä on pakollinen"
 
 msgid "This is already set as current"
 msgstr "Tämä on jo asetettu nykyiseksi"
+
+msgid "Time added"
+msgstr "Käyttöaikaa lisätty"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "Jos haluat lisätä luetteloon sijainteja, paina \"︙\" tai paina pitkään maata, kaupunkia tai palvelinta."
@@ -2919,8 +3256,8 @@ msgstr "Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva
 msgid "Undo"
 msgstr "Kumoa"
 
-msgid "Unknown or prohibited key \"%s\""
-msgstr "Tuntematon tai kielletty avain \"%s\""
+msgid "Unknown or prohibited key \"%1$s\""
+msgstr "Tuntematon tai kielletty avain \"%1$s\""
 
 msgid "Update DNS server"
 msgstr "Päivitä DNS-palvelin"
@@ -2964,14 +3301,11 @@ msgstr "Ostosta vahvistetaan..."
 msgid "Verifying voucher…"
 msgstr "Kuponkia vahvistetaan…"
 
-msgid "Version"
-msgstr "Versio"
-
 msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr "Tarkastele ja hallinnoi kaikkia kirjautuneita laitteitasi. Sinulla voi olla enintään viisi laitetta yhdellä tilillä samaan aikaan. Kukin laite saa nimen, kun se kirjataan sisään, jotta erotat ne helposti."
 
-msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
-msgstr "Vahvistamme ostostasi parhaillaan. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu."
+msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "Vahvistamme vielä ostostasi. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu."
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "Emme pystyneet aloittamaan maksun käsittelyä. Varmista, että käytät Google Playn uusinta versiota."

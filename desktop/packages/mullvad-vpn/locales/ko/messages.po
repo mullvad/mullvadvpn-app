@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2025-05-26 11:59\n"
+"PO-Revision-Date: 2025-06-27 06:04\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -336,6 +336,11 @@ msgctxt "accessibility"
 msgid "Go to %(wireGuard)s settings."
 msgstr "%(wireGuard)s 설정으로 이동합니다."
 
+#. Accessibility label for link to app upgrade view.
+msgctxt "accessibility"
+msgid "Go to app update page"
+msgstr "앱 업데이트 페이지로 이동"
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -372,6 +377,15 @@ msgstr "계정 번호 %(accountNumber)s 사용해 로그인"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "추가 정보"
+
+#. Accessbility label for link to go to download page.
+msgctxt "accessibility"
+msgid "New version available, click here to go to download page, opens externally"
+msgstr "새 버전이 준비되었습니다. 다운로드 페이지로 이동하려면 여기를 클릭하세요. 별도 창에서 열립니다"
+
+msgctxt "accessibility"
+msgid "New version available, click here to go to update view"
+msgstr "새 버전이 준비되었습니다. 업데이트 보기로 이동하려면 여기를 클릭하세요"
 
 msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
@@ -615,21 +629,202 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "\"Mullvad 브리지\" 방법을 사용하면 앱이 Mullvad 브리지 서버를 통해 Mullvad API 서버와 통신합니다. 이를 위해 Shadowsocks로 난독화된 트래픽을 전송합니다."
 
+#. Title of the app info view.
 msgctxt "app-info-view"
 msgid "App info"
 msgstr "앱 정보"
 
+#. Description for version list item when app is out of sync.
 msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "앱이 동기화되지 않았습니다. 종료하고 다시 시작하세요."
 
+#. Label for switch to toggle beta program.
 msgctxt "app-info-view"
-msgid "App version"
-msgstr "앱 버전"
+msgid "Beta program"
+msgstr "베타 프로그램"
 
 msgctxt "app-info-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "업데이트를 사용할 수 있습니다. 최신 앱 버전을 설치하여 최신 상태를 유지하세요."
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "베타 버전의 새로운 앱이 출시될 때 알림을 받으려면 활성화합니다."
+
+msgctxt "app-info-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "이 옵션은 베타 버전을 사용하는 동안에는 이용할 수 없습니다."
+
+#. Label for update available list item.
+msgctxt "app-info-view"
+msgid "Update available"
+msgstr "업데이트 가능"
+
+#. Label for version list item.
+msgctxt "app-info-view"
+msgid "Version"
+msgstr "버전"
+
+#. Label for changelog list item.
+msgctxt "app-info-view"
+msgid "What’s new"
+msgstr "새로운 기능"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion is within a few seconds.
+msgctxt "app-upgrade-view"
+msgid "A few seconds remaining..."
+msgstr "몇 초 후 완료..."
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in minutes.
+#. Available placeholders:
+#. %(minutes)s - Will be replaced with remaining minutes until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(minutes)s minutes remaining..."
+msgstr "약 %(minutes)s분 후 완료..."
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in seconds.
+#. Available placeholders:
+#. %(second)s - Will be replaced with remaining seconds until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(seconds)s seconds remaining..."
+msgstr "약 %(seconds)s초 후 완료..."
+
+#. Label displayed when an error occurred due to the connection being blocked
+msgctxt "app-upgrade-view"
+msgid "Connection blocked. Try changing server or other settings."
+msgstr "연결이 차단되었습니다. 서버 또는 다른 설정을 변경해 보세요."
+
+#. Label displayed when an error occurred due to the installer failing to start
+#. and the suggested resolution is to download the update again.
+msgctxt "app-upgrade-view"
+msgid "Could not open installer, please try again or send a problem report."
+msgstr "설치 프로그램을 열지 못했습니다. 다시 시도하거나 문제 보고서를 전송하세요."
+
+#. Button text to download and install an update
+msgctxt "app-upgrade-view"
+msgid "Download & install"
+msgstr "다운로드 및 설치"
+
+#. Status text displayed below a progress bar when the download of an update is complete
+msgctxt "app-upgrade-view"
+msgid "Download complete!"
+msgstr "다운로드 완료!"
+
+#. Status text displayed below a progress bar when the download of an update fails
+msgctxt "app-upgrade-view"
+msgid "Download failed"
+msgstr "다운로드 실패"
+
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Download failed, please check your connection/firewall and try again, or send a problem report."
+msgstr "다운로드에 실패했습니다. 연결/방화벽을 확인하고 다시 시도하거나 문제 보고서를 전송하세요."
+
+#. Status text displayed below a progress bar when the download of an update has been paused
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Download paused"
+msgstr "다운로드 일시 중지됨"
+
+#. Label displayed above a progress bar informing the user which server
+#. the update is downloading from
+msgctxt "app-upgrade-view"
+msgid "Downloading from: %(server)s"
+msgstr "다운로드 서버: %(server)s"
+
+#. Label displayed above a progress bar when a download is in progress
+msgctxt "app-upgrade-view"
+msgid "Downloading..."
+msgstr "다운로드 중..."
+
+#. Link shown to optionally manually download the update
+#. due to repeated errors in the upgrade process.
+msgctxt "app-upgrade-view"
+msgid "Having problems? Try downloading the app from our website"
+msgstr "문제가 있으신가요? 웹 사이트에서 앱을 다운로드해 보세요"
+
+#. Button text to install an update
+msgctxt "app-upgrade-view"
+msgid "Install update"
+msgstr "업데이트 설치"
+
+#. Label displayed when an error occurred within the installer
+msgctxt "app-upgrade-view"
+msgid "Installer quit unexpectedly, please try again or send a problem report."
+msgstr "설치 프로그램이 예기치 않게 종료되었습니다. 다시 시도하거나 문제 보고서를 전송하세요."
+
+#. Text displayed when there are no updates for this platform in the next app version
+msgctxt "app-upgrade-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "이번 릴리스에는 이 플랫폼에 대한 업데이트나 변경 사항이 없습니다."
+
+#. Button text to pause the download of an update
+msgctxt "app-upgrade-view"
+msgid "Pause"
+msgstr "일지 중지"
+
+#. Button text to report a problem
+msgctxt "app-upgrade-view"
+msgid "Report a problem"
+msgstr "문제 보고"
+
+#. Button text to resume updating
+msgctxt "app-upgrade-view"
+msgid "Resume"
+msgstr "재개"
+
+#. Button text to try again
+msgctxt "app-upgrade-view"
+msgid "Retry"
+msgstr "다시 시도"
+
+#. Button text to try download again
+msgctxt "app-upgrade-view"
+msgid "Retry download"
+msgstr "다운로드 다시 시도"
+
+#. Status text displayed below a progress bar when the download of an update is starting
+msgctxt "app-upgrade-view"
+msgid "Starting download..."
+msgstr "다운로드를 시작하는 중..."
+
+#. Button text to when starting the installer for an update
+msgctxt "app-upgrade-view"
+msgid "Starting installer..."
+msgstr "설치 프로그램을 시작하는 중..."
+
+#. Label displayed when an unknown error occurred
+msgctxt "app-upgrade-view"
+msgid "Unknown error occurred. Please try again or send a problem report."
+msgstr "알 수 없는 오류가 발생했습니다. 다시 시도하거나 문제 보고서를 전송하세요."
+
+#. Title in navigation bar
+#. Main title for the update available view
+msgctxt "app-upgrade-view"
+msgid "Update available"
+msgstr "업데이트 가능"
+
+#. Label displayed when an error occurred due to the installer failed verification
+msgctxt "app-upgrade-view"
+msgid "Verification failed, please try again or send a problem report."
+msgstr "확인에 실패했습니다. 다시 시도하거나 문제 보고서를 전송하세요."
+
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Verification successful!"
+msgstr "확인 성공!"
+
+#. Label displayed above a progress bar when the update is being verified
+msgctxt "app-upgrade-view"
+msgid "Verifying installer..."
+msgstr "설치 프로그램을 확인하는 중..."
+
+#. Heading which shows the version of the app which can be upgraded to.
+#. Available placeholders:
+#. %(version)s - The new version of the app.
+msgctxt "app-upgrade-view"
+msgid "Version %(version)s"
+msgstr "버전 %(version)s"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -647,10 +842,13 @@ msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "잘못된 계정 번호로 로그인했습니다. 로그아웃한 후 다른 계정 번호로 시도하세요."
 
+#. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
 msgstr "이 플랫폼에서는 이번 릴리스에 어떤 업데이트나 변경도 이루어지지 않았습니다."
 
+#. Heading for the view of the changes and updates in the
+#. current version compared to the old version.
 msgctxt "changelog-view"
 msgid "What’s new"
 msgstr "업데이트 내역"
@@ -961,6 +1159,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)s 지원이 종료됩니다. 위치를 전환하거나"
 
+#. Notification subtitle when the app upgrade is ready to install.
+#. Available placeholders:
+#. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
+msgctxt "in-app-notifications"
+msgid "%(suggestedUpgradeVersion)s is ready to be installed."
+msgstr "%(suggestedUpgradeVersion)s 버전 설치 준비가 완료되었습니다."
+
 #. Link in notication to go to WireGuard settings.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
@@ -992,14 +1197,72 @@ msgctxt "in-app-notifications"
 msgid "change tunnel protocol to %(wireGuard)s."
 msgstr "%(wireGuard)s로 터널 프로토콜을 변경하세요."
 
+#. Notification subtitle when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "Click here to install update."
+msgstr "업데이트를 설치하려면 여기를 클릭하세요."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "Click here to retry"
+msgstr "다시 시도하려면 여기를 클릭하세요"
+
+#. Notification subtitle when the download of the installer failed
+#. and the user can try downloading again.
+msgctxt "in-app-notifications"
+msgid "Click here to retry download"
+msgstr "다운로드를 다시 시도하려면 여기를 클릭하세요"
+
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
 msgstr "업데이트 내역을 확인하려면 여기를 클릭하세요."
+
+#. Link text to go to the app upgrade view
+msgctxt "in-app-notifications"
+msgid "Click here to update"
+msgstr "업데이트하려면 여기를 클릭하세요"
+
+#. Notification subtitle when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "Could not download installer."
+msgstr "설치 프로그램을 다운로드하지 못했습니다."
+
+#. Generic notification subtitle when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "Could not upgrade the app."
+msgstr "앱을 업그레이드하지 못했습니다."
+
+#. Notification title when app upgrade is verifying the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD COMPLETE! VERIFYING..."
+msgstr "다운로드 완료! 확인하는 중..."
+
+#. Notification title when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD FAILED"
+msgstr "다운로드 실패"
+
+#. Generic notification title when app upgrade is downloading the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE..."
+msgstr "업데이트를 다운로드하는 중..."
+
+#. Notification title when the app upgrade is in progress.
+#. Available placeholders:
+#. - %(appUpgradeDownloadProgressValue)s: The download progress value.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
+msgstr "업데이트를 다운로드하는 중... %(appUpgradeDownloadProgressValue)s%%"
 
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr "최신 앱 버전을 설치하여 최신 상태로 유지하세요."
+
+#. Notification title when the installer failed.
+msgctxt "in-app-notifications"
+msgid "INSTALLER FAILED"
+msgstr "설치 프로그램 실패"
 
 msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
@@ -1044,10 +1307,40 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "자세히 알아보기"
 
+#. Notification title when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "READY TO INSTALL UPDATE"
+msgstr "업데이트 설치 준비 완료"
+
+#. Accessibility label for the button to retry download of the installer.
+msgctxt "in-app-notifications"
+msgid "Retry download of the installer"
+msgstr "설치 프로그램 다운로드 다시 시도"
+
+#. Accessibility label for the button to retry the installation.
+msgctxt "in-app-notifications"
+msgid "Retry installation"
+msgstr "설치 다시 시도"
+
 #. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "문제 보고서 보내기"
+
+#. Notification subtitle when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "The installer could not be verified."
+msgstr "설치 프로그램을 확인하지 못했습니다."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not complete successfully."
+msgstr "설치 프로그램이 완료되지 않았습니다."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not start successfully."
+msgstr "설치 프로그램이 시작되지 않았습니다."
 
 #. Notification subtitle indicating the user is using an unsupported port for WireGuard.
 #. Available placeholders:
@@ -1071,6 +1364,26 @@ msgstr "지원되지 않는 버전"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "업데이트 사용 가능"
+
+#. Generic notification title when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "UPDATE FAILED"
+msgstr "업데이트 실패"
+
+#. Notification title when app upgrade is ready for the user to launch the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! INSTALLER READY!"
+msgstr "확인 완료! 설치 프로그램 준비 완료!"
+
+#. Notification title when app upgrade is launching the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! LAUNCHING INSTALLER..."
+msgstr "확인 완료! 설치 프로그램을 실행하는 중..."
+
+#. Notification title when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION FAILED"
+msgstr "확인 실패"
 
 msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
@@ -1218,11 +1531,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "API 액세스"
 
-#. Title label in navigation bar
-msgctxt "navigation-bar"
-msgid "Settings"
-msgstr "설정"
-
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
@@ -1294,13 +1602,13 @@ msgstr "분할 터널링을 활성화하지 못했습니다. 다시 연결하거
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv4를 사용할 수 없습니다. <b>%(ipVersionFeatureName)</b> 설정을 변경해 보세요."
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv4를 사용할 수 없습니다. <b>%(ipVersionFeatureName)s</b> 설정을 변경해 보세요."
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv6를 사용할 수 없습니다. <b>%(ipVersionFeatureName)</b> 설정을 변경해 보세요."
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv6를 사용할 수 없습니다. <b>%(ipVersionFeatureName)s</b> 설정을 변경해 보세요."
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -1309,6 +1617,12 @@ msgstr "잠금 모드 활성, 연결 차단"
 msgctxt "notifications"
 msgid "No servers match your settings, try changing server or other settings."
 msgstr "설정과 일치하는 서버가 없습니다. 서버 또는 기타 설정을 변경해 보세요."
+
+#. A link in the in-app banner to encourage the user to update the app.
+#. The in-app banner is is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Please click here to update now"
+msgstr "여기를 클릭하여 지금 업데이트하세요"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -1380,7 +1694,12 @@ msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr "장치가 오프라인 상태입니다. 장치가 다시 온라인 상태가 되면 터널이 자동으로 연결됩니다."
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+#. The in-app banner which is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version."
+msgstr "해당 앱 버전은 지원되지 않으므로 개인 정보가 위험에 처할 수 있습니다."
+
+#. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "지원되지 않는 이 앱 버전으로 인해 개인 정보가 위험할 수 있습니다. 지금 업데이트하세요."
@@ -1687,6 +2006,7 @@ msgctxt "settings-view"
 msgid "API access"
 msgstr "API 액세스"
 
+#. Navigation button to the 'App info' view
 msgctxt "settings-view"
 msgid "App info"
 msgstr "앱 정보"
@@ -1695,9 +2015,21 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "멀티홉"
 
+#. Title label in navigation bar
+#. Main title for settings view
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "설정"
+
+#. Navigation button to the 'Support' view
 msgctxt "settings-view"
 msgid "Support"
 msgstr "지원"
+
+#. Label for the app info list item indicating that an update is available and can be downloaded
+msgctxt "settings-view"
+msgid "Update available"
+msgstr "업데이트 가능"
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1708,10 +2040,6 @@ msgstr "사용자 인터페이스 설정"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN 설정"
-
-msgctxt "settings-view"
-msgid "What’s new"
-msgstr "업데이트 내역"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1785,10 +2113,6 @@ msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "선택 항목을 시작할 수 없습니다. %(detailedErrorMessage)s"
 
-msgctxt "support-view"
-msgid "Beta program"
-msgstr "베타 프로그램"
-
 #. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -1798,10 +2122,6 @@ msgstr "그래도 계속 사용"
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "메시지 편집"
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "베타 버전의 새로운 앱이 출시될 때 알림을 받으려면 활성화합니다."
 
 msgctxt "support-view"
 msgid "Failed to send"
@@ -1857,10 +2177,6 @@ msgid "Thanks!"
 msgstr "감사합니다!"
 
 msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
-msgstr "이 옵션은 베타 버전을 사용하는 동안 사용할 수 없습니다."
-
-msgctxt "support-view"
 msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
 msgstr "더 나은 지원을 위해 영어 또는 스웨덴어로 메시지를 작성하고 연결 국가를 포함하세요."
 
@@ -1873,10 +2189,10 @@ msgctxt "support-view"
 msgid "Try again"
 msgstr "다시 시도"
 
-#. Button label for upgrading the app to the latest version.
+#. Button label for updating the app to the latest version.
 msgctxt "support-view"
-msgid "Upgrade app"
-msgstr "앱 업그레이드"
+msgid "Update app"
+msgstr "앱 업데이트"
 
 #. Button label for opening app logs.
 msgctxt "support-view"
@@ -2409,6 +2725,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다."
 
+msgid "%1$s more..."
+msgstr "%1$s개 더 보기..."
+
+msgid "%1$s was added to \"%2$s\""
+msgstr "%1$s이(가) \"%2$s\"에 추가되었습니다"
+
+msgid "%1$s was removed from \"%2$s\""
+msgstr "%1$s이(가) \"%2$s\"에서 제거되었습니다"
+
 msgid "%s (Entry)"
 msgstr "%s(진입)"
 
@@ -2424,17 +2749,8 @@ msgstr "%s(제거됨)"
 msgid "%s custom port"
 msgstr "%s 사용자 지정 포트"
 
-msgid "%s more..."
-msgstr "%s개 더 보기..."
-
-msgid "%s was added to \"%s\""
-msgstr "%s이(가) \"%s\"에 추가되었습니다"
-
 msgid "%s was added to your account."
 msgstr "%s이(가) 계정에 추가되었습니다."
-
-msgid "%s was removed from \"%s\""
-msgstr "%s이(가) \"%s\"에서 제거되었습니다"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. 아래의 \"VPN 설정으로 이동\" 버튼을 클릭한 후 \"Mullvad VPN\" 이름 옆의 톱니바퀴를 클릭합니다."
@@ -2447,6 +2763,9 @@ msgstr "3. 잠금 모드를 활성화하려면 \"VPN 없이 연결 차단\" 옆�
 
 msgid "30 days was added to your account."
 msgstr "귀하의 계정에 30일이 추가되었습니다."
+
+msgid "90 days was added to your account."
+msgstr "계정에 90일이 추가되었습니다."
 
 msgid "API reachable, adding method..."
 msgstr "API 연결 가능, 방법 추가 중..."
@@ -2466,17 +2785,20 @@ msgstr "계정 시간 알림"
 msgid "Add %s to list"
 msgstr "목록에 %s 추가"
 
-msgid "Add 30 days time"
-msgstr "30일 시간 추가"
-
 msgid "Add 30 days time (%s)"
 msgstr "30일 시간 추가(%s)"
+
+msgid "Add 90 days time (%s)"
+msgstr "90일 시간 추가(%s)"
 
 msgid "Add DNS server"
 msgstr "DNS 서버 추가"
 
 msgid "Add locations"
 msgstr "위치 추가"
+
+msgid "Add time"
+msgstr "시간 추가"
 
 msgid "Adding method..."
 msgstr "방법 추가 중..."
@@ -2571,8 +2893,8 @@ msgstr "현재 장치"
 msgid "Current: %s"
 msgstr "현재: %s"
 
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "사용자 지정 DNS 서버 주소 %s이(가) 잘못되었습니다."
+msgid "Custom DNS server addresses %1$s are invalid"
+msgstr "사용자 지정 DNS 서버 주소 %1$s이(가) 잘못되었습니다"
 
 msgid "DNS settings might not go into effect immediately"
 msgstr "DNS 설정이 즉시 적용되지 않을 수도 있습니다"
@@ -2628,8 +2950,8 @@ msgstr "위치 편집"
 msgid "Edit name"
 msgstr "이름 편집"
 
-msgid "Enable %s"
-msgstr "%s 활성화"
+msgid "Enable %1$s"
+msgstr "%1$s 활성화"
 
 msgid "Enable method"
 msgstr "방법 활성화"
@@ -2648,6 +2970,9 @@ msgstr "연결 실패"
 
 msgid "Failed to apply patch"
 msgstr "패치 적용 실패"
+
+msgid "Failed to load products, please try again"
+msgstr "제품을 로드하지 못했습니다. 다시 시도해 주세요"
 
 msgid "Failed to set to current - API not reachable"
 msgstr "현재로 설정하지 못함 - API 연결 불가"
@@ -2670,6 +2995,9 @@ msgstr "로그인하면 이 장치에서 인터넷 차단이 해제됩니다."
 msgid "Google Play payment pending"
 msgstr "Google Play 결제 보류 중"
 
+msgid "Google Play payment pending, this might take some time"
+msgstr "Google Play 결제가 보류 중입니다. 다소 시간이 소요될 수 있습니다"
+
 msgid "Google Play unavailable"
 msgstr "Google Play 사용 불가"
 
@@ -2691,11 +3019,14 @@ msgstr "가져오기 성공, 재정의 활성화"
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "새로운 재정의를 가져오면 이전에 가져온 일부 재정의가 교체될 수 있습니다."
 
+msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
+msgstr "인앱 제품을 사용할 수 없습니다. Google Play의 최신 버전을 사용 중인지 확인해 주세요."
+
 msgid "In-tunnel IPv6"
 msgstr "터널 내 IPv6"
 
-msgid "Invalid or missing value \"%s\""
-msgstr "\"%s\"에 대해 유효하지 않거나 누락된 값"
+msgid "Invalid or missing value \"%1$s\""
+msgstr "\"%1$s\" 값이 유효하지 않거나 누락되었습니다"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "특정 IP 버전으로 인해 발생하는 문제를 알고 있는 경우 유용합니다."
@@ -2709,6 +3040,9 @@ msgstr "VPN 터널을 거치지 않고 인터넷에서 바로 액세스할 앱�
 msgid "List name"
 msgstr "목록 이름"
 
+msgid "Loading products"
+msgstr "제품을 로드하는 중"
+
 msgid "Locations"
 msgstr "위치"
 
@@ -2717,9 +3051,6 @@ msgstr "\"%s\"에 대해 위치가 변경되었습니다"
 
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "장치가 항상 VPN 터널에 있어야 합니다."
-
-msgid "Manage account"
-msgstr "계정 관리"
 
 msgid "Manage devices"
 msgstr "장치 관리"
@@ -2796,8 +3127,8 @@ msgstr "반복 제한"
 msgid "Remove"
 msgstr "제거"
 
-msgid "Remove %s from %s"
-msgstr "%s 제거(%s에서)"
+msgid "Remove %1$s from %2$s"
+msgstr "%2$s에서 %1$s 제거"
 
 msgid "Remove %s?"
 msgstr "%s을(를) 제거하시겠습니까?"
@@ -2823,8 +3154,8 @@ msgstr "검색"
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "이 설정을 활성화하려면 아래 %s 난독 처리를 \"자동\" 또는 \"끄기\"로 설정합니다."
 
-msgid "Set WireGuard MTU value. Valid range: %d - %d."
-msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %d ~ %d"
+msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
+msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d."
 
 msgid "Set port"
 msgstr "포트 설정"
@@ -2865,6 +3196,9 @@ msgstr "잠금 모드는 Android 시스템 설정에서 \"VPN 없이 연결 차�
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"현재\" 방법은 앱이 API에 연결하기 위해 사용하는 방법을 나타냅니다."
 
+msgid "The app is blocking internet, please disconnect first"
+msgstr "해당 앱이 인터넷을 차단하고 있습니다. 먼저 연결 해제하세요"
+
 msgid "The device will be removed from the list and logged out."
 msgstr "장치가 목록에서 제거되고 로그아웃됩니다."
 
@@ -2885,6 +3219,9 @@ msgstr "이 필드는 필수입니다"
 
 msgid "This is already set as current"
 msgstr "이미 현재로 설정되어 있습니다"
+
+msgid "Time added"
+msgstr "시간 추가됨"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "목록에 위치를 추가하려면 \"︙\"를 누르거나 국가, 도시 또는 서버를 길게 누릅니다."
@@ -2913,8 +3250,8 @@ msgstr "터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기
 msgid "Undo"
 msgstr "실행 취소"
 
-msgid "Unknown or prohibited key \"%s\""
-msgstr "알 수 없거나 금지된 키 \"%s\""
+msgid "Unknown or prohibited key \"%1$s\""
+msgstr "\"%1$s\" 키는 알 수 없거나 금지되었습니다"
 
 msgid "Update DNS server"
 msgstr "DNS 서버 업데이트"
@@ -2958,14 +3295,11 @@ msgstr "구매 확인 중..."
 msgid "Verifying voucher…"
 msgstr "바우처 확인 중…"
 
-msgid "Version"
-msgstr "버전"
-
 msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr "로그인된 모든 장치를 보고 관리하세요. 한 계정에서 최대 5대의 장치를 동시에 보유할 수 있습니다. 사용자가 쉽게 구분할 수 있도록 각 장치에는 로그인 시 이름이 부여됩니다."
 
-msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
-msgstr "구매를 현재 확인하는 중이므로 다소 시간이 걸릴 수 있습니다. 확인을 성공적으로 마치면 시간이 추가됩니다."
+msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "아직 구매를 확인하고 있으며, 다소 시간이 걸릴 수 있습니다. 확인이 완료되면 시간이 추가됩니다."
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "결제 프로세스를 시작할 수 없습니다. Google Play가 최신 버전인지 확인하세요."
