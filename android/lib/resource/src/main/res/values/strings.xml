@@ -358,7 +358,7 @@
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
     <string name="connection_details_in">In</string>
-    <string name="feature_indicators_show_more">%1$d more...</string>
+    <string name="feature_indicators_show_more">%1$s more...</string>
     <string name="connect">Connect</string>
     <string name="connect_on_start">Connect on device start-up</string>
     <string name="connect_on_start_footer">Automatically connect on device start-up. Only works if the app has been granted the VPN permission.</string>

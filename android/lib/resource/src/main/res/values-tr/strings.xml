@@ -164,6 +164,7 @@
     <string name="enable">Etkinleştir</string>
     <string name="enable_anyway">Yine de etkinleştir</string>
     <string name="enable_custom_dns">Özel DNS sunucusu kullanın</string>
+    <string name="enable_direct_only">%1$s ayarını etkinleştir</string>
     <string name="enable_ipv6">Tünel içi IPv6</string>
     <string name="enable_method">Yöntemi etkinleştir</string>
     <string name="encrypted_dns_proxy_info_message_part1">\"Şifreli DNS proxy\'si\" yönteminde, uygulama bir proxy adresi üzerinden Mullvad API ile iletişim kurar. Bunun için bir DNS over HTTPS (DoH) sunucusundan bir adres alır ve bu adresi kullanarak API sunucularımıza bağlanır.</string>
@@ -188,7 +189,7 @@
     <string name="faqs_and_guides">SSS ve Kılavuzlar</string>
     <string name="feature_custom_dns">Özel DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$d tane daha...</string>
+    <string name="feature_indicators_show_more">%1$s tane daha...</string>
     <string name="feature_quantum_resistant">Kuantum direnci</string>
     <string name="feature_udp_2_tcp">Gizleme</string>
     <string name="filter">Filtrele</string>
@@ -206,6 +207,7 @@
     <string name="import_overrides_import">İçe aktar</string>
     <string name="import_overrides_text_title">Metin yoluyla içe aktar</string>
     <string name="in_app_products_unavailable">Uygulama içi ürünler kullanılamıyor. Lütfen Google Play\'in en yeni sürümüne sahip olduğunuzdan emin olun.</string>
+    <string name="invalid_dns_servers">Özel DNS sunucu adresleri (%1$s) geçersiz</string>
     <string name="invalid_voucher">Kupon kodu geçersiz.</string>
     <string name="ip_version_v4_unavailable">IPv4 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin.</string>
     <string name="ip_version_v6_unavailable">IPv6 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin.</string>
@@ -226,6 +228,8 @@
     <string name="local_network_sharing_info">Bu özellik; paylaşım, yazdırma, akış sağlama gibi özellikler için yerel ağdaki diğer cihazlara erişim izni verir.</string>
     <string name="local_network_sharing_info_block_connections_warning">Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği etkinse \"Yerel ağ paylaşımı\" etkinleşmez.</string>
     <string name="location_added">%1$s (eklendi)</string>
+    <string name="location_was_added_to_list">%1$s, \"%2$s\" listesine eklendi</string>
+    <string name="location_was_removed_from_list">%1$s, \"%2$s\" listesinden kaldırıldı</string>
     <string name="locations">Konumlar</string>
     <string name="locations_were_changed_for">\"%1$s\" için konumlar değiştirildi</string>
     <string name="log_out">Oturumu kapat</string>
@@ -306,6 +310,7 @@
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
     <string name="remove_button">Kaldır</string>
+    <string name="remove_location_from_list">%1$s, %2$s listesinden kaldırılsın</string>
     <string name="removed_provider">%1$s (kaldırıldı)</string>
     <string name="rented">Kiralananlar</string>
     <string name="rented_only">Sadece kiralananlar</string>
@@ -346,8 +351,10 @@
     <string name="settings_changes_effect_warning_content_blocker">DNS ile ilgili ayarlarda yapılan değişiklikler, önbelleğe alınan sonuçlar nedeniyle hemen etkili olmayabilir.</string>
     <string name="settings_changes_effect_warning_short">DNS ayarları hemen etkili olmayabilir</string>
     <string name="settings_patch_error_failed_to_apply_patch">Yama uygulanamadı</string>
+    <string name="settings_patch_error_invalid_or_missing_value">Geçersiz veya eksik \"%1$s\" değeri</string>
     <string name="settings_patch_error_recursion_limit">Yineleme sınırı</string>
     <string name="settings_patch_error_unable_to_parse">Yama ayrıştırılamıyor</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Bilinmeyen veya yasaklanmış \"%1$s\" anahtarı</string>
     <string name="settings_patch_success">İçe aktarma başarılı, geçersiz kılmalar etkin</string>
     <string name="settings_vpn">VPN ayarları</string>
     <string name="share">Paylaş…</string>
@@ -402,6 +409,7 @@
     <string name="wg_port_subtitle">Bu ayarı etkinleştirmek için aşağıdaki %1$s gizlemeyi \"Otomatik\" veya \"Kapalı\" olarak ayarlayın.</string>
     <string name="wireguard_custon_port_title">Özel</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Otomatik ayar, aşağıda gösterilen geçerli port aralıklarından rastgele seçim yapar.</string>
     <string name="wireguard_port_info_port_range">Özel port, geçerli aralıklar içindeki herhangi bir değer olabilir: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Seçilen %1$s portu desteklenmiyor, lütfen portu değiştirin:</string>

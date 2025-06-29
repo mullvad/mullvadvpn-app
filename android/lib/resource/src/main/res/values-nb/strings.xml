@@ -164,6 +164,7 @@
     <string name="enable">Aktiver</string>
     <string name="enable_anyway">Aktiver uansett</string>
     <string name="enable_custom_dns">Bruk egendefinert DNS-server</string>
+    <string name="enable_direct_only">Aktiver %1$s</string>
     <string name="enable_ipv6">IPv6 i tunnel</string>
     <string name="enable_method">Aktiver metoden</string>
     <string name="encrypted_dns_proxy_info_message_part1">Med metoden «Kryptert DNS-proxy» vil appen kommunisere med Mullvad API gjennom en proxy-adresse. Dette gjøres ved å hente en adresse fra en DNS over HTTPS-server (DoH) og deretter bruke den til å nå API-serverne våre.</string>
@@ -188,7 +189,7 @@
     <string name="faqs_and_guides">Ofte stilte spørsmål og veiledninger</string>
     <string name="feature_custom_dns">Tilpasset DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$d til …</string>
+    <string name="feature_indicators_show_more">%1$s til …</string>
     <string name="feature_quantum_resistant">Kvantemotstand</string>
     <string name="feature_udp_2_tcp">Tilsløring</string>
     <string name="filter">Filter</string>
@@ -206,6 +207,7 @@
     <string name="import_overrides_import">Importer</string>
     <string name="import_overrides_text_title">Importer via tekst</string>
     <string name="in_app_products_unavailable">Produkter i appen er ikke tilgjengelige. Sørg for at du har den nyeste versjonen av Google Play.</string>
+    <string name="invalid_dns_servers">De egendefinerte DNS-serveradressene %1$s er ugyldige</string>
     <string name="invalid_voucher">Ugyldig kupongkode.</string>
     <string name="ip_version_v4_unavailable">IPv4 er ikke tilgjengelig. Prøv å endre innstillingen «Enhetens IP-versjon».</string>
     <string name="ip_version_v6_unavailable">IPv6 er ikke tilgjengelig. Prøv å endre innstillingen «Enhetens IP-versjon».</string>
@@ -226,6 +228,8 @@
     <string name="local_network_sharing_info">Funksjonen gir tilgang til andre enheter på det lokale nettverket for ting som deling, utskrift, strømming osv.</string>
     <string name="local_network_sharing_info_block_connections_warning">OBS: Hvis «Blokker tilkoblinger uten VPN» er aktivert, vil «Deling av lokalt nettverk» ikke fungere.</string>
     <string name="location_added">%1$s (lagt til)</string>
+    <string name="location_was_added_to_list">%1$s ble lagt til «%2$s»</string>
+    <string name="location_was_removed_from_list">%1$s ble fjernet fra «%2$s»</string>
     <string name="locations">Plasseringer</string>
     <string name="locations_were_changed_for">Plasseringer ble endret for «%1$s»</string>
     <string name="log_out">Logg ut</string>
@@ -306,6 +310,7 @@
     <string name="redeem">Løs inn</string>
     <string name="redeem_voucher">Løs inn kupong</string>
     <string name="remove_button">Fjern</string>
+    <string name="remove_location_from_list">Fjern %1$s fra %2$s</string>
     <string name="removed_provider">%1$s (fjernet)</string>
     <string name="rented">Leid</string>
     <string name="rented_only">Kun leid</string>
@@ -346,8 +351,10 @@
     <string name="settings_changes_effect_warning_content_blocker">Endringer til DNS-relaterte innstillinger vil kanskje ikke tre i kraft umiddelbart på grunn av bufrede resultater.</string>
     <string name="settings_changes_effect_warning_short">DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart</string>
     <string name="settings_patch_error_failed_to_apply_patch">Kunne ikke bruke oppdatering</string>
+    <string name="settings_patch_error_invalid_or_missing_value">Ugyldig eller mangler verdien «%1$s»</string>
     <string name="settings_patch_error_recursion_limit">Rekursjonsgrense</string>
     <string name="settings_patch_error_unable_to_parse">Kunne ikke analysere oppdatering</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Ukjent eller forbudt nøkkel «%1$s»</string>
     <string name="settings_patch_success">Importering vellykket. Overstyringer aktive</string>
     <string name="settings_vpn">VPN-innstillinger</string>
     <string name="share">Del …</string>
@@ -402,6 +409,7 @@
     <string name="wg_port_subtitle">Angi %1$s-tilsløring til «Automatisk» eller «Av» nedenfor for å aktivere denne innstillingen.</string>
     <string name="wireguard_custon_port_title">Egendefinert</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">Angi WireGuard MTU-verdi. Verdiområde: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Den automatiske innstillingen vil tilfeldig velge fra utvalget av gyldige porter vist under.</string>
     <string name="wireguard_port_info_port_range">Den egendefinerte porten kan ha en hvilken som helst verdi innen det gyldige utvalget: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Valgt %1$s-port støttes ikke. Du kan endre i</string>

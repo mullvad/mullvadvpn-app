@@ -164,6 +164,7 @@
     <string name="enable">Aktivera</string>
     <string name="enable_anyway">Aktivera ändå</string>
     <string name="enable_custom_dns">Använd anpassad DNS-server</string>
+    <string name="enable_direct_only">Aktivera %1$s</string>
     <string name="enable_ipv6">IPv6 i tunnel</string>
     <string name="enable_method">Aktivera metod</string>
     <string name="encrypted_dns_proxy_info_message_part1">Med metoden \"Krypterad DNS-proxy\" kommunicerar appen med vår Mullvad API via en proxyadress. Den gör det genom att hämta en adress från en DNS over HTTPS-server (DoH) och sedan använda den för att nå våra API-servrar.</string>
@@ -188,7 +189,7 @@
     <string name="faqs_and_guides">Vanliga frågor och guider</string>
     <string name="feature_custom_dns">Anpassad DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$d till ...</string>
+    <string name="feature_indicators_show_more">%1$s till ...</string>
     <string name="feature_quantum_resistant">Kvantresistens</string>
     <string name="feature_udp_2_tcp">Obfuskering</string>
     <string name="filter">Filtrera</string>
@@ -206,6 +207,7 @@
     <string name="import_overrides_import">Importera</string>
     <string name="import_overrides_text_title">Importera via text</string>
     <string name="in_app_products_unavailable">Produkterna i appen är inte tillgängliga. Se till att du har den senaste versionen av Google Play.</string>
+    <string name="invalid_dns_servers">De anpassade DNS-serveradresserna %1$s är ogiltiga</string>
     <string name="invalid_voucher">Kupongkoden är ogiltig.</string>
     <string name="ip_version_v4_unavailable">IPv4 är inte tillgängligt, prova att ändra inställningen \"Enhetens IP-version\".</string>
     <string name="ip_version_v6_unavailable">IPv6 är inte tillgängligt, prova att ändra inställningen \"Enhetens IP-version\".</string>
@@ -226,6 +228,8 @@
     <string name="local_network_sharing_info">Funktionen tillåter åtkomst till andra enheter på det lokala nätverket, t.ex. för att dela, skriva ut, streama osv.</string>
     <string name="local_network_sharing_info_block_connections_warning">Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat fungerar inte \"Lokal nätverksdelning\".</string>
     <string name="location_added">%1$s (har lagts till)</string>
+    <string name="location_was_added_to_list">%1$s har lagts till i \"%2$s\"</string>
+    <string name="location_was_removed_from_list">%1$s har tagits bort från \"%2$s\"</string>
     <string name="locations">Platser</string>
     <string name="locations_were_changed_for">Platserna har ändrats för \"%1$s\"</string>
     <string name="log_out">Logga ut</string>
@@ -306,6 +310,7 @@
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>
     <string name="remove_button">Ta bort</string>
+    <string name="remove_location_from_list">Ta bort %1$s från %2$s</string>
     <string name="removed_provider">%1$s (har tagits bort)</string>
     <string name="rented">Hyrd</string>
     <string name="rented_only">Endast hyrd</string>
@@ -346,8 +351,10 @@
     <string name="settings_changes_effect_warning_content_blocker">Ändringar i DNS-relaterade inställningar kanske inte börjar gälla direkt på grund av cachade resultat.</string>
     <string name="settings_changes_effect_warning_short">DNS-inställningarna kanske inte börjar gälla direkt</string>
     <string name="settings_patch_error_failed_to_apply_patch">Konfigurationsfilen kunde inte tillämpas</string>
+    <string name="settings_patch_error_invalid_or_missing_value">Värdet \"%1$s\" är ogiltigt eller saknas</string>
     <string name="settings_patch_error_recursion_limit">Rekursionsgräns</string>
     <string name="settings_patch_error_unable_to_parse">Det går inte att parsa korrigering</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Okänd eller förbjuden nyckel \"%1$s\"</string>
     <string name="settings_patch_success">Har importerats, åsidosättningar aktiva</string>
     <string name="settings_vpn">VPN-inställningar</string>
     <string name="share">Dela …</string>
@@ -402,6 +409,7 @@
     <string name="wg_port_subtitle">Ställ in %1$s-obfuskering som \"Automatisk\" eller \"Av\" nedan för att aktivera inställningen.</string>
     <string name="wireguard_custon_port_title">Anpassad</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Den automatiska inställningen väljer slumpmässigt från giltiga portintervall som visas nedan.</string>
     <string name="wireguard_port_info_port_range">Den anpassade porten kan vara ett värde inom de giltiga intervallen: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Den valda %1$s-porten stöds inte, ändra den i</string>

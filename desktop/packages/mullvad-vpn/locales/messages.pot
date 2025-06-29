@@ -2721,6 +2721,9 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
 
+msgid "%1$s more..."
+msgstr ""
+
 msgid "%1$s was added to \"%2$s\""
 msgstr ""
 

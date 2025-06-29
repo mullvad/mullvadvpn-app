@@ -164,6 +164,7 @@
     <string name="enable">有効にする</string>
     <string name="enable_anyway">それでも有効にする</string>
     <string name="enable_custom_dns">カスタムDNSサーバーを使う</string>
+    <string name="enable_direct_only">%1$sを有効にする</string>
     <string name="enable_ipv6">トンネル内のIPv6</string>
     <string name="enable_method">方法を有効化する</string>
     <string name="encrypted_dns_proxy_info_message_part1">[暗号化DNSプロキシ] 方式を使用すると、アプリはプロキシアドレスを通じてMullvad APIと通信します。これはDNS over HTTPS (DoH) サーバーからアドレスを取得し、APIサーバーへのアクセスに利用することで行われます。</string>
@@ -188,7 +189,7 @@
     <string name="faqs_and_guides">よくある質問とガイド</string>
     <string name="feature_custom_dns">カスタムDNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">その他%1$d件...</string>
+    <string name="feature_indicators_show_more">その他%1$s件…</string>
     <string name="feature_quantum_resistant">耐量子</string>
     <string name="feature_udp_2_tcp">難読化</string>
     <string name="filter">絞り込み</string>
@@ -206,6 +207,7 @@
     <string name="import_overrides_import">インポート</string>
     <string name="import_overrides_text_title">テキストでインポート</string>
     <string name="in_app_products_unavailable">アプリ内アイテムを利用できません。最新バージョンのGoogle Playを使用していることを確認してください。</string>
+    <string name="invalid_dns_servers">カスタムDNSサーバーアドレス %1$s は無効です</string>
     <string name="invalid_voucher">バウチャーコードが無効です。</string>
     <string name="ip_version_v4_unavailable">IPv4は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。</string>
     <string name="ip_version_v6_unavailable">IPv6は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。</string>
@@ -226,6 +228,8 @@
     <string name="local_network_sharing_info">この機能は、共有、印刷、ストリーミングなどのため、ローカルネットワーク上の他デバイスへのアクセスを許可します。</string>
     <string name="local_network_sharing_info_block_connections_warning">注意: [VPN 以外の接続のブロック] が有効の場合、[ローカルネットワーク共有] は機能しません。</string>
     <string name="location_added">%1$s (追加済み)</string>
+    <string name="location_was_added_to_list">%1$sが「%2$s」に追加されました</string>
+    <string name="location_was_removed_from_list">%1$sが「%2$s」から削除されました</string>
     <string name="locations">場所</string>
     <string name="locations_were_changed_for">\"%1$s\" の場所が変更されました</string>
     <string name="log_out">ログアウト</string>
@@ -306,6 +310,7 @@
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
     <string name="remove_button">削除</string>
+    <string name="remove_location_from_list">%1$sを%2$sから削除する</string>
     <string name="removed_provider">%1$s (削除済み)</string>
     <string name="rented">レンタルサーバー</string>
     <string name="rented_only">レンタルサーバーのみ</string>
@@ -346,8 +351,10 @@
     <string name="settings_changes_effect_warning_content_blocker">結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。</string>
     <string name="settings_changes_effect_warning_short">DNS設定はすぐに適用されない可能性があります</string>
     <string name="settings_patch_error_failed_to_apply_patch">パッチを適用できませんでした</string>
+    <string name="settings_patch_error_invalid_or_missing_value">値「%1$s」は無効であるか、欠測しています</string>
     <string name="settings_patch_error_recursion_limit">繰り返しの制限</string>
     <string name="settings_patch_error_unable_to_parse">パッチを解析できません</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">キー「%1$s」は不明であるか、禁止されています</string>
     <string name="settings_patch_success">インポートが正常に完了しました。オーバーライドは有効です</string>
     <string name="settings_vpn">VPN設定</string>
     <string name="share">共有…</string>
@@ -402,6 +409,7 @@
     <string name="wg_port_subtitle">この設定を有効化するには、以下の%1$sの難読化を「自動」または「オフ」に設定してください。</string>
     <string name="wireguard_custon_port_title">カスタム</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">WireGuardのMTU値を設定します。有効範囲: %1$d ～ %2$d</string>
     <string name="wireguard_port_info_description">自動設定では、以下の有効なポート範囲からランダムに選択されます。</string>
     <string name="wireguard_port_info_port_range">カスタムポートは次の有効範囲内の任意の値に設定できます: %1$s。</string>
     <string name="wireguard_port_is_not_supported">選択した%1$sポートには対応していません。</string>

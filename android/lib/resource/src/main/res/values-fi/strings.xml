@@ -164,6 +164,7 @@
     <string name="enable">Ota käyttöön</string>
     <string name="enable_anyway">Ota silti käyttöön</string>
     <string name="enable_custom_dns">Käytä mukautettua DNS-palvelinta</string>
+    <string name="enable_direct_only">Ota %1$s käyttöön</string>
     <string name="enable_ipv6">Tunnelin IPv6</string>
     <string name="enable_method">Ota menetelmä käyttöön</string>
     <string name="encrypted_dns_proxy_info_message_part1">Sovellus kommunikoi Mullvad API:n kanssa välityspalvelinosoitteen kautta \"Salattu DNS-välityspalvelin\" -menetelmällä, joka toimii niin, että sovellus hakee osoitteen DNS over HTTPS (DoH) -palvelimelta ja käyttää sitä API-palvelimillemme pääsemiseen.</string>
@@ -188,7 +189,7 @@
     <string name="faqs_and_guides">Usein kysytyt kysymykset ja oppaat</string>
     <string name="feature_custom_dns">Mukautettu DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$d lisää...</string>
+    <string name="feature_indicators_show_more">%1$s lisää...</string>
     <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
     <string name="feature_udp_2_tcp">Hämäysteknologia</string>
     <string name="filter">Suodatin</string>
@@ -206,6 +207,7 @@
     <string name="import_overrides_import">Tuo</string>
     <string name="import_overrides_text_title">Tuo tekstinä</string>
     <string name="in_app_products_unavailable">Sovelluksen sisäiset tuotteet eivät ole käytettävissä. Varmista, että sinulla on Google Playn uusin versio.</string>
+    <string name="invalid_dns_servers">Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä</string>
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
     <string name="ip_version_v4_unavailable">IPv4 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus.</string>
     <string name="ip_version_v6_unavailable">IPv6 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus.</string>
@@ -226,6 +228,8 @@
     <string name="local_network_sharing_info">Tämä ominaisuus mahdollistaa pääsyn muihin paikallisverkon laitteisiin esimerkiksi jakamisen, tulostamisen, suoratoiston jne. tarpeisiin.</string>
     <string name="local_network_sharing_info_block_connections_warning">Huomio: jos yhteyksien estäminen ilman VPN:ää on sallittu, paikallisen verkon jakaminen ei toimi.</string>
     <string name="location_added">%1$s (lisätty)</string>
+    <string name="location_was_added_to_list">%1$s lisättiin luetteloon \"%2$s\"</string>
+    <string name="location_was_removed_from_list">%1$s poistettiin luettelosta \"%2$s\"</string>
     <string name="locations">Sijainnit</string>
     <string name="locations_were_changed_for">Kohteen \"%1$s\" sijainteja vaihdettiin</string>
     <string name="log_out">Kirjaudu ulos</string>
@@ -306,6 +310,7 @@
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
     <string name="remove_button">Poista</string>
+    <string name="remove_location_from_list">Poista %1$s luettelosta %2$s</string>
     <string name="removed_provider">%1$s (poistettu)</string>
     <string name="rented">Vuokrattu</string>
     <string name="rented_only">Vain vuokratut</string>
@@ -346,8 +351,10 @@
     <string name="settings_changes_effect_warning_content_blocker">DNS-asetuksiin tehdyt muutokset eivät välttämättä astu voimaan välittömästi välimuistissa olevien tulosten vuoksi.</string>
     <string name="settings_changes_effect_warning_short">Uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi</string>
     <string name="settings_patch_error_failed_to_apply_patch">Muutostiedoston käyttöönotto ei onnistunut</string>
+    <string name="settings_patch_error_invalid_or_missing_value">Arvo \"%1$s\" puuttuu tai on virheellinen</string>
     <string name="settings_patch_error_recursion_limit">Toistorajoitus</string>
     <string name="settings_patch_error_unable_to_parse">Muutostiedoston jäsentäminen ei onnistu</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Tuntematon tai kielletty avain \"%1$s\"</string>
     <string name="settings_patch_success">Tuonti onnistui ja ohituksia on käytössä</string>
     <string name="settings_vpn">VPN-asetukset</string>
     <string name="share">Jaa…</string>
@@ -402,6 +409,7 @@
     <string name="wg_port_subtitle">Jotta voit käyttää tätä asetusta, poista %1$s-hämäysteknologia käytöstä tai säädä sen asetukseksi \"Automaattinen\" alta.</string>
     <string name="wireguard_custon_port_title">Mukautettu</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Automaattinen asetus valitsee satunnaisesti käytettävissä olevista, alla luetelluista porteista.</string>
     <string name="wireguard_port_info_port_range">Mukautettu portti voi olla mikä tahansa sallittu arvo: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Valittua %1$s-porttia ei tueta. Vaihda portti</string>

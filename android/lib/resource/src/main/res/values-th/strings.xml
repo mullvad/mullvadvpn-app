@@ -164,6 +164,7 @@
     <string name="enable">เปิดใช้งาน</string>
     <string name="enable_anyway">เปิดใช้งานต่อไป</string>
     <string name="enable_custom_dns">ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</string>
+    <string name="enable_direct_only">เปิดใช้งาน %1$s</string>
     <string name="enable_ipv6">IPv6 แบบภายในอุโมงค์</string>
     <string name="enable_method">เปิดใช้งานวิธีการ</string>
     <string name="encrypted_dns_proxy_info_message_part1">การใช้วิธี \"พร็อกซี DNS ที่เข้ารหัส\" จะช่วยให้แอปสื่อสารกับ Mullvad API ของเราผ่านที่อยู่พร็อกซี ซึ่งทำได้โดยดึงที่อยู่จากเซิร์ฟเวอร์ DNS ผ่าน HTTPS (DoH) แล้วจึงใช้ที่อยู่ดังกล่าวเพื่อเข้าถึงเซิร์ฟเวอร์ API ของเรา</string>
@@ -188,7 +189,7 @@
     <string name="faqs_and_guides">คำถามที่พบบ่อยและคำแนะนำ</string>
     <string name="feature_custom_dns">DNS แบบกำหนดเอง</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">อีก %1$d...</string>
+    <string name="feature_indicators_show_more">อีก %1$s...</string>
     <string name="feature_quantum_resistant">การต่อต้านควอนตัม</string>
     <string name="feature_udp_2_tcp">การทำให้ข้อมูลยุ่งเหยิง</string>
     <string name="filter">ตัวกรอง</string>
@@ -206,6 +207,7 @@
     <string name="import_overrides_import">นำเข้า</string>
     <string name="import_overrides_text_title">นำเข้าผ่านข้อความ</string>
     <string name="in_app_products_unavailable">ผลิตภัณฑ์ในแอปไม่พร้อมใช้งาน โปรดตรวจสอบให้แน่ใจว่าคุณมี Google Play เวอร์ชันล่าสุด</string>
+    <string name="invalid_dns_servers">ที่อยู่เซิร์ฟเวอร์ DNS ที่กำหนดเอง %1$s ไม่ถูกต้อง</string>
     <string name="invalid_voucher">รหัสบัตรกำนัลไม่ถูกต้อง</string>
     <string name="ip_version_v4_unavailable">IPv4 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า \"เวอร์ชัน IP อุปกรณ์\"</string>
     <string name="ip_version_v6_unavailable">IPv6 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า \"เวอร์ชัน IP อุปกรณ์\"</string>
@@ -226,6 +228,8 @@
     <string name="local_network_sharing_info">คุณลักษณะนี้จะช่วยให้สามารถเข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายท้องถิ่น เช่น การแชร์ การพิมพ์ การสตรีม ฯลฯ</string>
     <string name="local_network_sharing_info_block_connections_warning">โปรดทราบ: หากเปิดใช้งาน \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\" อยู่ \"การแชร์ในเครือข่ายท้องถิ่น\" จะไม่ทำงาน</string>
     <string name="location_added">%1$s (เพิ่มแล้ว)</string>
+    <string name="location_was_added_to_list">เพิ่ม %1$s ลงใน \"%2$s\" แล้ว</string>
+    <string name="location_was_removed_from_list">%1$s ถูกลบออกจาก \"%2$s” แล้ว</string>
     <string name="locations">ตำแหน่งที่ตั้ง</string>
     <string name="locations_were_changed_for">ตำแหน่งที่ตั้งสำหรับ \"%1$s\" มีการเปลี่ยนแปลง</string>
     <string name="log_out">ลงชื่อออก</string>
@@ -306,6 +310,7 @@
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
     <string name="remove_button">ลบ</string>
+    <string name="remove_location_from_list">ลบ %1$s จาก %2$s</string>
     <string name="removed_provider">%1$s (ลบแล้ว)</string>
     <string name="rented">เช่า</string>
     <string name="rented_only">เช่าเท่านั้น</string>
@@ -346,8 +351,10 @@
     <string name="settings_changes_effect_warning_content_blocker">การเปลี่ยนแปลงการตั้งค่าที่เกี่ยวข้องกับ DNS อาจไม่มีผลทันที เนื่องจากผลลัพธ์ที่แคชไว้</string>
     <string name="settings_changes_effect_warning_short">การตั้งค่า DNS อาจไม่มีผลทันที</string>
     <string name="settings_patch_error_failed_to_apply_patch">ล้มเหลวในการปรับใช้แพตช์</string>
+    <string name="settings_patch_error_invalid_or_missing_value">ค่า \"%1$s” ไม่ถูกต้องหรือขาดหายไป</string>
     <string name="settings_patch_error_recursion_limit">ขีดจำกัดการเรียกซ้ำ</string>
     <string name="settings_patch_error_unable_to_parse">ไม่สามารถแยกวิเคราะห์แพตช์ได้</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">คีย์ \"%1$s\" ไม่รู้จักหรือไม่ได้รับอนุญาต</string>
     <string name="settings_patch_success">นำเข้าสำเร็จ เปิดใช้โอเวอร์ไรด์อยู่</string>
     <string name="settings_vpn">การตั้งค่า VPN</string>
     <string name="share">แชร์…</string>
@@ -402,6 +409,7 @@
     <string name="wg_port_subtitle">ตั้งค่าการทำให้ข้อมูลยุ่งเหยิง %1$s ให้เป็น \"อัตโนมัติ\" หรือ \"ปิด\" ที่ด้านล่าง เพื่อเปิดใช้งานการตั้งค่านี้</string>
     <string name="wireguard_custon_port_title">กำหนดเอง</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">ตั้งค่า WireGuard MTU ช่วงที่ถูกต้อง: %1$d - %2$d</string>
     <string name="wireguard_port_info_description">การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากช่วงพอร์ตที่ใช้งานได้ต่างๆ ซึ่งแสดงอยู่ด้านล่าง</string>
     <string name="wireguard_port_info_port_range">พอร์ตแบบกำหนดเองอาจมีค่าใดๆ ก็ได้ ภายในช่วงที่ใช้งานได้: %1$s</string>
     <string name="wireguard_port_is_not_supported">ไม่รองรับพอร์ต %1$s ที่เลือก โปรดเปลี่ยนพอร์ตภายใต้ส่วน</string>

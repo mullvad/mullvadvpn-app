@@ -164,6 +164,7 @@
     <string name="enable">啟用</string>
     <string name="enable_anyway">仍然啟用</string>
     <string name="enable_custom_dns">使用自訂 DNS 伺服器</string>
+    <string name="enable_direct_only">啟用 %1$s</string>
     <string name="enable_ipv6">通道內 IPv6</string>
     <string name="enable_method">啟用方式</string>
     <string name="encrypted_dns_proxy_info_message_part1">使用「加密 DNS 代理伺服器」方法時，應用程式會透過代理伺服器位址和我們的 Mullvad API 通訊。應用程式會先從 DNS over HTTPS (DoH) 伺服器取得一個位址，再利用該位址連線至我們的 API 伺服器。</string>
@@ -188,7 +189,7 @@
     <string name="faqs_and_guides">常見問題集與指南</string>
     <string name="feature_custom_dns">自訂 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">其他 %1$d 個…</string>
+    <string name="feature_indicators_show_more">其他 %1$s 個…</string>
     <string name="feature_quantum_resistant">抗量子</string>
     <string name="feature_udp_2_tcp">混淆</string>
     <string name="filter">篩選</string>
@@ -206,6 +207,7 @@
     <string name="import_overrides_import">匯入</string>
     <string name="import_overrides_text_title">透過文字匯入</string>
     <string name="in_app_products_unavailable">無法取得應用程式內產品，請確認您是否擁有最新版本的 Google Play。</string>
+    <string name="invalid_dns_servers">自訂 DNS 伺服器位址 %1$s 無效</string>
     <string name="invalid_voucher">憑證兌換碼無效。</string>
     <string name="ip_version_v4_unavailable">無法使用 IPv4，請嘗試變更「裝置 IP 版本」設定。</string>
     <string name="ip_version_v6_unavailable">無法使用 IPv6，請嘗試變更「裝置 IP 版本」設定。</string>
@@ -226,6 +228,8 @@
     <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
     <string name="local_network_sharing_info_block_connections_warning">注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，將無法使用「本機網路共享」功能。</string>
     <string name="location_added">%1$s (已新增)</string>
+    <string name="location_was_added_to_list">已將 %1$s 新增至「%2$s」</string>
+    <string name="location_was_removed_from_list">已將 %1$s 從「%2$s」中移除</string>
     <string name="locations">位置</string>
     <string name="locations_were_changed_for">已變更「%1$s」的位置</string>
     <string name="log_out">登出</string>
@@ -306,6 +310,7 @@
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
     <string name="remove_button">移除</string>
+    <string name="remove_location_from_list">將 %1$s 從 %2$s 中移除</string>
     <string name="removed_provider">%1$s (已移除)</string>
     <string name="rented">租用</string>
     <string name="rented_only">僅租用</string>
@@ -346,8 +351,10 @@
     <string name="settings_changes_effect_warning_content_blocker">由於快取的結果，對 DNS 相關設定所做的變更可能不會立即生效。</string>
     <string name="settings_changes_effect_warning_short">DNS 設定可能不會立即生效</string>
     <string name="settings_patch_error_failed_to_apply_patch">無法套用修補檔</string>
+    <string name="settings_patch_error_invalid_or_missing_value">值「%1$s」無效或遺失</string>
     <string name="settings_patch_error_recursion_limit">遞迴限制</string>
     <string name="settings_patch_error_unable_to_parse">無法剖析修補檔</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">未知或遭到禁用的金鑰「%1$s」</string>
     <string name="settings_patch_success">匯入成功，覆寫設定已啟用</string>
     <string name="settings_vpn">VPN 設定</string>
     <string name="share">共享…</string>
@@ -402,6 +409,7 @@
     <string name="wg_port_subtitle">若要啟用此設定，請將 %1$s 混淆設為「自動」或「關閉」。</string>
     <string name="wireguard_custon_port_title">自訂</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>
     <string name="wireguard_port_info_description">自動設定將會隨機從下方顯示的有效連接埠範圍中進行選擇。</string>
     <string name="wireguard_port_info_port_range">自訂連接埠可以是有效範圍內的任何值：%1$s。</string>
     <string name="wireguard_port_is_not_supported">不支援所選的 %1$s 連接埠，請至下列位置變更：</string>

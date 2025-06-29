@@ -164,6 +164,7 @@
     <string name="enable">ဖွင့်ရန်</string>
     <string name="enable_anyway">မည်သို့ပင်ဖြစ်စေ ဖွင့်ရန်</string>
     <string name="enable_custom_dns">စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်</string>
+    <string name="enable_direct_only">%1$s ကို ဖွင့်ရန်</string>
     <string name="enable_ipv6">Tunnel-အဝင် IPv6</string>
     <string name="enable_method">နည်းလမ်းကို ဖွင့်ရန်</string>
     <string name="encrypted_dns_proxy_info_message_part1">ထိုအက်ပ်သည် “ကုဒ်ဝှက်ထားသော DNS ပရောက်စီ” နည်းလမ်းအားဖြင့် ကျွန်ုပ်တို့၏ Mullvad API ထံသို့ ပရောက်စီလိပ်စာမှတစ်ဆင့် ဆက်သွယ်ပေးမည်ဖြစ်သည်။ HTTPS (DoH) ဆာဗာရှိ DNS မှ လိပ်စာတစ်ခုကို ပြန်လည်ရယူခြင်းအားဖြင့် ထိုသို့လုပ်ဆောင်ပြီးနောက် ကျွန်ုပ်တို့၏ API ဆာဗာများသို့ရောက်ရှိရန် ၎င်းကို အသုံးပြုသည်။</string>
@@ -188,7 +189,7 @@
     <string name="faqs_and_guides">မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ</string>
     <string name="feature_custom_dns">စိတ်ကြိုက် DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">နောက်ထပ် %1$d လုံး...</string>
+    <string name="feature_indicators_show_more">နောက်ထပ် %1$s ...</string>
     <string name="feature_quantum_resistant">Quantum ခုခံမှု</string>
     <string name="feature_udp_2_tcp">Obfuscation</string>
     <string name="filter">စစ်ထုတ်မှု</string>
@@ -206,6 +207,7 @@
     <string name="import_overrides_import">ထည့်ရန်</string>
     <string name="import_overrides_text_title">စာသားမှတစ်ဆင့် ထည့်သွင်းရန်</string>
     <string name="in_app_products_unavailable">အက်ပ်တွင်း ထုတ်ကုန်များကို မရရှိနိုင်ပါ၊ Google Play ၏ နောက်ဆုံးထွက်ဗာရှင်းကို ထည့်ပေးပါ။</string>
+    <string name="invalid_dns_servers">စိတ်ကြိုက် DNS ဆာဗာ လိပ်စာများ %1$s သည် မမှန်ကန်ပါ</string>
     <string name="invalid_voucher">ဘောက်ချာကုဒ် မှားနေပါသည်။</string>
     <string name="ip_version_v4_unavailable">IPv4 ကို မရရှိနိုင်ပါသဖြင့် \"စက် IP ဗားရှင်း\" ဆက်တင်ကို ပြောင်းလဲကြည့်ပါ။</string>
     <string name="ip_version_v6_unavailable">IPv6 ကို မရရှိနိုင်ပါသဖြင့် \"စက် IP ဗားရှင်း\" ဆက်တင်ကို ပြောင်းလဲကြည့်ပါ။</string>
@@ -226,6 +228,8 @@
     <string name="local_network_sharing_info">ဤလုပ်ဆောင်ချက်သည် မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းအစရှိသည်တို့အတွက် ဒေသတွင်း ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပေးပါသည်။</string>
     <string name="local_network_sharing_info_block_connections_warning">သတိပြုရန်- \"VPN မသုံးဘဲ ချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\" ကို ဖွင့်ထားပါက \"လိုကယ် ကွန်ရက် ဝေမျှမှု\" အလုပ်လုပ်မည် မဟုတ်ပါ။</string>
     <string name="location_added">%1$s (ထည့်ပြီး)</string>
+    <string name="location_was_added_to_list">%1$s ကို \"%2$s\" တွင် ထည့်ထားပါသည်</string>
+    <string name="location_was_removed_from_list">%1$s ကို \"%2$s\" မှ ဖယ်ရှားထားပါသည်</string>
     <string name="locations">တည်နေရာများ</string>
     <string name="locations_were_changed_for">\"%1$s\" အတွက် တည်နေရာများကို ပြောင်းလိုက်ပါသည်</string>
     <string name="log_out">ထွက်ရန်</string>
@@ -306,6 +310,7 @@
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
+    <string name="remove_location_from_list">%1$s မှ %2$s ကို ဖယ်ရှားရန်</string>
     <string name="removed_provider">%1$s (ဖယ်ရှားထား)</string>
     <string name="rented">အငှား</string>
     <string name="rented_only">အငှားသီးသန့်</string>
@@ -346,8 +351,10 @@
     <string name="settings_changes_effect_warning_content_blocker">DNS နှင့်ဆက်စပ်သော ဆက်တင်များ၌ ပြုလုပ်သည့် ပြောင်းလဲမှုများသည် ယာယီသိမ်းထားသော ရလဒ်များကြောင့် ချက်ချင်း အကျိုးမသက်ရောက်နိုင်ပါ။</string>
     <string name="settings_changes_effect_warning_short">DNS ဆက်တင်ကို ချက်ချင်း အကျိုးမရောက်နိုင်ပါ။</string>
     <string name="settings_patch_error_failed_to_apply_patch">ပတ်(ချ်) သုံးခြင်း မအောင်မြင်ပါ</string>
+    <string name="settings_patch_error_invalid_or_missing_value">မမှန်ကန်ပါ သို့မဟုတ် \"%1$s\" တန်ဖိုး ပျောက်နေသည်</string>
     <string name="settings_patch_error_recursion_limit">ထပ်တလဲလဲ လုပ်ဆောင်မှု ကန့်သတ်ချက်</string>
     <string name="settings_patch_error_unable_to_parse">Patch ကို ခွဲခြမ်းစိတ်ဖြာ၍ မရပါ</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">အမျိုးအမည် မသိ သို့မဟုတ် တားမြစ်ထားသော ကီး \"%1$s\"</string>
     <string name="settings_patch_success">ထည့်သွင်းမှု အောင်မြင်ပါသည်၊ ကျော်လွန် ပယ်ဖျက်မှု သက်ဝင်ပါသည်</string>
     <string name="settings_vpn">VPN ဆက်တင်များ</string>
     <string name="share">ဝေမျှရန်...</string>
@@ -402,6 +409,7 @@
     <string name="wg_port_subtitle">ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အောက်ရှိ %1$s obfuscation ကို \"အော်တိုမက်တစ်\" သို့မဟုတ် \"ပိတ်\" ဟု သတ်မှတ်ပါ။</string>
     <string name="wireguard_custon_port_title">စိတ်ကြိုက်</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
+    <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။  အကျုံးဝင်သော အပိုင်းအခြား- %1$d - %2$d ။</string>
     <string name="wireguard_port_info_description">အော်တိုဆက်တင်သည် အောက်တွင် ဖော်ပြထားသည့် အကျုံးဝင် ပေါ့တ် အပိုင်းအခြားများထဲမှ ကျပန်းရွေးချယ်ပါမည်။</string>
     <string name="wireguard_port_info_port_range">စိတ်ကြိုက်ပေါ့တ်သည် အကျုံးဝင် အပိုင်းအခြားများထဲမှ မည်သည့်တန်ဖိုးမဆို ဖြစ်နိုင်ပါသည်- %1$s ။</string>
     <string name="wireguard_port_is_not_supported">ရွေးထားသည့် %1$s ပေါ့တ်ကို ပံ့ပိုးထားခြင်းမရှိပါသဖြင့် ၎င်းကို အောက်တွင် ပြောင်းပေးပါ </string>

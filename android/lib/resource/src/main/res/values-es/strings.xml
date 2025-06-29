@@ -164,6 +164,7 @@
     <string name="enable">Habilitar</string>
     <string name="enable_anyway">Habilitar de todos modos</string>
     <string name="enable_custom_dns">Usar servidor DNS personalizado</string>
+    <string name="enable_direct_only">Habilitar %1$s</string>
     <string name="enable_ipv6">Tunelización IPv6</string>
     <string name="enable_method">Habilitar método</string>
     <string name="encrypted_dns_proxy_info_message_part1">Con el método «Proxy DNS cifrado», la aplicación se comunicará con nuestra API de Mullvad a través de una dirección proxy. Para ello, recupera una dirección de un servidor DNS sobre HTTPS (DoH) y luego la utiliza para contactar con nuestros servidores API.</string>
@@ -188,7 +189,7 @@
     <string name="faqs_and_guides">Preguntas frecuentes y guías</string>
     <string name="feature_custom_dns">DNS personalizado</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$d más...</string>
+    <string name="feature_indicators_show_more">%1$s más...</string>
     <string name="feature_quantum_resistant">Resistencia cuántica</string>
     <string name="feature_udp_2_tcp">Ofuscación</string>
     <string name="filter">Filtrar</string>
@@ -206,6 +207,7 @@
     <string name="import_overrides_import">Importar</string>
     <string name="import_overrides_text_title">Importación a través de texto</string>
     <string name="in_app_products_unavailable">Productos en la aplicación no disponibles. Asegúrese de tener la última versión de Google Play.</string>
+    <string name="invalid_dns_servers">Las direcciones del servidor DNS personalizado %1$s no son válidas</string>
     <string name="invalid_voucher">El código del cupón no es válido.</string>
     <string name="ip_version_v4_unavailable">IPv4 no disponible. Intente cambiar el ajuste «Versión de IP del dispositivo».</string>
     <string name="ip_version_v6_unavailable">IPv6 no disponible. Intente cambiar el ajuste «Versión de IP del dispositivo».</string>
@@ -226,6 +228,8 @@
     <string name="local_network_sharing_info">Esta característica permite el acceso a otros dispositivos de la red local, como para compartir, imprimir, transmitir, etc.</string>
     <string name="local_network_sharing_info_block_connections_warning">Atención: si «Bloquear conexiones sin VPN» está activado, «Uso compartido de la red local» no funcionará.</string>
     <string name="location_added">%1$s (añadido)</string>
+    <string name="location_was_added_to_list">%1$s se ha añadido a «%2$s»</string>
+    <string name="location_was_removed_from_list">%1$s se ha eliminado de «%2$s»</string>
     <string name="locations">Ubicaciones</string>
     <string name="locations_were_changed_for">Se han cambiado las ubicaciones para «%1$s»</string>
     <string name="log_out">Cerrar sesión</string>
@@ -306,6 +310,7 @@
     <string name="redeem">Canjear</string>
     <string name="redeem_voucher">Canjear cupón</string>
     <string name="remove_button">Quitar</string>
+    <string name="remove_location_from_list">Quitar %1$s de %2$s</string>
     <string name="removed_provider">%1$s (eliminado)</string>
     <string name="rented">Alquilados</string>
     <string name="rented_only">Solo alquilados</string>
@@ -346,8 +351,10 @@
     <string name="settings_changes_effect_warning_content_blocker">Los cambios en la configuración relacionada con el DNS no surtirán efecto inmediatamente debido a los resultados en caché.</string>
     <string name="settings_changes_effect_warning_short">La configuración de DNS podría no surtir efecto inmediatamente</string>
     <string name="settings_patch_error_failed_to_apply_patch">Error al aplicar el parche</string>
+    <string name="settings_patch_error_invalid_or_missing_value">El valor «%1$s» falta o no es válido</string>
     <string name="settings_patch_error_recursion_limit">Límite de recursión</string>
     <string name="settings_patch_error_unable_to_parse">No se puede analizar el parche</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Clave «%1$s» desconocida o prohibida</string>
     <string name="settings_patch_success">Importación realizada correctamente. Anulaciones activas</string>
     <string name="settings_vpn">Configuración de VPN</string>
     <string name="share">Compartir…</string>
@@ -402,6 +409,7 @@
     <string name="wg_port_subtitle">Establezca la ofuscación de %1$s en «Automática» o «Desactivada» a continuación para activar esta configuración.</string>
     <string name="wireguard_custon_port_title">Personalizado</string>
     <string name="wireguard_mtu">MTU de WireGuard</string>
+    <string name="wireguard_mtu_footer">Establezca el valor de MTU de WireGuard. Intervalo válido: %1$d-%2$d.</string>
     <string name="wireguard_port_info_description">El ajuste automático se elegirá al azar entre los rangos de puertos válidos que se muestran a continuación.</string>
     <string name="wireguard_port_info_port_range">El puerto personalizado pueder ser cualquier valor dentro de los rangos válidos: %1$s.</string>
     <string name="wireguard_port_is_not_supported">No se admite el puerto de %1$s seleccionado. Cámbielo en</string>

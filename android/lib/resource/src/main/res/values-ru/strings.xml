@@ -164,6 +164,7 @@
     <string name="enable">Включить</string>
     <string name="enable_anyway">Всё равно включить</string>
     <string name="enable_custom_dns">Пользовательский DNS-сервер</string>
+    <string name="enable_direct_only">Включить режим %1$s</string>
     <string name="enable_ipv6">IPv6 внутри туннеля</string>
     <string name="enable_method">Включить метод</string>
     <string name="encrypted_dns_proxy_info_message_part1">При использовании метода «Прокси через зашифрованный DNS» приложение будет взаимодействовать с API Mullvad через прокси-адрес. Полученный от сервера «DNS по HTTPS» (DoH) адрес будет использоваться для доступа к нашим серверам API.</string>
@@ -188,7 +189,7 @@
     <string name="faqs_and_guides">Ответы на вопросы и руководства</string>
     <string name="feature_custom_dns">Пользовательский DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">Еще %1$d...</string>
+    <string name="feature_indicators_show_more">Еще %1$s...</string>
     <string name="feature_quantum_resistant">Квантовая устойчивость</string>
     <string name="feature_udp_2_tcp">Обфускация</string>
     <string name="filter">Фильтр</string>
@@ -206,6 +207,7 @@
     <string name="import_overrides_import">Импортировать</string>
     <string name="import_overrides_text_title">Импортировать через текст</string>
     <string name="in_app_products_unavailable">Встроенные покупки недоступны — убедитесь, что у вас установлена последняя версия Google Play.</string>
+    <string name="invalid_dns_servers">Недопустимые пользовательские адреса DNS-серверов %1$s</string>
     <string name="invalid_voucher">Код ваучера недействителен.</string>
     <string name="ip_version_v4_unavailable">Протокол IPv4 недоступен, попробуйте изменить настройку «Версия IP на устройстве».</string>
     <string name="ip_version_v6_unavailable">Протокол IPv6 недоступен, попробуйте изменить настройку «Версия IP на устройстве».</string>
@@ -226,6 +228,8 @@
     <string name="local_network_sharing_info">Эта функция позволяет получить доступ к другим устройствам в локальной сети, например, для организации общего доступа, печати, потоковой передачи и т. д.</string>
     <string name="local_network_sharing_info_block_connections_warning">Внимание! Если включена функция «Блокировать соединения без VPN», обмен данными в локальной сети работать не будет.</string>
     <string name="location_added">%1$s (добавлено)</string>
+    <string name="location_was_added_to_list">Местоположение %1$s добавлено в список «%2$s»</string>
+    <string name="location_was_removed_from_list">Местоположение %1$s удалено из списка «%2$s»</string>
     <string name="locations">Местоположения</string>
     <string name="locations_were_changed_for">Местоположения были изменены для «%1$s»</string>
     <string name="log_out">Выйти</string>
@@ -306,6 +310,7 @@
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
     <string name="remove_button">Удалить</string>
+    <string name="remove_location_from_list">Удалить местоположение %1$s из списка «%2$s»</string>
     <string name="removed_provider">%1$s (удалено)</string>
     <string name="rented">Арендованные</string>
     <string name="rented_only">Только арендованные</string>
@@ -346,8 +351,10 @@
     <string name="settings_changes_effect_warning_content_blocker">Изменения в настройках, связанные с DNS, могут не сразу вступить в силу из-за кешированных результатов.</string>
     <string name="settings_changes_effect_warning_short">Настройки DNS могут не сразу вступить в силу</string>
     <string name="settings_patch_error_failed_to_apply_patch">Не удалось применить патч</string>
+    <string name="settings_patch_error_invalid_or_missing_value">Недопустимое или отсутствующее значение «%1$s»</string>
     <string name="settings_patch_error_recursion_limit">Предел рекурсии</string>
     <string name="settings_patch_error_unable_to_parse">Не удалось проанализировать патч</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Неизвестный или запрещенный ключ «%1$s»</string>
     <string name="settings_patch_success">Импортировано, переопределения активны</string>
     <string name="settings_vpn">Настройки VPN</string>
     <string name="share">Поделиться…</string>
@@ -402,6 +409,7 @@
     <string name="wg_port_subtitle">Чтобы активировать эту настройку, установите для параметра обфускации %1$s значение «Автоматически» или «Выкл.» (см. ниже).</string>
     <string name="wireguard_custon_port_title">Пользовательский</string>
     <string name="wireguard_mtu">MTU для WireGuard</string>
+    <string name="wireguard_mtu_footer">Установите значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">При автоматической настройке порт будет выбираться случайным образом из допустимого диапазона, показанного ниже.</string>
     <string name="wireguard_port_info_port_range">Пользовательский порт может принимать любое значение внутри допустимых диапазонов: %1$s.</string>
     <string name="wireguard_port_is_not_supported">Выбранный порт %1$s не поддерживается. Измените его в</string>

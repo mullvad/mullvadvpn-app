@@ -164,6 +164,7 @@
     <string name="enable">Activer</string>
     <string name="enable_anyway">Activer quand même</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
+    <string name="enable_direct_only">Activer %1$s</string>
     <string name="enable_ipv6">IPv6 en tunnel</string>
     <string name="enable_method">Activer la méthode</string>
     <string name="encrypted_dns_proxy_info_message_part1">Avec la méthode « proxy DNS chiffré », l\'application communiquera avec notre API Mullvad par le biais d\'une adresse proxy. Pour ce faire, elle récupère une adresse auprès d\'un serveur DNS over HTTPS (DoH) et l\'utilise pour atteindre nos serveurs API.</string>
@@ -188,7 +189,7 @@
     <string name="faqs_and_guides">FAQ et guides</string>
     <string name="feature_custom_dns">DNS personnalisé</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_indicators_show_more">%1$d de plus...</string>
+    <string name="feature_indicators_show_more">%1$s de plus…</string>
     <string name="feature_quantum_resistant">Résistance quantique</string>
     <string name="feature_udp_2_tcp">Dissimulation</string>
     <string name="filter">Filtrer</string>
@@ -206,6 +207,7 @@
     <string name="import_overrides_import">Importer</string>
     <string name="import_overrides_text_title">Importer par texte</string>
     <string name="in_app_products_unavailable">Produits dans l\'application indisponibles. Veuillez vous assurer que vous avez la dernière version de Google Play.</string>
+    <string name="invalid_dns_servers">Les adresses de serveur DNS personnalisées %1$s ne sont pas valides</string>
     <string name="invalid_voucher">Le code du bon n\'est pas valide.</string>
     <string name="ip_version_v4_unavailable">L\'IPv4 n\'est pas disponible. Veuillez essayer de modifier le paramètre « Version de l\'IP de l\'appareil ».</string>
     <string name="ip_version_v6_unavailable">L\'IPv6 n\'est pas disponible. Veuillez essayer de modifier le paramètre « Version de l\'IP de l\'appareil ».</string>
@@ -226,6 +228,8 @@
     <string name="local_network_sharing_info">Cette fonctionnalité permet d\'accéder à d\'autres appareils sur le réseau local, par exemple pour le partage, l\'impression, le streaming, etc.</string>
     <string name="local_network_sharing_info_block_connections_warning">Attention : si l\'option « Bloquer les connexions sans VPN » est activée, l\'option « Partage réseau local » ne fonctionne pas.</string>
     <string name="location_added">%1$s (ajouté)</string>
+    <string name="location_was_added_to_list">%1$s a été ajouté à « %2$s »</string>
+    <string name="location_was_removed_from_list">%1$s a été retiré de « %2$s »</string>
     <string name="locations">Localisations</string>
     <string name="locations_were_changed_for">Les localisations ont été modifiées pour « %1$s »</string>
     <string name="log_out">Déconnexion</string>
@@ -306,6 +310,7 @@
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>
     <string name="remove_button">Supprimer</string>
+    <string name="remove_location_from_list">Supprimer %1$s de %2$s</string>
     <string name="removed_provider">%1$s (supprimé)</string>
     <string name="rented">Loué</string>
     <string name="rented_only">Loués uniquement</string>
@@ -346,8 +351,10 @@
     <string name="settings_changes_effect_warning_content_blocker">Les modifications apportées aux paramètres liés au DNS peuvent ne pas prendre effet immédiatement en raison de la mise en cache des résultats.</string>
     <string name="settings_changes_effect_warning_short">Les paramètres DNS peuvent ne pas être immédiatement pris en compte</string>
     <string name="settings_patch_error_failed_to_apply_patch">Impossible d\'appliquer le correctif</string>
+    <string name="settings_patch_error_invalid_or_missing_value">Valeur « %1$s » non valide ou manquante</string>
     <string name="settings_patch_error_recursion_limit">Limite de récursion</string>
     <string name="settings_patch_error_unable_to_parse">Impossible d\'analyser le correctif</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Clé « %1$s » inconnue ou interdite</string>
     <string name="settings_patch_success">Importation réussie, les substitutions sont actives</string>
     <string name="settings_vpn">Paramètres VPN</string>
     <string name="share">Partager…</string>
@@ -402,6 +409,7 @@
     <string name="wg_port_subtitle">Pour activer ce paramètre, réglez l\'offuscation de %1$s sur « Automatique » ou « Désactivée » ci-dessous.</string>
     <string name="wireguard_custon_port_title">Personnalisé</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
+    <string name="wireguard_mtu_footer">Définir la valeur MTU WireGuard. Plage valide : %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Le réglage automatique choisira au hasard parmi la plage de ports valide affichée ci-dessous.</string>
     <string name="wireguard_port_info_port_range">Le port personnalisé peut prendre n\'importe quelle valeur dans les plages valides : %1$s.</string>
     <string name="wireguard_port_is_not_supported">Le port %1$s sélectionné n\'est pas pris en charge. Veuillez le modifier sous</string>
