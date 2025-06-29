@@ -188,6 +188,7 @@
     <string name="faqs_and_guides">Często zadawane pytania i poradniki</string>
     <string name="feature_custom_dns">Niestandardowy serwer DNS</string>
     <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_indicators_show_more">Jeszcze %1$d</string>
     <string name="feature_quantum_resistant">Odporność na ataki z użyciem komputerów kwantowych</string>
     <string name="feature_udp_2_tcp">Zaciemnianie</string>
     <string name="filter">Filtruj</string>

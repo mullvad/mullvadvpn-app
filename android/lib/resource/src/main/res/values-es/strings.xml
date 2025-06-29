@@ -188,6 +188,7 @@
     <string name="faqs_and_guides">Preguntas frecuentes y guías</string>
     <string name="feature_custom_dns">DNS personalizado</string>
     <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_indicators_show_more">%1$d más...</string>
     <string name="feature_quantum_resistant">Resistencia cuántica</string>
     <string name="feature_udp_2_tcp">Ofuscación</string>
     <string name="filter">Filtrar</string>

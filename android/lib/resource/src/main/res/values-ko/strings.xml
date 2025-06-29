@@ -188,6 +188,7 @@
     <string name="faqs_and_guides">FAQ 및 가이드</string>
     <string name="feature_custom_dns">사용자 지정 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_indicators_show_more">%1$d개 더 보기...</string>
     <string name="feature_quantum_resistant">양자 저항</string>
     <string name="feature_udp_2_tcp">난독 처리</string>
     <string name="filter">필터</string>

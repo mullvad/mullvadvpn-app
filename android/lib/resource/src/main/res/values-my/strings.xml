@@ -188,6 +188,7 @@
     <string name="faqs_and_guides">မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ</string>
     <string name="feature_custom_dns">စိတ်ကြိုက် DNS</string>
     <string name="feature_custom_mtu">MTU</string>
+    <string name="feature_indicators_show_more">နောက်ထပ် %1$d လုံး...</string>
     <string name="feature_quantum_resistant">Quantum ခုခံမှု</string>
     <string name="feature_udp_2_tcp">Obfuscation</string>
     <string name="filter">စစ်ထုတ်မှု</string>
