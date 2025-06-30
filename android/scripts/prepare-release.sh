@@ -55,6 +55,10 @@ fi
 echo "$PRODUCT_VERSION" > dist-assets/android-version-name.txt
 ANDROID_VERSION="$PRODUCT_VERSION" cargo run -q --bin mullvad-version versionCode > \
     dist-assets/android-version-code.txt
+if git diff --quiet dist-assets/android-version-*; then
+    echo "Error: Version information unchanged."
+    exit 1
+fi
 git commit -S -m "Update android app version to $PRODUCT_VERSION" \
     dist-assets/android-version-name.txt \
     dist-assets/android-version-code.txt
