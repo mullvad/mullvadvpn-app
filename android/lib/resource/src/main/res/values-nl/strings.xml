@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">Accounttijdherinneringen</string>
     <string name="add">Toevoegen</string>
     <string name="add_30_days_time_x">30 dagen tijd toevoegen (%1$s)</string>
+    <string name="add_90_days_time_x">90 dagen tijd toevoegen (%1$s)</string>
     <string name="add_a_server">Server toevoegen</string>
     <string name="add_dns_server_dialog_title">DNS-server toevoegen</string>
     <string name="add_location_to_list">%1$s toevoegen aan lijst</string>
     <string name="add_locations">Voeg locaties toe</string>
     <string name="add_method">Methode toevoegen</string>
+    <string name="add_time">Tijd toevoegen</string>
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
     <string name="added_to_your_account">%1$s is toegevoegd aan uw account.</string>
     <string name="adding_method">Methode toevoegen ...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">API onbereikbaar</string>
     <string name="api_unreachable_save_anyway">API onbereikbaar, methode toch opslaan?</string>
     <string name="app_info">Appinfo</string>
+    <string name="app_is_blocking_internet">De app blokkeert internet. Verbreek eerst de verbinding</string>
     <string name="apply">Toevoegen</string>
     <string name="at_least_on_method_needs_to_enabled">Er moet minimaal één methode ingeschakeld zijn</string>
     <string name="auth_failed">Kan account niet verifiëren. Stuur een probleemrapport.</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">Als u \"%1$s\" inschakelt, moet u handmatig een server selecteren die %2$s ondersteunt. Hierdoor kunt u in een geblokkeerde toestand terechtkomen totdat u een compatibele server hebt geselecteerd in het dialoogvenster \"Locatie selecteren\".</string>
     <string name="daita_multihop">%1$s: multihop</string>
     <string name="days_were_added_30">Er zijn 30 dagen toegevoegd aan uw account.</string>
+    <string name="days_were_added_90">Er zijn 90 dagen toegevoegd aan uw account.</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" verwijderen?</string>
     <string name="delete_custom_list_message">\"%1$s\" is verwijderd</string>
@@ -176,6 +180,7 @@
     <string name="failed_to_block_internet">Kan niet alle netwerkverkeer blokkeren. Los problemen op of stuur een probleemmelding.</string>
     <string name="failed_to_create_account">Account aanmaken mislukt</string>
     <string name="failed_to_fetch_devices">Ophalen van lijst van apparaten mislukt</string>
+    <string name="failed_to_load_products">Kan producten niet laden. Probeer het opnieuw</string>
     <string name="failed_to_remove_device">Verwijderen van apparaat mislukt</string>
     <string name="failed_to_send">Verzenden mislukt</string>
     <string name="failed_to_send_details">Als u het formulier verlaat en het later opnieuw probeert, is de reeds ingevoerde informatie er nog.</string>
@@ -201,6 +206,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">Het importeren van nieuwe overschrijvingen kan sommige eerder geïmporteerde overschrijvingen vervangen.</string>
     <string name="import_overrides_import">Importeren</string>
     <string name="import_overrides_text_title">Importeren via tekst</string>
+    <string name="in_app_products_unavailable">Producten in de app zijn niet beschikbaar. Controleer dat u de nieuwste versie van Google Play heeft.</string>
     <string name="invalid_dns_servers">Aangepaste DNS-serveradressen %1$s zijn ongeldig</string>
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
     <string name="ip_version_v4_unavailable">IPv4 is niet beschikbaar. Probeer de instelling \"IP-versie apparaat\" te wijzigen.</string>
@@ -215,6 +221,7 @@
     <string name="less_than_a_day_left">minder dan een dag over</string>
     <string name="less_than_one_day">minder dan één dag</string>
     <string name="list_name">Lijstnaam</string>
+    <string name="loading_products">Producten worden geladen</string>
     <string name="loading_verifying">Aankoop controleren ...</string>
     <string name="local_network_sharing">Delen op lokaal netwerk</string>
     <string name="local_network_sharing_additional_info">De functie doet dit door netwerkcommunicatie buiten de tunnel naar lokale multicast- en broadcastbereiken toe te staan, alsmede van en naar deze private IP-adresbereiken:</string>
@@ -283,6 +290,8 @@
     <string name="payment_billing_error_dialog_title">Google Play niet beschikbaar</string>
     <string name="payment_obfuscation_id_error_dialog_message">We kunnen het betalingsproces niet starten, probeer het later opnieuw.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-diensten niet beschikbaar</string>
+    <string name="payment_pending_dialog_message">We zijn nog bezig met het verifiëren van de aankoop, dit kan even duren. De tijd wordt toegevoegd als de verificatie is gelukt.</string>
+    <string name="payment_status_pending_long">Wachten op betaling van Google Play. Dit kan even duren</string>
     <string name="payment_status_pending_short">Google Play-betaling in behandeling</string>
     <string name="please_enter_a_valid_ip_address">Voer een geldig IPv4- of IPv6-adres in</string>
     <string name="please_enter_a_valid_remote_server_port">Voer een geldige poort op de externe server in</string>
@@ -305,8 +314,9 @@
     <string name="removed_provider">%1$s (verwijderd)</string>
     <string name="rented">Gehuurd</string>
     <string name="rented_only">Alleen gehuurde</string>
-    <string name="report_a_problem">Een probleem rapporteren</string>
+    <string name="report_a_problem">Een probleem melden</string>
     <string name="reset_to_default_button">Standaardwaarde herstellen</string>
+    <string name="retry">Opnieuw proberen</string>
     <string name="save">Opslaan</string>
     <string name="search">Zoeken</string>
     <string name="search_location_empty_text">Geen resultaat voor \"%1$s\", probeer een andere zoekopdracht</string>
@@ -360,6 +370,7 @@
     <string name="testing_name">%1$s testen ...</string>
     <string name="this_field_is_required">Dit veld is verplicht</string>
     <string name="this_is_already_set_as_current">Deze is al ingesteld als huidige</string>
+    <string name="time_added">Tijd van toevoegen</string>
     <string name="to_add_locations_to_a_list">Druk op de \"︙\" of druk lang op een land, plaats of server om locaties toe te voegen.</string>
     <string name="to_create_a_custom_list">Druk op de \"︙\" om een aangepaste lijst te maken</string>
     <string name="toggle_vpn">VPN in-/uitschakelen</string>

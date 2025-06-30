@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2025-05-26 11:59\n"
+"PO-Revision-Date: 2025-06-27 06:04\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -336,6 +336,11 @@ msgctxt "accessibility"
 msgid "Go to %(wireGuard)s settings."
 msgstr "%(wireGuard)s設定に移動します。"
 
+#. Accessibility label for link to app upgrade view.
+msgctxt "accessibility"
+msgid "Go to app update page"
+msgstr "アプリの更新ページに移動"
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -372,6 +377,15 @@ msgstr "アカウント番号 %(accountNumber)s でログインしてくださ�
 msgctxt "accessibility"
 msgid "More information"
 msgstr "詳細情報"
+
+#. Accessbility label for link to go to download page.
+msgctxt "accessibility"
+msgid "New version available, click here to go to download page, opens externally"
+msgstr "新しいバージョンをご利用いただけます。ここをクリックするとダウンロードページに移動します (外部ブラウザで開きます)"
+
+msgctxt "accessibility"
+msgid "New version available, click here to go to update view"
+msgstr "新しいバージョンをご利用いただけます。ここをクリックすると更新ビューに移動します"
 
 msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
@@ -615,21 +629,202 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "「Mullvadブリッジ」方法の場合、アプリはMullvadブリッジサーバーを経由してMullvad APIサーバーと通信します。この通信では、Shadowsocksによって難読化されたトラフィックが送信されます。"
 
+#. Title of the app info view.
 msgctxt "app-info-view"
 msgid "App info"
 msgstr "アプリ情報"
 
+#. Description for version list item when app is out of sync.
 msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "アプリが同期していません。アプリを終了して起動し直してください。"
 
+#. Label for switch to toggle beta program.
 msgctxt "app-info-view"
-msgid "App version"
-msgstr "アプリのバージョン"
+msgid "Beta program"
+msgstr "ベータプログラム"
 
 msgctxt "app-info-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "アップデートがあります。最新の状態を維持するにはアプリの最新バージョンをインストールしてください。"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "有効にすると、アプリの新しいベータ版がリリースされた際に通知が届きます。"
+
+msgctxt "app-info-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "ベータ版を使用中はこのオプションを使用できません。"
+
+#. Label for update available list item.
+msgctxt "app-info-view"
+msgid "Update available"
+msgstr "更新あり"
+
+#. Label for version list item.
+msgctxt "app-info-view"
+msgid "Version"
+msgstr "バージョン"
+
+#. Label for changelog list item.
+msgctxt "app-info-view"
+msgid "What’s new"
+msgstr "新機能"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion is within a few seconds.
+msgctxt "app-upgrade-view"
+msgid "A few seconds remaining..."
+msgstr "残り数秒..."
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in minutes.
+#. Available placeholders:
+#. %(minutes)s - Will be replaced with remaining minutes until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(minutes)s minutes remaining..."
+msgstr "残り約%(minutes)s分..."
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in seconds.
+#. Available placeholders:
+#. %(second)s - Will be replaced with remaining seconds until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(seconds)s seconds remaining..."
+msgstr "残り約%(seconds)s秒..."
+
+#. Label displayed when an error occurred due to the connection being blocked
+msgctxt "app-upgrade-view"
+msgid "Connection blocked. Try changing server or other settings."
+msgstr "接続がブロックされました。サーバーやその他の設定を変更してみてください。"
+
+#. Label displayed when an error occurred due to the installer failing to start
+#. and the suggested resolution is to download the update again.
+msgctxt "app-upgrade-view"
+msgid "Could not open installer, please try again or send a problem report."
+msgstr "インストーラーを起動できませんでした。再試行するか、問題の報告を送信してください。"
+
+#. Button text to download and install an update
+msgctxt "app-upgrade-view"
+msgid "Download & install"
+msgstr "ダウンロードしてインストール"
+
+#. Status text displayed below a progress bar when the download of an update is complete
+msgctxt "app-upgrade-view"
+msgid "Download complete!"
+msgstr "ダウンロードが完了しました！"
+
+#. Status text displayed below a progress bar when the download of an update fails
+msgctxt "app-upgrade-view"
+msgid "Download failed"
+msgstr "ダウンロードに失敗しました"
+
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Download failed, please check your connection/firewall and try again, or send a problem report."
+msgstr "ダウンロードに失敗しました。接続やファイアウォールを確認して再試行するか、問題の報告を送信してください。"
+
+#. Status text displayed below a progress bar when the download of an update has been paused
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Download paused"
+msgstr "ダウンロードは一時停止中です"
+
+#. Label displayed above a progress bar informing the user which server
+#. the update is downloading from
+msgctxt "app-upgrade-view"
+msgid "Downloading from: %(server)s"
+msgstr "ダウンロード元: %(server)s"
+
+#. Label displayed above a progress bar when a download is in progress
+msgctxt "app-upgrade-view"
+msgid "Downloading..."
+msgstr "ダウンロード中..."
+
+#. Link shown to optionally manually download the update
+#. due to repeated errors in the upgrade process.
+msgctxt "app-upgrade-view"
+msgid "Having problems? Try downloading the app from our website"
+msgstr "問題がある場合は、当社のウェブサイトからアプリをダウンロードしてみてください"
+
+#. Button text to install an update
+msgctxt "app-upgrade-view"
+msgid "Install update"
+msgstr "更新をインストール"
+
+#. Label displayed when an error occurred within the installer
+msgctxt "app-upgrade-view"
+msgid "Installer quit unexpectedly, please try again or send a problem report."
+msgstr "インストーラーが予期せず終了しました。再試行するか、問題の報告を送信してください。"
+
+#. Text displayed when there are no updates for this platform in the next app version
+msgctxt "app-upgrade-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "今回のリリースでは、このプラットフォーム向けの更新や変更はありません。"
+
+#. Button text to pause the download of an update
+msgctxt "app-upgrade-view"
+msgid "Pause"
+msgstr "一時停止"
+
+#. Button text to report a problem
+msgctxt "app-upgrade-view"
+msgid "Report a problem"
+msgstr "問題を報告"
+
+#. Button text to resume updating
+msgctxt "app-upgrade-view"
+msgid "Resume"
+msgstr "再開"
+
+#. Button text to try again
+msgctxt "app-upgrade-view"
+msgid "Retry"
+msgstr "再試行"
+
+#. Button text to try download again
+msgctxt "app-upgrade-view"
+msgid "Retry download"
+msgstr "ダウンロードを再試行"
+
+#. Status text displayed below a progress bar when the download of an update is starting
+msgctxt "app-upgrade-view"
+msgid "Starting download..."
+msgstr "ダウンロードを開始中..."
+
+#. Button text to when starting the installer for an update
+msgctxt "app-upgrade-view"
+msgid "Starting installer..."
+msgstr "インストーラーを起動中..."
+
+#. Label displayed when an unknown error occurred
+msgctxt "app-upgrade-view"
+msgid "Unknown error occurred. Please try again or send a problem report."
+msgstr "不明なエラーが発生しました。再試行するか、問題の報告を送信してください。"
+
+#. Title in navigation bar
+#. Main title for the update available view
+msgctxt "app-upgrade-view"
+msgid "Update available"
+msgstr "更新があります"
+
+#. Label displayed when an error occurred due to the installer failed verification
+msgctxt "app-upgrade-view"
+msgid "Verification failed, please try again or send a problem report."
+msgstr "検証に失敗しました。再試行するか、問題の報告を送信してください。"
+
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Verification successful!"
+msgstr "検証に成功しました！"
+
+#. Label displayed above a progress bar when the update is being verified
+msgctxt "app-upgrade-view"
+msgid "Verifying installer..."
+msgstr "インストーラーを検証中..."
+
+#. Heading which shows the version of the app which can be upgraded to.
+#. Available placeholders:
+#. %(version)s - The new version of the app.
+msgctxt "app-upgrade-view"
+msgid "Version %(version)s"
+msgstr "バージョン%(version)s"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -647,10 +842,13 @@ msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "無効なアカウント番号でログインしています。いったんログアウトして、別のアカウント番号を試してください。"
 
+#. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
 msgstr "今回のリリースでは、このプラットフォームに対する更新や変更はありません。"
 
+#. Heading for the view of the changes and updates in the
+#. current version compared to the old version.
 msgctxt "changelog-view"
 msgid "What’s new"
 msgstr "新機能"
@@ -961,6 +1159,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)sのサポートが終了します。場所を切り替えるか、"
 
+#. Notification subtitle when the app upgrade is ready to install.
+#. Available placeholders:
+#. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
+msgctxt "in-app-notifications"
+msgid "%(suggestedUpgradeVersion)s is ready to be installed."
+msgstr "%(suggestedUpgradeVersion)sをインストールできます。"
+
 #. Link in notication to go to WireGuard settings.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
@@ -992,14 +1197,72 @@ msgctxt "in-app-notifications"
 msgid "change tunnel protocol to %(wireGuard)s."
 msgstr "トンネルのプロトコルを%(wireGuard)sに変更してください。"
 
+#. Notification subtitle when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "Click here to install update."
+msgstr "更新をインストールするにはここをクリックしてください。"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "Click here to retry"
+msgstr "再試行するにはここをクリックしてください"
+
+#. Notification subtitle when the download of the installer failed
+#. and the user can try downloading again.
+msgctxt "in-app-notifications"
+msgid "Click here to retry download"
+msgstr "ダウンロードを再試行するにはここをクリックしてください"
+
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
 msgstr "新機能を確認するにはここをクリックしてください。"
+
+#. Link text to go to the app upgrade view
+msgctxt "in-app-notifications"
+msgid "Click here to update"
+msgstr "ここをクリックして更新"
+
+#. Notification subtitle when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "Could not download installer."
+msgstr "インストーラーをダウンロードできませんでした。"
+
+#. Generic notification subtitle when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "Could not upgrade the app."
+msgstr "アプリをアップグレードできませんでした。"
+
+#. Notification title when app upgrade is verifying the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD COMPLETE! VERIFYING..."
+msgstr "ダウンロードが完了しました！検証しています..."
+
+#. Notification title when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD FAILED"
+msgstr "ダウンロードに失敗しました"
+
+#. Generic notification title when app upgrade is downloading the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE..."
+msgstr "更新をダウンロード中..."
+
+#. Notification title when the app upgrade is in progress.
+#. Available placeholders:
+#. - %(appUpgradeDownloadProgressValue)s: The download progress value.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
+msgstr "更新をダウンロード中... %(appUpgradeDownloadProgressValue)s%%"
 
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr "アプリの最新バージョンをインストールして、最新の状態を維持してください。"
+
+#. Notification title when the installer failed.
+msgctxt "in-app-notifications"
+msgid "INSTALLER FAILED"
+msgstr "インストーラーの起動に失敗しました"
 
 msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
@@ -1044,10 +1307,40 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "続きを読む"
 
+#. Notification title when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "READY TO INSTALL UPDATE"
+msgstr "更新をインストールできます"
+
+#. Accessibility label for the button to retry download of the installer.
+msgctxt "in-app-notifications"
+msgid "Retry download of the installer"
+msgstr "インストーラーのダウンロードを再試行"
+
+#. Accessibility label for the button to retry the installation.
+msgctxt "in-app-notifications"
+msgid "Retry installation"
+msgstr "インストールを再試行"
+
 #. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "問題の報告を送信"
+
+#. Notification subtitle when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "The installer could not be verified."
+msgstr "インストーラーを検証できませんでした。"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not complete successfully."
+msgstr "インストーラーが正常に完了しませんでした。"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not start successfully."
+msgstr "インストーラーが正常に起動しませんでした。"
 
 #. Notification subtitle indicating the user is using an unsupported port for WireGuard.
 #. Available placeholders:
@@ -1071,6 +1364,26 @@ msgstr "未対応のバージョン"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "アップデート可"
+
+#. Generic notification title when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "UPDATE FAILED"
+msgstr "更新に失敗しました"
+
+#. Notification title when app upgrade is ready for the user to launch the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! INSTALLER READY!"
+msgstr "検証が完了しました！インストールできます！"
+
+#. Notification title when app upgrade is launching the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! LAUNCHING INSTALLER..."
+msgstr "検証が完了しました！インストーラーを起動中..."
+
+#. Notification title when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION FAILED"
+msgstr "検証に失敗しました"
 
 msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
@@ -1218,11 +1531,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "APIアクセス"
 
-#. Title label in navigation bar
-msgctxt "navigation-bar"
-msgid "Settings"
-msgstr "設定"
-
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
@@ -1294,13 +1602,13 @@ msgstr "スプリットトンネリングを有効化できませんでした。
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv4は利用できません。<b>%(ipVersionFeatureName)</b>の設定を変更してみてください。"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv4は利用できません。<b>%(ipVersionFeatureName)s</b>の設定を変更してみてください。"
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv6は利用できません。<b>%(ipVersionFeatureName)</b>の設定を変更してみてください。"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv6は利用できません。<b>%(ipVersionFeatureName)s</b>の設定を変更してみてください。"
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -1309,6 +1617,12 @@ msgstr "ロックダウンモードがアクティブです。接続はブロッ
 msgctxt "notifications"
 msgid "No servers match your settings, try changing server or other settings."
 msgstr "設定に一致するサーバーはありません。サーバーまたは他の設定を変更してみてください。"
+
+#. A link in the in-app banner to encourage the user to update the app.
+#. The in-app banner is is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Please click here to update now"
+msgstr "今すぐ更新するにはここをクリックしてください"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -1380,7 +1694,12 @@ msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr "デバイスがオフラインになっています。トンネルはデバイスがオンラインに戻ると自動的に接続されます。"
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+#. The in-app banner which is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version."
+msgstr "このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。"
+
+#. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。今すぐアップデートしてください。"
@@ -1428,7 +1747,7 @@ msgstr "Mssfix"
 #. %(min)d - the minimum possible mssfix value
 msgctxt "openvpn-settings-view"
 msgid "Set %(openvpn)s MSS value. Valid range: %(min)d - %(max)d."
-msgstr "%(openvpn)s MSSの値を設定します。有効範囲: %(min)d ～ %(max)d。"
+msgstr "%(openvpn)sのMSS値を設定します。有効範囲: %(min)d ～ %(max)d。"
 
 #. This is used to instruct users how to make the bridge mode setting
 #. available.
@@ -1687,6 +2006,7 @@ msgctxt "settings-view"
 msgid "API access"
 msgstr "APIアクセス"
 
+#. Navigation button to the 'App info' view
 msgctxt "settings-view"
 msgid "App info"
 msgstr "アプリ情報"
@@ -1695,9 +2015,21 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "マルチホップ"
 
+#. Title label in navigation bar
+#. Main title for settings view
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "設定"
+
+#. Navigation button to the 'Support' view
 msgctxt "settings-view"
 msgid "Support"
 msgstr "サポート"
+
+#. Label for the app info list item indicating that an update is available and can be downloaded
+msgctxt "settings-view"
+msgid "Update available"
+msgstr "更新あり"
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1708,10 +2040,6 @@ msgstr "ユーザーインターフェイス設定"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN設定"
-
-msgctxt "settings-view"
-msgid "What’s new"
-msgstr "新機能"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1785,10 +2113,6 @@ msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "選択を開始できません。%(detailedErrorMessage)s"
 
-msgctxt "support-view"
-msgid "Beta program"
-msgstr "ベータプログラム"
-
 #. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -1798,10 +2122,6 @@ msgstr "それでも続ける"
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "メッセージを編集する"
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "有効にすると、アプリの新しいベータ版がリリースされた際に通知が届きます。"
 
 msgctxt "support-view"
 msgid "Failed to send"
@@ -1857,10 +2177,6 @@ msgid "Thanks!"
 msgstr "ありがとうございます！"
 
 msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
-msgstr "ベータ版を使用中はこのオプションを利用できません。"
-
-msgctxt "support-view"
 msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
 msgstr "最適なサポートを提供するため、英語またはスウェーデン語でご入力ください。また、接続元の国をお知らせください。"
 
@@ -1873,10 +2189,10 @@ msgctxt "support-view"
 msgid "Try again"
 msgstr "再試行"
 
-#. Button label for upgrading the app to the latest version.
+#. Button label for updating the app to the latest version.
 msgctxt "support-view"
-msgid "Upgrade app"
-msgstr "アプリを更新する"
+msgid "Update app"
+msgstr "アプリを更新"
 
 #. Button label for opening app logs.
 msgctxt "support-view"
@@ -2363,7 +2679,7 @@ msgstr "QUIC"
 #. %(min)d - the minimum possible wireguard mtu value
 msgctxt "wireguard-settings-view"
 msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
-msgstr "%(wireguard)s MTUの値を設定します。有効範囲: %(min)d ～ %(max)d。"
+msgstr "%(wireguard)sのMTU値を設定します。有効範囲: %(min)d ～ %(max)d。"
 
 msgctxt "wireguard-settings-view"
 msgid "Shadowsocks"
@@ -2409,6 +2725,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。"
 
+msgid "%1$s more..."
+msgstr "その他%1$s件…"
+
+msgid "%1$s was added to \"%2$s\""
+msgstr "%1$sが「%2$s」に追加されました"
+
+msgid "%1$s was removed from \"%2$s\""
+msgstr "%1$sが「%2$s」から削除されました"
+
 msgid "%s (Entry)"
 msgstr "%s (入口)"
 
@@ -2424,17 +2749,8 @@ msgstr "%s (削除済み)"
 msgid "%s custom port"
 msgstr "%sカスタムポート"
 
-msgid "%s more..."
-msgstr "その他%s件…"
-
-msgid "%s was added to \"%s\""
-msgstr "%s が \"%s\" に追加されました"
-
 msgid "%s was added to your account."
 msgstr "ご利用のアカウントに %s が追加されました。"
-
-msgid "%s was removed from \"%s\""
-msgstr "%sが \"%s\" から削除されました"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. 下の [VPN設定に移動] ボタンをクリックし、[Mullvad VPN] 名の横にある歯車をクリックします。"
@@ -2447,6 +2763,9 @@ msgstr "3. ロックダウンモードを有効にするには、[VPN 以外の�
 
 msgid "30 days was added to your account."
 msgstr "アカウントに30日分が追加されました。"
+
+msgid "90 days was added to your account."
+msgstr "アカウントに90日分が追加されました。"
 
 msgid "API reachable, adding method..."
 msgstr "API に到達可能です。方法を追加しています..."
@@ -2466,17 +2785,20 @@ msgstr "アカウント時間のリマインダー"
 msgid "Add %s to list"
 msgstr "%s をリストに追加する"
 
-msgid "Add 30 days time"
-msgstr "30日分を追加する"
-
 msgid "Add 30 days time (%s)"
 msgstr "30日分を追加する (%s)"
+
+msgid "Add 90 days time (%s)"
+msgstr "90日分を追加 (%s)"
 
 msgid "Add DNS server"
 msgstr "DNS サーバーを追加"
 
 msgid "Add locations"
 msgstr "場所の追加"
+
+msgid "Add time"
+msgstr "時間を追加"
 
 msgid "Adding method..."
 msgstr "方法を追加しています..."
@@ -2571,8 +2893,8 @@ msgstr "現在のデバイス"
 msgid "Current: %s"
 msgstr "現在の設定: %s"
 
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "カスタムDNSサーバーアドレス %s は無効です"
+msgid "Custom DNS server addresses %1$s are invalid"
+msgstr "カスタムDNSサーバーアドレス %1$s は無効です"
 
 msgid "DNS settings might not go into effect immediately"
 msgstr "DNS設定はすぐに適用されない可能性があります"
@@ -2628,8 +2950,8 @@ msgstr "場所の編集"
 msgid "Edit name"
 msgstr "名前を編集"
 
-msgid "Enable %s"
-msgstr "%sを有効にする"
+msgid "Enable %1$s"
+msgstr "%1$sを有効にする"
 
 msgid "Enable method"
 msgstr "方法を有効化する"
@@ -2648,6 +2970,9 @@ msgstr "接続に失敗しました"
 
 msgid "Failed to apply patch"
 msgstr "パッチを適用できませんでした"
+
+msgid "Failed to load products, please try again"
+msgstr "製品を読み込めませんでした。再試行してください"
 
 msgid "Failed to set to current - API not reachable"
 msgstr "現在の設定に設定できませんでした。API に到達できません"
@@ -2670,6 +2995,9 @@ msgstr "ログインに進むと、このデバイスのインターネットの
 msgid "Google Play payment pending"
 msgstr "Google Playの決済は未完了です"
 
+msgid "Google Play payment pending, this might take some time"
+msgstr "Google Playの決済は未完了です。これには時間がかかる場合があります"
+
 msgid "Google Play unavailable"
 msgstr "Google Playを使用できません"
 
@@ -2691,11 +3019,14 @@ msgstr "インポートが正常に完了しました。オーバーライドは
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "新しいオーバーライドをインポートすると、以前インポートしたオーバーライドが置き換えられる可能性があります。"
 
+msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
+msgstr "アプリ内アイテムを利用できません。最新バージョンのGoogle Playを使用していることを確認してください。"
+
 msgid "In-tunnel IPv6"
 msgstr "トンネル内のIPv6"
 
-msgid "Invalid or missing value \"%s\""
-msgstr "値 \"%s\" は無効であるか、または見つかりません"
+msgid "Invalid or missing value \"%1$s\""
+msgstr "値「%1$s」は無効であるか、欠測しています"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "特定のIPバージョンが問題の原因であることが分かっている場合に役立つ場合があります。"
@@ -2709,6 +3040,9 @@ msgstr "VPN トンネルを経由せずに、直接インターネットにア�
 msgid "List name"
 msgstr "リスト名"
 
+msgid "Loading products"
+msgstr "製品を読み込み中"
+
 msgid "Locations"
 msgstr "場所"
 
@@ -2717,9 +3051,6 @@ msgstr "\"%s\" の場所が変更されました"
 
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "デバイスが必ずVPNトンネルを使用するようにします。"
-
-msgid "Manage account"
-msgstr "アカウントを管理する"
 
 msgid "Manage devices"
 msgstr "デバイスを管理する"
@@ -2796,8 +3127,8 @@ msgstr "繰り返しの制限"
 msgid "Remove"
 msgstr "削除"
 
-msgid "Remove %s from %s"
-msgstr "%sを%sから削除する"
+msgid "Remove %1$s from %2$s"
+msgstr "%1$sを%2$sから削除する"
 
 msgid "Remove %s?"
 msgstr "%sを削除しますか？"
@@ -2823,8 +3154,8 @@ msgstr "検索"
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "この設定を有効化するには、以下の%sの難読化を「自動」または「オフ」に設定してください。"
 
-msgid "Set WireGuard MTU value. Valid range: %d - %d."
-msgstr "WireGuard MTUの値を設定します。有効範囲: %d ～ %d"
+msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
+msgstr "WireGuardのMTU値を設定します。有効範囲: %1$d ～ %2$d"
 
 msgid "Set port"
 msgstr "ポートを設定"
@@ -2865,6 +3196,9 @@ msgstr "このロックダウンモードは、Androidのシステム設定で�
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"現在の設定\" の方法は、アプリが API に到達するために使用する方法を指しています。"
 
+msgid "The app is blocking internet, please disconnect first"
+msgstr "アプリがインターネットをブロックしています。先に切断してください"
+
 msgid "The device will be removed from the list and logged out."
 msgstr "リストからデバイスが削除され、ログアウトされます。"
 
@@ -2885,6 +3219,9 @@ msgstr "このフィールドは必須です"
 
 msgid "This is already set as current"
 msgstr "これはすでに現在の設定として設定されています"
+
+msgid "Time added"
+msgstr "時間が追加されました"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "リストに場所を追加するには、\"︙\" を押すか、または、国、都市、サーバーを長押ししてください。"
@@ -2913,8 +3250,8 @@ msgstr "トンネル接続を開始できません。Mullvad VPNを使用する�
 msgid "Undo"
 msgstr "元に戻す"
 
-msgid "Unknown or prohibited key \"%s\""
-msgstr "キー \"%s\" は不明であるか、禁止されています"
+msgid "Unknown or prohibited key \"%1$s\""
+msgstr "キー「%1$s」は不明であるか、禁止されています"
 
 msgid "Update DNS server"
 msgstr "DNS サーバーを更新"
@@ -2958,14 +3295,11 @@ msgstr "購入を確認中..."
 msgid "Verifying voucher…"
 msgstr "バウチャーを確認中…"
 
-msgid "Version"
-msgstr "バージョン"
-
 msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr "ログイン中のすべてのデバイスを表示・管理します。1つのアカウントで最大5台のデバイスを同時に利用できます。各デバイスは識別しやすくするため、ログイン時に名前が付けられます。"
 
-msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
-msgstr "購入を確認中です。これにはしばらく時間がかかる場合があります。正常に確認されると、この時間が追加されます。"
+msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "現在購入の確認を行っており、これには時間がかかる場合があります。確認が完了すると、時間が追加されます。"
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "決済処理を開始できませんでした。最新バージョンのGoogle Playを使用していることを確認してください。"
