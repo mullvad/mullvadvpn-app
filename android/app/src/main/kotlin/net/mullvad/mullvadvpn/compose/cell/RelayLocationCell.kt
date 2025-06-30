@@ -2,12 +2,14 @@ package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
@@ -76,31 +78,10 @@ fun StatusRelayItemCell(
     isExpanded: Boolean = false,
     depth: Int = 0,
 ) {
-    RelayItemCell1(
-        modifier = modifier,
-        item = item,
-        isSelected = isSelected,
-        state = state,
-        onClick = onClick,
-        onLongClick = onLongClick,
-        onToggleExpand = onToggleExpand,
-        isExpanded = isExpanded,
-        depth = depth,
-    )
-}
-
-@Composable
-fun RelayItemCell1(
-    modifier: Modifier = Modifier,
-    item: RelayItem,
-    isSelected: Boolean,
-    state: RelayListItemState?,
-    onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null,
-    onToggleExpand: (Boolean) -> Unit,
-    isExpanded: Boolean,
-    depth: Int,
-) {
+    // TODO Fix colors
+    val activeColor = MaterialTheme.colorScheme.selected
+    val inactiveColor = MaterialTheme.colorScheme.error
+    val disabledColor = MaterialTheme.colorScheme.onSurfaceVariant
     RelayListItem(
         modifier = modifier,
         selected = isSelected,
@@ -117,6 +98,27 @@ fun RelayItemCell1(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
                         modifier = Modifier.padding(end = Dimens.smallPadding),
+                    )
+                } else if (!item.active) {
+                    // TODO Fix design of this
+                    Box(
+                        modifier =
+                            Modifier
+                                .padding(start = Dimens.smallPadding)
+                                .size(Dimens.relayCircleSize)
+                                .padding(2.dp)
+                                .background(
+                                    color =
+                                        when {
+                                            item is RelayItem.CustomList && item.locations.isEmpty() ->
+                                                disabledColor
+
+                                            state != null -> disabledColor
+                                            item.active -> activeColor
+                                            else -> inactiveColor
+                                        },
+                                    shape = CircleShape,
+                                )
                     )
                 }
 
