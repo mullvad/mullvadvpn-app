@@ -7,6 +7,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -26,7 +27,7 @@ import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeSideEffect.OpenAccountManagem
 class AddTimeViewModel(
     private val paymentUseCase: PaymentUseCase,
     private val accountRepository: AccountRepository,
-    private val connectionProxy: ConnectionProxy,
+    connectionProxy: ConnectionProxy,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<AddMoreTimeSideEffect>()
@@ -56,6 +57,7 @@ class AddTimeViewModel(
     init {
         verifyPurchases()
         fetchPaymentAvailability()
+        handlePurchaseResultTerminatingState()
     }
 
     fun onManageAccountClick() {
@@ -73,20 +75,8 @@ class AddTimeViewModel(
         viewModelScope.launch { paymentUseCase.purchaseProduct(productId, activityProvider) }
     }
 
-    fun onClosePurchaseResultDialog(success: Boolean) {
-        // We are closing the dialog without any action, this can happen either if an error occurred
-        // during the purchase or the purchase ended successfully.
-        // If the payment was successful we want to update the account expiry. If not successful we
-        // should check payment availability and verify any purchases to handle potential errors.
-        if (success) {
-            updateAccountExpiry()
-        } else {
-            fetchPaymentAvailability()
-            verifyPurchases() // Attempt to verify again
-        }
-        viewModelScope.launch {
-            paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
-        }
+    fun resetPurchaseResult() {
+        viewModelScope.launch { paymentUseCase.resetPurchaseResult() }
     }
 
     private fun verifyPurchases() {
@@ -94,6 +84,22 @@ class AddTimeViewModel(
             if (paymentUseCase.verifyPurchases().isSuccess()) {
                 updateAccountExpiry()
             }
+        }
+    }
+
+    private fun handlePurchaseResultTerminatingState() {
+        viewModelScope.launch {
+            paymentUseCase.purchaseResult
+                .filter { it?.isTerminatingState() == true }
+                .collect {
+                    // Terminating states are either errors or completed purchases.
+                    if (it is PurchaseResult.Completed) {
+                        updateAccountExpiry()
+                    } else {
+                        fetchPaymentAvailability()
+                        verifyPurchases() // Attempt to verify again
+                    }
+                }
         }
     }
 
