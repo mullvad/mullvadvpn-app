@@ -139,44 +139,35 @@ class AddTimeViewModelTest {
     }
 
     @Test
-    fun `onClosePurchaseResultDialog with success should invoke fetchAccountExpiry on AccountRepository`() {
+    fun `purchaseState success should invoke getAccountData on AccountRepository`() {
         // Arrange
+        val purchaseResultData = PurchaseResult.Completed.Success(ProductId("one_month"))
 
         // Act
-        viewModel.onClosePurchaseResultDialog(success = true)
+        purchaseResult.value = purchaseResultData
 
         // Assert
         coVerify { mockAccountRepository.getAccountData() }
     }
 
     @Test
-    fun `onClosePurchaseResultDialog with success should invoke resetPurchaseResult on PaymentUseCase`() {
+    fun `purchaseState error should invoke queryPaymentAvailability on PaymentUseCase`() {
         // Arrange
+        val purchaseResultData = PurchaseResult.Error.VerificationError(Throwable())
 
         // Act
-        viewModel.onClosePurchaseResultDialog(success = true)
-
-        // Assert
-        coVerify { mockPaymentUseCase.resetPurchaseResult() }
-    }
-
-    @Test
-    fun `onClosePurchaseResultDialog with success false should invoke queryPaymentAvailability on PaymentUseCase`() {
-        // Arrange
-
-        // Act
-        viewModel.onClosePurchaseResultDialog(success = false)
+        purchaseResult.value = purchaseResultData
 
         // Assert
         coVerify { mockPaymentUseCase.queryPaymentAvailability() }
     }
 
     @Test
-    fun `onClosePurchaseResultDialog with success false should invoke resetPurchaseResult on PaymentUseCase`() {
+    fun `resetPurchaseResult with success should invoke resetPurchaseResult on PaymentUseCase`() {
         // Arrange
 
         // Act
-        viewModel.onClosePurchaseResultDialog(success = false)
+        viewModel.resetPurchaseResult()
 
         // Assert
         coVerify { mockPaymentUseCase.resetPurchaseResult() }
