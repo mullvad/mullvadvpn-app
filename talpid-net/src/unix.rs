@@ -26,9 +26,9 @@ const SIOCSIFMTU: u64 = 0x80206934;
 #[cfg(target_os = "macos")]
 const SIOCGIFMTU: u64 = 0xc0206933;
 #[cfg(target_os = "linux")]
-const SIOCSIFMTU: u64 = libc::SIOCSIFMTU;
+const SIOCSIFMTU: nix::libc::c_ulong = libc::SIOCSIFMTU;
 #[cfg(target_os = "linux")]
-const SIOCGIFMTU: u64 = libc::SIOCSIFMTU;
+const SIOCGIFMTU: nix::libc::c_ulong = libc::SIOCSIFMTU;
 
 pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
     let sock = socket2::Socket::new(
@@ -56,8 +56,13 @@ pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
     };
     ifr.ifr_ifru.ifru_mtu = mtu as i32;
 
+    // For some reason, libc crate defines ioctl to take a c_int (which is defined as i32), but the c_ulong type is defined as u64:
+    // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/fn.ioctl.html
+    // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/type.c_ulong.html
+    // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/constant.SIOCSIFMTU.html
+    let request = SIOCSIFMTU.try_into().unwrap();
     // SAFETY: SIOCSIFMTU expects an ifreq with an MTU and interface set
-    if unsafe { libc::ioctl(sock.as_raw_fd(), SIOCSIFMTU, &ifr) } < 0 {
+    if unsafe { libc::ioctl(sock.as_raw_fd(), request, &ifr) } < 0 {
         let e = std::io::Error::last_os_error();
         log::error!("{}", e.display_chain_with_msg("SIOCSIFMTU failed"));
         return Err(e);
@@ -90,8 +95,13 @@ pub fn get_mtu(interface_name: &str) -> Result<u16, io::Error> {
         )
     };
 
+    // For some reason, libc crate defines ioctl to take a c_int (which is defined as i32), but the c_ulong type is defined as u64:
+    // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/fn.ioctl.html
+    // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/type.c_ulong.html
+    // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/constant.SIOCGIFMTU.html
+    let request = SIOCGIFMTU.try_into().unwrap();
     // SAFETY: SIOCGIFMTU expects an ifreq with an interface set
-    if unsafe { libc::ioctl(sock.as_raw_fd(), SIOCGIFMTU, &ifr) } < 0 {
+    if unsafe { libc::ioctl(sock.as_raw_fd(), request, &ifr) } < 0 {
         let e = std::io::Error::last_os_error();
         log::error!("{}", e.display_chain_with_msg("SIOCGIFMTU failed"));
         return Err(e);
