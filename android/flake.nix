@@ -64,11 +64,15 @@
             extensions = [ "rust-analyzer" ];
             targets = targetArchitectures;
           };
-        go_1_24_2 = import (fetchTarball {
-          url = "https://github.com/NixOS/nixpkgs/archive/1f426f65ac4e6bf808923eb6f8b8c2bfba3d18c5.tar.gz";
-          sha256 = "0xi47nilddmwnq0wxsg7wsvpqz9xq12mvn11a9kqr9qbdpwhsh71";
-        } ) { inherit system; };
 
+        goPkgs_1_21_3 = import (fetchTarball {
+          url = "https://github.com/NixOS/nixpkgs/archive/b392079f5fd051926a834c878d27ceec4f139dce.tar.gz";
+          sha256 = "16dkk98fs9pw2amz0vpjsc7ks85cw3hc5rlpbp27llq6x7lwpjaz";
+        }) { inherit system; };
+        go_1_21_3 = goPkgs_1_21_3.go_1_21;
+        patchedGo_1_21_3 = go_1_21_3.overrideAttrs (oldAttrs: {
+          patches = (oldAttrs.patches or []) ++ [ ./docker/goruntime-boottime-over-monotonic.diff ];
+        });
       in {
         overlay = final: prev: {
           inherit (self.packages.${system}) android-sdk;
@@ -84,7 +88,7 @@
           packages = [
             android-sdk
             rust-toolchain
-            go_1_24_2.go
+            patchedGo_1_21_3
             pkgs.protoc-gen-grpc-java
             pkgs.gcc
             pkgs.gnumake
@@ -115,10 +119,6 @@
               name = "ANDROID_HOME";
               value = "${android-sdk}/share/android-sdk";
             }
-            # {
-            #   name = "ANDROID_SDK_ROOT";
-            #   value = "${android-sdk}/share/android-sdk";
-            # }
             {
               name = "ANDROID_NDK_ROOT";
               value = "${android-sdk}/share/android-sdk/ndk/${ndkVersion2}";
