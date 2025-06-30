@@ -132,9 +132,9 @@ fun AddTimeBottomSheet(
             onSitePaymentClick = viewModel::onManageAccountClick,
             onRetryFetchProducts = viewModel::fetchPaymentAvailability,
             onRedeemVoucherClick = onRedeemVoucherClick,
-            resetPurchaseState = { viewModel.onClosePurchaseResultDialog(false) },
+            resetPurchaseState = { viewModel.resetPurchaseResult() },
             closeSheetAndResetPurchaseState = {
-                viewModel.onClosePurchaseResultDialog(it)
+                viewModel.resetPurchaseResult()
                 onCloseBottomSheet(true)
             },
             closeBottomSheet = onCloseBottomSheet,
@@ -162,7 +162,10 @@ fun AddTimeBottomSheetContent(
         sheetState = sheetState,
         backgroundColor = backgroundColor,
         onBackgroundColor = onBackgroundColor,
-        onDismissRequest = { closeBottomSheet(false) },
+        onDismissRequest = {
+            resetPurchaseState()
+            closeBottomSheet(false)
+        },
     ) {
         when (state) {
             is Lc.Loading ->
