@@ -189,14 +189,16 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
           <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
         )}
 
-        <Button onClick={launchWithFilePicker}>
-          <Button.Text>
-            {
-              // TRANSLATORS: Button label for browsing applications with split tunneling.
-              messages.pgettext('split-tunneling-view', 'Find another app')
-            }
-          </Button.Text>
-        </Button>
+        <Flex $margin={{ horizontal: 'medium', bottom: 'large' }}>
+          <Button onClick={launchWithFilePicker}>
+            <Button.Text>
+              {
+                // TRANSLATORS: Button label for browsing applications with split tunneling.
+                messages.pgettext('split-tunneling-view', 'Find another app')
+              }
+            </Button.Text>
+          </Button>
+        </Flex>
       </FlexColumn>
 
       <ModalAlert

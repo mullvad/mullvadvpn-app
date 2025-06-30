@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { InAppNotificationSubtitle } from '../../shared/notifications';
 import { LabelTiny, Link } from '../lib/components';
 import { formatHtml } from '../lib/html-formatter';
-import { buttonReset } from '../lib/styles';
 import { ExternalLink } from './ExternalLink';
 import { InternalLink } from './InternalLink';
 
@@ -12,12 +11,7 @@ export type NotificationSubtitleProps = {
   subtitle?: string | InAppNotificationSubtitle[];
 };
 
-const StyledLink = styled(Link)(() => {
-  const { color: _, ...reset } = buttonReset;
-  return {
-    ...reset,
-  };
-});
+const StyledLink = styled(Link)``;
 
 const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
   const content = formatHtml(subtitle.content);
@@ -38,7 +32,11 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
         );
       case 'run-function':
         return (
-          <StyledLink color="white" forwardedAs="button" {...subtitle.action.button}>
+          <StyledLink
+            forwardedAs="button"
+            color="white"
+            variant="labelTiny"
+            {...subtitle.action.button}>
             <StyledLink.Text>{content}</StyledLink.Text>
           </StyledLink>
         );

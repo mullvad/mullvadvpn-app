@@ -2,7 +2,6 @@ import { forwardRef } from 'react';
 import styled, { WebTarget } from 'styled-components';
 
 import { colors, Radius } from '../../foundations';
-import { buttonReset } from '../../styles';
 import { Flex } from '../flex';
 import { FilterChipIcon, FilterChipText } from './components';
 import { FilterChipProvider } from './FilterChipContext';
@@ -18,8 +17,6 @@ const variables = {
 } as const;
 
 const StyledButton = styled.button({
-  ...buttonReset,
-
   display: 'flex',
   alignItems: 'center',
 

@@ -2,7 +2,6 @@ import React, { forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 
 import { colors, Radius, spacings } from '../../foundations';
-import { ButtonBase } from './ButtonBase';
 import { ButtonProvider } from './ButtonContext';
 import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './components';
 
@@ -40,7 +39,7 @@ const styles = {
   },
 };
 
-export const StyledButton = styled(ButtonBase)<ButtonProps>`
+export const StyledButton = styled.button<ButtonProps>`
   ${({ width: sizeProp = 'fill', variant: variantProp = 'primary' }) => {
     const variant = styles.variants[variantProp];
     const size = styles.flex[sizeProp];
@@ -109,7 +108,7 @@ export const StyledButton = styled(ButtonBase)<ButtonProps>`
   }}
 `;
 
-const ForwardedButton = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { children, disabled = false, style, ...props },
   ref,
 ) {
@@ -122,7 +121,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement, ButtonProps>(function Butt
   );
 });
 
-const ButtonNamespace = Object.assign(ForwardedButton, {
+const ButtonNamespace = Object.assign(Button, {
   Text: ButtonText,
   Icon: ButtonIcon,
 });
