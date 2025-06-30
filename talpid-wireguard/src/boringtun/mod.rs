@@ -12,7 +12,7 @@ use boringtun::device::{
 #[cfg(not(target_os = "android"))]
 use ipnetwork::IpNetwork;
 #[cfg(target_os = "android")]
-use std::os::fd::AsRawFd;
+use std::os::fd::IntoRawFd;
 use std::{
     future::Future,
     ops::Deref,
@@ -298,7 +298,7 @@ pub fn get_tunnel_for_userspace(
             .map_err(TunnelError::SetupTunnelDevice)?;
 
         match nix::unistd::dup(&tunnel_device) {
-            Ok(fd) => return Ok((tunnel_device, fd.as_raw_fd())),
+            Ok(fd) => return Ok((tunnel_device, fd.into_raw_fd())),
             #[cfg(not(target_os = "macos"))]
             Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
             Err(error @ nix::errno::Errno::EBADF) => last_error = Some(error),
