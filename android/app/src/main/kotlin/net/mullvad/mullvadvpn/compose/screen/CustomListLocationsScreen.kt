@@ -164,6 +164,7 @@ fun CustomListLocationsScreen(
                             state = lazyListState,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                         )
+                        .padding(horizontal = Dimens.mediumPadding)
                         .fillMaxWidth(),
                 state = lazyListState,
             ) {

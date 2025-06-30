@@ -1,21 +1,18 @@
 package net.mullvad.mullvadvpn.compose.cell
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ExpandChevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
@@ -52,6 +50,7 @@ private fun PreviewCheckableRelayLocationCell(
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
             relayItems.map {
+                Spacer(Modifier.size(1.dp))
                 CheckableRelayLocationCell(
                     item = it,
                     checked = false,
@@ -90,7 +89,6 @@ fun StatusRelayItemCell(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RelayItemCell1(
     modifier: Modifier = Modifier,
@@ -102,7 +100,6 @@ fun RelayItemCell1(
     onToggleExpand: (Boolean) -> Unit,
     isExpanded: Boolean,
     depth: Int,
-    content: @Composable (RowScope.() -> Unit)? = null,
 ) {
     RelayListItem(
         modifier = modifier,
@@ -110,8 +107,9 @@ fun RelayItemCell1(
         content = {
             Row(
                 modifier =
-                    Modifier.let { if (!item.hasChildren) it.padding(start = 58.dp) else it }
-                        .padding(16.dp),
+                    Modifier.fillMaxSize()
+                        .padding(start = depth * Dimens.mediumPadding)
+                        .padding(Dimens.mediumPadding),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (isSelected) {
@@ -125,7 +123,9 @@ fun RelayItemCell1(
                 Name(name = item.name, state = state, active = item.active)
             }
         },
-        leadingContent =
+        onClick = onClick,
+        onLongClick = onLongClick,
+        trailingContent =
             if (item.hasChildren) {
                 {
                     ExpandChevron(
@@ -134,25 +134,13 @@ fun RelayItemCell1(
                         modifier =
                             Modifier.clickable { onToggleExpand(!isExpanded) }
                                 .fillMaxSize()
-                                .padding(16.dp)
+                                .padding(Dimens.mediumPadding)
                                 .testTag(EXPAND_BUTTON_TEST_TAG),
                     )
                 }
             } else {
                 null
             },
-        onClick = onClick,
-        onLongClick = onLongClick,
-        trailingContent = {
-            Icon(
-                modifier =
-                    Modifier.clickable(enabled = true, onClick = onLongClick ?: {})
-                        .fillMaxSize()
-                        .padding(16.dp),
-                imageVector = Icons.Default.Add,
-                contentDescription = null,
-            )
-        },
         colors = RelayListItemDefaults.colors(containerColor = depth.toBackgroundColor()),
     )
 }
@@ -172,7 +160,9 @@ fun CheckableRelayLocationCell(
         selected = false,
         content = {
             Row(
-                modifier = Modifier.padding(16.dp),
+                modifier =
+                    Modifier.padding(start = depth * Dimens.mediumPadding)
+                        .padding(Dimens.mediumPadding),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Name(name = item.name, state = null, active = item.active)
@@ -191,7 +181,7 @@ fun CheckableRelayLocationCell(
                     modifier =
                         Modifier.clickable { onExpand(!expanded) }
                             .fillMaxSize()
-                            .padding(16.dp)
+                            .padding(Dimens.mediumPadding)
                             .testTag(EXPAND_BUTTON_TEST_TAG),
                 )
             }
@@ -219,28 +209,6 @@ private fun Name(
             ),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-    )
-}
-
-@Composable
-private fun ExpandButton(
-    modifier: Modifier,
-    color: Color,
-    isExpanded: Boolean,
-    onClick: (expand: Boolean) -> Unit,
-) {
-    VerticalDivider(
-        color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding),
-    )
-    ExpandChevron(
-        color = color,
-        isExpanded = isExpanded,
-        modifier =
-            modifier
-                .fillMaxHeight()
-                .clickable { onClick(!isExpanded) }
-                .padding(horizontal = Dimens.largePadding),
     )
 }
 

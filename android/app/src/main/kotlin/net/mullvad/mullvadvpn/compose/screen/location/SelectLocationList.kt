@@ -48,6 +48,8 @@ fun SelectLocationList(
     relayListType: RelayListType,
     onSelectRelay: (RelayItem) -> Unit,
     openDaitaSettings: () -> Unit,
+    onAddCustomList: () -> Unit,
+    onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     val viewModel =
@@ -95,6 +97,13 @@ fun SelectLocationList(
                     customLists = stateActual.value.customLists,
                     onSelectRelay = onSelectRelay,
                     onToggleExpand = viewModel::onToggleExpand,
+                    customListHeader = {
+                        CustomListHeader(
+                            onAddCustomList,
+                            if (stateActual.value.customLists.isNotEmpty()) onEditCustomLists
+                            else null,
+                        )
+                    },
                     onUpdateBottomSheetState = onUpdateBottomSheetState,
                 )
             }

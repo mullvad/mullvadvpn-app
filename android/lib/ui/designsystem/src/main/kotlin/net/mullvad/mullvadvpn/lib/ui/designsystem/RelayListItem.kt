@@ -62,24 +62,15 @@ fun RelayListItem(
     ProvideContentColorTextStyle(colors.headlineColor, MaterialTheme.typography.titleMedium) {
         Row(
             modifier =
-                Modifier.defaultMinSize(minHeight = LIST_ITEM_MIN_HEIGHT)
-                    .height(IntrinsicSize.Min)
-                    .let {
-                        if (leadingContent == null && trailingContent == null) {
-                            it.background(colors.containerColor())
-                        } else {
-                            it
-                        }
-                    }
-                    .then(modifier),
+                modifier.defaultMinSize(minHeight = LIST_ITEM_MIN_HEIGHT).height(IntrinsicSize.Min),
             horizontalArrangement = Arrangement.spacedBy(LIST_ITEM_SPACER),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (leadingContent != null) {
                 Box(
                     Modifier.background(colors.containerColor)
-                        .fillMaxHeight()
-                        .width(LIST_ITEM_BUTTON_WIDTH),
+                        .width(LIST_ITEM_BUTTON_WIDTH)
+                        .fillMaxHeight(),
                     contentAlignment = Alignment.Center,
                 ) {
                     ProvideContentColorTextStyle(

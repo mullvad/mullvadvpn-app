@@ -295,7 +295,6 @@ fun SelectLocationScreen(
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
             onCreateCustomList = onCreateCustomList,
-            onEditCustomLists = onEditCustomLists,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,
             onEditCustomListName = onEditCustomListName,
@@ -344,6 +343,8 @@ fun SelectLocationScreen(
                         backgroundColor = backgroundColor,
                         onSelectRelay = onSelectRelay,
                         openDaitaSettings = openDaitaSettings,
+                        onAddCustomList = { onCreateCustomList(null) },
+                        onEditCustomLists = onEditCustomLists,
                         onUpdateBottomSheetState = { newState ->
                             locationBottomSheetState = newState
                         },
@@ -384,6 +385,8 @@ private fun RelayLists(
     backgroundColor: Color,
     onSelectRelay: (RelayItem) -> Unit,
     openDaitaSettings: () -> Unit,
+    onAddCustomList: () -> Unit,
+    onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     // This is a workaround for the HorizontalPager being broken on Android TV when it contains
@@ -396,6 +399,8 @@ private fun RelayLists(
             relayListType = state.relayListType,
             onSelectRelay = onSelectRelay,
             openDaitaSettings = openDaitaSettings,
+            onAddCustomList = onAddCustomList,
+            onEditCustomLists = onEditCustomLists,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
         )
     } else {
@@ -424,6 +429,8 @@ private fun RelayLists(
                 relayListType = RelayListType.entries[pageIndex],
                 onSelectRelay = onSelectRelay,
                 openDaitaSettings = openDaitaSettings,
+                onAddCustomList = onAddCustomList,
+                onEditCustomLists = onEditCustomLists,
                 onUpdateBottomSheetState = onUpdateBottomSheetState,
             )
         }

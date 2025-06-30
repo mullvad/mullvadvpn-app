@@ -251,7 +251,6 @@ fun SearchLocationScreen(
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
             onCreateCustomList = onCreateCustomList,
-            onEditCustomLists = onEditCustomLists,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,
             onEditCustomListName = onEditCustomListName,

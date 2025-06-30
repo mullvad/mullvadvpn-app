@@ -9,7 +9,8 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +28,6 @@ import net.mullvad.mullvadvpn.compose.cell.StatusRelayItemCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
-import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsEntryBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowEditCustomListBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowLocationBottomSheet
@@ -49,15 +49,7 @@ fun LazyListScope.relayListContent(
     onSelectRelay: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
-    customListHeader: @Composable LazyItemScope.() -> Unit = {
-        CustomListHeader(
-            onShowCustomListBottomSheet = {
-                onUpdateBottomSheetState(
-                    ShowCustomListsBottomSheet(editListEnabled = customLists.isNotEmpty())
-                )
-            }
-        )
-    },
+    customListHeader: @Composable LazyItemScope.() -> Unit = {},
     locationHeader: @Composable LazyItemScope.() -> Unit = { RelayLocationHeader() },
 ) {
     itemsIndexed(
@@ -218,15 +210,23 @@ private fun LazyItemScope.CustomListItem(
 }
 
 @Composable
-private fun LazyItemScope.CustomListHeader(onShowCustomListBottomSheet: () -> Unit) {
+fun LazyItemScope.CustomListHeader(addCustomList: () -> Unit, editCustomLists: (() -> Unit)?) {
     RelayListHeader(
         { Text(stringResource(R.string.custom_lists), overflow = TextOverflow.Ellipsis) },
         actions = {
-            IconButton(onClick = onShowCustomListBottomSheet) {
+            IconButton(onClick = addCustomList) {
                 Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = stringResource(id = R.string.custom_lists),
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(id = R.string.new_list),
                 )
+            }
+            editCustomLists?.run {
+                IconButton(onClick = editCustomLists) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(id = R.string.edit_lists),
+                    )
+                }
             }
         },
         modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG),
