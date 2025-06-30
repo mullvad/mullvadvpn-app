@@ -72,7 +72,7 @@
         }) { inherit system; };
         go_1_21_3 = goPkgs_1_21_3.go_1_21;
         patchedGo_1_21_3 = go_1_21_3.overrideAttrs (oldAttrs: {
-          patches = (oldAttrs.patches or []) ++ [ ]; # ./docker/goruntime-boottime-over-monotonic.diff
+          patches = (oldAttrs.patches or []) ++ [ ./docker/goruntime-boottime-over-monotonic.diff ];
         });
       in {
         overlay = final: prev: {
