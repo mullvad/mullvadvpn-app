@@ -42,7 +42,7 @@ arrow = "2.1.2"
 compose = "1.8.3"
 compose-destinations = "2.2.0"
 compose-constraintlayout = "1.1.1"
-compose-material3 = "1.3.2"
+compose-material3 = "1.4.0-alpha16"
 compose-material-icons-extended = "1.7.8"
 drawablepainter = "0.37.3"
 
