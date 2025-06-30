@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">Напоминания о времени на учетной записи</string>
     <string name="add">Добавить</string>
     <string name="add_30_days_time_x">Добавить 30 дней (%1$s)</string>
+    <string name="add_90_days_time_x">Добавить 90 дней (%1$s)</string>
     <string name="add_a_server">Добавить сервер</string>
     <string name="add_dns_server_dialog_title">Добавить DNS-сервер</string>
     <string name="add_location_to_list">Добавить местоположение %1$s к списку</string>
     <string name="add_locations">Добавление местоположений</string>
     <string name="add_method">Добавление метода</string>
+    <string name="add_time">Добавить время</string>
     <string name="add_time_to_account">Пополните баланс у нас на сайте или погасите ваучер.</string>
     <string name="added_to_your_account">На учетную запись добавлено время: %1$s.</string>
     <string name="adding_method">Добавление метода...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">Нет доступа к API</string>
     <string name="api_unreachable_save_anyway">Нет доступа к API. Сохранить метод?</string>
     <string name="app_info">Информация о приложении</string>
+    <string name="app_is_blocking_internet">Приложение блокирует интернет. Сначала отключитесь.</string>
     <string name="apply">Применить</string>
     <string name="at_least_on_method_needs_to_enabled">Должен быть включен хотя бы один метод</string>
     <string name="auth_failed">Не удается произвести аутентификацию учетной записи. Отправьте сообщение о проблеме.</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">После включения параметра «%1$s» вы должны будете вручную выбрать сервер, который поддерживает %2$s. В результате вы можете оказаться заблокированы, пока не выберете совместимый сервер в окне выбора местоположения.</string>
     <string name="daita_multihop">%1$s: многократный переход</string>
     <string name="days_were_added_30">На учетную запись добавлено 30 дней.</string>
+    <string name="days_were_added_90">На вашу учетную запись добавлено 90 дней.</string>
     <string name="delete">Удалить</string>
     <string name="delete_custom_list_confirmation_description">Удалить список «%1$s»?</string>
     <string name="delete_custom_list_message">Список «%1$s» удален</string>
@@ -160,7 +164,7 @@
     <string name="enable">Включить</string>
     <string name="enable_anyway">Всё равно включить</string>
     <string name="enable_custom_dns">Пользовательский DNS-сервер</string>
-    <string name="enable_direct_only">Включить параметр «%1$s»</string>
+    <string name="enable_direct_only">Включить режим %1$s</string>
     <string name="enable_ipv6">IPv6 внутри туннеля</string>
     <string name="enable_method">Включить метод</string>
     <string name="encrypted_dns_proxy_info_message_part1">При использовании метода «Прокси через зашифрованный DNS» приложение будет взаимодействовать с API Mullvad через прокси-адрес. Полученный от сервера «DNS по HTTPS» (DoH) адрес будет использоваться для доступа к нашим серверам API.</string>
@@ -176,6 +180,7 @@
     <string name="failed_to_block_internet">Не удалось заблокировать весь сетевой трафик. Устраните неполадки или отправьте сообщение о проблеме.</string>
     <string name="failed_to_create_account">Не удалось создать учетную запись</string>
     <string name="failed_to_fetch_devices">Не удалось получить список устройств</string>
+    <string name="failed_to_load_products">Не удалось загрузить продукты — повторите попытку</string>
     <string name="failed_to_remove_device">Не удалось удалить устройство</string>
     <string name="failed_to_send">Ошибка отправки</string>
     <string name="failed_to_send_details">Если вы выйдете из формы и повторите попытку позже, информация, которую вы уже ввели, сохранится.</string>
@@ -201,7 +206,8 @@
     <string name="import_overrides_bottom_sheet_override_warning">Импорт новых переопределений может заменить некоторые ранее импортированные переопределения.</string>
     <string name="import_overrides_import">Импортировать</string>
     <string name="import_overrides_text_title">Импортировать через текст</string>
-    <string name="invalid_dns_servers">Пользовательские адреса DNS-серверов %1$s недопустимы</string>
+    <string name="in_app_products_unavailable">Встроенные покупки недоступны — убедитесь, что у вас установлена последняя версия Google Play.</string>
+    <string name="invalid_dns_servers">Недопустимые пользовательские адреса DNS-серверов %1$s</string>
     <string name="invalid_voucher">Код ваучера недействителен.</string>
     <string name="ip_version_v4_unavailable">Протокол IPv4 недоступен, попробуйте изменить настройку «Версия IP на устройстве».</string>
     <string name="ip_version_v6_unavailable">Протокол IPv6 недоступен, попробуйте изменить настройку «Версия IP на устройстве».</string>
@@ -215,14 +221,15 @@
     <string name="less_than_a_day_left">осталось менее суток</string>
     <string name="less_than_one_day">менее суток</string>
     <string name="list_name">Имя списка</string>
+    <string name="loading_products">Загрузка продуктов</string>
     <string name="loading_verifying">Идет проверка оплаты...</string>
     <string name="local_network_sharing">Обмен данными в локальной сети</string>
     <string name="local_network_sharing_additional_info">Это достигается путем разрешения сетевого взаимодействия вне туннеля с локальными многоадресными и широковещательными диапазонами, а также со следующими диапазонами частных IP-адресов:</string>
     <string name="local_network_sharing_info">Эта функция позволяет получить доступ к другим устройствам в локальной сети, например, для организации общего доступа, печати, потоковой передачи и т. д.</string>
     <string name="local_network_sharing_info_block_connections_warning">Внимание! Если включена функция «Блокировать соединения без VPN», обмен данными в локальной сети работать не будет.</string>
     <string name="location_added">%1$s (добавлено)</string>
-    <string name="location_was_added_to_list">Местоположение %1$s добавлено к списку «%2$s»</string>
-    <string name="location_was_removed_from_list">%1$s: удалено из списка «%2$s»</string>
+    <string name="location_was_added_to_list">Местоположение %1$s добавлено в список «%2$s»</string>
+    <string name="location_was_removed_from_list">Местоположение %1$s удалено из списка «%2$s»</string>
     <string name="locations">Местоположения</string>
     <string name="locations_were_changed_for">Местоположения были изменены для «%1$s»</string>
     <string name="log_out">Выйти</string>
@@ -283,6 +290,8 @@
     <string name="payment_billing_error_dialog_title">Google Play недоступен</string>
     <string name="payment_obfuscation_id_error_dialog_message">Не удалось начать процесс оплаты. Повторите попытку позже.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Службы Mullvad недоступны</string>
+    <string name="payment_pending_dialog_message">Мы все еще проверяем, прошла ли оплата; нужно немного подождать. После успешного завершения проверки оплаченное время будет добавлено.</string>
+    <string name="payment_status_pending_long">Ожидается оплата в Google Play. Это может занять некоторое время.</string>
     <string name="payment_status_pending_short">Ожидается оплата в Google Play</string>
     <string name="please_enter_a_valid_ip_address">Введите действительный адрес IPv4 или IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Введите действительный порт удаленного сервера</string>
@@ -301,12 +310,13 @@
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
     <string name="remove_button">Удалить</string>
-    <string name="remove_location_from_list">Удалить %1$s из списка «%2$s»</string>
+    <string name="remove_location_from_list">Удалить местоположение %1$s из списка «%2$s»</string>
     <string name="removed_provider">%1$s (удалено)</string>
     <string name="rented">Арендованные</string>
     <string name="rented_only">Только арендованные</string>
-    <string name="report_a_problem">Сообщение о проблеме</string>
+    <string name="report_a_problem">Сообщить о проблеме</string>
     <string name="reset_to_default_button">Восстановить значение по умолчанию</string>
+    <string name="retry">Повторить</string>
     <string name="save">Сохранить</string>
     <string name="search">Поиск</string>
     <string name="search_location_empty_text">По запросу «%1$s» ничего не найдено — попробуйте другой запрос</string>
@@ -360,6 +370,7 @@
     <string name="testing_name">Проверка метода «%1$s»...</string>
     <string name="this_field_is_required">Это обязательное поле</string>
     <string name="this_is_already_set_as_current">Этот метод уже установлен как текущий</string>
+    <string name="time_added">Время добавлено</string>
     <string name="to_add_locations_to_a_list">Чтобы добавить местоположения в список, нажмите «︙» или нажмите и удерживайте страну, город или сервер.</string>
     <string name="to_create_a_custom_list">Чтобы создать свой список, нажмите «︙»</string>
     <string name="toggle_vpn">Включение VPN</string>
