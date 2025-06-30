@@ -8,11 +8,13 @@
     <string name="account_time_notification_channel_name">Påminnelser om kontotid</string>
     <string name="add">Lägg till</string>
     <string name="add_30_days_time_x">Lägg till 30 dagar (%1$s)</string>
+    <string name="add_90_days_time_x">Lägg till 90 dagar (%1$s)</string>
     <string name="add_a_server">Lägg till en server</string>
     <string name="add_dns_server_dialog_title">Lägg till DNS-server</string>
     <string name="add_location_to_list">Lägg till %1$s i listan</string>
     <string name="add_locations">Lägg till platser</string>
     <string name="add_method">Lägg till metod</string>
+    <string name="add_time">Lägg till tid</string>
     <string name="add_time_to_account">Du kan antingen köpa kredit på vår webbplats eller lösa in en kupong.</string>
     <string name="added_to_your_account">%1$s har lagts till i ditt konto.</string>
     <string name="adding_method">Lägger till metod ...</string>
@@ -33,6 +35,7 @@
     <string name="api_unreachable">API kan inte nås</string>
     <string name="api_unreachable_save_anyway">API kan inte nås, spara metod ändå?</string>
     <string name="app_info">Appinfo</string>
+    <string name="app_is_blocking_internet">Appen blockerar internet, koppla först från anslutningen</string>
     <string name="apply">Använd</string>
     <string name="at_least_on_method_needs_to_enabled">Minst en metod måste vara aktiverad</string>
     <string name="auth_failed">Det går inte att autentisera kontot. Skicka en problemrapport.</string>
@@ -61,7 +64,7 @@
     <string name="buy_credit">Köp kredit</string>
     <string name="cancel">Avbryt</string>
     <string name="changelog_empty">Ingen ändringslogg har lagts till för versionen</string>
-    <string name="changelog_title">Vad är nytt</string>
+    <string name="changelog_title">Nyheter</string>
     <string name="cipher">Chiffrering</string>
     <string name="clear_input">Rensa inmatning</string>
     <string name="close">Stäng</string>
@@ -118,6 +121,7 @@
     <string name="daita_info">Om du aktiverar \"%1$s\" måste du manuellt välja en server som är %2$s-aktiverad. Det kan leda till ett blockerat tillstånd tills du väljer en kompatibel server i \"Välj plats\"-vyn.</string>
     <string name="daita_multihop">%1$s: Multihopp</string>
     <string name="days_were_added_30">30 dagar har lagts till i ditt konto.</string>
+    <string name="days_were_added_90">90 dagar har lagts till i ditt konto.</string>
     <string name="delete">Ta bort</string>
     <string name="delete_custom_list_confirmation_description">Ta bort \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" har tagits bort</string>
@@ -176,6 +180,7 @@
     <string name="failed_to_block_internet">Det går inte att blockera all nätverkstrafik. Felsök eller skicka en problemrapport.</string>
     <string name="failed_to_create_account">Det gick inte att skapa konto</string>
     <string name="failed_to_fetch_devices">Det gick inte att hämta lista med enheter</string>
+    <string name="failed_to_load_products">Det gick inte att läsa in produkterna, försök igen</string>
     <string name="failed_to_remove_device">Det gick inte att ta bort enheten</string>
     <string name="failed_to_send">Det gick inte att skicka</string>
     <string name="failed_to_send_details">Om du lämnar formuläret och försöker igen senare kommer informationen du anger att finnas kvar.</string>
@@ -201,7 +206,8 @@
     <string name="import_overrides_bottom_sheet_override_warning">Om du importerar nya åsidosättningar kan tidigare importerade åsidosättningar ersättas.</string>
     <string name="import_overrides_import">Importera</string>
     <string name="import_overrides_text_title">Importera via text</string>
-    <string name="invalid_dns_servers">Anpassade DNS-serveradresser %1$s är ogiltiga</string>
+    <string name="in_app_products_unavailable">Produkterna i appen är inte tillgängliga. Se till att du har den senaste versionen av Google Play.</string>
+    <string name="invalid_dns_servers">De anpassade DNS-serveradresserna %1$s är ogiltiga</string>
     <string name="invalid_voucher">Kupongkoden är ogiltig.</string>
     <string name="ip_version_v4_unavailable">IPv4 är inte tillgängligt, prova att ändra inställningen \"Enhetens IP-version\".</string>
     <string name="ip_version_v6_unavailable">IPv6 är inte tillgängligt, prova att ändra inställningen \"Enhetens IP-version\".</string>
@@ -215,6 +221,7 @@
     <string name="less_than_a_day_left">mindre än en dag kvar</string>
     <string name="less_than_one_day">mindre än en dag</string>
     <string name="list_name">Listnamn</string>
+    <string name="loading_products">Läser in produkter</string>
     <string name="loading_verifying">Verifierar köp ...</string>
     <string name="local_network_sharing">Lokal nätverksdelning</string>
     <string name="local_network_sharing_additional_info">Den gör det genom att tillåta nätverkskommunikation utanför tunneln till lokala multicast- och sändningsintervall, samt till och från dessa privata IP-intervall:</string>
@@ -283,6 +290,8 @@
     <string name="payment_billing_error_dialog_title">Google Play är inte tillgängligt</string>
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunde inte starta betalningsprocessen, försök igen senare.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjänster är inte tillgängliga</string>
+    <string name="payment_pending_dialog_message">Vi verifierar fortfarande ditt köp och det kan ta en stund. Din tid läggs till om verifieringen slutförs.</string>
+    <string name="payment_status_pending_long">Det gick inte att behandla Google Play-betalningen, det kan ta en stund</string>
     <string name="payment_status_pending_short">Google Play-betalning väntar</string>
     <string name="please_enter_a_valid_ip_address">Ange en giltig IPv4- eller IPv6-adress</string>
     <string name="please_enter_a_valid_remote_server_port">Ange en giltig fjärrserverport</string>
@@ -307,6 +316,7 @@
     <string name="rented_only">Endast hyrd</string>
     <string name="report_a_problem">Rapportera ett problem</string>
     <string name="reset_to_default_button">Återställ till standard</string>
+    <string name="retry">Försök igen</string>
     <string name="save">Spara</string>
     <string name="search">Sök</string>
     <string name="search_location_empty_text">Inga resultat hittades för \"%1$s\", försök med en annan sökning</string>
@@ -360,6 +370,7 @@
     <string name="testing_name">Testar %1$s ...</string>
     <string name="this_field_is_required">Fältet är obligatoriskt</string>
     <string name="this_is_already_set_as_current">Den har redan ställts in som aktuell</string>
+    <string name="time_added">Tid har lagts till</string>
     <string name="to_add_locations_to_a_list">Om du vill lägga till platser i en lista kan du trycka på \"︙\" eller trycka länge på ett land, en stad eller en server.</string>
     <string name="to_create_a_custom_list">Om du vill skapa en anpassad lista trycker du på \"︙\"</string>
     <string name="toggle_vpn">Växla VPN</string>

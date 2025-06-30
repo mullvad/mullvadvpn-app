@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2025-05-27 09:40\n"
+"PO-Revision-Date: 2025-06-27 06:04\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 个…"
@@ -336,6 +336,11 @@ msgctxt "accessibility"
 msgid "Go to %(wireGuard)s settings."
 msgstr "前往 %(wireGuard)s 设置。"
 
+#. Accessibility label for link to app upgrade view.
+msgctxt "accessibility"
+msgid "Go to app update page"
+msgstr "前往应用更新页面"
+
 #. Accessibility label for link to blog post about OpenVPN support ending.
 msgctxt "accessibility"
 msgid "Go to blog post to read more, opens externally"
@@ -372,6 +377,15 @@ msgstr "使用帐号 %(accountNumber)s 登录"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "更多信息"
+
+#. Accessbility label for link to go to download page.
+msgctxt "accessibility"
+msgid "New version available, click here to go to download page, opens externally"
+msgstr "有可用的新版本，点击此处前往下载页面，在外部打开"
+
+msgctxt "accessibility"
+msgid "New version available, click here to go to update view"
+msgstr "有可用的新版本，点击此处前往更新视图"
 
 msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
@@ -615,21 +629,202 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "使用“Mullvad 桥接”方法，应用通过 Mullvad 桥接服务器与 Mullvad API 服务器进行通信。这是通过发送被 Shadowsocks 混淆的流量来实现的。"
 
+#. Title of the app info view.
 msgctxt "app-info-view"
 msgid "App info"
 msgstr "应用信息"
 
+#. Description for version list item when app is out of sync.
 msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "应用不同步。请退出并重新启动。"
 
+#. Label for switch to toggle beta program.
 msgctxt "app-info-view"
-msgid "App version"
-msgstr "应用版本"
+msgid "Beta program"
+msgstr "测试计划"
 
 msgctxt "app-info-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "有可用更新。请安装最新的应用版本以保持最新状态。"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "启用以在新的测试版应用发布时获得通知。"
+
+msgctxt "app-info-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "使用测试版本时此选项不可用。"
+
+#. Label for update available list item.
+msgctxt "app-info-view"
+msgid "Update available"
+msgstr "有可用的更新"
+
+#. Label for version list item.
+msgctxt "app-info-view"
+msgid "Version"
+msgstr "版本"
+
+#. Label for changelog list item.
+msgctxt "app-info-view"
+msgid "What’s new"
+msgstr "最新变化"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion is within a few seconds.
+msgctxt "app-upgrade-view"
+msgid "A few seconds remaining..."
+msgstr "剩余几秒钟…"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in minutes.
+#. Available placeholders:
+#. %(minutes)s - Will be replaced with remaining minutes until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(minutes)s minutes remaining..."
+msgstr "大约剩余 %(minutes)s 分钟…"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in seconds.
+#. Available placeholders:
+#. %(second)s - Will be replaced with remaining seconds until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(seconds)s seconds remaining..."
+msgstr "大约剩余 %(seconds)s 秒钟…"
+
+#. Label displayed when an error occurred due to the connection being blocked
+msgctxt "app-upgrade-view"
+msgid "Connection blocked. Try changing server or other settings."
+msgstr "连接被阻止。请尝试更改服务器或其他设置。"
+
+#. Label displayed when an error occurred due to the installer failing to start
+#. and the suggested resolution is to download the update again.
+msgctxt "app-upgrade-view"
+msgid "Could not open installer, please try again or send a problem report."
+msgstr "无法打开安装程序，请重试或发送问题报告。"
+
+#. Button text to download and install an update
+msgctxt "app-upgrade-view"
+msgid "Download & install"
+msgstr "下载并安装"
+
+#. Status text displayed below a progress bar when the download of an update is complete
+msgctxt "app-upgrade-view"
+msgid "Download complete!"
+msgstr "下载完成！"
+
+#. Status text displayed below a progress bar when the download of an update fails
+msgctxt "app-upgrade-view"
+msgid "Download failed"
+msgstr "下载失败"
+
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Download failed, please check your connection/firewall and try again, or send a problem report."
+msgstr "下载失败，请检查您的连接/防火墙并重试，或发送问题报告。"
+
+#. Status text displayed below a progress bar when the download of an update has been paused
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Download paused"
+msgstr "下载已暂停"
+
+#. Label displayed above a progress bar informing the user which server
+#. the update is downloading from
+msgctxt "app-upgrade-view"
+msgid "Downloading from: %(server)s"
+msgstr "正在从以下服务器下载：%(server)s"
+
+#. Label displayed above a progress bar when a download is in progress
+msgctxt "app-upgrade-view"
+msgid "Downloading..."
+msgstr "正在下载…"
+
+#. Link shown to optionally manually download the update
+#. due to repeated errors in the upgrade process.
+msgctxt "app-upgrade-view"
+msgid "Having problems? Try downloading the app from our website"
+msgstr "遇到问题了？请尝试从我们的网站下载应用"
+
+#. Button text to install an update
+msgctxt "app-upgrade-view"
+msgid "Install update"
+msgstr "安装更新"
+
+#. Label displayed when an error occurred within the installer
+msgctxt "app-upgrade-view"
+msgid "Installer quit unexpectedly, please try again or send a problem report."
+msgstr "安装程序意外退出，请重试或发送问题报告。"
+
+#. Text displayed when there are no updates for this platform in the next app version
+msgctxt "app-upgrade-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "此版本没有针对此平台的更新或更改。"
+
+#. Button text to pause the download of an update
+msgctxt "app-upgrade-view"
+msgid "Pause"
+msgstr "暂停"
+
+#. Button text to report a problem
+msgctxt "app-upgrade-view"
+msgid "Report a problem"
+msgstr "报告问题"
+
+#. Button text to resume updating
+msgctxt "app-upgrade-view"
+msgid "Resume"
+msgstr "恢复"
+
+#. Button text to try again
+msgctxt "app-upgrade-view"
+msgid "Retry"
+msgstr "重试"
+
+#. Button text to try download again
+msgctxt "app-upgrade-view"
+msgid "Retry download"
+msgstr "重试下载"
+
+#. Status text displayed below a progress bar when the download of an update is starting
+msgctxt "app-upgrade-view"
+msgid "Starting download..."
+msgstr "即将开始下载…"
+
+#. Button text to when starting the installer for an update
+msgctxt "app-upgrade-view"
+msgid "Starting installer..."
+msgstr "正在启动安装程序…"
+
+#. Label displayed when an unknown error occurred
+msgctxt "app-upgrade-view"
+msgid "Unknown error occurred. Please try again or send a problem report."
+msgstr "发生未知错误。请重试或发送问题报告。"
+
+#. Title in navigation bar
+#. Main title for the update available view
+msgctxt "app-upgrade-view"
+msgid "Update available"
+msgstr "有可用的更新"
+
+#. Label displayed when an error occurred due to the installer failed verification
+msgctxt "app-upgrade-view"
+msgid "Verification failed, please try again or send a problem report."
+msgstr "验证失败，请重试或发送问题报告。"
+
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Verification successful!"
+msgstr "验证成功！"
+
+#. Label displayed above a progress bar when the update is being verified
+msgctxt "app-upgrade-view"
+msgid "Verifying installer..."
+msgstr "正在验证安装程序…"
+
+#. Heading which shows the version of the app which can be upgraded to.
+#. Available placeholders:
+#. %(version)s - The new version of the app.
+msgctxt "app-upgrade-view"
+msgid "Version %(version)s"
+msgstr "版本 %(version)s"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -647,10 +842,13 @@ msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "您登录时使用的帐号无效。请退出并尝试其他帐号。"
 
+#. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
 msgstr "此版本没有针对此平台的更新或更改。"
 
+#. Heading for the view of the changes and updates in the
+#. current version compared to the old version.
 msgctxt "changelog-view"
 msgid "What’s new"
 msgstr "最新变化"
@@ -961,6 +1159,13 @@ msgctxt "in-app-notifications"
 msgid "%(openVpn)s support is ending. Switch location or"
 msgstr "%(openVpn)s 支持即将结束。请切换位置或"
 
+#. Notification subtitle when the app upgrade is ready to install.
+#. Available placeholders:
+#. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
+msgctxt "in-app-notifications"
+msgid "%(suggestedUpgradeVersion)s is ready to be installed."
+msgstr "%(suggestedUpgradeVersion)s 已准备好安装。"
+
 #. Link in notication to go to WireGuard settings.
 #. Available placeholders:
 #. %(wireGuard)s - Will be replaced with WireGuard
@@ -992,14 +1197,72 @@ msgctxt "in-app-notifications"
 msgid "change tunnel protocol to %(wireGuard)s."
 msgstr "将隧道协议更改为 %(wireGuard)s。"
 
+#. Notification subtitle when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "Click here to install update."
+msgstr "点击此处安装更新。"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "Click here to retry"
+msgstr "点击此处重试"
+
+#. Notification subtitle when the download of the installer failed
+#. and the user can try downloading again.
+msgctxt "in-app-notifications"
+msgid "Click here to retry download"
+msgstr "点击此处重试下载"
+
 msgctxt "in-app-notifications"
 msgid "Click here to see what’s new."
 msgstr "点击此处查看最新变化。"
+
+#. Link text to go to the app upgrade view
+msgctxt "in-app-notifications"
+msgid "Click here to update"
+msgstr "点击此处进行更新"
+
+#. Notification subtitle when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "Could not download installer."
+msgstr "无法下载安装程序。"
+
+#. Generic notification subtitle when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "Could not upgrade the app."
+msgstr "无法升级应用。"
+
+#. Notification title when app upgrade is verifying the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD COMPLETE! VERIFYING..."
+msgstr "下载完成！正在验证…"
+
+#. Notification title when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD FAILED"
+msgstr "下载失败"
+
+#. Generic notification title when app upgrade is downloading the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE..."
+msgstr "正在下载更新…"
+
+#. Notification title when the app upgrade is in progress.
+#. Available placeholders:
+#. - %(appUpgradeDownloadProgressValue)s: The download progress value.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
+msgstr "正在下载更新… %(appUpgradeDownloadProgressValue)s%%"
 
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr "安装最新的应用版本以保持最新状态。"
+
+#. Notification title when the installer failed.
+msgctxt "in-app-notifications"
+msgid "INSTALLER FAILED"
+msgstr "安装程序失败"
 
 msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
@@ -1044,10 +1307,40 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr "阅读更多内容"
 
+#. Notification title when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "READY TO INSTALL UPDATE"
+msgstr "已准备好安装更新"
+
+#. Accessibility label for the button to retry download of the installer.
+msgctxt "in-app-notifications"
+msgid "Retry download of the installer"
+msgstr "重试下载安装程序"
+
+#. Accessibility label for the button to retry the installation.
+msgctxt "in-app-notifications"
+msgid "Retry installation"
+msgstr "重试安装"
+
 #. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "发送问题报告"
+
+#. Notification subtitle when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "The installer could not be verified."
+msgstr "安装程序无法验证。"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not complete successfully."
+msgstr "安装程序未能成功完成。"
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not start successfully."
+msgstr "安装程序未能成功启动。"
 
 #. Notification subtitle indicating the user is using an unsupported port for WireGuard.
 #. Available placeholders:
@@ -1071,6 +1364,26 @@ msgstr "不受支持的版本"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "有可用更新"
+
+#. Generic notification title when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "UPDATE FAILED"
+msgstr "更新失败"
+
+#. Notification title when app upgrade is ready for the user to launch the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! INSTALLER READY!"
+msgstr "验证完成！安装程序已就绪！"
+
+#. Notification title when app upgrade is launching the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! LAUNCHING INSTALLER..."
+msgstr "验证完成！正在启动安装程序…"
+
+#. Notification title when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION FAILED"
+msgstr "验证失败"
 
 msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
@@ -1218,11 +1531,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "API 访问"
 
-#. Title label in navigation bar
-msgctxt "navigation-bar"
-msgid "Settings"
-msgstr "设置"
-
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
@@ -1294,13 +1602,13 @@ msgstr "无法启用分割隧道。请尝试重新连接或禁用分割隧道。
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
-msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv4 不可用，请尝试更改 <b>%(ipVersionFeatureName)</b>设置。"
+msgid "IPv4 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv4 不可用，请尝试更改 <b>%(ipVersionFeatureName)s</b> 设置。"
 
 #. Label for notification when IPv6 is not available.
 msgctxt "notifications"
-msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)</b> setting."
-msgstr "IPv6 不可用，请尝试更改 <b>%(ipVersionFeatureName)</b>设置。"
+msgid "IPv6 is not available, please try changing <b>%(ipVersionFeatureName)s</b> setting."
+msgstr "IPv6 不可用，请尝试更改 <b>%(ipVersionFeatureName)s</b> 设置。"
 
 msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
@@ -1309,6 +1617,12 @@ msgstr "锁定模式已激活，阻止连接"
 msgctxt "notifications"
 msgid "No servers match your settings, try changing server or other settings."
 msgstr "没有与您的设置匹配的服务器，请尝试更改服务器或其他设置。"
+
+#. A link in the in-app banner to encourage the user to update the app.
+#. The in-app banner is is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Please click here to update now"
+msgstr "请点击此处立即更新"
 
 msgctxt "notifications"
 msgid "Reconnecting"
@@ -1380,7 +1694,12 @@ msgctxt "notifications"
 msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
 msgstr "您的设备已离线。在您的设备重新上线后，隧道将自动连接。"
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+#. The in-app banner which is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version."
+msgstr "此应用版本不受支持，因此您的隐私可能存在风险。"
+
+#. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "此应用版本不受支持，因此您的隐私可能存在风险。请立即更新。"
@@ -1687,6 +2006,7 @@ msgctxt "settings-view"
 msgid "API access"
 msgstr "API 访问"
 
+#. Navigation button to the 'App info' view
 msgctxt "settings-view"
 msgid "App info"
 msgstr "应用信息"
@@ -1695,9 +2015,21 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "多跳"
 
+#. Title label in navigation bar
+#. Main title for settings view
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "设置"
+
+#. Navigation button to the 'Support' view
 msgctxt "settings-view"
 msgid "Support"
 msgstr "支持"
+
+#. Label for the app info list item indicating that an update is available and can be downloaded
+msgctxt "settings-view"
+msgid "Update available"
+msgstr "有可用的更新"
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1708,10 +2040,6 @@ msgstr "用户界面设置"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN 设置"
-
-msgctxt "settings-view"
-msgid "What’s new"
-msgstr "最新变化"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1785,10 +2113,6 @@ msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr "无法启动选择。%(detailedErrorMessage)s"
 
-msgctxt "support-view"
-msgid "Beta program"
-msgstr "测试计划"
-
 #. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
@@ -1798,10 +2122,6 @@ msgstr "仍然继续"
 msgctxt "support-view"
 msgid "Edit message"
 msgstr "编辑消息"
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
-msgstr "启用以在新的测试版应用发布时获得通知。"
 
 msgctxt "support-view"
 msgid "Failed to send"
@@ -1857,10 +2177,6 @@ msgid "Thanks!"
 msgstr "谢谢！"
 
 msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
-msgstr "使用测试版本时此选项不可用。"
-
-msgctxt "support-view"
 msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
 msgstr "为了更好地帮助您，请用英语或瑞典语书写，并包含您连接时所在的国家/地区。"
 
@@ -1873,10 +2189,10 @@ msgctxt "support-view"
 msgid "Try again"
 msgstr "重试"
 
-#. Button label for upgrading the app to the latest version.
+#. Button label for updating the app to the latest version.
 msgctxt "support-view"
-msgid "Upgrade app"
-msgstr "升级应用"
+msgid "Update app"
+msgstr "更新应用"
 
 #. Button label for opening app logs.
 msgctxt "support-view"
@@ -2409,6 +2725,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。"
 
+msgid "%1$s more..."
+msgstr "其他 %1$s 个…"
+
+msgid "%1$s was added to \"%2$s\""
+msgstr "%1$s已添加到“%2$s”中"
+
+msgid "%1$s was removed from \"%2$s\""
+msgstr "%1$s已从“%2$s”中移除"
+
 msgid "%s (Entry)"
 msgstr "%s（入口）"
 
@@ -2424,17 +2749,8 @@ msgstr "%s（已移除）"
 msgid "%s custom port"
 msgstr "%s 自定义端口"
 
-msgid "%s more..."
-msgstr "其他 %s 个…"
-
-msgid "%s was added to \"%s\""
-msgstr "%s已添加到“%s”中"
-
 msgid "%s was added to your account."
 msgstr "%s已添加到您的帐户中。"
-
-msgid "%s was removed from \"%s\""
-msgstr "“%s”已从“%s”中移除"
 
 msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
 msgstr "1. 点击下方的“前往 VPN 设置”按钮后，点击“Mullvad VPN”名称旁边的齿轮。"
@@ -2447,6 +2763,9 @@ msgstr "3. 要启用锁定模式，请点击“屏蔽未使用 VPN 的所有连�
 
 msgid "30 days was added to your account."
 msgstr "已向您的帐户增加 30 天。"
+
+msgid "90 days was added to your account."
+msgstr "90 天已添加到您的帐户中。"
 
 msgid "API reachable, adding method..."
 msgstr "可通过 API 访问，正在添加方法…"
@@ -2466,17 +2785,20 @@ msgstr "帐户时间提醒"
 msgid "Add %s to list"
 msgstr "将%s添加到列表中"
 
-msgid "Add 30 days time"
-msgstr "增加 30 天"
-
 msgid "Add 30 days time (%s)"
 msgstr "增加 30 天 (%s)"
+
+msgid "Add 90 days time (%s)"
+msgstr "添加 90 天 (%s)"
 
 msgid "Add DNS server"
 msgstr "添加 DNS 服务器"
 
 msgid "Add locations"
 msgstr "添加位置"
+
+msgid "Add time"
+msgstr "添加时间"
 
 msgid "Adding method..."
 msgstr "正在添加方法…"
@@ -2571,8 +2893,8 @@ msgstr "当前设备"
 msgid "Current: %s"
 msgstr "当前：%s"
 
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "自定义 DNS 服务器地址 %s 无效"
+msgid "Custom DNS server addresses %1$s are invalid"
+msgstr "自定义 DNS 服务器地址 %1$s 无效"
 
 msgid "DNS settings might not go into effect immediately"
 msgstr "DNS 设置可能不会立即生效"
@@ -2628,8 +2950,8 @@ msgstr "编辑位置"
 msgid "Edit name"
 msgstr "编辑名称"
 
-msgid "Enable %s"
-msgstr "启用“%s”"
+msgid "Enable %1$s"
+msgstr "启用“%1$s”"
 
 msgid "Enable method"
 msgstr "启用方法"
@@ -2648,6 +2970,9 @@ msgstr "无法连接"
 
 msgid "Failed to apply patch"
 msgstr "无法应用补丁"
+
+msgid "Failed to load products, please try again"
+msgstr "无法加载产品，请重试"
 
 msgid "Failed to set to current - API not reachable"
 msgstr "无法设置为当前方法 – 无法通过 API 访问"
@@ -2670,6 +2995,9 @@ msgstr "前往登录将在此设备上解除阻止互联网。"
 msgid "Google Play payment pending"
 msgstr "Google Play 付款待处理"
 
+msgid "Google Play payment pending, this might take some time"
+msgstr "Google Play 付款待处理，这可能需要一些时间"
+
 msgid "Google Play unavailable"
 msgstr "Google Play 不可用"
 
@@ -2691,11 +3019,14 @@ msgstr "导入成功，覆盖设置已激活"
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "导入新覆盖设置可能会替换一些先前导入的覆盖设置。"
 
+msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
+msgstr "应用内商品不可用，请确保您的 Google Play 是最新版本。"
+
 msgid "In-tunnel IPv6"
 msgstr "隧道内 IPv6"
 
-msgid "Invalid or missing value \"%s\""
-msgstr "值“%s”无效或者缺失"
+msgid "Invalid or missing value \"%1$s\""
+msgstr "值“%1$s”无效或者缺失"
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr "当您了解某个 IP 版本导致的问题时，这会很有用。"
@@ -2709,6 +3040,9 @@ msgstr "允许您选择不经过 VPN 隧道而直接访问互联网的应用。"
 msgid "List name"
 msgstr "列表名称"
 
+msgid "Loading products"
+msgstr "正在加载商品"
+
 msgid "Locations"
 msgstr "位置"
 
@@ -2717,9 +3051,6 @@ msgstr "已更改“%s”的位置"
 
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "确保设备始终位于 VPN 隧道上。"
-
-msgid "Manage account"
-msgstr "管理帐户"
 
 msgid "Manage devices"
 msgstr "管理设备"
@@ -2796,8 +3127,8 @@ msgstr "递归限制"
 msgid "Remove"
 msgstr "移除"
 
-msgid "Remove %s from %s"
-msgstr "将 %s 从 %s 中移除"
+msgid "Remove %1$s from %2$s"
+msgstr "将%1$s从“%2$s”中移除"
 
 msgid "Remove %s?"
 msgstr "是否移除“%s”？"
@@ -2823,8 +3154,8 @@ msgstr "搜索"
 msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
 msgstr "将下方的“%s 混淆”设为“自动”或“关”可激活此设置。"
 
-msgid "Set WireGuard MTU value. Valid range: %d - %d."
-msgstr "设置 WireGuard MTU 值。有效范围：%d - %d。"
+msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
+msgstr "设置 WireGuard MTU 值。有效范围：%1$d - %2$d。"
 
 msgid "Set port"
 msgstr "设置端口"
@@ -2865,6 +3196,9 @@ msgstr "在 Android 系统设置中，锁定模式被称为“屏蔽未使用 VP
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "“当前”方法表示应用用来访问 API 的方法。"
 
+msgid "The app is blocking internet, please disconnect first"
+msgstr "应用正在阻止互联网，请先断开连接"
+
 msgid "The device will be removed from the list and logged out."
 msgstr "该设备将从列表中移除并退出登录。"
 
@@ -2885,6 +3219,9 @@ msgstr "此字段为必填项"
 
 msgid "This is already set as current"
 msgstr "它已被设置为当前方法"
+
+msgid "Time added"
+msgstr "时间已添加"
 
 msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
 msgstr "要将位置添加到列表中，请按“︙”或长按国家/地区、城市或服务器。"
@@ -2913,8 +3250,8 @@ msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请为 <b>%s</
 msgid "Undo"
 msgstr "撤消"
 
-msgid "Unknown or prohibited key \"%s\""
-msgstr "未知或禁止的键“%s”"
+msgid "Unknown or prohibited key \"%1$s\""
+msgstr "未知或禁止的密钥“%1$s”"
 
 msgid "Update DNS server"
 msgstr "更新 DNS 服务器"
@@ -2958,14 +3295,11 @@ msgstr "正在验证购买…"
 msgid "Verifying voucher…"
 msgstr "正在验证优惠券…"
 
-msgid "Version"
-msgstr "版本"
-
 msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
 msgstr "查看和管理您所有已登录的设备。一个帐户最多可以同时登录 5 台设备。每台设备登录时都会获得一个名称，以便您能够轻松区分。"
 
-msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
-msgstr "我们目前正在验证您的购买，这可能需要一些时间。如果验证成功，您的时间将增加。"
+msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "我们目前仍在验证您的购买，这可能需要一些时间。如果验证成功，您的时间将被添加。"
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "我们无法启动付款流程，请确保拥有最新版本的 Google Play。"
