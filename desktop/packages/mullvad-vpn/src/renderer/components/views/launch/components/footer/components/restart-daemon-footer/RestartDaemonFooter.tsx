@@ -28,7 +28,7 @@ export function RestartDaemonFooter() {
             }
           </Button.Text>
         </Button>
-        <Button onClick={showDialog} disabled={daemonStatus && daemonStatus !== 'stopped'}>
+        <Button onClick={showDialog}>
           <Button.Text>
             {
               // TRANSLATORS: Button label for opening dialog with troubleshooting details.
