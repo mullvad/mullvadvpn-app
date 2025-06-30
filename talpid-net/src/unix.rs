@@ -60,6 +60,7 @@ pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
     // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/fn.ioctl.html
     // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/type.c_ulong.html
     // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/constant.SIOCSIFMTU.html
+    #[allow(clippy::useless_conversion)]
     let request = SIOCSIFMTU.try_into().unwrap();
     // SAFETY: SIOCSIFMTU expects an ifreq with an MTU and interface set
     if unsafe { libc::ioctl(sock.as_raw_fd(), request, &ifr) } < 0 {
@@ -99,6 +100,7 @@ pub fn get_mtu(interface_name: &str) -> Result<u16, io::Error> {
     // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/fn.ioctl.html
     // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/type.c_ulong.html
     // https://docs.rs/libc/latest/x86_64-unknown-linux-musl/libc/constant.SIOCGIFMTU.html
+    #[allow(clippy::useless_conversion)]
     let request = SIOCGIFMTU.try_into().unwrap();
     // SAFETY: SIOCGIFMTU expects an ifreq with an interface set
     if unsafe { libc::ioctl(sock.as_raw_fd(), request, &ifr) } < 0 {
