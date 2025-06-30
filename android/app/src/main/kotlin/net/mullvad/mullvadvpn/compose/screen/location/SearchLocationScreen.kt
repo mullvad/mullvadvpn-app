@@ -300,9 +300,8 @@ fun SearchLocationScreen(
                     }
                     is Lce.Content -> {
                         relayListContent(
-                            backgroundColor = backgroundColor,
-                            customLists = state.value.customLists,
                             relayListItems = state.value.relayListItems,
+                            customLists = state.value.customLists,
                             onSelectRelay = onSelectRelay,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->

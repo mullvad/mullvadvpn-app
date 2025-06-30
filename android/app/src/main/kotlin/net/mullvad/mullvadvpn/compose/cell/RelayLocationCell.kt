@@ -103,15 +103,14 @@ fun StatusRelayItemCell(
                     // TODO Fix design of this
                     Box(
                         modifier =
-                            Modifier
-                                .padding(start = Dimens.smallPadding)
+                            Modifier.padding(start = Dimens.smallPadding)
                                 .size(Dimens.relayCircleSize)
                                 .padding(2.dp)
                                 .background(
                                     color =
                                         when {
-                                            item is RelayItem.CustomList && item.locations.isEmpty() ->
-                                                disabledColor
+                                            item is RelayItem.CustomList &&
+                                                item.locations.isEmpty() -> disabledColor
 
                                             state != null -> disabledColor
                                             item.active -> activeColor

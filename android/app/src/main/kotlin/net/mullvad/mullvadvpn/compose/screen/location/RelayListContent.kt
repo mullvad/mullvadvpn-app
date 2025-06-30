@@ -43,20 +43,19 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST
 
 /** Used by both the select location screen and search select location screen */
 fun LazyListScope.relayListContent(
-    backgroundColor: Color,
     relayListItems: List<RelayListItem>,
     customLists: List<RelayItem.CustomList>,
     onSelectRelay: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
-    customListHeader: @Composable LazyItemScope.() -> Unit = {},
-    locationHeader: @Composable LazyItemScope.() -> Unit = { RelayLocationHeader() },
+    customListHeader: @Composable() (LazyItemScope.() -> Unit) = {},
+    locationHeader: @Composable() (LazyItemScope.() -> Unit) = { RelayLocationHeader() },
 ) {
     itemsIndexed(
         items = relayListItems,
         key = { _: Int, item: RelayListItem -> item.key },
         contentType = { _, item -> item.contentType },
-        itemContent = { index: Int, listItem: RelayListItem ->
+        itemContent = { _: Int, listItem: RelayListItem ->
             Column(modifier = Modifier.animateItem()) {
                 when (listItem) {
                     RelayListItem.CustomListHeader -> customListHeader()

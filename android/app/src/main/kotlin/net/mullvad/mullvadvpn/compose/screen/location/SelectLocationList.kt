@@ -92,11 +92,11 @@ fun SelectLocationList(
             }
             is Content -> {
                 relayListContent(
-                    backgroundColor = backgroundColor,
                     relayListItems = stateActual.value.relayListItems,
                     customLists = stateActual.value.customLists,
                     onSelectRelay = onSelectRelay,
                     onToggleExpand = viewModel::onToggleExpand,
+                    onUpdateBottomSheetState = onUpdateBottomSheetState,
                     customListHeader = {
                         CustomListHeader(
                             onAddCustomList,
@@ -104,7 +104,6 @@ fun SelectLocationList(
                             else null,
                         )
                     },
-                    onUpdateBottomSheetState = onUpdateBottomSheetState,
                 )
             }
         }
