@@ -39,7 +39,7 @@ if [[ $PRODUCT_VERSION != *"alpha"* &&
     exit 1
 fi
 
-echo "Generate relays.json"
+echo "### Generating relay list ###"
 mkdir -p dist-assets/relays
 cargo run -q -p mullvad-api --bin relay_list > dist-assets/relays/relays.json
 if [[ ! -f dist-assets/relays/relays.json ]]; then
@@ -51,7 +51,9 @@ else
     git add dist-assets/relays/relays.json
     git commit -S -m "Add relay list to bundle with $PRODUCT_VERSION"
 fi
+echo ""
 
+echo "### Generating version information ###"
 echo "$PRODUCT_VERSION" > dist-assets/android-version-name.txt
 ANDROID_VERSION="$PRODUCT_VERSION" cargo run -q --bin mullvad-version versionCode > \
     dist-assets/android-version-code.txt
@@ -62,10 +64,11 @@ fi
 git commit -S -m "Update android app version to $PRODUCT_VERSION" \
     dist-assets/android-version-name.txt \
     dist-assets/android-version-code.txt
+echo ""
 
-
-echo "Tagging current git commit with release tag android/$PRODUCT_VERSION..."
+echo "### Tagging release as android/$PRODUCT_VERSION ###"
 git tag -s "android/$PRODUCT_VERSION" -m "android/$PRODUCT_VERSION"
+echo ""
 
 echo "===================================================="
 echo "| DONE preparing for a release!                    |"
