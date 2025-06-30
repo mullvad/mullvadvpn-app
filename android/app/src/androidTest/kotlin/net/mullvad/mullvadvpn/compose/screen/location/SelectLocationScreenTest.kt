@@ -15,6 +15,7 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.compose.state.PositionClassification
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
@@ -110,7 +111,10 @@ class SelectLocationScreenTest {
                         SelectLocationListUiState(
                             relayListItems =
                                 DUMMY_RELAY_COUNTRIES.map {
-                                    RelayListItem.GeoLocationItem(item = it)
+                                    RelayListItem.GeoLocationItem(
+                                        item = it,
+                                        positionClassification = PositionClassification.Single,
+                                    )
                                 },
                             customLists = emptyList(),
                         )
@@ -250,7 +254,13 @@ class SelectLocationScreenTest {
                 MutableStateFlow(
                     Lce.Content(
                         SelectLocationListUiState(
-                            relayListItems = listOf(RelayListItem.GeoLocationItem(relayItem)),
+                            relayListItems =
+                                listOf(
+                                    RelayListItem.GeoLocationItem(
+                                        relayItem,
+                                        positionClassification = PositionClassification.Single,
+                                    )
+                                ),
                             customLists = emptyList(),
                         )
                     )

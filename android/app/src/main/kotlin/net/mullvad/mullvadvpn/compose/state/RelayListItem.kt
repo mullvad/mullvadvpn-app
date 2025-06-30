@@ -41,7 +41,7 @@ sealed interface RelayListItem {
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
-        val positionClassification: PositionClassification,
+        val positionClassification: PositionClassification = PositionClassification.Single,
     ) : SelectableItem {
         override val key = item.id
         override val depth: Int = 0
