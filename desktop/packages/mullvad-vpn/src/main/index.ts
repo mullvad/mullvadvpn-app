@@ -156,6 +156,10 @@ class ApplicationMain
       app.commandLine.appendSwitch('wm-window-animations-disabled');
     }
 
+    if (process.platform === 'linux') {
+      app.commandLine.appendSwitch('gtk-version', '3');
+    }
+
     // Display correct colors regardless of monitor color profile.
     app.commandLine.appendSwitch('force-color-profile', 'srgb');
 

@@ -58,19 +58,22 @@ test.describe('Select location', () => {
       });
     });
 
+    test.beforeEach(async () => {
+      await routes.selectLocation.getEntryButton().click();
+    });
+
     test('App should show entry selection', async () => {
-      const entryTab = page.getByText('Entry');
-      await entryTab.click();
-      await expect(entryTab).toHaveCSS('background-color', colorTokens.green);
+      const entryButton = routes.selectLocation.getEntryButton();
+      await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
 
       const sweden = page.getByText('Sweden');
       await expect(sweden).toBeVisible();
     });
 
     test('App should show exit selection', async () => {
-      const exitTab = page.getByText('Exit');
-      await exitTab.click();
-      await expect(exitTab).toHaveCSS('background-color', colorTokens.green);
+      const exitButton = routes.selectLocation.getExitButton();
+      await exitButton.click();
+      await expect(exitButton).toHaveCSS('background-color', colorTokens.green);
 
       const sweden = page.getByText('Sweden');
       await expect(sweden).toBeVisible();
@@ -89,9 +92,8 @@ test.describe('Select location', () => {
         response: settings,
       });
 
-      const entryTab = page.getByText('Entry').first();
-      await entryTab.click();
-      await expect(entryTab).toHaveCSS('background-color', colorTokens.green);
+      const entryButton = routes.selectLocation.getEntryButton();
+      await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
 
       const sweden = page.getByText('Sweden');
       await expect(sweden).not.toBeVisible();
@@ -110,9 +112,8 @@ test.describe('Select location', () => {
         response: settings,
       });
 
-      const entryTab = page.getByText('Entry');
-      await entryTab.click();
-      await expect(entryTab).toHaveCSS('background-color', colorTokens.green);
+      const entryButton = routes.selectLocation.getEntryButton();
+      await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
 
       const sweden = page.getByText('Sweden');
       await expect(sweden).toBeVisible();
