@@ -178,15 +178,7 @@ jobs:
         working-directory: ./artifacts
         run: sha256sum */*
 
-      - name: Compare files
-        working-directory: ./artifacts
-        run: >-
-          diff3
-          apk-container/app-oss-prod-fdroid-unsigned.apk
-          apk-fdroidserver/app-oss-prod-fdroid-unsigned.apk
-          apk-nix/app-oss-prod-fdroid-unsigned.apk
-
-      - name: Compare files
+      - name: Generate report
         working-directory: ./artifacts
         run: nix-shell -p diffoscope --run "diffoscope apk-container/app-oss-prod-fdroid-unsigned.apk apk-nix/app-oss-prod-fdroid-unsigned.apk --html-dir ../diffoscope-report"
 
@@ -197,6 +189,14 @@ jobs:
           path: diffoscope-report
           if-no-files-found: error
           retention-days: 7
+
+      - name: Compare files
+        working-directory: ./artifacts
+        run: >-
+          diff3
+          apk-container/app-oss-prod-fdroid-unsigned.apk
+          apk-fdroidserver/app-oss-prod-fdroid-unsigned.apk
+          apk-nix/app-oss-prod-fdroid-unsigned.apk
 
   # Included in this workflow since it's the only place
   # release artifacts are built. Should eventually be moved.
