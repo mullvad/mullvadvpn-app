@@ -49,7 +49,7 @@ fun IconCell(
     title: String,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
-    titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
+    titleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
     onClick: () -> Unit = {},
     background: Color = MaterialTheme.colorScheme.primary,

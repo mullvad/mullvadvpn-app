@@ -135,7 +135,11 @@ fun EditCustomListScreen(
             )
         },
     ) { modifier: Modifier ->
-        SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
+        SpacedColumn(
+            modifier = modifier,
+            verticalAlignment = Alignment.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             when (state) {
                 EditCustomListUiState.Loading -> {
                     MullvadCircularProgressIndicatorLarge()
@@ -144,8 +148,8 @@ fun EditCustomListScreen(
                     Text(
                         text = stringResource(id = R.string.not_found),
                         modifier = Modifier.padding(Dimens.sideMargin),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 is EditCustomListUiState.Content -> {
@@ -153,6 +157,9 @@ fun EditCustomListScreen(
                     TwoRowCell(
                         titleText = stringResource(id = R.string.list_name),
                         subtitleText = state.name.value,
+                        titleStyle = MaterialTheme.typography.bodyLarge,
+                        subtitleStyle = MaterialTheme.typography.bodyMedium,
+                        subtitleColor = MaterialTheme.colorScheme.onPrimary,
                         onCellClicked = { onNameClicked(state.id, state.name) },
                     )
                     // Locations cell
@@ -164,6 +171,9 @@ fun EditCustomListScreen(
                                 state.locations.size,
                                 state.locations.size,
                             ),
+                        titleStyle = MaterialTheme.typography.bodyLarge,
+                        subtitleStyle = MaterialTheme.typography.bodyMedium,
+                        subtitleColor = MaterialTheme.colorScheme.onPrimary,
                         onCellClicked = { onLocationsClicked(state.id) },
                     )
                 }
@@ -187,7 +197,12 @@ private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
                 modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
             ) {
                 DropdownMenuItem(
-                    text = { Text(text = stringResource(id = R.string.delete_list)) },
+                    text = {
+                        Text(
+                            text = stringResource(id = R.string.delete_list),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Delete,

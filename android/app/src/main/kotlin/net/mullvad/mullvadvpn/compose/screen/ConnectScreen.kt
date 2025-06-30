@@ -127,8 +127,6 @@ import net.mullvad.mullvadvpn.lib.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
-import net.mullvad.mullvadvpn.lib.theme.typeface.hostname
 import net.mullvad.mullvadvpn.lib.tv.NavigationDrawerTv
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
@@ -590,7 +588,7 @@ private fun ConnectionCardHeader(
         Text(
             modifier = Modifier.fillMaxWidth().padding(top = Dimens.tinyPadding),
             text = location.asString(),
-            style = MaterialTheme.typography.connectionStatus,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -601,7 +599,7 @@ private fun ConnectionCardHeader(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = it,
-                    style = MaterialTheme.typography.hostname,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

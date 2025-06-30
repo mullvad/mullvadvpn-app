@@ -14,7 +14,7 @@ fun EmptyRelayListText() {
     Text(
         text = stringResource(R.string.no_locations_found),
         modifier = Modifier.padding(Dimens.cellVerticalSpacing),
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 }

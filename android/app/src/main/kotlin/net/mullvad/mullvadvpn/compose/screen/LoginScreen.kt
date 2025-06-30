@@ -248,7 +248,7 @@ private fun ColumnScope.LoginInput(
     Text(
         modifier = Modifier.padding(bottom = Dimens.smallPadding),
         text = state.loginState.supportingText() ?: "",
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.labelLarge,
         color =
             if (state.loginState.isError()) {
                 MaterialTheme.colorScheme.error
@@ -404,7 +404,11 @@ private fun AccountDropDownItem(
                     .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding),
             contentAlignment = Alignment.CenterStart,
         ) {
-            Text(text = accountNumber, overflow = TextOverflow.Clip)
+            Text(
+                text = accountNumber,
+                overflow = TextOverflow.Clip,
+                style = MaterialTheme.typography.bodyLarge,
+            )
         }
         IconButton(enabled = enabled, onClick = onDeleteClick) {
             Icon(
@@ -425,6 +429,7 @@ private fun CreateAccountPanel(onCreateAccountClick: () -> Unit, isEnabled: Bool
     ) {
         Text(
             modifier = Modifier.padding(bottom = Dimens.smallPadding),
+            style = MaterialTheme.typography.bodyMedium,
             text = stringResource(id = R.string.dont_have_an_account),
             color = MaterialTheme.colorScheme.onBackground,
         )

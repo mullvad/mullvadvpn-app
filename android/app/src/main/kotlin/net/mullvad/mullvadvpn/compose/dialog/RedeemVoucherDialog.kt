@@ -224,7 +224,7 @@ private fun RedeemSuccessBody(message: String) {
             Modifier.padding(start = Dimens.smallPadding, top = Dimens.cellTopPadding)
                 .fillMaxWidth(),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.labelLarge,
     )
 }
 

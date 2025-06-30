@@ -3,10 +3,6 @@ package net.mullvad.mullvadvpn.compose.dialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.ramcosta.composedestinations.annotation.Destination
@@ -22,7 +18,6 @@ import net.mullvad.mullvadvpn.compose.preview.DevicePreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.util.appendTextWithStyledSubstring
 
 @Preview
 @Composable
@@ -38,32 +33,18 @@ fun ManageDevicesRemoveConfirmation(navigator: ResultBackNavigator<DeviceId>, de
     InfoConfirmationDialog(
         navigator = navigator,
         confirmValue = device.id,
-        titleType = InfoConfirmationDialogTitleType.IconOnly,
+        titleType = InfoConfirmationDialogTitleType.IconAndTitle(title = device.titleText()),
         confirmButtonTitle = textResource(R.string.remove_button),
         cancelButtonTitle = textResource(R.string.cancel),
     ) {
         Text(
-            text = device.descriptionText(),
+            text = textResource(id = R.string.manage_devices_confirm_removal_description_line2),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelLarge,
         )
     }
 }
 
 @Composable
-private fun Device.descriptionText(): AnnotatedString {
-    val line1 =
-        textResource(id = R.string.manage_devices_confirm_removal_description_line1, displayName())
-
-    val line2 = textResource(id = R.string.manage_devices_confirm_removal_description_line2)
-
-    return buildAnnotatedString {
-        appendTextWithStyledSubstring(
-            text = line1,
-            substring = displayName(),
-            substringStyle = SpanStyle(color = Color.White),
-        )
-        appendLine()
-        append(line2)
-    }
-}
+private fun Device.titleText(): String =
+    textResource(id = R.string.manage_devices_confirm_removal_description_line1, displayName())

@@ -314,7 +314,7 @@ private fun ImportOverridesByBottomSheet(
                         ),
                     text = stringResource(R.string.import_overrides_bottom_sheet_override_warning),
                     maxLines = 2,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelLarge,
                     overflow = TextOverflow.Ellipsis,
                 )
             }

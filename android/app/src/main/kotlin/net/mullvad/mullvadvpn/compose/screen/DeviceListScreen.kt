@@ -180,6 +180,7 @@ private fun ColumnScope.DeviceListError(tryAgain: () -> Unit) {
         Text(
             text = stringResource(id = R.string.failed_to_fetch_devices),
             modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally),
+            style = MaterialTheme.typography.bodyMedium,
         )
         PrimaryButton(
             onClick = tryAgain,
@@ -269,7 +270,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                             R.string.max_devices_resolved_description
                         }
                 ),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
             modifier =
                 Modifier.wrapContentHeight()

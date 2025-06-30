@@ -162,6 +162,7 @@ private fun ReportProblemScreen(
                 Text(
                     text = stringResource(id = R.string.problem_report_description),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelLarge,
                 )
 
                 TextField(
@@ -245,7 +246,7 @@ private fun ColumnScope.SendingContent() {
     Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
     Text(
         text = stringResource(id = R.string.sending),
-        style = MaterialTheme.typography.headlineLarge,
+        style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSurface,
     )
 }
@@ -263,7 +264,7 @@ private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) 
     Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
     Text(
         text = stringResource(id = R.string.sent),
-        style = MaterialTheme.typography.headlineLarge,
+        style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSurface,
     )
     Text(
@@ -277,7 +278,7 @@ private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) 
                     append(stringResource(id = R.string.we_will_look_into_this))
                 }
             },
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier.fillMaxWidth(),
     )
 
@@ -298,7 +299,7 @@ private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) 
 
         Text(
             text = annotatedEmailString,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -316,12 +317,12 @@ private fun ColumnScope.ErrorContent(retry: () -> Unit, onDismiss: () -> Unit) {
     Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
     Text(
         text = stringResource(id = R.string.failed_to_send),
-        style = MaterialTheme.typography.headlineLarge,
+        style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSurface,
     )
     Text(
         text = stringResource(id = R.string.failed_to_send_details),
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.fillMaxWidth(),
     )

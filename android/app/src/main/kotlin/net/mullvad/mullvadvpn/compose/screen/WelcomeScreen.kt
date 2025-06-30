@@ -229,7 +229,7 @@ private fun WelcomeInfo(
             modifier =
                 Modifier.fillMaxWidth()
                     .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
 
@@ -261,12 +261,12 @@ private fun WelcomeInfo(
                 },
             modifier =
                 Modifier.padding(
-                    top = Dimens.smallPadding,
+                    top = Dimens.cellVerticalSpacing,
                     bottom = Dimens.verticalSpace,
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
                 ),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
     }
@@ -287,11 +287,16 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
         modifier =
             Modifier.fillMaxWidth()
                 .clickable(onClick = onCopyToClipboard)
-                .padding(horizontal = Dimens.sideMargin),
+                .padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    top = Dimens.cellVerticalSpacing,
+                    bottom = Dimens.mediumPadding,
+                ),
     ) {
         Text(
             text = state.accountNumber?.value?.groupWithSpaces() ?: "",
-            modifier = Modifier.weight(1f).padding(top = Dimens.smallPadding),
+            modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -314,7 +319,7 @@ fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
                     append(": ")
                     append(deviceName)
                 },
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.onSurface,

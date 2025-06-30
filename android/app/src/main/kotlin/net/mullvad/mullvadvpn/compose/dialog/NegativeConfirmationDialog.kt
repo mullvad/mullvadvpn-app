@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -56,6 +57,7 @@ private fun PreviewDeleteConfirmationDialogError() {
 fun NegativeConfirmationDialog(
     message: String,
     messageStyle: TextStyle? = null,
+    messageColor: Color? = null,
     errorMessage: String? = null,
     confirmationText: String = stringResource(id = R.string.delete),
     cancelText: String = stringResource(id = R.string.cancel),
@@ -65,6 +67,7 @@ fun NegativeConfirmationDialog(
     NegativeConfirmationDialog(
         message = AnnotatedString(message),
         messageStyle = messageStyle,
+        messageColor = messageColor,
         errorMessage = errorMessage,
         confirmationText = confirmationText,
         cancelText = cancelText,
@@ -77,6 +80,7 @@ fun NegativeConfirmationDialog(
 fun NegativeConfirmationDialog(
     message: AnnotatedString,
     messageStyle: TextStyle? = null,
+    messageColor: Color? = null,
     errorMessage: String? = null,
     confirmationText: String = stringResource(id = R.string.delete),
     cancelText: String = stringResource(id = R.string.cancel),
@@ -95,7 +99,11 @@ fun NegativeConfirmationDialog(
         },
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = message, style = messageStyle ?: LocalTextStyle.current)
+                Text(
+                    text = message,
+                    style = messageStyle ?: LocalTextStyle.current,
+                    color = messageColor ?: LocalTextStyle.current.color,
+                )
                 if (errorMessage != null) {
                     Text(
                         text = errorMessage,

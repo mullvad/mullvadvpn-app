@@ -96,7 +96,7 @@ fun CustomPortCell(
             )
             BaseCellTitle(
                 title = title,
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Start,
                 textColor =
                     if (isSelected) {
@@ -128,6 +128,7 @@ fun CustomPortCell(
                                 AlphaDisabled
                             }
                     ),
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.align(Alignment.Center),
             )
         }

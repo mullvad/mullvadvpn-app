@@ -77,8 +77,8 @@ fun Udp2TcpSettingsScreen(
                     testTag = UDP_OVER_TCP_PORT_ITEM_AUTOMATIC_TEST_TAG,
                 )
             }
-            itemWithDivider {
-                UDP2TCP_PRESET_PORTS.forEach { port ->
+            UDP2TCP_PRESET_PORTS.forEach { port ->
+                itemWithDivider {
                     SelectableCell(
                         title = port.toString(),
                         isSelected = state.port.getOrNull() == port,

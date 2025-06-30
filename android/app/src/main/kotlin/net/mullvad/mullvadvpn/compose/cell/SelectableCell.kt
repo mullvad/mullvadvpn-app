@@ -50,7 +50,7 @@ fun SelectableCell(
             isEnabled = isEnabled,
         )
     },
-    titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
+    titleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     startPadding: Dp = Dimens.cellStartPadding,
     selectedColor: Color = MaterialTheme.colorScheme.selected,
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,

@@ -154,7 +154,7 @@ private fun AppVersionRow(state: AppInfoUiState, openAppListing: () -> Unit) {
         if (!state.version.isSupported) {
             Text(
                 text = stringResource(id = R.string.unsupported_version_description),
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier =
                     Modifier.fillMaxWidth()

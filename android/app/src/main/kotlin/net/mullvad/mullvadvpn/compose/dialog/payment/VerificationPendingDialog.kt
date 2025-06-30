@@ -31,16 +31,11 @@ fun VerificationPending(navigator: DestinationsNavigator) {
 fun VerificationPendingDialog(onClose: () -> Unit) {
     AlertDialog(
         icon = {}, // Makes it look a bit more balanced
-        title = {
-            Text(
-                text = stringResource(id = R.string.verifying_purchase),
-                style = MaterialTheme.typography.headlineSmall,
-            )
-        },
+        title = { Text(text = stringResource(id = R.string.verifying_purchase)) },
         text = {
             Text(
                 text = stringResource(id = R.string.payment_pending_dialog_message),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelLarge,
             )
         },
         containerColor = MaterialTheme.colorScheme.surface,

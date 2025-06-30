@@ -40,8 +40,8 @@ fun DaitaDirectOnlyConfirmation(navigator: ResultBackNavigator<Confirmed>) {
                     id = R.string.direct_only_description,
                     stringResource(id = R.string.daita),
                 ),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.fillMaxWidth(),
         )
     }

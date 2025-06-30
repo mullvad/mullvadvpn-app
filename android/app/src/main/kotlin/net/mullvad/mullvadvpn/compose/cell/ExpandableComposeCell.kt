@@ -119,7 +119,7 @@ fun ContentBlockersDisableModeCellSubtitle(modifier: Modifier) {
                 id = R.string.dns_content_blockers_subtitle,
                 stringResource(id = R.string.enable_custom_dns),
             ),
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier,
     )

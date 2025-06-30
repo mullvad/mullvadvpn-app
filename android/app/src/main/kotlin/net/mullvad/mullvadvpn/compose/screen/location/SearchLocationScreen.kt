@@ -414,7 +414,7 @@ private fun Title(text: String, onBackgroundColor: Color) {
         modifier =
             Modifier.fillMaxWidth()
                 .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.labelLarge,
     )
 }
 

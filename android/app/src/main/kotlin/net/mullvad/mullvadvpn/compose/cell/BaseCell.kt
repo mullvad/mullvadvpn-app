@@ -117,12 +117,7 @@ internal fun BaseCellTitle(
 }
 
 @Composable
-fun BaseSubtitleCell(
-    text: String,
-    modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.labelMedium,
-    color: Color,
-) {
+fun BaseSubtitleCell(text: String, modifier: Modifier = Modifier, style: TextStyle, color: Color) {
     BaseSubtitleCell(
         text = AnnotatedString(text),
         modifier = modifier,
@@ -135,7 +130,7 @@ fun BaseSubtitleCell(
 fun BaseSubtitleCell(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.labelMedium,
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
     color: Color,
 ) {
     Text(

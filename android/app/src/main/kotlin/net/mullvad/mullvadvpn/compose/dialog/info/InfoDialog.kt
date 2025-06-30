@@ -66,8 +66,8 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
             ) {
                 Text(
                     text = message,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 if (additionalInfo != null) {
@@ -79,8 +79,8 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                     val trimmed = annotated.substring(0, annotated.trimEnd().length)
                     Text(
                         text = trimmed,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }

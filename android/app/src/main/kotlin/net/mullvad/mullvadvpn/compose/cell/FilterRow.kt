@@ -54,7 +54,7 @@ fun FilterRow(
             Text(
                 text = stringResource(id = R.string.filters),
                 color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelLarge,
             )
         }
         filters.forEach {

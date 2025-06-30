@@ -106,10 +106,10 @@ private fun LazyListScope.description() {
     item {
         Text(
             text = stringResource(id = R.string.api_access_description),
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier =
-                Modifier.padding(start = Dimens.cellStartPadding, end = Dimens.cellEndPadding)
+                Modifier.padding(start = Dimens.mediumPadding, end = Dimens.mediumPadding)
                     .fillMaxWidth(),
         )
     }
@@ -123,8 +123,8 @@ private fun LazyListScope.currentAccessMethod(
         Row(
             modifier =
                 Modifier.padding(
-                    start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
+                    start = Dimens.mediumPadding,
+                    end = Dimens.mediumPadding,
                     bottom = Dimens.mediumPadding,
                 ),
             verticalAlignment = Alignment.CenterVertically,

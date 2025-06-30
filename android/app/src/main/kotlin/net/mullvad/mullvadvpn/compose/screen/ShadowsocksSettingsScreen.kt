@@ -103,8 +103,8 @@ fun ShadowsocksSettingsScreen(
                     testTag = SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG,
                 )
             }
-            itemWithDivider {
-                SHADOWSOCKS_PRESET_PORTS.forEach { port ->
+            SHADOWSOCKS_PRESET_PORTS.forEach { port ->
+                itemWithDivider {
                     SelectableCell(
                         title = port.toString(),
                         isSelected = state.port.getOrNull() == port,

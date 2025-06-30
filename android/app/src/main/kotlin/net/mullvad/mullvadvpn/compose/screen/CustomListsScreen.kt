@@ -169,6 +169,7 @@ private fun LazyListScope.content(
         NavigationComposeCell(
             title = customList.name.value,
             onClick = { openCustomList(customList) },
+            textStyle = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -178,7 +179,7 @@ private fun LazyListScope.empty() {
         Text(
             text = stringResource(R.string.no_custom_lists_available),
             modifier = Modifier.padding(Dimens.mediumPadding),
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }

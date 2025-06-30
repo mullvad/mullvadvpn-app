@@ -205,7 +205,7 @@ private fun Actions(isSaveEnabled: Boolean, onSaveClick: () -> Unit) {
                 .copy(contentColor = MaterialTheme.colorScheme.onPrimary),
         modifier = Modifier.testTag(SAVE_BUTTON_TEST_TAG),
     ) {
-        Text(text = stringResource(R.string.save))
+        Text(text = stringResource(R.string.save), style = MaterialTheme.typography.labelLarge)
     }
 }
 

@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.dialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -36,10 +37,17 @@ fun RemoveDeviceConfirmation(navigator: ResultBackNavigator<DeviceId>, device: D
         textResource(id = R.string.max_devices_confirm_removal_description, device.displayName())
     val message =
         HtmlCompat.fromHtml(htmlFormattedString, HtmlCompat.FROM_HTML_MODE_COMPACT)
-            .toAnnotatedString(boldFontWeight = FontWeight.Bold)
+            .toAnnotatedString(
+                boldSpanStyle =
+                    SpanStyle(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold,
+                    )
+            )
     NegativeConfirmationDialog(
         message = message,
-        messageStyle = MaterialTheme.typography.labelLarge,
+        messageStyle = MaterialTheme.typography.bodyMedium,
+        messageColor = MaterialTheme.colorScheme.onSurfaceVariant,
         confirmationText = stringResource(id = R.string.confirm_removal),
         cancelText = stringResource(id = R.string.back),
         onBack = dropUnlessResumed { navigator.navigateBack() },

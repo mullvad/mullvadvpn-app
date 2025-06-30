@@ -11,20 +11,18 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.MullvadSwitch
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
@@ -68,7 +66,7 @@ fun NormalSwitchComposeCell(
         titleView = {
             BaseCellTitle(
                 title = title,
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f, true),
                 textColor = if (isEnabled) onBackground else onBackground.copy(AlphaDisabled),
             )
@@ -180,38 +178,11 @@ fun SwitchCellView(
 }
 
 @Composable
-fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
-    val text =
-        if (isCellClickable) {
-            textResource(id = R.string.custom_dns_footer)
-        } else {
-            textResource(
-                id = R.string.custom_dns_disable_mode_subtitle,
-                textResource(id = R.string.dns_content_blockers),
-            )
-        }
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier,
-    )
-}
-
-@Composable
 fun SwitchComposeSubtitleCell(
     text: String,
     modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
     color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
-    BaseSubtitleCell(text = text, modifier = modifier, color = color)
-}
-
-@Composable
-fun SwitchComposeSubtitleCell(
-    text: AnnotatedString,
-    modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-) {
-    BaseSubtitleCell(text = text, modifier = modifier, color = color)
+    BaseSubtitleCell(text = text, modifier = modifier, style = style, color = color)
 }

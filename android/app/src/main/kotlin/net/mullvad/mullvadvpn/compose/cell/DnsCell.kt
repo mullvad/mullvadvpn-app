@@ -81,7 +81,7 @@ private fun RowScope.DnsTitle(address: String, modifier: Modifier = Modifier) {
     Text(
         text = address,
         color = MaterialTheme.colorScheme.onSurface,
-        style = MaterialTheme.typography.labelLarge,
+        style = MaterialTheme.typography.bodyLarge,
         textAlign = TextAlign.Start,
         modifier = modifier.weight(1f),
     )

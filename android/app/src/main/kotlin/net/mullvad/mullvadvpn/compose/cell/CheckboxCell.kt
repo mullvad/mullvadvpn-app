@@ -50,7 +50,7 @@ internal fun CheckboxCell(
 
         Text(
             text = title,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
             modifier =
                 Modifier.weight(1f)

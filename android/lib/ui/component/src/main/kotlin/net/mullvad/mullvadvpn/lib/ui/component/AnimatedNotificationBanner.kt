@@ -117,7 +117,7 @@ private fun Notification(modifier: Modifier = Modifier, notificationBannerData: 
                         width = Dimension.fillToConstraints
                     }
                     .padding(start = Dimens.smallPadding),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -155,7 +155,7 @@ private fun Notification(modifier: Modifier = Modifier, notificationBannerData: 
                             }
                         },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
         action?.let {
