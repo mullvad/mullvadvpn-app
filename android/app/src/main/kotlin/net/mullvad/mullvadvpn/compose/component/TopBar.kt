@@ -21,11 +21,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -107,6 +110,7 @@ private fun PreviewNothingTopBar() {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MullvadTopBar(
     containerColor: Color,
@@ -157,6 +161,7 @@ fun MullvadTopBar(
                 }
             }
         },
+        subtitle = {},
         actions = {
             if (onAccountClicked != null) {
                 IconButton(
@@ -240,6 +245,7 @@ private fun PreviewSlimMediumTopBar() {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MullvadMediumTopBar(
     title: String,
@@ -247,7 +253,7 @@ fun MullvadMediumTopBar(
     actions: @Composable RowScope.() -> Unit = {},
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
-    MediumTopAppBar(
+    MediumFlexibleTopAppBar(
         title = { Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         navigationIcon = navigationIcon,
         scrollBehavior = scrollBehavior,
@@ -261,7 +267,7 @@ fun MullvadMediumTopBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MullvadLargeTopBar(
     title: String,
@@ -269,7 +275,7 @@ fun MullvadLargeTopBar(
     actions: @Composable RowScope.() -> Unit = {},
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
-    LargeTopAppBar(
+    LargeFlexibleTopAppBar(
         title = {
             Text(
                 text = title,

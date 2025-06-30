@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -354,9 +357,10 @@ fun SelectLocationScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayListType) -> Unit) {
-    SingleChoiceSegmentedButtonRow(
+    Row(
         modifier =
             Modifier.fillMaxWidth()
                 .padding(
@@ -367,12 +371,12 @@ private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayL
     ) {
         MullvadSegmentedStartButton(
             selected = relayListType == RelayListType.ENTRY,
-            onClick = { onSelectRelayList(RelayListType.ENTRY) },
+            onCheckedChange = { onSelectRelayList(RelayListType.ENTRY) },
             text = stringResource(id = R.string.entry),
         )
         MullvadSegmentedEndButton(
             selected = relayListType == RelayListType.EXIT,
-            onClick = { onSelectRelayList(RelayListType.EXIT) },
+            onCheckedChange = { onSelectRelayList(RelayListType.EXIT) },
             text = stringResource(id = R.string.exit),
         )
     }

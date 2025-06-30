@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonShapes
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconButtonShapes
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -56,6 +59,7 @@ private fun PreviewConnectionButton() {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Suppress("LongMethod")
 fun SwitchLocationButton(
@@ -84,15 +88,26 @@ fun SwitchLocationButton(
 
             Button(
                 onClick = onSwitchLocation,
-                shape =
-                    if (isReconnectButtonEnabled) {
-                        MaterialTheme.shapes.small.copy(
-                            topEnd = CornerSize(percent = 0),
-                            bottomEnd = CornerSize(percent = 0),
-                        )
-                    } else {
-                        MaterialTheme.shapes.small
-                    },
+                shapes = ButtonShapes(
+                    shape =
+                        if (isReconnectButtonEnabled) {
+                            MaterialTheme.shapes.small.copy(
+                                topEnd = CornerSize(percent = 0),
+                                bottomEnd = CornerSize(percent = 0),
+                            )
+                        } else {
+                            MaterialTheme.shapes.small
+                        },
+                    pressedShape =
+                        if (isReconnectButtonEnabled) {
+                            MaterialTheme.shapes.extraLarge.copy(
+                                topEnd = CornerSize(percent = 0),
+                                bottomEnd = CornerSize(percent = 0),
+                            )
+                        } else {
+                            MaterialTheme.shapes.extraLarge
+                        },
+                ),
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
@@ -134,11 +149,13 @@ fun SwitchLocationButton(
 
             if (isReconnectButtonEnabled) {
                 FilledIconButton(
-                    shape =
-                        MaterialTheme.shapes.small.copy(
-                            topStart = CornerSize(percent = 0),
-                            bottomStart = CornerSize(percent = 0),
-                        ),
+                    shapes = IconButtonShapes(shape = MaterialTheme.shapes.small.copy(
+                        topStart = CornerSize(percent = 0),
+                        bottomStart = CornerSize(percent = 0),
+                    ), pressedShape = MaterialTheme.shapes.extraLarge.copy(
+                        topStart = CornerSize(percent = 0),
+                        bottomStart = CornerSize(percent = 0),
+                    )),
                     colors =
                         IconButtonDefaults.filledIconButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary,

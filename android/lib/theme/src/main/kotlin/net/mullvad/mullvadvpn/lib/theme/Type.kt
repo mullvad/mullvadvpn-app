@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.theme
 
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontWeight
 
@@ -15,12 +16,24 @@ bodySmall (12sp 400 weight) -> Disclaimer texts and error texts under inputs
 labelLarge (14sp 500 weight) -> Cell that are not header cells, Dialog texts, device name and expiry
  */
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal val MullvadMaterial3Typography =
     with(Typography()) {
         this.copy(
-            headlineLarge = headlineLarge.merge(fontWeight = FontWeight.Bold),
-            headlineSmall = headlineSmall.merge(fontWeight = FontWeight.SemiBold),
-            titleLarge = titleLarge.merge(fontWeight = FontWeight.SemiBold),
-            titleMedium = titleMedium.merge(fontWeight = FontWeight.SemiBold),
+            displayLarge = displayLargeEmphasized,
+            displayMedium = displayMediumEmphasized,
+            displaySmall = displaySmallEmphasized,
+            headlineLarge = headlineLargeEmphasized.merge(fontWeight = FontWeight.Bold),
+            headlineMedium = headlineMediumEmphasized,
+            headlineSmall = headlineSmallEmphasized.merge(fontWeight = FontWeight.SemiBold),
+            titleLarge = titleLargeEmphasized.merge(fontWeight = FontWeight.SemiBold),
+            titleMedium = titleMediumEmphasized.merge(fontWeight = FontWeight.SemiBold),
+            titleSmall = titleSmallEmphasized,
+            bodyLarge = bodyLargeEmphasized,
+            bodyMedium = bodyMediumEmphasized,
+            bodySmall = bodySmallEmphasized,
+            labelLarge = labelLargeEmphasized,
+            labelMedium = labelMediumEmphasized,
+            labelSmall = labelSmallEmphasized,
         )
     }

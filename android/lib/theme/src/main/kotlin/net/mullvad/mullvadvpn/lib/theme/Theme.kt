@@ -3,7 +3,9 @@ package net.mullvad.mullvadvpn.lib.theme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LocalRippleConfiguration
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.Shapes
@@ -133,7 +135,7 @@ fun ProvideDimens(dimensions: Dimensions, content: @Composable () -> Unit) {
 
 private val LocalAppDimens = staticCompositionLocalOf { defaultDimensions }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
     val typography = MullvadMaterial3Typography
@@ -141,7 +143,7 @@ fun AppTheme(content: @Composable () -> Unit) {
     val dimensions = defaultDimensions
 
     ProvideDimens(dimensions = dimensions) {
-        MaterialTheme(
+        MaterialExpressiveTheme(
             colorScheme = darkColorScheme,
             shapes = Shapes,
             typography = typography,
