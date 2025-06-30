@@ -56,6 +56,7 @@ android {
     playConfigs {
         register("playDevmoleRelease") { enabled = true }
         register("playStagemoleRelease") { enabled = true }
+        register("playProdRelease") { enabled = true }
     }
 
     androidResources {

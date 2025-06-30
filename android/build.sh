@@ -51,7 +51,7 @@ if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     elif [[ "$PRODUCT_VERSION" == *"-alpha"* ]]; then
         GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
         BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
-        PLAY_PUBLISH_TASKS=(publishPlayDevmoleReleaseBundle publishPlayStagemoleReleaseBundle)
+        PLAY_PUBLISH_TASKS=(publishPlayDevmoleReleaseBundle publishPlayStagemoleReleaseBundle publishPlayProdReleaseBundle)
     fi
 fi
 
