@@ -1,5 +1,5 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
-import { IChangelog } from '../../../shared/ipc-types';
+import { DaemonStatus, IChangelog } from '../../../shared/ipc-types';
 import { LocationType } from '../../components/select-location/select-location-types';
 import { ReduxAction } from '../store';
 
@@ -10,6 +10,7 @@ export interface IUserInterfaceReduxState {
   windowFocused: boolean;
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
   connectedToDaemon: boolean;
+  daemonStatus?: DaemonStatus;
   daemonAllowed?: boolean;
   changelog: IChangelog;
   isPerformingPostUpgrade: boolean;
@@ -52,6 +53,12 @@ export default function (
 
     case 'SET_CONNECTED_TO_DAEMON':
       return { ...state, connectedToDaemon: action.connectedToDaemon };
+
+    case 'SET_DAEMON_STATUS':
+      return {
+        ...state,
+        daemonStatus: action.daemonStatus,
+      };
 
     case 'SET_DAEMON_ALLOWED':
       return { ...state, daemonAllowed: action.daemonAllowed };

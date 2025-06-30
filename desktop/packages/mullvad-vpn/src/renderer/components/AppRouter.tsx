@@ -21,7 +21,6 @@ import {
 import ExpiredAccountErrorView from './ExpiredAccountErrorView';
 import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
-import Launch from './Launch';
 import MainView from './main-view/MainView';
 import MultihopSettings from './MultihopSettings';
 import OpenVpnSettings from './OpenVpnSettings';
@@ -35,7 +34,7 @@ import Support from './Support';
 import TooManyDevices from './TooManyDevices';
 import UdpOverTcp from './UdpOverTcp';
 import UserInterfaceSettings from './UserInterfaceSettings';
-import { AppInfoView, AppUpgradeView, ChangelogView, SettingsView } from './views';
+import { AppInfoView, AppUpgradeView, ChangelogView, LaunchView, SettingsView } from './views';
 import VpnSettings from './VpnSettings';
 import WireguardSettings from './WireguardSettings';
 
@@ -50,7 +49,7 @@ export default function AppRouter() {
   return (
     <Focus ref={focusRef}>
       <Switch key={currentLocation.key} location={currentLocation}>
-        <Route exact path={RoutePath.launch} component={Launch} />
+        <Route exact path={RoutePath.launch} component={LaunchView} />
         <Route exact path={RoutePath.login} component={LoginPage} />
         <Route exact path={RoutePath.tooManyDevices} component={TooManyDevices} />
         <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />

@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import { app, BrowserWindow, dialog, Menu, nativeImage, screen, Tray } from 'electron';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
@@ -18,6 +18,7 @@ import {
 } from './ipc-event-channel';
 import { WebContentsConsoleInput } from './logging';
 import { isMacOs11OrNewer } from './platform-version';
+import { resolveBin } from './proc';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController, { WindowControllerDelegate } from './window-controller';
 
@@ -62,6 +63,56 @@ export default class UserInterface implements WindowControllerDelegate {
   }
 
   public registerIpcListeners() {
+    IpcMainEventChannel.daemon.handleTryStart(() => {
+      IpcMainEventChannel.daemon.notifyTryStartEvent?.('start-requested');
+
+      try {
+        const SETUP_PATH = `"\\"${resolveBin('mullvad-setup')}\\""`;
+        const SYSTEM_ROOT_PATH = process.env.SYSTEMROOT || process.env.windir || 'C:\\Windows';
+        const PWSH_PATH = `${SYSTEM_ROOT_PATH}\\System32\\WindowsPowershell\\v1.0\\powershell.exe`;
+
+        const child = spawn(
+          PWSH_PATH,
+          [
+            '-Command',
+            'Start-Process',
+            SETUP_PATH,
+            'start-service',
+            '-Verb',
+            'RunAs',
+            '-WindowStyle',
+            'Hidden',
+            '-Wait',
+          ],
+          {
+            detached: false,
+            stdio: 'ignore',
+            windowsVerbatimArguments: true,
+          },
+        );
+        child.once('error', (error) => {
+          log.error(`"mullvad-setup.exe start-service" failed: ${error.message}`);
+          IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
+        });
+
+        child.once('exit', (code) => {
+          if (code !== 0) {
+            log.error(
+              `"mullvad-setup.exe start-service" exited unexpectedly with exit code: ${code}`,
+            );
+            IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
+          } else {
+            log.info('"mullvad-setup.exe start-service" succeeded');
+            // 'running' is set from onDaemonConnected event handler
+          }
+        });
+      } catch (e) {
+        const error = e as Error;
+        log.error(`Failed to run "mullvad-setup.exe start-service". Error: ${error.message}`);
+        IpcMainEventChannel.daemon.notifyTryStartEvent?.('stopped');
+      }
+    });
+
     IpcMainEventChannel.app.handleShowOpenDialog(async (options) => {
       this.browsingFiles = true;
       const response = await dialog.showOpenDialog({
