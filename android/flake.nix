@@ -121,6 +121,10 @@
               value = "${android-sdk}/share/android-sdk";
             }
             {
+              name = "ANDROID_SDK_ROOT";
+              value = "${android-sdk}/share/android-sdk";
+            }
+            {
               name = "ANDROID_NDK_ROOT";
               value = "${android-sdk}/share/android-sdk/ndk/${ndkVersion2}";
             }
