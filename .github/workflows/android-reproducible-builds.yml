@@ -220,7 +220,7 @@ jobs:
 
       - name: Extract resources
         run: |
-          apktool d apk-container/app-oss-prod-fdroid-unsigned.apk -s -o output
+          apktool d app-oss-prod-fdroid-unsigned.apk -s -o output
 
       - name: Compare manifest permissions with checked in snapshot
         run: |
