@@ -47,6 +47,7 @@ struct MullvadListActionItemView<Icon: View>: View {
                     Text(detail)
                         .foregroundStyle(Color(.Cell.detailTextColor.withAlphaComponent(0.6)))
                         .font(.mullvadMiniSemiBold)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             Spacer()
@@ -61,16 +62,16 @@ struct MullvadListActionItemView<Icon: View>: View {
                 } label: {
                     icon
                 }
+                .padding(.leading, 8)
                 .accessibilityIdentifier(accessibilityIdentifier)
             }
         }
         .padding(EdgeInsets(
-            top: 12,
+            top: 8,
             leading: UIMetrics.contentLayoutMargins.leading,
-            bottom: 12,
+            bottom: 8,
             trailing: UIMetrics.contentLayoutMargins.trailing
         ))
-        .frame(minHeight: UIMetrics.TableView.rowHeight, maxHeight: .infinity)
         .background(Color.MullvadList.background)
     }
 }
@@ -98,13 +99,16 @@ struct MullvadListActionItemView<Icon: View>: View {
                         accessibilityIdentifier: nil,
                         pressed: nil
                     ),
-                ]
-            ) { item in
-                MullvadListActionItemView(item: item) {
-                    if item.pressed != nil {
-                        Image.mullvadIconClose
+                ],
+                header: { EmptyView() },
+                footer: { EmptyView() },
+                content: { item in
+                    MullvadListActionItemView(item: item) {
+                        if item.pressed != nil {
+                            Image.mullvadIconClose
+                        }
                     }
                 }
-            }
+            )
         }
 }

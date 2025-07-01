@@ -94,8 +94,6 @@ enum UIMetrics {
             bottom: 8,
             trailing: 16
         )
-        static let apiAccessCellHeight: CGFloat = 44
-        static let customListsCellHeight: CGFloat = 44
         static let apiAccessSwitchCellTrailingMargin: CGFloat = apiAccessInsetLayoutMargins.trailing - 4
         static let apiAccessPickerListContentInsetTop: CGFloat = 16
         static let verticalDividerHeight: CGFloat = 22
@@ -108,7 +106,6 @@ enum UIMetrics {
     }
 
     enum SettingsRowView {
-        static let height: CGFloat = 44
         static let cornerRadius: CGFloat = 10
         static let layoutMargins = EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
         static let footerLayoutMargins = EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16)

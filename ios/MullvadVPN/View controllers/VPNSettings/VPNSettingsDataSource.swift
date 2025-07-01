@@ -423,7 +423,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             configureQuantumResistanceHeader(view)
             return view
         default:
-            return nil
+            return UIView()
         }
     }
 
@@ -443,7 +443,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .localNetworkSharing: return .leastNonzeroMagnitude
         #endif
         default:
-            return tableView.estimatedRowHeight
+            return UITableView.automaticDimension
         }
     }
 
@@ -451,8 +451,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         return switch sectionIdentifier {
-        // 0 due to there already being a separator between .dnsSettings and .ipOverrides.
-        case .dnsSettings: 0
         case .ipOverrides, .quantumResistance: UITableView.automaticDimension
         #if DEBUG
         case .localNetworkSharing: UITableView.automaticDimension

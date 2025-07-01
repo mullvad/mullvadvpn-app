@@ -30,7 +30,8 @@ class RelayFilterViewController: UIViewController {
         let label = UILabel()
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .mullvadSmall
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .secondaryTextColor
         label.textAlignment = .center
         return label
