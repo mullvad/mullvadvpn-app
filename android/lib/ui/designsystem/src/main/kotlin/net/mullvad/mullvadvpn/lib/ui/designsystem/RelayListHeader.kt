@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
+private val LIST_HEADER_MIN_HEIGHT = 48.dp
+
 @Composable
 fun RelayListHeader(
     content: @Composable () -> Unit,
@@ -35,7 +37,7 @@ fun RelayListHeader(
         Row(
             modifier =
                 Modifier.padding(horizontal = Dimens.tinyPadding)
-                    .defaultMinSize(minHeight = 48.dp)
+                    .defaultMinSize(minHeight = LIST_HEADER_MIN_HEIGHT)
                     .height(IntrinsicSize.Min)
                     .then(modifier),
             verticalAlignment = Alignment.CenterVertically,
@@ -53,7 +55,6 @@ fun RelayListHeader(
 @Preview(backgroundColor = 0xFF192E45, showBackground = true)
 @Composable
 fun PreviewRelayListHeader() {
-
     AppTheme {
         Column {
             RelayListHeader(content = { Text("Header") })

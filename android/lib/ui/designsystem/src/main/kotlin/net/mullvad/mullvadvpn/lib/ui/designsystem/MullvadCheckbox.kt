@@ -15,22 +15,6 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
 
-@Preview
-@Composable
-private fun PreviewMullvadCheckbox() {
-    AppTheme {
-        Column(
-            Modifier.background(color = MaterialTheme.colorScheme.background),
-            verticalArrangement = Arrangement.spacedBy(Dimens.smallSpacer),
-        ) {
-            MullvadCheckbox(checked = false, null)
-            MullvadCheckbox(checked = true, null)
-            MullvadCheckbox(checked = false, null, enabled = false)
-            MullvadCheckbox(checked = true, null, enabled = false)
-        }
-    }
-}
-
 @Composable
 fun MullvadCheckbox(
     checked: Boolean,
@@ -53,4 +37,20 @@ fun MullvadCheckbox(
         colors = colors,
         interactionSource = interactionSource,
     )
+}
+
+@Preview
+@Composable
+private fun PreviewMullvadCheckbox() {
+    AppTheme {
+        Column(
+            Modifier.background(color = MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.spacedBy(Dimens.smallSpacer),
+        ) {
+            MullvadCheckbox(checked = false, null)
+            MullvadCheckbox(checked = true, null)
+            MullvadCheckbox(checked = false, null, enabled = false)
+            MullvadCheckbox(checked = true, null, enabled = false)
+        }
+    }
 }

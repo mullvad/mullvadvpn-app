@@ -112,6 +112,7 @@ fun RelayListItem(
     }
 }
 
+// Based of ListItem
 @Immutable
 class RelayListItemColors(
     val containerColor: Color,
@@ -123,10 +124,8 @@ class RelayListItemColors(
     val disabledLeadingIconColor: Color,
     val disabledTrailingIconColor: Color,
 ) {
-    /** The container color of this [ListItem] based on enabled state */
     internal fun containerColor(): Color = containerColor
 
-    /** The color of this [ListItem]'s headline text based on enabled state */
     @Stable
     internal fun headlineColor(enabled: Boolean, selected: Boolean): Color =
         when {
@@ -135,12 +134,10 @@ class RelayListItemColors(
             else -> headlineColor
         }
 
-    /** The color of this [ListItem]'s leading content based on enabled state */
     @Stable
     internal fun leadingIconColor(enabled: Boolean): Color =
         if (enabled) leadingIconColor else disabledLeadingIconColor
 
-    /** The color of this [ListItem]'s trailing content based on enabled state */
     @Stable
     internal fun trailingIconColor(enabled: Boolean): Color =
         if (enabled) trailingIconColor else disabledTrailingIconColor
