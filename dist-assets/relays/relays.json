@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"684ba11b-321b7\"",
+  "etag": "W/\"6863864b-31f90\"",
   "countries": [
     {
       "name": "Albania",
@@ -6426,7 +6426,7 @@
               "active": true,
               "owned": true,
               "provider": "31173",
-              "weight": 1,
+              "weight": 100,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "IJJe0TQtuQOyemL4IZn6oHEsMKSPqOuLfD5HoAWEPTY=",
@@ -6450,7 +6450,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": true,
               "provider": "31173",
               "weight": 1,
@@ -6781,33 +6781,6 @@
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "s0i/bDeQ3xfMsLSrg6bILWunyytJNHVgIJlfflA8jFI=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "UK",
-                "country_code": "gb",
-                "city": "London",
-                "city_code": "lon",
-                "latitude": 51.514125,
-                "longitude": -0.093689
-              }
-            },
-            {
-              "hostname": "gb-lon-wg-303",
-              "ipv4_addr_in": "146.70.119.34",
-              "ipv6_addr_in": "2001:ac8:31:f006::a38f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": false,
-              "provider": "M247",
-              "weight": 40,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "ZcDVPTugbxo0rTvDKNnexzJ2qNrh3c/wFRtM2Pfl6jM=",
                   "daita": false,
                   "shadowsocks_extra_addr_in": []
                 }
@@ -7187,7 +7160,7 @@
               "active": true,
               "owned": false,
               "provider": "Veloxserv",
-              "weight": 100,
+              "weight": 200,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "x3APiw/mxJzdD+3WAPxTFnvOZHVotm6SGomHtMoR4Hg=",
@@ -7216,7 +7189,7 @@
               "active": true,
               "owned": false,
               "provider": "Veloxserv",
-              "weight": 100,
+              "weight": 200,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "OpQgffPufxbHQUbItRoezS2V+yAEBKZ10jfU82YIByI=",
@@ -8376,7 +8349,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "xtom",
               "weight": 100,
@@ -12191,33 +12164,6 @@
               }
             },
             {
-              "hostname": "se-sto-wg-014",
-              "ipv4_addr_in": "185.195.233.68",
-              "ipv6_addr_in": "2a03:1b20:4:f011::fd01",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": true,
-              "provider": "31173",
-              "weight": 100,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "DYlwUsH63DLjEfKC9yq7P+FoQx99WdKvZGGhXoUZVgk=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "Sweden",
-                "country_code": "se",
-                "city": "Stockholm",
-                "city_code": "sto",
-                "latitude": 59.3289,
-                "longitude": 18.0649
-              }
-            },
-            {
               "hostname": "se-sto-wg-201",
               "ipv4_addr_in": "89.37.63.10",
               "ipv6_addr_in": "2a02:6ea0:1508:1::f001",
@@ -15962,7 +15908,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "DataPacket",
               "weight": 100,
@@ -18464,7 +18410,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "Tzulo",
               "weight": 100,
@@ -19593,7 +19539,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "Tzulo",
               "weight": 100,
