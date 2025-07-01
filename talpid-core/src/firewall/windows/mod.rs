@@ -135,8 +135,8 @@ impl Firewall {
                 self.set_connecting_state(
                     &peer_endpoint,
                     cfg,
-                    &tunnel,
-                    &WinFwAllowedEndpointContainer::from(allowed_endpoint).as_endpoint(),
+                    tunnel.as_ref(),
+                    allowed_endpoint,
                     &allowed_tunnel_traffic,
                 )
             }
@@ -187,112 +187,22 @@ impl Firewall {
 
     fn set_connecting_state(
         &mut self,
-        endpoint: &AllowedEndpoint,
+        peer_endpoint: &AllowedEndpoint,
         winfw_settings: &WinFwSettings,
-        tunnel_metadata: &Option<TunnelMetadata>,
-        allowed_endpoint: &WinFwAllowedEndpoint<'_>,
+        tunnel_metadata: Option<&TunnelMetadata>,
+        allowed_endpoint: AllowedEndpoint,
         allowed_tunnel_traffic: &AllowedTunnelTraffic,
     ) -> Result<(), Error> {
         log::trace!("Applying 'connecting' firewall policy");
-        let ip_str = widestring_ip(endpoint.endpoint.address.ip());
-        let winfw_relay = WinFwEndpoint {
-            ip: ip_str.as_ptr(),
-            port: endpoint.endpoint.address.port(),
-            protocol: WinFwProt::from(endpoint.endpoint.protocol),
-        };
-
-        // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1`, `endpoint2`, `relay_client_wstrs`
-        // must not be dropped until `WinFw_ApplyPolicyConnecting` has returned.
-
-        let relay_client_wstrs: Vec<_> = endpoint
-            .clients
-            .iter()
-            .map(WideCString::from_os_str_truncate)
-            .collect();
-        let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs
-            .iter()
-            .map(|wstr| wstr.as_ptr())
-            .collect();
-        let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
-
-        let interface_wstr = tunnel_metadata
-            .as_ref()
-            .map(|metadata| WideCString::from_str_truncate(&metadata.interface));
-        let interface_wstr_ptr = if let Some(ref wstr) = interface_wstr {
-            wstr.as_ptr()
-        } else {
-            ptr::null()
-        };
-
-        let mut endpoint1_ip = WideCString::new();
-        let mut endpoint2_ip = WideCString::new();
-        let (endpoint1, endpoint2) = match allowed_tunnel_traffic {
-            AllowedTunnelTraffic::One(endpoint) => {
-                endpoint1_ip = widestring_ip(endpoint.address.ip());
-                (
-                    Some(WinFwEndpoint {
-                        ip: endpoint1_ip.as_ptr(),
-                        port: endpoint.address.port(),
-                        protocol: WinFwProt::from(endpoint.protocol),
-                    }),
-                    None,
-                )
-            }
-            AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
-                endpoint1_ip = widestring_ip(endpoint1.address.ip());
-                let endpoint1 = Some(WinFwEndpoint {
-                    ip: endpoint1_ip.as_ptr(),
-                    port: endpoint1.address.port(),
-                    protocol: WinFwProt::from(endpoint1.protocol),
-                });
-                endpoint2_ip = widestring_ip(endpoint2.address.ip());
-                let endpoint2 = Some(WinFwEndpoint {
-                    ip: endpoint2_ip.as_ptr(),
-                    port: endpoint2.address.port(),
-                    protocol: WinFwProt::from(endpoint2.protocol),
-                });
-                (endpoint1, endpoint2)
-            }
-            AllowedTunnelTraffic::None | AllowedTunnelTraffic::All => (None, None),
-        };
-
-        let allowed_tunnel_traffic = WinFwAllowedTunnelTraffic {
-            type_: WinFwAllowedTunnelTrafficType::from(allowed_tunnel_traffic),
-            endpoint1: endpoint1
-                .as_ref()
-                .map(|ep| ep as *const _)
-                .unwrap_or(ptr::null()),
-            endpoint2: endpoint2
-                .as_ref()
-                .map(|ep| ep as *const _)
-                .unwrap_or(ptr::null()),
-        };
-
-        #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
-        let res = unsafe {
-            WinFw_ApplyPolicyConnecting(
-                winfw_settings,
-                &winfw_relay,
-                relay_client_wstr_ptrs.as_ptr(),
-                relay_client_wstr_ptrs_len,
-                interface_wstr_ptr,
-                allowed_endpoint,
-                &allowed_tunnel_traffic,
-            )
-            .into_result()
-            .map_err(Error::ApplyingConnectingPolicy)
-        };
-        // SAFETY: All of these hold stack allocated memory which is pointed to by
-        // `allowed_tunnel_traffic` and must remain allocated until `WinFw_ApplyPolicyConnecting`
-        // has returned.
-        drop(endpoint1_ip);
-        drop(endpoint2_ip);
-        #[allow(clippy::drop_non_drop)]
-        drop(endpoint1);
-        #[allow(clippy::drop_non_drop)]
-        drop(endpoint2);
-        drop(relay_client_wstrs);
-        res
+        let tunnel_interface = tunnel_metadata.map(|metadata| metadata.interface.as_ref());
+        winfw::apply_policy_connecting(
+            peer_endpoint,
+            winfw_settings,
+            tunnel_interface,
+            allowed_endpoint,
+            allowed_tunnel_traffic,
+        )
+        .map_err(Error::ApplyingConnectingPolicy)
     }
 
     fn set_connected_state(
@@ -303,70 +213,9 @@ impl Firewall {
         dns_config: &ResolvedDnsConfig,
     ) -> Result<(), Error> {
         log::trace!("Applying 'connected' firewall policy");
-        let ip_str = widestring_ip(endpoint.endpoint.address.ip());
-
-        let tunnel_alias = WideCString::from_str_truncate(&tunnel_metadata.interface);
-
-        // ip_str, gateway_str and tunnel_alias have to outlive winfw_relay
-        let winfw_relay = WinFwEndpoint {
-            ip: ip_str.as_ptr(),
-            port: endpoint.endpoint.address.port(),
-            protocol: WinFwProt::from(endpoint.endpoint.protocol),
-        };
-
-        // SAFETY: `relay_client_wstrs` must not be dropped until `WinFw_ApplyPolicyConnected` has
-        // returned.
-        let relay_client_wstrs: Vec<_> = endpoint
-            .clients
-            .iter()
-            .map(WideCString::from_os_str_truncate)
-            .collect();
-        let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs
-            .iter()
-            .map(|wstr| wstr.as_ptr())
-            .collect();
-        let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
-
-        let tunnel_dns_servers: Vec<WideCString> = dns_config
-            .tunnel_config()
-            .iter()
-            .cloned()
-            .map(widestring_ip)
-            .collect();
-        let tunnel_dns_servers: Vec<*const u16> =
-            tunnel_dns_servers.iter().map(|ip| ip.as_ptr()).collect();
-        let non_tunnel_dns_servers: Vec<WideCString> = dns_config
-            .non_tunnel_config()
-            .iter()
-            .cloned()
-            .map(widestring_ip)
-            .collect();
-        let non_tunnel_dns_servers: Vec<*const u16> = non_tunnel_dns_servers
-            .iter()
-            .map(|ip| ip.as_ptr())
-            .collect();
-
-        #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
-        let result = unsafe {
-            WinFw_ApplyPolicyConnected(
-                winfw_settings,
-                &winfw_relay,
-                relay_client_wstr_ptrs.as_ptr(),
-                relay_client_wstr_ptrs_len,
-                tunnel_alias.as_ptr(),
-                tunnel_dns_servers.as_ptr(),
-                tunnel_dns_servers.len(),
-                non_tunnel_dns_servers.as_ptr(),
-                non_tunnel_dns_servers.len(),
-            )
-            .into_result()
+        let tunnel_interface = &tunnel_metadata.interface;
+        winfw::apply_policy_connected(endpoint, winfw_settings, tunnel_interface, dns_config)
             .map_err(Error::ApplyingConnectedPolicy)
-        };
-
-        // SAFETY: `relay_client_wstrs` holds memory pointed to by pointers used in C++ and must
-        // not be dropped until after `WinFw_ApplyPolicyConnected` has returned.
-        drop(relay_client_wstrs);
-        result
     }
 
     fn set_blocked_state(
@@ -502,7 +351,10 @@ mod winfw {
     use super::{
         multibyte_to_wide, widestring_ip, AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString,
     };
-    use std::ffi::{c_char, c_void, CStr};
+    use std::{
+        ffi::{c_char, c_void, CStr},
+        ptr,
+    };
     use talpid_types::{net::TransportProtocol, tunnel::FirewallPolicyError};
     use windows_sys::Win32::Globalization::CP_ACP;
 
@@ -589,11 +441,190 @@ mod winfw {
             .as_ref()
             .map(WinFwAllowedEndpointContainer::as_endpoint)
             .as_ref()
-            .map(std::ptr::from_ref)
-            .unwrap_or(std::ptr::null());
+            .map(ptr::from_ref)
+            .unwrap_or(ptr::null());
         // SAFETY: This function is always safe to call
         let application = unsafe { WinFw_ApplyPolicyBlocked(winfw_settings, allowed_endpoint) };
         application.into_result()
+    }
+
+    pub(super) fn apply_policy_connecting(
+        peer_endpoint: &AllowedEndpoint,
+        winfw_settings: &WinFwSettings,
+        tunnel_interface: Option<&str>,
+        allowed_endpoint: AllowedEndpoint,
+        allowed_tunnel_traffic: &AllowedTunnelTraffic,
+    ) -> Result<(), FirewallPolicyError> {
+        let ip_str = widestring_ip(peer_endpoint.endpoint.address.ip());
+        let winfw_relay = WinFwEndpoint {
+            ip: ip_str.as_ptr(),
+            port: peer_endpoint.endpoint.address.port(),
+            protocol: WinFwProt::from(peer_endpoint.endpoint.protocol),
+        };
+
+        // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1`, `endpoint2`, `relay_client_wstrs`
+        // must not be dropped until `WinFw_ApplyPolicyConnecting` has returned.
+
+        let relay_client_wstrs: Vec<_> = peer_endpoint
+            .clients
+            .iter()
+            .map(WideCString::from_os_str_truncate)
+            .collect();
+        let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs
+            .iter()
+            .map(|wstr| wstr.as_ptr())
+            .collect();
+        let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
+
+        let interface_wstr = tunnel_interface
+            .as_ref()
+            .map(WideCString::from_str_truncate);
+        let interface_wstr_ptr = if let Some(ref wstr) = interface_wstr {
+            wstr.as_ptr()
+        } else {
+            ptr::null()
+        };
+
+        let mut endpoint1_ip = WideCString::new();
+        let mut endpoint2_ip = WideCString::new();
+        let (endpoint1, endpoint2) = match allowed_tunnel_traffic {
+            AllowedTunnelTraffic::One(endpoint) => {
+                endpoint1_ip = widestring_ip(endpoint.address.ip());
+                (
+                    Some(WinFwEndpoint {
+                        ip: endpoint1_ip.as_ptr(),
+                        port: endpoint.address.port(),
+                        protocol: WinFwProt::from(endpoint.protocol),
+                    }),
+                    None,
+                )
+            }
+            AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
+                endpoint1_ip = widestring_ip(endpoint1.address.ip());
+                let endpoint1 = Some(WinFwEndpoint {
+                    ip: endpoint1_ip.as_ptr(),
+                    port: endpoint1.address.port(),
+                    protocol: WinFwProt::from(endpoint1.protocol),
+                });
+                endpoint2_ip = widestring_ip(endpoint2.address.ip());
+                let endpoint2 = Some(WinFwEndpoint {
+                    ip: endpoint2_ip.as_ptr(),
+                    port: endpoint2.address.port(),
+                    protocol: WinFwProt::from(endpoint2.protocol),
+                });
+                (endpoint1, endpoint2)
+            }
+            AllowedTunnelTraffic::None | AllowedTunnelTraffic::All => (None, None),
+        };
+
+        let allowed_endpoint = WinFwAllowedEndpointContainer::from(allowed_endpoint);
+        let allowed_endpoint = allowed_endpoint.as_endpoint();
+
+        let allowed_tunnel_traffic = WinFwAllowedTunnelTraffic {
+            type_: WinFwAllowedTunnelTrafficType::from(allowed_tunnel_traffic),
+            endpoint1: endpoint1
+                .as_ref()
+                .map(|ep| ep as *const _)
+                .unwrap_or(ptr::null()),
+            endpoint2: endpoint2
+                .as_ref()
+                .map(|ep| ep as *const _)
+                .unwrap_or(ptr::null()),
+        };
+
+        #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+        let res = unsafe {
+            WinFw_ApplyPolicyConnecting(
+                winfw_settings,
+                &winfw_relay,
+                relay_client_wstr_ptrs.as_ptr(),
+                relay_client_wstr_ptrs_len,
+                interface_wstr_ptr,
+                &allowed_endpoint,
+                &allowed_tunnel_traffic,
+            )
+        };
+        // SAFETY: All of these hold stack allocated memory which is pointed to by
+        // `allowed_tunnel_traffic` and must remain allocated until `WinFw_ApplyPolicyConnecting`
+        // has returned.
+        drop(endpoint1_ip);
+        drop(endpoint2_ip);
+        #[allow(clippy::drop_non_drop)]
+        drop(endpoint1);
+        #[allow(clippy::drop_non_drop)]
+        drop(endpoint2);
+        drop(relay_client_wstrs);
+        res.into_result()
+    }
+
+    pub(super) fn apply_policy_connected(
+        endpoint: &AllowedEndpoint,
+        winfw_settings: &WinFwSettings,
+        tunnel_interface: &str,
+        dns_config: &crate::dns::ResolvedDnsConfig,
+    ) -> Result<(), FirewallPolicyError> {
+        let ip_str = widestring_ip(endpoint.endpoint.address.ip());
+
+        let tunnel_alias = WideCString::from_str_truncate(tunnel_interface);
+
+        // ip_str, gateway_str and tunnel_alias have to outlive winfw_relay
+        let winfw_relay = WinFwEndpoint {
+            ip: ip_str.as_ptr(),
+            port: endpoint.endpoint.address.port(),
+            protocol: WinFwProt::from(endpoint.endpoint.protocol),
+        };
+
+        // SAFETY: `relay_client_wstrs` must not be dropped until `WinFw_ApplyPolicyConnected` has
+        // returned.
+        let relay_client_wstrs: Vec<_> = endpoint
+            .clients
+            .iter()
+            .map(WideCString::from_os_str_truncate)
+            .collect();
+        let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs
+            .iter()
+            .map(|wstr| wstr.as_ptr())
+            .collect();
+        let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
+
+        let tunnel_dns_servers: Vec<WideCString> = dns_config
+            .tunnel_config()
+            .iter()
+            .cloned()
+            .map(widestring_ip)
+            .collect();
+        let tunnel_dns_servers: Vec<*const u16> =
+            tunnel_dns_servers.iter().map(|ip| ip.as_ptr()).collect();
+        let non_tunnel_dns_servers: Vec<WideCString> = dns_config
+            .non_tunnel_config()
+            .iter()
+            .cloned()
+            .map(widestring_ip)
+            .collect();
+        let non_tunnel_dns_servers: Vec<*const u16> = non_tunnel_dns_servers
+            .iter()
+            .map(|ip| ip.as_ptr())
+            .collect();
+
+        #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+        let result = unsafe {
+            WinFw_ApplyPolicyConnected(
+                winfw_settings,
+                &winfw_relay,
+                relay_client_wstr_ptrs.as_ptr(),
+                relay_client_wstr_ptrs_len,
+                tunnel_alias.as_ptr(),
+                tunnel_dns_servers.as_ptr(),
+                tunnel_dns_servers.len(),
+                non_tunnel_dns_servers.as_ptr(),
+                non_tunnel_dns_servers.len(),
+            )
+        };
+
+        // SAFETY: `relay_client_wstrs` holds memory pointed to by pointers used in C++ and must
+        // not be dropped until after `WinFw_ApplyPolicyConnected` has returned.
+        drop(relay_client_wstrs);
+        result.into_result()
     }
 
     /// Logging callback implementation.
