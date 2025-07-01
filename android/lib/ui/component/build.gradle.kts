@@ -31,6 +31,12 @@ android {
 }
 
 dependencies {
+    implementation(projects.lib.model)
+    implementation(projects.lib.resource)
+    implementation(projects.lib.theme)
+    implementation(projects.lib.ui.tag)
+    implementation(projects.lib.ui.designsystem)
+
     implementation(libs.compose.material3)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling)
@@ -39,10 +45,4 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.compose.icons.extended)
     implementation(libs.androidx.ktx)
-
-    implementation(projects.lib.model)
-    implementation(projects.lib.resource)
-    implementation(projects.lib.theme)
-    implementation(projects.lib.ui.tag)
-    implementation(projects.lib.ui.designsystem)
 }
