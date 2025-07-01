@@ -375,21 +375,8 @@ impl Firewall {
         allowed_endpoint: Option<WinFwAllowedEndpointContainer>,
     ) -> Result<(), Error> {
         log::trace!("Applying 'blocked' firewall policy");
-        let endpoint = allowed_endpoint
-            .as_ref()
-            .map(WinFwAllowedEndpointContainer::as_endpoint);
-
-        unsafe {
-            WinFw_ApplyPolicyBlocked(
-                winfw_settings,
-                endpoint
-                    .as_ref()
-                    .map(|container| container as *const _)
-                    .unwrap_or(ptr::null()),
-            )
-            .into_result()
+        winfw::apply_policy_blocked(winfw_settings, allowed_endpoint)
             .map_err(Error::ApplyingBlockedPolicy)
-        }
     }
 }
 
@@ -587,6 +574,26 @@ mod winfw {
         // initialized and after WinFW has been deinitialized.
         let reset = unsafe { WinFw_Reset() };
         reset.into_result()
+    }
+
+    /// Apply blocking firewall rules Sets the underlying active policy to Blocked. Exceptions
+    /// permitted through the firewall is defined by `winfw_settings` and `allowed_endpoint`. See
+    /// the BlockAll class for more information.
+    ///
+    /// Returns an error if [winfw] is not initialized.
+    pub(super) fn apply_policy_blocked(
+        winfw_settings: &WinFwSettings,
+        allowed_endpoint: Option<WinFwAllowedEndpointContainer>,
+    ) -> Result<(), FirewallPolicyError> {
+        let allowed_endpoint = allowed_endpoint
+            .as_ref()
+            .map(WinFwAllowedEndpointContainer::as_endpoint)
+            .as_ref()
+            .map(std::ptr::from_ref)
+            .unwrap_or(std::ptr::null());
+        // SAFETY: This function is always safe to call
+        let application = unsafe { WinFw_ApplyPolicyBlocked(winfw_settings, allowed_endpoint) };
+        application.into_result()
     }
 
     /// Logging callback implementation.
