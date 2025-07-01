@@ -1,8 +1,5 @@
-package net.mullvad.mullvadvpn.compose.preview
+package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
-import net.mullvad.mullvadvpn.compose.state.ItemPosition
-import net.mullvad.mullvadvpn.compose.state.RelayListItem
-import net.mullvad.mullvadvpn.compose.state.RelayListItemState
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName

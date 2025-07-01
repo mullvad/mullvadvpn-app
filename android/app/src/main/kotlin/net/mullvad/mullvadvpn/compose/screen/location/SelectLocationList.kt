@@ -25,13 +25,13 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
-import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
 import org.koin.androidx.compose.koinViewModel

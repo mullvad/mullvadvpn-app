@@ -1,5 +1,6 @@
-package net.mullvad.mullvadvpn.compose.cell
+package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
@@ -19,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -26,20 +29,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.ExpandChevron
-import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
-import net.mullvad.mullvadvpn.compose.preview.RelayItemCheckableCellPreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.screen.location.clip
-import net.mullvad.mullvadvpn.compose.state.ItemPosition
-import net.mullvad.mullvadvpn.compose.state.RelayListItemState
+import androidx.compose.ui.unit.times
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
+import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCheckbox
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
@@ -70,10 +69,7 @@ private fun PreviewCheckableRelayLocationCell(
 
 @Composable
 fun StatusRelayItemCell(
-    item: RelayItem,
-    isSelected: Boolean,
-    state: RelayListItemState?,
-    itemPosition: ItemPosition,
+    relayListItem: RelayListItem.SelectableItem,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
@@ -86,8 +82,8 @@ fun StatusRelayItemCell(
     val inactiveColor = MaterialTheme.colorScheme.error
     val disabledColor = MaterialTheme.colorScheme.onSurfaceVariant
     RelayListItem(
-        modifier = modifier.clip(itemPosition),
-        selected = isSelected,
+        modifier = modifier.clip(itemPosition = relayListItem.itemPosition),
+        selected = relayListItem.isSelected,
         content = {
             Row(
                 modifier =
@@ -96,13 +92,13 @@ fun StatusRelayItemCell(
                         .padding(Dimens.mediumPadding),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (isSelected) {
+                if (relayListItem.isSelected) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
                         modifier = Modifier.padding(end = Dimens.smallPadding),
                     )
-                } else if (!item.active) {
+                } else if (!relayListItem.item.active) {
                     // TODO Fix design of this
                     Box(
                         modifier =
@@ -112,11 +108,11 @@ fun StatusRelayItemCell(
                                 .background(
                                     color =
                                         when {
-                                            item is RelayItem.CustomList &&
-                                                item.locations.isEmpty() -> disabledColor
+                                            relayListItem.item is RelayItem.CustomList &&
+                                                !relayListItem.item.hasChildren -> disabledColor
 
-                                            state != null -> disabledColor
-                                            item.active -> activeColor
+                                            relayListItem.state != null -> disabledColor
+                                            relayListItem.item.active -> activeColor
                                             else -> inactiveColor
                                         },
                                     shape = CircleShape,
@@ -124,13 +120,17 @@ fun StatusRelayItemCell(
                     )
                 }
 
-                Name(name = item.name, state = state, active = item.active)
+                Name(
+                    name = relayListItem.item.name,
+                    state = relayListItem.state,
+                    active = relayListItem.item.active,
+                )
             }
         },
         onClick = onClick,
         onLongClick = onLongClick,
         trailingContent =
-            if (item.hasChildren) {
+            if (relayListItem.item.hasChildren) {
                 {
                     ExpandChevron(
                         color = MaterialTheme.colorScheme.onSurface,
@@ -231,4 +231,27 @@ private fun String.withSuffix(state: RelayListItemState) =
     when (state) {
         RelayListItemState.USED_AS_EXIT -> stringResource(R.string.x_exit, this)
         RelayListItemState.USED_AS_ENTRY -> stringResource(R.string.x_entry, this)
+//        RelayListItemState.USED_AS_EXIT -> this
+//        RelayListItemState.USED_AS_ENTRY -> this
     }
+
+@Composable
+fun Modifier.clip(itemPosition: ItemPosition): Modifier =
+    clip(
+        with(MaterialTheme.shapes.large) {
+            val topCornerSize =
+                animateDpAsState(
+                    if (itemPosition.roundTop()) Dimens.relayItemCornerRadius else 0.dp
+                )
+            val bottomCornerSize =
+                animateDpAsState(
+                    if (itemPosition.roundBottom()) Dimens.relayItemCornerRadius else 0.dp
+                )
+            copy(
+                topStart = CornerSize(topCornerSize.value),
+                topEnd = CornerSize(topCornerSize.value),
+                bottomStart = CornerSize(bottomCornerSize.value),
+                bottomEnd = CornerSize(bottomCornerSize.value),
+            )
+        }
+    )

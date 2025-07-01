@@ -83,7 +83,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
-import net.mullvad.mullvadvpn.compose.component.ExpandChevron
+import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName

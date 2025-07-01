@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.lib.ui.component
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
@@ -16,7 +16,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import net.mullvad.mullvadvpn.R
 
 @Composable
 @Preview

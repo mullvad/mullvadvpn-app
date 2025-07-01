@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.generateRelayItemCountry
 
 class RelayItemStatusCellPreviewParameterProvider :
     PreviewParameterProvider<List<RelayItem.Location.Country>> {

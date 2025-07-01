@@ -21,10 +21,10 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.compose.state.ItemPosition
 import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.relaylist.ancestors
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch

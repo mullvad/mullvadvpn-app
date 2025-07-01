@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.state
+package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -30,18 +30,20 @@ sealed interface RelayListItem {
     }
 
     sealed interface SelectableItem : RelayListItem {
+        val item: RelayItem
         val depth: Int
         val isSelected: Boolean
         val expanded: Boolean
         val state: RelayListItemState?
+        val itemPosition: ItemPosition
     }
 
     data class CustomListItem(
-        val item: RelayItem.CustomList,
+        override val item: RelayItem.CustomList,
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
-        val itemPosition: ItemPosition = ItemPosition.Single,
+        override val itemPosition: ItemPosition = ItemPosition.Single,
     ) : SelectableItem {
         override val key = item.id
         override val depth: Int = 0
@@ -51,11 +53,11 @@ sealed interface RelayListItem {
     data class CustomListEntryItem(
         val parentId: CustomListId,
         val parentName: CustomListName,
-        val item: RelayItem.Location,
+        override val item: RelayItem.Location,
         override val expanded: Boolean,
         override val depth: Int = 0,
         override val state: RelayListItemState? = null,
-        val itemPosition: ItemPosition,
+        override val itemPosition: ItemPosition,
     ) : SelectableItem {
         override val key = parentId to item.id
 
@@ -75,12 +77,12 @@ sealed interface RelayListItem {
     }
 
     data class GeoLocationItem(
-        val item: RelayItem.Location,
+        override val item: RelayItem.Location,
         override val isSelected: Boolean = false,
         override val depth: Int = 0,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
-        val itemPosition: ItemPosition,
+        override val itemPosition: ItemPosition,
     ) : SelectableItem {
         override val key = item.id
         override val contentType = RelayListItemContentType.LOCATION_ITEM

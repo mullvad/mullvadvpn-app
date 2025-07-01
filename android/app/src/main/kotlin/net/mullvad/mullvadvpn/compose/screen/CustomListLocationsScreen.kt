@@ -32,7 +32,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.CheckableRelayLocationCell
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayLocationCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
@@ -45,7 +45,6 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.CustomListLocationUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.screen.location.clip
 import net.mullvad.mullvadvpn.compose.screen.location.positionalPadding
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
@@ -58,6 +57,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.clip
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect

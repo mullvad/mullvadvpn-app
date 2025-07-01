@@ -1,14 +1,14 @@
 package net.mullvad.mullvadvpn.viewmodel.location
 
-import net.mullvad.mullvadvpn.compose.state.ItemPosition
-import net.mullvad.mullvadvpn.compose.state.RelayListItem
-import net.mullvad.mullvadvpn.compose.state.RelayListItemState
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemState
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 
 // Creates a relay list to be displayed by RelayListContent

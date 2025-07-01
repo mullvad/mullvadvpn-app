@@ -23,19 +23,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.StatusRelayItemCell
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.StatusRelayItemCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsEntryBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowEditCustomListBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowLocationBottomSheet
-import net.mullvad.mullvadvpn.compose.state.ItemPosition
-import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeader
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
@@ -130,10 +130,7 @@ private fun RelayLocationItem(
     modifier: Modifier = Modifier,
 ) {
     StatusRelayItemCell(
-        item = relayItem.item,
-        state = relayItem.state,
-        itemPosition = relayItem.itemPosition,
-        isSelected = relayItem.isSelected,
+        relayListItem = relayItem,
         onClick = { onSelectRelay() },
         onLongClick = { onLongClick() },
         onToggleExpand = { onExpand(it) },
@@ -144,27 +141,6 @@ private fun RelayLocationItem(
 }
 
 @Composable
-fun Modifier.clip(itemPosition: ItemPosition): Modifier =
-    clip(
-        with(MaterialTheme.shapes.large) {
-            val topCornerSize =
-                animateDpAsState(
-                    if (itemPosition.roundTop()) Dimens.relayItemCornerRadius else 0.dp
-                )
-            val bottomCornerSize =
-                animateDpAsState(
-                    if (itemPosition.roundBottom()) Dimens.relayItemCornerRadius else 0.dp
-                )
-            copy(
-                topStart = CornerSize(topCornerSize.value),
-                topEnd = CornerSize(topCornerSize.value),
-                bottomStart = CornerSize(bottomCornerSize.value),
-                bottomEnd = CornerSize(bottomCornerSize.value),
-            )
-        }
-    )
-
-@Composable
 private fun CustomListEntryItem(
     itemState: RelayListItem.CustomListEntryItem,
     onSelectRelay: () -> Unit,
@@ -172,12 +148,8 @@ private fun CustomListEntryItem(
     onToggleExpand: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val customListEntryItem = itemState.item
     StatusRelayItemCell(
-        item = customListEntryItem,
-        state = itemState.state,
-        itemPosition = itemState.itemPosition,
-        isSelected = false,
+        relayListItem = itemState,
         onClick = onSelectRelay,
         onLongClick = onShowEditCustomListEntryBottomSheet,
         onToggleExpand = onToggleExpand,
@@ -197,10 +169,7 @@ private fun CustomListItem(
 ) {
     val customListItem = itemState.item
     StatusRelayItemCell(
-        item = customListItem,
-        state = itemState.state,
-        itemPosition = itemState.itemPosition,
-        isSelected = itemState.isSelected,
+        relayListItem = itemState,
         onClick = { onSelectRelay(customListItem) },
         onLongClick = { onShowEditBottomSheet(customListItem) },
         onToggleExpand = { onExpand(customListItem.id, it) },
