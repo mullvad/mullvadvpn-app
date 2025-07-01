@@ -164,6 +164,7 @@ async fn reset_firewall() -> Result<(), Error> {
         return Err(Error::DaemonIsRunning);
     }
 
+    // FIXME: When this is dropped, `WinFwCleanupPolicy::ContinueBlocking` will be applied !!!
     Firewall::new(
         #[cfg(target_os = "linux")]
         mullvad_types::TUNNEL_FWMARK,

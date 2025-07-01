@@ -205,6 +205,44 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 		}
 	}
 
+	if (WINFW_CLEANUP_POLICY_BLOCK_UNTIL_REBOOT == cleanupPolicy
+		&& FwContext::Policy::Blocked == activePolicy)
+	{
+		// Simply do nothing. As long as we are blocking, make sure to not invoke
+		// ObjectPurger.
+		/*
+		try
+		{
+			auto engine = wfp::FilterEngine::StandardSession(DEINITIALIZE_TIMEOUT);
+			auto sessionController = std::make_unique<SessionController>(std::move(engine));
+
+			rules::persistent::BlockAll blockAll;
+
+			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
+			{
+				ObjectPurger::GetRemoveNonPersistentFunctor()(engine);
+
+				return controller.addProvider(*MullvadObjects::Provider())
+					&& controller.addSublayer(*MullvadObjects::SublayerBaseline())
+					&& controller.addSublayer(*MullvadObjects::SublayerDns())
+					&& blockAll.apply(controller);
+			});
+		}
+		catch (std::exception & err)
+		{
+			if (nullptr != g_logSink)
+			{
+				g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
+			}
+			return false;
+		}
+		catch (...)
+		{
+			return false;
+		}
+*/
+	}
+
 	return WINFW_POLICY_STATUS_SUCCESS == WinFw_Reset();
 }
 
