@@ -1217,6 +1217,23 @@ impl ManagementService for ManagementServiceImpl {
             Box::new(upgrade_event_stream) as Self::AppUpgradeEventsListenStream
         ))
     }
+
+    async fn get_app_upgrade_cache_dir(&self, _: Request<()>) -> ServiceResult<String> {
+        log::debug!("get_app_upgrade_cache_dir");
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetAppUpgradeCacheDir(tx))?;
+
+        let path = self
+            .wait_for_result(rx)
+            .await?
+            .map_err(map_version_check_error)?;
+
+        path.into_os_string()
+            .into_string()
+            .map_err(|_| Status::internal("Failed to convert OsString to String"))
+            .map(Response::new)
+    }
 }
 
 impl ManagementServiceImpl {

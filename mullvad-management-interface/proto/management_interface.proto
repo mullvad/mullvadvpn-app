@@ -140,6 +140,7 @@ service ManagementService {
   rpc AppUpgrade(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc AppUpgradeAbort(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc AppUpgradeEventsListen(google.protobuf.Empty) returns (stream AppUpgradeEvent) {}
+  rpc GetAppUpgradeCacheDir(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
 }
 
 message AppUpgradeEvent {
