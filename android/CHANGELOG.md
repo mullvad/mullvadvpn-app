@@ -27,6 +27,12 @@ Line wrap the file at 100 chars.                                              Th
   devices.
 
 
+## [android/2025.5] - 2025-07-02
+### Fixed
+- Fix bottom margins in Filter Screen and Lockdown Mode Screen.
+- Fix expiry date not always updating after a successful in app purchase.
+
+
 ## [android/2025.5-beta1] - 2025-06-17
 ### Added
 - Add the ability to purchase 90 days (3 months).
@@ -37,11 +43,11 @@ Line wrap the file at 100 chars.                                              Th
   uses a lot less CPU to compute the keypair, and the public key sent to the server
   is drastically smaller.
 - Update the UI and flow for adding time.
-- Change so that search no longer require at least 2 letters.
+- Change so that search no longer requires at least 2 letters.
 - Use AlarmManger to schedule account out of time notifications.
 
 ### Removed
-- Remove logging from Google in-app purchase component in an experimental and non-supported way.
+- Remove logging from the Google in-app purchase component in an experimental and non-supported way.
   Only affects our Google Play builds.
 
 ### Fixed
