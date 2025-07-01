@@ -80,7 +80,18 @@ const WINFW_TIMEOUT_SECONDS: u32 = 5;
 const LOGGING_CONTEXT: &[u8] = b"WinFw\0";
 
 /// The Windows implementation for the firewall.
-pub struct Firewall(());
+pub struct Firewall {
+    /// If firewall rules should even if firewall module is shut down or dies.
+    ///
+    /// This should only very cautiously be turned off.
+    persist: bool,
+}
+
+impl Default for Firewall {
+    fn default() -> Self {
+        Self { persist: true }
+    }
+}
 
 impl Firewall {
     pub fn from_args(args: FirewallArguments) -> Result<Self, Error> {
@@ -102,7 +113,7 @@ impl Firewall {
         };
 
         log::trace!("Successfully initialized windows firewall module");
-        Ok(Firewall(()))
+        Ok(Firewall::default())
     }
 
     fn initialize_blocked(
@@ -128,7 +139,7 @@ impl Firewall {
             consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
         });
 
-        Ok(Firewall(()))
+        Ok(Firewall::default())
     }
 
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Error> {
@@ -408,6 +419,7 @@ impl Firewall {
 
 impl Drop for Firewall {
     fn drop(&mut self) {
+        // TODO: If
         if unsafe {
             WinFw_Deinitialize(WinFwCleanupPolicy::ContinueBlocking)
                 .into_result()
@@ -689,6 +701,7 @@ mod winfw {
     pub enum WinFwCleanupPolicy {
         ContinueBlocking = 0,
         ResetFirewall = 1,
+        BlockingUntilReboot = 2,
     }
 
     ffi_error!(InitializationResult, Error::Initialization);
