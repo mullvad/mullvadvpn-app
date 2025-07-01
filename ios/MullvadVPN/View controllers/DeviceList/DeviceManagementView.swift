@@ -49,11 +49,14 @@ struct DeviceManagementView: View {
     let style: Style
     let onError: (String, Error) -> Void
 
-    @State private var loggedInDevices: [DeviceListView.Device] = []
+    @State private var loggedInDevices: [DeviceListView.Device]? = nil
     @State private var loading = true
 
     var canLoginNewDevice: Bool {
-        loggedInDevices.count < ApplicationConfiguration.maxAllowedDevices
+        guard let loggedInDevices else {
+            return false
+        }
+        return loggedInDevices.count < ApplicationConfiguration.maxAllowedDevices
     }
 
     var bodyText: LocalizedStringKey {
@@ -157,7 +160,10 @@ struct DeviceManagementView: View {
                             identifier: AccessibilityIdentifier.logOutDeviceConfirmButton,
                             handler: {
                                 await withCheckedContinuation { continuation in
-                                    loggedInDevices = loggedInDevices.map {
+                                    guard let loggedInDevices else {
+                                        return
+                                    }
+                                    self.loggedInDevices = loggedInDevices.map {
                                         $0.id == device.id ? $0.setIsBeingRemoved(true) : $0
                                     }
                                     deviceManagementAlert = nil
@@ -167,9 +173,9 @@ struct DeviceManagementView: View {
                                             Task { @MainActor in
                                                 switch result {
                                                 case .success:
-                                                    loggedInDevices.removeAll(where: { $0.id == device.id })
+                                                    self.loggedInDevices?.removeAll(where: { $0.id == device.id })
                                                 case let .failure(error):
-                                                    loggedInDevices = loggedInDevices.map {
+                                                    self.loggedInDevices = loggedInDevices.map {
                                                         $0.id == device
                                                             .id ? $0.setIsBeingRemoved(false) : $0
                                                     }
