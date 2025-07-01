@@ -19,11 +19,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.ExpandChevronIconButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronIconButton
 
 @Preview
 @Composable
@@ -103,11 +103,7 @@ private fun ExpandableComposeCellBody(
             }
         }
 
-        ExpandChevronIconButton(
-            isExpanded = isExpanded,
-            onExpand = onExpand,
-            color = MaterialTheme.colorScheme.onPrimary,
-        )
+        ExpandChevronIconButton(isExpanded = isExpanded, onExpand = onExpand)
     }
 }
 

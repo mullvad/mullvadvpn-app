@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.preview
+package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.RelayItem
