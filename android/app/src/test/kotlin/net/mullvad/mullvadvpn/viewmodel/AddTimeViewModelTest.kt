@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.Lc
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -109,13 +110,11 @@ class AddTimeViewModelTest {
             // Arrange
             val mockProduct: PaymentProduct = mockk()
             val expectedProductList = listOf(mockProduct)
+            paymentAvailability.tryEmit(PaymentAvailability.ProductsAvailable(listOf(mockProduct)))
 
             // Act, Assert
             viewModel.uiState.test {
                 awaitItem() // Default state
-                paymentAvailability.tryEmit(
-                    PaymentAvailability.ProductsAvailable(listOf(mockProduct))
-                )
                 val result = awaitItem()
                 assertIs<Lc.Content<AddTimeUiState>>(result)
                 assertIs<PaymentState.PaymentAvailable>(result.value.billingPaymentState)
@@ -139,12 +138,12 @@ class AddTimeViewModelTest {
     }
 
     @Test
-    fun `purchaseState success should invoke getAccountData on AccountRepository`() {
+    fun `purchaseState success should invoke getAccountData on AccountRepository`() = runTest {
         // Arrange
         val purchaseResultData = PurchaseResult.Completed.Success(ProductId("one_month"))
 
         // Act
-        purchaseResult.value = purchaseResultData
+        assertTrue(purchaseResult.tryEmit(purchaseResultData))
 
         // Assert
         coVerify { mockAccountRepository.getAccountData() }
