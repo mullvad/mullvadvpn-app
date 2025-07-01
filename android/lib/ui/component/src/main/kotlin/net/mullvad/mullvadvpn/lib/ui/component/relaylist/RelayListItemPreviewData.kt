@@ -1,7 +1,5 @@
-package net.mullvad.mullvadvpn.compose.preview
+package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
-import net.mullvad.mullvadvpn.compose.state.RelayListItem
-import net.mullvad.mullvadvpn.compose.state.RelayListItemState
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -39,6 +37,7 @@ object RelayListItemPreviewData {
                     isSelected = false,
                     state = null,
                     expanded = false,
+                    itemPosition = ItemPosition.Single,
                 )
             }
             if (!isSearching) {
@@ -69,6 +68,7 @@ object RelayListItemPreviewData {
                     depth = 0,
                     expanded = true,
                     state = null,
+                    itemPosition = ItemPosition.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[0],
@@ -76,6 +76,7 @@ object RelayListItemPreviewData {
                     depth = 1,
                     expanded = false,
                     state = null,
+                    itemPosition = ItemPosition.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1],
@@ -83,6 +84,7 @@ object RelayListItemPreviewData {
                     depth = 1,
                     expanded = true,
                     state = null,
+                    itemPosition = ItemPosition.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[0],
@@ -90,6 +92,7 @@ object RelayListItemPreviewData {
                     depth = 2,
                     expanded = false,
                     state = RelayListItemState.USED_AS_EXIT,
+                    itemPosition = ItemPosition.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[1],
@@ -97,6 +100,7 @@ object RelayListItemPreviewData {
                     depth = 2,
                     expanded = false,
                     state = null,
+                    itemPosition = ItemPosition.Middle,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[1],
@@ -104,6 +108,7 @@ object RelayListItemPreviewData {
                     depth = 0,
                     expanded = false,
                     state = null,
+                    itemPosition = ItemPosition.Bottom,
                 ),
             )
         )

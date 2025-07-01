@@ -1,6 +1,8 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.lib.ui.designsystem
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
@@ -9,13 +11,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
 
 @Preview
 @Composable
 private fun PreviewMullvadCheckbox() {
     AppTheme {
-        SpacedColumn(Modifier.background(color = MaterialTheme.colorScheme.primary)) {
+        Column(
+            Modifier.background(color = MaterialTheme.colorScheme.primary),
+            verticalArrangement = Arrangement.spacedBy(Dimens.smallSpacer),
+        ) {
             MullvadCheckbox(checked = false) {}
             MullvadCheckbox(checked = true) {}
         }

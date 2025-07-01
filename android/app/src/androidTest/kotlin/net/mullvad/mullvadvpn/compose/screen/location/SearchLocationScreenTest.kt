@@ -44,7 +44,6 @@ class SearchLocationScreenTest {
         onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
         onSearchInputChanged: (String) -> Unit = {},
         onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
-        onEditCustomLists: () -> Unit = {},
         onAddLocationToList:
             (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
             { _, _ ->
@@ -67,7 +66,6 @@ class SearchLocationScreenTest {
                 onToggleExpand = onToggleExpand,
                 onSearchInputChanged = onSearchInputChanged,
                 onCreateCustomList = onCreateCustomList,
-                onEditCustomLists = onEditCustomLists,
                 onAddLocationToList = onAddLocationToList,
                 onRemoveLocationFromList = onRemoveLocationFromList,
                 onEditCustomListName = onEditCustomListName,

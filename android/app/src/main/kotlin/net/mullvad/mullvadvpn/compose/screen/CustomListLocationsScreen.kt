@@ -8,10 +8,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,7 +32,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.cell.CheckableRelayLocationCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.EmptyRelayListText
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
@@ -46,6 +44,7 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
 import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.CustomListLocationUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.screen.location.positionalPadding
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
@@ -57,6 +56,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayLocationCell
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
@@ -162,6 +162,7 @@ fun CustomListLocationsScreen(
                             state = lazyListState,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                         )
+                        .padding(horizontal = Dimens.mediumPadding)
                         .fillMaxWidth(),
                 state = lazyListState,
             ) {
@@ -169,9 +170,11 @@ fun CustomListLocationsScreen(
                     is Lce.Loading -> {
                         loading()
                     }
+
                     is Lce.Error -> {
                         empty()
                     }
+
                     is Lce.Content -> {
                         content(
                             uiState = state.content.value,
@@ -231,32 +234,15 @@ private fun LazyListScope.content(
             LocationsEmptyText(searchTerm = uiState.searchTerm)
         }
     } else {
-        itemsIndexed(uiState.locations, key = { index, listItem -> listItem.item.id }) {
-            index,
-            listItem ->
-            Column(modifier = Modifier.animateItem()) {
-                if (index != 0) {
-                    HorizontalDivider()
-                }
-                CheckableRelayLocationCell(
-                    item = listItem.item,
-                    onRelayCheckedChange = { isChecked ->
-                        onRelaySelectedChanged(listItem.item, isChecked)
-                    },
-                    checked = listItem.checked,
-                    depth = listItem.depth,
-                    onExpand = { expand -> onExpand(listItem.item, expand) },
-                    expanded = listItem.expanded,
-                )
-            }
+        items(uiState.locations, key = { listItem -> listItem.item.id }) { listItem ->
+            CheckableRelayLocationCell(
+                modifier = Modifier.animateItem().positionalPadding(listItem.itemPosition),
+                item = listItem,
+                onRelayCheckedChange = { isChecked ->
+                    onRelaySelectedChanged(listItem.item, isChecked)
+                },
+                onExpand = { expand -> onExpand(listItem.item, expand) },
+            )
         }
-    }
-}
-
-private fun Lce<Boolean, CustomListLocationsUiState, Boolean>.newList(): Boolean {
-    return when (this) {
-        is Lce.Content -> this.value.newList
-        is Lce.Loading -> this.value
-        is Lce.Error -> this.error
     }
 }
