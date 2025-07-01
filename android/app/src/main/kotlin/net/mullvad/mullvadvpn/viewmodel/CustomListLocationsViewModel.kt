@@ -263,12 +263,13 @@ class CustomListLocationsViewModel(
                 depth = depth,
                 checked = isSelected(this@toRelayItems),
                 expanded = expanded,
-                when {
-                    this@toRelayItems is RelayItem.Location.Country ->
-                        if (!expanded) ItemPosition.Single else ItemPosition.Top
-                    isLastChild && !expanded -> ItemPosition.Bottom
-                    else -> ItemPosition.Middle
-                },
+                itemPosition =
+                    when {
+                        this@toRelayItems is RelayItem.Location.Country ->
+                            if (!expanded) ItemPosition.Single else ItemPosition.Top
+                        isLastChild && !expanded -> ItemPosition.Bottom
+                        else -> ItemPosition.Middle
+                    },
             )
         )
         if (expanded) {
