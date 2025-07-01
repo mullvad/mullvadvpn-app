@@ -5445,6 +5445,7 @@ dependencies = [
  "triggered",
  "uuid",
  "widestring",
+ "winapi",
  "windows-sys 0.52.0",
  "winreg 0.51.0",
 ]
