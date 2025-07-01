@@ -1,5 +1,3 @@
-#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
-
 use crate::{dns::ResolvedDnsConfig, tunnel::TunnelMetadata};
 
 use std::{ffi::CStr, io, net::IpAddr, ptr, sync::LazyLock};
@@ -270,6 +268,7 @@ impl Firewall {
                 .unwrap_or(ptr::null()),
         };
 
+        #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
         let res = unsafe {
             WinFw_ApplyPolicyConnecting(
                 winfw_settings,
@@ -347,6 +346,7 @@ impl Firewall {
             .map(|ip| ip.as_ptr())
             .collect();
 
+        #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
         let result = unsafe {
             WinFw_ApplyPolicyConnected(
                 winfw_settings,
