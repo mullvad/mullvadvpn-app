@@ -41,11 +41,10 @@ class AccountDeviceRow: UIView {
         return label
     }()
 
-    private let deviceManagementButton: UIButton = {
-        let button = IncreasedHitButton(type: .system)
-        button.isExclusiveTouch = true
-        button.adjustsImageSizeForAccessibilityContentSizeCategory = true
-        button.setAccessibilityIdentifier(.deviceManagementButton)
+    private let deviceManagementButton: UILabel = {
+        let button = UILabel()
+        button.adjustsFontForContentSizeCategory = true
+        button.isUserInteractionEnabled = true
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.mullvadSmallSemiBold,
             .foregroundColor: UIColor.primaryTextColor,
@@ -57,11 +56,10 @@ class AccountDeviceRow: UIView {
             value: "Manage devices",
             comment: ""
         )
-        let attributeString = NSMutableAttributedString(
+        button.attributedText = NSMutableAttributedString(
             string: title,
             attributes: attributes
         )
-        button.setAttributedTitle(attributeString, for: .normal)
         return button
     }()
 
@@ -84,11 +82,10 @@ class AccountDeviceRow: UIView {
         isAccessibilityElement = true
         accessibilityLabel = titleLabel.text
 
-        deviceManagementButton.addTarget(
-            self,
-            action: #selector(didTapDeviceManagementButton),
-            for: .touchUpInside
-        )
+        deviceManagementButton.addGestureRecognizer(UITapGestureRecognizer(
+            target: self,
+            action: #selector(didTapDeviceManagementButton)
+        ))
     }
 
     required init?(coder: NSCoder) {
