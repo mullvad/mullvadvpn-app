@@ -12,7 +12,7 @@ use talpid_types::{
     ErrorExt,
 };
 use widestring::WideCString;
-use windows_sys::Win32::Globalization::{MultiByteToWideChar, CP_ACP};
+use windows_sys::Win32::Globalization::MultiByteToWideChar;
 
 mod hyperv;
 
@@ -73,11 +73,6 @@ pub enum Error {
     #[error("Failed to reset firewall policies")]
     ResettingPolicy(#[source] FirewallPolicyError),
 }
-
-/// Timeout for acquiring the WFP transaction lock
-const WINFW_TIMEOUT_SECONDS: u32 = 5;
-
-const LOGGING_CONTEXT: &[u8] = b"WinFw\0";
 
 /// The Windows implementation for the firewall.
 pub struct Firewall {
@@ -418,39 +413,6 @@ fn widestring_ip(ip: IpAddr) -> WideCString {
     WideCString::from_str_truncate(ip.to_string())
 }
 
-/// Logging callback implementation.
-pub extern "system" fn log_sink(
-    level: log::Level,
-    msg: *const std::ffi::c_char,
-    context: *mut std::ffi::c_void,
-) {
-    if msg.is_null() {
-        log::error!("Log message from FFI boundary is NULL");
-    } else {
-        let target = if context.is_null() {
-            "UNKNOWN".into()
-        } else {
-            unsafe { CStr::from_ptr(context as *const _).to_string_lossy() }
-        };
-
-        let mb_string = unsafe { CStr::from_ptr(msg) };
-
-        let managed_msg = match multibyte_to_wide(mb_string, CP_ACP) {
-            Ok(wide_str) => String::from_utf16_lossy(&wide_str),
-            // Best effort:
-            Err(_) => mb_string.to_string_lossy().into_owned(),
-        };
-
-        log::logger().log(
-            &log::Record::builder()
-                .level(level)
-                .target(&target)
-                .args(format_args!("{}", managed_msg))
-                .build(),
-        );
-    }
-}
-
 /// Convert `mb_string`, with the given character encoding `codepage`, to a UTF-16 string.
 fn multibyte_to_wide(mb_string: &CStr, codepage: u32) -> Result<Vec<u16>, io::Error> {
     if mb_string.is_empty() {
@@ -550,11 +512,19 @@ fn with_wmi_if_enabled(f: impl FnOnce(&wmi::WMIConnection)) {
 
 #[allow(non_snake_case)]
 mod winfw {
-    use super::{widestring_ip, AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString};
-    use std::ffi::{c_char, c_void};
-    use talpid_types::net::TransportProtocol;
+    use super::{
+        multibyte_to_wide, widestring_ip, AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString,
+    };
+    use std::ffi::{c_char, c_void, CStr};
+    use talpid_types::{net::TransportProtocol, tunnel::FirewallPolicyError};
+    use windows_sys::Win32::Globalization::CP_ACP;
+
+    /// Timeout for acquiring the WFP transaction lock
+    const WINFW_TIMEOUT_SECONDS: u32 = 5;
 
     type LogSink = extern "system" fn(level: log::Level, msg: *const c_char, context: *mut c_void);
+
+    const LOGGING_CONTEXT: &CStr = c"WinFw";
 
     pub struct WinFwAllowedEndpointContainer {
         _clients: Box<[WideCString]>,
@@ -577,46 +547,6 @@ mod winfw {
         };
 
         init.into_result()
-    }
-
-    /// Logging callback implementation.
-    ///
-    /// SAFETY:
-    /// - `msg` must point to a valid C string or be null.
-    /// - `context` must point to a valid C string or be null.
-    pub extern "system" fn log_sink(
-        level: log::Level,
-        msg: *const std::ffi::c_char,
-        context: *mut std::ffi::c_void,
-    ) {
-        if msg.is_null() {
-            log::error!("Log message from FFI boundary is NULL");
-            return;
-        }
-
-        let target = if context.is_null() {
-            "UNKNOWN".into()
-        } else {
-            // SAFETY: context is not null & caller promise that context is a valid C string.
-            unsafe { CStr::from_ptr(context as *const _).to_string_lossy() }
-        };
-
-        // SAFETY: msg is not null & caller promise that msg is a valid C string.
-        let mb_string = unsafe { CStr::from_ptr(msg) };
-
-        let managed_msg = match multibyte_to_wide(mb_string, CP_ACP) {
-            Ok(wide_str) => String::from_utf16_lossy(&wide_str),
-            // Best effort:
-            Err(_) => mb_string.to_string_lossy().into_owned(),
-        };
-
-        log::logger().log(
-            &log::Record::builder()
-                .level(level)
-                .target(&target)
-                .args(format_args!("{}", managed_msg))
-                .build(),
-        );
     }
 
     /// Initialize WinFw module and apply blocking rules. Returns an initialization error if called
@@ -657,6 +587,46 @@ mod winfw {
         // initialized and after WinFW has been deinitialized.
         let reset = unsafe { WinFw_Reset() };
         reset.into_result()
+    }
+
+    /// Logging callback implementation.
+    ///
+    /// SAFETY:
+    /// - `msg` must point to a valid C string or be null.
+    /// - `context` must point to a valid C string or be null.
+    pub extern "system" fn log_sink(
+        level: log::Level,
+        msg: *const std::ffi::c_char,
+        context: *mut std::ffi::c_void,
+    ) {
+        if msg.is_null() {
+            log::error!("Log message from FFI boundary is NULL");
+            return;
+        }
+
+        let target = if context.is_null() {
+            "UNKNOWN".into()
+        } else {
+            // SAFETY: context is not null & caller promise that context is a valid C string.
+            unsafe { CStr::from_ptr(context as *const _).to_string_lossy() }
+        };
+
+        // SAFETY: msg is not null & caller promise that msg is a valid C string.
+        let mb_string = unsafe { CStr::from_ptr(msg) };
+
+        let managed_msg = match multibyte_to_wide(mb_string, CP_ACP) {
+            Ok(wide_str) => String::from_utf16_lossy(&wide_str),
+            // Best effort:
+            Err(_) => mb_string.to_string_lossy().into_owned(),
+        };
+
+        log::logger().log(
+            &log::Record::builder()
+                .level(level)
+                .target(&target)
+                .args(format_args!("{}", managed_msg))
+                .build(),
+        );
     }
 
     impl From<AllowedEndpoint> for WinFwAllowedEndpointContainer {
@@ -817,7 +787,7 @@ mod winfw {
         pub fn WinFw_Initialize(
             timeout: libc::c_uint,
             sink: Option<LogSink>,
-            sink_context: *const u8,
+            sink_context: *const c_char,
         ) -> InitializationResult;
 
         #[link_name = "WinFw_InitializeBlocked"]
@@ -826,7 +796,7 @@ mod winfw {
             settings: &WinFwSettings,
             allowed_endpoint: *const WinFwAllowedEndpoint<'_>,
             sink: Option<LogSink>,
-            sink_context: *const u8,
+            sink_context: *const c_char,
         ) -> InitializationResult;
 
         #[link_name = "WinFw_Deinitialize"]
