@@ -34,6 +34,8 @@ widestring = "1.0"
 winreg = { version = "0.51", features = ["transactions"] }
 talpid-windows = { path = "../talpid-windows" }
 once_cell = { workspace = true }
+# Only needed because parity-tokio-ipc has forgotten to enable the winerror feature of winapi ..
+winapi = { version = "0.3", features = ["winerror"] }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
