@@ -30,6 +30,8 @@ export default class AppUpgrade {
         );
       }
     });
+
+    IpcMainEventChannel.app.handleGetUpgradeCacheDir(() => this.daemonRpc.getAppUpgradeCacheDir());
   }
 
   public subscribeEvents() {
