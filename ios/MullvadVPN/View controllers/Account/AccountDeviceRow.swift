@@ -45,6 +45,10 @@ class AccountDeviceRow: UIView {
         let button = UILabel()
         button.adjustsFontForContentSizeCategory = true
         button.isUserInteractionEnabled = true
+        button.numberOfLines = 0
+        button.textAlignment = .center
+        button.lineBreakMode = .byWordWrapping
+        button.setContentHuggingPriority(.required, for: .horizontal)
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.mullvadSmallSemiBold,
             .foregroundColor: UIColor.primaryTextColor,
@@ -74,9 +78,10 @@ class AccountDeviceRow: UIView {
         addConstrainedSubviews(
             [contentContainerView, deviceManagementButton]
         ) {
-            contentContainerView.pinEdgesToSuperview()
+            contentContainerView.pinEdgesToSuperview(PinnableEdges([.leading(0), .bottom(0), .top(0)]))
             deviceManagementButton.centerYAnchor.constraint(equalTo: deviceLabel.centerYAnchor)
             deviceManagementButton.pinEdgeToSuperview(.trailing(0))
+            deviceManagementButton.leadingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: 16)
         }
 
         isAccessibilityElement = true
