@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -295,7 +294,6 @@ fun SelectLocationScreen(
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
             onCreateCustomList = onCreateCustomList,
-            onEditCustomLists = onEditCustomLists,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,
             onEditCustomListName = onEditCustomListName,
@@ -341,9 +339,10 @@ fun SelectLocationScreen(
 
                     RelayLists(
                         state = state.value,
-                        backgroundColor = backgroundColor,
                         onSelectRelay = onSelectRelay,
                         openDaitaSettings = openDaitaSettings,
+                        onAddCustomList = { onCreateCustomList(null) },
+                        onEditCustomLists = onEditCustomLists,
                         onUpdateBottomSheetState = { newState ->
                             locationBottomSheetState = newState
                         },
@@ -381,9 +380,10 @@ private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayL
 @Composable
 private fun RelayLists(
     state: SelectLocationUiState,
-    backgroundColor: Color,
     onSelectRelay: (RelayItem) -> Unit,
     openDaitaSettings: () -> Unit,
+    onAddCustomList: () -> Unit,
+    onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     // This is a workaround for the HorizontalPager being broken on Android TV when it contains
@@ -392,10 +392,11 @@ private fun RelayLists(
 
     if (configuration.navigation == Configuration.NAVIGATION_DPAD) {
         SelectLocationList(
-            backgroundColor = backgroundColor,
             relayListType = state.relayListType,
             onSelectRelay = onSelectRelay,
             openDaitaSettings = openDaitaSettings,
+            onAddCustomList = onAddCustomList,
+            onEditCustomLists = onEditCustomLists,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
         )
     } else {
@@ -420,10 +421,11 @@ private fun RelayLists(
                 },
         ) { pageIndex ->
             SelectLocationList(
-                backgroundColor = backgroundColor,
                 relayListType = RelayListType.entries[pageIndex],
                 onSelectRelay = onSelectRelay,
                 openDaitaSettings = openDaitaSettings,
+                onAddCustomList = onAddCustomList,
+                onEditCustomLists = onEditCustomLists,
                 onUpdateBottomSheetState = onUpdateBottomSheetState,
             )
         }
