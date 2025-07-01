@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.lib.ui.component
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
@@ -8,28 +8,30 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Composable
 @Preview
 private fun PreviewChevron() {
-    Column {
-        ExpandChevron(color = MaterialTheme.colorScheme.onPrimary, isExpanded = false)
-        ExpandChevron(color = MaterialTheme.colorScheme.onPrimary, isExpanded = true)
+    AppTheme {
+        Surface {
+            Column {
+                ExpandChevron(isExpanded = false)
+                ExpandChevron(isExpanded = true)
+            }
+        }
     }
 }
 
 @Composable
-fun ExpandChevron(modifier: Modifier = Modifier, color: Color, isExpanded: Boolean) {
-
+fun ExpandChevron(modifier: Modifier = Modifier, isExpanded: Boolean) {
     val degree = remember(isExpanded) { if (isExpanded) UP_ROTATION else DOWN_ROTATION }
     val stateLabel =
         if (isExpanded) {
@@ -47,7 +49,7 @@ fun ExpandChevron(modifier: Modifier = Modifier, color: Color, isExpanded: Boole
     Icon(
         imageVector = Icons.Default.KeyboardArrowDown,
         contentDescription = stateLabel,
-        tint = color,
+        //        tint = color,
         modifier = modifier.rotate(animatedRotation.value),
     )
 }
@@ -55,12 +57,11 @@ fun ExpandChevron(modifier: Modifier = Modifier, color: Color, isExpanded: Boole
 @Composable
 fun ExpandChevronIconButton(
     modifier: Modifier = Modifier,
-    color: Color,
     onExpand: (Boolean) -> Unit,
     isExpanded: Boolean,
 ) {
     IconButton(modifier = modifier, onClick = { onExpand(!isExpanded) }) {
-        ExpandChevron(isExpanded = isExpanded, color = color)
+        ExpandChevron(isExpanded = isExpanded)
     }
 }
 

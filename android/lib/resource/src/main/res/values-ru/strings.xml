@@ -370,8 +370,6 @@
     <string name="this_field_is_required">Это обязательное поле</string>
     <string name="this_is_already_set_as_current">Этот метод уже установлен как текущий</string>
     <string name="time_added">Время добавлено</string>
-    <string name="to_add_locations_to_a_list">Чтобы добавить местоположения в список, нажмите «︙» или нажмите и удерживайте страну, город или сервер.</string>
-    <string name="to_create_a_custom_list">Чтобы создать свой список, нажмите «︙»</string>
     <string name="toggle_vpn">Включение VPN</string>
     <string name="top_bar_device_name">Имя устройства: %1$s</string>
     <string name="top_bar_time_left">Осталось времени: %1$s</string>

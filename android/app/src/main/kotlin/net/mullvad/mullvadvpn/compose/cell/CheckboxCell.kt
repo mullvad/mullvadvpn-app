@@ -14,9 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Checkbox
 
 @Preview
 @Composable
@@ -46,7 +46,7 @@ internal fun CheckboxCell(
                 .background(background)
                 .padding(start = startPadding, end = endPadding),
     ) {
-        MullvadCheckbox(checked = checked, onCheckedChange = onCheckedChange)
+        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
 
         Text(
             text = title,

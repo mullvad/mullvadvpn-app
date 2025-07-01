@@ -370,8 +370,6 @@
     <string name="this_field_is_required">이 필드는 필수입니다</string>
     <string name="this_is_already_set_as_current">이미 현재로 설정되어 있습니다</string>
     <string name="time_added">시간 추가됨</string>
-    <string name="to_add_locations_to_a_list">목록에 위치를 추가하려면 \"︙\"를 누르거나 국가, 도시 또는 서버를 길게 누릅니다.</string>
-    <string name="to_create_a_custom_list">사용자 지정 목록을 생성하려면 \"︙\"를 누릅니다</string>
     <string name="toggle_vpn">VPN 전환</string>
     <string name="top_bar_device_name">장치 이름: %1$s</string>
     <string name="top_bar_time_left">남은 시간: %1$s</string>

@@ -259,9 +259,9 @@
     <string name="custom_list_error_list_exists">Name is already taken.</string>
     <string name="update_list_name">Update list name</string>
     <string name="no_custom_lists_available">No custom lists available</string>
-    <string name="to_create_a_custom_list">To create a custom list press the \"︙\"</string>
+    <string name="to_create_a_custom_list">To create a custom list press the \"+\"</string>
     <string name="new_list">New list</string>
-    <string name="to_add_locations_to_a_list">To add locations to a list, press the \"︙\" or long press on a country, city, or server.</string>
+    <string name="to_add_locations_to_a_list">To add locations to a list, press the pen or long press on a country, city, or server.</string>
     <string name="edit_list">Edit list</string>
     <string name="delete">Delete</string>
     <string name="delete_custom_list_message">\"%s\" was deleted</string>
@@ -426,4 +426,5 @@
     <string name="time_added">Time added</string>
     <string name="app_is_blocking_internet">The app is blocking internet, please disconnect first</string>
     <string name="in_app_products_unavailable">In-app products unavailable, please make sure you have the latest version of Google Play.</string>
+    <string name="relayitem_is_inactive">%s is unavailable</string>
 </resources>

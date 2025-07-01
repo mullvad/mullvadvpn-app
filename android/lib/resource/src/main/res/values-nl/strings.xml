@@ -370,8 +370,6 @@
     <string name="this_field_is_required">Dit veld is verplicht</string>
     <string name="this_is_already_set_as_current">Deze is al ingesteld als huidige</string>
     <string name="time_added">Tijd van toevoegen</string>
-    <string name="to_add_locations_to_a_list">Druk op de \"︙\" of druk lang op een land, plaats of server om locaties toe te voegen.</string>
-    <string name="to_create_a_custom_list">Druk op de \"︙\" om een aangepaste lijst te maken</string>
     <string name="toggle_vpn">VPN in-/uitschakelen</string>
     <string name="top_bar_device_name">Apparaatnaam: %1$s</string>
     <string name="top_bar_time_left">Resterende tijd: %1$s</string>

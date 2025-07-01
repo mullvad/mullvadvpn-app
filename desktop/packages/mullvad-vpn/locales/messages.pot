@@ -2787,6 +2787,9 @@ msgstr ""
 msgid "%s custom port"
 msgstr ""
 
+msgid "%s is unavailable"
+msgstr ""
+
 msgid "%s was added to your account."
 msgstr ""
 
@@ -3261,10 +3264,10 @@ msgstr ""
 msgid "Time added"
 msgstr ""
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
 msgstr ""
 
-msgid "To create a custom list press the \"︙\""
+msgid "To create a custom list press the \"+\""
 msgstr ""
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
