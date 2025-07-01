@@ -21,6 +21,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2025.5] - 2025-07-02
+### Fixed
+- Fix bottom margins in Filter Screen and Lockdown Mode Screen.
+- Fix expiry date not always updating after a successful in app purchase.
+
+
 ## [android/2025.5-beta1] - 2025-06-17
 ### Added
 - Add the ability to purchase 90 days (3 months).
