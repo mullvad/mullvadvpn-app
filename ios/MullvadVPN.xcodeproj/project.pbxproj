@@ -1117,6 +1117,8 @@
 		F0FADDEA2BE90AAA000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
 		F0FADDEC2BE90AB0000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
 		F90A988A2E042D040020F64F /* ClearBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90A98892E042D040020F64F /* ClearBackgroundView.swift */; };
+		F90A988C2E1268570020F64F /* MullvadPrimaryTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90A988B2E1268510020F64F /* MullvadPrimaryTextField.swift */; };
+		F90A988E2E13C5490020F64F /* MullvadSecondaryTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90A988D2E13C5490020F64F /* MullvadSecondaryTextField.swift */; };
 		F910A4012D3FF23A002FF3BB /* View+Modifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A4002D3FF22E002FF3BB /* View+Modifier.swift */; };
 		F910A4312D4A1B41002FF3BB /* InAppPurchaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A4302D4A1B3B002FF3BB /* InAppPurchaseCoordinator.swift */; };
 		F910A43A2D4A283D002FF3BB /* InAppPurchaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A4392D4A2839002FF3BB /* InAppPurchaseViewController.swift */; };
@@ -2569,6 +2571,8 @@
 		F0FA160F2D7F2FC0007E2546 /* RelayFilterViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterViewModelTests.swift; sourceTree = "<group>"; };
 		F0FBD98E2C4A60CC00EE5323 /* KeyExchangingResultStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyExchangingResultStub.swift; sourceTree = "<group>"; };
 		F90A98892E042D040020F64F /* ClearBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearBackgroundView.swift; sourceTree = "<group>"; };
+		F90A988B2E1268510020F64F /* MullvadPrimaryTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadPrimaryTextField.swift; sourceTree = "<group>"; };
+		F90A988D2E13C5490020F64F /* MullvadSecondaryTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadSecondaryTextField.swift; sourceTree = "<group>"; };
 		F910A4002D3FF22E002FF3BB /* View+Modifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Modifier.swift"; sourceTree = "<group>"; };
 		F910A4302D4A1B3B002FF3BB /* InAppPurchaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseCoordinator.swift; sourceTree = "<group>"; };
 		F910A4392D4A2839002FF3BB /* InAppPurchaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseViewController.swift; sourceTree = "<group>"; };
@@ -3366,6 +3370,8 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F90A988B2E1268510020F64F /* MullvadPrimaryTextField.swift */,
+				F90A988D2E13C5490020F64F /* MullvadSecondaryTextField.swift */,
 				7A5869962B32EA4500640D27 /* AppButton.swift */,
 				7A0EAEA12D033D5A00D3EB8B /* BlurView.swift */,
 				7A9FA1412A2E3306000B728D /* CheckboxView.swift */,
@@ -6455,6 +6461,7 @@
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
 				F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */,
 				4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */,
+				F90A988E2E13C5490020F64F /* MullvadSecondaryTextField.swift in Sources */,
 				5827B0BD2B14AC9200CCBBA1 /* AccessViewModel+TestingStatus.swift in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
 				58EFC7752AFB4CEF00E9F4CB /* AboutViewController.swift in Sources */,
@@ -6626,6 +6633,7 @@
 				58B26E242943520C00D5980C /* NotificationProviderProtocol.swift in Sources */,
 				5877F94E2A0A59AA0052D9E9 /* NotificationResponse.swift in Sources */,
 				7A6389E52B7E4247008E77E1 /* EditCustomListCoordinator.swift in Sources */,
+				F90A988C2E1268570020F64F /* MullvadPrimaryTextField.swift in Sources */,
 				58677712290976FB006F721F /* SettingsInteractor.swift in Sources */,
 				58EF875D2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
