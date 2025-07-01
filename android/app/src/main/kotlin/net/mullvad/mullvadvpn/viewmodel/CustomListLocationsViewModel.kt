@@ -21,9 +21,10 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.ItemPosition
 import net.mullvad.mullvadvpn.relaylist.ancestors
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
@@ -62,11 +63,13 @@ class CustomListLocationsViewModel(
                             newList = navArgs.newList,
                             content = Lce.Loading(Unit),
                         )
+
                     relayCountries.isEmpty() ->
                         CustomListLocationsUiState(
                             newList = navArgs.newList,
                             content = Lce.Error(Unit),
                         )
+
                     else -> {
                         val (expandSet, filteredRelayCountries) =
                             searchRelayListLocations(searchTerm, relayCountries)
@@ -78,10 +81,13 @@ class CustomListLocationsViewModel(
                                     CustomListLocationsData(
                                         searchTerm = searchTerm,
                                         locations =
-                                            filteredRelayCountries.toRelayItems(
-                                                isSelected = { it in selectedLocations },
-                                                isExpanded = { it in expandedLocations },
-                                            ),
+                                            filteredRelayCountries.flatMap {
+                                                it.toRelayItems(
+                                                    isSelected = { it in selectedLocations },
+                                                    isExpanded = { it in expandedLocations },
+                                                    isLastChild = true,
+                                                )
+                                            },
                                         saveEnabled =
                                             selectedLocations.isNotEmpty() &&
                                                 selectedLocations != _initialLocations.value,
@@ -190,6 +196,7 @@ class CustomListLocationsViewModel(
                     .find { it.id == relayItem.id.country }
                     ?.let { updateSelectionList.remove(it) }
             }
+
             is RelayItem.Location.Relay -> {
                 availableLocations
                     .flatMap { country -> country.cities }
@@ -199,6 +206,7 @@ class CustomListLocationsViewModel(
                     .find { it.id == relayItem.id.country }
                     ?.let { updateSelectionList.remove(it) }
             }
+
             is RelayItem.Location.Country -> {
                 /* Do nothing */
             }
@@ -216,9 +224,11 @@ class CustomListLocationsViewModel(
                     saveSelectionList.removeAll(relayItem.cities)
                     saveSelectionList.removeAll(relayItem.relays)
                 }
+
                 is RelayItem.Location.City -> {
                     saveSelectionList.removeAll(relayItem.relays)
                 }
+
                 is RelayItem.Location.Relay -> {
                     /* Do nothing */
                 }
@@ -240,42 +250,56 @@ class CustomListLocationsViewModel(
     private fun initialExpands(locations: List<RelayItem.Location>): Set<RelayItemId> =
         locations.flatMap { it.id.ancestors() }.toSet()
 
-    private fun List<RelayItem.Location>.toRelayItems(
+    private fun RelayItem.Location.toRelayItems(
         isSelected: (RelayItem) -> Boolean,
         isExpanded: (RelayItemId) -> Boolean,
         depth: Int = 0,
-    ): List<RelayLocationListItem> = flatMap { relayItem ->
-        buildList {
-            val expanded = isExpanded(relayItem.id)
-            add(
-                RelayLocationListItem(
-                    item = relayItem,
-                    depth = depth,
-                    checked = isSelected(relayItem),
-                    expanded = expanded,
-                )
+        isLastChild: Boolean,
+    ): List<CheckableRelayListItem> = buildList {
+        val expanded = isExpanded(id)
+        add(
+            CheckableRelayListItem(
+                item = this@toRelayItems,
+                depth = depth,
+                checked = isSelected(this@toRelayItems),
+                expanded = expanded,
+                itemPosition =
+                    when {
+                        this@toRelayItems is RelayItem.Location.Country ->
+                            if (!expanded) ItemPosition.Single else ItemPosition.Top
+                        isLastChild && !expanded -> ItemPosition.Bottom
+                        else -> ItemPosition.Middle
+                    },
             )
-            if (expanded) {
-                when (relayItem) {
-                    is RelayItem.Location.City ->
-                        addAll(
-                            relayItem.relays.toRelayItems(
+        )
+        if (expanded) {
+            when (this@toRelayItems) {
+                is RelayItem.Location.City ->
+                    addAll(
+                        relays.flatMapIndexed { index, relay ->
+                            relay.toRelayItems(
                                 isSelected = isSelected,
                                 isExpanded = isExpanded,
                                 depth = depth + 1,
+                                isLastChild = isLastChild && index == relays.lastIndex,
                             )
-                        )
-                    is RelayItem.Location.Country ->
-                        addAll(
-                            relayItem.cities.toRelayItems(
+                        }
+                    )
+
+                is RelayItem.Location.Country ->
+                    addAll(
+                        cities.flatMapIndexed { index, item ->
+                            item.toRelayItems(
                                 isSelected = isSelected,
                                 isExpanded = isExpanded,
                                 depth = depth + 1,
+                                isLastChild = isLastChild && index == cities.lastIndex,
                             )
-                        )
-                    is RelayItem.Location.Relay -> {
-                        /* Do nothing */
-                    }
+                        }
+                    )
+
+                is RelayItem.Location.Relay -> {
+                    /* Do nothing */
                 }
             }
         }
@@ -299,6 +323,7 @@ class CustomListLocationsViewModel(
                         relayListRepository.find(success.addedLocations.first())!!.name,
                         undo = success.undo,
                     )
+
                 success.removedLocations.size == 1 && success.addedLocations.isEmpty() ->
                     CustomListActionResultData.Success.LocationRemoved(
                         customListName = success.name,
@@ -306,6 +331,7 @@ class CustomListLocationsViewModel(
                             relayListRepository.find(success.removedLocations.first())!!.name,
                         undo = success.undo,
                     )
+
                 else ->
                     CustomListActionResultData.Success.LocationChanged(
                         customListName = success.name,

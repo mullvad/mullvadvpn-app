@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.preview
+package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Ownership

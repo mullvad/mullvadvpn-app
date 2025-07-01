@@ -12,11 +12,11 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lce
 import org.junit.jupiter.api.AfterEach
@@ -44,7 +44,6 @@ class SearchLocationScreenTest {
         onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
         onSearchInputChanged: (String) -> Unit = {},
         onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
-        onEditCustomLists: () -> Unit = {},
         onAddLocationToList:
             (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
             { _, _ ->
@@ -67,7 +66,6 @@ class SearchLocationScreenTest {
                 onToggleExpand = onToggleExpand,
                 onSearchInputChanged = onSearchInputChanged,
                 onCreateCustomList = onCreateCustomList,
-                onEditCustomLists = onEditCustomLists,
                 onAddLocationToList = onAddLocationToList,
                 onRemoveLocationFromList = onRemoveLocationFromList,
                 onEditCustomListName = onEditCustomListName,

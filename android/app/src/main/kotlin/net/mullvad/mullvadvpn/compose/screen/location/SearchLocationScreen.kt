@@ -45,7 +45,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
-import com.ramcosta.composedestinations.generated.destinations.CustomListsDestination
 import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -91,7 +90,6 @@ private fun PreviewSearchLocationScreen(
             SnackbarHostState(),
             {},
             { _, _, _ -> },
-            {},
             {},
             {},
             { _, _ -> },
@@ -183,7 +181,6 @@ fun SearchLocation(
             dropUnlessResumed { relayItem ->
                 navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id))
             },
-        onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListsDestination()) },
         onAddLocationToList = viewModel::addLocationToList,
         onRemoveLocationFromList = viewModel::removeLocationFromList,
         onEditCustomListName =
@@ -226,7 +223,6 @@ fun SearchLocationScreen(
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onSearchInputChanged: (String) -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
-    onEditCustomLists: () -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
@@ -251,7 +247,6 @@ fun SearchLocationScreen(
         LocationBottomSheets(
             locationBottomSheetState = locationBottomSheetState,
             onCreateCustomList = onCreateCustomList,
-            onEditCustomLists = onEditCustomLists,
             onAddLocationToList = onAddLocationToList,
             onRemoveLocationFromList = onRemoveLocationFromList,
             onEditCustomListName = onEditCustomListName,
@@ -301,9 +296,8 @@ fun SearchLocationScreen(
                     }
                     is Lce.Content -> {
                         relayListContent(
-                            backgroundColor = backgroundColor,
-                            customLists = state.value.customLists,
                             relayListItems = state.value.relayListItems,
+                            customLists = state.value.customLists,
                             onSelectRelay = onSelectRelay,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->
