@@ -103,15 +103,7 @@ impl Firewall {
     }
 
     pub fn new() -> Result<Self, Error> {
-        unsafe {
-            WinFw_Initialize(
-                WINFW_TIMEOUT_SECONDS,
-                Some(log_sink),
-                LOGGING_CONTEXT.as_ptr(),
-            )
-            .into_result()?
-        };
-
+        winfw::initialize()?;
         log::trace!("Successfully initialized windows firewall module");
         Ok(Firewall::default())
     }
@@ -120,18 +112,7 @@ impl Firewall {
         allowed_endpoint: AllowedEndpoint,
         allow_lan: bool,
     ) -> Result<Self, Error> {
-        let cfg = &WinFwSettings::new(allow_lan);
-        let allowed_endpoint = WinFwAllowedEndpointContainer::from(allowed_endpoint);
-        unsafe {
-            WinFw_InitializeBlocked(
-                WINFW_TIMEOUT_SECONDS,
-                cfg,
-                &allowed_endpoint.as_endpoint(),
-                Some(log_sink),
-                LOGGING_CONTEXT.as_ptr(),
-            )
-            .into_result()?
-        };
+        winfw::initialize_blocked(allowed_endpoint, allow_lan)?;
         log::trace!("Successfully initialized windows firewall module to a blocking state");
 
         with_wmi_if_enabled(|wmi| {
@@ -201,7 +182,7 @@ impl Firewall {
     }
 
     pub fn reset_policy(&mut self) -> Result<(), Error> {
-        unsafe { WinFw_Reset().into_result().map_err(Error::ResettingPolicy) }?;
+        winfw::reset().map_err(Error::ResettingPolicy)?;
 
         with_wmi_if_enabled(|wmi| {
             let result = hyperv::remove_blocking_hyperv_firewall_rules(wmi);
@@ -419,16 +400,17 @@ impl Firewall {
 
 impl Drop for Firewall {
     fn drop(&mut self) {
-        // TODO: If
-        if unsafe {
-            WinFw_Deinitialize(WinFwCleanupPolicy::ContinueBlocking)
-                .into_result()
-                .is_ok()
-        } {
-            log::trace!("Successfully deinitialized windows firewall module");
+        // TODO: Comment mee
+        let cleanup_policy = if self.persist {
+            WinFwCleanupPolicy::ContinueBlocking
         } else {
-            log::error!("Failed to deinitialize windows firewall module");
+            WinFwCleanupPolicy::BlockingUntilReboot
         };
+
+        match winfw::deinit(cleanup_policy) {
+            Ok(()) => log::trace!("Successfully deinitialized windows firewall module"),
+            Err(_) => log::error!("Failed to deinitialize windows firewall module"),
+        }
     }
 }
 
@@ -580,6 +562,101 @@ mod winfw {
         ip: WideCString,
         port: u16,
         protocol: WinFwProt,
+    }
+
+    /// Initialize WinFw module. Returns an initialization error if called multiple times without
+    /// interleaving [Self::deinit].
+    pub(super) fn initialize() -> Result<(), Error> {
+        // SAFETY: This function is always safe to call.
+        let init = unsafe {
+            WinFw_Initialize(
+                WINFW_TIMEOUT_SECONDS,
+                Some(log_sink),
+                LOGGING_CONTEXT.as_ptr(),
+            )
+        };
+
+        init.into_result()
+    }
+
+    /// Logging callback implementation.
+    ///
+    /// SAFETY:
+    /// - `msg` must point to a valid C string or be null.
+    /// - `context` must point to a valid C string or be null.
+    pub extern "system" fn log_sink(
+        level: log::Level,
+        msg: *const std::ffi::c_char,
+        context: *mut std::ffi::c_void,
+    ) {
+        if msg.is_null() {
+            log::error!("Log message from FFI boundary is NULL");
+            return;
+        }
+
+        let target = if context.is_null() {
+            "UNKNOWN".into()
+        } else {
+            // SAFETY: context is not null & caller promise that context is a valid C string.
+            unsafe { CStr::from_ptr(context as *const _).to_string_lossy() }
+        };
+
+        // SAFETY: msg is not null & caller promise that msg is a valid C string.
+        let mb_string = unsafe { CStr::from_ptr(msg) };
+
+        let managed_msg = match multibyte_to_wide(mb_string, CP_ACP) {
+            Ok(wide_str) => String::from_utf16_lossy(&wide_str),
+            // Best effort:
+            Err(_) => mb_string.to_string_lossy().into_owned(),
+        };
+
+        log::logger().log(
+            &log::Record::builder()
+                .level(level)
+                .target(&target)
+                .args(format_args!("{}", managed_msg))
+                .build(),
+        );
+    }
+
+    /// Initialize WinFw module and apply blocking rules. Returns an initialization error if called
+    /// multiple times without interleaving [Self::deinit].
+    pub(super) fn initialize_blocked(
+        allowed_endpoint: AllowedEndpoint,
+        allow_lan: bool,
+    ) -> Result<(), Error> {
+        let cfg = WinFwSettings::new(allow_lan);
+        let allowed_endpoint = WinFwAllowedEndpointContainer::from(allowed_endpoint);
+        // SAFETY: This function is always safe to call.
+        let init = unsafe {
+            WinFw_InitializeBlocked(
+                WINFW_TIMEOUT_SECONDS,
+                &cfg,
+                &allowed_endpoint.as_endpoint(),
+                Some(log_sink),
+                LOGGING_CONTEXT.as_ptr(),
+            )
+        };
+        init.into_result()
+    }
+
+    /// Deinitialize WinFw module. Trying to use WinFw after calling deinit will result in an
+    /// error before [Self::initialize] is called.
+    pub(super) fn deinit(cleanup_policy: WinFwCleanupPolicy) -> Result<(), Error> {
+        // SAFETY: WinFw_Deinitialize is always safe to call.
+        // Will simply return false if WinFw already has been deinitialized.
+        let deinit = unsafe { WinFw_Deinitialize(cleanup_policy) };
+        deinit.into_result()
+    }
+
+    /// Reset all firewall policies applied by [winfw].
+    ///
+    /// Sets the underlying active policy to None.
+    pub(super) fn reset() -> Result<(), FirewallPolicyError> {
+        // SAFETY: WinFw_Reset is always safe to call, even before WinFW has been
+        // initialized and after WinFW has been deinitialized.
+        let reset = unsafe { WinFw_Reset() };
+        reset.into_result()
     }
 
     impl From<AllowedEndpoint> for WinFwAllowedEndpointContainer {
