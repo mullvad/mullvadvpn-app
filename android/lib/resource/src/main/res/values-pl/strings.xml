@@ -370,8 +370,6 @@
     <string name="this_field_is_required">To pole jest wymagane</string>
     <string name="this_is_already_set_as_current">Już ustawiona jako bieżąca</string>
     <string name="time_added">Dodano czas</string>
-    <string name="to_add_locations_to_a_list">Aby dodać lokalizacje do listy, naciśnij przycisk „︙” lub naciśnij i przytrzymaj kraj, miasto albo serwer.</string>
-    <string name="to_create_a_custom_list">Aby utworzyć listę niestandardową, naciśnij przycisk „︙”</string>
     <string name="toggle_vpn">Przełącz VPN</string>
     <string name="top_bar_device_name">Nazwa urządzenia: %1$s</string>
     <string name="top_bar_time_left">Pozostało: %1$s</string>

@@ -3,8 +3,9 @@ package net.mullvad.mullvadvpn.compose.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.generateRelayItemCountry
 import net.mullvad.mullvadvpn.util.Lce
 
 class CustomListLocationUiStatePreviewParameterProvider :
@@ -18,7 +19,7 @@ class CustomListLocationUiStatePreviewParameterProvider :
                         CustomListLocationsData(
                             locations =
                                 listOf(
-                                    RelayLocationListItem(
+                                    CheckableRelayListItem(
                                         item =
                                             generateRelayItemCountry(
                                                 name = "A relay",
@@ -27,7 +28,7 @@ class CustomListLocationUiStatePreviewParameterProvider :
                                                 active = true,
                                             )
                                     ),
-                                    RelayLocationListItem(
+                                    CheckableRelayListItem(
                                         item =
                                             generateRelayItemCountry(
                                                     name = "Another relay",

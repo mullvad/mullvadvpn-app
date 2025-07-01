@@ -14,8 +14,8 @@ import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsData
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.compose.state.RelayLocationListItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lce
@@ -104,11 +104,11 @@ class CustomListLocationsScreenTest {
                                 CustomListLocationsData(
                                     locations =
                                         listOf(
-                                            RelayLocationListItem(
+                                            CheckableRelayListItem(
                                                 DUMMY_RELAY_COUNTRIES[0],
                                                 checked = true,
                                             ),
-                                            RelayLocationListItem(
+                                            CheckableRelayListItem(
                                                 DUMMY_RELAY_COUNTRIES[1],
                                                 checked = false,
                                             ),
@@ -141,7 +141,7 @@ class CustomListLocationsScreenTest {
                                 CustomListLocationsData(
                                     locations =
                                         listOf(
-                                            RelayLocationListItem(selectedCountry, checked = true)
+                                            CheckableRelayListItem(selectedCountry, checked = true)
                                         ),
                                     searchTerm = "",
                                     saveEnabled = false,

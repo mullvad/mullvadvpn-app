@@ -59,6 +59,8 @@ data class Dimensions(
     val problemReportIconToTitlePadding: Dp = 60.dp,
     val reconnectButtonMinInteractiveComponentSize: Dp = 40.dp,
     val relayCircleSize: Dp = 16.dp,
+    val relayCirclePadding: Dp = 6.dp,
+    val relayItemCornerRadius: Dp = 16.dp,
     val screenBottomMargin: Dp = 16.dp,
     val screenTopMargin: Dp = 24.dp,
     val searchFieldHeight: Dp = 42.dp,

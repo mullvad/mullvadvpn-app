@@ -370,8 +370,6 @@
     <string name="this_field_is_required">จำเป็นต้องกรอกช่องนี้</string>
     <string name="this_is_already_set_as_current">นี่ได้รับการตั้งค่าเป็นปัจจุบันแล้ว</string>
     <string name="time_added">เพิ่มเวลาแล้ว</string>
-    <string name="to_add_locations_to_a_list">กด \"︙\" หรือกดประเทศ เมือง หรือเซิร์ฟเวอร์ค้างไว้ เพื่อเพิ่มตำแหน่งที่ตั้งลงในรายการ</string>
-    <string name="to_create_a_custom_list">กด \"︙\" เพื่อสร้างรายการแบบกำหนดเอง</string>
     <string name="toggle_vpn">เปิด/ปิด VPN</string>
     <string name="top_bar_device_name">ชื่ออุปกรณ์: %1$s</string>
     <string name="top_bar_time_left">เหลือเวลา: %1$s</string>

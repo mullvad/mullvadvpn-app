@@ -370,8 +370,6 @@
     <string name="this_field_is_required">ဤအကွက်ကို မဖြစ်မနေဖြည့်ရမည်</string>
     <string name="this_is_already_set_as_current">၎င်းကို လက်ရှိအဖြစ် သတ်မှတ်ထားပြီးပါပြီ</string>
     <string name="time_added">အချိန်တိုးထားသည်</string>
-    <string name="to_add_locations_to_a_list">စာရင်းထဲသို့ တည်နေရာများကို ပေါင်းထည့်ရန် \"︙\" ကို နှိပ်ပါ သို့မဟုတ် နိုင်ငံ၊ မြို့၊ ဆာဗာကို နှိပ်ပါ။</string>
-    <string name="to_create_a_custom_list">စိတ်ကြိုက် စာရင်းများကို ဖန်တီးရန် \"︙\" ကို နှိပ်ပါ</string>
     <string name="toggle_vpn">VPN ရွေးသုံးရန်</string>
     <string name="top_bar_device_name">စက်အမည်- %1$s</string>
     <string name="top_bar_time_left">ကျန်သည့် အချိန်- %1$s</string>

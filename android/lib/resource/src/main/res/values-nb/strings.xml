@@ -370,8 +370,6 @@
     <string name="this_field_is_required">Feltet er påkrevd</string>
     <string name="this_is_already_set_as_current">Denne er allerede angitt som gjeldende</string>
     <string name="time_added">Tid lagt til</string>
-    <string name="to_add_locations_to_a_list">Hvis du vil legge til plasseringer i en liste, trykker du på ︙ eller trykker på og holder inne et land, en by eller en server.</string>
-    <string name="to_create_a_custom_list">For å opprette en egendefinert liste trykker du på ︙</string>
     <string name="toggle_vpn">Velg VPN</string>
     <string name="top_bar_device_name">Enhetsnavn: %1$s</string>
     <string name="top_bar_time_left">Tid igjen: %1$s</string>
