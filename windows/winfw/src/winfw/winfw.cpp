@@ -168,14 +168,14 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	delete g_fwContext;
 	g_fwContext = nullptr;
 
-	//
-	// Continue blocking if this is what the caller requested
-	// and if the current policy is "(net) blocked".
-	//
 	std::stringstream ss;
 	ss << "At WinFw_Deinitialize";
 	g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
 
+	//
+	// Continue blocking with persistent rules if this is what the caller requested
+	// and if the current policy is "(net) blocked".
+	//
 	if (WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING == cleanupPolicy
 		&& FwContext::Policy::Blocked == activePolicy)
 	{
@@ -209,6 +209,10 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 		}
 	}
 
+	//
+	// Continue blocking with non-persistent rules if this is what the caller requested
+	// and if the current policy is "(net) blocked".
+	//
 	if (WINFW_CLEANUP_POLICY_BLOCK_UNTIL_REBOOT == cleanupPolicy
 		&& FwContext::Policy::Blocked == activePolicy)
 	{
@@ -229,8 +233,10 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 
 			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
 			{
+				// Should this remove all filters or just persistent ones?
 				ObjectPurger::GetRemovePersistentFunctor()(engine);
 
+				// Are these the right filters to apply?
 				return controller.addProvider(*MullvadObjects::Provider())
 					&& controller.addSublayer(*MullvadObjects::SublayerBaseline())
 					&& blockAll.apply(controller);
