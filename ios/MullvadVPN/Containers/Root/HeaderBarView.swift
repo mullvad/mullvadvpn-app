@@ -24,7 +24,7 @@ class HeaderBarView: UIView {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .fill
-        stackView.spacing = 16.0
+        stackView.spacing = 8.0
         return stackView
     }()
 
@@ -33,7 +33,10 @@ class HeaderBarView: UIView {
         label.font = .mullvadMiniSemiBold
         label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
-        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        label.setContentHuggingPriority(.defaultHigh, for: .horizontal) // Resist growing
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        label.numberOfLines = 1
+        label.lineBreakMode = .byClipping
         label.setAccessibilityIdentifier(.headerDeviceNameLabel)
         return label
     }()
@@ -43,7 +46,10 @@ class HeaderBarView: UIView {
         label.font = .mullvadMiniSemiBold
         label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
-        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal) // Allow growing
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
+        label.numberOfLines = 1
+        label.lineBreakMode = .byWordWrapping
         return label
     }()
 
