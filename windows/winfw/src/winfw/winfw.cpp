@@ -4,6 +4,7 @@
 #include "objectpurger.h"
 #include "mullvadobjects.h"
 #include "rules/persistent/blockall.h"
+#include "rules/baseline/blockall.h"
 #include "libwfp/ipnetwork.h"
 #include <windows.h>
 #include <libcommon/error.h>
@@ -171,6 +172,9 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	// Continue blocking if this is what the caller requested
 	// and if the current policy is "(net) blocked".
 	//
+	std::stringstream ss;
+	ss << "At WinFw_Deinitialize";
+	g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
 
 	if (WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING == cleanupPolicy
 		&& FwContext::Policy::Blocked == activePolicy)
@@ -208,23 +212,27 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	if (WINFW_CLEANUP_POLICY_BLOCK_UNTIL_REBOOT == cleanupPolicy
 		&& FwContext::Policy::Blocked == activePolicy)
 	{
-		// Simply do nothing. As long as we are blocking, make sure to not invoke
-		// ObjectPurger.
-		/*
+		ss.str(std::string());
+		ss << "At if WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING == cleanupPolicy && FwContext::Policy::Blocked == activePolicy";
+		g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
+
 		try
 		{
 			auto engine = wfp::FilterEngine::StandardSession(DEINITIALIZE_TIMEOUT);
 			auto sessionController = std::make_unique<SessionController>(std::move(engine));
 
-			rules::persistent::BlockAll blockAll;
+			rules::baseline::BlockAll blockAll;
+
+			ss.str(std::string());
+			ss << "Removing all functors";
+			g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
 
 			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
 			{
-				ObjectPurger::GetRemoveNonPersistentFunctor()(engine);
+				ObjectPurger::GetRemovePersistentFunctor()(engine);
 
 				return controller.addProvider(*MullvadObjects::Provider())
 					&& controller.addSublayer(*MullvadObjects::SublayerBaseline())
-					&& controller.addSublayer(*MullvadObjects::SublayerDns())
 					&& blockAll.apply(controller);
 			});
 		}
@@ -240,7 +248,6 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 		{
 			return false;
 		}
-*/
 	}
 
 	return WINFW_POLICY_STATUS_SUCCESS == WinFw_Reset();
