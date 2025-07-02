@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct DeviceListView: View {
-    @Binding var devices: [Device]
+    @Binding var devices: [Device]?
     @Binding var loading: Bool
     var onRemoveDevice: ((Device) -> Void)?
 
@@ -27,7 +27,7 @@ struct DeviceListView: View {
             Text("Fetching devices...")
                 .padding(.top, 16)
                 .foregroundColor(.mullvadTextPrimary.opacity(0.6))
-        } else {
+        } else if let devices {
             MullvadList(devices) { device in
                 MullvadListActionItemView(
                     item: .init(
