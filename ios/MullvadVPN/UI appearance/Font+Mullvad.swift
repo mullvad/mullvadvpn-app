@@ -1,15 +1,15 @@
 import SwiftUI
 
 extension Font {
-    static let mullvadBig: Font = .largeTitle.bold()
-    static let mullvadLarge: Font = .title.bold()
-    static let mullvadMedium: Font = .title3.weight(.semibold)
-    static let mullvadSmall: Font = .body
-    static let mullvadSmallSemiBold: Font = mullvadSmall.weight(.semibold)
-    static let mullvadTiny: Font = .subheadline
-    static let mullvadTinySemiBold: Font = .mullvadTiny.weight(.semibold)
-    static let mullvadMini: Font = .footnote
-    static let mullvadMiniSemiBold: Font = mullvadMini.weight(.semibold)
+    static var mullvadBig: Font { .largeTitle.bold() }
+    static var mullvadLarge: Font { .title.bold() }
+    static var mullvadMedium: Font { .title3.weight(.semibold) }
+    static var mullvadSmall: Font { .body }
+    static var mullvadSmallSemiBold: Font { mullvadSmall.weight(.semibold) }
+    static var mullvadTiny: Font { .subheadline }
+    static var mullvadTinySemiBold: Font { .mullvadTiny.weight(.semibold) }
+    static var mullvadMini: Font { .footnote }
+    static var mullvadMiniSemiBold: Font { mullvadMini.weight(.semibold) }
 }
 
 extension UIFont {
