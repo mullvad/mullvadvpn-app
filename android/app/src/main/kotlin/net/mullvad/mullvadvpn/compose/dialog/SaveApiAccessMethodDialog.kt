@@ -102,8 +102,8 @@ fun SaveApiAccessMethodDialog(
                     )
             }
         },
-        title = {
-            Text(text = state.descriptionText(), style = MaterialTheme.typography.headlineSmall)
+        text = {
+            Text(text = state.descriptionText(), style = MaterialTheme.typography.labelLarge)
         },
         onDismissRequest = { /*Should not be able to dismiss*/ },
         confirmButton = {

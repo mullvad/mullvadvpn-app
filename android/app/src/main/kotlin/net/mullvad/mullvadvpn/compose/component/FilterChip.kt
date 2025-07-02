@@ -72,7 +72,7 @@ fun MullvadFilterChip(
             ),
         selected = false,
         onClick = onRemoveClick,
-        label = { Text(text = text, style = MaterialTheme.typography.labelMedium) },
+        label = { Text(text = text, style = MaterialTheme.typography.labelLarge) },
         trailingIcon =
             if (enabled) {
                 {

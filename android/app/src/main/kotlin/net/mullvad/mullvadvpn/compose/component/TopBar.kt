@@ -372,7 +372,7 @@ fun MullvadTopBarWithDeviceName(
                     } ?: "",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelLarge,
                 color = iconTintColor,
             )
             if (daysLeftUntilExpiry != null) {
@@ -390,7 +390,7 @@ fun MullvadTopBarWithDeviceName(
                                 stringResource(id = R.string.out_of_time)
                             },
                         ),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelLarge,
                     color = iconTintColor,
                 )
             } else {

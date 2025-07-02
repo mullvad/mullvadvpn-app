@@ -77,14 +77,14 @@ fun ChangelogScreen(state: ChangelogUiState, onBackClick: () -> Unit) {
             ) {
                 Text(
                     text = state.version,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 if (state.changes.isEmpty()) {
                     Text(
                         text = stringResource(R.string.changelog_empty),
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 } else {
@@ -101,14 +101,14 @@ private fun ChangeListItem(text: String) {
         Row {
             Text(
                 text = "•",
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.width(Dimens.buttonSpacing),
                 textAlign = TextAlign.Center,
             )
             Text(
                 text = text,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }

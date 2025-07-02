@@ -7,49 +7,17 @@ import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.Shapes
-import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.color.ColorDarkTokens
 import net.mullvad.mullvadvpn.lib.theme.color.ColorLightTokens
 import net.mullvad.mullvadvpn.lib.theme.dimensions.Dimensions
 import net.mullvad.mullvadvpn.lib.theme.dimensions.defaultDimensions
-import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale
-
-// Add our own definitions here
-private val MullvadTypography =
-    Typography(
-        headlineLarge = TextStyle(fontSize = TypeScale.TextHuge, fontWeight = FontWeight.Bold),
-        headlineMedium =
-            TextStyle(
-                fontWeight = FontWeight.Bold,
-                fontSize = TypeScale.TextHeadline,
-                lineHeight = TypeScale.HeadlineMediumLineHeight,
-            ),
-        headlineSmall = TextStyle(fontSize = TypeScale.TextBig, fontWeight = FontWeight.Bold),
-        bodySmall =
-            TextStyle(fontSize = TypeScale.TextSmall, lineHeight = TypeScale.TextMediumPlus),
-        titleSmall = TextStyle(fontSize = TypeScale.TextMedium, fontWeight = FontWeight.SemiBold),
-        titleMedium =
-            TextStyle(fontSize = TypeScale.TextMediumPlus, fontWeight = FontWeight.SemiBold),
-        titleLarge = TextStyle(fontSize = TypeScale.TitleLarge, fontFamily = FontFamily.SansSerif),
-        labelMedium = TextStyle(fontSize = TypeScale.TextSmall, fontWeight = FontWeight.SemiBold),
-        labelLarge =
-            TextStyle(
-                fontWeight = FontWeight.Normal,
-                letterSpacing = TextUnit.Unspecified,
-                fontSize = TypeScale.TextMedium,
-            ),
-    )
 
 private val lightColorScheme =
     lightColorScheme(
@@ -168,7 +136,7 @@ private val LocalAppDimens = staticCompositionLocalOf { defaultDimensions }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    val typography = MullvadTypography
+    val typography = MullvadMaterial3Typography
     // Set dimensions and type scale based on configurations here
     val dimensions = defaultDimensions
 

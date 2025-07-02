@@ -197,7 +197,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
             Text(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
                 style =
-                    MaterialTheme.typography.titleMedium.copy(
+                    MaterialTheme.typography.labelLarge.copy(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                 text = annotatedTopText,
@@ -210,7 +210,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
             )
             Text(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 text =
                     HtmlCompat.fromHtml(

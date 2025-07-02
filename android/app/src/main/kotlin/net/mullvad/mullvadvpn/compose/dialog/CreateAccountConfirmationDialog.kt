@@ -38,8 +38,8 @@ fun CreateAccountConfirmation(navigator: ResultBackNavigator<Confirmed>) {
     ) {
         Text(
             text = stringResource(id = R.string.create_new_account_warning_paragraph1),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -47,8 +47,8 @@ fun CreateAccountConfirmation(navigator: ResultBackNavigator<Confirmed>) {
 
         Text(
             text = stringResource(id = R.string.create_new_account_warning_paragraph2),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.fillMaxWidth(),
         )
     }
