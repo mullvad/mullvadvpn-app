@@ -180,7 +180,7 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
                                                          struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                                          struct SwiftAccessMethodSettingsWrapper settings_provider,
                                                          struct SwiftAddressCacheWrapper address_cache,
-                                                         void (*access_method_change_callback)(void));
+                                                         void (*access_method_change_callback)(const uint8_t*));
 
 /**
  * # Safety
@@ -202,7 +202,7 @@ struct SwiftApiContext mullvad_api_init_new(const char *host,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                             struct SwiftAccessMethodSettingsWrapper settings_provider,
                                             struct SwiftAddressCacheWrapper address_cache,
-                                            void (*access_method_change_callback)(void));
+                                            void (*access_method_change_callback)(const uint8_t*));
 
 /**
  * # Safety
@@ -225,7 +225,7 @@ struct SwiftApiContext mullvad_api_init_inner(const char *host,
                                               struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                               struct SwiftAccessMethodSettingsWrapper settings_provider,
                                               struct SwiftAddressCacheWrapper address_cache,
-                                              void (*access_method_change_callback)(void));
+                                              void (*access_method_change_callback)(const uint8_t*));
 
 /**
  * Converts parameters into a `Box<AccessMethodSetting>` raw representation that

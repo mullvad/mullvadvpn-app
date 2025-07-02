@@ -139,7 +139,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
-    access_method_change_callback: Option<unsafe extern "C" fn()>,
+    access_method_change_callback: Option<unsafe extern "C" fn(* const u8)>,
 ) -> SwiftApiContext {
     mullvad_api_init_inner(
         host,
@@ -173,7 +173,7 @@ pub extern "C" fn mullvad_api_init_new(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
-    access_method_change_callback: Option<unsafe extern "C" fn()>,
+    access_method_change_callback: Option<unsafe extern "C" fn(* const u8)>,
 ) -> SwiftApiContext {
     #[cfg(feature = "api-override")]
     return mullvad_api_init_inner(
@@ -219,8 +219,9 @@ pub extern "C" fn mullvad_api_init_inner(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
-    access_method_change_callback: Option<unsafe extern "C" fn()>,
+    access_method_change_callback: Option<unsafe extern "C" fn(* const u8)>,
 ) -> SwiftApiContext {
+    log::warn!(">>> mullvad_api_init_inner");
     // Safety: See notes for `convert_c_string`
     let (host, address, domain) = unsafe {
         (
@@ -272,10 +273,13 @@ pub extern "C" fn mullvad_api_init_inner(
         tokio::spawn(async move {
             // SAFETY: The callback is expected to be called from the Swift side
             if let Some(callback) = access_method_change_callback {
-                while let Some((event, sender)) = rx.next().await {
+                while let Some((event, _sender)) = rx.next().await {
+                    let AccessMethodEvent::New { setting, connection_mode, endpoint } = event else { continue };
+                    let uuid = setting.get_id();
+                    let uuid_bytes = uuid.as_bytes();
                     // SAFETY: The callback is expected to be safe to call
-                    unsafe { callback() };
-                    log::warn!("ASDASDASDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASDASDASDASD {event:?}");
+                    unsafe { callback(uuid_bytes.as_ptr()) };
+                    //log::warn!("ASDASDASDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASDASDASDASD {event:?}");
                 }
             }
         });
