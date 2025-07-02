@@ -118,6 +118,9 @@ pub enum FirewallPolicy {
         allow_lan: bool,
         /// Host that should be reachable while in the blocked state.
         allowed_endpoint: Option<AllowedEndpoint>,
+        /// If blocked state should be persisted across a reboot (restart of BFE)
+        #[cfg(target_os = "windows")]
+        persist: bool,
     },
 }
 
