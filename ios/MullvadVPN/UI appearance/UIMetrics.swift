@@ -95,7 +95,6 @@ enum UIMetrics {
             trailing: 16
         )
         static let apiAccessCellHeight: CGFloat = 44
-        static let customListsCellHeight: CGFloat = 44
         static let apiAccessSwitchCellTrailingMargin: CGFloat = apiAccessInsetLayoutMargins.trailing - 4
         static let apiAccessPickerListContentInsetTop: CGFloat = 16
         static let verticalDividerHeight: CGFloat = 22

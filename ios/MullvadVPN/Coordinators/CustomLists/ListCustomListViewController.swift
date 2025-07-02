@@ -87,7 +87,6 @@ class ListCustomListViewController: UIViewController {
         tableView.separatorColor = .secondaryColor
         tableView.separatorInset = .zero
         tableView.separatorStyle = .singleLine
-        tableView.rowHeight = UIMetrics.SettingsCell.customListsCellHeight
         tableView.registerReusableViews(from: CellReuseIdentifier.self)
         tableView.setAccessibilityIdentifier(.listCustomListsTableView)
     }
