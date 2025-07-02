@@ -94,7 +94,7 @@ pub struct InitialTunnelState {
     pub allow_lan: bool,
     /// Block traffic unless connected to the VPN.
     #[cfg(not(target_os = "android"))]
-    pub block_when_disconnected: bool,
+    pub block_when_disconnected: BlockWhenDisconnected,
     /// DNS configuration to use
     pub dns_config: DnsConfig,
     /// A single endpoint that is allowed to communicate outside the tunnel, i.e.
@@ -200,7 +200,7 @@ pub enum TunnelCommand {
     Dns(crate::dns::DnsConfig, oneshot::Sender<()>),
     /// Enable or disable the block_when_disconnected feature.
     #[cfg(not(target_os = "android"))]
-    BlockWhenDisconnected(bool, oneshot::Sender<()>),
+    BlockWhenDisconnected(BlockWhenDisconnected, oneshot::Sender<()>),
     /// Notify the state machine of the connectivity of the device.
     Connectivity(Connectivity),
     /// Open tunnel connection.
@@ -224,9 +224,6 @@ pub enum TunnelCommand {
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<String>,
     ),
-    /// If blocked state should be persisted across a reboot (restart of BFE)
-    #[cfg(target_os = "windows")]
-    PersistBlockedState(bool),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
@@ -235,6 +232,80 @@ enum EventResult {
     Command(Option<TunnelCommand>),
     Event(Option<(TunnelEvent, oneshot::Sender<()>)>),
     Close(Result<Option<ErrorStateCause>, oneshot::Canceled>),
+}
+
+/// Argument of TunnelCommand::BlockWhenDisconnected message.
+///
+/// Semantically equivalent to a boolean value, but is grouped togetether with the persist
+/// parameter on Windows for cohesiveness.
+#[derive(Clone, Copy, Debug)]
+pub struct BlockWhenDisconnected {
+    /// If firewall should apply blocking rules in the disconnected state.
+    enable: bool,
+    /// If blocked state should be persisted across a reboot (restart of BFE)
+    persist: bool,
+}
+
+impl BlockWhenDisconnected {
+    /// `true`. Apply blocking firewall rules in the disconnected state.
+    pub const fn yes() -> Self {
+        BlockWhenDisconnected {
+            enable: true,
+            persist: true,
+        }
+    }
+
+    /// `false`. Do *not* apply blocking firewall rules in the disconnected state.
+    pub const fn no() -> Self {
+        BlockWhenDisconnected {
+            enable: false,
+            persist: true,
+        }
+    }
+
+    /// [self] as a boolean value.
+    pub const fn bool(&self) -> bool {
+        self.enable
+    }
+
+    /// If [BlockWhenDisconnected] should persist across reboots.
+    ///
+    /// Semantically meaningless on non-Windows platforms, will always return true.
+    pub const fn should_persist(&self) -> bool {
+        if cfg!(target_os = "windows") {
+            self.persist
+        } else {
+            true
+        }
+    }
+
+    /// Semantically meaningless on non-Windows platforms
+    #[cfg(not(target_os = "windows"))]
+    pub fn persist(self, _persist: bool) -> Self {
+        self
+    }
+
+    /// Semantically meaningless on non-Windows platforms
+    #[cfg(target_os = "windows")]
+    pub fn persist(self, persist: bool) -> Self {
+        BlockWhenDisconnected { persist, ..self }
+    }
+}
+
+impl From<bool> for BlockWhenDisconnected {
+    fn from(block: bool) -> Self {
+        if block {
+            BlockWhenDisconnected::yes()
+        } else {
+            BlockWhenDisconnected::no()
+        }
+    }
+}
+
+impl PartialEq for BlockWhenDisconnected {
+    fn eq(&self, other: &Self) -> bool {
+        self.enable == other.enable
+    }
 }
 
 /// Asynchronous handling of the tunnel state machine.
@@ -298,7 +369,8 @@ impl TunnelStateMachine {
 
         let fw_args = FirewallArguments {
             #[cfg(not(target_os = "android"))]
-            initial_state: if args.settings.block_when_disconnected || !args.settings.reset_firewall
+            initial_state: if args.settings.block_when_disconnected.bool()
+                || !args.settings.reset_firewall
             {
                 InitialFirewallState::Blocked(args.settings.allowed_endpoint.clone())
             } else {
@@ -477,7 +549,7 @@ struct SharedTunnelStateValues {
     allow_lan: bool,
     /// Should network access be allowed when in the disconnected state.
     #[cfg(not(target_os = "android"))]
-    block_when_disconnected: bool,
+    block_when_disconnected: BlockWhenDisconnected,
     /// True when the computer is known to be offline.
     connectivity: Connectivity,
     /// DNS configuration to use.
