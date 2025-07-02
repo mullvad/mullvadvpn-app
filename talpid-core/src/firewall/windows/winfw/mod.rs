@@ -1,29 +1,15 @@
-//! Rust bindings for the WinFW library written in C++.
+//! Safe bindings for the WinFW library.
 
-use super::{
-    multibyte_to_wide, widestring_ip, AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString,
-};
-use std::{
-    ffi::{c_char, c_void, CStr},
-    ptr,
-};
+use super::{widestring_ip, AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString};
+use std::ptr;
 use talpid_types::{net::TransportProtocol, tunnel::FirewallPolicyError};
-use windows_sys::Win32::Globalization::CP_ACP;
+
+mod sys;
+use sys::*;
+pub use sys::{WinFwAllowedEndpointContainer, WinFwCleanupPolicy, WinFwSettings};
 
 /// Timeout for acquiring the WFP transaction lock
 const WINFW_TIMEOUT_SECONDS: u32 = 5;
-
-type LogSink = extern "system" fn(level: log::Level, msg: *const c_char, context: *mut c_void);
-
-const LOGGING_CONTEXT: &CStr = c"WinFw";
-
-pub struct WinFwAllowedEndpointContainer {
-    _clients: Box<[WideCString]>,
-    clients_ptrs: Box<[*const u16]>,
-    ip: WideCString,
-    port: u16,
-    protocol: WinFwProt,
-}
 
 /// Initialize WinFw module. Returns an initialization error if called multiple times without
 /// interleaving [Self::deinit].
@@ -279,46 +265,6 @@ pub(super) fn apply_policy_connected(
     result.into_result()
 }
 
-/// Logging callback implementation.
-///
-/// SAFETY:
-/// - `msg` must point to a valid C string or be null.
-/// - `context` must point to a valid C string or be null.
-pub extern "system" fn log_sink(
-    level: log::Level,
-    msg: *const std::ffi::c_char,
-    context: *mut std::ffi::c_void,
-) {
-    if msg.is_null() {
-        log::error!("Log message from FFI boundary is NULL");
-        return;
-    }
-
-    let target = if context.is_null() {
-        "UNKNOWN".into()
-    } else {
-        // SAFETY: context is not null & caller promise that context is a valid C string.
-        unsafe { CStr::from_ptr(context as *const _).to_string_lossy() }
-    };
-
-    // SAFETY: msg is not null & caller promise that msg is a valid C string.
-    let mb_string = unsafe { CStr::from_ptr(msg) };
-
-    let managed_msg = match multibyte_to_wide(mb_string, CP_ACP) {
-        Ok(wide_str) => String::from_utf16_lossy(&wide_str),
-        // Best effort:
-        Err(_) => mb_string.to_string_lossy().into_owned(),
-    };
-
-    log::logger().log(
-        &log::Record::builder()
-            .level(level)
-            .target(&target)
-            .args(format_args!("{}", managed_msg))
-            .build(),
-    );
-}
-
 impl From<AllowedEndpoint> for WinFwAllowedEndpointContainer {
     fn from(endpoint: AllowedEndpoint) -> Self {
         let clients = endpoint
@@ -342,47 +288,6 @@ impl From<AllowedEndpoint> for WinFwAllowedEndpointContainer {
     }
 }
 
-impl WinFwAllowedEndpointContainer {
-    pub fn as_endpoint(&self) -> WinFwAllowedEndpoint<'_> {
-        WinFwAllowedEndpoint {
-            num_clients: self.clients_ptrs.len() as u32,
-            clients: self.clients_ptrs.as_ptr(),
-            endpoint: WinFwEndpoint {
-                ip: self.ip.as_ptr(),
-                port: self.port,
-                protocol: self.protocol,
-            },
-
-            _phantom: std::marker::PhantomData,
-        }
-    }
-}
-
-#[repr(C)]
-pub struct WinFwAllowedEndpoint<'a> {
-    num_clients: u32,
-    clients: *const *const libc::wchar_t,
-    endpoint: WinFwEndpoint,
-
-    _phantom: std::marker::PhantomData<&'a WinFwAllowedEndpointContainer>,
-}
-
-#[repr(C)]
-pub struct WinFwAllowedTunnelTraffic {
-    pub type_: WinFwAllowedTunnelTrafficType,
-    pub endpoint1: *const WinFwEndpoint,
-    pub endpoint2: *const WinFwEndpoint,
-}
-
-#[repr(u8)]
-#[derive(Clone, Copy)]
-pub enum WinFwAllowedTunnelTrafficType {
-    None,
-    All,
-    One,
-    Two,
-}
-
 impl From<&AllowedTunnelTraffic> for WinFwAllowedTunnelTrafficType {
     fn from(traffic: &AllowedTunnelTraffic) -> Self {
         match traffic {
@@ -394,20 +299,6 @@ impl From<&AllowedTunnelTraffic> for WinFwAllowedTunnelTrafficType {
     }
 }
 
-#[repr(C)]
-pub struct WinFwEndpoint {
-    pub ip: *const libc::wchar_t,
-    pub port: u16,
-    pub protocol: WinFwProt,
-}
-
-#[repr(u8)]
-#[derive(Clone, Copy)]
-pub enum WinFwProt {
-    Tcp = 0u8,
-    Udp = 1u8,
-}
-
 impl From<TransportProtocol> for WinFwProt {
     fn from(prot: TransportProtocol) -> WinFwProt {
         match prot {
@@ -415,43 +306,6 @@ impl From<TransportProtocol> for WinFwProt {
             TransportProtocol::Udp => WinFwProt::Udp,
         }
     }
-}
-
-#[repr(C)]
-#[allow(non_snake_case)]
-pub struct WinFwSettings {
-    permitDhcp: bool,
-    permitLan: bool,
-}
-
-impl WinFwSettings {
-    pub fn new(permit_lan: bool) -> WinFwSettings {
-        WinFwSettings {
-            permitDhcp: true,
-            permitLan: permit_lan,
-        }
-    }
-}
-
-#[allow(dead_code)]
-#[repr(u32)]
-#[derive(Clone, Copy)]
-pub enum WinFwCleanupPolicy {
-    ContinueBlocking = 0,
-    ResetFirewall = 1,
-    BlockingUntilReboot = 2,
-}
-
-ffi_error!(InitializationResult, Error::Initialization);
-ffi_error!(DeinitializationResult, Error::Deinitialization);
-
-#[derive(Debug)]
-#[allow(dead_code)]
-#[repr(u32)]
-pub enum WinFwPolicyStatus {
-    Success = 0,
-    GeneralFailure = 1,
-    LockTimeout = 2,
 }
 
 impl WinFwPolicyStatus {
@@ -471,58 +325,4 @@ impl From<WinFwPolicyStatus> for Result<(), super::FirewallPolicyError> {
     fn from(val: WinFwPolicyStatus) -> Self {
         val.into_result()
     }
-}
-
-unsafe extern "system" {
-    #[link_name = "WinFw_Initialize"]
-    pub fn WinFw_Initialize(
-        timeout: libc::c_uint,
-        sink: Option<LogSink>,
-        sink_context: *const c_char,
-    ) -> InitializationResult;
-
-    #[link_name = "WinFw_InitializeBlocked"]
-    pub fn WinFw_InitializeBlocked(
-        timeout: libc::c_uint,
-        settings: &WinFwSettings,
-        allowed_endpoint: *const WinFwAllowedEndpoint<'_>,
-        sink: Option<LogSink>,
-        sink_context: *const c_char,
-    ) -> InitializationResult;
-
-    #[link_name = "WinFw_Deinitialize"]
-    pub fn WinFw_Deinitialize(cleanupPolicy: WinFwCleanupPolicy) -> DeinitializationResult;
-
-    #[link_name = "WinFw_ApplyPolicyConnecting"]
-    pub fn WinFw_ApplyPolicyConnecting(
-        settings: &WinFwSettings,
-        relay: &WinFwEndpoint,
-        relayClient: *const *const libc::wchar_t,
-        relayClientLen: usize,
-        tunnelIfaceAlias: *const libc::wchar_t,
-        allowedEndpoint: *const WinFwAllowedEndpoint<'_>,
-        allowedTunnelTraffic: &WinFwAllowedTunnelTraffic,
-    ) -> WinFwPolicyStatus;
-
-    #[link_name = "WinFw_ApplyPolicyConnected"]
-    pub fn WinFw_ApplyPolicyConnected(
-        settings: &WinFwSettings,
-        relay: &WinFwEndpoint,
-        relayClient: *const *const libc::wchar_t,
-        relayClientLen: usize,
-        tunnelIfaceAlias: *const libc::wchar_t,
-        tunnelDnsServers: *const *const libc::wchar_t,
-        numTunnelDnsServers: usize,
-        nonTunnelDnsServers: *const *const libc::wchar_t,
-        numNonTunnelDnsServers: usize,
-    ) -> WinFwPolicyStatus;
-
-    #[link_name = "WinFw_ApplyPolicyBlocked"]
-    pub fn WinFw_ApplyPolicyBlocked(
-        settings: &WinFwSettings,
-        allowed_endpoint: *const WinFwAllowedEndpoint<'_>,
-    ) -> WinFwPolicyStatus;
-
-    #[link_name = "WinFw_Reset"]
-    pub fn WinFw_Reset() -> WinFwPolicyStatus;
 }
