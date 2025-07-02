@@ -152,10 +152,7 @@ impl Firewall {
             FirewallPolicy::Blocked {
                 allow_lan,
                 allowed_endpoint,
-                persist,
             } => {
-                // Indicate whether blocking rules should be cleared on reboot
-                self.persist = persist;
                 let cfg = &WinFwSettings::new(allow_lan);
                 self.set_blocked_state(
                     cfg,
@@ -186,6 +183,10 @@ impl Firewall {
         });
 
         Ok(())
+    }
+
+    pub fn persist(&mut self, persist: bool) {
+        self.persist = persist;
     }
 
     fn set_connecting_state(

@@ -224,6 +224,9 @@ pub enum TunnelCommand {
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<String>,
     ),
+    /// If blocked state should be persisted across a reboot (restart of BFE)
+    #[cfg(target_os = "windows")]
+    PersistBlockedState(bool),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;

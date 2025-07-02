@@ -118,9 +118,6 @@ pub enum FirewallPolicy {
         allow_lan: bool,
         /// Host that should be reachable while in the blocked state.
         allowed_endpoint: Option<AllowedEndpoint>,
-        /// If blocked state should be persisted across a reboot (restart of BFE)
-        #[cfg(target_os = "windows")]
-        persist: bool,
     },
 }
 
@@ -328,5 +325,11 @@ impl Firewall {
     pub fn reset_policy(&mut self) -> Result<(), Error> {
         log::info!("Resetting firewall policy");
         self.inner.reset_policy()
+    }
+
+    /// Sets whether the firewall should persist the blocking rules across a reboot.
+    #[cfg(target_os = "windows")]
+    pub fn persist(&mut self, persist: bool) {
+        self.inner.persist(persist);
     }
 }
