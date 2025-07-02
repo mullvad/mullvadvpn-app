@@ -152,7 +152,10 @@ impl Firewall {
             FirewallPolicy::Blocked {
                 allow_lan,
                 allowed_endpoint,
+                persist,
             } => {
+                // Indicate whether blocking rules should be cleared on reboot
+                self.persist = persist;
                 let cfg = &WinFwSettings::new(allow_lan);
                 self.set_blocked_state(
                     cfg,
@@ -231,7 +234,8 @@ impl Firewall {
 
 impl Drop for Firewall {
     fn drop(&mut self) {
-        // TODO: Comment mee
+        // Deinitialize WinFW with or without persistent filters.
+        // All other filters should still remain intact.
         let cleanup_policy = if self.persist {
             WinFwCleanupPolicy::ContinueBlocking
         } else {
