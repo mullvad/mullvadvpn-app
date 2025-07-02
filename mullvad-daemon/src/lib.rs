@@ -1114,8 +1114,6 @@ impl Daemon {
             LocationEvent(location_data) => self.handle_location_event(location_data),
             SettingsChanged => {
                 self.update_feature_indicators_on_settings_changed();
-                #[cfg(target_os = "windows")]
-                self.maybe_make_blocked_state_non_persistent();
             }
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
@@ -3163,6 +3161,8 @@ impl Daemon {
         //       without causing the service to be restarted.
         #[cfg(not(target_os = "android"))]
         if *self.target_state == TargetState::Secured {
+            #[cfg(target_os = "windows")]
+            self.maybe_make_blocked_state_non_persistent();
             let (tx, _rx) = oneshot::channel();
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true, tx));
         }
