@@ -36,6 +36,11 @@ public struct MullvadApiContext: @unchecked Sendable {
         self.addressCacheProvider = defaultAddressCache
         self.addressCacheWrapper = iniSwiftAddressCacheWrapper(provider: defaultAddressCache)
 
+        func onAccessChange(bytes: UnsafePointer<UInt8>?) {
+            let uuid = NSUUID(uuidBytes: bytes) as UUID
+            print("---\n*** access method changed to \(uuid)\n------------")
+        }
+        
         context = switch disableTls {
         case true:
             mullvad_api_init_new_tls_disabled(
@@ -45,7 +50,7 @@ public struct MullvadApiContext: @unchecked Sendable {
                 shadowsocksBridgeProviderWrapper,
                 accessMethodWrapper,
                 addressCacheWrapper,
-                { _ in print("***") }
+                onAccessChange
             )
         case false:
             mullvad_api_init_new(
@@ -55,7 +60,7 @@ public struct MullvadApiContext: @unchecked Sendable {
                 shadowsocksBridgeProviderWrapper,
                 accessMethodWrapper,
                 addressCacheWrapper,
-                { _ in print("***") }
+                onAccessChange
             )
         }
 
