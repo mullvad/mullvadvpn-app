@@ -326,4 +326,10 @@ impl Firewall {
         log::info!("Resetting firewall policy");
         self.inner.reset_policy()
     }
+
+    /// Sets whether the firewall should persist the blocking rules across a reboot.
+    #[cfg(target_os = "windows")]
+    pub fn persist(&mut self, persist: bool) {
+        self.inner.persist(persist);
+    }
 }

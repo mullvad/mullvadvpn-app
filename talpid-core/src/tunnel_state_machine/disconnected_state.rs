@@ -30,7 +30,7 @@ impl DisconnectedState {
             );
         }
         #[cfg(target_os = "macos")]
-        if shared_values.block_when_disconnected {
+        if shared_values.block_when_disconnected.bool() {
             if let Err(err) = Self::setup_local_dns_config(shared_values) {
                 log::error!(
                     "{}",
@@ -64,7 +64,7 @@ impl DisconnectedState {
                 // Being disconnected and having lockdown mode enabled implies that your internet
                 // access is locked down
                 #[cfg(not(target_os = "android"))]
-                locked_down: shared_values.block_when_disconnected,
+                locked_down: shared_values.block_when_disconnected.bool(),
             },
         )
     }
@@ -74,7 +74,15 @@ impl DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: bool,
     ) {
-        let result = if shared_values.block_when_disconnected {
+        let result = if shared_values.block_when_disconnected.bool() {
+            #[cfg(target_os = "windows")]
+            {
+                // Respect the persist flag of BlockWhenDisconnected.
+                shared_values
+                    .firewall
+                    .persist(shared_values.block_when_disconnected.should_persist());
+            }
+
             let policy = FirewallPolicy::Blocked {
                 allow_lan: shared_values.allow_lan,
                 allowed_endpoint: Some(shared_values.allowed_endpoint.clone()),
@@ -110,7 +118,7 @@ impl DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: bool,
     ) {
-        if should_reset_firewall && !shared_values.block_when_disconnected {
+        if should_reset_firewall && !shared_values.block_when_disconnected.bool() {
             if let Err(error) = shared_values.split_tunnel.clear_tunnel_addresses() {
                 log::error!(
                     "{}",
@@ -198,7 +206,7 @@ impl TunnelState for DisconnectedState {
                     #[cfg(windows)]
                     Self::register_split_tunnel_addresses(shared_values, true);
                     #[cfg(target_os = "macos")]
-                    if block_when_disconnected {
+                    if block_when_disconnected.bool() {
                         if let Err(err) = Self::setup_local_dns_config(shared_values) {
                             log::error!(
                                 "{}",
