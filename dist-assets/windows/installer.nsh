@@ -314,7 +314,7 @@
 
 	log::Log "Removing Split Tunneling driver"
 	nsExec::ExecToStack '"$PLUGINSDIR\driverlogic.exe" st-remove'
-	
+
 	Pop $0
 	Pop $1
 
@@ -324,7 +324,7 @@
 		log::LogWithDetails $R0 $1
 		Goto RemoveSplitTunnelDriver_return
 	${EndIf}
-	
+
 	log::Log "RemoveSplitTunnelDriver() completed successfully"
 
 	Push 0
@@ -839,7 +839,7 @@
 
 	${FirewallWarningCheck}
 	${ExtractMullvadSetup}
-	${ClearFirewallRules}
+	# ${ClearFirewallRules}
 
 	Abort
 
@@ -888,7 +888,7 @@
 
 	${FirewallWarningCheck}
 	${ExtractMullvadSetup}
-	${ClearFirewallRules}
+	# ${ClearFirewallRules}
 
 	# Give the user some helpful instructions about how to proceed
 	Push $0
@@ -1136,7 +1136,7 @@
 	Delete "$INSTDIR\mullvad vpn.exe"
 
 	${If} $FullUninstall == 1
-		${ClearFirewallRules}
+		# ${ClearFirewallRules}
 	${EndIf}
 
 	log::Log "Aborting uninstaller"
@@ -1149,7 +1149,7 @@
 	${RemoveCLIFromEnvironPath}
 
 	${If} $FullUninstall == 1
-		${ClearFirewallRules}
+		# ${ClearFirewallRules}
 		${RemoveCurrentDevice}
 
 		${ExtractWireGuard}
