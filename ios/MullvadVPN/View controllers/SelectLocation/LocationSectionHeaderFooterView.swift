@@ -110,7 +110,7 @@ extension LocationSectionHeaderFooterView {
     struct Configuration: UIContentConfiguration, Equatable {
         let name: String
         let style: Style
-        var directionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 8)
+        var directionalEdgeInsets = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 8)
         var primaryAction: UIAction?
 
         func makeContentView() -> UIView & UIContentView {
