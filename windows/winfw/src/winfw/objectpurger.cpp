@@ -71,6 +71,22 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveNonPersistentFunctor()
 }
 
 //static
+ObjectPurger::RemovalFunctor ObjectPurger::GetRemovePersistentFunctor()
+{
+	return [](wfp::FilterEngine &engine)
+	{
+		const auto registry = MullvadGuids::DetailedRegistry(MullvadGuids::IdentityQualifier::IncludePersistent);
+
+		// Resolve correct overload.
+		void(*deleter)(wfp::FilterEngine &, const GUID &) = wfp::ObjectDeleter::DeleteFilter;
+
+		RemoveRange(engine, deleter, registry.equal_range(WfpObjectType::Filter));
+		RemoveRange(engine, wfp::ObjectDeleter::DeleteSublayer, registry.equal_range(WfpObjectType::Sublayer));
+		RemoveRange(engine, wfp::ObjectDeleter::DeleteProvider, registry.equal_range(WfpObjectType::Provider));
+	};
+}
+
+//static
 bool ObjectPurger::Execute(RemovalFunctor f)
 {
 	auto engine = wfp::FilterEngine::StandardSession();
