@@ -47,8 +47,7 @@ class AccountNumberRow: UIView {
     }()
 
     private let showHideButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.tintColor = .white
+        let button = UIButton(type: .custom)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
@@ -57,7 +56,6 @@ class AccountNumberRow: UIView {
     private let copyButton: UIButton = {
         let button = UIButton(type: .system)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = true
-        button.tintColor = .white
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
     }()
@@ -215,7 +213,7 @@ class AccountNumberRow: UIView {
 
     private func showCheckmark(_ showCheckmark: Bool) {
         if showCheckmark {
-            let tickIcon = UIImage.tick
+            let tickIcon = UIImage.tick.withRenderingMode(.alwaysTemplate)
 
             copyButton.setImage(tickIcon, for: .normal)
             copyButton.tintColor = .successColor

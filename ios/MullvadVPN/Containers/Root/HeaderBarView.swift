@@ -9,8 +9,7 @@
 import UIKit
 
 class HeaderBarView: UIView {
-    private let brandNameImage = UIImage(named: "LogoText")?
-        .withTintColor(UIColor.HeaderBar.brandNameColor, renderingMode: .alwaysOriginal)
+    private let brandNameImage = UIImage(named: "LogoText")
 
     private let logoImageView = UIImageView(image: UIImage(named: "LogoIcon"))
 
@@ -88,9 +87,8 @@ class HeaderBarView: UIView {
     }()
 
     class func makeHeaderBarButton(with image: UIImage?) -> IncreasedHitButton {
-        let buttonImage = image?.withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
         let barButton = IncreasedHitButton(type: .system)
-        barButton.setBackgroundImage(buttonImage, for: .normal)
+        barButton.setBackgroundImage(image, for: .normal)
         barButton.configureForAutoLayout()
 
         return barButton

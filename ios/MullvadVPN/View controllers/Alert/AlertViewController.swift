@@ -33,9 +33,9 @@ enum AlertIcon {
         case .alert:
             return UIImage.Buttons.alert.withTintColor(.dangerColor)
         case .warning:
-            return UIImage.Buttons.alert.withTintColor(.white)
+            return UIImage.Buttons.alert
         case .info:
-            return UIImage.Buttons.info.withTintColor(.white)
+            return UIImage.Buttons.info
         default:
             return nil
         }

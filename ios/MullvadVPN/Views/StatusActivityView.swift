@@ -29,7 +29,6 @@ class StatusActivityView: UIView {
 
     private let activityIndicator: SpinnerActivityIndicatorView = {
         let view = SpinnerActivityIndicatorView(style: .large)
-        view.tintColor = .white
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

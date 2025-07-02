@@ -41,9 +41,9 @@ class LocationSectionHeaderFooterView: UIView, UIContentView {
     }()
 
     private let actionButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
-        button.tintColor = UIColor(white: 1, alpha: 0.6)
+        button.tintColor = .white
         return button
     }()
 

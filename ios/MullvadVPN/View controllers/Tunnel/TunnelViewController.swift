@@ -30,7 +30,6 @@ class TunnelViewController: UIViewController, RootContainment {
     let activityIndicator: SpinnerActivityIndicatorView = {
         let activityIndicator = SpinnerActivityIndicatorView(style: .large)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.tintColor = .white
         activityIndicator.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         activityIndicator.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return activityIndicator

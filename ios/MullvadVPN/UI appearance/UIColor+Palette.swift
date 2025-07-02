@@ -75,7 +75,6 @@ extension UIColor {
 
     // Navigation bars
     enum NavigationBar {
-        static let buttonColor = UIColor(white: 1.0, alpha: 0.8)
         static let backButtonTitleColor = UIColor.white
         static let titleColor = UIColor.white
         static let promptColor = UIColor.white
@@ -104,8 +103,6 @@ extension UIColor {
 
         static let titleTextColor = UIColor.white
         static let detailTextColor = UIColor(white: 1.0, alpha: 0.8)
-
-        static let disclosureIndicatorColor = UIColor(white: 1.0, alpha: 0.8)
         static let textFieldTextColor = UIColor.white
         static let textFieldPlaceholderColor = UIColor(white: 1.0, alpha: 0.6)
 
@@ -124,8 +121,6 @@ extension UIColor {
         static let unsecuredBackgroundColor = dangerColor
         static let securedBackgroundColor = successColor
         static let dividerColor = secondaryColor
-        static let brandNameColor = UIColor(white: 1.0, alpha: 0.8)
-        static let buttonColor = UIColor(white: 1.0, alpha: 0.8)
         static let disabledButtonColor = UIColor(white: 1.0, alpha: 0.5)
     }
 
@@ -136,16 +131,11 @@ extension UIColor {
 
         static let titleColor = UIColor.white
         static let bodyColor = UIColor(white: 1.0, alpha: 0.6)
-        static let actionButtonColor = UIColor(white: 1.0, alpha: 0.8)
     }
 
     enum SegmentedControl {
         static let backgroundColor = UIColor(red: 0.14, green: 0.25, blue: 0.38, alpha: 1.0)
         static let selectedColor = successColor
-    }
-
-    enum AlertController {
-        static let tintColor = UIColor(red: 0.0, green: 0.59, blue: 1.0, alpha: 1)
     }
 
     // Common colors

@@ -155,7 +155,6 @@ class AccountDeletionContentView: UIView {
     private let activityIndicator: SpinnerActivityIndicatorView = {
         let activityIndicator = SpinnerActivityIndicatorView(style: .medium)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.tintColor = .white
         activityIndicator.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         activityIndicator.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return activityIndicator

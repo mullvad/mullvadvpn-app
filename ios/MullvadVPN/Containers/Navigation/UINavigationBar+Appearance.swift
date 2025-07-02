@@ -31,10 +31,7 @@ extension UINavigationBar {
     }
 
     private func makeNavigationBarAppearance(isTransparent: Bool) -> UINavigationBarAppearance {
-        let backIndicatorImage = UIImage.Buttons.back.withTintColor(
-            UIColor.NavigationBar.buttonColor,
-            renderingMode: .alwaysOriginal
-        )
+        let backIndicatorImage = UIImage.Buttons.back
         let backIndicatorTransitionMask = UIImage.backTransitionMask
 
         let titleTextAttributes: [NSAttributedString.Key: Any] = [

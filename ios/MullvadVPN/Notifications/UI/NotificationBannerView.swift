@@ -65,7 +65,6 @@ final class NotificationBannerView: UIView {
 
     private let actionButton: IncreasedHitButton = {
         let button = IncreasedHitButton(type: .system)
-        button.tintColor = UIColor.InAppNotificationBanner.actionButtonColor
         return button
     }()
 
@@ -92,7 +91,7 @@ final class NotificationBannerView: UIView {
             let image = action?.image
             let showsAction = image != nil
 
-            actionButton.setBackgroundImage(image, for: .normal)
+            actionButton.setBackgroundImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
             actionButton.widthAnchor.constraint(equalToConstant: 24).isActive = true
             actionButton.heightAnchor.constraint(equalTo: actionButton.widthAnchor).isActive = true
             actionButton.isHidden = !showsAction

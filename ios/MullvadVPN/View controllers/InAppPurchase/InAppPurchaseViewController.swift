@@ -113,7 +113,6 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
             preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
         )
         sheetController.overrideUserInterfaceStyle = .dark
-        sheetController.view.tintColor = .AlertController.tintColor
         products.sortedByPrice().forEach { product in
             guard let title = product.customLocalizedTitle else { return }
             let action = UIAlertAction(title: title, style: .default, handler: { _ in

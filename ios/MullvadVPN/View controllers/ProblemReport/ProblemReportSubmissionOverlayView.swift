@@ -148,7 +148,6 @@ class ProblemReportSubmissionOverlayView: UIView {
 
     let activityIndicator: SpinnerActivityIndicatorView = {
         let indicator = SpinnerActivityIndicatorView(style: .large)
-        indicator.tintColor = .white
         return indicator
     }()
 

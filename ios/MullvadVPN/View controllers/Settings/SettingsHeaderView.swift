@@ -26,7 +26,6 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         let button = UIButton(type: .custom)
         button.setAccessibilityIdentifier(.infoButton)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = true
-        button.tintColor = .white
         button.setImage(UIImage.Buttons.info, for: .normal)
         return button
     }()
@@ -35,7 +34,6 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         let button = UIButton(type: .custom)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.setAccessibilityIdentifier(.expandButton)
-        button.tintColor = .white
         return button
     }()
 

@@ -38,10 +38,7 @@ class BasicCell: UITableViewCell, DynamicBackgroundConfiguration, CustomCellDisc
         didSet {
             accessoryType = .none
 
-            guard let image = disclosureType.image?.withTintColor(
-                UIColor.Cell.disclosureIndicatorColor,
-                renderingMode: .alwaysOriginal
-            ) else {
+            guard let image = disclosureType.image else {
                 accessoryView = nil
                 return
             }

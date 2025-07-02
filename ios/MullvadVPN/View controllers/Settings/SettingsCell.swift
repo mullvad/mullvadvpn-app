@@ -43,10 +43,7 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
         didSet {
             accessoryType = .none
 
-            let image = disclosureType.image?.withTintColor(
-                UIColor.Cell.disclosureIndicatorColor,
-                renderingMode: .alwaysOriginal
-            )
+            let image = disclosureType.image
 
             if let image {
                 disclosureImageView.image = image
@@ -85,7 +82,6 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
     private let infoButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setAccessibilityIdentifier(.infoButton)
-        button.tintColor = .white
         button.setImage(UIImage.Buttons.info, for: .normal)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = true
         button.isHidden = true

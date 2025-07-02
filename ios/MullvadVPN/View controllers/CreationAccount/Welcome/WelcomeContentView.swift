@@ -69,7 +69,6 @@ final class WelcomeContentView: UIView, Sendable {
         let button = UIButton(type: .system)
         button.setAccessibilityIdentifier(.copyButton)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = true
-        button.tintColor = .white
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
     }()
@@ -89,9 +88,8 @@ final class WelcomeContentView: UIView, Sendable {
         let button = IncreasedHitButton(type: .system)
         button.setAccessibilityIdentifier(.infoButton)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = true
-        button.tintColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage.Buttons.info, for: .normal)
+        button.setImage(UIImage.Buttons.info.withRenderingMode(.alwaysOriginal), for: .normal)
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return button

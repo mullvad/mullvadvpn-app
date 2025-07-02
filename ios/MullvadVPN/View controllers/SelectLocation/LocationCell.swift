@@ -34,9 +34,8 @@ class LocationCell: UITableViewCell {
     }()
 
     private let tickImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage.tick)
+        let imageView = UIImageView(image: UIImage.tick.withRenderingMode(.alwaysOriginal))
         imageView.adjustsImageSizeForAccessibilityContentSizeCategory = true
-        imageView.tintColor = .white
         return imageView
     }()
 
@@ -57,7 +56,6 @@ class LocationCell: UITableViewCell {
         let button = UIButton(type: .custom)
         button.isAccessibilityElement = false
         button.adjustsImageSizeForAccessibilityContentSizeCategory = true
-        button.tintColor = .white
         return button
     }()
 
