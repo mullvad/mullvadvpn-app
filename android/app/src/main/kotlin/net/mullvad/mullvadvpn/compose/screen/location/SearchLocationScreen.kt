@@ -272,6 +272,7 @@ fun SearchLocationScreen(
             LazyColumn(
                 modifier =
                     Modifier.fillMaxSize()
+                        .padding(horizontal = Dimens.mediumPadding)
                         .background(color = backgroundColor)
                         .drawVerticalScrollbar(
                             lazyListState,
