@@ -31,7 +31,12 @@ enum LocationSection: String, Hashable, CaseIterable, CellIdentifierProtocol, Se
     var footer: String {
         switch self {
         case .customLists:
-            return ""
+            return NSLocalizedString(
+                "CUSTOM_LIST_FOOTER",
+                tableName: "SelectLocation",
+                value: "To create a custom list, tap on \"...\" ",
+                comment: ""
+            )
         case .allLocations:
             return NSLocalizedString(
                 "FOOTER_SELECT_LOCATION_ALL_LOCATIONS",
