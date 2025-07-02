@@ -185,6 +185,10 @@ impl Firewall {
         Ok(())
     }
 
+    pub fn persist(&mut self, persist: bool) {
+        self.persist = persist;
+    }
+
     fn set_connecting_state(
         &mut self,
         peer_endpoint: &AllowedEndpoint,
@@ -231,7 +235,8 @@ impl Firewall {
 
 impl Drop for Firewall {
     fn drop(&mut self) {
-        // TODO: Comment mee
+        // Deinitialize WinFW with or without persistent filters.
+        // All other filters should still remain intact.
         let cleanup_policy = if self.persist {
             WinFwCleanupPolicy::ContinueBlocking
         } else {
