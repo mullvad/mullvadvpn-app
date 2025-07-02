@@ -1114,6 +1114,8 @@ impl Daemon {
             LocationEvent(location_data) => self.handle_location_event(location_data),
             SettingsChanged => {
                 self.update_feature_indicators_on_settings_changed();
+                #[cfg(target_os = "windows")]
+                self.maybe_make_blocked_state_non_persistent();
             }
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
@@ -3381,6 +3383,19 @@ impl Daemon {
         DaemonShutdownHandle {
             tx: self.tx.clone(),
         }
+    }
+
+    /// During app upgrades, as a safety measure, we make the firewall filters
+    /// non-persistent. If the installation of the new version fails and
+    /// the user is left in blocked state with no app, they can reboot
+    /// to regain internet access.
+    fn maybe_make_blocked_state_non_persistent(&self) {
+        let settings = self.settings.settings();
+        let persist = settings.auto_connect || settings.block_when_disconnected;
+        self.tunnel_state_machine_handle
+            .command_tx()
+            .unbounded_send(TunnelCommand::PersistBlockedState(persist))
+            .expect("Tunnel state machine has stopped");
     }
 }
 
