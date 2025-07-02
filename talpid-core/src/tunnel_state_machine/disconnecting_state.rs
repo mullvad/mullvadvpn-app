@@ -109,11 +109,6 @@ impl DisconnectingState {
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
             }
-            #[cfg(target_os = "windows")]
-            Some(TunnelCommand::PersistBlockedState(persist)) => {
-                log::debug!("Persisting blocked state: {}", persist);
-                shared_values.firewall.persist(persist);
-            }
         };
 
         EventConsequence::SameState(self)

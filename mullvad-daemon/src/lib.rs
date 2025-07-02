@@ -83,6 +83,8 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
+#[cfg(not(target_os = "android"))]
+use talpid_core::tunnel_state_machine::BlockWhenDisconnected;
 use talpid_core::{
     mpsc::Sender,
     split_tunnel,
@@ -873,7 +875,9 @@ impl Daemon {
             tunnel_state_machine::InitialTunnelState {
                 allow_lan: settings.allow_lan,
                 #[cfg(not(target_os = "android"))]
-                block_when_disconnected: settings.block_when_disconnected,
+                block_when_disconnected: BlockWhenDisconnected::from(
+                    settings.block_when_disconnected,
+                ),
                 dns_config: dns::addresses_from_options(&settings.tunnel_options.dns_options),
                 allowed_endpoint: access_mode_handler
                     .get_current()
@@ -2382,7 +2386,7 @@ impl Daemon {
             Ok(settings_changed) => {
                 if settings_changed {
                     self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
-                        block_when_disconnected,
+                        BlockWhenDisconnected::from(block_when_disconnected),
                         oneshot_map(tx, |tx, ()| {
                             Self::oneshot_send(tx, Ok(()), "set_block_when_disconnected response");
                         }),
@@ -3084,7 +3088,7 @@ impl Daemon {
         {
             let (tx, _rx) = oneshot::channel();
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
-                self.settings.block_when_disconnected,
+                BlockWhenDisconnected::from(self.settings.block_when_disconnected),
                 tx,
             ));
         }
@@ -3146,7 +3150,10 @@ impl Daemon {
         {
             log::debug!("Blocking firewall during shutdown");
             let (tx, _rx) = oneshot::channel();
-            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true, tx));
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
+                BlockWhenDisconnected::yes(),
+                tx,
+            ));
         }
 
         self.disconnect_tunnel();
@@ -3161,10 +3168,21 @@ impl Daemon {
         //       without causing the service to be restarted.
         #[cfg(not(target_os = "android"))]
         if *self.target_state == TargetState::Secured {
-            #[cfg(target_os = "windows")]
-            self.maybe_make_blocked_state_non_persistent();
+            let persist = if cfg!(target_os = "windows") {
+                // During app upgrades, as a safety measure, we make the firewall filters
+                // non-persistent. If the installation of the new version fails and
+                // the user is left in blocked state with no app, they can reboot
+                // to regain internet access.
+                self.settings.settings().block_when_disconnected
+                    || self.settings.settings().auto_connect
+            } else {
+                true
+            };
             let (tx, _rx) = oneshot::channel();
-            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true, tx));
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
+                BlockWhenDisconnected::yes().persist(persist),
+                tx,
+            ));
         }
         self.target_state.lock();
 
@@ -3383,19 +3401,6 @@ impl Daemon {
         DaemonShutdownHandle {
             tx: self.tx.clone(),
         }
-    }
-
-    /// During app upgrades, as a safety measure, we make the firewall filters
-    /// non-persistent. If the installation of the new version fails and
-    /// the user is left in blocked state with no app, they can reboot
-    /// to regain internet access.
-    fn maybe_make_blocked_state_non_persistent(&self) {
-        let settings = self.settings.settings();
-        let persist = settings.auto_connect || settings.block_when_disconnected;
-        self.tunnel_state_machine_handle
-            .command_tx()
-            .unbounded_send(TunnelCommand::PersistBlockedState(persist))
-            .expect("Tunnel state machine has stopped");
     }
 }
 
