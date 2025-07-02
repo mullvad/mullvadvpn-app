@@ -180,6 +180,11 @@ final class LocationViewController: UIViewController {
         tableView.indicatorStyle = .white
         tableView.keyboardDismissMode = .onDrag
         tableView.setAccessibilityIdentifier(.selectLocationTableView)
+
+        tableView.register(
+            LocationSectionHeaderFooterView.self,
+            forHeaderFooterViewReuseIdentifier: LocationSectionHeaderFooterView.reuseIdentifier
+        )
     }
 
     private func setUpTopContent() {
