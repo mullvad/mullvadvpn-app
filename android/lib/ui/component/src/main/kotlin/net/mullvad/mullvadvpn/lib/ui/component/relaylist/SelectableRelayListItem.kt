@@ -181,7 +181,7 @@ private fun String.withSuffix(state: RelayListItemState) =
     }
 
 @Composable
-fun Modifier.clip(itemPosition: ItemPosition): Modifier {
+internal fun Modifier.clip(itemPosition: ItemPosition): Modifier {
     val topCornerSize =
         animateDpAsState(if (itemPosition.roundTop()) Dimens.relayItemCornerRadius else 0.dp)
     val bottomCornerSize =
