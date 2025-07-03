@@ -318,6 +318,22 @@ impl Service for TestServer {
         sys::start_app().await
     }
 
+    /// Disable the Mullvad VPN system service.
+    async fn disable_mullvad_daemon_service(
+        self,
+        _: context::Context,
+    ) -> Result<(), test_rpc::Error> {
+        sys::disable_system_service_startup().await
+    }
+
+    /// Enable the Mullvad VPN system service.
+    async fn enable_mullvad_daemon_service(
+        self,
+        _: context::Context,
+    ) -> Result<(), test_rpc::Error> {
+        sys::enable_system_service_startup().await
+    }
+
     async fn set_daemon_log_level(
         self,
         _: context::Context,
