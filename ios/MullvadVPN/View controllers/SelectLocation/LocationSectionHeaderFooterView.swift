@@ -1,5 +1,5 @@
 //
-//  LocationSectionHeaderView.swift
+//  LocationSectionHeaderFooterView.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2024-01-25.
@@ -63,7 +63,7 @@ class LocationSectionHeaderFooterView: UITableViewHeaderFooterView {
         label.text = text
         label.font = contentConfig.textProperties.font
         label.textColor = contentConfig.textProperties.color
-        label.adjustsFontForContentSizeCategory = contentConfig.textProperties.adjustsFontForContentSizeCategory
+        label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
         label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
