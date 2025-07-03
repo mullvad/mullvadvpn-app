@@ -260,7 +260,6 @@
     <string name="name_was_changed_to">Navn ble endret til %1$s</string>
     <string name="new_changelog_notification_message">Klikk her for å se hva som er nytt.</string>
     <string name="new_changelog_notification_title">NY VERSJON INSTALLERT</string>
-    <string name="new_device_notification_message">Velkommen. Denne enheten har fått navnet &lt;b&gt;%1$s&lt;/b&gt;. For å finne ut mer kan du bruke informasjonsknappen under Konto.</string>
     <string name="new_device_notification_title">NY ENHET OPPRETTET</string>
     <string name="new_list">Ny liste</string>
     <string name="no_custom_lists_available">Ingen tilgjengelige egendefinerte lister</string>

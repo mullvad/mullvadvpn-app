@@ -260,7 +260,6 @@
     <string name="name_was_changed_to">名称已更改为“%1$s”</string>
     <string name="new_changelog_notification_message">点击此处查看最新变化。</string>
     <string name="new_changelog_notification_title">已安装新版本</string>
-    <string name="new_device_notification_message">欢迎，此设备现在名为 &lt;b&gt;%1$s&lt;/b&gt;。有关详情，请点击“帐户”中的信息按钮。</string>
     <string name="new_device_notification_title">已创建新设备</string>
     <string name="new_list">新建列表</string>
     <string name="no_custom_lists_available">有可用的自定义列表</string>

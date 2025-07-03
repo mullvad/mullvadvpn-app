@@ -260,7 +260,6 @@
     <string name="name_was_changed_to">이름이 %1$s(으)로 변경되었습니다</string>
     <string name="new_changelog_notification_message">업데이트 내역을 확인하려면 여기를 클릭하세요.</string>
     <string name="new_changelog_notification_title">새 버전 설치 완료</string>
-    <string name="new_device_notification_message">환영합니다! 이제 이 장치의 이름은 &lt;b&gt;%1$s&lt;/b&gt;입니다. 자세한 내용을 보려면 계정의 정보 버튼을 누르세요.</string>
     <string name="new_device_notification_title">새 장치가 생성됨</string>
     <string name="new_list">새 목록</string>
     <string name="no_custom_lists_available">이용 가능한 사용자 지정 목록 없음</string>

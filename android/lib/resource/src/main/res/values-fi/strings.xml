@@ -260,7 +260,6 @@
     <string name="name_was_changed_to">Nimeksi vaihdettiin \"%1$s\"</string>
     <string name="new_changelog_notification_message">Katso uudet ominaisuudet napsauttamalla tästä.</string>
     <string name="new_changelog_notification_title">UUSI VERSIO ASENNETTIIN</string>
-    <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt &lt;b&gt;%1$s&lt;/b&gt;. Katso lisätietoja tilin infopainikkeesta.</string>
     <string name="new_device_notification_title">UUSI LAITE LUOTIIN</string>
     <string name="new_list">Uusi luettelo</string>
     <string name="no_custom_lists_available">Mukautettuja luetteloita ei löytynyt</string>

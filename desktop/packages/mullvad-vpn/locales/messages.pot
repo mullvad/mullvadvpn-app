@@ -3341,6 +3341,9 @@ msgstr ""
 msgid "We were unable to start the payment process, please try again later."
 msgstr ""
 
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr ""
+
 msgid "WireGuard MTU"
 msgstr ""
 
