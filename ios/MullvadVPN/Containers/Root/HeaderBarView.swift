@@ -35,8 +35,6 @@ class HeaderBarView: UIView {
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
         label.setContentHuggingPriority(.defaultHigh, for: .horizontal) // Resist growing
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        label.numberOfLines = 1
-        label.lineBreakMode = .byClipping
         label.setAccessibilityIdentifier(.headerDeviceNameLabel)
         return label
     }()
@@ -48,8 +46,6 @@ class HeaderBarView: UIView {
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
         label.setContentHuggingPriority(.defaultLow, for: .horizontal) // Allow growing
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
-        label.numberOfLines = 1
-        label.lineBreakMode = .byWordWrapping
         return label
     }()
 

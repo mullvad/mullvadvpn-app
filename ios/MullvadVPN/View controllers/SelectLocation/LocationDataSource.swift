@@ -268,36 +268,6 @@ extension LocationDataSource: UITableViewDelegate {
         return header
     }
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return UITableView.automaticDimension
-    }
-
-    func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
-        return 44
-    }
-
-//    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-//        switch sections[section] {
-//        case .allLocations:
-//            LocationSectionHeaderFooterView(
-//                configuration: LocationSectionHeaderFooterView.Configuration(
-//                    name: LocationSection.allLocations.header,
-//                    style: .header
-//                )
-//            )
-//        case .customLists:
-//            LocationSectionHeaderFooterView(configuration: LocationSectionHeaderFooterView.Configuration(
-//                name: LocationSection.customLists.header,
-//                style: .header,
-//                primaryAction: UIAction(
-//                    handler: { [weak self] _ in
-//                        self?.didTapEditCustomLists?()
-//                    }
-//                )
-//            ))
-//        }
-//    }
-
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         switch sections[section] {
         case .allLocations:
