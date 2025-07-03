@@ -234,38 +234,36 @@ enum EventResult {
     Close(Result<Option<ErrorStateCause>, oneshot::Canceled>),
 }
 
+/// If firewall should apply blocking rules in the disconnected state.
 /// Argument of TunnelCommand::BlockWhenDisconnected message.
 ///
 /// Semantically equivalent to a boolean value, but is grouped togetether with the persist
 /// parameter on Windows for cohesiveness.
 #[derive(Clone, Copy, Debug)]
-pub struct BlockWhenDisconnected {
-    /// If firewall should apply blocking rules in the disconnected state.
-    enable: bool,
-    /// If blocked state should be persisted across a reboot (restart of BFE)
-    persist: bool,
+pub enum BlockWhenDisconnected {
+    /// Firewall should *not* apply blocking rules.
+    Disabled,
+    /// Firewall should apply blocking rules.
+    Enabled {
+        /// If blocked state should be persisted across a reboot (restart of BFE)
+        persist: bool,
+    },
 }
 
 impl BlockWhenDisconnected {
     /// `true`. Apply blocking firewall rules in the disconnected state.
     pub const fn yes() -> Self {
-        BlockWhenDisconnected {
-            enable: true,
-            persist: true,
-        }
+        BlockWhenDisconnected::Enabled { persist: true }
     }
 
     /// `false`. Do *not* apply blocking firewall rules in the disconnected state.
     pub const fn no() -> Self {
-        BlockWhenDisconnected {
-            enable: false,
-            persist: true,
-        }
+        BlockWhenDisconnected::Disabled
     }
 
     /// [self] as a boolean value.
     pub const fn bool(&self) -> bool {
-        self.enable
+        matches!(self, BlockWhenDisconnected::Enabled { .. })
     }
 
     /// If [BlockWhenDisconnected] should persist across reboots.
@@ -273,7 +271,7 @@ impl BlockWhenDisconnected {
     /// Semantically meaningless on non-Windows platforms, will always return true.
     pub const fn should_persist(&self) -> bool {
         if cfg!(target_os = "windows") {
-            self.persist
+            matches!(&self, BlockWhenDisconnected::Enabled { persist: true })
         } else {
             true
         }
@@ -288,7 +286,11 @@ impl BlockWhenDisconnected {
     /// Semantically meaningless on non-Windows platforms
     #[cfg(target_os = "windows")]
     pub fn persist(self, persist: bool) -> Self {
-        BlockWhenDisconnected { persist, ..self }
+        match self {
+            BlockWhenDisconnected::Disabled => BlockWhenDisconnected::Disabled,
+            // Forget previous value of persist
+            BlockWhenDisconnected::Enabled { .. } => BlockWhenDisconnected::Enabled { persist },
+        }
     }
 }
 
@@ -304,7 +306,7 @@ impl From<bool> for BlockWhenDisconnected {
 
 impl PartialEq for BlockWhenDisconnected {
     fn eq(&self, other: &Self) -> bool {
-        self.enable == other.enable
+        self.bool() == other.bool()
     }
 }
 
