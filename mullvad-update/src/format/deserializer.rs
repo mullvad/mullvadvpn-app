@@ -52,7 +52,7 @@ impl SignedResponse {
     /// If successful, the deserialized data is returned.
     ///
     /// This is typically only used for testing. Prefer [deserialize_and_verify].
-    fn deserialize_and_verify_at_time(
+    pub(crate) fn deserialize_and_verify_at_time(
         keys: &Vec1<VerifyingKey>,
         bytes: &[u8],
         current_time: chrono::DateTime<chrono::Utc>,
