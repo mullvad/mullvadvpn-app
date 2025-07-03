@@ -3,6 +3,7 @@ import com.github.triplet.gradle.androidpublisher.ReleaseStatus
 import java.io.FileInputStream
 import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -139,19 +140,18 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = libs.versions.jvm.target.get()
-        allWarningsAsErrors = true
-        freeCompilerArgs =
-            listOf(
-                // Opt-in option for Koin annotation of KoinComponent.
-                "-opt-in=kotlin.RequiresOptIn"
-            )
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.target.get())
+            allWarningsAsErrors = true
+            freeCompilerArgs =
+                listOf(
+                    // Opt-in option for Koin annotation of KoinComponent.
+                    "-opt-in=kotlin.RequiresOptIn"
+                )
+        }
     }
 
-    // Suppressing since we don't seem have much of an option than using this api. The impact should
-    // also be limited to tests.
-    @Suppress("UnstableApiUsage")
     testOptions {
         unitTests.all { test ->
             test.testLogging {
