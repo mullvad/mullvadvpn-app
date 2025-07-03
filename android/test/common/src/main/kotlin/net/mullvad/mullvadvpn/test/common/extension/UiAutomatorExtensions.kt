@@ -2,14 +2,12 @@ package net.mullvad.mullvadvpn.test.common.extension
 
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
-import androidx.test.uiautomator.StableResult
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiObject2Condition
 import androidx.test.uiautomator.Until
 import androidx.test.uiautomator.waitForAppToBeVisible
-import androidx.test.uiautomator.waitForStableInActiveWindow
 import co.touchlab.kermit.Logger
 import java.lang.Thread.sleep
 import java.util.regex.Pattern
@@ -114,15 +112,3 @@ fun UiDevice.acceptVpnPermissionDialog() {
     findObjectWithTimeout(By.text("OK")).click()
     waitForAppToBeVisible(currentPackageName)
 }
-
-fun UiDevice.waitForStableInActiveWindowSafe(): StableResult? =
-    try {
-        // Wait for stable is not very stable, but it is our best best to wait for animation to
-        // settle. For now we will just catch the exception and sleep for a bit and hope for the
-        // best.
-        waitForStableInActiveWindow()
-    } catch (e: Exception) {
-        Logger.e("waitForStableInActiveWindow failed", e)
-        sleep(1000)
-        null
-    }
