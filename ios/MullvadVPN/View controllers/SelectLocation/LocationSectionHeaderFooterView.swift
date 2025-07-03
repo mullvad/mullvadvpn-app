@@ -26,26 +26,11 @@ class LocationSectionHeaderFooterView: UITableViewHeaderFooterView {
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         button.tintColor = UIColor(white: 1, alpha: 0.6)
 
-        // Add subviews
-        contentView.addSubview(label)
-        contentView.addSubview(button)
-
-        label.translatesAutoresizingMaskIntoConstraints = false
-        button.translatesAutoresizingMaskIntoConstraints = false
-
-        // Setup constraints
-        NSLayoutConstraint.activate([
-            // Label constraints: pinned to top, bottom, and leading margins of contentView
-            label.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
-            label.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            label.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
-
-            // Button constraints: trailing margin and vertical center
-            button.leadingAnchor.constraint(greaterThanOrEqualTo: label.trailingAnchor, constant: 8),
-            button.trailingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
-            button.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            button.widthAnchor.constraint(equalTo: button.heightAnchor),
-        ])
+        contentView.addConstrainedSubviews([label, button]) {
+            label.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
+            button.pinEdgesToSuperviewMargins(.all().excluding(.leading))
+            button.leadingAnchor.constraint(greaterThanOrEqualTo: label.trailingAnchor, constant: 8)
+        }
     }
 
     required init?(coder: NSCoder) {
