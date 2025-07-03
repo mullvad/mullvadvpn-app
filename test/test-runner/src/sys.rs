@@ -284,6 +284,12 @@ pub async fn start_app() -> Result<(), test_rpc::Error> {
     Ok(())
 }
 
+/// Disable the Mullvad VPN system service.
+#[cfg(target_os = "windows")]
+pub async fn disable_system_service() -> Result<(), test_rpc::Error> {
+    todo!("sc.exe disable?")
+}
+
 /// Restart the Mullvad VPN application.
 ///
 /// This function waits for the app to successfully start again.
