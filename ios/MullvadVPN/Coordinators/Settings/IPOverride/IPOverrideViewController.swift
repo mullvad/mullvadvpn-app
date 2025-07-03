@@ -65,6 +65,14 @@ class IPOverrideViewController: UIViewController {
             clearButton.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0), .trailing(0), .bottom(16)]))
         }
 
+        // Prevent the button from growing vertically beyond its content
+        clearButton.setContentHuggingPriority(.required, for: .vertical)
+        clearButton.setContentCompressionResistancePriority(.required, for: .vertical)
+
+        let spacingConstraint = clearButton.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 8)
+        spacingConstraint.priority = .defaultLow
+        spacingConstraint.isActive = true
+
         interactor.statusPublisher.sink { [weak self] status in
             self?.statusView.setStatus(status)
             self?.clearButton.isEnabled = self?.interactor.defaultStatus == .active
