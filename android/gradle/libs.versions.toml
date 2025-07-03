@@ -15,6 +15,9 @@ ndk = "27.2.12479018"
 # https://github.com/gradle/gradle/issues/19228
 # Find the relevant AAPT version here:
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
+
+# Do not upgrade to 8.11.0, it will give off incorrect lint warning about 'MemberExtensionConflict'.
+# See https://issuetracker.google.com/issues/427761232 fixed in 8.12.0-alpha08
 android-gradle-plugin = "8.10.1"
 android-gradle-aapt = "12782657"
 android-billingclient = "8.0.0"
