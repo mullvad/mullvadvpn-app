@@ -1,6 +1,10 @@
 #![cfg(any(target_os = "linux", target_os = "macos"))]
 
-use std::{ffi::c_uint, io, os::fd::AsRawFd};
+use std::{
+    ffi::{c_uint, c_ulong},
+    io,
+    os::fd::AsRawFd,
+};
 
 use nix::{errno::Errno, net::if_::if_nametoindex};
 use socket2::Domain;
@@ -26,9 +30,9 @@ const SIOCSIFMTU: u64 = 0x80206934;
 #[cfg(target_os = "macos")]
 const SIOCGIFMTU: u64 = 0xc0206933;
 #[cfg(target_os = "linux")]
-const SIOCSIFMTU: nix::libc::c_ulong = libc::SIOCSIFMTU;
+const SIOCSIFMTU: c_ulong = libc::SIOCSIFMTU;
 #[cfg(target_os = "linux")]
-const SIOCGIFMTU: nix::libc::c_ulong = libc::SIOCSIFMTU;
+const SIOCGIFMTU: c_ulong = libc::SIOCSIFMTU;
 
 pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
     let sock = socket2::Socket::new(
