@@ -298,6 +298,30 @@ impl ServiceClient {
         Ok(())
     }
 
+    /// Enable the daemon system service.
+    ///
+    /// Does *not* start a stopped app. See [start_mullvad_daemon].
+    pub async fn enable_mullvad_daemon_service(&self) -> Result<(), Error> {
+        let mut ctx = tarpc::context::current();
+        ctx.deadline = SystemTime::now()
+            .checked_add(DAEMON_RESTART_TIMEOUT)
+            .unwrap();
+        let _ = todo!("self.client.enable_mullvad_daemon(ctx).await?;");
+        Ok(())
+    }
+
+    /// Disable the daemon system service.
+    ///
+    /// Does *not* shut down a running app. See [stop_mullvad_daemon].
+    pub async fn disable_mullvad_daemon_service(&self) -> Result<(), Error> {
+        let mut ctx = tarpc::context::current();
+        ctx.deadline = SystemTime::now()
+            .checked_add(DAEMON_RESTART_TIMEOUT)
+            .unwrap();
+        let _ = self.client.disable_mullvad_daemon(ctx).await?;
+        Ok(())
+    }
+
     pub async fn set_daemon_log_level(
         &self,
         verbosity_level: mullvad_daemon::Verbosity,
@@ -372,6 +396,8 @@ impl ServiceClient {
             .await?
     }
 
+    /// Reboot the testing VM. The VM should be completely rebooted and responsive when this
+    /// future completes.
     pub async fn reboot(&mut self) -> Result<(), Error> {
         log::debug!("Rebooting server");
 
