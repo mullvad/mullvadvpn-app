@@ -15,16 +15,19 @@ ndk = "27.2.12479018"
 # https://github.com/gradle/gradle/issues/19228
 # Find the relevant AAPT version here:
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
+
+# Do not upgrade to 8.11.0, it will give off incorrect lint warning about 'MemberExtensionConflict'.
+# See https://issuetracker.google.com/issues/427761232 fixed in 8.12.0-alpha08
 android-gradle-plugin = "8.10.1"
 android-gradle-aapt = "12782657"
-android-billingclient = "7.1.1"
+android-billingclient = "8.0.0"
 
 # AndroidX
 androidx-activitycompose = "1.10.1"
 androidx-appcompat = "1.7.1"
 androidx-ktx = "1.16.0"
 androidx-credentials = "1.5.0"
-androidx-coresplashscreen = "1.1.0-rc01"
+androidx-coresplashscreen = "1.2.0-rc01"
 androidx-datastore = "1.1.7"
 androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.9.1"
@@ -53,7 +56,7 @@ grpc-kotlin-jar = "1.4.1:jdk8@jar"
 
 junit = "5.13.1"
 junit5-android = "1.8.0"
-junit5-android-plugin = "1.13.0.0"
+junit5-android-plugin = "1.13.1.0"
 
 # Koin
 koin = "4.1.0"
@@ -66,8 +69,8 @@ ktor = "3.0.3"
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
-kotlin = "2.1.21"
-kotlin-ksp = "2.1.21-2.0.2"
+kotlin = "2.2.0"
+kotlin-ksp = "2.2.0-2.0.2"
 kotlinx = "1.10.2"
 kotlinx-serialization = "1.8.1"
 
@@ -85,11 +88,10 @@ dependency-versions = "0.52.0"
 detekt = "1.23.8"
 kermit = "2.0.6"
 konsist = "0.17.3"
-ktfmt = "0.22.0"
+ktfmt = "0.23.0"
 leakcanary = "2.14"
 
-# Mockk 1.14.0 is broken with value classes, avoid updating
-mockk = "1.14.2"
+mockk = "1.14.4"
 mockwebserver = "4.12.0"
 play-publisher = "3.12.1"
 turbine = "1.2.1"
