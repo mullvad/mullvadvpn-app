@@ -260,7 +260,6 @@
     <string name="name_was_changed_to">Le nom a été changé en %1$s</string>
     <string name="new_changelog_notification_message">Cliquez ici pour voir les nouveautés.</string>
     <string name="new_changelog_notification_title">NOUVELLE VERSION INSTALLÉE</string>
-    <string name="new_device_notification_message">Bienvenue, cet appareil s\'appelle désormais &lt;b&gt;%1$s&lt;/b&gt;. Pour plus d\'informations, consultez le bouton d\'information sous Compte.</string>
     <string name="new_device_notification_title">NOUVEL APPAREIL CRÉÉ</string>
     <string name="new_list">Nouvelle liste</string>
     <string name="no_custom_lists_available">Aucune liste personnalisée disponible</string>

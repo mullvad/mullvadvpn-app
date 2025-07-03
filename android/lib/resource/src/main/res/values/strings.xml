@@ -169,7 +169,7 @@
 
     <string name="new_device_notification_title">NEW DEVICE CREATED</string>
     <string name="new_device_notification_message">
-        <![CDATA[Welcome, this device is now called <b>%s</b>. For more details see the info button in Account.]]>
+        <![CDATA[Welcome, this device is now called <b>%s</b>.]]>
     </string>
     <string name="new_changelog_notification_title">NEW VERSION INSTALLED</string>
     <string name="new_changelog_notification_message">Click here to see what’s new.</string>

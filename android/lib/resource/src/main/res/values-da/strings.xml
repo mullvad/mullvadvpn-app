@@ -260,7 +260,6 @@
     <string name="name_was_changed_to">Navnet blev ændret til %1$s</string>
     <string name="new_changelog_notification_message">Klik her for at se nyhederne.</string>
     <string name="new_changelog_notification_title">NY VERSION INSTALLERET</string>
-    <string name="new_device_notification_message">Velkommen! Denne enhed hedder nu &lt;b&gt;%1$s&lt;/b&gt;. Se info-knappen i Konto for at flere oplysninger.</string>
     <string name="new_device_notification_title">NY ENHED OPRETTET</string>
     <string name="new_list">Ny liste</string>
     <string name="no_custom_lists_available">Ingen brugerdefinerede lister tilgængelige</string>

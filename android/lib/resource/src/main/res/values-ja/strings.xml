@@ -260,7 +260,6 @@
     <string name="name_was_changed_to">名前が %1$s に変更されました</string>
     <string name="new_changelog_notification_message">新機能を確認するにはここをクリックしてください。</string>
     <string name="new_changelog_notification_title">新バージョンがインストールされました</string>
-    <string name="new_device_notification_message">ようこそ。このデバイスの名前は&lt;b&gt;%1$s&lt;/b&gt;です。詳細はアカウントの情報ボタンで確認してください。</string>
     <string name="new_device_notification_title">新しいデバイスが作成されました</string>
     <string name="new_list">新規リスト</string>
     <string name="no_custom_lists_available">利用可能なカスタムリストはありません</string>

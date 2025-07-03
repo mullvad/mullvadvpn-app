@@ -260,7 +260,6 @@
     <string name="name_was_changed_to">Имя изменено на «%1$s»</string>
     <string name="new_changelog_notification_message">Нажмите здесь и узнайте, что нового.</string>
     <string name="new_changelog_notification_title">УСТАНОВЛЕНА НОВАЯ ВЕРСИЯ</string>
-    <string name="new_device_notification_message">Добро пожаловать, теперь это устройство называется &lt;b&gt;%1$s&lt;/b&gt;. Для получения более подробной нажмите на кнопку «Информация» в учетной записи.</string>
     <string name="new_device_notification_title">СОЗДАНО НОВОЕ УСТРОЙСТВО</string>
     <string name="new_list">Новый список</string>
     <string name="no_custom_lists_available">Нет своих списков</string>

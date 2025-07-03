@@ -260,7 +260,6 @@
     <string name="name_was_changed_to">Ad, %1$s olarak değiştirildi</string>
     <string name="new_changelog_notification_message">Yenilikleri incelemek için buraya tıklayın.</string>
     <string name="new_changelog_notification_title">YENİ SÜRÜM YÜKLENDİ</string>
-    <string name="new_device_notification_message">Hoş geldiniz, bu cihazın adı artık &lt;b&gt;%1$s&lt;/b&gt;. Daha fazla ayrıntı için Hesap içinden bilgi düğmesine bakın.</string>
     <string name="new_device_notification_title">YENİ CİHAZ OLUŞTURULDU</string>
     <string name="new_list">Yeni liste</string>
     <string name="no_custom_lists_available">Özel listeler mevcut değil</string>
