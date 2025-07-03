@@ -42,37 +42,48 @@ With the goal to …
 
 # Capabilities of the attacker
 
-* Serving malicious software via the third-party CDNs
+* Changing what is served from the third party CDN network or the Mullvad API server
 
-* Serving legitimate old or unexpected versions of the app on third-party CDNs, e.g.
-  downgrading to versions with known vulnerabilities or development builds
+  * Serving malicious software or version metadata
+  * Serving legitimate, but old versions of the version metadata or app binaries with known
+    vulnerabilities
+  * Serving files large enough to fill up the targets disk/ram
 
-* Serving files large enough to fill up the target's disk
-
-* Compromising the Mullvad API, and (e.g.) returning outdated or fake version metadata
+* Modify the downloaded installer on the client machine, tricking the loader/in-app upgrades
+  mechanism to run a malicious installer with admin privileges. The result is that
+  the attacker can escalate their foothold on the client machine from regular
+  user to administrator.
 
 # Countermeasures
 
 Here are countermeasures we have identified against the above attackers which have been implemented
 in the loader:
 
-* The version metadata / Mullvad API response is cryptographically verified to be signed
+* Attach a signature to the metadata, and verify it on the client before using it
 
-* The version metadata has an expiry date
+* Attach an expiry date to the signed part of the metadata, and don't use any expired metadata
 
-* The checksum of software packages downloaded via third-party CDNs is cryptographically verified to
-  be the same as the checksum in the metadata
+* Attach an always increasing counter to the signed part of the metadata, and don't
+  use any metadata with a lower counter than the highest previously observed valid counter
+
+* Attach checksums of installer artifacts in the metadata, and verify that all downloaded artifacts
+  has this expected checksum
+
+* Attach the size of installer artifacts in the metadata, and abort any download if more than the
+  expected amount of data is returned.
+
+* Abort downloading the metadata if it is larger than a hardcoded max size
 
 * Only allow trusted people to publish metadata via secured Qubes machines
 
 * When relevant, only read/use downloaded software artifacts from a location that the loader (or
   admin) controls, to prevent privilege escalation
 
-* The size of the downloaded software package is checked to be the correct size, and if larger the
-  download is aborted
 
 # Out of scope
 
-* Most attacks involving physical access to the user's computer are not covered by the threat model
+* Most attacks involving physical access to the user's computer are not protected against.
 
-* Malicious code that runs as your user account
+* Malicious code that runs on the user's computer should not be able to use this software
+  to escalate to higher privileges. But other than that, this threat model does
+  not consider such an attacker.
