@@ -35,7 +35,7 @@ androidx-test = "1.6.1"
 androidx-testmonitor = "1.7.2"
 androidx-testorchestrator = "1.5.1"
 androidx-testrunner = "1.6.2"
-androidx-uiautomator = "2.4.0-alpha03"
+androidx-uiautomator = "2.4.0-alpha05"
 androidx-tv = "1.0.0"
 
 # Arrow
