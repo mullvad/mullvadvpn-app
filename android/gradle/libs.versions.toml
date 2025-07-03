@@ -85,7 +85,7 @@ dependency-versions = "0.52.0"
 detekt = "1.23.8"
 kermit = "2.0.6"
 konsist = "0.17.3"
-ktfmt = "0.22.0"
+ktfmt = "0.23.0"
 leakcanary = "2.14"
 
 # Mockk 1.14.0 is broken with value classes, avoid updating
