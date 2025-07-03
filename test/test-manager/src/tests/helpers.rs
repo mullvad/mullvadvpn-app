@@ -167,6 +167,13 @@ impl ProbeResult {
     }
 }
 
+/// TODO: Document me
+pub async fn conncheck(rpc: &ServiceClient) -> Result<bool, Error> {
+    geoip_lookup_with_retries(rpc)
+        .await
+        .map(|x| x.mullvad_exit_ip)
+}
+
 /// Return whether the guest exit IP is a Mullvad relay
 pub async fn using_mullvad_exit(rpc: &ServiceClient) -> bool {
     log::info!("Test whether exit IP is a mullvad relay");
