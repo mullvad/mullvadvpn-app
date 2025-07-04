@@ -144,9 +144,10 @@ fn filter_on_obfuscation(
                 relay,
             )
         }
-
-        // If Shadowsocks is not a requirement, then there are no relay-specific constraints
-        _ => true,
+        // QUIC is only enabled on some relays
+        ObfuscationQuery::Quic => relay.features.quic().is_some(),
+        // Other relays are compatible with this query
+        ObfuscationQuery::Off | ObfuscationQuery::Auto | ObfuscationQuery::Udp2tcp(_) => true,
     }
 }
 

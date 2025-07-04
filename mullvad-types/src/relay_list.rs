@@ -101,14 +101,24 @@ pub struct Features {
 }
 
 impl Features {
+    /// Whether Daita is enabled
+    pub fn daita(&self) -> bool {
+        self.daita.is_some()
+    }
+
+    /// Whether Quic is enabled and its config
+    pub fn quic(&self) -> Option<&Quic> {
+        self.quic.as_ref()
+    }
+
     /// Enable Daita for this relay
-    pub fn daita(self) -> Self {
+    pub fn configure_daita(self) -> Self {
         let daita = Some(Daita);
         Self { daita, ..self }
     }
 
     /// Configure QUIC for this relay
-    pub fn quic(self, options: Quic) -> Self {
+    pub fn configure_quic(self, options: Quic) -> Self {
         let quic = Some(options);
         Self { quic, ..self }
     }
@@ -131,6 +141,31 @@ pub struct Quic {
     /// TODO: Document what this is used for
     /// TODO: Is the type suitable?
     domain: String,
+}
+
+impl Quic {
+    /// TODO: Document mee
+    /// Pinky promise, IPv4 address 🤞
+    /// Is there only ever one in-IPv4 address?
+    pub fn in_ipv4(&self) -> IpAddr {
+        // TODO: Is this sound ??
+        debug_assert!(self.addr_in.len() == 2);
+        // TODO: Is this sound ??
+        //
+        let in_addr = self.addr_in.first().unwrap();
+        *in_addr
+    }
+
+    /// TODO: Document mee
+    pub const fn port(&self) -> u16 {
+        // TODO: Should this even be hardcoded?
+        // TODO: Is this even correct??
+        443
+    }
+
+    pub fn hostname(&self) -> &str {
+        &self.domain
+    }
 }
 
 impl Relay {
