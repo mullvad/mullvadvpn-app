@@ -41,6 +41,11 @@ static BANNER_COLOR: LazyLock<Color> = LazyLock::new(|| {
     //       calibrated uses the current color profile.
     //       Maybe using calibrated colors is more correct? Rendering different colors *definitely*
     //       is not.
+    // ---
+    // The unexpected cfg warning stems from https://github.com/SSheldon/rust-objc/issues/125
+    // We need to ignore this until cacao migrates to another objc implementation,
+    // or we use another `msg_send!` macro ourselves.
+    #[allow(unexpected_cfgs)]
     let id =
         // SAFETY: This function returns a pointer to a refcounted NSColor instance, and panics if
         //         a null pointer is passed.
