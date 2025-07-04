@@ -169,7 +169,7 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	g_fwContext = nullptr;
 
 	std::stringstream ss;
-	ss << "At WinFw_Deinitialize";
+	ss << "Deinitializing WinFw";
 	g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
 
 	//
@@ -185,6 +185,10 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 			auto sessionController = std::make_unique<SessionController>(std::move(engine));
 
 			rules::persistent::BlockAll blockAll;
+
+			std::stringstream ss;
+			ss << "Adding persistent block rules";
+			g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
 
 			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
 			{
@@ -216,10 +220,6 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	if (WINFW_CLEANUP_POLICY_BLOCK_UNTIL_REBOOT == cleanupPolicy
 		&& FwContext::Policy::Blocked == activePolicy)
 	{
-		ss.str(std::string());
-		ss << "At if WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING == cleanupPolicy && FwContext::Policy::Blocked == activePolicy";
-		g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
-
 		try
 		{
 			auto engine = wfp::FilterEngine::StandardSession(DEINITIALIZE_TIMEOUT);
@@ -227,16 +227,18 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 
 			rules::baseline::BlockAll blockAll;
 
-			ss.str(std::string());
-			ss << "Removing all functors";
+			std::stringstream ss;
+			ss << "Adding ephemeral block rules";
 			g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
 
 			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
 			{
-				// Should this remove all filters or just persistent ones?
+				// Keep non-persistent filters intact, the intent is just to *not*
+				// persist any filters across a BFE restart, not muck around with
+				// muck around with any other filters. We will apply blocking
+				// filters anyway.
 				ObjectPurger::GetRemovePersistentFunctor()(engine);
 
-				// Are these the right filters to apply?
 				return controller.addProvider(*MullvadObjects::Provider())
 					&& controller.addSublayer(*MullvadObjects::SublayerBaseline())
 					&& blockAll.apply(controller);
