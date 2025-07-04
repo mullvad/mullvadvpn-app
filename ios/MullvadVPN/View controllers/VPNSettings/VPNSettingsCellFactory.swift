@@ -224,7 +224,6 @@ final class VPNSettingsCellFactory: @preconcurrency CellFactoryProtocol {
                 self?.delegate?.showDetails(for: .wireguardOverShadowsocks)
             }
 
-        #if DEBUG
         case .wireGuardObfuscationQuic:
             guard let cell = cell as? SelectableSettingsCell else { return }
 
@@ -238,7 +237,7 @@ final class VPNSettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.detailTitleLabel.setAccessibilityIdentifier(.wireGuardObfuscationQuic)
             cell.applySubCellStyling()
-        #endif
+
         case .wireGuardObfuscationOff:
             guard let cell = cell as? SelectableSettingsCell else { return }
 

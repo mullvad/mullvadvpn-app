@@ -6,7 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+@testable import MullvadREST
 @testable import MullvadSettings
 @testable import MullvadTypes
 @testable import PacketTunnelCore
@@ -17,7 +17,8 @@ struct ProtocolObfuscationStub: ProtocolObfuscation {
     func obfuscate(
         _ endpoint: MullvadEndpoint,
         settings: LatestTunnelSettings,
-        retryAttempts: UInt
+        retryAttempts: UInt,
+        relayFeatures: REST.ServerRelay.Features?
     ) -> ProtocolObfuscationResult {
         .init(endpoint: endpoint, method: .off)
     }

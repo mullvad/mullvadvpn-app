@@ -63,7 +63,8 @@ extension RelaySelectorStub {
                     cityCode: "got",
                     latitude: 0,
                     longitude: 0
-                )
+                ),
+                features: nil
             )
 
             return SelectedRelays(
