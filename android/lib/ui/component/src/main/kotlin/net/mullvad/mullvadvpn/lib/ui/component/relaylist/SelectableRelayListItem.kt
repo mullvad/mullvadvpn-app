@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -68,7 +69,8 @@ fun SelectableRelayListItem(
     onToggleExpand: ((Boolean) -> Unit),
 ) {
     RelayListItem(
-        modifier = modifier.clip(itemPosition = relayListItem.itemPosition),
+        modifier = modifier,
+        shape = relayListItem.itemPosition.toShape(),
         selected = relayListItem.isSelected,
         enabled = relayListItem.item.active,
         content = {
@@ -188,5 +190,18 @@ internal fun Modifier.clip(itemPosition: ItemPosition): Modifier {
             bottomStart = CornerSize(bottomCornerSize.value),
             bottomEnd = CornerSize(bottomCornerSize.value),
         )
+    )
+}
+
+@Composable
+internal fun ItemPosition.toShape(): Shape {
+    val topCornerSize = animateDpAsState(if (roundTop()) Dimens.relayItemCornerRadius else 0.dp)
+    val bottomCornerSize =
+        animateDpAsState(if (roundBottom()) Dimens.relayItemCornerRadius else 0.dp)
+    return RoundedCornerShape(
+        topStart = CornerSize(topCornerSize.value),
+        topEnd = CornerSize(topCornerSize.value),
+        bottomStart = CornerSize(bottomCornerSize.value),
+        bottomEnd = CornerSize(bottomCornerSize.value),
     )
 }

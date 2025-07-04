@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -32,6 +33,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,57 +54,66 @@ fun RelayListItem(
     content: @Composable () -> Unit,
     trailingContent: @Composable (() -> Unit)? = null,
     colors: RelayListItemColors = RelayListItemDefaults.colors(),
+    shape: Shape = RectangleShape,
 ) {
-    Row(
+    Surface(
         modifier =
             modifier
                 .defaultMinSize(minHeight = RelayListTokens.listItemMinHeight)
                 .height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(RelayListTokens.listItemSpacer),
-        verticalAlignment = Alignment.CenterVertically,
+        shape = shape,
     ) {
-        if (leadingContent != null) {
-            Box(
-                Modifier.background(colors.containerColor)
-                    .width(RelayListTokens.listItemButtonWidth)
-                    .fillMaxHeight(),
-                contentAlignment = Alignment.Center,
-            ) {
-                ProvideContentColorTextStyle(
-                    colors.leadingIconColor,
-                    MaterialTheme.typography.titleMedium,
-                ) {
-                    leadingContent()
-                }
-            }
-        }
-
         Row(
-            Modifier.weight(1f, fill = true)
-                .background(colors.containerColor)
-                .fillMaxHeight()
-                .combinedClickable(enabled = enabled, onClick = onClick, onLongClick = onLongClick),
+            horizontalArrangement = Arrangement.spacedBy(RelayListTokens.listItemSpacer),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ProvideContentColorTextStyle(
-                colors.headlineColor(enabled, selected),
-                MaterialTheme.typography.titleMedium,
-            ) {
-                content()
+            if (leadingContent != null) {
+                Box(
+                    Modifier.background(colors.containerColor)
+                        .width(RelayListTokens.listItemButtonWidth)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    ProvideContentColorTextStyle(
+                        colors.leadingIconColor,
+                        MaterialTheme.typography.titleMedium,
+                    ) {
+                        leadingContent()
+                    }
+                }
             }
-        }
 
-        if (trailingContent != null) {
-            Box(
-                Modifier.background(color = colors.containerColor)
-                    .width(RelayListTokens.listItemButtonWidth)
+            Row(
+                Modifier.weight(1f, fill = true)
+                    .background(colors.containerColor)
                     .fillMaxHeight()
+                    .combinedClickable(
+                        enabled = enabled,
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 ProvideContentColorTextStyle(
-                    colors.trailingIconColor,
+                    colors.headlineColor(enabled, selected),
                     MaterialTheme.typography.titleMedium,
                 ) {
-                    trailingContent()
+                    content()
+                }
+            }
+
+            if (trailingContent != null) {
+                Box(
+                    Modifier.background(color = colors.containerColor)
+                        .width(RelayListTokens.listItemButtonWidth)
+                        .fillMaxHeight()
+                ) {
+                    ProvideContentColorTextStyle(
+                        colors.trailingIconColor,
+                        MaterialTheme.typography.titleMedium,
+                    ) {
+                        trailingContent()
+                    }
                 }
             }
         }
