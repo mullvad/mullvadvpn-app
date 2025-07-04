@@ -426,4 +426,5 @@
     <string name="time_added">Time added</string>
     <string name="app_is_blocking_internet">The app is blocking internet, please disconnect first</string>
     <string name="in_app_products_unavailable">In-app products unavailable, please make sure you have the latest version of Google Play.</string>
+    <string name="relayitem_is_inactive">%s is unavailable</string>
 </resources>

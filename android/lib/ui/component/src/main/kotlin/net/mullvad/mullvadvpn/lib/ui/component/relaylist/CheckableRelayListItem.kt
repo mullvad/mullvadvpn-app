@@ -64,7 +64,7 @@ fun CheckableRelayLocationCell(
                         .padding(Dimens.mediumPadding),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Name(name = item.item.name, state = null, active = item.item.active)
+                Name(name = item.item.name, state = null, active = true)
             }
         },
         leadingContent = {

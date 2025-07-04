@@ -148,6 +148,15 @@ fun SearchLocation(
                         message = context.getString(R.string.error_occurred)
                     )
                 }
+
+            is SearchLocationSideEffect.RelayItemInactive -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
+                    )
+                }
+            }
         }
     }
 

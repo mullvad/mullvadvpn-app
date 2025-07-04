@@ -45,11 +45,18 @@ fun RelayListHeader(
             content()
             HorizontalDivider(
                 Modifier.weight(1f, true).padding(start = Dimens.smallPadding),
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
+                color =
+                    MaterialTheme.colorScheme.onBackground.copy(
+                        alpha = RelayListHeaderTokens.RelayListHeaderDividerAlpha
+                    ),
             )
             actions?.invoke(this)
         }
     }
+}
+
+object RelayListHeaderTokens {
+    const val RelayListHeaderDividerAlpha = 0.2f
 }
 
 @Preview(backgroundColor = 0xFF192E45, showBackground = true)

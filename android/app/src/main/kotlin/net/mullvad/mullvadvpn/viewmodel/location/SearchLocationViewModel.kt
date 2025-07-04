@@ -119,16 +119,24 @@ class SearchLocationViewModel(
 
     fun selectRelay(relayItem: RelayItem) {
         viewModelScope.launch {
-            selectRelayItem(
-                    relayItem = relayItem,
-                    relayListType = relayListType,
-                    selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
-                    selectExitLocation = relayListRepository::updateSelectedRelayLocation,
-                )
-                .fold(
-                    { _uiSideEffect.send(SearchLocationSideEffect.GenericError) },
-                    { _uiSideEffect.send(SearchLocationSideEffect.LocationSelected(relayListType)) },
-                )
+            if (relayItem.active) {
+                selectRelayItem(
+                        relayItem = relayItem,
+                        relayListType = relayListType,
+                        selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
+                        selectExitLocation = relayListRepository::updateSelectedRelayLocation,
+                    )
+                    .fold(
+                        { _uiSideEffect.send(SearchLocationSideEffect.GenericError) },
+                        {
+                            _uiSideEffect.send(
+                                SearchLocationSideEffect.LocationSelected(relayListType)
+                            )
+                        },
+                    )
+            } else {
+                _uiSideEffect.send(SearchLocationSideEffect.RelayItemInactive(relayItem))
+            }
         }
     }
 
@@ -216,6 +224,8 @@ sealed interface SearchLocationSideEffect {
 
     data class CustomListActionToast(val resultData: CustomListActionResultData) :
         SearchLocationSideEffect
+
+    data class RelayItemInactive(val relayItem: RelayItem) : SearchLocationSideEffect
 
     data object GenericError : SearchLocationSideEffect
 }

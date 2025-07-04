@@ -75,22 +75,27 @@ class SelectLocationViewModel(
 
     fun selectRelay(relayItem: RelayItem) {
         viewModelScope.launch {
-            selectRelayItem(
-                    relayItem = relayItem,
-                    relayListType = _relayListType.value,
-                    selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
-                    selectExitLocation = relayListRepository::updateSelectedRelayLocation,
-                )
-                .fold(
-                    { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
-                    {
-                        when (_relayListType.value) {
-                            RelayListType.ENTRY -> _relayListType.emit(RelayListType.EXIT)
-                            RelayListType.EXIT ->
-                                _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
-                        }
-                    },
-                )
+            if (relayItem.active) {
+
+                selectRelayItem(
+                        relayItem = relayItem,
+                        relayListType = _relayListType.value,
+                        selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
+                        selectExitLocation = relayListRepository::updateSelectedRelayLocation,
+                    )
+                    .fold(
+                        { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
+                        {
+                            when (_relayListType.value) {
+                                RelayListType.ENTRY -> _relayListType.emit(RelayListType.EXIT)
+                                RelayListType.EXIT ->
+                                    _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
+                            }
+                        },
+                    )
+            } else {
+                _uiSideEffect.send(SelectLocationSideEffect.RelayItemInactive(relayItem))
+            }
         }
     }
 
@@ -139,4 +144,6 @@ sealed interface SelectLocationSideEffect {
         SelectLocationSideEffect
 
     data object GenericError : SelectLocationSideEffect
+
+    data class RelayItemInactive(val relayItem: RelayItem) : SelectLocationSideEffect
 }

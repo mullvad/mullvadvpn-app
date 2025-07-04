@@ -2783,6 +2783,9 @@ msgstr ""
 msgid "%s custom port"
 msgstr ""
 
+msgid "%s is unavailable"
+msgstr ""
+
 msgid "%s was added to your account."
 msgstr ""
 

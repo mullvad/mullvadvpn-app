@@ -88,7 +88,7 @@ fun RelayListItem(
                     .background(colors.containerColor)
                     .fillMaxHeight()
                     .combinedClickable(
-                        enabled = enabled,
+                        enabled = true,
                         onClick = onClick,
                         onLongClick = onLongClick,
                     ),
