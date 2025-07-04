@@ -166,6 +166,10 @@ impl Quic {
     pub fn hostname(&self) -> &str {
         &self.domain
     }
+
+    pub fn auth_header(&self) -> &str {
+        &self.token
+    }
 }
 
 impl Relay {
