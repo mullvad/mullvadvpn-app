@@ -127,6 +127,10 @@ enum WINFW_CLEANUP_POLICY : uint32_t
 
 	// Remove all objects that have been registered with WFP.
 	WINFW_CLEANUP_POLICY_RESET_FIREWALL = 1,
+
+	// Continue blocking if this is the active policy.
+	// Adds ephemeral blocking filters that are active until WinFw is shut down (??)
+	WINFW_CLEANUP_POLICY_BLOCK_UNTIL_REBOOT = 2,
 };
 
 //
