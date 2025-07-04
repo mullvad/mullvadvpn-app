@@ -141,6 +141,19 @@ pub fn get_shadowsocks_obfuscator(
     })
 }
 
+pub fn get_quic_obfuscator(relay: Relay) -> Option<SelectedObfuscator> {
+    let quic = relay.features.quic()?;
+    let config = {
+        let hostname = quic.hostname().to_string();
+        // TODO: IPv6
+        let endpoint = SocketAddr::from((quic.in_ipv4(), quic.port()));
+        ObfuscatorConfig::Quic { hostname, endpoint }
+    };
+
+    let obfuscator = SelectedObfuscator { config, relay };
+    Some(obfuscator)
+}
+
 /// Return an obfuscation config for the wireguard server at `wg_in_addr` or one of `extra_in_addrs`
 /// (unless empty). `wg_in_addr_port_ranges` contains all valid ports for `wg_in_addr`, and
 /// `SHADOWSOCKS_EXTRA_PORT_RANGES` contains valid ports for `extra_in_addrs`.
