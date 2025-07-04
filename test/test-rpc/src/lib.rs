@@ -233,6 +233,9 @@ mod service {
         /// Disable the Mullvad VPN system service.
         async fn disable_mullvad_daemon() -> Result<(), Error>;
 
+        /// Enable the Mullvad VPN system service.
+        async fn enable_mullvad_daemon() -> Result<(), Error>;
+
         /// Sets the log level of the daemon service, the verbosity level represents the number of
         /// `-v`s passed on the command line. This will restart the daemon system service.
         async fn set_daemon_log_level(

@@ -284,10 +284,49 @@ pub async fn start_app() -> Result<(), test_rpc::Error> {
     Ok(())
 }
 
-/// Disable the Mullvad VPN system service.
+/// Disable the Mullvad VPN system service startup. This will not trigger the service to stop
+/// immediately, but it will prevent it from starting on the next system boot.
 #[cfg(target_os = "windows")]
-pub async fn disable_system_service() -> Result<(), test_rpc::Error> {
-    todo!("sc.exe disable?")
+pub async fn disable_system_service_startup() -> Result<(), test_rpc::Error> {
+    let status = tokio::process::Command::new("powershell")
+        .args([
+            "-NoProfile",
+            "-Command",
+            "Set-Service -Name MullvadVPN -StartupType Disabled",
+        ])
+        .status()
+        .await
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
+
+    if !status.success() {
+        return Err(test_rpc::Error::ServiceChange(
+            "Failed to disable MullvadVPN service".to_string(),
+        ));
+    }
+
+    Ok(())
+}
+
+/// Enable the Mullvad VPN system service startup. This will configure the service to start automatically on system boot.
+#[cfg(target_os = "windows")]
+pub async fn enable_system_service_startup() -> Result<(), test_rpc::Error> {
+    let status = tokio::process::Command::new("powershell")
+        .args([
+            "-NoProfile",
+            "-Command",
+            "Set-Service -Name MullvadVPN -StartupType Automatic",
+        ])
+        .status()
+        .await
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
+
+    if !status.success() {
+        return Err(test_rpc::Error::ServiceChange(
+            "Failed to enable MullvadVPN service".to_string(),
+        ));
+    }
+
+    Ok(())
 }
 
 /// Restart the Mullvad VPN application.
