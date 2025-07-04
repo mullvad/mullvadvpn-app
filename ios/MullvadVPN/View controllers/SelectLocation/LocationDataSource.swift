@@ -251,60 +251,39 @@ extension LocationDataSource {
 
 extension LocationDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        switch sections[section] {
-        case .allLocations:
-            LocationSectionHeaderFooterView(
-                configuration: LocationSectionHeaderFooterView.Configuration(
-                    name: LocationSection.allLocations.header,
-                    style: .header
-                )
-            )
-        case .customLists:
-            LocationSectionHeaderFooterView(configuration: LocationSectionHeaderFooterView.Configuration(
-                name: LocationSection.customLists.header,
-                style: .header,
-                primaryAction: UIAction(
-                    handler: { [weak self] _ in
-                        self?.didTapEditCustomLists?()
-                    }
-                )
-            ))
+        guard let header = tableView
+            .dequeueReusableHeaderFooterView(withIdentifier: LocationSectionHeaderFooterView
+                .reuseIdentifier
+            ) as? LocationSectionHeaderFooterView else { return nil }
+
+        let config: (String, UIAction?) = if sections[section] == .customLists {
+            (LocationSection.customLists.header, UIAction { [weak self] _ in
+                self?.didTapEditCustomLists?()
+            })
+        } else {
+            (LocationSection.allLocations.header, nil)
         }
+
+        header.configure(text: config.0, buttonAction: config.1)
+        return header
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         switch sections[section] {
         case .allLocations:
-            return LocationSectionHeaderFooterView(configuration: LocationSectionHeaderFooterView.Configuration(
-                name: LocationSection.allLocations.footer,
-                style: .footer,
-                directionalEdgeInsets: NSDirectionalEdgeInsets(top: 24, leading: 16, bottom: 0, trailing: 16)
-            ))
+            guard dataSources[section].nodes.isEmpty else {
+                return nil
+            }
+            var contentConfiguration = UIListContentConfiguration.mullvadGroupedFooter(tableStyle: tableView.style)
+            contentConfiguration.attributedText = NSAttributedString(string: LocationSection.allLocations.footer)
+            return UIListContentView(configuration: contentConfiguration)
         case .customLists:
             guard dataSources[section].nodes.isEmpty else {
                 return nil
             }
 
-            let text = NSMutableAttributedString(string: NSLocalizedString(
-                "CUSTOM_LIST_FOOTER",
-                tableName: "SelectLocation",
-                value: "To create a custom list, tap on ",
-                comment: ""
-            ))
-
-            text.append(NSAttributedString(string: "\""))
-
-            if let image = UIImage(systemName: "ellipsis") {
-                text.append(NSAttributedString(attachment: NSTextAttachment(image: image)))
-            } else {
-                text.append(NSAttributedString(string: "..."))
-            }
-
-            text.append(NSAttributedString(string: "\""))
-
             var contentConfiguration = UIListContentConfiguration.mullvadGroupedFooter(tableStyle: tableView.style)
-            contentConfiguration.attributedText = text
-
+            contentConfiguration.attributedText = NSAttributedString(string: LocationSection.customLists.footer)
             return UIListContentView(configuration: contentConfiguration)
         }
     }

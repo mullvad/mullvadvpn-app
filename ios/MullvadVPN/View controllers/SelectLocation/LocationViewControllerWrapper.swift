@@ -46,7 +46,7 @@ final class LocationViewControllerWrapper: UIViewController {
 
     private var entryLocationViewController: LocationViewController?
     private let exitLocationViewController: LocationViewController
-    private let segmentedControl = UISegmentedControl()
+    private let segmentedControl = ScaledSegmentedControl()
     private let locationViewContainer = UIView()
     private var settings: LatestTunnelSettings
     private var relaySelectorWrapper: RelaySelectorWrapper
@@ -204,10 +204,6 @@ final class LocationViewControllerWrapper: UIViewController {
     private func setUpSegmentedControl() {
         segmentedControl.backgroundColor = .SegmentedControl.backgroundColor
         segmentedControl.selectedSegmentTintColor = .SegmentedControl.selectedColor
-        segmentedControl.setTitleTextAttributes([
-            .foregroundColor: UIColor.white,
-            .font: UIFont.systemFont(ofSize: 17, weight: .medium),
-        ], for: .normal)
 
         segmentedControl.insertSegment(
             withTitle: MultihopContext.entry.description,

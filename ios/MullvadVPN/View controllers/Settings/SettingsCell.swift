@@ -62,6 +62,7 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .mullvadSmallSemiBold
+        label.numberOfLines = 0
         label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor.Cell.titleTextColor
         label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
@@ -72,6 +73,7 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
     let detailTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .mullvadTiny
+        label.numberOfLines = 0
         label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor.Cell.detailTextColor
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)

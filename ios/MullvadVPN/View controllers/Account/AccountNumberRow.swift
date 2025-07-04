@@ -40,7 +40,7 @@ class AccountNumberRow: UIView {
 
     private let accountNumberLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = .mullvadMiniSemiBold
+        textLabel.font = .mullvadSmall
         textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = .white
         return textLabel

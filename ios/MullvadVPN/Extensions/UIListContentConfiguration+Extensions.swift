@@ -44,6 +44,7 @@ extension UIListContentConfiguration {
         configuration.textProperties.color = .TableSection.headerTextColor
         configuration.textProperties.font = .mullvadTiny
         configuration.textProperties.adjustsFontForContentSizeCategory = true
+        configuration.textProperties.numberOfLines = 0
 
         applyMargins(to: &configuration, tableStyle: tableStyle)
 
@@ -56,7 +57,7 @@ extension UIListContentConfiguration {
         configuration.textProperties.color = .TableSection.footerTextColor
         configuration.textProperties.font = .mullvadMini
         configuration.textProperties.adjustsFontForContentSizeCategory = true
-
+        configuration.textProperties.numberOfLines = 0
         applyMargins(to: &configuration, tableStyle: tableStyle)
 
         return configuration

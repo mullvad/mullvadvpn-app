@@ -12,20 +12,7 @@ class IPOverrideTextViewController: UIViewController {
     private let interactor: IPOverrideInteractor
     private var textView = CustomTextView()
 
-    private lazy var importButton: UIBarButtonItem = {
-        return UIBarButtonItem(
-            title: NSLocalizedString(
-                "IMPORT_TEXT_IMPORT_BUTTON",
-                tableName: "IPOverride",
-                value: "Import",
-                comment: ""
-            ),
-            primaryAction: UIAction(handler: { [weak self] _ in
-                self?.interactor.import(text: self?.textView.text ?? "")
-                self?.dismiss(animated: true)
-            })
-        )
-    }()
+    private var importButton: UIBarButtonItem?
 
     init(interactor: IPOverrideInteractor) {
         self.interactor = interactor
@@ -56,7 +43,19 @@ class IPOverrideTextViewController: UIViewController {
             })
         )
 
-        importButton.isEnabled = !textView.text.isEmpty
+        importButton = UIBarButtonItem(
+            title: NSLocalizedString(
+                "IMPORT_TEXT_IMPORT_BUTTON",
+                tableName: "IPOverride",
+                value: "Import",
+                comment: ""
+            ),
+            primaryAction: UIAction(handler: { [weak self] _ in
+                self?.interactor.import(text: self?.textView.text ?? "")
+                self?.dismiss(animated: true)
+            })
+        )
+        importButton?.isEnabled = !textView.text.isEmpty
         navigationItem.rightBarButtonItem = importButton
 
         textView.becomeFirstResponder()
@@ -78,6 +77,6 @@ class IPOverrideTextViewController: UIViewController {
 
 extension IPOverrideTextViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        importButton.isEnabled = !textView.text.isEmpty
+        importButton?.isEnabled = !textView.text.isEmpty
     }
 }

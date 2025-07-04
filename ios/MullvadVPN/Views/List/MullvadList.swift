@@ -49,7 +49,7 @@ struct MullvadList<Content: View, Data: RandomAccessCollection<ID>, ID: Hashable
                         $0
                     }
                 }
-                .frame(height: itemHeight)
+                .frame(maxHeight: itemHeight)
         }
         .listStyle(.plain)
         .frame(maxHeight: maxListHeight)
