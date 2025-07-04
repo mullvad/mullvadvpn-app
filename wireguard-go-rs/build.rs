@@ -53,6 +53,14 @@ enum AndroidTarget {
     I686,    // "i686"
 }
 
+#[derive(PartialEq, Eq, Clone, Copy)]
+enum Libc {
+    /// glibc
+    Gnu,
+    /// musl libc
+    Musl,
+}
+
 impl AndroidTarget {
     fn from_str(input: &str) -> anyhow::Result<Self> {
         use AndroidTarget::*;
@@ -110,6 +118,16 @@ fn target_arch() -> anyhow::Result<Arch> {
         "x86_64" => Ok(Arch::Amd64),
         "aarch64" => Ok(Arch::Arm64),
         _ => bail!("Unsupported architecture: {target_arch}"),
+    }
+}
+
+// https://doc.rust-lang.org/reference/conditional-compilation.html#target_env
+fn target_libc() -> anyhow::Result<Libc> {
+    let target_arch = env::var("CARGO_CFG_TARGET_ENV").context("Missing 'CARGO_CFG_TARGET_ENV")?;
+    match target_arch.as_str() {
+        "gnu" => Ok(Libc::Gnu),
+        "musl" => Ok(Libc::Musl),
+        _ => bail!("Unsupported target ABI/libc: {target_arch}"),
     }
 }
 
@@ -179,9 +197,10 @@ fn build_linux_static_lib(out_dir: &str) -> anyhow::Result<()> {
     };
 
     if is_cross_compiling()? {
-        match target_arch {
-            Arch::Arm64 => go_build.env("CC", "aarch64-linux-gnu-gcc"),
-            Arch::Amd64 => bail!("cross-compiling to linux x86_64 is not implemented"),
+        match (target_arch, target_libc()?) {
+            (Arch::Arm64, Libc::Gnu) => go_build.env("CC", "aarch64-linux-gnu-gcc"),
+            (Arch::Arm64, Libc::Musl) => go_build.env("CC", "aarch64-linux-musl-gcc"),
+            (Arch::Amd64, _) => bail!("cross-compiling to linux x86_64 is not implemented"),
         };
     }
 
