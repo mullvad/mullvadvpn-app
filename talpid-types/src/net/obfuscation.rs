@@ -14,6 +14,7 @@ pub enum ObfuscatorConfig {
     Quic {
         hostname: String,
         endpoint: SocketAddr,
+        auth_header: String,
     },
 }
 
@@ -28,10 +29,7 @@ impl ObfuscatorConfig {
                 address: *endpoint,
                 protocol: TransportProtocol::Udp,
             },
-            ObfuscatorConfig::Quic {
-                hostname: _,
-                endpoint,
-            } => Endpoint {
+            ObfuscatorConfig::Quic { endpoint, .. } => Endpoint {
                 address: *endpoint,
                 protocol: TransportProtocol::Udp,
             },
