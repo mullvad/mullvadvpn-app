@@ -167,6 +167,7 @@ fn into_mullvad_relay(
     relay: Relay,
     location: location::Location,
     endpoint_data: relay_list::RelayEndpointData,
+    features: relay_list::Features,
 ) -> relay_list::Relay {
     relay_list::Relay {
         hostname: relay.hostname,
@@ -181,6 +182,7 @@ fn into_mullvad_relay(
         weight: relay.weight,
         endpoint_data,
         location,
+        features,
     }
 }
 
@@ -247,11 +249,21 @@ struct Relay {
 
 impl Relay {
     fn into_openvpn_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
-        into_mullvad_relay(self, location, relay_list::RelayEndpointData::Openvpn)
+        into_mullvad_relay(
+            self,
+            location,
+            relay_list::RelayEndpointData::Openvpn,
+            relay_list::Features::default(), /* TODO: Replace */
+        )
     }
 
     fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
-        into_mullvad_relay(self, location, relay_list::RelayEndpointData::Bridge)
+        into_mullvad_relay(
+            self,
+            location,
+            relay_list::RelayEndpointData::Bridge,
+            relay_list::Features::default(), /* TODO: Replace */
+        )
     }
 
     fn convert_to_lowercase(&mut self) {
@@ -345,10 +357,18 @@ struct WireGuardRelay {
     daita: bool,
     #[serde(default)]
     shadowsocks_extra_addr_in: Vec<IpAddr>,
+    #[serde(default)]
+    features: relay_list::Features,
 }
 
 impl WireGuardRelay {
     fn into_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
+        let features = relay_list::Features::default();
+        let features = if self.daita {
+            features.configure_daita()
+        } else {
+            features
+        };
         into_mullvad_relay(
             self.relay,
             location,
@@ -357,6 +377,7 @@ impl WireGuardRelay {
                 daita: self.daita,
                 shadowsocks_extra_addr_in: self.shadowsocks_extra_addr_in,
             }),
+            features,
         )
     }
 }
