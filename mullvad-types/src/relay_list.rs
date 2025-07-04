@@ -88,6 +88,88 @@ pub struct Relay {
     pub weight: u64,
     pub endpoint_data: RelayEndpointData,
     pub location: Location,
+    #[serde(default)] // TODO: Either use Default impl, or change `features` to Option.
+    pub features: Features,
+}
+
+/// Wireguard (?) specific extra features enabled on some relay.
+/// TODO: Document mee
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+pub struct Features {
+    daita: Option<Daita>,
+    quic: Option<Quic>,
+}
+
+impl Features {
+    /// Whether Daita is enabled
+    pub fn daita(&self) -> bool {
+        self.daita.is_some()
+    }
+
+    /// Whether Quic is enabled and its config
+    pub fn quic(&self) -> Option<&Quic> {
+        self.quic.as_ref()
+    }
+
+    /// Enable Daita for this relay
+    pub fn configure_daita(self) -> Self {
+        let daita = Some(Daita);
+        Self { daita, ..self }
+    }
+
+    /// Configure QUIC for this relay
+    pub fn configure_quic(self, options: Quic) -> Self {
+        let quic = Some(options);
+        Self { quic, ..self }
+    }
+}
+
+/// TODO: Document mee
+/// Empty struct, DAITA doesn't have any configuration options (exposed by the API).
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Daita;
+
+/// TODO: Document mee
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Quic {
+    /// TODO: Document what this is used for
+    /// TODO: Is this always a tuple of an IPv4 & IPv6-inaddr?
+    /// If that's the case, I think this should be reflected in the type.
+    addr_in: Vec<IpAddr>,
+    /// TODO: Document what this is used for
+    token: String,
+    /// TODO: Document what this is used for
+    /// TODO: Is the type suitable?
+    domain: String,
+}
+
+impl Quic {
+    /// TODO: Document mee
+    /// Pinky promise, IPv4 address 🤞
+    /// Is there only ever one in-IPv4 address?
+    pub fn in_ipv4(&self) -> IpAddr {
+        // TODO: Is this sound ??
+        debug_assert!(self.addr_in.len() == 2);
+        // TODO: Is this sound ??
+        //
+        let in_addr = self.addr_in.first().unwrap();
+        *in_addr
+    }
+
+    /// TODO: Document mee
+    pub const fn port(&self) -> u16 {
+        // TODO: Should this even be hardcoded?
+        // TODO: Is this even correct??
+        443
+    }
+
+    pub fn hostname(&self) -> &str {
+        &self.domain
+    }
+
+    pub fn auth_header(&self) -> &str {
+        &self.token
+    }
 }
 
 impl Relay {
@@ -229,6 +311,7 @@ pub struct WireguardRelayEndpointData {
     /// Public key used by the relay peer
     pub public_key: wireguard::PublicKey,
     /// Whether the server supports DAITA
+    /// FIXME: This has been superceded by [Features] + [Daita].
     #[serde(default)]
     pub daita: bool,
     /// Optional IP addresses used by Shadowsocks
