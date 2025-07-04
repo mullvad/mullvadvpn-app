@@ -12,6 +12,10 @@ class WelcomePage internal constructor() : Page() {
     override fun assertIsDisplayed() {
         uiDevice.findObjectWithTimeout(welcomeSelector)
     }
+
+    fun clickAddTime() {
+        uiDevice.findObjectWithTimeout(By.text("Add time")).click()
+    }
 }
 
 fun UiDevice.dismissStorePasswordPromptIfShown() {

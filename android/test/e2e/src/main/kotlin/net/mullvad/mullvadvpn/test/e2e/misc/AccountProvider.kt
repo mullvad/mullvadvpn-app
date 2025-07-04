@@ -13,12 +13,14 @@ object AccountProvider {
     private val partnerAuth: String? = InstrumentationRegistry.getArguments().getPartnerAuth()
     private val partnerClient: PartnerApi by lazy { PartnerApi(partnerAuth!!) }
 
-    suspend fun getValidAccountNumber() =
+    suspend fun getValidAccountNumber(withTime: Boolean = true) =
         // If partner auth is provided, create a new account using the partner API. Otherwise we
         // expect and account with time to be provided.
         if (partnerAuth != null) {
             val accountNumber = partnerClient.createAccount()
-            partnerClient.addTime(accountNumber = accountNumber, daysToAdd = 1)
+            if (withTime) {
+                partnerClient.addTime(accountNumber = accountNumber, daysToAdd = 1)
+            }
             accountNumber
         } else {
             val validAccountNumber = InstrumentationRegistry.getArguments().getValidAccountNumber()

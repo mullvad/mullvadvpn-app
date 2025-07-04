@@ -130,3 +130,6 @@ const val UDP_OVER_TCP_PORT_ITEM_X_TEST_TAG = "udp_over_tcp_item_%d_test_tag"
 const val SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG = "shadowsocks_item_automatic_test_tag"
 const val SHADOWSOCKS_PORT_ITEM_X_TEST_TAG = "shadowsocks_item_%d_test_tag"
 const val SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG = "shadowsocks_custom_port_text_test_tag"
+
+// AddTimeBottomSheet
+const val ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG = "add_time_bottom_sheet_title_test_tag"

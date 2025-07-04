@@ -10,4 +10,8 @@ class OutOfTimePage internal constructor() : Page() {
     override fun assertIsDisplayed() {
         uiDevice.findObjectWithTimeout(outOfTimeSelector)
     }
+
+    fun clickAddTime() {
+        uiDevice.findObjectWithTimeout(By.text("Add time")).click()
+    }
 }
