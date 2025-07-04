@@ -33,11 +33,19 @@ pub struct Settings {
     pub wireguard_endpoint: SocketAddr,
     /// Hostname to use for QUIC
     pub hostname: String,
-    /// Auth token to use for QUIC. Must NOT be prefixed with "Bearer".
+    /// Authentication token to set for the CONNECT request when establishing a QUIC connection.
+    /// Must NOT be prefixed with "Bearer".
     pub token: String,
     /// fwmark to apply to use for the QUIC connection
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u32>,
+}
+
+impl Settings {
+    fn auth_header(&self) -> String {
+        debug_assert!(!self.token.starts_with("Bearer"));
+        format!("Bearer {token}", token = self.token)
+    }
 }
 
 impl Quic {
@@ -47,7 +55,6 @@ impl Quic {
             .map_err(Error::BindError)?;
 
         let local_endpoint = local_socket.local_addr().unwrap();
-        let token = settings.token.clone();
 
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)
@@ -55,7 +62,7 @@ impl Quic {
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
-            .auth_header(Some(format!("Bearer {token}").to_owned()));
+            .auth_header(Some(settings.auth_header()));
 
         #[cfg(target_os = "linux")]
         let config_builder = config_builder.fwmark(settings.fwmark);

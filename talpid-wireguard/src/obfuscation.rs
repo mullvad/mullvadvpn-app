@@ -16,9 +16,6 @@ use tunnel_obfuscation::{
     create_obfuscator, quic, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
 };
 
-/// Test authentication header to set for the CONNECT request.
-const AUTH_HEADER: &str = "test";
-
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
 /// to point to an endpoint on localhost
 pub async fn apply_obfuscation_config(
@@ -99,16 +96,18 @@ fn settings_from_config(
                 fwmark,
             })
         }
-        ObfuscatorConfig::Quic { hostname, endpoint } => {
-            ObfuscationSettings::Quic(quic::Settings {
-                quic_endpoint: *endpoint,
-                wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
-                hostname: hostname.to_owned(),
-                token: AUTH_HEADER.to_owned(),
-                #[cfg(target_os = "linux")]
-                fwmark,
-            })
-        }
+        ObfuscatorConfig::Quic {
+            hostname,
+            endpoint,
+            auth_header,
+        } => ObfuscationSettings::Quic(quic::Settings {
+            quic_endpoint: *endpoint,
+            wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
+            hostname: hostname.to_owned(),
+            auth_header: auth_header.to_owned(),
+            #[cfg(target_os = "linux")]
+            fwmark,
+        }),
     }
 }
 
