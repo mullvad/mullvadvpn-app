@@ -43,10 +43,6 @@ class IPOverrideStatusView: UIView {
     init() {
         super.init(frame: .zero)
 
-        let spacer = UIView()
-        spacer.setContentHuggingPriority(.defaultLow, for: .vertical)
-        spacer.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-
         let titleContainerView = UIStackView(arrangedSubviews: [titleLabel, statusIcon])
         titleContainerView.spacing = 6
         titleContainerView.distribution = .fill
@@ -54,7 +50,6 @@ class IPOverrideStatusView: UIView {
         let contentContainterView = UIStackView(arrangedSubviews: [
             titleContainerView,
             descriptionLabel,
-            spacer,
         ])
         contentContainterView.axis = .vertical
         contentContainterView.spacing = 4
