@@ -131,9 +131,10 @@ impl HttpVersionInfoProvider {
         verifying_keys: &Vec1<format::key::VerifyingKey>,
     ) -> anyhow::Result<format::SignedResponse> {
         self.get_versions_inner(|raw_json| {
-            format::SignedResponse::deserialize_and_verify_with_keys(
+            format::SignedResponse::deserialize_and_verify_at_time(
                 verifying_keys,
                 raw_json,
+                chrono::DateTime::UNIX_EPOCH,
                 lowest_metadata_version,
             )
         })
@@ -272,9 +273,13 @@ mod test {
 
         // Expect: Dumped data should exist and look the same
         let cached_data = fs::read(temp_dump).await.expect("expected dumped info");
-        let cached_info =
-            SignedResponse::deserialize_and_verify_with_keys(&verifying_keys, &cached_data, 0)
-                .unwrap();
+        let cached_info = SignedResponse::deserialize_and_verify_at_time(
+            &verifying_keys,
+            &cached_data,
+            chrono::DateTime::UNIX_EPOCH,
+            0,
+        )
+        .unwrap();
         assert_eq!(cached_info, info);
 
         Ok(())
