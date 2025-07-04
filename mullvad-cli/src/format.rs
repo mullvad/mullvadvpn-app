@@ -213,13 +213,13 @@ fn print_connection_info(
 pub fn format_location(location: &GeoIpLocation) -> String {
     let mut formatted_location = location.country.to_string();
     if let Some(city) = &location.city {
-        formatted_location.push_str(&format!(", {}", city));
+        formatted_location.push_str(&format!(", {city}"));
     }
     if let Some(ipv4) = location.ipv4 {
-        formatted_location.push_str(&format!(". IPv4: {}", ipv4));
+        formatted_location.push_str(&format!(". IPv4: {ipv4}"));
     }
     if let Some(ipv6) = location.ipv6 {
-        formatted_location.push_str(&format!(", IPv6: {}", ipv6));
+        formatted_location.push_str(&format!(", IPv6: {ipv6}"));
     }
     formatted_location
 }
