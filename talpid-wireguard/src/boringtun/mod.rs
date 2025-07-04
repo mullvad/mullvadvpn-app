@@ -3,32 +3,86 @@ use crate::{
     stats::{Stats, StatsMap},
     Tunnel, TunnelError,
 };
-use boringtun::device::{
-    api::{command::*, ApiClient, ApiServer},
-    peer::AllowedIP,
-    DeviceConfig, DeviceHandle,
+#[cfg(target_os = "android")]
+use boringtun::udp::UdpTransportFactory;
+use boringtun::{
+    device::{
+        api::{command::*, ApiClient, ApiServer},
+        peer::AllowedIP,
+        DeviceConfig, DeviceHandle,
+    },
+    udp::{channel::PacketChannel, UdpSocketFactory},
 };
-
 #[cfg(not(target_os = "android"))]
 use ipnetwork::IpNetwork;
 #[cfg(target_os = "android")]
 use std::os::fd::IntoRawFd;
 use std::{
     future::Future,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::Deref,
     sync::{Arc, Mutex},
 };
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
-use tun07::AbstractDevice;
+use tun07::{AbstractDevice, AsyncDevice};
+
+#[cfg(target_os = "android")]
+type UdpFactory = AndroidUdpSocketFactory;
+
+#[cfg(not(target_os = "android"))]
+type UdpFactory = UdpSocketFactory;
+
+type SinglehopDevice = DeviceHandle<(UdpFactory, Arc<tun07::AsyncDevice>, Arc<tun07::AsyncDevice>)>;
+type EntryDevice = DeviceHandle<(UdpFactory, PacketChannel, PacketChannel)>;
+type ExitDevice = DeviceHandle<(PacketChannel, Arc<AsyncDevice>, Arc<AsyncDevice>)>;
 
 pub struct BoringTun {
-    device_handle: DeviceHandle,
-    config_tx: ApiClient,
+    /// Device handles
+    devices: Devices,
+
+    /// Tunnel config
     config: Config,
 
     /// Name of the tun interface.
     interface_name: String,
+}
+
+enum Devices {
+    Singlehop {
+        device: SinglehopDevice,
+        api: ApiClient,
+    },
+
+    Multihop {
+        entry_device: EntryDevice,
+        entry_api: ApiClient,
+
+        exit_device: ExitDevice,
+        exit_api: ApiClient,
+    },
+}
+
+#[cfg(target_os = "android")]
+struct AndroidUdpSocketFactory {
+    pub tun: Tun,
+}
+
+#[cfg(target_os = "android")]
+impl UdpTransportFactory for AndroidUdpSocketFactory {
+    type Transport = <UdpSocketFactory as UdpTransportFactory>::Transport;
+
+    async fn bind(
+        &mut self,
+        params: &boringtun::udp::UdpTransportFactoryParams,
+    ) -> std::io::Result<(Arc<Self::Transport>, Arc<Self::Transport>)> {
+        let (udp_v4, udp_v6) = UdpSocketFactory.bind(params).await?;
+
+        self.tun.bypass(&udp_v4).unwrap();
+        self.tun.bypass(&udp_v6).unwrap();
+
+        Ok((udp_v4, udp_v6))
+    }
 }
 
 /// Configure and start a boringtun tunnel.
@@ -55,21 +109,16 @@ pub async fn open_boringtun_tunnel(
         }
     };
 
-    let (mut config_tx, config_rx) = ApiServer::new();
-
-    let boringtun_config = DeviceConfig {
+    let (entry_api, entry_api_server) = ApiServer::new();
+    let boringtun_entry_config = DeviceConfig {
         n_threads: 4,
-        api: Some(config_rx),
-        on_bind: None,
+        api: Some(entry_api_server),
     };
 
     #[cfg(target_os = "android")]
-    let mut boringtun_config = boringtun_config;
-
-    #[cfg(target_os = "android")]
-    let async_tun = {
+    let (tun, async_tun) = {
         let _ = routes; // TODO: do we need this?
-        let (mut tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
+        let (tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
         let is_new_tunnel = tun.is_new;
 
         // TODO We should also wait for routes before sending any ping / connectivity check
@@ -87,42 +136,118 @@ pub async fn open_boringtun_tunnel(
                 .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
         }
 
-        let mut config = tun07::Configuration::default();
-        config.raw_fd(fd);
+        let mut tun_config = tun07::Configuration::default();
+        tun_config.raw_fd(fd);
 
-        boringtun_config.on_bind = Some(Box::new(move |socket| tun.bypass(socket).unwrap()));
+        let device = tun07::Device::new(&tun_config).unwrap();
 
-        let device = tun07::Device::new(&config).unwrap();
-        tun07::AsyncDevice::new(device).unwrap()
+        (tun, tun07::AsyncDevice::new(device).unwrap())
     };
 
     let interface_name = async_tun.deref().tun_name().unwrap();
 
     log::info!("passing tunnel dev to boringtun");
-    let device_handle: DeviceHandle = DeviceHandle::new(async_tun, boringtun_config)
+    let async_tun = Arc::new(async_tun);
+
+    let mut boringtun = if config.exit_peer.is_some() {
+        // multihop
+
+        let source_v4 = config.tunnel.addresses.iter().find_map(|ip| match ip {
+            &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
+            IpAddr::V6(..) => None,
+        });
+
+        let source_v6 = config.tunnel.addresses.iter().find_map(|ip| match ip {
+            &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
+            IpAddr::V4(..) => None,
+        });
+
+        let channel = PacketChannel::new(
+            100,
+            source_v4.unwrap_or(Ipv4Addr::UNSPECIFIED), // HACK: unwrap_or
+            source_v6.unwrap_or(Ipv6Addr::UNSPECIFIED), // HACK: unwrap_or
+        );
+
+        let (exit_api, exit_api_server) = ApiServer::new();
+        let exit_device = DeviceHandle::<(PacketChannel, Arc<AsyncDevice>, Arc<AsyncDevice>)>::new(
+            channel.clone(),
+            async_tun.clone(),
+            async_tun,
+            DeviceConfig {
+                n_threads: 4,
+                api: Some(exit_api_server),
+            },
+        )
         .await
         .map_err(TunnelError::BoringTunDevice)?;
 
-    set_boringtun_config(&mut config_tx, config).await?;
+        #[cfg(target_os = "android")]
+        let factory = AndroidUdpSocketFactory { tun };
+
+        #[cfg(not(target_os = "android"))]
+        let factory = UdpSocketFactory;
+
+        let entry_device =
+            EntryDevice::new(factory, channel.clone(), channel, boringtun_entry_config)
+                .await
+                .map_err(TunnelError::BoringTunDevice)?;
+
+        //set_entry_boringtun_config(&mut entry_api, config).await?;
+        //set_exit_boringtun_config(&mut exit_api, config).await?;
+        BoringTun {
+            config: config.clone(),
+            interface_name,
+            devices: Devices::Multihop {
+                entry_device,
+                entry_api,
+                exit_device,
+                exit_api,
+            },
+        }
+    } else {
+        #[cfg(target_os = "android")]
+        let factory = AndroidUdpSocketFactory { tun };
+
+        #[cfg(not(target_os = "android"))]
+        let factory = UdpSocketFactory;
+
+        let device = SinglehopDevice::new(
+            factory,
+            async_tun.clone(),
+            async_tun,
+            boringtun_entry_config,
+        )
+        .await
+        .map_err(TunnelError::BoringTunDevice)?;
+
+        //set_boringtun_config(&mut entry_api, config).await?;
+
+        BoringTun {
+            devices: Devices::Singlehop {
+                device,
+                api: entry_api,
+            },
+            config: config.clone(),
+            interface_name,
+        }
+    };
+
+    // FIXME: double clone
+    boringtun.set_config(config.clone()).await?;
 
     log::info!(
         "This tunnel was brought to you by...
-.........................................................
-..*...*.. .--.                    .---.         ..*....*.
-...*..... |   )         o           |           ......*..
-.*..*..*. |--:  .-. .--..  .--. .-..|.  . .--.  ...*.....
-...*..... |   )(   )|   |  |  |(   |||  | |  |  .*.....*.
-*.....*.. '--'  `-' ' -' `-'  `-`-`|'`--`-'  `- .....*...
-.........                       ._.'            ..*...*..
-..*...*.............................................*...."
+    .........................................................
+    ..*...*.. .--.                    .---.         ..*....*.
+    ...*..... |   )         o           |           ......*..
+    .*..*..*. |--:  .-. .--..  .--. .-..|.  . .--.  ...*.....
+    ...*..... |   )(   )|   |  |  |(   |||  | |  |  .*.....*.
+    *.....*.. '--'  `-' ' -' `-'  `-`-`|'`--`-'  `- .....*...
+    .........                       ._.'            ..*...*..
+    ..*...*.............................................*...."
     );
 
-    Ok(BoringTun {
-        device_handle,
-        config: config.clone(),
-        config_tx,
-        interface_name,
-    })
+    Ok(boringtun)
 }
 
 #[async_trait::async_trait]
@@ -133,31 +258,58 @@ impl Tunnel for BoringTun {
 
     fn stop(self: Box<Self>) -> Result<(), TunnelError> {
         log::info!("BoringTun::stop"); // remove me
-        tokio::runtime::Handle::current().block_on(self.device_handle.stop());
+        tokio::runtime::Handle::current().block_on(async {
+            match self.devices {
+                Devices::Singlehop { device, .. } => {
+                    device.stop().await;
+                }
+                Devices::Multihop {
+                    entry_device,
+                    exit_device,
+                    ..
+                } => {
+                    exit_device.stop().await;
+                    entry_device.stop().await;
+                }
+            }
+        });
+
         Ok(())
     }
 
     async fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
-        let response = self
-            .config_tx
-            .send(Get::default())
-            .await
-            .expect("Failed to get peers");
+        let mut stats = StatsMap::default();
 
-        let Response::Get(response) = response else {
-            return Err(TunnelError::GetConfigError);
-        };
-        Ok(StatsMap::from_iter(response.peers.into_iter().map(
-            |peer| {
-                (
+        let apis;
+
+        match &self.devices {
+            Devices::Singlehop { api, .. } => apis = [Some(api), None],
+            Devices::Multihop {
+                entry_api,
+                exit_api,
+                ..
+            } => apis = [Some(entry_api), Some(exit_api)],
+        }
+
+        for api in apis.into_iter().flatten() {
+            let response = api.send(Get::default()).await.expect("Failed to get peers");
+
+            let Response::Get(response) = response else {
+                return Err(TunnelError::GetConfigError);
+            };
+
+            for peer in response.peers {
+                stats.insert(
                     peer.peer.public_key.0,
                     Stats {
                         tx_bytes: peer.tx_bytes.unwrap_or_default(),
                         rx_bytes: peer.rx_bytes.unwrap_or_default(),
                     },
-                )
-            },
-        )))
+                );
+            }
+        }
+
+        Ok(stats)
     }
 
     fn set_config<'a>(
@@ -166,7 +318,27 @@ impl Tunnel for BoringTun {
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
         Box::pin(async move {
             self.config = config;
-            set_boringtun_config(&mut self.config_tx, &self.config).await?;
+            match &mut self.devices {
+                Devices::Singlehop { api, .. } => {
+                    assert!(
+                        self.config.exit_peer.is_none(),
+                        "todo: support switching between single and multihop"
+                    );
+                    set_boringtun_config(api, &self.config).await?;
+                }
+                Devices::Multihop {
+                    entry_api,
+                    exit_api,
+                    ..
+                } => {
+                    assert!(
+                        self.config.exit_peer.is_some(),
+                        "todo: support switching between single and multihop"
+                    );
+                    set_boringtun_entry_config(entry_api, &self.config).await?;
+                    set_boringtun_exit_config(exit_api, &self.config).await?;
+                }
+            }
             Ok(())
         })
     }
@@ -216,6 +388,100 @@ async fn set_boringtun_config(
 
         set_cmd.peers.push(boring_peer);
     }
+
+    tx.send(set_cmd).await.map_err(|err| {
+        log::error!("Failed to set boringtun config: {err:#}");
+        TunnelError::SetConfigError
+    })?;
+    Ok(())
+}
+
+async fn set_boringtun_entry_config(
+    tx: &mut ApiClient,
+    config: &Config,
+) -> Result<(), crate::TunnelError> {
+    log::info!("configuring boringtun device");
+    let mut set_cmd = Set::builder()
+        .private_key(config.tunnel.private_key.to_bytes())
+        .listen_port(0u16)
+        .replace_peers()
+        .build();
+
+    #[cfg(target_os = "linux")]
+    {
+        set_cmd.fwmark = config.fwmark;
+    }
+
+    let peer = &config.entry_peer;
+    let mut boring_peer = Peer::builder()
+        .public_key(*peer.public_key.as_bytes())
+        .endpoint(peer.endpoint)
+        .allowed_ip(
+            peer.allowed_ips
+                .iter()
+                .map(|net| AllowedIP {
+                    addr: net.ip(),
+                    cidr: net.prefix(),
+                })
+                .collect(),
+        )
+        .build();
+
+    if let Some(psk) = &peer.psk {
+        boring_peer.preshared_key = Some(SetUnset::Set((*psk.as_bytes()).into()));
+    }
+
+    let boring_peer = SetPeer::builder().peer(boring_peer).build();
+
+    set_cmd.peers.push(boring_peer);
+
+    tx.send(set_cmd).await.map_err(|err| {
+        log::error!("Failed to set boringtun config: {err:#}");
+        TunnelError::SetConfigError
+    })?;
+    Ok(())
+}
+
+async fn set_boringtun_exit_config(
+    tx: &mut ApiClient,
+    config: &Config,
+) -> Result<(), crate::TunnelError> {
+    log::info!("configuring boringtun device");
+    let mut set_cmd = Set::builder()
+        .private_key(config.tunnel.private_key.to_bytes())
+        .listen_port(0u16)
+        .replace_peers()
+        .build();
+
+    #[cfg(target_os = "linux")]
+    {
+        set_cmd.fwmark = config.fwmark;
+    }
+
+    // TODO: don't unwrap
+    let peer = config.exit_peer.as_ref().unwrap();
+
+    let mut boring_peer = Peer::builder()
+        .public_key(*peer.public_key.as_bytes())
+        .endpoint(peer.endpoint)
+        .allowed_ip(
+            peer.allowed_ips
+                .iter()
+                .map(|net| AllowedIP {
+                    addr: net.ip(),
+                    cidr: net.prefix(),
+                })
+                .collect(),
+        )
+        .build();
+
+    if let Some(psk) = &peer.psk {
+        boring_peer.preshared_key = Some(SetUnset::Set((*psk.as_bytes()).into()));
+    }
+
+    let boring_peer = SetPeer::builder().peer(boring_peer).build();
+
+    set_cmd.peers.push(boring_peer);
 
     tx.send(set_cmd).await.map_err(|err| {
         log::error!("Failed to set boringtun config: {err:#}");
