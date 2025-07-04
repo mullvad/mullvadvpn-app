@@ -30,7 +30,6 @@ import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
-import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowCustomListsEntryBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowEditCustomListBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowLocationBottomSheet
@@ -38,9 +37,6 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
 
@@ -49,7 +45,6 @@ import net.mullvad.mullvadvpn.relaylist.canAddLocation
 internal fun LocationBottomSheets(
     locationBottomSheetState: LocationBottomSheetState?,
     onCreateCustomList: (RelayItem.Location?) -> Unit,
-    onEditCustomLists: () -> Unit,
     onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, parent: CustomListId) -> Unit,
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
@@ -70,17 +65,6 @@ internal fun LocationBottomSheets(
     val onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface
 
     when (locationBottomSheetState) {
-        is ShowCustomListsBottomSheet -> {
-            CustomListsBottomSheet(
-                backgroundColor = backgroundColor,
-                onBackgroundColor = onBackgroundColor,
-                sheetState = sheetState,
-                bottomSheetState = locationBottomSheetState,
-                onCreateCustomList = { onCreateCustomList(null) },
-                onEditCustomLists = onEditCustomLists,
-                closeBottomSheet = onCloseBottomSheet,
-            )
-        }
         is ShowLocationBottomSheet -> {
             LocationBottomSheet(
                 backgroundColor = backgroundColor,
@@ -120,62 +104,6 @@ internal fun LocationBottomSheets(
         null -> {
             /* Do nothing */
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CustomListsBottomSheet(
-    backgroundColor: Color,
-    onBackgroundColor: Color,
-    sheetState: SheetState,
-    bottomSheetState: ShowCustomListsBottomSheet,
-    onCreateCustomList: () -> Unit,
-    onEditCustomLists: () -> Unit,
-    closeBottomSheet: (animate: Boolean) -> Unit,
-) {
-
-    MullvadModalBottomSheet(
-        sheetState = sheetState,
-        backgroundColor = backgroundColor,
-        onBackgroundColor = onBackgroundColor,
-        onDismissRequest = { closeBottomSheet(false) },
-        modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG),
-    ) {
-        HeaderCell(
-            text = stringResource(id = R.string.edit_custom_lists),
-            background = backgroundColor,
-        )
-        HorizontalDivider(color = onBackgroundColor)
-        IconCell(
-            imageVector = Icons.Default.Add,
-            title = stringResource(id = R.string.new_list),
-            titleColor = onBackgroundColor,
-            onClick = {
-                onCreateCustomList()
-                closeBottomSheet(true)
-            },
-            background = backgroundColor,
-        )
-        IconCell(
-            imageVector = Icons.Default.Edit,
-            title = stringResource(id = R.string.edit_lists),
-            titleColor =
-                onBackgroundColor.copy(
-                    alpha =
-                        if (bottomSheetState.editListEnabled) {
-                            AlphaVisible
-                        } else {
-                            AlphaInactive
-                        }
-                ),
-            onClick = {
-                onEditCustomLists()
-                closeBottomSheet(true)
-            },
-            background = backgroundColor,
-            enabled = bottomSheetState.editListEnabled,
-        )
     }
 }
 
@@ -407,9 +335,6 @@ internal fun <D : DestinationSpec, R : CustomListActionResultData> ResultRecipie
 }
 
 sealed interface LocationBottomSheetState {
-
-    data class ShowCustomListsBottomSheet(val editListEnabled: Boolean) : LocationBottomSheetState
-
     data class ShowCustomListsEntryBottomSheet(
         val customListId: CustomListId,
         val customListName: CustomListName,

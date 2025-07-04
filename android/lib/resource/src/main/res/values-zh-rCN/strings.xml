@@ -370,8 +370,6 @@
     <string name="this_field_is_required">此字段为必填项</string>
     <string name="this_is_already_set_as_current">它已被设置为当前方法</string>
     <string name="time_added">时间已添加</string>
-    <string name="to_add_locations_to_a_list">要将位置添加到列表中，请按“︙”或长按国家/地区、城市或服务器。</string>
-    <string name="to_create_a_custom_list">要创建自定义列表，请按“︙”</string>
     <string name="toggle_vpn">切换 VPN</string>
     <string name="top_bar_device_name">设备名称：%1$s</string>
     <string name="top_bar_time_left">剩余时间：%1$s</string>

@@ -108,6 +108,7 @@ class SelectLocationViewModelTest {
             val mockRelayItem: RelayItem.Location.Country = mockk()
             val relayItemId: GeoLocationId.Country = mockk(relaxed = true)
             every { mockRelayItem.id } returns relayItemId
+            every { mockRelayItem.active } returns true
             coEvery { mockRelayListRepository.updateSelectedRelayLocation(relayItemId) } returns
                 Unit.right()
 
@@ -126,6 +127,7 @@ class SelectLocationViewModelTest {
             // Arrange
             val mockRelayItem: RelayItem.Location.Country = mockk()
             val relayItemId: GeoLocationId.Country = mockk(relaxed = true)
+            every { mockRelayItem.active } returns true
             every { mockRelayItem.id } returns relayItemId
             coEvery { mockWireguardConstraintsRepository.setEntryLocation(relayItemId) } returns
                 Unit.right()

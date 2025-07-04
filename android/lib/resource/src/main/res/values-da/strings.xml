@@ -370,8 +370,6 @@
     <string name="this_field_is_required">Dette felt er påkrævet</string>
     <string name="this_is_already_set_as_current">Den er allerede indstillet som aktuel</string>
     <string name="time_added">Tid tilføjet</string>
-    <string name="to_add_locations_to_a_list">Tryk på \" ︙ \" eller tryk langvarigt på et land, en by eller en server for at tilføje placeringer til en liste.</string>
-    <string name="to_create_a_custom_list">Tryk på \" ︙ \" for at oprette en brugerdefineret liste</string>
     <string name="toggle_vpn">Slå VPN til/fra</string>
     <string name="top_bar_device_name">Enhedsnavn: %1$s</string>
     <string name="top_bar_time_left">Resterende tid: %1$s</string>

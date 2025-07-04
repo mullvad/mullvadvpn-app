@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.state
+package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -30,17 +30,20 @@ sealed interface RelayListItem {
     }
 
     sealed interface SelectableItem : RelayListItem {
+        val item: RelayItem
         val depth: Int
         val isSelected: Boolean
         val expanded: Boolean
         val state: RelayListItemState?
+        val itemPosition: ItemPosition
     }
 
     data class CustomListItem(
-        val item: RelayItem.CustomList,
+        override val item: RelayItem.CustomList,
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
+        override val itemPosition: ItemPosition = ItemPosition.Single,
     ) : SelectableItem {
         override val key = item.id
         override val depth: Int = 0
@@ -50,10 +53,11 @@ sealed interface RelayListItem {
     data class CustomListEntryItem(
         val parentId: CustomListId,
         val parentName: CustomListName,
-        val item: RelayItem.Location,
+        override val item: RelayItem.Location,
         override val expanded: Boolean,
         override val depth: Int = 0,
         override val state: RelayListItemState? = null,
+        override val itemPosition: ItemPosition,
     ) : SelectableItem {
         override val key = parentId to item.id
 
@@ -73,11 +77,12 @@ sealed interface RelayListItem {
     }
 
     data class GeoLocationItem(
-        val item: RelayItem.Location,
+        override val item: RelayItem.Location,
         override val isSelected: Boolean = false,
         override val depth: Int = 0,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
+        override val itemPosition: ItemPosition,
     ) : SelectableItem {
         override val key = item.id
         override val contentType = RelayListItemContentType.LOCATION_ITEM
@@ -92,4 +97,36 @@ sealed interface RelayListItem {
         override val key = "empty_relay_list"
         override val contentType = RelayListItemContentType.EMPTY_RELAY_LIST
     }
+}
+
+data class CheckableRelayListItem(
+    val item: RelayItem.Location,
+    val depth: Int = 0,
+    val checked: Boolean = false,
+    val expanded: Boolean = false,
+    val itemPosition: ItemPosition = ItemPosition.Single,
+)
+
+sealed interface ItemPosition {
+    data object Top : ItemPosition
+
+    data object Middle : ItemPosition
+
+    data object Bottom : ItemPosition
+
+    data object Single : ItemPosition
+
+    fun roundTop(): Boolean =
+        when (this) {
+            is Single,
+            Top -> true
+            else -> false
+        }
+
+    fun roundBottom(): Boolean =
+        when (this) {
+            is Single,
+            Bottom -> true
+            else -> false
+        }
 }

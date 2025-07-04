@@ -370,8 +370,6 @@
     <string name="this_field_is_required">Bu alan gereklidir</string>
     <string name="this_is_already_set_as_current">Bu, zaten geçerli olarak ayarlı yöntemdir</string>
     <string name="time_added">Süre eklendi</string>
-    <string name="to_add_locations_to_a_list">Listeye konum eklemek için \"︙\" düğmesine basın veya bir ülke, şehir veya sunucunun üzerine uzun basın.</string>
-    <string name="to_create_a_custom_list">Özel bir liste oluşturmak için \"︙\" düğmesine basın</string>
     <string name="toggle_vpn">VPN\'i aç/kapat</string>
     <string name="top_bar_device_name">Cihaz adı: %1$s</string>
     <string name="top_bar_time_left">Kalan süre: %1$s</string>

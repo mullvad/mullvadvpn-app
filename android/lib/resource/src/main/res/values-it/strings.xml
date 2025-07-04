@@ -370,8 +370,6 @@
     <string name="this_field_is_required">Questo campo è obbligatorio</string>
     <string name="this_is_already_set_as_current">È già impostato come attuale</string>
     <string name="time_added">Tempo aggiunto</string>
-    <string name="to_add_locations_to_a_list">Per aggiungere posizioni a un elenco, premi \"︙\" o tieni premuto su un Paese, una città o un server.</string>
-    <string name="to_create_a_custom_list">Per creare un elenco personalizzato, premi \"︙\"</string>
     <string name="toggle_vpn">Attiva/disattiva VPN</string>
     <string name="top_bar_device_name">Nome del dispositivo: %1$s</string>
     <string name="top_bar_time_left">Tempo rimasto: %1$s</string>
