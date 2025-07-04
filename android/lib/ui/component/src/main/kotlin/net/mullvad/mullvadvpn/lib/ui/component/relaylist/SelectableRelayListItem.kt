@@ -194,14 +194,13 @@ internal fun Modifier.clip(itemPosition: ItemPosition): Modifier {
 }
 
 @Composable
-internal fun ItemPosition.toShape(): Shape {
-    val topCornerSize = animateDpAsState(if (roundTop()) Dimens.relayItemCornerRadius else 0.dp)
-    val bottomCornerSize =
-        animateDpAsState(if (roundBottom()) Dimens.relayItemCornerRadius else 0.dp)
+private fun ItemPosition.toShape(): Shape {
+    val topCornerSize = if (roundTop()) Dimens.relayItemCornerRadius else 0.dp
+    val bottomCornerSize = if (roundBottom()) Dimens.relayItemCornerRadius else 0.dp
     return RoundedCornerShape(
-        topStart = CornerSize(topCornerSize.value),
-        topEnd = CornerSize(topCornerSize.value),
-        bottomStart = CornerSize(bottomCornerSize.value),
-        bottomEnd = CornerSize(bottomCornerSize.value),
+        topStart = CornerSize(topCornerSize),
+        topEnd = CornerSize(topCornerSize),
+        bottomStart = CornerSize(bottomCornerSize),
+        bottomEnd = CornerSize(bottomCornerSize),
     )
 }
