@@ -27,9 +27,9 @@ use mullvad_types::{
         RelayConstraints, RelayOverride, RelaySettings, TransportPort,
     },
     relay_list::{
-        BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
-        RelayList, RelayListCity, RelayListCountry, ShadowsocksEndpointData, WireguardEndpointData,
-        WireguardRelayEndpointData,
+        BridgeEndpointData, Features, OpenVpnEndpoint, OpenVpnEndpointData, Quic, Relay,
+        RelayEndpointData, RelayList, RelayListCity, RelayListCountry, ShadowsocksEndpointData,
+        WireguardEndpointData, WireguardRelayEndpointData,
     },
 };
 
@@ -73,6 +73,16 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         shadowsocks_extra_addr_in: vec![],
                     }),
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default()
+                        .configure_daita()
+                        .configure_quic(Quic::new(
+                            vec![
+                                "185.213.154.68".parse().unwrap(),
+                                "2a03:1b20:5:f011::a09f".parse().unwrap(),
+                            ],
+                            "Bearer test".to_owned(),
+                            "se9-wireguard.blockerad.eu".to_owned(),
+                        )),
                 },
                 Relay {
                     hostname: "se10-wireguard".to_string(),
@@ -94,6 +104,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         shadowsocks_extra_addr_in: vec![],
                     }),
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default(),
                 },
                 Relay {
                     hostname: "se11-wireguard".to_string(),
@@ -115,6 +126,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         shadowsocks_extra_addr_in: vec![],
                     }),
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default().configure_daita(),
                 },
                 Relay {
                     hostname: "se-got-001".to_string(),
@@ -129,6 +141,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     weight: 1,
                     endpoint_data: RelayEndpointData::Openvpn,
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default(),
                 },
                 Relay {
                     hostname: "se-got-002".to_string(),
@@ -143,6 +156,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     weight: 1,
                     endpoint_data: RelayEndpointData::Openvpn,
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default(),
                 },
                 Relay {
                     hostname: "se-got-br-001".to_string(),
@@ -157,6 +171,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     weight: 1,
                     endpoint_data: RelayEndpointData::Bridge,
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default(),
                 },
                 SHADOWSOCKS_RELAY.clone(),
             ],
@@ -241,6 +256,7 @@ static SHADOWSOCKS_RELAY: LazyLock<Relay> = LazyLock::new(|| Relay {
         shadowsocks_extra_addr_in: SHADOWSOCKS_RELAY_EXTRA_ADDRS.to_vec(),
     }),
     location: DUMMY_LOCATION.clone(),
+    features: Features::default(),
 });
 const SHADOWSOCKS_RELAY_IPV4: Ipv4Addr = Ipv4Addr::new(123, 123, 123, 1);
 const SHADOWSOCKS_RELAY_IPV6: Ipv6Addr = Ipv6Addr::new(0x123, 0, 0, 0, 0, 0, 0, 2);
@@ -319,13 +335,13 @@ fn assert_wireguard_retry_order() {
         // 1 (wireguard)
         RelayQueryBuilder::wireguard().build(),
         // 2
-        RelayQueryBuilder::wireguard().port(443).build(),
-        // 3
         RelayQueryBuilder::wireguard()
             .ip_version(IpVersion::V6)
             .build(),
-        // 4
+        // 3
         RelayQueryBuilder::wireguard().shadowsocks().build(),
+        // 4
+        RelayQueryBuilder::wireguard().quic().build(),
         // 5
         RelayQueryBuilder::wireguard().udp2tcp().build(),
         // 6
@@ -574,6 +590,7 @@ fn test_wireguard_entry() {
                             shadowsocks_extra_addr_in: vec![],
                         }),
                         location: DUMMY_LOCATION.clone(),
+                        features: Features::default(),
                     },
                     Relay {
                         hostname: "se10-wireguard".to_string(),
@@ -595,6 +612,7 @@ fn test_wireguard_entry() {
                             shadowsocks_extra_addr_in: vec![],
                         }),
                         location: DUMMY_LOCATION.clone(),
+                        features: Features::default(),
                     },
                 ],
             }],
@@ -872,6 +890,32 @@ fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
     }
 }
 
+/// Test whether Quic is always selected as the obfuscation protocol when Quic is selected.
+#[test]
+fn test_selecting_wireguard_over_quic() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+
+    let query = RelayQueryBuilder::wireguard().quic().build();
+    assert!(!query.wireguard_constraints().multihop());
+
+    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            obfuscator,
+            inner: WireguardConfig::Singlehop { .. },
+            ..
+        } => {
+            assert!(obfuscator.is_some_and(|obfuscator| matches!(
+                obfuscator.config,
+                ObfuscatorConfig::Quic { .. },
+            )))
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay with Quic, instead chose {wrong_relay:?}"
+        ),
+    }
+}
+
 /// Ignore extra IPv4 addresses when overrides are set
 #[test]
 fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
@@ -1017,7 +1061,7 @@ fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
 /// all configurations contain a valid port.
 #[test]
 fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
-    const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
+    const TCP2UDP_PORTS: [u16; 2] = [80, 5001];
     let relay_selector = default_relay_selector();
     // Note that we do *not* specify any port here!
     let query = RelayQueryBuilder::wireguard().udp2tcp().build();
@@ -1219,6 +1263,7 @@ fn test_include_in_country() {
                             daita: false,
                         }),
                         location: DUMMY_LOCATION.clone(),
+                        features: Features::default(),
                     },
                     Relay {
                         hostname: "se10-wireguard".to_string(),
@@ -1240,6 +1285,7 @@ fn test_include_in_country() {
                             daita: false,
                         }),
                         location: DUMMY_LOCATION.clone(),
+                        features: Features::default(),
                     },
                 ],
             }],

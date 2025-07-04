@@ -7,6 +7,7 @@ mod parsed_relays;
 pub mod query;
 pub mod relays;
 
+use detailer::resolve_ip_version;
 use matcher::{filter_matching_bridges, filter_matching_relay_list};
 use parsed_relays::ParsedRelays;
 use relays::{Multihop, Singlehop, WireguardConfig};
@@ -62,13 +63,13 @@ pub static WIREGUARD_RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
         // 1 This works with any wireguard relay
         RelayQueryBuilder::wireguard().build(),
         // 2
-        RelayQueryBuilder::wireguard().port(443).build(),
-        // 3
         RelayQueryBuilder::wireguard()
             .ip_version(IpVersion::V6)
             .build(),
-        // 4
+        // 3
         RelayQueryBuilder::wireguard().shadowsocks().build(),
+        // 4
+        RelayQueryBuilder::wireguard().quic().build(),
         // 5
         RelayQueryBuilder::wireguard().udp2tcp().build(),
         // 6
@@ -215,6 +216,9 @@ struct NormalSelectorConfig<'a> {
 }
 
 /// The return type of [`RelaySelector::get_relay`].
+// There won't ever be many instances of GetRelay floating around, so the 'large' difference in
+// size between its variants is negligible.
+#[allow(clippy::large_enum_variant)]
 #[derive(Clone, Debug)]
 pub enum GetRelay {
     Wireguard {
@@ -915,16 +919,8 @@ impl RelaySelector {
                 Ok(Some(obfuscation))
             }
             ObfuscationQuery::Quic => {
-                let obfuscator = SelectedObfuscator {
-                    config: ObfuscatorConfig::Quic {
-                        // TODO: do not hardcode port
-                        endpoint: std::net::SocketAddr::from((endpoint.peer.endpoint.ip(), 443)),
-                        // TODO: do not hardcode
-                        hostname: "test.mullvad.net".to_owned(),
-                    },
-                    relay: obfuscator_relay,
-                };
-                Ok(Some(obfuscator))
+                let ip_version = resolve_ip_version(query.wireguard_constraints().ip_version);
+                Ok(helpers::get_quic_obfuscator(obfuscator_relay, ip_version))
             }
         }
     }

@@ -15,7 +15,7 @@ use rand::{
     seq::{IteratorRandom, SliceRandom},
     thread_rng, Rng,
 };
-use talpid_types::net::obfuscation::ObfuscatorConfig;
+use talpid_types::net::{obfuscation::ObfuscatorConfig, IpVersion};
 
 use crate::SelectedObfuscator;
 
@@ -139,6 +139,26 @@ pub fn get_shadowsocks_obfuscator(
         config: ObfuscatorConfig::Shadowsocks { endpoint },
         relay,
     })
+}
+
+pub fn get_quic_obfuscator(relay: Relay, ip_version: IpVersion) -> Option<SelectedObfuscator> {
+    let quic = relay.features.quic()?;
+    let config = {
+        let hostname = quic.hostname().to_string();
+        let endpoint = match ip_version {
+            IpVersion::V4 => SocketAddr::from((quic.in_ipv4()?, quic.port())),
+            IpVersion::V6 => SocketAddr::from((quic.in_ipv6()?, quic.port())),
+        };
+        let auth_token = quic.auth_token().to_string();
+        ObfuscatorConfig::Quic {
+            hostname,
+            endpoint,
+            auth_token,
+        }
+    };
+
+    let obfuscator = SelectedObfuscator { config, relay };
+    Some(obfuscator)
 }
 
 /// Return an obfuscation config for the wireguard server at `wg_in_addr` or one of `extra_in_addrs`

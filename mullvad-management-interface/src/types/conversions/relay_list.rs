@@ -285,7 +285,11 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
             })
             .transpose()?;
 
-        Ok(MullvadRelay {
+        // TODO: Eventually, we will need to decide how to represent extra relay features in the
+        // protobuf message.
+        let features = mullvad_types::relay_list::Features::default();
+
+        let relay = MullvadRelay {
             hostname: relay.hostname,
             ipv4_addr_in: relay.ipv4_addr_in.parse().map_err(|_err| {
                 FromProtobufTypeError::InvalidArgument("invalid relay IPv4 address")
@@ -311,7 +315,10 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
                 })
                 .ok_or("missing relay location")
                 .map_err(FromProtobufTypeError::InvalidArgument)?,
-        })
+            features,
+        };
+
+        Ok(relay)
     }
 }
 
