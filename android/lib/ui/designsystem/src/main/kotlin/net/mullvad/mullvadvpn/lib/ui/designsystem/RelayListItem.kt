@@ -21,8 +21,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,7 +68,7 @@ fun RelayListItem(
                 contentAlignment = Alignment.Center,
             ) {
                 ProvideContentColorTextStyle(
-                    colors.leadingIconColor(enabled),
+                    colors.leadingIconColor,
                     MaterialTheme.typography.titleMedium,
                 ) {
                     leadingContent()
@@ -101,7 +98,7 @@ fun RelayListItem(
                     .fillMaxHeight()
             ) {
                 ProvideContentColorTextStyle(
-                    colors.trailingIconColor(enabled),
+                    colors.trailingIconColor,
                     MaterialTheme.typography.titleMedium,
                 ) {
                     trailingContent()
@@ -120,8 +117,6 @@ class RelayListItemColors(
     val trailingIconColor: Color,
     val selectedHeadlineColor: Color,
     val disabledHeadlineColor: Color,
-    val disabledLeadingIconColor: Color,
-    val disabledTrailingIconColor: Color,
 ) {
     internal fun containerColor(): Color = containerColor
 
@@ -132,14 +127,6 @@ class RelayListItemColors(
             selected -> selectedHeadlineColor
             else -> headlineColor
         }
-
-    @Stable
-    internal fun leadingIconColor(enabled: Boolean): Color =
-        if (enabled) leadingIconColor else disabledLeadingIconColor
-
-    @Stable
-    internal fun trailingIconColor(enabled: Boolean): Color =
-        if (enabled) trailingIconColor else disabledTrailingIconColor
 }
 
 @Composable
@@ -157,28 +144,6 @@ internal fun ProvideContentColorTextStyle(
 }
 
 object RelayListItemDefaults {
-    /** The container color of a list item */
-    val containerColor: Color
-        @Composable @ReadOnlyComposable get() = MaterialTheme.colorScheme.primaryContainer
-
-    /** The content color of a list item */
-    val contentColor: Color
-        @Composable @ReadOnlyComposable get() = MaterialTheme.colorScheme.onPrimaryContainer
-
-    /**
-     * Creates a [ListItemColors] that represents the default container and content colors used in a
-     * [ListItem].
-     *
-     * @param containerColor the container color of this list item when enabled.
-     * @param headlineColor the headline text content color of this list item when enabled.
-     * @param leadingIconColor the color of this list item's leading content when enabled.
-     * @param trailingIconColor the color of this list item's trailing content when enabled.
-     * @param disabledHeadlineColor the content color of this list item when not enabled.
-     * @param disabledLeadingIconColor the color of this list item's leading content when not
-     *   enabled.
-     * @param disabledTrailingIconColor the color of this list item's trailing content when not
-     *   enabled.
-     */
     @Composable
     fun colors(
         containerColor: Color = MaterialTheme.colorScheme.surface,
@@ -188,10 +153,6 @@ object RelayListItemDefaults {
         selectedHeadlineColor: Color = MaterialTheme.colorScheme.tertiary,
         disabledHeadlineColor: Color =
             headlineColor.copy(alpha = RelayListTokens.RelayListItemDisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color =
-            leadingIconColor.copy(alpha = RelayListTokens.RelayListItemDisabledLeadingIconOpacity),
-        disabledTrailingIconColor: Color =
-            trailingIconColor.copy(alpha = RelayListTokens.RelayListItemDisabledTrailingIconOpacity),
     ): RelayListItemColors =
         RelayListItemColors(
             containerColor = containerColor,
@@ -200,15 +161,12 @@ object RelayListItemDefaults {
             trailingIconColor = trailingIconColor,
             selectedHeadlineColor = selectedHeadlineColor,
             disabledHeadlineColor = disabledHeadlineColor,
-            disabledLeadingIconColor = disabledLeadingIconColor,
-            disabledTrailingIconColor = disabledTrailingIconColor,
         )
 }
 
 object RelayListTokens {
     const val RelayListItemDisabledLabelTextOpacity = AlphaInactive
-    const val RelayListItemDisabledLeadingIconOpacity = AlphaInactive
-    const val RelayListItemDisabledTrailingIconOpacity = AlphaInactive
+
     val listItemMinHeight = 56.dp
     val listItemSpacer = 2.dp
     val listItemButtonWidth = 56.dp

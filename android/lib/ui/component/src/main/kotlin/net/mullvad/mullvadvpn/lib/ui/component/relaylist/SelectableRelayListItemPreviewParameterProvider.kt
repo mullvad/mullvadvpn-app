@@ -50,6 +50,17 @@ class SelectableRelayListItemPreviewParameterProvider :
                     isSelected = false,
                     itemPosition = ItemPosition.Single,
                 ),
+                RelayListItem.GeoLocationItem(
+                    item =
+                        generateRelayItemCountry(
+                            name = "Country selected but inactive",
+                            cityNames = listOf("Expanded city A", "Expanded city B"),
+                            relaysPerCity = 2,
+                            active = false,
+                        ),
+                    isSelected = true,
+                    itemPosition = ItemPosition.Single,
+                ),
             )
         )
 }

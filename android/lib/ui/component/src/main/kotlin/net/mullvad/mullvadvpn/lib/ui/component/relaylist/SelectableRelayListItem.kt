@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,7 +32,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.resource.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -67,10 +67,6 @@ fun SelectableRelayListItem(
     onLongClick: (() -> Unit)? = null,
     onToggleExpand: ((Boolean) -> Unit),
 ) {
-    // TODO Fix colors
-    val activeColor = MaterialTheme.colorScheme.selected
-    val inactiveColor = MaterialTheme.colorScheme.error
-    val disabledColor = MaterialTheme.colorScheme.onSurfaceVariant
     RelayListItem(
         modifier = modifier.clip(itemPosition = relayListItem.itemPosition),
         selected = relayListItem.isSelected,
@@ -82,33 +78,22 @@ fun SelectableRelayListItem(
                         .padding(start = relayListItem.depth * Dimens.mediumPadding)
                         .padding(Dimens.mediumPadding),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
             ) {
+                val iconTint =
+                    when {
+                        !relayListItem.item.active -> MaterialTheme.colorScheme.error
+                        relayListItem.isSelected -> MaterialTheme.colorScheme.tertiary
+                        else -> Color.Transparent
+                    }
                 if (relayListItem.isSelected) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        modifier = Modifier.padding(end = Dimens.smallPadding),
+                        tint = iconTint,
                     )
                 } else if (!relayListItem.item.active) {
-                    // TODO Fix design of this
-                    Box(
-                        modifier =
-                            Modifier.padding(start = Dimens.smallPadding)
-                                .size(Dimens.relayCircleSize)
-                                .padding(2.dp)
-                                .background(
-                                    color =
-                                        when {
-                                            relayListItem.item is RelayItem.CustomList &&
-                                                !relayListItem.item.hasChildren -> disabledColor
-
-                                            relayListItem.state != null -> disabledColor
-                                            relayListItem.item.active -> activeColor
-                                            else -> inactiveColor
-                                        },
-                                    shape = CircleShape,
-                                )
-                    )
+                    InactiveRelayIndicator(iconTint)
                 }
 
                 Name(
@@ -179,6 +164,16 @@ private fun String.withSuffix(state: RelayListItemState) =
         RelayListItemState.USED_AS_EXIT -> stringResource(R.string.x_exit, this)
         RelayListItemState.USED_AS_ENTRY -> stringResource(R.string.x_entry, this)
     }
+
+@Composable
+fun InactiveRelayIndicator(tint: Color) {
+    Box(
+        modifier =
+            Modifier.size(Dimens.listIconSize)
+                .padding(Dimens.relayCirclePadding)
+                .background(color = tint, shape = CircleShape)
+    )
+}
 
 @Composable
 internal fun Modifier.clip(itemPosition: ItemPosition): Modifier {
