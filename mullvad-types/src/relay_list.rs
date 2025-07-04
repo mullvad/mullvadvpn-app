@@ -88,6 +88,49 @@ pub struct Relay {
     pub weight: u64,
     pub endpoint_data: RelayEndpointData,
     pub location: Location,
+    #[serde(default)] // TODO: Either use Default impl, or change `features` to Option.
+    pub features: Features,
+}
+
+/// Wireguard (?) specific extra features enabled on some relay.
+/// TODO: Document mee
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+pub struct Features {
+    daita: Option<Daita>,
+    quic: Option<Quic>,
+}
+
+impl Features {
+    /// Enable Daita for this relay
+    pub fn daita(self) -> Self {
+        let daita = Some(Daita);
+        Self { daita, ..self }
+    }
+
+    /// Configure QUIC for this relay
+    pub fn quic(self, options: Quic) -> Self {
+        let quic = Some(options);
+        Self { quic, ..self }
+    }
+}
+
+/// TODO: Document mee
+/// Empty struct, DAITA doesn't have any configuration options (exposed by the API).
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Daita;
+
+/// TODO: Document mee
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Quic {
+    /// TODO: Document what this is used for
+    /// TODO: Is this always a tuple of an IPv4 & IPv6-inaddr?
+    /// If that's the case, I think this should be reflected in the type.
+    addr_in: Vec<IpAddr>,
+    /// TODO: Document what this is used for
+    token: String,
+    /// TODO: Document what this is used for
+    /// TODO: Is the type suitable?
+    domain: String,
 }
 
 impl Relay {
@@ -229,6 +272,7 @@ pub struct WireguardRelayEndpointData {
     /// Public key used by the relay peer
     pub public_key: wireguard::PublicKey,
     /// Whether the server supports DAITA
+    /// FIXME: This has been superceded by [Features] + [Daita].
     #[serde(default)]
     pub daita: bool,
     /// Optional IP addresses used by Shadowsocks
