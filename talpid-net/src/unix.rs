@@ -1,10 +1,8 @@
 #![cfg(any(target_os = "linux", target_os = "macos"))]
 
-use std::{
-    ffi::{c_uint, c_ulong},
-    io,
-    os::fd::AsRawFd,
-};
+#[cfg(target_os = "linux")]
+use std::ffi::c_ulong;
+use std::{ffi::c_uint, io, os::fd::AsRawFd};
 
 use nix::{errno::Errno, net::if_::if_nametoindex};
 use socket2::Domain;
