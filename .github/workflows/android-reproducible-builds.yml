@@ -42,8 +42,8 @@ jobs:
     outputs:
       COMMIT_HASH: ${{ steps.hash.outputs.commit_hash }}
 
-  build-fdroid-app:
-    name: Build fdroid container
+  build-using-container:
+    name: Build fdroid variant using container
     runs-on: ubuntu-latest
     needs: set-up-env
     steps:
@@ -63,13 +63,13 @@ jobs:
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
-          name: container-app
+          name: apk-container
           path: android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
           if-no-files-found: error
           retention-days: 7
 
-  build-fdroid-app-server:
-    name: Build fdroid with fdroid server
+  build-using-fdroidserver:
+    name: Build fdroid variant using fdroidserver
     runs-on: ubuntu-latest
     needs: set-up-env
     steps:
@@ -111,7 +111,7 @@ jobs:
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
-          name: fdroidserver-app
+          name: apk-fdroidserver
           path: |
             build/net\.mullvad\.mullvadvpn/android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
           if-no-files-found: error
@@ -120,36 +120,29 @@ jobs:
   compare-builds:
     name: Check builds
     runs-on: ubuntu-latest
-    needs: [build-fdroid-app, build-fdroid-app-server]
+    needs: [build-using-container, build-using-fdroidserver]
     steps:
-      - name: Download container apk
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: container-app
-          path: container
-
-      - name: Download server apk
-        uses: actions/download-artifact@v4
-        with:
-          name: fdroidserver-app
-          path: fdroidserver
+          path: artifacts
+          pattern: apk-*
+          merge-multiple: false
 
       - name: Print checksums
-        run: |
-          echo "Container build checksum"
-          md5sum container/app-oss-prod-fdroid-unsigned.apk
-          echo "Fdroidserver build checksum"
-          md5sum fdroidserver/app-oss-prod-fdroid-unsigned.apk
+        working-directory: ./artifacts
+        run: sha256sum */*
 
       - name: Compare files
-        run: diff container/app-oss-prod-fdroid-unsigned.apk fdroidserver/app-oss-prod-fdroid-unsigned.apk
+        working-directory: ./artifacts
+        run: diff apk-container/app-oss-prod-fdroid-unsigned.apk apk-fdroidserver/app-oss-prod-fdroid-unsigned.apk
 
   # Included in this workflow since it's the only place
   # release artifacts are built. Should eventually be moved.
   check-permissions:
     name: Check APK permissions
     runs-on: ubuntu-latest
-    needs: [set-up-env, build-fdroid-app]
+    needs: [set-up-env, build-using-container]
     steps:
       - name: Install apktool
         run: sudo apt-get install -y apktool
@@ -162,7 +155,7 @@ jobs:
       - name: Download container apk
         uses: actions/download-artifact@v4
         with:
-          name: container-app
+          name: apk-container
 
       - name: Extract resources
         run: |
