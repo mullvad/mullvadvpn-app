@@ -147,7 +147,12 @@ pub fn get_quic_obfuscator(relay: Relay) -> Option<SelectedObfuscator> {
         let hostname = quic.hostname().to_string();
         // TODO: IPv6
         let endpoint = SocketAddr::from((quic.in_ipv4(), quic.port()));
-        ObfuscatorConfig::Quic { hostname, endpoint }
+        let auth_header = quic.auth_header().to_string();
+        ObfuscatorConfig::Quic {
+            hostname,
+            endpoint,
+            auth_header,
+        }
     };
 
     let obfuscator = SelectedObfuscator { config, relay };
