@@ -27,6 +27,8 @@ const SHADOWSOCKS_EXTRA_PORT_RANGES: &[RangeInclusive<u16>] = &[1..=u16::MAX];
 pub enum Error {
     #[error("Found no valid port matching the selected settings")]
     NoMatchingPort,
+    #[error("Quic is not enabled for this relay")]
+    QuicNotFound,
 }
 
 /// Picks a relay at random from `relays`, but don't pick `exclude`.
@@ -139,6 +141,19 @@ pub fn get_shadowsocks_obfuscator(
         config: ObfuscatorConfig::Shadowsocks { endpoint },
         relay,
     })
+}
+
+pub fn get_quic_obfuscator(relay: Relay) -> Result<SelectedObfuscator, Error> {
+    let quic = relay.features.quic().ok_or(Error::QuicNotFound)?;
+    let config = {
+        let hostname = quic.hostname().to_string();
+        // TODO: IPv6
+        let endpoint = SocketAddr::from((quic.in_ipv4(), quic.port()));
+        ObfuscatorConfig::Quic { hostname, endpoint }
+    };
+
+    let obfuscator = SelectedObfuscator { config, relay };
+    Ok(obfuscator)
 }
 
 /// Return an obfuscation config for the wireguard server at `wg_in_addr` or one of `extra_in_addrs`
