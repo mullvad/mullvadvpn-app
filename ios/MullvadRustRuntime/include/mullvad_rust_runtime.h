@@ -119,10 +119,10 @@ typedef struct DaitaParameters {
 } DaitaParameters;
 
 typedef struct WgTcpConnectionFunctions {
-  int32_t (*open_fn)(int32_t tunnelHandle, const char *address, uint64_t timeout);
-  int32_t (*close_fn)(int32_t tunnelHandle, int32_t socketHandle);
-  int32_t (*recv_fn)(int32_t tunnelHandle, int32_t socketHandle, uint8_t *data, int32_t len);
-  int32_t (*send_fn)(int32_t tunnelHandle, int32_t socketHandle, const uint8_t *data, int32_t len);
+  int32_t (*open_fn)(int32_t tunnel_handle, const char *address, uint64_t timeout);
+  int32_t (*close_fn)(int32_t tunnel_handle, int32_t socket_handle);
+  int32_t (*recv_fn)(int32_t tunnel_handle, int32_t socket_handle, uint8_t *data, int32_t len);
+  int32_t (*send_fn)(int32_t tunnel_handle, int32_t socket_handle, const uint8_t *data, int32_t len);
 } WgTcpConnectionFunctions;
 
 typedef struct EphemeralPeerParameters {
