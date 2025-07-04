@@ -1,4 +1,4 @@
-use std::{ffi::c_char, ffi::CStr, future::Future, sync::Arc};
+use std::{ffi::c_char, ffi::c_void, ffi::CStr, future::Future, sync::Arc};
 
 use access_method_resolver::SwiftAccessMethodResolver;
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
@@ -86,6 +86,14 @@ impl ApiContext {
     }
 }
 
+/// An opaque pointer that exists only to be passed from the caller to a callback through the ABI
+struct ForeignPtr {
+    ptr: *const c_void,
+}
+/// allow this to be passed across thread boundaries
+unsafe impl Send for ForeignPtr {}
+unsafe impl Sync for ForeignPtr {}
+
 /// Called by Swift to set the available access methods
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_update_access_methods(
@@ -139,7 +147,8 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
-    access_method_change_callback: Option<unsafe extern "C" fn(* const u8)>,
+    access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, * const u8)>,
+    access_method_change_context: *const c_void, 
 ) -> SwiftApiContext {
     mullvad_api_init_inner(
         host,
@@ -150,6 +159,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
         settings_provider,
         address_cache,
         access_method_change_callback,
+        access_method_change_context,
     )
 }
 
@@ -173,7 +183,8 @@ pub extern "C" fn mullvad_api_init_new(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
-    access_method_change_callback: Option<unsafe extern "C" fn(* const u8)>,
+    access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, * const u8)>,
+    access_method_change_context: *const c_void, 
 ) -> SwiftApiContext {
     #[cfg(feature = "api-override")]
     return mullvad_api_init_inner(
@@ -185,6 +196,7 @@ pub extern "C" fn mullvad_api_init_new(
         settings_provider,
         address_cache,
         access_method_change_callback,
+        access_method_change_context,
     );
     #[cfg(not(feature = "api-override"))]
     mullvad_api_init_inner(
@@ -195,6 +207,7 @@ pub extern "C" fn mullvad_api_init_new(
         settings_provider,
         address_cache,
         access_method_change_callback,
+        access_method_change_context,
     )
 }
 
@@ -219,7 +232,8 @@ pub extern "C" fn mullvad_api_init_inner(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
-    access_method_change_callback: Option<unsafe extern "C" fn(* const u8)>,
+    access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, * const u8)>,
+    access_method_change_context: *const c_void, 
 ) -> SwiftApiContext {
     log::warn!(">>> mullvad_api_init_inner");
     // Safety: See notes for `convert_c_string`
@@ -258,6 +272,7 @@ pub extern "C" fn mullvad_api_init_inner(
         address_cache,
     );
 
+    let access_method_change_ctx: ForeignPtr = ForeignPtr { ptr: access_method_change_context };
     let api_context = tokio_handle.clone().block_on(async move {
         let (tx, mut rx) = mpsc::unbounded::<(AccessMethodEvent, oneshot::Sender<()>)>();
         let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
@@ -278,8 +293,7 @@ pub extern "C" fn mullvad_api_init_inner(
                     let uuid = setting.get_id();
                     let uuid_bytes = uuid.as_bytes();
                     // SAFETY: The callback is expected to be safe to call
-                    unsafe { callback(uuid_bytes.as_ptr()) };
-                    //log::warn!("ASDASDASDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASDASDASDASD {event:?}");
+                    unsafe { callback(access_method_change_ctx.ptr, uuid_bytes.as_ptr()) };
                 }
             }
         });
