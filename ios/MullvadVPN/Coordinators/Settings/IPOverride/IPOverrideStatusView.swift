@@ -14,11 +14,19 @@ class IPOverrideStatusView: UIView {
         label.font = .mullvadTinySemiBold
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
+        label.numberOfLines = 0
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return label
     }()
 
     private lazy var statusIcon: UIImageView = {
-        return UIImageView()
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .center
+        imageView.setContentHuggingPriority(.required, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        return imageView
     }()
 
     private lazy var descriptionLabel: UILabel = {
@@ -27,18 +35,26 @@ class IPOverrideStatusView: UIView {
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .white.withAlphaComponent(0.6)
         label.numberOfLines = 0
+        label.setContentHuggingPriority(.required, for: .vertical)
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
         return label
     }()
 
     init() {
         super.init(frame: .zero)
 
-        let titleContainerView = UIStackView(arrangedSubviews: [titleLabel, statusIcon, UIView()])
+        let spacer = UIView()
+        spacer.setContentHuggingPriority(.defaultLow, for: .vertical)
+        spacer.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+
+        let titleContainerView = UIStackView(arrangedSubviews: [titleLabel, statusIcon])
         titleContainerView.spacing = 6
+        titleContainerView.distribution = .fill
 
         let contentContainterView = UIStackView(arrangedSubviews: [
             titleContainerView,
             descriptionLabel,
+            spacer,
         ])
         contentContainterView.axis = .vertical
         contentContainterView.spacing = 4
