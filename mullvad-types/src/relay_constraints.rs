@@ -639,9 +639,6 @@ pub enum SelectedObfuscation {
     #[cfg_attr(feature = "clap", clap(name = "udp2tcp"))]
     Udp2Tcp,
     Shadowsocks,
-    // TODO: Remove 'debug_assertions' condition
-    //       See https://linear.app/mullvad/issue/DES-2105
-    #[cfg_attr(all(feature = "clap", not(debug_assertions)), value(skip))]
     Quic,
 }
 
