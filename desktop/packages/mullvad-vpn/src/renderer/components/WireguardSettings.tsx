@@ -216,16 +216,10 @@ function ObfuscationSettings() {
           ariaLabel: messages.pgettext('accessibility', 'UDP-over-TCP settings'),
         },
       },
-      // TODO: Remove 'development' condition before releasing QUIC.
-      //       https://linear.app/mullvad/issue/DES-2105
-      ...(window.env?.development
-        ? [
-            {
-              label: messages.pgettext('wireguard-settings-view', 'QUIC'),
-              value: ObfuscationType.quic,
-            },
-          ]
-        : []),
+      {
+        label: messages.pgettext('wireguard-settings-view', 'QUIC'),
+        value: ObfuscationType.quic,
+      },
       {
         label: messages.gettext('Off'),
         value: ObfuscationType.off,
