@@ -67,6 +67,15 @@ impl VersionRouterHandle {
             .map_err(|_| Error::VersionRouterClosed)?;
         result_rx.await.map_err(|_| Error::VersionRouterClosed)
     }
+
+    #[cfg(in_app_upgrade)]
+    pub async fn get_cache_dir(&self) -> Result<PathBuf> {
+        let (result_tx, result_rx) = oneshot::channel();
+        self.tx
+            .send(Message::GetCacheDir { result_tx })
+            .map_err(|_| Error::VersionRouterClosed)?;
+        result_rx.await.map_err(|_| Error::VersionRouterClosed)
+    }
 }
 
 // These wrapper traits and type aliases exist to help feature gate the module
@@ -106,6 +115,8 @@ struct VersionRouter<S = DaemonEventSender<AppVersionInfo>, D = DefaultDownloade
     /// Broadcast channel for app upgrade events
     #[cfg(in_app_upgrade)]
     app_upgrade_broadcast: AppUpgradeBroadcast,
+    #[cfg(in_app_upgrade)]
+    cache_dir: PathBuf,
     /// Type used to spawn the downloader task, replaced when testing
     _phantom: std::marker::PhantomData<D>,
 }
@@ -124,6 +135,9 @@ enum Message {
     /// Cancel the ongoing update
     #[cfg(in_app_upgrade)]
     CancelUpdate { result_tx: oneshot::Sender<()> },
+    /// Get the cache dir
+    #[cfg(in_app_upgrade)]
+    GetCacheDir { result_tx: oneshot::Sender<PathBuf> },
 }
 
 #[derive(Debug)]
@@ -215,7 +229,7 @@ pub(crate) fn spawn_version_router(
         VersionUpdater::spawn(
             api_handle,
             availability_handle,
-            cache_dir,
+            cache_dir.clone(),
             new_version_tx,
             refresh_version_check_rx,
         )
@@ -230,6 +244,8 @@ pub(crate) fn spawn_version_router(
             version_request_channels: vec![],
             #[cfg(in_app_upgrade)]
             app_upgrade_broadcast,
+            #[cfg(in_app_upgrade)]
+            cache_dir,
             refresh_version_check_tx,
             _phantom: std::marker::PhantomData::<DefaultDownloader>,
         }
@@ -297,6 +313,10 @@ where
             Message::CancelUpdate { result_tx } => {
                 self.cancel_upgrade();
                 let _ = result_tx.send(());
+            }
+            #[cfg(in_app_upgrade)]
+            Message::GetCacheDir { result_tx } => {
+                let _ = result_tx.send(self.cache_dir.clone());
             }
         }
     }
@@ -723,6 +743,7 @@ mod test {
                 version_request_channels: vec![],
                 app_upgrade_broadcast,
                 refresh_version_check_tx,
+                cache_dir: PathBuf::new(),
                 _phantom: std::marker::PhantomData::<D>,
             },
             VersionRouterChannels {

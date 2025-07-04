@@ -445,6 +445,7 @@ export default class AppRenderer {
   public daemonPrepareRestart = (shutdown: boolean): void => {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
+  public getAppUpgradeCacheDir = () => IpcRendererEventChannel.app.getUpgradeCacheDir();
 
   public tryStartDaemon = () => {
     if (window.env.platform === 'win32') IpcRendererEventChannel.daemon.tryStart();

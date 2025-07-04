@@ -427,6 +427,8 @@ pub enum DaemonCommand {
     AppUpgrade(ResponseTx<(), version::Error>),
     /// Prompt the daemon to abort the current upgrade.
     AppUpgradeAbort(ResponseTx<(), version::Error>),
+    /// Return the storage path for the installers during in-app upgrades.
+    GetAppUpgradeCacheDir(ResponseTx<PathBuf, version::Error>),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -1511,6 +1513,7 @@ impl Daemon {
             EnableRelay { relay, tx } => self.on_toggle_relay(relay, true, tx),
             AppUpgrade(tx) => self.on_app_upgrade(tx).await,
             AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx).await,
+            GetAppUpgradeCacheDir(tx) => self.on_get_app_upgrade_cache_dir(tx).await,
         }
     }
 
@@ -3323,6 +3326,27 @@ impl Daemon {
             );
 
             Self::oneshot_send(tx, Ok(()), "on_app_upgrade_abort response")
+        };
+    }
+
+    #[cfg_attr(not(in_app_upgrade), allow(clippy::unused_async))]
+    async fn on_get_app_upgrade_cache_dir(&self, tx: ResponseTx<PathBuf, version::Error>) {
+        #[cfg(in_app_upgrade)]
+        {
+            let result = self.version_handle.get_cache_dir().await;
+            Self::oneshot_send(tx, result, "on_get_app_upgrade_cache_dir response");
+        }
+        #[cfg(not(in_app_upgrade))]
+        {
+            log::warn!(
+                "Can't get cache dir for app upgrades since in-app upgrades are disabled on this OS"
+            );
+
+            Self::oneshot_send(
+                tx,
+                Ok(PathBuf::new()),
+                "on_get_app_upgrade_cache_dir response",
+            )
         };
     }
 

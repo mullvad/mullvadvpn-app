@@ -148,6 +148,11 @@ export class DaemonRpc extends GrpcClient {
     void this.callEmpty(this.client.appUpgradeAbort);
   }
 
+  public async getAppUpgradeCacheDir(): Promise<string> {
+    const response = await this.callEmpty<StringValue>(this.client.getAppUpgradeCacheDir);
+    return response.getValue();
+  }
+
   public unsubscribeAppUpgradeEventListener(listener: SubscriptionListener<DaemonAppUpgradeEvent>) {
     const id = listener.subscriptionId;
     if (id !== undefined) {
