@@ -914,18 +914,7 @@ impl RelaySelector {
 
                 Ok(Some(obfuscation))
             }
-            ObfuscationQuery::Quic => {
-                let obfuscator = SelectedObfuscator {
-                    config: ObfuscatorConfig::Quic {
-                        // TODO: do not hardcode port
-                        endpoint: std::net::SocketAddr::from((endpoint.peer.endpoint.ip(), 443)),
-                        // TODO: do not hardcode
-                        hostname: "test.mullvad.net".to_owned(),
-                    },
-                    relay: obfuscator_relay,
-                };
-                Ok(Some(obfuscator))
-            }
+            ObfuscationQuery::Quic => Ok(helpers::get_quic_obfuscator(obfuscator_relay)),
         }
     }
 
