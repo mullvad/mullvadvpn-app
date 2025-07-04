@@ -301,12 +301,27 @@ impl ServiceClient {
     /// Enable the daemon system service.
     ///
     /// Does *not* start a stopped app. See [start_mullvad_daemon].
-    pub async fn enable_mullvad_daemon_service(&self) -> Result<(), Error> {
+    pub async fn enable_mullvad_daemon(&self) -> Result<(), Error> {
         let mut ctx = tarpc::context::current();
         ctx.deadline = SystemTime::now()
             .checked_add(DAEMON_RESTART_TIMEOUT)
             .unwrap();
-        let _ = todo!("self.client.enable_mullvad_daemon(ctx).await?;");
+        self.client
+            .enable_mullvad_daemon(ctx)
+            .await
+            .map_err(Error::Tarpc)??;
+        Ok(())
+    }
+
+    pub async fn disable_mullvad_daemon(&self) -> Result<(), Error> {
+        let mut ctx = tarpc::context::current();
+        ctx.deadline = SystemTime::now()
+            .checked_add(DAEMON_RESTART_TIMEOUT)
+            .unwrap();
+        self.client
+            .disable_mullvad_daemon(ctx)
+            .await
+            .map_err(Error::Tarpc)??;
         Ok(())
     }
 
