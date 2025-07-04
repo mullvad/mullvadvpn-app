@@ -12,6 +12,11 @@ pub enum DebugCommands {
     /// Relay
     #[clap(subcommand)]
     Relay(RelayDebugCommands),
+    /// Saves the target tunnel state and enters a blocking state. The state is restored
+    /// upon restart. This is normally used during updates to ensure that the
+    /// blocking firewall rules are applied during the grace period before the
+    /// new version of the daemon is started.
+    PrepareRestart,
 }
 
 #[derive(clap::Subcommand, Debug)]
@@ -64,6 +69,12 @@ impl DebugCommands {
                 let mut rpc = MullvadProxyClient::new().await?;
                 rpc.enable_relay(relay.clone()).await?;
                 println!("{relay} is now marked as active");
+                Ok(())
+            }
+            DebugCommands::PrepareRestart => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                rpc.prepare_restart_v2(false).await?;
+                println!("Prepared for restart. Please restart the application.");
                 Ok(())
             }
         }
