@@ -131,7 +131,7 @@ impl Account {
             DeviceState::Revoked => {
                 println!("{REVOKED_MESSAGE}");
                 if let Some(account_number) = rpc.get_account_history().await? {
-                    println!("Mullvad account: {}", account_number);
+                    println!("Mullvad account: {account_number}");
                 }
             }
         }

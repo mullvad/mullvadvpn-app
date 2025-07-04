@@ -234,7 +234,7 @@ impl ApiAccess {
         let current = rpc.get_current_api_access_method().await?;
         let mut access_method_formatter = pp::ApiAccessMethodFormatter::new(&current);
         access_method_formatter.settings.write_enabled = false;
-        println!("{}", access_method_formatter);
+        println!("{access_method_formatter}");
         Ok(())
     }
 
@@ -466,7 +466,7 @@ mod pp {
                     let formatter = CustomProxyFormatter {
                         custom_proxy: method,
                     };
-                    write!(f, "{}", formatter)?;
+                    write!(f, "{formatter}")?;
                     Ok(())
                 }
             }

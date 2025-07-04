@@ -245,7 +245,7 @@ impl Tunnel {
             match interval {
                 Constraint::Only(interval) => {
                     rpc.set_wireguard_rotation_interval(interval).await?;
-                    println!("Set key rotation interval to {}", interval);
+                    println!("Set key rotation interval to {interval}");
                 }
                 Constraint::Any => {
                     rpc.reset_wireguard_rotation_interval().await?;

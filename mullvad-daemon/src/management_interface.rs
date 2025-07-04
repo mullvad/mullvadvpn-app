@@ -654,7 +654,7 @@ impl ManagementService for ManagementServiceImpl {
         let allowed_ips = AllowedIps::parse(&allowed_ips_str)
             .map_err(|e| {
                 log::error!("{e}");
-                Status::invalid_argument(format!("Invalid allowed IPs: {}", e))
+                Status::invalid_argument(format!("Invalid allowed IPs: {e}"))
             })?
             .to_constraint();
 

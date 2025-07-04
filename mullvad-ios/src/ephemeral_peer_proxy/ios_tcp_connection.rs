@@ -18,13 +18,17 @@ fn connection_closed_err() -> io::Error {
 #[repr(C)]
 pub struct WgTcpConnectionFunctions {
     pub open_fn:
-        unsafe extern "C" fn(tunnelHandle: i32, address: *const libc::c_char, timeout: u64) -> i32,
-    pub close_fn: unsafe extern "C" fn(tunnelHandle: i32, socketHandle: i32) -> i32,
-    pub recv_fn:
-        unsafe extern "C" fn(tunnelHandle: i32, socketHandle: i32, data: *mut u8, len: i32) -> i32,
+        unsafe extern "C" fn(tunnel_handle: i32, address: *const libc::c_char, timeout: u64) -> i32,
+    pub close_fn: unsafe extern "C" fn(tunnel_handle: i32, socket_handle: i32) -> i32,
+    pub recv_fn: unsafe extern "C" fn(
+        tunnel_handle: i32,
+        socket_handle: i32,
+        data: *mut u8,
+        len: i32,
+    ) -> i32,
     pub send_fn: unsafe extern "C" fn(
-        tunnelHandle: i32,
-        socketHandle: i32,
+        tunnel_handle: i32,
+        socket_handle: i32,
         data: *const u8,
         len: i32,
     ) -> i32,
