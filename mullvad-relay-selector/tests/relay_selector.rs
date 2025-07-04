@@ -27,9 +27,9 @@ use mullvad_types::{
         RelayConstraints, RelayOverride, RelaySettings, TransportPort,
     },
     relay_list::{
-        BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
-        RelayList, RelayListCity, RelayListCountry, ShadowsocksEndpointData, WireguardEndpointData,
-        WireguardRelayEndpointData,
+        BridgeEndpointData, Features, OpenVpnEndpoint, OpenVpnEndpointData, Relay,
+        RelayEndpointData, RelayList, RelayListCity, RelayListCountry, ShadowsocksEndpointData,
+        WireguardEndpointData, WireguardRelayEndpointData,
     },
 };
 
@@ -73,6 +73,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         shadowsocks_extra_addr_in: vec![],
                     }),
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default().configure_daita(),
                 },
                 Relay {
                     hostname: "se10-wireguard".to_string(),
@@ -94,6 +95,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         shadowsocks_extra_addr_in: vec![],
                     }),
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default(),
                 },
                 Relay {
                     hostname: "se11-wireguard".to_string(),
@@ -115,6 +117,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         shadowsocks_extra_addr_in: vec![],
                     }),
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default().configure_daita(),
                 },
                 Relay {
                     hostname: "se-got-001".to_string(),
@@ -129,6 +132,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     weight: 1,
                     endpoint_data: RelayEndpointData::Openvpn,
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default(),
                 },
                 Relay {
                     hostname: "se-got-002".to_string(),
@@ -143,6 +147,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     weight: 1,
                     endpoint_data: RelayEndpointData::Openvpn,
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default(),
                 },
                 Relay {
                     hostname: "se-got-br-001".to_string(),
@@ -157,6 +162,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     weight: 1,
                     endpoint_data: RelayEndpointData::Bridge,
                     location: DUMMY_LOCATION.clone(),
+                    features: Features::default(),
                 },
                 SHADOWSOCKS_RELAY.clone(),
             ],
@@ -241,6 +247,7 @@ static SHADOWSOCKS_RELAY: LazyLock<Relay> = LazyLock::new(|| Relay {
         shadowsocks_extra_addr_in: SHADOWSOCKS_RELAY_EXTRA_ADDRS.to_vec(),
     }),
     location: DUMMY_LOCATION.clone(),
+    features: Features::default(),
 });
 const SHADOWSOCKS_RELAY_IPV4: Ipv4Addr = Ipv4Addr::new(123, 123, 123, 1);
 const SHADOWSOCKS_RELAY_IPV6: Ipv6Addr = Ipv6Addr::new(0x123, 0, 0, 0, 0, 0, 0, 2);
@@ -574,6 +581,7 @@ fn test_wireguard_entry() {
                             shadowsocks_extra_addr_in: vec![],
                         }),
                         location: DUMMY_LOCATION.clone(),
+                        features: Features::default(),
                     },
                     Relay {
                         hostname: "se10-wireguard".to_string(),
@@ -595,6 +603,7 @@ fn test_wireguard_entry() {
                             shadowsocks_extra_addr_in: vec![],
                         }),
                         location: DUMMY_LOCATION.clone(),
+                        features: Features::default(),
                     },
                 ],
             }],
@@ -1220,6 +1229,7 @@ fn test_include_in_country() {
                             daita: false,
                         }),
                         location: DUMMY_LOCATION.clone(),
+                        features: Features::default(),
                     },
                     Relay {
                         hostname: "se10-wireguard".to_string(),
@@ -1241,6 +1251,7 @@ fn test_include_in_country() {
                             daita: false,
                         }),
                         location: DUMMY_LOCATION.clone(),
+                        features: Features::default(),
                     },
                 ],
             }],
