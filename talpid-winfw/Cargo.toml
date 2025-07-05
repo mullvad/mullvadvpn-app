@@ -1,0 +1,19 @@
+[package]
+name = "talpid-winfw"
+description = "Rust wrapper around the WinFW C++ library"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[target.'cfg(target_os = "windows")'.dependencies]
+log = { workspace = true }
+libc = "0.2"
+talpid-types = { path = "../talpid-types" }
+thiserror = { workspace = true }
+widestring = "1.0"
+windows-sys = { workspace = true, features = [ "Win32_Globalization" ] }

@@ -47,6 +47,7 @@ members = [
   "talpid-tunnel",
   "talpid-tunnel-config-client",
   "talpid-windows",
+  "talpid-winfw",
   "talpid-wireguard",
   "tunnel-obfuscation",
   "wireguard-go-rs",
