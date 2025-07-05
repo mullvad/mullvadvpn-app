@@ -175,14 +175,15 @@ unsafe extern "system" {
     pub fn WinFw_Reset() -> WinFwPolicyStatus;
 }
 
-pub type LogSink = extern "system" fn(level: log::Level, msg: *const c_char, context: *mut c_void);
+pub type LogSink =
+    unsafe extern "system" fn(level: log::Level, msg: *const c_char, context: *mut c_void);
 
 /// Logging callback implementation.
 ///
-/// SAFETY:
+/// # Safety
 /// - `msg` must point to a valid C string or be null.
 /// - `context` must point to a valid C string or be null.
-pub extern "system" fn log_sink(
+pub unsafe extern "system" fn log_sink(
     level: log::Level,
     msg: *const std::ffi::c_char,
     context: *mut std::ffi::c_void,
