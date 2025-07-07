@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add Memory Tagging (MTE) opt-in flag to enable it by default on supported Android versions and
   devices.
 
+### Changed
+- Use AlarmManager to schedule account out of time notifications.
+
 
 ## [android/2025.5] - 2025-07-02
 ### Fixed
@@ -44,7 +47,6 @@ Line wrap the file at 100 chars.                                              Th
   is drastically smaller.
 - Update the UI and flow for adding time.
 - Change so that search no longer requires at least 2 letters.
-- Use AlarmManger to schedule account out of time notifications.
 
 ### Removed
 - Remove logging from the Google in-app purchase component in an experimental and non-supported way.
