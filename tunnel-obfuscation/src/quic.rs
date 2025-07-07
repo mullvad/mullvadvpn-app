@@ -34,16 +34,16 @@ pub struct Settings {
     /// Hostname to use for QUIC
     pub hostname: String,
     /// Authentication header to set for the CONNECT request
-    pub auth_header: String,
+    pub auth_token: String,
     /// fwmark to apply to use for the QUIC connection
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u32>,
 }
 
 impl Settings {
-    /// TODO: Explain formatting magic
+    /// The QUIC server expects the Authentication header to be prefixed with "Bearer ".
     fn auth_header(&self) -> String {
-        format!("Bearer {token}", token = self.auth_header)
+        format!("Bearer {token}", token = self.auth_token)
     }
 }
 

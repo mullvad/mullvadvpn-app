@@ -14,7 +14,7 @@ pub enum ObfuscatorConfig {
     Quic {
         hostname: String,
         endpoint: SocketAddr,
-        auth_header: String,
+        auth_token: String,
     },
 }
 

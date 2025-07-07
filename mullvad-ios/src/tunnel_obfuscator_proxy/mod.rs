@@ -34,8 +34,8 @@ impl TunnelObfuscatorRuntime {
                     wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
                     // TODO: fetch the real hostname from the relay list
                     hostname: "www.mullvad.net".to_string(),
-                    // TODO: fetch auth_header from the relay list
-                    auth_header: "Bearer test".to_string(),
+                    // TODO: fetch auth_token from the relay list
+                    auth_token: "test".to_string(),
                 })
             }
         };

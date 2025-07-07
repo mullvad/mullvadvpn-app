@@ -99,12 +99,12 @@ fn settings_from_config(
         ObfuscatorConfig::Quic {
             hostname,
             endpoint,
-            auth_header,
+            auth_token,
         } => ObfuscationSettings::Quic(quic::Settings {
             quic_endpoint: *endpoint,
             wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
             hostname: hostname.to_owned(),
-            auth_header: auth_header.to_owned(),
+            auth_token: auth_token.to_owned(),
             #[cfg(target_os = "linux")]
             fwmark,
         }),
