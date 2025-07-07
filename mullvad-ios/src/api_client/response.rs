@@ -142,7 +142,7 @@ impl SwiftMullvadApiResponse {
 ///
 /// `response` must be pointing to a valid instance of `SwiftMullvadApiResponse`. This function
 /// is not safe to call multiple times with the same `SwiftMullvadApiResponse`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_response_drop(response: SwiftMullvadApiResponse) {
     if !response.body.is_null() {
         let _ = Vec::from_raw_parts(response.body, response.body_size, response.body_size);
