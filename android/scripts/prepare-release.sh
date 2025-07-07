@@ -26,7 +26,7 @@ if [[ -z ${PRODUCT_VERSION+x} ]]; then
     exit 1
 fi
 
-if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
+if test -n "$(git status --porcelain)"; then
     echo "Dirty working directory! Will not accept that for an official release."
     exit 1
 fi
