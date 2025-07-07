@@ -765,12 +765,9 @@ impl Adapters {
             log::error!(
                 "Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes."
             );
-            return Err(Error::Adapter(io::Error::new(
-                io::ErrorKind::Other,
-                format!(
-                    "Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes."
-                ),
-            )));
+            return Err(Error::Adapter(io::Error::other(format!(
+                "Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes."
+            ))));
         }
 
         // Initialize members.

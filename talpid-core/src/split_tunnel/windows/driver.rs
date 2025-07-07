@@ -350,8 +350,7 @@ impl DeviceHandle {
 
         let raw_state: u64 = unsafe { deserialize_buffer(&buffer[0..size_of::<u64>()]) };
 
-        DriverState::try_from(raw_state)
-            .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
+        DriverState::try_from(raw_state).map_err(io::Error::other)
     }
 
     pub fn set_config<T: AsRef<OsStr>>(&self, apps: &[T]) -> io::Result<()> {
@@ -864,10 +863,7 @@ pub unsafe fn device_io_control_buffer_async(
     };
 
     if result != 0 {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            "Expected pending operation",
-        ));
+        return Err(io::Error::other("Expected pending operation"));
     }
 
     let last_error = io::Error::last_os_error();
@@ -926,7 +922,7 @@ pub unsafe fn wait_for_single_object(object: HANDLE, timeout: Option<Duration>) 
     match result {
         WAIT_OBJECT_0 => Ok(()),
         WAIT_FAILED => Err(io::Error::last_os_error()),
-        WAIT_ABANDONED => Err(io::Error::new(io::ErrorKind::Other, "abandoned mutex")),
+        WAIT_ABANDONED => Err(io::Error::other("abandoned mutex")),
         error => Err(io::Error::from_raw_os_error(error as i32)),
     }
 }
@@ -950,7 +946,7 @@ pub unsafe fn wait_for_multiple_objects(objects: &[HANDLE], wait_all: bool) -> i
         let signaled_index = if result < objects_len {
             result
         } else if result >= WAIT_ABANDONED_0 && result < WAIT_ABANDONED_0 + objects_len {
-            return Err(io::Error::new(io::ErrorKind::Other, "abandoned mutex"));
+            return Err(io::Error::other("abandoned mutex"));
         } else {
             return Err(io::Error::last_os_error());
         };
