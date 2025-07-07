@@ -170,6 +170,15 @@ impl Quic {
     pub fn auth_header(&self) -> &str {
         &self.token
     }
+
+    /// TODO: Only used for testing?
+    pub fn new(addr_in: Vec<IpAddr>, token: String, domain: String) -> Self {
+        Self {
+            addr_in,
+            token,
+            domain,
+        }
+    }
 }
 
 impl Relay {
