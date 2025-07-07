@@ -79,7 +79,7 @@ mod tests {
 
     #[test]
     fn test_parsing() {
-        let tests = vec![
+        let tests = [
             (
                 Some("INVALID_ACCOUNT"),
                 "[INVALID_ACCOUNT] This is not a valid Mullvad account",
