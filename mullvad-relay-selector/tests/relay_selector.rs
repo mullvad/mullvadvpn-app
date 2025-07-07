@@ -27,7 +27,7 @@ use mullvad_types::{
         RelayConstraints, RelayOverride, RelaySettings, TransportPort,
     },
     relay_list::{
-        BridgeEndpointData, Features, OpenVpnEndpoint, OpenVpnEndpointData, Relay,
+        BridgeEndpointData, Features, OpenVpnEndpoint, OpenVpnEndpointData, Quic, Relay,
         RelayEndpointData, RelayList, RelayListCity, RelayListCountry, ShadowsocksEndpointData,
         WireguardEndpointData, WireguardRelayEndpointData,
     },
@@ -73,7 +73,16 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         shadowsocks_extra_addr_in: vec![],
                     }),
                     location: DUMMY_LOCATION.clone(),
-                    features: Features::default().configure_daita(),
+                    features: Features::default()
+                        .configure_daita()
+                        .configure_quic(Quic::new(
+                            vec![
+                                "185.213.154.68".parse().unwrap(),
+                                "2a03:1b20:5:f011::a09f".parse().unwrap(),
+                            ],
+                            "Bearer test".to_owned(),
+                            "se9-wireguard.blockerad.eu".to_owned(),
+                        )),
                 },
                 Relay {
                     hostname: "se10-wireguard".to_string(),
@@ -334,8 +343,10 @@ fn assert_wireguard_retry_order() {
         // 4
         RelayQueryBuilder::wireguard().shadowsocks().build(),
         // 5
-        RelayQueryBuilder::wireguard().udp2tcp().build(),
+        RelayQueryBuilder::wireguard().quic().build(),
         // 6
+        RelayQueryBuilder::wireguard().udp2tcp().build(),
+        // 7
         RelayQueryBuilder::wireguard()
             .udp2tcp()
             .ip_version(IpVersion::V6)
@@ -877,6 +888,32 @@ fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
         }
         wrong_relay => panic!(
             "Relay selector should have picked a Wireguard relay with Shadowsocks, instead chose {wrong_relay:?}"
+        ),
+    }
+}
+
+/// Test whether Quic is always selected as the obfuscation protocol when Quic is selected.
+#[test]
+fn test_selecting_wireguard_over_quic() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+
+    let query = RelayQueryBuilder::wireguard().quic().build();
+    assert!(!query.wireguard_constraints().multihop());
+
+    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            obfuscator,
+            inner: WireguardConfig::Singlehop { .. },
+            ..
+        } => {
+            assert!(obfuscator.is_some_and(|obfuscator| matches!(
+                obfuscator.config,
+                ObfuscatorConfig::Quic { .. },
+            )))
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay with Quic, instead chose {wrong_relay:?}"
         ),
     }
 }
