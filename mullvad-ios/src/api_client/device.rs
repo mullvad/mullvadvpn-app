@@ -42,7 +42,8 @@ pub unsafe extern "C" fn mullvad_ios_get_device(
     account_number: *const c_char,
     identifier: *const c_char,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -100,7 +101,8 @@ pub unsafe extern "C" fn mullvad_ios_get_devices(
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -158,7 +160,8 @@ pub unsafe extern "C" fn mullvad_ios_create_device(
     account_number: *const c_char,
     public_key: *const u8,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -218,7 +221,8 @@ pub unsafe extern "C" fn mullvad_ios_delete_device(
     account_number: *const c_char,
     identifier: *const c_char,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -279,7 +283,8 @@ pub unsafe extern "C" fn mullvad_ios_rotate_device_key(
     identifier: *const c_char,
     public_key: *const u8,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());

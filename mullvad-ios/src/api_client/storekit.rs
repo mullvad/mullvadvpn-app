@@ -43,7 +43,8 @@ pub unsafe extern "C" fn mullvad_ios_legacy_storekit_payment(
     body: *const u8,
     body_size: usize,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -117,7 +118,8 @@ pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -193,7 +195,8 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
     body: *const u8,
     body_size: usize,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());

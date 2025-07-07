@@ -9,7 +9,7 @@ impl SwiftRetryStrategy {
     /// # Safety
     /// The pointer must be a pointing to a valid instance of a `Box<RetryStrategy>`.
     pub unsafe fn into_rust(self) -> RetryStrategy {
-        *Box::from_raw(self.0)
+        unsafe { *Box::from_raw(self.0) }
     }
 }
 

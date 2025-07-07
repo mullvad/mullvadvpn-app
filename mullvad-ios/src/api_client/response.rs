@@ -144,19 +144,21 @@ impl SwiftMullvadApiResponse {
 /// is not safe to call multiple times with the same `SwiftMullvadApiResponse`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_response_drop(response: SwiftMullvadApiResponse) {
-    if !response.body.is_null() {
-        let _ = Vec::from_raw_parts(response.body, response.body_size, response.body_size);
-    }
+    unsafe {
+        if !response.body.is_null() {
+            let _ = Vec::from_raw_parts(response.body, response.body_size, response.body_size);
+        }
 
-    if !response.etag.is_null() {
-        let _ = CString::from_raw(response.etag);
-    }
+        if !response.etag.is_null() {
+            let _ = CString::from_raw(response.etag);
+        }
 
-    if !response.error_description.is_null() {
-        let _ = CString::from_raw(response.error_description);
-    }
+        if !response.error_description.is_null() {
+            let _ = CString::from_raw(response.error_description);
+        }
 
-    if !response.server_response_code.is_null() {
-        let _ = CString::from_raw(response.server_response_code);
+        if !response.server_response_code.is_null() {
+            let _ = CString::from_raw(response.server_response_code);
+        }
     }
 }

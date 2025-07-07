@@ -91,7 +91,7 @@ pub unsafe extern "C" fn mullvad_api_update_access_methods(
     api_context: SwiftApiContext,
     settings_wrapper: SwiftAccessMethodSettingsWrapper,
 ) {
-    let access_methods = settings_wrapper.into_rust_context().settings;
+    let access_methods = unsafe { settings_wrapper.into_rust_context().settings };
     api_context
         .rust_context()
         .update_access_methods(access_methods);

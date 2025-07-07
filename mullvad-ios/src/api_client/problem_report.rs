@@ -42,7 +42,8 @@ pub unsafe extern "C" fn mullvad_ios_send_problem_report(
     retry_strategy: SwiftRetryStrategy,
     request: SwiftProblemReportRequest,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
     let completion = completion_handler.clone();
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
@@ -132,7 +133,7 @@ impl ProblemReportRequest {
             let swift_map = &request.metadata;
             let mut converted_map = BTreeMap::new();
 
-            if let Some(inner) = swift_map.inner.as_ref() {
+            if let Some(inner) = unsafe { swift_map.inner.as_ref() } {
                 for (key, value) in &inner.0 {
                     converted_map.insert(key.clone(), value.clone());
                 }

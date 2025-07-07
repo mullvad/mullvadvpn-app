@@ -37,7 +37,8 @@ pub unsafe extern "C" fn mullvad_ios_get_account(
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -92,7 +93,8 @@ pub unsafe extern "C" fn mullvad_ios_create_account(
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -139,7 +141,8 @@ pub unsafe extern "C" fn mullvad_ios_delete_account(
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());

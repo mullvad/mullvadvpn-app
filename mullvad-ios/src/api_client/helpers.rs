@@ -46,11 +46,12 @@ pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
     c_password: *const c_char,
     c_cipher: *const c_char,
 ) -> *const c_void {
-    let endpoint: SocketAddr = if let Some(ip_address) = parse_ip_addr(address, address_len) {
-        SocketAddr::new(ip_address, port)
-    } else {
-        return std::ptr::null();
-    };
+    let endpoint: SocketAddr =
+        if let Some(ip_address) = unsafe { parse_ip_addr(address, address_len) } {
+            SocketAddr::new(ip_address, port)
+        } else {
+            return std::ptr::null();
+        };
 
     let password = get_string(c_password);
     let cipher = get_string(c_cipher);
@@ -79,11 +80,12 @@ pub unsafe extern "C" fn new_socks5_access_method_setting(
     c_username: *const c_char,
     c_password: *const c_char,
 ) -> *const c_void {
-    let endpoint: SocketAddr = if let Some(ip_address) = parse_ip_addr(address, address_len) {
-        SocketAddr::new(ip_address, port)
-    } else {
-        return std::ptr::null();
-    };
+    let endpoint: SocketAddr =
+        if let Some(ip_address) = unsafe { parse_ip_addr(address, address_len) } {
+            SocketAddr::new(ip_address, port)
+        } else {
+            return std::ptr::null();
+        };
 
     let auth = {
         if c_username.is_null() || c_password.is_null() {
