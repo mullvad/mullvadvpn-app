@@ -87,6 +87,12 @@ jobs:
             android/gradle/wrapper/gradle-wrapper.properties
           sparse-checkout-cone-mode: false
 
+      - name: List files
+        run: ls -al
+
+      - name: Find gradle properties
+        run: find . -name "gradle-wrapper.properties"
+
       - name: Extract gradle version
         run: |
           echo "gradle_version=\
