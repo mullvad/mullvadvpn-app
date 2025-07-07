@@ -7,6 +7,7 @@ mod parsed_relays;
 pub mod query;
 pub mod relays;
 
+use detailer::resolve_ip_version;
 use matcher::{filter_matching_bridges, filter_matching_relay_list};
 use parsed_relays::ParsedRelays;
 use relays::{Multihop, Singlehop, WireguardConfig};
@@ -919,7 +920,10 @@ impl RelaySelector {
 
                 Ok(Some(obfuscation))
             }
-            ObfuscationQuery::Quic => Ok(helpers::get_quic_obfuscator(obfuscator_relay)),
+            ObfuscationQuery::Quic => {
+                let ip_version = resolve_ip_version(query.wireguard_constraints().ip_version);
+                Ok(helpers::get_quic_obfuscator(obfuscator_relay, ip_version))
+            }
         }
     }
 

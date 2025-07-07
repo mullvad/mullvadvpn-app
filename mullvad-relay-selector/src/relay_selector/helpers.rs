@@ -15,7 +15,7 @@ use rand::{
     seq::{IteratorRandom, SliceRandom},
     thread_rng, Rng,
 };
-use talpid_types::net::obfuscation::ObfuscatorConfig;
+use talpid_types::net::{obfuscation::ObfuscatorConfig, IpVersion};
 
 use crate::SelectedObfuscator;
 
@@ -141,12 +141,14 @@ pub fn get_shadowsocks_obfuscator(
     })
 }
 
-pub fn get_quic_obfuscator(relay: Relay) -> Option<SelectedObfuscator> {
+pub fn get_quic_obfuscator(relay: Relay, ip_version: IpVersion) -> Option<SelectedObfuscator> {
     let quic = relay.features.quic()?;
     let config = {
         let hostname = quic.hostname().to_string();
-        // TODO: IPv6
-        let endpoint = SocketAddr::from((quic.in_ipv4(), quic.port()));
+        let endpoint = match ip_version {
+            IpVersion::V4 => SocketAddr::from((quic.in_ipv4()?, quic.port())),
+            IpVersion::V6 => SocketAddr::from((quic.in_ipv6()?, quic.port())),
+        };
         let auth_token = quic.auth_token().to_string();
         ObfuscatorConfig::Quic {
             hostname,
