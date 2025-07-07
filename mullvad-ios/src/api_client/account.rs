@@ -30,7 +30,7 @@ use super::{
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_get_account(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
@@ -86,7 +86,7 @@ pub unsafe extern "C" fn mullvad_ios_get_account(
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_create_account(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
@@ -132,7 +132,7 @@ pub unsafe extern "C" fn mullvad_ios_create_account(
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_delete_account(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,

@@ -62,7 +62,7 @@ impl RequestCancelHandle {
 /// # Safety
 ///
 /// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 extern "C" fn mullvad_api_cancel_task(handle_ptr: &mut SwiftCancelHandle) {
     if handle_ptr.ptr.is_null() {
         return;
@@ -79,7 +79,7 @@ extern "C" fn mullvad_api_cancel_task(handle_ptr: &mut SwiftCancelHandle) {
 /// # Safety
 ///
 /// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 extern "C" fn mullvad_api_cancel_task_drop(handle_ptr: &mut SwiftCancelHandle) {
     if handle_ptr.ptr.is_null() {
         return;
