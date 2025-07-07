@@ -113,7 +113,7 @@ impl Features {
 
     /// Enable Daita for this relay
     pub fn configure_daita(self) -> Self {
-        let daita = Some(Daita);
+        let daita = Some(Daita {});
         Self { daita, ..self }
     }
 
@@ -127,7 +127,7 @@ impl Features {
 /// TODO: Document mee
 /// Empty struct, DAITA doesn't have any configuration options (exposed by the API).
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Daita;
+pub struct Daita {}
 
 /// TODO: Document mee
 #[derive(Debug, Clone, Deserialize, Serialize)]
