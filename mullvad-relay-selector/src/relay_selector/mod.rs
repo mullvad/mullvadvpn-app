@@ -70,8 +70,10 @@ pub static WIREGUARD_RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
         // 4
         RelayQueryBuilder::wireguard().shadowsocks().build(),
         // 5
-        RelayQueryBuilder::wireguard().udp2tcp().build(),
+        RelayQueryBuilder::wireguard().quic().build(),
         // 6
+        RelayQueryBuilder::wireguard().udp2tcp().build(),
+        // 7
         RelayQueryBuilder::wireguard()
             .udp2tcp()
             .ip_version(IpVersion::V6)
