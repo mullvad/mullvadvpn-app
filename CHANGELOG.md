@@ -33,7 +33,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 #### macOS
 - Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
-- Install zsh completions in `/opt/homebrew` if available.
 
 ### Fixed
 #### macOS
