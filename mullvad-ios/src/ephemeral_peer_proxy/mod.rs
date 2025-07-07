@@ -94,7 +94,7 @@ impl Drop for DaitaParameters {
     }
 }
 
-extern "C" {
+unsafe extern "C" {
     /// To be called when ephemeral peer exchange has finished. All parameters except
     /// `raw_packet_tunnel` are optional.
     ///

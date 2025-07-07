@@ -35,16 +35,17 @@ pub unsafe extern "C" fn start_shadowsocks_proxy(
             .init();
     });
 
-    let forward_ip =
-        if let Some(forward_address) = { parse_ip_addr(forward_address, forward_address_len) } {
-            forward_address
-        } else {
-            return -1;
-        };
+    let forward_ip = if let Some(forward_address) =
+        { unsafe { parse_ip_addr(forward_address, forward_address_len) } }
+    {
+        forward_address
+    } else {
+        return -1;
+    };
 
     let forward_socket_addr = SocketAddr::new(forward_ip, forward_port);
 
-    let bridge_ip = if let Some(addr) = { parse_ip_addr(addr, addr_len) } {
+    let bridge_ip = if let Some(addr) = { unsafe { parse_ip_addr(addr, addr_len) } } {
         addr
     } else {
         return -1;

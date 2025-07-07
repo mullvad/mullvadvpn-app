@@ -1,7 +1,7 @@
 use std::ffi::c_void;
 use talpid_types::net::proxy::Shadowsocks;
 
-extern "C" {
+unsafe extern "C" {
     /// Creates a `Shadowsocks` configuration.
     ///
     /// # SAFETY

@@ -143,7 +143,7 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
         )
     };
 
-    let custom = access_methods_from_raw_array(custom_methods_raw, custom_method_count);
+    let custom = unsafe { access_methods_from_raw_array(custom_methods_raw, custom_method_count) };
     let settings = Settings::new(direct, mullvad_bridges, encrypted_dns_proxy, custom);
     let context = SwiftAccessMethodSettingsContext { settings };
     SwiftAccessMethodSettingsWrapper::new(context)
@@ -177,7 +177,7 @@ impl SwiftAccessMethodSettingsWrapper {
     }
 
     pub unsafe fn into_rust_context(self) -> Box<SwiftAccessMethodSettingsContext> {
-        Box::from_raw(self.0)
+        unsafe { Box::from_raw(self.0) }
     }
 }
 
