@@ -635,6 +635,12 @@ pub mod builder {
         quantum_resistant: QuantumResistant,
     }
 
+    /// Quic obfuscation.
+    ///
+    /// Quic does not have any user-configurable parameters, so there is no type defined
+    /// in the mullvad-types crate.
+    pub struct Quic;
+
     // This impl-block is quantified over all configurations
     impl<Multihop, Obfuscation, Daita, QuantumResistant>
         RelayQueryBuilder<Wireguard<Multihop, Obfuscation, Daita, QuantumResistant>>
@@ -790,6 +796,22 @@ pub mod builder {
             RelayQueryBuilder {
                 query: self.query,
                 protocol,
+            }
+        }
+
+        /// Enable QUIC obufscation.
+        pub fn quic(
+            mut self,
+        ) -> RelayQueryBuilder<Wireguard<Multihop, Quic, Daita, QuantumResistant>> {
+            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Quic;
+            RelayQueryBuilder {
+                query: self.query,
+                protocol: Wireguard {
+                    multihop: self.protocol.multihop,
+                    obfuscation: Quic,
+                    daita: self.protocol.daita,
+                    quantum_resistant: self.protocol.quantum_resistant,
+                },
             }
         }
     }
