@@ -80,14 +80,16 @@ jobs:
 
       - name: Extract gradle version
         run: |
-          echo "gradle_version=$(grep -oP 'gradle-\K[0-9]+\.[0-9]+\.[0-9]+' android/gradle/wrapper/gradle-wrapper.properties)" \
+          echo "gradle_version=\
+          $(grep -oP 'gradle-\K[0-9]+\.[0-9]+\.[0-9]+' android/gradle/wrapper/gradle-wrapper.properties)" \
           >> $GITHUB_ENV
 
       - name: Install gradle
         run: |
           sudo apt-get -y remove gradle
           mkdir /opt/gradle
-          curl -sfLo /opt/gradle/gradle-${{ env.gradle_version }}-bin.zip https\://services.gradle.org/distributions/gradle-${{ env.gradle_version }}-bin.zip
+          curl -sfLo /opt/gradle/gradle-${{ env.gradle_version }}-bin.zip \
+          https\://services.gradle.org/distributions/gradle-${{ env.gradle_version }}-bin.zip
           unzip -d /opt/gradle /opt/gradle/gradle-${{ env.gradle_version }}-bin.zip
 
       # These are equivalent to the sudo section of the metadata file
