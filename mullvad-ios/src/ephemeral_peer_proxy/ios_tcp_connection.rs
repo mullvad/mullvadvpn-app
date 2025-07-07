@@ -157,7 +157,7 @@ impl AsyncWrite for IosTcpConnection {
             let result = match ready!(handle.as_mut().poll(cx)) {
                 Ok(Ok(written)) => Ok(written.len()),
                 Ok(Err(e)) => Err(e),
-                Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Write task panicked")),
+                Err(_) => Err(io::Error::other("Write task panicked")),
             };
             // important to clear the in flight write here.
             self.in_flight_write = None;
@@ -175,10 +175,7 @@ impl AsyncWrite for IosTcpConnection {
                 // `funcs.send_fn` must be a valid function pointer.
                 let result = unsafe { funcs.send(tunnel_handle, socket_handle, data.as_slice()) };
                 if result < 0 {
-                    Err(io::Error::new(
-                        io::ErrorKind::Other,
-                        format!("Write error: {}", result),
-                    ))
+                    Err(io::Error::other(format!("Write error: {}", result)))
                 } else {
                     Ok(data[..result as usize].to_vec())
                 }
@@ -223,7 +220,7 @@ impl AsyncRead for IosTcpConnection {
                     Ok(())
                 }
                 Ok(Err(e)) => Err(e),
-                Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Read task panicked")),
+                Err(_) => Err(io::Error::other("Read task panicked")),
             };
             // Clear the in-flight read, since the read task finished
             self.in_flight_read = None;
@@ -245,10 +242,7 @@ impl AsyncRead for IosTcpConnection {
                         Ok(buffer)
                     }
 
-                    errval @ ..0 => Err(io::Error::new(
-                        io::ErrorKind::Other,
-                        format!("Read error: {}", errval),
-                    )),
+                    errval @ ..0 => Err(io::Error::other(format!("Read error: {}", errval))),
 
                     0 => Err(connection_closed_err()),
                 }

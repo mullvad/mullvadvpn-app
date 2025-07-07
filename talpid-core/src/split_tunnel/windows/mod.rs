@@ -311,7 +311,7 @@ impl SplitTunnel {
                     "{}",
                     error.display_chain_with_msg("Failed to parse ST event buffer")
                 );
-                io::Error::new(io::ErrorKind::Other, "Failed to parse ST event buffer")
+                io::Error::other("Failed to parse ST event buffer")
             })
     }
 

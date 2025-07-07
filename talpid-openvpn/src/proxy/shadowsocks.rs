@@ -61,12 +61,10 @@ impl ShadowsocksProxyMonitor {
         let server = ServerConfig::new(
             settings.endpoint,
             settings.password.clone(),
-            settings.cipher.parse().map_err(|_| {
-                io::Error::new(
-                    io::ErrorKind::Other,
-                    format!("Invalid cipher: {}", settings.cipher),
-                )
-            })?,
+            settings
+                .cipher
+                .parse()
+                .map_err(|_| io::Error::other(format!("Invalid cipher: {}", settings.cipher)))?,
         );
 
         config
@@ -101,7 +99,7 @@ impl ShadowsocksProxyMonitor {
     }
 
     fn get_listener_addr(srv: &local::Server) -> io::Result<SocketAddr> {
-        let no_addr_err = || io::Error::new(io::ErrorKind::Other, "Missing listener address");
+        let no_addr_err = || io::Error::other("Missing listener address");
         let socks_server = srv.socks_servers().first().ok_or_else(no_addr_err)?;
         socks_server
             .tcp_server()

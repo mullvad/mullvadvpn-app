@@ -148,9 +148,7 @@ impl InnerConnectionMode {
                             .await
                         }
                     }
-                    .map_err(|error| {
-                        io::Error::new(io::ErrorKind::Other, format!("SOCKS error: {error}"))
-                    })
+                    .map_err(|error| io::Error::other(format!("SOCKS error: {error}")))
                 };
                 Self::connect_proxied(
                     first_hop,
@@ -415,7 +413,7 @@ impl HttpsConnectorWithSni {
         let addrs = dns_resolver.resolve(hostname.to_owned()).await?;
         let addr = addrs
             .first()
-            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Empty DNS response"))?;
+            .ok_or_else(|| io::Error::other("Empty DNS response"))?;
         let port = match (addr.port(), port) {
             (_, Some(port)) => port,
             (0, None) => DEFAULT_PORT,

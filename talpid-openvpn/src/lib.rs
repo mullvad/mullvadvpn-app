@@ -1149,7 +1149,7 @@ mod tests {
 
         fn start(&self) -> io::Result<Self::ProcessHandle> {
             self.process_handle
-                .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "failed to start"))
+                .ok_or_else(|| io::Error::other("failed to start"))
         }
     }
 
