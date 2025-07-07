@@ -78,10 +78,19 @@ jobs:
           sudo apt-get -y update
           sudo apt-get -y install fdroidserver
 
+      - name: Check out gradle properties
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
+          #path: app-gradle
+          sparse-checkout: |
+            android/gradle/wrapper/gradle-wrapper.properties
+          sparse-checkout-cone-mode: false
+
       - name: Extract gradle version
         run: |
           echo "gradle_version=\
-          $(grep -oP 'gradle-\K[0-9]+\.[0-9]+\.[0-9]+' android/gradle/wrapper/gradle-wrapper.properties)" \
+          $(grep -oP 'gradle-\K[0-9]+\.[0-9]+\.[0-9]+' gradle-wrapper.properties)" \
           >> $GITHUB_ENV
 
       - name: Install gradle
@@ -96,18 +105,21 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get install -y build-essential protobuf-compiler libprotobuf-dev
 
-      - name: Download metadata file
-        uses: actions/checkout@v4
-        with:
-          path: app-repo
-
       - name: Init fdroid
         run: fdroid init
+
+      - name: Check out metadata
+        uses: actions/checkout@v4
+        with:
+          path: app-metadata
+          sparse-checkout: |
+            android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml
+          sparse-checkout-cone-mode: false
 
       - name: Prepare metadata
         run: |
           mkdir metadata
-          cp app-repo/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
+          cp app-metadata/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
           sed -i 's/commit-hash/${{ needs.set-up-env.outputs.COMMIT_HASH }}/' metadata/net.mullvad.mullvadvpn.yml
 
       - name: Build app
