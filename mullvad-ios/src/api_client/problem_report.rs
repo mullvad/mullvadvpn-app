@@ -42,7 +42,8 @@ pub unsafe extern "C" fn mullvad_ios_send_problem_report(
     retry_strategy: SwiftRetryStrategy,
     request: SwiftProblemReportRequest,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
     let completion = completion_handler.clone();
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
@@ -122,9 +123,9 @@ struct ProblemReportRequest {
 impl ProblemReportRequest {
     // SAFETY: the members of `SwiftProblemReportRequest` must point to null-terminated strings
     unsafe fn from_swift_parameters(request: SwiftProblemReportRequest) -> Option<Self> {
-        let address = get_string(request.address);
-        let message = get_string(request.message);
-        let log = get_string(request.log).into();
+        let address = unsafe { get_string(request.address) };
+        let message = unsafe { get_string(request.message) };
+        let log = unsafe { get_string(request.log) }.into();
 
         let metadata = if request.metadata.inner.is_null() {
             BTreeMap::new()
@@ -132,7 +133,7 @@ impl ProblemReportRequest {
             let swift_map = &request.metadata;
             let mut converted_map = BTreeMap::new();
 
-            if let Some(inner) = swift_map.inner.as_ref() {
+            if let Some(inner) = unsafe { swift_map.inner.as_ref() } {
                 for (key, value) in &inner.0 {
                     converted_map.insert(key.clone(), value.clone());
                 }
