@@ -198,6 +198,19 @@ replace `key-password` and `keystore-password` with the values from step 2:
    storePassword = keystore-password
    ```
 
+## Creating an alpha release
+
+Run the [prepare-release.sh](scripts/prepare-release.sh) script with the desired version you wish
+to release as an argument. The prepare script will download the latest relay list and update the
+version files, and add as commits.
+
+```bash
+# Replace `202X.X-alphaX` with the alpha version you intend to create.
+./scripts/prepare-release.sh 202X.X-alphaX
+```
+
+Continue by following the instructions provided by the script.
+
 ## Gradle dependency metadata verification lockfile
 This lockfile helps ensuring the integrity of the gradle dependencies in the project.
 
