@@ -199,7 +199,7 @@ impl PartialEq for Relay {
     /// # Example
     ///
     /// ```rust
-    /// # use mullvad_types::{relay_list::Relay, relay_list::{RelayEndpointData, WireguardRelayEndpointData}};
+    /// # use mullvad_types::{relay_list::{Relay, Features}, relay_list::{RelayEndpointData, WireguardRelayEndpointData}};
     /// # use talpid_types::net::wireguard::PublicKey;
     ///
     /// let relay = Relay {
@@ -229,6 +229,7 @@ impl PartialEq for Relay {
     ///     #   latitude: 57.71,
     ///     #   longitude: 11.97,
     ///     # },
+    ///     # features: Features::default(),
     /// };
     ///
     /// let mut different_relay = relay.clone();
