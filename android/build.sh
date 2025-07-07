@@ -5,17 +5,6 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-if test -n "$(git status --porcelain)"; then
-    echo "Dirty working directory! Will not accept that for an official release."
-    exit 1
-fi
-
-echo "Computing build version..."
-echo ""
-PRODUCT_VERSION=$(cargo run -q --bin mullvad-version versionName)
-echo "Building Mullvad VPN $PRODUCT_VERSION for Android"
-echo ""
-
 GRADLE_BUILD_TYPE="release"
 GRADLE_TASKS=(createOssProdReleaseDistApk createPlayProdReleaseDistApk)
 BUILD_BUNDLE="no"
@@ -40,6 +29,17 @@ while [ -n "${1:-""}" ]; do
 
     shift 1
 done
+
+if [[ "$GRADLE_BUILD_TYPE" != "fdroid" && -n "$(git status --porcelain)" ]]; then
+    echo "Dirty working directory! Will not accept that for an official release."
+    exit 1
+fi
+
+echo "Computing build version..."
+echo ""
+PRODUCT_VERSION=$(cargo run -q --bin mullvad-version versionName)
+echo "Building Mullvad VPN $PRODUCT_VERSION for Android"
+echo ""
 
 if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     if [ ! -f "$SCRIPT_DIR/credentials/keystore.properties" ]; then
