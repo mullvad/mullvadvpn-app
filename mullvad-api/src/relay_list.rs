@@ -364,8 +364,8 @@ struct WireGuardRelay {
 impl WireGuardRelay {
     fn into_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
         // Sanity check that new 'features' key is in sync with the old Relay keys.
-        if self.daita {
-            debug_assert!(self.features.daita())
+        if self.features.daita() {
+            debug_assert!(self.daita)
         }
         into_mullvad_relay(
             self.relay,
