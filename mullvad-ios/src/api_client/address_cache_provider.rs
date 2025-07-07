@@ -3,7 +3,7 @@ use std::{ffi::c_void, net::SocketAddr};
 
 use super::get_string;
 
-extern "C" {
+unsafe extern "C" {
     /// Return the latest available endpoint, or a default one if none are cached
     ///
     /// # SAFETY
