@@ -167,7 +167,7 @@ impl Quic {
         &self.domain
     }
 
-    pub fn auth_header(&self) -> &str {
+    pub fn auth_token(&self) -> &str {
         &self.token
     }
 

@@ -42,6 +42,8 @@ pub struct Settings {
 }
 
 impl Settings {
+    /// The masque-proxy server expects the Authentication header to be prefixed with "Bearer ", so
+    /// prefix the auth token with that.
     fn auth_header(&self) -> String {
         debug_assert!(!self.token.starts_with("Bearer"));
         format!("Bearer {token}", token = self.token)
