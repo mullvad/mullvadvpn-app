@@ -132,9 +132,10 @@ pub struct Daita {}
 /// TODO: Document mee
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Quic {
-    /// TODO: Document what this is used for
-    /// TODO: Is this always a tuple of an IPv4 & IPv6-inaddr?
-    /// If that's the case, I think this should be reflected in the type.
+    /// In-addresses for the QUIC obfuscator.
+    ///
+    /// There may be 0, 1 or 2 in IPs, depending on how many masque-proxy daemons running on the
+    /// relay. Hopefully the API will tell use the correct amount🤞.
     addr_in: Vec<IpAddr>,
     /// TODO: Document what this is used for
     token: String,
@@ -144,16 +145,34 @@ pub struct Quic {
 }
 
 impl Quic {
-    /// TODO: Document mee
-    /// Pinky promise, IPv4 address 🤞
-    /// Is there only ever one in-IPv4 address?
-    pub fn in_ipv4(&self) -> IpAddr {
-        // TODO: Is this sound ??
-        debug_assert!(self.addr_in.len() == 2);
-        // TODO: Is this sound ??
-        //
-        let in_addr = self.addr_in.first().unwrap();
-        *in_addr
+    pub fn new(addr_in: Vec<IpAddr>, token: String, domain: String) -> Self {
+        Self {
+            addr_in,
+            token,
+            domain,
+        }
+    }
+
+    /// In address as an IPv4 address.
+    ///
+    /// Use this if you want to connect to the masque-proxy using IPv4.
+    pub fn in_ipv4(&self) -> Option<Ipv4Addr> {
+        let ipv4 = |ipaddr: &IpAddr| match ipaddr {
+            IpAddr::V4(ipv4_addr) => Some(*ipv4_addr),
+            IpAddr::V6(_) => None,
+        };
+        self.addr_in.iter().find_map(ipv4)
+    }
+
+    /// In address as an IPv6 address.
+    ///
+    /// Use this if you want to connect to the masque-proxy using IPv6.
+    pub fn in_ipv6(&self) -> Option<Ipv6Addr> {
+        let ipv6 = |ipaddr: &IpAddr| match ipaddr {
+            IpAddr::V4(_) => None,
+            IpAddr::V6(ipv6_addr) => Some(*ipv6_addr),
+        };
+        self.addr_in.iter().find_map(ipv6)
     }
 
     /// TODO: Document mee
