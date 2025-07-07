@@ -11,10 +11,8 @@ mod imp {
     use talpid_types::ErrorExt;
 
     pub async fn main() {
-        let runtime = mullvad_api::Runtime::new(
-            tokio::runtime::Handle::current(),
-            &ApiEndpoint::from_env_vars(),
-        );
+        let api_endpoint = ApiEndpoint::from_env_vars();
+        let runtime = mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &api_endpoint);
 
         let relay_list_request = RelayListProxy::new(
             runtime.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider()),
