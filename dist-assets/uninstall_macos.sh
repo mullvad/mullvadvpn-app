@@ -36,10 +36,10 @@ sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup reset-firew
 sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup remove-device || echo "Failed to remove device from account"
 
 echo "Removing zsh shell completion symlink ..."
-sudo rm -f "/opt/homebrew/share/zsh/site-functions/_mullvad"
-sudo rm -f "/usr/local/share/zsh/site-functions/_mullvad"
+sudo rm -f /usr/local/share/zsh/site-functions/_mullvad
 
 echo "Removing fish shell completion symlink ..."
+
 sudo rm -f "/opt/homebrew/share/fish/vendor_completions.d/mullvad.fish"
 sudo rm -f "/usr/local/share/fish/vendor_completions.d/mullvad.fish"
 
