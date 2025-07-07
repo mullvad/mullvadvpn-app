@@ -170,14 +170,14 @@ impl Quic {
     pub fn auth_header(&self) -> &str {
         &self.token
     }
-}
 
-impl Relay {
-    pub fn override_ipv4(&mut self, new_ipv4: Ipv4Addr) {
-        self.ipv4_addr_in = new_ipv4;
-        self.overridden_ipv4 = true;
-    }
-
+    /// TODO: Only used for testing?
+    pub fn new(addr_in: Vec<IpAddr>, token: String, domain: String) -> Self {
+        Self {
+            addr_in,
+            token,
+            domain,
+        }
     pub fn override_ipv6(&mut self, new_ipv6: Ipv6Addr) {
         self.ipv6_addr_in = Some(new_ipv6);
         self.overridden_ipv6 = true;
