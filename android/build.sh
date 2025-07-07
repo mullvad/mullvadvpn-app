@@ -5,6 +5,11 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+if test -n "$(git status --porcelain)"; then
+    echo "Dirty working directory! Will not accept that for an official release."
+    exit 1
+fi
+
 echo "Computing build version..."
 echo ""
 PRODUCT_VERSION=$(cargo run -q --bin mullvad-version versionName)

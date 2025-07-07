@@ -26,7 +26,7 @@ if [[ -z ${PRODUCT_VERSION+x} ]]; then
     exit 1
 fi
 
-if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
+if test -n "$(git status --porcelain)"; then
     echo "Dirty working directory! Will not accept that for an official release."
     exit 1
 fi
@@ -45,7 +45,7 @@ cargo run -q -p mullvad-api --bin relay_list > dist-assets/relays/relays.json
 if [[ ! -f dist-assets/relays/relays.json ]]; then
     echo "Error: Relay list missing."
     exit 1
-elif git diff --quiet dist-assets/relays/relays.json; then
+elif test ! -n "$(git status --porcelain | grep dist-assets/relays/)"; then
     echo "Relay list unchanged, skipping commit."
 else
     git add dist-assets/relays/relays.json
