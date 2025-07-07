@@ -130,7 +130,7 @@ pub unsafe extern "C" fn mullvad_api_use_access_method(
 ///
 /// This function is safe.
 #[cfg(feature = "api-override")]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_init_new_tls_disabled(
     host: *const c_char,
     address: *const c_char,
@@ -162,7 +162,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
 /// to proceed in a meaningful way anyway.
 ///
 /// This function is safe.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_init_new(
     host: *const c_char,
     address: *const c_char,

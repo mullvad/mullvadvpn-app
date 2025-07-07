@@ -199,7 +199,7 @@ impl Map {
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn swift_problem_report_metadata_new() -> ProblemReportMetadata {
     let map = Box::new(Map::new());
     ProblemReportMetadata {
@@ -230,7 +230,7 @@ pub unsafe extern "C" fn swift_problem_report_metadata_add(
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn swift_problem_report_metadata_free(map: ProblemReportMetadata) {
     if !map.inner.is_null() {
         // SAFETY: `map.inner` must be properly aligned and non-null

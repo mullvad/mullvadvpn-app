@@ -34,7 +34,7 @@ use super::{
 /// `body_size` must be the size of the body
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_legacy_storekit_payment(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
@@ -110,7 +110,7 @@ async fn mullvad_ios_legacy_storekit_payment_inner(
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
@@ -184,7 +184,7 @@ async fn mullvad_ios_init_storekit_payment_inner(
 /// `body_size` must be the size of the body
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
