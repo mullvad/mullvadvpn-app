@@ -119,8 +119,17 @@ jobs:
         with:
           path: app-metadata
           sparse-checkout: |
-            app-metadata/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml
+            android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml
           sparse-checkout-cone-mode: false
+
+      - name: Show path
+        run: realpath .
+
+      - name: List files
+        run: ls -al
+
+      - name: Find gradle properties
+        run: find . -name "net.mullvad.mullvadvpn.yml"
 
       - name: Prepare metadata
         run: |
