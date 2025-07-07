@@ -1,4 +1,5 @@
 #![cfg(target_os = "ios")]
+#![allow(clippy::undocumented_unsafe_blocks)]
 use libc::c_char;
 use std::ffi::CStr;
 use std::sync::OnceLock;
