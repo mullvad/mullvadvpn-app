@@ -30,6 +30,7 @@
 /android/keystore.properties
 /android/local.properties
 /android/play-api-key.json
+/android/credentials/
 /wireguard/libwg/libwg.exp
 /wireguard/libwg/exports.def
 **/.vs/
