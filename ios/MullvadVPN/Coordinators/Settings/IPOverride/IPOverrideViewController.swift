@@ -53,25 +53,11 @@ class IPOverrideViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = .secondaryColor
-        view.directionalLayoutMargins = UIMetrics.contentHeadingLayoutMargins
-
         configureNavigation()
         addHeaderView()
         addImportButtons()
         addStatusLabel()
-
-        view.addConstrainedSubviews([containerView, clearButton]) {
-            containerView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
-            clearButton.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0), .trailing(0), .bottom(16)]))
-        }
-
-        // Prevent the button from growing vertically beyond its content
-        clearButton.setContentHuggingPriority(.required, for: .vertical)
-        clearButton.setContentCompressionResistancePriority(.required, for: .vertical)
-
-        let spacingConstraint = clearButton.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 8)
-        spacingConstraint.priority = .defaultLow
-        spacingConstraint.isActive = true
+        addScrollView()
 
         interactor.statusPublisher.sink { [weak self] status in
             self?.statusView.setStatus(status)
@@ -86,6 +72,44 @@ class IPOverrideViewController: UIViewController {
             value: "Server IP override",
             comment: ""
         )
+    }
+
+    private func addScrollView() {
+        let scrollView = UIScrollView()
+        let contentView = UIView()
+
+        view.addConstrainedSubviews([scrollView]) {
+            scrollView.pinEdgesToSuperview()
+        }
+
+        scrollView.addConstrainedSubviews([contentView]) {
+            contentView.pinEdgesToSuperview()
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+            contentView.heightAnchor.constraint(greaterThanOrEqualTo: view.layoutMarginsGuide.heightAnchor)
+        }
+
+        let spacer = UIView()
+
+        let contentStackView = UIStackView(arrangedSubviews: [containerView, spacer, clearButton])
+        contentStackView.axis = .vertical
+        contentStackView.distribution = .fill
+        contentStackView.spacing = 8
+        contentStackView.isLayoutMarginsRelativeArrangement = true
+        contentStackView.directionalLayoutMargins = UIMetrics.contentHeadingLayoutMargins
+
+        contentView.addConstrainedSubviews([contentStackView]) {
+            contentStackView.pinEdgesToSuperviewMargins()
+        }
+
+        // Hugging & resistance priorities
+        spacer.setContentHuggingPriority(.defaultLow, for: .vertical)
+        spacer.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+
+        containerView.setContentHuggingPriority(.required, for: .vertical)
+        containerView.setContentCompressionResistancePriority(.required, for: .vertical)
+
+        clearButton.setContentHuggingPriority(.required, for: .vertical)
+        clearButton.setContentCompressionResistancePriority(.required, for: .vertical)
     }
 
     private func addHeaderView() {

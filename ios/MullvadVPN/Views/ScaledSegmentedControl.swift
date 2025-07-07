@@ -33,20 +33,13 @@ final class ScaledSegmentedControl: UISegmentedControl {
     }
 
     private func applyTextAttributes() {
-        let font = scaledFont()
+        let font = UIFont.preferredFont(forTextStyle: textStyle).withWeight(fontWeight)
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
             .foregroundColor: UIColor.white,
         ]
         setTitleTextAttributes(attributes, for: .normal)
         setTitleTextAttributes(attributes, for: .selected)
-    }
-
-    private func scaledFont() -> UIFont {
-        let descriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: textStyle)
-            .addingAttributes([.traits: [UIFontDescriptor.TraitKey.weight: fontWeight]])
-        let baseFont = UIFont(descriptor: descriptor, size: 0)
-        return UIFontMetrics(forTextStyle: textStyle).scaledFont(for: baseFont)
     }
 
     private func subscribeToDynamicType() {
