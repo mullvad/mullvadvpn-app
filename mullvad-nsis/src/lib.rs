@@ -21,7 +21,10 @@ pub enum Status {
 /// Max path size allowed
 const MAX_PATH_SIZE: isize = 32_767;
 
-/// SAFETY: path needs to be a windows path encoded as a string of u16 that terminates in 0 (two
+/// Creates a privileged directory at the specified Windows path.
+///
+/// # SAFETY
+/// path needs to be a windows path encoded as a string of u16 that terminates in 0 (two
 /// nul-bytes). The string is also not allowed to be greater than `MAX_PATH_SIZE`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status {
@@ -29,14 +32,18 @@ pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status
         let mut i = 0;
         // Calculate the length of the path by checking when the first u16 == 0
         let len = loop {
-            if *(path.offset(i)) == 0 {
+            // SAFETY: We assume that `path` is a valid pointer to a u16 array,
+            // ending with a null terminator.
+            if unsafe { *(path.offset(i)) } == 0 {
                 break i;
             } else if i >= MAX_PATH_SIZE {
                 return Status::InvalidArguments;
             }
             i += 1;
         };
-        let path = std::slice::from_raw_parts(path, len as usize);
+        // SAFETY: Because we checked the length, we can safely create a slice
+        // from the raw pointer.
+        let path = unsafe { std::slice::from_raw_parts(path, len as usize) };
         let path = OsString::from_wide(path);
         let path = Path::new(&path);
 
@@ -52,6 +59,10 @@ pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status
 /// is returned, and the required buffer size (in chars) is returned in `buffer_size`.
 /// On success, `buffer_size` is set to the length of the string, including
 /// the final null terminator.
+///
+/// # SAFETY
+/// if `buffer` is not null, it must point to a valid memory location that can hold
+/// at least `buffer_size` number of `u16` values.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_system_local_appdata(
     buffer: *mut u16,
@@ -72,15 +83,20 @@ pub unsafe extern "C" fn get_system_local_appdata(
         let path = path.as_os_str();
         let path_u16: Vec<u16> = path.encode_wide().chain(std::iter::once(0u16)).collect();
 
-        let prev_len = *buffer_size;
+        // SAFETY: `buffer_size` is non-null because we checked it above.
+        unsafe {
+            let prev_len = *buffer_size;
+            *buffer_size = path_u16.len();
 
-        *buffer_size = path_u16.len();
-
-        if prev_len < path_u16.len() || buffer.is_null() {
-            return Status::InsufficientBufferSize;
+            if prev_len < path_u16.len() || buffer.is_null() {
+                return Status::InsufficientBufferSize;
+            }
         }
 
-        ptr::copy_nonoverlapping(path_u16.as_ptr(), buffer, path_u16.len());
+        // SAFETY: We assume that `buffer` is a valid pointer to a u16 array
+        // and because of the previous check, we know that `buffer` has enough space
+        // to hold the contents of `path_u16`.
+        unsafe { ptr::copy_nonoverlapping(path_u16.as_ptr(), buffer, path_u16.len()) };
 
         Status::Ok
     })
@@ -91,6 +107,10 @@ pub unsafe extern "C" fn get_system_local_appdata(
 /// `InsufficientBufferSize` is returned, and the required buffer size (in
 /// chars) is returned in `buffer_size`. On success, `buffer_size` is set to the
 /// length of the string, including the final null terminator.
+///
+/// # Safety
+/// If `buffer` is not null, it must point to a valid memory location that can hold
+/// at least `*buffer_size` number of `u16` values. `buffer_size` must be a valid pointer.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_system_version(buffer: *mut u16, buffer_size: *mut usize) -> Status {
     use talpid_platform_metadata::version;
@@ -105,13 +125,19 @@ pub unsafe extern "C" fn get_system_version(buffer: *mut u16, buffer_size: *mut 
             .chain(iter::once(0u16))
             .collect();
 
-        if *buffer_size < build_number.len() || buffer.is_null() {
-            return Status::InsufficientBufferSize;
+        // SAFETY: `buffer_size` is non-null because we checked it above.
+        unsafe {
+            if *buffer_size < build_number.len() || buffer.is_null() {
+                return Status::InsufficientBufferSize;
+            }
+
+            *buffer_size = build_number.len();
         }
 
-        *buffer_size = build_number.len();
-
-        ptr::copy_nonoverlapping(build_number.as_ptr(), buffer, build_number.len());
+        // SAFETY: We assume that `buffer` is a valid pointer to a u16 array
+        // and because of the previous check, we know that `buffer` has enough space
+        // to hold the contents of `build_number`.
+        unsafe { ptr::copy_nonoverlapping(build_number.as_ptr(), buffer, build_number.len()) };
         Status::Ok
     })
 }
