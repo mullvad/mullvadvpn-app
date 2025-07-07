@@ -714,7 +714,7 @@ impl ProblemReportProxy {
         message: &str,
         log: &str,
         metadata: &BTreeMap<String, String>,
-    ) -> impl Future<Output = Result<(), rest::Error>> {
+    ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
         #[derive(serde::Serialize)]
         struct ProblemReport {
             address: String,
