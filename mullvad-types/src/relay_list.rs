@@ -88,12 +88,11 @@ pub struct Relay {
     pub weight: u64,
     pub endpoint_data: RelayEndpointData,
     pub location: Location,
-    #[serde(default)] // TODO: Either use Default impl, or change `features` to Option.
+    #[serde(default)]
     pub features: Features,
 }
 
-/// Wireguard (?) specific extra features enabled on some relay.
-/// TODO: Document mee
+/// Extra features enabled on some (Wireguard) relay, ushc as obfuscation daemons or Daita.
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 pub struct Features {
     daita: Option<Daita>,
@@ -124,12 +123,13 @@ impl Features {
     }
 }
 
-/// TODO: Document mee
-/// Empty struct, DAITA doesn't have any configuration options (exposed by the API).
+/// DAITA doesn't have any configuration options (exposed by the API).
+///
+/// Note, an empty struct is not the same as an empty tuple struct according to serde_json!
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Daita {}
 
-/// TODO: Document mee
+/// Parameters for setting up a QUIC obfuscator (connecting to a masque-proxy running on a relay).
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Quic {
     /// In-addresses for the QUIC obfuscator.
@@ -137,10 +137,9 @@ pub struct Quic {
     /// There may be 0, 1 or 2 in IPs, depending on how many masque-proxy daemons running on the
     /// relay. Hopefully the API will tell use the correct amount🤞.
     addr_in: Vec<IpAddr>,
-    /// TODO: Document what this is used for
+    /// Authorization token
     token: String,
-    /// TODO: Document what this is used for
-    /// TODO: Is the type suitable?
+    /// Hostname where masque proxy is hosted
     domain: String,
 }
 
@@ -175,10 +174,9 @@ impl Quic {
         self.addr_in.iter().find_map(ipv6)
     }
 
-    /// TODO: Document mee
+    /// Port of the masque-proxy daemon.
     pub const fn port(&self) -> u16 {
-        // TODO: Should this even be hardcoded?
-        // TODO: Is this even correct??
+        // The point of the masque-proxy is to look like a regular web server serving http traffic.
         443
     }
 
@@ -189,14 +187,14 @@ impl Quic {
     pub fn auth_token(&self) -> &str {
         &self.token
     }
+}
 
-    /// TODO: Only used for testing?
-    pub fn new(addr_in: Vec<IpAddr>, token: String, domain: String) -> Self {
-        Self {
-            addr_in,
-            token,
-            domain,
-        }
+impl Relay {
+    pub fn override_ipv4(&mut self, new_ipv4: Ipv4Addr) {
+        self.ipv4_addr_in = new_ipv4;
+        self.overridden_ipv4 = true;
+    }
+
     pub fn override_ipv6(&mut self, new_ipv6: Ipv6Addr) {
         self.ipv6_addr_in = Some(new_ipv6);
         self.overridden_ipv6 = true;
