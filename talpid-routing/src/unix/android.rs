@@ -231,7 +231,7 @@ fn current_network_state(
             return Err(JvmError::InvalidMethodResult(
                 "MullvadVpnService",
                 "getConnectivityListener",
-                format!("{:?}", value),
+                format!("{value:?}"),
             ))
         }
     };

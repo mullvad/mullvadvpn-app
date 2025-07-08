@@ -58,11 +58,11 @@ impl TryFrom<&Path> for PluralResources {
     type Error = String;
 
     fn try_from(value: &Path) -> Result<Self, Self::Error> {
-        let strings_file = File::open(value)
-            .map_err(|e| format!("Failed to open plural resources file: {}", e))?;
+        let strings_file =
+            File::open(value).map_err(|e| format!("Failed to open plural resources file: {e}"))?;
 
         quick_xml::de::from_reader(BufReader::new(strings_file))
-            .map_err(|e| format!("Failed to parse plural resources file: {}", e))
+            .map_err(|e| format!("Failed to parse plural resources file: {e}"))
     }
 }
 

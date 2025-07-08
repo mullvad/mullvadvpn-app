@@ -348,11 +348,7 @@ fn find_lib_exe() -> anyhow::Result<PathBuf> {
         Arch::Arm64 => "arm64",
     };
 
-    let lib_exe_pattern = format!(
-        "{host}/{target}/lib.exe",
-        host = lib_exe_host,
-        target = lib_exe_target,
-    );
+    let lib_exe_pattern = format!("{lib_exe_host}/{lib_exe_target}/lib.exe",);
     let path_is_lib_exe = |file: &Path| file.ends_with(&lib_exe_pattern);
 
     find_file(search_path, &path_is_lib_exe)?.context("No lib.exe relative to msbuild.exe")

@@ -302,9 +302,7 @@ impl AppDelegate for FakeAppDelegate {
     }
 
     fn set_status_text(&mut self, text: &str) {
-        self.state
-            .call_log
-            .push(format!("set_status_text: {}", text));
+        self.state.call_log.push(format!("set_status_text: {text}"));
         self.state.status_text = text.to_owned();
     }
 
@@ -316,7 +314,7 @@ impl AppDelegate for FakeAppDelegate {
     fn set_download_text(&mut self, text: &str) {
         self.state
             .call_log
-            .push(format!("set_download_text: {}", text));
+            .push(format!("set_download_text: {text}"));
         self.state.download_text = text.to_owned();
     }
 
@@ -338,7 +336,7 @@ impl AppDelegate for FakeAppDelegate {
     fn set_download_progress(&mut self, complete: u32) {
         self.state
             .call_log
-            .push(format!("set_download_progress: {}", complete));
+            .push(format!("set_download_progress: {complete}"));
         self.state.download_progress = complete;
     }
 

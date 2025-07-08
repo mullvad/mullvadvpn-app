@@ -230,8 +230,7 @@ pub async fn test_uninstall_app(
 
     assert!(
         !devices.iter().any(|device| device.id == uninstalled_device),
-        "device id {} still exists after uninstall",
-        uninstalled_device,
+        "device id {uninstalled_device} still exists after uninstall",
     );
 
     Ok(())
@@ -280,8 +279,7 @@ pub async fn test_detect_app_removal(
                 .expect("failed to list devices");
             assert!(
                 !devices.iter().any(|device| device.id == uninstalled_device),
-                "device id {} still exists after uninstall",
-                uninstalled_device,
+                "device id {uninstalled_device} still exists after uninstall",
             );
 
             return Ok(());

@@ -210,7 +210,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
         let counter_text = if total_passed == total_tests {
             String::from(TestResult::PASS_STR)
         } else {
-            format!("({}/{})", total_passed, total_tests)
+            format!("({total_passed}/{total_tests})")
         };
         println!(
             "<td style='text-align: center;'>{} {}</td>",
@@ -266,7 +266,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
                 }
                 TestResult::Pass | TestResult::Skip => (),
             }
-            println!("<td style='text-align: center;'>{}</td>", result);
+            println!("<td style='text-align: center;'>{result}</td>");
         }
         // Print a summary of all OSes at the end of the table
         // For each test, collect the result for each platform.

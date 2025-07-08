@@ -141,7 +141,7 @@ impl Drop for NotifyChangeHandle {
         if let Err(e) = win32_err!(unsafe { CancelMibChangeNotify2(self.0) }) {
             // If this callback is called after we free the context that could result in UB, in
             // order to avoid that we panic.
-            panic!("Could not cancel change notification callback: {}", e)
+            panic!("Could not cancel change notification callback: {e}")
         }
     }
 }

@@ -505,11 +505,11 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     let path = Path::new(MULLVAD_WIN_REGISTRY).join("Environment");
     let (registry, _) = hklm.create_subkey(&path).map_err(|error| {
-        test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {}", error))
+        test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {error}"))
     })?;
     for (k, v) in env {
         registry.set_value(k, &v).map_err(|error| {
-            test_rpc::Error::Registry(format!("Failed to set Environment var: {}", error))
+            test_rpc::Error::Registry(format!("Failed to set Environment var: {error}"))
         })?;
     }
 
@@ -528,12 +528,12 @@ pub fn get_system_path_var() -> Result<String, test_rpc::Error> {
     let key = hklm
         .open_subkey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
         .map_err(|error| {
-            test_rpc::Error::Registry(format!("Failed to open Environment subkey: {}", error))
+            test_rpc::Error::Registry(format!("Failed to open Environment subkey: {error}"))
         })?;
 
     let path: String = key
         .get_value("Path")
-        .map_err(|error| test_rpc::Error::Registry(format!("Failed to get PATH: {}", error)))?;
+        .map_err(|error| test_rpc::Error::Registry(format!("Failed to get PATH: {error}")))?;
 
     Ok(path)
 }
@@ -642,7 +642,7 @@ pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rp
         tokio::task::spawn_blocking(|| -> Result<HashMap<String, String>, test_rpc::Error> {
             let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
             let key = hklm.open_subkey(MULLVAD_WIN_REGISTRY).map_err(|error| {
-                test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {}", error))
+                test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {error}"))
             })?;
 
             // The Strings will be quoted (surrounded by ") when read from the registry - we should
@@ -651,10 +651,9 @@ pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rp
             let env = key
                 .open_subkey("Environment")
                 .map_err(|error| {
-                    test_rpc::Error::Registry(format!(
-                        "Failed to open Environment subkey: {}",
-                        error
-                    ))
+                    test_rpc::Error::Registry(
+                        format!("Failed to open Environment subkey: {error}",),
+                    )
                 })?
                 .enum_values()
                 .filter_map(|x| x.inspect_err(|err| log::trace!("{err}")).ok())
