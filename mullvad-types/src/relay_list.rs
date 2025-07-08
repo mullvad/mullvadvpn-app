@@ -92,7 +92,7 @@ pub struct Relay {
     pub features: Features,
 }
 
-/// Extra features enabled on some (Wireguard) relay, ushc as obfuscation daemons or Daita.
+/// Extra features enabled on some (Wireguard) relay, such as obfuscation daemons or Daita.
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 pub struct Features {
     daita: Option<Daita>,
