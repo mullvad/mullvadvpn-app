@@ -57,6 +57,7 @@ service ManagementService {
   rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
   rpc SetRelayOverride(RelayOverride) returns (google.protobuf.Empty) {}
   rpc ClearAllRelayOverrides(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetEnableRecents(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 
   // Account management
   rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
@@ -526,12 +527,27 @@ message Settings {
   CustomListSettings custom_lists = 11;
   ApiAccessMethodSettings api_access_methods = 12;
   repeated RelayOverride relay_overrides = 13;
+  optional Recents recents = 14;
 }
 
 message RelayOverride {
   string hostname = 1;
   optional string ipv4_addr_in = 2;
   optional string ipv6_addr_in = 3;
+}
+
+message Recents { repeated Recent recents = 1; }
+
+message MultihopRecent {
+  LocationConstraint entry = 1;
+  LocationConstraint exit = 2;
+}
+
+message Recent {
+  oneof type {
+    LocationConstraint singlehop = 1;
+    MultihopRecent multihop = 2;
+  }
 }
 
 message SplitTunnelSettings {
