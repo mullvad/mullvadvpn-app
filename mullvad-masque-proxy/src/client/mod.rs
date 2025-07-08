@@ -112,7 +112,7 @@ pub enum Error {
     InvalidHttpRedirect(#[source] anyhow::Error),
 }
 
-#[derive(TypedBuilder)]
+#[derive(TypedBuilder, Debug)]
 pub struct ClientConfig {
     /// Socket that accepts proxy clients
     pub client_socket: UdpSocket,
@@ -130,7 +130,9 @@ pub struct ClientConfig {
     pub server_host: String,
 
     /// MTU (includes IP header)
-    #[builder(default = 1500)]
+    // TODO: this can't be 1500. Or alteast we need to account for ipv6
+    // overhead.
+    #[builder(default = 1350)]
     pub mtu: u16,
 
     /// QUIC TLS config
@@ -226,29 +228,35 @@ impl Client {
         max_udp_payload_size: u16,
         #[cfg(target_os = "linux")] fwmark: Option<u32>,
     ) -> Result<Endpoint> {
-        let local_socket = socket2::Socket::new(
-            socket2::Domain::IPV4,
-            socket2::Type::DGRAM,
-            Some(socket2::Protocol::UDP),
-        )
-        .map_err(Error::Bind)?;
+        // Create a UDP socket which quinn will read/write from/to.
+        let local_socket = {
+            // family
+            let domain = match &local_addr {
+                SocketAddr::V4(_) => socket2::Domain::IPV4,
+                SocketAddr::V6(_) => socket2::Domain::IPV6,
+            };
+            let ty = socket2::Type::DGRAM;
+            let protocol = Some(socket2::Protocol::UDP);
+            let socket = socket2::Socket::new(domain, ty, protocol).map_err(Error::Bind)?;
+            #[cfg(target_os = "linux")]
+            if let Some(fwmark) = fwmark {
+                socket.set_mark(fwmark).map_err(Error::Fwmark)?;
+            }
+            socket
+        };
 
-        #[cfg(target_os = "linux")]
-        if let Some(fwmark) = fwmark {
-            local_socket.set_mark(fwmark).map_err(Error::Fwmark)?;
-        }
-
-        local_socket.bind(&local_addr.into()).map_err(Error::Bind)?;
-
-        let mut endpoint_config = EndpointConfig::default();
-        endpoint_config
-            .max_udp_payload_size(max_udp_payload_size)
-            .map_err(Error::InvalidMaxUdpPayload)?;
+        let endpoint_config = {
+            let mut endpoint_config = EndpointConfig::default();
+            endpoint_config
+                .max_udp_payload_size(max_udp_payload_size)
+                .map_err(Error::InvalidMaxUdpPayload)?;
+            endpoint_config
+        };
 
         Endpoint::new(
             endpoint_config,
             None,
-            local_socket.into(),
+            std::net::UdpSocket::from(local_socket),
             Arc::new(TokioRuntime),
         )
         .map_err(Error::Bind)
