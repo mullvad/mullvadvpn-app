@@ -130,9 +130,7 @@ pub struct ClientConfig {
     pub server_host: String,
 
     /// MTU (includes IP header)
-    // TODO: this can't be 1500. Or alteast we need to account for ipv6
-    // overhead.
-    #[builder(default = 1350)]
+    #[builder(default = 1500)]
     pub mtu: u16,
 
     /// QUIC TLS config

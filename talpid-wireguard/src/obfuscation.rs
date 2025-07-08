@@ -10,6 +10,7 @@ use std::{
 };
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
+use talpid_tunnel::WIREGUARD_HEADER_SIZE;
 use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
 
 use tunnel_obfuscation::{
@@ -27,11 +28,20 @@ pub async fn apply_obfuscation_config(
         return Ok(None);
     };
 
-    let settings = settings_from_config(
+    let mut settings = settings_from_config(
         obfuscator_config,
         #[cfg(target_os = "linux")]
         config.fwmark,
     );
+    // Adjust MTU for QUIC obfuscator.
+    match &mut settings {
+        ObfuscationSettings::Quic(ref mut quic) => {
+            // Account for multihop
+            // FIXME: Pass proper mtu as an argument / through config?
+            quic.mtu = Some(config.mtu - 2 * WIREGUARD_HEADER_SIZE);
+        }
+        _ => (),
+    }
 
     log::trace!("Obfuscation settings: {settings:?}");
 
@@ -100,15 +110,18 @@ fn settings_from_config(
             hostname,
             endpoint,
             auth_token,
-        } => ObfuscationSettings::Quic(quic::Settings {
-            quic_endpoint: *endpoint,
-            // TODO: Explain why this may always be an IPv4 address
-            wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
-            hostname: hostname.to_owned(),
-            token: auth_token.to_owned(),
-            #[cfg(target_os = "linux")]
-            fwmark,
-        }),
+        } => {
+            ObfuscationSettings::Quic(quic::Settings {
+                quic_endpoint: *endpoint,
+                // TODO: Explain why this may always be an IPv4 address
+                wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
+                hostname: hostname.to_owned(),
+                token: auth_token.to_owned(),
+                #[cfg(target_os = "linux")]
+                fwmark,
+                mtu: None,
+            })
+        }
     }
 }
 

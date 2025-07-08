@@ -42,6 +42,9 @@ pub struct Settings {
     /// fwmark to apply to use for the QUIC connection
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u32>,
+    /// MTU for the QUIC client. This needs to account for the *additional* headers other than IP
+    /// and UDP, but not for those specifically.
+    pub mtu: Option<u16>,
 }
 
 impl Settings {
@@ -72,7 +75,8 @@ impl Quic {
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
-            .auth_header(Some(settings.auth_header()));
+            .auth_header(Some(settings.auth_header()))
+            .mtu(settings.mtu.unwrap_or(1500));
 
         #[cfg(target_os = "linux")]
         let config_builder = config_builder.fwmark(settings.fwmark);
