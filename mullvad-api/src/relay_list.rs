@@ -253,7 +253,7 @@ impl Relay {
             self,
             location,
             relay_list::RelayEndpointData::Openvpn,
-            relay_list::Features::default(), /* TODO: Replace */
+            relay_list::Features::empty(),
         )
     }
 
@@ -262,7 +262,7 @@ impl Relay {
             self,
             location,
             relay_list::RelayEndpointData::Bridge,
-            relay_list::Features::default(), /* TODO: Replace */
+            relay_list::Features::empty(),
         )
     }
 

@@ -93,13 +93,21 @@ pub struct Relay {
 }
 
 /// Extra features enabled on some (Wireguard) relay, such as obfuscation daemons or Daita.
-#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Features {
     daita: Option<Daita>,
     quic: Option<Quic>,
 }
 
 impl Features {
+    /// Equivalent to a relay without any additional features.
+    pub fn empty() -> Features {
+        Features {
+            daita: None,
+            quic: None,
+        }
+    }
+
     /// Whether Daita is enabled
     pub fn daita(&self) -> bool {
         self.daita.is_some()
@@ -120,6 +128,12 @@ impl Features {
     pub fn configure_quic(self, options: Quic) -> Self {
         let quic = Some(options);
         Self { quic, ..self }
+    }
+}
+
+impl Default for Features {
+    fn default() -> Self {
+        Features::empty()
     }
 }
 
