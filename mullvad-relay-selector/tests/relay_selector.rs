@@ -1084,8 +1084,7 @@ fn test_load_balancing() {
         RelayQueryBuilder::openvpn().location(location).build(),
     ] {
         // Collect the range of unique relay ports and IP addresses over a large number of queries.
-        let (ports, ips): (HashSet<u16>, HashSet<std::net::IpAddr>) = std::iter::repeat(query.clone())
-            .take(ATTEMPTS)
+        let (ports, ips): (HashSet<u16>, HashSet<std::net::IpAddr>) = std::iter::repeat_n(query.clone(), ATTEMPTS)
             // Execute the query
             .map(|query| relay_selector.get_relay_by_query(query).unwrap())
             // Perform some plumbing ..
