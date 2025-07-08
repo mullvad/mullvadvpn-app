@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -53,6 +54,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.tag.ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AddMoreTimeSideEffect
 import net.mullvad.mullvadvpn.viewmodel.AddTimeViewModel
@@ -500,7 +502,11 @@ private fun ColumnScope.Loading(onBackgroundColor: Color, backgroundColor: Color
 
 @Composable
 private fun SheetTitle(title: String, onBackgroundColor: Color, backgroundColor: Color) {
-    HeaderCell(text = title, background = backgroundColor)
+    HeaderCell(
+        text = title,
+        background = backgroundColor,
+        modifier = Modifier.testTag(ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG),
+    )
     HorizontalDivider(
         color = onBackgroundColor,
         modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
