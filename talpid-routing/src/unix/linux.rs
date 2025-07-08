@@ -804,7 +804,7 @@ impl RouteManagerImpl {
         let mut links = self.handle.link().get().execute();
         let target_device = LinkNla::IfName(device);
         while let Some(msg) = links.try_next().await.map_err(|_| Error::LinkNotFound)? {
-            let found = msg.nlas.iter().any(|e| *e == target_device);
+            let found = msg.nlas.contains(&target_device);
             if found {
                 if let Some(LinkNla::Mtu(mtu)) =
                     msg.nlas.iter().find(|e| matches!(e, LinkNla::Mtu(_)))
