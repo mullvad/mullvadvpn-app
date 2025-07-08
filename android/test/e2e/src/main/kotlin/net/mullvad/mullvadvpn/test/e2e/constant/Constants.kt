@@ -23,6 +23,11 @@ fun Bundle.getInvalidAccountNumber() =
             "mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.invalid"
         )
 
+fun Bundle.isBillingEnabled(): Boolean =
+    InstrumentationRegistry.getArguments()
+        .getString("mullvad.test.e2e.config.billing.enable", "false")
+        .toBoolean()
+
 fun Bundle.isRaasEnabled(): Boolean =
     InstrumentationRegistry.getArguments()
         .getRequiredArgument("mullvad.test.e2e.config.raas.enable")

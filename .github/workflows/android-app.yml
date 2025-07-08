@@ -487,6 +487,7 @@ jobs:
             ${{ needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole' && secrets.STAGEMOLE_PARTNER_AUTH || '' }}
           VALID_TEST_ACCOUNT_NUMBER: ${{ env.RESOLVED_TEST_ACCOUNT }}
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
+          ENABLE_BILLING_TESTS: true
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
           ENABLE_RAAS_TESTS: true
           RAAS_HOST: '192.168.105.1'
