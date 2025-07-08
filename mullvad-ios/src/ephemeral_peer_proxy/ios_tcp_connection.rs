@@ -175,7 +175,7 @@ impl AsyncWrite for IosTcpConnection {
                 // `funcs.send_fn` must be a valid function pointer.
                 let result = unsafe { funcs.send(tunnel_handle, socket_handle, data.as_slice()) };
                 if result < 0 {
-                    Err(io::Error::other(format!("Write error: {}", result)))
+                    Err(io::Error::other(format!("Write error: {result}")))
                 } else {
                     Ok(data[..result as usize].to_vec())
                 }
@@ -242,7 +242,7 @@ impl AsyncRead for IosTcpConnection {
                         Ok(buffer)
                     }
 
-                    errval @ ..0 => Err(io::Error::other(format!("Read error: {}", errval))),
+                    errval @ ..0 => Err(io::Error::other(format!("Read error: {errval}"))),
 
                     0 => Err(connection_closed_err()),
                 }

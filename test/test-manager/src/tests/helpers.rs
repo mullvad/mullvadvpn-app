@@ -488,12 +488,12 @@ pub async fn wait_for_tunnel_state(
     let events = rpc
         .events_listen()
         .await
-        .map_err(|status| Error::Daemon(format!("Failed to get event stream: {}", status)))?;
+        .map_err(|status| Error::Daemon(format!("Failed to get event stream: {status}")))?;
 
     let state = rpc
         .get_tunnel_state()
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to get tunnel state: {:?}", error)))?;
+        .map_err(|error| Error::Daemon(format!("Failed to get tunnel state: {error:?}")))?;
 
     if accept_state_fn(&state) {
         return Ok(state);
@@ -533,10 +533,7 @@ where
                 None => continue,
             },
             Some(Err(status)) => {
-                break Err(Error::Daemon(format!(
-                    "Failed to get next event: {}",
-                    status
-                )));
+                break Err(Error::Daemon(format!("Failed to get next event: {status}")));
             }
             None => break Err(Error::Daemon(String::from("Lost daemon event stream"))),
         }
@@ -646,7 +643,7 @@ pub async fn set_custom_endpoint(
     mullvad_client
         .set_relay_settings(RelaySettings::CustomTunnelEndpoint(custom_endpoint))
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))
+        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {error}")))
 }
 
 pub async fn update_relay_constraints(
@@ -1322,7 +1319,7 @@ pub async fn set_location(
     let mut settings = mullvad_client
         .get_settings()
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))?;
+        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {error}")))?;
 
     settings.bridge_settings.normal.location = Constraint::Only(location_constraint.clone());
     mullvad_client

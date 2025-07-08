@@ -18,7 +18,7 @@ mod win {
             "i686-pc-windows-msvc" => format!("Win32-{}", get_build_mode()),
             "x86_64-pc-windows-msvc" => format!("x64-{}", get_build_mode()),
             "aarch64-pc-windows-msvc" => format!("ARM64-{}", get_build_mode()),
-            _ => panic!("unrecognized target: {}", target),
+            _ => panic!("unrecognized target: {target}"),
         };
         target_dir.into()
     }
@@ -33,12 +33,12 @@ mod win {
     }
 
     pub fn declare_library(env_var: &str, default_dir: &str, lib_name: &str) {
-        println!("cargo::rerun-if-env-changed={}", env_var);
+        println!("cargo::rerun-if-env-changed={env_var}");
         let lib_dir = env::var_os(env_var)
             .map(PathBuf::from)
             .unwrap_or_else(|| default_windows_build_artifact_dir(default_dir));
         println!("cargo::rustc-link-search={}", lib_dir.display());
-        println!("cargo::rustc-link-lib=dylib={}", lib_name);
+        println!("cargo::rustc-link-lib=dylib={lib_name}");
     }
 
     pub fn manifest_dir() -> PathBuf {

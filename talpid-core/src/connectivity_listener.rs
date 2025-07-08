@@ -75,7 +75,7 @@ impl ConnectivityListener {
                 return Err(Error::InvalidMethodResult(
                     "MullvadVpnService",
                     "getConnectivityListener",
-                    format!("{:?}", value),
+                    format!("{value:?}"),
                 ))
             }
         };
@@ -126,7 +126,7 @@ impl ConnectivityListener {
                 return Err(Error::InvalidMethodResult(
                     "ConnectivityListener",
                     "isConnected",
-                    format!("{:?}", value),
+                    format!("{value:?}"),
                 ))
             }
         };
@@ -154,7 +154,7 @@ impl ConnectivityListener {
             value => Err(Error::InvalidMethodResult(
                 "ConnectivityListener",
                 "getCurrentDnsServers",
-                format!("{:?}", value),
+                format!("{value:?}"),
             )),
         }
     }

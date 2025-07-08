@@ -23,7 +23,7 @@ async fn delete_old_captures_inner(dir: &Path) -> std::io::Result<()> {
             let path = path.clone();
             delete_tasks.push(tokio::spawn(async move {
                 if let Err(e) = fs::remove_file(&path).await {
-                    eprintln!("Failed to delete {:?}: {}", path, e);
+                    eprintln!("Failed to delete {path:?}: {e}");
                 }
             }));
         }

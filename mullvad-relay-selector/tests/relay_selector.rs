@@ -864,7 +864,7 @@ fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
         } => {
             assert!(!exit.overridden_ipv4);
             assert!(!exit.overridden_ipv6);
-            assert!(SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()), "{} is not an additional IP", endpoint);
+            assert!(SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()), "{endpoint} is not an additional IP");
         }
         wrong_relay => panic!(
             "Relay selector should have picked a Wireguard relay with Shadowsocks, instead chose {wrong_relay:?}"
@@ -1623,7 +1623,7 @@ fn valid_user_setting_should_yield_relay() {
         let post_unification_result =
             relay_selector.get_relay(retry_attempt, talpid_types::net::IpAvailability::Ipv4);
         if user_result.is_ok() {
-            assert!(post_unification_result.is_ok(), "Expected Post-unification query to be valid because original query {:#?} yielded a connection configuration", user_query)
+            assert!(post_unification_result.is_ok(), "Expected Post-unification query to be valid because original query {user_query:#?} yielded a connection configuration")
         }
     }
 }

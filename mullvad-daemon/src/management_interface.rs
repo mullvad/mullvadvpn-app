@@ -1460,7 +1460,7 @@ fn map_split_tunnel_error(error: talpid_core::split_tunnel::Error) -> Status {
     match &error {
         Error::RegisterIps(io_error) | Error::SetConfiguration(io_error) => {
             if io_error.kind() == std::io::ErrorKind::NotFound {
-                Status::not_found(format!("{}: {}", error, io_error))
+                Status::not_found(format!("{error}: {io_error}"))
             } else {
                 Status::unknown(error.to_string())
             }

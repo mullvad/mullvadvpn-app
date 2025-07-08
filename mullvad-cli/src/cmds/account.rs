@@ -122,7 +122,7 @@ impl Account {
                 if verbose {
                     println!("{:<20}{}", "Device id:", device.device.id);
                     println!("{:<20}{}", "Device pubkey:", device.device.pubkey);
-                    println!("{:<20}{}", "Device created:", device.device.created,);
+                    println!("{:<20}{}", "Device created:", device.device.created);
                 }
             }
             DeviceState::LoggedOut => {

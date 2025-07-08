@@ -653,7 +653,7 @@ mod tests {
     #[cfg(windows)]
     fn redacts_home_dir() {
         let assert_redacts_home_dir = |home_dir, test_str| {
-            let input = format!(r"pre {}\remaining\path post", test_str);
+            let input = format!(r"pre {test_str}\remaining\path post");
             let actual = redact_home_dir_inner(&input, Some(PathBuf::from(home_dir)));
             assert_eq!(r"pre ~\remaining\path post", actual);
         };

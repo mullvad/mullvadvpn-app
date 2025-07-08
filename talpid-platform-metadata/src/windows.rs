@@ -26,14 +26,14 @@ pub fn version() -> String {
         })
         .unwrap_or_else(|_| ("N/A".to_owned(), "N/A".to_owned()));
 
-    format!("Windows {} Build {}", major, build)
+    format!("Windows {major} Build {build}")
 }
 
 pub fn short_version() -> String {
     let version_string = WindowsVersion::new()
         .map(|version| version.windows_version_string())
         .unwrap_or("N/A".into());
-    format!("Windows {}", version_string)
+    format!("Windows {version_string}")
 }
 
 pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {

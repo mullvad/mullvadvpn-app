@@ -105,7 +105,7 @@ impl From<GeographicLocationConstraint> for LocationConstraint {
 impl fmt::Display for LocationConstraintFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.constraint {
-            LocationConstraint::Location(location) => write!(f, "{}", location),
+            LocationConstraint::Location(location) => write!(f, "{location}"),
             LocationConstraint::CustomList { list_id } => self
                 .custom_lists
                 .iter()
@@ -562,10 +562,10 @@ impl fmt::Display for WireguardConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.constraints.port {
             Constraint::Any => write!(f, "any port")?,
-            Constraint::Only(port) => write!(f, "port {}", port)?,
+            Constraint::Only(port) => write!(f, "port {port}")?,
         }
         if let Constraint::Only(ip_version) = self.constraints.ip_version {
-            write!(f, ", {},", ip_version)?;
+            write!(f, ", {ip_version},")?;
         }
         if self.constraints.multihop() {
             let location = self.constraints.entry_location.as_ref().map(|location| {
@@ -574,7 +574,7 @@ impl fmt::Display for WireguardConstraintsFormatter<'_> {
                     custom_lists: self.custom_lists,
                 }
             });
-            write!(f, ", multihop entry {}", location)?;
+            write!(f, ", multihop entry {location}")?;
         }
         Ok(())
     }
@@ -743,7 +743,7 @@ impl fmt::Display for BridgeConstraintsFormatter<'_> {
         write!(f, " using ")?;
         match self.constraints.providers {
             Constraint::Any => write!(f, "any provider")?,
-            Constraint::Only(ref constraint) => write!(f, "{}", constraint)?,
+            Constraint::Only(ref constraint) => write!(f, "{constraint}")?,
         }
         match self.constraints.ownership {
             Constraint::Any => Ok(()),

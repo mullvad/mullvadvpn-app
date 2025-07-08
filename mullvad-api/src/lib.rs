@@ -139,12 +139,11 @@ impl ApiEndpoint {
                     api_addr = env::API_ADDR_VAR,
                     api_host = env::API_HOST_VAR
                 );
-                api.address = format!("{}:{}", host, API_PORT_DEFAULT)
+                api.address = format!("{host}:{API_PORT_DEFAULT}")
                     .to_socket_addrs()
                     .unwrap_or_else(|_| {
                         panic!(
-                            "Unable to resolve API IP address from host {host}:{port}",
-                            port = API_PORT_DEFAULT,
+                            "Unable to resolve API IP address from host {host}:{API_PORT_DEFAULT}"
                         )
                     })
                     .next();
