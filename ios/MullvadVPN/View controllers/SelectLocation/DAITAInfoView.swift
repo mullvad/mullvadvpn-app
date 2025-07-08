@@ -28,11 +28,12 @@ class DAITAInfoView: UIView {
                 comment: ""
             ),
             attributes: [
-                .font: UIFont.systemFont(ofSize: 15),
+                .font: UIFont.mullvadSmall,
                 .foregroundColor: UIColor.white,
                 .paragraphStyle: infoTextParagraphStyle,
             ]
         )
+        label.adjustsFontForContentSizeCategory = true
 
         return label
     }()
@@ -60,11 +61,10 @@ class DAITAInfoView: UIView {
         settingsButton.addTarget(self, action: #selector(didPressButton), for: .touchUpInside)
 
         addConstrainedSubviews([infoLabel, settingsButton]) {
-            infoLabel.pinEdgesToSuperviewMargins(.init([.leading(24), .trailing(24)]))
+            infoLabel.pinEdgesToSuperviewMargins(.init([.leading(24), .trailing(24), .top(8)]))
 
             settingsButton.pinEdgesToSuperviewMargins(.init([.leading(0), .trailing(0)]))
             settingsButton.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 32)
-            settingsButton.bottomAnchor.constraint(equalTo: centerYAnchor)
         }
     }
 
