@@ -76,7 +76,7 @@ pub async fn get_mullvad_app_logs() -> LogOutput {
 
 async fn read_settings_file() -> Result<String, Error> {
     let mut settings_path = mullvad_paths::get_default_settings_dir()
-        .map_err(|error| Error::Logs(format!("{}", error)))?;
+        .map_err(|error| Error::Logs(format!("{error}")))?;
     settings_path.push("settings.json");
     read_truncated(&settings_path, None)
         .await
@@ -85,10 +85,10 @@ async fn read_settings_file() -> Result<String, Error> {
 
 async fn read_log_files() -> Result<Vec<Result<LogFile, Error>>, Error> {
     let log_dir =
-        mullvad_paths::get_default_log_dir().map_err(|error| Error::Logs(format!("{}", error)))?;
+        mullvad_paths::get_default_log_dir().map_err(|error| Error::Logs(format!("{error}")))?;
     let paths = list_logs(log_dir)
         .await
-        .map_err(|error| Error::Logs(format!("{}", error)))?;
+        .map_err(|error| Error::Logs(format!("{error}")))?;
     let mut log_files = Vec::new();
     for path in paths {
         let log_file = read_truncated(&path, Some(TRUNCATE_LOG_FILE_LINES))
