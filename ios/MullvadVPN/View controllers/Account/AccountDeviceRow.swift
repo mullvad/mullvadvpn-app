@@ -47,7 +47,6 @@ class AccountDeviceRow: UIView {
         button.isUserInteractionEnabled = true
         button.numberOfLines = 0
         button.textAlignment = .center
-        button.lineBreakMode = .byWordWrapping
         button.setContentHuggingPriority(.required, for: .horizontal)
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.mullvadSmallSemiBold,
@@ -79,8 +78,8 @@ class AccountDeviceRow: UIView {
             [contentContainerView, deviceManagementButton]
         ) {
             contentContainerView.pinEdgesToSuperview(PinnableEdges([.leading(0), .bottom(0), .top(0)]))
-            deviceManagementButton.centerYAnchor.constraint(equalTo: deviceLabel.centerYAnchor)
-            deviceManagementButton.pinEdgeToSuperview(.trailing(0))
+            deviceManagementButton.topAnchor.constraint(equalTo: deviceLabel.topAnchor)
+            deviceManagementButton.pinEdgesToSuperview(PinnableEdges([.trailing(0), .bottom(0)]))
             deviceManagementButton.leadingAnchor.constraint(equalTo: contentContainerView.trailingAnchor, constant: 16)
         }
 

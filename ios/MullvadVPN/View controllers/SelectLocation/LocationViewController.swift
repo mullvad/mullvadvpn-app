@@ -171,11 +171,20 @@ final class LocationViewController: UIViewController {
         tableView.backgroundColor = view.backgroundColor
         tableView.separatorColor = .secondaryColor
         tableView.separatorInset = .zero
-        tableView.rowHeight = UIMetrics.TableView.rowHeight
-        tableView.sectionHeaderHeight = UIMetrics.TableView.rowHeight
+        tableView.estimatedRowHeight = UIMetrics.TableView.rowHeight
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedSectionHeaderHeight = UIMetrics.TableView.rowHeight
+        tableView.sectionHeaderHeight = UITableView.automaticDimension
+        tableView.estimatedSectionFooterHeight = UIMetrics.TableView.rowHeight
+        tableView.sectionFooterHeight = UITableView.automaticDimension
         tableView.indicatorStyle = .white
         tableView.keyboardDismissMode = .onDrag
         tableView.setAccessibilityIdentifier(.selectLocationTableView)
+
+        tableView.register(
+            LocationSectionHeaderFooterView.self,
+            forHeaderFooterViewReuseIdentifier: LocationSectionHeaderFooterView.reuseIdentifier
+        )
     }
 
     private func setUpTopContent() {
