@@ -79,10 +79,6 @@ extension CustomListDataSourceConfiguration: UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        UIMetrics.SettingsCell.customListsCellHeight
-    }
-
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         let snapshot = dataSource.snapshot()
 
