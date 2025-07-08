@@ -84,6 +84,7 @@ implicit_clone = "warn"
 
 [workspace.dependencies]
 tokio = { version = "1.44" }
+tokio-util = "0.7"
 parity-tokio-ipc = "0.9"
 futures = "0.3.15"
 vec1 = "1.12"
