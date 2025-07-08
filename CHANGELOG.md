@@ -34,6 +34,9 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
 
+#### Windows
+- Make firewall rules applied while upgrading the app not persist on reboot
+
 ### Fixed
 #### macOS
 - Add grace period when best default route goes away to reduce frequency of random reconnects.
