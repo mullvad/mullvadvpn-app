@@ -8,8 +8,6 @@
 
 import Foundation
 import UIKit
-import Foundation
-import UIKit
 
 class LocationSectionHeaderFooterView: UITableViewHeaderFooterView {
     static let reuseIdentifier = "LocationSectionHeaderFooterView"
