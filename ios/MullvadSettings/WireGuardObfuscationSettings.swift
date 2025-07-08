@@ -18,9 +18,7 @@ public enum WireGuardObfuscationState: Codable, Sendable {
     case automatic
     case udpOverTcp
     case shadowsocks
-    #if DEBUG
     case quic
-    #endif
     case off
 
     public init(from decoder: Decoder) throws {
@@ -45,10 +43,8 @@ public enum WireGuardObfuscationState: Codable, Sendable {
             self = .udpOverTcp
         case .shadowsocks:
             self = .shadowsocks
-        #if DEBUG
         case .quic:
             self = .quic
-        #endif
         case .off:
             self = .off
         }

@@ -29,7 +29,8 @@ public struct SelectedRelaysStub {
                 cityCode: "got",
                 latitude: 42,
                 longitude: 42
-            )
+            ),
+            features: nil
         ),
         retryAttempt: 0
     )
