@@ -24,7 +24,8 @@ android {
         testInstrumentationRunnerArguments += buildMap {
             put("clearPackageData", "true")
 
-            // Add all properties starting with "test.e2e" to the testInstrumentationRunnerArguments
+            // Add all properties starting with "mullvad.test.e2e" to the
+            // testInstrumentationRunnerArguments
             properties.forEach {
                 if (it.key.startsWith("mullvad.test.e2e")) {
                     put(it.key, it.value.toString())
