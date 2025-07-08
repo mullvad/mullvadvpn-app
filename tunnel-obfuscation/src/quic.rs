@@ -4,9 +4,9 @@ use async_trait::async_trait;
 use mullvad_masque_proxy::client::{Client, ClientConfig};
 use std::{
     io,
-    net::{Ipv4Addr, SocketAddr},
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
 };
-use tokio::net::UdpSocket;
+use tokio::{net::UdpSocket, sync::oneshot};
 
 use crate::Obfuscator;
 
@@ -20,9 +20,12 @@ pub enum Error {
     MasqueProxyError(#[source] mullvad_masque_proxy::client::Error),
 }
 
+#[derive(Debug)]
 pub struct Quic {
     local_endpoint: SocketAddr,
     task: tokio::task::JoinHandle<Result<()>>,
+    // task will be stopped when this is dropped
+    _shutdown_tx: oneshot::Sender<()>, // TODO: Cancellation token?
 }
 
 #[derive(Debug)]
@@ -49,15 +52,20 @@ impl Settings {
 
 impl Quic {
     pub(crate) async fn new(settings: &Settings) -> Result<Self> {
-        let local_socket = UdpSocket::bind(SocketAddr::from((Ipv4Addr::LOCALHOST, 0)))
-            .await
-            .map_err(Error::BindError)?;
-
-        let local_endpoint = local_socket.local_addr().unwrap();
-
+        let (local_socket, local_udp_client_addr) =
+            Quic::create_local_udp_socket(settings.quic_endpoint.is_ipv4()).await?;
+        // The address family of the local QUIC client socket has to match the address family
+        // of the endpoint we're connecting to. The address itself is not important to consumers wanting
+        // to obfuscate traffic. It is solely used by the local proxy client to know where the QUIC
+        // obfuscator is running.
+        let quic_client_local_addr = if settings.quic_endpoint.is_ipv4() {
+            SocketAddr::from((Ipv4Addr::UNSPECIFIED, 0))
+        } else {
+            SocketAddr::from((Ipv6Addr::UNSPECIFIED, 0))
+        };
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)
-            .local_addr((Ipv4Addr::UNSPECIFIED, 0).into())
+            .local_addr(quic_client_local_addr)
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
@@ -66,17 +74,55 @@ impl Quic {
         #[cfg(target_os = "linux")]
         let config_builder = config_builder.fwmark(settings.fwmark);
 
-        let task = tokio::spawn(async move {
-            let client = Client::connect(config_builder.build())
-                .await
-                .map_err(Error::MasqueProxyError)?;
-            client.run().await.map_err(Error::MasqueProxyError)
-        });
+        let client = Client::connect(config_builder.build())
+            .await
+            .map_err(Error::MasqueProxyError)?;
 
-        Ok(Quic {
-            local_endpoint,
-            task,
-        })
+        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+
+        let local_proxy = tokio::spawn(Quic::run_forwarding(client, shutdown_rx));
+
+        let quic = Quic {
+            local_endpoint: local_udp_client_addr,
+            task: local_proxy,
+            _shutdown_tx: shutdown_tx,
+        };
+
+        Ok(quic)
+    }
+
+    async fn run_forwarding(
+        masque_proxy_client: Client,
+        shutdown_rx: oneshot::Receiver<()>,
+    ) -> Result<()> {
+        log::trace!("Spawning QUIC client ..");
+        let mut client = tokio::spawn(masque_proxy_client.run());
+        log::trace!("QUIC client is running! QUIC Obfuscator is serving traffic 🎉");
+        tokio::select! {
+            _ = shutdown_rx => log::trace!("Stopping QUIC obfuscation"),
+            _result = &mut client => log::trace!("QUIC client closed"),
+        };
+
+        client.abort();
+        Ok(())
+    }
+
+    /// Create a local proxy client.
+    ///
+    /// The resulting UdpSocket/the SocketAddr where programs that want to obfuscate their
+    /// traffic with QUIC will write to.
+    async fn create_local_udp_socket(ipv4: bool) -> Result<(UdpSocket, SocketAddr)> {
+        let random_bind_addr = if ipv4 {
+            SocketAddr::from((Ipv4Addr::LOCALHOST, 0))
+        } else {
+            SocketAddr::from((Ipv6Addr::LOCALHOST, 0))
+        };
+        let local_udp_socket = UdpSocket::bind(random_bind_addr)
+            .await
+            .map_err(Error::BindError)?;
+        let udp_client_addr = local_udp_socket.local_addr().unwrap();
+
+        Ok((local_udp_socket, udp_client_addr))
     }
 }
 

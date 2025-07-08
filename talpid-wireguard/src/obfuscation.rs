@@ -102,6 +102,7 @@ fn settings_from_config(
             auth_token,
         } => ObfuscationSettings::Quic(quic::Settings {
             quic_endpoint: *endpoint,
+            // TODO: Explain why this may always be an IPv4 address
             wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
             hostname: hostname.to_owned(),
             auth_token: auth_token.to_owned(),
