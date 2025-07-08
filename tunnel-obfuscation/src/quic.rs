@@ -6,7 +6,8 @@ use std::{
     io,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
 };
-use tokio::{net::UdpSocket, sync::oneshot};
+use tokio::net::UdpSocket;
+use tokio_util::sync::{CancellationToken, DropGuard};
 
 use crate::Obfuscator;
 
@@ -24,8 +25,7 @@ pub enum Error {
 pub struct Quic {
     local_endpoint: SocketAddr,
     task: tokio::task::JoinHandle<Result<()>>,
-    // task will be stopped when this is dropped
-    _shutdown_tx: oneshot::Sender<()>, // TODO: Cancellation token?
+    _shutdown: DropGuard,
 }
 
 #[derive(Debug)]
@@ -78,14 +78,14 @@ impl Quic {
             .await
             .map_err(Error::MasqueProxyError)?;
 
-        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+        let token = CancellationToken::new();
 
-        let local_proxy = tokio::spawn(Quic::run_forwarding(client, shutdown_rx));
+        let local_proxy = tokio::spawn(Quic::run_forwarding(client, token.child_token()));
 
         let quic = Quic {
             local_endpoint: local_udp_client_addr,
             task: local_proxy,
-            _shutdown_tx: shutdown_tx,
+            _shutdown: token.drop_guard(),
         };
 
         Ok(quic)
@@ -93,13 +93,13 @@ impl Quic {
 
     async fn run_forwarding(
         masque_proxy_client: Client,
-        shutdown_rx: oneshot::Receiver<()>,
+        cancel_token: CancellationToken,
     ) -> Result<()> {
         log::trace!("Spawning QUIC client ..");
         let mut client = tokio::spawn(masque_proxy_client.run());
         log::trace!("QUIC client is running! QUIC Obfuscator is serving traffic 🎉");
         tokio::select! {
-            _ = shutdown_rx => log::trace!("Stopping QUIC obfuscation"),
+            _ = cancel_token.cancelled() => log::trace!("Stopping QUIC obfuscation"),
             _result = &mut client => log::trace!("QUIC client closed"),
         };
 

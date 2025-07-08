@@ -6139,6 +6139,7 @@ dependencies = [
  "shadowsocks",
  "thiserror 2.0.9",
  "tokio",
+ "tokio-util 0.7.10",
  "udp-over-tcp",
 ]
 
