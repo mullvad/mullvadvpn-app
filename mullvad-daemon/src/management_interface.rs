@@ -1234,6 +1234,15 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(|_| Status::internal("Failed to convert OsString to String"))
             .map(Response::new)
     }
+
+    async fn set_enable_recents(&self, request: Request<bool>) -> ServiceResult<()> {
+        let enable_recents = request.into_inner();
+        log::debug!("set_enable_recents({})", enable_recents);
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetEnableRecents(tx, enable_recents))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
+    }
 }
 
 impl ManagementServiceImpl {

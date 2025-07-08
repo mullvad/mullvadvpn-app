@@ -13,6 +13,7 @@ data class Settings(
     val showBetaReleases: Boolean,
     val splitTunnelSettings: SplitTunnelSettings,
     val apiAccessMethodSettings: List<ApiAccessMethodSetting>,
+    val recents: Recents,
 ) {
     companion object
 }

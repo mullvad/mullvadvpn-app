@@ -101,6 +101,57 @@ pub struct Settings {
     pub split_tunnel: SplitTunnelSettings,
     /// Specifies settings schema version
     pub settings_version: SettingsVersion,
+    /// Stores the user's recently connect locations. If None recents have been disabled by the user.
+    pub recent_settings: Option<Vec<Recent>>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub enum Recent {
+    Singlehop(LocationConstraint),
+    Multihop {
+        entry: LocationConstraint,
+        exit: LocationConstraint,
+    },
+}
+
+impl TryFrom<&RelaySettings> for Recent {
+    type Error = &'static str;
+
+    fn try_from(value: &RelaySettings) -> Result<Self, Self::Error> {
+        match value {
+            // TODO: can we support this?
+            RelaySettings::CustomTunnelEndpoint(_) => {
+                Err("Cannot convert CustomTunnelEndpoint to Recent")
+            }
+            RelaySettings::Normal(constraints) => {
+                let location = constraints
+                    .location
+                    .as_ref()
+                    .option()
+                    .ok_or("Location must be Constraint::Only")?
+                    .clone();
+
+                let recent = if constraints.wireguard_constraints.use_multihop {
+                    let entry = constraints
+                        .wireguard_constraints
+                        .entry_location
+                        .as_ref()
+                        .option()
+                        .ok_or("Location must be Constraint::Only")?
+                        .clone();
+
+                    Recent::Multihop {
+                        entry,
+                        exit: location,
+                    }
+                } else {
+                    Recent::Singlehop(location)
+                };
+
+                Ok(recent)
+            }
+        }
+    }
 }
 
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
@@ -212,11 +263,16 @@ impl Default for Settings {
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
+            recent_settings: Some(vec![]),
         }
     }
 }
 
 impl Settings {
+    /// The max number of recent entries that should be saved. When this number is exceeded the
+    /// oldest recent is deleted.
+    const RECENTS_MAX_COUNT: usize = 50;
+
     pub fn get_relay_settings(&self) -> RelaySettings {
         self.relay_settings.clone()
     }
@@ -226,6 +282,8 @@ impl Settings {
             if !new_settings.supports_bridge() && BridgeState::On == self.bridge_state {
                 self.bridge_state = BridgeState::Auto;
             }
+
+            self.update_recents(&new_settings);
 
             log::debug!(
                 "Changing relay settings:\n\tfrom: {}\n\tto: {}",
@@ -256,6 +314,24 @@ impl Settings {
                     self.relay_overrides.swap_remove(index);
                 } else {
                     *elem = relay_override;
+                }
+            }
+        }
+    }
+
+    // Add the current RelaySettings to the recents list. If recents are disabled do nothing.
+    fn update_recents(&mut self, relay_settings: &RelaySettings) {
+        if let Some(recents) = self.recent_settings.as_mut() {
+            match relay_settings.try_into() {
+                Ok(new_recent) => {
+                    if let Some(pos) = recents.iter().position(|r| *r == new_recent) {
+                        recents.remove(pos);
+                    }
+                    recents.insert(0, new_recent);
+                    recents.truncate(Self::RECENTS_MAX_COUNT);
+                }
+                Err(e) => {
+                    log::error!("Failed to convert {relay_settings:?} to relay: {e}");
                 }
             }
         }
