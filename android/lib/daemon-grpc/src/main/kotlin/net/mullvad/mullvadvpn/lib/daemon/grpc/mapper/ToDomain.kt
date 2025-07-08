@@ -360,18 +360,14 @@ internal fun ManagementInterface.NormalRelaySettings.toDomain(): RelayConstraint
         wireguardConstraints = wireguardConstraints.toDomain(),
     )
 
-internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<RelayItemId> =
+internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint.Only<RelayItemId> =
     when (typeCase) {
         ManagementInterface.LocationConstraint.TypeCase.CUSTOM_LIST ->
             Constraint.Only(CustomListId(customList))
         ManagementInterface.LocationConstraint.TypeCase.LOCATION ->
             Constraint.Only(location.toDomain())
-        ManagementInterface.LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any
-        else -> throw IllegalArgumentException("Location constraint type is null")
+        else -> throw IllegalArgumentException("Invalid location constraint")
     }
-
-internal fun ManagementInterface.LocationConstraint.toDomainErrorOnAny(): RelayItemId =
-    toDomain().getOrNull() ?: error("Location constraint type must be set")
 
 @Suppress("ReturnCount")
 internal fun ManagementInterface.GeographicLocationConstraint.toDomain(): GeoLocationId {
@@ -751,12 +747,12 @@ internal fun ManagementInterface.Recent.toDomain(): Recent =
     when (typeCase) {
         ManagementInterface.Recent.TypeCase.MULTIHOP ->
             Recent.Multihop(
-                entry = multihop.entry.toDomainErrorOnAny(),
-                exit = multihop.exit.toDomainErrorOnAny(),
+                entry = multihop.entry.toDomain().value,
+                exit = multihop.exit.toDomain().value,
             )
 
         ManagementInterface.Recent.TypeCase.SINGLEHOP ->
-            Recent.Singlehop(singlehop.toDomainErrorOnAny())
+            Recent.Singlehop(singlehop.toDomain().value)
 
         ManagementInterface.Recent.TypeCase.TYPE_NOT_SET -> error("Recent type must be set")
     }
