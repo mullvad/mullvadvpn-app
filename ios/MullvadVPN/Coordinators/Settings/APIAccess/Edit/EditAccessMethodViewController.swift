@@ -118,11 +118,11 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UIMetrics.SettingsCell.apiAccessCellHeight
+        UITableView.automaticDimension
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return nil
+        nil
     }
 
     // Header height shenanigans to avoid extra spacing in testing sections when testing is NOT ongoing.
