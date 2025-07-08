@@ -31,25 +31,90 @@ pub struct Quic {
 #[derive(Debug)]
 pub struct Settings {
     /// Remote Quic endpoint
-    pub quic_endpoint: SocketAddr,
+    quic_endpoint: SocketAddr,
     /// Remote Wireguard endpoint
-    pub wireguard_endpoint: SocketAddr,
+    wireguard_endpoint: SocketAddr,
     /// Hostname to use for QUIC
-    pub hostname: String,
+    hostname: String,
     /// Authentication token to set for the CONNECT request when establishing a QUIC connection.
     /// Must NOT be prefixed with "Bearer".
-    pub token: String,
+    token: AuthToken,
     /// fwmark to apply to use for the QUIC connection
     #[cfg(target_os = "linux")]
-    pub fwmark: Option<u32>,
+    fwmark: Option<u32>,
+    /// MTU for the QUIC client. This needs to account for the *additional* headers other than IP
+    /// and UDP, but not for those specifically.
+    mtu: Option<u16>,
 }
 
 impl Settings {
+    ///See [Settings] for details.
+    pub fn new(
+        quic_server_endpoint: SocketAddr,
+        hostname: String,
+        token: AuthToken,
+        target_endpoint: SocketAddr,
+    ) -> Self {
+        Self {
+            quic_endpoint: quic_server_endpoint,
+            wireguard_endpoint: target_endpoint,
+            hostname,
+            token,
+            mtu: None,
+            #[cfg(target_os = "linux")]
+            fwmark: None,
+        }
+    }
+
+    /// Set an explicit MTU for the Quic obfuscator.
+    pub fn mtu(self, mtu: u16) -> Self {
+        debug_assert!(mtu <= 1500, "MTU is too high: {mtu}");
+        let mtu = Some(mtu);
+        Self { mtu, ..self }
+    }
+
+    /// Set `fwmark` for the Quic obfuscator.
+    #[cfg(target_os = "linux")]
+    pub fn fwmark(self, fwmark: u32) -> Self {
+        let fwmark = Some(fwmark);
+        Self { fwmark, ..self }
+    }
+
     /// The masque-proxy server expects the Authentication header to be prefixed with "Bearer ", so
     /// prefix the auth token with that.
     fn auth_header(&self) -> String {
-        debug_assert!(!self.token.starts_with("Bearer"));
-        format!("Bearer {token}", token = self.token)
+        format!("Bearer {token}", token = self.token.0)
+    }
+}
+
+/// Authorization Token used when connecting to a masque-proxy.
+#[derive(Clone, Debug, PartialEq)]
+pub struct AuthToken(String);
+
+impl AuthToken {
+    /// Create a new token for constructing a valid Authorization header when connecting to a
+    /// masque-proxy.
+    pub fn new(token: String) -> Option<Self> {
+        // TODO: We could potentially do more validation, but the exact format of the auth token is
+        // not known to be stable (yet).
+        if token.starts_with("Bearer") {
+            return None;
+        };
+        Some(Self(token))
+    }
+}
+
+impl std::str::FromStr for AuthToken {
+    type Err = String;
+
+    fn from_str(token: &str) -> std::result::Result<Self, Self::Err> {
+        match Self::new(token.to_owned()) {
+            Some(token) => Ok(token),
+            None => Err(
+            "Authentication token must not start with \"Bearer\". Please just the token, the Authentication header will be formatted before starting the QUIC client."
+                .to_string())
+
+        }
     }
 }
 
@@ -72,7 +137,8 @@ impl Quic {
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
-            .auth_header(Some(settings.auth_header()));
+            .auth_header(Some(settings.auth_header()))
+            .mtu(settings.mtu.unwrap_or(1500));
 
         #[cfg(target_os = "linux")]
         let config_builder = config_builder.fwmark(settings.fwmark);

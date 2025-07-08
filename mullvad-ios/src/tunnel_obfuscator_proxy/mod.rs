@@ -30,12 +30,10 @@ impl TunnelObfuscatorRuntime {
     }
 
     pub fn new_quic(peer: SocketAddr, hostname: String, token: String) -> Self {
-        let settings = ObfuscationSettings::Quic(quic::Settings {
-            quic_endpoint: peer,
-            wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
-            hostname,
-            token,
-        });
+        let wireguard_endpoint = SocketAddr::from((Ipv4Addr::LOCALHOST, 51820));
+        let token: quic::AuthToken = token.parse().unwrap();
+        let quic = quic::Settings::new(peer, hostname, token, wireguard_endpoint);
+        let settings = ObfuscationSettings::Quic(quic);
         Self { settings }
     }
 
