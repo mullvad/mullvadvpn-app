@@ -251,71 +251,57 @@ extension LocationDataSource {
 
 extension LocationDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard let headerView = tableView
+            .dequeueReusableHeaderFooterView(withIdentifier: LocationSectionHeaderFooterView
+                .reuseIdentifier
+            ) as? LocationSectionHeaderFooterView else { return nil }
+
         switch sections[section] {
         case .allLocations:
-            LocationSectionHeaderFooterView(
-                configuration: LocationSectionHeaderFooterView.Configuration(
-                    name: LocationSection.allLocations.header,
-                    style: .header
-                )
-            )
+            headerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
+                name: LocationSection.allLocations.header,
+                style: .header
+            ))
         case .customLists:
-            LocationSectionHeaderFooterView(configuration: LocationSectionHeaderFooterView.Configuration(
+            headerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
                 name: LocationSection.customLists.header,
                 style: .header,
-                primaryAction: UIAction(
-                    handler: { [weak self] _ in
-                        self?.didTapEditCustomLists?()
-                    }
-                )
+                primaryAction: UIAction { [weak self] _ in
+                    self?.didTapEditCustomLists?()
+                }
             ))
         }
+
+        return headerView
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        guard let footerView = tableView
+            .dequeueReusableHeaderFooterView(withIdentifier: LocationSectionHeaderFooterView
+                .reuseIdentifier
+            ) as? LocationSectionHeaderFooterView else { return nil }
+
         switch sections[section] {
         case .allLocations:
-            return LocationSectionHeaderFooterView(configuration: LocationSectionHeaderFooterView.Configuration(
+            guard dataSources[section].nodes.isEmpty else {
+                return nil
+            }
+            footerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
                 name: LocationSection.allLocations.footer,
-                style: .footer,
-                directionalEdgeInsets: NSDirectionalEdgeInsets(top: 24, leading: 16, bottom: 0, trailing: 16)
+                style: .footer
             ))
         case .customLists:
             guard dataSources[section].nodes.isEmpty else {
                 return nil
             }
-
-            let text = NSMutableAttributedString(string: NSLocalizedString(
-                "CUSTOM_LIST_FOOTER",
-                tableName: "SelectLocation",
-                value: "To create a custom list, tap on ",
-                comment: ""
+            footerView.configure(configuration: LocationSectionHeaderFooterView.Configuration(
+                name: LocationSection.customLists.footer,
+                style: .footer,
+                directionalEdgeInsets: NSDirectionalEdgeInsets(top: 11, leading: 16, bottom: 24, trailing: 8)
             ))
-
-            text.append(NSAttributedString(string: "\""))
-
-            if let image = UIImage(systemName: "ellipsis") {
-                text.append(NSAttributedString(attachment: NSTextAttachment(image: image)))
-            } else {
-                text.append(NSAttributedString(string: "..."))
-            }
-
-            text.append(NSAttributedString(string: "\""))
-
-            var contentConfiguration = UIListContentConfiguration.mullvadGroupedFooter(tableStyle: tableView.style)
-            contentConfiguration.attributedText = text
-
-            return UIListContentView(configuration: contentConfiguration)
         }
-    }
 
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        switch sections[section] {
-        case .allLocations:
-            dataSources[section].nodes.isEmpty ? 80 : .zero
-        case .customLists:
-            dataSources[section].nodes.isEmpty ? UITableView.automaticDimension : 24
-        }
+        return footerView
     }
 
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {

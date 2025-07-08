@@ -46,7 +46,7 @@ final class LocationViewControllerWrapper: UIViewController {
 
     private var entryLocationViewController: LocationViewController?
     private let exitLocationViewController: LocationViewController
-    private let segmentedControl = UISegmentedControl()
+    private let segmentedControl = ScaledSegmentedControl()
     private let locationViewContainer = UIView()
     private var settings: LatestTunnelSettings
     private var relaySelectorWrapper: RelaySelectorWrapper
@@ -204,10 +204,6 @@ final class LocationViewControllerWrapper: UIViewController {
     private func setUpSegmentedControl() {
         segmentedControl.backgroundColor = .SegmentedControl.backgroundColor
         segmentedControl.selectedSegmentTintColor = .SegmentedControl.selectedColor
-        segmentedControl.setTitleTextAttributes([
-            .foregroundColor: UIColor.white,
-            .font: UIFont.systemFont(ofSize: 17, weight: .medium),
-        ], for: .normal)
 
         segmentedControl.insertSegment(
             withTitle: MultihopContext.entry.description,
@@ -226,10 +222,11 @@ final class LocationViewControllerWrapper: UIViewController {
 
     private func addSubviews() {
         view.addConstrainedSubviews([segmentedControl, locationViewContainer]) {
-            segmentedControl.heightAnchor.constraint(equalToConstant: 44)
+            segmentedControl.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
             segmentedControl.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .leading(8), .trailing(8)]))
 
             locationViewContainer.pinEdgesToSuperview(.all().excluding(.top))
+            locationViewContainer.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 8)
 
             if settings.tunnelMultihopState.isEnabled {
                 locationViewContainer.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 4)
@@ -324,7 +321,7 @@ private extension WireGuardObfuscationState {
     /// This flag affects whether the "Setting: Obfuscation" pill is shown when selecting a location
     var affectsRelaySelection: Bool {
         switch self {
-        case .udpOverTcp,.off:
+        case .udpOverTcp, .off:
             false
         default: true
         }

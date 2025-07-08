@@ -443,7 +443,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .localNetworkSharing: return .leastNonzeroMagnitude
         #endif
         default:
-            return tableView.estimatedRowHeight
+            return UITableView.automaticDimension
         }
     }
 

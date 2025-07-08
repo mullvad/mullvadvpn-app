@@ -1,14 +1,5 @@
-//
-//  LocationSectionHeaderFooterView.swift
-//  MullvadVPN
-//
-//  Created by Mojgan on 2024-01-25.
-//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
-//
-
 import Foundation
-import UIKit
-import Foundation
+import SwiftUI
 import UIKit
 
 class LocationSectionHeaderFooterView: UITableViewHeaderFooterView {
@@ -19,10 +10,6 @@ class LocationSectionHeaderFooterView: UITableViewHeaderFooterView {
 
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
-
-        contentView.backgroundColor = .primaryColor
-
-        directionalLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 8)
 
         // Configure button
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
@@ -39,28 +26,62 @@ class LocationSectionHeaderFooterView: UITableViewHeaderFooterView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(text: String, buttonAction: UIAction?) {
+    func configure(configuration: Configuration) {
         var contentConfig = UIListContentConfiguration.groupedHeader()
-        contentConfig.text = text
-        contentConfig.textProperties.color = .primaryTextColor
-        contentConfig.textProperties.font = .mullvadSmall
+        contentConfig.text = configuration.name
+        contentConfig.textProperties.alignment = configuration.style.textAlignment
+        contentConfig.textProperties.color = configuration.style.textColor
+        contentConfig.textProperties.font = configuration.style.font
         contentConfig.textProperties.adjustsFontForContentSizeCategory = true
 
+        contentView.backgroundColor = configuration.style.backgroundColor
+        directionalLayoutMargins = configuration.directionalEdgeInsets
+
         // Apply the font and color directly to the label:
-        label.text = text
+        label.text = configuration.name
         label.font = contentConfig.textProperties.font
         label.textColor = contentConfig.textProperties.color
         label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
-        label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-        if let action = buttonAction {
+        if let buttonAction = configuration.primaryAction {
             button.isHidden = false
             button.removeTarget(nil, action: nil, for: .allEvents)
-            button.addAction(action, for: .touchUpInside)
+            button.addAction(buttonAction, for: .touchUpInside)
         } else {
             button.isHidden = true
         }
+    }
+}
+
+extension LocationSectionHeaderFooterView {
+    struct Style: Equatable, @unchecked Sendable {
+        let font: UIFont
+        let textColor: UIColor
+        let textAlignment: UIListContentConfiguration.TextProperties.TextAlignment
+        let backgroundColor: UIColor
+
+        static let header = Style(
+            font: .mullvadSmallSemiBold,
+            textColor: .primaryTextColor,
+            textAlignment: .natural,
+            backgroundColor: .primaryColor
+        )
+
+        static let footer = Style(
+            font: .mullvadTiny,
+            textColor: .secondaryTextColor,
+            textAlignment: .center,
+            backgroundColor: .clear
+        )
+    }
+
+    struct Configuration {
+        let name: String
+        let style: Style
+        var directionalEdgeInsets = NSDirectionalEdgeInsets(top: 11, leading: 16, bottom: 11, trailing: 8)
+        var primaryAction: UIAction?
     }
 }
