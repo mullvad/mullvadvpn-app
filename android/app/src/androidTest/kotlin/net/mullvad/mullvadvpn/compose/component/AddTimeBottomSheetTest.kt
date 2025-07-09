@@ -78,7 +78,7 @@ class AddTimeBottomSheetTest {
                 state =
                     AddTimeUiState(
                             purchaseState = null,
-                            billingPaymentState = null,
+                            billingPaymentState = PaymentState.NoPayment,
                             showSitePayment = true,
                             tunnelStateBlocked = false,
                         )
@@ -102,7 +102,7 @@ class AddTimeBottomSheetTest {
                 state =
                     AddTimeUiState(
                             purchaseState = null,
-                            billingPaymentState = null,
+                            billingPaymentState = PaymentState.NoPayment,
                             tunnelStateBlocked = false,
                             showSitePayment = true,
                         )
@@ -271,12 +271,21 @@ class AddTimeBottomSheetTest {
     fun testShowPurchaseCompleteDialog() =
         composeExtension.use {
             // Arrange
+            val productId = ProductId(ProductIds.ThreeMonths)
             initBottomSheet(
                 state =
                     AddTimeUiState(
-                            purchaseState =
-                                PurchaseState.Success(ProductId(ProductIds.ThreeMonths)),
-                            billingPaymentState = null,
+                            purchaseState = PurchaseState.Success(productId),
+                            billingPaymentState =
+                                PaymentState.PaymentAvailable(
+                                    listOf(
+                                        PaymentProduct(
+                                            productId = productId,
+                                            price = ProductPrice("$30"),
+                                            status = null,
+                                        )
+                                    )
+                                ),
                             tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
@@ -292,10 +301,20 @@ class AddTimeBottomSheetTest {
     fun testShowVerificationErrorDialog() =
         composeExtension.use {
             // Arrange
+            val productId = ProductId(ProductIds.ThreeMonths)
             initBottomSheet(
                 AddTimeUiState(
                         purchaseState = PurchaseState.VerifyingPurchase,
-                        billingPaymentState = null,
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(
+                                listOf(
+                                    PaymentProduct(
+                                        productId = productId,
+                                        price = ProductPrice("$30"),
+                                        status = null,
+                                    )
+                                )
+                            ),
                         tunnelStateBlocked = false,
                         showSitePayment = false,
                     )
@@ -310,11 +329,22 @@ class AddTimeBottomSheetTest {
     fun testShowFetchProductsErrorDialog() =
         composeExtension.use {
             // Arrange
+
+            val productId = ProductId(ProductIds.ThreeMonths)
             initBottomSheet(
                 state =
                     AddTimeUiState(
-                            purchaseState = PurchaseState.Error.OtherError(ProductId("ProductId")),
-                            billingPaymentState = null,
+                            purchaseState = PurchaseState.Error.OtherError(productId),
+                            billingPaymentState =
+                                PaymentState.PaymentAvailable(
+                                    listOf(
+                                        PaymentProduct(
+                                            productId = productId,
+                                            price = ProductPrice("$30"),
+                                            status = null,
+                                        )
+                                    )
+                                ),
                             tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
@@ -336,7 +366,7 @@ class AddTimeBottomSheetTest {
                 state =
                     AddTimeUiState(
                             purchaseState = null,
-                            billingPaymentState = null,
+                            billingPaymentState = PaymentState.NoPayment,
                             tunnelStateBlocked = false,
                             showSitePayment = false,
                         )
@@ -355,7 +385,7 @@ class AddTimeBottomSheetTest {
                 state =
                     AddTimeUiState(
                             purchaseState = null,
-                            billingPaymentState = null,
+                            billingPaymentState = PaymentState.NoPayment,
                             tunnelStateBlocked = true,
                             showSitePayment = true,
                         )
