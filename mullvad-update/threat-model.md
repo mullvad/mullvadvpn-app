@@ -49,7 +49,7 @@ With the goal to …
     vulnerabilities
   * Serving files large enough to fill up the targets disk/ram
 
-* Modify the downloaded installer on the client machine, tricking the loader/in-app upgrades
+* Modify the downloaded installer on the client machine, tricking the `mullvad-update`
   mechanism to run a malicious installer with admin privileges. The result is that
   the attacker can escalate their foothold on the client machine from regular
   user to administrator.
@@ -57,7 +57,7 @@ With the goal to …
 # Countermeasures
 
 Here are countermeasures we have identified against the above attackers which have been implemented
-in the loader:
+in `mullvad-update` and the loader/in-app upgrade mechanisms:
 
 * Attach a signature to the metadata, and verify it on the client before using it
 
