@@ -2,11 +2,12 @@ use anyhow::Context;
 use mullvad_management_interface::MullvadProxyClient;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use test_macro::test_function;
-use test_rpc::{meta::OsVersion, ServiceClient};
+use test_rpc::{ServiceClient, meta::OsVersion};
 
 use super::{
+    TestContext,
     helpers::{self, ConnChecker},
-    ui, TestContext,
+    ui,
 };
 
 const LEAK_DESTINATION: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 1337);

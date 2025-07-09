@@ -21,8 +21,8 @@ use std::{
     time::Duration,
 };
 
-use anyhow::{anyhow, bail, Context};
-use futures::{select, FutureExt};
+use anyhow::{Context, anyhow, bail};
+use futures::{FutureExt, select};
 use mullvad_management_interface::MullvadProxyClient;
 use nix::{
     errno::Errno,
@@ -30,11 +30,11 @@ use nix::{
 };
 use pnet_base::MacAddr;
 use pnet_packet::{
+    MutablePacket, Packet,
     ethernet::{EtherTypes, EthernetPacket, MutableEthernetPacket},
     ip::IpNextHeaderProtocols,
     ipv4::{Ipv4Packet, MutableIpv4Packet},
     tcp::{MutableTcpPacket, TcpFlags, TcpPacket},
-    MutablePacket, Packet,
 };
 use socket2::Socket;
 use test_macro::test_function;
@@ -42,7 +42,7 @@ use test_rpc::ServiceClient;
 use tokio::{task::yield_now, time::sleep};
 
 use crate::{
-    tests::{config::TEST_CONFIG, helpers, TestContext},
+    tests::{TestContext, config::TEST_CONFIG, helpers},
     vm::network::linux::TAP_NAME,
 };
 

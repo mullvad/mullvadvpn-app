@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     sync::atomic::{AtomicUsize, Ordering},
@@ -8,28 +8,27 @@ use std::{
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
-    settings,
+    ConnectionConfig, CustomTunnelEndpoint, settings,
     wireguard::{DaitaSettings, QuantumResistantState},
-    ConnectionConfig, CustomTunnelEndpoint,
 };
 use talpid_types::net::wireguard;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
 use super::{
-    helpers::{self, connect_and_wait, set_custom_endpoint},
     Error, TestContext,
+    helpers::{self, connect_and_wait, set_custom_endpoint},
 };
 use crate::{
+    TEST_CONFIG,
     network_monitor::{
-        start_packet_monitor_until, start_tunnel_packet_monitor_until, Direction,
-        IpHeaderProtocols, MonitorOptions,
+        Direction, IpHeaderProtocols, MonitorOptions, start_packet_monitor_until,
+        start_tunnel_packet_monitor_until,
     },
     vm::network::{
         CUSTOM_TUN_GATEWAY, CUSTOM_TUN_LOCAL_PRIVKEY, CUSTOM_TUN_LOCAL_TUN_ADDR,
         CUSTOM_TUN_REMOTE_PUBKEY, CUSTOM_TUN_REMOTE_REAL_PORT, CUSTOM_TUN_REMOTE_TUN_ADDR,
     },
-    TEST_CONFIG,
 };
 
 /// How long to wait for expected "DNS queries" to appear

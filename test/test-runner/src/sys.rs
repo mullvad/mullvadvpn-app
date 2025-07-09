@@ -24,7 +24,7 @@ const MULLVAD_WIN_REGISTRY: &str = r"SYSTEM\CurrentControlSet\Services\Mullvad V
 pub fn reboot() -> Result<(), test_rpc::Error> {
     use windows_sys::Win32::{
         System::Shutdown::{
-            ExitWindowsEx, EWX_REBOOT, SHTDN_REASON_FLAG_PLANNED, SHTDN_REASON_MAJOR_APPLICATION,
+            EWX_REBOOT, ExitWindowsEx, SHTDN_REASON_FLAG_PLANNED, SHTDN_REASON_MAJOR_APPLICATION,
             SHTDN_REASON_MINOR_OTHER,
         },
         UI::WindowsAndMessaging::EWX_FORCEIFHUNG,
@@ -65,7 +65,7 @@ fn grant_shutdown_privilege() -> Result<(), test_rpc::Error> {
     use windows_sys::Win32::{
         Foundation::{CloseHandle, HANDLE, LUID},
         Security::{
-            AdjustTokenPrivileges, LookupPrivilegeValueW, LUID_AND_ATTRIBUTES,
+            AdjustTokenPrivileges, LUID_AND_ATTRIBUTES, LookupPrivilegeValueW,
             SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES, TOKEN_PRIVILEGES,
         },
         System::{
@@ -501,7 +501,7 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
             .map_err(|e| test_rpc::Error::Registry(e.to_string()))?;
     }
     // Persist the changed environment variables, such that we can retrieve them at will.
-    use winreg::{enums::*, RegKey};
+    use winreg::{RegKey, enums::*};
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     let path = Path::new(MULLVAD_WIN_REGISTRY).join("Environment");
     let (registry, _) = hklm.create_subkey(&path).map_err(|error| {
@@ -636,7 +636,7 @@ fn parse_systemd_env_file(input: &str) -> impl Iterator<Item = EnvVar> + '_ {
 
 #[cfg(target_os = "windows")]
 pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rpc::Error> {
-    use winreg::{enums::*, RegKey};
+    use winreg::{RegKey, enums::*};
 
     let env =
         tokio::task::spawn_blocking(|| -> Result<HashMap<String, String>, test_rpc::Error> {
