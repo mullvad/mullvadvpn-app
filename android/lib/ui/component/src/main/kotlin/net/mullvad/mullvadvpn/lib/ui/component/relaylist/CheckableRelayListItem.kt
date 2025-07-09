@@ -59,16 +59,27 @@ fun CheckableRelayLocationCell(
         selected = false,
         content = {
             Row(
-                modifier =
-                    Modifier.padding(start = item.depth * Dimens.mediumPadding)
-                        .padding(Dimens.mediumPadding),
+                modifier = Modifier.padding(start = item.depth * Dimens.mediumPadding),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Name(name = item.item.name, state = null, active = true)
+                Checkbox(
+                    modifier = Modifier.padding(Dimens.smallPadding),
+                    checked = item.checked,
+                    onCheckedChange = onRelayCheckedChange,
+                )
+
+                Name(
+                    modifier =
+                        Modifier.padding(
+                            top = Dimens.mediumPadding,
+                            bottom = Dimens.mediumPadding,
+                            end = Dimens.mediumPadding,
+                        ),
+                    name = item.item.name,
+                    state = null,
+                    active = true,
+                )
             }
-        },
-        leadingContent = {
-            Checkbox(checked = item.checked, onCheckedChange = onRelayCheckedChange)
         },
         onClick = { onRelayCheckedChange(!item.checked) },
         onLongClick = null,
