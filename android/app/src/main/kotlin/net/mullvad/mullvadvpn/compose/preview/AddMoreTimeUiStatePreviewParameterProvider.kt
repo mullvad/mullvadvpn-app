@@ -17,14 +17,14 @@ class AddMoreTimeUiStatePreviewParameterProvider :
             Lc.Loading(Unit),
             AddTimeUiState(
                     purchaseState = null,
-                    billingPaymentState = null,
+                    billingPaymentState = PaymentState.Loading,
                     showSitePayment = true,
                     tunnelStateBlocked = false,
                 )
                 .toLc(),
             AddTimeUiState(
                     purchaseState = null,
-                    billingPaymentState = null,
+                    billingPaymentState = PaymentState.NoPayment,
                     showSitePayment = true,
                     tunnelStateBlocked = false,
                 )

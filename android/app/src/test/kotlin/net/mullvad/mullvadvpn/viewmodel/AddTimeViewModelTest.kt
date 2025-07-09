@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
@@ -78,12 +79,14 @@ class AddTimeViewModelTest {
 
     @Test
     fun `when paymentAvailability emits ErrorOther uiState should be null`() = runTest {
-        // Arrange
-        paymentAvailability.emit(PaymentAvailability.Error.Other(mockk()))
 
         // Act, Assert
         viewModel.uiState.test {
             awaitItem() // Default state
+
+            // Emit an error with a mock exception
+            paymentAvailability.emit(PaymentAvailability.Error.Other(mockk()))
+
             val result = awaitItem()
             assertIs<Lc.Content<AddTimeUiState>>(result)
             assertIs<PaymentState.Error.Generic>(result.value.billingPaymentState)
@@ -122,7 +125,7 @@ class AddTimeViewModelTest {
         }
 
     @Test
-    fun `startBillingPayment should invoke purchaseProduct on PaymentUseCase`() {
+    fun `startBillingPayment should invoke purchaseProduct on PaymentUseCase`() = runTest {
         // Arrange
         val mockProductId = ProductId("MOCK")
         val mockActivityProvider = mockk<() -> Activity>()
@@ -149,7 +152,7 @@ class AddTimeViewModelTest {
     }
 
     @Test
-    fun `purchaseState error should invoke queryPaymentAvailability on PaymentUseCase`() {
+    fun `purchaseState error should invoke queryPaymentAvailability on PaymentUseCase`() = runTest {
         // Arrange
         val purchaseResultData = PurchaseResult.Error.VerificationError(Throwable())
 
@@ -161,25 +164,31 @@ class AddTimeViewModelTest {
     }
 
     @Test
-    fun `resetPurchaseResult with success should invoke resetPurchaseResult on PaymentUseCase`() {
-        // Arrange
+    fun `resetPurchaseResult with success should invoke resetPurchaseResult on PaymentUseCase`() =
+        runTest {
+            // Arrange
 
-        // Act
-        viewModel.resetPurchaseResult()
+            // Act
+            viewModel.resetPurchaseResult()
 
-        // Assert
-        coVerify { mockPaymentUseCase.resetPurchaseResult() }
-    }
+            // Assert
+            coVerify { mockPaymentUseCase.resetPurchaseResult() }
+        }
 
     @Test
     fun `purchaseResult emitting Success should result in success dialog state`() = runTest {
         // Arrange
-        val result = PurchaseState.Success(ProductId("one_month"))
+        val productId = ProductId("one_month")
+        val paymentProduct =
+            PaymentProduct(productId = productId, price = ProductPrice("€5.00"), status = null)
+        val result = PurchaseState.Success(productId)
         val purchaseResultData = PurchaseResult.Completed.Success(ProductId("one_month"))
 
         // Act, Assert
         viewModel.uiState.test {
             awaitItem() // Default state
+            paymentAvailability.emit(PaymentAvailability.ProductsAvailable(listOf(paymentProduct)))
+            awaitItem()
             purchaseResult.emit(purchaseResultData)
             val item = awaitItem()
             assertIs<Lc.Content<AddTimeUiState>>(item)
