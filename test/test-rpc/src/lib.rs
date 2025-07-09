@@ -89,7 +89,8 @@ impl Error {
 pub struct AmIMullvad {
     pub ip: IpAddr,
     pub mullvad_exit_ip: bool,
-    pub mullvad_exit_ip_hostname: String,
+    /// Will be `None` when not connected via  mullvad relay
+    pub mullvad_exit_ip_hostname: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
