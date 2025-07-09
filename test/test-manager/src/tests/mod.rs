@@ -214,19 +214,20 @@ async fn ensure_daemon_version(
 ) -> anyhow::Result<MullvadProxyClient> {
     let app_package_filename = &TEST_CONFIG.app_package_filename;
 
-    let mullvad_client = if correct_daemon_version_is_running(rpc_provider.new_client().await).await
+    if !correct_daemon_version_is_running(rpc_provider.new_client().await).await
+        // Attempt to enable the daemon, which will also reset the environment variables.
+        && rpc.enable_mullvad_daemon().await.is_err()
     {
-        ensure_daemon_environment(rpc)
-            .await
-            .context("Failed to reset daemon environment")?;
-        rpc_provider.new_client().await
-    } else {
         // NOTE: Reinstalling the app resets the daemon environment
-        install_app(rpc, app_package_filename, rpc_provider)
+        return install_app(rpc, app_package_filename, rpc_provider)
             .await
-            .with_context(|| format!("Failed to install app '{app_package_filename}'"))?
+            .with_context(|| format!("Failed to install app '{app_package_filename}'"));
     };
-    Ok(mullvad_client)
+    ensure_daemon_environment(rpc)
+        .await
+        .context("Failed to reset daemon environment")?;
+
+    Ok(rpc_provider.new_client().await)
 }
 
 /// Conditionally restart the running daemon
