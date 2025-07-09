@@ -50,7 +50,6 @@ fun RelayListItem(
     enabled: Boolean = true,
     onClick: (() -> Unit) = {},
     onLongClick: (() -> Unit)? = {},
-    leadingContent: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit,
     trailingContent: @Composable (() -> Unit)? = null,
     colors: RelayListItemColors = RelayListItemDefaults.colors(),
@@ -67,22 +66,6 @@ fun RelayListItem(
             horizontalArrangement = Arrangement.spacedBy(RelayListTokens.listItemSpacer),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (leadingContent != null) {
-                Box(
-                    Modifier.background(colors.containerColor)
-                        .width(RelayListTokens.listItemButtonWidth)
-                        .fillMaxHeight(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    ProvideContentColorTextStyle(
-                        colors.leadingIconColor,
-                        MaterialTheme.typography.titleMedium,
-                    ) {
-                        leadingContent()
-                    }
-                }
-            }
-
             Row(
                 Modifier.weight(1f, fill = true)
                     .background(colors.containerColor)
@@ -215,7 +198,7 @@ private fun PreviewLeadingRelayListItem() {
                     overflow = TextOverflow.Ellipsis,
                 )
             },
-            leadingContent = {
+            trailingContent = {
                 Box(
                     modifier = Modifier.fillMaxSize().clickable(onClick = { /* Handle click */ }),
                     contentAlignment = Alignment.Center,
@@ -283,18 +266,6 @@ private fun PreviewLeadingAndTrailingRelayListItem() {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-            },
-            leadingContent = {
-                Box(
-                    modifier = Modifier.fillMaxSize().clickable(onClick = {}),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = null,
-                    )
-                }
             },
             trailingContent = {
                 Box(
