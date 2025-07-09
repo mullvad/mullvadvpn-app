@@ -63,18 +63,16 @@ pub static WIREGUARD_RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
         // 1 This works with any wireguard relay
         RelayQueryBuilder::wireguard().build(),
         // 2
-        RelayQueryBuilder::wireguard().port(443).build(),
-        // 3
         RelayQueryBuilder::wireguard()
             .ip_version(IpVersion::V6)
             .build(),
-        // 4
+        // 3
         RelayQueryBuilder::wireguard().shadowsocks().build(),
-        // 5
+        // 4
         RelayQueryBuilder::wireguard().quic().build(),
-        // 6
+        // 5
         RelayQueryBuilder::wireguard().udp2tcp().build(),
-        // 7
+        // 6
         RelayQueryBuilder::wireguard()
             .udp2tcp()
             .ip_version(IpVersion::V6)
