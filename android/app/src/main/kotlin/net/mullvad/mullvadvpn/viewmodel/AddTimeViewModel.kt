@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -35,14 +36,14 @@ class AddTimeViewModel(
 
     val uiState: StateFlow<Lc<Unit, AddTimeUiState>> =
         combine(
-                paymentUseCase.paymentAvailability,
+                paymentUseCase.paymentAvailability.filterNotNull(),
                 paymentUseCase.purchaseResult,
                 connectionProxy.tunnelState,
             ) { paymentAvailability, purchaseResult, tunnelState ->
                 Lc.Content(
                     AddTimeUiState(
                         purchaseState = purchaseResult?.toPurchaseState(),
-                        billingPaymentState = paymentAvailability?.toPaymentState(),
+                        billingPaymentState = paymentAvailability.toPaymentState(),
                         tunnelStateBlocked = tunnelState.isBlocked(),
                         showSitePayment = !isPlayBuild,
                     )

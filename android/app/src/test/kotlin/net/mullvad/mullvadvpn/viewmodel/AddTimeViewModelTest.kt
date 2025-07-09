@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
@@ -174,8 +175,12 @@ class AddTimeViewModelTest {
     @Test
     fun `purchaseResult emitting Success should result in success dialog state`() = runTest {
         // Arrange
-        val result = PurchaseState.Success(ProductId("one_month"))
+        val productId = ProductId("one_month")
+        val paymentProduct =
+            PaymentProduct(productId = productId, price = ProductPrice("€5.00"), status = null)
+        val result = PurchaseState.Success(productId)
         val purchaseResultData = PurchaseResult.Completed.Success(ProductId("one_month"))
+        paymentAvailability.emit(PaymentAvailability.ProductsAvailable(listOf(paymentProduct)))
 
         // Act, Assert
         viewModel.uiState.test {
