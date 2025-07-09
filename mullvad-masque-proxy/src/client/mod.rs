@@ -242,6 +242,7 @@ impl Client {
             if let Some(fwmark) = fwmark {
                 socket.set_mark(fwmark).map_err(Error::Fwmark)?;
             }
+            socket.bind(&local_addr.into()).map_err(Error::Bind)?;
             socket
         };
 
