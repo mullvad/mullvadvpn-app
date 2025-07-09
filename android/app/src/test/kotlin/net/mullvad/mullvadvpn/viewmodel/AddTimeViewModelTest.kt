@@ -79,12 +79,14 @@ class AddTimeViewModelTest {
 
     @Test
     fun `when paymentAvailability emits ErrorOther uiState should be null`() = runTest {
-        // Arrange
-        paymentAvailability.emit(PaymentAvailability.Error.Other(mockk()))
 
         // Act, Assert
         viewModel.uiState.test {
             awaitItem() // Default state
+
+            // Emit an error with a mock exception
+            paymentAvailability.emit(PaymentAvailability.Error.Other(mockk()))
+
             val result = awaitItem()
             assertIs<Lc.Content<AddTimeUiState>>(result)
             assertIs<PaymentState.Error.Generic>(result.value.billingPaymentState)
@@ -123,7 +125,7 @@ class AddTimeViewModelTest {
         }
 
     @Test
-    fun `startBillingPayment should invoke purchaseProduct on PaymentUseCase`() {
+    fun `startBillingPayment should invoke purchaseProduct on PaymentUseCase`() = runTest {
         // Arrange
         val mockProductId = ProductId("MOCK")
         val mockActivityProvider = mockk<() -> Activity>()
@@ -180,11 +182,12 @@ class AddTimeViewModelTest {
             PaymentProduct(productId = productId, price = ProductPrice("€5.00"), status = null)
         val result = PurchaseState.Success(productId)
         val purchaseResultData = PurchaseResult.Completed.Success(ProductId("one_month"))
-        paymentAvailability.emit(PaymentAvailability.ProductsAvailable(listOf(paymentProduct)))
 
         // Act, Assert
         viewModel.uiState.test {
             awaitItem() // Default state
+            paymentAvailability.emit(PaymentAvailability.ProductsAvailable(listOf(paymentProduct)))
+            awaitItem()
             purchaseResult.emit(purchaseResultData)
             val item = awaitItem()
             assertIs<Lc.Content<AddTimeUiState>>(item)
