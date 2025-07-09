@@ -1,20 +1,20 @@
 //! Glue between tunnel-obfuscation and WireGuard configurations
 
 use super::{Error, Result};
-use crate::{config::Config, CloseMsg};
+use crate::{CloseMsg, config::Config};
 #[cfg(target_os = "android")]
 use std::sync::{Arc, Mutex};
 use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::mpsc as sync_mpsc,
 };
+use talpid_tunnel::WIREGUARD_HEADER_SIZE;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
-use talpid_tunnel::WIREGUARD_HEADER_SIZE;
-use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
+use talpid_types::{ErrorExt, net::obfuscation::ObfuscatorConfig};
 
 use tunnel_obfuscation::{
-    create_obfuscator, quic, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
+    Settings as ObfuscationSettings, create_obfuscator, quic, shadowsocks, udp2tcp,
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint

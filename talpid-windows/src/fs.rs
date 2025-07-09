@@ -4,11 +4,11 @@ use std::os::windows::io::AsRawHandle;
 use std::ptr;
 
 use windows_sys::Win32::{
-    Foundation::{LocalFree, ERROR_SUCCESS},
+    Foundation::{ERROR_SUCCESS, LocalFree},
     Security::{
         Authorization::{GetSecurityInfo, SE_FILE_OBJECT},
-        IsWellKnownSid, WinBuiltinAdministratorsSid, WinLocalSystemSid, OWNER_SECURITY_INFORMATION,
-        SECURITY_DESCRIPTOR, SID,
+        IsWellKnownSid, OWNER_SECURITY_INFORMATION, SECURITY_DESCRIPTOR, SID,
+        WinBuiltinAdministratorsSid, WinLocalSystemSid,
     },
 };
 

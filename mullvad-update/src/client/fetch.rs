@@ -4,11 +4,11 @@ use std::{
     error::Error,
     path::Path,
     pin::Pin,
-    task::{ready, Poll},
+    task::{Poll, ready},
     time::Duration,
 };
 
-use reqwest::header::{HeaderValue, CONTENT_LENGTH, RANGE};
+use reqwest::header::{CONTENT_LENGTH, HeaderValue, RANGE};
 use tokio::{
     fs::{self, File},
     io::{self, AsyncSeek, AsyncSeekExt, AsyncWrite, AsyncWriteExt, BufWriter},

@@ -4,9 +4,9 @@ use netlink_packet_core::{
     NetlinkDeserializable, NetlinkHeader, NetlinkPayload, NetlinkSerializable,
 };
 use netlink_packet_utils::{
+    DecodeError,
     nla::{Nla, NlaBuffer, NlasIterator},
     traits::{Emitable, Parseable},
-    DecodeError,
 };
 use std::{ffi::CString, io::Write, mem};
 

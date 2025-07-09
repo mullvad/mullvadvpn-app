@@ -3,7 +3,7 @@
 //! The tool can be installed using `cargo install --locked --path .`, after which it can be invoked
 //! with `mullvad-release ...`.
 
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use clap::Parser;
 use std::str::FromStr;
 
@@ -11,7 +11,7 @@ use config::Config;
 use io_util::create_dir_and_write;
 use platform::Platform;
 
-use mullvad_update::format::{self, key, SignedResponse};
+use mullvad_update::format::{self, SignedResponse, key};
 
 mod artifacts;
 mod config;

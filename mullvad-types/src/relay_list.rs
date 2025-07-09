@@ -4,7 +4,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     ops::RangeInclusive,
 };
-use talpid_types::net::{proxy::Shadowsocks, wireguard, TransportProtocol};
+use talpid_types::net::{TransportProtocol, proxy::Shadowsocks, wireguard};
 
 /// Stores a list of relays for each country obtained from the API using
 /// `mullvad_api::RelayListProxy`. This can also be passed to frontends.

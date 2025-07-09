@@ -1,4 +1,4 @@
-use openvpn_plugin::{openvpn_plugin, EventResult, EventType};
+use openvpn_plugin::{EventResult, EventType, openvpn_plugin};
 use std::{collections::HashMap, ffi::CString, io, sync::Mutex};
 use talpid_types::ErrorExt;
 

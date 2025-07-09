@@ -1,6 +1,6 @@
+use futures::StreamExt;
 use futures::channel::{mpsc, oneshot};
 use futures::stream::Fuse;
-use futures::StreamExt;
 
 use talpid_types::net::{AllowedClients, AllowedEndpoint, TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};

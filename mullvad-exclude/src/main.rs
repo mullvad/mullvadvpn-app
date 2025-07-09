@@ -14,7 +14,7 @@ use std::{
 };
 
 #[cfg(target_os = "linux")]
-use talpid_types::cgroup::{find_net_cls_mount, SPLIT_TUNNEL_CGROUP_NAME};
+use talpid_types::cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount};
 
 #[cfg(target_os = "linux")]
 const PROGRAM_NAME: &str = "mullvad-exclude";

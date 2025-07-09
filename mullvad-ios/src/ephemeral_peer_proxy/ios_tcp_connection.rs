@@ -3,7 +3,7 @@ use std::{
     future::Future,
     io::{self},
     pin::Pin,
-    task::{ready, Poll},
+    task::{Poll, ready},
     time::Duration,
 };
 use tokio::io::{AsyncRead, AsyncWrite};

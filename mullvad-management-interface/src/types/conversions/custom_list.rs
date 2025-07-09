@@ -1,6 +1,6 @@
 use std::{collections::BTreeSet, str::FromStr};
 
-use crate::types::{proto, FromProtobufTypeError};
+use crate::types::{FromProtobufTypeError, proto};
 use mullvad_types::{
     custom_list::{CustomList, Id},
     relay_constraints::GeographicLocationConstraint,

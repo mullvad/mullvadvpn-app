@@ -1,12 +1,12 @@
 use crate::{
+    Tunnel, TunnelError,
     config::Config,
     stats::{Stats, StatsMap},
-    Tunnel, TunnelError,
 };
 use boringtun::device::{
-    api::{command::*, ApiClient, ApiServer},
-    peer::AllowedIP,
     DeviceConfig, DeviceHandle,
+    api::{ApiClient, ApiServer, command::*},
+    peer::AllowedIP,
 };
 
 #[cfg(not(target_os = "android"))]

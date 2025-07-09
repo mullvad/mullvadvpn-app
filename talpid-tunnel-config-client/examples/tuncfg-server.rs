@@ -20,13 +20,13 @@ mod proto {
     tonic::include_proto!("ephemeralpeer");
 }
 use proto::{
-    ephemeral_peer_server::{EphemeralPeer, EphemeralPeerServer},
     EphemeralPeerRequestV1, EphemeralPeerResponseV1, PostQuantumResponseV1,
+    ephemeral_peer_server::{EphemeralPeer, EphemeralPeerServer},
 };
 use rand::{CryptoRng, RngCore};
 use talpid_types::net::wireguard::PresharedKey;
 
-use tonic::{transport::Server, Request, Response, Status};
+use tonic::{Request, Response, Status, transport::Server};
 
 #[derive(Debug, Default)]
 pub struct EphemeralPeerImpl {}
@@ -93,7 +93,7 @@ fn encapsulate_ml_kem<R: RngCore + CryptoRng>(
     public_key: &[u8],
     rng: &mut R,
 ) -> (Vec<u8>, [u8; 32]) {
-    use ml_kem::{kem::Encapsulate, Encoded, EncodedSizeUser, KemCore, MlKem1024};
+    use ml_kem::{Encoded, EncodedSizeUser, KemCore, MlKem1024, kem::Encapsulate};
 
     type EncapsulationKey = <MlKem1024 as KemCore>::EncapsulationKey;
 

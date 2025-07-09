@@ -10,7 +10,7 @@ pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
 use talpid_types::{
-    net::{wireguard as wireguard_types, TunnelParameters},
+    net::{TunnelParameters, wireguard as wireguard_types},
     tunnel::ErrorStateCause,
 };
 
@@ -294,7 +294,7 @@ impl InternalTunnelMonitor {
 
 #[cfg(target_os = "windows")]
 fn is_ipv6_enabled_in_os() -> bool {
-    use winreg::{enums::*, RegKey};
+    use winreg::{RegKey, enums::*};
 
     const IPV6_DISABLED_ON_TUNNELS_MASK: u32 = 0x01;
 

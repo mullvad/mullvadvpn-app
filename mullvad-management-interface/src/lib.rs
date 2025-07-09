@@ -11,13 +11,13 @@ use std::{
     task::{Context, Poll},
 };
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
-use tonic::transport::{server::Connected, Server};
 #[cfg(not(target_os = "android"))]
 use tonic::transport::{Endpoint, Uri};
+use tonic::transport::{Server, server::Connected};
 #[cfg(not(target_os = "android"))]
 use tower::service_fn;
 
-pub use tonic::{async_trait, transport::Channel, Code, Request, Response, Status};
+pub use tonic::{Code, Request, Response, Status, async_trait, transport::Channel};
 
 pub type ManagementServiceClient =
     types::management_service_client::ManagementServiceClient<Channel>;

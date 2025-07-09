@@ -1,20 +1,20 @@
-use crate::{account_history, device, DaemonCommand, DaemonCommandSender};
+use crate::{DaemonCommand, DaemonCommandSender, account_history, device};
 use futures::{
-    channel::{mpsc, oneshot},
     StreamExt,
+    channel::{mpsc, oneshot},
 };
-use mullvad_api::{rest::Error as RestError, StatusCode};
+use mullvad_api::{StatusCode, rest::Error as RestError};
 use mullvad_management_interface::types::FromProtobufTypeError;
 use mullvad_management_interface::{
-    types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, ServerJoinHandle, Status,
+    types::{self, daemon_event, management_service_server::ManagementService},
 };
 use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::{
     account::AccountNumber,
     relay_constraints::{
-        allowed_ip::AllowedIps, BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride,
-        RelaySettings,
+        BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
+        allowed_ip::AllowedIps,
     },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},

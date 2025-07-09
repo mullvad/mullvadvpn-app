@@ -1,4 +1,4 @@
-use crate::{debounce::BurstGuard, Gateway, MacAddress, NetNode, RequiredRoute, Route};
+use crate::{Gateway, MacAddress, NetNode, RequiredRoute, Route, debounce::BurstGuard};
 
 use default_routes::DefaultRouteMonitor;
 use futures::{

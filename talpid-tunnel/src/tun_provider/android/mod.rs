@@ -4,12 +4,12 @@ use self::ipnetwork_sub::IpNetworkSub;
 use super::TunConfig;
 use ipnetwork::IpNetwork;
 use jnix::{
+    FromJava, IntoJava, JnixEnv,
     jni::{
+        JavaVM,
         objects::{GlobalRef, JValue},
         signature::{JavaType, Primitive},
-        JavaVM,
     },
-    FromJava, IntoJava, JnixEnv,
 };
 use std::{
     net::IpAddr,
@@ -21,7 +21,7 @@ use std::{
 };
 use talpid_routing::Route;
 use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
-use talpid_types::{android::AndroidContext, ErrorExt};
+use talpid_types::{ErrorExt, android::AndroidContext};
 
 /// Errors that occur while setting up VpnService tunnel.
 #[derive(Debug, thiserror::Error)]

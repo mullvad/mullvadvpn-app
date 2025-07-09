@@ -4,7 +4,7 @@ use futures::channel::mpsc::UnboundedSender;
 use std::sync::LazyLock;
 #[cfg(not(target_os = "android"))]
 use talpid_routing::RouteManagerHandle;
-use talpid_types::{net::Connectivity, ErrorExt};
+use talpid_types::{ErrorExt, net::Connectivity};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]

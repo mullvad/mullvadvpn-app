@@ -1,7 +1,7 @@
 //! Wrapper around a stream to make it abortable. This allows in-flight requests to be cancelled
 //! immediately instead of after the socket times out.
 
-use futures::{channel::oneshot, future::Fuse, FutureExt};
+use futures::{FutureExt, channel::oneshot, future::Fuse};
 use hyper_util::client::legacy::connect::{Connected, Connection};
 use std::{
     future::Future,
@@ -189,10 +189,12 @@ mod test {
                 stream.read_to_end(&mut buf).await
             });
 
-            assert!(tokio::time::timeout(Duration::from_secs(1), stream_task)
-                .await
-                .unwrap()
-                .is_ok());
+            assert!(
+                tokio::time::timeout(Duration::from_secs(1), stream_task)
+                    .await
+                    .unwrap()
+                    .is_ok()
+            );
             assert!(abort_handle.is_closed());
         });
     }

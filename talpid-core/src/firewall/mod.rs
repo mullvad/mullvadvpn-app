@@ -6,7 +6,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     sync::LazyLock,
 };
-use talpid_types::net::{AllowedEndpoint, AllowedTunnelTraffic, ALLOWED_LAN_NETS};
+use talpid_types::net::{ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]

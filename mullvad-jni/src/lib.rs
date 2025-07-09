@@ -5,16 +5,16 @@ mod classes;
 mod problem_report;
 
 use jnix::{
-    jni::{
-        objects::{JClass, JObject},
-        JNIEnv,
-    },
     FromJava, JnixEnv,
+    jni::{
+        JNIEnv,
+        objects::{JClass, JObject},
+    },
 };
 use mullvad_api::ApiEndpoint;
 use mullvad_daemon::{
-    cleanup_old_rpc_socket, exception_logging, logging, runtime::new_multi_thread, version, Daemon,
-    DaemonCommandChannel, DaemonCommandSender, DaemonConfig,
+    Daemon, DaemonCommandChannel, DaemonCommandSender, DaemonConfig, cleanup_old_rpc_socket,
+    exception_logging, logging, runtime::new_multi_thread, version,
 };
 use std::collections::HashMap;
 use std::{
@@ -24,7 +24,7 @@ use std::{
     path::{Path, PathBuf},
     sync::{Arc, Mutex, Once, OnceLock},
 };
-use talpid_types::{android::AndroidContext, ErrorExt};
+use talpid_types::{ErrorExt, android::AndroidContext};
 
 const LOG_FILENAME: &str = "daemon.log";
 

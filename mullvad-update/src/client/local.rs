@@ -2,7 +2,7 @@
 
 //! This module implements fetching of information about app versions from disk.
 
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use std::{path::PathBuf, vec};
 use tokio::fs;
 

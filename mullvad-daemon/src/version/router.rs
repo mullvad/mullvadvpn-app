@@ -12,14 +12,14 @@ use talpid_core::mpsc::Sender;
 #[cfg(in_app_upgrade)]
 use talpid_types::ErrorExt;
 
-use crate::management_interface::AppUpgradeBroadcast;
 use crate::DaemonEventSender;
+use crate::management_interface::AppUpgradeBroadcast;
 
 #[cfg(in_app_upgrade)]
 use super::downloader::ProgressUpdater;
 use super::{
-    check::{VersionCache, VersionUpdater},
     Error,
+    check::{VersionCache, VersionUpdater},
 };
 
 #[cfg(in_app_upgrade)]

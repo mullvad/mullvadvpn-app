@@ -2,11 +2,11 @@
 //! updated as well.
 
 use crate::{
+    CustomTunnelEndpoint, Intersection,
     constraints::{Constraint, Match},
     custom_list::{CustomListsSettings, Id},
     location::{CityCode, CountryCode, Hostname},
     relay_list::{Relay, RelayEndpointData},
-    CustomTunnelEndpoint, Intersection,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -15,7 +15,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
     str::FromStr,
 };
-use talpid_types::net::{proxy::CustomProxy, IpVersion, TransportProtocol, TunnelType};
+use talpid_types::net::{IpVersion, TransportProtocol, TunnelType, proxy::CustomProxy};
 
 /// Specifies a specific endpoint or [`RelayConstraints`] to use when `mullvad-daemon` selects a
 /// relay.

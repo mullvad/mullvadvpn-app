@@ -12,7 +12,6 @@ use std::{
 };
 use talpid_types::win32_err;
 use windows_sys::{
-    core::GUID,
     Win32::{
         Foundation::{ERROR_NOT_FOUND, HANDLE},
         NetworkManagement::{
@@ -21,19 +20,20 @@ use windows_sys::{
                 ConvertInterfaceLuidToGuid, ConvertInterfaceLuidToIndex,
                 CreateUnicastIpAddressEntry, FreeMibTable, GetIpInterfaceEntry,
                 GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
-                InitializeUnicastIpAddressEntry, MibAddInstance, NotifyIpInterfaceChange,
-                SetIpInterfaceEntry, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW,
-                MIB_UNICASTIPADDRESS_TABLE,
+                InitializeUnicastIpAddressEntry, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW,
+                MIB_UNICASTIPADDRESS_TABLE, MibAddInstance, NotifyIpInterfaceChange,
+                SetIpInterfaceEntry,
             },
             Ndis::{IF_MAX_STRING_SIZE, NET_LUID_LH},
         },
         Networking::WinSock::{
-            IpDadStateDeprecated, IpDadStateDuplicate, IpDadStateInvalid, IpDadStatePreferred,
-            IpDadStateTentative, AF_INET, AF_INET6, AF_UNSPEC, IN6_ADDR, IN_ADDR, NL_DAD_STATE,
-            SOCKADDR_IN as sockaddr_in, SOCKADDR_IN6 as sockaddr_in6, SOCKADDR_INET,
+            AF_INET, AF_INET6, AF_UNSPEC, IN_ADDR, IN6_ADDR, IpDadStateDeprecated,
+            IpDadStateDuplicate, IpDadStateInvalid, IpDadStatePreferred, IpDadStateTentative,
+            NL_DAD_STATE, SOCKADDR_IN as sockaddr_in, SOCKADDR_IN6 as sockaddr_in6, SOCKADDR_INET,
             SOCKADDR_STORAGE as sockaddr_storage,
         },
     },
+    core::GUID,
 };
 
 /// Result type for this module.

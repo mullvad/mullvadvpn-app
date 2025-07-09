@@ -78,13 +78,13 @@ mod test {
 
     use std::{
         sync::{
-            atomic::{AtomicBool, Ordering},
             Arc,
+            atomic::{AtomicBool, Ordering},
         },
         time::Duration,
     };
 
-    use tokio::sync::{mpsc, Mutex};
+    use tokio::sync::{Mutex, mpsc};
 
     use crate::connectivity::{constants::*, mock::*};
 
@@ -178,13 +178,15 @@ mod test {
                 .unwrap()
         );
         stop_bytes_rx.store(true, Ordering::SeqCst);
-        assert!(tokio::time::timeout(
-            BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(2),
-            result_rx.recv()
-        )
-        .await
-        .unwrap()
-        .unwrap()
-        .is_ok());
+        assert!(
+            tokio::time::timeout(
+                BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(2),
+                result_rx.recv()
+            )
+            .await
+            .unwrap()
+            .unwrap()
+            .is_ok()
+        );
     }
 }

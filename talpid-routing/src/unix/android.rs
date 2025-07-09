@@ -8,12 +8,12 @@ use futures::future::FutureExt;
 use futures::select_biased;
 use futures::stream::StreamExt;
 use jnix::jni::objects::JValue;
-use jnix::jni::{objects::JObject, JNIEnv};
+use jnix::jni::{JNIEnv, objects::JObject};
 use jnix::{FromJava, JnixEnv};
 
 use talpid_types::android::{AndroidContext, NetworkState};
 
-use crate::{imp::RouteManagerCommand, Route};
+use crate::{Route, imp::RouteManagerCommand};
 
 /// Stub error type for routing errors on Android.
 /// Errors that occur while setting up VpnService tunnel.
@@ -232,7 +232,7 @@ fn current_network_state(
                 "MullvadVpnService",
                 "getConnectivityListener",
                 format!("{value:?}"),
-            ))
+            ));
         }
     };
 

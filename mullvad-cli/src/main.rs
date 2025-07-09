@@ -201,7 +201,7 @@ async fn main() -> Result<()> {
 /// By default, Rust replaces it with an empty handler because reasons: https://github.com/rust-lang/rust/issues/119980
 #[cfg(unix)]
 fn handle_sigpipe() -> Result<(), nix::errno::Errno> {
-    use nix::sys::signal::{signal, SigHandler, Signal};
+    use nix::sys::signal::{SigHandler, Signal, signal};
     // SAFETY: We do not use the previous signal handler, which could cause UB if done carelessly:
     // https://pubs.opengroup.org/onlinepubs/9699919799/functions/signal.html
     unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl) }?;

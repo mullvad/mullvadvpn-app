@@ -1,10 +1,10 @@
 #[cfg(target_os = "android")]
-use super::config;
-#[cfg(target_os = "android")]
 use super::Error;
+#[cfg(target_os = "android")]
+use super::config;
 use super::{
-    stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
+    stats::{Stats, StatsMap},
 };
 #[cfg(target_os = "linux")]
 use crate::config::MULLVAD_INTERFACE_NAME;
@@ -32,9 +32,9 @@ use talpid_tunnel::tun_provider::Error as TunProviderError;
 use talpid_tunnel::tun_provider::{Tun, TunProvider};
 #[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
+use talpid_types::BoxedError;
 #[cfg(target_os = "android")]
 use talpid_types::net::wireguard::PeerConfig;
-use talpid_types::BoxedError;
 
 #[cfg(unix)]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
@@ -865,7 +865,7 @@ mod stats {
 }
 
 mod logging {
-    use super::super::logging::{log, LogLevel};
+    use super::super::logging::{LogLevel, log};
     use std::ffi::c_char;
 
     // Callback that receives messages from WireGuard

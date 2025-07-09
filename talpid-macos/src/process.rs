@@ -1,15 +1,15 @@
 use libc::{
-    c_void, pid_t, proc_bsdinfo, proc_fdinfo, proc_listallpids, proc_pidfdinfo, proc_pidinfo,
-    proc_pidpath, PROC_PIDLISTFDS, PROC_PIDTBSDINFO,
+    PROC_PIDLISTFDS, PROC_PIDTBSDINFO, c_void, pid_t, proc_bsdinfo, proc_fdinfo, proc_listallpids,
+    proc_pidfdinfo, proc_pidinfo, proc_pidpath,
 };
 use std::{
-    ffi::{c_int, CStr, CString},
+    ffi::{CStr, CString, c_int},
     io,
     path::{Path, PathBuf},
     ptr,
 };
 
-use crate::bindings::{vnode_fdinfowithpath, PROC_PIDFDVNODEPATHINFO, PROX_FDTYPE_VNODE};
+use crate::bindings::{PROC_PIDFDVNODEPATHINFO, PROX_FDTYPE_VNODE, vnode_fdinfowithpath};
 
 /// Return the first process identifier matching a specified path, if one exists.
 pub fn pid_of_path(find_path: impl AsRef<Path>) -> Option<pid_t> {

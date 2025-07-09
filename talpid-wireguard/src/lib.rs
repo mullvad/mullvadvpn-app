@@ -13,19 +13,19 @@ use std::{
     convert::Infallible,
     path::Path,
     pin::Pin,
-    sync::{mpsc as sync_mpsc, Arc},
+    sync::{Arc, mpsc as sync_mpsc},
 };
 #[cfg(not(target_os = "android"))]
 use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
-use talpid_tunnel::{tun_provider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
 
 #[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
-    net::{wireguard::TunnelParameters, AllowedTunnelTraffic, Endpoint, TransportProtocol},
     BoxedError, ErrorExt,
+    net::{AllowedTunnelTraffic, Endpoint, TransportProtocol, wireguard::TunnelParameters},
 };
 use tokio::sync::Mutex as AsyncMutex;
 
