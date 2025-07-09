@@ -67,6 +67,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error("Failed to bind local socket")]
     Bind(#[source] io::Error),
+    #[error("Failed to setup a QUIC endpoint")]
+    Endpoint(#[source] io::Error),
     #[cfg(target_os = "linux")]
     #[error("Failed to set fwmark on remote socket")]
     Fwmark(#[source] io::Error),
@@ -257,7 +259,7 @@ impl Client {
             std::net::UdpSocket::from(local_socket),
             Arc::new(TokioRuntime),
         )
-        .map_err(Error::Bind)
+        .map_err(Error::Endpoint)
     }
 
     /// Returns an h3 connection that is ready to be used for sending UDP datagrams.
