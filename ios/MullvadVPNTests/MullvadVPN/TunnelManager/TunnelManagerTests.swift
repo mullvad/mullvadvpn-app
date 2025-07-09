@@ -310,11 +310,21 @@ class TunnelManagerTests: XCTestCase {
             )
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
+        var didDisconnectedFulfill = false
+        var didConnectedFulfill = false
         let tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { _, tunnelStatus in
                 switch tunnelStatus.state {
-                case .connected: connectedExpectation.fulfill()
-                case .disconnected: disconnectedExpectation.fulfill()
+                case .connected:
+                    if !didConnectedFulfill {
+                        didConnectedFulfill = true
+                        connectedExpectation.fulfill()
+                    }
+                case .disconnected:
+                    if !didDisconnectedFulfill {
+                        didDisconnectedFulfill = true
+                        disconnectedExpectation.fulfill()
+                    }
                 default: return
                 }
             }
