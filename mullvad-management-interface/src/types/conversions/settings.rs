@@ -56,10 +56,7 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 .cloned()
                 .map(proto::RelayOverride::from)
                 .collect(),
-            recents: settings
-                .recent_settings
-                .as_ref()
-                .map(|recents| recents.clone().into()),
+            recents: settings.recent_settings.clone().map(proto::Recents::from),
         }
     }
 }
@@ -368,7 +365,7 @@ impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
 impl From<Vec<mullvad_types::settings::Recent>> for proto::Recents {
     fn from(recents: Vec<mullvad_types::settings::Recent>) -> Self {
         proto::Recents {
-            recents: recents.into_iter().map(Into::into).collect(),
+            recents: recents.into_iter().map(proto::Recent::from).collect(),
         }
     }
 }

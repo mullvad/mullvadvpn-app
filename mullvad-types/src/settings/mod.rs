@@ -101,7 +101,7 @@ pub struct Settings {
     pub split_tunnel: SplitTunnelSettings,
     /// Specifies settings schema version
     pub settings_version: SettingsVersion,
-    /// Stores the user's recently connect locations. If None recents have been disabled by the user.
+    /// Stores the user's recently connected locations. If None recents have been disabled by the user.
     pub recent_settings: Option<Vec<Recent>>,
 }
 

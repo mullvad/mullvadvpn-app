@@ -2595,7 +2595,7 @@ impl Daemon {
             }
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_enable_ipv6 response");
+                Self::oneshot_send(tx, Err(e), "set_enable_recents response");
             }
         }
     }
