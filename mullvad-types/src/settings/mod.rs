@@ -322,16 +322,14 @@ impl Settings {
     // Add the current RelaySettings to the recents list. If recents are disabled do nothing.
     fn update_recents(&mut self, relay_settings: &RelaySettings) {
         if let Some(recents) = self.recent_settings.as_mut() {
-            match relay_settings.try_into() {
+            match Recent::try_from(relay_settings) {
                 Ok(new_recent) => {
-                    if let Some(pos) = recents.iter().position(|r| *r == new_recent) {
-                        recents.remove(pos);
-                    }
+                    recents.retain(|r| *r != new_recent);
                     recents.insert(0, new_recent);
                     recents.truncate(Self::RECENTS_MAX_COUNT);
                 }
                 Err(e) => {
-                    log::error!("Failed to convert {relay_settings:?} to relay: {e}");
+                    log::debug!("Failed to convert {relay_settings:?} to recent: {e}");
                 }
             }
         }
