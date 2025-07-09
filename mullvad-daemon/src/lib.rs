@@ -1149,7 +1149,7 @@ impl Daemon {
                 locked_down,
             },
             #[cfg(target_os = "android")]
-            TunnelStateTransition::Disconnected => TunnelState::Disconnected { location: None },
+            TunnelStateTransition::Disconnected {} => TunnelState::Disconnected { location: None },
             TunnelStateTransition::Connecting(endpoint) => {
                 let feature_indicators = compute_feature_indicators(
                     self.settings.settings(),

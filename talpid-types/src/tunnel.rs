@@ -16,7 +16,7 @@ pub enum TunnelStateTransition {
     },
     #[cfg(target_os = "android")]
     /// No connection is established and network is unsecured.
-    Disconnected,
+    Disconnected {},
     /// Network is secured but tunnel is still connecting.
     Connecting(TunnelEndpoint),
     /// Tunnel is connected.
