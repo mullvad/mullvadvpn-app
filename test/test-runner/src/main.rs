@@ -321,21 +321,25 @@ impl Service for TestServer {
     /// Disable the Mullvad VPN system service.
     async fn disable_mullvad_daemon(self, _: context::Context) -> Result<(), test_rpc::Error> {
         #[cfg(not(target_os = "windows"))]
-        unimplemented!("disable_mullvad_daemon is only implemented on Windows");
+        {
+            log::warn!("disable_mullvad_daemon is only implemented on Windows");
+            return Err(test_rpc::Error::Syscall);
+        }
         #[cfg(target_os = "windows")]
         {
             sys::disable_system_service_startup().await?;
-            sys::stop_app().await
         }
     }
 
     async fn enable_mullvad_daemon(self, _: context::Context) -> Result<(), test_rpc::Error> {
         #[cfg(not(target_os = "windows"))]
-        unimplemented!("enable_mullvad_daemon is only implemented on Windows");
+        {
+            log::warn!("enable_mullvad_daemon is only implemented on Windows");
+            return Err(test_rpc::Error::Syscall);
+        }
         #[cfg(target_os = "windows")]
         {
             sys::enable_system_service_startup().await?;
-            sys::start_app().await
         }
     }
 
