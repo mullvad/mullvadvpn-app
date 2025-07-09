@@ -72,12 +72,6 @@ async fn test_clearing_blocked_state_on_failed_upgrade(
         .mullvad_exit_ip;
     ensure!(!mullvad_exit_ip, "Should *not* be a Mullvad Exit IP");
 
-    // Do the same thing again, but with lockdown mode enabled?
-    // assert that the firewall rules are still applied
-
-    // TODO: Move this to clean up routine
-    log::info!("Re-enabling Mullvad daemon system service");
-    rpc.enable_mullvad_daemon().await?;
     Ok(())
 }
 
@@ -137,11 +131,5 @@ async fn test_not_clearing_blocked_state_on_failed_upgrade_with_lockdown_mode(
         "Device is leaking - blocking rules have not applied properly"
     );
 
-    // Do the same thing again, but with lockdown mode enabled?
-    // assert that the firewall rules are still applied
-
-    // TODO: Move this to clean up routine
-    log::info!("Re-enabling Mullvad daemon system service");
-    rpc.enable_mullvad_daemon().await?;
     Ok(())
 }
