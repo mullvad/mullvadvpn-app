@@ -34,13 +34,10 @@ pub async fn apply_obfuscation_config(
         config.fwmark,
     );
     // Adjust MTU for QUIC obfuscator.
-    match &mut settings {
-        ObfuscationSettings::Quic(ref mut quic) => {
-            // Account for multihop
-            // FIXME: Pass proper mtu as an argument / through config?
-            quic.mtu = Some(config.mtu - 2 * WIREGUARD_HEADER_SIZE);
-        }
-        _ => (),
+    if let ObfuscationSettings::Quic(ref mut quic) = &mut settings {
+        // Account for multihop
+        // FIXME: Pass proper mtu as an argument / through config?
+        quic.mtu = Some(config.mtu - 2 * WIREGUARD_HEADER_SIZE);
     }
 
     log::trace!("Obfuscation settings: {settings:?}");
