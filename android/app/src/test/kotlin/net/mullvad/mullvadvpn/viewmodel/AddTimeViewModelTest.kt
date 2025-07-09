@@ -152,7 +152,7 @@ class AddTimeViewModelTest {
     }
 
     @Test
-    fun `purchaseState error should invoke queryPaymentAvailability on PaymentUseCase`() {
+    fun `purchaseState error should invoke queryPaymentAvailability on PaymentUseCase`() = runTest {
         // Arrange
         val purchaseResultData = PurchaseResult.Error.VerificationError(Throwable())
 
@@ -164,15 +164,16 @@ class AddTimeViewModelTest {
     }
 
     @Test
-    fun `resetPurchaseResult with success should invoke resetPurchaseResult on PaymentUseCase`() {
-        // Arrange
+    fun `resetPurchaseResult with success should invoke resetPurchaseResult on PaymentUseCase`() =
+        runTest {
+            // Arrange
 
-        // Act
-        viewModel.resetPurchaseResult()
+            // Act
+            viewModel.resetPurchaseResult()
 
-        // Assert
-        coVerify { mockPaymentUseCase.resetPurchaseResult() }
-    }
+            // Assert
+            coVerify { mockPaymentUseCase.resetPurchaseResult() }
+        }
 
     @Test
     fun `purchaseResult emitting Success should result in success dialog state`() = runTest {
