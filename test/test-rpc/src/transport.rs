@@ -486,7 +486,7 @@ fn display_chain(error: impl std::error::Error) -> String {
     let mut s = error.to_string();
     let mut error = &error as &dyn std::error::Error;
     while let Some(source) = error.source() {
-        write!(&mut s, "\nCaused by: {}", source).unwrap();
+        write!(&mut s, "\nCaused by: {source}").unwrap();
         error = source;
     }
     s

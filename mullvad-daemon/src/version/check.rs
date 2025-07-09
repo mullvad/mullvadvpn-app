@@ -373,7 +373,7 @@ fn do_version_check_in_background(
 fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
-) -> impl Future<Output = Result<VersionCache, Error>> {
+) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
     use mullvad_api::version::{AppVersionResponse, AppVersionResponse2};
 
     let v1_endpoint = api.version_proxy.version_check(
@@ -422,7 +422,7 @@ fn version_check_inner(
     api: &ApiContext,
     // NOTE: This is unused when `update` is disabled
     _min_metadata_version: usize,
-) -> impl Future<Output = Result<VersionCache, Error>> {
+) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
     let v1_endpoint = api.version_proxy.version_check(
         mullvad_version::VERSION.to_owned(),
         PLATFORM,

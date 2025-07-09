@@ -1236,6 +1236,7 @@ impl ManagementService for ManagementServiceImpl {
     }
 }
 
+#[allow(clippy::result_large_err)]
 impl ManagementServiceImpl {
     /// Sends a command to the daemon and maps the error to an RPC error.
     fn send_command_to_daemon(&self, command: DaemonCommand) -> Result<(), Status> {
@@ -1459,7 +1460,7 @@ fn map_split_tunnel_error(error: talpid_core::split_tunnel::Error) -> Status {
     match &error {
         Error::RegisterIps(io_error) | Error::SetConfiguration(io_error) => {
             if io_error.kind() == std::io::ErrorKind::NotFound {
-                Status::not_found(format!("{}: {}", error, io_error))
+                Status::not_found(format!("{error}: {io_error}"))
             } else {
                 Status::unknown(error.to_string())
             }

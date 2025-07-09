@@ -21,7 +21,7 @@ async fn main() {
         .into_iter()
         .find(|c| c.obfuscation.is_some())
         .expect("No XOR config");
-    println!("Proxy config in use: {:?}", proxy_config);
+    println!("Proxy config in use: {proxy_config:?}");
 
     let listener = TcpListener::bind(bind_addr)
         .await

@@ -138,7 +138,7 @@ fn create_dir_recursive_with_permissions(
             return Err(Error::CreateDirFailed(
                 format!("Could not create directory at {}", path.display()),
                 e,
-            ))
+            ));
         }
     }
 
@@ -150,10 +150,7 @@ fn create_dir_recursive_with_permissions(
             // reason
             return Err(Error::CreateDirFailed(
                 path.display().to_string(),
-                io::Error::new(
-                    io::ErrorKind::Other,
-                    "reached top of directory tree but could not create directory",
-                ),
+                io::Error::other("reached top of directory tree but could not create directory"),
             ));
         }
     }

@@ -210,8 +210,7 @@ pub async fn test_connecting_state(
 
     assert!(
         matches!(new_state, TunnelState::Connecting { .. }),
-        "failed to enter connecting state: {:?}",
-        new_state
+        "failed to enter connecting state: {new_state:?}"
     );
 
     // Leak test
@@ -373,7 +372,7 @@ pub async fn test_connected_state(
         } => {
             assert_eq!(*addr.ip(), relay.ipv4_addr_in);
         }
-        actual => panic!("unexpected tunnel state: {:?}", actual),
+        actual => panic!("unexpected tunnel state: {actual:?}"),
     }
 
     // Ping outside of tunnel while connected

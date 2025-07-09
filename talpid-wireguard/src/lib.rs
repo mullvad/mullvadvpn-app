@@ -898,7 +898,7 @@ impl WireguardMonitor {
         let gateway_routes =
             gateway_routes.map(|route| Self::apply_route_mtu_for_multihop(route, config));
 
-        let routes = gateway_routes.chain(
+        gateway_routes.chain(
             config
                 .get_tunnel_destinations()
                 .filter(|allowed_ip| allowed_ip.prefix() != 0)
@@ -909,9 +909,7 @@ impl WireguardMonitor {
                         RequiredRoute::new(allowed_ip, node_v6.clone())
                     }
                 }),
-        );
-
-        routes
+        )
     }
 
     /// Return any 0.0.0.0/0 routes specified by the allowed IPs.

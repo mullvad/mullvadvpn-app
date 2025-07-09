@@ -389,7 +389,10 @@ where
         let version_cache = match mem::replace(&mut self.state, State::NoVersion) {
             #[cfg(in_app_upgrade)]
             State::Downloaded { version_cache, .. } | State::Downloading { version_cache, .. } => {
-                log::warn!("Switching beta after updating resulted in new suggested upgrade: {:?}, aborting", new_app_version.suggested_upgrade);
+                log::warn!(
+                    "Switching beta after updating resulted in new suggested upgrade: {:?}, aborting",
+                    new_app_version.suggested_upgrade
+                );
                 version_cache
             }
             State::HasVersion { version_cache } => version_cache,
@@ -500,7 +503,7 @@ async fn wait_for_update(state: &mut State) -> Option<AppVersionInfo> {
     match state {
         State::Downloading {
             version_cache,
-            ref mut downloader_handle,
+            downloader_handle,
             upgrading_to_version,
             ..
         } => match downloader_handle.await {
@@ -866,7 +869,7 @@ mod test {
             .daemon_tx
             .unbounded_send(Message::GetLatestVersion(tx))
             .unwrap();
-        version_router.run_step().await;
+        assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));
 
         // Here, we play the role of `VersionUpdater`.
         // It should receive a version check request and send a version in response
@@ -882,7 +885,7 @@ mod test {
         // On the next step, the router should receive the version info
         // and send it to as a response to the oneshot from `GetLatestVersion`
         // and to the daemon in the `version_event_receiver` channel.
-        version_router.run_step().await;
+        assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));
         let version_info = get_latest_version_rx
             .try_recv()
             .expect("Sender should not be dropped")
@@ -940,7 +943,7 @@ mod test {
         );
 
         // Drive the download to completion, and get the verified installer path
-        version_router.run_step().await;
+        assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));
         let verified_installer_path = match &version_router.state {
             State::Downloaded {
                 version_cache,
@@ -1080,7 +1083,7 @@ mod test {
         assert!(matches!(version_router.state, State::Downloading { .. }),);
 
         // Drive the download to completion
-        version_router.run_step().await;
+        assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));
         assert_eq!(
             app_upgrade_listener.try_recv().unwrap(),
             AppUpgradeEvent::DownloadStarting
@@ -1093,7 +1096,7 @@ mod test {
         version_router.update_application();
 
         // Verify that we can restart the download again
-        version_router.run_step().await;
+        assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));
         assert_eq!(
             app_upgrade_listener.try_recv().unwrap(),
             AppUpgradeEvent::DownloadStarting
@@ -1114,7 +1117,7 @@ mod test {
         assert!(matches!(version_router.state, State::Downloading { .. }),);
 
         // Drive the download to completion
-        version_router.run_step().await;
+        assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));
         assert_eq!(
             app_upgrade_listener.try_recv().unwrap(),
             AppUpgradeEvent::DownloadStarting
@@ -1131,7 +1134,7 @@ mod test {
         version_router.update_application();
 
         // Verify that we can restart the download again
-        version_router.run_step().await;
+        assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));
         assert_eq!(
             app_upgrade_listener.try_recv().unwrap(),
             AppUpgradeEvent::DownloadStarting

@@ -686,7 +686,7 @@ impl PathMonitor {
             return None;
         }
         for (i, dir_context) in self.dir_contexts.iter().enumerate() {
-            if (&*dir_context.overlapped as *const _) == overlapped {
+            if std::ptr::eq(&*dir_context.overlapped, overlapped) {
                 return Some(i);
             }
         }
@@ -700,7 +700,7 @@ impl PathMonitor {
         }
         let mut was_discarded = false;
         self.discarded_contexts.retain(|ctx| {
-            if ((&*ctx.overlapped) as *const _) != overlapped {
+            if !std::ptr::eq(&*ctx.overlapped, overlapped) {
                 true
             } else {
                 was_discarded = true;
@@ -795,7 +795,7 @@ impl PathMonitor {
                     result
                 }
             };
-            contexts.retain(|ctx| ((&*ctx.overlapped) as *const _) != result.used_overlapped);
+            contexts.retain(|ctx| !std::ptr::eq(&*ctx.overlapped, result.used_overlapped));
         }
     }
 }

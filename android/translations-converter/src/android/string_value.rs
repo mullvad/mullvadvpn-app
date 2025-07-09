@@ -94,7 +94,7 @@ impl StringValue {
                     panic!("Parameter index is less than 1")
                 }
 
-                write!(&mut output, "%{}$", parameter_index).expect("formatting failed");
+                write!(&mut output, "%{parameter_index}$").expect("formatting failed");
             }
 
             output.push_str(part);

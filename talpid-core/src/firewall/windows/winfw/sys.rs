@@ -201,7 +201,7 @@ pub extern "system" fn log_sink(
         &log::Record::builder()
             .level(level)
             .target(&target)
-            .args(format_args!("{}", managed_msg))
+            .args(format_args!("{managed_msg}"))
             .build(),
     );
 }

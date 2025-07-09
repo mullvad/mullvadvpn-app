@@ -7,7 +7,7 @@ async fn main() {
         println!("Missing arguments");
     }
 
-    let obfuscator = instantiate_requested(&args().last().unwrap()).await;
+    let obfuscator = instantiate_requested(&args().next_back().unwrap()).await;
 
     println!("endpoint() returns {:?}", obfuscator.endpoint());
 

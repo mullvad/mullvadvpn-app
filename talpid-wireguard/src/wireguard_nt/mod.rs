@@ -634,8 +634,7 @@ impl WgNtAdapter {
 
     fn name(&self) -> io::Result<U16CString> {
         net::alias_from_luid(&self.luid()).and_then(|alias| {
-            U16CString::from_os_str(alias)
-                .map_err(|_| io::Error::new(io::ErrorKind::Other, "unexpected null char"))
+            U16CString::from_os_str(alias).map_err(|_| io::Error::other("unexpected null char"))
         })
     }
 

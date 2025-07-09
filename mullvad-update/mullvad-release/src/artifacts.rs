@@ -56,7 +56,7 @@ fn derive_urls(
         .iter()
         .map(|base_url| {
             let url = base_url.strip_suffix("/").unwrap_or(base_url);
-            format!("{url}/{version}/{}", filename)
+            format!("{url}/{version}/{filename}")
         })
         .collect()
 }

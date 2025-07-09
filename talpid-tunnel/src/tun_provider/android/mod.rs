@@ -167,7 +167,7 @@ impl AndroidTunProvider {
             JValue::Object(result) => CreateTunResult::from_java(&env, result).into(),
             value => Err(Error::InvalidMethodResult(
                 method_name,
-                format!("{:?}", value),
+                format!("{value:?}"),
             )),
         }
     }
@@ -178,10 +178,7 @@ impl AndroidTunProvider {
 
         let error = match result {
             Ok(JValue::Void) => None,
-            Ok(value) => Some(Error::InvalidMethodResult(
-                "closeTun",
-                format!("{:?}", value),
-            )),
+            Ok(value) => Some(Error::InvalidMethodResult("closeTun", format!("{value:?}"))),
             Err(error) => Some(error),
         };
 
@@ -219,7 +216,7 @@ impl AndroidTunProvider {
         match result {
             JValue::Bool(0) => Err(Error::Bypass),
             JValue::Bool(_) => Ok(()),
-            value => Err(Error::InvalidMethodResult("bypass", format!("{:?}", value))),
+            value => Err(Error::InvalidMethodResult("bypass", format!("{value:?}"))),
         }
     }
 

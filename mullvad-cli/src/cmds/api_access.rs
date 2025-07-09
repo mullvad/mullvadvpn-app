@@ -246,7 +246,7 @@ impl ApiAccess {
             .await?
             .get(item.as_array_index()?)
             .cloned()
-            .ok_or(anyhow!(format!("Access method {} does not exist", item)))
+            .ok_or(anyhow!(format!("Access method {item} does not exist")))
     }
 }
 

@@ -905,12 +905,13 @@ mod event_server {
             Ok(Response::new(()))
         }
 
+        #[allow(clippy::result_large_err)]
         fn get_tunnel_metadata(
             env: &HashMap<String, String>,
         ) -> std::result::Result<TunnelMetadata, tonic::Status> {
             let tunnel_alias = env
                 .get("dev")
-                .ok_or_else(|| tonic::Status::invalid_argument("missing tunnel alias"))?
+                .ok_or_else(|| (tonic::Status::invalid_argument("missing tunnel alias")))?
                 .to_string();
 
             let mut ips = vec![env
@@ -1148,7 +1149,7 @@ mod tests {
 
         fn start(&self) -> io::Result<Self::ProcessHandle> {
             self.process_handle
-                .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "failed to start"))
+                .ok_or_else(|| io::Error::other("failed to start"))
         }
     }
 

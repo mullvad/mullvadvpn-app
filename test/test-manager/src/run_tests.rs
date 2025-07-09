@@ -232,7 +232,7 @@ where
                 output.append(&mut output_after_test);
             }
             Err(e) => {
-                output.push(Output::Other(format!("could not get logs: {:?}", e)));
+                output.push(Output::Other(format!("could not get logs: {e:?}")));
             }
         }
     }

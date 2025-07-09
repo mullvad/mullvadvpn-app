@@ -311,7 +311,7 @@ impl SplitTunnel {
                     "{}",
                     error.display_chain_with_msg("Failed to parse ST event buffer")
                 );
-                io::Error::new(io::ErrorKind::Other, "Failed to parse ST event buffer")
+                io::Error::other("Failed to parse ST event buffer")
             })
     }
 
@@ -521,7 +521,7 @@ impl SplitTunnel {
         std::thread::spawn(move || {
             while let Ok(()) = monitor_rx.recv() {
                 let paths = monitored_paths_copy.lock().unwrap();
-                let result = if paths.len() > 0 {
+                let result = if !paths.is_empty() {
                     log::debug!("Re-resolving excluded paths");
                     handle_copy.set_config(&paths)
                 } else {

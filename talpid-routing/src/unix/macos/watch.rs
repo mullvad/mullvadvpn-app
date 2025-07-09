@@ -20,7 +20,7 @@ pub enum Error {
     Send(#[source] routing_socket::Error),
     /// Received unexpected response to route message
     #[error("Unexpected message type")]
-    UnexpectedMessageType(RouteSocketMessage, MessageType),
+    UnexpectedMessageType(Box<RouteSocketMessage>, MessageType),
     /// Route not found
     #[error("Route not found")]
     RouteNotFound,
@@ -99,7 +99,7 @@ impl RoutingTable {
             Ok(anything_else) => {
                 log::error!("Unexpected route message: {anything_else:?}");
                 Err(Error::UnexpectedMessageType(
-                    anything_else,
+                    Box::new(anything_else),
                     MessageType::RTM_ADD,
                 ))
             }
@@ -145,7 +145,7 @@ impl RoutingTable {
                 Err(Error::Deletion(route))
             }
             anything_else => Err(Error::UnexpectedMessageType(
-                anything_else,
+                Box::new(anything_else),
                 MessageType::RTM_DELETE,
             )),
         }
@@ -178,7 +178,7 @@ impl RoutingTable {
         match data::RouteSocketMessage::parse_message(&response).map_err(Error::InvalidMessage)? {
             data::RouteSocketMessage::GetRoute(route) => Ok(Some(route)),
             unexpected_route_message => Err(Error::UnexpectedMessageType(
-                unexpected_route_message,
+                Box::new(unexpected_route_message),
                 MessageType::RTM_GET,
             )),
         }

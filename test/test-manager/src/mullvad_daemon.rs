@@ -38,7 +38,7 @@ impl<Request> Service<Request> for DummyService {
         Box::pin(async move {
             notifier_tx
                 .unbounded_send(TokioIo::new(channel_in))
-                .map_err(|_| io::Error::new(io::ErrorKind::Other, "stream receiver is down"))?;
+                .map_err(|_| io::Error::other("stream receiver is down"))?;
             Ok(TokioIo::new(channel_out))
         })
     }

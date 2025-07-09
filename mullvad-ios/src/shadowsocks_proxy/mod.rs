@@ -74,7 +74,6 @@ impl ShadowsocksService {
 
         let _ = Server::new(config)
             .await
-            .map_err(io::Error::from)
             .expect("Could not create Shadowsocks server")
             .run()
             .await;
@@ -99,7 +98,7 @@ impl ShadowsocksService {
             Err(err) => {
                 return Err(io::Error::new(
                     io::ErrorKind::InvalidInput,
-                    format!("Invalid cipher specified: {}", err),
+                    format!("Invalid cipher specified: {err}"),
                 ));
             }
         };

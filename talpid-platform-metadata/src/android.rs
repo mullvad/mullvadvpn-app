@@ -12,16 +12,13 @@ pub fn version() -> String {
         get_prop("ro.product.manufacturer").unwrap_or_else(|| "Unknown brand".to_owned());
     let product = get_prop("ro.product.model").unwrap_or_else(|| "Unknown model".to_owned());
 
-    format!(
-        "Android {} (API: {}) - {} {}",
-        version, api_level, manufacturer, product
-    )
+    format!("Android {version} (API: {api_level}) - {manufacturer} {product}")
 }
 
 pub fn short_version() -> String {
     let version = os_version();
 
-    format!("Android {}", version)
+    format!("Android {version}")
 }
 
 fn os_version() -> String {

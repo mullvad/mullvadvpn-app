@@ -28,7 +28,9 @@ const DAITA_VERSION: u32 = 2;
 #[derive(Debug)]
 pub enum Error {
     GrpcConnectError(tonic::transport::Error),
-    GrpcError(tonic::Status),
+    // TODO: Remove box when upgrading tonic to a version with
+    // https://github.com/hyperium/tonic/pull/2282
+    GrpcError(Box<tonic::Status>),
     MissingCiphertexts,
     InvalidCiphertextLength {
         algorithm: &'static str,
@@ -156,7 +158,7 @@ pub async fn request_ephemeral_peer_with(
             }),
         })
         .await
-        .map_err(Error::GrpcError)?;
+        .map_err(|status| Error::GrpcError(Box::new(status)))?;
 
     let response = response.into_inner();
 
