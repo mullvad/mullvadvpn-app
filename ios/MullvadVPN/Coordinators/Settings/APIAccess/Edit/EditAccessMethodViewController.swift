@@ -54,13 +54,10 @@ class EditAccessMethodViewController: UIViewController {
         isModalInPresentation = true
 
         let title = createTitle()
-        let headerView = createHeaderView()
-        view.addConstrainedSubviews([title, headerView, tableView]) {
+        view.addConstrainedSubviews([title, tableView]) {
             title.pinEdgesToSuperviewMargins(PinnableEdges([.leading(7), .trailing(7), .top(0)]))
-            headerView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(8), .trailing(8)]))
             tableView.pinEdgesToSuperview(.all().excluding(.top))
-            headerView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 4)
-            tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 20)
+            tableView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 4)
         }
 
         configureDataSource()
@@ -82,21 +79,6 @@ class EditAccessMethodViewController: UIViewController {
         label.text = subject.value.navigationItemTitle
         label.textColor = UIColor.NavigationBar.titleColor
         return label
-    }
-
-    private func createHeaderView() -> UIView {
-        var headerView: InfoHeaderView?
-
-        if let headerConfig = subject.value.infoHeaderConfig {
-            headerView = InfoHeaderView(config: headerConfig)
-
-            headerView?.onAbout = { [weak self] in
-                guard let self, let infoModalConfig = subject.value.infoModalConfig else { return }
-                delegate?.controllerShouldShowMethodInfo(self, config: infoModalConfig)
-            }
-        }
-
-        return headerView ?? UIView()
     }
 }
 
@@ -122,7 +104,30 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        nil
+        guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return nil }
+        switch sectionIdentifier {
+        case .enableMethod:
+            var headerView: InfoHeaderView?
+
+            if let headerConfig = subject.value.infoHeaderConfig {
+                headerView = InfoHeaderView(config: headerConfig)
+
+                headerView?.onAbout = { [weak self] in
+                    guard let self, let infoModalConfig = subject.value.infoModalConfig else { return }
+                    delegate?.controllerShouldShowMethodInfo(self, config: infoModalConfig)
+                }
+            }
+            headerView?.directionalLayoutMargins = NSDirectionalEdgeInsets(
+                top: 4,
+                leading: 0,
+                bottom: 16,
+                trailing: 0
+            )
+
+            return headerView ?? UIView()
+        default:
+            return nil
+        }
     }
 
     // Header height shenanigans to avoid extra spacing in testing sections when testing is NOT ongoing.
@@ -130,11 +135,11 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
 
         switch sectionIdentifier {
-        case .methodSettings, .deleteMethod, .testMethod:
+        case .methodSettings, .deleteMethod, .testMethod, .enableMethod:
             return UITableView.automaticDimension
         case .testingStatus:
             return subject.value.testingStatus == .initial ? 0 : UITableView.automaticDimension
-        case .enableMethod, .cancelTest:
+        default:
             return 0
         }
     }
