@@ -1,7 +1,7 @@
 #![allow(clippy::disallowed_types)]
 use std::{io, time::Duration};
 
-use futures::{channel::mpsc, future::BoxFuture, pin_mut, FutureExt, SinkExt, StreamExt};
+use futures::{FutureExt, SinkExt, StreamExt, channel::mpsc, future::BoxFuture, pin_mut};
 use hyper_util::rt::TokioIo;
 use mullvad_management_interface::{ManagementServiceClient, MullvadProxyClient};
 use test_rpc::transport::{ConnectionHandle, GrpcForwarder};

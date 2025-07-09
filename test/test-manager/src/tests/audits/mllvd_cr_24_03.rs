@@ -29,7 +29,7 @@ use mullvad_management_interface::MullvadProxyClient;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
-use crate::tests::{config::TEST_CONFIG, helpers::*, TestContext};
+use crate::tests::{TestContext, config::TEST_CONFIG, helpers::*};
 
 #[test_function(target_os = "linux")]
 pub async fn test_mllvd_cr_24_03(

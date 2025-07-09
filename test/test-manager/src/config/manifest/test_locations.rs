@@ -1,7 +1,7 @@
 use serde::{
+    Deserialize as DeserDerive, Serialize as SerDerive,
     de::{Deserialize, Deserializer, Error, MapAccess, Visitor},
     ser::{Serialize, SerializeMap},
-    Deserialize as DeserDerive, Serialize as SerDerive,
 };
 use std::fmt;
 

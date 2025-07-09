@@ -1,5 +1,5 @@
 use crate::config::{Architecture, OsType, PackageType, VmConfig};
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use itertools::Itertools;
 use regex::Regex;
 use std::{

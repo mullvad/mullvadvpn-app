@@ -83,11 +83,13 @@ mod tests {
             }"#;
 
         let config: Config = serde_json::from_str(config).unwrap();
-        assert!(config
-            .test_locations
-            .lookup("test_daita")
-            .unwrap()
-            .contains(&"se-got-wg-002".to_string()));
+        assert!(
+            config
+                .test_locations
+                .lookup("test_daita")
+                .unwrap()
+                .contains(&"se-got-wg-002".to_string())
+        );
         assert!(!config.test_locations.0.is_empty());
     }
 

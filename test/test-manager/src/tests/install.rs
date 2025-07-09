@@ -1,20 +1,20 @@
-use anyhow::{bail, ensure, Context};
+use anyhow::{Context, bail, ensure};
 use std::str::FromStr;
 use std::time::Duration;
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
-use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
+use test_rpc::{ServiceClient, mullvad_daemon::ServiceStatus};
 
 use crate::tests::helpers;
 
 use super::{
+    Error, TestContext,
     config::TEST_CONFIG,
     helpers::{
-        connect_and_wait, get_app_env, get_package_desc, install_app, wait_for_tunnel_state, Pinger,
+        Pinger, connect_and_wait, get_app_env, get_package_desc, install_app, wait_for_tunnel_state,
     },
-    Error, TestContext,
 };
 
 /// Upgrade to the "version under test". This test fails if:

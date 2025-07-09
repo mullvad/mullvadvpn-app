@@ -18,7 +18,7 @@ use tokio::{
 };
 use uuid::Uuid;
 
-use super::{network, VmInstance};
+use super::{VmInstance, network};
 
 const LOG_PREFIX: &str = "[qemu] ";
 const STDERR_LOG_LEVEL: log::Level = log::Level::Error;

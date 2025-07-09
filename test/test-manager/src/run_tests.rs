@@ -2,14 +2,14 @@ use crate::{
     logging::{Logger, Panic, TestOutput, TestResult},
     mullvad_daemon::{self, RpcClientProvider},
     summary::SummaryLogger,
-    tests::{self, config::TEST_CONFIG, TestContext, TestMetadata},
+    tests::{self, TestContext, TestMetadata, config::TEST_CONFIG},
     vm,
 };
 use anyhow::{Context, Result};
 use futures::FutureExt;
 use mullvad_management_interface::MullvadProxyClient;
 use std::{future::Future, panic, time::Duration};
-use test_rpc::{logging::Output, ServiceClient};
+use test_rpc::{ServiceClient, logging::Output};
 
 /// The baud rate of the serial connection between the test manager and the test runner.
 /// There is a known issue with setting a baud rate at all or macOS, and the workaround
