@@ -331,7 +331,7 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         recents =
             recentsOrNull
                 .toDomain()
-                // TODO: remove
+                // remove
                 .also { Logger.e("RECENTS: ${it}") },
     )
 

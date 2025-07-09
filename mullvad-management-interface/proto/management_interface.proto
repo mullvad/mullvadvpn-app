@@ -536,9 +536,7 @@ message RelayOverride {
   optional string ipv6_addr_in = 3;
 }
 
-message Recents {
-  repeated Recent recents = 1;
-}
+message Recents { repeated Recent recents = 1; }
 
 message MultihopRecent {
   LocationConstraint entry = 1;
