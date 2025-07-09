@@ -28,17 +28,24 @@ pub async fn apply_obfuscation_config(
         return Ok(None);
     };
 
-    let mut settings = settings_from_config(
-        obfuscator_config,
-        #[cfg(target_os = "linux")]
-        config.fwmark,
-    );
-    // Adjust MTU for QUIC obfuscator.
-    if let ObfuscationSettings::Quic(ref mut quic) = &mut settings {
-        // Account for multihop
-        // FIXME: Pass proper mtu as an argument / through config?
-        quic.mtu = Some(config.mtu - 2 * WIREGUARD_HEADER_SIZE);
-    }
+    let settings = {
+        let settings = settings_from_config(
+            obfuscator_config,
+            #[cfg(target_os = "linux")]
+            config.fwmark,
+        );
+
+        // Adjust MTU for QUIC obfuscator.
+        match settings {
+            ObfuscationSettings::Quic(quic) => {
+                // Account for multihop
+                // FIXME: Pass proper mtu as an argument / through config?
+                let quic = quic.mtu(config.mtu - 2 * WIREGUARD_HEADER_SIZE);
+                ObfuscationSettings::Quic(quic)
+            }
+            settings => settings,
+        }
+    };
 
     log::trace!("Obfuscation settings: {settings:?}");
 
@@ -108,16 +115,18 @@ fn settings_from_config(
             endpoint,
             auth_token,
         } => {
-            ObfuscationSettings::Quic(quic::Settings {
-                quic_endpoint: *endpoint,
-                // TODO: Explain why this may always be an IPv4 address
-                wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
-                hostname: hostname.to_owned(),
-                token: auth_token.to_owned(),
-                #[cfg(target_os = "linux")]
-                fwmark,
-                mtu: None,
-            })
+            let wireguard_endpoint = SocketAddr::from((Ipv4Addr::LOCALHOST, 51820));
+            let settings = quic::Settings::new(
+                *endpoint,
+                hostname.to_owned(),
+                auth_token.parse().unwrap(),
+                wireguard_endpoint,
+            );
+            #[cfg(target_os = "linux")]
+            if let Some(fwmark) = fwmark {
+                return ObfuscationSettings::Quic(settings.fwmark(fwmark));
+            }
+            ObfuscationSettings::Quic(settings)
         }
     }
 }
