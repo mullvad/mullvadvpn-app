@@ -1,12 +1,12 @@
 use bytes::{Buf, BufMut, Bytes, BytesMut};
-use futures::{channel::mpsc, FutureExt, SinkExt, StreamExt};
-use serde::{de::DeserializeOwned, Serialize};
+use futures::{FutureExt, SinkExt, StreamExt, channel::mpsc};
+use serde::{Serialize, de::DeserializeOwned};
 use std::{
     fmt::Write,
     io,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
     time::Duration,
 };

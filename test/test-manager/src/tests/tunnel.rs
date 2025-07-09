@@ -1,10 +1,10 @@
 use super::{
+    Error, TestContext,
     config::TEST_CONFIG,
     helpers::{self, apply_settings_from_relay_query, connect_and_wait, disconnect_and_wait},
-    Error, TestContext,
 };
 use crate::{
-    network_monitor::{start_packet_monitor, MonitorOptions},
+    network_monitor::{MonitorOptions, start_packet_monitor},
     tests::helpers::{login_with_retries, update_relay_constraints},
 };
 
@@ -20,11 +20,11 @@ use mullvad_types::{
 };
 use std::net::SocketAddr;
 use talpid_types::net::{
-    proxy::{CustomProxy, Socks5Local, Socks5Remote},
     TransportProtocol, TunnelType,
+    proxy::{CustomProxy, Socks5Local, Socks5Remote},
 };
 use test_macro::test_function;
-use test_rpc::{meta::Os, mullvad_daemon::ServiceStatus, ServiceClient};
+use test_rpc::{ServiceClient, meta::Os, mullvad_daemon::ServiceStatus};
 
 use pnet_packet::ip::IpNextHeaderProtocols;
 

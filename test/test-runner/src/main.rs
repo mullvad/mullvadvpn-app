@@ -1,4 +1,4 @@
-use futures::{pin_mut, select, select_biased, FutureExt, SinkExt, StreamExt};
+use futures::{FutureExt, SinkExt, StreamExt, pin_mut, select, select_biased};
 use logging::LOGGER;
 use std::{
     collections::{BTreeMap, HashMap},
@@ -12,17 +12,17 @@ use util::OnDrop;
 
 use tarpc::{context, server::Channel};
 use test_rpc::{
+    AppTrace, Service, SpawnOpts, UNPRIVILEGED_USER,
     meta::OsVersion,
-    mullvad_daemon::{ServiceStatus, SOCKET_PATH},
+    mullvad_daemon::{SOCKET_PATH, ServiceStatus},
     net::SockHandleId,
     package::Package,
     transport::GrpcForwarder,
-    AppTrace, Service, SpawnOpts, UNPRIVILEGED_USER,
 };
 use tokio::{
     io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader},
     process::{ChildStdin, ChildStdout, Command},
-    sync::{broadcast::error::TryRecvError, oneshot, Mutex},
+    sync::{Mutex, broadcast::error::TryRecvError, oneshot},
     task,
     time::sleep,
 };

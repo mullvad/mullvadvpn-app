@@ -1,6 +1,6 @@
 //! macOS-specific tests.
 
-use anyhow::{bail, ensure, Context};
+use anyhow::{Context, bail, ensure};
 use mullvad_management_interface::MullvadProxyClient;
 use std::net::{Ipv4Addr, SocketAddr};
 use test_macro::test_function;

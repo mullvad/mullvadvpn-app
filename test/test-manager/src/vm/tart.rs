@@ -1,11 +1,11 @@
 use crate::config::{self, Config, VmConfig};
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use regex::Regex;
 use std::{net::IpAddr, process::Stdio, time::Duration};
 use tokio::process::{Child, Command};
 use uuid::Uuid;
 
-use super::{logging::forward_logs, util::find_pty, VmInstance};
+use super::{VmInstance, logging::forward_logs, util::find_pty};
 
 const LOG_PREFIX: &str = "[tart] ";
 const STDERR_LOG_LEVEL: log::Level = log::Level::Error;

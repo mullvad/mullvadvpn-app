@@ -21,11 +21,11 @@ use mullvad_types::states::TunnelState;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
-use crate::network_monitor::{start_packet_monitor, MonitorOptions, ParsedPacket};
-use crate::tests::helpers::{
-    connect_and_wait, constrain_to_relay, disconnect_and_wait, ConnChecker,
-};
+use crate::network_monitor::{MonitorOptions, ParsedPacket, start_packet_monitor};
 use crate::tests::TestContext;
+use crate::tests::helpers::{
+    ConnChecker, connect_and_wait, constrain_to_relay, disconnect_and_wait,
+};
 
 #[test_function]
 pub async fn test_mul_02_002(

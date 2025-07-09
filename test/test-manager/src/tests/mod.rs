@@ -29,7 +29,7 @@ use config::TEST_CONFIG;
 use helpers::{find_custom_list, get_app_env, install_app, set_location};
 pub use install::test_upgrade_app;
 use mullvad_management_interface::MullvadProxyClient;
-use test_rpc::{meta::Os, ServiceClient};
+use test_rpc::{ServiceClient, meta::Os};
 
 const WAIT_FOR_TUNNEL_STATE_TIMEOUT: Duration = Duration::from_secs(40);
 

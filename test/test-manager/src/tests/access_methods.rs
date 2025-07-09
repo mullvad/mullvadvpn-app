@@ -7,7 +7,7 @@
 //! These tests rely on working proxies to exist *somewhere* for all tested protocols.
 //! If the proxies themselves are bad/not running, this test will fail due to issues
 //! that are out of the test manager's control.
-use anyhow::{anyhow, ensure, Context};
+use anyhow::{Context, anyhow, ensure};
 
 use mullvad_management_interface::MullvadProxyClient;
 use talpid_types::net::proxy::CustomProxy;

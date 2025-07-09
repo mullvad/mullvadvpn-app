@@ -3,7 +3,7 @@ use crate::{
     package,
     tests::config::BOOTSTRAP_SCRIPT,
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use ssh2::{File, Session};
 use std::{
     io::{self, Read},

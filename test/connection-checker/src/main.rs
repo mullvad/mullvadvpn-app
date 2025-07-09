@@ -1,5 +1,5 @@
 use clap::Parser;
-use eyre::{eyre, Context};
+use eyre::{Context, eyre};
 use reqwest::blocking::Client;
 use serde::Deserialize;
 use std::{io::stdin, time::Duration};

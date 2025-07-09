@@ -1,4 +1,4 @@
-use super::{config::TEST_CONFIG, helpers, Error, TestContext};
+use super::{Error, TestContext, config::TEST_CONFIG, helpers};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::relay_constraints::RelaySettings;
@@ -8,7 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use test_macro::test_function;
-use test_rpc::{meta::Os, ExecResult, ServiceClient};
+use test_rpc::{ExecResult, ServiceClient, meta::Os};
 
 pub async fn run_test<T: AsRef<str> + Debug>(
     rpc: &ServiceClient,
