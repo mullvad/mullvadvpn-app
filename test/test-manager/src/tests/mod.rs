@@ -214,19 +214,35 @@ async fn ensure_daemon_version(
 ) -> anyhow::Result<MullvadProxyClient> {
     let app_package_filename = &TEST_CONFIG.app_package_filename;
 
-    let mullvad_client = if correct_daemon_version_is_running(rpc_provider.new_client().await).await
-    {
-        ensure_daemon_environment(rpc)
-            .await
-            .context("Failed to reset daemon environment")?;
-        rpc_provider.new_client().await
-    } else {
+    let must_reinstall_app =
+        match correct_daemon_version_is_running(rpc_provider.new_client().await).await {
+            Ok(correct_version) => !correct_version,
+            // Failing to reach the daemon is a sign that it is not installed
+            Err(mullvad_management_interface::Error::Rpc(..)) => {
+                log::debug!("Daemon is not running, attempting to start it");
+
+                let failed_starting_daemon = rpc.enable_mullvad_daemon().await.is_err()
+                    || rpc.start_mullvad_daemon().await.is_err();
+                if failed_starting_daemon {
+                    log::warn!("Failed to start the daemon service");
+                }
+                failed_starting_daemon
+            }
+            Err(e) => panic!("Failed to get app version: {e}"),
+        };
+
+    if must_reinstall_app {
         // NOTE: Reinstalling the app resets the daemon environment
         install_app(rpc, app_package_filename, rpc_provider)
             .await
-            .with_context(|| format!("Failed to install app '{app_package_filename}'"))?
-    };
-    Ok(mullvad_client)
+            .with_context(|| format!("Failed to install app '{app_package_filename}'"))
+    } else {
+        ensure_daemon_environment(rpc)
+            .await
+            .context("Failed to reset daemon environment")?;
+
+        Ok(rpc_provider.new_client().await)
+    }
 }
 
 /// Conditionally restart the running daemon
@@ -254,23 +270,12 @@ pub async fn ensure_daemon_environment(rpc: &ServiceClient) -> Result<(), anyhow
 }
 
 /// Checks if daemon is installed with the version specified by `TEST_CONFIG.app_package_filename`
-async fn correct_daemon_version_is_running(mut mullvad_client: MullvadProxyClient) -> bool {
+async fn correct_daemon_version_is_running(
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<bool, mullvad_management_interface::Error> {
     let app_package_filename = &TEST_CONFIG.app_package_filename;
     let expected_version = get_version_from_path(std::path::Path::new(app_package_filename))
         .unwrap_or_else(|_| panic!("Invalid app version: {app_package_filename}"));
-
-    use mullvad_management_interface::Error::*;
-    match mullvad_client.get_current_version().await {
-        // Failing to reach the daemon is a sign that it is not installed
-        Err(Rpc(..)) => {
-            log::debug!("Could not reach active daemon before test, it is not running");
-            false
-        }
-        Err(e) => panic!("Failed to get app version: {e}"),
-        Ok(version) if version == expected_version => true,
-        _ => {
-            log::debug!("Daemon version mismatch");
-            false
-        }
-    }
+    let version = mullvad_client.get_current_version().await?;
+    Ok(version == expected_version)
 }
