@@ -133,14 +133,35 @@ class AccountContentView: UIView {
 
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
         setAccessibilityIdentifier(.accountView)
+        addScrollView()
+    }
 
-        addConstrainedSubviews([contentStackView, buttonStackView]) {
+    private func addScrollView() {
+        let scrollView = UIScrollView()
+        let contentView = UIView()
+
+        addConstrainedSubviews([scrollView]) {
+            scrollView.pinEdgesToSuperviewMargins()
+        }
+
+        scrollView.addConstrainedSubviews([contentView]) {
+            contentView.pinEdgesToSuperview()
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+            contentView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.frameLayoutGuide.heightAnchor)
+        }
+
+        let spacer = UIView()
+
+        contentView.addConstrainedSubviews([contentStackView, spacer, buttonStackView]) {
             contentStackView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
-            buttonStackView.topAnchor.constraint(
-                greaterThanOrEqualTo: contentStackView.bottomAnchor,
+            spacer.pinEdgesToSuperviewMargins(.all().excluding(.top).excluding(.bottom))
+            buttonStackView.pinEdgesToSuperviewMargins(.all().excluding(.top))
+
+            spacer.bottomAnchor.constraint(equalTo: buttonStackView.topAnchor)
+            spacer.topAnchor.constraint(
+                equalTo: contentStackView.bottomAnchor,
                 constant: UIMetrics.TableView.sectionSpacing
             )
-            buttonStackView.pinEdgesToSuperviewMargins(.all().excluding(.top))
         }
     }
 

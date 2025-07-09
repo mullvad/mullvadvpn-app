@@ -53,6 +53,7 @@ class AccountExpiryRow: UIView {
             comment: ""
         )
         textLabel.font = .mullvadTiny
+        textLabel.numberOfLines = 0
         textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = UIColor(white: 1.0, alpha: 0.6)
         return textLabel
@@ -64,6 +65,7 @@ class AccountExpiryRow: UIView {
         valueLabel.font = .mullvadSmall
         valueLabel.adjustsFontForContentSizeCategory = true
         valueLabel.textColor = .white
+        valueLabel.numberOfLines = 0
         valueLabel.setAccessibilityIdentifier(.accountPagePaidUntilLabel)
         return valueLabel
     }()
