@@ -88,6 +88,119 @@ pub struct Relay {
     pub weight: u64,
     pub endpoint_data: RelayEndpointData,
     pub location: Location,
+    #[serde(default)]
+    pub features: Features,
+}
+
+/// Extra features enabled on some (Wireguard) relay, such as obfuscation daemons or Daita.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Features {
+    daita: Option<Daita>,
+    quic: Option<Quic>,
+}
+
+impl Features {
+    /// Equivalent to a relay without any additional features.
+    pub fn empty() -> Features {
+        Features {
+            daita: None,
+            quic: None,
+        }
+    }
+
+    /// Whether Daita is enabled
+    pub fn daita(&self) -> bool {
+        self.daita.is_some()
+    }
+
+    /// Whether Quic is enabled and its config
+    pub fn quic(&self) -> Option<&Quic> {
+        self.quic.as_ref()
+    }
+
+    /// Enable Daita for this relay
+    pub fn configure_daita(self) -> Self {
+        let daita = Some(Daita {});
+        Self { daita, ..self }
+    }
+
+    /// Configure QUIC for this relay
+    pub fn configure_quic(self, options: Quic) -> Self {
+        let quic = Some(options);
+        Self { quic, ..self }
+    }
+}
+
+impl Default for Features {
+    fn default() -> Self {
+        Features::empty()
+    }
+}
+
+/// DAITA doesn't have any configuration options (exposed by the API).
+///
+/// Note, an empty struct is not the same as an empty tuple struct according to serde_json!
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Daita {}
+
+/// Parameters for setting up a QUIC obfuscator (connecting to a masque-proxy running on a relay).
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Quic {
+    /// In-addresses for the QUIC obfuscator.
+    ///
+    /// There may be 0, 1 or 2 in IPs, depending on how many masque-proxy daemons running on the
+    /// relay. Hopefully the API will tell use the correct amount🤞.
+    addr_in: Vec<IpAddr>,
+    /// Authorization token
+    token: String,
+    /// Hostname where masque proxy is hosted
+    domain: String,
+}
+
+impl Quic {
+    pub fn new(addr_in: Vec<IpAddr>, token: String, domain: String) -> Self {
+        Self {
+            addr_in,
+            token,
+            domain,
+        }
+    }
+
+    /// In address as an IPv4 address.
+    ///
+    /// Use this if you want to connect to the masque-proxy using IPv4.
+    pub fn in_ipv4(&self) -> Option<Ipv4Addr> {
+        let ipv4 = |ipaddr: &IpAddr| match ipaddr {
+            IpAddr::V4(ipv4_addr) => Some(*ipv4_addr),
+            IpAddr::V6(_) => None,
+        };
+        self.addr_in.iter().find_map(ipv4)
+    }
+
+    /// In address as an IPv6 address.
+    ///
+    /// Use this if you want to connect to the masque-proxy using IPv6.
+    pub fn in_ipv6(&self) -> Option<Ipv6Addr> {
+        let ipv6 = |ipaddr: &IpAddr| match ipaddr {
+            IpAddr::V4(_) => None,
+            IpAddr::V6(ipv6_addr) => Some(*ipv6_addr),
+        };
+        self.addr_in.iter().find_map(ipv6)
+    }
+
+    /// Port of the masque-proxy daemon.
+    pub const fn port(&self) -> u16 {
+        // The point of the masque-proxy is to look like a regular web server serving http traffic.
+        443
+    }
+
+    pub fn hostname(&self) -> &str {
+        &self.domain
+    }
+
+    pub fn auth_token(&self) -> &str {
+        &self.token
+    }
 }
 
 impl Relay {
@@ -117,7 +230,7 @@ impl PartialEq for Relay {
     /// # Example
     ///
     /// ```rust
-    /// # use mullvad_types::{relay_list::Relay, relay_list::{RelayEndpointData, WireguardRelayEndpointData}};
+    /// # use mullvad_types::{relay_list::{Relay, Features}, relay_list::{RelayEndpointData, WireguardRelayEndpointData}};
     /// # use talpid_types::net::wireguard::PublicKey;
     ///
     /// let relay = Relay {
@@ -147,6 +260,7 @@ impl PartialEq for Relay {
     ///     #   latitude: 57.71,
     ///     #   longitude: 11.97,
     ///     # },
+    ///     # features: Features::default(),
     /// };
     ///
     /// let mut different_relay = relay.clone();
@@ -229,6 +343,7 @@ pub struct WireguardRelayEndpointData {
     /// Public key used by the relay peer
     pub public_key: wireguard::PublicKey,
     /// Whether the server supports DAITA
+    /// FIXME: This has been superceded by [Features] + [Daita].
     #[serde(default)]
     pub daita: bool,
     /// Optional IP addresses used by Shadowsocks

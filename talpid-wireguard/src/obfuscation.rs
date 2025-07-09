@@ -10,14 +10,12 @@ use std::{
 };
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
+use talpid_tunnel::WIREGUARD_HEADER_SIZE;
 use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
 
 use tunnel_obfuscation::{
     create_obfuscator, quic, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
 };
-
-/// Test authentication header to set for the CONNECT request.
-const AUTH_HEADER: &str = "test";
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
 /// to point to an endpoint on localhost
@@ -30,11 +28,24 @@ pub async fn apply_obfuscation_config(
         return Ok(None);
     };
 
-    let settings = settings_from_config(
-        obfuscator_config,
-        #[cfg(target_os = "linux")]
-        config.fwmark,
-    );
+    let settings = {
+        let settings = settings_from_config(
+            obfuscator_config,
+            #[cfg(target_os = "linux")]
+            config.fwmark,
+        );
+
+        // Adjust MTU for QUIC obfuscator.
+        match settings {
+            ObfuscationSettings::Quic(quic) => {
+                // Account for multihop
+                // FIXME: Pass proper mtu as an argument / through config?
+                let quic = quic.mtu(config.mtu - 2 * WIREGUARD_HEADER_SIZE);
+                ObfuscationSettings::Quic(quic)
+            }
+            settings => settings,
+        }
+    };
 
     log::trace!("Obfuscation settings: {settings:?}");
 
@@ -99,15 +110,23 @@ fn settings_from_config(
                 fwmark,
             })
         }
-        ObfuscatorConfig::Quic { hostname, endpoint } => {
-            ObfuscationSettings::Quic(quic::Settings {
-                quic_endpoint: *endpoint,
-                wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
-                hostname: hostname.to_owned(),
-                token: AUTH_HEADER.to_owned(),
-                #[cfg(target_os = "linux")]
-                fwmark,
-            })
+        ObfuscatorConfig::Quic {
+            hostname,
+            endpoint,
+            auth_token,
+        } => {
+            let wireguard_endpoint = SocketAddr::from((Ipv4Addr::LOCALHOST, 51820));
+            let settings = quic::Settings::new(
+                *endpoint,
+                hostname.to_owned(),
+                auth_token.parse().unwrap(),
+                wireguard_endpoint,
+            );
+            #[cfg(target_os = "linux")]
+            if let Some(fwmark) = fwmark {
+                return ObfuscationSettings::Quic(settings.fwmark(fwmark));
+            }
+            ObfuscationSettings::Quic(settings)
         }
     }
 }

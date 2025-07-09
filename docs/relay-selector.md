@@ -56,7 +56,7 @@ constraints the following default ones will take effect
 - The first attempt will connect to a Wireguard relay on a random port
 - The second attempt will connect to a Wireguard relay over IPv6 (if IPv6 is configured on the host) on a random port
 - The third attempt will connect to a Wireguard relay on a random port using Shadowsocks for obfuscation
-- The fourth attempt will connect to a Wireguard relay using QUIC for obfuscation (if QUIC is implemented)
+- The fourth attempt will connect to a Wireguard relay using QUIC for obfuscation
 - The fifth attempt will connect to a Wireguard relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
 - The sixth attempt will connect to a Wireguard relay over IPv6 on a random port using UDP2TCP obfuscation (if IPv6 is configured on the host)
 
@@ -81,6 +81,9 @@ As such, the above algorithm is simplified to the following version:
 
 - The UDP2TCP random port is **either** 80 **or** 5001
 - The Shadowsocks port is random within a certain range of ports defined by the relay list
+
+### Ports for QUIC
+QUIC will use port 443.
 
 If no tunnel has been established after exhausting this list of attempts, the relay selector will
 loop back to the first default constraint and continue its search from there.
@@ -136,5 +139,5 @@ will indirectly change the bridge state to _Auto_ if it was previously set to _O
 
 ### Obfuscator caveats
 
-There are two type of obfuscators - _udp2tcp_, and _shadowsocks_.
+There are three types of obfuscators - _udp2tcp_, _shadowsocks_ and _quic_.
 They are used if the obfuscation mode is set _Auto_ and the user has selected WireGuard to be the only tunnel protocol to be used.
