@@ -10,19 +10,23 @@ use crate::tests::helpers::{geoip_lookup_with_retries, wait_for_tunnel_state};
 
 use super::TestContext;
 
-/// TODO: Explain me
+/// Test that, on a failed upgrade, blocking firewall rules are cleared on a reboot.
 #[test_function(target_os = "windows")]
 async fn test_clearing_blocked_state_on_failed_upgrade(
     _: TestContext,
     mut rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    let settings = mullvad_client.get_settings().await?;
-    assert!(
-        !settings.block_when_disconnected,
-        "Block when dissconnected should be disabled"
-    );
-    assert!(!settings.auto_connect, "Auto connect should be disabled");
+    // Assert that the below settings are disabled. If they are not,
+    // then blocking firewall rules *will* persist after a reboot.
+    {
+        let settings = mullvad_client.get_settings().await?;
+        ensure!(
+            !settings.block_when_disconnected,
+            "Block when disconnected should be disabled"
+        );
+        ensure!(!settings.auto_connect, "Auto connect should be disabled");
+    }
 
     log::info!("Connecting to tunnel to enter secured state");
     // This is necessary to ensure that the firewall rules are applied
@@ -39,17 +43,15 @@ async fn test_clearing_blocked_state_on_failed_upgrade(
         )
     })
     .await?;
-    // Simulate a failed upgrade
     log::info!("Preparing daemon for restart (simulate failed upgrade)");
-    // Prepare the daemon for restarting
     mullvad_client
         .prepare_restart_v2(false)
         .await
         .context("Failed to prepare restart")?;
-    // Simulate that the daemon has been removed
+    // Simulate that the daemon has been uninstalled, by disabling the system service.
+    // We cannot actually uninstall the daemon here, because it would remove the blocking firewall rules,
+    // regardless of having called `prepare_restart_v2`.
     log::info!("Disabling Mullvad daemon system service");
-    // Do this by disabling the system service (the important part is that it does not restart
-    // automatically on reboot)
     rpc.disable_mullvad_daemon().await?;
     // Make sure that blocking firewall rules are active - there should be no leaks (yet) 💦❌
     log::info!("Checking that blocking firewall rules are active...");
@@ -68,7 +70,71 @@ async fn test_clearing_blocked_state_on_failed_upgrade(
         .context("Device is offline after reboot")?
         .mullvad_exit_ip;
     ensure!(!mullvad_exit_ip, "Should *not* be a Mullvad Exit IP");
-    // Make sure system service is enabled in the test runner.
+
+    // Do the same thing again, but with lockdown mode enabled?
+    // assert that the firewall rules are still applied
+
+    // TODO: Move this to clean up routine
+    log::info!("Re-enabling Mullvad daemon system service");
+    rpc.enable_mullvad_daemon().await?;
+    Ok(())
+}
+
+/// Test that, on a failed upgrade when `Auto-connect` is enabled, blocking firewall rules are *not* cleared on a reboot.
+#[test_function(target_os = "windows")]
+async fn test_note_clearing_blocked_state_on_failed_upgrade_with_auto_connect(
+    _: TestContext,
+    mut rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    // Make sure that lockdown mode is enabled.
+    // If it is not, then blocking firewall rules *will not* persist after a reboot.
+    {
+        mullvad_client.set_block_when_disconnected(true).await?;
+        let settings = mullvad_client.get_settings().await?;
+        ensure!(
+            settings.block_when_disconnected,
+            "Block when disconnected should be enabled"
+        );
+        ensure!(!settings.auto_connect, "Auto connect should be disabled");
+    }
+
+    log::info!("Waiting for tunnel state to be Disconnected with lockdown enabled");
+    wait_for_tunnel_state(mullvad_client.clone(), |state| {
+        matches!(
+            state,
+            TunnelState::Disconnected { locked_down, .. }  if *locked_down
+        )
+    })
+    .await?;
+    log::info!("Preparing daemon for restart (simulate failed upgrade)");
+    mullvad_client
+        .prepare_restart_v2(false)
+        .await
+        .context("Failed to prepare restart")?;
+    // Simulate that the daemon has been uninstalled, by disabling the system service.
+    // We cannot actually uninstall the daemon here, because it would remove the blocking firewall rules,
+    // regardless of having called `prepare_restart_v2`.
+    log::info!("Disabling Mullvad daemon system service");
+    rpc.disable_mullvad_daemon().await?;
+    // Make sure that blocking firewall rules are active - there should be no leaks 💦❌
+    log::info!("Checking that blocking firewall rules are active...");
+    let blocked = geoip_lookup_with_retries(&rpc).await.is_err();
+    ensure!(
+        blocked,
+        "Device is leaking - blocking rules have not applied properly"
+    );
+    // Reboot - we expect desperate users to take this measure
+    log::info!("Rebooting device...");
+    rpc.reboot().await?;
+
+    // The conn check should now fail - the firewall filters should *not* have been removed at this point 💦❌
+    log::info!("Checking connectivity after reboot (should be blocked)");
+    let blocked = geoip_lookup_with_retries(&rpc).await.is_err();
+    ensure!(
+        blocked,
+        "Device is leaking - blocking rules have not applied properly"
+    );
 
     // Do the same thing again, but with lockdown mode enabled?
     // assert that the firewall rules are still applied
