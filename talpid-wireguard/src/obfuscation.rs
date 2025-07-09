@@ -1,7 +1,7 @@
 //! Glue between tunnel-obfuscation and WireGuard configurations
 
 use super::{Error, Result};
-use crate::{config::Config, CloseMsg};
+use crate::{CloseMsg, config::Config};
 #[cfg(target_os = "android")]
 use std::sync::{Arc, Mutex};
 use std::{
@@ -10,10 +10,10 @@ use std::{
 };
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
-use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
+use talpid_types::{ErrorExt, net::obfuscation::ObfuscatorConfig};
 
 use tunnel_obfuscation::{
-    create_obfuscator, quic, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
+    Settings as ObfuscationSettings, create_obfuscator, quic, shadowsocks, udp2tcp,
 };
 
 /// Test authentication header to set for the CONNECT request.

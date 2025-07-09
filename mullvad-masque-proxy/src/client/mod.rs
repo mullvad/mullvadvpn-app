@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use bytes::{Buf, Bytes, BytesMut};
 use rustls::client::danger::ServerCertVerified;
 use std::{
@@ -19,17 +19,17 @@ use typed_builder::TypedBuilder;
 
 use h3::{client, ext::Protocol, proto::varint::VarInt, quic::StreamId};
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
-use http::{header, uri::Scheme, StatusCode, Uri};
+use http::{StatusCode, Uri, header, uri::Scheme};
 use quinn::{
-    crypto::rustls::QuicClientConfig, Endpoint, EndpointConfig, IdleTimeout, TokioRuntime,
-    TransportConfig,
+    Endpoint, EndpointConfig, IdleTimeout, TokioRuntime, TransportConfig,
+    crypto::rustls::QuicClientConfig,
 };
 
 use crate::{
+    MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
     compute_udp_payload_size,
     fragment::{self, Fragments},
     stats::Stats,
-    MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
 };
 
 const MAX_HEADER_SIZE: u64 = 8192;

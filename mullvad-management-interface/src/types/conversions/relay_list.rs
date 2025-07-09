@@ -5,8 +5,9 @@ use std::{
 };
 
 use crate::types::{
+    FromProtobufTypeError,
     conversions::{bytes_to_pubkey, to_proto_any, try_from_proto_any},
-    proto, FromProtobufTypeError,
+    proto,
 };
 
 use super::net::try_transport_protocol_from_i32;
@@ -272,7 +273,7 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
             _ => {
                 return Err(FromProtobufTypeError::InvalidArgument(
                     "invalid relay endpoint type",
-                ))
+                ));
             }
         };
 

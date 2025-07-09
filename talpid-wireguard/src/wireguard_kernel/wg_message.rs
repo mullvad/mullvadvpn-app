@@ -1,13 +1,13 @@
-use super::{super::config::Config, parsers, Error};
+use super::{super::config::Config, Error, parsers};
 use byteorder::{ByteOrder, NativeEndian};
 use ipnetwork::IpNetwork;
 use netlink_packet_core::{
     NetlinkDeserializable, NetlinkHeader, NetlinkPayload, NetlinkSerializable,
 };
 use netlink_packet_utils::{
-    nla::{Nla, NlaBuffer, NlasIterator, NLA_F_NESTED},
-    traits::{Emitable, Parseable},
     DecodeError,
+    nla::{NLA_F_NESTED, Nla, NlaBuffer, NlasIterator},
+    traits::{Emitable, Parseable},
 };
 use nix::sys::{
     socket::{SockaddrIn, SockaddrIn6},

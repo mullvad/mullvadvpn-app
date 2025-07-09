@@ -3,8 +3,8 @@ use crate::{
     rest::{RequestFactory, RequestServiceHandle},
 };
 use futures::{
-    channel::{mpsc, oneshot},
     StreamExt,
+    channel::{mpsc, oneshot},
 };
 use hyper::StatusCode;
 use mullvad_types::account::{AccessToken, AccessTokenData, AccountNumber};

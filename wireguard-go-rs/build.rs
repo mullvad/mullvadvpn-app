@@ -8,7 +8,7 @@ use std::{
     str,
 };
 
-use anyhow::{anyhow, bail, Context};
+use anyhow::{Context, anyhow, bail};
 
 fn main() -> anyhow::Result<()> {
     // Mark "daita" as a conditional configuration flag

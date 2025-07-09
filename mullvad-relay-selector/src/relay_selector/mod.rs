@@ -23,6 +23,7 @@ use crate::{
 use chrono::{DateTime, Local};
 use itertools::Itertools;
 use mullvad_types::{
+    CustomTunnelEndpoint, Intersection,
     constraints::Constraint,
     custom_list::CustomListsSettings,
     endpoint::MullvadWireguardEndpoint,
@@ -35,7 +36,6 @@ use mullvad_types::{
     relay_list::{Relay, RelayEndpointData, RelayList},
     settings::Settings,
     wireguard::QuantumResistantState,
-    CustomTunnelEndpoint, Intersection,
 };
 use std::{
     path::Path,
@@ -43,12 +43,12 @@ use std::{
     time::SystemTime,
 };
 use talpid_types::{
+    ErrorExt,
     net::{
+        Endpoint, IpAvailability, IpVersion, TransportProtocol, TunnelType,
         obfuscation::ObfuscatorConfig,
         proxy::{CustomProxy, Shadowsocks},
-        Endpoint, IpAvailability, IpVersion, TransportProtocol, TunnelType,
     },
-    ErrorExt,
 };
 
 /// [`WIREGUARD_RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector

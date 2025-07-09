@@ -1,10 +1,10 @@
 use jnix::{
-    jni::{
-        objects::{JObject, JString},
-        sys::{jboolean, JNI_FALSE, JNI_TRUE},
-        JNIEnv,
-    },
     FromJava, JnixEnv,
+    jni::{
+        JNIEnv,
+        objects::{JObject, JString},
+        sys::{JNI_FALSE, JNI_TRUE, jboolean},
+    },
 };
 use mullvad_api::ApiEndpoint;
 use std::path::Path;

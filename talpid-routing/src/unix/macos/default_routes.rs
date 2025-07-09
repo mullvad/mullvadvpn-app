@@ -1,17 +1,18 @@
 use std::{collections::HashMap, convert::Infallible, future::pending, mem, time::Duration};
 
 use futures::{
+    FutureExt, StreamExt,
     channel::mpsc::{self, UnboundedReceiver, UnboundedSender},
-    select_biased, FutureExt, StreamExt,
+    select_biased,
 };
-use tokio::time::{sleep_until, Instant};
+use tokio::time::{Instant, sleep_until};
 
 use crate::imp::imp::interface::NetworkServiceDetails;
 
 use super::{
+    DefaultRoute,
     interface::{Family, InterfaceEvent, PrimaryInterfaceDetails, PrimaryInterfaceMonitor},
     ip_map::IpMap,
-    DefaultRoute,
 };
 
 /// Grace time during which we don't act if the best default route disappears.

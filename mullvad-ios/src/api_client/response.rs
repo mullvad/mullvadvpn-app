@@ -1,11 +1,11 @@
 use std::{
-    ffi::{c_char, CString},
+    ffi::{CString, c_char},
     ptr::{self, null_mut},
 };
 
 use mullvad_api::{
-    rest::{self, Response},
     RelayListProxy, StatusCode,
+    rest::{self, Response},
 };
 
 #[repr(C)]

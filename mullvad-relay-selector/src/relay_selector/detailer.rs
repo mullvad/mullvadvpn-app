@@ -13,21 +13,21 @@ use ipnetwork::IpNetwork;
 use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadWireguardEndpoint,
-    relay_constraints::{allowed_ip::resolve_from_constraint, TransportPort},
+    relay_constraints::{TransportPort, allowed_ip::resolve_from_constraint},
     relay_list::{
         BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
         WireguardEndpointData,
     },
 };
 use talpid_types::net::{
+    Endpoint, IpVersion, TransportProtocol,
     proxy::Shadowsocks,
     wireguard::{PeerConfig, PublicKey},
-    Endpoint, IpVersion, TransportProtocol,
 };
 
 use super::{
-    query::{BridgeQuery, OpenVpnRelayQuery, WireguardRelayQuery},
     WireguardConfig,
+    query::{BridgeQuery, OpenVpnRelayQuery, WireguardRelayQuery},
 };
 
 #[derive(thiserror::Error, Debug)]

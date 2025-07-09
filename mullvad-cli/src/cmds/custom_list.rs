@@ -1,5 +1,5 @@
 use super::{relay::resolve_location_constraint, relay_constraints::LocationArgs};
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{

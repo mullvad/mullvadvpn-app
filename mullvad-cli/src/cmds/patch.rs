@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use mullvad_management_interface::MullvadProxyClient;
 use std::{
     fs::File,
-    io::{read_to_string, stdin, BufReader},
+    io::{BufReader, read_to_string, stdin},
 };
 
 /// Read a settings patch and send it to the daemon for validation and

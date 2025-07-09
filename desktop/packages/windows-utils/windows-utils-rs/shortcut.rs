@@ -1,14 +1,14 @@
 use std::marker::PhantomData;
 use std::string::FromUtf16Error;
-use std::sync::{mpsc, OnceLock};
+use std::sync::{OnceLock, mpsc};
 
 use neon::prelude::*;
-use windows::core::{Interface, HSTRING, PCWSTR};
 use windows::Win32::System::Com::{
-    CoCreateInstance, CoInitializeEx, CoUninitialize, IPersistFile, CLSCTX_INPROC_SERVER,
-    COINIT_APARTMENTTHREADED, STGM_READ,
+    CLSCTX_INPROC_SERVER, COINIT_APARTMENTTHREADED, CoCreateInstance, CoInitializeEx,
+    CoUninitialize, IPersistFile, STGM_READ,
 };
-use windows::Win32::UI::Shell::{IShellLinkW, ShellLink, SLGP_UNCPRIORITY};
+use windows::Win32::UI::Shell::{IShellLinkW, SLGP_UNCPRIORITY, ShellLink};
+use windows::core::{HSTRING, Interface, PCWSTR};
 
 /// Messages that can be sent to the thread
 enum Message {

@@ -6,14 +6,14 @@
 use super::Obfuscator;
 use async_trait::async_trait;
 use shadowsocks::{
+    ProxySocket,
     config::{ServerConfig, ServerType},
     context::Context,
     crypto::CipherKind,
     relay::{
-        udprelay::proxy_socket::{ProxySocketError, UdpSocketType},
         Address,
+        udprelay::proxy_socket::{ProxySocketError, UdpSocketType},
     },
-    ProxySocket,
 };
 use std::{io, net::SocketAddr, sync::Arc};
 use tokio::{net::UdpSocket, sync::oneshot};

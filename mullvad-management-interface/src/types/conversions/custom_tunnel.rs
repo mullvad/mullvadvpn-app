@@ -1,6 +1,7 @@
 use crate::types::{
+    FromProtobufTypeError,
     conversions::{bytes_to_privkey, bytes_to_pubkey},
-    proto, FromProtobufTypeError,
+    proto,
 };
 use talpid_types::net::wireguard;
 
@@ -20,7 +21,7 @@ impl TryFrom<proto::ConnectionConfig> for mullvad_types::ConnectionConfig {
                 let address = match config.address.parse() {
                     Ok(address) => address,
                     Err(_) => {
-                        return Err(FromProtobufTypeError::InvalidArgument("invalid address"))
+                        return Err(FromProtobufTypeError::InvalidArgument("invalid address"));
                     }
                 };
 

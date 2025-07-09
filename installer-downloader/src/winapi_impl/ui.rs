@@ -8,7 +8,7 @@ use native_windows_gui::{self as nwg, ControlHandle, ImageDecoder, WindowFlags};
 
 use windows_sys::Win32::Foundation::COLORREF;
 use windows_sys::Win32::Graphics::Gdi::{
-    CreateFontIndirectW, SetBkColor, SetBkMode, SetTextColor, COLOR_WINDOW, LOGFONTW, TRANSPARENT,
+    COLOR_WINDOW, CreateFontIndirectW, LOGFONTW, SetBkColor, SetBkMode, SetTextColor, TRANSPARENT,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::WM_CTLCOLORSTATIC;
 

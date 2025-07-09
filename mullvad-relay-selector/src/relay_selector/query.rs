@@ -30,17 +30,17 @@
 
 use crate::Error;
 use mullvad_types::{
+    Intersection,
     constraints::Constraint,
     relay_constraints::{
-        allowed_ip::AllowedIps, BridgeConstraints, BridgeSettings, BridgeState, BridgeType,
-        LocationConstraint, ObfuscationSettings, OpenVpnConstraints, Ownership, Providers,
-        RelayConstraints, RelaySettings, SelectedObfuscation, ShadowsocksSettings, TransportPort,
-        Udp2TcpObfuscationSettings, WireguardConstraints,
+        BridgeConstraints, BridgeSettings, BridgeState, BridgeType, LocationConstraint,
+        ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
+        RelaySettings, SelectedObfuscation, ShadowsocksSettings, TransportPort,
+        Udp2TcpObfuscationSettings, WireguardConstraints, allowed_ip::AllowedIps,
     },
     wireguard::QuantumResistantState,
-    Intersection,
 };
-use talpid_types::net::{proxy::CustomProxy, IpVersion, TunnelType};
+use talpid_types::net::{IpVersion, TunnelType, proxy::CustomProxy};
 
 /// Represents a query for a relay based on various constraints.
 ///
@@ -108,7 +108,12 @@ impl RelayQuery {
     fn validate(&mut self) -> Result<(), Error> {
         if self.core_privacy_feature_enabled() {
             if self.tunnel_protocol == TunnelType::OpenVpn {
-                log::error!("Cannot use OpenVPN with a core privacy feature enabled (DAITA = {}, PQ = {}, or multihop = {})", self.wireguard_constraints.daita, self.wireguard_constraints.quantum_resistant, self.wireguard_constraints.multihop());
+                log::error!(
+                    "Cannot use OpenVPN with a core privacy feature enabled (DAITA = {}, PQ = {}, or multihop = {})",
+                    self.wireguard_constraints.daita,
+                    self.wireguard_constraints.quantum_resistant,
+                    self.wireguard_constraints.multihop()
+                );
                 return Err(Error::InvalidConstraints);
             }
             self.tunnel_protocol = TunnelType::Wireguard;
@@ -957,7 +962,7 @@ mod test {
     use proptest::prelude::*;
     use talpid_types::net::TunnelType;
 
-    use super::{builder::RelayQueryBuilder, Intersection, ObfuscationQuery, RelayQuery};
+    use super::{Intersection, ObfuscationQuery, RelayQuery, builder::RelayQueryBuilder};
 
     // Define proptest combinators for the `Constraint` type.
 

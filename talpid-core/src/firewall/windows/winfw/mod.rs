@@ -1,6 +1,6 @@
 //! Safe bindings for the WinFW library.
 
-use super::{widestring_ip, AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString};
+use super::{AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString, widestring_ip};
 use std::ptr;
 use talpid_types::{net::TransportProtocol, tunnel::FirewallPolicyError};
 

@@ -2,13 +2,13 @@ use std::{
     collections::VecDeque,
     mem::size_of,
     pin::Pin,
-    task::{ready, Context, Poll},
+    task::{Context, Poll, ready},
     time::Duration,
 };
 
 use nix::{
     fcntl,
-    sys::socket::{socket, AddressFamily, SockFlag, SockType},
+    sys::socket::{AddressFamily, SockFlag, SockType, socket},
 };
 use std::{
     fs::File,
@@ -16,9 +16,9 @@ use std::{
     os::fd::{AsRawFd, RawFd},
 };
 
-use super::data::{rt_msghdr_short, MessageType, RouteMessage};
+use super::data::{MessageType, RouteMessage, rt_msghdr_short};
 
-use tokio::io::{unix::AsyncFd, AsyncWrite, AsyncWriteExt};
+use tokio::io::{AsyncWrite, AsyncWriteExt, unix::AsyncFd};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

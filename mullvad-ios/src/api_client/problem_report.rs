@@ -1,17 +1,17 @@
 use mullvad_api::{
-    rest::{self, MullvadRestHandle},
     ProblemReportProxy,
+    rest::{self, MullvadRestHandle},
 };
 use std::ffi::CStr;
 use std::os::raw::c_char;
 
 use super::{
+    SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
     do_request_with_empty_body, get_string,
     response::SwiftMullvadApiResponse,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
-    SwiftApiContext,
 };
 
 use mullvad_api::rest::Error;

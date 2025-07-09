@@ -1,5 +1,5 @@
 use std::{env::args, net::SocketAddr};
-use tunnel_obfuscation::{create_obfuscator, udp2tcp, Obfuscator, Settings};
+use tunnel_obfuscation::{Obfuscator, Settings, create_obfuscator, udp2tcp};
 
 #[tokio::main]
 async fn main() {

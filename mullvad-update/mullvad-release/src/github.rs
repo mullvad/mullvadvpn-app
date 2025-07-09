@@ -4,7 +4,9 @@ use anyhow::Context;
 
 /// Obtain changes.txt for a given version/tag from the GitHub repository
 pub async fn fetch_changes_text(version: &mullvad_version::Version) -> anyhow::Result<String> {
-    let github_changes_url = format!("https://raw.githubusercontent.com/mullvad/mullvadvpn-app/refs/tags/{version}/desktop/packages/mullvad-vpn/changes.txt");
+    let github_changes_url = format!(
+        "https://raw.githubusercontent.com/mullvad/mullvadvpn-app/refs/tags/{version}/desktop/packages/mullvad-vpn/changes.txt"
+    );
     let changes = reqwest::get(github_changes_url)
         .await
         .context("Failed to retrieve changes.txt (tag missing?)")?;

@@ -9,7 +9,7 @@ use std::{
     time::Duration,
 };
 
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use tokio::{process::Command, time::timeout};
 
 use crate::{

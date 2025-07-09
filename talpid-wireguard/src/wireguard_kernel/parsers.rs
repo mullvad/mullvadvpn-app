@@ -9,8 +9,8 @@ use std::{
     net::{IpAddr, SocketAddr},
 };
 
-pub use netlink_packet_utils::parsers::*;
 use netlink_packet_utils::DecodeError;
+pub use netlink_packet_utils::parsers::*;
 
 pub fn parse_ip_addr(bytes: &[u8]) -> Result<IpAddr, DecodeError> {
     if bytes.len() == 4 {

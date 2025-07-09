@@ -6,7 +6,7 @@ use std::{
     sync::Arc,
 };
 
-use anyhow::{anyhow, ensure, Context};
+use anyhow::{Context, anyhow, ensure};
 use bytes::{Bytes, BytesMut};
 use h3::{
     proto::varint::VarInt,
@@ -14,15 +14,15 @@ use h3::{
     server::{self, Connection, RequestStream},
 };
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
-use http::{header, StatusCode, Uri};
-use quinn::{crypto::rustls::QuicServerConfig, Endpoint, Incoming};
+use http::{StatusCode, Uri, header};
+use quinn::{Endpoint, Incoming, crypto::rustls::QuicServerConfig};
 use tokio::{net::UdpSocket, select, sync::mpsc, task};
 use typed_builder::TypedBuilder;
 
 use crate::{
+    MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
     compute_udp_payload_size,
     fragment::{self, Fragments},
-    MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
 };
 
 #[derive(Debug, thiserror::Error)]

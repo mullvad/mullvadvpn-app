@@ -1,6 +1,6 @@
 use std::{io, net::IpAddr, time::Duration};
 
-use futures::{future, stream::FuturesUnordered, Future, TryStreamExt};
+use futures::{Future, TryStreamExt, future, stream::FuturesUnordered};
 use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
 use talpid_tunnel::{ICMP_HEADER_SIZE, IPV4_HEADER_SIZE, MIN_IPV4_MTU};
 use tokio_stream::StreamExt;
@@ -71,13 +71,15 @@ pub async fn automatic_mtu_correction(
 
 #[cfg(windows)]
 fn set_mtu_windows(verified_mtu: u16, iface_name: String, ipv6: bool) -> io::Result<()> {
-    use talpid_windows::net::{set_mtu, AddressFamily};
+    use talpid_windows::net::{AddressFamily, set_mtu};
 
     let luid = talpid_windows::net::luid_from_alias(iface_name)?;
     set_mtu(u32::from(verified_mtu), luid, AddressFamily::Ipv4)?;
     if ipv6 {
         let clamped_mtu = if verified_mtu < talpid_tunnel::MIN_IPV6_MTU {
-            log::warn!("Cannot set MTU to {verified_mtu} for IPv6, setting to the minimum value 1280 instead");
+            log::warn!(
+                "Cannot set MTU to {verified_mtu} for IPv6, setting to the minimum value 1280 instead"
+            );
             talpid_tunnel::MIN_IPV6_MTU
         } else {
             verified_mtu

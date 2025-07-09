@@ -1,7 +1,7 @@
 use crate::format;
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use futures::{Stream, StreamExt};
-use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
+use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_types::{device::DeviceState, states::TunnelState};
 
 pub async fn connect(wait: bool) -> Result<()> {
@@ -75,8 +75,9 @@ pub async fn reconnect(wait: bool) -> Result<()> {
 }
 
 async fn wait_for_tunnel_state(
-    mut event_stream: impl Stream<Item = std::result::Result<DaemonEvent, mullvad_management_interface::Error>>
-        + Unpin,
+    mut event_stream: impl Stream<
+        Item = std::result::Result<DaemonEvent, mullvad_management_interface::Error>,
+    > + Unpin,
     matches_event: impl Fn(&TunnelState) -> Result<bool>,
 ) -> Result<()> {
     while let Some(state) = event_stream.next().await {

@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::access_method::{AccessMethod, AccessMethodSetting};
 use talpid_types::net::proxy::CustomProxy;

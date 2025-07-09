@@ -1,5 +1,5 @@
 #![allow(clippy::identity_op)]
-use chrono::{offset::Utc, DateTime};
+use chrono::{DateTime, offset::Utc};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::{fmt, str::FromStr, time::Duration};
 use talpid_types::net::wireguard;

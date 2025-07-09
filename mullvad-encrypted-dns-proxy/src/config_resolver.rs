@@ -2,7 +2,7 @@
 //!
 use crate::config;
 use core::fmt;
-use hickory_resolver::{config::*, error::ResolveError, TokioAsyncResolver};
+use hickory_resolver::{TokioAsyncResolver, config::*, error::ResolveError};
 use rustls::ClientConfig;
 use std::{net::IpAddr, sync::Arc, time::Duration};
 use tokio::time::error::Elapsed;

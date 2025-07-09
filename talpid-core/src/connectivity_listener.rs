@@ -2,18 +2,17 @@
 
 use futures::channel::mpsc::UnboundedSender;
 use jnix::{
-    jni::{
-        self,
-        objects::{GlobalRef, JObject, JValue},
-        JNIEnv, JavaVM,
-    },
     FromJava, JnixEnv,
+    jni::{
+        self, JNIEnv, JavaVM,
+        objects::{GlobalRef, JObject, JValue},
+    },
 };
 use std::{
     net::IpAddr,
     sync::{Arc, Mutex},
 };
-use talpid_types::{android::AndroidContext, net::Connectivity, ErrorExt};
+use talpid_types::{ErrorExt, android::AndroidContext, net::Connectivity};
 
 /// Error related to Android connectivity monitor
 #[derive(thiserror::Error, Debug)]
@@ -76,7 +75,7 @@ impl ConnectivityListener {
                     "MullvadVpnService",
                     "getConnectivityListener",
                     format!("{value:?}"),
-                ))
+                ));
             }
         };
 
@@ -127,7 +126,7 @@ impl ConnectivityListener {
                     "ConnectivityListener",
                     "isConnected",
                     format!("{value:?}"),
-                ))
+                ));
             }
         };
 

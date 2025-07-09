@@ -5,9 +5,9 @@ use access_method_resolver::SwiftAccessMethodResolver;
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
 use address_cache_provider::SwiftAddressCacheWrapper;
 use mullvad_api::{
+    ApiEndpoint, Runtime,
     access_mode::{AccessModeSelector, AccessModeSelectorHandle},
     rest::{self, MullvadRestHandle},
-    ApiEndpoint, Runtime,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::{Id, Settings};

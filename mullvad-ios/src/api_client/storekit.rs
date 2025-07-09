@@ -1,18 +1,18 @@
 use std::os::raw::c_char;
 
 use mullvad_api::{
-    rest::{self, MullvadRestHandle},
     AccountsProxy,
+    rest::{self, MullvadRestHandle},
 };
 use mullvad_types::account::AccountNumber;
 
 use super::{
+    SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
     do_request, get_string,
     response::SwiftMullvadApiResponse,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
-    SwiftApiContext,
 };
 
 /// # Safety
