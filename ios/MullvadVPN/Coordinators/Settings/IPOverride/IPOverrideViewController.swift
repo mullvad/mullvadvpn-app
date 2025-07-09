@@ -20,7 +20,7 @@ class IPOverrideViewController: UIViewController {
     private lazy var containerView: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
-        view.spacing = 20
+        view.spacing = 16
         return view
     }()
 
