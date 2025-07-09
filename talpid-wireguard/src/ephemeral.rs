@@ -1,13 +1,13 @@
 //! This module takes care of obtaining ephemeral peers, updating the WireGuard configuration and
 //! restarting obfuscation and WG tunnels when necessary.
 
-use super::{config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, TunnelType};
+use super::{CloseMsg, Error, TunnelType, config::Config, obfuscation::ObfuscatorHandle};
 
 #[cfg(target_os = "android")]
 use std::sync::Mutex;
 use std::{
     net::IpAddr,
-    sync::{mpsc as sync_mpsc, Arc},
+    sync::{Arc, mpsc as sync_mpsc},
     time::Duration,
 };
 #[cfg(target_os = "android")]

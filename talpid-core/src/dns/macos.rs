@@ -5,7 +5,7 @@ use std::{
     collections::{BTreeSet, HashMap},
     fmt, mem,
     net::{IpAddr, SocketAddr},
-    sync::{mpsc as sync_mpsc, Arc, RwLock},
+    sync::{Arc, RwLock, mpsc as sync_mpsc},
     thread,
     time::Duration,
 };
@@ -16,7 +16,7 @@ use system_configuration::{
         dictionary::{CFDictionary, CFMutableDictionary},
         number::CFNumber,
         propertylist::CFPropertyList,
-        runloop::{kCFRunLoopCommonModes, CFRunLoop},
+        runloop::{CFRunLoop, kCFRunLoopCommonModes},
         string::CFString,
     },
     dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},

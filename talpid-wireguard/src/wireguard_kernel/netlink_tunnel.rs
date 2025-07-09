@@ -7,8 +7,8 @@ use crate::config::MULLVAD_INTERFACE_NAME;
 
 use super::{
     super::stats::{Stats, StatsMap},
-    wg_message::DeviceNla,
     Config, Error, Handle, Tunnel, TunnelError,
+    wg_message::DeviceNla,
 };
 
 pub struct NetlinkTunnel {
@@ -82,7 +82,10 @@ impl Tunnel for NetlinkTunnel {
         match result {
             Ok(name) => name.to_string_lossy().to_string(),
             Err(err) => {
-                log::error!("Failed to deduce interface name at runtime, will attempt to use the default name. {}", err);
+                log::error!(
+                    "Failed to deduce interface name at runtime, will attempt to use the default name. {}",
+                    err
+                );
                 MULLVAD_INTERFACE_NAME.to_string()
             }
         }

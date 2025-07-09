@@ -2,7 +2,7 @@
 
 use crate::rest;
 
-use hyper::{body::Incoming, header, StatusCode};
+use hyper::{StatusCode, body::Incoming, header};
 use mullvad_types::{location, relay_list};
 use talpid_types::net::wireguard;
 

@@ -2,23 +2,23 @@
 
 use once_cell::sync::OnceCell;
 use std::{ffi::CStr, fmt, io, mem, os::windows::io::RawHandle, path::Path, ptr};
-use talpid_types::{win32_err, ErrorExt};
+use talpid_types::{ErrorExt, win32_err};
 use widestring::{U16CStr, U16CString};
 use windows_sys::{
-    core::GUID,
     Win32::{
         Foundation::{FreeLibrary, HMODULE},
         NetworkManagement::{IpHelper::ConvertInterfaceLuidToGuid, Ndis::NET_LUID_LH},
         System::{
             Com::StringFromGUID2,
-            LibraryLoader::{GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH},
+            LibraryLoader::{GetProcAddress, LOAD_WITH_ALTERED_SEARCH_PATH, LoadLibraryExW},
             Registry::REG_SAM_FLAGS,
         },
     },
+    core::GUID,
 };
 use winreg::{
-    enums::{HKEY_LOCAL_MACHINE, KEY_READ, KEY_WRITE},
     RegKey,
+    enums::{HKEY_LOCAL_MACHINE, KEY_READ, KEY_WRITE},
 };
 
 /// Shared `WintunDll` instance

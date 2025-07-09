@@ -229,8 +229,8 @@ mod tests {
     use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
     use talpid_types::net::{
-        proxy::{ProxyEndpoint, ProxyType},
         Endpoint, ObfuscationEndpoint, TransportProtocol,
+        proxy::{ProxyEndpoint, ProxyType},
     };
 
     use crate::relay_constraints::RelaySettings;

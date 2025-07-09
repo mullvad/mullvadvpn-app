@@ -9,12 +9,12 @@
 use insta::assert_yaml_snapshot;
 use installer_downloader::controller::AppController;
 use mock::{
-    FakeAppCacheEmpty, FakeAppCacheHappyPath, FakeAppCacheVerifyFail, FakeAppDelegate,
-    FakeAppDownloaderHappyPath, FakeAppDownloaderVerifyFail, FakeDirectoryProvider,
-    FakeVersionInfoProvider, FAKE_ENVIRONMENT,
+    FAKE_ENVIRONMENT, FakeAppCacheEmpty, FakeAppCacheHappyPath, FakeAppCacheVerifyFail,
+    FakeAppDelegate, FakeAppDownloaderHappyPath, FakeAppDownloaderVerifyFail,
+    FakeDirectoryProvider, FakeVersionInfoProvider,
 };
 use std::{
-    sync::{atomic::AtomicBool, Arc},
+    sync::{Arc, atomic::AtomicBool},
     time::Duration,
 };
 

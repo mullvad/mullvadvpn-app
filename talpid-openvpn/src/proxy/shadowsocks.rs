@@ -1,7 +1,7 @@
 pub use std::io;
 
 use async_trait::async_trait;
-use futures::future::{abortable, AbortHandle, Aborted};
+use futures::future::{AbortHandle, Aborted, abortable};
 use std::net::{Ipv4Addr, SocketAddr};
 use tokio::task::JoinHandle;
 
@@ -11,13 +11,13 @@ use shadowsocks_service::{
     },
     local,
     shadowsocks::{
-        config::{Mode, ServerConfig},
         ServerAddr,
+        config::{Mode, ServerConfig},
     },
 };
 
 use super::{Error, ProxyMonitor, ProxyMonitorCloseHandle};
-use talpid_types::{net::proxy::Shadowsocks, ErrorExt};
+use talpid_types::{ErrorExt, net::proxy::Shadowsocks};
 
 pub struct ShadowsocksProxyMonitor {
     port: u16,

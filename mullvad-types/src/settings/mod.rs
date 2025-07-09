@@ -12,7 +12,7 @@ use crate::{
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
-use talpid_types::net::{openvpn, GenericTunnelOptions};
+use talpid_types::net::{GenericTunnelOptions, openvpn};
 
 mod dns;
 

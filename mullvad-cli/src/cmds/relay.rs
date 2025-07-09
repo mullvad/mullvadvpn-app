@@ -1,26 +1,26 @@
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
+    ConnectionConfig, CustomTunnelEndpoint,
     constraints::{Constraint, Match},
     location::CountryCode,
     relay_constraints::{
-        allowed_ip::AllowedIps, GeographicLocationConstraint, LocationConstraint,
-        LocationConstraintFormatter, OpenVpnConstraints, Ownership, Provider, Providers,
-        RelayConstraints, RelayOverride, RelaySettings, TransportPort, WireguardConstraints,
+        GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
+        OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelayOverride,
+        RelaySettings, TransportPort, WireguardConstraints, allowed_ip::AllowedIps,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
-    ConnectionConfig, CustomTunnelEndpoint,
 };
 use std::{
     collections::HashMap,
     io::BufRead,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
-use talpid_types::net::{openvpn, wireguard, Endpoint, IpVersion, TransportProtocol, TunnelType};
+use talpid_types::net::{Endpoint, IpVersion, TransportProtocol, TunnelType, openvpn, wireguard};
 
-use super::{relay_constraints::LocationArgs, BooleanOption};
+use super::{BooleanOption, relay_constraints::LocationArgs};
 use crate::{cmds::receive_confirmation, print_option};
 
 #[derive(Subcommand, Debug)]

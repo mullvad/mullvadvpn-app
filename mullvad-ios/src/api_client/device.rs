@@ -1,16 +1,16 @@
 use libc::c_char;
 use mullvad_api::{
-    rest::{self, MullvadRestHandle},
     DevicesProxy,
+    rest::{self, MullvadRestHandle},
 };
 
 use super::{
+    SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
     do_request, do_request_with_empty_body, get_string,
     response::SwiftMullvadApiResponse,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
-    SwiftApiContext,
 };
 use std::ptr;
 use talpid_types::net::wireguard;

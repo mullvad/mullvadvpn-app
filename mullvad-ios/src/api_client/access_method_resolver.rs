@@ -1,12 +1,12 @@
 use mullvad_api::{
+    ApiEndpoint,
     access_mode::AccessMethodResolver,
     proxy::{ApiConnectionMode, ProxyConfig},
-    ApiEndpoint,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::{AccessMethod, BuiltInAccessMethod};
 use talpid_types::net::{
-    proxy::CustomProxy, AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol,
+    AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol, proxy::CustomProxy,
 };
 use tonic::async_trait;
 

@@ -2,8 +2,9 @@ use super::{FirewallArguments, FirewallPolicy};
 use crate::{split_tunnel, tunnel};
 use ipnetwork::IpNetwork;
 use nftnl::{
+    Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
     expr::{self, IcmpCode, Payload, RejectionType, Verdict},
-    nft_expr, table, Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table,
+    nft_expr, table,
 };
 use std::{
     env,
@@ -15,8 +16,8 @@ use std::{
 use talpid_types::{
     cgroup::find_net_cls_mount,
     net::{
-        AllowedEndpoint, AllowedTunnelTraffic, Endpoint, TransportProtocol,
-        ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS,
+        ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic,
+        Endpoint, TransportProtocol,
     },
 };
 

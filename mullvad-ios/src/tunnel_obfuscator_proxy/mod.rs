@@ -4,7 +4,7 @@ use std::{
 };
 use tokio::task::JoinHandle;
 use tunnel_obfuscation::{
-    create_obfuscator, quic, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
+    Settings as ObfuscationSettings, create_obfuscator, quic, shadowsocks, udp2tcp,
 };
 
 mod ffi;

@@ -3,8 +3,8 @@
 
 use async_trait::async_trait;
 use hickory_resolver::{
-    config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
     TokioAsyncResolver,
+    config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
 };
 use mullvad_api::DnsResolver;
 use std::{io, net::SocketAddr};

@@ -20,8 +20,8 @@ impl Ip {
 
 #[cfg(target_os = "windows")]
 pub fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
-    use anyhow::{anyhow, Context};
-    use talpid_windows::net::{get_ip_address_for_interface, luid_from_alias, AddressFamily};
+    use anyhow::{Context, anyhow};
+    use talpid_windows::net::{AddressFamily, get_ip_address_for_interface, luid_from_alias};
 
     let interface_luid = match interface {
         Interface::Name(name) => luid_from_alias(name)?,
@@ -48,7 +48,7 @@ pub fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result
 
         #[cfg(target_os = "macos")]
         &Interface::Index(index) => {
-            use anyhow::{anyhow, Context};
+            use anyhow::{Context, anyhow};
             use std::ffi::c_uint;
 
             // nix getifaddrs provides no way of getting an interface by index, so we need to get

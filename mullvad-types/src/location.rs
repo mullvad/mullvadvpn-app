@@ -213,40 +213,44 @@ mod tests {
 
     #[test]
     fn test_midpoint() {
-        assert!(Coordinates::midpoint_inner(
-            [
-                Coordinates {
-                    latitude: 0.0,
-                    longitude: 90.0,
-                },
-                Coordinates {
-                    latitude: 90.0,
-                    longitude: 0.0,
-                },
-            ]
-            .into_iter()
-        )
-        .equal(Coordinates {
-            latitude: 45.0,
-            longitude: 90.0,
-        }));
+        assert!(
+            Coordinates::midpoint_inner(
+                [
+                    Coordinates {
+                        latitude: 0.0,
+                        longitude: 90.0,
+                    },
+                    Coordinates {
+                        latitude: 90.0,
+                        longitude: 0.0,
+                    },
+                ]
+                .into_iter()
+            )
+            .equal(Coordinates {
+                latitude: 45.0,
+                longitude: 90.0,
+            })
+        );
 
-        assert!(Coordinates::midpoint_inner(
-            [
-                Coordinates {
-                    latitude: -20.0,
-                    longitude: 90.0,
-                },
-                Coordinates {
-                    latitude: -20.0,
-                    longitude: -90.0,
-                },
-            ]
-            .into_iter()
-        )
-        .equal(Coordinates {
-            latitude: -90.0,
-            longitude: 0.0,
-        }));
+        assert!(
+            Coordinates::midpoint_inner(
+                [
+                    Coordinates {
+                        latitude: -20.0,
+                        longitude: 90.0,
+                    },
+                    Coordinates {
+                        latitude: -20.0,
+                        longitude: -90.0,
+                    },
+                ]
+                .into_iter()
+            )
+            .equal(Coordinates {
+                latitude: -90.0,
+                longitude: 0.0,
+            })
+        );
     }
 }

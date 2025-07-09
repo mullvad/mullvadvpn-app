@@ -10,8 +10,8 @@ use crate::firewall::FirewallPolicy;
 use crate::resolver::LOCAL_DNS_RESOLVER;
 use futures::StreamExt;
 use talpid_types::{
-    tunnel::{ErrorStateCause, FirewallPolicyError, ParameterGenerationError},
     ErrorExt,
+    tunnel::{ErrorStateCause, FirewallPolicyError, ParameterGenerationError},
 };
 
 /// No tunnel is running and all network connections are blocked.

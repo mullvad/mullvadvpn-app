@@ -2,7 +2,7 @@
 
 use std::{fmt, str::FromStr};
 
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use ed25519_dalek::ed25519::signature::Signer;
 use serde::{Deserialize, Serialize};
 use zeroize::Zeroize;

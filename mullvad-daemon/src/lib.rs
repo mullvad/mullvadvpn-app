@@ -33,14 +33,14 @@ use crate::target_state::PersistentTargetState;
 use api::DaemonAccessMethodResolver;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
-    channel::{mpsc, oneshot},
-    future::{abortable, AbortHandle, Future},
     StreamExt,
+    channel::{mpsc, oneshot},
+    future::{AbortHandle, Future, abortable},
 };
 use geoip::GeoIpHandler;
 use leak_checker::{LeakChecker, LeakInfo};
 use management_interface::ManagementInterfaceServer;
-use mullvad_api::{access_mode::AccessMethodEvent, proxy::ApiConnectionMode, ApiEndpoint};
+use mullvad_api::{ApiEndpoint, access_mode::AccessMethodEvent, proxy::ApiConnectionMode};
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
@@ -57,11 +57,11 @@ use mullvad_types::{
     constraints::Constraint,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
-    features::{compute_feature_indicators, FeatureIndicator, FeatureIndicators},
+    features::{FeatureIndicator, FeatureIndicators, compute_feature_indicators},
     location::{GeoIpLocation, LocationEventData},
     relay_constraints::{
-        allowed_ip::AllowedIps, BridgeSettings, BridgeState, BridgeType, ObfuscationSettings,
-        RelayOverride, RelaySettings,
+        BridgeSettings, BridgeState, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
+        allowed_ip::AllowedIps,
     },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
@@ -69,7 +69,7 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
-use relay_list::{RelayListUpdater, RelayListUpdaterHandle, RELAYS_FILENAME};
+use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
@@ -96,9 +96,9 @@ use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
+    ErrorExt,
     net::{IpVersion, TunnelType},
     tunnel::{ErrorStateCause, TunnelStateTransition},
-    ErrorExt,
 };
 use tokio::io;
 

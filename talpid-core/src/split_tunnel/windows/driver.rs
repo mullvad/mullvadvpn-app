@@ -1,8 +1,8 @@
 #![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
 
 use super::windows::{
-    get_device_path, get_process_creation_time, get_process_device_path, open_process,
-    ProcessAccess,
+    ProcessAccess, get_device_path, get_process_creation_time, get_process_device_path,
+    open_process,
 };
 use bitflags::bitflags;
 use memoffset::offset_of;
@@ -12,7 +12,7 @@ use std::{
     ffi::{OsStr, OsString},
     fs::{self, OpenOptions},
     io,
-    mem::{self, size_of, MaybeUninit},
+    mem::{self, MaybeUninit, size_of},
     net::{Ipv4Addr, Ipv6Addr},
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
@@ -30,13 +30,13 @@ use windows_sys::Win32::{
         ERROR_ACCESS_DENIED, ERROR_FILE_NOT_FOUND, ERROR_INVALID_PARAMETER, ERROR_IO_PENDING,
         HANDLE, NTSTATUS, WAIT_ABANDONED, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0,
     },
-    Networking::WinSock::{IN6_ADDR, IN_ADDR},
+    Networking::WinSock::{IN_ADDR, IN6_ADDR},
     Storage::FileSystem::FILE_FLAG_OVERLAPPED,
     System::{
         Diagnostics::ToolHelp::TH32CS_SNAPPROCESS,
-        Ioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
-        Threading::{WaitForMultipleObjects, WaitForSingleObject, INFINITE},
         IO::{DeviceIoControl, GetOverlappedResult, OVERLAPPED},
+        Ioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
+        Threading::{INFINITE, WaitForMultipleObjects, WaitForSingleObject},
     },
 };
 

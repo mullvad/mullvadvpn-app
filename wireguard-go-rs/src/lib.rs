@@ -6,7 +6,7 @@
 //!
 //! The [`Tunnel`] type provides a safe Rust wrapper around the C FFI.
 
-use core::ffi::{c_char, CStr};
+use core::ffi::{CStr, c_char};
 use core::mem::ManuallyDrop;
 use core::slice;
 use talpid_types::drop_guard::on_drop;

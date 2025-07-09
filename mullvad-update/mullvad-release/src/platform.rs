@@ -1,6 +1,6 @@
 //! Types for handling per-platform metadata
 
-use anyhow::{anyhow, bail, Context};
+use anyhow::{Context, anyhow, bail};
 use mullvad_update::{
     api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
     format::{self, key},
@@ -76,7 +76,9 @@ impl Platform {
         match self {
             Platform::Windows => Artifacts {
                 x86_artifacts: vec![artifacts_dir.join(format!("MullvadVPN-{version}_x64.exe"))],
-                arm64_artifacts: vec![artifacts_dir.join(format!("MullvadVPN-{version}_arm64.exe"))],
+                arm64_artifacts: vec![
+                    artifacts_dir.join(format!("MullvadVPN-{version}_arm64.exe")),
+                ],
             },
             Platform::Linux => Artifacts {
                 x86_artifacts: vec![],

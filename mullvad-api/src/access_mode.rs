@@ -4,13 +4,13 @@
 //! [`ApiConnectionMode`], which in turn is used by `mullvad-api` for
 //! establishing connections when performing API requests.
 
-use crate::proxy::{ApiConnectionMode, ConnectionModeProvider};
 #[cfg(feature = "api-override")]
 use crate::ApiEndpoint;
+use crate::proxy::{ApiConnectionMode, ConnectionModeProvider};
 use async_trait::async_trait;
 use futures::{
-    channel::{mpsc, oneshot},
     StreamExt,
+    channel::{mpsc, oneshot},
 };
 use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, Id, Settings};
 use talpid_types::net::AllowedEndpoint;

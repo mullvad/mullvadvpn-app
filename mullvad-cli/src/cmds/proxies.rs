@@ -1,8 +1,8 @@
 use clap::Args;
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::{
-    proxy::{Shadowsocks, Socks5Local, Socks5Remote, SocksAuth, SHADOWSOCKS_CIPHERS},
     Endpoint, TransportProtocol,
+    proxy::{SHADOWSOCKS_CIPHERS, Shadowsocks, Socks5Local, Socks5Remote, SocksAuth},
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -151,7 +151,9 @@ impl ProxyEditParams {
                 }
                 (None, None) => Socks5Remote::new((ip, port)),
                 _ => {
-                    println!("Remote SOCKS5 proxy does not have a username and password set already, so you must provide both or neither when you edit.");
+                    println!(
+                        "Remote SOCKS5 proxy does not have a username and password set already, so you must provide both or neither when you edit."
+                    );
                     Socks5Remote::new((ip, port))
                 }
             },

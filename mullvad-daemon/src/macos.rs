@@ -1,7 +1,7 @@
 use std::{ffi::OsStr, fmt, io, path::Path, process::Stdio};
 
-use anyhow::{anyhow, Context};
-use libc::{pid_t, PROX_FDTYPE_VNODE};
+use anyhow::{Context, anyhow};
+use libc::{PROX_FDTYPE_VNODE, pid_t};
 use notify::{RecursiveMode, Watcher};
 use std::io::Write;
 use talpid_macos::process::{

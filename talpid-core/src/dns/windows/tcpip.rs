@@ -2,11 +2,11 @@ use crate::dns::{DnsMonitorT, ResolvedDnsConfig};
 use std::{io, net::IpAddr};
 use talpid_types::ErrorExt;
 use talpid_windows::net::{guid_from_luid, luid_from_alias};
-use windows_sys::{core::GUID, Win32::System::Com::StringFromGUID2};
+use windows_sys::{Win32::System::Com::StringFromGUID2, core::GUID};
 use winreg::{
+    RegKey,
     enums::{HKEY_LOCAL_MACHINE, KEY_SET_VALUE},
     transaction::Transaction,
-    RegKey,
 };
 
 /// Errors that can happen when configuring DNS on Windows.

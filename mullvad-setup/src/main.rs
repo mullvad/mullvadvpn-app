@@ -1,10 +1,10 @@
 use clap::Parser;
-use mullvad_api::{proxy::ApiConnectionMode, ApiEndpoint, DEVICE_NOT_FOUND};
+use mullvad_api::{ApiEndpoint, DEVICE_NOT_FOUND, proxy::ApiConnectionMode};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_version::Version;
 use std::{path::PathBuf, process, str::FromStr, sync::LazyLock, time::Duration};
 use talpid_core::firewall::{self, Firewall};
-use talpid_future::retry::{retry_future, ConstantInterval};
+use talpid_future::retry::{ConstantInterval, retry_future};
 use talpid_types::ErrorExt;
 
 #[cfg(target_os = "windows")]

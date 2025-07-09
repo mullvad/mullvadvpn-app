@@ -1,4 +1,4 @@
-use mullvad_api::{proxy::ApiConnectionMode, ApiEndpoint};
+use mullvad_api::{ApiEndpoint, proxy::ApiConnectionMode};
 use regex::Regex;
 use std::{
     borrow::Cow,

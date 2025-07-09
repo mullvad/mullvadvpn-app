@@ -4,7 +4,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey};
-use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, GenericTunnelOptions};
+use talpid_types::net::{GenericTunnelOptions, obfuscation::ObfuscatorConfig, wireguard};
 
 /// Name to use for the tunnel device
 #[cfg(target_os = "linux")]

@@ -19,7 +19,7 @@ use system_configuration::{
         array::CFArray,
         base::{CFType, TCFType, ToVoid},
         dictionary::CFDictionary,
-        runloop::{kCFRunLoopCommonModes, CFRunLoop},
+        runloop::{CFRunLoop, kCFRunLoopCommonModes},
         string::{CFString, CFStringRef},
     },
     dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},

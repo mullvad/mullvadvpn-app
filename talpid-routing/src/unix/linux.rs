@@ -1,6 +1,6 @@
 use crate::{
-    imp::{CallbackMessage, RouteManagerCommand},
     NetNode, Node, RequiredRoute, Route,
+    imp::{CallbackMessage, RouteManagerCommand},
 };
 use netlink_sys::AsyncSocket;
 use std::{
@@ -11,30 +11,30 @@ use std::{
 use talpid_types::ErrorExt;
 
 use futures::{
+    StreamExt, TryStream, TryStreamExt,
     channel::mpsc::{UnboundedReceiver, UnboundedSender},
     future::FutureExt,
-    StreamExt, TryStream, TryStreamExt,
 };
 use ipnetwork::IpNetwork;
 use libc::{AF_INET, AF_INET6};
 use netlink_packet_route::{
-    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL, NLM_F_REQUEST},
-    link::{nlas::Nla as LinkNla, LinkMessage},
-    route::{nlas::Nla as RouteNla, Metrics, RouteHeader, RouteMessage},
-    rtnl::{
-        constants::{
-            RTN_UNSPEC, RTPROT_UNSPEC, RT_SCOPE_LINK, RT_SCOPE_UNIVERSE, RT_TABLE_COMPAT,
-            RT_TABLE_MAIN,
-        },
-        RouteFlags,
-    },
-    rule::{nlas::Nla as RuleNla, RuleHeader, RuleMessage},
     NetlinkMessage, NetlinkPayload, RtnlMessage,
+    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL, NLM_F_REQUEST},
+    link::{LinkMessage, nlas::Nla as LinkNla},
+    route::{Metrics, RouteHeader, RouteMessage, nlas::Nla as RouteNla},
+    rtnl::{
+        RouteFlags,
+        constants::{
+            RT_SCOPE_LINK, RT_SCOPE_UNIVERSE, RT_TABLE_COMPAT, RT_TABLE_MAIN, RTN_UNSPEC,
+            RTPROT_UNSPEC,
+        },
+    },
+    rule::{RuleHeader, RuleMessage, nlas::Nla as RuleNla},
 };
 use rtnetlink::{
+    Handle, IpVersion,
     constants::{RTMGRP_IPV4_ROUTE, RTMGRP_IPV6_ROUTE, RTMGRP_LINK, RTMGRP_NOTIFY},
     sys::SocketAddr,
-    Handle, IpVersion,
 };
 use std::sync::LazyLock;
 
@@ -782,7 +782,9 @@ impl RouteManagerImpl {
                         }
                         (None, Some(address)) => attempted_ip = address,
                         (None, None) => {
-                            log::error!("Route contains an invalid node which lacks both a device and an address");
+                            log::error!(
+                                "Route contains an invalid node which lacks both a device and an address"
+                            );
                             return Err(Error::InvalidRouteNode);
                         }
                     }
@@ -855,11 +857,7 @@ fn ip_to_bytes(addr: IpAddr) -> Vec<u8> {
 
 fn compat_table_id(id: u32) -> u8 {
     // RT_TABLE_COMPAT must be combined with nla Table(id)
-    if id > 255 {
-        RT_TABLE_COMPAT
-    } else {
-        id as u8
-    }
+    if id > 255 { RT_TABLE_COMPAT } else { id as u8 }
 }
 
 fn get_ip_version(addr: &IpAddr) -> IpVersion {

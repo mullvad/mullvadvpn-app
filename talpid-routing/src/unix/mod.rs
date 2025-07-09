@@ -1,5 +1,5 @@
 #[cfg(target_os = "macos")]
-pub use crate::{imp::imp::DefaultRoute, Gateway};
+pub use crate::{Gateway, imp::imp::DefaultRoute};
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use super::RequiredRoute;

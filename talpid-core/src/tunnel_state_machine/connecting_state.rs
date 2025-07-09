@@ -9,9 +9,9 @@ use futures::{FutureExt, StreamExt};
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_types::ErrorExt;
 use talpid_types::net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
-use talpid_types::ErrorExt;
 
 use super::connected_state::TunnelEventsReceiver;
 use super::{
