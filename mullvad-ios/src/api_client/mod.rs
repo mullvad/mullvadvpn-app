@@ -109,7 +109,7 @@ pub unsafe extern "C" fn mullvad_api_use_access_method(
 ) {
     let api_context = api_context.rust_context();
     // SAFETY: See Safety notes for `get_string`
-    let id = get_string(access_method_id);
+    let id = unsafe { get_string(access_method_id) };
 
     let Some(id) = Id::from_string(id) else {
         return;

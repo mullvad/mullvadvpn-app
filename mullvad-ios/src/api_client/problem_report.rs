@@ -123,9 +123,9 @@ struct ProblemReportRequest {
 impl ProblemReportRequest {
     // SAFETY: the members of `SwiftProblemReportRequest` must point to null-terminated strings
     unsafe fn from_swift_parameters(request: SwiftProblemReportRequest) -> Option<Self> {
-        let address = get_string(request.address);
-        let message = get_string(request.message);
-        let log = get_string(request.log).into();
+        let address = unsafe { get_string(request.address) };
+        let message = unsafe { get_string(request.message) };
+        let log = unsafe { get_string(request.log) }.into();
 
         let metadata = if request.metadata.inner.is_null() {
             BTreeMap::new()

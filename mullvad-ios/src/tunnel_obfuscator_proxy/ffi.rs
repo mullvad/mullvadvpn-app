@@ -26,14 +26,11 @@ pub unsafe extern "C" fn start_udp2tcp_obfuscator_proxy(
 ) -> i32 {
     init_logging();
 
-    let peer_sock_addr = throw_int_error!(get_socket_address(
-        peer_address,
-        peer_address_len,
-        peer_port
-    ));
+    let peer_sock_addr =
+        throw_int_error!(unsafe { get_socket_address(peer_address, peer_address_len, peer_port) });
     let result = TunnelObfuscatorRuntime::new_udp2tcp(peer_sock_addr).run();
 
-    start(proxy_handle, result)
+    unsafe { start(proxy_handle, result) }
 }
 
 #[unsafe(no_mangle)]
@@ -45,14 +42,11 @@ pub unsafe extern "C" fn start_shadowsocks_obfuscator_proxy(
 ) -> i32 {
     init_logging();
 
-    let peer_sock_addr = throw_int_error!(get_socket_address(
-        peer_address,
-        peer_address_len,
-        peer_port
-    ));
+    let peer_sock_addr =
+        throw_int_error!(unsafe { get_socket_address(peer_address, peer_address_len, peer_port) });
     let result = TunnelObfuscatorRuntime::new_shadowsocks(peer_sock_addr).run();
 
-    start(proxy_handle, result)
+    unsafe { start(proxy_handle, result) }
 }
 
 #[unsafe(no_mangle)]
@@ -66,16 +60,13 @@ pub unsafe extern "C" fn start_quic_obfuscator_proxy(
 ) -> i32 {
     init_logging();
 
-    let peer_sock_addr = throw_int_error!(get_socket_address(
-        peer_address,
-        peer_address_len,
-        peer_port
-    ));
-    let hostname = get_string(hostname);
-    let token = get_string(token);
+    let peer_sock_addr =
+        throw_int_error!(unsafe { get_socket_address(peer_address, peer_address_len, peer_port) });
+    let hostname = unsafe { get_string(hostname) };
+    let token = unsafe { get_string(token) };
     let result = TunnelObfuscatorRuntime::new_quic(peer_sock_addr, hostname, token).run();
 
-    start(proxy_handle, result)
+    unsafe { start(proxy_handle, result) }
 }
 
 fn init_logging() {

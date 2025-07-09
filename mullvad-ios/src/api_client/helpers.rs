@@ -53,8 +53,8 @@ pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
             return std::ptr::null();
         };
 
-    let password = get_string(c_password);
-    let cipher = get_string(c_cipher);
+    let password = unsafe { get_string(c_password) };
+    let cipher = unsafe { get_string(c_cipher) };
 
     let shadowsocks_configuration = Shadowsocks {
         endpoint,
@@ -91,8 +91,8 @@ pub unsafe extern "C" fn new_socks5_access_method_setting(
         if c_username.is_null() || c_password.is_null() {
             None
         } else {
-            let username = get_string(c_username);
-            let password = get_string(c_password);
+            let username = unsafe { get_string(c_username) };
+            let password = unsafe { get_string(c_password) };
             SocksAuth::new(username, password).ok()
         }
     };
