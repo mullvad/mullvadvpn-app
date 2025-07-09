@@ -7,62 +7,68 @@ import SwiftUI
 /// * transparent background
 struct MullvadList<Content: View, Data: RandomAccessCollection<ID>, ID: Hashable>: View {
     let data: Data
+    let id: KeyPath<Data.Element, ID>
     let content: (Data.Element) -> Content
-    let id: KeyPath<Data.Element, ID>?
+    let header: (() -> AnyView)?
+    let footer: (() -> AnyView)?
 
-    @State var itemHeight: CGFloat = 0
-    var maxListHeight: CGFloat {
-        let height = itemHeight * CGFloat(data.count)
-        return height > 0 ? height : .infinity
-    }
-
-    init(_ data: Data, id: KeyPath<Data.Element, ID>, @ViewBuilder content: @escaping (Data.Element) -> Content) {
+    init(
+        _ data: Data,
+        id: KeyPath<Data.Element, ID>,
+        header: (() -> some View)? = nil,
+        footer: (() -> some View)? = nil,
+        @ViewBuilder content: @escaping (Data.Element) -> Content
+    ) {
         self.data = data
         self.id = id
+        self.header = header.map { builder in { AnyView(builder()) } }
+        self.footer = footer.map { builder in { AnyView(builder()) } }
         self.content = content
     }
 
-    init(_ data: Data, @ViewBuilder content: @escaping (Data.Element) -> Content) {
-        self.data = data
-        self.content = content
-        self.id = nil
+    init(
+        _ data: Data,
+        header: (() -> some View)? = nil,
+        footer: (() -> some View)? = nil,
+        @ViewBuilder content: @escaping (Data.Element) -> Content
+    ) where Data.Element == ID {
+        self.init(data, id: \.self, header: header, footer: footer, content: content)
     }
 
     var body: some View {
-        List(data, id: id ?? \.self) { item in
-            content(item)
-                .sizeOfView { size in
-                    if itemHeight < size.height {
-                        itemHeight = size.height
-                    }
-                }
-                .listRowInsets(.init())
-                .listSectionSeparator(.hidden, edges: .bottom)
-                .listRowSeparatorTint(.MullvadList.separator)
-                .listRowBackground(Color.clear)
-                .apply {
-                    if #available(iOS 16.0, *) {
-                        $0.alignmentGuide(.listRowSeparatorLeading) { _ in
-                            0
-                        }
-                    } else {
-                        $0
-                    }
-                }
-                .frame(maxHeight: itemHeight)
+        List {
+            if let headerView = header?() {
+                headerView
+                    .listRowBackground(Color.clear)
+            }
+
+            ForEach(data, id: id) { item in
+                content(item)
+                    .listRowInsets(.init())
+                    .listSectionSeparator(.hidden, edges: .bottom)
+                    .listRowSeparatorTint(.MullvadList.separator)
+                    .listRowBackground(Color.clear)
+            }
+
+            if let footerView = footer?() {
+                footerView
+                    .listRowBackground(Color.clear)
+            }
         }
         .listStyle(.plain)
-        .frame(maxHeight: maxListHeight)
     }
 }
 
 #Preview {
-    MullvadList([1, 2, 3]) { item in
-        VStack {
-            ForEach(0 ..< item, id: \.self) {
-                Text("\($0)")
-            }
+    MullvadList(
+        [1, 2, 3],
+        header: {
+            Text("Header")
+        }, footer: {
+            Text("Footer")
+        },
+        content: { item in
+            Text("Item \(item)").padding()
         }
-        .padding()
-    }
+    )
 }

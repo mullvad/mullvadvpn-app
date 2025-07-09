@@ -4,6 +4,7 @@ struct DeviceListView: View {
     @Binding var devices: [Device]?
     @Binding var loading: Bool
     var onRemoveDevice: ((Device) -> Void)?
+    let header: (() -> AnyView)?
 
     struct Device: Identifiable, Hashable {
         let id: String
@@ -28,32 +29,37 @@ struct DeviceListView: View {
                 .padding(.top, 16)
                 .foregroundColor(.mullvadTextPrimary.opacity(0.6))
         } else if let devices {
-            MullvadList(devices) { device in
-                MullvadListActionItemView(
-                    item: .init(
-                        id: device.id,
-                        title: LocalizedStringKey(device.name),
-                        state: device.isCurrentDevice ? "Current device" : nil,
-                        detail: "Created: \(device.created.formatted(date: .long, time: .omitted))",
-                        accessibilityIdentifier: AccessibilityIdentifier.deviceCellRemoveButton,
-                        pressed: {
-                            onRemoveDevice?(device)
-                        }
-                    ),
-                    icon: {
-                        if !device.isCurrentDevice {
-                            if device.isBeingRemoved {
-                                ProgressView()
-                                    .progressViewStyle(MullvadProgressViewStyle())
-                                    .frame(width: 24, height: 24)
-                                    .accessibilityIdentifier(.deviceRemovalProgressView)
-                            } else {
-                                Image.mullvadIconClose
+            MullvadList(
+                devices,
+                header: self.header,
+                footer: { EmptyView() },
+                content: { device in
+                    MullvadListActionItemView(
+                        item: .init(
+                            id: device.id,
+                            title: LocalizedStringKey(device.name),
+                            state: device.isCurrentDevice ? "Current device" : nil,
+                            detail: "Created: \(device.created.formatted(date: .long, time: .omitted))",
+                            accessibilityIdentifier: AccessibilityIdentifier.deviceCellRemoveButton,
+                            pressed: {
+                                onRemoveDevice?(device)
+                            }
+                        ),
+                        icon: {
+                            if !device.isCurrentDevice {
+                                if device.isBeingRemoved {
+                                    ProgressView()
+                                        .progressViewStyle(MullvadProgressViewStyle())
+                                        .frame(width: 24, height: 24)
+                                        .accessibilityIdentifier(.deviceRemovalProgressView)
+                                } else {
+                                    Image.mullvadIconClose
+                                }
                             }
                         }
-                    }
-                )
-            }
+                    )
+                }
+            )
             .accessibilityIdentifier(.deviceListView)
         }
     }
@@ -78,7 +84,8 @@ struct DeviceListView: View {
             ),
         ]),
         loading: .constant(false),
-        onRemoveDevice: nil
+        onRemoveDevice: nil,
+        header: nil
     )
 }
 
@@ -86,7 +93,8 @@ struct DeviceListView: View {
     DeviceListView(
         devices: .constant([]),
         loading: .constant(true),
-        onRemoveDevice: nil
+        onRemoveDevice: nil,
+        header: nil
     )
     .background(Color.mullvadBackground)
 }
