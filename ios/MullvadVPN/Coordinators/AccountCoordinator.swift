@@ -136,7 +136,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
                     currentDeviceId: currentDeviceId,
                     devicesProxy: interactor.deviceProxy
                 ),
-                style: .normal,
+                style: .deviceManagement,
                 onError: { title, error in
                     let errorDescription = if case let .network(urlError) = error as? REST.Error {
                         urlError.localizedDescription

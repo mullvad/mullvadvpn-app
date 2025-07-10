@@ -67,9 +67,9 @@ struct MullvadListActionItemView<Icon: View>: View {
             }
         }
         .padding(EdgeInsets(
-            top: 8,
+            top: 11,
             leading: UIMetrics.contentLayoutMargins.leading,
-            bottom: 8,
+            bottom: 11,
             trailing: UIMetrics.contentLayoutMargins.trailing
         ))
         .background(Color.MullvadList.background)
@@ -99,13 +99,16 @@ struct MullvadListActionItemView<Icon: View>: View {
                         accessibilityIdentifier: nil,
                         pressed: nil
                     ),
-                ]
-            ) { item in
-                MullvadListActionItemView(item: item) {
-                    if item.pressed != nil {
-                        Image.mullvadIconClose
+                ],
+                header: { EmptyView() },
+                footer: { EmptyView() },
+                content: { item in
+                    MullvadListActionItemView(item: item) {
+                        if item.pressed != nil {
+                            Image.mullvadIconClose
+                        }
                     }
                 }
-            }
+            )
         }
 }
