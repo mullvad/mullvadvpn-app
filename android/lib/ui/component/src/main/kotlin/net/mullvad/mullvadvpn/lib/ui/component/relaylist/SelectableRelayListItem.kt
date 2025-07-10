@@ -154,10 +154,12 @@ internal fun Name(
 @Composable
 internal fun Int.toBackgroundColor(): Color =
     when (this) {
-        0 -> MaterialTheme.colorScheme.surfaceContainerHighest
-        1 -> MaterialTheme.colorScheme.surfaceContainerHigh
-        2 -> MaterialTheme.colorScheme.surfaceContainerLow
-        else -> MaterialTheme.colorScheme.surfaceContainerLowest
+        // Using primary is a workaround to ensure enough contrast between lowest depth (3) and the
+        // background.
+        0 -> MaterialTheme.colorScheme.primary
+        1 -> MaterialTheme.colorScheme.surfaceContainerHighest
+        2 -> MaterialTheme.colorScheme.surfaceContainerHigh
+        else -> MaterialTheme.colorScheme.surfaceContainerLow
     }
 
 @Composable
