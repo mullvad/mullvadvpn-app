@@ -119,7 +119,6 @@ impl TryFrom<&RelaySettings> for Recent {
 
     fn try_from(value: &RelaySettings) -> Result<Self, Self::Error> {
         match value {
-            // TODO: can we support this?
             RelaySettings::CustomTunnelEndpoint(_) => {
                 Err("Cannot convert CustomTunnelEndpoint to Recent")
             }

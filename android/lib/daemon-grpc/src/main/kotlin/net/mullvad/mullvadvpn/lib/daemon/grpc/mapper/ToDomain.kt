@@ -2,7 +2,6 @@
 
 package net.mullvad.mullvadvpn.lib.daemon.grpc.mapper
 
-import co.touchlab.kermit.Logger
 import io.grpc.ConnectivityState
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -328,11 +327,7 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         showBetaReleases = showBetaReleases,
         splitTunnelSettings = splitTunnel.toDomain(),
         apiAccessMethodSettings = apiAccessMethods.toDomain(),
-        recents =
-            recentsOrNull
-                .toDomain()
-                // remove
-                .also { Logger.e("RECENTS: ${it}") },
+        recents = recentsOrNull.toDomain(),
     )
 
 internal fun ManagementInterface.RelayOverride.toDomain(): RelayOverride =
