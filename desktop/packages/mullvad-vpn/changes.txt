@@ -1,3 +1,4 @@
 [macOS, Windows] Add in-app upgrades. This new feature lets you download, verify, and install new versions from within the app.
 [macOS] Fix DNS issues that could occur after wake up.
+[Windows] Add a button to start the Mullvad VPN system service if it's unavailable at launch.
 Various bug fixes and stability improvements.
