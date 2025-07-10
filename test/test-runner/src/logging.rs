@@ -9,8 +9,8 @@ use tokio::{
     fs::File,
     io::{self, AsyncBufReadExt, BufReader},
     sync::{
-        broadcast::{channel, Receiver, Sender},
         Mutex,
+        broadcast::{Receiver, Sender, channel},
     },
 };
 

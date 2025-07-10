@@ -1,6 +1,6 @@
 #[cfg(feature = "api-override")]
 use jnix::FromJava;
-use jnix::{jni::objects::JObject, JnixEnv};
+use jnix::{JnixEnv, jni::objects::JObject};
 #[cfg(feature = "api-override")]
 use std::net::{IpAddr, ToSocketAddrs};
 #[cfg(feature = "api-override")]

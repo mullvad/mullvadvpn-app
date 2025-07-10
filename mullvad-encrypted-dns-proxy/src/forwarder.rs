@@ -92,7 +92,7 @@ where
         cx: &mut std::task::Context<'_>,
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<std::io::Result<()>> {
-        use std::task::{ready, Poll};
+        use std::task::{Poll, ready};
         let socket = std::pin::pin!(&mut self.stream);
         match ready!(socket.poll_read(cx, buf)) {
             // in this case, we can read and deobfuscate.

@@ -1,14 +1,14 @@
 #![cfg(target_os = "linux")]
 
 use super::{
-    helpers::{self, AbortOnDrop},
     TestContext,
+    helpers::{self, AbortOnDrop},
 };
 use crate::{
     tests::config::TEST_CONFIG,
     vm::{self, network::linux::TEST_SUBNET},
 };
-use anyhow::{anyhow, bail, ensure, Context};
+use anyhow::{Context, anyhow, bail, ensure};
 use futures::FutureExt;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;

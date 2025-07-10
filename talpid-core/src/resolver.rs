@@ -15,8 +15,8 @@ use std::{
 };
 
 use futures::{
-    channel::{mpsc, oneshot},
     SinkExt, StreamExt,
+    channel::{mpsc, oneshot},
 };
 
 use hickory_proto::{
@@ -24,26 +24,26 @@ use hickory_proto::{
     rr::{LowerName, RecordType},
 };
 use hickory_server::{
+    ServerFuture,
     authority::{
         EmptyLookup, LookupObject, MessageRequest, MessageResponse, MessageResponseBuilder,
     },
     proto::{
-        op::{header::MessageType, op_code::OpCode, Header},
-        rr::{domain::Name, rdata, record_data::RData, Record},
+        op::{Header, header::MessageType, op_code::OpCode},
+        rr::{Record, domain::Name, rdata, record_data::RData},
     },
     resolver::{
+        TokioAsyncResolver,
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
         error::{ResolveError, ResolveErrorKind},
         lookup::Lookup,
-        TokioAsyncResolver,
     },
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
-    ServerFuture,
 };
 use rand::random;
 use socket2::{Domain, Protocol, Socket, Type};
 use std::sync::LazyLock;
-use talpid_types::drop_guard::{on_drop, OnDrop};
+use talpid_types::drop_guard::{OnDrop, on_drop};
 use tokio::{
     net::{self, UdpSocket},
     task::JoinHandle,
@@ -688,8 +688,8 @@ impl LookupObject for ForwardLookup {
 mod test {
     use super::*;
     use hickory_server::resolver::{
-        config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
         TokioAsyncResolver,
+        config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
     };
     use std::{net::UdpSocket, sync::Mutex, thread};
     use typed_builder::TypedBuilder;

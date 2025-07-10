@@ -4,8 +4,8 @@ use std::{
     path::{Path, PathBuf},
 };
 use talpid_types::{
-    cgroup::{find_net_cls_mount, SPLIT_TUNNEL_CGROUP_NAME},
     ErrorExt,
+    cgroup::{SPLIT_TUNNEL_CGROUP_NAME, find_net_cls_mount},
 };
 
 const DEFAULT_NET_CLS_DIR: &str = "/sys/fs/cgroup/net_cls";

@@ -1,10 +1,10 @@
-use futures::{channel::mpsc::UnboundedSender, StreamExt};
+use futures::{StreamExt, channel::mpsc::UnboundedSender};
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     sync::Arc,
 };
 use talpid_routing::RouteManagerHandle;
-use talpid_types::{net::Connectivity, ErrorExt};
+use talpid_types::{ErrorExt, net::Connectivity};
 
 pub type Result<T> = std::result::Result<T, Error>;
 

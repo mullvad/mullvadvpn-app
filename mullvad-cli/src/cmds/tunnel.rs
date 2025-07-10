@@ -4,7 +4,7 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{AllowedIps, RelaySettings, WireguardConstraints},
-    wireguard::{QuantumResistantState, RotationInterval, DEFAULT_ROTATION_INTERVAL},
+    wireguard::{DEFAULT_ROTATION_INTERVAL, QuantumResistantState, RotationInterval},
 };
 
 use super::BooleanOption;

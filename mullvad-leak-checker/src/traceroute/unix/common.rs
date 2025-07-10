@@ -5,8 +5,8 @@ use std::net::SocketAddr;
 use anyhow::Context;
 use socket2::Socket;
 
-use crate::util::{get_interface_ip, Ip};
 use crate::Interface;
+use crate::util::{Ip, get_interface_ip};
 
 pub(crate) fn bind_socket_to_interface(
     socket: &Socket,

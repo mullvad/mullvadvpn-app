@@ -14,7 +14,7 @@ use std::net::IpAddr;
 use std::{net::SocketAddr, path::PathBuf};
 
 use anyhow::{Context, Ok, Result};
-use clap::{builder::PossibleValuesParser, Parser};
+use clap::{Parser, builder::PossibleValuesParser};
 use config::ConfigFile;
 use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};

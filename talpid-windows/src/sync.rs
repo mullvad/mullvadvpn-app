@@ -2,7 +2,7 @@
 
 use std::{io, ptr};
 use windows_sys::Win32::{
-    Foundation::{CloseHandle, DuplicateHandle, BOOL, DUPLICATE_SAME_ACCESS, HANDLE},
+    Foundation::{BOOL, CloseHandle, DUPLICATE_SAME_ACCESS, DuplicateHandle, HANDLE},
     System::Threading::{CreateEventW, GetCurrentProcess, SetEvent},
 };
 

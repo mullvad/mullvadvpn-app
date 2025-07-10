@@ -120,11 +120,7 @@ macro_rules! impl_intersection_partialeq {
     ($ty:ty) => {
         impl $crate::Intersection for $ty {
             fn intersection(self, other: Self) -> Option<Self> {
-                if self == other {
-                    Some(self)
-                } else {
-                    None
-                }
+                if self == other { Some(self) } else { None }
             }
         }
     };

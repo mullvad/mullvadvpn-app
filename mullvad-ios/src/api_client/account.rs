@@ -2,17 +2,17 @@ use std::ffi::CStr;
 use std::os::raw::c_char;
 
 use mullvad_api::{
-    rest::{self, MullvadRestHandle},
     AccountsProxy,
+    rest::{self, MullvadRestHandle},
 };
 
 use super::{
+    SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
     do_request, do_request_with_empty_body,
     response::SwiftMullvadApiResponse,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
-    SwiftApiContext,
 };
 
 /// # Safety

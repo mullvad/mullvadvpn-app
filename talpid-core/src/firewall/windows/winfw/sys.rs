@@ -1,10 +1,10 @@
 //! Data types and thin wrappers around WinFW C FFI.
 
-use std::ffi::{c_char, c_void, CStr};
+use std::ffi::{CStr, c_char, c_void};
 use std::io;
 use std::ptr;
 
-use windows_sys::Win32::Globalization::{MultiByteToWideChar, CP_ACP};
+use windows_sys::Win32::Globalization::{CP_ACP, MultiByteToWideChar};
 
 use super::{Error, WideCString};
 

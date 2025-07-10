@@ -1,5 +1,5 @@
 //! This library provides utility functions and types for retrying futures.
-use rand::{distributions::OpenClosed01, Rng};
+use rand::{Rng, distributions::OpenClosed01};
 use std::{future::Future, ops::Deref, time::Duration};
 use talpid_time::sleep;
 

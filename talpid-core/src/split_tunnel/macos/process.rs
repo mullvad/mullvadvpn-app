@@ -557,7 +557,7 @@ mod test {
 
     use std::time::Duration;
     use talpid_platform_metadata::MacosVersion;
-    use tokio::io::{simplex, AsyncWriteExt};
+    use tokio::io::{AsyncWriteExt, simplex};
 
     /// A mock-version of std{out,err}. [tokio::io::SimplexStream] implements [AsyncRead], so it can be used to test
     /// [parse_logger_status].

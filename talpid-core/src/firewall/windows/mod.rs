@@ -1,9 +1,9 @@
 use std::{net::IpAddr, sync::LazyLock};
 
 use talpid_types::{
+    ErrorExt,
     net::{AllowedEndpoint, AllowedTunnelTraffic},
     tunnel::FirewallPolicyError,
-    ErrorExt,
 };
 use widestring::WideCString;
 

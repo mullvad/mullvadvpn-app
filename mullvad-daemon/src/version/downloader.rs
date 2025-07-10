@@ -2,7 +2,7 @@
 
 use mullvad_types::version::{AppUpgradeDownloadProgress, AppUpgradeError, AppUpgradeEvent};
 use mullvad_update::app::{
-    bin_path, AppDownloader, AppDownloaderParameters, DownloadError, DownloadedInstaller,
+    AppDownloader, AppDownloaderParameters, DownloadError, DownloadedInstaller, bin_path,
 };
 use rand::seq::SliceRandom;
 use std::io;

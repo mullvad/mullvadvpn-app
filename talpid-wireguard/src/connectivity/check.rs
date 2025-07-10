@@ -1,8 +1,8 @@
 use std::{
     net::Ipv4Addr,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
     time::Duration,
 };
@@ -10,7 +10,7 @@ use tokio::{sync::broadcast, time::Instant};
 
 use super::{constants::*, error::Error, pinger};
 
-use crate::{stats::StatsMap, Tunnel, TunnelError};
+use crate::{Tunnel, TunnelError, stats::StatsMap};
 use pinger::Pinger;
 
 /// Verifies if a connection to a tunnel is working.
@@ -602,10 +602,12 @@ mod test {
         Check::maybe_send_ping(&mut checker.conn_state, &mut checker.ping_state, start)
             .await
             .unwrap();
-        assert!(!checker
-            .check_connectivity(now, tunnel.as_ref())
-            .await
-            .unwrap())
+        assert!(
+            !checker
+                .check_connectivity(now, tunnel.as_ref())
+                .await
+                .unwrap()
+        )
     }
 
     #[tokio::test]
@@ -618,10 +620,12 @@ mod test {
         let start = now.checked_sub(Duration::from_secs(1)).unwrap();
         let (mut checker, _cancel_token) = mock_checker(start, Box::new(pinger));
 
-        assert!(!checker
-            .check_connectivity(now, tunnel.as_ref())
-            .await
-            .unwrap())
+        assert!(
+            !checker
+                .check_connectivity(now, tunnel.as_ref())
+                .await
+                .unwrap()
+        )
     }
 
     #[tokio::test]
@@ -637,10 +641,12 @@ mod test {
         // Mock the state - connectivity has been established
         checker.conn_state = connected_state(start);
 
-        assert!(checker
-            .check_connectivity(now, tunnel.as_ref())
-            .await
-            .unwrap())
+        assert!(
+            checker
+                .check_connectivity(now, tunnel.as_ref())
+                .await
+                .unwrap()
+        )
     }
 
     #[tokio::test(start_paused = true)]

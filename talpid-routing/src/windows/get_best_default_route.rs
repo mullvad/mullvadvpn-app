@@ -2,9 +2,9 @@ use super::{Error, Result};
 use std::{net::SocketAddr, slice};
 use talpid_types::win32_err;
 use talpid_windows::net::{
-    get_ip_interface_entry, try_socketaddr_from_inet_sockaddr, AddressFamily,
+    AddressFamily, get_ip_interface_entry, try_socketaddr_from_inet_sockaddr,
 };
-use widestring::{widecstr, WideCStr};
+use widestring::{WideCStr, widecstr};
 use windows_sys::Win32::NetworkManagement::{
     IpHelper::{
         FreeMibTable, GetIfEntry2, GetIpForwardTable2, IF_TYPE_SOFTWARE_LOOPBACK, IF_TYPE_TUNNEL,

@@ -10,13 +10,13 @@ use mullvad_types::{
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::{
-    obfuscation::ObfuscatorConfig, openvpn, proxy::CustomProxy, wireguard, Endpoint,
-    TunnelParameters,
+    Endpoint, TunnelParameters, obfuscation::ObfuscatorConfig, openvpn, proxy::CustomProxy,
+    wireguard,
 };
 #[cfg(target_os = "android")]
-use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, TunnelParameters};
+use talpid_types::net::{TunnelParameters, obfuscation::ObfuscatorConfig, wireguard};
 
-use talpid_types::{net::IpAvailability, tunnel::ParameterGenerationError, ErrorExt};
+use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
 
 use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
 

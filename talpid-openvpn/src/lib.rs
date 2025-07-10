@@ -21,15 +21,15 @@ use std::{
 use talpid_routing::RequiredRoute;
 use talpid_tunnel::EventHook;
 use talpid_types::{
-    net::{openvpn, proxy::CustomProxy},
     ErrorExt,
+    net::{openvpn, proxy::CustomProxy},
 };
 use tokio::task;
 
 #[cfg(windows)]
 use widestring::U16CString;
 #[cfg(windows)]
-use windows_sys::{core::GUID, Win32::NetworkManagement::Ndis::NET_LUID_LH};
+use windows_sys::{Win32::NetworkManagement::Ndis::NET_LUID_LH, core::GUID};
 
 #[cfg(windows)]
 mod wintun;
@@ -647,11 +647,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
     fn get_config_path(resource_dir: &Path) -> Option<PathBuf> {
         let path = resource_dir.join("openvpn.conf");
-        if path.exists() {
-            Some(path)
-        } else {
-            None
-        }
+        if path.exists() { Some(path) } else { None }
     }
 }
 
@@ -773,13 +769,13 @@ mod event_server {
         task::{Context, Poll},
     };
     use talpid_tunnel::{EventHook, TunnelMetadata};
+    use talpid_types::ErrorExt;
     #[cfg(any(target_os = "macos", target_os = "windows"))]
     use talpid_types::net::proxy::CustomProxy;
-    use talpid_types::ErrorExt;
     use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
     use tonic::{
-        transport::{server::Connected, Server},
         Request, Response,
+        transport::{Server, server::Connected},
     };
 
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -787,8 +783,8 @@ mod event_server {
         tonic::include_proto!("talpid_openvpn_plugin");
     }
     pub use proto::{
-        openvpn_event_proxy_server::{OpenvpnEventProxy, OpenvpnEventProxyServer},
         EventDetails,
+        openvpn_event_proxy_server::{OpenvpnEventProxy, OpenvpnEventProxyServer},
     };
 
     #[derive(thiserror::Error, Debug)]
@@ -914,13 +910,14 @@ mod event_server {
                 .ok_or_else(|| (tonic::Status::invalid_argument("missing tunnel alias")))?
                 .to_string();
 
-            let mut ips = vec![env
-                .get("ifconfig_local")
-                .ok_or_else(|| {
-                    tonic::Status::invalid_argument("missing \"ifconfig_local\" in up event")
-                })?
-                .parse()
-                .map_err(|_| tonic::Status::invalid_argument("Invalid tunnel IPv4 address"))?];
+            let mut ips = vec![
+                env.get("ifconfig_local")
+                    .ok_or_else(|| {
+                        tonic::Status::invalid_argument("missing \"ifconfig_local\" in up event")
+                    })?
+                    .parse()
+                    .map_err(|_| tonic::Status::invalid_argument("Invalid tunnel IPv4 address"))?,
+            ];
             if let Some(ipv6_address) = env.get("ifconfig_ipv6_local") {
                 ips.push(
                     ipv6_address.parse().map_err(|_| {

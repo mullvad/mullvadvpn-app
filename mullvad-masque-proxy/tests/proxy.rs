@@ -3,12 +3,12 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 
-use anyhow::anyhow;
 use anyhow::Context;
+use anyhow::anyhow;
 use bytes::BytesMut;
+use mullvad_masque_proxy::MIN_IPV4_MTU;
 use mullvad_masque_proxy::server::AllowedIps;
 use mullvad_masque_proxy::server::ServerParams;
-use mullvad_masque_proxy::MIN_IPV4_MTU;
 use rand::RngCore;
 use tokio::fs;
 

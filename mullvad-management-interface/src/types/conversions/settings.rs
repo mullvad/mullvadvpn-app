@@ -1,4 +1,4 @@
-use crate::types::{proto, FromProtobufTypeError};
+use crate::types::{FromProtobufTypeError, proto};
 use mullvad_types::settings::CURRENT_SETTINGS_VERSION;
 use talpid_types::ErrorExt;
 
@@ -319,7 +319,7 @@ impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
             Err(_) => {
                 return Err(FromProtobufTypeError::InvalidArgument(
                     "invalid DNS options state",
-                ))
+                ));
             }
         };
 

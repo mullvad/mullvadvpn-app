@@ -7,9 +7,9 @@ use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::{dns, tunnel_state_machine::ErrorState};
 use futures::StreamExt;
+use talpid_types::ErrorExt;
 #[cfg(target_os = "macos")]
 use talpid_types::tunnel::ErrorStateCause;
-use talpid_types::ErrorExt;
 
 /// No tunnel is running.
 pub struct DisconnectedState(());

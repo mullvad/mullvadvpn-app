@@ -24,13 +24,14 @@ use std::ffi::OsString;
 use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "macos")]
 use talpid_tunnel::TunnelMetadata;
-use talpid_tunnel::{tun_provider::TunProvider, TunnelEvent};
+use talpid_tunnel::{TunnelEvent, tun_provider::TunProvider};
 #[cfg(target_os = "macos")]
 use talpid_types::ErrorExt;
 
 use futures::{
+    StreamExt,
     channel::{mpsc, oneshot},
-    stream, StreamExt,
+    stream,
 };
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
@@ -43,7 +44,7 @@ use std::{
     time::Duration,
 };
 #[cfg(target_os = "android")]
-use talpid_types::{android::AndroidContext, ErrorExt};
+use talpid_types::{ErrorExt, android::AndroidContext};
 use talpid_types::{
     net::{AllowedEndpoint, Connectivity, IpAvailability, TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},

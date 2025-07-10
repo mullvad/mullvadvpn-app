@@ -1,20 +1,20 @@
-use std::ffi::{c_void, CStr};
+use std::ffi::{CStr, c_void};
 use std::os::raw::c_char;
 
 use mullvad_api::{
-    rest::{self, MullvadRestHandle},
     ApiProxy, RelayListProxy,
+    rest::{self, MullvadRestHandle},
 };
 use mullvad_types::access_method::AccessMethodSetting;
 
 use super::{
+    SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
     do_request,
     response::SwiftMullvadApiResponse,
     retry_request,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
-    SwiftApiContext,
 };
 
 /// # Safety

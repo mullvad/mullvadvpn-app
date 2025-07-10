@@ -146,8 +146,8 @@ pub enum Error {
 
 #[cfg(test)]
 mod tests {
-    use crate::gettext::messages::argument_ordering;
     use crate::gettext::MsgString;
+    use crate::gettext::messages::argument_ordering;
 
     #[test]
     fn if_message_has_no_argument_should_have_no_argument_ordering() {

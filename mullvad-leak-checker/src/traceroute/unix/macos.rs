@@ -1,32 +1,32 @@
 use std::{ascii::escape_default, ffi::c_int, future::pending, io, net::IpAddr, num::NonZero};
 
-use anyhow::{anyhow, bail, ensure, Context};
+use anyhow::{Context, anyhow, bail, ensure};
 use nix::{
     net::if_::if_nametoindex,
     sys::socket::{setsockopt, sockopt::Ipv6Ttl},
 };
 use pnet_packet::{
-    icmp::{self, time_exceeded::TimeExceededPacket, IcmpPacket, IcmpTypes},
+    Packet,
+    icmp::{self, IcmpPacket, IcmpTypes, time_exceeded::TimeExceededPacket},
     icmpv6::{Icmpv6Packet, Icmpv6Types},
     ip::IpNextHeaderProtocols,
     ipv4::Ipv4Packet,
     ipv6::Ipv6Packet,
     udp::UdpPacket,
-    Packet,
 };
 use socket2::Socket;
 use tokio::{
     select,
-    time::{sleep_until, Instant},
+    time::{Instant, sleep_until},
 };
 
 use crate::{
-    traceroute::{TracerouteOpt, RECV_GRACE_TIME},
-    util::Ip,
     Interface, LeakInfo, LeakStatus,
+    traceroute::{RECV_GRACE_TIME, TracerouteOpt},
+    util::Ip,
 };
 
-use super::{parse_icmp_probe, too_small, AsyncIcmpSocket, Traceroute, PROBE_PAYLOAD};
+use super::{AsyncIcmpSocket, PROBE_PAYLOAD, Traceroute, parse_icmp_probe, too_small};
 
 pub struct TracerouteMacos;
 

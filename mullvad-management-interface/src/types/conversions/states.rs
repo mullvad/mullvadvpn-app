@@ -1,12 +1,12 @@
-use crate::types::{proto, FromProtobufTypeError};
+use crate::types::{FromProtobufTypeError, proto};
 use talpid_types::net::IpVersion;
 
 impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
     fn from(state: mullvad_types::states::TunnelState) -> Self {
         use mullvad_types::states::TunnelState as MullvadTunnelState;
         use proto::error_state::{
-            firewall_policy_error::ErrorType as PolicyErrorType, Cause, FirewallPolicyError,
-            GenerationError,
+            Cause, FirewallPolicyError, GenerationError,
+            firewall_policy_error::ErrorType as PolicyErrorType,
         };
 
         use talpid_types::tunnel as talpid_tunnel;
@@ -332,7 +332,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                     _ => {
                         return Err(FromProtobufTypeError::InvalidArgument(
                             "invalid \"after_disconnect\" action",
-                        ))
+                        ));
                     }
                 },
             ),
@@ -412,7 +412,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                     _ => {
                         return Err(FromProtobufTypeError::InvalidArgument(
                             "invalid error cause",
-                        ))
+                        ));
                     }
                 };
 
@@ -431,7 +431,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
             _ => {
                 return Err(FromProtobufTypeError::InvalidArgument(
                     "invalid tunnel state",
-                ))
+                ));
             }
         };
 

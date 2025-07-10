@@ -15,16 +15,17 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::{Path, PathBuf},
     sync::{
+        Arc, Mutex, MutexGuard, RwLock, Weak,
         atomic::{AtomicBool, Ordering},
-        mpsc as sync_mpsc, Arc, Mutex, MutexGuard, RwLock, Weak,
+        mpsc as sync_mpsc,
     },
     time::Duration,
 };
-use talpid_routing::{get_best_default_route, CallbackHandle, EventType, RouteManagerHandle};
-use talpid_types::{split_tunnel::ExcludedProcess, tunnel::ErrorStateCause, ErrorExt};
+use talpid_routing::{CallbackHandle, EventType, RouteManagerHandle, get_best_default_route};
+use talpid_types::{ErrorExt, split_tunnel::ExcludedProcess, tunnel::ErrorStateCause};
 use talpid_windows::{
     io::Overlapped,
-    net::{get_ip_address_for_interface, AddressFamily},
+    net::{AddressFamily, get_ip_address_for_interface},
     sync::Event,
 };
 use windows_sys::Win32::Foundation::ERROR_OPERATION_ABORTED;
@@ -342,7 +343,11 @@ impl SplitTunnel {
                 match event_id {
                     EventId::StartSplittingProcess => {
                         if let Some(prev_entry) = pids.get(&process_id) {
-                            log::error!("PID collision: {process_id} is already in the list of excluded processes. New image: {:?}. Current image: {:?}", image, prev_entry);
+                            log::error!(
+                                "PID collision: {process_id} is already in the list of excluded processes. New image: {:?}. Current image: {:?}",
+                                image,
+                                prev_entry
+                            );
                         }
                         pids.insert(
                             process_id,

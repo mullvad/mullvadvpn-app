@@ -6,8 +6,8 @@ use mullvad_update::version::{VersionInfo, VersionParameters};
 
 type AppVersion = String;
 
-use super::rest;
 use super::APP_URL_PREFIX;
+use super::rest;
 
 #[derive(Clone)]
 pub struct AppVersionProxy {

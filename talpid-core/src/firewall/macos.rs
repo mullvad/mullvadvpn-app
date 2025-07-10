@@ -10,8 +10,8 @@ use ipnetwork::IpNetwork;
 use libc::{c_int, sysctlbyname};
 use pfctl::{DropAction, FilterRuleAction, Ip, Uid};
 use talpid_types::net::{
-    AllowedEndpoint, AllowedTunnelTraffic, TransportProtocol, ALLOWED_LAN_MULTICAST_NETS,
-    ALLOWED_LAN_NETS,
+    ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic,
+    TransportProtocol,
 };
 
 use super::{FirewallArguments, FirewallPolicy};
@@ -372,7 +372,9 @@ impl Firewall {
                             enable_forwarding();
 
                             if !allowed_tunnel_traffic.all() {
-                                log::warn!("Split tunneling does not respect the 'allowed tunnel traffic' setting");
+                                log::warn!(
+                                    "Split tunneling does not respect the 'allowed tunnel traffic' setting"
+                                );
                             }
                             rules.append(
                                 &mut self.get_split_tunnel_rules(

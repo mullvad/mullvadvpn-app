@@ -12,10 +12,11 @@ use mullvad_types::{
     relay_list::Relay,
 };
 use rand::{
+    Rng,
     seq::{IteratorRandom, SliceRandom},
-    thread_rng, Rng,
+    thread_rng,
 };
-use talpid_types::net::{obfuscation::ObfuscatorConfig, IpVersion};
+use talpid_types::net::{IpVersion, obfuscation::ObfuscatorConfig};
 
 use crate::SelectedObfuscator;
 
@@ -240,7 +241,7 @@ pub fn select_random_port<R: RangeBounds<u16> + Iterator<Item = u16> + Clone>(
 #[cfg(test)]
 mod tests {
     use super::{
-        get_shadowsocks_obfuscator_inner, port_if_in_range, SHADOWSOCKS_EXTRA_PORT_RANGES,
+        SHADOWSOCKS_EXTRA_PORT_RANGES, get_shadowsocks_obfuscator_inner, port_if_in_range,
     };
     use mullvad_types::constraints::Constraint;
     use std::{net::IpAddr, ops::RangeInclusive};

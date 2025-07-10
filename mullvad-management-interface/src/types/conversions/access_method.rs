@@ -2,7 +2,7 @@
 /// [`crate::types::proto::ApiAccessMethodSettings`] type to the internal
 /// [`mullvad_types::access_method::Settings`] data type.
 mod settings {
-    use crate::types::{proto, FromProtobufTypeError};
+    use crate::types::{FromProtobufTypeError, proto};
     use mullvad_types::access_method;
 
     impl From<access_method::Settings> for proto::ApiAccessMethodSettings {
@@ -65,7 +65,7 @@ mod settings {
 /// [`crate::types::proto::AccessMethodSetting`] type to the internal
 /// [`mullvad_types::access_method::AccessMethodSetting`] data type.
 mod data {
-    use crate::types::{proto, FromProtobufTypeError};
+    use crate::types::{FromProtobufTypeError, proto};
     use mullvad_types::access_method::{
         AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Id,
     };

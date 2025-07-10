@@ -8,8 +8,8 @@ use std::{
     task::{self, Poll},
 };
 use talpid_types::{
-    net::{proxy, Endpoint, TransportProtocol},
     ErrorExt,
+    net::{Endpoint, TransportProtocol, proxy},
 };
 use tokio::{
     fs,

@@ -548,7 +548,9 @@ pub enum Error {
     #[error("Buffer didn't match reported message size")]
     InvalidBuffer(Vec<u8>, AddressFlag),
     /// Buffer too small for specific message type
-    #[error("The buffer is too small for msg \"{message_type}\": expected size >= {expect_min_size}, actual {actual_size}")]
+    #[error(
+        "The buffer is too small for msg \"{message_type}\": expected size >= {expect_min_size}, actual {actual_size}"
+    )]
     BufferTooSmall {
         message_type: &'static str,
         expect_min_size: usize,

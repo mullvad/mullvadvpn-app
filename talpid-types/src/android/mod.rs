@@ -1,5 +1,5 @@
 use ipnetwork::{IpNetwork, IpNetworkError, Ipv4Network, Ipv6Network};
-use jnix::jni::{objects::GlobalRef, JavaVM};
+use jnix::jni::{JavaVM, objects::GlobalRef};
 use jnix::{FromJava, IntoJava};
 use std::net::IpAddr;
 use std::sync::Arc;

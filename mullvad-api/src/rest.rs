@@ -1,21 +1,21 @@
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
+    DnsResolver,
     access::AccessTokenStore,
     availability::ApiAvailability,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
     proxy::ConnectionModeProvider,
-    DnsResolver,
 };
 use futures::{
     channel::{mpsc, oneshot},
     stream::StreamExt,
 };
-use http_body_util::{combinators::BoxBody, BodyExt, Empty, Full};
+use http_body_util::{BodyExt, Empty, Full, combinators::BoxBody};
 use hyper::{
+    Method, Uri,
     body::{Body, Buf, Bytes, Incoming},
     header::{self, HeaderValue},
-    Method, Uri,
 };
 use hyper_util::client::legacy::connect::Connect;
 use mullvad_types::account::AccountNumber;

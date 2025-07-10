@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use futures::future::{self, Either};
 use nix::sys::socket::SockaddrStorage;
 use std::net::{Ipv4Addr, SocketAddrV4};
