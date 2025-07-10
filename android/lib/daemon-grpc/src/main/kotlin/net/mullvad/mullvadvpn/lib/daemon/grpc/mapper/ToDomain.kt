@@ -9,6 +9,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
 import mullvad_daemon.management_interface.ManagementInterface
+import mullvad_daemon.management_interface.recentsOrNull
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -56,6 +57,8 @@ import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.Recent
+import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.lib.model.RelayConstraints
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -324,6 +327,7 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         showBetaReleases = showBetaReleases,
         splitTunnelSettings = splitTunnel.toDomain(),
         apiAccessMethodSettings = apiAccessMethods.toDomain(),
+        recents = recentsOrNull.toDomain(),
     )
 
 internal fun ManagementInterface.RelayOverride.toDomain(): RelayOverride =
@@ -351,14 +355,13 @@ internal fun ManagementInterface.NormalRelaySettings.toDomain(): RelayConstraint
         wireguardConstraints = wireguardConstraints.toDomain(),
     )
 
-internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<RelayItemId> =
+internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint.Only<RelayItemId> =
     when (typeCase) {
         ManagementInterface.LocationConstraint.TypeCase.CUSTOM_LIST ->
             Constraint.Only(CustomListId(customList))
         ManagementInterface.LocationConstraint.TypeCase.LOCATION ->
             Constraint.Only(location.toDomain())
-        ManagementInterface.LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any
-        else -> throw IllegalArgumentException("Location constraint type is null")
+        else -> throw IllegalArgumentException("Invalid location constraint")
     }
 
 @Suppress("ReturnCount")
@@ -726,4 +729,25 @@ internal fun ManagementInterface.IpVersion.toDomain() =
         ManagementInterface.IpVersion.V4 -> IpVersion.IPV4
         ManagementInterface.IpVersion.V6 -> IpVersion.IPV6
         ManagementInterface.IpVersion.UNRECOGNIZED -> error("Not supported ${this.name}")
+    }
+
+internal fun ManagementInterface.Recents?.toDomain(): Recents =
+    if (this != null) {
+        Recents.Enabled(recentsList.map { it.toDomain() })
+    } else {
+        Recents.Disabled
+    }
+
+internal fun ManagementInterface.Recent.toDomain(): Recent =
+    when (typeCase) {
+        ManagementInterface.Recent.TypeCase.MULTIHOP ->
+            Recent.Multihop(
+                entry = multihop.entry.toDomain().value,
+                exit = multihop.exit.toDomain().value,
+            )
+
+        ManagementInterface.Recent.TypeCase.SINGLEHOP ->
+            Recent.Singlehop(singlehop.toDomain().value)
+
+        ManagementInterface.Recent.TypeCase.TYPE_NOT_SET -> error("Recent type must be set")
     }

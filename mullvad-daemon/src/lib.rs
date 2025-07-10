@@ -83,6 +83,8 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
+#[cfg(target_os = "android")]
+use talpid_core::connectivity_listener::ConnectivityListener;
 #[cfg(not(target_os = "android"))]
 use talpid_core::tunnel_state_machine::BlockWhenDisconnected;
 use talpid_core::{
@@ -101,9 +103,6 @@ use talpid_types::{
     tunnel::{ErrorStateCause, TunnelStateTransition},
 };
 use tokio::io;
-
-#[cfg(target_os = "android")]
-use talpid_core::connectivity_listener::ConnectivityListener;
 
 #[cfg(target_os = "windows")]
 pub mod service {
@@ -283,6 +282,8 @@ pub enum DaemonCommand {
     SetBridgeState(ResponseTx<(), settings::Error>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
+    /// Set if recents should be enabled
+    SetEnableRecents(ResponseTx<(), settings::Error>, bool),
     /// Set whether to enable PQ PSK exchange in the tunnel
     SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, QuantumResistantState),
     /// Set DAITA settings for the tunnel
@@ -1424,6 +1425,9 @@ impl Daemon {
             }
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state).await,
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
+            SetEnableRecents(tx, enable_recents) => {
+                self.on_set_enable_recents(tx, enable_recents).await
+            }
             SetQuantumResistantTunnel(tx, quantum_resistant_state) => {
                 self.on_set_quantum_resistant_tunnel(tx, quantum_resistant_state)
                     .await
@@ -2564,6 +2568,34 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_enable_ipv6 response");
+            }
+        }
+    }
+
+    async fn on_set_enable_recents(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        enable_recents: bool,
+    ) {
+        match self
+            .settings
+            .update(|settings| match settings.recents {
+                None if enable_recents => {
+                    settings.recents = Some(vec![]);
+                }
+                Some(_) if !enable_recents => {
+                    settings.recents = None;
+                }
+                _ => (),
+            })
+            .await
+        {
+            Ok(_) => {
+                Self::oneshot_send(tx, Ok(()), "set_enable_recents response");
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_enable_recents response");
             }
         }
     }

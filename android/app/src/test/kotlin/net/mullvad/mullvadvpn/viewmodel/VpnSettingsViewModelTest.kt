@@ -32,6 +32,7 @@ import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayConstraints
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.Settings
@@ -377,6 +378,7 @@ class VpnSettingsViewModelTest {
                 splitTunnelSettings =
                     SplitTunnelSettings(enabled = false, excludedApps = emptySet()),
                 apiAccessMethodSettings = emptyList(),
+                recents = Recents.Disabled,
             )
     }
 }
