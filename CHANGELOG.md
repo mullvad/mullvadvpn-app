@@ -33,6 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 - Make it possible to run the app with cgroups v1 fully disabled. Note that split tunneling is
   currently unavailable when this is the case.
 
+### Windows
+- Add a button to start the Mullvad VPN system service if it's unavailable at launch
+
 ### Changed
 #### macOS
 - Use a local DNS resolver on the 127.0.0.0/8 network, regardless of macOS version.
