@@ -151,7 +151,6 @@ private fun LocationBottomSheet(
                     onAddLocationToList(item, it)
                     closeBottomSheet(true)
                 },
-                background = backgroundColor,
                 enabled = enabled,
             )
         }
@@ -163,7 +162,6 @@ private fun LocationBottomSheet(
                 onCreateCustomList(item)
                 closeBottomSheet(true)
             },
-            background = backgroundColor,
         )
     }
 }
@@ -196,7 +194,6 @@ private fun EditCustomListBottomSheet(
                 onEditName(customList)
                 closeBottomSheet(true)
             },
-            background = backgroundColor,
         )
         IconCell(
             imageVector = Icons.Default.Add,
@@ -206,7 +203,6 @@ private fun EditCustomListBottomSheet(
                 onEditLocations(customList)
                 closeBottomSheet(true)
             },
-            background = backgroundColor,
         )
         IconCell(
             imageVector = Icons.Default.Delete,
@@ -216,7 +212,6 @@ private fun EditCustomListBottomSheet(
                 onDeleteCustomList(customList)
                 closeBottomSheet(true)
             },
-            background = backgroundColor,
         )
     }
 }
@@ -255,7 +250,6 @@ private fun CustomListEntryBottomSheet(
                 onRemoveLocationFromList(item, customListId)
                 closeBottomSheet(true)
             },
-            background = backgroundColor,
         )
     }
 }

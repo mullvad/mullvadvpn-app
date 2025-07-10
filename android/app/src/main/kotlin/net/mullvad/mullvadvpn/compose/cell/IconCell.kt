@@ -52,9 +52,11 @@ fun IconCell(
     titleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
     onClick: () -> Unit = {},
-    background: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
 ) {
+    // Using a transparent background to avoid using the default background from BaseCell
+    val background: Color = Color.Transparent
+
     BaseCell(
         headlineContent = {
             Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
