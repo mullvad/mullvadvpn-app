@@ -16,6 +16,7 @@ TEST_SERVICES_URL=https://dl.google.com/android/maven2/androidx/test/services/te
 PARTNER_AUTH="${PARTNER_AUTH:-}"
 VALID_TEST_ACCOUNT_NUMBER="${VALID_TEST_ACCOUNT_NUMBER:-}"
 INVALID_TEST_ACCOUNT_NUMBER="${INVALID_TEST_ACCOUNT_NUMBER:-}"
+ENABLE_BILLING_TESTS="${ENABLE_BILLING_TESTS:-false}"
 ENABLE_HIGHLY_RATE_LIMITED_TESTS="${ENABLE_HIGHLY_RATE_LIMITED_TESTS:-false}"
 ENABLE_RAAS_TESTS="${ENABLE_RAAS_TESTS:-false}"
 RAAS_HOST="${RAAS_HOST:-}"
@@ -136,9 +137,15 @@ case "$TEST_TYPE" in
         echo "Error: The variable PARTNER_AUTH or VALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
+
+    if [[ ${ENABLE_BILLING_TESTS} == "true" ]]; then
+        echo "Tests dependent on billing account enabled"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.billing.enable $ENABLE_BILLING_TESTS"
+    fi
+
     OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.enable $ENABLE_RAAS_TESTS"
 
-    if [[ -n ${ENABLE_RAAS_TESTS} ]]; then
+    if [[ ${ENABLE_RAAS_TESTS} == "true" ]]; then
         echo "Tests dependent on local API enabled"
         OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.host $RAAS_HOST"
         OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.config.raas.trafficGenerator.target.host $RAAS_TRAFFIC_GENERATOR_TARGET_HOST"
