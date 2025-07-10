@@ -451,8 +451,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         return switch sectionIdentifier {
-        // 0 due to there already being a separator between .dnsSettings and .ipOverrides.
-        case .dnsSettings: 0
         case .ipOverrides, .quantumResistance: UITableView.automaticDimension
         #if DEBUG
         case .localNetworkSharing: UITableView.automaticDimension
