@@ -91,7 +91,7 @@ pub unsafe extern "C" fn mullvad_api_update_access_methods(
     api_context: SwiftApiContext,
     settings_wrapper: SwiftAccessMethodSettingsWrapper,
 ) {
-    let access_methods = settings_wrapper.into_rust_context().settings;
+    let access_methods = unsafe { settings_wrapper.into_rust_context().settings };
     api_context
         .rust_context()
         .update_access_methods(access_methods);
@@ -109,7 +109,7 @@ pub unsafe extern "C" fn mullvad_api_use_access_method(
 ) {
     let api_context = api_context.rust_context();
     // SAFETY: See Safety notes for `get_string`
-    let id = get_string(access_method_id);
+    let id = unsafe { get_string(access_method_id) };
 
     let Some(id) = Id::from_string(id) else {
         return;
@@ -130,7 +130,7 @@ pub unsafe extern "C" fn mullvad_api_use_access_method(
 ///
 /// This function is safe.
 #[cfg(feature = "api-override")]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_init_new_tls_disabled(
     host: *const c_char,
     address: *const c_char,
@@ -162,7 +162,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
 /// to proceed in a meaningful way anyway.
 ///
 /// This function is safe.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_init_new(
     host: *const c_char,
     address: *const c_char,

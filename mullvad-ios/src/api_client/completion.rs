@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use super::response::SwiftMullvadApiResponse;
 
-extern "C" {
+unsafe extern "C" {
     /// Maps to `mullvadApiCompletionFinish` on Swift side to facilitate callback based completion flow when doing
     /// network calls through Mullvad API on Rust side.
     ///

@@ -155,8 +155,8 @@ mod tests {
     fn newline_collapsing() {
         let input = StringValue::from_unescaped(
             "This is
-            a multi-line string		
-            that should be  
+            a multi-line string
+            that should be
             	collapsed into a single line",
             None,
         );
@@ -217,7 +217,7 @@ mod tests {
         }
 
         let serialized_input = r#"<root>A multi-line string value
-            with \"quotes\" and  
+            with \"quotes\" and
             parameters %2$s %d %1$d</root>"#;
 
         let deserialized: Wrapper =

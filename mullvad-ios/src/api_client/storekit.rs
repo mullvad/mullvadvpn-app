@@ -34,7 +34,7 @@ use super::{
 /// `body_size` must be the size of the body
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_legacy_storekit_payment(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
@@ -43,7 +43,8 @@ pub unsafe extern "C" fn mullvad_ios_legacy_storekit_payment(
     body: *const u8,
     body_size: usize,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -57,7 +58,7 @@ pub unsafe extern "C" fn mullvad_ios_legacy_storekit_payment(
     let completion = completion_handler.clone();
 
     // SAFETY: See param documentation for `account_number`.
-    let account_number = AccountNumber::from(get_string(account_number));
+    let account_number = AccountNumber::from(unsafe { get_string(account_number) });
 
     // SAFETY: See param documentation for `body`.
     let body = unsafe { std::slice::from_raw_parts(body, body_size) }.to_vec();
@@ -110,14 +111,15 @@ async fn mullvad_ios_legacy_storekit_payment_inner(
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -132,7 +134,7 @@ pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
     let completion = completion_handler.clone();
 
     // SAFETY: See param documentation for `account_number`.
-    let account_number = AccountNumber::from(get_string(account_number));
+    let account_number = AccountNumber::from(unsafe { get_string(account_number) });
 
     let task = tokio_handle.spawn(async move {
         match mullvad_ios_init_storekit_payment_inner(
@@ -184,7 +186,7 @@ async fn mullvad_ios_init_storekit_payment_inner(
 /// `body_size` must be the size of the body
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
@@ -193,7 +195,8 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
     body: *const u8,
     body_size: usize,
 ) -> SwiftCancelHandle {
-    let completion_handler = SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie));
+    let completion_handler =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
@@ -207,7 +210,7 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
     let completion = completion_handler.clone();
 
     // SAFETY: See param documentation for `account_number`.
-    let account_number = AccountNumber::from(get_string(account_number));
+    let account_number = AccountNumber::from(unsafe { get_string(account_number) });
 
     // SAFETY: See param documentation for `body`.
     let body = unsafe { std::slice::from_raw_parts(body, body_size) }.to_vec();

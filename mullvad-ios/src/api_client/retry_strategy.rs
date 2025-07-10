@@ -9,7 +9,7 @@ impl SwiftRetryStrategy {
     /// # Safety
     /// The pointer must be a pointing to a valid instance of a `Box<RetryStrategy>`.
     pub unsafe fn into_rust(self) -> RetryStrategy {
-        *Box::from_raw(self.0)
+        unsafe { *Box::from_raw(self.0) }
     }
 }
 
@@ -46,7 +46,7 @@ pub enum RetryDelay {
 
 /// Creates a retry strategy that never retries after failure.
 /// The result needs to be consumed.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_retry_strategy_never() -> SwiftRetryStrategy {
     let retry_strategy = RetryStrategy {
         delays: RetryDelay::Never,
@@ -59,7 +59,7 @@ pub extern "C" fn mullvad_api_retry_strategy_never() -> SwiftRetryStrategy {
 
 /// Creates a retry strategy that retries `max_retries` times with a constant delay of `delay_sec`.
 /// The result needs to be consumed.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_retry_strategy_constant(
     max_retries: usize,
     delay_sec: u64,
@@ -77,7 +77,7 @@ pub extern "C" fn mullvad_api_retry_strategy_constant(
 /// Creates a retry strategy that retries `max_retries` times with a exponantially increating delay.
 /// The delay will never exceed `max_delay_sec`
 /// The result needs to be consumed.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_retry_strategy_exponential(
     max_retries: usize,
     initial_sec: u64,
