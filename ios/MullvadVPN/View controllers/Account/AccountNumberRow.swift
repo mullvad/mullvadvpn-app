@@ -43,6 +43,7 @@ class AccountNumberRow: UIView {
         textLabel.font = .mullvadSmall
         textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = .white
+        textLabel.numberOfLines = 0
         return textLabel
     }()
 
@@ -73,7 +74,7 @@ class AccountNumberRow: UIView {
 
             accountNumberLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: UIMetrics.padding8)
             accountNumberLabel.leadingAnchor.constraint(equalTo: leadingAnchor)
-            accountNumberLabel.trailingAnchor.constraint(equalTo: showHideButton.leadingAnchor)
+            accountNumberLabel.trailingAnchor.constraint(greaterThanOrEqualTo: showHideButton.leadingAnchor)
             accountNumberLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
 
             showHideButton.heightAnchor.constraint(equalTo: accountNumberLabel.heightAnchor)
@@ -103,6 +104,15 @@ class AccountNumberRow: UIView {
 
         isAccessibilityElement = true
         accessibilityLabel = titleLabel.text
+
+        showHideButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        showHideButton.setContentHuggingPriority(.required, for: .horizontal)
+
+        copyButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        copyButton.setContentHuggingPriority(.required, for: .horizontal)
+
+        accountNumberLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        accountNumberLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
 
         showCheckmark(false)
         updateView()

@@ -38,6 +38,7 @@ class AccountDeviceRow: UIView {
         label.font = .mullvadSmall
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
+        label.numberOfLines = 0
         return label
     }()
 
@@ -47,7 +48,7 @@ class AccountDeviceRow: UIView {
         button.isUserInteractionEnabled = true
         button.numberOfLines = 0
         button.textAlignment = .center
-        button.setContentHuggingPriority(.required, for: .horizontal)
+
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.mullvadSmallSemiBold,
             .foregroundColor: UIColor.primaryTextColor,
@@ -73,6 +74,12 @@ class AccountDeviceRow: UIView {
         contentContainerView.axis = .vertical
         contentContainerView.alignment = .leading
         contentContainerView.spacing = 8
+
+        contentContainerView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        contentContainerView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+
+        deviceManagementButton.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        deviceManagementButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
 
         addConstrainedSubviews(
             [contentContainerView, deviceManagementButton]
