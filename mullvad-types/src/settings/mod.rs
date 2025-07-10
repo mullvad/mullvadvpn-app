@@ -102,7 +102,7 @@ pub struct Settings {
     /// Specifies settings schema version
     pub settings_version: SettingsVersion,
     /// Stores the user's recently connected locations. If None recents have been disabled by the user.
-    pub recent_settings: Option<Vec<Recent>>,
+    pub recents: Option<Vec<Recent>>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -263,7 +263,7 @@ impl Default for Settings {
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
-            recent_settings: Some(vec![]),
+            recents: Some(vec![]),
         }
     }
 }
@@ -321,7 +321,7 @@ impl Settings {
 
     // Add the current RelaySettings to the recents list. If recents are disabled do nothing.
     fn update_recents(&mut self, relay_settings: &RelaySettings) {
-        if let Some(recents) = self.recent_settings.as_mut() {
+        if let Some(recents) = self.recents.as_mut() {
             match Recent::try_from(relay_settings) {
                 Ok(new_recent) => {
                     recents.retain(|r| *r != new_recent);

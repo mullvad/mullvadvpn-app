@@ -2579,12 +2579,12 @@ impl Daemon {
     ) {
         match self
             .settings
-            .update(|settings| match settings.recent_settings {
+            .update(|settings| match settings.recents {
                 None if enable_recents => {
-                    settings.recent_settings = Some(vec![]);
+                    settings.recents = Some(vec![]);
                 }
                 Some(_) if !enable_recents => {
-                    settings.recent_settings = None;
+                    settings.recents = None;
                 }
                 _ => (),
             })
