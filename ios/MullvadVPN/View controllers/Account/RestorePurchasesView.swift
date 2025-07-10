@@ -28,6 +28,7 @@ class RestorePurchasesView: UIView {
         label.attributedText = makeAttributedString()
         label.adjustsFontForContentSizeCategory = true
         label.isUserInteractionEnabled = true
+        label.numberOfLines = 0
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapRestoreButton)))
         return label
     }()

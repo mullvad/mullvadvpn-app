@@ -111,7 +111,7 @@ class MethodSettingsViewController: UITableViewController {
             return UITableView.automaticDimension
         case .validationError:
             return contentValidationErrors.isEmpty
-                ? UIMetrics.SettingsRowView.height
+                ? 44.0
                 : UITableView.automaticDimension
         case .testingStatus:
             return UITableView.automaticDimension
