@@ -40,14 +40,23 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                 value: "About API access…",
                 comment: ""
             )
-            MullvadInfoHeaderView(
-                bodyText: text,
-                link: about,
-                onTapLink: viewModel.showAbout
-            )
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
-            MullvadList(viewModel.items) { item in
+
+            MullvadList(viewModel.items, header: {
+                MullvadInfoHeaderView(
+                    bodyText: text,
+                    link: about,
+                    onTapLink: viewModel.showAbout
+                )
+                .padding(.bottom, 16)
+            }, footer: {
+                MainButton(
+                    text: LocalizedStringKey("Add"),
+                    style: .default
+                ) {
+                    viewModel.addNewMethod()
+                }
+                .padding(.top, 24)
+            }, content: { item in
                 let accessibilityId: AccessibilityIdentifier? = switch item.id {
                 case AccessMethodRepository.directId:
                     AccessibilityIdentifier.accessMethodDirectCell
@@ -86,7 +95,7 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                         viewModel.methodSelected(item)
                     }
                 )
-            }
+            })
             .accessibilityIdentifier(
                 AccessibilityIdentifier.apiAccessListView.asString
             )
@@ -96,13 +105,6 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                 } else {
                     $0
                 }
-            }
-            .padding(.bottom, 24)
-            MainButton(
-                text: LocalizedStringKey("Add"),
-                style: .default
-            ) {
-                viewModel.addNewMethod()
             }
             .accessibilityIdentifier(AccessibilityIdentifier.addAccessMethodButton.asString)
             .padding(.horizontal)

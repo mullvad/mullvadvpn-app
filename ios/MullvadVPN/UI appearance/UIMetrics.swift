@@ -106,9 +106,8 @@ enum UIMetrics {
     }
 
     enum SettingsRowView {
-        static let height: CGFloat = 44
         static let cornerRadius: CGFloat = 10
-        static let layoutMargins = EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+        static let layoutMargins = EdgeInsets(top: 11, leading: 16, bottom: 11, trailing: 16)
         static let footerLayoutMargins = EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16)
     }
 
