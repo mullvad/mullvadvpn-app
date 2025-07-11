@@ -67,9 +67,9 @@ struct MullvadListActionItemView<Icon: View>: View {
             }
         }
         .padding(EdgeInsets(
-            top: 11,
+            top: 8,
             leading: UIMetrics.contentLayoutMargins.leading,
-            bottom: 11,
+            bottom: 8,
             trailing: UIMetrics.contentLayoutMargins.trailing
         ))
         .background(Color.MullvadList.background)
