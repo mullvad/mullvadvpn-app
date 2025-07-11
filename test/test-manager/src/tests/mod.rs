@@ -214,37 +214,35 @@ async fn ensure_daemon_version(
 ) -> anyhow::Result<MullvadProxyClient> {
     let app_package_filename = &TEST_CONFIG.app_package_filename;
 
-    use mullvad_management_interface::Error::*;
-    match correct_daemon_version_is_running(rpc_provider.new_client().await).await {
-        Ok(true) => {}
-        Ok(false) => {
-            log::debug!("Daemon has the wrong verison, reinstalling app");
-            // NOTE: Reinstalling the app resets the daemon environment
-            return install_app(rpc, app_package_filename, rpc_provider)
-                .await
-                .with_context(|| format!("Failed to install app '{app_package_filename}'"));
-        }
-        // Failing to reach the daemon is a sign that it is not installed
-        Err(Rpc(..)) => {
-            log::debug!("Daemon is not running, attempting to start it");
+    let must_reinstall_app =
+        match correct_daemon_version_is_running(rpc_provider.new_client().await).await {
+            Ok(correct_version) => !correct_version,
+            // Failing to reach the daemon is a sign that it is not installed
+            Err(mullvad_management_interface::Error::Rpc(..)) => {
+                log::debug!("Daemon is not running, attempting to start it");
 
-            if rpc.enable_mullvad_daemon().await.is_err()
-                || rpc.start_mullvad_daemon().await.is_err()
-            {
-                log::warn!("Failed to start the daemon service, reinstalling app");
-                return install_app(rpc, app_package_filename, rpc_provider)
-                    .await
-                    .with_context(|| format!("Failed to install app '{app_package_filename}'"));
+                let failed_starting_daemon = rpc.enable_mullvad_daemon().await.is_err()
+                    || rpc.start_mullvad_daemon().await.is_err();
+                if failed_starting_daemon {
+                    log::warn!("Failed to start the daemon service");
+                }
+                failed_starting_daemon
             }
-        }
-        Err(e) => panic!("Failed to get app version: {e}"),
-    };
+            Err(e) => panic!("Failed to get app version: {e}"),
+        };
 
-    ensure_daemon_environment(rpc)
-        .await
-        .context("Failed to reset daemon environment")?;
+    if must_reinstall_app {
+        // NOTE: Reinstalling the app resets the daemon environment
+        install_app(rpc, app_package_filename, rpc_provider)
+            .await
+            .with_context(|| format!("Failed to install app '{app_package_filename}'"))
+    } else {
+        ensure_daemon_environment(rpc)
+            .await
+            .context("Failed to reset daemon environment")?;
 
-    Ok(rpc_provider.new_client().await)
+        Ok(rpc_provider.new_client().await)
+    }
 }
 
 /// Conditionally restart the running daemon
