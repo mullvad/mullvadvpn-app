@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -11,7 +10,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -194,8 +192,7 @@ private fun CustomListFooter(item: RelayListItem.CustomListFooter) {
                 stringResource(R.string.to_add_locations_to_a_list)
             } else {
                 stringResource(R.string.to_create_a_custom_list)
-            },
-        modifier = Modifier.background(MaterialTheme.colorScheme.surface),
+            }
     )
 }
 

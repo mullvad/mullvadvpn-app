@@ -459,8 +459,6 @@ private fun Products(
                 onBackgroundColor.copy(
                     alpha = if (internetBlocked) AlphaDisabled else AlphaVisible
                 ),
-            background =
-                backgroundColor.copy(alpha = if (internetBlocked) AlphaDisabled else AlphaVisible),
             enabled = !internetBlocked,
             endIcon = {
                 Icon(
@@ -486,7 +484,6 @@ private fun Products(
             onRedeemVoucherClick()
             closeBottomSheet(true)
         },
-        background = backgroundColor,
     )
 }
 
