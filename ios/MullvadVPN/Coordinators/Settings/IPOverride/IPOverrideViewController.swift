@@ -20,7 +20,7 @@ class IPOverrideViewController: UIViewController {
     private lazy var containerView: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
-        view.spacing = 20
+        view.spacing = 16
         return view
     }()
 
@@ -51,7 +51,6 @@ class IPOverrideViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         view.backgroundColor = .secondaryColor
         configureNavigation()
         addHeaderView()
@@ -77,6 +76,7 @@ class IPOverrideViewController: UIViewController {
     private func addScrollView() {
         let scrollView = UIScrollView()
         let contentView = UIView()
+        contentView.directionalLayoutMargins = UIMetrics.contentHeadingLayoutMargins
 
         view.addConstrainedSubviews([scrollView]) {
             scrollView.pinEdgesToSuperview()
@@ -94,8 +94,6 @@ class IPOverrideViewController: UIViewController {
         contentStackView.axis = .vertical
         contentStackView.distribution = .fill
         contentStackView.spacing = 8
-        contentStackView.isLayoutMarginsRelativeArrangement = true
-        contentStackView.directionalLayoutMargins = UIMetrics.contentHeadingLayoutMargins
 
         contentView.addConstrainedSubviews([contentStackView]) {
             contentStackView.pinEdgesToSuperviewMargins()
