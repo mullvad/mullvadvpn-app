@@ -68,7 +68,7 @@ async fn test_clearing_blocked_state_on_failed_upgrade(
     log::info!("Rebooting device...");
     rpc.reboot().await?;
     // The conn check should now fail - the firewall filters should have been removed at this point 💦💦💦
-    log::info!("Checking connectivity after reboot (should be offline)");
+    log::info!("Checking connectivity after reboot (should be online, but not secured)");
     let mullvad_exit_ip = geoip_lookup_with_retries(&rpc)
         .await
         .context("Device is offline after reboot")?
