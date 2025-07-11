@@ -60,17 +60,20 @@ impl PartialOrd for Version {
             }
         };
 
-        // The dev vs non-dev ordering. For a version of a given type, if all else is equal
-        // a dev version is greater than a non-dev version.
-        let dev_ordering = match (self.is_dev(), other.is_dev()) {
-            (true, false) => Some(Ordering::Greater),
-            (false, true) => Some(Ordering::Less),
-            (_, _) => None,
+        // The dev vs non-dev ordering.
+        let dev_ordering = match (&self.dev, &other.dev) {
+            // All else being equal, a dev version is greater than a non-dev version
+            (Some(_), None) => Some(Ordering::Greater),
+            (None, Some(_)) => Some(Ordering::Less),
+
+            // Dev-suffixes are not ordered, but they can be equal.
+            (Some(a), Some(b)) if a != b => None,
+            (Some(_), Some(_)) => Some(Ordering::Equal),
+
+            (None, None) => Some(Ordering::Equal),
         };
 
-        let release_ordering = self
-            .year
-            .cmp(&other.year)
+        let release_ordering = (self.year.cmp(&other.year))
             .then(self.incremental.cmp(&other.incremental))
             .then(type_ordering);
 
@@ -237,13 +240,22 @@ mod tests {
     }
 
     #[test]
+    fn test_version_ordering_and_equality() {
+        let v = parse("2021.3");
+
+        // A version is equal to itself
+        assert_eq!(v, v);
+        assert_eq!(v.partial_cmp(&v), Some(Ordering::Equal));
+    }
+
+    #[test]
     fn test_version_ordering_and_equality_dev() {
         let v1 = parse("2021.3-dev-abc");
         let v2 = parse("2021.3-dev-def");
 
-        // Exactly the same version are equal, but has no ordering
+        // A dev version is equal to itself
         assert_eq!(v1, v1);
-        assert!(v1.partial_cmp(&v1).is_none());
+        assert_eq!(v1.partial_cmp(&v1), Some(Ordering::Equal));
 
         // Equal down to the dev suffix are not equal, and has no ordering
         assert_ne!(v1, v2);
