@@ -108,7 +108,6 @@ fun RelayListItem(
 class RelayListItemColors(
     val containerColor: Color,
     val headlineColor: Color,
-    val leadingIconColor: Color,
     val trailingIconColor: Color,
     val selectedHeadlineColor: Color,
     val disabledHeadlineColor: Color,
@@ -143,7 +142,6 @@ object RelayListItemDefaults {
     fun colors(
         containerColor: Color = MaterialTheme.colorScheme.surface,
         headlineColor: Color = MaterialTheme.colorScheme.onSurface,
-        leadingIconColor: Color = MaterialTheme.colorScheme.onSurface,
         trailingIconColor: Color = MaterialTheme.colorScheme.onSurface,
         selectedHeadlineColor: Color = MaterialTheme.colorScheme.tertiary,
         disabledHeadlineColor: Color =
@@ -152,7 +150,6 @@ object RelayListItemDefaults {
         RelayListItemColors(
             containerColor = containerColor,
             headlineColor = headlineColor,
-            leadingIconColor = leadingIconColor,
             trailingIconColor = trailingIconColor,
             selectedHeadlineColor = selectedHeadlineColor,
             disabledHeadlineColor = disabledHeadlineColor,
@@ -229,43 +226,8 @@ private fun PreviewTrailingRelayListItem() {
                 ) {
                     Icon(imageVector = Icons.Default.Check, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text(
-                        "Hello world fsadhkuhfiuskahf iuhsadhuf sa",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    Text("Sample Relay Item", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-            },
-            trailingContent = {
-                Box(
-                    modifier = Modifier.fillMaxSize().clickable(onClick = {}),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                    )
-                }
-            },
-        )
-    }
-}
-
-@Preview
-@PreviewFontScale
-@Composable
-private fun PreviewLeadingAndTrailingRelayListItem() {
-    AppTheme {
-        RelayListItem(
-            modifier = Modifier.fillMaxWidth(),
-            content = {
-                Text(
-                    "Hello world iuhsadhuf sa",
-                    modifier = Modifier.clickable {}.padding(16.dp).fillMaxSize(),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
             },
             trailingContent = {
                 Box(
