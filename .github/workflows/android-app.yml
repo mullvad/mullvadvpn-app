@@ -232,9 +232,10 @@ jobs:
           submodules: true
 
       - name: Prepare dummy debug keystore
+        env:
+          KEYSTORE: ${{ vars.ANDROID_DUMMY_DEBUG_KEYSTORE }}
         run: |
-          echo "${{ secrets.ANDROID_DUMMY_DEBUG_KEYSTORE }}" | \
-            base64 -d > /root/.android/debug.keystore
+          echo "$KEYSTORE" | tr -d '\n\r' | base64 -d > /root/.android/debug.keystore
 
       - name: Compile app
         uses: burrunan/gradle-cache-action@v1
@@ -339,9 +340,10 @@ jobs:
           submodules: true
 
       - name: Prepare dummy debug keystore
+        env:
+          KEYSTORE: ${{ vars.ANDROID_DUMMY_DEBUG_KEYSTORE }}
         run: |
-          echo "${{ secrets.ANDROID_DUMMY_DEBUG_KEYSTORE }}" | \
-            base64 -d > /root/.android/debug.keystore
+          echo "$KEYSTORE" | tr -d '\n\r' | base64 -d > /root/.android/debug.keystore
 
       - name: Assemble instrumented test apk
         uses: burrunan/gradle-cache-action@v1
