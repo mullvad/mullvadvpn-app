@@ -136,10 +136,41 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  build-using-nix:
+    name: Build fdroid variant using nix
+    runs-on: ubuntu-24.04
+    needs: set-up-env
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
+
+      - name: Fetch submodules and tags
+        run: |
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+          git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Build app
+        working-directory: android
+        run: nix develop -c ./gradlew assembleOssProdFdroid
+
+      - name: Upload apks
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-nix
+          path: android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
+          if-no-files-found: error
+          retention-days: 7
+
   compare-builds:
     name: Check builds
     runs-on: ubuntu-latest
-    needs: [build-using-container, build-using-fdroidserver]
+    needs: [build-using-container, build-using-fdroidserver, build-using-nix]
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
