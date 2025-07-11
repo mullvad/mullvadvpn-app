@@ -34,7 +34,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
     private let contentView: AccountContentView = {
         let contentView = AccountContentView()
-        contentView.translatesAutoresizingMaskIntoConstraints = false
         return contentView
     }()
 
@@ -116,16 +115,8 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     // MARK: - Private
 
     private func configUI() {
-        let scrollView = UIScrollView()
-
-        view.addConstrainedSubviews([scrollView]) {
-            scrollView.pinEdgesToSuperview()
-        }
-
-        scrollView.addConstrainedSubviews([contentView]) {
-            contentView.pinEdgesToSuperview(.all().excluding(.bottom))
-            contentView.bottomAnchor.constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.bottomAnchor)
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        view.addConstrainedSubviews([contentView]) {
+            contentView.pinEdgesToSuperview()
         }
     }
 

@@ -109,7 +109,7 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UIMetrics.SettingsCell.apiAccessCellHeight
+        UITableView.automaticDimension
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

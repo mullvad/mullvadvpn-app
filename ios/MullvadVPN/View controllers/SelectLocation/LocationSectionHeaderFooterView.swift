@@ -1,5 +1,5 @@
 //
-//  LocationSectionHeaderView.swift
+//  LocationSectionHeaderFooterView.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2024-01-25.
@@ -9,116 +9,86 @@
 import Foundation
 import UIKit
 
-class LocationSectionHeaderFooterView: UIView, UIContentView {
-    var configuration: UIContentConfiguration {
-        get {
-            actualConfiguration
-        } set {
-            guard let newConfiguration = newValue as? Configuration,
-                  actualConfiguration != newConfiguration else { return }
-            actualConfiguration = newConfiguration
-            apply(configuration: newConfiguration)
-        }
-    }
+class LocationSectionHeaderFooterView: UITableViewHeaderFooterView {
+    static let reuseIdentifier = "LocationSectionHeaderFooterView"
 
-    private var actualConfiguration: Configuration
+    private let label = UILabel()
+    private let button = UIButton(type: .system)
 
-    private let containerView: UIStackView = {
-        let containerView = UIStackView()
-        containerView.axis = .horizontal
-        containerView.spacing = 8
-        containerView.isLayoutMarginsRelativeArrangement = true
-        return containerView
-    }()
+    override init(reuseIdentifier: String?) {
+        super.init(reuseIdentifier: reuseIdentifier)
 
-    private let nameLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
-        label.textColor = .primaryTextColor
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
-        return label
-    }()
-
-    private let actionButton: UIButton = {
-        let button = UIButton(type: .system)
+        // Configure button
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         button.tintColor = UIColor(white: 1, alpha: 0.6)
-        return button
-    }()
 
-    init(configuration: Configuration) {
-        self.actualConfiguration = configuration
-        super.init(frame: .zero)
-        apply(configuration: configuration)
-        addSubviews()
+        contentView.addConstrainedSubviews([label, button]) {
+            label.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
+            button.pinEdgesToSuperviewMargins(.all().excluding(.leading))
+            button.leadingAnchor.constraint(greaterThanOrEqualTo: label.trailingAnchor, constant: 8)
+        }
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func addSubviews() {
-        containerView.addArrangedSubview(nameLabel)
-        containerView.addArrangedSubview(actionButton)
-        addConstrainedSubviews([containerView]) {
-            containerView.pinEdgesToSuperviewMargins()
-            actionButton.widthAnchor.constraint(equalTo: actionButton.heightAnchor)
-        }
-    }
+    func configure(configuration: Configuration) {
+        var contentConfig = UIListContentConfiguration.groupedHeader()
+        contentConfig.text = configuration.name
+        contentConfig.textProperties.alignment = configuration.style.textAlignment
+        contentConfig.textProperties.color = configuration.style.textColor
+        contentConfig.textProperties.font = configuration.style.font
+        contentConfig.textProperties.adjustsFontForContentSizeCategory = true
 
-    private func apply(configuration: Configuration) {
-        let isActionHidden = configuration.primaryAction == nil
-        backgroundColor = configuration.style.backgroundColor
-        nameLabel.textColor = configuration.style.textColor
-        nameLabel.text = configuration.name
-        nameLabel.font = configuration.style.font
-        nameLabel.adjustsFontForContentSizeCategory = true
-        nameLabel.textAlignment = configuration.style.textAlignment
-        actionButton.isHidden = isActionHidden
-        actionButton.accessibilityIdentifier = nil
-        actualConfiguration.primaryAction.flatMap { action in
-            actionButton.setAccessibilityIdentifier(.openCustomListsMenuButton)
-            actionButton.addAction(action, for: .touchUpInside)
+        contentView.backgroundColor = configuration.style.backgroundColor
+        directionalLayoutMargins = configuration.directionalEdgeInsets
+
+        // Apply the font and color directly to the label:
+        label.text = configuration.name
+        label.font = contentConfig.textProperties.font
+        label.textColor = contentConfig.textProperties.color
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        if let buttonAction = configuration.primaryAction {
+            button.isHidden = false
+            button.removeTarget(nil, action: nil, for: .allEvents)
+            button.addAction(buttonAction, for: .touchUpInside)
+        } else {
+            button.isHidden = true
         }
-        directionalLayoutMargins = actualConfiguration.directionalEdgeInsets
     }
 }
 
 extension LocationSectionHeaderFooterView {
-    struct Style: Equatable {
+    struct Style: Equatable, @unchecked Sendable {
         let font: UIFont
         let textColor: UIColor
-        let textAlignment: NSTextAlignment
+        let textAlignment: UIListContentConfiguration.TextProperties.TextAlignment
         let backgroundColor: UIColor
 
         static let header = Style(
-            font: .preferredFont(forTextStyle: .body, weight: .semibold),
+            font: .mullvadSmallSemiBold,
             textColor: .primaryTextColor,
             textAlignment: .natural,
             backgroundColor: .primaryColor
         )
 
         static let footer = Style(
-            font: .preferredFont(forTextStyle: .body, weight: .regular),
+            font: .mullvadTiny,
             textColor: .secondaryTextColor,
             textAlignment: .center,
             backgroundColor: .clear
         )
     }
 
-    struct Configuration: UIContentConfiguration, Equatable {
+    struct Configuration {
         let name: String
         let style: Style
-        var directionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 8)
+        var directionalEdgeInsets = NSDirectionalEdgeInsets(top: 11, leading: 16, bottom: 11, trailing: 8)
         var primaryAction: UIAction?
-
-        func makeContentView() -> UIView & UIContentView {
-            LocationSectionHeaderFooterView(configuration: self)
-        }
-
-        func updated(for state: UIConfigurationState) -> Configuration {
-            self
-        }
     }
 }

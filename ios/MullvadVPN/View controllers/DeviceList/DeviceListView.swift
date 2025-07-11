@@ -4,6 +4,7 @@ struct DeviceListView: View {
     @Binding var devices: [Device]?
     @Binding var loading: Bool
     var onRemoveDevice: ((Device) -> Void)?
+    let header: (() -> AnyView)?
 
     struct Device: Identifiable, Hashable {
         let id: String
@@ -20,15 +21,34 @@ struct DeviceListView: View {
     }
 
     var body: some View {
-        if loading {
-            ProgressView()
-                .progressViewStyle(MullvadProgressViewStyle())
-                .padding(.top, 24)
-            Text("Fetching devices...")
-                .padding(.top, 16)
-                .foregroundColor(.mullvadTextPrimary.opacity(0.6))
-        } else if let devices {
-            MullvadList(devices) { device in
+        let headerContent: () -> some View = {
+            VStack {
+                if let header {
+                    header()
+                }
+
+                if loading {
+                    Spacer()
+
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .progressViewStyle(MullvadProgressViewStyle())
+
+                        Text("Fetching devices...")
+                            .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+                    }
+
+                    Spacer()
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+
+        MullvadList(
+            devices ?? [],
+            header: headerContent,
+            footer: { EmptyView() },
+            content: { device in
                 MullvadListActionItemView(
                     item: .init(
                         id: device.id,
@@ -54,8 +74,19 @@ struct DeviceListView: View {
                     }
                 )
             }
-            .accessibilityIdentifier(.deviceListView)
-        }
+        )
+        .accessibilityIdentifier(.deviceListView)
+
+//        if loading {
+//            VStack {
+
+//            }
+//            .frame(maxWidth: .infinity)
+//            .padding(18)
+//
+//        } else if let devices {
+//
+//        }
     }
 }
 
@@ -78,7 +109,8 @@ struct DeviceListView: View {
             ),
         ]),
         loading: .constant(false),
-        onRemoveDevice: nil
+        onRemoveDevice: nil,
+        header: nil
     )
 }
 
@@ -86,7 +118,8 @@ struct DeviceListView: View {
     DeviceListView(
         devices: .constant([]),
         loading: .constant(true),
-        onRemoveDevice: nil
+        onRemoveDevice: nil,
+        header: nil
     )
     .background(Color.mullvadBackground)
 }

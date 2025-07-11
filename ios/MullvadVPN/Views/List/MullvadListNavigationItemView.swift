@@ -46,10 +46,12 @@ struct MullvadListNavigationItemView: View {
                     Text(title)
                         .foregroundStyle(Color(.Cell.titleTextColor))
                         .font(.mullvadSmallSemiBold)
+                        .fixedSize(horizontal: false, vertical: true)
                     if let detail {
                         Text(detail)
                             .foregroundStyle(Color(.Cell.detailTextColor.withAlphaComponent(0.6)))
                             .font(.mullvadMiniSemiBold)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
                 Spacer()
@@ -57,12 +59,12 @@ struct MullvadListNavigationItemView: View {
                     Text(state)
                         .foregroundStyle(Color(.Cell.titleTextColor.withAlphaComponent(0.6)))
                         .font(.mullvadTiny)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 Image(.iconChevron)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .frame(minHeight: UIMetrics.TableView.rowHeight, maxHeight: .infinity)
+            .padding(.vertical, 11)
             .background(
                 isPressed ? Color.MullvadButton.primaryPressed : Color.MullvadButton
                     .primary
@@ -114,9 +116,12 @@ private struct MullvadListButtonStyle: ButtonStyle {
                         accessibilityIdentifier: nil,
                         didSelect: { print("selected") }
                     ),
-                ]
-            ) { item in
-                MullvadListNavigationItemView(item: item)
-            }
+                ],
+                header: { EmptyView() },
+                footer: { EmptyView() },
+                content: { item in
+                    MullvadListNavigationItemView(item: item)
+                }
+            )
         }
 }

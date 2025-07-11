@@ -110,7 +110,7 @@ class RelayFilterView: UIView {
         contentContainer.distribution = .fill
 
         collectionViewHeightConstraint = chipsView.collectionView.heightAnchor
-            .constraint(equalToConstant: 8)
+            .constraint(greaterThanOrEqualToConstant: 8)
         collectionViewHeightConstraint.isActive = true
 
         dummyView.addConstrainedSubviews([titleLabel]) {

@@ -4,11 +4,11 @@ import SwiftUI
 struct DeviceManagementView: View {
     enum Style {
         case tooManyDevices((Bool) -> Void)
-        case normal
+        case deviceManagement
 
         var actionButtonTitle: LocalizedStringKey {
             switch self {
-            case .normal:
+            case .deviceManagement:
                 return "Remove"
             case .tooManyDevices:
                 return "Yes, log out device"
@@ -19,7 +19,7 @@ struct DeviceManagementView: View {
             switch self {
             case .tooManyDevices:
                 .danger
-            case .normal:
+            case .deviceManagement:
                 .default
             }
         }
@@ -35,7 +35,7 @@ struct DeviceManagementView: View {
                 LocalizedStringKey(
                     "Are you sure you want to log \(attributedDeviceName) out?"
                 )
-            case .normal:
+            case .deviceManagement:
                 LocalizedStringKey("""
                     Remove \(attributedDeviceName)?
                     The device will be removed from the list and logged out.
@@ -49,7 +49,7 @@ struct DeviceManagementView: View {
     let style: Style
     let onError: (String, Error) -> Void
 
-    @State private var loggedInDevices: [DeviceListView.Device]? = nil
+    @State private var loggedInDevices: [DeviceListView.Device]?
     @State private var loading = true
 
     var canLoginNewDevice: Bool {
@@ -61,17 +61,24 @@ struct DeviceManagementView: View {
 
     var bodyText: LocalizedStringKey {
         switch style {
-        case .normal:
+        case .deviceManagement:
             """
             View and manage all your logged in devices. \
             You can have up to 5 devices on one account at a time. \
             Each device gets a name when logged in to help you tell them apart easily.
             """
         case .tooManyDevices:
-            """
-            Please log out of at least one by removing it from the list below. \
-            You can find the corresponding device name under the device’s Account settings.
-            """
+            if canLoginNewDevice {
+                """
+                You can now continue logging in on this device.
+                """
+
+            } else {
+                """
+                Please log out of at least one by removing it from the list below. \
+                You can find the corresponding device name under the device’s Account settings.
+                """
+            }
         }
     }
 
@@ -101,52 +108,6 @@ struct DeviceManagementView: View {
     @State var deviceManagementAlert: MullvadAlert?
     var body: some View {
         VStack {
-            if case .tooManyDevices = style {
-                VStack(alignment: .leading, spacing: 8) {
-                    if canLoginNewDevice {
-                        HStack {
-                            Spacer()
-                            Image.mullvadIconSuccess
-                            Spacer()
-                        }
-                        Text("Super!")
-                            .font(.mullvadBig)
-                            .foregroundStyle(Color.mullvadTextPrimary)
-                    } else {
-                        HStack {
-                            Spacer()
-                            Image.mullvadIconFail
-                            Spacer()
-                        }
-                        Text("Too many devices")
-                            .font(.mullvadBig)
-                            .foregroundStyle(Color.mullvadTextPrimary)
-                    }
-                }
-                .padding(
-                    EdgeInsets(
-                        top: UIMetrics.contentLayoutMargins.top,
-                        leading: UIMetrics.contentLayoutMargins.leading,
-                        bottom: 0,
-                        trailing: UIMetrics.contentLayoutMargins.trailing
-                    )
-                )
-            }
-            HStack {
-                Text(bodyText)
-                    .foregroundColor(.mullvadTextPrimary)
-                    .opacity(0.6)
-                    .font(.mullvadTinySemiBold)
-                Spacer()
-            }
-            .padding(
-                EdgeInsets(
-                    top: 8,
-                    leading: UIMetrics.contentLayoutMargins.leading,
-                    bottom: 16,
-                    trailing: UIMetrics.contentLayoutMargins.trailing
-                )
-            )
             DeviceListView(
                 devices: $loggedInDevices,
                 loading: $loading,
@@ -189,6 +150,36 @@ struct DeviceManagementView: View {
                             }
                         ),
                         dismissButtonTitle: "Cancel"
+                    )
+                }, header: {
+                    AnyView(VStack(alignment: .leading, spacing: 8) {
+                        if case .tooManyDevices = style {
+                            if canLoginNewDevice {
+                                HStack {
+                                    Spacer()
+                                    Image.mullvadIconSuccess
+                                    Spacer()
+                                }
+                                Text("Super!")
+                                    .font(.mullvadBig)
+                                    .foregroundStyle(Color.mullvadTextPrimary)
+                            } else {
+                                HStack {
+                                    Spacer()
+                                    Image.mullvadIconFail
+                                    Spacer()
+                                }
+                                Text("Too many devices")
+                                    .font(.mullvadBig)
+                                    .foregroundStyle(Color.mullvadTextPrimary)
+                            }
+                        }
+                        Text(bodyText)
+                            .foregroundColor(.mullvadTextPrimary)
+                            .opacity(0.6)
+                            .font(.mullvadTinySemiBold)
+                            .padding(.bottom, 16.0)
+                    }
                     )
                 }
             )
@@ -254,7 +245,7 @@ struct DeviceManagementView: View {
             NavigationView {
                 DeviceManagementView(
                     deviceManaging: MockDeviceManaging(),
-                    style: .normal,
+                    style: .deviceManagement,
                     onError: { _, _ in }
                 )
                 .navigationTitle("Manage Devices")

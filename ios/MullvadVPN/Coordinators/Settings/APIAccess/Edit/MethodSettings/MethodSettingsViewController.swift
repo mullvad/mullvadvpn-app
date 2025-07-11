@@ -108,10 +108,10 @@ class MethodSettingsViewController: UITableViewController {
 
         switch itemIdentifier {
         case .name, .protocol, .proxyConfiguration, .cancelTest:
-            return UIMetrics.SettingsCell.apiAccessCellHeight
+            return UITableView.automaticDimension
         case .validationError:
             return contentValidationErrors.isEmpty
-                ? UIMetrics.SettingsCell.apiAccessCellHeight
+                ? 44.0
                 : UITableView.automaticDimension
         case .testingStatus:
             return UITableView.automaticDimension
