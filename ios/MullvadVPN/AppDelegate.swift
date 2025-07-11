@@ -64,6 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        LocalizationManager.applyLanguageOverrideIfEnabled()
         if let overriddenLaunchArguments = try? ProcessInfo.processInfo.decode(LaunchArguments.self) {
             launchArguments = overriddenLaunchArguments
         }
