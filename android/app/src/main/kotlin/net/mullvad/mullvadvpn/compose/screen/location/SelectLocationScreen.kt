@@ -17,6 +17,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.HistoryToggleOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,6 +70,7 @@ import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -89,22 +91,23 @@ private fun PreviewSelectLocationScreen(
     AppTheme {
         SelectLocationScreen(
             state = state,
-            SnackbarHostState(),
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            { _, _ -> },
-            { _, _ -> },
-            {},
-            {},
-            {},
-            {},
-            {},
+            snackbarHostState = SnackbarHostState(),
+            onSelectHop = {},
+            onSearchClick = {},
+            onBackClick = {},
+            onFilterClick = {},
+            onCreateCustomList = { _ -> },
+            onEditCustomLists = {},
+            onRecentsToggleEnableClick = {},
+            removeOwnershipFilter = {},
+            removeProviderFilter = {},
+            onAddLocationToList = { _, _ -> },
+            onRemoveLocationFromList = { _, _ -> },
+            onEditCustomListName = {},
+            onEditLocationsCustomList = {},
+            onDeleteCustomList = {},
+            onSelectHopList = {},
+            openDaitaSettings = {},
         )
     }
 }
@@ -155,8 +158,7 @@ fun SelectLocation(
             is SelectLocationSideEffect.RelayItemInactive ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message =
-                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
+                        message = context.getString(R.string.relayitem_is_inactive, TODO())
                     )
                 }
         }
@@ -191,7 +193,7 @@ fun SelectLocation(
     SelectLocationScreen(
         state = state.value,
         snackbarHostState = snackbarHostState,
-        onSelectRelay = vm::selectRelay,
+        onSelectHop = vm::selectHop,
         onSearchClick = { navigator.navigate(SearchLocationDestination(it)) },
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
         onFilterClick = dropUnlessResumed { navigator.navigate(FilterDestination) },
@@ -228,7 +230,8 @@ fun SelectLocation(
                     )
                 )
             },
-        onSelectRelayList = vm::selectRelayList,
+        onSelectHopList = vm::selectRelayList,
+        onRecentsToggleEnableClick = vm::toggleRecentsEnabled,
         openDaitaSettings =
             dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
     )
@@ -239,12 +242,13 @@ fun SelectLocation(
 fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectRelay: (item: RelayItem) -> Unit,
+    onSelectHop: (item: Hop) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
     onFilterClick: () -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
     onEditCustomLists: () -> Unit,
+    onRecentsToggleEnableClick: () -> Unit,
     removeOwnershipFilter: () -> Unit,
     removeProviderFilter: () -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
@@ -252,7 +256,7 @@ fun SelectLocationScreen(
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
-    onSelectRelayList: (RelayListType) -> Unit,
+    onSelectHopList: (RelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -296,6 +300,16 @@ fun SelectLocationScreen(
                         ),
                 )
             }
+            IconButton(enabled = true, onClick = onRecentsToggleEnableClick) {
+                Icon(
+                    imageVector = Icons.Default.HistoryToggleOff,
+                    contentDescription = stringResource(id = R.string.filter),
+                    tint =
+                        MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = if (isFilterButtonEnabled) AlphaVisible else AlphaDisabled
+                        ),
+                )
+            }
         },
     ) { modifier ->
         var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
@@ -324,7 +338,7 @@ fun SelectLocationScreen(
                 }
                 is Lc.Content -> {
                     if (state.value.multihopEnabled) {
-                        MultihopBar(state.value.relayListType, onSelectRelayList)
+                        MultihopBar(state.value.relayListType, onSelectHopList)
                     }
 
                     AnimatedContent(
@@ -347,7 +361,7 @@ fun SelectLocationScreen(
 
                     RelayLists(
                         state = state.value,
-                        onSelectRelay = onSelectRelay,
+                        onSelectHop = onSelectHop,
                         openDaitaSettings = openDaitaSettings,
                         onAddCustomList = { onCreateCustomList(null) },
                         onEditCustomLists = onEditCustomLists,
@@ -362,7 +376,7 @@ fun SelectLocationScreen(
 }
 
 @Composable
-private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayListType) -> Unit) {
+private fun MultihopBar(relayListType: RelayListType, onSelectHopList: (RelayListType) -> Unit) {
     SingleChoiceSegmentedButtonRow(
         modifier =
             Modifier.fillMaxWidth()
@@ -374,12 +388,12 @@ private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayL
     ) {
         MullvadSegmentedStartButton(
             selected = relayListType == RelayListType.ENTRY,
-            onClick = { onSelectRelayList(RelayListType.ENTRY) },
+            onClick = { onSelectHopList(RelayListType.ENTRY) },
             text = stringResource(id = R.string.entry),
         )
         MullvadSegmentedEndButton(
             selected = relayListType == RelayListType.EXIT,
-            onClick = { onSelectRelayList(RelayListType.EXIT) },
+            onClick = { onSelectHopList(RelayListType.EXIT) },
             text = stringResource(id = R.string.exit),
         )
     }
@@ -388,7 +402,7 @@ private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayL
 @Composable
 private fun RelayLists(
     state: SelectLocationUiState,
-    onSelectRelay: (RelayItem) -> Unit,
+    onSelectHop: (Hop) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
@@ -401,7 +415,7 @@ private fun RelayLists(
     if (configuration.navigation == Configuration.NAVIGATION_DPAD) {
         SelectLocationList(
             relayListType = state.relayListType,
-            onSelectRelay = onSelectRelay,
+            onSelectHop = onSelectHop,
             openDaitaSettings = openDaitaSettings,
             onAddCustomList = onAddCustomList,
             onEditCustomLists = onEditCustomLists,
@@ -430,7 +444,7 @@ private fun RelayLists(
         ) { pageIndex ->
             SelectLocationList(
                 relayListType = RelayListType.entries[pageIndex],
-                onSelectRelay = onSelectRelay,
+                onSelectHop = onSelectHop,
                 openDaitaSettings = openDaitaSettings,
                 onAddCustomList = onAddCustomList,
                 onEditCustomLists = onEditCustomLists,

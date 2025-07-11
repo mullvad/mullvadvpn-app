@@ -142,7 +142,7 @@ class SelectLocationListViewModelTest {
             is RelayListItem.LocationsEmptyText -> null
             is RelayListItem.EmptyRelayList -> null
             is RelayListItem.CustomListEntryItem -> item.id
-            is RelayListItem.CustomListItem -> item.id
+            is RelayListItem.CustomListItem -> hop.id
             is RelayListItem.GeoLocationItem -> item.id
         }
 

@@ -62,7 +62,7 @@ class SearchLocationScreenTest {
         setContentWithTheme {
             SearchLocationScreen(
                 state = state,
-                onSelectRelay = onSelectRelay,
+                onSelectHop = onSelectRelay,
                 onToggleExpand = onToggleExpand,
                 onSearchInputChanged = onSearchInputChanged,
                 onCreateCustomList = onCreateCustomList,

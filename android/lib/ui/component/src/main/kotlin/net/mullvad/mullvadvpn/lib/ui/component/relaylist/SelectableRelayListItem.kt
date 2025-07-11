@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.resource.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -72,7 +73,7 @@ fun SelectableRelayListItem(
         modifier = modifier,
         shape = relayListItem.itemPosition.toShape(),
         selected = relayListItem.isSelected,
-        enabled = relayListItem.item.active,
+        enabled = relayListItem.hop.isActive,
         content = {
             Row(
                 modifier =
@@ -84,7 +85,7 @@ fun SelectableRelayListItem(
             ) {
                 val iconTint =
                     when {
-                        !relayListItem.item.active -> MaterialTheme.colorScheme.error
+                        !relayListItem.hop.isActive -> MaterialTheme.colorScheme.error
                         relayListItem.isSelected -> MaterialTheme.colorScheme.tertiary
                         else -> Color.Transparent
                     }
@@ -94,21 +95,21 @@ fun SelectableRelayListItem(
                         contentDescription = null,
                         tint = iconTint,
                     )
-                } else if (!relayListItem.item.active) {
+                } else if (!relayListItem.hop.isActive) {
                     InactiveRelayIndicator(iconTint)
                 }
 
                 Name(
-                    name = relayListItem.item.name,
+                    name = relayListItem.hop.displayName(),
                     state = relayListItem.state,
-                    active = relayListItem.item.active,
+                    active = relayListItem.hop.isActive,
                 )
             }
         },
         onClick = onClick,
         onLongClick = onLongClick,
         trailingContent =
-            if (relayListItem.item.hasChildren) {
+            if (relayListItem.canExpand) {
                 {
                     ExpandChevron(
                         isExpanded = relayListItem.expanded,
@@ -126,6 +127,13 @@ fun SelectableRelayListItem(
             RelayListItemDefaults.colors(containerColor = relayListItem.depth.toBackgroundColor()),
     )
 }
+
+@Composable
+fun Hop.displayName() =
+    when (this) {
+        is Hop.Multi -> stringResource(R.string.x_via_x, exit.name, entry.name)
+        is Hop.Single<*> -> item.name
+    }
 
 @Composable
 internal fun Name(

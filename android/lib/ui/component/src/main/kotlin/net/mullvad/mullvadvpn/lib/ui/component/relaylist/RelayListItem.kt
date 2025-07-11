@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
 enum class RelayListItemContentType {
@@ -13,6 +14,8 @@ enum class RelayListItemContentType {
     LOCATION_ITEM,
     LOCATIONS_EMPTY_TEXT,
     EMPTY_RELAY_LIST,
+    RECENT_LIST_ITEM,
+    RECENT_LIST_HEADER,
 }
 
 enum class RelayListItemState {
@@ -29,41 +32,51 @@ sealed interface RelayListItem {
         override val contentType = RelayListItemContentType.CUSTOM_LIST_HEADER
     }
 
+    data object RecentsListHeader : RelayListItem {
+        override val key = "recents_list_header"
+        override val contentType = RelayListItemContentType.RECENT_LIST_HEADER
+    }
+
     sealed interface SelectableItem : RelayListItem {
-        val item: RelayItem
+        val hop: Hop
         val depth: Int
         val isSelected: Boolean
         val expanded: Boolean
+        val canExpand: Boolean
         val state: RelayListItemState?
         val itemPosition: ItemPosition
     }
 
     data class CustomListItem(
-        override val item: RelayItem.CustomList,
+        override val hop: Hop.Single<RelayItem.CustomList>,
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
         override val itemPosition: ItemPosition = ItemPosition.Single,
     ) : SelectableItem {
+        val item = hop.item
         override val key = item.id
         override val depth: Int = 0
         override val contentType = RelayListItemContentType.CUSTOM_LIST_ITEM
+        override val canExpand: Boolean = item.hasChildren
     }
 
     data class CustomListEntryItem(
         val parentId: CustomListId,
         val parentName: CustomListName,
-        override val item: RelayItem.Location,
+        override val hop: Hop.Single<RelayItem.Location>,
         override val expanded: Boolean,
         override val depth: Int = 0,
         override val state: RelayListItemState? = null,
         override val itemPosition: ItemPosition,
     ) : SelectableItem {
+        val item = hop.item
         override val key = parentId to item.id
 
         // Can't be displayed as selected
         override val isSelected: Boolean = false
         override val contentType = RelayListItemContentType.CUSTOM_LIST_ENTRY_ITEM
+        override val canExpand: Boolean = item.hasChildren
     }
 
     data class CustomListFooter(val hasCustomList: Boolean) : RelayListItem {
@@ -77,15 +90,30 @@ sealed interface RelayListItem {
     }
 
     data class GeoLocationItem(
-        override val item: RelayItem.Location,
+        override val hop: Hop.Single<RelayItem.Location>,
         override val isSelected: Boolean = false,
         override val depth: Int = 0,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
         override val itemPosition: ItemPosition,
     ) : SelectableItem {
+        val item = hop.item
         override val key = item.id
         override val contentType = RelayListItemContentType.LOCATION_ITEM
+        override val canExpand: Boolean = item.hasChildren
+    }
+
+    data class RecentListItem(
+        override val hop: Hop,
+        override val isSelected: Boolean = false,
+        override val expanded: Boolean = false,
+        override val state: RelayListItemState? = null,
+        override val itemPosition: ItemPosition = ItemPosition.Single,
+    ) : SelectableItem {
+        override val key = "recents" + hop
+        override val depth: Int = 0
+        override val contentType = RelayListItemContentType.RECENT_LIST_ITEM
+        override val canExpand: Boolean = false
     }
 
     data class LocationsEmptyText(val searchTerm: String) : RelayListItem {

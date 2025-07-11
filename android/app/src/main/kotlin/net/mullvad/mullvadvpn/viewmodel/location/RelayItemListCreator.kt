@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel.location
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
@@ -16,6 +17,7 @@ internal fun relayListItems(
     relayListType: RelayListType,
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
+    recents: List<Hop>?,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     expandedItems: Set<String>,
@@ -25,6 +27,7 @@ internal fun relayListItems(
         selectedByThisEntryExitList = selectedByThisEntryExitList,
         selectedByOtherEntryExitList = selectedByOtherEntryExitList,
         customLists = customLists,
+        recents = recents,
         countries = relayCountries,
     ) {
         it in expandedItems
@@ -75,16 +78,23 @@ private fun createRelayListItems(
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
+    recents: List<Hop>?,
     countries: List<RelayItem.Location.Country>,
     isExpanded: (String) -> Boolean,
-): List<RelayListItem> =
-    createCustomListSection(
-        relayListType,
-        selectedByThisEntryExitList,
-        selectedByOtherEntryExitList,
-        customLists,
-        isExpanded,
-    ) +
+): List<RelayListItem> = buildList {
+    if (recents != null) {
+        addAll(createRecentsSection(recents))
+    }
+    addAll(
+        createCustomListSection(
+            relayListType,
+            selectedByThisEntryExitList,
+            selectedByOtherEntryExitList,
+            customLists,
+            isExpanded,
+        )
+    )
+    addAll(
         createLocationSection(
             selectedByThisEntryExitList,
             relayListType,
@@ -92,6 +102,13 @@ private fun createRelayListItems(
             countries,
             isExpanded,
         )
+    )
+}
+
+private fun createRecentsSection(recents: List<Hop>): List<RelayListItem> = buildList {
+    add(RelayListItem.RecentsListHeader)
+    addAll(recents.map { RelayListItem.RecentListItem(it) })
+}
 
 private fun createRelayListItemsSearching(
     relayListType: RelayListType,
@@ -169,7 +186,7 @@ private fun createCustomListRelayItems(
         buildList {
             add(
                 RelayListItem.CustomListItem(
-                    item = customList,
+                    hop = Hop.Single(customList),
                     isSelected = selectedByThisEntryExitList == customList.id,
                     state =
                         customList.createState(
@@ -264,7 +281,7 @@ private fun createCustomListEntry(
         RelayListItem.CustomListEntryItem(
             parentId = parent.id,
             parentName = parent.customList.name,
-            item = item,
+            hop = Hop.Single(item),
             state =
                 item.createState(
                     relayListType = relayListType,
@@ -329,7 +346,7 @@ private fun createGeoLocationEntry(
 
     add(
         RelayListItem.GeoLocationItem(
-            item = item,
+            hop = Hop.Single(item),
             isSelected = selectedByThisEntryExitList == item.id,
             state =
                 item.createState(
