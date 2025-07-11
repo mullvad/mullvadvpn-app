@@ -907,7 +907,7 @@ mod event_server {
         ) -> std::result::Result<TunnelMetadata, tonic::Status> {
             let tunnel_alias = env
                 .get("dev")
-                .ok_or_else(|| (tonic::Status::invalid_argument("missing tunnel alias")))?
+                .ok_or_else(|| tonic::Status::invalid_argument("missing tunnel alias"))?
                 .to_string();
 
             let mut ips = vec![
