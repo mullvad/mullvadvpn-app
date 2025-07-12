@@ -804,7 +804,7 @@ pub mod builder {
             }
         }
 
-        /// Enable QUIC obufscation.
+        /// Enable QUIC obfuscation.
         pub fn quic(
             mut self,
         ) -> RelayQueryBuilder<Wireguard<Multihop, Quic, Daita, QuantumResistant>> {
