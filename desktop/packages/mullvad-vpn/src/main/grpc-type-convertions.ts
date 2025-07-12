@@ -396,6 +396,8 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.daitaMultihop;
     case grpcTypes.FeatureIndicator.SHADOWSOCKS:
       return FeatureIndicator.shadowsocks;
+    case grpcTypes.FeatureIndicator.QUIC:
+      return FeatureIndicator.quic;
   }
 }
 
