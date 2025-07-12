@@ -581,6 +581,42 @@ pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
     Ok(())
 }
 
+/// Test QUIC, PQ, and WireGuard combined.
+///
+/// # Limitations
+///
+/// This is not testing any of the individual components, just whether the daemon can connect when
+/// all of these features are combined.
+#[test_function]
+pub async fn test_quantum_resistant_multihop_quic_tunnel(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    mullvad_client
+        // TODO: Why is this needed, exactly?
+        .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
+        .await
+        .context("Failed to enable PQ tunnels")?;
+
+    let query = RelayQueryBuilder::wireguard()
+        .quantum_resistant()
+        .multihop()
+        .quic()
+        .build();
+
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
+
+    connect_and_wait(&mut mullvad_client).await?;
+
+    assert!(
+        helpers::using_mullvad_exit(&rpc).await,
+        "Expected Mullvad exit IP"
+    );
+
+    Ok(())
+}
+
 /// Try to connect to an OpenVPN relay via a remote, passwordless SOCKS5 server.
 /// * No outgoing traffic to the bridge/entry relay is observed from the SUT.
 /// * The conncheck reports an unexpected exit relay.
