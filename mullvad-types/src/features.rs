@@ -73,6 +73,7 @@ pub enum FeatureIndicator {
     LockdownMode,
     Udp2Tcp,
     Shadowsocks,
+    Quic,
     LanSharing,
     DnsContentBlockers,
     CustomDns,
@@ -99,6 +100,7 @@ impl FeatureIndicator {
             FeatureIndicator::LockdownMode => "Lockdown Mode",
             FeatureIndicator::Udp2Tcp => "Udp2Tcp",
             FeatureIndicator::Shadowsocks => "Shadowsocks",
+            FeatureIndicator::Quic => "Quic",
             FeatureIndicator::LanSharing => "LAN Sharing",
             FeatureIndicator::DnsContentBlockers => "Dns Content Blocker",
             FeatureIndicator::CustomDns => "Custom Dns",
@@ -168,16 +170,16 @@ pub fn compute_feature_indicators(
         }
         TunnelType::Wireguard => {
             let quantum_resistant = endpoint.quantum_resistant;
-            let udp_tcp = endpoint
-                .obfuscation
-                .as_ref()
-                .filter(|obfuscation| obfuscation.obfuscation_type == ObfuscationType::Udp2Tcp)
-                .is_some();
-            let shadowsocks = endpoint
-                .obfuscation
-                .as_ref()
-                .filter(|obfuscation| obfuscation.obfuscation_type == ObfuscationType::Shadowsocks)
-                .is_some();
+
+            let has_obfuscation = |obfs| {
+                endpoint
+                    .obfuscation
+                    .iter()
+                    .any(|obfuscation| obfuscation.obfuscation_type == obfs)
+            };
+            let udp_tcp = has_obfuscation(ObfuscationType::Udp2Tcp);
+            let shadowsocks = has_obfuscation(ObfuscationType::Shadowsocks);
+            let quic = has_obfuscation(ObfuscationType::Quic);
 
             let mtu = settings.tunnel_options.wireguard.mtu.is_some();
 
@@ -208,6 +210,7 @@ pub fn compute_feature_indicators(
                 (multihop, FeatureIndicator::Multihop),
                 (udp_tcp, FeatureIndicator::Udp2Tcp),
                 (shadowsocks, FeatureIndicator::Shadowsocks),
+                (quic, FeatureIndicator::Quic),
                 (mtu, FeatureIndicator::CustomMtu),
                 #[cfg(daita)]
                 (daita, FeatureIndicator::Daita),
@@ -451,6 +454,7 @@ mod tests {
             FeatureIndicator::LockdownMode => {}
             FeatureIndicator::Udp2Tcp => {}
             FeatureIndicator::Shadowsocks => {}
+            FeatureIndicator::Quic => {}
             FeatureIndicator::LanSharing => {}
             FeatureIndicator::DnsContentBlockers => {}
             FeatureIndicator::CustomDns => {}
