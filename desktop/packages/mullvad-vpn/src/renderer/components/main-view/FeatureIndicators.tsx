@@ -254,6 +254,7 @@ function getFeatureIndicatorLabel(indicator: FeatureIndicator) {
       );
     case FeatureIndicator.udp2tcp:
     case FeatureIndicator.shadowsocks:
+    case FeatureIndicator.quic:
       return messages.pgettext('wireguard-settings-view', 'Obfuscation');
     case FeatureIndicator.multihop:
       // TRANSLATORS: This refers to the multihop setting in the VPN settings view. This is
