@@ -2,6 +2,8 @@
   description = "Mullvad Android app build flake";
 
   inputs = {
+    # Unstable is currently needed for protoc-gen-grpc-java.
+    # We should switch to a stable channel once it's avaiable on those.
     nixpkgs.url = "nixpkgs/nixos-unstable";
     devshell.url = "github:numtide/devshell";
     flake-utils.url = "github:numtide/flake-utils";
