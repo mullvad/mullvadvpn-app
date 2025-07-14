@@ -222,42 +222,8 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	if (WINFW_CLEANUP_POLICY_BLOCK_UNTIL_REBOOT == cleanupPolicy
 		&& FwContext::Policy::Blocked == activePolicy)
 	{
-		try
-		{
-			auto engine = wfp::FilterEngine::StandardSession(DEINITIALIZE_TIMEOUT);
-			auto sessionController = std::make_unique<SessionController>(std::move(engine));
-
-			rules::baseline::BlockAll blockAll;
-
-			if (nullptr != g_logSink)
-			{
-				g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Adding ephemeral block rules", g_logSinkContext);
-			}
-
-			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
-			{
-				// Keep non-persistent filters intact, the intent is just to *not*
-				// persist any filters across a BFE restart, not muck around with
-				// any other filters. We will apply blocking filters anyway.
-				ObjectPurger::GetRemovePersistentFunctor()(engine);
-
-				return controller.addProvider(*MullvadObjects::Provider())
-					&& controller.addSublayer(*MullvadObjects::SublayerBaseline())
-					&& blockAll.apply(controller);
-			});
-		}
-		catch (std::exception & err)
-		{
-			if (nullptr != g_logSink)
-			{
-				g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
-			}
-			return false;
-		}
-		catch (...)
-		{
-			return false;
-		}
+		// All we have to is *not* call WinFw_Reset, since blocking filters have been applied.
+		return true;
 	}
 
 	return WINFW_POLICY_STATUS_SUCCESS == WinFw_Reset();
