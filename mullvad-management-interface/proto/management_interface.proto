@@ -722,6 +722,16 @@ message Relay {
     BRIDGE = 1;
     WIREGUARD = 2;
   }
+  message Features {
+    message Quic {
+      string domain = 1;
+      string token = 2;
+      repeated string addr_in = 3;
+    }
+
+    bool daita = 1;
+    Quic quic = 2;
+  }
 
   string hostname = 1;
   string ipv4_addr_in = 2;
@@ -732,8 +742,10 @@ message Relay {
   string provider = 7;
   fixed64 weight = 8;
   RelayType endpoint_type = 9;
+  // XXX: wtf, why is this untyped
   google.protobuf.Any endpoint_data = 10;
   Location location = 11;
+  Features features = 12;
 }
 
 message WireguardRelayEndpointData {
