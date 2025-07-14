@@ -177,6 +177,22 @@ Run the following command to build a debug build:
    ../android/build.sh --app-bundle
    ```
 
+## Build using nix devshell
+1. Install the nix package manager by following the [official instructions](https://nixos.org/download/).
+1. Enable the experimental `nix-command` and `flake` features by following [these instructions](https://nixos.wiki/wiki/flakes).
+1. Launch a devshell (in `<repository>/android`) by running:
+   ```bash
+   nix develop
+   ```
+1. Build the app as usual by running for example:
+   ```bash
+   ./build.sh --dev-build
+   ```
+   or
+   ```bash
+   ./gradlew assembleOssProdDebug
+   ```
+
 ## Configure signing key
 1. Create a directory to store the signing key, keystore and its configuration:
    ```
