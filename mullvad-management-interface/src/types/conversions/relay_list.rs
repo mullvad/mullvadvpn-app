@@ -4,6 +4,8 @@ use std::{
     str::FromStr,
 };
 
+use mullvad_types::relay_list::Features;
+
 use crate::types::{
     FromProtobufTypeError,
     conversions::{bytes_to_pubkey, to_proto_any, try_from_proto_any},
@@ -135,6 +137,7 @@ impl From<mullvad_types::relay_list::Relay> for proto::Relay {
                     "mullvad_daemon.management_interface/WireguardRelayEndpointData",
                     proto::WireguardRelayEndpointData {
                         public_key: data.public_key.as_bytes().to_vec(),
+                        // TODO: Deprecate in favor of new `features` key
                         daita: data.daita,
                         shadowsocks_extra_addr_in: data
                             .shadowsocks_extra_addr_in
@@ -153,7 +156,77 @@ impl From<mullvad_types::relay_list::Relay> for proto::Relay {
                 latitude: relay.location.latitude,
                 longitude: relay.location.longitude,
             }),
+            features: Some(proto::relay::Features::from(relay.features)),
         }
+    }
+}
+
+impl From<mullvad_types::relay_list::Features> for proto::relay::Features {
+    fn from(features: mullvad_types::relay_list::Features) -> Self {
+        Self {
+            daita: features.daita(),
+            quic: features
+                .quic()
+                .cloned()
+                .map(proto::relay::features::Quic::from),
+        }
+    }
+}
+
+impl TryFrom<proto::relay::Features> for mullvad_types::relay_list::Features {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(value: proto::relay::Features) -> Result<Self, Self::Error> {
+        let features = Features::empty();
+        let features = if value.daita {
+            features.configure_daita()
+        } else {
+            features
+        };
+        let features = {
+            let quic = value
+                .quic
+                .map(mullvad_types::relay_list::Quic::try_from)
+                .transpose()?;
+            if let Some(options) = quic {
+                features.configure_quic(options)
+            } else {
+                features
+            }
+        };
+        Ok(features)
+    }
+}
+
+impl From<mullvad_types::relay_list::Quic> for proto::relay::features::Quic {
+    fn from(value: mullvad_types::relay_list::Quic) -> Self {
+        let domain = value.hostname().to_owned();
+        let token = value.auth_token().to_owned();
+        let addr_in = value.in_addr().iter().map(|ip| ip.to_string()).collect();
+        Self {
+            domain,
+            token,
+            addr_in,
+        }
+    }
+}
+
+impl TryFrom<proto::relay::features::Quic> for mullvad_types::relay_list::Quic {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(value: proto::relay::features::Quic) -> Result<Self, Self::Error> {
+        let domain = value.domain;
+        let token = value.token;
+        let addr_in = value
+            .addr_in
+            .iter()
+            .map(|addr| {
+                addr.parse().map_err(|_err| {
+                    FromProtobufTypeError::InvalidArgument("Invalid IP address: {addr}")
+                })
+            })
+            .collect::<Result<_, FromProtobufTypeError>>()?;
+        Ok(Self::new(addr_in, token, domain))
     }
 }
 
@@ -286,9 +359,11 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
             })
             .transpose()?;
 
-        // TODO: Eventually, we will need to decide how to represent extra relay features in the
-        // protobuf message.
-        let features = mullvad_types::relay_list::Features::default();
+        let features = relay
+            .features
+            .map(mullvad_types::relay_list::Features::try_from)
+            .transpose()?
+            .unwrap_or_default();
 
         let relay = MullvadRelay {
             hostname: relay.hostname,
