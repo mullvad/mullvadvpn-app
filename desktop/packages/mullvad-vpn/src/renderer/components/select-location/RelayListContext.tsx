@@ -1,6 +1,10 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { compareRelayLocation, RelayLocation } from '../../../shared/daemon-rpc-types';
+import {
+  compareRelayLocation,
+  ObfuscationType,
+  RelayLocation,
+} from '../../../shared/daemon-rpc-types';
 import {
   EndpointType,
   filterLocations,
@@ -68,6 +72,10 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const { locationType, searchTerm } = useSelectLocationContext();
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
+  // Some obfuscation might only be available for some relays.
+  const quic = useSelector(
+    (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.quic,
+  );
 
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
@@ -99,11 +107,15 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     relaySettings?.wireguard.useMultihop,
   ]);
 
+  const relayListForQuic = useMemo(() => {
+    return filterLocationsByQuic(relayListForDaita, quic, tunnelProtocol);
+  }, [quic, relayListForDaita, tunnelProtocol]);
+
   // Filters the relays to only keep the relays matching the currently selected filters, e.g.
   // ownership and providers
   const relayListForFilters = useMemo(() => {
-    return filterLocations(relayListForDaita, relaySettings?.ownership, relaySettings?.providers);
-  }, [relaySettings?.ownership, relaySettings?.providers, relayListForDaita]);
+    return filterLocations(relayListForQuic, relaySettings?.ownership, relaySettings?.providers);
+  }, [relaySettings?.ownership, relaySettings?.providers, relayListForQuic]);
 
   // Filters the relays based on the provided search term
   const relayListForSearch = useMemo(() => {
