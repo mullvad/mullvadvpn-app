@@ -201,6 +201,10 @@ impl Quic {
     pub fn auth_token(&self) -> &str {
         &self.token
     }
+
+    pub fn in_addr(&self) -> &[IpAddr] {
+        &self.addr_in
+    }
 }
 
 impl Relay {
