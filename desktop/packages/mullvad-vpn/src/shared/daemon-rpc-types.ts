@@ -340,6 +340,7 @@ export type ConnectionConfig =
           addresses: string[];
           endpoint: string;
         };
+
         ipv4Gateway: string;
         ipv6Gateway?: string;
       };
@@ -395,8 +396,21 @@ export interface IRelayListHostname {
   weight: number;
   owned: boolean;
   endpointType: RelayEndpointType;
-  daita: boolean;
+  daita: boolean; // TODO: Deprecate in favor of Features 👇
+  features?: FeaturesType;
 }
+
+// The absence of a value signals that the relay does not have it enabled.
+export type FeaturesType = {
+  daita: boolean;
+  quic?: Quic;
+};
+
+export type Quic = {
+  domain: string;
+  token: string;
+  addrIn: string[];
+};
 
 export type RelayEndpointType = 'wireguard' | 'openvpn' | 'bridge';
 

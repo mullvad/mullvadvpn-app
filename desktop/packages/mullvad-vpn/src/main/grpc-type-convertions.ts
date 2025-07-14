@@ -25,6 +25,7 @@ import {
   ErrorStateCause,
   ErrorStateDetails,
   FeatureIndicator,
+  FeaturesType,
   FirewallPolicyError,
   FirewallPolicyErrorType,
   IAppVersionInfo,
@@ -129,6 +130,7 @@ function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
   return {
     ...relayObject,
     endpointType: convertFromRelayType(relayObject.endpointType),
+    features: relayObject.features ? featuresFromRelayType(relayObject.features) : undefined,
     daita,
   };
 }
@@ -140,6 +142,21 @@ function convertFromRelayType(relayType: grpcTypes.Relay.RelayType): RelayEndpoi
     [grpcTypes.Relay.RelayType.WIREGUARD]: 'wireguard',
   };
   return protocolMap[relayType];
+}
+
+function featuresFromRelayType(features: grpcTypes.Relay.Features.AsObject): FeaturesType {
+  const daita = features.daita;
+  const quic = features.quic
+    ? {
+        domain: features.quic.domain,
+        token: features.quic.token,
+        addr_in: features.quic.addrInList,
+      }
+    : undefined;
+  return {
+    daita,
+    quic,
+  };
 }
 
 function convertFromWireguardKey(publicKey: Uint8Array | string): string {
