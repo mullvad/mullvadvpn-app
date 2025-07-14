@@ -222,6 +222,11 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	if (WINFW_CLEANUP_POLICY_BLOCK_UNTIL_REBOOT == cleanupPolicy
 		&& FwContext::Policy::Blocked == activePolicy)
 	{
+		if (nullptr != g_logSink)
+		{
+			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Keeping ephemeral block rules", g_logSinkContext);
+		}
+
 		// All we have to is *not* call WinFw_Reset, since blocking filters have been applied.
 		return true;
 	}
