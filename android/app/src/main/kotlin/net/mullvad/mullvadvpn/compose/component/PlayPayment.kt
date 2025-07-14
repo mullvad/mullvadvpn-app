@@ -162,7 +162,6 @@ private fun PaymentAvailable(
         Column {
             billingPaymentState.products.forEach { product ->
                 IconCell(
-                    background = MaterialTheme.colorScheme.surfaceContainer,
                     titleColor =
                         if (enabled) {
                             MaterialTheme.colorScheme.onSurface

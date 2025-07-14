@@ -283,7 +283,6 @@ private fun ImportOverridesByBottomSheet(
                 onImportByFile()
                 onCloseSheet()
             },
-            background = backgroundColor,
             modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG),
         )
         IconCell(
@@ -293,7 +292,6 @@ private fun ImportOverridesByBottomSheet(
                 onImportByText()
                 onCloseSheet()
             },
-            background = backgroundColor,
             modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG),
         )
         if (overridesActive) {
