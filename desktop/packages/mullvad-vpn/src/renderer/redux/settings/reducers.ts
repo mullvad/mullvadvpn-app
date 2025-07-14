@@ -7,6 +7,7 @@ import {
   BridgeType,
   CustomLists,
   CustomProxy,
+  FeaturesType,
   IDaitaSettings,
   IDnsOptions,
   IpVersion,
@@ -77,6 +78,7 @@ export interface IRelayLocationRelayRedux {
   weight: number;
   endpointType: RelayEndpointType;
   daita: boolean;
+  features?: FeaturesType;
 }
 
 export interface IRelayLocationCityRedux {
