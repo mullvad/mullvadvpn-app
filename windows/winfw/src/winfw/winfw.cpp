@@ -168,9 +168,10 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	delete g_fwContext;
 	g_fwContext = nullptr;
 
-	std::stringstream ss;
-	ss << "Deinitializing WinFw";
-	g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
+	if (nullptr != g_logSink)
+	{
+		g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Deinitializing WinFw", g_logSinkContext);
+	}
 
 	//
 	// Continue blocking with persistent rules if this is what the caller requested
@@ -186,9 +187,10 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 
 			rules::persistent::BlockAll blockAll;
 
-			std::stringstream ss;
-			ss << "Adding persistent block rules";
-			g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
+			if (nullptr != g_logSink)
+			{
+				g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Adding persistent block rules", g_logSinkContext);
+			}
 
 			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
 			{
@@ -227,9 +229,10 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 
 			rules::baseline::BlockAll blockAll;
 
-			std::stringstream ss;
-			ss << "Adding ephemeral block rules";
-			g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
+			if (nullptr != g_logSink)
+			{
+				g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Adding ephemeral block rules", g_logSinkContext);
+			}
 
 			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
 			{
