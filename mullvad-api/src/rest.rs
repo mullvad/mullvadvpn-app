@@ -101,11 +101,12 @@ impl Error {
     pub fn is_offline(&self) -> bool {
         match self {
             Error::LegacyHyperError(error) if error.is_connect() => {
-                if let Some(cause) = error.source() {
-                    if let Some(err) = cause.downcast_ref::<std::io::Error>() {
-                        return err.raw_os_error() == Some(libc::ENETUNREACH);
-                    }
+                if let Some(cause) = error.source()
+                    && let Some(err) = cause.downcast_ref::<std::io::Error>()
+                {
+                    return err.raw_os_error() == Some(libc::ENETUNREACH);
                 }
+
                 false
             }
             // TODO: Currently, we use the legacy hyper client for all REST requests. If this
@@ -252,14 +253,14 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
             let response = request_future.await.map_err(|error| error.map_aborted());
 
             // Switch API endpoint if the request failed due to a network error
-            if let Err(err) = &response {
-                if err.is_network_error() && !api_availability.is_offline() {
-                    log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
-                    if let Some(tx) = tx {
-                        let _ = tx.unbounded_send(RequestCommand::NextApiConfig(
-                            connection_mode_generation,
-                        ));
-                    }
+            if let Err(err) = &response
+                && err.is_network_error()
+                && !api_availability.is_offline()
+            {
+                log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
+                if let Some(tx) = tx {
+                    let _ = tx
+                        .unbounded_send(RequestCommand::NextApiConfig(connection_mode_generation));
                 }
             }
 
