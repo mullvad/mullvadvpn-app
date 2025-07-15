@@ -19,6 +19,7 @@ use talpid_types::net::{
 /// bridge server.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
+#[allow(unused)]
 pub enum BridgeSettings {
     /// Let the relay selection algorithm decide on bridges, based on the relay list.
     Normal(BridgeConstraints),
