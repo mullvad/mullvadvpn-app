@@ -146,14 +146,10 @@ impl Firewall {
         }
 
         // Socket addresses for Multicast DNS.
-        let mdns_port = 5353;
-        let mdns_addrs = [
-            SocketAddr::from((Ipv4Addr::new(224, 0, 0, 251), mdns_port)),
-            SocketAddr::from((Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 0xfb), mdns_port)),
-        ];
-
-        if mdns_addrs.contains(&remote_address) {
-            // Ignore MDNS states. PQ *seems* to timeout if these states are flushed.
+        const MDNS_PORT: u16 = 5353;
+        if remote_address.port() == MDNS_PORT {
+            // Blocking mDNS sometimes breaks the tunnel, causing timeouts.
+            // We don't know why.
             return Ok(false);
         }
 
