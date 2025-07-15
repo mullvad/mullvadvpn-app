@@ -10,6 +10,7 @@ import {
   filterLocations,
   filterLocationsByDaita,
   filterLocationsByEndPointType,
+  filterLocationsByQuic,
   getLocationsExpandedBySearch,
   searchForLocations,
 } from '../../lib/filter-locations';
