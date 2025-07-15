@@ -1,12 +1,13 @@
-use std::{ffi::c_char, future::Future, sync::Arc};
+use std::{ffi::c_char, ffi::c_void, ffi::CStr, future::Future, sync::Arc};
 
 use crate::get_string;
 use access_method_resolver::SwiftAccessMethodResolver;
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
 use address_cache_provider::SwiftAddressCacheWrapper;
+use futures::{channel::{mpsc, oneshot}, StreamExt};
 use mullvad_api::{
     ApiEndpoint, Runtime,
-    access_mode::{AccessModeSelector, AccessModeSelectorHandle},
+    access_mode::{AccessMethodEvent, AccessModeSelector, AccessModeSelectorHandle},
     rest::{self, MullvadRestHandle},
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
@@ -85,6 +86,14 @@ impl ApiContext {
     }
 }
 
+/// An opaque pointer that exists only to be passed from the caller to a callback through the ABI
+struct ForeignPtr {
+    ptr: *const c_void,
+}
+/// allow this to be passed across thread boundaries
+unsafe impl Send for ForeignPtr {}
+unsafe impl Sync for ForeignPtr {}
+
 /// Called by Swift to set the available access methods
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_update_access_methods(
@@ -138,6 +147,8 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
+    access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, * const u8)>,
+    access_method_change_context: *const c_void, 
 ) -> SwiftApiContext {
     mullvad_api_init_inner(
         host,
@@ -147,6 +158,8 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
         bridge_provider,
         settings_provider,
         address_cache,
+        access_method_change_callback,
+        access_method_change_context,
     )
 }
 
@@ -170,6 +183,8 @@ pub extern "C" fn mullvad_api_init_new(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
+    access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, * const u8)>,
+    access_method_change_context: *const c_void, 
 ) -> SwiftApiContext {
     #[cfg(feature = "api-override")]
     return mullvad_api_init_inner(
@@ -180,6 +195,8 @@ pub extern "C" fn mullvad_api_init_new(
         bridge_provider,
         settings_provider,
         address_cache,
+        access_method_change_callback,
+        access_method_change_context,
     );
     #[cfg(not(feature = "api-override"))]
     mullvad_api_init_inner(
@@ -189,6 +206,8 @@ pub extern "C" fn mullvad_api_init_new(
         bridge_provider,
         settings_provider,
         address_cache,
+        access_method_change_callback,
+        access_method_change_context,
     )
 }
 
@@ -213,6 +232,8 @@ pub extern "C" fn mullvad_api_init_inner(
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
+    access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, * const u8)>,
+    access_method_change_context: *const c_void, 
 ) -> SwiftApiContext {
     // Safety: See notes for `get_string`
     let (host, address, domain) =
@@ -245,15 +266,35 @@ pub extern "C" fn mullvad_api_init_inner(
         address_cache,
     );
 
+    let access_method_change_ctx: ForeignPtr = ForeignPtr { ptr: access_method_change_context };
     let api_context = tokio_handle.clone().block_on(async move {
+        let (tx, mut rx) = mpsc::unbounded::<(AccessMethodEvent, oneshot::Sender<()>)>();
         let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
             method_resolver,
             access_method_settings,
             #[cfg(feature = "api-override")]
             endpoint.clone(),
+            tx,
         )
         .await
         .expect("Could now spawn AccessModeSelector");
+
+        tokio::spawn(async move {
+            let access_method_change_ctx = access_method_change_ctx;
+            // SAFETY: The callback is expected to be called from the Swift side
+            if let Some(callback) = access_method_change_callback {
+                while let Some((event, _sender)) = rx.next().await {
+                    let AccessMethodEvent::New { setting, connection_mode, endpoint } = event else { continue };
+                    let uuid = setting.get_id();
+                    let uuid_bytes = uuid.as_bytes();
+                    // SAFETY: The callback is expected to be safe to call
+                    unsafe { callback(access_method_change_ctx.ptr, uuid_bytes.as_ptr()) };
+                }
+            }
+        });
+
+        // TODO: do something with rx, and somehow let the `AccessMethodEvent`s it
+        // receives be sent back to the Swift side
 
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.
