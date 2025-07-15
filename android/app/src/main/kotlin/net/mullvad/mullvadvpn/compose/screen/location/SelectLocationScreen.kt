@@ -17,6 +17,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.HistoryToggleOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,11 +70,13 @@ import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.displayName
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
@@ -89,22 +92,23 @@ private fun PreviewSelectLocationScreen(
     AppTheme {
         SelectLocationScreen(
             state = state,
-            SnackbarHostState(),
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            { _, _ -> },
-            { _, _ -> },
-            {},
-            {},
-            {},
-            {},
-            {},
+            snackbarHostState = SnackbarHostState(),
+            onSelectHop = {},
+            onSearchClick = {},
+            onBackClick = {},
+            onFilterClick = {},
+            onCreateCustomList = { _ -> },
+            onEditCustomLists = {},
+            onRecentsToggleEnableClick = {},
+            removeOwnershipFilter = {},
+            removeProviderFilter = {},
+            onAddLocationToList = { _, _ -> },
+            onRemoveLocationFromList = { _, _ -> },
+            onEditCustomListName = {},
+            onEditLocationsCustomList = {},
+            onDeleteCustomList = {},
+            onSelectRelayList = {},
+            openDaitaSettings = {},
         )
     }
 }
@@ -156,7 +160,10 @@ fun SelectLocation(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
+                            context.getString(
+                                R.string.relayitem_is_inactive,
+                                it.hop.displayName(context),
+                            )
                     )
                 }
         }
@@ -191,7 +198,7 @@ fun SelectLocation(
     SelectLocationScreen(
         state = state.value,
         snackbarHostState = snackbarHostState,
-        onSelectRelay = vm::selectRelay,
+        onSelectHop = vm::selectHop,
         onSearchClick = { navigator.navigate(SearchLocationDestination(it)) },
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
         onFilterClick = dropUnlessResumed { navigator.navigate(FilterDestination) },
@@ -229,6 +236,7 @@ fun SelectLocation(
                 )
             },
         onSelectRelayList = vm::selectRelayList,
+        onRecentsToggleEnableClick = vm::toggleRecentsEnabled,
         openDaitaSettings =
             dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
     )
@@ -239,12 +247,13 @@ fun SelectLocation(
 fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectRelay: (item: RelayItem) -> Unit,
+    onSelectHop: (item: Hop) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
     onFilterClick: () -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
     onEditCustomLists: () -> Unit,
+    onRecentsToggleEnableClick: () -> Unit,
     removeOwnershipFilter: () -> Unit,
     removeProviderFilter: () -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
@@ -289,6 +298,16 @@ fun SelectLocationScreen(
             IconButton(enabled = isFilterButtonEnabled, onClick = onFilterClick) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
+                    contentDescription = stringResource(id = R.string.filter),
+                    tint =
+                        MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = if (isFilterButtonEnabled) AlphaVisible else AlphaDisabled
+                        ),
+                )
+            }
+            IconButton(enabled = true, onClick = onRecentsToggleEnableClick) {
+                Icon(
+                    imageVector = Icons.Default.HistoryToggleOff,
                     contentDescription = stringResource(id = R.string.filter),
                     tint =
                         MaterialTheme.colorScheme.onSurface.copy(
@@ -347,7 +366,7 @@ fun SelectLocationScreen(
 
                     RelayLists(
                         state = state.value,
-                        onSelectRelay = onSelectRelay,
+                        onSelectHop = onSelectHop,
                         openDaitaSettings = openDaitaSettings,
                         onAddCustomList = { onCreateCustomList(null) },
                         onEditCustomLists = onEditCustomLists,
@@ -362,7 +381,7 @@ fun SelectLocationScreen(
 }
 
 @Composable
-private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayListType) -> Unit) {
+private fun MultihopBar(relayListType: RelayListType, onSelectHopList: (RelayListType) -> Unit) {
     SingleChoiceSegmentedButtonRow(
         modifier =
             Modifier.fillMaxWidth()
@@ -374,12 +393,12 @@ private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayL
     ) {
         MullvadSegmentedStartButton(
             selected = relayListType == RelayListType.ENTRY,
-            onClick = { onSelectRelayList(RelayListType.ENTRY) },
+            onClick = { onSelectHopList(RelayListType.ENTRY) },
             text = stringResource(id = R.string.entry),
         )
         MullvadSegmentedEndButton(
             selected = relayListType == RelayListType.EXIT,
-            onClick = { onSelectRelayList(RelayListType.EXIT) },
+            onClick = { onSelectHopList(RelayListType.EXIT) },
             text = stringResource(id = R.string.exit),
         )
     }
@@ -388,7 +407,7 @@ private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayL
 @Composable
 private fun RelayLists(
     state: SelectLocationUiState,
-    onSelectRelay: (RelayItem) -> Unit,
+    onSelectHop: (Hop) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
@@ -401,7 +420,7 @@ private fun RelayLists(
     if (configuration.navigation == Configuration.NAVIGATION_DPAD) {
         SelectLocationList(
             relayListType = state.relayListType,
-            onSelectRelay = onSelectRelay,
+            onSelectHop = onSelectHop,
             openDaitaSettings = openDaitaSettings,
             onAddCustomList = onAddCustomList,
             onEditCustomLists = onEditCustomLists,
@@ -430,7 +449,7 @@ private fun RelayLists(
         ) { pageIndex ->
             SelectLocationList(
                 relayListType = RelayListType.entries[pageIndex],
-                onSelectRelay = onSelectRelay,
+                onSelectHop = onSelectHop,
                 openDaitaSettings = openDaitaSettings,
                 onAddCustomList = onAddCustomList,
                 onEditCustomLists = onEditCustomLists,

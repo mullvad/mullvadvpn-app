@@ -576,6 +576,28 @@ class ManagementService(
             .mapLeft(SetRelayLocationError::Unknown)
             .mapEmpty()
 
+    suspend fun setRelayLocationMultihop(
+        entry: RelayItemId,
+        exit: RelayItemId,
+    ): Either<SetRelayLocationError, Unit> =
+        Either.catch {
+                val currentRelaySettings = getSettings().relaySettings
+
+                val updatedRelaySettings =
+                    currentRelaySettings.copy {
+                        inside(RelaySettings.relayConstraints) {
+                            RelayConstraints.location set Constraint.Only(exit)
+                            RelayConstraints.wireguardConstraints.entryLocation set
+                                Constraint.Only(entry)
+                            RelayConstraints.wireguardConstraints.isMultihopEnabled set true
+                        }
+                    }
+                grpc.setRelaySettings(updatedRelaySettings.fromDomain())
+            }
+            .onLeft { Logger.e("Set relay multihop error") }
+            .mapLeft(SetRelayLocationError::Unknown)
+            .mapEmpty()
+
     suspend fun createCustomList(
         name: CustomListName,
         locations: List<GeoLocationId> = emptyList(),
@@ -853,6 +875,11 @@ class ManagementService(
     suspend fun setIpv6Enabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
         Either.catch { grpc.setEnableIpv6(BoolValue.of(enabled)) }
             .mapLeft(SetDaitaSettingsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setRecentsEnabled(enabled: Boolean): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch { grpc.setEnableRecents(BoolValue.of(enabled)) }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}

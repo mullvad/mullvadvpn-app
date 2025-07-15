@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
@@ -40,7 +41,7 @@ class SearchLocationScreenTest {
 
     private fun ComposeContext.initScreen(
         state: Lce<Unit, SearchLocationUiState, Unit>,
-        onSelectRelay: (RelayItem) -> Unit = {},
+        onSelectHop: (Hop) -> Unit = {},
         onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
         onSearchInputChanged: (String) -> Unit = {},
         onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
@@ -62,7 +63,7 @@ class SearchLocationScreenTest {
         setContentWithTheme {
             SearchLocationScreen(
                 state = state,
-                onSelectRelay = onSelectRelay,
+                onSelectHop = onSelectHop,
                 onToggleExpand = onToggleExpand,
                 onSearchInputChanged = onSearchInputChanged,
                 onCreateCustomList = onCreateCustomList,

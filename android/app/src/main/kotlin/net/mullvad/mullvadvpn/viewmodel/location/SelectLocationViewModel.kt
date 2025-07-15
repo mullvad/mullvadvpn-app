@@ -17,6 +17,8 @@ import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -73,15 +75,17 @@ class SelectLocationViewModel(
         viewModelScope.launch { _relayListType.emit(relayListType) }
     }
 
-    fun selectRelay(relayItem: RelayItem) {
+    fun selectHop(hop: Hop) {
         viewModelScope.launch {
-            if (relayItem.active) {
+            if (hop.isActive) {
 
-                selectRelayItem(
-                        relayItem = relayItem,
+                selectRelayHop(
+                        hop = hop,
                         relayListType = _relayListType.value,
                         selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
                         selectExitLocation = relayListRepository::updateSelectedRelayLocation,
+                        selectMultihopLocation =
+                            relayListRepository::updateSelectedRelayLocationMultihop,
                     )
                     .fold(
                         { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
@@ -94,7 +98,7 @@ class SelectLocationViewModel(
                         },
                     )
             } else {
-                _uiSideEffect.send(SelectLocationSideEffect.RelayItemInactive(relayItem))
+                _uiSideEffect.send(SelectLocationSideEffect.RelayItemInactive(hop))
             }
         }
     }
@@ -135,6 +139,18 @@ class SelectLocationViewModel(
     fun removeProviderFilter() {
         viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
     }
+
+    fun toggleRecentsEnabled() {
+        viewModelScope.launch {
+            val enabled =
+                when (settingsRepository.settingsUpdates.value?.recents) {
+                    is Recents.Enabled -> true
+                    Recents.Disabled,
+                    null -> false
+                }
+            settingsRepository.setRecentsEnabled(!enabled)
+        }
+    }
 }
 
 sealed interface SelectLocationSideEffect {
@@ -145,5 +161,5 @@ sealed interface SelectLocationSideEffect {
 
     data object GenericError : SelectLocationSideEffect
 
-    data class RelayItemInactive(val relayItem: RelayItem) : SelectLocationSideEffect
+    data class RelayItemInactive(val hop: Hop) : SelectLocationSideEffect
 }
