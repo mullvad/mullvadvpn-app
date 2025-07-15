@@ -18,12 +18,13 @@ pub async fn retry_future<
 ) -> T {
     loop {
         let current_result = factory().await;
-        if should_retry(&current_result) {
-            if let Some(delay) = delays.next() {
-                sleep(delay).await;
-                continue;
-            }
+        if should_retry(&current_result)
+            && let Some(delay) = delays.next()
+        {
+            sleep(delay).await;
+            continue;
         }
+
         return current_result;
     }
 }
@@ -50,11 +51,12 @@ impl Iterator for ConstantInterval {
     type Item = Duration;
 
     fn next(&mut self) -> Option<Duration> {
-        if let Some(max_attempts) = self.max_attempts {
-            if self.attempt >= max_attempts {
-                return None;
-            }
+        if let Some(max_attempts) = self.max_attempts
+            && self.attempt >= max_attempts
+        {
+            return None;
         }
+
         self.attempt = self.attempt.saturating_add(1);
         Some(self.interval)
     }
@@ -92,10 +94,10 @@ impl ExponentialBackoff {
     fn next_delay(&mut self) -> Duration {
         let next = self.next;
 
-        if let Some(max_delay) = self.max_delay {
-            if next > max_delay {
-                return max_delay;
-            }
+        if let Some(max_delay) = self.max_delay
+            && next > max_delay
+        {
+            return max_delay;
         }
 
         self.next = next.saturating_mul(self.factor);

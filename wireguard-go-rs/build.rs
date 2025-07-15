@@ -362,11 +362,12 @@ fn find_file(
     for path in std::fs::read_dir(dir).context("Failed to read dir")? {
         let entry = path.context("Failed to read dir entry")?;
         let path = entry.path();
-        if path.is_dir() {
-            if let Some(result) = find_file(&path, condition)? {
-                return Ok(Some(result));
-            }
+        if path.is_dir()
+            && let Some(result) = find_file(&path, condition)?
+        {
+            return Ok(Some(result));
         }
+
         if condition(&path) {
             return Ok(Some(path.to_owned()));
         }

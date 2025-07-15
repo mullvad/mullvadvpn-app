@@ -209,26 +209,24 @@ impl OpenVpn {
     ) -> relay_list::OpenVpnEndpointData {
         for mut openvpn_relay in self.relays.into_iter() {
             openvpn_relay.convert_to_lowercase();
-            if let Some((country_code, city_code)) = split_location_code(&openvpn_relay.location) {
-                if let Some(country) = countries.get_mut(country_code) {
-                    if let Some(city) = country
-                        .cities
-                        .iter_mut()
-                        .find(|city| city.code == city_code)
-                    {
-                        let location = location::Location {
-                            country: country.name.clone(),
-                            country_code: country.code.clone(),
-                            city: city.name.clone(),
-                            city_code: city.code.clone(),
-                            latitude: city.latitude,
-                            longitude: city.longitude,
-                        };
-                        let relay = openvpn_relay.into_openvpn_mullvad_relay(location);
-                        city.relays.push(relay);
-                    }
+            if let Some((country_code, city_code)) = split_location_code(&openvpn_relay.location)
+                && let Some(country) = countries.get_mut(country_code)
+                && let Some(city) = country
+                    .cities
+                    .iter_mut()
+                    .find(|city| city.code == city_code)
+            {
+                let location = location::Location {
+                    country: country.name.clone(),
+                    country_code: country.code.clone(),
+                    city: city.name.clone(),
+                    city_code: city.code.clone(),
+                    latitude: city.latitude,
+                    longitude: city.longitude,
                 };
-            }
+                let relay = openvpn_relay.into_openvpn_mullvad_relay(location);
+                city.relays.push(relay);
+            };
         }
         self.ports
     }
@@ -321,27 +319,24 @@ impl Wireguard {
             wireguard_relay.relay.convert_to_lowercase();
             if let Some((country_code, city_code)) =
                 split_location_code(&wireguard_relay.relay.location)
+                && let Some(country) = countries.get_mut(country_code)
+                && let Some(city) = country
+                    .cities
+                    .iter_mut()
+                    .find(|city| city.code == city_code)
             {
-                if let Some(country) = countries.get_mut(country_code) {
-                    if let Some(city) = country
-                        .cities
-                        .iter_mut()
-                        .find(|city| city.code == city_code)
-                    {
-                        let location = location::Location {
-                            country: country.name.clone(),
-                            country_code: country.code.clone(),
-                            city: city.name.clone(),
-                            city_code: city.code.clone(),
-                            latitude: city.latitude,
-                            longitude: city.longitude,
-                        };
-
-                        let relay = wireguard_relay.into_mullvad_relay(location);
-                        city.relays.push(relay);
-                    }
+                let location = location::Location {
+                    country: country.name.clone(),
+                    country_code: country.code.clone(),
+                    city: city.name.clone(),
+                    city_code: city.code.clone(),
+                    latitude: city.latitude,
+                    longitude: city.longitude,
                 };
-            }
+
+                let relay = wireguard_relay.into_mullvad_relay(location);
+                city.relays.push(relay);
+            };
         }
 
         endpoint_data
@@ -394,27 +389,25 @@ impl Bridges {
     ) -> relay_list::BridgeEndpointData {
         for mut bridge_relay in self.relays {
             bridge_relay.convert_to_lowercase();
-            if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location) {
-                if let Some(country) = countries.get_mut(country_code) {
-                    if let Some(city) = country
-                        .cities
-                        .iter_mut()
-                        .find(|city| city.code == city_code)
-                    {
-                        let location = location::Location {
-                            country: country.name.clone(),
-                            country_code: country.code.clone(),
-                            city: city.name.clone(),
-                            city_code: city.code.clone(),
-                            latitude: city.latitude,
-                            longitude: city.longitude,
-                        };
-
-                        let relay = bridge_relay.into_bridge_mullvad_relay(location);
-                        city.relays.push(relay);
-                    }
+            if let Some((country_code, city_code)) = split_location_code(&bridge_relay.location)
+                && let Some(country) = countries.get_mut(country_code)
+                && let Some(city) = country
+                    .cities
+                    .iter_mut()
+                    .find(|city| city.code == city_code)
+            {
+                let location = location::Location {
+                    country: country.name.clone(),
+                    country_code: country.code.clone(),
+                    city: city.name.clone(),
+                    city_code: city.code.clone(),
+                    latitude: city.latitude,
+                    longitude: city.longitude,
                 };
-            }
+
+                let relay = bridge_relay.into_bridge_mullvad_relay(location);
+                city.relays.push(relay);
+            };
         }
 
         relay_list::BridgeEndpointData {

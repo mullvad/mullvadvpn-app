@@ -118,13 +118,11 @@ impl SettingsPersister {
             on_change_listeners: vec![],
         };
 
-        if should_save {
-            if let Err(error) = persister.save().await {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to save updated settings")
-                );
-            }
+        if should_save && let Err(error) = persister.save().await {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to save updated settings")
+            );
         }
 
         persister

@@ -141,10 +141,10 @@ async fn recv_ttl_responses(
 
         // Call recvmsg in a loop
         let recv_packet = loop {
-            if let Some(timeout_at) = timeout_at {
-                if Instant::now() >= timeout_at {
-                    break 'outer;
-                }
+            if let Some(timeout_at) = timeout_at
+                && Instant::now() >= timeout_at
+            {
+                break 'outer;
             }
 
             let recv_packet = match destination {

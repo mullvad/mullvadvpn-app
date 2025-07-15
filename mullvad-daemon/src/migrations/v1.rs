@@ -44,23 +44,21 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
             .cloned()
     }();
 
-    if let Some(relay_settings) = settings.get_mut("relay_settings") {
-        if let Some(normal_settings) = relay_settings.get_mut("normal") {
-            if let Some(openvpn_constraints) = openvpn_constraints {
-                normal_settings["openvpn_constraints"] = openvpn_constraints;
-                normal_settings["tunnel_protocol"] =
-                    serde_json::json!(Constraint::<TunnelType>::Any);
-            } else if let Some(wireguard_constraints) = wireguard_constraints {
-                normal_settings["wireguard_constraints"] = wireguard_constraints;
-                normal_settings["tunnel_protocol"] =
-                    serde_json::json!(Constraint::Only(TunnelType::Wireguard));
-            } else {
-                normal_settings["tunnel_protocol"] =
-                    serde_json::json!(Constraint::<TunnelType>::Any);
-            }
-            if let Some(object) = normal_settings.as_object_mut() {
-                object.remove("tunnel");
-            }
+    if let Some(relay_settings) = settings.get_mut("relay_settings")
+        && let Some(normal_settings) = relay_settings.get_mut("normal")
+    {
+        if let Some(openvpn_constraints) = openvpn_constraints {
+            normal_settings["openvpn_constraints"] = openvpn_constraints;
+            normal_settings["tunnel_protocol"] = serde_json::json!(Constraint::<TunnelType>::Any);
+        } else if let Some(wireguard_constraints) = wireguard_constraints {
+            normal_settings["wireguard_constraints"] = wireguard_constraints;
+            normal_settings["tunnel_protocol"] =
+                serde_json::json!(Constraint::Only(TunnelType::Wireguard));
+        } else {
+            normal_settings["tunnel_protocol"] = serde_json::json!(Constraint::<TunnelType>::Any);
+        }
+        if let Some(object) = normal_settings.as_object_mut() {
+            object.remove("tunnel");
         }
     }
 

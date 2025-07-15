@@ -16,15 +16,15 @@ pub async fn connect(wait: bool) -> Result<()> {
         None
     };
 
-    if rpc.connect_tunnel().await? {
-        if let Some(receiver) = listener {
-            wait_for_tunnel_state(receiver, |state| match state {
-                TunnelState::Connected { .. } => Ok(true),
-                TunnelState::Error(_) => Err(anyhow!("Failed to connect")),
-                _ => Ok(false),
-            })
-            .await?;
-        }
+    if rpc.connect_tunnel().await?
+        && let Some(receiver) = listener
+    {
+        wait_for_tunnel_state(receiver, |state| match state {
+            TunnelState::Connected { .. } => Ok(true),
+            TunnelState::Error(_) => Err(anyhow!("Failed to connect")),
+            _ => Ok(false),
+        })
+        .await?;
     }
 
     Ok(())
@@ -39,10 +39,10 @@ pub async fn disconnect(wait: bool) -> Result<()> {
         None
     };
 
-    if rpc.disconnect_tunnel().await? {
-        if let Some(receiver) = listener {
-            wait_for_tunnel_state(receiver, |state| Ok(state.is_disconnected())).await?;
-        }
+    if rpc.disconnect_tunnel().await?
+        && let Some(receiver) = listener
+    {
+        wait_for_tunnel_state(receiver, |state| Ok(state.is_disconnected())).await?;
     }
 
     Ok(())
@@ -60,15 +60,15 @@ pub async fn reconnect(wait: bool) -> Result<()> {
         None
     };
 
-    if rpc.reconnect_tunnel().await? {
-        if let Some(receiver) = listener {
-            wait_for_tunnel_state(receiver, |state| match state {
-                TunnelState::Connected { .. } => Ok(true),
-                TunnelState::Error(_) => Err(anyhow!("Failed to reconnect")),
-                _ => Ok(false),
-            })
-            .await?;
-        }
+    if rpc.reconnect_tunnel().await?
+        && let Some(receiver) = listener
+    {
+        wait_for_tunnel_state(receiver, |state| match state {
+            TunnelState::Connected { .. } => Ok(true),
+            TunnelState::Error(_) => Err(anyhow!("Failed to reconnect")),
+            _ => Ok(false),
+        })
+        .await?;
     }
 
     Ok(())

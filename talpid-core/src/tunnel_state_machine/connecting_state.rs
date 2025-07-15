@@ -272,10 +272,10 @@ impl ConnectingState {
                 }
             };
 
-            if block_reason.is_none() {
-                if let Some(remaining_time) = MIN_TUNNEL_ALIVE_TIME.checked_sub(start.elapsed()) {
-                    thread::sleep(remaining_time);
-                }
+            if block_reason.is_none()
+                && let Some(remaining_time) = MIN_TUNNEL_ALIVE_TIME.checked_sub(start.elapsed())
+            {
+                thread::sleep(remaining_time);
             }
 
             if tunnel_close_event_tx.send(block_reason).is_err() {

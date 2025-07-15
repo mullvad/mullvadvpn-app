@@ -33,6 +33,7 @@ const SPLIT_TUNNELING_STATE: &str = "split-tunnelling-enabled.txt";
 /// Tunnel protocol
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "tunnel_type")]
+#[allow(unused)]
 pub enum TunnelType {
     #[serde(rename = "openvpn")]
     OpenVpn,

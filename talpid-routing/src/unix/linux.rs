@@ -273,10 +273,10 @@ impl RouteManagerImpl {
         let mut response = self.handle.request(req).map_err(Error::Netlink)?;
 
         while let Some(message) = response.next().await {
-            if let NetlinkPayload::Error(error) = message.payload {
-                if error.to_io().kind() != io::ErrorKind::NotFound {
-                    return Err(Error::Netlink(rtnetlink::Error::NetlinkError(error)));
-                }
+            if let NetlinkPayload::Error(error) = message.payload
+                && error.to_io().kind() != io::ErrorKind::NotFound
+            {
+                return Err(Error::Netlink(rtnetlink::Error::NetlinkError(error)));
             }
         }
         Ok(())
@@ -565,11 +565,12 @@ impl RouteManagerImpl {
 
     async fn delete_route_if_exists(&self, route: &Route) -> Result<()> {
         if let Err(error) = self.delete_route(route).await {
-            if let Error::Netlink(rtnetlink::Error::NetlinkError(msg)) = &error {
-                if msg.code == -libc::ESRCH {
-                    return Ok(());
-                }
+            if let Error::Netlink(rtnetlink::Error::NetlinkError(msg)) = &error
+                && msg.code == -libc::ESRCH
+            {
+                return Ok(());
             }
+
             Err(error)
         } else {
             Ok(())
@@ -617,10 +618,10 @@ impl RouteManagerImpl {
             route_message.nlas.push(RouteNla::Table(route.table_id));
         }
 
-        if let Some(interface_name) = route.node.get_device() {
-            if let Some(iface_idx) = self.find_iface_idx(interface_name) {
-                route_message.nlas.push(RouteNla::Oif(iface_idx));
-            }
+        if let Some(interface_name) = route.node.get_device()
+            && let Some(iface_idx) = self.find_iface_idx(interface_name)
+        {
+            route_message.nlas.push(RouteNla::Oif(iface_idx));
         }
 
         if let Some(gateway) = route.node.get_address() {
@@ -662,10 +663,10 @@ impl RouteManagerImpl {
                     add_message = add_message.gateway(node_address);
                 }
 
-                if let Some(interface_name) = route.node.get_device() {
-                    if let Some(iface_idx) = self.find_iface_idx(interface_name) {
-                        add_message = add_message.output_interface(iface_idx);
-                    }
+                if let Some(interface_name) = route.node.get_device()
+                    && let Some(iface_idx) = self.find_iface_idx(interface_name)
+                {
+                    add_message = add_message.output_interface(iface_idx);
                 }
 
                 add_message.message_mut().clone()
@@ -687,10 +688,10 @@ impl RouteManagerImpl {
                     add_message = add_message.gateway(node_address);
                 }
 
-                if let Some(interface_name) = route.node.get_device() {
-                    if let Some(iface_idx) = self.find_iface_idx(interface_name) {
-                        add_message = add_message.output_interface(iface_idx);
-                    }
+                if let Some(interface_name) = route.node.get_device()
+                    && let Some(iface_idx) = self.find_iface_idx(interface_name)
+                {
+                    add_message = add_message.output_interface(iface_idx);
                 }
 
                 add_message.message_mut().clone()
@@ -807,13 +808,13 @@ impl RouteManagerImpl {
         let target_device = LinkNla::IfName(device);
         while let Some(msg) = links.try_next().await.map_err(|_| Error::LinkNotFound)? {
             let found = msg.nlas.contains(&target_device);
-            if found {
-                if let Some(LinkNla::Mtu(mtu)) =
+            if found
+                && let Some(LinkNla::Mtu(mtu)) =
                     msg.nlas.iter().find(|e| matches!(e, LinkNla::Mtu(_)))
-                {
-                    return Ok(u16::try_from(*mtu)
-                        .expect("MTU returned by device does not fit into a u16"));
-                }
+            {
+                return Ok(
+                    u16::try_from(*mtu).expect("MTU returned by device does not fit into a u16")
+                );
             }
         }
         Err(Error::LinkNotFound)

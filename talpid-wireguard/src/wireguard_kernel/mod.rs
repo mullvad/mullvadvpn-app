@@ -134,15 +134,16 @@ impl Handle {
                 .request(message, SocketAddr::new(0, 0))
                 .map_err(Error::NetlinkRequest)?;
             let response = req.next().await;
-            if let Some(response) = response {
-                if let NetlinkPayload::InnerMessage(msg) = response.payload {
-                    for nla in msg.nlas.into_iter() {
-                        if let ControlNla::FamilyId(id) = nla {
-                            return Ok(id);
-                        }
+            if let Some(response) = response
+                && let NetlinkPayload::InnerMessage(msg) = response.payload
+            {
+                for nla in msg.nlas.into_iter() {
+                    if let ControlNla::FamilyId(id) = nla {
+                        return Ok(id);
                     }
                 }
             }
+
             Err(Error::WireguardNetlinkInterfaceUnavailable)
         }
         .await;

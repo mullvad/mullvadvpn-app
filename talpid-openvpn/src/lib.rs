@@ -543,14 +543,14 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
     fn create_proxy_auth_file(
         proxy_settings: &Option<CustomProxy>,
     ) -> std::result::Result<Option<mktemp::TempFile>, io::Error> {
-        if let Some(CustomProxy::Socks5Remote(remote_proxy)) = proxy_settings {
-            if let Some(ref proxy_auth) = remote_proxy.auth {
-                return Ok(Some(Self::create_credentials_file(
-                    proxy_auth.username(),
-                    proxy_auth.password(),
-                )?));
-            }
+        if let Some(CustomProxy::Socks5Remote(remote_proxy)) = proxy_settings
+            && let Some(ref proxy_auth) = remote_proxy.auth
+        {
+            let credentials_file =
+                Self::create_credentials_file(proxy_auth.username(), proxy_auth.password())?;
+            return Ok(Some(credentials_file));
         }
+
         Ok(None)
     }
 

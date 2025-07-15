@@ -186,26 +186,26 @@ impl Server {
             }
         }
 
-        if let Some(hostname) = &server_params.hostname {
-            if &proxy_uri.hostname != hostname {
-                let valid_uri = ProxyUri {
-                    hostname: hostname.to_string(),
-                    ..proxy_uri
-                };
+        if let Some(hostname) = &server_params.hostname
+            && &proxy_uri.hostname != hostname
+        {
+            let valid_uri = ProxyUri {
+                hostname: hostname.to_string(),
+                ..proxy_uri
+            };
 
-                respond_with_redirect(stream, valid_uri).await;
+            respond_with_redirect(stream, valid_uri).await;
 
-                // NOTE: Recursing like this makes us vulnerable to DoS if the client keeps
-                // sending the wrong hostname. This is fine since this is just an example server.
-                Box::pin(Self::accept_proxy_request(
-                    quic_conn,
-                    http_conn,
-                    server_params,
-                ))
-                .await;
+            // NOTE: Recursing like this makes us vulnerable to DoS if the client keeps
+            // sending the wrong hostname. This is fine since this is just an example server.
+            Box::pin(Self::accept_proxy_request(
+                quic_conn,
+                http_conn,
+                server_params,
+            ))
+            .await;
 
-                return;
-            }
+            return;
         }
 
         if !server_params
