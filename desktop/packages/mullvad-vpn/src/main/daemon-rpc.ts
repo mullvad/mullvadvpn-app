@@ -104,8 +104,12 @@ export class DaemonRpc extends GrpcClient {
       try {
         const { pipeIsAdminOwned } = await import('windows-utils');
         pipeIsAdminOwned(DAEMON_RPC_PATH);
-      } catch {
-        throw new Error('Failed to verify admin ownership of named pipe');
+      } catch (e) {
+        if (e && typeof e === 'object' && 'message' in e) {
+          throw new Error(`Failed to verify admin ownership of named pipe. ${e.message}`);
+        } else {
+          throw new Error('Failed to verify admin ownership of named pipe');
+        }
       }
     } else {
       const stat = fs.statSync(DAEMON_RPC_PATH);
