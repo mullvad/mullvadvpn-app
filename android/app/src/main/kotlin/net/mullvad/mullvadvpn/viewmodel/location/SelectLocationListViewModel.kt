@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
@@ -28,6 +29,7 @@ class SelectLocationListViewModel(
     private val selectedLocationUseCase: SelectedLocationUseCase,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val relayListRepository: RelayListRepository,
+    private val recentsUseCase: RecentsUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     settingsRepository: SettingsRepository,
 ) : ViewModel() {
@@ -61,9 +63,10 @@ class SelectLocationListViewModel(
         combine(
             filteredRelayListUseCase(relayListType = relayListType),
             filteredCustomListRelayItemsUseCase(relayListType = relayListType),
+            recentsUseCase(),
             selectedLocationUseCase(),
             _expandedItems,
-        ) { relayCountries, customLists, selectedItem, expandedItems ->
+        ) { relayCountries, customLists, recents, selectedItem, expandedItems ->
             // If we have no locations we have an empty relay list
             // and we should show an error
             if (relayCountries.isEmpty()) {
@@ -81,6 +84,8 @@ class SelectLocationListViewModel(
                     relayCountries = relayCountries,
                     relayListType = relayListType,
                     customLists = customLists,
+                    recents = recents,
+                    selectedItem = selectedItem,
                     selectedByThisEntryExitList =
                         selectedItem.selectedByThisEntryExitList(relayListType),
                     selectedByOtherEntryExitList =

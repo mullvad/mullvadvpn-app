@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.Settings
@@ -20,6 +21,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
@@ -40,12 +42,14 @@ class SelectLocationListViewModelTest {
     private val mockRelayListRepository: RelayListRepository = mockk()
     private val mockCustomListRelayItemsUseCase: CustomListsRelayItemUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
+    private val recentsUseCase: RecentsUseCase = mockk()
 
     private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val selectedLocationFlow = MutableStateFlow<RelayItemSelection>(mockk(relaxed = true))
     private val filteredCustomListRelayItems =
         MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
     private val customListRelayItems = MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
+    private val recentsRelayItems = MutableStateFlow<List<Hop>?>(emptyList())
     private val settings = MutableStateFlow(mockk<Settings>(relaxed = true))
 
     private lateinit var viewModel: SelectLocationListViewModel
@@ -63,6 +67,7 @@ class SelectLocationListViewModelTest {
             filteredCustomListRelayItems
         every { mockCustomListRelayItemsUseCase() } returns customListRelayItems
         every { mockSettingsRepository.settingsUpdates } returns settings
+        every { recentsUseCase() } returns recentsRelayItems
     }
 
     @Test
@@ -132,6 +137,7 @@ class SelectLocationListViewModelTest {
             relayListRepository = mockRelayListRepository,
             customListsRelayItemUseCase = mockCustomListRelayItemsUseCase,
             settingsRepository = mockSettingsRepository,
+            recentsUseCase = recentsUseCase,
         )
 
     private fun RelayListItem.relayItemId() =
@@ -142,8 +148,10 @@ class SelectLocationListViewModelTest {
             is RelayListItem.LocationsEmptyText -> null
             is RelayListItem.EmptyRelayList -> null
             is RelayListItem.CustomListEntryItem -> item.id
-            is RelayListItem.CustomListItem -> item.id
+            is RelayListItem.CustomListItem -> hop.exitId
             is RelayListItem.GeoLocationItem -> item.id
+            RelayListItem.RecentsListHeader -> null
+            is RelayListItem.RecentListItem -> hop.exitId
         }
 
     companion object {
