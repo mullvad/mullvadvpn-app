@@ -179,12 +179,12 @@ Run the following command to build a debug build:
 
 ## Build using nix devshell
 1. Install the nix package manager by following the [official instructions](https://nixos.org/download/).
-1. Enable the experimental `nix-command` and `flake` features by following [these instructions](https://nixos.wiki/wiki/flakes).
-1. Launch a devshell (in `<repository>/android`) by running:
+2. Enable the experimental `nix-command` and `flake` features by following [these instructions](https://nixos.wiki/wiki/flakes).
+3. Launch a devshell (in `<repository>/android`) by running:
    ```bash
    nix develop
    ```
-1. Build the app as usual by running for example:
+4. Build the app as usual by running for example:
    ```bash
    ./build.sh --dev-build
    ```
