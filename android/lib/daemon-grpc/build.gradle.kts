@@ -44,8 +44,21 @@ android {
 protobuf {
     protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
     plugins {
-        create("java") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
-        create("grpc") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
+        val grpcPluginPath = System.getenv("PROTOC_GEN_GRPC_JAVA_PLUGIN")
+        create("java") {
+            if (grpcPluginPath != null) {
+                path = grpcPluginPath
+            } else {
+                artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
+            }
+        }
+        create("grpc") {
+            if (grpcPluginPath != null) {
+                path = grpcPluginPath
+            } else {
+                artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
+            }
+        }
         create("grpckt") { artifact = libs.plugins.grpc.protoc.gen.grpc.kotlin.get().toString() }
     }
     generateProtoTasks {
