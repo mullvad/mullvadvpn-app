@@ -3162,6 +3162,9 @@ msgstr ""
 msgid "Privacy policy"
 msgstr ""
 
+msgid "Recents"
+msgstr ""
+
 msgid "Recursion limit"
 msgstr ""
 
