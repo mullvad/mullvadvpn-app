@@ -6,18 +6,28 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import MullvadTypes
 
-public struct MullvadApiContext: @unchecked Sendable {
+func onAccessChangeCallback(selfPtr: UnsafeRawPointer?, bytes: UnsafePointer<UInt8>?) {
+    guard let selfPtr, let bytes else { return }
+    let context = selfPtr.assumingMemoryBound(to: MullvadApiContext.self).pointee
+
+    let uuid = NSUUID(uuidBytes: bytes) as UUID
+    context.accessMethodChangeListener?.accessMethodChangedTo(uuid)
+}
+
+public class MullvadApiContext: @unchecked Sendable {
     enum Error: Swift.Error {
         case failedToConstructApiClient
     }
 
-    public let context: SwiftApiContext
+    public private(set) var context: SwiftApiContext!
     private let shadowsocksBridgeProvider: SwiftShadowsocksBridgeProviding!
     private let shadowsocksBridgeProviderWrapper: SwiftShadowsocksLoaderWrapper!
     private let addressCacheWrapper: SwiftAddressCacheWrapper!
     private let addressCacheProvider: AddressCacheProviding!
+    public var accessMethodChangeListener: MullvadAccessMethodChangeListening?
 
     public init(
         host: String,
@@ -36,6 +46,7 @@ public struct MullvadApiContext: @unchecked Sendable {
         self.addressCacheProvider = defaultAddressCache
         self.addressCacheWrapper = iniSwiftAddressCacheWrapper(provider: defaultAddressCache)
 
+        context = nil
         context = switch disableTls {
         case true:
             mullvad_api_init_new_tls_disabled(
@@ -44,7 +55,9 @@ public struct MullvadApiContext: @unchecked Sendable {
                 domain,
                 shadowsocksBridgeProviderWrapper,
                 accessMethodWrapper,
-                addressCacheWrapper
+                addressCacheWrapper,
+                onAccessChangeCallback,
+                Unmanaged.passRetained(self).toOpaque()
             )
         case false:
             mullvad_api_init_new(
@@ -53,7 +66,9 @@ public struct MullvadApiContext: @unchecked Sendable {
                 domain,
                 shadowsocksBridgeProviderWrapper,
                 accessMethodWrapper,
-                addressCacheWrapper
+                addressCacheWrapper,
+                onAccessChangeCallback,
+                Unmanaged.passRetained(self).toOpaque()
             )
         }
 
