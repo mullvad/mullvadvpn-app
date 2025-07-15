@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.time.Duration
@@ -68,6 +69,7 @@ fun NotificationBanner(
     modifier: Modifier = Modifier,
     notification: InAppNotification?,
     isPlayBuild: Boolean,
+    contentFocusRequester: FocusRequester = FocusRequester(),
     openAppListing: () -> Unit,
     onClickShowAccount: () -> Unit,
     onClickShowChangelog: () -> Unit,
@@ -81,6 +83,7 @@ fun NotificationBanner(
             notification = notification,
             isPlayBuild = isPlayBuild,
             openAppListing = openAppListing,
+            contentFocusRequester = contentFocusRequester,
             onClickShowAccount = onClickShowAccount,
             onClickShowChangelog = onClickShowChangelog,
             onClickDismissChangelog = onClickDismissChangelog,
@@ -94,6 +97,7 @@ fun NotificationBanner(
             notification = notification,
             isPlayBuild = isPlayBuild,
             openAppListing = openAppListing,
+            contentFocusRequester = contentFocusRequester,
             onClickShowAccount = onClickShowAccount,
             onClickShowChangelog = onClickShowChangelog,
             onClickDismissChangelog = onClickDismissChangelog,

@@ -16,8 +16,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
@@ -41,6 +46,7 @@ fun AnimatedNotificationBanner(
     notification: InAppNotification?,
     isPlayBuild: Boolean,
     openAppListing: () -> Unit,
+    contentFocusRequester: FocusRequester,
     onClickShowAccount: () -> Unit,
     onClickShowChangelog: () -> Unit,
     onClickDismissChangelog: () -> Unit,
@@ -49,9 +55,20 @@ fun AnimatedNotificationBanner(
 ) {
     // Fix for animating to invisible state
     val previous = rememberPrevious(current = notification, shouldUpdate = { _, _ -> true })
+
+    val isVisible = notification != null
+
+    val isNotificationDismissed = !isVisible && previous != null
+    val notificationHasFocus = remember { mutableStateOf(false) }
+    LaunchedEffect(isNotificationDismissed) {
+        // If the notification is dismissed, we want to reset the previous notification
+        if (isNotificationDismissed && notificationHasFocus.value) {
+            contentFocusRequester.requestFocus()
+        }
+    }
     AnimatedVisibility(
-        modifier = modifier,
-        visible = notification != null,
+        modifier = modifier.onFocusChanged { notificationHasFocus.value = it.hasFocus },
+        visible = isVisible,
         enter = slideInVertically(initialOffsetY = { -it }),
         exit = slideOutVertically(targetOffsetY = { -it }),
     ) {
