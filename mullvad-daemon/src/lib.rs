@@ -2841,12 +2841,12 @@ impl Daemon {
                         .account_manager
                         .set_rotation_interval(interval.unwrap_or_default())
                         .await
-                    {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg("Failed to update rotation interval")
-                        );
-                    }
+                {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to update rotation interval")
+                    );
+                }
             }
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
