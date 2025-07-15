@@ -244,7 +244,7 @@ class CustomListLocationsViewModel(
         _initialLocations.value = selectedLocations
         _selectedLocations.value = selectedLocations
         // Initial expand
-        _expandOverrides.value = initialExpands(locations).associate { it to true }
+        _expandOverrides.value = initialExpands(locations).associateWith { true }
     }
 
     private fun initialExpands(locations: List<RelayItem.Location>): Set<RelayItemId> =

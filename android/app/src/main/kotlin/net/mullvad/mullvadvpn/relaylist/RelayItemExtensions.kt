@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -111,3 +112,28 @@ private fun RelayItem.Location.Relay.filter(
         null
     }
 }
+
+fun List<RelayItem.Location.Country>.findByGeoLocationId(
+    geoLocationId: GeoLocationId
+): RelayItem.Location? =
+    when (geoLocationId) {
+        is GeoLocationId.Country -> find { country -> country.id == geoLocationId }
+        is GeoLocationId.City -> findCity(geoLocationId)
+        is GeoLocationId.Hostname -> findRelay(geoLocationId)
+    }
+
+fun List<RelayItem.Location.Country>.findCity(
+    geoLocationId: GeoLocationId.City
+): RelayItem.Location.City? =
+    find { country -> country.id == geoLocationId.country }
+        ?.cities
+        ?.find { city -> city.id == geoLocationId }
+
+fun List<RelayItem.Location.Country>.findRelay(
+    geoLocationId: GeoLocationId.Hostname
+): RelayItem.Location.Relay? =
+    find { country -> country.id == geoLocationId.country }
+        ?.cities
+        ?.find { city -> city.id == geoLocationId.city }
+        ?.relays
+        ?.find { relay -> relay.id == geoLocationId }

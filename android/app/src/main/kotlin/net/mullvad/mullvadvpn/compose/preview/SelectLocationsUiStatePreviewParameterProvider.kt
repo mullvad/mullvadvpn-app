@@ -19,6 +19,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     relayListType = RelayListType.EXIT,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
+                    isRecentsEnabled = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -31,6 +32,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     relayListType = RelayListType.EXIT,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
+                    isRecentsEnabled = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -39,6 +41,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     relayListType = RelayListType.ENTRY,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
+                    isRecentsEnabled = true,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -51,6 +54,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                     relayListType = RelayListType.ENTRY,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
+                    isRecentsEnabled = true,
                 )
                 .toLc(),
         )
