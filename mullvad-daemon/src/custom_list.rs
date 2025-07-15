@@ -129,28 +129,24 @@ impl Daemon {
         if let Some(endpoint) = self.tunnel_state.endpoint() {
             match endpoint.tunnel_type {
                 TunnelType::Wireguard => {
-                    if relay_settings.wireguard_constraints.multihop() {
-                        if let Constraint::Only(LocationConstraint::CustomList { list_id }) =
+                    if relay_settings.wireguard_constraints.multihop()
+                        && let Constraint::Only(LocationConstraint::CustomList { list_id }) =
                             &relay_settings.wireguard_constraints.entry_location
-                        {
-                            need_to_reconnect |=
-                                custom_list_id.map(|id| &id == list_id).unwrap_or(true);
-                        }
+                    {
+                        need_to_reconnect |=
+                            custom_list_id.map(|id| &id == list_id).unwrap_or(true);
                     }
                 }
 
                 TunnelType::OpenVpn => {
-                    if !matches!(self.settings.bridge_state, BridgeState::Off) {
-                        if let Ok(ResolvedBridgeSettings::Normal(bridge_settings)) =
+                    if !matches!(self.settings.bridge_state, BridgeState::Off)
+                        && let Ok(ResolvedBridgeSettings::Normal(bridge_settings)) =
                             self.settings.bridge_settings.resolve()
-                        {
-                            if let Constraint::Only(LocationConstraint::CustomList { list_id }) =
-                                &bridge_settings.location
-                            {
-                                need_to_reconnect |=
-                                    custom_list_id.map(|id| &id == list_id).unwrap_or(true);
-                            }
-                        }
+                        && let Constraint::Only(LocationConstraint::CustomList { list_id }) =
+                            &bridge_settings.location
+                    {
+                        need_to_reconnect |=
+                            custom_list_id.map(|id| &id == list_id).unwrap_or(true);
                     }
                 }
             }

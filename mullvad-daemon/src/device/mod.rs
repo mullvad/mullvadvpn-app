@@ -461,10 +461,10 @@ impl AccountManager {
         let mut current_api_call = api::CurrentApiCall::new();
 
         loop {
-            if current_api_call.is_idle() {
-                if let Some(timed_rotation) = self.spawn_timed_key_rotation() {
-                    current_api_call.set_timed_rotation(Box::pin(timed_rotation))
-                }
+            if current_api_call.is_idle()
+                && let Some(timed_rotation) = self.spawn_timed_key_rotation()
+            {
+                current_api_call.set_timed_rotation(Box::pin(timed_rotation))
             }
 
             futures::select! {
@@ -849,15 +849,15 @@ impl AccountManager {
             }
         }
 
-        if !self.rotation_requests.is_empty() || !self.validation_requests.is_empty() {
-            if let Some(updated_config) = self.data.device() {
-                let device_service = self.device_service.clone();
-                let number = updated_config.account_number.clone();
-                let device_id = updated_config.device.id.clone();
-                api_call.set_oneshot_rotation(Box::pin(async move {
-                    device_service.rotate_key(number, device_id).await
-                }));
-            }
+        if (!self.rotation_requests.is_empty() || !self.validation_requests.is_empty())
+            && let Some(updated_config) = self.data.device()
+        {
+            let device_service = self.device_service.clone();
+            let number = updated_config.account_number.clone();
+            let device_id = updated_config.device.id.clone();
+            api_call.set_oneshot_rotation(Box::pin(async move {
+                device_service.rotate_key(number, device_id).await
+            }));
         }
     }
 
@@ -1046,10 +1046,10 @@ impl AccountManager {
         self.cacher.write(&device_state).await?;
         self.last_validation = None;
 
-        if let Some(old_config) = self.data.logout() {
-            if device_state.device().map(|d| &d.device.id) != Some(&old_config.device.id) {
-                tokio::spawn(self.logout_api_call(old_config));
-            }
+        if let Some(old_config) = self.data.logout()
+            && device_state.device().map(|d| &d.device.id) != Some(&old_config.device.id)
+        {
+            tokio::spawn(self.logout_api_call(old_config));
         }
 
         self.data = device_state;
@@ -1374,7 +1374,8 @@ impl TunnelStateChangeHandler {
     const fn should_check_device_validity_on_attempt(wireguard_retry_attempt: usize) -> bool {
         // Incorporate a debounce effect where every `WG_DEVICE_CHECK_THRESHOLD` attempt should be
         // able to trigger a device check.
-        wireguard_retry_attempt > 0 && (wireguard_retry_attempt % WG_DEVICE_CHECK_THRESHOLD == 0)
+        wireguard_retry_attempt > 0
+            && wireguard_retry_attempt.is_multiple_of(WG_DEVICE_CHECK_THRESHOLD)
     }
 
     fn should_continue_retries(err: &Error) -> bool {

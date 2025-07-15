@@ -1567,11 +1567,11 @@ impl Daemon {
             }
             AccountEvent::Expiry(expiry) if *self.target_state == TargetState::Secured => {
                 if expiry >= &chrono::Utc::now() {
-                    if let TunnelState::Error(ref state) = self.tunnel_state {
-                        if matches!(state.cause(), ErrorStateCause::AuthFailed(_)) {
-                            log::debug!("Reconnecting since the account has time on it");
-                            self.connect_tunnel();
-                        }
+                    if let TunnelState::Error(ref state) = self.tunnel_state
+                        && matches!(state.cause(), ErrorStateCause::AuthFailed(_))
+                    {
+                        log::debug!("Reconnecting since the account has time on it");
+                        self.connect_tunnel();
                     }
                 } else if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
                     log::debug!("Entering blocking state since the account is out of time");
@@ -1778,10 +1778,10 @@ impl Daemon {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             let result = async {
-                if let Ok(data) = account_manager.data().await {
-                    if data.logged_in() {
-                        return Err(Error::AlreadyLoggedIn);
-                    }
+                if let Ok(data) = account_manager.data().await
+                    && data.logged_in()
+                {
+                    return Err(Error::AlreadyLoggedIn);
                 }
                 let token = account_manager
                     .account_service
@@ -2808,13 +2808,13 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_mtu response");
-                if settings_changed {
-                    if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
-                        log::info!(
-                            "Initiating tunnel restart because the WireGuard MTU setting changed"
-                        );
-                        self.reconnect_tunnel();
-                    }
+                if settings_changed
+                    && let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type()
+                {
+                    log::info!(
+                        "Initiating tunnel restart because the WireGuard MTU setting changed"
+                    );
+                    self.reconnect_tunnel();
                 }
             }
             Err(e) => {
@@ -2836,8 +2836,8 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_rotation_interval response");
-                if settings_changed {
-                    if let Err(error) = self
+                if settings_changed
+                    && let Err(error) = self
                         .account_manager
                         .set_rotation_interval(interval.unwrap_or_default())
                         .await
@@ -2847,7 +2847,6 @@ impl Daemon {
                             error.display_chain_with_msg("Failed to update rotation interval")
                         );
                     }
-                }
             }
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
@@ -2872,13 +2871,13 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_allowed_ips response");
-                if settings_changed {
-                    if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
-                        log::info!(
-                            "Initiating tunnel restart because the WireGuard allowed IPs setting changed"
-                        );
-                        self.reconnect_tunnel();
-                    }
+                if settings_changed
+                    && let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type()
+                {
+                    log::info!(
+                        "Initiating tunnel restart because the WireGuard allowed IPs setting changed"
+                    );
+                    self.reconnect_tunnel();
                 }
             }
             Err(e) => {
@@ -3491,9 +3490,9 @@ fn oneshot_map<T1: Send + 'static, T2: Send + 'static>(
 /// Remove any old RPC socket (if it exists).
 #[cfg(not(windows))]
 pub async fn cleanup_old_rpc_socket(rpc_socket_path: impl AsRef<std::path::Path>) {
-    if let Err(err) = tokio::fs::remove_file(rpc_socket_path).await {
-        if err.kind() != std::io::ErrorKind::NotFound {
-            log::error!("Failed to remove old RPC socket: {}", err);
-        }
+    if let Err(err) = tokio::fs::remove_file(rpc_socket_path).await
+        && err.kind() != std::io::ErrorKind::NotFound
+    {
+        log::error!("Failed to remove old RPC socket: {}", err);
     }
 }
