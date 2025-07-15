@@ -168,9 +168,10 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	delete g_fwContext;
 	g_fwContext = nullptr;
 
-	std::stringstream ss;
-	ss << "Deinitializing WinFw";
-	g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
+	if (nullptr != g_logSink)
+	{
+		g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Deinitializing WinFw", g_logSinkContext);
+	}
 
 	//
 	// Continue blocking with persistent rules if this is what the caller requested
@@ -186,9 +187,10 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 
 			rules::persistent::BlockAll blockAll;
 
-			std::stringstream ss;
-			ss << "Adding persistent block rules";
-			g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
+			if (nullptr != g_logSink)
+			{
+				g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Adding persistent block rules", g_logSinkContext);
+			}
 
 			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
 			{
@@ -220,41 +222,13 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	if (WINFW_CLEANUP_POLICY_BLOCK_UNTIL_REBOOT == cleanupPolicy
 		&& FwContext::Policy::Blocked == activePolicy)
 	{
-		try
+		if (nullptr != g_logSink)
 		{
-			auto engine = wfp::FilterEngine::StandardSession(DEINITIALIZE_TIMEOUT);
-			auto sessionController = std::make_unique<SessionController>(std::move(engine));
-
-			rules::baseline::BlockAll blockAll;
-
-			std::stringstream ss;
-			ss << "Adding ephemeral block rules";
-			g_logSink(MULLVAD_LOG_LEVEL_WARNING, ss.str().c_str(), g_logSinkContext);
-
-			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
-			{
-				// Keep non-persistent filters intact, the intent is just to *not*
-				// persist any filters across a BFE restart, not muck around with
-				// any other filters. We will apply blocking filters anyway.
-				ObjectPurger::GetRemovePersistentFunctor()(engine);
-
-				return controller.addProvider(*MullvadObjects::Provider())
-					&& controller.addSublayer(*MullvadObjects::SublayerBaseline())
-					&& blockAll.apply(controller);
-			});
+			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Keeping ephemeral block rules", g_logSinkContext);
 		}
-		catch (std::exception & err)
-		{
-			if (nullptr != g_logSink)
-			{
-				g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
-			}
-			return false;
-		}
-		catch (...)
-		{
-			return false;
-		}
+
+		// All we have to is *not* call WinFw_Reset, since blocking filters have been applied.
+		return true;
 	}
 
 	return WINFW_POLICY_STATUS_SUCCESS == WinFw_Reset();

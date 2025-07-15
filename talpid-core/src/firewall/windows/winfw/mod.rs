@@ -77,12 +77,13 @@ pub(super) fn apply_policy_blocked(
 ) -> Result<(), FirewallPolicyError> {
     let allowed_endpoint = allowed_endpoint
         .as_ref()
-        .map(WinFwAllowedEndpointContainer::as_endpoint)
+        .map(WinFwAllowedEndpointContainer::as_endpoint);
+    let allowed_endpoint_ptr = allowed_endpoint
         .as_ref()
         .map(ptr::from_ref)
         .unwrap_or(ptr::null());
     // SAFETY: This function is always safe to call
-    let application = unsafe { WinFw_ApplyPolicyBlocked(winfw_settings, allowed_endpoint) };
+    let application = unsafe { WinFw_ApplyPolicyBlocked(winfw_settings, allowed_endpoint_ptr) };
     application.into_result()
 }
 
