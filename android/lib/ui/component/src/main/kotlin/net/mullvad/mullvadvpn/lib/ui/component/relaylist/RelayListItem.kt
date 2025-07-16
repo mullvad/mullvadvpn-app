@@ -18,6 +18,7 @@ enum class RelayListItemContentType {
     EMPTY_RELAY_LIST,
     RECENT_LIST_ITEM,
     RECENT_LIST_HEADER,
+    SECTION_DIVIDER,
 }
 
 enum class RelayListItemState {
@@ -126,6 +127,11 @@ sealed interface RelayListItem {
     data object EmptyRelayList : RelayListItem {
         override val key = "empty_relay_list"
         override val contentType = RelayListItemContentType.EMPTY_RELAY_LIST
+    }
+
+    class SectionDivider : RelayListItem {
+        override val key: String = "section_divider_${this.hashCode()}"
+        override val contentType = RelayListItemContentType.SECTION_DIVIDER
     }
 }
 

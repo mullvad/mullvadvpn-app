@@ -89,6 +89,7 @@ private fun createRelayListItems(
 ): List<RelayListItem> = buildList {
     if (recents != null) {
         addAll(createRecentsSection(recents, selectedItem))
+        add(RelayListItem.SectionDivider())
     }
     addAll(
         createCustomListSection(
