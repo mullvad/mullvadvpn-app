@@ -176,7 +176,7 @@ class SelectLocationScreenTest {
         }
 
     @Test
-    fun whenCustomListIsClickedShouldCallOnSelectRelay() =
+    fun whenCustomListIsClickedShouldCallOnSelectHop() =
         composeExtension.use {
             // Arrange
             val customList = Hop.Single(DUMMY_RELAY_ITEM_CUSTOM_LISTS[0])
@@ -209,6 +209,42 @@ class SelectLocationScreenTest {
 
             // Assert
             verify { mockedOnSelectHop(customList) }
+        }
+
+    @Test
+    fun whenRecentIsClickedShouldCallOnSelectHop() =
+        composeExtension.use {
+            // Arrange
+            val recent = Hop.Single(DUMMY_RELAY_COUNTRIES[0])
+            every { listViewModel.uiState } returns
+                MutableStateFlow(
+                    Lce.Content(
+                        SelectLocationListUiState(
+                            relayListItems = listOf(RelayListItem.RecentListItem(recent)),
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                        ),
+                    ),
+                )
+            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
+            initScreen(
+                state =
+                    Lc.Content(
+                        SelectLocationUiState(
+                            filterChips = emptyList(),
+                            multihopEnabled = false,
+                            relayListType = RelayListType.EXIT,
+                            isSearchButtonEnabled = true,
+                            isFilterButtonEnabled = true,
+                        ),
+                    ),
+                onSelectHop = mockedOnSelectHop,
+            )
+
+            // Act
+            onNodeWithText(recent.item.name).performClick()
+
+            // Assert
+            verify { mockedOnSelectHop(recent) }
         }
 
     @Test

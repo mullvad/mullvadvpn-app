@@ -57,11 +57,8 @@ class RecentsUseCase(
                     is Recent.Singlehop -> {
                         val relayListItem =
                             recent.location.recentItem(exitCustomLists, exitRelayList)
-                        if (relayListItem != null) {
-                            Hop.Single(relayListItem)
-                        } else {
-                            null
-                        }
+
+                        relayListItem?.let { Hop.Single(it) }
                     }
                 }
             }
