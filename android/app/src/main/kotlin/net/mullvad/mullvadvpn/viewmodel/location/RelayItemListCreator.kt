@@ -89,7 +89,6 @@ private fun createRelayListItems(
 ): List<RelayListItem> = buildList {
     if (recents != null) {
         addAll(createRecentsSection(recents, selectedItem))
-        add(RelayListItem.SectionDivider())
     }
     addAll(
         createCustomListSection(
@@ -143,6 +142,11 @@ private fun createRecentsSection(
             }
 
     addAll(displayed)
+    if (displayed.isEmpty()) {
+        add(RelayListItem.RecentsListFooter)
+    } else {
+        add(RelayListItem.SectionDivider())
+    }
 }
 
 private fun createRelayListItemsSearching(

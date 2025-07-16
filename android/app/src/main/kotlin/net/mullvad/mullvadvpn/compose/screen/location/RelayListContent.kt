@@ -82,6 +82,7 @@ fun LazyListScope.relayListContent(
 
                     RelayListItem.RecentsListHeader -> RecentsListHeader()
                     is RelayListItem.RecentListItem -> RecentListItem(listItem, onSelectHop)
+                    RelayListItem.RecentsListFooter -> RecentsListFooter()
                     is RelayListItem.EmptyRelayList -> EmptyRelayListText()
                     is RelayListItem.LocationsEmptyText -> LocationsEmptyText(listItem.searchTerm)
                     is RelayListItem.SectionDivider -> SectionDivider()
@@ -230,6 +231,11 @@ private fun RecentsListHeader() {
             Text(text = stringResource(id = R.string.recents), overflow = TextOverflow.Ellipsis)
         }
     )
+}
+
+@Composable
+private fun RecentsListFooter() {
+    SwitchComposeSubtitleCell(text = stringResource(R.string.no_recent_selection))
 }
 
 @Composable

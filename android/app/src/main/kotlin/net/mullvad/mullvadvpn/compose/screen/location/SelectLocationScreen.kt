@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -302,13 +303,20 @@ fun SelectLocationScreen(
             }
 
             val filterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
-            val recentsEnabled = state.contentOrNull()?.isRecentsEnabled == true
+            val recentsCurrentlyEnabled = state.contentOrNull()?.isRecentsEnabled == true
+            val disabledText = stringResource(id = R.string.recents_disabled)
+            val scope = rememberCoroutineScope()
 
             SelectLocationDropdownMenu(
                 filterButtonEnabled = filterButtonEnabled,
                 onFilterClick = onFilterClick,
-                recentsEnabled = recentsEnabled,
-                onRecentsToggleEnableClick = onRecentsToggleEnableClick,
+                recentsEnabled = recentsCurrentlyEnabled,
+                onRecentsToggleEnableClick = {
+                    if (recentsCurrentlyEnabled) {
+                        scope.launch { snackbarHostState.showSnackbarImmediately(disabledText) }
+                    }
+                    onRecentsToggleEnableClick()
+                },
             )
         },
     ) { modifier ->
