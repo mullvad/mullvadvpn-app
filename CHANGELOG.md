@@ -49,6 +49,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add grace period when best default route goes away to reduce frequency of random reconnects.
 
 ### Security
+- Prevent unprivileged users from impersonating the gRPC server. This was relatively harmless
+  previously but is required due to in-app updates.
+
 #### Windows
 - Enable control flow integrity checks (CFG) for some C++ code. This excludes `wintun`,
   `wireguard-nt`, and OpenVPN. This addresses `MLLVD-CR-24-101` to the extent that we found
