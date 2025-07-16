@@ -52,7 +52,9 @@ export function filterLocationsByDaita(
   multihop: boolean,
 ): IRelayLocationCountryRedux[] {
   return daitaFilterActive(daita, directOnly, locationType, tunnelProtocol, multihop)
-    ? filterLocationsImpl(locations, (relay: IRelayLocationRelayRedux) => relay.daita)
+    ? filterLocationsImpl(locations, (relay: IRelayLocationRelayRedux) =>
+        relay.features ? relay.features.daita : false,
+      )
     : locations;
 }
 

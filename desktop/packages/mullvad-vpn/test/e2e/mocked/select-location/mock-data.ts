@@ -21,7 +21,9 @@ const relayList: IRelayList = {
               weight: 0,
               owned: true,
               endpointType: 'wireguard',
-              daita: true,
+              features: {
+                daita: true,
+              },
             },
             {
               hostname: 'my-test-relay2',
@@ -32,7 +34,9 @@ const relayList: IRelayList = {
               weight: 0,
               owned: true,
               endpointType: 'wireguard',
-              daita: true,
+              features: {
+                daita: true,
+              },
             },
             {
               hostname: 'se-got-wg-103',
@@ -43,7 +47,9 @@ const relayList: IRelayList = {
               weight: 0,
               owned: false,
               endpointType: 'wireguard',
-              daita: true,
+              features: {
+                daita: true,
+              },
             },
           ],
         },

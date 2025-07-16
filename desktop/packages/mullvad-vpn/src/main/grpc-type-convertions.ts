@@ -127,11 +127,15 @@ function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
     }
   }
 
+  // FIXME: Until the new `features` key has been rolled out to production, we monkey-patch
+  // the `features.daita` value using the old `daita` value. This hack should be removed ASAP.
+  let features = relayObject.features ? featuresFromRelayType(relayObject.features) : undefined;
+  features = { daita: daita, ...features };
+
   return {
     ...relayObject,
     endpointType: convertFromRelayType(relayObject.endpointType),
-    features: relayObject.features ? featuresFromRelayType(relayObject.features) : undefined,
-    daita,
+    features,
   };
 }
 
@@ -150,7 +154,7 @@ function featuresFromRelayType(features: grpcTypes.Relay.Features.AsObject): Fea
     ? {
         domain: features.quic.domain,
         token: features.quic.token,
-        addr_in: features.quic.addrInList,
+        addrIn: features.quic.addrInList,
       }
     : undefined;
   return {

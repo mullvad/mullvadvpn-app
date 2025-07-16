@@ -77,7 +77,6 @@ export interface IRelayLocationRelayRedux {
   owned: boolean;
   weight: number;
   endpointType: RelayEndpointType;
-  daita: boolean;
   features?: FeaturesType;
 }
 

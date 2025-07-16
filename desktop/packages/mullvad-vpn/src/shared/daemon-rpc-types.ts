@@ -396,7 +396,6 @@ export interface IRelayListHostname {
   weight: number;
   owned: boolean;
   endpointType: RelayEndpointType;
-  daita: boolean; // TODO: Deprecate in favor of Features 👇
   features?: FeaturesType;
 }
 
