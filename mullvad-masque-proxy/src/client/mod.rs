@@ -24,6 +24,7 @@ use quinn::{
     Endpoint, EndpointConfig, IdleTimeout, TokioRuntime, TransportConfig,
     crypto::rustls::QuicClientConfig,
 };
+use socket2::Socket;
 
 use crate::{
     MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
@@ -120,6 +121,7 @@ pub struct ClientConfig {
     pub client_socket: UdpSocket,
 
     /// Socket address to bind the QUIC endpoint socket to
+    // TODO: For Android, we need to be able to pass a socket directly
     pub local_addr: SocketAddr,
 
     /// Destination to which traffic is forwarded
@@ -178,12 +180,12 @@ impl Client {
 
         let max_udp_payload_size = compute_udp_payload_size(config.mtu, config.target_addr);
 
-        let endpoint = Self::setup_quic_endpoint(
+        let quic_socket = Self::create_quic_socket(
             config.local_addr,
-            max_udp_payload_size,
             #[cfg(target_os = "linux")]
             config.fwmark,
         )?;
+        let endpoint = Self::setup_quic_endpoint(quic_socket, max_udp_payload_size)?;
 
         let connecting =
             endpoint.connect_with(client_config, config.server_addr, &config.server_host)?;
@@ -223,29 +225,28 @@ impl Client {
         }
     }
 
-    fn setup_quic_endpoint(
+    pub fn create_quic_socket(
         local_addr: SocketAddr,
-        max_udp_payload_size: u16,
         #[cfg(target_os = "linux")] fwmark: Option<u32>,
-    ) -> Result<Endpoint> {
-        // Create a UDP socket which quinn will read/write from/to.
-        let local_socket = {
-            // family
-            let domain = match &local_addr {
-                SocketAddr::V4(_) => socket2::Domain::IPV4,
-                SocketAddr::V6(_) => socket2::Domain::IPV6,
-            };
-            let ty = socket2::Type::DGRAM;
-            let protocol = Some(socket2::Protocol::UDP);
-            let socket = socket2::Socket::new(domain, ty, protocol).map_err(Error::Bind)?;
-            #[cfg(target_os = "linux")]
-            if let Some(fwmark) = fwmark {
-                socket.set_mark(fwmark).map_err(Error::Fwmark)?;
-            }
-            socket.bind(&local_addr.into()).map_err(Error::Bind)?;
-            socket
+    ) -> Result<Socket> {
+        // family
+        let domain = match &local_addr {
+            SocketAddr::V4(_) => socket2::Domain::IPV4,
+            SocketAddr::V6(_) => socket2::Domain::IPV6,
         };
+        let ty = socket2::Type::DGRAM;
+        let protocol = Some(socket2::Protocol::UDP);
+        let socket = socket2::Socket::new(domain, ty, protocol).map_err(Error::Bind)?;
+        #[cfg(target_os = "linux")]
+        if let Some(fwmark) = fwmark {
+            socket.set_mark(fwmark).map_err(Error::Fwmark)?;
+        }
+        socket.bind(&local_addr.into()).map_err(Error::Bind)?;
+        Ok(socket)
+    }
 
+    // `socket` is a UDP socket which quinn will read/write from/to.
+    fn setup_quic_endpoint(socket: Socket, max_udp_payload_size: u16) -> Result<Endpoint> {
         let endpoint_config = {
             let mut endpoint_config = EndpointConfig::default();
             endpoint_config
@@ -257,7 +258,7 @@ impl Client {
         Endpoint::new(
             endpoint_config,
             None,
-            std::net::UdpSocket::from(local_socket),
+            std::net::UdpSocket::from(socket),
             Arc::new(TokioRuntime),
         )
         .map_err(Error::Endpoint)
