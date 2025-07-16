@@ -7,6 +7,9 @@
 //
 
 import Foundation
+
+// TODO: Remove the "Localization Cleanup (Release Build)" build script phase after
+// multi-language support is completed and released.
 enum AppLanguage: String, CaseIterable, Identifiable {
     case english = "en"
     case danish = "da"
