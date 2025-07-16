@@ -8,4 +8,5 @@ data class SelectLocationUiState(
     val relayListType: RelayListType,
     val isSearchButtonEnabled: Boolean,
     val isFilterButtonEnabled: Boolean,
+    val isRecentsEnabled: Boolean,
 )
