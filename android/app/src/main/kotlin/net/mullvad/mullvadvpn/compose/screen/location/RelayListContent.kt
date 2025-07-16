@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
@@ -82,6 +84,7 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.RecentListItem -> RecentListItem(listItem, onSelectHop)
                     is RelayListItem.EmptyRelayList -> EmptyRelayListText()
                     is RelayListItem.LocationsEmptyText -> LocationsEmptyText(listItem.searchTerm)
+                    is RelayListItem.SectionDivider -> SectionDivider()
                 }
             }
         },
@@ -227,4 +230,9 @@ private fun RecentsListHeader() {
             Text(text = stringResource(id = R.string.recents), overflow = TextOverflow.Ellipsis)
         }
     )
+}
+
+@Composable
+private fun SectionDivider() {
+    Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
 }

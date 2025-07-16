@@ -222,8 +222,8 @@ class SelectLocationScreenTest {
                         SelectLocationListUiState(
                             relayListItems = listOf(RelayListItem.RecentListItem(recent)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
-                        ),
-                    ),
+                        )
+                    )
                 )
             val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
             initScreen(
@@ -235,7 +235,7 @@ class SelectLocationScreenTest {
                             relayListType = RelayListType.EXIT,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
-                        ),
+                        )
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
