@@ -13,28 +13,27 @@ import MullvadSettings
 final class SettingsInteractor {
     private let tunnelManager: TunnelManager
     private var tunnelObserver: TunnelObserver?
+    var didUpdateSettings: (() -> Void)?
 
-    var didUpdateDeviceState: ((DeviceState) -> Void)?
-    var didUpdateTunnelSettings: ((LatestTunnelSettings) -> Void)?
-
-    var tunnelSettings: LatestTunnelSettings {
-        tunnelManager.settings
-    }
-
-    var deviceState: DeviceState {
-        tunnelManager.deviceState
-    }
+    private(set) var tunnelSettings: LatestTunnelSettings
+    private(set) var deviceState: DeviceState
 
     init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager
+        self.tunnelSettings = tunnelManager.settings
+        self.deviceState = tunnelManager.deviceState
 
         let tunnelObserver =
             TunnelBlockObserver(
                 didUpdateDeviceState: { [weak self] _, deviceState, _ in
-                    self?.didUpdateDeviceState?(deviceState)
+                    guard let self = self else { return }
+                    self.deviceState = deviceState
+                    self.didUpdateSettings?()
                 },
                 didUpdateTunnelSettings: { [weak self] _, settings in
-                    self?.didUpdateTunnelSettings?(settings)
+                    guard let self = self else { return }
+                    self.tunnelSettings = settings
+                    self.didUpdateSettings?()
                 }
             )
 

@@ -57,6 +57,9 @@ struct SettingsViewControllerFactory {
         case .faq:
             // Handled separately and presented as a modal.
             .failed
+        case .langage:
+            // Handled separately and presented settings.
+            .failed
         case .vpnSettings:
             makeVPNSettingsViewCoordinator()
         case .problemReport:
