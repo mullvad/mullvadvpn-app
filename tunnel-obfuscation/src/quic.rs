@@ -7,7 +7,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 use tokio::net::UdpSocket;
-use tokio_util::sync::{CancellationToken, DropGuard};
+use tokio_util::sync::{CancellationToken};
 
 use crate::Obfuscator;
 
@@ -24,8 +24,7 @@ pub enum Error {
 #[derive(Debug)]
 pub struct Quic {
     local_endpoint: SocketAddr,
-    task: tokio::task::JoinHandle<Result<()>>,
-    _shutdown: DropGuard,
+    config: ClientConfig,
 }
 
 #[derive(Debug)]
@@ -143,18 +142,11 @@ impl Quic {
         #[cfg(target_os = "linux")]
         let config_builder = config_builder.fwmark(settings.fwmark);
 
-        let client = Client::connect(config_builder.build())
-            .await
-            .map_err(Error::MasqueProxyError)?;
-
-        let token = CancellationToken::new();
-
-        let local_proxy = tokio::spawn(Quic::run_forwarding(client, token.child_token()));
+        let config = config_builder.build();
 
         let quic = Quic {
             local_endpoint: local_udp_client_addr,
-            task: local_proxy,
-            _shutdown: token.drop_guard(),
+            config,
         };
 
         Ok(quic)
@@ -202,10 +194,21 @@ impl Obfuscator for Quic {
     }
 
     async fn run(self: Box<Self>) -> crate::Result<()> {
-        self.task
+        let token = CancellationToken::new();
+
+        let client = Client::connect(self.config)
             .await
+            .map_err(Error::MasqueProxyError)
+            .map_err(crate::Error::RunQuicObfuscator)?;
+
+        let local_proxy = tokio::spawn(Quic::run_forwarding(client, token.child_token()));
+
+        let result = local_proxy.await
             .unwrap()
-            .map_err(crate::Error::RunQuicObfuscator)
+            .map_err(crate::Error::RunQuicObfuscator);
+
+        token.cancel();
+        result
     }
 
     fn packet_overhead(&self) -> u16 {
