@@ -1,5 +1,4 @@
 import * as grpc from '@grpc/grpc-js';
-import fs from 'fs';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb.js';
 import { BoolValue, StringValue } from 'google-protobuf/google/protobuf/wrappers_pb.js';
 import { types as grpcTypes } from 'management-interface';
@@ -54,8 +53,6 @@ import {
 
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
-const DAEMON_RPC_PATH_PREFIX = 'unix://';
-const DAEMON_RPC_PATH_PREFIXED = `${DAEMON_RPC_PATH_PREFIX}${DAEMON_RPC_PATH}`;
 
 export class SubscriptionListener<T> {
   // Only meant to be used by DaemonRpc
@@ -88,7 +85,7 @@ export class DaemonRpc extends GrpcClient {
   > = new Map();
 
   public constructor(connectionObserver?: ConnectionObserver) {
-    super(DAEMON_RPC_PATH_PREFIXED, connectionObserver);
+    super(DAEMON_RPC_PATH, connectionObserver);
   }
 
   public disconnect() {
@@ -97,26 +94,6 @@ export class DaemonRpc extends GrpcClient {
     }
 
     super.disconnect();
-  }
-
-  public async verifyDaemonOwnership() {
-    if (process.platform === 'win32') {
-      try {
-        const { pipeIsAdminOwned } = await import('windows-utils');
-        pipeIsAdminOwned(DAEMON_RPC_PATH);
-      } catch (e) {
-        if (e && typeof e === 'object' && 'message' in e) {
-          throw new Error(`Failed to verify admin ownership of named pipe. ${e.message}`);
-        } else {
-          throw new Error('Failed to verify admin ownership of named pipe');
-        }
-      }
-    } else {
-      const stat = fs.statSync(DAEMON_RPC_PATH);
-      if (stat.uid !== 0) {
-        throw new Error('Failed to verify root ownership of socket');
-      }
-    }
   }
 
   public subscribeAppUpgradeEventListener(listener: SubscriptionListener<DaemonAppUpgradeEvent>) {
