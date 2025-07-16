@@ -428,4 +428,6 @@
     <string name="in_app_products_unavailable">In-app products unavailable, please make sure you have the latest version of Google Play.</string>
     <string name="relayitem_is_inactive">%s is unavailable</string>
     <string name="recents">Recents</string>
+    <string name="enable_recents">Enable recents</string>
+    <string name="disable_recents">Disable recents</string>
 </resources>

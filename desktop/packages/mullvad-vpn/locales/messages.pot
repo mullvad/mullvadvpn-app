@@ -2958,6 +2958,9 @@ msgstr ""
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr ""
 
+msgid "Disable recents"
+msgstr ""
+
 msgid "Discard"
 msgstr ""
 
@@ -2995,6 +2998,9 @@ msgid "Enable %1$s"
 msgstr ""
 
 msgid "Enable method"
+msgstr ""
+
+msgid "Enable recents"
 msgstr ""
 
 msgid "Enter MTU"

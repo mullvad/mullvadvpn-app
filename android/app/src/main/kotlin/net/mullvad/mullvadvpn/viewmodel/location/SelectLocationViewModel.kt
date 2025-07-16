@@ -61,6 +61,7 @@ class SelectLocationViewModel(
                                 (relayListSelection == RelayListType.EXIT ||
                                     settings?.entryBlocked() != true),
                         isFilterButtonEnabled = relayList.isNotEmpty(),
+                        isRecentsEnabled = settings?.recents is Recents.Enabled,
                     )
                 )
             }
@@ -142,12 +143,7 @@ class SelectLocationViewModel(
 
     fun toggleRecentsEnabled() {
         viewModelScope.launch {
-            val enabled =
-                when (settingsRepository.settingsUpdates.value?.recents) {
-                    is Recents.Enabled -> true
-                    Recents.Disabled,
-                    null -> false
-                }
+            val enabled = settingsRepository.settingsUpdates.value?.recents is Recents.Enabled
             settingsRepository.setRecentsEnabled(!enabled)
         }
     }

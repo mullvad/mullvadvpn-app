@@ -17,16 +17,22 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.HistoryToggleOff
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -294,27 +300,16 @@ fun SelectLocationScreen(
                         ),
                 )
             }
-            val isFilterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
-            IconButton(enabled = isFilterButtonEnabled, onClick = onFilterClick) {
-                Icon(
-                    imageVector = Icons.Default.FilterList,
-                    contentDescription = stringResource(id = R.string.filter),
-                    tint =
-                        MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = if (isFilterButtonEnabled) AlphaVisible else AlphaDisabled
-                        ),
-                )
-            }
-            IconButton(enabled = true, onClick = onRecentsToggleEnableClick) {
-                Icon(
-                    imageVector = Icons.Default.HistoryToggleOff,
-                    contentDescription = stringResource(id = R.string.filter),
-                    tint =
-                        MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = if (isFilterButtonEnabled) AlphaVisible else AlphaDisabled
-                        ),
-                )
-            }
+
+            val filterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
+            val recentsEnabled = state.contentOrNull()?.isRecentsEnabled == true
+
+            SelectLocationDropdownMenu(
+                filterButtonEnabled = filterButtonEnabled,
+                onFilterClick = onFilterClick,
+                recentsEnabled = recentsEnabled,
+                onRecentsToggleEnableClick = onRecentsToggleEnableClick,
+            )
         },
     ) { modifier ->
         var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
@@ -377,6 +372,65 @@ fun SelectLocationScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SelectLocationDropdownMenu(
+    filterButtonEnabled: Boolean,
+    onFilterClick: () -> Unit,
+    recentsEnabled: Boolean,
+    onRecentsToggleEnableClick: () -> Unit,
+) {
+    var showMenu by remember { mutableStateOf(false) }
+
+    var recentsItemTextId by remember { mutableIntStateOf(R.string.disable_recents) }
+
+    IconButton(
+        onClick = {
+            showMenu = !showMenu
+            // Only update the recents menu item text when the menu is being opened to prevent
+            // the text from being updated when the menu is being closed.
+            if (showMenu) {
+                recentsItemTextId =
+                    if (recentsEnabled) R.string.disable_recents else R.string.enable_recents
+            }
+        }
+    ) {
+        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+    }
+    DropdownMenu(
+        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
+        expanded = showMenu,
+        onDismissRequest = { showMenu = false },
+    ) {
+        val colors =
+            MenuDefaults.itemColors(
+                leadingIconColor = MaterialTheme.colorScheme.onPrimary,
+                disabledLeadingIconColor =
+                    MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled),
+            )
+
+        DropdownMenuItem(
+            text = { Text(text = stringResource(R.string.filter)) },
+            onClick = {
+                onFilterClick()
+                showMenu = false
+            },
+            enabled = filterButtonEnabled,
+            colors = colors,
+            leadingIcon = { Icon(Icons.Filled.FilterList, contentDescription = null) },
+        )
+
+        DropdownMenuItem(
+            text = { Text(text = stringResource(recentsItemTextId)) },
+            onClick = {
+                showMenu = false
+                onRecentsToggleEnableClick()
+            },
+            colors = colors,
+            leadingIcon = { Icon(Icons.Filled.History, contentDescription = null) },
+        )
     }
 }
 
