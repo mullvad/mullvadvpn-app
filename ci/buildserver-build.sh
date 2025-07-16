@@ -74,23 +74,26 @@ EOF
 }
 
 function upload {
-    version=$1
+    local version=$1
+    local files
+    local checksums_filename
 
+    checksums_filename="desktop+$(hostname)+$version.sha256"
+    rm -f "$checksums_filename"
     files=( * )
-    checksums_path="desktop+$(hostname)+$version.sha256"
-    sha256sum "${files[@]}" > "$checksums_path"
+    sha256sum "${files[@]}" > "$checksums_filename"
 
     case "$(uname -s)" in
         # Linux is both the build and upload server. Just copy directly to target dir
         Linux*)
-            cp "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
+            cp "${files[@]}" "$checksums_filename" "$UPLOAD_DIR/"
             ;;
         # Other platforms need to transfer their artifacts to the Linux build machine.
         Darwin*|MINGW*|MSYS_NT*)
             for file in "${files[@]}"; do
                 upload_sftp "$file" || return 1
             done
-            upload_sftp "$checksums_path" || return 1
+            upload_sftp "$checksums_filename" || return 1
             ;;
     esac
 }
