@@ -430,4 +430,6 @@
     <string name="recents">Recents</string>
     <string name="enable_recents">Enable recents</string>
     <string name="disable_recents">Disable recents</string>
+    <string name="no_recent_selection">No recent selection history</string>
+    <string name="recents_disabled">Recents disabled and history cleared</string>
 </resources>

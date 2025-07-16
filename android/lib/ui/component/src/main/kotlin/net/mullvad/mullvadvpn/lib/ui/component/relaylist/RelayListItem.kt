@@ -18,6 +18,7 @@ enum class RelayListItemContentType {
     EMPTY_RELAY_LIST,
     RECENT_LIST_ITEM,
     RECENT_LIST_HEADER,
+    RECENT_LIST_FOOTER,
     SECTION_DIVIDER,
 }
 
@@ -30,16 +31,6 @@ sealed interface RelayListItem {
     val key: Any
     val contentType: RelayListItemContentType
 
-    data object CustomListHeader : RelayListItem {
-        override val key = "custom_list_header"
-        override val contentType = RelayListItemContentType.CUSTOM_LIST_HEADER
-    }
-
-    data object RecentsListHeader : RelayListItem {
-        override val key = "recents_list_header"
-        override val contentType = RelayListItemContentType.RECENT_LIST_HEADER
-    }
-
     sealed interface SelectableItem : RelayListItem {
         val hop: Hop
         val depth: Int
@@ -48,6 +39,11 @@ sealed interface RelayListItem {
         val canExpand: Boolean
         val state: RelayListItemState?
         val itemPosition: ItemPosition
+    }
+
+    data object CustomListHeader : RelayListItem {
+        override val key = "custom_list_header"
+        override val contentType = RelayListItemContentType.CUSTOM_LIST_HEADER
     }
 
     data class CustomListItem(
@@ -106,6 +102,11 @@ sealed interface RelayListItem {
         override val canExpand: Boolean = item.hasChildren
     }
 
+    data object RecentsListHeader : RelayListItem {
+        override val key = "recents_list_header"
+        override val contentType = RelayListItemContentType.RECENT_LIST_HEADER
+    }
+
     data class RecentListItem(
         override val hop: Hop,
         override val isSelected: Boolean = false,
@@ -117,6 +118,11 @@ sealed interface RelayListItem {
         override val depth: Int = 0
         override val contentType = RelayListItemContentType.RECENT_LIST_ITEM
         override val canExpand: Boolean = false
+    }
+
+    data object RecentsListFooter : RelayListItem {
+        override val key = "recents_list_footer"
+        override val contentType = RelayListItemContentType.RECENT_LIST_FOOTER
     }
 
     data class LocationsEmptyText(val searchTerm: String) : RelayListItem {

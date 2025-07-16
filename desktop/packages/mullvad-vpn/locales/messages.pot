@@ -3129,6 +3129,9 @@ msgstr ""
 msgid "No locations found"
 msgstr ""
 
+msgid "No recent selection history"
+msgstr ""
+
 msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
@@ -3169,6 +3172,9 @@ msgid "Privacy policy"
 msgstr ""
 
 msgid "Recents"
+msgstr ""
+
+msgid "Recents disabled and history cleared"
 msgstr ""
 
 msgid "Recursion limit"
