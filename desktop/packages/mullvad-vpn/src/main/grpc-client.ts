@@ -272,12 +272,13 @@ export class GrpcClient {
           throw new Error('Failed to verify admin ownership of named pipe');
         }
       }
+      log.info('Verified pipe ownership');
     } else {
       const stat = fs.statSync(this.rpcPath);
       if (stat.uid !== 0) {
         throw new Error('Failed to verify root ownership of socket');
       }
+      log.info('Verified socket ownership');
     }
-    log.info('Verified daemon ownership');
   }
 }
