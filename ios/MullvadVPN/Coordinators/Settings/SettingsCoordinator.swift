@@ -38,6 +38,9 @@ enum SettingsNavigationRoute: Equatable {
 
     /// DAITA route.
     case daita
+
+    /// Langage route.
+    case langage
 }
 
 /// Top-level settings coordinator.
@@ -140,6 +143,15 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             }
 
             presentChild(safariCoordinator, animated: animated, completion: completion)
+
+        case .langage:
+            logger.debug("Show App's settings for \(route)")
+
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+            }
 
         default:
             // Ignore navigation if the route is already presented.
