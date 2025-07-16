@@ -94,17 +94,20 @@
 
       devShells.default = pkgs.devshell.mkShell {
         name = "mullvad-android-devshell";
-        packages = [
-          android-sdk
-          rust-toolchain
-          patchedGo_1_21_3
-          pkgs.protoc-gen-grpc-java
-          pkgs.gcc
-          pkgs.gnumake
-          pkgs.protobuf
-          pkgs.jdk17
-          pkgs.python3Full
-        ];
+        packages =
+          [
+            android-sdk
+            rust-toolchain
+            patchedGo_1_21_3
+            pkgs.protoc-gen-grpc-java
+            pkgs.gcc
+            pkgs.gnumake
+            pkgs.protobuf
+            pkgs.jdk17
+            pkgs.python3Full
+          ]
+          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [pkgs.libiconv];
+
         env = import ./nix/env-vars.nix {
           inherit pkgs android-sdk buildToolsVersion ndkVersion minSdkVersion;
         };
