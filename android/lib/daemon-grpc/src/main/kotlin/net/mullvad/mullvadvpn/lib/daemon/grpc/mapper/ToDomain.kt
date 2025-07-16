@@ -42,6 +42,7 @@ import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.model.Features
 import net.mullvad.mullvadvpn.lib.model.GenericOptions
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -595,12 +596,13 @@ internal fun ManagementInterface.Relay.toDomain(
         active = active,
         provider = ProviderId(provider),
         ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
-        daita =
-            if (
-                hasEndpointData() && endpointType == ManagementInterface.Relay.RelayType.WIREGUARD
-            ) {
-                ManagementInterface.WireguardRelayEndpointData.parseFrom(endpointData.value).daita
-            } else false,
+        features = features.toDomain(),
+    )
+
+internal fun ManagementInterface.Relay.Features.toDomain(): Features =
+    Features(
+        daita = daita,
+        quic = null, // Not supported on Android
     )
 
 private fun Instant.atDefaultZone() = atZone(ZoneId.systemDefault())
