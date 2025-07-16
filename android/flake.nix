@@ -31,6 +31,15 @@
         overlays = [
           (import rust-overlay)
           devshell.overlays.default
+          # Fix that disables autoPatchelfHook on macOS.
+          # Should be addressed upstream in nixpkgs.
+          (final: prev: {
+            protoc-gen-grpc-java = prev.protoc-gen-grpc-java.overrideAttrs (old: {
+              nativeBuildInputs =
+                pkgs.lib.remove prev.autoPatchelfHook (old.nativeBuildInputs or [])
+                ++ pkgs.lib.optionals prev.stdenv.isLinux [prev.autoPatchelfHook];
+            });
+          })
         ];
       };
 
