@@ -132,8 +132,9 @@ class SelectLocationScreenTest {
                             relayListType = RelayListType.EXIT,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
-                        )
-                    )
+                            isRecentsEnabled = true,
+                        ),
+                    ),
             )
 
             // Assert
@@ -167,8 +168,9 @@ class SelectLocationScreenTest {
                             relayListType = RelayListType.EXIT,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
-                        )
-                    )
+                            isRecentsEnabled = true,
+                        ),
+                    ),
             )
 
             // Assert
@@ -199,7 +201,8 @@ class SelectLocationScreenTest {
                             relayListType = RelayListType.EXIT,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
-                        )
+                            isRecentsEnabled = true,
+                        ),
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
@@ -235,7 +238,8 @@ class SelectLocationScreenTest {
                             relayListType = RelayListType.EXIT,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
-                        )
+                            isRecentsEnabled = true,
+                        ),
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
@@ -271,7 +275,8 @@ class SelectLocationScreenTest {
                             relayListType = RelayListType.EXIT,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
-                        )
+                            isRecentsEnabled = true,
+                        ),
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
@@ -313,7 +318,8 @@ class SelectLocationScreenTest {
                             relayListType = RelayListType.EXIT,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
-                        )
+                            isRecentsEnabled = true,
+                        ),
                     ),
                 onSelectHop = mockedOnSelectHop,
             )

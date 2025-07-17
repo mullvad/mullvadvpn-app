@@ -30,8 +30,8 @@ class SelectLocationListViewModel(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val relayListRepository: RelayListRepository,
     private val recentsUseCase: RecentsUseCase,
+    private val settingsRepository: SettingsRepository,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
-    settingsRepository: SettingsRepository,
 ) : ViewModel() {
     private val _expandedItems: MutableStateFlow<Set<String>> =
         MutableStateFlow(initialExpand(initialSelection()))
@@ -91,6 +91,8 @@ class SelectLocationListViewModel(
                     selectedByOtherEntryExitList =
                         selectedItem.selectedByOtherEntryExitList(relayListType, customLists),
                     expandedItems = expandedItems,
+                    isEntryBlocked =
+                        settingsRepository.settingsUpdates.value?.entryBlocked() == true,
                 )
             }
         }

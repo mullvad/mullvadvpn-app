@@ -148,10 +148,12 @@ class SelectLocationListViewModelTest {
             is RelayListItem.LocationsEmptyText -> null
             is RelayListItem.EmptyRelayList -> null
             is RelayListItem.CustomListEntryItem -> item.id
-            is RelayListItem.CustomListItem -> hop.exitId
+            is RelayListItem.CustomListItem -> hop.exitItem.id
             is RelayListItem.GeoLocationItem -> item.id
             RelayListItem.RecentsListHeader -> null
-            is RelayListItem.RecentListItem -> hop.exitId
+            is RelayListItem.RecentListItem -> hop.exitItem.id
+            RelayListItem.RecentsListFooter -> null
+            is RelayListItem.SectionDivider -> null
         }
 
     companion object {

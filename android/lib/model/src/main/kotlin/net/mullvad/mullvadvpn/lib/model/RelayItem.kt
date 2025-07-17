@@ -16,18 +16,18 @@ sealed interface Hop {
                 is Single<*> -> item.active
             }
 
-    val entryId: RelayItemId
+    val entryItem: RelayItem
         get() =
             when (this) {
-                is Multi -> entry.id
-                is Single<*> -> item.id
+                is Multi -> entry
+                is Single<*> -> item
             }
 
-    val exitId: RelayItemId
+    val exitItem: RelayItem
         get() =
             when (this) {
-                is Multi -> exit.id
-                is Single<*> -> item.id
+                is Multi -> exit
+                is Single<*> -> item
             }
 }
 

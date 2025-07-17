@@ -24,6 +24,7 @@ internal fun relayListItems(
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     expandedItems: Set<String>,
+    isEntryBlocked: Boolean,
 ): List<RelayListItem> {
     return createRelayListItems(
         relayListType = relayListType,
@@ -33,6 +34,7 @@ internal fun relayListItems(
         customLists = customLists,
         recents = recents,
         countries = relayCountries,
+        isEntryBlocked = isEntryBlocked,
     ) {
         it in expandedItems
     }
@@ -85,10 +87,11 @@ private fun createRelayListItems(
     customLists: List<RelayItem.CustomList>,
     recents: List<Hop>?,
     countries: List<RelayItem.Location.Country>,
+    isEntryBlocked: Boolean,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
     if (recents != null) {
-        addAll(createRecentsSection(recents, selectedItem))
+        addAll(createRecentsSection(recents, selectedItem, isEntryBlocked))
     }
     addAll(
         createCustomListSection(
@@ -112,37 +115,54 @@ private fun createRelayListItems(
 
 private fun createRecentsSection(
     recents: List<Hop>,
-    selectedItem: RelayItemSelection,
+    itemSelection: RelayItemSelection,
+    isEntryBlocked: Boolean,
 ): List<RelayListItem> = buildList {
     add(RelayListItem.RecentsListHeader)
 
-    val displayed =
+    val selectionIsSingle = itemSelection is RelayItemSelection.Single
+    val selectionIsMulti = itemSelection is RelayItemSelection.Multiple
+
+    val shown =
         recents
             .filter { recent ->
                 when (recent) {
-                    is Hop.Multi -> selectedItem as? RelayItemSelection.Multiple != null
-                    is Hop.Single<*> -> selectedItem as? RelayItemSelection.Single != null
+                    is Hop.Multi -> selectionIsMulti
+                    is Hop.Single<*> -> selectionIsSingle
                 }
             }
             .take(RECENTS_MAX_VISIBLE)
             .map { recent ->
                 val isSelected =
-                    when (selectedItem) {
+                    when (itemSelection) {
                         is RelayItemSelection.Single -> {
-                            recent.exitId == selectedItem.exitLocation.getOrNull()
+                            recent.exitItem.id == itemSelection.exitLocation.getOrNull()
                         }
 
                         is RelayItemSelection.Multiple -> {
-                            recent.entryId == selectedItem.entryLocation.getOrNull() &&
-                                recent.exitId == selectedItem.exitLocation.getOrNull()
+                            if (isEntryBlocked) {
+                                recent.exitItem.id == itemSelection.exitLocation.getOrNull()
+                            } else {
+                                recent.entryItem.id == itemSelection.entryLocation.getOrNull() &&
+                                    recent.exitItem.id == itemSelection.exitLocation.getOrNull()
+                            }
                         }
                     }
 
-                RelayListItem.RecentListItem(hop = recent, isSelected = isSelected)
+                if (isEntryBlocked) {
+                    // When the entry is blocked we want to show the multihop's exit location
+                    // as a singlehop.
+                    RelayListItem.RecentListItem(
+                        hop = Hop.Single(recent.exitItem),
+                        isSelected = isSelected,
+                    )
+                } else {
+                    RelayListItem.RecentListItem(hop = recent, isSelected = isSelected)
+                }
             }
 
-    addAll(displayed)
-    if (displayed.isEmpty()) {
+    addAll(shown)
+    if (shown.isEmpty()) {
         add(RelayListItem.RecentsListFooter)
     } else {
         add(RelayListItem.SectionDivider())
