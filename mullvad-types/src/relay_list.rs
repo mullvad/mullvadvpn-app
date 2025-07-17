@@ -1,6 +1,7 @@
 use crate::location::{CityCode, CountryCode, Location};
 use serde::{Deserialize, Serialize};
 use std::{
+    collections::HashSet,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     ops::RangeInclusive,
 };
@@ -88,69 +89,28 @@ pub struct Relay {
     pub weight: u64,
     pub endpoint_data: RelayEndpointData,
     pub location: Location,
-    #[serde(default)]
-    pub features: Features,
 }
 
-/// Extra features enabled on some (Wireguard) relay, such as obfuscation daemons or Daita.
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Features {
-    daita: Option<Daita>,
-    quic: Option<Quic>,
-}
-
-impl Features {
-    /// Equivalent to a relay without any additional features.
-    pub fn empty() -> Features {
-        Features {
-            daita: None,
-            quic: None,
+impl Relay {
+    /// If self is a Wireguard relay, we sometimes want to peek on its extra data.
+    pub fn wireguard(&self) -> Option<&WireguardRelayEndpointData> {
+        match &self.endpoint_data {
+            RelayEndpointData::Wireguard(wireguard_relay_endpoint_data) => {
+                Some(wireguard_relay_endpoint_data)
+            }
+            RelayEndpointData::Openvpn | RelayEndpointData::Bridge => None,
         }
     }
-
-    /// Whether Daita is enabled
-    pub fn daita(&self) -> bool {
-        self.daita.is_some()
-    }
-
-    /// Whether Quic is enabled and its config
-    pub fn quic(&self) -> Option<&Quic> {
-        self.quic.as_ref()
-    }
-
-    /// Enable Daita for this relay
-    pub fn configure_daita(self) -> Self {
-        let daita = Some(Daita {});
-        Self { daita, ..self }
-    }
-
-    /// Configure QUIC for this relay
-    pub fn configure_quic(self, options: Quic) -> Self {
-        let quic = Some(options);
-        Self { quic, ..self }
-    }
 }
-
-impl Default for Features {
-    fn default() -> Self {
-        Features::empty()
-    }
-}
-
-/// DAITA doesn't have any configuration options (exposed by the API).
-///
-/// Note, an empty struct is not the same as an empty tuple struct according to serde_json!
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Daita {}
 
 /// Parameters for setting up a QUIC obfuscator (connecting to a masque-proxy running on a relay).
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct Quic {
     /// In-addresses for the QUIC obfuscator.
     ///
     /// There may be 0, 1 or 2 in IPs, depending on how many masque-proxy daemons running on the
     /// relay. Hopefully the API will tell use the correct amount🤞.
-    addr_in: Vec<IpAddr>,
+    addr_in: HashSet<IpAddr>,
     /// Authorization token
     token: String,
     /// Hostname where masque proxy is hosted
@@ -158,7 +118,8 @@ pub struct Quic {
 }
 
 impl Quic {
-    pub fn new(addr_in: Vec<IpAddr>, token: String, domain: String) -> Self {
+    pub fn new(addr_in: impl IntoIterator<Item = IpAddr>, token: String, domain: String) -> Self {
+        let addr_in = HashSet::from_iter(addr_in);
         Self {
             addr_in,
             token,
@@ -202,8 +163,8 @@ impl Quic {
         &self.token
     }
 
-    pub fn in_addr(&self) -> &[IpAddr] {
-        &self.addr_in
+    pub fn in_addr(&self) -> impl Iterator<Item = IpAddr> {
+        self.addr_in.iter().copied()
     }
 }
 
@@ -234,7 +195,7 @@ impl PartialEq for Relay {
     /// # Example
     ///
     /// ```rust
-    /// # use mullvad_types::{relay_list::{Relay, Features}, relay_list::{RelayEndpointData, WireguardRelayEndpointData}};
+    /// # use mullvad_types::{relay_list::Relay, relay_list::{RelayEndpointData, WireguardRelayEndpointData}};
     /// # use talpid_types::net::wireguard::PublicKey;
     ///
     /// let relay = Relay {
@@ -254,7 +215,8 @@ impl PartialEq for Relay {
     ///     #   )
     ///     #   .unwrap(),
     ///     #   daita: false,
-    ///     #   shadowsocks_extra_addr_in: vec![],
+    ///     #   shadowsocks_extra_addr_in: Default::default(),
+    ///     #   quic: None,
     ///     # }),
     ///     # location: mullvad_types::location::Location {
     ///     #   country: "Sweden".to_string(),
@@ -264,7 +226,6 @@ impl PartialEq for Relay {
     ///     #   latitude: 57.71,
     ///     #   longitude: 11.97,
     ///     # },
-    ///     # features: Features::default(),
     /// };
     ///
     /// let mut different_relay = relay.clone();
@@ -342,17 +303,62 @@ impl Default for WireguardEndpointData {
 }
 
 /// Contains data about specific WireGuard endpoints, i.e. their public keys.
-#[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Debug)]
+#[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
 pub struct WireguardRelayEndpointData {
     /// Public key used by the relay peer
     pub public_key: wireguard::PublicKey,
-    /// Whether the server supports DAITA
-    /// FIXME: This has been superceded by [Features] + [Daita].
+    /// Whether the relay supports DAITA
     #[serde(default)]
     pub daita: bool,
+    /// Parameters for connecting to the masque-proxy running on the relay.
+    #[serde(default)]
+    pub quic: Option<Quic>,
     /// Optional IP addresses used by Shadowsocks
     #[serde(default)]
-    pub shadowsocks_extra_addr_in: Vec<IpAddr>,
+    pub shadowsocks_extra_addr_in: HashSet<IpAddr>,
+}
+
+impl WireguardRelayEndpointData {
+    pub fn new(public_key: wireguard::PublicKey) -> Self {
+        Self {
+            public_key,
+            daita: Default::default(),
+            quic: Default::default(),
+            shadowsocks_extra_addr_in: Default::default(),
+        }
+    }
+
+    pub fn set_daita(self, enabled: bool) -> Self {
+        Self {
+            daita: enabled,
+            ..self
+        }
+    }
+
+    pub fn set_quic(self, quic: Quic) -> Self {
+        Self {
+            quic: Some(quic),
+            ..self
+        }
+    }
+
+    /// Add `in_addrs` to the existing shadowsocks extra in addressess.
+    pub fn add_shadowsocks_extra_in_addrs(self, in_addrs: impl Iterator<Item = IpAddr>) -> Self {
+        let in_addrs = self.shadowsocks_extra_in_addrs().copied().chain(in_addrs);
+        Self {
+            shadowsocks_extra_addr_in: HashSet::from_iter(in_addrs),
+            ..self
+        }
+    }
+
+    pub fn shadowsocks_extra_in_addrs(&self) -> impl Iterator<Item = &IpAddr> {
+        self.shadowsocks_extra_addr_in.iter()
+    }
+
+    // Is this really needed if `self.quic` is pub?
+    pub fn quic(&self) -> Option<&Quic> {
+        self.quic.as_ref()
+    }
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]

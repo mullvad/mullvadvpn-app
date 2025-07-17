@@ -25,7 +25,6 @@ import {
   ErrorStateCause,
   ErrorStateDetails,
   FeatureIndicator,
-  FeaturesType,
   FirewallPolicyError,
   FirewallPolicyErrorType,
   IAppVersionInfo,
@@ -53,7 +52,7 @@ import {
   ObfuscationType,
   Ownership,
   ProxyType,
-  RelayEndpointType,
+  Quic,
   RelayLocation,
   RelayLocationGeographical,
   RelayProtocol,
@@ -119,43 +118,35 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity): IRelayListCity
 function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
   const relayObject = relay.toObject();
 
-  let daita = false;
-  if (relayObject.endpointType === grpcTypes.Relay.RelayType.WIREGUARD) {
-    const endpointDataU8 = relay.getEndpointData()?.getValue_asU8();
-    if (endpointDataU8) {
-      daita = grpcTypes.WireguardRelayEndpointData.deserializeBinary(endpointDataU8).getDaita();
-    }
-  }
+  // The relay type is determined by the variant of the extra endpoint data
+  const wireguard = relayObject.endpointData?.wireguard;
+  const openvpn = relayObject.endpointData?.openvpn;
+  const bridge = relayObject.endpointData?.bridge;
+
+  const endpointType = wireguard
+    ? 'wireguard'
+    : openvpn
+      ? 'openvpn'
+      : bridge
+        ? 'bridge'
+        : /*This case should never happen ..*/ 'bridge';
+
+  const daita = wireguard ? wireguard.daita : false;
+  const quic = wireguard?.quic ? quicFromRelayType(wireguard.quic) : undefined;
 
   return {
     ...relayObject,
-    endpointType: convertFromRelayType(relayObject.endpointType),
-    features: relayObject.features ? featuresFromRelayType(relayObject.features) : undefined,
-    daita,
-  };
-}
-
-function convertFromRelayType(relayType: grpcTypes.Relay.RelayType): RelayEndpointType {
-  const protocolMap: Record<grpcTypes.Relay.RelayType, RelayEndpointType> = {
-    [grpcTypes.Relay.RelayType.OPENVPN]: 'openvpn',
-    [grpcTypes.Relay.RelayType.BRIDGE]: 'bridge',
-    [grpcTypes.Relay.RelayType.WIREGUARD]: 'wireguard',
-  };
-  return protocolMap[relayType];
-}
-
-function featuresFromRelayType(features: grpcTypes.Relay.Features.AsObject): FeaturesType {
-  const daita = features.daita;
-  const quic = features.quic
-    ? {
-        domain: features.quic.domain,
-        token: features.quic.token,
-        addr_in: features.quic.addrInList,
-      }
-    : undefined;
-  return {
+    endpointType,
     daita,
     quic,
+  };
+}
+
+function quicFromRelayType(quic: grpcTypes.Relay.RelayData.Wireguard.Quic.AsObject): Quic {
+  return {
+    domain: quic.domain,
+    token: quic.token,
+    addrIn: quic.addrInList,
   };
 }
 

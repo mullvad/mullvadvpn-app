@@ -7,7 +7,6 @@ import {
   BridgeType,
   CustomLists,
   CustomProxy,
-  FeaturesType,
   IDaitaSettings,
   IDnsOptions,
   IpVersion,
@@ -16,6 +15,7 @@ import {
   ObfuscationSettings,
   ObfuscationType,
   Ownership,
+  Quic,
   RelayEndpointType,
   RelayLocation,
   RelayOverride,
@@ -78,7 +78,7 @@ export interface IRelayLocationRelayRedux {
   weight: number;
   endpointType: RelayEndpointType;
   daita: boolean;
-  features?: FeaturesType;
+  quic?: Quic;
 }
 
 export interface IRelayLocationCityRedux {
