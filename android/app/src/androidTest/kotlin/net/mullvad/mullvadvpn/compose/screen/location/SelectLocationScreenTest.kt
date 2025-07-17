@@ -133,8 +133,8 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
-                        ),
-                    ),
+                        )
+                    )
             )
 
             // Assert
@@ -169,8 +169,8 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
-                        ),
-                    ),
+                        )
+                    )
             )
 
             // Assert
@@ -202,7 +202,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
-                        ),
+                        )
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
@@ -239,7 +239,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
-                        ),
+                        )
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
@@ -276,7 +276,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
-                        ),
+                        )
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
@@ -319,7 +319,7 @@ class SelectLocationScreenTest {
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
-                        ),
+                        )
                     ),
                 onSelectHop = mockedOnSelectHop,
             )
