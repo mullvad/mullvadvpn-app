@@ -188,6 +188,10 @@ This is supported on Linux (x86_64) as well as macOS (x86_64 and aarch64).
    ```
 4. Build the app as usual by running for example:
    ```bash
+   build
+   ```
+   or
+   ```bash
    ./build.sh --dev-build
    ```
    or
