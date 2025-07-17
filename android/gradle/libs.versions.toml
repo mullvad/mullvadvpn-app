@@ -82,7 +82,7 @@ protobuf = "4.31.1"
 rust-android-gradle = "0.9.6"
 
 # Misc
-commonsvalidator = "1.9.0"
+commonsvalidator = "1.10.0"
 dependency-versions = "0.52.0"
 detekt = "1.23.8"
 kermit = "2.0.6"
