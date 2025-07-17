@@ -105,7 +105,10 @@ fun SelectableRelayListItem(
                 )
             }
         },
-        onClick = onClick,
+        onClick =
+            if (relayListItem.state == null) onClick
+            /* Workaround for not allowing to select relay that is currently used as entry or exit */
+            else ({}),
         onLongClick = onLongClick,
         trailingContent =
             if (relayListItem.item.hasChildren) {
