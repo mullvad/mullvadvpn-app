@@ -1,8 +1,6 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc
 
 import android.net.LocalSocketAddress
-import android.os.Looper
-import android.util.Log
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
@@ -883,10 +881,6 @@ class ManagementService(
         Either.catch { grpc.setEnableRecents(BoolValue.of(enabled)) }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
-            .also {
-                val onMain = Looper.getMainLooper().isCurrentThread()
-                Log.d("onMain", onMain.toString())
-            }
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
