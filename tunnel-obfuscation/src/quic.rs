@@ -7,7 +7,10 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 use tokio::net::UdpSocket;
-use tokio_util::sync::{CancellationToken};
+use tokio_util::sync::CancellationToken;
+
+#[cfg(target_os = "android")]
+use std::{os::fd::AsRawFd, os::fd::RawFd};
 
 use crate::Obfuscator;
 
@@ -25,6 +28,10 @@ pub enum Error {
 pub struct Quic {
     local_endpoint: SocketAddr,
     config: ClientConfig,
+    #[cfg(target_os = "android")]
+    // Note: The lifetime of this fd is strictly tied to the lifetime of `config`, since it
+    // owns the underlying socket.
+    outbound_fd: RawFd,
 }
 
 #[derive(Debug)]
@@ -130,23 +137,33 @@ impl Quic {
         } else {
             SocketAddr::from((Ipv6Addr::UNSPECIFIED, 0))
         };
+        let quic_socket = Client::create_quic_socket(
+            quic_client_local_addr,
+            #[cfg(target_os = "linux")]
+            settings.fwmark,
+        )
+        .unwrap(); // TODO: Do not unwrap
+        #[cfg(target_os = "android")]
+        let outbound_fd = quic_socket.as_raw_fd();
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)
-            .local_addr(quic_client_local_addr)
+            .quinn_socket(std::net::UdpSocket::from(quic_socket))
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
             .auth_header(Some(settings.auth_header()))
             .mtu(settings.mtu.unwrap_or(1500));
 
-        #[cfg(target_os = "linux")]
-        let config_builder = config_builder.fwmark(settings.fwmark);
+        //#[cfg(target_os = "linux")]
+        //let config_builder = config_builder.fwmark(settings.fwmark);
 
         let config = config_builder.build();
 
         let quic = Quic {
             local_endpoint: local_udp_client_addr,
             config,
+            #[cfg(target_os = "android")]
+            outbound_fd,
         };
 
         Ok(quic)
@@ -203,7 +220,8 @@ impl Obfuscator for Quic {
 
         let local_proxy = tokio::spawn(Quic::run_forwarding(client, token.child_token()));
 
-        let result = local_proxy.await
+        let result = local_proxy
+            .await
             .unwrap()
             .map_err(crate::Error::RunQuicObfuscator);
 
@@ -217,6 +235,6 @@ impl Obfuscator for Quic {
 
     #[cfg(target_os = "android")]
     fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        unimplemented!()
+        self.outbound_fd
     }
 }
