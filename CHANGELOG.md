@@ -23,10 +23,14 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add in-app updates to Windows and macOS. This new feature lets you download, verify, and install
-  new versions from within the app.
 - Add QUIC obfuscation (WireGuard only). It will be used automatically when connecting fails with
   other methods.
+
+
+## [2025.8-beta1] - 2025-07-15
+### Added
+- Add in-app updates to Windows and macOS. This new feature lets you download, verify, and install
+  new versions from within the app.
 
 #### Linux
 - Make it possible to run the app with cgroups v1 fully disabled. Note that split tunneling is
