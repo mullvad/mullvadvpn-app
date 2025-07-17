@@ -178,6 +178,8 @@ Run the following command to build a debug build:
    ```
 
 ## Build using nix devshell
+This is supported on Linux (x86_64) as well as macOS (x86_64 and aarch64).
+
 1. Install the nix package manager by following the [official instructions](https://nixos.org/download/).
 2. Enable the experimental `nix-command` and `flake` features by following [these instructions](https://nixos.wiki/wiki/flakes).
 3. Launch a devshell (in `<repository>/android`) by running:

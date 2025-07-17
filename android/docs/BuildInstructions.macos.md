@@ -3,6 +3,8 @@
 This document will guide you to setup your development environment on macOS. It has been
 tested on a clean install of macOS Ventura 13.5.1 on a M2 MacBook.
 
+As an alternative to this guide you can also follow [these nix devshell instructions](../BuildInstructions.md#build-using-nix-devshell).
+
 > __*WARNING:*__ This guide will not apply the [wireguard-go patch](https://git.zx2c4.com/wireguard-android/tree/tunnel/tools/libwg-go/goruntime-boottime-over-monotonic.diff)
 > as done in Linux build instructions which may affect app performance.
 
