@@ -1,0 +1,2 @@
+- Changed out of time notification behavior to avoid sending too many notifications.
+- New design for select location screen.
