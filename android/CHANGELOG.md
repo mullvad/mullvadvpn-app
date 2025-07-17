@@ -22,12 +22,16 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2025.6-beta1] - 2025-07-17
 ### Added
 - Add Memory Tagging (MTE) opt-in flag to enable it by default on supported Android versions and
   devices.
 
 ### Changed
 - Use AlarmManager to schedule account out of time notifications.
+- New design of select location list view.
 
 
 ## [android/2025.5] - 2025-07-02
