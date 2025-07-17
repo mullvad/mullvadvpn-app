@@ -10,12 +10,7 @@ import UIKit
 
 extension UIFont {
     static func preferredFont(forTextStyle style: TextStyle, weight: Weight) -> UIFont {
-        let descriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: style)
-            .addingAttributes([
-                .traits: [UIFontDescriptor.TraitKey.weight: weight],
-            ])
-
-        return UIFont(descriptor: descriptor, size: 0)
+        return .preferredFont(forTextStyle: style).withWeight(weight)
     }
 
     func withWeight(_ weight: UIFont.Weight) -> UIFont {
