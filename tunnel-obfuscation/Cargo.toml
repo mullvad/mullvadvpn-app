@@ -19,6 +19,7 @@ tokio-util = { workspace = true }
 udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "87936ac29b68b902565955f138ab02294bcc8593" }
 shadowsocks = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
+socket2 = { workspace = true, features = ["all"] }
 
 [target.'cfg(target_os="linux")'.dependencies]
 nix = { workspace = true }

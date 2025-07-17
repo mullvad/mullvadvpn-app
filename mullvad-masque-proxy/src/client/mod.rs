@@ -24,7 +24,6 @@ use quinn::{
     Endpoint, EndpointConfig, IdleTimeout, TokioRuntime, TransportConfig,
     crypto::rustls::QuicClientConfig,
 };
-use socket2::Socket;
 
 use crate::{
     MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
@@ -70,9 +69,6 @@ pub enum Error {
     Bind(#[source] io::Error),
     #[error("Failed to setup a QUIC endpoint")]
     Endpoint(#[source] io::Error),
-    #[cfg(target_os = "linux")]
-    #[error("Failed to set fwmark on remote socket")]
-    Fwmark(#[source] io::Error),
     #[error("Failed to begin connecting to QUIC endpoint")]
     Connect(#[from] quinn::ConnectError),
     #[error("Failed to connect to QUIC endpoint")]
@@ -120,9 +116,8 @@ pub struct ClientConfig {
     /// Socket that accepts proxy clients
     pub client_socket: UdpSocket,
 
-    /// Socket address to bind the QUIC endpoint socket to
-    // TODO: For Android, we need to be able to pass a socket directly
-    pub local_addr: SocketAddr,
+    /// Socket to bind the QUIC endpoint socket to
+    pub quinn_socket: UdpSocket,
 
     /// Destination to which traffic is forwarded
     pub target_addr: SocketAddr,
@@ -140,11 +135,6 @@ pub struct ClientConfig {
     /// QUIC TLS config
     #[builder(default = default_tls_config())]
     pub tls_config: Arc<rustls::ClientConfig>,
-
-    /// Optional fwmark to set on the QUIC endpoint socket
-    #[cfg(target_os = "linux")]
-    #[builder(default)]
-    pub fwmark: Option<u32>,
 
     /// Optional timeout when no data is sent in the proxy.
     #[builder(default)]
@@ -180,12 +170,10 @@ impl Client {
 
         let max_udp_payload_size = compute_udp_payload_size(config.mtu, config.server_addr);
 
-        let quic_socket = Self::create_quic_socket(
-            config.local_addr,
-            #[cfg(target_os = "linux")]
-            config.fwmark,
+        let endpoint = Self::setup_quic_endpoint(
+            config.quinn_socket.into_std().map_err(Error::Endpoint)?,
+            max_udp_payload_size,
         )?;
-        let endpoint = Self::setup_quic_endpoint(quic_socket, max_udp_payload_size)?;
 
         let connecting =
             endpoint.connect_with(client_config, config.server_addr, &config.server_host)?;
@@ -225,28 +213,11 @@ impl Client {
         }
     }
 
-    pub fn create_quic_socket(
-        local_addr: SocketAddr,
-        #[cfg(target_os = "linux")] fwmark: Option<u32>,
-    ) -> Result<Socket> {
-        // family
-        let domain = match &local_addr {
-            SocketAddr::V4(_) => socket2::Domain::IPV4,
-            SocketAddr::V6(_) => socket2::Domain::IPV6,
-        };
-        let ty = socket2::Type::DGRAM;
-        let protocol = Some(socket2::Protocol::UDP);
-        let socket = socket2::Socket::new(domain, ty, protocol).map_err(Error::Bind)?;
-        #[cfg(target_os = "linux")]
-        if let Some(fwmark) = fwmark {
-            socket.set_mark(fwmark).map_err(Error::Fwmark)?;
-        }
-        socket.bind(&local_addr.into()).map_err(Error::Bind)?;
-        Ok(socket)
-    }
-
     // `socket` is a UDP socket which quinn will read/write from/to.
-    fn setup_quic_endpoint(socket: Socket, max_udp_payload_size: u16) -> Result<Endpoint> {
+    fn setup_quic_endpoint(
+        socket: std::net::UdpSocket,
+        max_udp_payload_size: u16,
+    ) -> Result<Endpoint> {
         let endpoint_config = {
             let mut endpoint_config = EndpointConfig::default();
             endpoint_config
@@ -255,13 +226,8 @@ impl Client {
             endpoint_config
         };
 
-        Endpoint::new(
-            endpoint_config,
-            None,
-            std::net::UdpSocket::from(socket),
-            Arc::new(TokioRuntime),
-        )
-        .map_err(Error::Endpoint)
+        Endpoint::new(endpoint_config, None, socket, Arc::new(TokioRuntime))
+            .map_err(Error::Endpoint)
     }
 
     /// Returns an h3 connection that is ready to be used for sending UDP datagrams.

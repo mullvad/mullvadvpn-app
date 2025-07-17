@@ -170,10 +170,11 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         .await
         .context("Failed to bind address")?;
     let masque_client_addr = local_socket.local_addr().unwrap();
+    let quinn_socket = UdpSocket::bind(any_localhost_addr).await?;
 
     let client_config = client::ClientConfig::builder()
         .client_socket(local_socket)
-        .local_addr(any_localhost_addr)
+        .quinn_socket(quinn_socket)
         .server_addr(masque_server_addr)
         .server_host(HOST.to_owned())
         .target_addr(target_udp_addr)

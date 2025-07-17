@@ -36,11 +36,6 @@ pub struct ClientArgs {
     #[arg(long, short = 'S', default_value = "1280")]
     mtu: u16,
 
-    /// fwmark to use for the `server_addr` connection
-    #[cfg(target_os = "linux")]
-    #[arg(long)]
-    fwmark: Option<u32>,
-
     /// Maximum duration of inactivity (in seconds) until the tunnel times out.
     /// Inactivity happens when no data is sent over the proxy.
     #[arg(long, short = 'i', value_parser = duration_from_seconds)]
@@ -71,8 +66,6 @@ async fn main() {
         server_hostname,
         bind_addr,
         mtu,
-        #[cfg(target_os = "linux")]
-        fwmark,
         idle_timeout,
         auth,
     } = ClientArgs::parse();
@@ -93,9 +86,11 @@ async fn main() {
 
     log::info!("Listening on {local_addr}");
 
+    let endpoint_socket = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).await.unwrap();
+
     let config = ClientConfig::builder()
         .client_socket(local_socket)
-        .local_addr((Ipv4Addr::UNSPECIFIED, 0).into())
+        .quinn_socket(endpoint_socket)
         .server_addr(server_addr)
         .server_host(server_hostname)
         .target_addr(target_addr)
@@ -103,9 +98,6 @@ async fn main() {
         .tls_config(tls_config)
         .idle_timeout(idle_timeout)
         .auth_header(auth);
-
-    #[cfg(target_os = "linux")]
-    let config = config.fwmark(fwmark);
 
     let client = mullvad_masque_proxy::client::Client::connect(config.build()).await;
     if let Err(err) = &client {

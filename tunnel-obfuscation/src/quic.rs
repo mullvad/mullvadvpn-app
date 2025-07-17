@@ -7,7 +7,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 use tokio::net::UdpSocket;
-use tokio_util::sync::{CancellationToken};
+use tokio_util::sync::CancellationToken;
 
 use crate::Obfuscator;
 
@@ -19,6 +19,9 @@ pub enum Error {
     BindError(#[source] io::Error),
     #[error("Masque proxy error")]
     MasqueProxyError(#[source] mullvad_masque_proxy::client::Error),
+    #[cfg(target_os = "linux")]
+    #[error("Failed to set fwmark on remote socket")]
+    Fwmark(#[source] io::Error),
 }
 
 #[derive(Debug)]
@@ -130,17 +133,35 @@ impl Quic {
         } else {
             SocketAddr::from((Ipv6Addr::UNSPECIFIED, 0))
         };
+        let quic_socket = {
+            // family
+            let domain = match quic_client_local_addr {
+                SocketAddr::V4(_) => socket2::Domain::IPV4,
+                SocketAddr::V6(_) => socket2::Domain::IPV6,
+            };
+            let ty = socket2::Type::DGRAM;
+            let protocol = Some(socket2::Protocol::UDP);
+            let socket = socket2::Socket::new(domain, ty, protocol).map_err(Error::BindError)?;
+            socket
+                .bind(&socket2::SockAddr::from(quic_client_local_addr))
+                .map_err(Error::BindError)?;
+
+            #[cfg(target_os = "linux")]
+            if let Some(fwmark) = settings.fwmark {
+                socket.set_mark(fwmark).map_err(Error::Fwmark)?;
+            }
+
+            UdpSocket::from_std(std::net::UdpSocket::from(socket)).map_err(Error::BindError)?
+        };
+
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)
-            .local_addr(quic_client_local_addr)
+            .quinn_socket(quic_socket)
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
             .auth_header(Some(settings.auth_header()))
             .mtu(settings.mtu.unwrap_or(1500));
-
-        #[cfg(target_os = "linux")]
-        let config_builder = config_builder.fwmark(settings.fwmark);
 
         let config = config_builder.build();
 
@@ -195,20 +216,19 @@ impl Obfuscator for Quic {
 
     async fn run(self: Box<Self>) -> crate::Result<()> {
         let token = CancellationToken::new();
+        let child_token = token.child_token();
+        // This will always cancel `child_token` as soon as `run` is finished or aborted.
+        let _drop_guard = token.drop_guard();
 
         let client = Client::connect(self.config)
             .await
             .map_err(Error::MasqueProxyError)
             .map_err(crate::Error::RunQuicObfuscator)?;
 
-        let local_proxy = tokio::spawn(Quic::run_forwarding(client, token.child_token()));
-
-        let result = local_proxy.await
+        tokio::spawn(Quic::run_forwarding(client, child_token))
+            .await
             .unwrap()
-            .map_err(crate::Error::RunQuicObfuscator);
-
-        token.cancel();
-        result
+            .map_err(crate::Error::RunQuicObfuscator)
     }
 
     fn packet_overhead(&self) -> u16 {
@@ -219,6 +239,7 @@ impl Obfuscator for Quic {
 
     #[cfg(target_os = "android")]
     fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        unimplemented!()
+        use std::os::fd::AsRawFd;
+        self.config.quinn_socket.as_raw_fd()
     }
 }
