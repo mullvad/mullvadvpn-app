@@ -175,3 +175,13 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
         SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
     }
 }
+
+extension AccessMethodRepository: MullvadAccessMethodChangeListening {
+    public func accessMethodChangedTo(_ uuid: UUID) {
+        guard let method = accessMethodsSubject.value.first(where: { $0.id == uuid }) else {
+            logger.warning("Change reported to method with unknown ID: \(uuid)")
+            return
+        }
+        save(method)
+    }
+}
