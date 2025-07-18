@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
@@ -117,14 +118,16 @@ class SearchLocationViewModel(
         }
     }
 
-    fun selectRelay(relayItem: RelayItem) {
+    fun selectHop(hop: Hop) {
         viewModelScope.launch {
-            if (relayItem.active) {
-                selectRelayItem(
-                        relayItem = relayItem,
+            if (hop.isActive) {
+                selectRelayHop(
+                        hop = hop,
                         relayListType = relayListType,
                         selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
                         selectExitLocation = relayListRepository::updateSelectedRelayLocation,
+                        selectMultihopLocation =
+                            relayListRepository::updateSelectedRelayLocationMultihop,
                     )
                     .fold(
                         { _uiSideEffect.send(SearchLocationSideEffect.GenericError) },
@@ -135,7 +138,7 @@ class SearchLocationViewModel(
                         },
                     )
             } else {
-                _uiSideEffect.send(SearchLocationSideEffect.RelayItemInactive(relayItem))
+                _uiSideEffect.send(SearchLocationSideEffect.HopInactive(hop))
             }
         }
     }
@@ -225,7 +228,7 @@ sealed interface SearchLocationSideEffect {
     data class CustomListActionToast(val resultData: CustomListActionResultData) :
         SearchLocationSideEffect
 
-    data class RelayItemInactive(val relayItem: RelayItem) : SearchLocationSideEffect
+    data class HopInactive(val hop: Hop) : SearchLocationSideEffect
 
     data object GenericError : SearchLocationSideEffect
 }

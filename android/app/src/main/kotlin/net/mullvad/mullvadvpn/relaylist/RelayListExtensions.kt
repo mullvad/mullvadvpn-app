@@ -3,12 +3,6 @@ package net.mullvad.mullvadvpn.relaylist
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
-fun List<RelayItem.Location.Country>.findByGeoLocationId(geoLocationId: GeoLocationId) =
-    withDescendants().firstOrNull { it.id == geoLocationId }
-
-fun List<RelayItem.Location.Country>.findByGeoLocationId(geoLocationId: GeoLocationId.City) =
-    flatMap { it.cities }.firstOrNull { it.id == geoLocationId }
-
 fun List<RelayItem.Location.Country>.search(searchTerm: String): List<GeoLocationId> =
     withDescendants().filter { it.name.contains(searchTerm, ignoreCase = true) }.map { it.id }
 

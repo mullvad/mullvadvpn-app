@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -72,7 +73,7 @@ fun SelectableRelayListItem(
         modifier = modifier,
         shape = relayListItem.itemPosition.toShape(),
         selected = relayListItem.isSelected,
-        enabled = relayListItem.item.active,
+        enabled = relayListItem.hop.isActive,
         content = {
             Row(
                 modifier =
@@ -84,7 +85,7 @@ fun SelectableRelayListItem(
             ) {
                 val iconTint =
                     when {
-                        !relayListItem.item.active -> MaterialTheme.colorScheme.error
+                        !relayListItem.hop.isActive -> MaterialTheme.colorScheme.error
                         relayListItem.isSelected -> MaterialTheme.colorScheme.tertiary
                         else -> Color.Transparent
                     }
@@ -94,14 +95,14 @@ fun SelectableRelayListItem(
                         contentDescription = null,
                         tint = iconTint,
                     )
-                } else if (!relayListItem.item.active) {
+                } else if (!relayListItem.hop.isActive) {
                     InactiveRelayIndicator(iconTint)
                 }
 
                 Name(
-                    name = relayListItem.item.name,
+                    name = relayListItem.hop.displayName(LocalContext.current),
                     state = relayListItem.state,
-                    active = relayListItem.item.active,
+                    active = relayListItem.hop.isActive,
                 )
             }
         },
@@ -111,7 +112,7 @@ fun SelectableRelayListItem(
             else ({}),
         onLongClick = onLongClick,
         trailingContent =
-            if (relayListItem.item.hasChildren) {
+            if (relayListItem.canExpand) {
                 {
                     ExpandChevron(
                         isExpanded = relayListItem.expanded,

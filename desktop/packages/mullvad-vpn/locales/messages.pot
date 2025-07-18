@@ -2958,6 +2958,9 @@ msgstr ""
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr ""
 
+msgid "Disable recents"
+msgstr ""
+
 msgid "Discard"
 msgstr ""
 
@@ -2995,6 +2998,9 @@ msgid "Enable %1$s"
 msgstr ""
 
 msgid "Enable method"
+msgstr ""
+
+msgid "Enable recents"
 msgstr ""
 
 msgid "Enter MTU"
@@ -3123,6 +3129,9 @@ msgstr ""
 msgid "No locations found"
 msgstr ""
 
+msgid "No recent selection history"
+msgstr ""
+
 msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
@@ -3160,6 +3169,12 @@ msgid "Privacy"
 msgstr ""
 
 msgid "Privacy policy"
+msgstr ""
+
+msgid "Recents"
+msgstr ""
+
+msgid "Recents disabled and history cleared"
 msgstr ""
 
 msgid "Recursion limit"

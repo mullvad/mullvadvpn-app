@@ -67,11 +67,13 @@ import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.displayName
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
@@ -149,11 +151,14 @@ fun SearchLocation(
                     )
                 }
 
-            is SearchLocationSideEffect.RelayItemInactive -> {
+            is SearchLocationSideEffect.HopInactive -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
+                            context.getString(
+                                R.string.relayitem_is_inactive,
+                                it.hop.displayName(context),
+                            )
                     )
                 }
             }
@@ -183,7 +188,7 @@ fun SearchLocation(
     SearchLocationScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onSelectRelay = viewModel::selectRelay,
+        onSelectHop = viewModel::selectHop,
         onToggleExpand = viewModel::onToggleExpand,
         onSearchInputChanged = viewModel::onSearchInputUpdated,
         onCreateCustomList =
@@ -228,7 +233,7 @@ fun SearchLocation(
 fun SearchLocationScreen(
     state: Lce<Unit, SearchLocationUiState, Unit>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectRelay: (RelayItem) -> Unit,
+    onSelectHop: (Hop) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onSearchInputChanged: (String) -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
@@ -308,7 +313,7 @@ fun SearchLocationScreen(
                         relayListContent(
                             relayListItems = state.value.relayListItems,
                             customLists = state.value.customLists,
-                            onSelectRelay = onSelectRelay,
+                            onSelectHop = onSelectHop,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->
                                 locationBottomSheetState = newSheetState

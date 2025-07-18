@@ -44,6 +44,7 @@ import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
+import net.mullvad.mullvadvpn.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
@@ -161,6 +162,7 @@ val uiModule = module {
     single { SelectedLocationUseCase(get(), get()) }
     single { FilterChipUseCase(get(), get(), get(), get()) }
     single { DeleteCustomDnsUseCase(get()) }
+    single { RecentsUseCase(get(), get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), get(), MainScope()) }
 
@@ -265,7 +267,17 @@ val uiModule = module {
         )
     }
     viewModel { (relayListType: RelayListType) ->
-        SelectLocationListViewModel(relayListType, get(), get(), get(), get(), get(), get(), get())
+        SelectLocationListViewModel(
+            relayListType,
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+        )
     }
     viewModel { DaitaViewModel(get(), get()) }
     viewModel {
