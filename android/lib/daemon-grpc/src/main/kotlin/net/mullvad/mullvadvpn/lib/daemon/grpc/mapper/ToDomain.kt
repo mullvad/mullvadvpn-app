@@ -40,7 +40,6 @@ import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
-import net.mullvad.mullvadvpn.lib.model.Features
 import net.mullvad.mullvadvpn.lib.model.GenericOptions
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -58,6 +57,7 @@ import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.Quic
 import net.mullvad.mullvadvpn.lib.model.Recent
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
@@ -78,7 +78,6 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
-import net.mullvad.mullvadvpn.lib.model.WireguardRelayEndpointData
 import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
@@ -542,9 +541,6 @@ internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndp
         shadowsocksPortRangesList.map { it.toDomain() },
     )
 
-internal fun ManagementInterface.WireguardRelayEndpointData.toDomain(): WireguardRelayEndpointData =
-    WireguardRelayEndpointData(daita)
-
 internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(first..last)
 
 /**
@@ -579,7 +575,7 @@ internal fun ManagementInterface.RelayListCity.toDomain(
         id = cityCode,
         relays =
             relaysList
-                .filter { it.endpointType == ManagementInterface.Relay.RelayType.WIREGUARD }
+                .filter { it.endpointData.hasWireguard() }
                 .map { it.toDomain(cityCode) }
                 .sortedWith(RelayNameComparator),
     )
@@ -593,13 +589,16 @@ internal fun ManagementInterface.Relay.toDomain(
         active = active,
         provider = ProviderId(provider),
         ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
-        features = features.toDomain(),
+        daita = endpointData.wireguard.daita,
+        quic =
+            if (endpointData.wireguard.hasQuic()) endpointData.wireguard.quic.toDomain() else null,
     )
 
-internal fun ManagementInterface.Relay.Features.toDomain(): Features =
-    Features(
-        daita = daita,
-        quic = null, // Not supported on Android
+private fun ManagementInterface.Relay.RelayData.Wireguard.Quic.toDomain(): Quic =
+    Quic(
+        domain = domain.toString(),
+        token = token,
+        addrIn = addrInList.map { InetAddress.getByName(it) },
     )
 
 private fun Instant.atDefaultZone() = atZone(ZoneId.systemDefault())
