@@ -142,18 +142,18 @@ class SelectLocationListViewModelTest {
 
     private fun RelayListItem.relayItemId() =
         when (this) {
-            is RelayListItem.CustomListFooter -> null
-            RelayListItem.CustomListHeader -> null
-            RelayListItem.LocationHeader -> null
-            is RelayListItem.LocationsEmptyText -> null
-            is RelayListItem.EmptyRelayList -> null
             is RelayListItem.CustomListEntryItem -> item.id
             is RelayListItem.CustomListItem -> hop.exitItem.id
             is RelayListItem.GeoLocationItem -> item.id
-            RelayListItem.RecentsListHeader -> null
             is RelayListItem.RecentListItem -> hop.exitItem.id
-            RelayListItem.RecentsListFooter,
-            is RelayListItem.SectionDivider -> null
+            is RelayListItem.CustomListFooter,
+            is RelayListItem.LocationsEmptyText,
+            is RelayListItem.EmptyRelayList,
+            is RelayListItem.SectionDivider,
+            RelayListItem.CustomListHeader,
+            RelayListItem.LocationHeader,
+            RelayListItem.RecentsListHeader,
+            RelayListItem.RecentsListFooter -> null
         }
 
     companion object {
