@@ -396,15 +396,10 @@ export interface IRelayListHostname {
   weight: number;
   owned: boolean;
   endpointType: RelayEndpointType;
-  daita: boolean; // TODO: Deprecate in favor of Features 👇
-  features?: FeaturesType;
-}
-
-// The absence of a value signals that the relay does not have it enabled.
-export type FeaturesType = {
   daita: boolean;
+  // The absence of this value signals that the relay does not deploy QUIC.
   quic?: Quic;
-};
+}
 
 export type Quic = {
   domain: string;
