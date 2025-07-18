@@ -500,6 +500,8 @@ fn get_tunnel_for_userspace(
     tun_config.ipv6_gateway = config.ipv6_gateway;
     tun_config.mtu = config.mtu;
 
+    // FIXME: mtu is not set
+
     let _ = routes;
 
     #[cfg(windows)]
