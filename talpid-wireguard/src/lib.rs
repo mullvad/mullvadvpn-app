@@ -263,7 +263,7 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let routes = Self::get_pre_tunnel_routes(&iface_name, &config)
+            let routes = Self::get_pre_tunnel_routes(&iface_name, &config, userspace_wireguard)
                 .chain(Self::get_endpoint_routes(&endpoint_addrs))
                 .collect();
 
@@ -354,7 +354,10 @@ impl WireguardMonitor {
 
             // Add any default route(s) that may exist.
             args.route_manager
-                .add_routes(Self::get_post_tunnel_routes(&iface_name, &config).collect())
+                .add_routes(
+                    Self::get_post_tunnel_routes(&iface_name, &config, userspace_wireguard)
+                        .collect(),
+                )
                 .await
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
@@ -877,6 +880,7 @@ impl WireguardMonitor {
     fn get_pre_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
+        #[allow(unused_variables)] userspace_wireguard: bool,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         // e.g. utun4
         let gateway_node = talpid_routing::Node::device(iface_name.to_string());
@@ -895,8 +899,9 @@ impl WireguardMonitor {
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
 
         #[cfg(any(target_os = "linux", target_os = "macos"))]
-        let gateway_routes =
-            gateway_routes.map(|route| Self::apply_route_mtu_for_multihop(route, config));
+        let gateway_routes = gateway_routes.map(move |route| {
+            Self::apply_route_mtu_for_multihop(route, config, userspace_wireguard)
+        });
 
         gateway_routes.chain(
             config
@@ -917,6 +922,7 @@ impl WireguardMonitor {
     fn get_post_tunnel_routes<'a>(
         iface_name: &str,
         config: &'a Config,
+        #[allow(unused_variables)] userspace_wireguard: bool,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
         let iter = config
@@ -935,19 +941,31 @@ impl WireguardMonitor {
         #[cfg(target_os = "linux")]
         return iter
             .map(|route| route.use_main_table(false))
-            .map(|route| Self::apply_route_mtu_for_multihop(route, config));
+            .map(move |route| {
+                Self::apply_route_mtu_for_multihop(route, config, userspace_wireguard)
+            });
 
         #[cfg(target_os = "macos")]
-        iter.map(|route| Self::apply_route_mtu_for_multihop(route, config))
+        iter.map(move |route| {
+            Self::apply_route_mtu_for_multihop(route, config, userspace_wireguard)
+        })
     }
 
     #[cfg(any(target_os = "linux", target_os = "macos"))]
-    fn apply_route_mtu_for_multihop(route: RequiredRoute, config: &Config) -> RequiredRoute {
-        use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
+    fn apply_route_mtu_for_multihop(
+        route: RequiredRoute,
+        config: &Config,
+        userspace_wireguard: bool,
+    ) -> RequiredRoute {
+        // For userspace multihop, per-route MTU is unnecessary. Packets are not sent back to
+        // the tunnel interface, so we're not constrained by its MTU.
+        let using_boringtun = userspace_wireguard && cfg!(feature = "boringtun");
 
-        if !config.is_multihop() {
+        if !config.is_multihop() || using_boringtun {
             route
         } else {
+            use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
+
             // Set route MTU by subtracting the WireGuard overhead from the tunnel MTU. Plus
             // some margin to make room for padding bytes.
             let ip_overhead = match route.prefix.is_ipv4() {
