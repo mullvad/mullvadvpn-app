@@ -9,6 +9,8 @@ import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
 import mullvad_daemon.management_interface.ManagementInterface
+import mullvad_daemon.management_interface.entryLocationOrNull
+import mullvad_daemon.management_interface.locationOrNull
 import mullvad_daemon.management_interface.recentsOrNull
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
@@ -349,18 +351,19 @@ internal fun ManagementInterface.RelaySettings.toDomain(): RelaySettings =
 
 internal fun ManagementInterface.NormalRelaySettings.toDomain(): RelayConstraints =
     RelayConstraints(
-        location = location.toDomain(),
+        location = locationOrNull?.toDomain() ?: Constraint.Any,
         providers = providersList.toDomain(),
         ownership = ownership.toDomain(),
         wireguardConstraints = wireguardConstraints.toDomain(),
     )
 
-internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint.Only<RelayItemId> =
+internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<RelayItemId> =
     when (typeCase) {
         ManagementInterface.LocationConstraint.TypeCase.CUSTOM_LIST ->
             Constraint.Only(CustomListId(customList))
         ManagementInterface.LocationConstraint.TypeCase.LOCATION ->
             Constraint.Only(location.toDomain())
+        ManagementInterface.LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any
         else -> throw IllegalArgumentException("Invalid location constraint")
     }
 
@@ -390,7 +393,7 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
                 Constraint.Any
             },
         isMultihopEnabled = useMultihop,
-        entryLocation = entryLocation.toDomain(),
+        entryLocation = entryLocationOrNull?.toDomain() ?: Constraint.Any,
         ipVersion =
             if (hasIpVersion()) {
                 Constraint.Only(ipVersion.toDomain())
@@ -743,12 +746,12 @@ internal fun ManagementInterface.Recent.toDomain(): Recent =
     when (typeCase) {
         ManagementInterface.Recent.TypeCase.MULTIHOP ->
             Recent.Multihop(
-                entry = multihop.entry.toDomain().value,
-                exit = multihop.exit.toDomain().value,
+                entry = (multihop.entry.toDomain() as Constraint.Only).value,
+                exit = (multihop.exit.toDomain() as Constraint.Only).value,
             )
 
         ManagementInterface.Recent.TypeCase.SINGLEHOP ->
-            Recent.Singlehop(singlehop.toDomain().value)
+            Recent.Singlehop((singlehop.toDomain() as Constraint.Only).value)
 
         ManagementInterface.Recent.TypeCase.TYPE_NOT_SET -> error("Recent type must be set")
     }
