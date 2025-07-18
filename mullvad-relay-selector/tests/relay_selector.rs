@@ -27,9 +27,9 @@ use mullvad_types::{
         RelayConstraints, RelayOverride, RelaySettings, TransportPort,
     },
     relay_list::{
-        BridgeEndpointData, Features, OpenVpnEndpoint, OpenVpnEndpointData, Quic, Relay,
-        RelayEndpointData, RelayList, RelayListCity, RelayListCountry, ShadowsocksEndpointData,
-        WireguardEndpointData, WireguardRelayEndpointData,
+        BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Quic, Relay, RelayEndpointData,
+        RelayList, RelayListCity, RelayListCountry, ShadowsocksEndpointData, WireguardEndpointData,
+        WireguardRelayEndpointData,
     },
 };
 
@@ -40,6 +40,10 @@ static DUMMY_LOCATION: LazyLock<Location> = LazyLock::new(|| Location {
     city_code: "got".to_string(),
     latitude: 57.71,
     longitude: 11.97,
+});
+
+static WIREGUARD_PUBKEY: LazyLock<PublicKey> = LazyLock::new(|| {
+    PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap()
 });
 
 static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
@@ -64,25 +68,19 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     owned: true,
                     provider: "provider0".to_string(),
                     weight: 1,
-                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                        public_key: PublicKey::from_base64(
-                            "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                        )
-                        .unwrap(),
-                        daita: true,
-                        shadowsocks_extra_addr_in: vec![],
-                    }),
+                    endpoint_data: RelayEndpointData::Wireguard(
+                        WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone())
+                            .set_daita(true)
+                            .set_quic(Quic::new(
+                                vec![
+                                    "185.213.154.68".parse().unwrap(),
+                                    "2a03:1b20:5:f011::a09f".parse().unwrap(),
+                                ],
+                                "Bearer test".to_owned(),
+                                "se9-wireguard.blockerad.eu".to_owned(),
+                            )),
+                    ),
                     location: DUMMY_LOCATION.clone(),
-                    features: Features::default()
-                        .configure_daita()
-                        .configure_quic(Quic::new(
-                            vec![
-                                "185.213.154.68".parse().unwrap(),
-                                "2a03:1b20:5:f011::a09f".parse().unwrap(),
-                            ],
-                            "Bearer test".to_owned(),
-                            "se9-wireguard.blockerad.eu".to_owned(),
-                        )),
                 },
                 Relay {
                     hostname: "se10-wireguard".to_string(),
@@ -95,16 +93,11 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     owned: false,
                     provider: "provider1".to_string(),
                     weight: 1,
-                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                        public_key: PublicKey::from_base64(
-                            "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                        )
-                        .unwrap(),
-                        daita: false,
-                        shadowsocks_extra_addr_in: vec![],
-                    }),
+                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData::new(
+                        PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
+                            .unwrap(),
+                    )),
                     location: DUMMY_LOCATION.clone(),
-                    features: Features::default(),
                 },
                 Relay {
                     hostname: "se11-wireguard".to_string(),
@@ -117,16 +110,14 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     owned: false,
                     provider: "provider2".to_string(),
                     weight: 1,
-                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                        public_key: PublicKey::from_base64(
-                            "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                    endpoint_data: RelayEndpointData::Wireguard(
+                        WireguardRelayEndpointData::new(
+                            PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
+                                .unwrap(),
                         )
-                        .unwrap(),
-                        daita: true,
-                        shadowsocks_extra_addr_in: vec![],
-                    }),
+                        .set_daita(true),
+                    ),
                     location: DUMMY_LOCATION.clone(),
-                    features: Features::default().configure_daita(),
                 },
                 Relay {
                     hostname: "se-got-001".to_string(),
@@ -141,7 +132,6 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     weight: 1,
                     endpoint_data: RelayEndpointData::Openvpn,
                     location: DUMMY_LOCATION.clone(),
-                    features: Features::default(),
                 },
                 Relay {
                     hostname: "se-got-002".to_string(),
@@ -156,7 +146,6 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     weight: 1,
                     endpoint_data: RelayEndpointData::Openvpn,
                     location: DUMMY_LOCATION.clone(),
-                    features: Features::default(),
                 },
                 Relay {
                     hostname: "se-got-br-001".to_string(),
@@ -171,7 +160,6 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     weight: 1,
                     endpoint_data: RelayEndpointData::Bridge,
                     location: DUMMY_LOCATION.clone(),
-                    features: Features::default(),
                 },
                 SHADOWSOCKS_RELAY.clone(),
             ],
@@ -250,13 +238,13 @@ static SHADOWSOCKS_RELAY: LazyLock<Relay> = LazyLock::new(|| Relay {
     owned: true,
     provider: "provider0".to_string(),
     weight: 1,
-    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-        public_key: PublicKey::from_base64("eaNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
-        daita: false,
-        shadowsocks_extra_addr_in: SHADOWSOCKS_RELAY_EXTRA_ADDRS.to_vec(),
-    }),
+    endpoint_data: RelayEndpointData::Wireguard(
+        WireguardRelayEndpointData::new(
+            PublicKey::from_base64("eaNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
+        )
+        .add_shadowsocks_extra_in_addrs(SHADOWSOCKS_RELAY_EXTRA_ADDRS.iter().copied()),
+    ),
     location: DUMMY_LOCATION.clone(),
-    features: Features::default(),
 });
 const SHADOWSOCKS_RELAY_IPV4: Ipv4Addr = Ipv4Addr::new(123, 123, 123, 1);
 const SHADOWSOCKS_RELAY_IPV6: Ipv6Addr = Ipv6Addr::new(0x123, 0, 0, 0, 0, 0, 0, 2);
@@ -586,16 +574,10 @@ fn test_wireguard_entry() {
                         owned: true,
                         provider: "provider0".to_string(),
                         weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                            public_key: PublicKey::from_base64(
-                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                            )
-                            .unwrap(),
-                            daita: false,
-                            shadowsocks_extra_addr_in: vec![],
-                        }),
+                        endpoint_data: RelayEndpointData::Wireguard(
+                            WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
+                        ),
                         location: DUMMY_LOCATION.clone(),
-                        features: Features::default(),
                     },
                     Relay {
                         hostname: "se10-wireguard".to_string(),
@@ -608,16 +590,10 @@ fn test_wireguard_entry() {
                         owned: false,
                         provider: "provider1".to_string(),
                         weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                            public_key: PublicKey::from_base64(
-                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                            )
-                            .unwrap(),
-                            daita: false,
-                            shadowsocks_extra_addr_in: vec![],
-                        }),
+                        endpoint_data: RelayEndpointData::Wireguard(
+                            WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
+                        ),
                         location: DUMMY_LOCATION.clone(),
-                        features: Features::default(),
                     },
                 ],
             }],
@@ -1280,16 +1256,10 @@ fn test_include_in_country() {
                         owned: true,
                         provider: "31173".to_string(),
                         weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                            public_key: PublicKey::from_base64(
-                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                            )
-                            .unwrap(),
-                            shadowsocks_extra_addr_in: vec![],
-                            daita: false,
-                        }),
+                        endpoint_data: RelayEndpointData::Wireguard(
+                            WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
+                        ),
                         location: DUMMY_LOCATION.clone(),
-                        features: Features::default(),
                     },
                     Relay {
                         hostname: "se10-wireguard".to_string(),
@@ -1302,16 +1272,10 @@ fn test_include_in_country() {
                         owned: false,
                         provider: "31173".to_string(),
                         weight: 1,
-                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                            public_key: PublicKey::from_base64(
-                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-                            )
-                            .unwrap(),
-                            shadowsocks_extra_addr_in: vec![],
-                            daita: false,
-                        }),
+                        endpoint_data: RelayEndpointData::Wireguard(
+                            WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
+                        ),
                         location: DUMMY_LOCATION.clone(),
-                        features: Features::default(),
                     },
                 ],
             }],
