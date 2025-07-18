@@ -95,23 +95,16 @@ private fun RelayItem.Location.City.filter(
     }
 }
 
-private fun RelayItem.Location.Relay.hasMatchingDaitaSetting(filterDaita: Boolean): Boolean {
-    return if (filterDaita) features.daita else true
-}
+private fun RelayItem.Location.Relay.hasMatchingDaitaSetting(filterDaita: Boolean): Boolean =
+    if (filterDaita) daita else true
 
 private fun RelayItem.Location.Relay.filter(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>,
     daita: Boolean,
-): RelayItem.Location.Relay? {
-    return if (
-        hasMatchingDaitaSetting(daita) && hasOwnership(ownership) && hasProvider(providers)
-    ) {
-        this
-    } else {
-        null
-    }
-}
+): RelayItem.Location.Relay? =
+    if (hasMatchingDaitaSetting(daita) && hasOwnership(ownership) && hasProvider(providers)) this
+    else null
 
 fun List<RelayItem.Location.Country>.findByGeoLocationId(
     geoLocationId: GeoLocationId
