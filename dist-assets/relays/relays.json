@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"6878e1cb-31913\"",
+  "etag": "W/\"6879d7a7-31b42\"",
   "countries": [
     {
       "name": "Albania",
@@ -25,6 +25,37 @@
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "bPfJDdgBXlY4w3ACs68zOMMhLUbbzktCKnLOFHqbxl4=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": []
+                }
+              },
+              "location": {
+                "country": "Albania",
+                "country_code": "al",
+                "city": "Tirana",
+                "city_code": "tia",
+                "latitude": 41.327953,
+                "longitude": 19.819025
+              },
+              "features": {
+                "daita": null,
+                "quic": null
+              }
+            },
+            {
+              "hostname": "al-tia-wg-002",
+              "ipv4_addr_in": "31.171.154.50",
+              "ipv6_addr_in": "2a04:27c0:0:4::f001",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "iRegister",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "/wPQafVa/60OIp8KqhC1xTTG+nQXZF17uo8XfdUnz2E=",
                   "daita": false,
                   "shadowsocks_extra_addr_in": []
                 }
@@ -8474,6 +8505,37 @@
               "provider": "M247",
               "weight": 100,
               "endpoint_data": "openvpn",
+              "location": {
+                "country": "Hong Kong",
+                "country_code": "hk",
+                "city": "Hong Kong",
+                "city_code": "hkg",
+                "latitude": 22.283333,
+                "longitude": 114.15
+              },
+              "features": {
+                "daita": null,
+                "quic": null
+              }
+            },
+            {
+              "hostname": "hk-hkg-wg-201",
+              "ipv4_addr_in": "103.125.233.18",
+              "ipv6_addr_in": "2403:2c81:1000::a06f",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "xtom",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "Oxh13dmwY6nNUa5rVHr7sLiFOj0fjzsaAUAUV87/nGs=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": []
+                }
+              },
               "location": {
                 "country": "Hong Kong",
                 "country_code": "hk",
@@ -21530,7 +21592,7 @@
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 1,
+              "weight": 0,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "Ow25Pdtyqbv/Y0I0myNixjJ2iljsKcH04PWvtJqbmCk=",
@@ -21561,7 +21623,7 @@
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 1,
+              "weight": 0,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "aOt3gFGc0a0UMAdcxhBWX9TCnEabe2s66MHzjXU50Tc=",
@@ -21592,7 +21654,7 @@
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 1,
+              "weight": 0,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "Vim/OUBT3Bogv+FF623pAHXc/vmRwur2JKcNsLHQH1o=",
