@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.lib.model
 
 import arrow.optics.optics
-import java.net.InetAddress
 
 typealias DomainCustomList = CustomList
 
@@ -86,7 +85,7 @@ sealed interface RelayItem {
             val ownership: Ownership,
             override val active: Boolean,
             val daita: Boolean,
-            val quic: Quic?,
+            val quic: Boolean,
         ) : Location {
             override val name: String = id.code
             override val hasChildren: Boolean = false
@@ -99,5 +98,3 @@ sealed interface RelayItem {
 
     companion object
 }
-
-data class Quic(val domain: String, val token: String, val addrIn: List<InetAddress>)
