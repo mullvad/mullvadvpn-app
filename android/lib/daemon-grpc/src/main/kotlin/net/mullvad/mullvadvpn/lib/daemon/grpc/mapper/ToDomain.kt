@@ -57,7 +57,6 @@ import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
-import net.mullvad.mullvadvpn.lib.model.Quic
 import net.mullvad.mullvadvpn.lib.model.Recent
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
@@ -590,15 +589,7 @@ internal fun ManagementInterface.Relay.toDomain(
         provider = ProviderId(provider),
         ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
         daita = endpointData.wireguard.daita,
-        quic =
-            if (endpointData.wireguard.hasQuic()) endpointData.wireguard.quic.toDomain() else null,
-    )
-
-private fun ManagementInterface.Relay.RelayData.Wireguard.Quic.toDomain(): Quic =
-    Quic(
-        domain = domain.toString(),
-        token = token,
-        addrIn = addrInList.map { InetAddress.getByName(it) },
+        quic = endpointData.wireguard.hasQuic(),
     )
 
 private fun Instant.atDefaultZone() = atZone(ZoneId.systemDefault())
