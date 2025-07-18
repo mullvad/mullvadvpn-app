@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
-import net.mullvad.mullvadvpn.lib.model.Features
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
@@ -51,7 +50,8 @@ private fun generateRelayItemRelay(
         active = active,
         provider = ProviderId("Provider"),
         ownership = Ownership.MullvadOwned,
-        features = Features(daita = daita, quic = null),
+        daita = daita,
+        quic = null,
     )
 
 private fun String.generateCountryCode() =
