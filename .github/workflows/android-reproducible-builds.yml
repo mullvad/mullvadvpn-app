@@ -14,11 +14,14 @@ on:
         type: string
         required: false
   pull_request:
-    branches:
-      - 'prepare-android/**'
+    paths:
+      - '.github/workflows/android-reproducible-builds.yml'
+      - 'building/android-container-image.txt'
+      - 'dist-assets/android-version*'
+      - 'android/src/main/play/release-notes/en-US/default.txt'
+      - 'android/gradle/**'
+      - 'android/flake*'
   push:
-    branches:
-      - 'prepare-android/**'
     tags:
       - 'android/**'
 
