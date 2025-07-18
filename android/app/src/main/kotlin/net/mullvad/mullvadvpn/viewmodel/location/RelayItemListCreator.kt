@@ -133,22 +133,7 @@ private fun createRecentsSection(
             }
             .take(RECENTS_MAX_VISIBLE)
             .map { recent ->
-                val isSelected =
-                    when (itemSelection) {
-                        is RelayItemSelection.Single -> {
-                            recent.exitItem.id == itemSelection.exitLocation.getOrNull()
-                        }
-
-                        is RelayItemSelection.Multiple -> {
-                            if (isEntryBlocked) {
-                                recent.exitItem.id == itemSelection.exitLocation.getOrNull()
-                            } else {
-                                recent.entryItem.id == itemSelection.entryLocation.getOrNull() &&
-                                    recent.exitItem.id == itemSelection.exitLocation.getOrNull()
-                            }
-                        }
-                    }
-
+                val isSelected = recent.matches(itemSelection, isEntryBlocked)
                 if (isEntryBlocked) {
                     // When the entry is blocked we want to show the multihop's exit location
                     // as a singlehop.
@@ -168,6 +153,22 @@ private fun createRecentsSection(
         add(RelayListItem.SectionDivider())
     }
 }
+
+private fun Hop.matches(itemSelection: RelayItemSelection, isEntryBlocked: Boolean): Boolean =
+    when (itemSelection) {
+        is RelayItemSelection.Single -> {
+            exitItem.id == itemSelection.exitLocation.getOrNull()
+        }
+
+        is RelayItemSelection.Multiple -> {
+            if (isEntryBlocked) {
+                exitItem.id == itemSelection.exitLocation.getOrNull()
+            } else {
+                entryItem.id == itemSelection.entryLocation.getOrNull() &&
+                    exitItem.id == itemSelection.exitLocation.getOrNull()
+            }
+        }
+    }
 
 private fun createRelayListItemsSearching(
     relayListType: RelayListType,
