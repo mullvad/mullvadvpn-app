@@ -46,6 +46,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case apiAccess
         case version
         case problemReport
+        case language
     }
 
     enum Item: String {
@@ -56,23 +57,26 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case apiAccess
         case daita
         case multihop
+        case language
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
             case .vpnSettings:
-                return .vpnSettingsCell
+                .vpnSettingsCell
             case .changelog:
-                return .versionCell
+                .versionCell
             case .problemReport:
-                return .problemReportCell
+                .problemReportCell
             case .faq:
-                return .faqCell
+                .faqCell
             case .apiAccess:
-                return .apiAccessCell
+                .apiAccessCell
             case .daita:
-                return .daitaCell
+                .daitaCell
             case .multihop:
-                return .multihopCell
+                .multihopCell
+            case .language:
+                .languageCell
             }
         }
 
@@ -109,14 +113,14 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         registerClasses()
         updateDataSnapshot()
 
-        interactor.didUpdateDeviceState = { [weak self] _ in
+        interactor.didUpdateSettings = { [weak self] in
             self?.updateDataSnapshot()
         }
         storedAccountData = interactor.deviceState.accountData
     }
 
-    func reload(from tunnelSettings: LatestTunnelSettings) {
-        settingsCellFactory.viewModel = SettingsViewModel(from: tunnelSettings)
+    func reload() {
+        settingsCellFactory.viewModel = SettingsViewModel(from: interactor.tunnelSettings)
 
         var snapshot = snapshot()
         snapshot.reconfigureItems(snapshot.itemIdentifiers)
@@ -135,9 +139,15 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        tableView.dequeueReusableHeaderFooterView(
-            withIdentifier: HeaderFooterReuseIdentifier.spacer.rawValue
-        )
+        guard let section = sectionIdentifier(for: section) else { return nil }
+        return switch section {
+        case .language:
+            nil
+        default:
+            tableView.dequeueReusableHeaderFooterView(
+                withIdentifier: HeaderFooterReuseIdentifier.spacer.rawValue
+            )
+        }
     }
 
     // MARK: - Private
@@ -162,6 +172,11 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 .vpnSettings,
             ], toSection: .vpnSettings)
         }
+
+        #if DEBUG
+        snapshot.appendSections([.language])
+        snapshot.appendItems([.language], toSection: .language)
+        #endif
 
         snapshot.appendSections([.apiAccess])
         snapshot.appendItems([.apiAccess], toSection: .apiAccess)
