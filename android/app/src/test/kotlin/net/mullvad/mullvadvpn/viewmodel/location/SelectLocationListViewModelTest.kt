@@ -152,7 +152,7 @@ class SelectLocationListViewModelTest {
             is RelayListItem.GeoLocationItem -> item.id
             RelayListItem.RecentsListHeader -> null
             is RelayListItem.RecentListItem -> hop.exitItem.id
-            RelayListItem.RecentsListFooter -> null
+            RelayListItem.RecentsListFooter,
             is RelayListItem.SectionDivider -> null
         }
 
