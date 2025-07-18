@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -12,7 +11,7 @@ import net.mullvad.mullvadvpn.lib.model.Recent
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.relaylist.withDescendants
+import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
 
@@ -25,9 +24,9 @@ class RecentsUseCase(
     operator fun invoke(): Flow<List<Hop>?> =
         combine(
             recents(),
-            allEntryRelays(),
+            filteredRelayListUseCase(RelayListType.ENTRY),
             customListsRelayItemUseCase(RelayListType.ENTRY),
-            allExitRelays(),
+            filteredRelayListUseCase(RelayListType.EXIT),
             customListsRelayItemUseCase(RelayListType.EXIT),
         ) { recents, entryRelayList, entryCustomLists, exitRelayList, exitCustomLists ->
             recents?.mapNotNull { recent ->
@@ -64,24 +63,14 @@ class RecentsUseCase(
             }
         }
 
-    private fun allEntryRelays(): Flow<List<RelayItem.Location>> =
-        filteredRelayListUseCase(RelayListType.ENTRY).distinctUntilChanged().map {
-            it.withDescendants()
-        }
-
-    private fun allExitRelays(): Flow<List<RelayItem.Location>> =
-        filteredRelayListUseCase(RelayListType.EXIT).distinctUntilChanged().map {
-            it.withDescendants()
-        }
-
     fun RelayItemId.findItem(
         customLists: List<RelayItem.CustomList>,
-        relayList: List<RelayItem.Location>,
+        relayList: List<RelayItem.Location.Country>,
     ): RelayItem? =
         when (this) {
             is CustomListId -> customLists.firstOrNull { this == it.id }
             is GeoLocationId -> {
-                relayList.firstOrNull { this == it.id }
+                relayList.findByGeoLocationId(this)
             }
         }
 }
