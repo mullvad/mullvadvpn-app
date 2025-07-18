@@ -1,0 +1,54 @@
+/* No comment provided by engineer. */
+"ACTION_SHEET_ADD_LIST_BUTTON" = "Add new list";
+
+/* No comment provided by engineer. */
+"ACTION_SHEET_EDIT_LISTS_BUTTON" = "Edit lists";
+
+/* No comment provided by engineer. */
+"ACTION_SHEET_TITLE" = "Custom lists";
+
+/* No comment provided by engineer. */
+"ADD" = "Add locations";
+
+/* No comment provided by engineer. */
+"CUSTOM_LIST_ACTION_SHEET_CANCEL_BUTTON" = "Cancel";
+
+/* No comment provided by engineer. */
+"CUSTOM_LIST_NAVIGATION_SAVE_BUTTON" = "Save";
+
+/* No comment provided by engineer. */
+"CUSTOM_LIST_NAVIGATION_TITLE" = "CUSTOM_LIST_NAVIGATION_TITLE";
+
+/* No comment provided by engineer. */
+"CUSTOM_LISTS_BACK_TO_EDITING_BUTTON" = "Back to editing";
+
+/* No comment provided by engineer. */
+"CUSTOM_LISTS_CANCEL_BUTTON" = "Cancel";
+
+/* No comment provided by engineer. */
+"CUSTOM_LISTS_DELETE_BUTTON" = "Delete list";
+
+/* No comment provided by engineer. */
+"CUSTOM_LISTS_DELETE_PROMPT" = "Do you want to delete the list **(value)**?";
+
+/* No comment provided by engineer. */
+"CUSTOM_LISTS_DISCARD_CHANGES_BUTTON" = "Discard changes";
+
+/* No comment provided by engineer. */
+"CUSTOM_LISTS_NAVIGATION_CREATE_BUTTON" = "Create";
+
+/* No comment provided by engineer. */
+"CUSTOM_LISTS_NAVIGATION_EDIT_TITLE" = "New custom list";
+
+/* No comment provided by engineer. */
+"CUSTOM_LISTS_UNSAVED_CHANGES_PROMPT" = "You have unsaved changes.";
+
+/* No comment provided by engineer. */
+"Delete" = "Delete list";
+
+/* No comment provided by engineer. */
+"EDIT" = "Edit locations";
+
+/* No comment provided by engineer. */
+"NAME" = "Name";
+

@@ -1,0 +1,15 @@
+/* No comment provided by engineer. */
+"RESTORE_PURCHASES_ALERT_NO_TIME_ADDED_MESSAGE" = "Your previous purchases have already been added to this account.";
+
+/* No comment provided by engineer. */
+"RESTORE_PURCHASES_ALERT_TIME_ADDED_MESSAGE" = "%@ have been added to your account";
+
+/* No comment provided by engineer. */
+"RESTORE_PURCHASES_ALERT_TITLE" = "Restore purchases";
+
+/* No comment provided by engineer. */
+"TIME_ADDED_ALERT_SUCCESS_MESSAGE" = "%@ have been added to your account";
+
+/* No comment provided by engineer. */
+"TIME_ADDED_ALERT_SUCCESS_TITLE" = "Thanks for your purchase";
+

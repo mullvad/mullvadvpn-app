@@ -1,0 +1,18 @@
+/* No comment provided by engineer. */
+"OUT_OF_TIME_BODY_CONNECTED" = "You have no more VPN time left on this account. To add more, you will need to disconnect and access the Internet with an unsecure connection.";
+
+/* No comment provided by engineer. */
+"OUT_OF_TIME_BODY_DISCONNECTED" = "You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the **Add time** button below.";
+
+/* No comment provided by engineer. */
+"OUT_OF_TIME_DISCONNECT_BUTTON" = "Disconnect";
+
+/* No comment provided by engineer. */
+"OUT_OF_TIME_PURCHASE_BUTTON" = "Add time";
+
+/* No comment provided by engineer. */
+"OUT_OF_TIME_TITLE" = "Out of time";
+
+/* No comment provided by engineer. */
+"RESTORE_PURCHASES_BUTTON_TITLE" = "Restore purchases";
+

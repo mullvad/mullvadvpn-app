@@ -1,0 +1,36 @@
+/* No comment provided by engineer. */
+"CREATE_ACCOUNT_BUTTON_LABEL" = "Create account";
+
+/* No comment provided by engineer. */
+"CREATE_BUTTON_HEADER_LABEL" = "Don’t have an account number?";
+
+/* No comment provided by engineer. */
+"HEADING_TITLE_AUTHENTICATING" = "Logging in...";
+
+/* No comment provided by engineer. */
+"HEADING_TITLE_DEFAULT" = "Login";
+
+/* No comment provided by engineer. */
+"HEADING_TITLE_FAILURE" = "Login failed";
+
+/* No comment provided by engineer. */
+"HEADING_TITLE_SUCCESS" = "Logged in";
+
+/* No comment provided by engineer. */
+"LOGIN_ACCESSORY_TOOLBAR_BUTTON_TITLE" = "Log in";
+
+/* No comment provided by engineer. */
+"SUBHEAD_TITLE_AUTHENTICATING" = "Checking account number";
+
+/* No comment provided by engineer. */
+"SUBHEAD_TITLE_CREATED_ACCOUNT" = "Account created";
+
+/* No comment provided by engineer. */
+"SUBHEAD_TITLE_CREATING_ACCOUNT" = "Creating new account";
+
+/* No comment provided by engineer. */
+"SUBHEAD_TITLE_DEFAULT" = "Enter your account number";
+
+/* No comment provided by engineer. */
+"SUBHEAD_TITLE_SUCCESS" = "Correct account number";
+
