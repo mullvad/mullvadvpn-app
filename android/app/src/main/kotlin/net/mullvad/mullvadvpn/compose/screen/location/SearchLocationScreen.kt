@@ -265,7 +265,7 @@ fun SearchLocationScreen(
         )
         Column(modifier = Modifier.padding(it)) {
             val focusRequester = remember { FocusRequester() }
-            LaunchedEffect(Unit) { focusRequester.requestFocus() }
+            LaunchedEffect(state is Lce.Content) { focusRequester.requestFocus() }
             SearchBar(
                 modifier = Modifier.focusRequester(focusRequester),
                 searchTerm = state.contentOrNull()?.searchTerm ?: "",
