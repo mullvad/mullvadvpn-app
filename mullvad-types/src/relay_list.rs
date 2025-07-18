@@ -319,6 +319,38 @@ pub struct WireguardRelayEndpointData {
 }
 
 impl WireguardRelayEndpointData {
+    pub fn new(public_key: wireguard::PublicKey) -> Self {
+        Self {
+            public_key,
+            daita: Default::default(),
+            quic: Default::default(),
+            shadowsocks_extra_addr_in: Default::default(),
+        }
+    }
+
+    pub fn set_daita(self, enabled: bool) -> Self {
+        Self {
+            daita: enabled,
+            ..self
+        }
+    }
+
+    pub fn set_quic(self, quic: Quic) -> Self {
+        Self {
+            quic: Some(quic),
+            ..self
+        }
+    }
+
+    /// Add `in_addrs` to the existing shadowsocks extra in addressess.
+    pub fn add_shadowsocks_extra_in_addrs(self, in_addrs: impl Iterator<Item = IpAddr>) -> Self {
+        let in_addrs = self.shadowsocks_extra_in_addrs().copied().chain(in_addrs);
+        Self {
+            shadowsocks_extra_addr_in: HashSet::from_iter(in_addrs),
+            ..self
+        }
+    }
+
     pub fn shadowsocks_extra_in_addrs(&self) -> impl Iterator<Item = &IpAddr> {
         self.shadowsocks_extra_addr_in.iter()
     }
