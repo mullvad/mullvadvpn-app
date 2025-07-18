@@ -340,6 +340,7 @@ export type ConnectionConfig =
           addresses: string[];
           endpoint: string;
         };
+
         ipv4Gateway: string;
         ipv6Gateway?: string;
       };
@@ -396,7 +397,15 @@ export interface IRelayListHostname {
   owned: boolean;
   endpointType: RelayEndpointType;
   daita: boolean;
+  // The absence of this value signals that the relay does not deploy QUIC.
+  quic?: Quic;
 }
+
+export type Quic = {
+  domain: string;
+  token: string;
+  addrIn: string[];
+};
 
 export type RelayEndpointType = 'wireguard' | 'openvpn' | 'bridge';
 

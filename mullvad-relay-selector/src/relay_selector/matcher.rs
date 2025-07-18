@@ -145,7 +145,7 @@ fn filter_on_obfuscation(
             )
         }
         // QUIC is only enabled on some relays
-        ObfuscationQuery::Quic => relay.features.quic().is_some(),
+        ObfuscationQuery::Quic => relay.wireguard().is_some_and(|wg| wg.quic().is_some()),
         // Other relays are compatible with this query
         ObfuscationQuery::Off | ObfuscationQuery::Auto | ObfuscationQuery::Udp2tcp(_) => true,
     }

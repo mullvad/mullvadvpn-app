@@ -6,7 +6,6 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/duration.proto";
-import "google/protobuf/any.proto";
 
 service ManagementService {
   // Control and get tunnel state
@@ -717,10 +716,27 @@ message RelayListCity {
 }
 
 message Relay {
-  enum RelayType {
-    OPENVPN = 0;
-    BRIDGE = 1;
-    WIREGUARD = 2;
+  message RelayData {
+    message OpenVPN {}
+    message Bridge {}
+    message Wireguard {
+      message Quic {
+        string domain = 1;
+        string token = 2;
+        repeated string addr_in = 3;
+      }
+
+      bytes public_key = 1;
+      bool daita = 2;
+      Quic quic = 3;
+      repeated string shadowsocks_extra_addr_in = 4;
+    }
+
+    oneof data {
+      Wireguard wireguard = 1;
+      OpenVPN openvpn = 2;
+      Bridge bridge = 3;
+    }
   }
 
   string hostname = 1;
@@ -731,15 +747,8 @@ message Relay {
   bool owned = 6;
   string provider = 7;
   fixed64 weight = 8;
-  RelayType endpoint_type = 9;
-  google.protobuf.Any endpoint_data = 10;
-  Location location = 11;
-}
-
-message WireguardRelayEndpointData {
-  bytes public_key = 1;
-  bool daita = 2;
-  repeated string shadowsocks_extra_addr_in = 3;
+  RelayData endpoint_data = 9;
+  Location location = 10;
 }
 
 message Location {
