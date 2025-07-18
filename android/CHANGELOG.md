@@ -26,6 +26,11 @@ Line wrap the file at 100 chars.                                              Th
 - Add list of recent server selections in the select location view.
 
 
+## [android/2025.6-beta2] - 2025-07-18
+### Fixed
+- Fix a crash related to the selected relay location.
+
+
 ## [android/2025.6-beta1] - 2025-07-17
 ### Added
 - Add Memory Tagging (MTE) opt-in flag to enable it by default on supported Android versions and
