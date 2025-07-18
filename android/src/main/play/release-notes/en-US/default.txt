@@ -1,2 +1,1 @@
-- Improved the expiry notification behavior to achieve fewer and more accurate notifications.
-- Updated the design of the location selection screen.
+- Fixed a crash related to the selected server location.
