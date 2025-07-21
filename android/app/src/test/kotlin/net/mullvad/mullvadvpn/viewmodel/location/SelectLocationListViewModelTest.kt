@@ -143,9 +143,9 @@ class SelectLocationListViewModelTest {
     private fun RelayListItem.relayItemId() =
         when (this) {
             is RelayListItem.CustomListEntryItem -> item.id
-            is RelayListItem.CustomListItem -> hop.exitItem.id
+            is RelayListItem.CustomListItem -> (hop.exitItem ?: hop.entryItem).id
             is RelayListItem.GeoLocationItem -> item.id
-            is RelayListItem.RecentListItem -> hop.exitItem.id
+            is RelayListItem.RecentListItem -> (hop.exitItem ?: hop.entryItem).id
             is RelayListItem.CustomListFooter,
             is RelayListItem.LocationsEmptyText,
             is RelayListItem.EmptyRelayList,
