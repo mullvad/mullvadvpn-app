@@ -53,7 +53,7 @@ sealed interface RelayListItem {
         override val state: RelayListItemState? = null,
         override val itemPosition: ItemPosition = ItemPosition.Single,
     ) : SelectableItem {
-        val item = hop.item
+        val item = hop.entry
         override val key = item.id
         override val depth: Int = 0
         override val contentType = RelayListItemContentType.CUSTOM_LIST_ITEM
@@ -69,7 +69,7 @@ sealed interface RelayListItem {
         override val state: RelayListItemState? = null,
         override val itemPosition: ItemPosition,
     ) : SelectableItem {
-        val item = hop.item
+        val item = hop.entry
         override val key = parentId to item.id
 
         // Can't be displayed as selected
@@ -96,7 +96,7 @@ sealed interface RelayListItem {
         override val state: RelayListItemState? = null,
         override val itemPosition: ItemPosition,
     ) : SelectableItem {
-        val item = hop.item
+        val item = hop.entry
         override val key = item.id
         override val contentType = RelayListItemContentType.LOCATION_ITEM
         override val canExpand: Boolean = item.hasChildren
@@ -176,5 +176,5 @@ sealed interface ItemPosition {
 fun Hop.displayName(context: Context): String =
     when (this) {
         is Hop.Multi -> context.getString(R.string.x_via_x, exit.name, entry.name)
-        is Hop.Single<*> -> item.name
+        is Hop.Single<*> -> entry.name
     }

@@ -5,7 +5,7 @@ import arrow.optics.optics
 typealias DomainCustomList = CustomList
 
 sealed interface Hop {
-    data class Single<R : RelayItem>(val item: R) : Hop
+    data class Single<R : RelayItem>(val entry: R) : Hop
 
     data class Multi(val entry: RelayItem, val exit: RelayItem) : Hop
 
@@ -13,21 +13,21 @@ sealed interface Hop {
         get() =
             when (this) {
                 is Multi -> entry.active && exit.active
-                is Single<*> -> item.active
+                is Single<*> -> entry.active
             }
 
     val entryItem: RelayItem
         get() =
             when (this) {
                 is Multi -> entry
-                is Single<*> -> item
+                is Single<*> -> entry
             }
 
-    val exitItem: RelayItem
+    val exitItem: RelayItem?
         get() =
             when (this) {
                 is Multi -> exit
-                is Single<*> -> item
+                is Single<*> -> null
             }
 }
 

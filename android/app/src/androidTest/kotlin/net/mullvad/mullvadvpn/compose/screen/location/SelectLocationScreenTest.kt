@@ -208,7 +208,7 @@ class SelectLocationScreenTest {
             )
 
             // Act
-            onNodeWithText(customList.item.name).performClick()
+            onNodeWithText(customList.entry.name).performClick()
 
             // Assert
             verify { mockedOnSelectHop(customList) }
@@ -245,7 +245,7 @@ class SelectLocationScreenTest {
             )
 
             // Act
-            onNodeWithText(recent.item.name).performClick()
+            onNodeWithText(recent.entry.name).performClick()
 
             // Assert
             verify { mockedOnSelectHop(recent) }
@@ -282,7 +282,7 @@ class SelectLocationScreenTest {
             )
 
             // Act
-            onNodeWithText(customList.item.name).performLongClick()
+            onNodeWithText(customList.entry.name).performLongClick()
 
             // Assert
             onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
@@ -325,7 +325,7 @@ class SelectLocationScreenTest {
             )
 
             // Act
-            onNodeWithText(relayItem.item.name).performLongClick()
+            onNodeWithText(relayItem.entry.name).performLongClick()
 
             // Assert
             onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
