@@ -208,7 +208,10 @@ export default function SelectLocation() {
                         <FilterChip as="div">
                           <FilterChip.Text>
                             {sprintf(
-                              messages.pgettext('select-location-view', 'Obfuscation: %(obfuscation)s'),
+                              messages.pgettext(
+                                'select-location-view',
+                                'Obfuscation: %(obfuscation)s',
+                              ),
                               { obfuscation: 'QUIC' },
                             )}
                           </FilterChip.Text>
