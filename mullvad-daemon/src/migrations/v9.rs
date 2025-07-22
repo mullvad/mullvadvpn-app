@@ -31,8 +31,6 @@ const SPLIT_TUNNELING_STATE: &str = "split-tunnelling-enabled.txt";
 
 // ======================================================
 
-/// This is an open migration
-///
 /// This migration onboards the Android app's split tunnel settings into the daemon's settings.
 ///
 /// Until now, split tunneling has been completely handled client side by the Android app. This
