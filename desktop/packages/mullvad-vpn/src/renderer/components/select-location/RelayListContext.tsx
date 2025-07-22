@@ -73,7 +73,6 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const { locationType, searchTerm } = useSelectLocationContext();
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
-  // Some obfuscation might only be available for some relays.
   const quic = useSelector(
     (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.quic,
   );
@@ -108,6 +107,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     relaySettings?.wireguard.useMultihop,
   ]);
 
+  // Only show relays that have QUIC endpoints when QUIC obfuscation is enabled.
   const relayListForQuic = useMemo(() => {
     return filterLocationsByQuic(relayListForDaita, quic, tunnelProtocol);
   }, [quic, relayListForDaita, tunnelProtocol]);
