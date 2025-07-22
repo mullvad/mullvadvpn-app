@@ -51,6 +51,13 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
       ),
     );
 
+  const locateRelaysByObfuscation = (relayList: IRelayList): LocatedRelay[] =>
+    relayList.countries.flatMap((country) =>
+      country.cities.flatMap((city) =>
+        city.relays.filter((relay) => relay.quic).map((relay) => ({ country, city, relay })),
+      ),
+    );
+
   const resetOwnership = async () => {
     await routes.filter.expandOwnership();
     await routes.filter.selectOwnershipOption('Any');
@@ -104,6 +111,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     expandLocatedRelays,
     locateRelaysByProvider,
     locateRelaysByOwner,
+    locateRelaysByObfuscation,
     resetOwnership,
     resetProviders,
     resetView,
