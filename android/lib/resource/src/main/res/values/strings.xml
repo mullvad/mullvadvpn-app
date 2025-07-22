@@ -427,4 +427,10 @@
     <string name="app_is_blocking_internet">The app is blocking internet, please disconnect first</string>
     <string name="in_app_products_unavailable">In-app products unavailable, please make sure you have the latest version of Google Play.</string>
     <string name="relayitem_is_inactive">%s is unavailable</string>
+    <string name="recents">Recents</string>
+    <string name="enable_recents">Enable recents</string>
+    <string name="disable_recents">Disable recents</string>
+    <string name="no_recent_selection">No recent selection history</string>
+    <string name="recents_disabled">Recents disabled and history cleared</string>
+    <string name="more_actions">More actions</string>
 </resources>

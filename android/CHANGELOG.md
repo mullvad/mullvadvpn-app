@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add list of recent server selections in the select location view.
 
 
 ## [android/2025.6-beta1] - 2025-07-17

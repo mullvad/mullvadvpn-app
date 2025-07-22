@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
@@ -24,6 +26,7 @@ import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.S
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowEditCustomListBottomSheet
 import net.mullvad.mullvadvpn.compose.screen.location.LocationBottomSheetState.ShowLocationBottomSheet
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -38,7 +41,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST
 fun LazyListScope.relayListContent(
     relayListItems: List<RelayListItem>,
     customLists: List<RelayItem.CustomList>,
-    onSelectRelay: (RelayItem) -> Unit,
+    onSelectHop: (Hop) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customListHeader: @Composable (LazyItemScope.() -> Unit) = {},
@@ -55,14 +58,14 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.CustomListItem ->
                         CustomListItem(
                             listItem,
-                            onSelectRelay = onSelectRelay,
+                            onSelectHop = onSelectHop,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
                     is RelayListItem.CustomListEntryItem ->
                         CustomListEntryItem(
                             listItem,
-                            onSelectRelay = onSelectRelay,
+                            onSelectHop = onSelectHop,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
@@ -71,13 +74,18 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.GeoLocationItem ->
                         GeoLocationItem(
                             listItem,
-                            onSelectRelay = onSelectRelay,
+                            onSelectHop = onSelectHop,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                             customLists = customLists,
                         )
-                    is RelayListItem.LocationsEmptyText -> LocationsEmptyText(listItem.searchTerm)
+
+                    RelayListItem.RecentsListHeader -> RecentsListHeader()
+                    is RelayListItem.RecentListItem -> RecentListItem(listItem, onSelectHop)
+                    RelayListItem.RecentsListFooter -> RecentsListFooter()
                     is RelayListItem.EmptyRelayList -> EmptyRelayListText()
+                    is RelayListItem.LocationsEmptyText -> LocationsEmptyText(listItem.searchTerm)
+                    is RelayListItem.SectionDivider -> SectionDivider()
                 }
             }
         },
@@ -96,14 +104,14 @@ fun Modifier.positionalPadding(itemPosition: ItemPosition): Modifier =
 @Composable
 private fun GeoLocationItem(
     listItem: RelayListItem.GeoLocationItem,
-    onSelectRelay: (RelayItem) -> Unit,
+    onSelectHop: (Hop) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customLists: List<RelayItem.CustomList>,
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
-        onClick = { onSelectRelay(listItem.item) },
+        onClick = { onSelectHop(listItem.hop) },
         onLongClick = {
             onUpdateBottomSheetState(ShowLocationBottomSheet(customLists, listItem.item))
         },
@@ -113,15 +121,26 @@ private fun GeoLocationItem(
 }
 
 @Composable
+private fun RecentListItem(listItem: RelayListItem.RecentListItem, onSelectHop: (Hop) -> Unit) {
+    SelectableRelayListItem(
+        relayListItem = listItem,
+        onClick = { onSelectHop(listItem.hop) },
+        onLongClick = {},
+        onToggleExpand = { _ -> },
+        modifier = Modifier.positionalPadding(listItem.itemPosition),
+    )
+}
+
+@Composable
 private fun CustomListItem(
     listItem: RelayListItem.CustomListItem,
-    onSelectRelay: (RelayItem) -> Unit,
+    onSelectHop: (Hop) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
-        onClick = { onSelectRelay(listItem.item) },
+        onClick = { onSelectHop(listItem.hop) },
         onLongClick = { onUpdateBottomSheetState(ShowEditCustomListBottomSheet(listItem.item)) },
         onToggleExpand = { onToggleExpand(listItem.item.id, null, it) },
         modifier = Modifier.positionalPadding(listItem.itemPosition),
@@ -131,13 +150,13 @@ private fun CustomListItem(
 @Composable
 private fun CustomListEntryItem(
     listItem: RelayListItem.CustomListEntryItem,
-    onSelectRelay: (RelayItem) -> Unit,
+    onSelectHop: (Hop) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
-        onClick = { onSelectRelay(listItem.item) },
+        onClick = { onSelectHop(listItem.hop) },
         // Only direct children can be removed
         onLongClick =
             if (listItem.depth == 1) {
@@ -203,4 +222,23 @@ private fun RelayLocationHeader() {
             Text(text = stringResource(R.string.all_locations), overflow = TextOverflow.Ellipsis)
         }
     )
+}
+
+@Composable
+private fun RecentsListHeader() {
+    RelayListHeader(
+        content = {
+            Text(text = stringResource(id = R.string.recents), overflow = TextOverflow.Ellipsis)
+        }
+    )
+}
+
+@Composable
+private fun RecentsListFooter() {
+    SwitchComposeSubtitleCell(text = stringResource(R.string.no_recent_selection))
+}
+
+@Composable
+private fun SectionDivider() {
+    Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
 }

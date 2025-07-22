@@ -17,6 +17,8 @@ import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -59,6 +61,7 @@ class SelectLocationViewModel(
                                 (relayListSelection == RelayListType.EXIT ||
                                     settings?.entryBlocked() != true),
                         isFilterButtonEnabled = relayList.isNotEmpty(),
+                        isRecentsEnabled = settings?.recents is Recents.Enabled,
                     )
                 )
             }
@@ -73,28 +76,33 @@ class SelectLocationViewModel(
         viewModelScope.launch { _relayListType.emit(relayListType) }
     }
 
-    fun selectRelay(relayItem: RelayItem) {
+    fun selectHop(hop: Hop) {
         viewModelScope.launch {
-            if (relayItem.active) {
+            if (hop.isActive) {
 
-                selectRelayItem(
-                        relayItem = relayItem,
+                selectRelayHop(
+                        hop = hop,
                         relayListType = _relayListType.value,
                         selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
                         selectExitLocation = relayListRepository::updateSelectedRelayLocation,
+                        selectMultihopLocation =
+                            relayListRepository::updateSelectedRelayLocationMultihop,
                     )
                     .fold(
                         { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                         {
                             when (_relayListType.value) {
-                                RelayListType.ENTRY -> _relayListType.emit(RelayListType.EXIT)
+                                RelayListType.ENTRY ->
+                                    if (hop is Hop.Multi)
+                                        _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
+                                    else _relayListType.emit(RelayListType.EXIT)
                                 RelayListType.EXIT ->
                                     _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                             }
                         },
                     )
             } else {
-                _uiSideEffect.send(SelectLocationSideEffect.RelayItemInactive(relayItem))
+                _uiSideEffect.send(SelectLocationSideEffect.RelayItemInactive(hop))
             }
         }
     }
@@ -135,6 +143,13 @@ class SelectLocationViewModel(
     fun removeProviderFilter() {
         viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
     }
+
+    fun toggleRecentsEnabled() {
+        viewModelScope.launch {
+            val enabled = settingsRepository.settingsUpdates.value?.recents is Recents.Enabled
+            settingsRepository.setRecentsEnabled(!enabled)
+        }
+    }
 }
 
 sealed interface SelectLocationSideEffect {
@@ -145,5 +160,5 @@ sealed interface SelectLocationSideEffect {
 
     data object GenericError : SelectLocationSideEffect
 
-    data class RelayItemInactive(val relayItem: RelayItem) : SelectLocationSideEffect
+    data class RelayItemInactive(val hop: Hop) : SelectLocationSideEffect
 }

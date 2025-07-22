@@ -17,17 +17,25 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,11 +77,13 @@ import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.displayName
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
@@ -89,22 +99,23 @@ private fun PreviewSelectLocationScreen(
     AppTheme {
         SelectLocationScreen(
             state = state,
-            SnackbarHostState(),
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            { _, _ -> },
-            { _, _ -> },
-            {},
-            {},
-            {},
-            {},
-            {},
+            snackbarHostState = SnackbarHostState(),
+            onSelectHop = {},
+            onSearchClick = {},
+            onBackClick = {},
+            onFilterClick = {},
+            onCreateCustomList = { _ -> },
+            onEditCustomLists = {},
+            onRecentsToggleEnableClick = {},
+            removeOwnershipFilter = {},
+            removeProviderFilter = {},
+            onAddLocationToList = { _, _ -> },
+            onRemoveLocationFromList = { _, _ -> },
+            onEditCustomListName = {},
+            onEditLocationsCustomList = {},
+            onDeleteCustomList = {},
+            onSelectRelayList = {},
+            openDaitaSettings = {},
         )
     }
 }
@@ -156,7 +167,10 @@ fun SelectLocation(
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
+                            context.getString(
+                                R.string.relayitem_is_inactive,
+                                it.hop.displayName(context),
+                            )
                     )
                 }
         }
@@ -191,7 +205,7 @@ fun SelectLocation(
     SelectLocationScreen(
         state = state.value,
         snackbarHostState = snackbarHostState,
-        onSelectRelay = vm::selectRelay,
+        onSelectHop = vm::selectHop,
         onSearchClick = { navigator.navigate(SearchLocationDestination(it)) },
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
         onFilterClick = dropUnlessResumed { navigator.navigate(FilterDestination) },
@@ -229,6 +243,7 @@ fun SelectLocation(
                 )
             },
         onSelectRelayList = vm::selectRelayList,
+        onRecentsToggleEnableClick = vm::toggleRecentsEnabled,
         openDaitaSettings =
             dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
     )
@@ -239,12 +254,13 @@ fun SelectLocation(
 fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectRelay: (item: RelayItem) -> Unit,
+    onSelectHop: (item: Hop) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
     onFilterClick: () -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
     onEditCustomLists: () -> Unit,
+    onRecentsToggleEnableClick: () -> Unit,
     removeOwnershipFilter: () -> Unit,
     removeProviderFilter: () -> Unit,
     onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
@@ -285,17 +301,23 @@ fun SelectLocationScreen(
                         ),
                 )
             }
-            val isFilterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
-            IconButton(enabled = isFilterButtonEnabled, onClick = onFilterClick) {
-                Icon(
-                    imageVector = Icons.Default.FilterList,
-                    contentDescription = stringResource(id = R.string.filter),
-                    tint =
-                        MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = if (isFilterButtonEnabled) AlphaVisible else AlphaDisabled
-                        ),
-                )
-            }
+
+            val filterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
+            val recentsCurrentlyEnabled = state.contentOrNull()?.isRecentsEnabled == true
+            val disabledText = stringResource(id = R.string.recents_disabled)
+            val scope = rememberCoroutineScope()
+
+            SelectLocationDropdownMenu(
+                filterButtonEnabled = filterButtonEnabled,
+                onFilterClick = onFilterClick,
+                recentsEnabled = recentsCurrentlyEnabled,
+                onRecentsToggleEnableClick = {
+                    if (recentsCurrentlyEnabled) {
+                        scope.launch { snackbarHostState.showSnackbarImmediately(disabledText) }
+                    }
+                    onRecentsToggleEnableClick()
+                },
+            )
         },
     ) { modifier ->
         var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
@@ -347,7 +369,7 @@ fun SelectLocationScreen(
 
                     RelayLists(
                         state = state.value,
-                        onSelectRelay = onSelectRelay,
+                        onSelectHop = onSelectHop,
                         openDaitaSettings = openDaitaSettings,
                         onAddCustomList = { onCreateCustomList(null) },
                         onEditCustomLists = onEditCustomLists,
@@ -362,7 +384,69 @@ fun SelectLocationScreen(
 }
 
 @Composable
-private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayListType) -> Unit) {
+private fun SelectLocationDropdownMenu(
+    filterButtonEnabled: Boolean,
+    onFilterClick: () -> Unit,
+    recentsEnabled: Boolean,
+    onRecentsToggleEnableClick: () -> Unit,
+) {
+    var showMenu by remember { mutableStateOf(false) }
+
+    var recentsItemTextId by remember { mutableIntStateOf(R.string.disable_recents) }
+
+    IconButton(
+        onClick = {
+            showMenu = !showMenu
+            // Only update the recents menu item text when the menu is being opened to prevent
+            // the text from being updated when the menu is being closed.
+            if (showMenu) {
+                recentsItemTextId =
+                    if (recentsEnabled) R.string.disable_recents else R.string.enable_recents
+            }
+        }
+    ) {
+        Icon(
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = stringResource(R.string.more_actions),
+        )
+    }
+    DropdownMenu(
+        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
+        expanded = showMenu,
+        onDismissRequest = { showMenu = false },
+    ) {
+        val colors =
+            MenuDefaults.itemColors(
+                leadingIconColor = MaterialTheme.colorScheme.onPrimary,
+                disabledLeadingIconColor =
+                    MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled),
+            )
+
+        DropdownMenuItem(
+            text = { Text(text = stringResource(R.string.filter)) },
+            onClick = {
+                showMenu = false
+                onFilterClick()
+            },
+            enabled = filterButtonEnabled,
+            colors = colors,
+            leadingIcon = { Icon(Icons.Filled.FilterList, contentDescription = null) },
+        )
+
+        DropdownMenuItem(
+            text = { Text(text = stringResource(recentsItemTextId)) },
+            onClick = {
+                showMenu = false
+                onRecentsToggleEnableClick()
+            },
+            colors = colors,
+            leadingIcon = { Icon(Icons.Filled.History, contentDescription = null) },
+        )
+    }
+}
+
+@Composable
+private fun MultihopBar(relayListType: RelayListType, onSelectHopList: (RelayListType) -> Unit) {
     SingleChoiceSegmentedButtonRow(
         modifier =
             Modifier.fillMaxWidth()
@@ -374,12 +458,12 @@ private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayL
     ) {
         MullvadSegmentedStartButton(
             selected = relayListType == RelayListType.ENTRY,
-            onClick = { onSelectRelayList(RelayListType.ENTRY) },
+            onClick = { onSelectHopList(RelayListType.ENTRY) },
             text = stringResource(id = R.string.entry),
         )
         MullvadSegmentedEndButton(
             selected = relayListType == RelayListType.EXIT,
-            onClick = { onSelectRelayList(RelayListType.EXIT) },
+            onClick = { onSelectHopList(RelayListType.EXIT) },
             text = stringResource(id = R.string.exit),
         )
     }
@@ -388,7 +472,7 @@ private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayL
 @Composable
 private fun RelayLists(
     state: SelectLocationUiState,
-    onSelectRelay: (RelayItem) -> Unit,
+    onSelectHop: (Hop) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
@@ -401,7 +485,7 @@ private fun RelayLists(
     if (configuration.navigation == Configuration.NAVIGATION_DPAD) {
         SelectLocationList(
             relayListType = state.relayListType,
-            onSelectRelay = onSelectRelay,
+            onSelectHop = onSelectHop,
             openDaitaSettings = openDaitaSettings,
             onAddCustomList = onAddCustomList,
             onEditCustomLists = onEditCustomLists,
@@ -430,7 +514,7 @@ private fun RelayLists(
         ) { pageIndex ->
             SelectLocationList(
                 relayListType = RelayListType.entries[pageIndex],
-                onSelectRelay = onSelectRelay,
+                onSelectHop = onSelectHop,
                 openDaitaSettings = openDaitaSettings,
                 onAddCustomList = onAddCustomList,
                 onEditCustomLists = onEditCustomLists,
