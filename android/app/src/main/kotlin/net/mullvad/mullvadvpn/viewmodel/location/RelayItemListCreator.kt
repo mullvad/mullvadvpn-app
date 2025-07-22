@@ -138,7 +138,7 @@ private fun createRecentsSection(
                     // When the entry is blocked we want to show a multihop's exit location
                     // as a singlehop in the recents list.
                     RelayListItem.RecentListItem(
-                        hop = Hop.Single(recent.exitItem ?: recent.entryItem),
+                        hop = Hop.Single(recent.exit()),
                         isSelected = isSelected,
                     )
                 } else {
@@ -157,17 +157,15 @@ private fun createRecentsSection(
 private fun Hop.matches(itemSelection: RelayItemSelection, isEntryBlocked: Boolean): Boolean {
     return when (itemSelection) {
         is RelayItemSelection.Single -> {
-            entryItem.id == itemSelection.exitLocation.getOrNull()
+            entry().id == itemSelection.exitLocation.getOrNull()
         }
 
         is RelayItemSelection.Multiple -> {
-            if (this !is Hop.Multi) return false
-
             if (isEntryBlocked) {
-                exit.id == itemSelection.exitLocation.getOrNull()
+                exit().id == itemSelection.exitLocation.getOrNull()
             } else {
-                entry.id == itemSelection.entryLocation.getOrNull() &&
-                    exit.id == itemSelection.exitLocation.getOrNull()
+                entry().id == itemSelection.entryLocation.getOrNull() &&
+                    exit().id == itemSelection.exitLocation.getOrNull()
             }
         }
     }
