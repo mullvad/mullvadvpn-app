@@ -22,13 +22,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add list of recent server selections in the select location view.
 
 
 ## [android/2025.6-beta1] - 2025-07-17
 ### Added
 - Add Memory Tagging (MTE) opt-in flag to enable it by default on supported Android versions and
   devices.
-- Add list of recent connections in the select location view. 
 
 ### Changed
 - Improve the expiry notification scheduling by switching to use AlarmManager.
