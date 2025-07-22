@@ -92,7 +92,10 @@ class SelectLocationViewModel(
                         { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                         {
                             when (_relayListType.value) {
-                                RelayListType.ENTRY -> _relayListType.emit(RelayListType.EXIT)
+                                RelayListType.ENTRY ->
+                                    if (hop is Hop.Multi)
+                                        _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
+                                    else _relayListType.emit(RelayListType.EXIT)
                                 RelayListType.EXIT ->
                                     _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                             }
