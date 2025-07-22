@@ -1,11 +1,8 @@
-use std::net::SocketAddr;
-
 use super::{Error, Result};
 use mullvad_types::{
     relay_constraints::{BridgeConstraints, BridgeSettings as NewBridgeSettings, BridgeType},
     settings::SettingsVersion,
 };
-use serde::{Deserialize, Serialize};
 use talpid_types::net::{
     Endpoint, TransportProtocol,
     proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remote, SocksAuth},
@@ -14,57 +11,6 @@ use talpid_types::net::{
 // ======================================================
 // Section for vendoring types and values that
 // this settings version depend on. See `mod.rs`.
-
-/// Specifies a specific endpoint or [`BridgeConstraints`] to use when `mullvad-daemon` selects a
-/// bridge server.
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
-#[allow(unused)]
-pub enum BridgeSettings {
-    /// Let the relay selection algorithm decide on bridges, based on the relay list.
-    Normal(BridgeConstraints),
-    Custom(ProxySettings),
-}
-
-/// Proxy server options to be used by `OpenVpnMonitor` when starting a tunnel.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum ProxySettings {
-    Local(LocalProxySettings),
-    Remote(RemoteProxySettings),
-    Shadowsocks(ShadowsocksProxySettings),
-}
-
-/// Options for a generic proxy running on localhost.
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub struct LocalProxySettings {
-    pub port: u16,
-    pub peer: SocketAddr,
-}
-
-/// Options for a generic proxy running on remote host.
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub struct RemoteProxySettings {
-    pub address: SocketAddr,
-    pub auth: Option<ProxyAuth>,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub struct ProxyAuth {
-    pub username: String,
-    pub password: String,
-}
-
-/// Options for a bundled Shadowsocks proxy.
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
-pub struct ShadowsocksProxySettings {
-    pub peer: SocketAddr,
-    /// Password on peer.
-    pub password: String,
-    pub cipher: String,
-    #[cfg(target_os = "linux")]
-    pub fwmark: Option<u32>,
-}
 
 // ======================================================
 // This is a closed migration.
