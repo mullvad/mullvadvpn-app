@@ -50,9 +50,7 @@ class RecentsUseCaseTest {
         every { customListsRelayItemUseCase(any()) } returns flowOf(emptyList())
         every { filteredRelayListUseCase(any()) } returns flowOf(emptyList())
 
-        useCase().test {
-            assertNull(awaitItem())
-        }
+        useCase().test { assertNull(awaitItem()) }
     }
 
     @Test
@@ -61,9 +59,7 @@ class RecentsUseCaseTest {
         every { customListsRelayItemUseCase(any()) } returns flowOf(emptyList())
         every { filteredRelayListUseCase(any()) } returns flowOf(emptyList())
 
-        useCase().test {
-            assertNull(awaitItem())
-        }
+        useCase().test { assertNull(awaitItem()) }
     }
 
     @Test
@@ -73,9 +69,7 @@ class RecentsUseCaseTest {
         every { customListsRelayItemUseCase(any()) } returns flowOf(emptyList())
         every { filteredRelayListUseCase(any()) } returns flowOf(emptyList())
 
-        useCase().test {
-            assertEquals(emptyList(), awaitItem())
-        }
+        useCase().test { assertEquals(emptyList(), awaitItem()) }
     }
 
     @Test
@@ -93,7 +87,7 @@ class RecentsUseCaseTest {
                                 id = stockholmId,
                                 name = "Stockholm",
                                 relays = emptyList(),
-                            ),
+                            )
                         ),
                 )
 
@@ -115,7 +109,7 @@ class RecentsUseCaseTest {
             val multiHopRecent = Recent.Multihop(entry = entryCustomListId, exit = norwayId)
             val filteredOutRecent =
                 Recent.Singlehop(
-                    GeoLocationId.City(country = GeoLocationId.Country("xx"), code = "xx-xxx-xx"),
+                    GeoLocationId.City(country = GeoLocationId.Country("xx"), code = "xx-xxx-xx")
                 )
 
             settingsFlow.value =

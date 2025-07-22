@@ -22,7 +22,7 @@ internal suspend fun selectRelayHop(
             }
 
             is Hop.Single<*> -> {
-                val locationConstraint = hop.entry.id
+                val locationConstraint = hop.relay.id
                 when (relayListType) {
                     RelayListType.ENTRY -> selectEntryLocation(locationConstraint)
                     RelayListType.EXIT -> selectExitLocation(locationConstraint)
