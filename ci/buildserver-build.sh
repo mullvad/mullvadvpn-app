@@ -75,10 +75,12 @@ EOF
 
 function upload {
     local version=$1
+    local files
+    local checksums_filename
 
     checksums_filename="desktop+$(hostname)+$version.sha256"
-    local files
-    readarray -t files < <(find . -maxdepth 1 -type f -not -name "$checksums_filename")
+    rm -f "$checksums_filename"
+    files=( * )
     sha256sum "${files[@]}" > "$checksums_filename"
 
     case "$(uname -s)" in
