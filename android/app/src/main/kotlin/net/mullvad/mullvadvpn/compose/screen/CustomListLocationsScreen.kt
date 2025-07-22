@@ -69,7 +69,16 @@ private fun PreviewCustomListLocationScreen(
     @PreviewParameter(CustomListLocationUiStatePreviewParameterProvider::class)
     state: CustomListLocationsUiState
 ) {
-    AppTheme { CustomListLocationsScreen(state = state, {}, {}, { _, _ -> }, { _, _ -> }, {}) }
+    AppTheme {
+        CustomListLocationsScreen(
+            state = state,
+            onSearchTermInput = {},
+            onSaveClick = {},
+            onRelaySelectionClick = { _, _ -> },
+            onExpand = { _, _ -> },
+            onBackClick = {},
+        )
+    }
 }
 
 data class CustomListLocationsNavArgs(val customListId: CustomListId, val newList: Boolean)

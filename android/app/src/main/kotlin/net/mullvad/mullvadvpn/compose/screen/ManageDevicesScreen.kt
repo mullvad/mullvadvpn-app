@@ -56,7 +56,15 @@ private fun PreviewDeviceListScreenContent(
     @PreviewParameter(ManageDevicesUiStatePreviewParameterProvider::class)
     state: Lce<Unit, ManageDevicesUiState, GetDeviceListError>
 ) {
-    AppTheme { ManageDevicesScreen(state = state, SnackbarHostState(), {}, {}, {}) }
+    AppTheme {
+        ManageDevicesScreen(
+            state = state,
+            snackbarHostState = SnackbarHostState(),
+            onBackClick = {},
+            onTryAgainClicked = {},
+            navigateToRemoveDeviceConfirmationDialog = {},
+        )
+    }
 }
 
 private typealias StateLce = Lce<Unit, ManageDevicesUiState, GetDeviceListError>

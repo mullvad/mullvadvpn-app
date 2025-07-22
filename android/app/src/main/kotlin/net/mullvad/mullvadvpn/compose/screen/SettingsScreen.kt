@@ -58,7 +58,19 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewSettingsScreen(
     @PreviewParameter(SettingsUiStatePreviewParameterProvider::class) state: SettingsUiState
 ) {
-    AppTheme { SettingsScreen(state = state, {}, {}, {}, {}, {}, {}, {}, {}) }
+    AppTheme {
+        SettingsScreen(
+            state = state,
+            onVpnSettingCellClick = {},
+            onSplitTunnelingCellClick = {},
+            onAppInfoClick = {},
+            onReportProblemCellClick = {},
+            onApiAccessClick = {},
+            onMultihopClick = {},
+            onDaitaClick = {},
+            onBackClick = {},
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

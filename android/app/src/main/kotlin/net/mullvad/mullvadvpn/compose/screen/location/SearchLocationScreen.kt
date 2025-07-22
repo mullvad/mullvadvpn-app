@@ -89,19 +89,19 @@ private fun PreviewSearchLocationScreen(
     AppTheme {
         SearchLocationScreen(
             state = state,
-            SnackbarHostState(),
-            {},
-            { _, _, _ -> },
-            {},
-            {},
-            { _, _ -> },
-            { _, _ -> },
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
+            snackbarHostState = SnackbarHostState(),
+            onSelectHop = {},
+            onToggleExpand = { _, _, _ -> },
+            onSearchInputChanged = {},
+            onCreateCustomList = {},
+            onAddLocationToList = { _, _ -> },
+            onRemoveLocationFromList = { _, _ -> },
+            onEditCustomListName = {},
+            onEditLocationsCustomList = {},
+            onDeleteCustomList = {},
+            onRemoveOwnershipFilter = {},
+            onRemoveProviderFilter = {},
+            onGoBack = {},
         )
     }
 }

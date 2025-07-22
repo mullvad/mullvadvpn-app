@@ -85,18 +85,18 @@ private fun PreviewEditApiAccessMethodScreen(
     AppTheme {
         EditApiAccessMethodScreen(
             state = state,
-            SnackbarHostState(),
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
+            snackbarHostState = SnackbarHostState(),
+            onNameChanged = {},
+            onTypeSelected = {},
+            onIpChanged = {},
+            onPortChanged = {},
+            onPasswordChanged = {},
+            onCipherChange = {},
+            onToggleAuthenticationEnabled = {},
+            onUsernameChanged = {},
+            onTestMethod = {},
+            onAddMethod = {},
+            onNavigateBack = {},
         )
     }
 }

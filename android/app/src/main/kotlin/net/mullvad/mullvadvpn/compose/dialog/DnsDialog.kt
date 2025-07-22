@@ -27,19 +27,50 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewDnsDialogNew() {
-    AppTheme { DnsDialog(DnsDialogViewState("1.1.1.1", null, false, false, null), {}, {}, {}, {}) }
+    AppTheme {
+        DnsDialog(
+            state = DnsDialogViewState("1.1.1.1", null, false, false, null),
+            onDnsInputChange = {},
+            onSaveDnsClick = {},
+            onRemoveDnsClick = {},
+            onDismiss = {},
+        )
+    }
 }
 
 @Preview
 @Composable
 private fun PreviewDnsDialogEdit() {
-    AppTheme { DnsDialog(DnsDialogViewState("1.1.1.1", null, false, false, 0), {}, {}, {}, {}) }
+    AppTheme {
+        DnsDialog(
+            state =
+                DnsDialogViewState(
+                    input = "1.1.1.1",
+                    validationError = null,
+                    isAllowLanEnabled = false,
+                    isIpv6Enabled = false,
+                    index = 0,
+                ),
+            onDnsInputChange = {},
+            onSaveDnsClick = {},
+            onRemoveDnsClick = {},
+            onDismiss = {},
+        )
+    }
 }
 
 @Preview
 @Composable
 private fun PreviewDnsDialogEditAllowLanDisabled() {
-    AppTheme { DnsDialog(DnsDialogViewState("192.168.1.1", null, false, false, 0), {}, {}, {}, {}) }
+    AppTheme {
+        DnsDialog(
+            state = DnsDialogViewState("192.168.1.1", null, false, false, 0),
+            onDnsInputChange = {},
+            onSaveDnsClick = {},
+            onRemoveDnsClick = {},
+            onDismiss = {},
+        )
+    }
 }
 
 data class DnsDialogNavArgs(val index: Int? = null, val initialValue: String? = null)
@@ -60,8 +91,8 @@ fun Dns(resultNavigator: ResultBackNavigator<DnsDialogResult>) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     DnsDialog(
-        state,
-        viewModel::onDnsInputChange,
+        state = state,
+        onDnsInputChange = viewModel::onDnsInputChange,
         onSaveDnsClick = viewModel::onSaveDnsClick,
         onRemoveDnsClick = viewModel::onRemoveDnsClick,
         onDismiss = dropUnlessResumed { resultNavigator.navigateBack() },

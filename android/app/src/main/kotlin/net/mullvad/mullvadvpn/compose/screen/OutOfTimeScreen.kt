@@ -71,7 +71,17 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewOutOfTimeScreen(
     @PreviewParameter(OutOfTimeScreenPreviewParameterProvider::class) state: OutOfTimeUiState
 ) {
-    AppTheme { OutOfTimeScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}) }
+    AppTheme {
+        OutOfTimeScreen(
+            state = state,
+            snackbarHostState = SnackbarHostState(),
+            onDisconnectClick = {},
+            onSettingsClick = {},
+            onAccountClick = {},
+            onRedeemVoucherClick = {},
+            onPlayPaymentInfoClick = {},
+        )
+    }
 }
 
 @Destination<RootGraph>(style = HomeTransition::class)

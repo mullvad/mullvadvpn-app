@@ -42,7 +42,7 @@ private fun PreviewSaveApiAccessMethodDialog(
     @PreviewParameter(SaveApiAccessMethodUiStatePreviewParameterProvider::class)
     state: SaveApiAccessMethodUiState
 ) {
-    AppTheme { SaveApiAccessMethodDialog(state = state, {}, {}) }
+    AppTheme { SaveApiAccessMethodDialog(state = state, onCancel = {}, onSave = {}) }
 }
 
 data class SaveApiAccessMethodNavArgs(
