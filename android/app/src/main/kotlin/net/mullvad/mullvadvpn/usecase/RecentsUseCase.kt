@@ -54,10 +54,7 @@ class RecentsUseCase(
         settingsRepository.settingsUpdates.map { settings ->
             val recents = settings?.recents
             when (recents) {
-                is Recents.Enabled -> {
-                    recents.recents
-                }
-
+                is Recents.Enabled -> recents.recents
                 Recents.Disabled,
                 null -> null
             }
