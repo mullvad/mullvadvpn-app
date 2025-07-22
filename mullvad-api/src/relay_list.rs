@@ -370,7 +370,7 @@ impl WireGuardRelay {
 
 /// Extra features enabled on some (Wireguard) relay, such as obfuscation daemons or Daita.
 #[derive(Debug, Default, Clone, serde::Deserialize)]
-pub struct Features {
+struct Features {
     daita: Option<Daita>,
     quic: Option<Quic>,
 }
@@ -379,11 +379,11 @@ pub struct Features {
 ///
 /// Note, an empty struct is not the same as an empty tuple struct according to serde_json!
 #[derive(Debug, Clone, serde::Deserialize)]
-pub struct Daita {}
+struct Daita {}
 
 /// Parameters for setting up a QUIC obfuscator (connecting to a masque-proxy running on a relay).
 #[derive(Debug, Clone, serde::Deserialize)]
-pub struct Quic {
+struct Quic {
     /// In-addresses for the QUIC obfuscator.
     ///
     /// There may be 0, 1 or 2 in IPs, depending on how many masque-proxy daemons running on the
