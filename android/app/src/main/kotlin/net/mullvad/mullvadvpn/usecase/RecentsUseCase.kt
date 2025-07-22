@@ -60,7 +60,7 @@ class RecentsUseCase(
             }
         }
 
-    fun RelayItemId.findItem(
+    private fun RelayItemId.findItem(
         customLists: List<RelayItem.CustomList>,
         relayList: List<RelayItem.Location.Country>,
     ): RelayItem? =
