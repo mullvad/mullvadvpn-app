@@ -1945,6 +1945,10 @@ msgid "Name is already taken."
 msgstr ""
 
 msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr ""
+
+msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
 msgstr ""
 
@@ -2603,6 +2607,11 @@ msgstr ""
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "QUIC"
 msgstr ""
 
 #. Title label in navigation bar
