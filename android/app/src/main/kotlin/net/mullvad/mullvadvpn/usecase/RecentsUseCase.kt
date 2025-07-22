@@ -66,8 +66,6 @@ class RecentsUseCase(
     ): RelayItem? =
         when (this) {
             is CustomListId -> customLists.firstOrNull { this == it.id }
-            is GeoLocationId -> {
-                relayList.findByGeoLocationId(this)
-            }
+            is GeoLocationId -> relayList.findByGeoLocationId(this)
         }
 }

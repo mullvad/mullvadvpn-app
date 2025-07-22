@@ -425,8 +425,8 @@ private fun SelectLocationDropdownMenu(
         DropdownMenuItem(
             text = { Text(text = stringResource(R.string.filter)) },
             onClick = {
-                onFilterClick()
                 showMenu = false
+                onFilterClick()
             },
             enabled = filterButtonEnabled,
             colors = colors,
