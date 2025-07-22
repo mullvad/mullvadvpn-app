@@ -357,7 +357,9 @@ impl WireGuardRelay {
         let endpoint_data =
             relay_list::RelayEndpointData::Wireguard(relay_list::WireguardRelayEndpointData {
                 public_key: self.public_key,
-                daita: self.daita,
+                // FIXME: This hack is forward-compatible with 'features' being rolled out.
+                //        Should unwrap to 'false' once 'daita' field is removed.
+                daita: self.features.daita.map(|_| true).unwrap_or(self.daita),
                 shadowsocks_extra_addr_in: HashSet::from_iter(self.shadowsocks_extra_addr_in),
                 quic: self.features.quic.map(relay_list::Quic::from),
             });
