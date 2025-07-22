@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,9 +31,11 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
+import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.SearchLocationsListUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
+import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -55,6 +58,7 @@ private fun PreviewSelectLocationList(
         Surface {
             SelectLocationListContent(
                 state = state,
+                lazyListState = rememberLazyListState(),
                 openDaitaSettings = {},
                 onSelectHop = {},
                 onUpdateBottomSheetState = {},
@@ -85,9 +89,19 @@ fun SelectLocationList(
             parameters = { parametersOf(relayListType) },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val stateActual = state
+
+    val lazyListState = rememberLazyListState()
+    RunOnKeyChange(stateActual is Content) {
+        stateActual.indexOfSelectedRelayItem()?.let { index ->
+            lazyListState.scrollToItem(index)
+            lazyListState.animateScrollAndCentralizeItem(index)
+        }
+    }
 
     SelectLocationListContent(
         state = state,
+        lazyListState = lazyListState,
         openDaitaSettings = openDaitaSettings,
         onSelectHop = onSelectHop,
         onUpdateBottomSheetState = onUpdateBottomSheetState,
@@ -100,6 +114,7 @@ fun SelectLocationList(
 @Composable
 private fun SelectLocationListContent(
     state: Lce<Unit, SelectLocationListUiState, Unit>,
+    lazyListState: LazyListState,
     openDaitaSettings: () -> Unit,
     onSelectHop: (Hop) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
@@ -107,8 +122,6 @@ private fun SelectLocationListContent(
     onEditCustomLists: (() -> Unit)?,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
 ) {
-    val lazyListState = rememberLazyListState()
-
     var prevTopItem by remember { mutableStateOf<RelayListItem?>(null) }
 
     LazyColumn(
@@ -129,14 +142,8 @@ private fun SelectLocationListContent(
             },
     ) {
         when (state) {
-            is Lce.Loading -> {
-                loading()
-            }
-
-            is EntryBlocked -> {
-                entryBlocked(openDaitaSettings = openDaitaSettings)
-            }
-
+            is Lce.Loading -> loading()
+            is EntryBlocked -> entryBlocked(openDaitaSettings = openDaitaSettings)
             is Content -> {
                 // When recents have been disabled and are enabled again and we are at the
                 // top of the list we scroll up so that recents are visible again.
@@ -202,3 +209,27 @@ private fun LazyListScope.entryBlocked(openDaitaSettings: () -> Unit) {
         )
     }
 }
+
+private fun Lce<Unit, SelectLocationListUiState, Unit>.indexOfSelectedRelayItem(): Int? =
+    if (this is Content) {
+        val index =
+            value.relayListItems.indexOfFirst {
+                when (it) {
+                    is RelayListItem.CustomListItem -> it.isSelected
+                    is RelayListItem.GeoLocationItem -> it.isSelected
+                    is RelayListItem.RecentListItem -> it.isSelected
+                    is RelayListItem.CustomListEntryItem,
+                    is RelayListItem.CustomListFooter,
+                    RelayListItem.CustomListHeader,
+                    RelayListItem.LocationHeader,
+                    is RelayListItem.LocationsEmptyText,
+                    is RelayListItem.EmptyRelayList,
+                    RelayListItem.RecentsListFooter,
+                    RelayListItem.RecentsListHeader,
+                    is RelayListItem.SectionDivider -> false
+                }
+            }
+        if (index >= 0) index else null
+    } else {
+        null
+    }
