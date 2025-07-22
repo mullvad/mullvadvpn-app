@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add Memory Tagging (MTE) opt-in flag to enable it by default on supported Android versions and
   devices.
+- Add list of recent connections in the select location view. 
 
 ### Changed
 - Improve the expiry notification scheduling by switching to use AlarmManager.
