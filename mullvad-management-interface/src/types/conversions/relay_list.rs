@@ -178,9 +178,8 @@ impl TryFrom<proto::relay::relay_data::wireguard::Quic> for mullvad_types::relay
         let domain = value.domain;
         let token = value.token;
         fn parse_addr(addr: String) -> Result<IpAddr, FromProtobufTypeError> {
-            addr.parse().map_err(|_err| {
-                FromProtobufTypeError::InvalidArgument("Invalid IP address: {addr}")
-            })
+            addr.parse()
+                .map_err(|_err| FromProtobufTypeError::InvalidArgument("Invalid IP address"))
         }
         let addr_in = value
             .addr_in
@@ -283,7 +282,7 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
                 proto::relay::relay_data::Data::Wireguard(wireguard) => {
                     fn parse_addr(addr: &str) -> Result<IpAddr, FromProtobufTypeError> {
                         addr.parse().map_err(|_err| {
-                            FromProtobufTypeError::InvalidArgument("Invalid IP address: {addr}")
+                            FromProtobufTypeError::InvalidArgument("Invalid IP address")
                         })
                     }
 
