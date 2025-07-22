@@ -405,7 +405,10 @@ private fun SelectLocationDropdownMenu(
             }
         }
     ) {
-        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+        Icon(
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = stringResource(R.string.more_actions),
+        )
     }
     DropdownMenu(
         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
