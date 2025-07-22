@@ -215,7 +215,7 @@ impl PartialEq for Relay {
     ///     #   )
     ///     #   .unwrap(),
     ///     #   daita: false,
-    ///     #   shadowsocks_extra_addr_in: vec![],
+    ///     #   shadowsocks_extra_addr_in: Default::default(),
     ///     #   quic: None,
     ///     # }),
     ///     # location: mullvad_types::location::Location {
