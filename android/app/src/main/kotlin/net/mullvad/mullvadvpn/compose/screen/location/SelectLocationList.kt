@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
@@ -110,6 +112,19 @@ private fun SelectLocationListContent(
     val lazyListState = rememberLazyListState()
 
     var prevTopItem by remember { mutableStateOf<RelayListItem?>(null) }
+    val recentsVisible = state.contentOrNull()?.relayListItems[0]
+
+    LaunchedEffect(recentsVisible) {
+        if (
+            recentsVisible is RelayListItem.RecentsListHeader &&
+                prevTopItem != null &&
+                recentsVisible != prevTopItem
+        ) {
+            lazyListState.animateScrollToItem(0)
+        }
+
+        prevTopItem = recentsVisible
+    }
 
     LazyColumn(
         modifier =
@@ -129,25 +144,9 @@ private fun SelectLocationListContent(
             },
     ) {
         when (state) {
-            is Lce.Loading -> {
-                loading()
-            }
-
-            is EntryBlocked -> {
-                entryBlocked(openDaitaSettings = openDaitaSettings)
-            }
-
-            is Content -> {
-                // When recents have been disabled and are enabled again and we are at the
-                // top of the list we scroll up so that recents are visible again.
-                val shouldScrollToTop =
-                    state.value.relayListItems[0] is RelayListItem.RecentsListHeader &&
-                        prevTopItem !is RelayListItem.RecentsListHeader &&
-                        lazyListState.firstVisibleItemIndex == 0 &&
-                        lazyListState.firstVisibleItemScrollOffset == 0
-
-                prevTopItem = state.value.relayListItems[0]
-
+            is Lce.Loading -> loading()
+            is EntryBlocked -> entryBlocked(openDaitaSettings = openDaitaSettings)
+            is Content ->
                 relayListContent(
                     relayListItems = state.value.relayListItems,
                     customLists = state.value.customLists,
@@ -161,11 +160,6 @@ private fun SelectLocationListContent(
                         )
                     },
                 )
-
-                if (shouldScrollToTop) {
-                    lazyListState.requestScrollToItem(0)
-                }
-            }
         }
     }
 }
