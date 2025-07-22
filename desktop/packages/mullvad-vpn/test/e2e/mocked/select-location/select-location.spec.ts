@@ -7,6 +7,7 @@ import {
   IRelayListWithEndpointData,
   ISettings,
   IWireguardEndpointData,
+  ObfuscationType,
   Ownership,
 } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
@@ -217,6 +218,28 @@ test.describe('Select location', () => {
           // Should not have same length as all relays
           await expect(buttons).not.toHaveCount(allLocatedRelays.length);
         });
+      });
+    });
+    test.describe('Filter by obfuscation', () => {
+      test('Should apply filter when QUIC obfuscation is selected', async () => {
+        const settings = getDefaultSettings();
+        if ('normal' in settings.relaySettings) {
+          settings.obfuscationSettings.selectedObfuscation = ObfuscationType.quic;
+        }
+        await util.sendMockIpcResponse<ISettings>({
+          channel: 'settings-',
+          response: settings,
+        });
+        const locatedRelays = helpers.locateRelaysByObfuscation(relayList);
+        const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+        const relayNames = relays.map((relay) => relay.hostname);
+
+        await helpers.expandLocatedRelays(locatedRelays);
+
+        const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+
+        // Expect all filtered relays to have a button
+        await expect(buttons).toHaveCount(relays.length);
       });
     });
   });
