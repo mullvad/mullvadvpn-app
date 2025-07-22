@@ -208,6 +208,9 @@ export default function SelectLocation() {
                         <FilterChip as="div">
                           <FilterChip.Text>
                             {sprintf(
+                              // TRANSLATORS: Label for indicator that shows that obfuscation is being used as a filter.
+                              // TRANSLATORS: Available placeholders:
+                              // TRANSLATORS: %(obfuscation)s - type of obfuscation in use
                               messages.pgettext(
                                 'select-location-view',
                                 'Obfuscation: %(obfuscation)s',
