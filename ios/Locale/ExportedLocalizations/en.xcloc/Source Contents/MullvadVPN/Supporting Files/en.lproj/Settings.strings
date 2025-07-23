@@ -1,0 +1,69 @@
+/* No comment provided by engineer. */
+"API_ACCESS_CELL_LABEL" = "API access";
+
+/* No comment provided by engineer. */
+"APP_VERSION_CELL_LABEL" = "What's new";
+
+/* No comment provided by engineer. */
+"DAITA_CELL_DETAIL_LABEL" = "DAITA_CELL_DETAIL_LABEL";
+
+/* No comment provided by engineer. */
+"DAITA_CELL_LABEL" = "DAITA";
+
+/* No comment provided by engineer. */
+"DNS_TEXT_CELL_PLACEHOLDER" = "Enter IP";
+
+/* No comment provided by engineer. */
+"FAQ_AND_GUIDES_CELL_LABEL" = "FAQs & Guides";
+
+/* No comment provided by engineer. */
+"MULTIHOP_CELL_DETAIL_LABEL" = "MULTIHOP_CELL_DETAIL_LABEL";
+
+/* No comment provided by engineer. */
+"MULTIHOP_CELL_LABEL" = "Multihop";
+
+/* No comment provided by engineer. */
+"NAVIGATION_TITLE" = "API access";
+
+/* No comment provided by engineer. */
+"NAVIGATION_TITLE_DAITA" = "DAITA";
+
+/* No comment provided by engineer. */
+"NAVIGATION_TITLE_MULTIHOP" = "Multihop";
+
+/* No comment provided by engineer. */
+"REPORT_PROBLEM_CELL_LABEL" = "Report a problem";
+
+/* No comment provided by engineer. */
+"SETTINGS_DAITA_MULTIHOP_ENABLED" = "Multihop is being used to enable DAITA for your selected location.";
+
+/* No comment provided by engineer. */
+"SETTINGS_HEADER_COLLAPSE_ACCESSIBILITY_ACTION" = "Collapse (value)";
+
+/* No comment provided by engineer. */
+"SETTINGS_HEADER_EXPAND_ACCESSIBILITY_ACTION" = "Expand (value)";
+
+/* No comment provided by engineer. */
+"SETTINGS_INFO_ALERT_OK_ACTION" = "Got it!";
+
+/* No comment provided by engineer. */
+"SETTINGS_INFO_DAITA_PAGE_1" = "**Attention: This increases network traffic and will also  negatively affect speed, latency, and battery usage. Use with caution on limited plans.**\n\nDAITA (Defense against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic.\n\nBy using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).";
+
+/* No comment provided by engineer. */
+"SETTINGS_INFO_DAITA_PAGE_2" = "If an observer monitors these data packets, DAITA makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.\n\nDAITA does this by carefully adding network noise and making all network packets the same size.\n\nNot all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.";
+
+/* No comment provided by engineer. */
+"SETTINGS_INFO_MULTIHOP" = "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.";
+
+/* No comment provided by engineer. */
+"SETTINGS_SWITCH_DAITA_DIRECT_ONLY" = "Direct only";
+
+/* No comment provided by engineer. */
+"SETTINGS_SWITCH_DAITA_ENABLE" = "By enabling \"Direct only\" you will have to manually select a server that is DAITA-enabled. Multihop won't automatically be used to enable DAITA with any server.";
+
+/* No comment provided by engineer. */
+"SETTINGS_SWITCH_MULTIHOP" = "Enable";
+
+/* No comment provided by engineer. */
+"VPN_SETTINGS_CELL_LABEL" = "VPN settings";
+

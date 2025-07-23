@@ -1,0 +1,12 @@
+/* No comment provided by engineer. */
+"ALERT_TITLE" = "Settings migration error";
+
+/* No comment provided by engineer. */
+"Got it!" = "Got it!";
+
+/* No comment provided by engineer. */
+"INTERNAL_ERROR" = "Internal error occurred. Settings will be reset to defaults and device logged out.";
+
+/* No comment provided by engineer. */
+"NEWER_STORED_SETTINGS_ERROR" = "The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.";
+

@@ -1,0 +1,6 @@
+/* No comment provided by engineer. */
+"ACCOUNT_NUMBER_AS_VOUCHER_INPUT_ERROR_BODY" = "It looks like you have entered a Mullvad account number instead of a voucher code. Do you want to log in to an existing account?\nIf so, click log out below to log in with the other account number.";
+
+/* No comment provided by engineer. */
+"LOGOUT_BUTTON_TITLE" = "Log out";
+

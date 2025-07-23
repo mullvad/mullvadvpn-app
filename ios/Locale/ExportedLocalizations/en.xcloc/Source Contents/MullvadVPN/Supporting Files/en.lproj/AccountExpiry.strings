@@ -1,0 +1,12 @@
+/* Message for in-app notification, displayed within the last X days until account expiry. */
+"ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_TITLE" = "%@ left on this account";
+
+/* Message for in-app notification, displayed on account expiry while connected to VPN.
+Message for in-app notification, displayed within the last 1 day until account expiry.
+Message for in-app notification, displayed within the last X days until account expiry. */
+"ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY" = "Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.";
+
+/* Title for system account expiry notification, fired X days prior to account expiry.
+Title for system account expiry notification, fired on account expiry. */
+"ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE" = "Account credit expires soon";
+

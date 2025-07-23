@@ -1,0 +1,183 @@
+/* No comment provided by engineer. */
+"%@" = "%@";
+
+/* No comment provided by engineer. */
+"%@ via %@" = "%@ via %@";
+
+/* No comment provided by engineer. */
+"%@, %@" = "%@, %@";
+
+/* No comment provided by engineer. */
+"%lld more..." = "%lld more...";
+
+/* No comment provided by engineer. */
+"ACCOUNT_CREATION_INAPP_NOTIFICATION_BODY" = "Welcome, this device is now called **%@**. For more details see the info button in Account.";
+
+/* No comment provided by engineer. */
+"ACCOUNT_CREATION_INAPP_NOTIFICATION_TITLE" = "NEW DEVICE CREATED";
+
+/* Title for in-app notification, displayed within the last X days until account expiry. */
+"ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_BODY" = "You can add more time via the account view or website to continue using the VPN.";
+
+/* No comment provided by engineer. */
+"Active features" = "Active features";
+
+/* No comment provided by engineer. */
+"Add" = "Add";
+
+/* No comment provided by engineer. */
+"Agree and continue" = "Agree and continue";
+
+/* No comment provided by engineer. */
+"Are you sure you want to log %@ out?" = "Are you sure you want to log %@ out?";
+
+/* No comment provided by engineer. */
+"Blocked connection" = "Blocked connection";
+
+/* No comment provided by engineer. */
+"Cancel" = "Cancel";
+
+/* No comment provided by engineer. */
+"Collapses this location." = "Collapses this location.";
+
+/* No comment provided by engineer. */
+"Connect" = "Connect";
+
+/* No comment provided by engineer. */
+"Connected" = "Connected";
+
+/* No comment provided by engineer. */
+"Connected to %@, %@" = "Connected to %@, %@";
+
+/* No comment provided by engineer. */
+"Connecting to %@, %@" = "Connecting to %@, %@";
+
+/* No comment provided by engineer. */
+"Connecting..." = "Connecting...";
+
+/* No comment provided by engineer. */
+"Connection details" = "Connection details";
+
+/* No comment provided by engineer. */
+"Continue with login" = "Continue with login";
+
+/* No comment provided by engineer. */
+"Created: %@" = "Created: %@";
+
+/* No comment provided by engineer. */
+"Current device" = "Current device";
+
+/* No comment provided by engineer. */
+"CUSTOM_DATE_COMPONENTS_FORMATTING_LESS_THAN_ONE_DAY" = "Less than a day";
+
+/* No comment provided by engineer. */
+"Disconnect" = "Disconnect";
+
+/* No comment provided by engineer. */
+"Disconnected" = "Disconnected";
+
+/* No comment provided by engineer. */
+"Disconnecting..." = "Disconnecting...";
+
+/* No comment provided by engineer. */
+"Do you agree to remaining anonymous?" = "Do you agree to remaining anonymous?";
+
+/* No comment provided by engineer. */
+"Expands this location." = "Expands this location.";
+
+/* No comment provided by engineer. */
+"Fetching devices..." = "Fetching devices...";
+
+/* No comment provided by engineer. */
+"FOOTER_SELECT_LOCATION_ALL_LOCATIONS" = "No matching relays found, check your filter settings.";
+
+/* No comment provided by engineer. */
+"HEADER_SELECT_LOCATION_ADD_CUSTOM_LISTS" = "Custom lists";
+
+/* No comment provided by engineer. */
+"HEADER_SELECT_LOCATION_ALL_LOCATIONS" = "All locations";
+
+/* No comment provided by engineer. */
+"In" = "In";
+
+/* No comment provided by engineer. */
+"LATEST_CHANGES_IN_APP_NOTIFICATION_BODY" = "**Tap here** to see what’s new.";
+
+/* No comment provided by engineer. */
+"LATEST_CHANGES_IN_APP_NOTIFICATION_TITLE" = "NEW VERSION INSTALLED";
+
+/* No comment provided by engineer. */
+"No network" = "No network";
+
+/* No comment provided by engineer. */
+"Out IPv4" = "Out IPv4";
+
+/* No comment provided by engineer. */
+"Out IPv6" = "Out IPv6";
+
+/* No comment provided by engineer. */
+"Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings." = "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.";
+
+/* No comment provided by engineer. */
+"Reconnecting" = "Reconnecting";
+
+/* No comment provided by engineer. */
+"Reconnecting to %@, %@" = "Reconnecting to %@, %@";
+
+/* No comment provided by engineer. */
+"Remove" = "Remove";
+
+/* No comment provided by engineer. */
+"Remove %@?\nThe device will be removed from the list and logged out." = "Remove %@?\nThe device will be removed from the list and logged out.";
+
+/* No comment provided by engineer. */
+"Selected" = "Selected";
+
+/* No comment provided by engineer. */
+"START_TUNNEL_ERROR_INAPP_NOTIFICATION_BODY" = "Failed to start the tunnel: %@.";
+
+/* No comment provided by engineer. */
+"STOP_TUNNEL_ERROR_INAPP_NOTIFICATION_BODY" = "Failed to stop the tunnel: %@.";
+
+/* No comment provided by engineer. */
+"Super!" = "Super!";
+
+/* No comment provided by engineer. */
+"Switch location" = "Switch location";
+
+/* No comment provided by engineer. */
+"Too many devices" = "Too many devices";
+
+/* No comment provided by engineer. */
+"TUNNEL_BLOCKED_INAPP_NOTIFICATION_TITLE" = "BLOCKING INTERNET";
+
+/* No comment provided by engineer. */
+"TUNNEL_MANAGER_ERROR_INAPP_NOTIFICATION_TITLE" = "TUNNEL ERROR";
+
+/* No comment provided by engineer. */
+"TUNNEL_NO_CONNECTIVITY_INAPP_NOTIFICATION_BODY" = "Your device is offline. The tunnel will automatically connect once your device is back online.";
+
+/* No comment provided by engineer. */
+"TUNNEL_NO_CONNECTIVITY_INAPP_NOTIFICATION_TITLE" = "NETWORK ISSUES";
+
+/* No comment provided by engineer. */
+"TUNNEL_NO_NETWORK_INAPP_NOTIFICATION_BODY" = "Your device is offline. Try connecting again when the device has access to Internet.";
+
+/* No comment provided by engineer. */
+"TUNNEL_NO_NETWORK_INAPP_NOTIFICATION_TITLE" = "NETWORK ISSUES";
+
+/* No comment provided by engineer. */
+"value" = "value";
+
+/* No comment provided by engineer. */
+"View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily." = "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily.";
+
+/* No comment provided by engineer. */
+"Yes, log out device" = "Yes, log out device";
+
+/* No comment provided by engineer. */
+"You can now continue logging in on this device." = "You can now continue logging in on this device.";
+
+/* No comment provided by engineer. */
+"You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.\n\nIn some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.\n\nWe strongly believe in retaining as little data as possible because we want you to remain anonymous." = "You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.\n\nIn some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.\n\nWe strongly believe in retaining as little data as possible because we want you to remain anonymous.";
+

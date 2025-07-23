@@ -1,0 +1,18 @@
+/* No comment provided by engineer. */
+"VPN_SETTINGS_CONTENT_BLOCKERS_GENERAL" = "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. \nThis might cause issues on certain websites, services, and apps.\nAttention: this setting cannot be used in combination with **Use custom DNS server**.";
+
+/* No comment provided by engineer. */
+"VPN_SETTINGS_CONTENT_BLOCKERS_MALWARE" = "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.";
+
+/* No comment provided by engineer. */
+"VPN_SETTINGS_DNS_SETTINGS_OK_ACTION" = "Got it!";
+
+/* No comment provided by engineer. */
+"VPN_SETTINGS_LOCAL_NETWORK_SHARING_CANCEL_ACTION" = "Cancel";
+
+/* No comment provided by engineer. */
+"VPN_SETTINGS_LOCAL_NETWORK_SHARING_OK_ACTION" = "Yes, continue";
+
+/* No comment provided by engineer. */
+"VPN_SETTINGS_VPN_SETTINGS_OK_ACTION" = "Got it!";
+

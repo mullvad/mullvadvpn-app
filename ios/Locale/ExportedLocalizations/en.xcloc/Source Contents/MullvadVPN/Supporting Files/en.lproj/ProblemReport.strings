@@ -1,0 +1,60 @@
+/* No comment provided by engineer. */
+"CANCEL_BUTTON" = "Cancel";
+
+/* No comment provided by engineer. */
+"CONTACT_BACK_EMAIL_MESSAGE_FORMAT" = "If needed we will contact you at %@";
+
+/* No comment provided by engineer. */
+"DESCRIPTION_TEXTVIEW_PLACEHOLDER" = "To assist you better, please write in English or Swedish and include which country you are connecting from.";
+
+/* No comment provided by engineer. */
+"EDIT_MESSAGE_BUTTON" = "Edit message";
+
+/* No comment provided by engineer. */
+"EMAIL_TEXTFIELD_PLACEHOLDER" = "Your email (optional)";
+
+/* No comment provided by engineer. */
+"EMPTY_EMAIL_ALERT_CANCEL_ACTION" = "Cancel";
+
+/* No comment provided by engineer. */
+"EMPTY_EMAIL_ALERT_MESSAGE" = "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.";
+
+/* No comment provided by engineer. */
+"EMPTY_EMAIL_ALERT_SEND_ANYWAY_ACTION" = "Send anyway";
+
+/* No comment provided by engineer. */
+"MESSAGE_FAILED_PART_1" = "If you exit the form and try again later, the information you already entered will still be here.";
+
+/* No comment provided by engineer. */
+"MESSAGE_FAILED_PART_2" = "If you still experience issues you can email our support directly at **(value)**. Please attach your app log to your email.";
+
+/* No comment provided by engineer. */
+"NAVIGATION_TITLE" = "Report a problem";
+
+/* No comment provided by engineer. */
+"SEND_BUTTON_TITLE" = "Send";
+
+/* No comment provided by engineer. */
+"SUBHEAD_LABEL" = "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.";
+
+/* No comment provided by engineer. */
+"SUBMISSION_STATUS_FAILURE" = "Failed to send";
+
+/* No comment provided by engineer. */
+"SUBMISSION_STATUS_SENDING" = "Sending...";
+
+/* No comment provided by engineer. */
+"SUBMISSION_STATUS_SENT" = "Sent";
+
+/* No comment provided by engineer. */
+"THANKS_MESSAGE" = "Thanks!";
+
+/* No comment provided by engineer. */
+"TRY_AGAIN_BUTTON" = "Try again";
+
+/* No comment provided by engineer. */
+"VIEW_APP_LOGS_BUTTON_TITLE" = "View app logs";
+
+/* No comment provided by engineer. */
+"WE_WILL_LOOK_INTO_THIS_MESSAGE" = "We will look into this.";
+
