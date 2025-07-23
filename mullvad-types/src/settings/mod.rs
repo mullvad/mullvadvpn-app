@@ -277,12 +277,12 @@ impl Settings {
     }
 
     pub fn set_relay_settings(&mut self, new_settings: RelaySettings) {
+        self.update_recents(&new_settings);
+
         if self.relay_settings != new_settings {
             if !new_settings.supports_bridge() && BridgeState::On == self.bridge_state {
                 self.bridge_state = BridgeState::Auto;
             }
-
-            self.update_recents(&new_settings);
 
             log::debug!(
                 "Changing relay settings:\n\tfrom: {}\n\tto: {}",
