@@ -63,7 +63,7 @@ fun CheckableRelayLocationCell(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Checkbox(
-                    modifier = Modifier.padding(Dimens.smallPadding),
+                    modifier = Modifier.padding(horizontal = Dimens.smallPadding),
                     checked = item.checked,
                     onCheckedChange = onRelayCheckedChange,
                 )
