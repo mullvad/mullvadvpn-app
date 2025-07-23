@@ -1944,6 +1944,13 @@ msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr ""
 
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr ""
+
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
 msgstr ""

@@ -52,7 +52,7 @@ import {
   ObfuscationType,
   Ownership,
   ProxyType,
-  RelayEndpointType,
+  Quic,
   RelayLocation,
   RelayLocationGeographical,
   RelayProtocol,
@@ -118,28 +118,36 @@ function convertFromRelayListCity(city: grpcTypes.RelayListCity): IRelayListCity
 function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
   const relayObject = relay.toObject();
 
-  let daita = false;
-  if (relayObject.endpointType === grpcTypes.Relay.RelayType.WIREGUARD) {
-    const endpointDataU8 = relay.getEndpointData()?.getValue_asU8();
-    if (endpointDataU8) {
-      daita = grpcTypes.WireguardRelayEndpointData.deserializeBinary(endpointDataU8).getDaita();
-    }
-  }
+  // The relay type is determined by the variant of the extra endpoint data
+  const wireguard = relayObject.endpointData?.wireguard;
+  const openvpn = relayObject.endpointData?.openvpn;
+  const bridge = relayObject.endpointData?.bridge;
+
+  const endpointType = wireguard
+    ? 'wireguard'
+    : openvpn
+      ? 'openvpn'
+      : bridge
+        ? 'bridge'
+        : /*This case should never happen ..*/ 'bridge';
+
+  const daita = wireguard ? wireguard.daita : false;
+  const quic = wireguard?.quic ? quicFromRelayType(wireguard.quic) : undefined;
 
   return {
     ...relayObject,
-    endpointType: convertFromRelayType(relayObject.endpointType),
+    endpointType,
     daita,
+    quic,
   };
 }
 
-function convertFromRelayType(relayType: grpcTypes.Relay.RelayType): RelayEndpointType {
-  const protocolMap: Record<grpcTypes.Relay.RelayType, RelayEndpointType> = {
-    [grpcTypes.Relay.RelayType.OPENVPN]: 'openvpn',
-    [grpcTypes.Relay.RelayType.BRIDGE]: 'bridge',
-    [grpcTypes.Relay.RelayType.WIREGUARD]: 'wireguard',
+function quicFromRelayType(quic: grpcTypes.Relay.RelayData.Wireguard.Quic.AsObject): Quic {
+  return {
+    domain: quic.domain,
+    token: quic.token,
+    addrIn: quic.addrInList,
   };
-  return protocolMap[relayType];
 }
 
 function convertFromWireguardKey(publicKey: Uint8Array | string): string {

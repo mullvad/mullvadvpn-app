@@ -364,6 +364,7 @@ class CustomListLocationsViewModelTest {
                                             provider = ProviderId("Provider"),
                                             ownership = Ownership.MullvadOwned,
                                             daita = false,
+                                            quic = false,
                                         )
                                     ),
                             )
@@ -381,6 +382,7 @@ class CustomListLocationsViewModelTest {
                 provider = ProviderId("Provider"),
                 ownership = Ownership.MullvadOwned,
                 daita = false,
+                quic = false,
             )
     }
 }

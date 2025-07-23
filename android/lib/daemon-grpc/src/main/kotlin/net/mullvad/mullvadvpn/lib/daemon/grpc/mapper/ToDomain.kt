@@ -79,7 +79,6 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
-import net.mullvad.mullvadvpn.lib.model.WireguardRelayEndpointData
 import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
@@ -544,9 +543,6 @@ internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndp
         shadowsocksPortRangesList.map { it.toDomain() },
     )
 
-internal fun ManagementInterface.WireguardRelayEndpointData.toDomain(): WireguardRelayEndpointData =
-    WireguardRelayEndpointData(daita)
-
 internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(first..last)
 
 /**
@@ -581,7 +577,7 @@ internal fun ManagementInterface.RelayListCity.toDomain(
         id = cityCode,
         relays =
             relaysList
-                .filter { it.endpointType == ManagementInterface.Relay.RelayType.WIREGUARD }
+                .filter { it.endpointData.hasWireguard() }
                 .map { it.toDomain(cityCode) }
                 .sortedWith(RelayNameComparator),
     )
@@ -595,12 +591,8 @@ internal fun ManagementInterface.Relay.toDomain(
         active = active,
         provider = ProviderId(provider),
         ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
-        daita =
-            if (
-                hasEndpointData() && endpointType == ManagementInterface.Relay.RelayType.WIREGUARD
-            ) {
-                ManagementInterface.WireguardRelayEndpointData.parseFrom(endpointData.value).daita
-            } else false,
+        daita = endpointData.wireguard.daita,
+        quic = endpointData.wireguard.hasQuic(),
     )
 
 private fun Instant.atDefaultZone() = atZone(ZoneId.systemDefault())

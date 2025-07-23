@@ -32,6 +32,16 @@ export function filterLocationsByEndPointType(
   return filterLocationsImpl(locations, getTunnelProtocolFilter(endpointType, tunnelProtocol));
 }
 
+export function filterLocationsByQuic(
+  locations: IRelayLocationCountryRedux[],
+  quic: boolean,
+  tunnelProtocol: TunnelProtocol,
+): IRelayLocationCountryRedux[] {
+  const quicFilterActive = quic && tunnelProtocol !== 'openvpn';
+  const quickOnRelay = (relay: IRelayLocationRelayRedux) => relay.quic !== undefined;
+  return quicFilterActive ? filterLocationsImpl(locations, quickOnRelay) : locations;
+}
+
 export function filterLocationsByDaita(
   locations: IRelayLocationCountryRedux[],
   daita: boolean,

@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { strings } from '../../../shared/constants';
-import { Ownership } from '../../../shared/daemon-rpc-types';
+import { ObfuscationType, Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { RoutePath } from '../../../shared/routes';
 import { Button, FilterChip, Flex, IconButton, LabelTiny } from '../../lib/components';
@@ -62,6 +62,9 @@ export default function SelectLocation() {
   const filteredProviders = useFilteredProviders(providers, ownership);
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
+  const showQuicFilter = useSelector(
+    (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.quic,
+  );
   const showDaitaFilter = daitaFilterActive(
     daita,
     directOnly,
@@ -119,7 +122,8 @@ export default function SelectLocation() {
 
   const showOwnershipFilter = ownership !== Ownership.any;
   const showProvidersFilter = providers.length > 0;
-  const showFilters = showOwnershipFilter || showProvidersFilter || showDaitaFilter;
+  const showFilters =
+    showOwnershipFilter || showProvidersFilter || showDaitaFilter || showQuicFilter;
   return (
     <BackAction action={onClose}>
       <Layout>
@@ -195,6 +199,23 @@ export default function SelectLocation() {
                             {sprintf(
                               messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
                               { settingName: 'DAITA' },
+                            )}
+                          </FilterChip.Text>
+                        </FilterChip>
+                      )}
+
+                      {showQuicFilter && (
+                        <FilterChip as="div">
+                          <FilterChip.Text>
+                            {sprintf(
+                              // TRANSLATORS: Label for indicator that shows that obfuscation is being used as a filter.
+                              // TRANSLATORS: Available placeholders:
+                              // TRANSLATORS: %(obfuscation)s - type of obfuscation in use
+                              messages.pgettext(
+                                'select-location-view',
+                                'Obfuscation: %(obfuscation)s',
+                              ),
+                              { obfuscation: 'QUIC' },
                             )}
                           </FilterChip.Text>
                         </FilterChip>

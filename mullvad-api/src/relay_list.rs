@@ -7,7 +7,7 @@ use mullvad_types::{location, relay_list};
 use talpid_types::net::wireguard;
 
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashSet},
     future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::RangeInclusive,
@@ -167,7 +167,6 @@ fn into_mullvad_relay(
     relay: Relay,
     location: location::Location,
     endpoint_data: relay_list::RelayEndpointData,
-    features: relay_list::Features,
 ) -> relay_list::Relay {
     relay_list::Relay {
         hostname: relay.hostname,
@@ -182,7 +181,6 @@ fn into_mullvad_relay(
         weight: relay.weight,
         endpoint_data,
         location,
-        features,
     }
 }
 
@@ -247,21 +245,11 @@ struct Relay {
 
 impl Relay {
     fn into_openvpn_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
-        into_mullvad_relay(
-            self,
-            location,
-            relay_list::RelayEndpointData::Openvpn,
-            relay_list::Features::empty(),
-        )
+        into_mullvad_relay(self, location, relay_list::RelayEndpointData::Openvpn)
     }
 
     fn into_bridge_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
-        into_mullvad_relay(
-            self,
-            location,
-            relay_list::RelayEndpointData::Bridge,
-            relay_list::Features::empty(),
-        )
+        into_mullvad_relay(self, location, relay_list::RelayEndpointData::Bridge)
     }
 
     fn convert_to_lowercase(&mut self) {
@@ -353,25 +341,63 @@ struct WireGuardRelay {
     #[serde(default)]
     shadowsocks_extra_addr_in: Vec<IpAddr>,
     #[serde(default)]
-    features: relay_list::Features,
+    features: Features,
 }
 
 impl WireGuardRelay {
     fn into_mullvad_relay(self, location: location::Location) -> relay_list::Relay {
-        // Sanity check that new 'features' key is in sync with the old Relay keys.
-        if self.features.daita() {
+        // Sanity check that new 'features' key is in sync with the old, superceded keys.
+        // TODO: Remove `self.daita` (and this check 👇) when `features` key has been completely
+        // rolled out to production.
+        if self.features.daita.is_some() {
             debug_assert!(self.daita)
         }
-        into_mullvad_relay(
-            self.relay,
-            location,
+
+        let relay = self.relay;
+        let endpoint_data =
             relay_list::RelayEndpointData::Wireguard(relay_list::WireguardRelayEndpointData {
                 public_key: self.public_key,
-                daita: self.daita,
-                shadowsocks_extra_addr_in: self.shadowsocks_extra_addr_in,
-            }),
-            self.features,
-        )
+                // FIXME: This hack is forward-compatible with 'features' being rolled out.
+                //        Should unwrap to 'false' once 'daita' field is removed.
+                daita: self.features.daita.map(|_| true).unwrap_or(self.daita),
+                shadowsocks_extra_addr_in: HashSet::from_iter(self.shadowsocks_extra_addr_in),
+                quic: self.features.quic.map(relay_list::Quic::from),
+            });
+
+        into_mullvad_relay(relay, location, endpoint_data)
+    }
+}
+
+/// Extra features enabled on some (Wireguard) relay, such as obfuscation daemons or Daita.
+#[derive(Debug, Default, Clone, serde::Deserialize)]
+struct Features {
+    daita: Option<Daita>,
+    quic: Option<Quic>,
+}
+
+/// DAITA doesn't have any configuration options (exposed by the API).
+///
+/// Note, an empty struct is not the same as an empty tuple struct according to serde_json!
+#[derive(Debug, Clone, serde::Deserialize)]
+struct Daita {}
+
+/// Parameters for setting up a QUIC obfuscator (connecting to a masque-proxy running on a relay).
+#[derive(Debug, Clone, serde::Deserialize)]
+struct Quic {
+    /// In-addresses for the QUIC obfuscator.
+    ///
+    /// There may be 0, 1 or 2 in IPs, depending on how many masque-proxy daemons running on the
+    /// relay. Hopefully the API will tell use the correct amount🤞.
+    addr_in: Vec<IpAddr>,
+    /// Authorization token
+    token: String,
+    /// Hostname where masque proxy is hosted
+    domain: String,
+}
+
+impl From<Quic> for relay_list::Quic {
+    fn from(value: Quic) -> Self {
+        Self::new(value.addr_in, value.token, value.domain)
     }
 }
 

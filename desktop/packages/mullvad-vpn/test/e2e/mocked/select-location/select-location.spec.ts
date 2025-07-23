@@ -7,6 +7,7 @@ import {
   IRelayListWithEndpointData,
   ISettings,
   IWireguardEndpointData,
+  ObfuscationType,
   Ownership,
 } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
@@ -121,100 +122,124 @@ test.describe('Select location', () => {
   });
 
   test.describe('Filter', () => {
-    test.beforeEach(async () => {
-      await helpers.resetView();
-      await helpers.resetProviders();
-      await helpers.resetOwnership();
-    });
-
-    test.describe('Filter by provider', () => {
-      test('Should deselect all providers when clicking all providers checkbox', async () => {
-        await routes.filter.expandProviders();
-        await routes.filter.checkAllProvidersCheckbox();
-        expect(await helpers.areAllCheckboxesChecked()).toBe(false);
-
-        await routes.filter.checkAllProvidersCheckbox();
-        expect(await helpers.areAllCheckboxesChecked()).toBe(true);
+    test.describe('Applied from filter view', () => {
+      test.beforeEach(async () => {
+        await helpers.resetView();
+        await helpers.resetProviders();
+        await helpers.resetOwnership();
       });
 
-      test('Should apply filter when selecting provider', async () => {
-        await routes.filter.expandProviders();
-        await routes.filter.checkAllProvidersCheckbox();
-        expect(await helpers.areAllCheckboxesChecked()).toBe(false);
+      test.describe('Filter by provider', () => {
+        test('Should deselect all providers when clicking all providers checkbox', async () => {
+          await routes.filter.expandProviders();
+          await routes.filter.checkAllProvidersCheckbox();
+          expect(await helpers.areAllCheckboxesChecked()).toBe(false);
 
-        // Select one provider
-        const provider = relayList.countries[0].cities[0].relays[0].provider;
-        await routes.filter.checkProviderCheckbox(provider);
-
-        await helpers.updateMockRelayFilter({
-          providers: [provider],
+          await routes.filter.checkAllProvidersCheckbox();
+          expect(await helpers.areAllCheckboxesChecked()).toBe(true);
         });
 
-        await routes.filter.applyFilter();
-        await util.waitForRoute(RoutePath.selectLocation);
-        const providerFilterChip = routes.selectLocation.getFilterChip('Providers: 1');
-        await expect(providerFilterChip).toBeVisible();
+        test('Should apply filter when selecting provider', async () => {
+          await routes.filter.expandProviders();
+          await routes.filter.checkAllProvidersCheckbox();
+          expect(await helpers.areAllCheckboxesChecked()).toBe(false);
 
-        const locatedRelays = helpers.locateRelaysByProvider(relayList, provider);
+          // Select one provider
+          const provider = relayList.countries[0].cities[0].relays[0].provider;
+          await routes.filter.checkProviderCheckbox(provider);
+
+          await helpers.updateMockRelayFilter({
+            providers: [provider],
+          });
+
+          await routes.filter.applyFilter();
+          await util.waitForRoute(RoutePath.selectLocation);
+          const providerFilterChip = routes.selectLocation.getFilterChip('Providers: 1');
+          await expect(providerFilterChip).toBeVisible();
+
+          const locatedRelays = helpers.locateRelaysByProvider(relayList, provider);
+          const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+          const relayNames = relays.map((relay) => relay.hostname);
+
+          // Expand all accordions
+          await helpers.expandLocatedRelays(locatedRelays);
+
+          const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+
+          // Expect all filtered relays to have a button
+          await expect(buttons).toHaveCount(relays.length);
+
+          // Clear filter
+          await providerFilterChip.click();
+
+          // Get all relays and expand accordions
+          const allLocatedRelays = helpers.locateRelaysByProvider(relayList);
+          await helpers.expandLocatedRelays(allLocatedRelays);
+
+          // Should not have same length as all relays
+          await expect(buttons).not.toHaveCount(allLocatedRelays.length);
+        });
+      });
+
+      test.describe('Filter by ownership', () => {
+        test('Should apply filter when selecting ownership', async () => {
+          // Select rented only
+          await routes.filter.expandOwnership();
+          await routes.filter.selectOwnershipOption('Rented only');
+          await helpers.updateMockRelayFilter({
+            ownership: Ownership.rented,
+          });
+
+          await routes.filter.applyFilter();
+          await util.waitForRoute(RoutePath.selectLocation);
+
+          const ownerFilterChip = routes.selectLocation.getFilterChip('Rented');
+          await expect(ownerFilterChip).toBeVisible();
+
+          const locatedRelays = helpers.locateRelaysByOwner(relayList, false);
+          const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
+          const relayNames = relays.map((relay) => relay.hostname);
+
+          // Expand all accordions
+          await helpers.expandLocatedRelays(locatedRelays);
+
+          const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+
+          // Expect all filtered relays to have a button
+          await expect(buttons).toHaveCount(relays.length);
+
+          // Clear filter
+          await ownerFilterChip.click();
+
+          // Get all relays and expand accordions
+          const allLocatedRelays = helpers.locateRelaysByOwner(relayList);
+          await helpers.expandLocatedRelays(allLocatedRelays);
+
+          // Should not have same length as all relays
+          await expect(buttons).not.toHaveCount(allLocatedRelays.length);
+        });
+      });
+    });
+    test.describe('Filter by obfuscation', () => {
+      test('Should apply filter when QUIC obfuscation is selected', async () => {
+        const settings = getDefaultSettings();
+        if ('normal' in settings.relaySettings) {
+          settings.obfuscationSettings.selectedObfuscation = ObfuscationType.quic;
+        }
+        await util.sendMockIpcResponse<ISettings>({
+          channel: 'settings-',
+          response: settings,
+        });
+        const locatedRelays = helpers.locateRelaysByObfuscation(relayList);
         const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
         const relayNames = relays.map((relay) => relay.hostname);
 
-        // Expand all accordions
         await helpers.expandLocatedRelays(locatedRelays);
 
         const buttons = routes.selectLocation.getRelaysMatching(relayNames);
 
         // Expect all filtered relays to have a button
         await expect(buttons).toHaveCount(relays.length);
-
-        // Clear filter
-        await providerFilterChip.click();
-
-        // Get all relays and expand accordions
-        const allLocatedRelays = helpers.locateRelaysByProvider(relayList);
-        await helpers.expandLocatedRelays(allLocatedRelays);
-
-        // Should not have same length as all relays
-        await expect(buttons).not.toHaveCount(allLocatedRelays.length);
-      });
-    });
-
-    test.describe('Filter by ownership', () => {
-      test('Should apply filter when selecting ownership', async () => {
-        // Select rented only
-        await routes.filter.expandOwnership();
-        await routes.filter.selectOwnershipOption('Rented only');
-        await helpers.updateMockRelayFilter({
-          ownership: Ownership.rented,
-        });
-
-        await routes.filter.applyFilter();
-        await util.waitForRoute(RoutePath.selectLocation);
-
-        const ownerFilterChip = routes.selectLocation.getFilterChip('Rented');
-        await expect(ownerFilterChip).toBeVisible();
-
-        const locatedRelays = helpers.locateRelaysByOwner(relayList, false);
-        const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
-        const relayNames = relays.map((relay) => relay.hostname);
-
-        // Expand all accordions
-        await helpers.expandLocatedRelays(locatedRelays);
-
-        const buttons = routes.selectLocation.getRelaysMatching(relayNames);
-
-        // Expect all filtered relays to have a button
-        await expect(buttons).toHaveCount(relays.length);
-
-        // Clear filter
-        await ownerFilterChip.click();
-
-        // Get all relays and expand accordions
-        const allLocatedRelays = helpers.locateRelaysByOwner(relayList);
-        await helpers.expandLocatedRelays(allLocatedRelays);
-
-        // Should not have same length as all relays
-        await expect(buttons).not.toHaveCount(allLocatedRelays.length);
       });
     });
   });
