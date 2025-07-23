@@ -81,7 +81,13 @@ fun LazyListScope.relayListContent(
                         )
 
                     RelayListItem.RecentsListHeader -> RecentsListHeader()
-                    is RelayListItem.RecentListItem -> RecentListItem(listItem, onSelectHop)
+                    is RelayListItem.RecentListItem ->
+                        RecentListItem(
+                            listItem,
+                            onSelectHop = onSelectHop,
+                            onUpdateBottomSheetState = onUpdateBottomSheetState,
+                            customLists = customLists,
+                        )
                     RelayListItem.RecentsListFooter -> RecentsListFooter()
                     is RelayListItem.EmptyRelayList -> EmptyRelayListText()
                     is RelayListItem.LocationsEmptyText -> LocationsEmptyText(listItem.searchTerm)
@@ -121,11 +127,21 @@ private fun GeoLocationItem(
 }
 
 @Composable
-private fun RecentListItem(listItem: RelayListItem.RecentListItem, onSelectHop: (Hop) -> Unit) {
+private fun RecentListItem(
+    listItem: RelayListItem.RecentListItem,
+    onSelectHop: (Hop) -> Unit,
+    onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
+    customLists: List<RelayItem.CustomList>,
+) {
     SelectableRelayListItem(
         relayListItem = listItem,
         onClick = { onSelectHop(listItem.hop) },
-        onLongClick = {},
+        onLongClick = {
+            val entry = listItem.hop.entry()
+            if (listItem.hop is Hop.Single<*> && entry is RelayItem.Location) {
+                onUpdateBottomSheetState(ShowLocationBottomSheet(customLists, entry))
+            }
+        },
         onToggleExpand = { _ -> },
         modifier = Modifier.positionalPadding(listItem.itemPosition),
     )
