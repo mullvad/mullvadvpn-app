@@ -1,5 +1,5 @@
 ---
-name: Verify lockfile signatures
+name: Verify git signatures on important files
 on:
   pull_request:
     paths:
@@ -39,6 +39,7 @@ permissions: {}
 
 jobs:
   verify-signatures:
+    name: Verify git signatures
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
