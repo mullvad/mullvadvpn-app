@@ -23,6 +23,7 @@
 
 # Security related github action workflow changes must be approved by leads
 /.github/workflows/verify-locked-down-signatures.yml @faern @raksooo @pinkisemils @albin-mullvad
+/ci/verify-locked-down-signatures.sh @faern @raksooo @pinkisemils @albin-mullvad
 /.github/workflows/unicop.yml @faern @raksooo @pinkisemils @albin-mullvad
 
 # The CODEOWNERS itself must be protected from unauthorized changes,
