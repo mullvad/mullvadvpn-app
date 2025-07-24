@@ -279,7 +279,10 @@ cargo {
         add("--package=mullvad-jni")
         add("--locked")
     }
-    exec = { spec, _ -> spec.environment("RUSTFLAGS", generateRemapArguments()) }
+    exec = { spec, _ ->
+        if (getBooleanProperty("mullvad.app.build.replaceRustPathPrefix"))
+            spec.environment("RUSTFLAGS", generateRemapArguments())
+    }
 }
 
 tasks.register<Exec>("cargoClean") {
