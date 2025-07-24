@@ -19,6 +19,8 @@ pub enum Error {
     BindError(#[source] io::Error),
     #[error("Masque proxy error")]
     MasqueProxyError(#[source] mullvad_masque_proxy::client::Error),
+    #[error("Failed to get local socket address")]
+    LocalAddrError(#[source] io::Error),
 }
 
 #[derive(Debug)]
@@ -48,7 +50,7 @@ pub struct Settings {
 }
 
 impl Settings {
-    ///See [Settings] for details.
+    /// See [Settings] for details.
     pub fn new(
         quic_server_endpoint: SocketAddr,
         hostname: String,
@@ -68,7 +70,7 @@ impl Settings {
 
     /// Set an explicit MTU for the Quic obfuscator.
     pub fn mtu(self, mtu: u16) -> Self {
-        debug_assert!(mtu <= 1500, "MTU is too high: {mtu}");
+        debug_assert!(mtu >= 1280 && mtu <= 1500, "MTU should be between 1280 and 1500: {mtu}");
         let mtu = Some(mtu);
         Self { mtu, ..self }
     }
@@ -83,7 +85,7 @@ impl Settings {
     /// The masque-proxy server expects the Authentication header to be prefixed with "Bearer ", so
     /// prefix the auth token with that.
     fn auth_header(&self) -> String {
-        format!("Bearer {token}", token = self.token.0)
+        format!("Bearer {}", self.token.0)
     }
 }
 
@@ -99,7 +101,7 @@ impl AuthToken {
         // not known to be stable (yet).
         if token.starts_with("Bearer") {
             return None;
-        };
+        }
         Some(Self(token))
     }
 }
@@ -111,9 +113,8 @@ impl std::str::FromStr for AuthToken {
         match Self::new(token.to_owned()) {
             Some(token) => Ok(token),
             None => Err(
-            "Authentication token must not start with \"Bearer\". Please just the token, the Authentication header will be formatted before starting the QUIC client."
-                .to_string())
-
+                "Authentication token must not start with \"Bearer\". Please just the token, the Authentication header will be formatted before starting the QUIC client.".to_string(),
+            ),
         }
     }
 }
@@ -121,43 +122,40 @@ impl std::str::FromStr for AuthToken {
 impl Quic {
     pub(crate) async fn new(settings: &Settings) -> Result<Self> {
         let (local_socket, local_udp_client_addr) =
-            Quic::create_local_udp_socket(settings.quic_endpoint.is_ipv4()).await?;
-        // The address family of the local QUIC client socket has to match the address family
-        // of the endpoint we're connecting to. The address itself is not important to consumers wanting
-        // to obfuscate traffic. It is solely used by the local proxy client to know where the QUIC
-        // obfuscator is running.
+            Self::create_local_udp_socket(settings.quic_endpoint.is_ipv4()).await?;
+
         let quic_client_local_addr = if settings.quic_endpoint.is_ipv4() {
             SocketAddr::from((Ipv4Addr::UNSPECIFIED, 0))
         } else {
             SocketAddr::from((Ipv6Addr::UNSPECIFIED, 0))
         };
-        let config_builder = ClientConfig::builder()
+
+        let mut config_builder = ClientConfig::builder()
             .client_socket(local_socket)
             .local_addr(quic_client_local_addr)
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
             .auth_header(Some(settings.auth_header()))
-            .mtu(settings.mtu.unwrap_or(1500));
+            .mtu(settings.mtu.unwrap_or(1300)); // Default fallback MTU
 
         #[cfg(target_os = "linux")]
-        let config_builder = config_builder.fwmark(settings.fwmark);
+        {
+            config_builder = config_builder.fwmark(settings.fwmark);
+        }
 
         let client = Client::connect(config_builder.build())
             .await
             .map_err(Error::MasqueProxyError)?;
 
         let token = CancellationToken::new();
+        let task = tokio::spawn(Self::run_forwarding(client, token.child_token()));
 
-        let local_proxy = tokio::spawn(Quic::run_forwarding(client, token.child_token()));
-
-        let quic = Quic {
+        Ok(Quic {
             local_endpoint: local_udp_client_addr,
-            task: local_proxy,
+            task,
             _shutdown: token.drop_guard(),
-        };
-
-        Ok(quic)
+        })
     }
 
     async fn run_forwarding(
@@ -167,10 +165,11 @@ impl Quic {
         log::trace!("Spawning QUIC client ..");
         let mut client = tokio::spawn(masque_proxy_client.run());
         log::trace!("QUIC client is running! QUIC Obfuscator is serving traffic 🎉");
+
         tokio::select! {
             _ = cancel_token.cancelled() => log::trace!("Stopping QUIC obfuscation"),
             _result = &mut client => log::trace!("QUIC client closed"),
-        };
+        }
 
         client.abort();
         Ok(())
@@ -181,17 +180,15 @@ impl Quic {
     /// The resulting UdpSocket/the SocketAddr where programs that want to obfuscate their
     /// traffic with QUIC will write to.
     async fn create_local_udp_socket(ipv4: bool) -> Result<(UdpSocket, SocketAddr)> {
-        let random_bind_addr = if ipv4 {
+        let bind_addr = if ipv4 {
             SocketAddr::from((Ipv4Addr::LOCALHOST, 0))
         } else {
             SocketAddr::from((Ipv6Addr::LOCALHOST, 0))
         };
-        let local_udp_socket = UdpSocket::bind(random_bind_addr)
-            .await
-            .map_err(Error::BindError)?;
-        let udp_client_addr = local_udp_socket.local_addr().unwrap();
 
-        Ok((local_udp_socket, udp_client_addr))
+        let socket = UdpSocket::bind(bind_addr).await.map_err(Error::BindError)?;
+        let addr = socket.local_addr().map_err(Error::LocalAddrError)?;
+        Ok((socket, addr))
     }
 }
 
@@ -209,11 +206,13 @@ impl Obfuscator for Quic {
     }
 
     fn packet_overhead(&self) -> u16 {
-        0 // FIXME
+        // Approximate overhead of QUIC + MASQUE encapsulation
+        // QUIC: ~40 bytes (variable), MASQUE: ~20 bytes
+        60
     }
 
     #[cfg(target_os = "android")]
     fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        unimplemented!()
+        todo!("Not yet implemented for Android")
     }
 }
