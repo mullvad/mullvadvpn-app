@@ -1,5 +1,4 @@
 import { messages } from '../../../../shared/gettext';
-import { RoutePath } from '../../../../shared/routes';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import CustomDnsSettings from '../../CustomDnsSettings';
@@ -12,7 +11,6 @@ import {
   SettingsStack,
 } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
-import { NavigationListItem } from '../../NavigationListItem';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import {
@@ -21,6 +19,7 @@ import {
   AutoStart,
   DnsBlockers,
   EnableIpv6,
+  IpOverrideButton,
   KillSwitchInfo,
   LockdownMode,
   OpenVpnSettingsButton,
@@ -95,16 +94,5 @@ export function VpnSettingsView() {
         </SettingsContainer>
       </Layout>
     </BackAction>
-  );
-}
-
-function IpOverrideButton() {
-  return (
-    <NavigationListItem to={RoutePath.settingsImport}>
-      <NavigationListItem.Label>
-        {messages.pgettext('vpn-settings-view', 'Server IP override')}
-      </NavigationListItem.Label>
-      <NavigationListItem.Icon icon="chevron-right" />
-    </NavigationListItem>
   );
 }
