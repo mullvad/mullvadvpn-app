@@ -62,8 +62,8 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewPrivacyDisclaimerScreen() {
     AppTheme {
         PrivacyDisclaimerScreen(
-            PrivacyDisclaimerViewState(isStartingService = false, isPlayBuild = false),
-            {},
+            state = PrivacyDisclaimerViewState(isStartingService = false, isPlayBuild = false),
+            onAcceptClicked = {},
         )
     }
 }
@@ -101,7 +101,10 @@ fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
                 }
         }
     }
-    PrivacyDisclaimerScreen(state, viewModel::setPrivacyDisclosureAccepted)
+    PrivacyDisclaimerScreen(
+        state = state,
+        onAcceptClicked = viewModel::setPrivacyDisclosureAccepted,
+    )
 }
 
 @Composable

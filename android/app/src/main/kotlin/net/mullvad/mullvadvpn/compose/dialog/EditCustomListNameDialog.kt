@@ -32,7 +32,14 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewEditCustomListNameDialog() {
-    AppTheme { EditCustomListNameDialog(EditCustomListNameUiState(), {}, {}, {}) }
+    AppTheme {
+        EditCustomListNameDialog(
+            state = EditCustomListNameUiState(),
+            updateName = {},
+            onInputChanged = {},
+            onDismiss = {},
+        )
+    }
 }
 
 data class EditCustomListNameNavArgs(

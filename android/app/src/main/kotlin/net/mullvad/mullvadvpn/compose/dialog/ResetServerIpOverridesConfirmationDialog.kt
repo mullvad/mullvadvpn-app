@@ -28,7 +28,9 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewResetServerIpOverridesConfirmationDialog() {
-    AppTheme { ResetServerIpOverridesConfirmationDialog({}, {}) }
+    AppTheme {
+        ResetServerIpOverridesConfirmationDialog(onClearAllOverrides = {}, onNavigateBack = {})
+    }
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
@@ -45,7 +47,7 @@ fun ResetServerIpOverridesConfirmation(resultBackNavigator: ResultBackNavigator<
     }
     ResetServerIpOverridesConfirmationDialog(
         onClearAllOverrides = vm::clearAllOverrides,
-        dropUnlessResumed { resultBackNavigator.navigateBack() },
+        onNavigateBack = dropUnlessResumed { resultBackNavigator.navigateBack() },
     )
 }
 

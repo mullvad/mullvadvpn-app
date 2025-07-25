@@ -1,0 +1,4 @@
+custom:
+  ScreenAndDialogNamedArguments:
+    active: true
+    includes: ["**/net/mullvad/mullvadvpn/compose/**"]

@@ -78,7 +78,17 @@ private fun PreviewApiAccessMethodDetailsScreen(
     state: ApiAccessMethodDetailsUiState
 ) {
     AppTheme {
-        ApiAccessMethodDetailsScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}, {}, {})
+        ApiAccessMethodDetailsScreen(
+            state = state,
+            snackbarHostState = SnackbarHostState(),
+            onEditMethodClicked = {},
+            onEnableClicked = {},
+            onTestMethodClicked = {},
+            onUseMethodClicked = {},
+            onDeleteApiAccessMethodClicked = {},
+            onNavigateToEncryptedDnsInfoDialog = {},
+            onBackClicked = {},
+        )
     }
 }
 

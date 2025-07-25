@@ -166,7 +166,7 @@ fun SharedTransitionScope.ServerIpOverrides(
         }
 
     ServerIpOverridesScreen(
-        state,
+        state = state,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
         onInfoClick = dropUnlessResumed { navigator.navigate(ServerIpOverridesInfoDestination) },
         onResetOverridesClick =

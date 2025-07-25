@@ -63,10 +63,10 @@ private fun PreviewDaitaScreen() {
     AppTheme {
         DaitaScreen(
             state = DaitaUiState(daitaEnabled = false, directOnly = false),
-            { _ -> },
-            { _ -> },
-            {},
-            {},
+            onDaitaEnabled = { _ -> },
+            onDirectOnlyClick = { _ -> },
+            onDirectOnlyInfoClick = {},
+            onBackClick = {},
         )
     }
 }

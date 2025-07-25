@@ -34,7 +34,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 @Preview
 @Composable
 private fun PreviewImportOverridesByText() {
-    AppTheme { ImportOverridesByTextScreen({}, {}) }
+    AppTheme { ImportOverridesByTextScreen(onNavigateBack = {}, onImportClicked = {}) }
 }
 
 @Destination<RootGraph>(style = DefaultTransition::class)

@@ -32,7 +32,12 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewUdp2TcpSettingsScreen() {
     AppTheme {
-        Udp2TcpSettingsScreen(state = Udp2TcpSettingsState(port = Constraint.Any), {}, {}, {})
+        Udp2TcpSettingsScreen(
+            state = Udp2TcpSettingsState(port = Constraint.Any),
+            onObfuscationPortSelected = {},
+            navigateUdp2TcpInfo = {},
+            onBackClick = {},
+        )
     }
 }
 

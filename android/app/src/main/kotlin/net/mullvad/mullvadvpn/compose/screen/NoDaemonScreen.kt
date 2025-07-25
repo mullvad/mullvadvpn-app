@@ -37,14 +37,16 @@ import net.mullvad.mullvadvpn.util.getActivity
 @Preview
 @Composable
 private fun PreviewNoDaemonScreen() {
-    AppTheme { NoDaemonScreen({}) }
+    AppTheme { NoDaemonScreen(onNavigateToSettings = {}) }
 }
 
 // Set this as the start destination of the default nav graph
 @Destination<RootGraph>(style = DefaultTransition::class)
 @Composable
 fun NoDaemon(navigator: DestinationsNavigator) {
-    NoDaemonScreen(dropUnlessResumed { navigator.navigate(SettingsDestination) })
+    NoDaemonScreen(
+        onNavigateToSettings = dropUnlessResumed { navigator.navigate(SettingsDestination) }
+    )
 }
 
 @Composable

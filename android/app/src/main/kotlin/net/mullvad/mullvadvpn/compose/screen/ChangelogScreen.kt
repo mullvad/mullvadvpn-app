@@ -45,7 +45,7 @@ fun Changelog(navController: NavController) {
 
     LaunchedEffect(Unit) { viewModel.dismissChangelogNotification() }
 
-    ChangelogScreen(uiState.value, onBackClick = navController::navigateUp)
+    ChangelogScreen(state = uiState.value, onBackClick = navController::navigateUp)
 }
 
 data class ChangelogNavArgs(val isModal: Boolean = false)
@@ -120,7 +120,7 @@ private fun ChangeListItem(text: String) {
 private fun PreviewChangelogDialogWithSingleShortItem() {
     AppTheme {
         ChangelogScreen(
-            ChangelogUiState(changes = listOf("Item 1"), version = "1111.1"),
+            state = ChangelogUiState(changes = listOf("Item 1"), version = "1111.1"),
             onBackClick = {},
         )
     }
@@ -136,10 +136,11 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 
     AppTheme {
         ChangelogScreen(
-            ChangelogUiState(
-                changes = listOf(longPreviewText, longPreviewText),
-                version = "1111.1",
-            ),
+            state =
+                ChangelogUiState(
+                    changes = listOf(longPreviewText, longPreviewText),
+                    version = "1111.1",
+                ),
             onBackClick = {},
         )
     }
@@ -150,22 +151,23 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 private fun PreviewChangelogDialogWithTenShortItems() {
     AppTheme {
         ChangelogScreen(
-            ChangelogUiState(
-                changes =
-                    listOf(
-                        "Item 1",
-                        "Item 2",
-                        "Item 3",
-                        "Item 4",
-                        "Item 5",
-                        "Item 6",
-                        "Item 7",
-                        "Item 8",
-                        "Item 9",
-                        "Item 10",
-                    ),
-                version = "1111.1",
-            ),
+            state =
+                ChangelogUiState(
+                    changes =
+                        listOf(
+                            "Item 1",
+                            "Item 2",
+                            "Item 3",
+                            "Item 4",
+                            "Item 5",
+                            "Item 6",
+                            "Item 7",
+                            "Item 8",
+                            "Item 9",
+                            "Item 10",
+                        ),
+                    version = "1111.1",
+                ),
             onBackClick = {},
         )
     }
