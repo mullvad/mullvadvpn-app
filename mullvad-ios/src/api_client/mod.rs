@@ -92,7 +92,6 @@ struct ForeignPtr {
 }
 /// allow this to be passed across thread boundaries
 unsafe impl Send for ForeignPtr {}
-unsafe impl Sync for ForeignPtr {}
 
 /// Called by Swift to set the available access methods
 #[unsafe(no_mangle)]
