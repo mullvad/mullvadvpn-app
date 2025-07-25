@@ -43,7 +43,7 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationListItem } from '../../NavigationListItem';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { AllowLan, AutoStart } from './components';
+import { AllowLan, AutoConnect, AutoStart } from './components';
 
 const StyledInfoButton = styled(InfoButton)({
   marginRight: spacings.medium,
@@ -128,36 +128,6 @@ export function VpnSettingsView() {
         </SettingsContainer>
       </Layout>
     </BackAction>
-  );
-}
-
-function AutoConnect() {
-  const autoConnect = useSelector((state) => state.settings.guiSettings.autoConnect);
-  const { setAutoConnect } = useAppContext();
-
-  return (
-    <AriaInputGroup>
-      <Cell.Container>
-        <AriaLabel>
-          <Cell.InputLabel>
-            {messages.pgettext('vpn-settings-view', 'Auto-connect')}
-          </Cell.InputLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch isOn={autoConnect} onChange={setAutoConnect} />
-        </AriaInput>
-      </Cell.Container>
-      <Cell.CellFooter>
-        <AriaDescription>
-          <Cell.CellFooterText>
-            {messages.pgettext(
-              'vpn-settings-view',
-              'Automatically connect to a server when the app launches.',
-            )}
-          </Cell.CellFooterText>
-        </AriaDescription>
-      </Cell.CellFooter>
-    </AriaInputGroup>
   );
 }
 
