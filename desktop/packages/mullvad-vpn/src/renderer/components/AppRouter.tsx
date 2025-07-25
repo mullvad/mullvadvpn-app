@@ -40,7 +40,7 @@ import {
   LaunchView,
   LoginView,
   SettingsView,
-  VpnSettings,
+  VpnSettingsView,
 } from './views';
 import WireguardSettings from './WireguardSettings';
 
@@ -70,7 +70,7 @@ export default function AppRouter() {
         <Route exact path={RoutePath.selectLanguage} component={SelectLanguage} />
         <Route exact path={RoutePath.userInterfaceSettings} component={UserInterfaceSettings} />
         <Route exact path={RoutePath.multihopSettings} component={MultihopSettings} />
-        <Route exact path={RoutePath.vpnSettings} component={VpnSettings} />
+        <Route exact path={RoutePath.vpnSettings} component={VpnSettingsView} />
         <Route exact path={RoutePath.wireguardSettings} component={WireguardSettings} />
         <Route exact path={RoutePath.daitaSettings} component={DaitaSettings} />
         <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcp} />
