@@ -65,7 +65,7 @@ const IndentedValueLabel = styled(Cell.ValueLabel)({
   marginLeft: spacings.medium,
 });
 
-export function VpnSettings() {
+export function VpnSettingsView() {
   const { pop } = useHistory();
 
   return (
