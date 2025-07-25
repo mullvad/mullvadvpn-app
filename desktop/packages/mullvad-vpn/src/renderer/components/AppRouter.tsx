@@ -34,8 +34,14 @@ import Support from './Support';
 import TooManyDevices from './TooManyDevices';
 import UdpOverTcp from './UdpOverTcp';
 import UserInterfaceSettings from './UserInterfaceSettings';
-import { AppInfoView, AppUpgradeView, ChangelogView, LaunchView, SettingsView } from './views';
-import VpnSettings from './VpnSettings';
+import {
+  AppInfoView,
+  AppUpgradeView,
+  ChangelogView,
+  LaunchView,
+  SettingsView,
+  VpnSettings,
+} from './views';
 import WireguardSettings from './WireguardSettings';
 
 export default function AppRouter() {
