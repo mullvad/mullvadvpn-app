@@ -14,17 +14,17 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import {
-  AllowLan,
-  AutoConnect,
-  AutoStart,
-  DnsBlockers,
-  EnableIpv6,
-  IpOverrideButton,
-  KillSwitchInfo,
-  LockdownMode,
-  OpenVpnSettingsButton,
+  AllowLanSetting,
+  AutoConnectSetting,
+  AutoStartSetting,
+  DnsBlockerSettings,
+  EnableIpv6Setting,
+  IpOverrideSettings,
+  KillSwitchSetting,
+  LockdownModeSetting,
+  OpenVpnSettings,
   TunnelProtocolSetting,
-  WireguardSettingsButton,
+  WireguardSettings,
 } from './components';
 
 export function VpnSettingsView() {
@@ -50,25 +50,25 @@ export function VpnSettingsView() {
               <SettingsContent>
                 <SettingsStack>
                   <SettingsGroup>
-                    <AutoStart />
-                    <AutoConnect />
+                    <AutoStartSetting />
+                    <AutoConnectSetting />
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <AllowLan />
+                    <AllowLanSetting />
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <DnsBlockers />
+                    <DnsBlockerSettings />
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <EnableIpv6 />
+                    <EnableIpv6Setting />
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <KillSwitchInfo />
-                    <LockdownMode />
+                    <KillSwitchSetting />
+                    <LockdownModeSetting />
                   </SettingsGroup>
 
                   <SettingsGroup>
@@ -76,8 +76,8 @@ export function VpnSettingsView() {
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <WireguardSettingsButton />
-                    <OpenVpnSettingsButton />
+                    <WireguardSettings />
+                    <OpenVpnSettings />
                   </SettingsGroup>
 
                   <SettingsGroup>
@@ -85,7 +85,7 @@ export function VpnSettingsView() {
                   </SettingsGroup>
 
                   <SettingsGroup>
-                    <IpOverrideButton />
+                    <IpOverrideSettings />
                   </SettingsGroup>
                 </SettingsStack>
               </SettingsContent>
