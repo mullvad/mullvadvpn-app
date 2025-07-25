@@ -1,14 +1,15 @@
+import { forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 
 import { colors } from '../../../../foundations';
 import { ListItemProps } from '../../ListItem';
 import { useListItem } from '../../ListItemContext';
+import { StyledListItemItem } from '../list-item-item';
 
 const StyledButton = styled.button<Pick<ListItemProps, 'disabled'>>`
   display: flex;
   width: 100%;
-  --background: transparent;
-  background-color: var(--background);
+  background-color: transparent;
 
   &&:focus-visible {
     outline: 2px solid ${colors.white};
@@ -19,16 +20,16 @@ const StyledButton = styled.button<Pick<ListItemProps, 'disabled'>>`
   ${({ disabled }) => {
     if (!disabled) {
       return css`
-        --background: ${colors.blue};
-
         &:hover {
-          --background: ${colors.whiteOnBlue10};
-          background-color: var(--background);
+          ${StyledListItemItem} {
+            background-color: ${colors.whiteOnBlue10};
+          }
         }
 
         &:active {
-          --background: ${colors.whiteOnBlue20};
-          background-color: var(--background);
+          ${StyledListItemItem} {
+            background-color: ${colors.whiteOnBlue20};
+          }
         }
       `;
     }
@@ -39,7 +40,9 @@ const StyledButton = styled.button<Pick<ListItemProps, 'disabled'>>`
 
 export type ListItemTriggerProps = React.HtmlHTMLAttributes<HTMLButtonElement>;
 
-export function ListItemTrigger(props: ListItemTriggerProps) {
+export const ListItemTrigger = forwardRef<HTMLButtonElement, ListItemTriggerProps>((props, ref) => {
   const { disabled } = useListItem();
-  return <StyledButton disabled={disabled} {...props} />;
-}
+  return <StyledButton ref={ref} disabled={disabled} {...props} />;
+});
+
+ListItemTrigger.displayName = 'ListItemTrigger';
