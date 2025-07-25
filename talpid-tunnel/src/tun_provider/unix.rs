@@ -285,6 +285,7 @@ mod tun07_imp {
                         builder.name(name);
                     }
                 }
+                builder.mtu(self.config.mtu);
                 builder.create()?
             };
 
@@ -346,6 +347,12 @@ mod tun07_imp {
         #[cfg(target_os = "linux")]
         pub fn name(&mut self, name: &str) -> &mut Self {
             self.config.tun_name(name);
+            self
+        }
+
+        /// Set tunnel device MTU.
+        pub fn mtu(&mut self, mtu: u16) -> &mut Self {
+            self.config.mtu(mtu);
             self
         }
 
