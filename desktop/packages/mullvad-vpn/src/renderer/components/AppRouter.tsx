@@ -40,8 +40,8 @@ import {
   LaunchView,
   LoginView,
   SettingsView,
+  VpnSettings,
 } from './views';
-import VpnSettings from './VpnSettings';
 import WireguardSettings from './WireguardSettings';
 
 export default function AppRouter() {

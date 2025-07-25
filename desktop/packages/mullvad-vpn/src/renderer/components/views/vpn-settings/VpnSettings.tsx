@@ -2,35 +2,47 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings, urls } from '../../shared/constants';
-import { IDnsOptions, TunnelProtocol } from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import log from '../../shared/logging';
-import { RoutePath } from '../../shared/routes';
-import { useAppContext } from '../context';
-import { Button } from '../lib/components';
-import { useRelaySettingsUpdater } from '../lib/constraint-updater';
-import { colors, spacings } from '../lib/foundations';
-import { useHistory } from '../lib/history';
-import { formatHtml } from '../lib/html-formatter';
-import { useTunnelProtocol } from '../lib/relay-settings-hooks';
-import { useBoolean } from '../lib/utility-hooks';
-import { RelaySettingsRedux } from '../redux/settings/reducers';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import { AriaDescription, AriaDetails, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
-import * as Cell from './cell';
-import Selector, { SelectorItem } from './cell/Selector';
-import CustomDnsSettings from './CustomDnsSettings';
-import { ExternalLink } from './ExternalLink';
-import InfoButton from './InfoButton';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
-import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationListItem } from './NavigationListItem';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import { strings, urls } from '../../../../shared/constants';
+import { IDnsOptions, TunnelProtocol } from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import log from '../../../../shared/logging';
+import { RoutePath } from '../../../../shared/routes';
+import { useAppContext } from '../../../context';
+import { Button } from '../../../lib/components';
+import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
+import { colors, spacings } from '../../../lib/foundations';
+import { useHistory } from '../../../lib/history';
+import { formatHtml } from '../../../lib/html-formatter';
+import { useTunnelProtocol } from '../../../lib/relay-settings-hooks';
+import { useBoolean } from '../../../lib/utility-hooks';
+import { RelaySettingsRedux } from '../../../redux/settings/reducers';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import {
+  AriaDescription,
+  AriaDetails,
+  AriaInput,
+  AriaInputGroup,
+  AriaLabel,
+} from '../../AriaGroup';
+import * as Cell from '../../cell';
+import Selector, { SelectorItem } from '../../cell/Selector';
+import CustomDnsSettings from '../../CustomDnsSettings';
+import { ExternalLink } from '../../ExternalLink';
+import InfoButton from '../../InfoButton';
+import { BackAction } from '../../KeyboardNavigation';
+import {
+  Layout,
+  SettingsContainer,
+  SettingsContent,
+  SettingsGroup,
+  SettingsStack,
+} from '../../Layout';
+import { ModalAlert, ModalAlertType, ModalMessage } from '../../Modal';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationListItem } from '../../NavigationListItem';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 
 const StyledInfoButton = styled(InfoButton)({
   marginRight: spacings.medium,
@@ -53,7 +65,7 @@ const IndentedValueLabel = styled(Cell.ValueLabel)({
   marginLeft: spacings.medium,
 });
 
-export default function VpnSettings() {
+export function VpnSettings() {
   const { pop } = useHistory();
 
   return (
