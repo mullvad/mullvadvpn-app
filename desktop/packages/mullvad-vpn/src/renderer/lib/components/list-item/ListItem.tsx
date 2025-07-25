@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import React from 'react';
 
 import { Flex } from '../flex';
 import {
@@ -14,22 +14,21 @@ import {
 import { levels } from './levels';
 import { ListItemProvider } from './ListItemContext';
 
-export interface ListItemProps {
+export type ListItemAnimation = 'flash' | 'dim';
+
+export type ListItemProps = {
   level?: keyof typeof levels;
   disabled?: boolean;
+  animation?: ListItemAnimation;
   children: React.ReactNode;
-}
+} & React.HtmlHTMLAttributes<HTMLDivElement>;
 
-const StyledFlex = styled(Flex)`
-  margin-bottom: 1px;
-`;
-
-const ListItem = ({ level = 0, disabled, children }: ListItemProps) => {
+const ListItem = ({ level = 0, disabled, animation, children, ...props }: ListItemProps) => {
   return (
-    <ListItemProvider level={level} disabled={disabled}>
-      <StyledFlex $flexDirection="column" $gap="tiny" $flex={1}>
+    <ListItemProvider level={level} disabled={disabled} animation={animation}>
+      <Flex $flexDirection="column" $flex={1} {...props}>
         {children}
-      </StyledFlex>
+      </Flex>
     </ListItemProvider>
   );
 };
