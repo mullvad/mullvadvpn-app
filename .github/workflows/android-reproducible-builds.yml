@@ -73,7 +73,7 @@ jobs:
 
   build-using-fdroidserver:
     name: Build fdroid variant using fdroidserver
-    runs-on: ubuntu-latest
+    runs-on: ubuntu24/20250713.1
     needs: set-up-env
     steps:
       - name: Install fdroidserver
