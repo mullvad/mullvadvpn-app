@@ -1,0 +1,12 @@
+/* No comment provided by engineer. */
+"DESCRIPTION_LABEL" = "You have removed this device. To connect again, you will need to log back in.";
+
+/* No comment provided by engineer. */
+"GOTO_LOGIN_BUTTON_LABEL" = "Go to login";
+
+/* No comment provided by engineer. */
+"TITLE_LABEL" = "Device is inactive";
+
+/* No comment provided by engineer. */
+"UNBLOCK_INTERNET_LABEL" = "Going to login will unblock the Internet on this device.";
+

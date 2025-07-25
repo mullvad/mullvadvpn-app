@@ -1,0 +1,39 @@
+/* No comment provided by engineer. */
+"RELAY_FILTER_ALL_PROVIDERS_LABEL" = "All Providers";
+
+/* No comment provided by engineer. */
+"RELAY_FILTER_ANY_LABEL" = "Any";
+
+/* No comment provided by engineer. */
+"RELAY_FILTER_APPLIED_DAITA" = "Setting: DAITA";
+
+/* No comment provided by engineer. */
+"RELAY_FILTER_APPLIED_OBFUSCATION" = "Setting: Obfuscation";
+
+/* No comment provided by engineer. */
+"RELAY_FILTER_APPLIED_OWNERSHIP" = "RELAY_FILTER_APPLIED_OWNERSHIP";
+
+/* No comment provided by engineer. */
+"RELAY_FILTER_APPLIED_PROVIDERS" = "Providers: %d";
+
+/* No comment provided by engineer. */
+"RELAY_FILTER_APPLIED_TITLE" = "Filtered:";
+
+/* No comment provided by engineer. */
+"RELAY_FILTER_BUTTON_DESCRIPTION" = "When using DAITA, one provider with DAITA-enabled servers is required.";
+
+/* No comment provided by engineer. */
+"RELAY_FILTER_BUTTON_TITLE" = "No matching servers";
+
+/* No comment provided by engineer. */
+"RELAY_FILTER_NAVIGATION_TITLE" = "Filter";
+
+/* No comment provided by engineer. */
+"RELAY_FILTER_OWNED_LABEL" = "Owned";
+
+/* Format for DAITA provider description */
+"RELAY_FILTER_PROVIDER_DESCRIPTION_FORMAT_LABEL" = "DAITA-enabled";
+
+/* No comment provided by engineer. */
+"RELAY_FILTER_RENTED_LABEL" = "Rented";
+

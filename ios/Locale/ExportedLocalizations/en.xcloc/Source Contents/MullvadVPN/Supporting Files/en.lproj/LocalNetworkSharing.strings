@@ -1,0 +1,6 @@
+/* No comment provided by engineer. */
+"VPN_SETTINGS_LOCAL_NETWORK_SHARING" = "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.\nAttention: toggling “Local network sharing” requires restarting the VPN connection.";
+
+/* No comment provided by engineer. */
+"VPN_SETTINGS_LOCAL_NETWORK_SHARING_WARNING" = "(value) “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.\nTo prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.\nWould you like to continue to enable “Local network sharing”?";
+
