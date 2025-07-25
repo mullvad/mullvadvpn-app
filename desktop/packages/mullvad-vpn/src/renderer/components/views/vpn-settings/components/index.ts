@@ -3,6 +3,7 @@ export * from './auto-connect';
 export * from './auto-start';
 export * from './dns-blockers';
 export * from './enable-ipv6';
+export * from './ip-override-button';
 export * from './kill-switch-info';
 export * from './lockdown-mode';
 export * from './open-vpn-settings-button';
