@@ -43,6 +43,7 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationListItem } from '../../NavigationListItem';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
+import { AutoStart } from './components';
 
 const StyledInfoButton = styled(InfoButton)({
   marginRight: spacings.medium,
@@ -132,38 +133,6 @@ export function VpnSettingsView() {
         </SettingsContainer>
       </Layout>
     </BackAction>
-  );
-}
-
-function AutoStart() {
-  const autoStart = useSelector((state) => state.settings.autoStart);
-  const { setAutoStart: setAutoStartImpl } = useAppContext();
-
-  const setAutoStart = useCallback(
-    async (autoStart: boolean) => {
-      try {
-        await setAutoStartImpl(autoStart);
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Cannot set auto-start: ${error.message}`);
-      }
-    },
-    [setAutoStartImpl],
-  );
-
-  return (
-    <AriaInputGroup>
-      <Cell.Container>
-        <AriaLabel>
-          <Cell.InputLabel>
-            {messages.pgettext('vpn-settings-view', 'Launch app on start-up')}
-          </Cell.InputLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch isOn={autoStart} onChange={setAutoStart} />
-        </AriaInput>
-      </Cell.Container>
-    </AriaInputGroup>
   );
 }
 
