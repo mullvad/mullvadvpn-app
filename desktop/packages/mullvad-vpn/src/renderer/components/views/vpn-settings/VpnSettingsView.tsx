@@ -3,16 +3,15 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { strings, urls } from '../../../../shared/constants';
-import { IDnsOptions, TunnelProtocol } from '../../../../shared/daemon-rpc-types';
+import { TunnelProtocol } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
 import log from '../../../../shared/logging';
 import { RoutePath } from '../../../../shared/routes';
 import { useAppContext } from '../../../context';
 import { Button } from '../../../lib/components';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
-import { colors, spacings } from '../../../lib/foundations';
+import { spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
-import { formatHtml } from '../../../lib/html-formatter';
 import { useTunnelProtocol } from '../../../lib/relay-settings-hooks';
 import { useBoolean } from '../../../lib/utility-hooks';
 import { RelaySettingsRedux } from '../../../redux/settings/reducers';
@@ -43,22 +42,10 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationListItem } from '../../NavigationListItem';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { AllowLan, AutoConnect, AutoStart } from './components';
+import { AllowLan, AutoConnect, AutoStart, DnsBlockers } from './components';
 
 const StyledInfoButton = styled(InfoButton)({
   marginRight: spacings.medium,
-});
-
-const StyledTitleLabel = styled(Cell.SectionTitle)({
-  flex: 1,
-});
-
-const StyledSectionItem = styled(Cell.Container)({
-  backgroundColor: colors.blue40,
-});
-
-const IndentedValueLabel = styled(Cell.ValueLabel)({
-  marginLeft: spacings.medium,
 });
 
 export function VpnSettingsView() {
@@ -128,258 +115,6 @@ export function VpnSettingsView() {
         </SettingsContainer>
       </Layout>
     </BackAction>
-  );
-}
-
-function useDns(setting: keyof IDnsOptions['defaultOptions']) {
-  const dns = useSelector((state) => state.settings.dns);
-  const { setDnsOptions } = useAppContext();
-
-  const updateBlockSetting = useCallback(
-    (enabled: boolean) =>
-      setDnsOptions({
-        ...dns,
-        defaultOptions: {
-          ...dns.defaultOptions,
-          [setting]: enabled,
-        },
-      }),
-    [setting, dns, setDnsOptions],
-  );
-
-  return [dns, updateBlockSetting] as const;
-}
-
-function DnsBlockers() {
-  const dns = useSelector((state) => state.settings.dns);
-  const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
-
-  const title = (
-    <>
-      <StyledTitleLabel as="label" disabled={dns.state === 'custom'}>
-        {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
-      </StyledTitleLabel>
-      <StyledInfoButton>
-        <ModalMessage>
-          {messages.pgettext(
-            'vpn-settings-view',
-            'When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.',
-          )}
-        </ModalMessage>
-        <ModalMessage>
-          {messages.pgettext(
-            'vpn-settings-view',
-            'This might cause issues on certain websites, services, and apps.',
-          )}
-        </ModalMessage>
-        <ModalMessage>
-          {formatHtml(
-            sprintf(
-              messages.pgettext(
-                'vpn-settings-view',
-                'Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>',
-              ),
-              { customDnsFeatureName },
-            ),
-          )}
-        </ModalMessage>
-      </StyledInfoButton>
-    </>
-  );
-
-  return (
-    <Cell.ExpandableSection sectionTitle={title} expandableId="dns-blockers">
-      <BlockAds />
-      <BlockTrackers />
-      <BlockMalware />
-      <BlockGambling />
-      <BlockAdultContent />
-      <BlockSocialMedia />
-    </Cell.ExpandableSection>
-  );
-}
-
-function BlockAds() {
-  const [dns, setBlockAds] = useDns('blockAds');
-
-  return (
-    <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
-        <AriaLabel>
-          <IndentedValueLabel>
-            {
-              // TRANSLATORS: Label for settings that enables ad blocking.
-              messages.pgettext('vpn-settings-view', 'Ads')
-            }
-          </IndentedValueLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch
-            isOn={dns.state === 'default' && dns.defaultOptions.blockAds}
-            onChange={setBlockAds}
-          />
-        </AriaInput>
-      </StyledSectionItem>
-    </AriaInputGroup>
-  );
-}
-
-function BlockTrackers() {
-  const [dns, setBlockTrackers] = useDns('blockTrackers');
-
-  return (
-    <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
-        <AriaLabel>
-          <IndentedValueLabel>
-            {
-              // TRANSLATORS: Label for settings that enables tracker blocking.
-              messages.pgettext('vpn-settings-view', 'Trackers')
-            }
-          </IndentedValueLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch
-            isOn={dns.state === 'default' && dns.defaultOptions.blockTrackers}
-            onChange={setBlockTrackers}
-          />
-        </AriaInput>
-      </StyledSectionItem>
-    </AriaInputGroup>
-  );
-}
-
-function BlockMalware() {
-  const [dns, setBlockMalware] = useDns('blockMalware');
-
-  return (
-    <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
-        <AriaLabel>
-          <IndentedValueLabel>
-            {
-              // TRANSLATORS: Label for settings that enables malware blocking.
-              messages.pgettext('vpn-settings-view', 'Malware')
-            }
-          </IndentedValueLabel>
-        </AriaLabel>
-        <AriaDetails>
-          <StyledInfoButton>
-            <ModalMessage>
-              {messages.pgettext(
-                'vpn-settings-view',
-                'Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.',
-              )}
-            </ModalMessage>
-          </StyledInfoButton>
-        </AriaDetails>
-        <AriaInput>
-          <Cell.Switch
-            isOn={dns.state === 'default' && dns.defaultOptions.blockMalware}
-            onChange={setBlockMalware}
-          />
-        </AriaInput>
-      </StyledSectionItem>
-    </AriaInputGroup>
-  );
-}
-
-function BlockGambling() {
-  const [dns, setBlockGambling] = useDns('blockGambling');
-
-  return (
-    <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
-        <AriaLabel>
-          <IndentedValueLabel>
-            {
-              // TRANSLATORS: Label for settings that enables block of gamling related websites.
-              messages.pgettext('vpn-settings-view', 'Gambling')
-            }
-          </IndentedValueLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch
-            isOn={dns.state === 'default' && dns.defaultOptions.blockGambling}
-            onChange={setBlockGambling}
-          />
-        </AriaInput>
-      </StyledSectionItem>
-    </AriaInputGroup>
-  );
-}
-
-function BlockAdultContent() {
-  const [dns, setBlockAdultContent] = useDns('blockAdultContent');
-
-  return (
-    <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
-        <AriaLabel>
-          <IndentedValueLabel>
-            {
-              // TRANSLATORS: Label for settings that enables block of adult content.
-              messages.pgettext('vpn-settings-view', 'Adult content')
-            }
-          </IndentedValueLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch
-            isOn={dns.state === 'default' && dns.defaultOptions.blockAdultContent}
-            onChange={setBlockAdultContent}
-          />
-        </AriaInput>
-      </StyledSectionItem>
-    </AriaInputGroup>
-  );
-}
-
-function BlockSocialMedia() {
-  const [dns, setBlockSocialMedia] = useDns('blockSocialMedia');
-
-  return (
-    <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
-        <AriaLabel>
-          <IndentedValueLabel>
-            {
-              // TRANSLATORS: Label for settings that enables block of social media.
-              messages.pgettext('vpn-settings-view', 'Social media')
-            }
-          </IndentedValueLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch
-            isOn={dns.state === 'default' && dns.defaultOptions.blockSocialMedia}
-            onChange={setBlockSocialMedia}
-          />
-        </AriaInput>
-      </StyledSectionItem>
-      {dns.state === 'custom' && <CustomDnsEnabledFooter />}
-    </AriaInputGroup>
-  );
-}
-
-function CustomDnsEnabledFooter() {
-  const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
-
-  // TRANSLATORS: This is displayed when the custom DNS setting is turned on which makes the block
-  // TRANSLATORS: ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
-  // TRANSLATORS: Available placeholders:
-  // TRANSLATORS: %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
-  const blockingDisabledText = messages.pgettext(
-    'vpn-settings-view',
-    'Disable <b>%(customDnsFeatureName)s</b> below to activate these settings.',
-  );
-
-  return (
-    <Cell.CellFooter>
-      <AriaDescription>
-        <Cell.CellFooterText>
-          {formatHtml(sprintf(blockingDisabledText, { customDnsFeatureName }))}
-        </Cell.CellFooterText>
-      </AriaDescription>
-    </Cell.CellFooter>
   );
 }
 
