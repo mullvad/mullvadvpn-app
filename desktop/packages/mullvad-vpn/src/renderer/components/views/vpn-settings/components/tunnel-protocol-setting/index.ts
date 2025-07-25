@@ -1,1 +1,1 @@
-export * from './TunnelProtocolSetting';
+export * from './TunnelProtocol';
