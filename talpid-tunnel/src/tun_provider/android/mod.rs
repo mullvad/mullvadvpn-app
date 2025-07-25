@@ -401,7 +401,8 @@ impl VpnServiceTun {
     }
 
     /// Allow a socket to bypass the tunnel.
-    pub fn bypass(&mut self, socket: &impl AsFd) -> Result<(), Error> {
+    // TODO: is it ok to not mutably borrow self?
+    pub fn bypass(&self, socket: &impl AsFd) -> Result<(), Error> {
         let env = JnixEnv::from(
             self.jvm
                 .attach_current_thread_as_daemon()

@@ -112,6 +112,8 @@ async fn config_ephemeral_peers_inner(
 
     log::debug!("Retrieved ephemeral peer");
 
+    log::debug!("!!! exit config: {:?}", config.exit_peer);
+
     if config.is_multihop() {
         // Set up tunnel to lead to entry
         let mut entry_tun_config = config.clone();
@@ -122,6 +124,7 @@ async fn config_ephemeral_peers_inner(
             .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());
 
         let close_obfs_sender = close_obfs_sender.clone();
+        log::debug!("reconfigure tunnel 1");
         let entry_config = reconfigure_tunnel(
             tunnel,
             entry_tun_config,
@@ -153,6 +156,7 @@ async fn config_ephemeral_peers_inner(
 
     config.tunnel.private_key = ephemeral_private_key;
 
+    log::debug!("reconfigure tunnel 2");
     *config = reconfigure_tunnel(
         tunnel,
         config.clone(),
