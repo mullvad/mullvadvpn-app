@@ -1,10 +1,6 @@
-import { sprintf } from 'sprintf-js';
-
-import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
 import { useHistory } from '../../../lib/history';
-import { useTunnelProtocol } from '../../../lib/relay-settings-hooks';
 import { AppNavigationHeader } from '../..';
 import CustomDnsSettings from '../../CustomDnsSettings';
 import { BackAction } from '../../KeyboardNavigation';
@@ -27,6 +23,7 @@ import {
   EnableIpv6,
   KillSwitchInfo,
   LockdownMode,
+  OpenVpnSettingsButton,
   TunnelProtocolSetting,
   WireguardSettingsButton,
 } from './components';
@@ -98,23 +95,6 @@ export function VpnSettingsView() {
         </SettingsContainer>
       </Layout>
     </BackAction>
-  );
-}
-
-function OpenVpnSettingsButton() {
-  const tunnelProtocol = useTunnelProtocol();
-
-  return (
-    <NavigationListItem to={RoutePath.openVpnSettings} disabled={tunnelProtocol === 'wireguard'}>
-      <NavigationListItem.Label>
-        {sprintf(
-          // TRANSLATORS: %(openvpn)s will be replaced with the string "OpenVPN"
-          messages.pgettext('vpn-settings-view', '%(openvpn)s settings'),
-          { openvpn: strings.openvpn },
-        )}
-      </NavigationListItem.Label>
-      <NavigationListItem.Icon icon="chevron-right" />
-    </NavigationListItem>
   );
 }
 

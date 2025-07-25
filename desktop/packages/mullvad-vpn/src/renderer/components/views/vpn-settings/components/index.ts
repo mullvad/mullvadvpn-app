@@ -5,5 +5,6 @@ export * from './dns-blockers';
 export * from './enable-ipv6';
 export * from './kill-switch-info';
 export * from './lockdown-mode';
+export * from './open-vpn-settings-button';
 export * from './tunnel-protocol-setting';
 export * from './wireguard-settings-button';
