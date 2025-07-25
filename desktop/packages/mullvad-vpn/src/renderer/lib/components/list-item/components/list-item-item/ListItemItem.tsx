@@ -1,15 +1,20 @@
-import styled, { css } from 'styled-components';
+import styled, { css, RuleSet } from 'styled-components';
 
-import { useBackgroundColor } from './hooks';
+import { useAnimation, useBackgroundColor } from './hooks';
 
 export interface ListItemItemProps {
   children: React.ReactNode;
 }
 
-const StyledDiv = styled.div<{ $backgroundColor: string }>`
-  ${({ $backgroundColor }) => {
+export const StyledListItemItem = styled.div<{
+  $backgroundColor: string;
+  $animation?: RuleSet<object>;
+}>`
+  ${({ $backgroundColor, $animation }) => {
     return css`
       --background-color: ${$backgroundColor};
+
+      margin-bottom: 1px;
       background-color: var(--background-color);
       min-height: 48px;
       width: 100%;
@@ -19,11 +24,17 @@ const StyledDiv = styled.div<{ $backgroundColor: string }>`
       &&:has(> :last-child:nth-child(2)) {
         grid-template-columns: 1fr 56px;
       }
+      ${$animation}
     `;
   }}
 `;
 
-export function ListItemItem({ children }: ListItemItemProps) {
+export function ListItemItem({ children, ...props }: ListItemItemProps) {
   const backgroundColor = useBackgroundColor();
-  return <StyledDiv $backgroundColor={backgroundColor}>{children}</StyledDiv>;
+  const animation = useAnimation();
+  return (
+    <StyledListItemItem $backgroundColor={backgroundColor} $animation={animation} {...props}>
+      {children}
+    </StyledListItemItem>
+  );
 }
