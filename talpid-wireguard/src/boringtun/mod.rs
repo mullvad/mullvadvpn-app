@@ -41,7 +41,13 @@ const PACKET_CHANNEL_CAPACITY: usize = 100;
 
 pub struct BoringTun {
     /// Device handles
-    devices: Devices,
+    // TODO: Can we not store this in an option?
+    devices: Option<Devices>,
+
+    tun: Arc<AsyncDevice>,
+
+    #[cfg(target_os = "android")]
+    android_tun: Arc<Tun>,
 
     /// Tunnel config
     config: Config,
@@ -67,7 +73,7 @@ enum Devices {
 
 #[cfg(target_os = "android")]
 struct AndroidUdpSocketFactory {
-    pub tun: Tun,
+    pub tun: Arc<Tun>,
 }
 
 #[cfg(target_os = "android")]
@@ -111,11 +117,6 @@ pub async fn open_boringtun_tunnel(
         }
     };
 
-    let (entry_api, entry_api_server) = ApiServer::new();
-    let boringtun_entry_config = DeviceConfig {
-        api: Some(entry_api_server),
-    };
-
     #[cfg(target_os = "android")]
     let (tun, async_tun) = {
         let _ = routes; // TODO: do we need this?
@@ -142,7 +143,7 @@ pub async fn open_boringtun_tunnel(
 
         let device = tun07::Device::new(&tun_config).unwrap();
 
-        (tun, tun07::AsyncDevice::new(device).unwrap())
+        (Arc::new(tun), tun07::AsyncDevice::new(device).unwrap())
     };
 
     let interface_name = async_tun.deref().tun_name().unwrap();
@@ -150,7 +151,52 @@ pub async fn open_boringtun_tunnel(
     log::info!("passing tunnel dev to boringtun");
     let async_tun = Arc::new(async_tun);
 
-    let mut boringtun = if config.exit_peer.is_some() {
+    let mut boringtun = BoringTun {
+        config: config.clone(),
+        interface_name,
+        tun: async_tun.clone(),
+        #[cfg(target_os = "android")]
+        android_tun: tun.clone(),
+        devices: Some(
+            create_devices(
+                config,
+                async_tun,
+                #[cfg(target_os = "android")]
+                tun,
+            )
+            .await,
+        ),
+    };
+
+    // FIXME: double clone
+    boringtun.set_config(config.clone()).await?;
+
+    log::info!(
+        "This tunnel was brought to you by...
+    .........................................................
+    ..*...*.. .--.                    .---.         ..*....*.
+    ...*..... |   )         o           |           ......*..
+    .*..*..*. |--:  .-. .--..  .--. .-..|.  . .--.  ...*.....
+    ...*..... |   )(   )|   |  |  |(   |||  | |  |  .*.....*.
+    *.....*.. '--'  `-' ' -' `-'  `-`-`|'`--`-'  `- .....*...
+    .........                       ._.'            ..*...*..
+    ..*...*.............................................*...."
+    );
+
+    Ok(boringtun)
+}
+
+async fn create_devices(
+    config: &Config,
+    async_tun: Arc<AsyncDevice>,
+    #[cfg(target_os = "android")] tun: Arc<Tun>,
+) -> Devices {
+    let (entry_api, entry_api_server) = ApiServer::new();
+    let boringtun_entry_config = DeviceConfig {
+        api: Some(entry_api_server),
+    };
+
+    if config.exit_peer.is_some() {
         // multihop
 
         let source_v4 = config.tunnel.addresses.iter().find_map(|ip| match ip {
@@ -178,8 +224,7 @@ pub async fn open_boringtun_tunnel(
                 api: Some(exit_api_server),
             },
         )
-        .await
-        .map_err(TunnelError::BoringTunDevice)?;
+        .await;
 
         #[cfg(target_os = "android")]
         let factory = AndroidUdpSocketFactory { tun };
@@ -188,19 +233,13 @@ pub async fn open_boringtun_tunnel(
         let factory = UdpSocketFactory;
 
         let entry_device =
-            EntryDevice::new(factory, channel.clone(), channel, boringtun_entry_config)
-                .await
-                .map_err(TunnelError::BoringTunDevice)?;
+            EntryDevice::new(factory, channel.clone(), channel, boringtun_entry_config).await;
 
-        BoringTun {
-            config: config.clone(),
-            interface_name,
-            devices: Devices::Multihop {
-                entry_device,
-                entry_api,
-                exit_device,
-                exit_api,
-            },
+        Devices::Multihop {
+            entry_device,
+            entry_api,
+            exit_device,
+            exit_api,
         }
     } else {
         #[cfg(target_os = "android")]
@@ -215,35 +254,13 @@ pub async fn open_boringtun_tunnel(
             async_tun,
             boringtun_entry_config,
         )
-        .await
-        .map_err(TunnelError::BoringTunDevice)?;
+        .await;
 
-        BoringTun {
-            devices: Devices::Singlehop {
-                device,
-                api: entry_api,
-            },
-            config: config.clone(),
-            interface_name,
+        Devices::Singlehop {
+            device,
+            api: entry_api,
         }
-    };
-
-    // FIXME: double clone
-    boringtun.set_config(config.clone()).await?;
-
-    log::info!(
-        "This tunnel was brought to you by...
-    .........................................................
-    ..*...*.. .--.                    .---.         ..*....*.
-    ...*..... |   )         o           |           ......*..
-    .*..*..*. |--:  .-. .--..  .--. .-..|.  . .--.  ...*.....
-    ...*..... |   )(   )|   |  |  |(   |||  | |  |  .*.....*.
-    *.....*.. '--'  `-' ' -' `-'  `-`-`|'`--`-'  `- .....*...
-    .........                       ._.'            ..*...*..
-    ..*...*.............................................*...."
-    );
-
-    Ok(boringtun)
+    }
 }
 
 #[async_trait::async_trait]
@@ -252,10 +269,10 @@ impl Tunnel for BoringTun {
         self.interface_name.clone()
     }
 
-    fn stop(self: Box<Self>) -> Result<(), TunnelError> {
+    fn stop(mut self: Box<Self>) -> Result<(), TunnelError> {
         log::info!("BoringTun::stop"); // remove me
         tokio::runtime::Handle::current().block_on(async {
-            match self.devices {
+            match self.devices.take().unwrap() {
                 Devices::Singlehop { device, .. } => {
                     device.stop().await;
                 }
@@ -276,7 +293,7 @@ impl Tunnel for BoringTun {
     async fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
         let mut stats = StatsMap::default();
 
-        let apis = match &self.devices {
+        let apis = match self.devices.as_ref().unwrap() {
             Devices::Singlehop { api, .. } => [Some(api), None],
             Devices::Multihop {
                 entry_api,
@@ -311,13 +328,36 @@ impl Tunnel for BoringTun {
         config: Config,
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
         Box::pin(async move {
-            self.config = config;
-            match &mut self.devices {
+            let old_config = std::mem::replace(&mut self.config, config);
+
+            if old_config.is_multihop() != self.config.is_multihop() {
+                // TODO: Update existing tunnels?
+                match self.devices.take().unwrap() {
+                    Devices::Singlehop { device, .. } => {
+                        device.stop().await;
+                    }
+                    Devices::Multihop {
+                        entry_device,
+                        exit_device,
+                        ..
+                    } => {
+                        exit_device.stop().await;
+                        entry_device.stop().await;
+                    }
+                }
+
+                self.devices = Some(
+                    create_devices(
+                        &self.config,
+                        self.tun.clone(),
+                        #[cfg(target_os = "android")]
+                        self.android_tun.clone(),
+                    )
+                    .await,
+                );
+            }
+            match self.devices.as_mut().unwrap() {
                 Devices::Singlehop { api, .. } => {
-                    assert!(
-                        self.config.exit_peer.is_none(),
-                        "todo: support switching between single and multihop"
-                    );
                     set_boringtun_config(api, &self.config).await?;
                 }
                 Devices::Multihop {
@@ -325,10 +365,6 @@ impl Tunnel for BoringTun {
                     exit_api,
                     ..
                 } => {
-                    assert!(
-                        self.config.exit_peer.is_some(),
-                        "todo: support switching between single and multihop"
-                    );
                     set_boringtun_entry_config(entry_api, &self.config).await?;
                     set_boringtun_exit_config(exit_api, &self.config).await?;
                 }
