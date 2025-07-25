@@ -118,6 +118,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
             lastReachableDataSource: accessMethodRepository.lastReachableAccessMethodPublisher
         )
+        apiContext.accessMethodChangeListener = accessMethodRepository
 
         setUpProxies(containerURL: containerURL)
         let backgroundTaskProvider = BackgroundTaskProvider(

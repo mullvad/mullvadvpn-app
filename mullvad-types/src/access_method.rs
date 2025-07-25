@@ -195,6 +195,10 @@ impl Id {
         use std::str::FromStr;
         uuid::Uuid::from_str(&id).ok().map(Self)
     }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
 }
 
 impl std::fmt::Display for Id {
