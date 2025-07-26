@@ -7,14 +7,13 @@ use crate::{
 use boringtun::udp::UdpTransportFactory;
 use boringtun::{
     device::{
-        DeviceConfig, DeviceHandle,
-        api::{ApiClient, ApiServer, command::*},
-        peer::AllowedIP,
+        api::{command::*, ApiClient, ApiServer}, peer::{AllowedIP, SingleDeviceFwd, SinglePeerTun}, DeviceConfig, DeviceHandle
     },
-    udp::{UdpSocketFactory, channel::PacketChannel},
+    udp::{channel::PacketChannel, UdpSocketFactory, UdpTransport, UdpTransportFactory, UdpTransportFactoryParams},
 };
 #[cfg(not(target_os = "android"))]
 use ipnetwork::IpNetwork;
+use tokio::net::UdpSocket;
 #[cfg(target_os = "android")]
 use std::os::fd::IntoRawFd;
 use std::{
@@ -58,8 +57,9 @@ pub struct BoringTun {
 
 enum Devices {
     Singlehop {
-        device: SinglehopDevice,
-        api: ApiClient,
+        //device: SinglehopDevice,
+        //api: ApiClient,
+        device: SingleDeviceFwd,
     },
 
     Multihop {
@@ -199,7 +199,7 @@ async fn create_devices(
     if config.exit_peer.is_some() {
         // multihop
 
-        let source_v4 = config.tunnel.addresses.iter().find_map(|ip| match ip {
+        let source_v4: Option<Ipv4Addr> = config.tunnel.addresses.iter().find_map(|ip| match ip {
             &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
             IpAddr::V6(..) => None,
         });
@@ -242,7 +242,7 @@ async fn create_devices(
             exit_api,
         }
     } else {
-        #[cfg(target_os = "android")]
+        /*#[cfg(target_os = "android")]
         let factory = AndroidUdpSocketFactory { tun };
 
         #[cfg(not(target_os = "android"))]
@@ -259,6 +259,39 @@ async fn create_devices(
         Devices::Singlehop {
             device,
             api: entry_api,
+        }*/
+        let source_v4 = config.tunnel.addresses.iter().find_map(|ip| match ip {
+            &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
+            IpAddr::V6(..) => None,
+        });
+
+        let source_v6 = config.tunnel.addresses.iter().find_map(|ip| match ip {
+            &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
+            IpAddr::V4(..) => None,
+        });
+        let endpoint_socket = UdpSocket::bind("0.0.0.0:0")
+            .await
+            .expect("Failed to bind UDP socket");
+        if let Some(fwmark) = config.fwmark {
+            endpoint_socket
+                .set_fwmark(fwmark)
+                .expect("Failed to set fwmark on UDP socket");
+        }
+
+        let peer_tun = SinglePeerTun::new(
+            config.tunnel.private_key.to_bytes().into(),
+            (*config.entry_peer.public_key.as_bytes()).into(),
+            config.entry_peer.endpoint,
+            // TODO
+            None,
+            &config.entry_peer.allowed_ips.iter().map(|ip| AllowedIP {
+                addr: ip.ip(),
+                cidr: ip.prefix(),
+            }).collect::<Vec<_>>(),
+        );
+
+        Devices::Singlehop {
+            device: SingleDeviceFwd::new(async_tun, Arc::new(endpoint_socket), peer_tun),
         }
     }
 }
@@ -274,7 +307,7 @@ impl Tunnel for BoringTun {
         tokio::runtime::Handle::current().block_on(async {
             match self.devices.take().unwrap() {
                 Devices::Singlehop { device, .. } => {
-                    device.stop().await;
+                    device.stop();
                 }
                 Devices::Multihop {
                     entry_device,
@@ -294,7 +327,18 @@ impl Tunnel for BoringTun {
         let mut stats = StatsMap::default();
 
         let apis = match self.devices.as_ref().unwrap() {
-            Devices::Singlehop { api, .. } => [Some(api), None],
+            //Devices::Singlehop { api, .. } => [Some(api), None],
+            Devices::Singlehop { device, .. } => {
+                let (tx_bytes, rx_bytes) = device.stats();
+                stats.insert(
+                    self.config.entry_peer.public_key.as_bytes().to_owned(),
+                    Stats {
+                        tx_bytes: tx_bytes as u64,
+                        rx_bytes: rx_bytes as u64,
+                    },
+                );
+                return Ok(stats);
+            }
             Devices::Multihop {
                 entry_api,
                 exit_api,
@@ -328,13 +372,15 @@ impl Tunnel for BoringTun {
         config: Config,
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
         Box::pin(async move {
-            let old_config = std::mem::replace(&mut self.config, config);
+            log::warn!("set_config is ignored");
+            /*let old_config = std::mem::replace(&mut self.config, config);
 
             if old_config.is_multihop() != self.config.is_multihop() {
                 // TODO: Update existing tunnels?
                 match self.devices.take().unwrap() {
                     Devices::Singlehop { device, .. } => {
-                        device.stop().await;
+                        //device.stop().await;
+                        log::warn!("set_config is ignored");
                     }
                     Devices::Multihop {
                         entry_device,
@@ -358,7 +404,8 @@ impl Tunnel for BoringTun {
             }
             match self.devices.as_mut().unwrap() {
                 Devices::Singlehop { api, .. } => {
-                    set_boringtun_config(api, &self.config).await?;
+                    //set_boringtun_config(api, &self.config).await?;
+                    log::warn!("set_config is ignored");
                 }
                 Devices::Multihop {
                     entry_api,
@@ -368,7 +415,7 @@ impl Tunnel for BoringTun {
                     set_boringtun_entry_config(entry_api, &self.config).await?;
                     set_boringtun_exit_config(exit_api, &self.config).await?;
                 }
-            }
+            }*/
             Ok(())
         })
     }
