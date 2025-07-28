@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>HostName</key>
-	<string>$(HOST_NAME)</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>The app needs this to connect and test a new method.</string>
 	<key>ApplicationSecurityGroupIdentifier</key>
 	<string>$(SECURITY_GROUP_IDENTIFIER)</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
@@ -16,6 +12,29 @@
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>da</string>
+        <string>de</string>
+        <string>es</string>
+        <string>fi</string>
+        <string>fr</string>
+        <string>it</string>
+        <string>ja</string>
+        <string>ko</string>
+        <string>my</string>
+        <string>nb</string>
+        <string>nl</string>
+        <string>pl</string>
+        <string>pt-PT</string>
+        <string>ru</string>
+        <string>sv</string>
+        <string>th</string>
+        <string>tr</string>
+        <string>zh-Hans</string>
+        <string>zh-Hant</string>
+    </array>
 	<key>CFBundleDisplayName</key>
 	<string>$(DISPLAY_NAME)</string>
 	<key>CFBundleExecutable</key>
@@ -34,6 +53,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>HasTimeAccountNumber</key>
 	<string>$(HAS_TIME_ACCOUNT_NUMBER)</string>
+	<key>HostName</key>
+	<string>$(HOST_NAME)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -45,6 +66,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>The app needs this to connect and test a new method.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>StartVPNIntent</string>

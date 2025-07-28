@@ -2,12 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>HostName</key>
-	<string>$(HOST_NAME)</string>
 	<key>ApplicationSecurityGroupIdentifier</key>
 	<string>$(SECURITY_GROUP_IDENTIFIER)</string>
-	<key>MainApplicationIdentifier</key>
-	<string>$(APPLICATION_IDENTIFIER)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -26,17 +22,21 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>HostName</key>
+	<string>$(HOST_NAME)</string>
+	<key>MainApplicationIdentifier</key>
+	<string>$(APPLICATION_IDENTIFIER)</string>
 	<key>NSExtension</key>
 	<dict>
-		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.networkextension.packet-tunnel</string>
-		<key>NSExtensionPrincipalClass</key>
-		<string>$(PRODUCT_MODULE_NAME).PacketTunnelProvider</string>
 		<key>NSAppTransportSecurity</key>
 		<dict>
 			<key>NSAllowsArbitraryLoads</key>
 			<true/>
 		</dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.networkextension.packet-tunnel</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>$(PRODUCT_MODULE_NAME).PacketTunnelProvider</string>
 	</dict>
 </dict>
 </plist>

@@ -1,0 +1,2375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
+  <file original="en.lproj/CustomLists.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CUSTOM_LIST_NAME_TOO_LONG_ERROR" xml:space="preserve">
+        <source>Name should be no longer than %i characters.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DUPLICATE_CUSTOM_LISTS_ERROR" xml:space="preserve">
+        <source>A custom list with this name exists, please choose a unique name.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="en.lproj/VPNSettings.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="WIREGUARD_OBFUSCATION_SHADOWSOCKS_PORT_AUTOMATIC" xml:space="preserve">
+        <source>Automatic</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_OBFUSCATION_UDP_TCP_PORT_AUTOMATIC" xml:space="preserve">
+        <source>Automatic</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="Localizations/en.lproj/Localizable.strings" source-language="en" target-language="fr" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="%@" xml:space="preserve">
+        <source>%@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="%@ via %@" xml:space="preserve">
+        <source>%@ via %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="%@, %@" xml:space="preserve">
+        <source>%@, %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="%lld more..." xml:space="preserve">
+        <source>%lld more...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_CREATION_INAPP_NOTIFICATION_BODY" xml:space="preserve">
+        <source>Welcome, this device is now called **%@**. For more details see the info button in Account.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_CREATION_INAPP_NOTIFICATION_TITLE" xml:space="preserve">
+        <source>NEW DEVICE CREATED</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_BODY" xml:space="preserve">
+        <source>You can add more time via the account view or website to continue using the VPN.</source>
+        <note>Title for in-app notification, displayed within the last X days until account expiry.</note>
+      </trans-unit>
+      <trans-unit id="Active features" xml:space="preserve">
+        <source>Active features</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Add" xml:space="preserve">
+        <source>Add</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Agree and continue" xml:space="preserve">
+        <source>Agree and continue</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Are you sure you want to log %@ out?" xml:space="preserve">
+        <source>Are you sure you want to log %@ out?</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Blocked connection" xml:space="preserve">
+        <source>Blocked connection</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_DATE_COMPONENTS_FORMATTING_LESS_THAN_ONE_DAY" xml:space="preserve">
+        <source>Less than a day</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Cancel" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Collapses this location." xml:space="preserve">
+        <source>Collapses this location.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Connect" xml:space="preserve">
+        <source>Connect</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Connected" xml:space="preserve">
+        <source>Connected</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Connected to %@, %@" xml:space="preserve">
+        <source>Connected to %@, %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Connecting to %@, %@" xml:space="preserve">
+        <source>Connecting to %@, %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Connecting..." xml:space="preserve">
+        <source>Connecting...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Connection details" xml:space="preserve">
+        <source>Connection details</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Continue with login" xml:space="preserve">
+        <source>Continue with login</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Created: %@" xml:space="preserve">
+        <source>Created: %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Current device" xml:space="preserve">
+        <source>Current device</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Disconnect" xml:space="preserve">
+        <source>Disconnect</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Disconnected" xml:space="preserve">
+        <source>Disconnected</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Disconnecting..." xml:space="preserve">
+        <source>Disconnecting...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve">
+        <source>Do you agree to remaining anonymous?</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Expands this location." xml:space="preserve">
+        <source>Expands this location.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="FOOTER_SELECT_LOCATION_ALL_LOCATIONS" xml:space="preserve">
+        <source>No matching relays found, check your filter settings.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Fetching devices..." xml:space="preserve">
+        <source>Fetching devices...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="HEADER_SELECT_LOCATION_ADD_CUSTOM_LISTS" xml:space="preserve">
+        <source>Custom lists</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="HEADER_SELECT_LOCATION_ALL_LOCATIONS" xml:space="preserve">
+        <source>All locations</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="In" xml:space="preserve">
+        <source>In</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LATEST_CHANGES_IN_APP_NOTIFICATION_BODY" xml:space="preserve">
+        <source>**Tap here** to see what’s new.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LATEST_CHANGES_IN_APP_NOTIFICATION_TITLE" xml:space="preserve">
+        <source>NEW VERSION INSTALLED</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="No network" xml:space="preserve">
+        <source>No network</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Out IPv4" xml:space="preserve">
+        <source>Out IPv4</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Out IPv6" xml:space="preserve">
+        <source>Out IPv6</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings." xml:space="preserve">
+        <source>Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Reconnecting" xml:space="preserve">
+        <source>Reconnecting</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Reconnecting to %@, %@" xml:space="preserve">
+        <source>Reconnecting to %@, %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Remove" xml:space="preserve">
+        <source>Remove</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Remove %@?&#10;The device will be removed from the list and logged out." xml:space="preserve">
+        <source>Remove %@?
+The device will be removed from the list and logged out.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="START_TUNNEL_ERROR_INAPP_NOTIFICATION_BODY" xml:space="preserve">
+        <source>Failed to start the tunnel: %@.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="STOP_TUNNEL_ERROR_INAPP_NOTIFICATION_BODY" xml:space="preserve">
+        <source>Failed to stop the tunnel: %@.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Selected" xml:space="preserve">
+        <source>Selected</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Super!" xml:space="preserve">
+        <source>Super!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Switch location" xml:space="preserve">
+        <source>Switch location</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_BLOCKED_INAPP_NOTIFICATION_TITLE" xml:space="preserve">
+        <source>BLOCKING INTERNET</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_MANAGER_ERROR_INAPP_NOTIFICATION_TITLE" xml:space="preserve">
+        <source>TUNNEL ERROR</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_NO_CONNECTIVITY_INAPP_NOTIFICATION_BODY" xml:space="preserve">
+        <source>Your device is offline. The tunnel will automatically connect once your device is back online.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_NO_CONNECTIVITY_INAPP_NOTIFICATION_TITLE" xml:space="preserve">
+        <source>NETWORK ISSUES</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_NO_NETWORK_INAPP_NOTIFICATION_BODY" xml:space="preserve">
+        <source>Your device is offline. Try connecting again when the device has access to Internet.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_NO_NETWORK_INAPP_NOTIFICATION_TITLE" xml:space="preserve">
+        <source>NETWORK ISSUES</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Too many devices" xml:space="preserve">
+        <source>Too many devices</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily." xml:space="preserve">
+        <source>View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Yes, log out device" xml:space="preserve">
+        <source>Yes, log out device</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="You can now continue logging in on this device." xml:space="preserve">
+        <source>You can now continue logging in on this device.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve">
+        <source>You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
+
+In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
+
+We strongly believe in retaining as little data as possible because we want you to remain anonymous.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="value" xml:space="preserve">
+        <source>value</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Account.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ACCOUNT_ACCESSIBILITY_COPY_TO_PASTEBOARD" xml:space="preserve">
+        <source>Copy to pasteboard</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_ACCESSIBILITY_HIDE_ACCOUNT_NUMBER" xml:space="preserve">
+        <source>Hide account number</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_ACCESSIBILITY_OBSCURED" xml:space="preserve">
+        <source>Obscured</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_ACCESSIBILITY_SHOW_ACCOUNT_NUMBER" xml:space="preserve">
+        <source>Show account number</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_DELETION_PAGE_TITLE" xml:space="preserve">
+        <source>Account deletion</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_EXPIRY_LABEL" xml:space="preserve">
+        <source>Paid until</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_OUT_OF_TIME_LABEL" xml:space="preserve">
+        <source>OUT OF TIME</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_TOKEN_LABEL" xml:space="preserve">
+        <source>Account number</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ADD_TIME_BUTTON_TITLE" xml:space="preserve">
+        <source>Add time</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BODY_LABEL_TEXT" xml:space="preserve">
+        <source>Are you sure you want to delete account **(value)**?</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BUY_SUBSCRIPTION_STOREKIT_2" xml:space="preserve">
+        <source>Make a purchase with StoreKit2</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CANCEL_BUTTON_TITLE" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DELETE_ACCOUNT_BUTTON_TITLE" xml:space="preserve">
+        <source>Delete Account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DELETE_ACCOUNT_STATUS_WAITING" xml:space="preserve">
+        <source>Deleting account...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DELETE_BUTTON_TITLE" xml:space="preserve">
+        <source>Delete account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DEVICE_MANAGEMENT" xml:space="preserve">
+        <source>Manage devices</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DEVICE_NAME" xml:space="preserve">
+        <source>Device name</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DEVICE_NAME_HEADER_VIEW" xml:space="preserve">
+        <source>Device name: %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="INVALID_ACCOUNT_NUMBER" xml:space="preserve">
+        <source>Last four digits of the account number are incorrect</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LOGOUT_BUTTON_TITLE" xml:space="preserve">
+        <source>Log out</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NAVIGATION_TITLE" xml:space="preserve">
+        <source>Account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="REDEEM_VOUCHER_BUTTON_TITLE" xml:space="preserve">
+        <source>Redeem voucher</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_BUTTON_TITLE" xml:space="preserve">
+        <source>Restore purchases</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_DIALOG_MESSAGE" xml:space="preserve">
+        <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_DIALOG_OK_ACTION" xml:space="preserve">
+        <source>Got it!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_DIALOG_TITLE" xml:space="preserve">
+        <source>If you haven’t received additional VPN time after purchasing</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TIME_LEFT_HEADER_VIEW" xml:space="preserve">
+        <source>Time left: %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TIP_TEXT" xml:space="preserve">
+        <source>This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/AccountExpiry.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_TITLE" xml:space="preserve">
+        <source>%@ left on this account</source>
+        <note>Message for in-app notification, displayed within the last X days until account expiry.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY" xml:space="preserve">
+        <source>Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</source>
+        <note>Message for in-app notification, displayed on account expiry while connected to VPN.
+Message for in-app notification, displayed within the last 1 day until account expiry.
+Message for in-app notification, displayed within the last X days until account expiry.</note>
+      </trans-unit>
+      <trans-unit id="ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE" xml:space="preserve">
+        <source>Account credit expires soon</source>
+        <note>Title for system account expiry notification, fired X days prior to account expiry.
+Title for system account expiry notification, fired on account expiry.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/AccountInput.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ACCOUNT_INPUT_LOGIN_BUTTON_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Log in</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Last used account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="REMOVE_LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Remove last used account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/ActionSheet.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="SHEET_CANCEL_BUTTON" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/AddedTime.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ADDED_TIME_SUCCESS_MESSAGE" xml:space="preserve">
+        <source>%@ were added to your account.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/AddLocations.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ADD_LOCATIONS_NAVIGATION_TITLE" xml:space="preserve">
+        <source>Add locations</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/APIAccess.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ABOUT_API_ACCESS_BODY_1" xml:space="preserve">
+        <source>The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ABOUT_API_ACCESS_BODY_2" xml:space="preserve">
+        <source>On some networks, where various types of censorship are being used, the API servers might not be directly reachable.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ABOUT_API_ACCESS_BODY_3" xml:space="preserve">
+        <source>This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ABOUT_API_ACCESS_HEADER" xml:space="preserve">
+        <source>API access</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ABOUT_API_ACCESS_PREAMBLE" xml:space="preserve">
+        <source>Manage default and setup custom methods to access the Mullvad API.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACCESS_METHOD_HEADER_BODY" xml:space="preserve">
+        <source>About API access…</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="API_REACHABLE" xml:space="preserve">
+        <source>API reachable</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="API_TESTING_INPROGRESS" xml:space="preserve">
+        <source>Testing...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="API_UNREACHABLE" xml:space="preserve">
+        <source>API unreachable</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BRIDGES_ACCESS_METHOD_HEADER_BODY" xml:space="preserve">
+        <source>The app communicates with a Mullvad API server via a Mullvad bridge server.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BRIDGES_ACCESS_METHOD_HEADER_LINK" xml:space="preserve">
+        <source>About Mullvad bridges method...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BRIDGES_ACCESS_METHOD_MODAL_BODY_PART_1" xml:space="preserve">
+        <source>With the "Mullvad bridges" method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BRIDGES_ACCESS_METHOD_MODAL_BODY_PART_2" xml:space="preserve">
+        <source>This can be useful if the API is censored but Mullvad’s bridge servers are not.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BRIDGES_ACCESS_METHOD_MODAL_HEADER" xml:space="preserve">
+        <source>Mullvad bridges</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BRIDGES_ACCESS_METHOD_MODAL_PREAMBLE" xml:space="preserve">
+        <source>The app communicates with a Mullvad API server via a Mullvad bridge server.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CANCEL_TEST" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DELETE_METHOD" xml:space="preserve">
+        <source>Delete method</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DIRECT_ACCESS_METHOD_HEADER_BODY" xml:space="preserve">
+        <source>The app communicates with a Mullvad API server directly.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DIRECT_ACCESS_METHOD_HEADER_LINK" xml:space="preserve">
+        <source>About Direct method...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DIRECT_ACCESS_METHOD_MODAL_BODY_PART_1" xml:space="preserve">
+        <source>With the "Direct" method, the app communicates with a Mullvad API server directly without any intermediate proxies.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DIRECT_ACCESS_METHOD_MODAL_BODY_PART_2" xml:space="preserve">
+        <source>This can be useful when you are not affected by censorship.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DIRECT_ACCESS_METHOD_MODAL_HEADER" xml:space="preserve">
+        <source>Direct</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DIRECT_ACCESS_METHOD_MODAL_PREAMBLE" xml:space="preserve">
+        <source>The app communicates with a Mullvad API server directly.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ENABLE_METHOD" xml:space="preserve">
+        <source>Enable method</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ENCRYPTED_DNS_ACCESS_METHOD_HEADER_BODY" xml:space="preserve">
+        <source>The app communicates with a Mullvad API server via a proxy address.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ENCRYPTED_DNS_ACCESS_METHOD_HEADER_LINK" xml:space="preserve">
+        <source>About Encrypted DNS proxy method...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ENCRYPTED_DNS_ACCESS_METHOD_MODAL_BODY_PART_1" xml:space="preserve">
+        <source>With the "Encrypted DNS proxy" method, the app will communicate with our Mullvad API through a proxy address.
+It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ENCRYPTED_DNS_ACCESS_METHOD_MODAL_BODY_PART_2" xml:space="preserve">
+        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting.
+The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ENCRYPTED_DNS_ACCESS_METHOD_MODAL_HEADER" xml:space="preserve">
+        <source>Encrypted DNS proxy</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ENCRYPTED_DNS_ACCESS_METHOD_MODAL_PREAMBLE" xml:space="preserve">
+        <source>The app communicates with a Mullvad API server via a proxy address.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="HOST_CONFIG_SECTION_TITLE" xml:space="preserve">
+        <source>Server details</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LIST_ACCESS_METHODS_DISABLED" xml:space="preserve">
+        <source>Disabled</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LIST_ACCESS_METHODS_IN_USE_ITEM" xml:space="preserve">
+        <source>In use</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_FOOTER" xml:space="preserve">
+        <source>At least one method needs to be enabled.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_SETTINGS" xml:space="preserve">
+        <source>Method settings</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_SETTINGS_BACK_BUTTON" xml:space="preserve">
+        <source>Back to editing</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_SETTINGS_CANCEL_BUTTON" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_SETTINGS_DELETE_BUTTON" xml:space="preserve">
+        <source>Delete</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_SETTINGS_DELETE_PROMPT" xml:space="preserve">
+        <source>Delete (value)?</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_SETTINGS_NAVIGATION_ADD_BUTTON" xml:space="preserve">
+        <source>Add</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_SETTINGS_NAVIGATION_ADD_PROMPT" xml:space="preserve">
+        <source>The app will test the method before saving.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_SETTINGS_NAVIGATION_ADD_TITLE" xml:space="preserve">
+        <source>Add access method</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_SETTINGS_SAVE_BUTTON" xml:space="preserve">
+        <source>Save anyway</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_SETTINGS_SAVE_PROMPT" xml:space="preserve">
+        <source>API could not be reached, save anyway?</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="METHOD_SETTINGS_SAVING_CHANGES" xml:space="preserve">
+        <source>Saving changes...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NAME" xml:space="preserve">
+        <source>Name</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="OPTIONAL_PLACEHOLDER" xml:space="preserve">
+        <source>Optional</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="REQUIRED_PLACEHOLDER" xml:space="preserve">
+        <source>Required</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SAVE_NAVIGATION_BUTTON" xml:space="preserve">
+        <source>Save</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SELECT_PROTOCOL_NAV_TITLE" xml:space="preserve">
+        <source>Type</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SELECT_SHADOWSOCKS_CIPHER_NAV_TITLE" xml:space="preserve">
+        <source>Cipher</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SHADOWSOCKS" xml:space="preserve">
+        <source>Shadowsocks</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SHADOWSOCKS_CIPHER" xml:space="preserve">
+        <source>Cipher</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SHADOWSOCKS_PASSWORD" xml:space="preserve">
+        <source>Password</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SHADOWSOCKS_PORT" xml:space="preserve">
+        <source>Port</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SHADOWSOCKS_SERVER" xml:space="preserve">
+        <source>Server</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SOCKS_AUTHENTICATION" xml:space="preserve">
+        <source>Authentication</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SOCKS_PASSWORD" xml:space="preserve">
+        <source>Password</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SOCKS_PORT" xml:space="preserve">
+        <source>Port</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SOCKS_SERVER" xml:space="preserve">
+        <source>Server</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SOCKS_USERNAME" xml:space="preserve">
+        <source>Username</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SOCKS_V5" xml:space="preserve">
+        <source>Socks5</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TEST_METHOD" xml:space="preserve">
+        <source>Test method</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TEST_METHOD_FOOTER" xml:space="preserve">
+        <source>Performs a connection test to a Mullvad API server via this access method.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TYPE" xml:space="preserve">
+        <source>Type</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VALIDATION_ERRORS_EMPTY_FIELD" xml:space="preserve">
+        <source>(value) cannot be empty.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VALIDATION_ERRORS_INVALD ADDRESS" xml:space="preserve">
+        <source>Please enter a valid IPv4 or IPv6 address.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VALIDATION_ERRORS_INVALID_PORT" xml:space="preserve">
+        <source>Please enter a valid port.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VALIDATION_ERRORS_MULTIPLE" xml:space="preserve">
+        <source>Multiple validation errors occurred.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VALIDATION_ERRORS_NAME_TOO_LONG" xml:space="preserve">
+        <source>Name should be no longer than %i characters.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Changelog.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CHANGELOG_NAVIGATION_DONE_BUTTON" xml:space="preserve">
+        <source>Done</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="whats_new_title" xml:space="preserve">
+        <source>What's new</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/ConnectionView.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CONNECTION_VIEW_CHIPS_MORE" xml:space="preserve">
+        <source>@d more...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/ContentBlockers.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="VPN_SETTINGS_CONTENT_BLOCKERS_GENERAL" xml:space="preserve">
+        <source>When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. 
+This might cause issues on certain websites, services, and apps.
+Attention: this setting cannot be used in combination with **Use custom DNS server**.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VPN_SETTINGS_CONTENT_BLOCKERS_MALWARE" xml:space="preserve">
+        <source>Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VPN_SETTINGS_DNS_SETTINGS_OK_ACTION" xml:space="preserve">
+        <source>Got it!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VPN_SETTINGS_LOCAL_NETWORK_SHARING_CANCEL_ACTION" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VPN_SETTINGS_LOCAL_NETWORK_SHARING_OK_ACTION" xml:space="preserve">
+        <source>Yes, continue</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VPN_SETTINGS_VPN_SETTINGS_OK_ACTION" xml:space="preserve">
+        <source>Got it!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/CreateAccountRedeemingVoucher.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ACCOUNT_NUMBER_AS_VOUCHER_INPUT_ERROR_BODY" xml:space="preserve">
+        <source>It looks like you have entered a Mullvad account number instead of a voucher code. Do you want to log in to an existing account?
+If so, click log out below to log in with the other account number.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LOGOUT_BUTTON_TITLE" xml:space="preserve">
+        <source>Log out</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/CreatedAccountConfirmation.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CREATED_ACCOUNT_CONFIRMATION_PAGE_BODY" xml:space="preserve">
+        <source>Go ahead and start using the app to begin reclaiming your online privacy.
+To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CREATED_ACCOUNT_CONFIRMATION_PAGE_TITLE" xml:space="preserve">
+        <source>You’re all set!!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LEARN_ABOUT_PRIVACY_BUTTON" xml:space="preserve">
+        <source>Learn about privacy</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="START_USING_THE_APP_BUTTON" xml:space="preserve">
+        <source>Start using the app</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/CustomList.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="LIST_CUSTOM_LIST_NAVIGATION_TITLE" xml:space="preserve">
+        <source>Edit custom list</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/CustomLists.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ACTION_SHEET_ADD_LIST_BUTTON" xml:space="preserve">
+        <source>Add new list</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACTION_SHEET_EDIT_LISTS_BUTTON" xml:space="preserve">
+        <source>Edit lists</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ACTION_SHEET_TITLE" xml:space="preserve">
+        <source>Custom lists</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="ADD" xml:space="preserve">
+        <source>Add locations</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_LISTS_BACK_TO_EDITING_BUTTON" xml:space="preserve">
+        <source>Back to editing</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_LISTS_CANCEL_BUTTON" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_LISTS_DELETE_BUTTON" xml:space="preserve">
+        <source>Delete list</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_LISTS_DELETE_PROMPT" xml:space="preserve">
+        <source>Do you want to delete the list **(value)**?</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_LISTS_DISCARD_CHANGES_BUTTON" xml:space="preserve">
+        <source>Discard changes</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_LISTS_NAVIGATION_CREATE_BUTTON" xml:space="preserve">
+        <source>Create</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_LISTS_NAVIGATION_EDIT_TITLE" xml:space="preserve">
+        <source>New custom list</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_LISTS_UNSAVED_CHANGES_PROMPT" xml:space="preserve">
+        <source>You have unsaved changes.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_LIST_ACTION_SHEET_CANCEL_BUTTON" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_LIST_NAVIGATION_SAVE_BUTTON" xml:space="preserve">
+        <source>Save</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_LIST_NAVIGATION_TITLE" xml:space="preserve">
+        <source>CUSTOM_LIST_NAVIGATION_TITLE</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Delete" xml:space="preserve">
+        <source>Delete list</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="EDIT" xml:space="preserve">
+        <source>Edit locations</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NAME" xml:space="preserve">
+        <source>Name</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/DAITA.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="DAITA_INFORMATION_TEXT" xml:space="preserve">
+        <source>DAITA (Defence against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting.
+It does this by carefully adding network noise and making all network packets the same size.
+Not all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.
+Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DIRECT_ONLY_INFORMATION_TEXT" xml:space="preserve">
+        <source>By enabling "Direct only" you will have to manually select a server that is DAITA-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the "Select location" view.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_DAITA_ENABLE_CANCEL_ACTION" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_DAITA_ENABLE_OK_ACTION" xml:space="preserve">
+        <source>Enable "%@"</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_DAITA_ENABLE_TEXT" xml:space="preserve">
+        <source>SETTINGS_DAITA_ENABLE_TEXT</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/DeviceManagement.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ERROR_ALERT_OK_ACTION" xml:space="preserve">
+        <source>Got it!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/EditLocations.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="EDIT_LOCATIONS_NAVIGATION_TITLE" xml:space="preserve">
+        <source>Edit locations</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/FeatureIndicatorsChip.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="FEATURE_INDICATORS_CHIP_CONTENT_BLOCKERS" xml:space="preserve">
+        <source>DNS content blockers</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="FEATURE_INDICATORS_CHIP_CUSTOM_DNS" xml:space="preserve">
+        <source>Custom DNS</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="FEATURE_INDICATORS_CHIP_DAITA" xml:space="preserve">
+        <source>DAITA</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="FEATURE_INDICATORS_CHIP_DAITA_MULTIHOP" xml:space="preserve">
+        <source>DAITA: Multihop</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="FEATURE_INDICATORS_CHIP_IP_OVERRIDE" xml:space="preserve">
+        <source>Server IP Override</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="FEATURE_INDICATORS_CHIP_MULTIHOP" xml:space="preserve">
+        <source>Multihop</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="FEATURE_INDICATORS_CHIP_OBFUSCATION" xml:space="preserve">
+        <source>Obfuscation</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="FEATURE_INDICATORS_CHIP_QUANTUM_RESISTANCE" xml:space="preserve">
+        <source>Quantum resistance</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/HeaderBar.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="HEADER_BAR_ACCOUNT_BUTTON_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Settings</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/InfoPlist.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CFBundleDisplayName" xml:space="preserve">
+        <source>Mullvad VPN</source>
+        <note>Bundle display name</note>
+      </trans-unit>
+      <trans-unit id="CFBundleName" xml:space="preserve">
+        <source>MullvadVPN</source>
+        <note>Bundle name</note>
+      </trans-unit>
+      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve">
+        <source>The app needs this to connect and test a new method.</source>
+        <note>Privacy - Local Network Usage Description</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/IPOverride.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="IMPORT_TEXT_IMPORT_BUTTON" xml:space="preserve">
+        <source>Import</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IMPORT_TEXT_NAVIGATION_TITLE" xml:space="preserve">
+        <source>Import via text</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_BODY_1" xml:space="preserve">
+        <source>On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_BODY_2" xml:space="preserve">
+        <source>To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_BODY_3" xml:space="preserve">
+        <source>If you are having issues connecting to VPN servers, please contact support.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_CLEAR_BUTTON" xml:space="preserve">
+        <source>Clear all overrides</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_CLEAR_DIALOG_CANCEL_BUTTON" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_CLEAR_DIALOG_CLEAR_BUTTON" xml:space="preserve">
+        <source>Clear</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_CLEAR_DIALOG_MESSAGE" xml:space="preserve">
+        <source>Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_CLEAR_DIALOG_TITLE" xml:space="preserve">
+        <source>Clear all overrides?</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_HEADER" xml:space="preserve">
+        <source>Server IP override</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_HEADER_BODY" xml:space="preserve">
+        <source>Import files or text with the new IP addresses for the servers in the Select location view.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_HEADER_LINK" xml:space="preserve">
+        <source>About Server IP override...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_IMPORT_FILE_BUTTON" xml:space="preserve">
+        <source>Import file</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_IMPORT_TEXT_BUTTON" xml:space="preserve">
+        <source>Import via text</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_STATUS_DESCRIPTION_INACTIVE" xml:space="preserve">
+        <source>Import %@ was successful, overrides are now active.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_STATUS_TITLE_ACTIVE" xml:space="preserve">
+        <source>Overrides active</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_STATUS_TITLE_IMPORT_SUCCESSFUL" xml:space="preserve">
+        <source>Import successful</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_STATUS_TITLE_NO_IMPORTS" xml:space="preserve">
+        <source>No overrides imported</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/KeyboardNavigation.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="NEXT_BUTTON_TITLE" xml:space="preserve">
+        <source>Next</source>
+        <note>Next button</note>
+      </trans-unit>
+      <trans-unit id="PREVIOUS_BUTTON_TITLE" xml:space="preserve">
+        <source>Previous</source>
+        <note>Previous button</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/LocalNetworkSharing.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="VPN_SETTINGS_LOCAL_NETWORK_SHARING" xml:space="preserve">
+        <source>This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.
+Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VPN_SETTINGS_LOCAL_NETWORK_SHARING_WARNING" xml:space="preserve">
+        <source>(value) “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
+To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
+Would you like to continue to enable “Local network sharing”?</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Login.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CREATE_ACCOUNT_BUTTON_LABEL" xml:space="preserve">
+        <source>Create account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CREATE_BUTTON_HEADER_LABEL" xml:space="preserve">
+        <source>Don’t have an account number?</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="HEADING_TITLE_AUTHENTICATING" xml:space="preserve">
+        <source>Logging in...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="HEADING_TITLE_DEFAULT" xml:space="preserve">
+        <source>Login</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="HEADING_TITLE_FAILURE" xml:space="preserve">
+        <source>Login failed</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="HEADING_TITLE_SUCCESS" xml:space="preserve">
+        <source>Logged in</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LOGIN_ACCESSORY_TOOLBAR_BUTTON_TITLE" xml:space="preserve">
+        <source>Log in</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SUBHEAD_TITLE_AUTHENTICATING" xml:space="preserve">
+        <source>Checking account number</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SUBHEAD_TITLE_CREATED_ACCOUNT" xml:space="preserve">
+        <source>Account created</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SUBHEAD_TITLE_CREATING_ACCOUNT" xml:space="preserve">
+        <source>Creating new account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SUBHEAD_TITLE_DEFAULT" xml:space="preserve">
+        <source>Enter your account number</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SUBHEAD_TITLE_SUCCESS" xml:space="preserve">
+        <source>Correct account number</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Main.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="BLOCKED_STATE_ERROR_TITLE" xml:space="preserve">
+        <source>BLOCKED_STATE_ERROR_TITLE</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CANCEL_TUNNEL_ALERT_CANCEL_ACTION" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CANCEL_TUNNEL_ALERT_DISCONNECT_ACTION" xml:space="preserve">
+        <source>Disconnect</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CANCEL_TUNNEL_ALERT_MESSAGE" xml:space="preserve">
+        <source>If you disconnect now, you won’t be able to secure your connection until the device is online.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CONNECT_PANEL_TITLE" xml:space="preserve">
+        <source>%%@ via %%@(value)</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SELECT_LOCATION_BUTTON_TITLE" xml:space="preserve">
+        <source>Select location</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SWITCH_LOCATION_BUTTON_TITLE" xml:space="preserve">
+        <source>Select location</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTED" xml:space="preserve">
+        <source>Connected</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Secure connection. Connected to %1$@, %2$@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING" xml:space="preserve">
+        <source>Creating secure connection</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Creating secure connection</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTED" xml:space="preserve">
+        <source>Unsecured connection</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTED_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Unsecured connection</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTING" xml:space="preserve">
+        <source>Disconnecting</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTING_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Disconnecting</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_NEGOTIATING_KEY" xml:space="preserve">
+        <source>Creating quantum secure connection</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_NO_NETWORK" xml:space="preserve">
+        <source>No network</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_NO_NETWORK_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>No network</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_PENDING_RECONNECT" xml:space="preserve">
+        <source>Reconnecting</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_PENDING_RECONNECT_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Reconnecting</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_PQ_CONNECTED" xml:space="preserve">
+        <source>Quantum secure connection</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_PQ_CONNECTED_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Quantum secure connection. Connected to %1$@, %2$@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_PQ_CONNECTING" xml:space="preserve">
+        <source>Creating quantum secure connection</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_PQ_CONNECTING_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Creating quantum secure connection</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_RECONNECTING_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Reconnecting to %1$@, %2$@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_WAITING_FOR_CONNECTIVITY" xml:space="preserve">
+        <source>Blocked connection</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_WAITING_FOR_CONNECTIVITY_ACCESSIBILITY_LABEL" xml:space="preserve">
+        <source>Blocked connection</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Manage devices.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="MANAGE_DEVICES_TITLE" xml:space="preserve">
+        <source>Manage devices</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Multihop.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="MULTIHOP_INFORMATION_TEXT" xml:space="preserve">
+        <source>Multihop routes your traffic into one WireGuard server and out another, making it harder to trace.
+This results in increased latency but increases anonymity online.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/OutOfTime.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="OUT_OF_TIME_BODY_CONNECTED" xml:space="preserve">
+        <source>You have no more VPN time left on this account. To add more, you will need to disconnect and access the Internet with an unsecure connection.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="OUT_OF_TIME_BODY_DISCONNECTED" xml:space="preserve">
+        <source>You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the **Add time** button below.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="OUT_OF_TIME_DISCONNECT_BUTTON" xml:space="preserve">
+        <source>Disconnect</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="OUT_OF_TIME_PURCHASE_BUTTON" xml:space="preserve">
+        <source>Add time</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="OUT_OF_TIME_TITLE" xml:space="preserve">
+        <source>Out of time</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_BUTTON_TITLE" xml:space="preserve">
+        <source>Restore purchases</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Payment.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CANNOT_COMPLETE_PURCHASE_ALERT_TITLE" xml:space="preserve">
+        <source>Cannot complete the purchase</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="PAYMENT_REFUND_ALERT_MESSAGE" xml:space="preserve">
+        <source>Your purchase was successfully refunded.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="PAYMENT_REFUND_ALERT_TITLE" xml:space="preserve">
+        <source>Refund successful</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_FAILURE_ALERT_TITLE" xml:space="preserve">
+        <source>Cannot restore purchases</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/ProblemReport.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CANCEL_BUTTON" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CONTACT_BACK_EMAIL_MESSAGE_FORMAT" xml:space="preserve">
+        <source>If needed we will contact you at %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DESCRIPTION_TEXTVIEW_PLACEHOLDER" xml:space="preserve">
+        <source>To assist you better, please write in English or Swedish and include which country you are connecting from.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="EDIT_MESSAGE_BUTTON" xml:space="preserve">
+        <source>Edit message</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="EMAIL_TEXTFIELD_PLACEHOLDER" xml:space="preserve">
+        <source>Your email (optional)</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="EMPTY_EMAIL_ALERT_CANCEL_ACTION" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="EMPTY_EMAIL_ALERT_MESSAGE" xml:space="preserve">
+        <source>You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="EMPTY_EMAIL_ALERT_SEND_ANYWAY_ACTION" xml:space="preserve">
+        <source>Send anyway</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="MESSAGE_FAILED_PART_1" xml:space="preserve">
+        <source>If you exit the form and try again later, the information you already entered will still be here.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="MESSAGE_FAILED_PART_2" xml:space="preserve">
+        <source>If you still experience issues you can email our support directly at **(value)**. Please attach your app log to your email.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NAVIGATION_TITLE" xml:space="preserve">
+        <source>Report a problem</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SEND_BUTTON_TITLE" xml:space="preserve">
+        <source>Send</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SUBHEAD_LABEL" xml:space="preserve">
+        <source>To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SUBMISSION_STATUS_FAILURE" xml:space="preserve">
+        <source>Failed to send</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SUBMISSION_STATUS_SENDING" xml:space="preserve">
+        <source>Sending...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SUBMISSION_STATUS_SENT" xml:space="preserve">
+        <source>Sent</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="THANKS_MESSAGE" xml:space="preserve">
+        <source>Thanks!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TRY_AGAIN_BUTTON" xml:space="preserve">
+        <source>Try again</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VIEW_APP_LOGS_BUTTON_TITLE" xml:space="preserve">
+        <source>View app logs</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WE_WILL_LOOK_INTO_THIS_MESSAGE" xml:space="preserve">
+        <source>We will look into this.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/ProblemReportReview.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="NAVIGATION_TITLE" xml:space="preserve">
+        <source>App logs</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/ProfileRedeemVoucher.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="REDEEM_VOUCHER_DISMISS_BUTTON" xml:space="preserve">
+        <source>Got it!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="REDEEM_VOUCHER_SUCCESS_TITLE" xml:space="preserve">
+        <source>Voucher was successfully redeemed.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/QuantumResistance.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="VPN_SETTINGS_QUANTUM_RESISTANCE_GENERAL" xml:space="preserve">
+        <source>This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.
+It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption.
+This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/RedeemVoucher.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="REDEEM_VOUCHER_CANCEL_BUTTON" xml:space="preserve">
+        <source>Cancel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="REDEEM_VOUCHER_INSTRUCTION" xml:space="preserve">
+        <source>Enter voucher code</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="REDEEM_VOUCHER_REDEEM_BUTTON" xml:space="preserve">
+        <source>Redeem</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="REDEEM_VOUCHER_STATUS_FAILURE" xml:space="preserve">
+        <source>This voucher code has already been used.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="REDEEM_VOUCHER_STATUS_WAITING" xml:space="preserve">
+        <source>Logging out...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="REDEEM_VOUCHER_TITLE" xml:space="preserve">
+        <source>Redeem voucher</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Relay filter header.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="RELAY_FILTER_HEADER_LABEL" xml:space="preserve">
+        <source>RELAY_FILTER_HEADER_LABEL</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Relay filter ownership cell.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="RELAY_FILTER_CELL_LABEL" xml:space="preserve">
+        <source>RELAY_FILTER_CELL_LABEL</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Relay filter provider cell.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="RELAY_FILTER_CELL_LABEL" xml:space="preserve">
+        <source>RELAY_FILTER_CELL_LABEL</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/RelayFilter.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="RELAY_FILTER_ALL_PROVIDERS_LABEL" xml:space="preserve">
+        <source>All Providers</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_ANY_LABEL" xml:space="preserve">
+        <source>Any</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_APPLIED_DAITA" xml:space="preserve">
+        <source>Setting: DAITA</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_APPLIED_OBFUSCATION" xml:space="preserve">
+        <source>Setting: Obfuscation</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_APPLIED_OWNERSHIP" xml:space="preserve">
+        <source>RELAY_FILTER_APPLIED_OWNERSHIP</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_APPLIED_PROVIDERS" xml:space="preserve">
+        <source>Providers: %d</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_APPLIED_TITLE" xml:space="preserve">
+        <source>Filtered:</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_BUTTON_DESCRIPTION" xml:space="preserve">
+        <source>When using DAITA, one provider with DAITA-enabled servers is required.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_BUTTON_TITLE" xml:space="preserve">
+        <source>No matching servers</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_NAVIGATION_TITLE" xml:space="preserve">
+        <source>Filter</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_OWNED_LABEL" xml:space="preserve">
+        <source>Owned</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_PROVIDER_DESCRIPTION_FORMAT_LABEL" xml:space="preserve">
+        <source>DAITA-enabled</source>
+        <note>Format for DAITA provider description</note>
+      </trans-unit>
+      <trans-unit id="RELAY_FILTER_RENTED_LABEL" xml:space="preserve">
+        <source>Rented</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/REST.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="INTERNAL_ERROR" xml:space="preserve">
+        <source>Internal error.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="INVALID_ACCOUNT_ERROR" xml:space="preserve">
+        <source>Invalid account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="MAX_DEVICES_REACHED_ERROR" xml:space="preserve">
+        <source>Too many devices registered with account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NETWORK_ERROR" xml:space="preserve">
+        <source>Network error: %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_ALERT_NO_TIME_ADDED_MESSAGE" xml:space="preserve">
+        <source>Your previous purchases have already been added to this account.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_ALERT_TIME_ADDED_MESSAGE" xml:space="preserve">
+        <source>%@ have been added to your account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_ALERT_TITLE" xml:space="preserve">
+        <source>Restore purchases</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SERVER_ERROR" xml:space="preserve">
+        <source>Unexpected server response: %1$@ (HTTP status: %2$d)</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SERVICE_UNAVAILABLE" xml:space="preserve">
+        <source>We are having some issues, please try again later</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TIME_ADDED_ALERT_SUCCESS_MESSAGE" xml:space="preserve">
+        <source>%@ have been added to your account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TIME_ADDED_ALERT_SUCCESS_TITLE" xml:space="preserve">
+        <source>Thanks for your purchase</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TOO_MANY_REQUESTS" xml:space="preserve">
+        <source>We are having some issues, please try again later</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="UNEXPECTED_RESPONSE" xml:space="preserve">
+        <source>Unexpected server response: %d</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/RevokedDevice.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="DESCRIPTION_LABEL" xml:space="preserve">
+        <source>You have removed this device. To connect again, you will need to log back in.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="GOTO_LOGIN_BUTTON_LABEL" xml:space="preserve">
+        <source>Go to login</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TITLE_LABEL" xml:space="preserve">
+        <source>Device is inactive</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="UNBLOCK_INTERNET_LABEL" xml:space="preserve">
+        <source>Going to login will unblock the Internet on this device.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/SelectLocation.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CUSTOM_LIST_FOOTER" xml:space="preserve">
+        <source>To create a custom list, tap on "..." </source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="MULTIHOP_ENTRY" xml:space="preserve">
+        <source>Entry</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="MULTIHOP_EXIT" xml:space="preserve">
+        <source>Exit</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NAVIGATION_FILTER" xml:space="preserve">
+        <source>Filter</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NAVIGATION_TITLE" xml:space="preserve">
+        <source>Select location</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SEARCHBAR_PLACEHOLDER" xml:space="preserve">
+        <source>Search for...</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SELECT_LOCATION_DAITA_BUTTON" xml:space="preserve">
+        <source>Open DAITA settings</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SELECT_LOCATION_DAITA_INFO" xml:space="preserve">
+        <source>The entry server for multihop is currently overridden by DAITA. To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Settings.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="API_ACCESS_CELL_LABEL" xml:space="preserve">
+        <source>API access</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="APP_VERSION_CELL_LABEL" xml:space="preserve">
+        <source>What's new</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DAITA_CELL_DETAIL_LABEL" xml:space="preserve">
+        <source>DAITA_CELL_DETAIL_LABEL</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DAITA_CELL_LABEL" xml:space="preserve">
+        <source>DAITA</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DNS_TEXT_CELL_PLACEHOLDER" xml:space="preserve">
+        <source>Enter IP</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="FAQ_AND_GUIDES_CELL_LABEL" xml:space="preserve">
+        <source>FAQs &amp; Guides</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LANGUAGE_CELL_DETAIL_LABEL" xml:space="preserve">
+        <source>LANGUAGE_CELL_DETAIL_LABEL</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LANGUAGE_CELL_LABEL" xml:space="preserve">
+        <source>Langauge</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="MULTIHOP_CELL_DETAIL_LABEL" xml:space="preserve">
+        <source>MULTIHOP_CELL_DETAIL_LABEL</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="MULTIHOP_CELL_LABEL" xml:space="preserve">
+        <source>Multihop</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NAVIGATION_TITLE" xml:space="preserve">
+        <source>API access</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NAVIGATION_TITLE_DAITA" xml:space="preserve">
+        <source>DAITA</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NAVIGATION_TITLE_MULTIHOP" xml:space="preserve">
+        <source>Multihop</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="REPORT_PROBLEM_CELL_LABEL" xml:space="preserve">
+        <source>Report a problem</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_DAITA_MULTIHOP_ENABLED" xml:space="preserve">
+        <source>Multihop is being used to enable DAITA for your selected location.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_HEADER_COLLAPSE_ACCESSIBILITY_ACTION" xml:space="preserve">
+        <source>Collapse (value)</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_HEADER_EXPAND_ACCESSIBILITY_ACTION" xml:space="preserve">
+        <source>Expand (value)</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_INFO_ALERT_OK_ACTION" xml:space="preserve">
+        <source>Got it!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_INFO_DAITA_PAGE_1" xml:space="preserve">
+        <source>**Attention: This increases network traffic and will also  negatively affect speed, latency, and battery usage. Use with caution on limited plans.**
+
+DAITA (Defense against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic.
+
+By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_INFO_DAITA_PAGE_2" xml:space="preserve">
+        <source>If an observer monitors these data packets, DAITA makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.
+
+DAITA does this by carefully adding network noise and making all network packets the same size.
+
+Not all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_INFO_MULTIHOP" xml:space="preserve">
+        <source>Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_SWITCH_DAITA_DIRECT_ONLY" xml:space="preserve">
+        <source>Direct only</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_SWITCH_DAITA_ENABLE" xml:space="preserve">
+        <source>By enabling "Direct only" you will have to manually select a server that is DAITA-enabled. Multihop won't automatically be used to enable DAITA with any server.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SETTINGS_SWITCH_MULTIHOP" xml:space="preserve">
+        <source>Enable</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VPN_SETTINGS_CELL_LABEL" xml:space="preserve">
+        <source>VPN settings</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/SettingsMigrationUI.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ALERT_TITLE" xml:space="preserve">
+        <source>Settings migration error</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Got it!" xml:space="preserve">
+        <source>Got it!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="INTERNAL_ERROR" xml:space="preserve">
+        <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NEWER_STORED_SETTINGS_ERROR" xml:space="preserve">
+        <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Shadowsocks.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="SHADOWSOCKS_PORT_LABEL" xml:space="preserve">
+        <source>Port</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SHADOWSOCKS_PORT_VALUE_CUSTOM" xml:space="preserve">
+        <source>Custom</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SHADOWSOCKS_PORT_VALUE_PORT_LEGEND" xml:space="preserve">
+        <source>Valid range: 1 - 65535</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SHADOWSOCKS_PORT_VALUE_PORT_PROMPT" xml:space="preserve">
+        <source>Port</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/StoreKitErrors.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CLIENT_INVALID" xml:space="preserve">
+        <source>Client is not allowed to issue the request.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="PAYMENT_CANCELLED" xml:space="preserve">
+        <source>The payment request was cancelled.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="PAYMENT_INVALID" xml:space="preserve">
+        <source>Invalid purchase identifier.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="PAYMENT_NOT_ALLOWED" xml:space="preserve">
+        <source>This device is not allowed to make the payment.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="UNKNOWN_ERROR" xml:space="preserve">
+        <source>Unknown error.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/StorePaymentManager.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="INTERNAL_ERROR" xml:space="preserve">
+        <source>Internal error.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="READ_RECEIPT_ERROR" xml:space="preserve">
+        <source>Cannot read the AppStore receipt from disk</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RECEIPT_NOT_FOUND_ERROR" xml:space="preserve">
+        <source>AppStore receipt is not found on disk.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="REFRESH_RECEIPT_ERROR" xml:space="preserve">
+        <source>Cannot refresh the AppStore receipt: %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SEND_RECEIPT_ERROR" xml:space="preserve">
+        <source>Failed to send the receipt to server: %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SEND_RECEIPT_RECOVERY_SUGGESTION" xml:space="preserve">
+        <source>Please retry by using the "Restore purchases" button.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VALIDATE_ACCOUNT_ERROR" xml:space="preserve">
+        <source>Failed to validate account number: %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/StoreSubscriptions.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="STORE_SUBSCRIPTION_TITLE_ADD_30_DAYS" xml:space="preserve">
+        <source>Add 30 days</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="STORE_SUBSCRIPTION_TITLE_ADD_90_DAYS" xml:space="preserve">
+        <source>Add 90 days</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/TunnelManager.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="INVALID_DEVICE_STATE_ERROR" xml:space="preserve">
+        <source>Invalid device state.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="START_TUNNEL_ERROR" xml:space="preserve">
+        <source>Failed to start the tunnel.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="STOP_TUNNEL_ERROR" xml:space="preserve">
+        <source>Failed to stop the tunnel.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="UNSET_TUNNEL_ERROR" xml:space="preserve">
+        <source>Tunnel is unset.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/UdpToTcp.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="UDP_TCP_PORT_LABEL" xml:space="preserve">
+        <source>Port</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/VPNSettings.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ADD_CUSTOM_DNS_SERVER_CELL_LABEL" xml:space="preserve">
+        <source>Add a server</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BLOCK_ADS_CELL_LABEL" xml:space="preserve">
+        <source>Ads</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BLOCK_ADULT_CELL_LABEL" xml:space="preserve">
+        <source>Adult content</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BLOCK_ALL_CELL_LABEL" xml:space="preserve">
+        <source>All</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BLOCK_GAMBLING_CELL_LABEL" xml:space="preserve">
+        <source>Gambling</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BLOCK_MALWARE_CELL_LABEL" xml:space="preserve">
+        <source>Malware</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BLOCK_SOCIAL_MEDIA_CELL_LABEL" xml:space="preserve">
+        <source>Social media</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="BLOCK_TRACKERS_CELL_LABEL" xml:space="preserve">
+        <source>Trackers</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CONTENT_BLOCKERS_HEADER_LABEL" xml:space="preserve">
+        <source>DNS content blockers</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_DNS_CELL_LABEL" xml:space="preserve">
+        <source>Use custom DNS server</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_DNS_DISABLE_CONTENT_BLOCKERS_FOOTNOTE" xml:space="preserve">
+        <source>Disable all content blockers to activate this setting.</source>
+        <note>Foot note displayed when custom DNS cannot be enabled, because content blockers should be disabled first.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_OFF_FOOTNOTE" xml:space="preserve">
+        <source>Tap **Edit** to add at least one DNS server.</source>
+        <note>Foot note displayed if there are no DNS entries, but table view is not in editing mode.</note>
+      </trans-unit>
+      <trans-unit id="CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_ON_FOOTNOTE" xml:space="preserve">
+        <source>To enable this setting, add at least one server.</source>
+        <note>Foot note displayed if there are no DNS entries and table view is in editing mode.</note>
+      </trans-unit>
+      <trans-unit id="DNS_SETTINGS_CELL_LABEL" xml:space="preserve">
+        <source>DNS settings</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="INPUT_CELL_TOOLBAR_BUTTON_DONE" xml:space="preserve">
+        <source>Done</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="IP_OVERRIDE_CELL_LABEL" xml:space="preserve">
+        <source>Server IP override</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="LOCAL_NETWORK_SHARING_CELL_LABEL" xml:space="preserve">
+        <source>Include all networks</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="NAVIGATION_TITLE" xml:space="preserve">
+        <source>DNS settings</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="OBFUSCATION_HEADER_LABEL" xml:space="preserve">
+        <source>WireGuard Obfuscation</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="QUANTUM_RESISTANCE_AUTOMATIC_LABEL" xml:space="preserve">
+        <source>Automatic</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="QUANTUM_RESISTANCE_HEADER_LABEL" xml:space="preserve">
+        <source>Quantum-resistant tunnel</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="QUANTUM_RESISTANCE_OFF_LABEL" xml:space="preserve">
+        <source>Off</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="QUANTUM_RESISTANCE_ON_LABEL" xml:space="preserve">
+        <source>On</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="SHADOWSOCKS_TITLE" xml:space="preserve">
+        <source>Shadowsocks</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="UDP_OVER_TCP_TITLE" xml:space="preserve">
+        <source>UDP-over-TCP</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_CUSTOM_PORT_CELL_INPUT_PLACEHOLDER" xml:space="preserve">
+        <source>Port</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_CUSTOM_PORT_CELL_LABEL" xml:space="preserve">
+        <source>Custom</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_OBFUSCATION_AUTOMATIC_LABEL" xml:space="preserve">
+        <source>Automatic</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_OBFUSCATION_OFF_LABEL" xml:space="preserve">
+        <source>Off</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_OBFUSCATION_PORT_LABEL" xml:space="preserve">
+        <source>WIREGUARD_OBFUSCATION_PORT_LABEL</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_OBFUSCATION_QUIC_LABEL" xml:space="preserve">
+        <source>QUIC</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_OBFUSCATION_SHADOWSOCKS_LABEL" xml:space="preserve">
+        <source>Shadowsocks</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_OBFUSCATION_SHADOWSOCKS_PORT" xml:space="preserve">
+        <source>Port: %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_OBFUSCATION_UDP_TCP_LABEL" xml:space="preserve">
+        <source>UDP-over-TCP</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_OBFUSCATION_UDP_TCP_PORT" xml:space="preserve">
+        <source>Port: %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_PORTS_HEADER_LABEL" xml:space="preserve">
+        <source>WireGuard ports</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WIREGUARD_PORT_CELL_LABEL" xml:space="preserve">
+        <source>Automatic</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/Welcome.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="ADD_TIME_BUTTON" xml:space="preserve">
+        <source>Add Time</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="DEVICE_NAME_TEXT" xml:space="preserve">
+        <source>Device name: %@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WELCOME_DEVICE_CONCEPT_TEXT_DIALOG" xml:space="preserve">
+        <source>This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.
+You can have up to 5 devices logged in on one Mullvad account.
+If you log out, the device and the device name is removed. When you log back in again, the device will get a new name.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WELCOME_DEVICE_NAME_DIALOG_OK_ACTION" xml:space="preserve">
+        <source>Got it!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG" xml:space="preserve">
+        <source>Failed to connect to App store, please try again later.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION" xml:space="preserve">
+        <source>Got it!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WELCOME_PAGE_DESCRIPTION" xml:space="preserve">
+        <source>To start using the app, you first need to add time to your account. Either buy credit on our website or redeem a voucher.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WELCOME_PAGE_SUBTITLE" xml:space="preserve">
+        <source>Here’s your account number. Save it!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="WELCOME_PAGE_TITLE" xml:space="preserve">
+        <source>Congrats!</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/WireGuardObfuscation.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="VPN_SETTINGS_WIREGUARD_OBFUSCATION_GENERAL" xml:space="preserve">
+        <source>Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="VPN_SETTINGS_WIREGUARD_OBFUSCATION_PORT_GENERAL" xml:space="preserve">
+        <source>Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/WireGuardPorts.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="VPN_SETTINGS_WIREGUARD_PORTS_GENERAL" xml:space="preserve">
+        <source>The automatic setting will randomly choose from the valid port ranges shown below.
+The custom port can be any value inside the valid ranges:
+%@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="PacketTunnel/en.lproj/InfoPlist.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CFBundleDisplayName" xml:space="preserve">
+        <source>PacketTunnel</source>
+        <note>Bundle display name</note>
+      </trans-unit>
+      <trans-unit id="CFBundleName" xml:space="preserve">
+        <source>PacketTunnel</source>
+        <note>Bundle name</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="PacketTunnel/en.lproj/Payment.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CANNOT_COMPLETE_PURCHASE_ALERT_TITLE" xml:space="preserve">
+        <source>Cannot complete the purchase</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_FAILURE_ALERT_TITLE" xml:space="preserve">
+        <source>Cannot restore purchases</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="PacketTunnel/en.lproj/REST.strings" datatype="plaintext" source-language="en" target-language="fr">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="RESTORE_PURCHASES_ALERT_NO_TIME_ADDED_MESSAGE" xml:space="preserve">
+        <source>Your previous purchases have already been added to this account.</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_ALERT_TIME_ADDED_MESSAGE" xml:space="preserve">
+        <source>%@ have been added to your account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="RESTORE_PURCHASES_ALERT_TITLE" xml:space="preserve">
+        <source>Restore purchases</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TIME_ADDED_ALERT_SUCCESS_MESSAGE" xml:space="preserve">
+        <source>%@ have been added to your account</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="TIME_ADDED_ALERT_SUCCESS_TITLE" xml:space="preserve">
+        <source>Thanks for your purchase</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

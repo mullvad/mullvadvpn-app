@@ -1,6 +1,0 @@
-/* No comment provided by engineer. */
-"VPN_SETTINGS_WIREGUARD_OBFUSCATION_GENERAL" = "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.";
-
-/* No comment provided by engineer. */
-"VPN_SETTINGS_WIREGUARD_OBFUSCATION_PORT_GENERAL" = "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.";
-

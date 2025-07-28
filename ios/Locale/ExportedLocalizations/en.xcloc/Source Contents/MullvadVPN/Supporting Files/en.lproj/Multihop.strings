@@ -1,3 +1,0 @@
-/* No comment provided by engineer. */
-"MULTIHOP_INFORMATION_TEXT" = "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace.\nThis results in increased latency but increases anonymity online.";
-

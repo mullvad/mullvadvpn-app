@@ -1,3 +1,0 @@
-/* No comment provided by engineer. */
-"VPN_SETTINGS_WIREGUARD_PORTS_GENERAL" = "The automatic setting will randomly choose from the valid port ranges shown below.\nThe custom port can be any value inside the valid ranges:\n%@";
-

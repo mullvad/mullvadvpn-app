@@ -1,6 +1,0 @@
-/* No comment provided by engineer. */
-"CUSTOM_LIST_NAME_TOO_LONG_ERROR" = "Name should be no longer than %i characters.";
-
-/* No comment provided by engineer. */
-"DUPLICATE_CUSTOM_LISTS_ERROR" = "A custom list with this name exists, please choose a unique name.";
-
