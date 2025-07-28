@@ -3,6 +3,8 @@ use crate::{
     config::Config,
     stats::{Stats, StatsMap},
 };
+#[cfg(all(feature = "pcap", target_os = "linux"))]
+use boringtun::tun::pcap::PcapSniffer;
 #[cfg(target_os = "android")]
 use boringtun::udp::UdpTransportFactory;
 use boringtun::{
@@ -38,8 +40,16 @@ type UdpFactory = AndroidUdpSocketFactory;
 type UdpFactory = UdpSocketFactory;
 
 type SinglehopDevice = DeviceHandle<(UdpFactory, Arc<tun07::AsyncDevice>, Arc<tun07::AsyncDevice>)>;
-type EntryDevice = DeviceHandle<(UdpFactory, TunChannelTx, TunChannelRx)>;
 type ExitDevice = DeviceHandle<(PacketChannelUdp, Arc<AsyncDevice>, Arc<AsyncDevice>)>;
+
+#[cfg(not(all(feature = "pcap", target_os = "linux")))]
+type EntryDevice = DeviceHandle<(UdpFactory, TunChannelTx, TunChannelRx)>;
+#[cfg(all(feature = "pcap", target_os = "linux"))]
+type EntryDevice = DeviceHandle<(
+    UdpFactory,
+    PcapSniffer<TunChannelTx>,
+    PcapSniffer<TunChannelRx>,
+)>;
 
 const PACKET_CHANNEL_CAPACITY: usize = 100;
 
@@ -260,6 +270,10 @@ async fn create_devices(
 
         #[cfg(not(target_os = "android"))]
         let factory = UdpSocketFactory;
+
+        // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
+        #[cfg(all(feature = "pcap", target_os = "linux"))]
+        let (tun_tx, tun_rx) = wrap_in_pcap_sniffer((tun_tx, tun_rx));
 
         let entry_device = EntryDevice::new(factory, tun_tx, tun_rx, boringtun_entry_config).await;
 
@@ -569,4 +583,87 @@ pub fn get_tunnel_for_userspace(
     Err(TunnelError::FdDuplicationError(
         last_error.expect("Should be collected in loop"),
     ))
+}
+
+/// Debugging function that sets up a unix socket and writes packets to it using the pcap file format.
+///
+/// The unix socket can be opened in wireshark to inspect the traffic.
+/// ```sh
+/// wireshark -k -i /tmp/mullvad-multihop.pcap
+/// ```
+#[cfg(all(feature = "pcap", target_os = "linux"))]
+fn wrap_in_pcap_sniffer<A, B>(
+    (a, b): (A, B),
+) -> (
+    boringtun::tun::pcap::PcapSniffer<A>,
+    boringtun::tun::pcap::PcapSniffer<B>,
+) {
+    const SOCKET_PATH: &str = "/tmp/mullvad-multihop.pcap";
+
+    use boringtun::tun::pcap::{PcapSniffer, PcapStream};
+    use std::{
+        fs,
+        io::{self, Write},
+        os::unix::{fs::PermissionsExt, net::UnixListener},
+        sync::{LazyLock, mpsc},
+        time::Instant,
+    };
+
+    /// A dumb cloneable [Write]. This is used for forwarding data between the [PcapSniffer]s,
+    /// and the thread which holds the UnixStream.
+    #[derive(Clone)]
+    struct ChannelWrite {
+        tx: mpsc::Sender<Box<[u8]>>,
+    }
+
+    impl Write for ChannelWrite {
+        fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+            self.tx
+                .send(buf.into())
+                .map_err(|_| io::ErrorKind::BrokenPipe)?;
+            Ok(buf.len())
+        }
+
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
+    /// The global pcap writer. We initialize it once so that we can re-use the same unix socket
+    /// for the entire lifetime of the application.
+    static WRITER: LazyLock<PcapStream> = LazyLock::new(|| {
+        log::warn!("Binding pcap socket to {SOCKET_PATH:?}");
+        let _ = fs::remove_file(SOCKET_PATH);
+        let listener = UnixListener::bind(SOCKET_PATH).unwrap();
+        let _ = fs::set_permissions(SOCKET_PATH, fs::Permissions::from_mode(0o777));
+
+        log::warn!("Waiting for connection to pcap socket");
+        let (mut stream, _) = listener
+            .accept()
+            .expect("Error while waiting for pcap listener");
+
+        let (tx, rx) = mpsc::channel::<Box<[u8]>>();
+
+        // Forward data between the channel and the UnixStream.
+        std::thread::spawn::<_, Option<()>>(move || {
+            loop {
+                let data = rx.recv().ok()?;
+                stream.write_all(&data[..]).ok()?;
+            }
+        });
+
+        let writer = ChannelWrite { tx };
+
+        PcapStream::new(Box::new(writer))
+    });
+
+    let start_time = Instant::now();
+
+    let w = WRITER.clone();
+    let a = PcapSniffer::new(a, w, start_time);
+
+    let w = WRITER.clone();
+    let b = PcapSniffer::new(b, w, start_time);
+
+    (a, b)
 }
