@@ -6,6 +6,9 @@ import {
   IRelayListCity,
   IRelayListCountry,
   IRelayListHostname,
+  IRelayListWithEndpointData,
+  ISettings,
+  IWireguardEndpointData,
   Ownership,
 } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
@@ -106,6 +109,70 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     });
   };
 
+  const updateMockSettings = async (
+    {
+      daita,
+      directOnly,
+      multihop,
+    }: {
+      multihop?: boolean;
+      daita?: boolean;
+      directOnly?: boolean;
+    },
+    settings?: ISettings,
+  ) => {
+    if (!settings) {
+      settings = getDefaultSettings();
+    }
+    if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
+      if (multihop !== undefined)
+        settings.relaySettings.normal.wireguardConstraints.useMultihop = multihop;
+      if (daita !== undefined) settings.tunnelOptions.wireguard.daita.enabled = daita;
+      if (directOnly !== undefined) settings.tunnelOptions.wireguard.daita.directOnly = directOnly;
+    }
+
+    await utils.sendMockIpcResponse<ISettings>({
+      channel: 'settings-',
+      response: settings,
+    });
+
+    return settings;
+  };
+
+  const updateEntryLocation = async (relay: LocatedRelay, settings?: ISettings) => {
+    if (!settings) {
+      settings = getDefaultSettings();
+    }
+    if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
+      settings.relaySettings.normal.wireguardConstraints.entryLocation = {
+        only: {
+          hostname: relay.relay.hostname,
+          country: relay.country.code,
+          city: relay.city.code,
+        },
+      };
+    }
+
+    await utils.sendMockIpcResponse<ISettings>({
+      channel: 'settings-',
+      response: settings,
+    });
+
+    return settings;
+  };
+
+  const updateMockRelays = async (relayList: IRelayList) => {
+    const wireguardEndpointData: IWireguardEndpointData = {
+      portRanges: [],
+      udp2tcpPorts: [],
+    };
+
+    await utils.sendMockIpcResponse<IRelayListWithEndpointData>({
+      channel: 'relays-',
+      response: { relayList, wireguardEndpointData },
+    });
+  };
+
   return {
     areAllCheckboxesChecked,
     expandLocatedRelays,
@@ -116,6 +183,9 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     resetProviders,
     resetView,
     updateMockRelayFilter,
+    updateMockSettings,
+    updateMockRelays,
+    updateEntryLocation,
   };
 };
 

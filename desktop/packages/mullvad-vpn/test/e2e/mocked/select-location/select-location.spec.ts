@@ -3,23 +3,12 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
 import { colorTokens } from '../../../../src/renderer/lib/foundations';
-import {
-  IRelayListWithEndpointData,
-  ISettings,
-  IWireguardEndpointData,
-  ObfuscationType,
-  Ownership,
-} from '../../../../src/shared/daemon-rpc-types';
+import { ISettings, ObfuscationType, Ownership } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { RoutesObjectModel } from '../../route-object-models';
 import { MockedTestUtils, startMockedApp } from '../mocked-utils';
 import { createHelpers, SelectLocationHelpers } from './helpers';
 import { mockData } from './mock-data';
-
-const wireguardEndpointData: IWireguardEndpointData = {
-  portRanges: [],
-  udp2tcpPorts: [],
-};
 
 let page: Page;
 let util: MockedTestUtils;
@@ -32,14 +21,12 @@ test.describe('Select location', () => {
     ({ page, util } = await startMockedApp());
     routes = new RoutesObjectModel(page, util);
     helpers = createHelpers(page, routes, util);
+
+    await helpers.updateMockRelays(relayList);
+
     await util.waitForRoute(RoutePath.main);
     await page.getByLabel('Select location').click();
     await util.waitForRoute(RoutePath.selectLocation);
-
-    await util.sendMockIpcResponse<IRelayListWithEndpointData>({
-      channel: 'relays-',
-      response: { relayList, wireguardEndpointData },
-    });
   });
 
   test.afterAll(async () => {
@@ -48,14 +35,8 @@ test.describe('Select location', () => {
 
   test.describe('Multihop enabled', () => {
     test.beforeAll(async () => {
-      const settings = getDefaultSettings();
-      if ('normal' in settings.relaySettings) {
-        settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
-      }
-
-      await util.sendMockIpcResponse<ISettings>({
-        channel: 'settings-',
-        response: settings,
+      await helpers.updateMockSettings({
+        multihop: true,
       });
     });
 
@@ -81,16 +62,10 @@ test.describe('Select location', () => {
     });
 
     test("App shouldn't show entry selection when daita is enabled without direct only", async () => {
-      const settings = getDefaultSettings();
-      if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
-        settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
-        settings.tunnelOptions.wireguard.daita.enabled = true;
-        settings.tunnelOptions.wireguard.daita.directOnly = false;
-      }
-
-      await util.sendMockIpcResponse<ISettings>({
-        channel: 'settings-',
-        response: settings,
+      await helpers.updateMockSettings({
+        multihop: true,
+        daita: true,
+        directOnly: false,
       });
 
       const entryButton = routes.selectLocation.getEntryButton();
@@ -101,16 +76,10 @@ test.describe('Select location', () => {
     });
 
     test('App should show entry selection when daita is enabled with direct only', async () => {
-      const settings = getDefaultSettings();
-      if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
-        settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
-        settings.tunnelOptions.wireguard.daita.enabled = true;
-        settings.tunnelOptions.wireguard.daita.directOnly = true;
-      }
-
-      await util.sendMockIpcResponse<ISettings>({
-        channel: 'settings-',
-        response: settings,
+      await helpers.updateMockSettings({
+        multihop: true,
+        daita: true,
+        directOnly: true,
       });
 
       const entryButton = routes.selectLocation.getEntryButton();
