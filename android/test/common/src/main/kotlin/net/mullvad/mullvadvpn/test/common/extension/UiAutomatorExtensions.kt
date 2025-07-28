@@ -37,6 +37,22 @@ fun UiDevice.findObjectWithTimeout(
     return foundObject
 }
 
+fun UiDevice.findObjectsWithTimeout(
+    selector: BySelector,
+    timeout: Long = DEFAULT_TIMEOUT,
+): List<UiObject2> {
+
+    wait(Until.hasObject(selector), timeout)
+
+    val foundObjects = findObjects(selector)
+
+    require(foundObjects.isNotEmpty()) {
+        "No matches for selector within timeout ($timeout ms): $selector"
+    }
+
+    return foundObjects
+}
+
 fun UiDevice.expectObjectToDisappearWithTimeout(
     selector: BySelector,
     timeout: Long = DEFAULT_TIMEOUT,
