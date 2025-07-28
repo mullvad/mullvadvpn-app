@@ -11,7 +11,7 @@ import MullvadTypes
 
 func onAccessChangeCallback(selfPtr: UnsafeRawPointer?, bytes: UnsafePointer<UInt8>?) {
     guard let selfPtr, let bytes else { return }
-    let context = selfPtr.assumingMemoryBound(to: MullvadApiContext.self).pointee
+    let context = Unmanaged<MullvadApiContext>.fromOpaque(selfPtr).takeUnretainedValue()
 
     let uuid = NSUUID(uuidBytes: bytes) as UUID
     context.accessMethodChangeListener?.accessMethodChangedTo(uuid)
@@ -46,6 +46,7 @@ public class MullvadApiContext: @unchecked Sendable {
         self.addressCacheProvider = defaultAddressCache
         self.addressCacheWrapper = iniSwiftAddressCacheWrapper(provider: defaultAddressCache)
 
+        let selfPtr = Unmanaged.passUnretained(self).toOpaque()
         context = nil
         context = switch disableTls {
         case true:
@@ -57,7 +58,7 @@ public class MullvadApiContext: @unchecked Sendable {
                 accessMethodWrapper,
                 addressCacheWrapper,
                 onAccessChangeCallback,
-                Unmanaged.passRetained(self).toOpaque()
+                selfPtr
             )
         case false:
             mullvad_api_init_new(
@@ -68,7 +69,7 @@ public class MullvadApiContext: @unchecked Sendable {
                 accessMethodWrapper,
                 addressCacheWrapper,
                 onAccessChangeCallback,
-                Unmanaged.passRetained(self).toOpaque()
+                selfPtr
             )
         }
 
