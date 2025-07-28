@@ -63,7 +63,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewViewLogsScreen(
     @PreviewParameter(ViewLogsUiStatePreviewParameterProvider::class) state: ViewLogsUiState
 ) {
-    AppTheme { ViewLogsScreen(state = state, {}) }
+    AppTheme { ViewLogsScreen(state = state, onBackClick = {}) }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)

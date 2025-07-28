@@ -98,7 +98,17 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewLoginScreen(
     @PreviewParameter(LoginUiStatePreviewParameterProvider::class) state: LoginUiState
 ) {
-    AppTheme { LoginScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}) }
+    AppTheme {
+        LoginScreen(
+            state = state,
+            snackbarHostState = SnackbarHostState(),
+            onLoginClick = {},
+            onCreateAccountClick = {},
+            onDeleteHistoryClick = {},
+            onAccountNumberChange = {},
+            onSettingsClick = {},
+        )
+    }
 }
 
 private const val TOP_SPACER_WEIGHT = 1f

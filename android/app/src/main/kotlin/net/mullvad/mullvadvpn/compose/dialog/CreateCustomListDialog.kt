@@ -33,7 +33,14 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewCreateCustomListDialog() {
-    AppTheme { CreateCustomListDialog(state = CreateCustomListUiState(), {}, {}, {}) }
+    AppTheme {
+        CreateCustomListDialog(
+            state = CreateCustomListUiState(),
+            createCustomList = {},
+            onInputChanged = {},
+            onDismiss = {},
+        )
+    }
 }
 
 @Preview
@@ -45,9 +52,9 @@ private fun PreviewCreateCustomListDialogError() {
                 CreateCustomListUiState(
                     error = CreateWithLocationsError.Create(CustomListAlreadyExists)
                 ),
-            {},
-            {},
-            {},
+            createCustomList = {},
+            onInputChanged = {},
+            onDismiss = {},
         )
     }
 }

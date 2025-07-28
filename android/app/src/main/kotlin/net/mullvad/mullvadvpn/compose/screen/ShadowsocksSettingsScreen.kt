@@ -40,9 +40,9 @@ private fun PreviewShadowsocksSettingsScreen() {
     AppTheme {
         ShadowsocksSettingsScreen(
             state = ShadowsocksSettingsState(port = Constraint.Any, validPortRanges = emptyList()),
-            {},
-            {},
-            {},
+            navigateToCustomPortDialog = {},
+            onObfuscationPortSelected = {},
+            onBackClick = {},
         )
     }
 }

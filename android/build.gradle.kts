@@ -84,9 +84,14 @@ detekt {
     parallel = true
     ignoreFailures = false
     autoCorrect = true
+
+    dependencies {
+        detektPlugins(project(":test:detekt"))
+    }
 }
 
 tasks.withType<Detekt>().configureEach {
+    dependsOn(":test:detekt:assemble")
     // Ignore generated files from the build directory, e.g files created by ksp.
     exclude(detektExcludedPaths)
 }

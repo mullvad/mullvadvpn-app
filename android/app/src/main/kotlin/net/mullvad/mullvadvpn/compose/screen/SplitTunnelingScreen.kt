@@ -66,7 +66,17 @@ private fun PreviewSplitTunnelingScreen(
     @PreviewParameter(SplitTunnelingUiStatePreviewParameterProvider::class)
     state: SplitTunnelingUiState
 ) {
-    AppTheme { SplitTunnelingScreen(state = state, {}, {}, {}, {}, {}, { null }) }
+    AppTheme {
+        SplitTunnelingScreen(
+            state = state,
+            onEnableSplitTunneling = {},
+            onShowSystemAppsClick = {},
+            onExcludeAppClick = {},
+            onIncludeAppClick = {},
+            onBackClick = {},
+            onResolveIcon = { null },
+        )
+    }
 }
 
 @Parcelize data class SplitTunnelingNavArgs(val isModal: Boolean = false) : Parcelable

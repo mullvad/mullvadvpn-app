@@ -75,7 +75,17 @@ private fun PreviewReportProblemScreen(
     @PreviewParameter(ReportProblemUiStatePreviewParameterProvider::class)
     state: ReportProblemUiState
 ) {
-    AppTheme { ReportProblemScreen(state = state, {}, {}, {}, {}, {}, {}) }
+    AppTheme {
+        ReportProblemScreen(
+            state = state,
+            onSendReport = {},
+            onClearSendResult = {},
+            onNavigateToViewLogs = {},
+            onEmailChanged = {},
+            onDescriptionChanged = {},
+            onBackClick = {},
+        )
+    }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -102,7 +112,7 @@ fun ReportProblem(
     }
 
     ReportProblemScreen(
-        state,
+        state = state,
         onSendReport = { vm.sendReport(state.email, state.description) },
         onClearSendResult = vm::clearSendResult,
         onNavigateToViewLogs =

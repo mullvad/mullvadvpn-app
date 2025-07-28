@@ -51,7 +51,15 @@ private fun PreviewApiAccessList(
     @PreviewParameter(ApiAccessListUiStatePreviewParameterProvider::class)
     state: ApiAccessListUiState
 ) {
-    AppTheme { ApiAccessListScreen(state = state, {}, { _ -> }, {}, {}) }
+    AppTheme {
+        ApiAccessListScreen(
+            state = state,
+            onAddMethodClick = {},
+            onApiAccessMethodClick = { _ -> },
+            onApiAccessInfoClick = {},
+            onBackClick = {},
+        )
+    }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)

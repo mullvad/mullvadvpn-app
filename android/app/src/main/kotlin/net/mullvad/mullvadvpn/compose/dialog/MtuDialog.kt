@@ -54,7 +54,7 @@ fun Mtu(navigator: ResultBackNavigator<Boolean>) {
         }
     }
     MtuDialog(
-        uiState,
+        state = uiState,
         onInputChanged = viewModel::onInputChanged,
         onSaveMtu = viewModel::onSaveClick,
         onResetMtu = viewModel::onRestoreClick,

@@ -43,7 +43,9 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewMultihopScreen() {
-    AppTheme { MultihopScreen(state = MultihopUiState(false), {}, {}) }
+    AppTheme {
+        MultihopScreen(state = MultihopUiState(false), onMultihopClick = {}, onBackClick = {})
+    }
 }
 
 @Parcelize data class MultihopNavArgs(val isModal: Boolean = false) : Parcelable

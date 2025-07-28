@@ -47,7 +47,7 @@ private fun PreviewDeviceRevokedScreen(
     @PreviewParameter(DeviceRevokedUiStatePreviewParameterProvider::class)
     state: DeviceRevokedUiState
 ) {
-    AppTheme { DeviceRevokedScreen(state = state, {}, {}) }
+    AppTheme { DeviceRevokedScreen(state = state, onSettingsClicked = {}, onGoToLoginClicked = {}) }
 }
 
 @Destination<RootGraph>

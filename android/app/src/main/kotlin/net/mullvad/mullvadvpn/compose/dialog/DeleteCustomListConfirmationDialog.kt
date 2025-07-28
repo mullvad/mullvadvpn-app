@@ -27,8 +27,8 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
     AppTheme {
         DeleteCustomListConfirmationDialog(
             state = DeleteCustomListUiState(CustomListName.fromString("My Custom List"), null),
-            {},
-            {},
+            onDelete = {},
+            onBack = {},
         )
     }
 }

@@ -58,7 +58,15 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewAccountScreen(
     @PreviewParameter(CustomListsUiStatePreviewParameterProvider::class) state: CustomListsUiState
 ) {
-    AppTheme { CustomListsScreen(state = state, SnackbarHostState(), {}, { _ -> }, {}) }
+    AppTheme {
+        CustomListsScreen(
+            state = state,
+            snackbarHostState = SnackbarHostState(),
+            addCustomList = {},
+            openCustomList = { _ -> },
+            onBackClick = {},
+        )
+    }
 }
 
 @Composable

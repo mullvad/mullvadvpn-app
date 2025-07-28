@@ -61,7 +61,15 @@ private fun PreviewEditCustomListScreen(
     @PreviewParameter(EditCustomListUiStatePreviewParameterProvider::class)
     state: EditCustomListUiState
 ) {
-    AppTheme { EditCustomListScreen(state = state, { _, _ -> }, { _, _ -> }, {}, {}) }
+    AppTheme {
+        EditCustomListScreen(
+            state = state,
+            onDeleteList = { _, _ -> },
+            onNameClicked = { _, _ -> },
+            onLocationsClicked = {},
+            onBackClick = {},
+        )
+    }
 }
 
 data class EditCustomListNavArgs(val customListId: CustomListId)
