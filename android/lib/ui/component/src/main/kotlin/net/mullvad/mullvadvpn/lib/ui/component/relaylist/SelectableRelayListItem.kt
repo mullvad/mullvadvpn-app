@@ -43,7 +43,10 @@ import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListTokens
+import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_ENTRY_NAME_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_NAME_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_NAME_TAG
 
 @Composable
 @Preview
@@ -100,6 +103,15 @@ fun SelectableRelayListItem(
                 }
 
                 Name(
+                    modifier =
+                        Modifier.testTag(
+                            when (relayListItem) {
+                                is RelayListItem.CustomListEntryItem -> CUSTOM_LIST_ENTRY_NAME_TAG
+                                is RelayListItem.CustomListItem -> CUSTOM_LIST_ENTRY_NAME_TAG
+                                is RelayListItem.GeoLocationItem -> GEOLOCATION_NAME_TAG
+                                is RelayListItem.RecentListItem -> RECENT_NAME_TAG
+                            }
+                        ),
                     name = relayListItem.hop.displayName(LocalContext.current),
                     state = relayListItem.state,
                     active = relayListItem.hop.isActive,
