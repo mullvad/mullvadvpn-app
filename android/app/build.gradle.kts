@@ -86,11 +86,6 @@ android {
                 "proguard-rules.pro",
             )
         }
-        getByName(BuildTypes.DEBUG) {
-            if (getBooleanProperty("mullvad.app.build.keepDebugSymbols")) {
-                packaging { jniLibs.keepDebugSymbols.add("**/*.so") }
-            }
-        }
         create(BuildTypes.FDROID) {
             initWith(buildTypes.getByName(BuildTypes.RELEASE))
             signingConfig = null
@@ -164,6 +159,9 @@ android {
     }
 
     packaging {
+        if (getBooleanProperty("mullvad.app.build.keepDebugSymbols")) {
+            jniLibs.keepDebugSymbols.add("**/*.so")
+        }
         jniLibs.useLegacyPackaging = true
         resources {
             pickFirsts +=
@@ -248,6 +246,8 @@ junitPlatform {
 
 cargo {
     val isReleaseBuild = isReleaseBuild()
+    val generateDebugSymbolsForReleaseBuilds =
+        getBooleanProperty("mullvad.app.build.cargo.generateDebugSymbolsForReleaseBuilds")
     val enableBoringTun = getBooleanProperty("mullvad.app.build.boringtun.enable")
     val enableApiOverride = !isReleaseBuild || isDevBuild() || isAlphaBuild()
     module = repoRootPath
@@ -257,7 +257,7 @@ cargo {
     targets = getStringListProperty("mullvad.app.build.cargo.targets")
     profile =
         if (isReleaseBuild) {
-            "release"
+            if (generateDebugSymbolsForReleaseBuilds) "release-debuginfo" else "release"
         } else {
             "debug"
         }
@@ -280,6 +280,17 @@ cargo {
         add("--locked")
     }
     exec = { spec, _ ->
+        // Due to a limitation/bug in rust-android-gradle the profile given to cargo is either
+        // empty (in the default debug case) or specified as `--{profile}` (in the release case).
+        // However, this breaks when custom profiles are used so we need to fix the broken arg here
+        // to use the correct `--profile={CUSTOM_PROFILE}` syntax.
+        spec.commandLine =
+            spec.commandLine.map {
+                if (it == "--release-debuginfo") "--profile=release-debuginfo" else it
+            }
+
+        println("Executing Cargo: ${spec.commandLine.joinToString(" ")}")
+
         if (getBooleanProperty("mullvad.app.build.replaceRustPathPrefix"))
             spec.environment("RUSTFLAGS", generateRemapArguments())
     }
