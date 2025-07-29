@@ -1,9 +1,11 @@
 import { Page } from 'playwright';
 
 import { TestUtils } from '../utils';
+import { DaitaSettingsRouteObjectModel } from './daita-settings';
 import { FilterRouteObjectModel } from './filter';
 import { LaunchRouteObjectModel } from './launch';
 import { MainRouteObjectModel } from './main';
+import { MultihopSettingsRouteObjectModel } from './multihop-settings';
 import { SelectLanguageRouteObjectModel } from './select-language';
 import { SelectLocationRouteObjectModel } from './select-location';
 import { SettingsRouteObjectModel } from './settings/settings-route-object-model';
@@ -19,6 +21,8 @@ export class RoutesObjectModel {
   readonly filter: FilterRouteObjectModel;
   readonly selectLocation: SelectLocationRouteObjectModel;
   readonly vpnSettings: VpnSettingsRouteObjectModel;
+  readonly multihopSettings: MultihopSettingsRouteObjectModel;
+  readonly daitaSettings: DaitaSettingsRouteObjectModel;
 
   constructor(page: Page, utils: TestUtils) {
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
@@ -29,5 +33,7 @@ export class RoutesObjectModel {
     this.filter = new FilterRouteObjectModel(page, utils);
     this.selectLocation = new SelectLocationRouteObjectModel(page, utils);
     this.vpnSettings = new VpnSettingsRouteObjectModel(page, utils);
+    this.multihopSettings = new MultihopSettingsRouteObjectModel(page, utils);
+    this.daitaSettings = new DaitaSettingsRouteObjectModel(page, utils);
   }
 }
