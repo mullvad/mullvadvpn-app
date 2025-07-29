@@ -23,4 +23,9 @@ export class MainRouteObjectModel {
     await this.selectors.settingsButton().click();
     await this.utils.waitForRoute(RoutePath.settings);
   }
+
+  async gotoSelectLocation() {
+    await this.selectors.selectLocationButton().click();
+    await this.utils.waitForRoute(RoutePath.selectLocation);
+  }
 }
