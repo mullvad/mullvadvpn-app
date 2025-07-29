@@ -152,3 +152,8 @@ quinn-udp.opt-level = 3
 quinn.opt-level = 3
 mullvad-masque-proxy.opt-level = 3
 ring.opt-level = 3
+
+[profile.release-debuginfo]
+inherits = "release"
+debug = true
+strip = false
