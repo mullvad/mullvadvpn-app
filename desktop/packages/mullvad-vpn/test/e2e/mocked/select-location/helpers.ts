@@ -36,6 +36,16 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     }
   };
 
+  const locateRelaysByHostnames = (relayList: IRelayList, hostnames: string[]): LocatedRelay[] => {
+    return relayList.countries.flatMap((country) =>
+      country.cities.flatMap((city) =>
+        city.relays
+          .filter((relay) => hostnames.includes(relay.hostname))
+          .map((relay) => ({ country, city, relay })),
+      ),
+    );
+  };
+
   const locateRelaysByProvider = (relayList: IRelayList, provider?: string): LocatedRelay[] =>
     relayList.countries.flatMap((country) =>
       country.cities.flatMap((city) =>
@@ -176,6 +186,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
   return {
     areAllCheckboxesChecked,
     expandLocatedRelays,
+    locateRelaysByHostnames,
     locateRelaysByProvider,
     locateRelaysByOwner,
     locateRelaysByObfuscation,
