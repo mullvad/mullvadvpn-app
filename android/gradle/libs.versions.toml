@@ -7,7 +7,7 @@ compile-sdk = "36"
 build-tools = "36.0.0"
 min-sdk = "26"
 target-sdk = "36"
-ndk = "27.2.12479018"
+ndk = "27.3.13750724"
 
 # Android
 # The android-gradle-aapt plugin version must be in sync with the android plugin version.
