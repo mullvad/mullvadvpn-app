@@ -11,7 +11,7 @@ import MullvadSettings
 import Routing
 import UIKit
 
-protocol SettingsViewControllerDelegate: AnyObject, Sendable {
+protocol SettingsViewControllerDelegate: AnyObject {
     func settingsViewControllerDidFinish(_ controller: SettingsViewController)
     func settingsViewController(
         _ controller: SettingsViewController,

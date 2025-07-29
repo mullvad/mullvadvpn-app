@@ -84,18 +84,20 @@ public actor PacketTunnelActor {
      - Parameter channel: event channel.
      */
     private nonisolated func consumeEvents(channel: EventChannel) {
-        Task.detached { [weak self] in
+        Task.detached {
             for await event in channel {
-                guard let self else { return }
-
-                self.logger.debug("Received event: \(event.logFormat())")
-
-                let effects = await self.runReducer(event)
-
-                for effect in effects {
-                    await executeEffect(effect)
-                }
+                await self.handleEvent(event)
             }
+        }
+    }
+
+    private func handleEvent(_ event: Event) async {
+        self.logger.debug("Received event: \(event.logFormat())")
+
+        let effects = self.runReducer(event)
+
+        for effect in effects {
+            await executeEffect(effect)
         }
     }
 
