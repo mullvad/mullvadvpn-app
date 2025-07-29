@@ -47,7 +47,7 @@ Builds:
       - cargo install --force cbindgen --version "0.26.0" --locked
       - echo $NDK_TOOLCHAIN_DIR "$$NDK$$"
       - ../build.sh --fdroid
-    ndk: 27.2.12479018
+    ndk: 27.3.13750724
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^android/[0-9]{4}\.[0-9]+$
