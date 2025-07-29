@@ -149,6 +149,25 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
+        case .language:
+            guard let cell = cell as? SettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "LANGUAGE_CELL_LABEL",
+                tableName: "Settings",
+                value: "Language",
+                comment: ""
+            )
+
+            cell.detailTitleLabel.text = NSLocalizedString(
+                "LANGUAGE_CELL_DETAIL_LABEL",
+                tableName: "Settings",
+                value: viewModel.currentLanguage,
+                comment: ""
+            )
+
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
+            cell.disclosureType = .chevron
         }
     }
 }
