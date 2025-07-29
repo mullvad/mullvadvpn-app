@@ -6,14 +6,17 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.state.Udp2TcpSettingsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -47,8 +50,9 @@ class Udp2TcpSettingsViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             // Check result
-            val result = awaitItem().port
-            assertEquals(Constraint.Only(port), result)
+            val result = awaitItem()
+            assertIs<Lc.Content<Udp2TcpSettingsUiState>>(result)
+            assertEquals(Constraint.Only(port), result.value.port)
         }
     }
 

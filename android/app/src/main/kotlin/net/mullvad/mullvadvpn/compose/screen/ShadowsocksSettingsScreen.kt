@@ -1,10 +1,13 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -16,11 +19,14 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.CustomPortCell
 import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.CustomPortNavArgs
+import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
-import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsState
+import net.mullvad.mullvadvpn.compose.preview.ShadowsocksSettingsUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.constant.SHADOWSOCKS_AVAILABLE_PORTS
@@ -31,15 +37,19 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.tag.SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SHADOWSOCKS_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.ShadowsocksSettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Loading|Automatic|Custom")
 @Composable
-private fun PreviewShadowsocksSettingsScreen() {
+private fun PreviewShadowsocksSettingsScreen(
+    @PreviewParameter(ShadowsocksSettingsUiStatePreviewParameterProvider::class)
+    state: Lc<Unit, ShadowsocksSettingsUiState>
+) {
     AppTheme {
         ShadowsocksSettingsScreen(
-            state = ShadowsocksSettingsState(port = Constraint.Any, validPortRanges = emptyList()),
+            state = state,
             navigateToCustomPortDialog = {},
             onObfuscationPortSelected = {},
             onBackClick = {},
@@ -67,11 +77,11 @@ fun ShadowsocksSettings(
     ShadowsocksSettingsScreen(
         state = state,
         navigateToCustomPortDialog =
-            dropUnlessResumed {
+            dropUnlessResumed { customPort ->
                 navigator.navigate(
                     ShadowsocksCustomPortDestination(
                         CustomPortNavArgs(
-                            customPort = state.customPort,
+                            customPort = customPort,
                             allowedPortRanges = SHADOWSOCKS_AVAILABLE_PORTS,
                         )
                     )
@@ -84,8 +94,8 @@ fun ShadowsocksSettings(
 
 @Composable
 fun ShadowsocksSettingsScreen(
-    state: ShadowsocksSettingsState,
-    navigateToCustomPortDialog: () -> Unit,
+    state: Lc<Unit, ShadowsocksSettingsUiState>,
+    navigateToCustomPortDialog: (customPort: Port?) -> Unit,
     onObfuscationPortSelected: (Constraint<Port>) -> Unit,
     onBackClick: () -> Unit,
 ) {
@@ -93,42 +103,69 @@ fun ShadowsocksSettingsScreen(
         appBarTitle = stringResource(id = R.string.shadowsocks),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
     ) { modifier, lazyListState ->
-        LazyColumn(modifier = modifier, state = lazyListState) {
-            itemWithDivider { InformationComposeCell(title = stringResource(R.string.port)) }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.automatic),
-                    isSelected = state.port is Constraint.Any,
-                    onCellClicked = { onObfuscationPortSelected(Constraint.Any) },
-                    testTag = SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG,
-                )
-            }
-            SHADOWSOCKS_PRESET_PORTS.forEach { port ->
-                itemWithDivider {
-                    SelectableCell(
-                        title = port.toString(),
-                        isSelected = state.port.getOrNull() == port,
-                        onCellClicked = { onObfuscationPortSelected(Constraint.Only(port)) },
-                        testTag = String.format(null, SHADOWSOCKS_PORT_ITEM_X_TEST_TAG, port.value),
+        LazyColumn(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier,
+            state = lazyListState,
+        ) {
+            when (state) {
+                is Lc.Loading -> {
+                    loading()
+                }
+                is Lc.Content -> {
+                    content(
+                        state = state.value,
+                        navigateToCustomPortDialog = navigateToCustomPortDialog,
+                        onObfuscationPortSelected = onObfuscationPortSelected,
                     )
                 }
             }
-            itemWithDivider {
-                CustomPortCell(
-                    title = stringResource(id = R.string.wireguard_custon_port_title),
-                    isSelected = state.isCustom,
-                    port = state.customPort,
-                    onMainCellClicked = {
-                        if (state.customPort != null) {
-                            onObfuscationPortSelected(Constraint.Only(state.customPort))
-                        } else {
-                            navigateToCustomPortDialog()
-                        }
-                    },
-                    onPortCellClicked = navigateToCustomPortDialog,
-                    mainTestTag = SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG,
-                )
-            }
         }
     }
+}
+
+private fun LazyListScope.content(
+    state: ShadowsocksSettingsUiState,
+    navigateToCustomPortDialog: (Port?) -> Unit,
+    onObfuscationPortSelected: (Constraint<Port>) -> Unit,
+) {
+    itemWithDivider { InformationComposeCell(title = stringResource(R.string.port)) }
+    itemWithDivider {
+        SelectableCell(
+            title = stringResource(id = R.string.automatic),
+            isSelected = state.port is Constraint.Any,
+            onCellClicked = { onObfuscationPortSelected(Constraint.Any) },
+            testTag = SHADOWSOCKS_PORT_ITEM_AUTOMATIC_TEST_TAG,
+        )
+    }
+    SHADOWSOCKS_PRESET_PORTS.forEach { port ->
+        itemWithDivider {
+            SelectableCell(
+                title = port.toString(),
+                isSelected = state.port.getOrNull() == port,
+                onCellClicked = { onObfuscationPortSelected(Constraint.Only(port)) },
+                testTag = String.format(null, SHADOWSOCKS_PORT_ITEM_X_TEST_TAG, port.value),
+            )
+        }
+    }
+    itemWithDivider {
+        CustomPortCell(
+            title = stringResource(id = R.string.wireguard_custon_port_title),
+            isSelected = state.isCustom,
+            port = state.customPort,
+            onMainCellClicked = {
+                if (state.customPort != null) {
+                    onObfuscationPortSelected(Constraint.Only(state.customPort))
+                } else {
+                    navigateToCustomPortDialog(null)
+                }
+            },
+            onPortCellClicked = { navigateToCustomPortDialog(state.customPort) },
+            mainTestTag = SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG,
+        )
+    }
+}
+
+private fun LazyListScope.loading() {
+    item { MullvadCircularProgressIndicatorLarge() }
 }

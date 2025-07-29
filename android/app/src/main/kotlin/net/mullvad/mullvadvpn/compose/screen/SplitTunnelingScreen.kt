@@ -49,14 +49,16 @@ import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.preview.SplitTunnelingUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.getApplicationIconOrNull
+import net.mullvad.mullvadvpn.viewmodel.Loading
+import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -64,7 +66,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewSplitTunnelingScreen(
     @PreviewParameter(SplitTunnelingUiStatePreviewParameterProvider::class)
-    state: SplitTunnelingUiState
+    state: Lc<Loading, SplitTunnelingUiState>
 ) {
     AppTheme {
         SplitTunnelingScreen(
@@ -114,7 +116,7 @@ fun SharedTransitionScope.SplitTunneling(
 
 @Composable
 fun SplitTunnelingScreen(
-    state: SplitTunnelingUiState,
+    state: Lc<Loading, SplitTunnelingUiState>,
     onEnableSplitTunneling: (Boolean) -> Unit,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
     onExcludeAppClick: (packageName: String) -> Unit,
@@ -129,7 +131,7 @@ fun SplitTunnelingScreen(
         modifier = modifier.fillMaxSize(),
         appBarTitle = stringResource(id = R.string.split_tunneling),
         navigationIcon = {
-            if (state.isModal) {
+            if (state.isModal()) {
                 NavigateCloseIconButton(onNavigateClose = onBackClick)
             } else {
                 NavigateBackIconButton(onNavigateBack = onBackClick)
@@ -142,15 +144,18 @@ fun SplitTunnelingScreen(
             state = lazyListState,
         ) {
             description()
-            enabledToggle(enabled = state.enabled, onEnableSplitTunneling = onEnableSplitTunneling)
+            enabledToggle(
+                enabled = state.enabled(),
+                onEnableSplitTunneling = onEnableSplitTunneling,
+            )
             spacer()
             when (state) {
-                is SplitTunnelingUiState.Loading -> {
+                is Lc.Loading -> {
                     loading()
                 }
-                is SplitTunnelingUiState.ShowAppList -> {
+                is Lc.Content -> {
                     appList(
-                        state = state,
+                        state = state.value,
                         focusManager = focusManager,
                         onShowSystemAppsClick = onShowSystemAppsClick,
                         onExcludeAppClick = onExcludeAppClick,
@@ -196,7 +201,7 @@ private fun LazyListScope.loading() {
 }
 
 private fun LazyListScope.appList(
-    state: SplitTunnelingUiState.ShowAppList,
+    state: SplitTunnelingUiState,
     focusManager: FocusManager,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
     onExcludeAppClick: (packageName: String) -> Unit,
@@ -332,3 +337,15 @@ private fun LazyListScope.spacer() {
         Spacer(modifier = Modifier.animateItem().height(Dimens.mediumPadding))
     }
 }
+
+private fun Lc<Loading, SplitTunnelingUiState>.isModal(): Boolean =
+    when (this) {
+        is Lc.Loading -> this.value.isModal
+        is Lc.Content -> this.value.isModal
+    }
+
+private fun Lc<Loading, SplitTunnelingUiState>.enabled(): Boolean =
+    when (this) {
+        is Lc.Loading -> this.value.enabled
+        is Lc.Content -> this.value.enabled
+    }

@@ -31,6 +31,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.safeOpenUri
@@ -40,16 +41,17 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.AppInfoSideEffect
 import net.mullvad.mullvadvpn.viewmodel.AppInfoUiState
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview("Initial|Unsupported")
+@Preview("Loading|Supported|Unsupported")
 @Composable
 private fun PreviewAppInfoScreen(
-    @PreviewParameter(AppInfoUiStatePreviewParameterProvider::class) state: AppInfoUiState
+    @PreviewParameter(AppInfoUiStatePreviewParameterProvider::class) state: Lc<Unit, AppInfoUiState>
 ) {
     AppTheme {
         AppInfo(
@@ -95,7 +97,7 @@ fun AppInfo(navigator: DestinationsNavigator) {
 @ExperimentalMaterial3Api
 @Composable
 fun AppInfo(
-    state: AppInfoUiState,
+    state: Lc<Unit, AppInfoUiState>,
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     navigateToChangelog: () -> Unit,
@@ -106,14 +108,25 @@ fun AppInfo(
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         snackbarHostState = snackbarHostState,
     ) { modifier ->
-        Column(horizontalAlignment = Alignment.Start, modifier = modifier.animateContentSize()) {
-            AppInfoContent(state, navigateToChangelog, openAppListing)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.animateContentSize(),
+        ) {
+            when (state) {
+                is Lc.Loading -> Loading()
+                is Lc.Content ->
+                    AppInfoContent(
+                        state = state.value,
+                        navigateToChangelog = navigateToChangelog,
+                        openAppListing = openAppListing,
+                    )
+            }
         }
     }
 }
 
 @Composable
-fun AppInfoContent(
+private fun AppInfoContent(
     state: AppInfoUiState,
     navigateToChangelog: () -> Unit,
     openAppListing: () -> Unit,
@@ -175,4 +188,9 @@ private fun ChangelogRow(navigateToChangelog: () -> Unit) {
         title = stringResource(R.string.changelog_title),
         onClick = navigateToChangelog,
     )
+}
+
+@Composable
+private fun Loading() {
+    MullvadCircularProgressIndicatorLarge()
 }

@@ -12,6 +12,7 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,10 +21,10 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.compose.screen.SplitTunnelingNavArgs
-import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
+import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -57,10 +58,11 @@ class SplitTunnelingViewModelTest {
     @Test
     fun `initial state should be loading`() = runTest {
         initTestSubject(emptyList())
-        val actualState: SplitTunnelingUiState = testSubject.uiState.value
+        val actualState: Lc<Loading, SplitTunnelingUiState> = testSubject.uiState.value
 
-        val initialExpectedState = SplitTunnelingUiState.Loading(enabled = false)
+        val initialExpectedState = Lc.Loading(Loading(enabled = false))
 
+        assertIs<Lc.Loading<Loading>>(actualState)
         assertEquals(initialExpectedState, actualState)
 
         verify(exactly = 1) { mockedApplicationsProvider.getAppsList() }
@@ -70,13 +72,17 @@ class SplitTunnelingViewModelTest {
     fun `empty app list should work`() = runTest {
         initTestSubject(emptyList())
         val expectedState =
-            SplitTunnelingUiState.ShowAppList(
+            SplitTunnelingUiState(
                 enabled = true,
                 excludedApps = emptyList(),
                 includedApps = emptyList(),
                 showSystemApps = false,
             )
-        testSubject.uiState.test { assertEquals(expectedState, awaitItem()) }
+        testSubject.uiState.test {
+            val item = awaitItem()
+            assertIs<Lc.Content<SplitTunnelingUiState>>(item)
+            assertEquals(expectedState, item.value)
+        }
     }
 
     @Test
@@ -88,7 +94,7 @@ class SplitTunnelingViewModelTest {
         excludedApps.value = setOf(AppId(appExcluded.packageName))
 
         val expectedState =
-            SplitTunnelingUiState.ShowAppList(
+            SplitTunnelingUiState(
                 enabled = true,
                 excludedApps = listOf(appExcluded),
                 includedApps = listOf(appNotExcluded),
@@ -97,7 +103,8 @@ class SplitTunnelingViewModelTest {
 
         testSubject.uiState.test {
             val actualState = awaitItem()
-            assertEquals(expectedState, actualState)
+            assertIs<Lc.Content<SplitTunnelingUiState>>(actualState)
+            assertEquals(expectedState, actualState.value)
         }
     }
 
@@ -109,14 +116,14 @@ class SplitTunnelingViewModelTest {
         excludedApps.value = setOf(AppId(app.packageName))
 
         val expectedStateBeforeAction =
-            SplitTunnelingUiState.ShowAppList(
+            SplitTunnelingUiState(
                 enabled = true,
                 excludedApps = listOf(app),
                 includedApps = emptyList(),
                 showSystemApps = false,
             )
         val expectedStateAfterAction =
-            SplitTunnelingUiState.ShowAppList(
+            SplitTunnelingUiState(
                 enabled = true,
                 excludedApps = emptyList(),
                 includedApps = listOf(app),
@@ -126,10 +133,14 @@ class SplitTunnelingViewModelTest {
             Unit.right()
 
         testSubject.uiState.test {
-            assertEquals(expectedStateBeforeAction, awaitItem())
+            val beforeAction = awaitItem()
+            assertIs<Lc.Content<SplitTunnelingUiState>>(beforeAction)
+            assertEquals(expectedStateBeforeAction, beforeAction.value)
             testSubject.onIncludeAppClick(app.packageName)
             excludedApps.value = emptySet()
-            assertEquals(expectedStateAfterAction, awaitItem())
+            val afterAction = awaitItem()
+            assertIs<Lc.Content<SplitTunnelingUiState>>(afterAction)
+            assertEquals(expectedStateAfterAction, afterAction.value)
 
             coVerify { mockedSplitTunnelingRepository.includeApp(AppId(app.packageName)) }
         }
@@ -142,7 +153,7 @@ class SplitTunnelingViewModelTest {
         initTestSubject(listOf(app))
 
         val expectedStateBeforeAction =
-            SplitTunnelingUiState.ShowAppList(
+            SplitTunnelingUiState(
                 enabled = true,
                 excludedApps = emptyList(),
                 includedApps = listOf(app),
@@ -150,7 +161,7 @@ class SplitTunnelingViewModelTest {
             )
 
         val expectedStateAfterAction =
-            SplitTunnelingUiState.ShowAppList(
+            SplitTunnelingUiState(
                 enabled = true,
                 excludedApps = listOf(app),
                 includedApps = emptyList(),
@@ -161,10 +172,14 @@ class SplitTunnelingViewModelTest {
             Unit.right()
 
         testSubject.uiState.test {
-            assertEquals(expectedStateBeforeAction, awaitItem())
+            val beforeAction = awaitItem()
+            assertIs<Lc.Content<SplitTunnelingUiState>>(beforeAction)
+            assertEquals(expectedStateBeforeAction, beforeAction.value)
             testSubject.onExcludeAppClick(app.packageName)
             excludedApps.value = setOf(AppId(app.packageName))
-            assertEquals(expectedStateAfterAction, awaitItem())
+            val afterAction = awaitItem()
+            assertIs<Lc.Content<SplitTunnelingUiState>>(afterAction)
+            assertEquals(expectedStateAfterAction, afterAction.value)
 
             coVerify { mockedSplitTunnelingRepository.excludeApp(AppId(app.packageName)) }
         }
@@ -175,11 +190,12 @@ class SplitTunnelingViewModelTest {
         initTestSubject(emptyList())
         enabled.value = false
 
-        val expectedState = SplitTunnelingUiState.ShowAppList(enabled = false)
+        val expectedState = SplitTunnelingUiState(enabled = false)
 
         testSubject.uiState.test {
             val actualState = awaitItem()
-            assertEquals(expectedState, actualState)
+            assertIs<Lc.Content<SplitTunnelingUiState>>(actualState)
+            assertEquals(expectedState, actualState.value)
         }
     }
 
@@ -191,7 +207,7 @@ class SplitTunnelingViewModelTest {
         val app3 = AppData("com.example.app3", 0, "App Z")
         val appList = listOf(app2, app1, app3)
         val expectedState =
-            SplitTunnelingUiState.ShowAppList(
+            SplitTunnelingUiState(
                 enabled = true,
                 includedApps = listOf(app1, app2, app3),
                 showSystemApps = false,
@@ -199,7 +215,11 @@ class SplitTunnelingViewModelTest {
         initTestSubject(appList = appList)
 
         // Assert
-        testSubject.uiState.test { assertEquals(expectedState, awaitItem()) }
+        testSubject.uiState.test {
+            val actualState = awaitItem()
+            assertIs<Lc.Content<SplitTunnelingUiState>>(actualState)
+            assertEquals(expectedState, actualState.value)
+        }
     }
 
     private fun initTestSubject(appList: List<AppData>) {
