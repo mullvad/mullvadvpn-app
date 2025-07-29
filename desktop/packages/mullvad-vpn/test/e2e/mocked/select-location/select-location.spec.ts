@@ -112,9 +112,18 @@ test.describe('Select location', () => {
           await routes.filter.expandProviders();
           await routes.filter.checkAllProvidersCheckbox();
           expect(await helpers.areAllCheckboxesChecked()).toBe(false);
+          const wireguardRelays = {
+            countries: relayList.countries.map(({ cities, ...country }) => ({
+              ...country,
+              cities: cities.map(({ relays, ...city }) => ({
+                ...city,
+                relays: relays.filter((relay) => relay.endpointType === 'wireguard'),
+              })),
+            })),
+          };
 
           // Select one provider
-          const provider = relayList.countries[0].cities[0].relays[0].provider;
+          const provider = wireguardRelays.countries[0].cities[0].relays[0].provider;
           await routes.filter.checkProviderCheckbox(provider);
 
           await helpers.updateMockRelayFilter({
@@ -126,7 +135,7 @@ test.describe('Select location', () => {
           const providerFilterChip = routes.selectLocation.getFilterChip('Providers: 1');
           await expect(providerFilterChip).toBeVisible();
 
-          const locatedRelays = helpers.locateRelaysByProvider(relayList, provider);
+          const locatedRelays = helpers.locateRelaysByProvider(wireguardRelays, provider);
           const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
           const relayNames = relays.map((relay) => relay.hostname);
 

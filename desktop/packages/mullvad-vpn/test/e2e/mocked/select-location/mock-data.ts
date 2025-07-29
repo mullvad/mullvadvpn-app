@@ -13,7 +13,7 @@ const relayList: IRelayList = {
           longitude: 12,
           relays: [
             {
-              hostname: 'my-test-relay1',
+              hostname: 'mullvad-wireguard-1',
               provider: 'mullvad',
               ipv4AddrIn: '10.0.0.1',
               includeInCountry: true,
@@ -24,7 +24,7 @@ const relayList: IRelayList = {
               daita: true,
             },
             {
-              hostname: 'my-test-relay2',
+              hostname: 'mullvad-wireguard-23',
               provider: 'mullvad',
               ipv4AddrIn: '10.0.0.2',
               includeInCountry: true,
@@ -35,7 +35,7 @@ const relayList: IRelayList = {
               daita: true,
             },
             {
-              hostname: 'se-got-wg-103',
+              hostname: 'another-provider-wireguard-1',
               provider: 'another-provider',
               ipv4AddrIn: '10.0.0.3',
               includeInCountry: true,
@@ -46,7 +46,7 @@ const relayList: IRelayList = {
               daita: true,
             },
             {
-              hostname: 'se-got-wg-104',
+              hostname: 'mullvad-wireguard-quic-1',
               provider: 'mullvad',
               ipv4AddrIn: '10.0.0.4',
               includeInCountry: true,
@@ -60,6 +60,17 @@ const relayList: IRelayList = {
                 domain: '',
                 token: '',
               },
+            },
+            {
+              hostname: 'mullvad-openvpn-1',
+              provider: 'mullvad',
+              ipv4AddrIn: '10.0.0.2',
+              includeInCountry: true,
+              active: true,
+              weight: 0,
+              owned: true,
+              endpointType: 'openvpn',
+              daita: true,
             },
           ],
         },
