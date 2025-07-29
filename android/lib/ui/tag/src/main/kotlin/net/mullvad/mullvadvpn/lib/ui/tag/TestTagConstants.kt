@@ -41,6 +41,10 @@ const val CIRCULAR_PROGRESS_INDICATOR_TEST_TAG = "circular_progress_indicator_te
 const val EXPAND_BUTTON_TEST_TAG = "expand_button_test_tag"
 const val LOCATION_CELL_TEST_TAG = "location_cell_test_tag"
 
+const val GEOLOCATION_NAME_TAG = "geolocation_name_test_tag"
+const val CUSTOM_LIST_NAME_TAG = "custom_list_name_test_tag"
+const val CUSTOM_LIST_ENTRY_NAME_TAG = "custom_list_entry_name_test_tag"
+const val RECENT_NAME_TAG = "recent_name_test_tag"
 // ConnectScreen
 const val SELECT_LOCATION_BUTTON_TEST_TAG = "select_location_button_test_tag"
 const val CONNECT_BUTTON_TEST_TAG = "connect_button_test_tag"
