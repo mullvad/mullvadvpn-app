@@ -25,8 +25,12 @@ test.describe('Select location', () => {
     await helpers.updateMockRelays(relayList);
 
     await util.waitForRoute(RoutePath.main);
-    await page.getByLabel('Select location').click();
-    await util.waitForRoute(RoutePath.selectLocation);
+  });
+
+  test.beforeEach(async () => {
+    if ((await util.currentRoute()) === RoutePath.main) {
+      await routes.main.gotoSelectLocation();
+    }
   });
 
   test.afterAll(async () => {
@@ -87,6 +91,78 @@ test.describe('Select location', () => {
 
       const sweden = page.getByText('Sweden');
       await expect(sweden).toBeVisible();
+    });
+
+    test('Should show only wireguard servers in entry list', async () => {
+      const entryButton = routes.selectLocation.getEntryButton();
+      await entryButton.click();
+
+      const wireguardRelays = relayList.countries[0].cities[0].relays.filter(
+        (relay) => relay.endpointType === 'wireguard',
+      );
+      const hostnames = wireguardRelays.map((relay) => relay.hostname);
+      const locatedRelays = helpers.locateRelaysByHostnames(relayList, hostnames);
+
+      await helpers.expandLocatedRelays(locatedRelays);
+
+      const buttons = routes.selectLocation.getRelaysMatching(hostnames);
+      await expect(buttons).toHaveCount(wireguardRelays.length);
+    });
+
+    test('Should show only wireguard servers in exit list', async () => {
+      const exitButton = routes.selectLocation.getExitButton();
+      await exitButton.click();
+
+      const wireguardRelays = relayList.countries[0].cities[0].relays.filter(
+        (relay) => relay.endpointType === 'wireguard',
+      );
+      const hostnames = wireguardRelays.map((relay) => relay.hostname);
+      const locatedRelays = helpers.locateRelaysByHostnames(relayList, hostnames);
+
+      await helpers.expandLocatedRelays(locatedRelays);
+
+      const buttons = routes.selectLocation.getRelaysMatching(hostnames);
+      await expect(buttons).toHaveCount(wireguardRelays.length);
+    });
+
+    test('Should disable entry server in exit list', async () => {
+      const settings = await helpers.updateMockSettings({
+        multihop: true,
+        daita: true,
+        directOnly: true,
+      });
+
+      const entryButton = routes.selectLocation.getEntryButton();
+      await entryButton.click();
+
+      // Get first wireguard relay
+      const [entryRelay, exitRelay] = relayList.countries[0].cities[0].relays.filter(
+        (relay) => relay.endpointType === 'wireguard',
+      );
+
+      if (!entryRelay) {
+        throw new Error('No wireguard relay found in mocked data');
+      }
+
+      const locatedEntryRelay = helpers.locateRelaysByHostnames(relayList, [entryRelay.hostname]);
+
+      await helpers.expandLocatedRelays(locatedEntryRelay);
+
+      await routes.selectLocation.getRelaysMatching([entryRelay.hostname]).first().click();
+
+      await helpers.updateEntryLocation(locatedEntryRelay[0], settings);
+
+      await helpers.expandLocatedRelays(locatedEntryRelay);
+      const entryRelayButton = routes.selectLocation.getRelaysMatching([entryRelay.hostname]);
+      await expect(entryRelayButton).toBeDisabled();
+
+      const locatedExitRelay = helpers.locateRelaysByHostnames(relayList, [exitRelay.hostname]);
+      await helpers.expandLocatedRelays(locatedExitRelay);
+
+      // Clicking exit relay should navigate to main route
+      const exitRelayButton = routes.selectLocation.getRelaysMatching([exitRelay.hostname]);
+      await exitRelayButton.click();
+      await util.waitForRoute(RoutePath.main);
     });
   });
 
