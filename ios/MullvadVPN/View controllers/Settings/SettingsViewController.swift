@@ -70,9 +70,14 @@ class SettingsViewController: UITableViewController {
         dataSource = SettingsDataSource(tableView: tableView, interactor: interactor)
         dataSource?.delegate = self
 
-        interactor.didUpdateTunnelSettings = { [weak self] newSettings in
-            self?.dataSource?.reload(from: newSettings)
+        interactor.didUpdateSettings = { [weak self] in
+            self?.dataSource?.reload()
         }
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        dataSource?.reload()
     }
 }
 
@@ -108,19 +113,21 @@ extension SettingsDataSource.Item {
     var navigationRoute: SettingsNavigationRoute? {
         switch self {
         case .vpnSettings:
-            return .vpnSettings
+            .vpnSettings
         case .changelog:
-            return .changelog
+            .changelog
         case .problemReport:
-            return .problemReport
+            .problemReport
         case .faq:
-            return .faq
+            .faq
         case .apiAccess:
-            return .apiAccess
+            .apiAccess
         case .daita:
-            return .daita
+            .daita
         case .multihop:
-            return .multihop
+            .multihop
+        case .language:
+            .language
         }
     }
 }

@@ -82,12 +82,12 @@ public enum PersistentProxyConfiguration: Codable, Equatable, Sendable {
 
 extension PersistentProxyConfiguration {
     /// Socks autentication method.
-    public enum SocksAuthentication: Codable, Equatable {
+    public enum SocksAuthentication: Codable, Equatable, Sendable {
         case noAuthentication
         case authentication(UserCredential)
     }
 
-    public struct UserCredential: Codable, Equatable {
+    public struct UserCredential: Codable, Equatable, Sendable {
         public let username: String
         public let password: String
 
