@@ -13,6 +13,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.compose.state.CustomDnsItem
+import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.IpVersion
@@ -30,8 +32,8 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TE
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
-import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
-import net.mullvad.mullvadvpn.viewmodel.VpnSettingsUiState
+import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.toLc
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -65,7 +67,7 @@ class VpnSettingsScreenTest {
         isContentBlockersExpanded: Boolean = false,
         isModal: Boolean = false,
     ) =
-        VpnSettingsUiState.Content.from(
+        VpnSettingsUiState.from(
             mtu = mtu,
             isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
             isCustomDnsEnabled = isCustomDnsEnabled,
@@ -87,7 +89,7 @@ class VpnSettingsScreenTest {
         )
 
     private fun ComposeContext.initScreen(
-        state: VpnSettingsUiState = createDefaultUiState(),
+        state: Lc<Boolean, VpnSettingsUiState> = createDefaultUiState().toLc(),
         navigateToContentBlockersInfo: () -> Unit = {},
         navigateToAutoConnectScreen: () -> Unit = {},
         navigateToCustomDnsInfo: () -> Unit = {},
@@ -184,6 +186,7 @@ class VpnSettingsScreenTest {
             initScreen(
                 state =
                     createDefaultUiState(mtu = Mtu.fromString(VALID_DUMMY_MTU_VALUE).getOrNull()!!)
+                        .toLc()
             )
 
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
@@ -200,14 +203,15 @@ class VpnSettingsScreenTest {
             initScreen(
                 state =
                     createDefaultUiState(
-                        isCustomDnsEnabled = true,
-                        customDnsItems =
-                            listOf(
-                                CustomDnsItem(address = DUMMY_DNS_ADDRESS, false, false),
-                                CustomDnsItem(address = DUMMY_DNS_ADDRESS_2, false, false),
-                                CustomDnsItem(address = DUMMY_DNS_ADDRESS_3, false, false),
-                            ),
-                    )
+                            isCustomDnsEnabled = true,
+                            customDnsItems =
+                                listOf(
+                                    CustomDnsItem(address = DUMMY_DNS_ADDRESS, false, false),
+                                    CustomDnsItem(address = DUMMY_DNS_ADDRESS_2, false, false),
+                                    CustomDnsItem(address = DUMMY_DNS_ADDRESS_3, false, false),
+                                ),
+                        )
+                        .toLc()
             )
 
             // Assert
@@ -224,10 +228,11 @@ class VpnSettingsScreenTest {
             initScreen(
                 state =
                     createDefaultUiState(
-                        isCustomDnsEnabled = false,
-                        customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false, false)),
-                    )
+                            isCustomDnsEnabled = false,
+                            customDnsItems =
+                                listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false, false)),
+                        )
+                        .toLc()
             )
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
@@ -243,17 +248,18 @@ class VpnSettingsScreenTest {
             initScreen(
                 state =
                     createDefaultUiState(
-                        isCustomDnsEnabled = true,
-                        isLocalNetworkSharingEnabled = true,
-                        customDnsItems =
-                            listOf(
-                                CustomDnsItem(
-                                    address = DUMMY_DNS_ADDRESS,
-                                    isLocal = true,
-                                    isIpv6 = false,
-                                )
-                            ),
-                    )
+                            isCustomDnsEnabled = true,
+                            isLocalNetworkSharingEnabled = true,
+                            customDnsItems =
+                                listOf(
+                                    CustomDnsItem(
+                                        address = DUMMY_DNS_ADDRESS,
+                                        isLocal = true,
+                                        isIpv6 = false,
+                                    )
+                                ),
+                        )
+                        .toLc()
             )
 
             // Assert
@@ -267,16 +273,17 @@ class VpnSettingsScreenTest {
             initScreen(
                 state =
                     createDefaultUiState(
-                        isCustomDnsEnabled = true,
-                        customDnsItems =
-                            listOf(
-                                CustomDnsItem(
-                                    address = DUMMY_DNS_ADDRESS,
-                                    isLocal = false,
-                                    isIpv6 = false,
-                                )
-                            ),
-                    )
+                            isCustomDnsEnabled = true,
+                            customDnsItems =
+                                listOf(
+                                    CustomDnsItem(
+                                        address = DUMMY_DNS_ADDRESS,
+                                        isLocal = false,
+                                        isIpv6 = false,
+                                    )
+                                ),
+                        )
+                        .toLc()
             )
 
             // Assert
@@ -290,16 +297,17 @@ class VpnSettingsScreenTest {
             initScreen(
                 state =
                     createDefaultUiState(
-                        isCustomDnsEnabled = true,
-                        customDnsItems =
-                            listOf(
-                                CustomDnsItem(
-                                    address = DUMMY_DNS_ADDRESS,
-                                    isLocal = false,
-                                    isIpv6 = false,
-                                )
-                            ),
-                    )
+                            isCustomDnsEnabled = true,
+                            customDnsItems =
+                                listOf(
+                                    CustomDnsItem(
+                                        address = DUMMY_DNS_ADDRESS,
+                                        isLocal = false,
+                                        isIpv6 = false,
+                                    )
+                                ),
+                        )
+                        .toLc()
             )
 
             // Assert
@@ -313,16 +321,17 @@ class VpnSettingsScreenTest {
             initScreen(
                 state =
                     createDefaultUiState(
-                        isCustomDnsEnabled = true,
-                        customDnsItems =
-                            listOf(
-                                CustomDnsItem(
-                                    address = DUMMY_DNS_ADDRESS,
-                                    isLocal = true,
-                                    isIpv6 = false,
-                                )
-                            ),
-                    )
+                            isCustomDnsEnabled = true,
+                            customDnsItems =
+                                listOf(
+                                    CustomDnsItem(
+                                        address = DUMMY_DNS_ADDRESS,
+                                        isLocal = true,
+                                        isIpv6 = false,
+                                    )
+                                ),
+                        )
+                        .toLc()
             )
 
             // Assert
@@ -333,7 +342,9 @@ class VpnSettingsScreenTest {
     fun testShowSelectedTunnelQuantumOption() =
         composeExtension.use {
             // Arrange
-            initScreen(state = createDefaultUiState(quantumResistant = QuantumResistantState.On))
+            initScreen(
+                state = createDefaultUiState(quantumResistant = QuantumResistantState.On).toLc()
+            )
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG))
 
@@ -349,7 +360,7 @@ class VpnSettingsScreenTest {
             val mockSelectQuantumResistantSettingListener: (QuantumResistantState) -> Unit =
                 mockk(relaxed = true)
             initScreen(
-                state = createDefaultUiState(quantumResistant = QuantumResistantState.Auto),
+                state = createDefaultUiState(quantumResistant = QuantumResistantState.Auto).toLc(),
                 onSelectQuantumResistanceSetting = mockSelectQuantumResistantSettingListener,
             )
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
@@ -368,7 +379,8 @@ class VpnSettingsScreenTest {
         composeExtension.use {
             // Arrange
             initScreen(
-                state = createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53)))
+                state =
+                    createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53))).toLc()
             )
 
             // Act
@@ -392,7 +404,8 @@ class VpnSettingsScreenTest {
             val mockSelectWireguardPortSelectionListener: (Constraint<Port>) -> Unit =
                 mockk(relaxed = true)
             initScreen(
-                state = createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53))),
+                state =
+                    createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53))).toLc(),
                 onWireguardPortSelected = mockSelectWireguardPortSelectionListener,
             )
 
@@ -417,7 +430,7 @@ class VpnSettingsScreenTest {
     fun testShowWireguardCustomPort() =
         composeExtension.use {
             // Arrange
-            initScreen(state = createDefaultUiState(customWireguardPort = Port(4000)))
+            initScreen(state = createDefaultUiState(customWireguardPort = Port(4000)).toLc())
 
             // Act
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
@@ -435,9 +448,10 @@ class VpnSettingsScreenTest {
             initScreen(
                 state =
                     createDefaultUiState(
-                        selectedWireguardPort = Constraint.Only(Port(4000)),
-                        customWireguardPort = Port(4000),
-                    ),
+                            selectedWireguardPort = Constraint.Only(Port(4000)),
+                            customWireguardPort = Port(4000),
+                        )
+                        .toLc(),
                 onWireguardPortSelected = onWireguardPortSelected,
             )
 
@@ -457,7 +471,10 @@ class VpnSettingsScreenTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: (Mtu?) -> Unit = mockk(relaxed = true)
-            initScreen(state = createDefaultUiState(), navigateToMtuDialog = mockedClickHandler)
+            initScreen(
+                state = createDefaultUiState().toLc(),
+                navigateToMtuDialog = mockedClickHandler,
+            )
 
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
@@ -477,9 +494,10 @@ class VpnSettingsScreenTest {
             initScreen(
                 state =
                     createDefaultUiState(
-                        isCustomDnsEnabled = true,
-                        customDnsItems = listOf(CustomDnsItem("1.1.1.1", false, false)),
-                    ),
+                            isCustomDnsEnabled = true,
+                            customDnsItems = listOf(CustomDnsItem("1.1.1.1", false, false)),
+                        )
+                        .toLc(),
                 navigateToDns = mockedClickHandler,
             )
 
@@ -497,7 +515,7 @@ class VpnSettingsScreenTest {
 
             // Arrange
             initScreen(
-                state = createDefaultUiState(),
+                state = createDefaultUiState().toLc(),
                 navigateToObfuscationInfo = mockedNavigateToObfuscationInfo,
             )
 
@@ -517,7 +535,7 @@ class VpnSettingsScreenTest {
 
             // Arrange
             initScreen(
-                state = createDefaultUiState(),
+                state = createDefaultUiState().toLc(),
                 navigateToQuantumResistanceInfo = mockedShowTunnelQuantumInfoClick,
             )
 
@@ -537,7 +555,7 @@ class VpnSettingsScreenTest {
 
             // Arrange
             initScreen(
-                state = createDefaultUiState(),
+                state = createDefaultUiState().toLc(),
                 navigateToWireguardPortInfo = mockedClickHandler,
             )
 
@@ -555,7 +573,7 @@ class VpnSettingsScreenTest {
 
             // Arrange
             initScreen(
-                state = createDefaultUiState(availablePortRanges = availablePortRanges),
+                state = createDefaultUiState(availablePortRanges = availablePortRanges).toLc(),
                 navigateToWireguardPortDialog = mockedClickHandler,
             )
 
@@ -574,7 +592,7 @@ class VpnSettingsScreenTest {
             val mockOnShowCustomPortDialog: (Port?, List<PortRange>) -> Unit = mockk(relaxed = true)
             val availablePortRanges = listOf(Port(4000)..Port(5000))
             initScreen(
-                state = createDefaultUiState(availablePortRanges = availablePortRanges),
+                state = createDefaultUiState(availablePortRanges = availablePortRanges).toLc(),
                 navigateToWireguardPortDialog = mockOnShowCustomPortDialog,
             )
 
@@ -598,10 +616,11 @@ class VpnSettingsScreenTest {
             initScreen(
                 state =
                     createDefaultUiState(
-                        selectedWireguardPort = Constraint.Only(customPort),
-                        customWireguardPort = customPort,
-                        availablePortRanges = availablePortRanges,
-                    ),
+                            selectedWireguardPort = Constraint.Only(customPort),
+                            customWireguardPort = customPort,
+                            availablePortRanges = availablePortRanges,
+                        )
+                        .toLc(),
                 navigateToWireguardPortDialog = mockOnShowCustomPortDialog,
             )
 
@@ -618,7 +637,7 @@ class VpnSettingsScreenTest {
     fun ensureConnectOnStartIsShownWhenSystemVpnSettingsAvailableIsFalse() =
         composeExtension.use {
             // Arrange
-            initScreen(state = createDefaultUiState(systemVpnSettingsAvailable = false))
+            initScreen(state = createDefaultUiState(systemVpnSettingsAvailable = false).toLc())
 
             // Assert
             onNodeWithText("Connect on device start-up").assertExists()
@@ -632,9 +651,10 @@ class VpnSettingsScreenTest {
             initScreen(
                 state =
                     createDefaultUiState(
-                        systemVpnSettingsAvailable = false,
-                        autoStartAndConnectOnBoot = false,
-                    ),
+                            systemVpnSettingsAvailable = false,
+                            autoStartAndConnectOnBoot = false,
+                        )
+                        .toLc(),
                 onToggleAutoStartAndConnectOnBoot = mockOnToggleAutoStartAndConnectOnBoot,
             )
 

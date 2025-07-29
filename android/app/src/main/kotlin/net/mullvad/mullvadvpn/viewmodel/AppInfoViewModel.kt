@@ -8,18 +8,16 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
-import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
+import net.mullvad.mullvadvpn.util.Lc
 
 class AppInfoViewModel(
-    changelogRepository: ChangelogRepository,
     appVersionInfoRepository: AppVersionInfoRepository,
     private val resources: Resources,
     private val isPlayBuild: Boolean,
@@ -30,19 +28,10 @@ class AppInfoViewModel(
     private val _uiSideEffect = Channel<AppInfoSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    val uiState: StateFlow<AppInfoUiState> =
-        combine(
-                appVersionInfoRepository.versionInfo,
-                flowOf(changelogRepository.getLastVersionChanges()),
-                flowOf(isPlayBuild),
-            ) { versionInfo, changes, isPlayBuild ->
-                AppInfoUiState(versionInfo, isPlayBuild)
-            }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(),
-                AppInfoUiState(appVersionInfoRepository.versionInfo.value, true),
-            )
+    val uiState: StateFlow<Lc<Unit, AppInfoUiState>> =
+        appVersionInfoRepository.versionInfo
+            .map { versionInfo -> Lc.Content(AppInfoUiState(versionInfo, isPlayBuild)) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(Unit))
 
     fun openAppListing() =
         viewModelScope.launch {

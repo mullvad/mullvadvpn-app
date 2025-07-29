@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -43,10 +44,12 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.info.Confirmed
+import net.mullvad.mullvadvpn.compose.preview.DaitaUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.DaitaUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
@@ -54,15 +57,18 @@ import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_SCREEN_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.DaitaViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview
+@Preview("Loading|Disabled|Enabled")
 @Composable
-private fun PreviewDaitaScreen() {
+private fun PreviewDaitaScreen(
+    @PreviewParameter(DaitaUiStatePreviewParameterProvider::class) state: Lc<Boolean, DaitaUiState>
+) {
     AppTheme {
         DaitaScreen(
-            state = DaitaUiState(daitaEnabled = false, directOnly = false),
+            state = state,
             onDaitaEnabled = { _ -> },
             onDirectOnlyClick = { _ -> },
             onDirectOnlyInfoClick = {},
@@ -111,7 +117,7 @@ fun SharedTransitionScope.Daita(
 
 @Composable
 fun DaitaScreen(
-    state: DaitaUiState,
+    state: Lc<Boolean, DaitaUiState>,
     onDaitaEnabled: (enable: Boolean) -> Unit,
     onDirectOnlyClick: (enable: Boolean) -> Unit,
     onDirectOnlyInfoClick: () -> Unit,
@@ -122,32 +128,54 @@ fun DaitaScreen(
         appBarTitle = stringResource(id = R.string.daita),
         modifier = modifier,
         navigationIcon = {
-            if (state.isModal) {
+            if (state.isModal()) {
                 NavigateCloseIconButton { onBackClick() }
             } else {
                 NavigateBackIconButton { onBackClick() }
             }
         },
     ) { modifier ->
-        Column(modifier = modifier) {
-            val pagerState = rememberPagerState(pageCount = { DaitaPages.entries.size })
-            DescriptionPager(pagerState = pagerState)
-            PageIndicator(pagerState = pagerState)
-            HeaderSwitchComposeCell(
-                title = stringResource(R.string.enable),
-                isToggled = state.daitaEnabled,
-                onCellClicked = onDaitaEnabled,
-            )
-            HorizontalDivider()
-            HeaderSwitchComposeCell(
-                title = stringResource(R.string.direct_only),
-                isToggled = state.directOnly,
-                isEnabled = state.daitaEnabled,
-                onCellClicked = onDirectOnlyClick,
-                onInfoClicked = onDirectOnlyInfoClick,
-            )
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+            when (state) {
+                is Lc.Loading -> {
+                    Loading()
+                }
+                is Lc.Content -> {
+                    DaitaContent(
+                        state = state.value,
+                        onDaitaEnabled = onDaitaEnabled,
+                        onDirectOnlyClick = onDirectOnlyClick,
+                        onDirectOnlyInfoClick = onDirectOnlyInfoClick,
+                    )
+                }
+            }
         }
     }
+}
+
+@Composable
+private fun DaitaContent(
+    state: DaitaUiState,
+    onDaitaEnabled: (enable: Boolean) -> Unit,
+    onDirectOnlyClick: (enable: Boolean) -> Unit,
+    onDirectOnlyInfoClick: () -> Unit,
+) {
+    val pagerState = rememberPagerState(pageCount = { DaitaPages.entries.size })
+    DescriptionPager(pagerState = pagerState)
+    PageIndicator(pagerState = pagerState)
+    HeaderSwitchComposeCell(
+        title = stringResource(R.string.enable),
+        isToggled = state.daitaEnabled,
+        onCellClicked = onDaitaEnabled,
+    )
+    HorizontalDivider()
+    HeaderSwitchComposeCell(
+        title = stringResource(R.string.direct_only),
+        isToggled = state.directOnly,
+        isEnabled = state.daitaEnabled,
+        onCellClicked = onDirectOnlyClick,
+        onInfoClicked = onDirectOnlyInfoClick,
+    )
 }
 
 @Composable
@@ -220,6 +248,17 @@ private fun PageIndicator(pagerState: PagerState) {
         }
     }
 }
+
+@Composable
+private fun Loading() {
+    MullvadCircularProgressIndicatorLarge()
+}
+
+private fun Lc<Boolean, DaitaUiState>.isModal() =
+    when (this) {
+        is Lc.Loading -> this.value
+        is Lc.Content -> this.value.isModal
+    }
 
 private enum class DaitaPages(
     val image: Int,

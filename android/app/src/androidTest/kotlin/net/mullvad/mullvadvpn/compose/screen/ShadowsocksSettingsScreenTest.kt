@@ -9,10 +9,12 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsState
+import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.ui.tag.SHADOWSOCKS_CUSTOM_PORT_TEXT_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.toLc
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -21,8 +23,8 @@ class ShadowsocksSettingsScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
     private fun ComposeContext.initScreen(
-        state: ShadowsocksSettingsState = ShadowsocksSettingsState(),
-        navigateToCustomPortDialog: () -> Unit = {},
+        state: Lc<Unit, ShadowsocksSettingsUiState>,
+        navigateToCustomPortDialog: (port: Port?) -> Unit = {},
         onObfuscationPortSelected: (Constraint<Port>) -> Unit = {},
         onBackClick: () -> Unit = {},
     ) {
@@ -40,7 +42,7 @@ class ShadowsocksSettingsScreenTest {
     fun testShowShadowsocksCustomPort() =
         composeExtension.use {
             // Arrange
-            initScreen(state = ShadowsocksSettingsState(customPort = Port(4000)))
+            initScreen(state = ShadowsocksSettingsUiState(customPort = Port(4000)).toLc())
 
             // Assert
             onNodeWithText("4000").assertExists()
@@ -53,10 +55,11 @@ class ShadowsocksSettingsScreenTest {
             val onObfuscationPortSelected: (Constraint<Port>) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
-                    ShadowsocksSettingsState(
-                        port = Constraint.Only(Port(4000)),
-                        customPort = Port(4000),
-                    ),
+                    ShadowsocksSettingsUiState(
+                            port = Constraint.Only(Port(4000)),
+                            customPort = Port(4000),
+                        )
+                        .toLc(),
                 onObfuscationPortSelected = onObfuscationPortSelected,
             )
 

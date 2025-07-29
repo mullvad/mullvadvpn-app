@@ -7,6 +7,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.screen.DaitaNavArgs
@@ -14,6 +15,7 @@ import net.mullvad.mullvadvpn.compose.state.DaitaUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -49,7 +51,11 @@ class DaitaViewModelTest {
         }
 
         // Act, Assert
-        viewModel.uiState.test { assertEquals(expectedState, awaitItem()) }
+        viewModel.uiState.test {
+            val item = awaitItem()
+            assertIs<Lc.Content<DaitaUiState>>(item)
+            assertEquals(expectedState, item.value)
+        }
     }
 
     @Test
@@ -65,7 +71,11 @@ class DaitaViewModelTest {
         }
 
         // Act, Assert
-        viewModel.uiState.test { assertEquals(expectedState, awaitItem()) }
+        viewModel.uiState.test {
+            val item = awaitItem()
+            assertIs<Lc.Content<DaitaUiState>>(item)
+            assertEquals(expectedState, item.value)
+        }
     }
 
     @Test

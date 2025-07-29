@@ -12,6 +12,8 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
+import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.toLc
 
 class SettingsViewModel(
     deviceRepository: DeviceRepository,
@@ -21,7 +23,7 @@ class SettingsViewModel(
     isPlayBuild: Boolean,
 ) : ViewModel() {
 
-    val uiState: StateFlow<SettingsUiState> =
+    val uiState: StateFlow<Lc<Unit, SettingsUiState>> =
         combine(
                 deviceRepository.deviceState,
                 appVersionInfoRepository.versionInfo,
@@ -29,25 +31,15 @@ class SettingsViewModel(
                 settingsRepository.settingsUpdates,
             ) { deviceState, versionInfo, wireguardConstraints, settings ->
                 SettingsUiState(
-                    isLoggedIn = deviceState is DeviceState.LoggedIn,
-                    appVersion = versionInfo.currentVersion,
-                    isSupportedVersion = versionInfo.isSupported,
-                    multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
-                    isDaitaEnabled =
-                        settings?.tunnelOptions?.wireguard?.daitaSettings?.enabled == true,
-                    isPlayBuild = isPlayBuild,
-                )
+                        isLoggedIn = deviceState is DeviceState.LoggedIn,
+                        appVersion = versionInfo.currentVersion,
+                        isSupportedVersion = versionInfo.isSupported,
+                        multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
+                        isDaitaEnabled =
+                            settings?.tunnelOptions?.wireguard?.daitaSettings?.enabled == true,
+                        isPlayBuild = isPlayBuild,
+                    )
+                    .toLc<Unit, SettingsUiState>()
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(),
-                SettingsUiState(
-                    appVersion = "",
-                    isLoggedIn = false,
-                    isSupportedVersion = true,
-                    isDaitaEnabled = false,
-                    isPlayBuild = isPlayBuild,
-                    multihopEnabled = false,
-                ),
-            )
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(Unit))
 }

@@ -16,6 +16,7 @@ import io.mockk.unmockkAll
 import java.io.InputStream
 import java.io.InputStreamReader
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -24,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.RelayOverride
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
+import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -60,15 +62,17 @@ class ServerIpOverridesViewModelTest {
 
     @Test
     fun `ensure state is loading by default`() = runTest {
-        viewModel.uiState.test { assertEquals(ServerIpOverridesUiState.Loading(), awaitItem()) }
+        viewModel.uiState.test { assertIs<Lc.Loading<Unit>>(awaitItem()) }
     }
 
     @Test
     fun `when server ip overrides are empty ui state overrides should be inactive`() = runTest {
         viewModel.uiState.test {
-            assertEquals(ServerIpOverridesUiState.Loading(), awaitItem())
+            assertIs<Lc.Loading<Unit>>(awaitItem())
             relayOverrides.emit(emptyList())
-            assertEquals(ServerIpOverridesUiState.Loaded(false), awaitItem())
+            val item = awaitItem()
+            assertIs<Lc.Content<ServerIpOverridesUiState>>(item)
+            assertEquals(false, item.value.overridesActive)
         }
     }
 

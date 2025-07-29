@@ -93,6 +93,7 @@ import net.mullvad.mullvadvpn.compose.dialog.info.WireguardPortInfoDialogArgumen
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
+import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
@@ -122,16 +123,17 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TA
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.indexOfFirstOrNull
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
-import net.mullvad.mullvadvpn.viewmodel.VpnSettingsUiState
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Default|NonDefault")
 @Composable
 private fun PreviewVpnSettings(
-    @PreviewParameter(VpnSettingsUiStatePreviewParameterProvider::class) state: VpnSettingsUiState
+    @PreviewParameter(VpnSettingsUiStatePreviewParameterProvider::class)
+    state: Lc<Boolean, VpnSettingsUiState>
 ) {
     AppTheme {
         VpnSettingsScreen(
@@ -310,7 +312,7 @@ fun SharedTransitionScope.VpnSettings(
 @Suppress("LongParameterList")
 @Composable
 fun VpnSettingsScreen(
-    state: VpnSettingsUiState,
+    state: Lc<Boolean, VpnSettingsUiState>,
     initialScrollToFeature: FeatureIndicator?,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -361,7 +363,7 @@ fun VpnSettingsScreen(
             MullvadMediumTopBar(
                 title = stringResource(id = R.string.settings_vpn),
                 navigationIcon = {
-                    if (state.isModal) {
+                    if (state.isModal()) {
                         NavigateCloseIconButton(onNavigateClose = onBackClick)
                     } else {
                         NavigateBackIconButton(onNavigateBack = onBackClick)
@@ -379,12 +381,11 @@ fun VpnSettingsScreen(
         content = {
             Box(modifier = Modifier.fillMaxSize().padding(it)) {
                 when (state) {
-                    is VpnSettingsUiState.Loading ->
-                        CircularProgressIndicator(modifier.align(Alignment.Center))
+                    is Lc.Loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
 
-                    is VpnSettingsUiState.Content ->
+                    is Lc.Content ->
                         VpnSettingsContent(
-                            state,
+                            state.value,
                             initialScrollToFeature,
                             canScroll,
                             navigateToContentBlockersInfo,
@@ -428,7 +429,7 @@ fun VpnSettingsScreen(
 @Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
 @Composable
 fun VpnSettingsContent(
-    state: VpnSettingsUiState.Content,
+    state: VpnSettingsUiState,
     initialScrollToFeature: FeatureIndicator?,
     canScroll: MutableState<Boolean>,
     navigateToContentBlockersInfo: () -> Unit,
@@ -996,4 +997,10 @@ private fun VpnSettingsSideEffect.ShowToast.message(context: Context) =
         VpnSettingsSideEffect.ShowToast.ApplySettingsWarning ->
             context.getString(R.string.settings_changes_effect_warning_short)
         VpnSettingsSideEffect.ShowToast.GenericError -> context.getString(R.string.error_occurred)
+    }
+
+private fun Lc<Boolean, VpnSettingsUiState>.isModal() =
+    when (this) {
+        is Lc.Loading -> value
+        is Lc.Content -> value.isModal
     }

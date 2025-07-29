@@ -6,9 +6,11 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DeviceState
@@ -19,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
+import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -68,7 +71,11 @@ class SettingsViewModelTest {
     @Test
     fun `uiState should return isLoggedIn false by default`() = runTest {
         // Act, Assert
-        viewModel.uiState.test { assertEquals(false, awaitItem().isLoggedIn) }
+        viewModel.uiState.test {
+            val item = awaitItem()
+            assertIs<Lc.Content<SettingsUiState>>(item)
+            assertEquals(false, item.value.isLoggedIn)
+        }
     }
 
     @Test
@@ -81,7 +88,8 @@ class SettingsViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val result = awaitItem()
-                assertEquals(true, result.isSupportedVersion)
+                assertIs<Lc.Content<SettingsUiState>>(result)
+                assertEquals(true, result.value.isSupportedVersion)
             }
         }
 
@@ -95,7 +103,8 @@ class SettingsViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val result = awaitItem()
-                assertEquals(false, result.isSupportedVersion)
+                assertIs<Lc.Content<SettingsUiState>>(result)
+                assertEquals(false, result.value.isSupportedVersion)
             }
         }
 
@@ -114,7 +123,8 @@ class SettingsViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val result = awaitItem()
-                assertEquals(true, result.multihopEnabled)
+                assertIs<Lc.Content<SettingsUiState>>(result)
+                assertEquals(true, result.value.multihopEnabled)
             }
         }
 }

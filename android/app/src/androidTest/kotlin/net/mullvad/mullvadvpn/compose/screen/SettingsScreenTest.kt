@@ -8,6 +8,8 @@ import io.mockk.MockKAnnotations
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
+import net.mullvad.mullvadvpn.util.Lc
+import net.mullvad.mullvadvpn.util.toLc
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -22,7 +24,7 @@ class SettingsScreenTest {
     }
 
     private fun ComposeContext.initScreen(
-        state: SettingsUiState,
+        state: Lc<Unit, SettingsUiState>,
         onVpnSettingCellClick: () -> Unit = {},
         onSplitTunnelingCellClick: () -> Unit = {},
         onAppInfoClick: () -> Unit = {},
@@ -55,13 +57,14 @@ class SettingsScreenTest {
             initScreen(
                 state =
                     SettingsUiState(
-                        appVersion = "",
-                        isLoggedIn = true,
-                        isSupportedVersion = true,
-                        isPlayBuild = false,
-                        multihopEnabled = false,
-                        isDaitaEnabled = false,
-                    )
+                            appVersion = "",
+                            isLoggedIn = true,
+                            isSupportedVersion = true,
+                            isPlayBuild = false,
+                            multihopEnabled = false,
+                            isDaitaEnabled = false,
+                        )
+                        .toLc()
             )
             // Assert
             onNodeWithText("VPN settings").assertExists()
@@ -78,13 +81,14 @@ class SettingsScreenTest {
             initScreen(
                 state =
                     SettingsUiState(
-                        appVersion = "",
-                        isLoggedIn = false,
-                        isSupportedVersion = true,
-                        isPlayBuild = false,
-                        multihopEnabled = false,
-                        isDaitaEnabled = false,
-                    )
+                            appVersion = "",
+                            isLoggedIn = false,
+                            isSupportedVersion = true,
+                            isPlayBuild = false,
+                            multihopEnabled = false,
+                            isDaitaEnabled = false,
+                        )
+                        .toLc()
             )
             // Assert
             onNodeWithText("VPN settings").assertDoesNotExist()

@@ -6,10 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.util.Lc
 
 class MultihopViewModel(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
@@ -17,10 +19,11 @@ class MultihopViewModel(
 ) : ViewModel() {
     private val navArgs = MultihopDestination.argsFrom(savedStateHandle)
 
-    val uiState: StateFlow<MultihopUiState> =
+    val uiState: StateFlow<Lc<Boolean, MultihopUiState>> =
         wireguardConstraintsRepository.wireguardConstraints
-            .map { MultihopUiState(it?.isMultihopEnabled ?: false, isModal = navArgs.isModal) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MultihopUiState(false))
+            .filterNotNull()
+            .map { Lc.Content(MultihopUiState(it.isMultihopEnabled, isModal = navArgs.isModal)) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(navArgs.isModal))
 
     fun setMultihop(enable: Boolean) {
         viewModelScope.launch { wireguardConstraintsRepository.setMultihop(enable) }
