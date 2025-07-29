@@ -24,4 +24,14 @@ export class SettingsRouteObjectModel {
     await this.selectors.vpnSettingsButton().click();
     await this.utils.waitForRoute(RoutePath.vpnSettings);
   }
+
+  async gotoMultihopSettings() {
+    await this.selectors.multihopSettingsButton().click();
+    await this.utils.waitForRoute(RoutePath.multihopSettings);
+  }
+
+  async gotoDaitaSettings() {
+    await this.selectors.daitaSettingsButton().click();
+    await this.utils.waitForRoute(RoutePath.daitaSettings);
+  }
 }
