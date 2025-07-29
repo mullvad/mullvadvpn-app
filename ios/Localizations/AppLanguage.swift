@@ -1,0 +1,145 @@
+//
+//  AppLanguage.swift
+//  MullvadVPN
+//
+//  Created by Mojgan on 2025-07-16.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
+//
+
+import Foundation
+
+/**
+ * TODO:
+ * Edit the "Localization Cleanup (Release Build)" build script phase after
+ * multi-language support is completed and released.
+ *
+ * Note:
+ * - Localization is not available for the Staging configuration, which is used by `UITest`.
+ * - When the functionality is finished, the script should:
+ *    • Remove bilingual content only for Staging.
+ *    • Eliminate the Debug configuration check.
+ */
+enum AppLanguage: String, CaseIterable, Identifiable {
+    case english = "en"
+    case danish = "da"
+    case german = "de"
+    case spanish = "es"
+    case finnish = "fi"
+    case french = "fr"
+    case italian = "it"
+    case japanese = "ja"
+    case korean = "ko"
+    case burmese = "my"
+    case norwegianBokmal = "nb"
+    case dutch = "nl"
+    case polish = "pl"
+    case portuguese = "pt"
+    case russian = "ru"
+    case swedish = "sv"
+    case thai = "th"
+    case turkish = "tr"
+    case chineseSimplified = "zh-Hans" // Maps to zh-CN
+    case chineseTraditional = "zh-Hant" // Maps to zh-TW
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .english: "English"
+        case .danish: "Dansk"
+        case .german: "Deutsch"
+        case .spanish: "Español"
+        case .finnish: "Suomi"
+        case .french: "Français"
+        case .italian: "Italiano"
+        case .japanese: "日本語"
+        case .korean: "한국어"
+        case .burmese: "မြန်မာ"
+        case .norwegianBokmal: "Norsk Bokmål"
+        case .dutch: "Nederlands"
+        case .polish: "Polski"
+        case .portuguese: "Português"
+        case .russian: "Русский"
+        case .swedish: "Svenska"
+        case .thai: "ไทย"
+        case .turkish: "Türkçe"
+        case .chineseSimplified: "简体中文"
+        case .chineseTraditional: "繁體中文"
+        }
+    }
+
+    var countryCodeForFlag: String {
+        switch self {
+        case .english: "us" // English → US flag (or "gb" for UK)
+        case .danish: "dk"
+        case .german: "de"
+        case .spanish: "es"
+        case .finnish: "fi"
+        case .french: "fr"
+        case .italian: "it"
+        case .japanese: "jp"
+        case .korean: "kr"
+        case .burmese: "mm"
+        case .norwegianBokmal: "no"
+        case .dutch: "nl"
+        case .polish: "pl"
+        case .portuguese: "pt"
+        case .russian: "ru"
+        case .swedish: "se"
+        case .thai: "th"
+        case .turkish: "tr"
+        case .chineseSimplified: "cn"
+        case .chineseTraditional: "tw"
+        }
+    }
+
+    static var allSorted: [AppLanguage] {
+        AppLanguage.allCases
+            .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+    }
+
+    static func from(_ code: String) -> AppLanguage {
+        AppLanguage(rawValue: code) ?? .english
+    }
+
+    var flagEmoji: String {
+        let base: UInt32 = 127397
+        var flagString = ""
+        for scalar in countryCodeForFlag.uppercased().unicodeScalars {
+            guard let scalarValue = UnicodeScalar(base + scalar.value) else { return "" }
+            flagString.unicodeScalars.append(scalarValue)
+        }
+        return flagString
+    }
+
+    static var currentLanguage: AppLanguage {
+        let defaultCode = AppLanguage.english.rawValue
+        let fullCode = Locale.preferredLanguages.first ?? defaultCode
+
+        if #available(iOS 16, *) {
+            let locale = Locale(identifier: fullCode)
+            if let script = locale.language.script?.identifier {
+                switch script {
+                case "Hans":
+                    return .chineseSimplified
+                case "Hant":
+                    return .chineseTraditional
+                default:
+                    break
+                }
+            }
+        } else {
+            if fullCode.contains("Hans") {
+                return .chineseSimplified
+            } else if fullCode.contains("Hant") {
+                return .chineseTraditional
+            }
+        }
+
+        // Otherwise, try to get languageCode (e.g., "en", "fr")
+        let locale = Locale(identifier: fullCode)
+        let langCode = locale.languageCode ?? defaultCode
+
+        return AppLanguage.from(langCode)
+    }
+}
