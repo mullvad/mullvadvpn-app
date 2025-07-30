@@ -85,6 +85,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiState
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel
@@ -94,7 +95,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewServerIpOverridesScreen(
     @PreviewParameter(ServerIpOverridesUiStatePreviewParameterProvider::class)
-    state: ServerIpOverridesUiState
+    state: Lc<Boolean, ServerIpOverridesUiState>
 ) {
     AppTheme {
         ServerIpOverridesScreen(
@@ -185,7 +186,7 @@ fun SharedTransitionScope.ServerIpOverrides(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServerIpOverridesScreen(
-    state: ServerIpOverridesUiState,
+    state: Lc<Boolean, ServerIpOverridesUiState>,
     onBackClick: () -> Unit,
     onInfoClick: () -> Unit,
     onResetOverridesClick: () -> Unit,
@@ -202,7 +203,7 @@ fun ServerIpOverridesScreen(
         appBarTitle = stringResource(id = R.string.server_ip_override),
         modifier = modifier,
         navigationIcon = {
-            if (state.isModal) {
+            if (state.isModal()) {
                 NavigateCloseIconButton(onBackClick)
             } else {
                 NavigateBackIconButton(onNavigateBack = onBackClick)
@@ -210,24 +211,24 @@ fun ServerIpOverridesScreen(
         },
         actions = {
             TopBarActions(
-                overridesActive = state.overridesActive,
+                overridesActive = state.contentOrNull()?.overridesActive,
                 onInfoClick = onInfoClick,
                 onResetOverridesClick = onResetOverridesClick,
             )
         },
     ) { modifier ->
-        if (showBottomSheet && state.overridesActive != null) {
+        if (showBottomSheet && state is Lc.Content) {
             ImportOverridesByBottomSheet(
                 sheetState,
                 { showBottomSheet = it },
-                state.overridesActive!!,
+                state.value.overridesActive,
                 onImportByFile,
                 onImportByText,
             )
         }
 
         Column(modifier = modifier.animateContentSize()) {
-            ServerIpOverridesCell(active = state.overridesActive)
+            ServerIpOverridesCell(active = state.contentOrNull()?.overridesActive)
 
             Spacer(modifier = Modifier.weight(1f))
             SnackbarHost(hostState = snackbarHostState) { MullvadSnackbar(snackbarData = it) }
@@ -348,7 +349,7 @@ private fun TopBarActions(
                 showMenu = false
                 onResetOverridesClick()
             },
-            enabled = overridesActive ?: false,
+            enabled = overridesActive == true,
             colors =
                 MenuDefaults.itemColors(
                     leadingIconColor = MaterialTheme.colorScheme.onPrimary,
@@ -360,6 +361,12 @@ private fun TopBarActions(
         )
     }
 }
+
+private fun Lc<Boolean, ServerIpOverridesUiState>.isModal(): Boolean =
+    when (this) {
+        is Lc.Loading -> this.value
+        is Lc.Content -> this.value.isModal
+    }
 
 private fun SettingsPatchError?.toString(context: Context) =
     when (this) {

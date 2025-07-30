@@ -22,6 +22,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.screen.VpnSettingsNavArgs
 import net.mullvad.mullvadvpn.compose.state.VpnSettingItem
+import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings
@@ -47,6 +48,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
+import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -98,7 +100,7 @@ class VpnSettingsViewModelTest {
 
     @Test
     fun `initial state should be loading`() = runTest {
-        viewModel.uiState.test { assertEquals(VpnSettingsUiState.Loading(), awaitItem()) }
+        viewModel.uiState.test { assertInstanceOf<Lc.Loading<Boolean>>(awaitItem()) }
     }
 
     @Test
@@ -148,13 +150,13 @@ class VpnSettingsViewModelTest {
                 Constraint.Any
 
             viewModel.uiState.test {
-                assertEquals(VpnSettingsUiState.Loading(), awaitItem())
+                assertInstanceOf<Lc.Loading<Boolean>>(awaitItem())
                 mockSettingsUpdate.value = mockSettings
                 val content = awaitItem()
-                assertInstanceOf<VpnSettingsUiState.Content>(content)
+                assertInstanceOf<Lc.Content<VpnSettingsUiState>>(content)
 
                 assertTrue(
-                    content.settings
+                    content.value.settings
                         .filterIsInstance<VpnSettingItem.QuantumItem>()
                         .first { it.quantumResistantState == QuantumResistantState.On }
                         .selected
@@ -191,14 +193,14 @@ class VpnSettingsViewModelTest {
 
             // Act, Assert
             viewModel.uiState.test {
-                assertInstanceOf<VpnSettingsUiState.Loading>(awaitItem())
+                assertInstanceOf<Lc.Loading<Boolean>>(awaitItem())
 
                 mockSettingsUpdate.value = mockSettings
 
                 with(awaitItem()) {
-                    assertInstanceOf<VpnSettingsUiState.Content>(this)
+                    assertInstanceOf<Lc.Content<VpnSettingsUiState>>(this)
                     val customPortSetting =
-                        settings
+                        value.settings
                             .filterIsInstance<
                                 VpnSettingItem.WireguardPortItem.WireguardPortCustom
                             >()
@@ -243,12 +245,14 @@ class VpnSettingsViewModelTest {
             every { mockSystemVpnSettingsUseCase() } returns systemVpnSettingsAvailable
 
             viewModel.uiState.test {
-                assertInstanceOf<VpnSettingsUiState.Loading>(awaitItem())
+                assertInstanceOf<Lc.Loading<Boolean>>(awaitItem())
                 mockSettingsUpdate.value = dummySettings
 
                 val content = awaitItem()
-                assertInstanceOf<VpnSettingsUiState.Content>(content)
-                assertTrue(content.settings.any { it is VpnSettingItem.AutoConnectAndLockdownMode })
+                assertInstanceOf<Lc.Content<VpnSettingsUiState>>(content)
+                assertTrue(
+                    content.value.settings.any { it is VpnSettingItem.AutoConnectAndLockdownMode }
+                )
             }
         }
 
@@ -262,12 +266,14 @@ class VpnSettingsViewModelTest {
 
         // Assert
         viewModel.uiState.test {
-            assertInstanceOf<VpnSettingsUiState.Loading>(awaitItem())
+            assertInstanceOf<Lc.Loading<Boolean>>(awaitItem())
 
             mockSettingsUpdate.value = dummySettings
             val content = awaitItem()
-            assertInstanceOf<VpnSettingsUiState.Content>(content)
-            assertTrue(content.settings.any { it is VpnSettingItem.ConnectDeviceOnStartUpSetting })
+            assertInstanceOf<Lc.Content<VpnSettingsUiState>>(content)
+            assertTrue(
+                content.value.settings.any { it is VpnSettingItem.ConnectDeviceOnStartUpSetting }
+            )
         }
     }
 
@@ -311,10 +317,10 @@ class VpnSettingsViewModelTest {
             awaitItem()
             mockSettingsUpdate.value = mockSettings
             val content = awaitItem()
-            assertInstanceOf<VpnSettingsUiState.Content>(content)
+            assertInstanceOf<Lc.Content<VpnSettingsUiState>>(content)
             assertEquals(
                 ipVersion,
-                content.settings
+                content.value.settings
                     .filterIsInstance<VpnSettingItem.DeviceIpVersionItem>()
                     .first { it.selected }
                     .constraint,

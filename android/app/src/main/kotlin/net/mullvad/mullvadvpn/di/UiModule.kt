@@ -189,7 +189,6 @@ val uiModule = module {
     viewModel { ChangelogViewModel(get(), get(), get()) }
     viewModel {
         AppInfoViewModel(
-            changelogRepository = get(),
             appVersionInfoRepository = get(),
             resources = get(),
             isPlayBuild = IS_PLAY_BUILD,
@@ -248,7 +247,7 @@ val uiModule = module {
     viewModel { ApiAccessMethodDetailsViewModel(get(), get()) }
     viewModel { DeleteApiAccessMethodConfirmationViewModel(get(), get()) }
     viewModel { Udp2TcpSettingsViewModel(get()) }
-    viewModel { ShadowsocksSettingsViewModel(get(), get()) }
+    viewModel { ShadowsocksSettingsViewModel(get()) }
     viewModel { ShadowsocksCustomPortDialogViewModel(get()) }
     viewModel { MultihopViewModel(get(), get()) }
     viewModel {

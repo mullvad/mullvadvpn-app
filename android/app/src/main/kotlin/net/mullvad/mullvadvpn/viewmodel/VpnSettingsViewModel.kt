@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.compose.state.CustomDnsItem
+import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
@@ -37,7 +39,9 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsAvailableUseCase
+import net.mullvad.mullvadvpn.util.Lc
 import net.mullvad.mullvadvpn.util.onFirst
+import net.mullvad.mullvadvpn.util.toLc
 
 sealed interface VpnSettingsSideEffect {
     sealed interface ShowToast : VpnSettingsSideEffect {
@@ -93,33 +97,30 @@ class VpnSettingsViewModel(
                 customWgPort,
                 autoStartAndConnectOnBoot,
                 isContentBlockersExpanded ->
-                VpnSettingsUiState.Content.from(
-                    mtu = settings.tunnelOptions.wireguard.mtu,
-                    isLocalNetworkSharingEnabled = settings.allowLan,
-                    isCustomDnsEnabled = settings.isCustomDnsEnabled(),
-                    customDnsItems = settings.addresses().asStringAddressList(),
-                    contentBlockersOptions = settings.contentBlockersSettings(),
-                    obfuscationMode = settings.selectedObfuscationMode(),
-                    selectedUdp2TcpObfuscationPort = settings.obfuscationSettings.udp2tcp.port,
-                    selectedShadowsocksObfuscationPort =
-                        settings.obfuscationSettings.shadowsocks.port,
-                    quantumResistant = settings.quantumResistant(),
-                    selectedWireguardPort = settings.getWireguardPort(),
-                    customWireguardPort = customWgPort,
-                    availablePortRanges = portRanges,
-                    systemVpnSettingsAvailable = systemVpnSettingsUseCase(),
-                    autoStartAndConnectOnBoot = autoStartAndConnectOnBoot,
-                    deviceIpVersion = settings.getDeviceIpVersion(),
-                    isIpv6Enabled = settings.tunnelOptions.genericOptions.enableIpv6,
-                    isContentBlockersExpanded = isContentBlockersExpanded,
-                    isModal = navArgs.isModal,
-                )
+                VpnSettingsUiState.from(
+                        mtu = settings.tunnelOptions.wireguard.mtu,
+                        isLocalNetworkSharingEnabled = settings.allowLan,
+                        isCustomDnsEnabled = settings.isCustomDnsEnabled(),
+                        customDnsItems = settings.addresses().asStringAddressList(),
+                        contentBlockersOptions = settings.contentBlockersSettings(),
+                        obfuscationMode = settings.selectedObfuscationMode(),
+                        selectedUdp2TcpObfuscationPort = settings.obfuscationSettings.udp2tcp.port,
+                        selectedShadowsocksObfuscationPort =
+                            settings.obfuscationSettings.shadowsocks.port,
+                        quantumResistant = settings.quantumResistant(),
+                        selectedWireguardPort = settings.getWireguardPort(),
+                        customWireguardPort = customWgPort,
+                        availablePortRanges = portRanges,
+                        systemVpnSettingsAvailable = systemVpnSettingsUseCase(),
+                        autoStartAndConnectOnBoot = autoStartAndConnectOnBoot,
+                        deviceIpVersion = settings.getDeviceIpVersion(),
+                        isIpv6Enabled = settings.tunnelOptions.genericOptions.enableIpv6,
+                        isContentBlockersExpanded = isContentBlockersExpanded,
+                        isModal = navArgs.isModal,
+                    )
+                    .toLc<Boolean, VpnSettingsUiState>()
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(),
-                VpnSettingsUiState.Loading(navArgs.isModal),
-            )
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(navArgs.isModal))
 
     fun onToggleLocalNetworkSharing(isEnabled: Boolean) {
         viewModelScope.launch(dispatcher) {

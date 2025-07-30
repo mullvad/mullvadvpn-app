@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
-import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
+import net.mullvad.mullvadvpn.util.Lc
 
 class SplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
@@ -55,7 +55,7 @@ class SplitTunnelingViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                SplitTunnelingUiState.Loading(enabled = false, isModal = navArgs.isModal),
+                Lc.Loading(Loading(enabled = false, isModal = navArgs.isModal)),
             )
 
     init {
@@ -88,3 +88,13 @@ class SplitTunnelingViewModel(
         appsProvider.getAppsList().let { appsList -> allApps.emit(appsList) }
     }
 }
+
+data class Loading(val enabled: Boolean = false, val isModal: Boolean = false)
+
+data class SplitTunnelingUiState(
+    val enabled: Boolean = false,
+    val excludedApps: List<AppData> = emptyList(),
+    val includedApps: List<AppData> = emptyList(),
+    val showSystemApps: Boolean = false,
+    val isModal: Boolean = false,
+)

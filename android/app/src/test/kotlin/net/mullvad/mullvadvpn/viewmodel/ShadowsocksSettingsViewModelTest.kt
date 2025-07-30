@@ -6,17 +6,17 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.state.ShadowsocksSettingsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
-import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.util.Lc
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,23 +26,16 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ShadowsocksSettingsViewModelTest {
 
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockRelayListRepository: RelayListRepository = mockk()
 
     private val settingsFlow = MutableStateFlow<Settings?>(null)
-    private val portRangesFlow = MutableStateFlow<List<PortRange>>(emptyList())
 
     private lateinit var viewModel: ShadowsocksSettingsViewModel
 
     @BeforeEach
     fun setUp() {
         every { mockSettingsRepository.settingsUpdates } returns settingsFlow
-        every { mockRelayListRepository.shadowsocksPortRanges } returns portRangesFlow
 
-        viewModel =
-            ShadowsocksSettingsViewModel(
-                settingsRepository = mockSettingsRepository,
-                relayListRepository = mockRelayListRepository,
-            )
+        viewModel = ShadowsocksSettingsViewModel(settingsRepository = mockSettingsRepository)
     }
 
     @Test
@@ -57,27 +50,9 @@ class ShadowsocksSettingsViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             // Check result
-            val result = awaitItem().port
-            assertEquals(Constraint.Only(port), result)
-        }
-    }
-
-    @Test
-    fun `uiState should reflect latest port range value from relay list`() = runTest {
-        // Arrange
-        val mockSettings: Settings = mockk()
-        val port = Port(123)
-        every { mockSettings.obfuscationSettings.shadowsocks.port } returns Constraint.Only(port)
-        val mockPortRange: List<PortRange> = listOf(mockk())
-
-        portRangesFlow.update { mockPortRange }
-        settingsFlow.update { mockSettings }
-
-        // Act, Assert
-        viewModel.uiState.test {
-            // Check result
-            val result = awaitItem().validPortRanges
-            assertLists(mockPortRange, result)
+            val result = awaitItem()
+            assertIs<Lc.Content<ShadowsocksSettingsUiState>>(result)
+            assertEquals(Constraint.Only(port), result.value.port)
         }
     }
 
@@ -110,12 +85,14 @@ class ShadowsocksSettingsViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             val startState = awaitItem()
-            assertEquals(port, startState.customPort)
+            assertIs<Lc.Content<ShadowsocksSettingsUiState>>(startState)
+            assertEquals(port, startState.value.customPort)
 
             viewModel.resetCustomPort()
 
             val updatedState = awaitItem()
-            assertEquals(null, updatedState.customPort)
+            assertIs<Lc.Content<ShadowsocksSettingsUiState>>(updatedState)
+            assertEquals(null, updatedState.value.customPort)
             coVerify { mockSettingsRepository.setCustomShadowsocksObfuscationPort(Constraint.Any) }
         }
     }
