@@ -20,7 +20,6 @@ export CC := $(ANDROID_C_COMPILER)
 export GOARCH := $(NDK_GO_ARCH_MAP_$(ANDROID_ARCH_NAME))
 export GOOS := android
 export CGO_ENABLED := 1
-export APP_SUPPORT_FLEXIBLE_PAGE_SIZES := true
 
 default: $(DESTDIR)/libwg.so
 
