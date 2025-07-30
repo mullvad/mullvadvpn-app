@@ -9,13 +9,13 @@ import {
   IAccountData,
   IAppVersionInfo,
   ILocation,
-  IRelayList,
   IWireguardEndpointData,
 } from '../../../src/shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../src/shared/gettext';
 import { IGuiSettingsState } from '../../../src/shared/gui-settings-state';
 import { ITranslations, MacOsScrollbarVisibility } from '../../../src/shared/ipc-schema';
 import { ICurrentAppVersionInfo } from '../../../src/shared/ipc-types';
+import { mockData } from '../mock-data';
 
 const DEBUG = false;
 
@@ -74,85 +74,6 @@ class ApplicationMain {
     mullvadExitIp: false,
   };
 
-  private relayList: IRelayList = {
-    countries: [
-      {
-        name: 'Sweden',
-        code: 'se',
-        cities: [
-          {
-            name: 'Gothenburg',
-            code: 'got',
-            latitude: 58,
-            longitude: 12,
-            relays: [
-              {
-                hostname: 'mullvad-wireguard-1',
-                provider: 'mullvad',
-                ipv4AddrIn: '10.0.0.1',
-                includeInCountry: true,
-                active: true,
-                weight: 0,
-                owned: true,
-                endpointType: 'wireguard',
-                daita: true,
-              },
-              {
-                hostname: 'mullvad-wireguard-23',
-                provider: 'mullvad',
-                ipv4AddrIn: '10.0.0.2',
-                includeInCountry: true,
-                active: true,
-                weight: 0,
-                owned: true,
-                endpointType: 'wireguard',
-                daita: true,
-              },
-              {
-                hostname: 'another-provider-wireguard-1',
-                provider: 'another-provider',
-                ipv4AddrIn: '10.0.0.3',
-                includeInCountry: true,
-                active: true,
-                weight: 0,
-                owned: false,
-                endpointType: 'wireguard',
-                daita: true,
-              },
-              {
-                hostname: 'mullvad-wireguard-quic-1',
-                provider: 'mullvad',
-                ipv4AddrIn: '10.0.0.4',
-                includeInCountry: true,
-                active: true,
-                weight: 0,
-                owned: true,
-                endpointType: 'wireguard',
-                daita: true,
-                quic: {
-                  addrIn: [],
-                  domain: '',
-                  token: '',
-                },
-              },
-              {
-                hostname: 'mullvad-openvpn-1',
-                provider: 'mullvad',
-                ipv4AddrIn: '10.0.0.2',
-                includeInCountry: true,
-                active: true,
-                weight: 0,
-                owned: true,
-                endpointType: 'openvpn',
-                daita: true,
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  };
-
   private wireguardEndpointData: IWireguardEndpointData = {
     portRanges: [],
     udp2tcpPorts: [],
@@ -209,7 +130,7 @@ class ApplicationMain {
       isPerformingPostUpgrade: false,
       deviceState: this.deviceState,
       relayList: {
-        relayList: this.relayList,
+        relayList: mockData.relayList,
         wireguardEndpointData: this.wireguardEndpointData,
       },
       currentVersion: this.currentVersion,

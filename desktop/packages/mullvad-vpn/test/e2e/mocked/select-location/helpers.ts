@@ -6,9 +6,7 @@ import {
   IRelayListCity,
   IRelayListCountry,
   IRelayListHostname,
-  IRelayListWithEndpointData,
   ISettings,
-  IWireguardEndpointData,
   Ownership,
 } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
@@ -171,18 +169,6 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     return settings;
   };
 
-  const updateMockRelays = async (relayList: IRelayList) => {
-    const wireguardEndpointData: IWireguardEndpointData = {
-      portRanges: [],
-      udp2tcpPorts: [],
-    };
-
-    await utils.sendMockIpcResponse<IRelayListWithEndpointData>({
-      channel: 'relays-',
-      response: { relayList, wireguardEndpointData },
-    });
-  };
-
   return {
     areAllCheckboxesChecked,
     expandLocatedRelays,
@@ -195,7 +181,6 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     resetView,
     updateMockRelayFilter,
     updateMockSettings,
-    updateMockRelays,
     updateEntryLocation,
   };
 };
