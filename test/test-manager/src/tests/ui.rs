@@ -319,3 +319,27 @@ pub async fn test_settings_ui(
     assert!(ui_result.success());
     Ok(())
 }
+
+/// Test DAITA UI
+#[test_function]
+pub async fn test_daita_ui(
+    _: TestContext,
+    rpc: ServiceClient,
+    _: MullvadProxyClient,
+) -> Result<(), Error> {
+    let ui_result = run_test(&rpc, &["daita-settings.spec"]).await?;
+    assert!(ui_result.success());
+    Ok(())
+}
+
+/// Test multihop UI
+#[test_function]
+pub async fn test_multihop_ui(
+    _: TestContext,
+    rpc: ServiceClient,
+    _: MullvadProxyClient,
+) -> Result<(), Error> {
+    let ui_result = run_test(&rpc, &["multihop-settings.spec"]).await?;
+    assert!(ui_result.success());
+    Ok(())
+}
