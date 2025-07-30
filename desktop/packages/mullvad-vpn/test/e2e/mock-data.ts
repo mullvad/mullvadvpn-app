@@ -1,4 +1,4 @@
-import { IRelayList } from '../../../../src/shared/daemon-rpc-types';
+import { IRelayList } from '../../src/shared/daemon-rpc-types';
 
 const relayList: IRelayList = {
   countries: [
