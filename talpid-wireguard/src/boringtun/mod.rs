@@ -568,8 +568,7 @@ fn get_tunnel_for_userspace(
         .open_tun()
         .map_err(TunnelError::SetupTunnelDevice)?;
 
-    // TODO
-    boringtun::tun::tso::try_enable_tso(&tun.deref().dev).expect("Failed to enable TUN TSO");
+    boringtun::tun::tso::try_enable_tso(tun.deref()).expect("Failed to enable TUN TSO");
 
     Ok(tun)
 }
@@ -599,6 +598,9 @@ pub fn get_tunnel_for_userspace(
         let tunnel_device = tun_provider
             .open_tun()
             .map_err(TunnelError::SetupTunnelDevice)?;
+
+        // TODO
+        boringtun::tun::tso::try_enable_tso(&tunnel_device).expect("Failed to enable TUN TSO");
 
         match nix::unistd::dup(&tunnel_device) {
             Ok(fd) => return Ok((tunnel_device, fd.into_raw_fd())),
