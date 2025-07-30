@@ -145,6 +145,7 @@ class BillingPaymentRepository(
         }
         val purchases = purchasesResult.nonPendingPurchases()
         if (purchases.isEmpty()) {
+            Logger.d("No purchases to verify")
             return@either VerificationResult.NothingToVerify
         }
         verifyPurchase(purchases.first())
@@ -171,5 +172,6 @@ class BillingPaymentRepository(
                     purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken),
                 )
             )
+            .also { Logger.d("Purchase verification result $it") }
             .map { ProductId(purchase.products.first()) }
 }
