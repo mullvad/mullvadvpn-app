@@ -564,9 +564,14 @@ fn get_tunnel_for_userspace(
     tun_config.routes = routes.collect();
     tun_config.mtu = config.mtu;
 
-    tun_provider
+    let tun = tun_provider
         .open_tun()
-        .map_err(TunnelError::SetupTunnelDevice)
+        .map_err(TunnelError::SetupTunnelDevice)?;
+
+    // TODO
+    boringtun::tun::tso::try_enable_tso(&tun.deref().dev).expect("Failed to enable TUN TSO");
+
+    Ok(tun)
 }
 
 #[cfg(target_os = "android")]
@@ -603,6 +608,8 @@ pub fn get_tunnel_for_userspace(
             Err(error) => return Err(TunnelError::FdDuplicationError(error)),
         }
     }
+
+    // TODO: enable TSO if possible
 
     Err(TunnelError::FdDuplicationError(
         last_error.expect("Should be collected in loop"),

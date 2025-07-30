@@ -285,6 +285,8 @@ mod tun07_imp {
                         builder.name(name);
                     }
                 }
+                // TODO: enable only for TSO?
+                //builder.enable_vnet_header();
                 builder.mtu(self.config.mtu);
                 builder.create()?
             };
@@ -325,7 +327,7 @@ mod tun07_imp {
 
     /// A tunnel device
     pub struct TunnelDevice {
-        pub(crate) dev: tun07::AsyncDevice,
+        pub dev: tun07::AsyncDevice,
     }
 
     /// A tunnel device builder.
@@ -365,6 +367,13 @@ mod tun07_imp {
                 // NOTE: This function does seemingly have an effect on Linux, despite what the deprecation
                 // warning says.
                 config.packet_information(true);
+            });
+            self
+        }
+
+        pub fn enable_vnet_header(&mut self) -> &mut Self {
+            self.config.platform_config(|config| {
+                config.vnet_hdr(true);
             });
             self
         }

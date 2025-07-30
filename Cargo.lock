@@ -371,6 +371,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "349f9b6a179ed607305526ca489b34ad0a41aed5f7980fa90eb03160b69598fb"
 
 [[package]]
+name = "bitfield-struct"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3ca019570363e800b05ad4fd890734f28ac7b72f563ad8a35079efb793616f8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.100",
+]
+
+[[package]]
 name = "bitflags"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -444,11 +455,12 @@ dependencies = [
 [[package]]
 name = "boringtun"
 version = "0.6.0"
-source = "git+https://github.com/mullvad/boringtun?rev=ad10b7b1aecc8bbd73925bf6c332f97f27923c77#ad10b7b1aecc8bbd73925bf6c332f97f27923c77"
+source = "git+https://github.com/mullvad/boringtun?rev=d2efda34e2b5c852ccbf19c2828e515b732cfe1e#d2efda34e2b5c852ccbf19c2828e515b732cfe1e"
 dependencies = [
  "aead",
  "async-trait",
  "base64 0.13.1",
+ "bitfield-struct",
  "blake2",
  "bytes",
  "chacha20poly1305",
