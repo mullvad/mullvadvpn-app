@@ -157,6 +157,7 @@ class ApplicationMain
     }
 
     if (process.platform === 'linux') {
+      // NOTE: Keep in sync with mocked-utils.ts
       app.commandLine.appendSwitch('gtk-version', '3');
     }
 
