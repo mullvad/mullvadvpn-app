@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add list of recent server selections in the select location view.
+- Add support for devices with 16KB page size.
 
 
 ## [android/2025.6-beta2] - 2025-07-18
