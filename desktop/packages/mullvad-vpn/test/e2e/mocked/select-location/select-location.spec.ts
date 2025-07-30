@@ -5,24 +5,23 @@ import { getDefaultSettings } from '../../../../src/main/default-settings';
 import { colorTokens } from '../../../../src/renderer/lib/foundations';
 import { ISettings, ObfuscationType, Ownership } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
+import { mockData } from '../../mock-data';
 import { RoutesObjectModel } from '../../route-object-models';
 import { MockedTestUtils, startMockedApp } from '../mocked-utils';
 import { createHelpers, SelectLocationHelpers } from './helpers';
-import { mockData } from './mock-data';
+
+const { relayList } = mockData;
 
 let page: Page;
 let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 let helpers: SelectLocationHelpers;
-const { relayList } = mockData;
 
 test.describe('Select location', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
     routes = new RoutesObjectModel(page, util);
     helpers = createHelpers(page, routes, util);
-
-    await helpers.updateMockRelays(relayList);
 
     await util.waitForRoute(RoutePath.main);
   });
