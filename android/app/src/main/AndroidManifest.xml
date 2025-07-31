@@ -141,7 +141,7 @@
                 android:name=".receiver.AutoStartVpnBootCompletedReceiver"
                 android:enabled="false"
                 android:exported="false">
-            <intent-filter>
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
