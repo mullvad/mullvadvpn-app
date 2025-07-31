@@ -39,12 +39,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -465,7 +462,11 @@ private fun SelectLocationDropdownMenu(
 }
 
 @Composable
-private fun MultihopBar(relayListType: RelayListType, onSelectHopList: (RelayListType) -> Unit) {
+private fun MultihopBar(
+    pagerState: PagerState,
+    relayListType: RelayListType,
+    onSelectHopList: (RelayListType) -> Unit,
+) {
     SingleChoiceSegmentedButtonRow(
         modifier =
             Modifier.fillMaxWidth()
@@ -481,7 +482,7 @@ private fun MultihopBar(relayListType: RelayListType, onSelectHopList: (RelayLis
                 1f -
                     abs(pagerState.getOffsetDistanceInPages(RelayListType.ENTRY.ordinal))
                         .coerceIn(0f..1f),
-            onClick = { onSelectRelayList(RelayListType.ENTRY) },
+            onClick = { onSelectHopList(RelayListType.ENTRY) },
             text = stringResource(id = R.string.entry),
         )
         MullvadSegmentedEndButton(
@@ -490,13 +491,14 @@ private fun MultihopBar(relayListType: RelayListType, onSelectHopList: (RelayLis
                 1f -
                     abs(pagerState.getOffsetDistanceInPages(RelayListType.EXIT.ordinal))
                         .coerceIn(0f..1f),
-            onClick = { onSelectRelayList(RelayListType.EXIT) },
+            onClick = { onSelectHopList(RelayListType.EXIT) },
             text = stringResource(id = R.string.exit),
         )
     }
 }
 
 @Composable
+@Suppress("ComplexCondition")
 private fun RelayLists(
     pagerState: PagerState,
     state: SelectLocationUiState,
@@ -507,28 +509,32 @@ private fun RelayLists(
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     onSelectRelayList: (RelayListType) -> Unit,
 ) {
-
-    val focusRequesterEntry = remember { FocusRequester() }
-    val focusRequesterExit = remember { FocusRequester() }
-
+    val focusManager = LocalFocusManager.current
     LaunchedEffect(pagerState.currentPage) {
         onSelectRelayList(RelayListType.entries[pagerState.currentPage])
-        if (state.multihopEnabled) {
-            focusRequesterEntry.saveFocusedChild()
-        }
-
-        focusRequesterExit.saveFocusedChild()
     }
 
     LaunchedEffect(state.relayListType) {
         val index = state.relayListType.ordinal
+        pagerState.animateScrollToPage(index)
+    }
 
-        pagerState.scrollToPage(index)
-
-        when (state.relayListType) {
-            RelayListType.ENTRY -> focusRequesterEntry.restoreFocusedChild()
-            RelayListType.EXIT -> focusRequesterExit.restoreFocusedChild()
+    val onSelectHopInner: (Hop) -> Unit = {
+        // If multihop is enabled and the user selects a location or custom list in the entry list
+        // the app will switch to the exit list. Normally in this case the focus will stay in the
+        // entry list, but in this case we want move the focus to the exit list.
+        if (
+            state.multihopEnabled &&
+                state.relayListType == RelayListType.ENTRY &&
+                it is Hop.Single<*> &&
+                it.isActive
+        ) {
+            focusManager.moveFocus(FocusDirection.Right)
+            if (it.relay.hasChildren) {
+                focusManager.moveFocus(FocusDirection.Right)
+            }
         }
+        onSelectHop(it)
     }
 
     HorizontalPager(
@@ -542,8 +548,8 @@ private fun RelayLists(
             },
     ) { pageIndex ->
         SelectLocationList(
-            relayListType = state.relayListType,
-            onSelectHop = onSelectHop,
+            relayListType = RelayListType.entries[pageIndex],
+            onSelectHop = onSelectHopInner,
             openDaitaSettings = openDaitaSettings,
             onAddCustomList = onAddCustomList,
             onEditCustomLists = onEditCustomLists,
