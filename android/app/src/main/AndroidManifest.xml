@@ -45,6 +45,10 @@
                 tools:node="remove"
                 tools:ignore="MissingClass" />
 
+        <profileable
+                android:enabled="true"
+                android:shell="true" />
+
         <!--
             MainActivity
             Must be exported in order to be launchable.
