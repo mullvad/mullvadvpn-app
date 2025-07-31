@@ -76,8 +76,6 @@ private typealias Content = Lce.Content<SelectLocationListUiState>
 
 @Composable
 fun SelectLocationList(
-    modifier: Modifier,
-    backgroundColor: Color,
     relayListType: RelayListType,
     onSelectHop: (Hop) -> Unit,
     openDaitaSettings: () -> Unit,
