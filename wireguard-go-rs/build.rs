@@ -492,8 +492,11 @@ fn build_android_dynamic_lib(out_dir: &str) -> anyhow::Result<()> {
         .env("ANDROID_ABI", android_abi(target))
         .env("ANDROID_ARCH_NAME", android_arch_name(target))
         .env("GOPATH", &go_path)
-        // Note: -w -s results in a stripped binary
-        .env("LDFLAGS", format!("-L{out_dir} -w -s"))
+        // Note: -w -s results in a stripped binary.
+        // Note: -Wl -z and max-page-size is added to support 16KB page size.
+        // See the link below for more information.
+        // https://developer.android.com/guide/practices/page-sizes#other-build-systems
+        .env("LDFLAGS", format!("-L{out_dir} -w -s -Wl -z max-page-size=16384"))
         // Note: the build container overrides CARGO_TARGET_DIR, which will cause problems
         // since we will spawn another cargo process as part of building maybenot (which we
         // link into libwg). A work around is to simply override the overridden value, and we

@@ -293,6 +293,13 @@ cargo {
 
         if (getBooleanProperty("mullvad.app.build.replaceRustPathPrefix"))
             spec.environment("RUSTFLAGS", generateRemapArguments())
+
+        // Support 16KB page sizes
+        // https://developer.android.com/guide/practices/page-sizes#other-build-systems
+        spec.environment(
+            "RUST_ANDROID_GRADLE_CC_LINK_ARG",
+            "-Wl,-z,max-page-size=16384,-soname,lib${libname}.so",
+        )
     }
 }
 
