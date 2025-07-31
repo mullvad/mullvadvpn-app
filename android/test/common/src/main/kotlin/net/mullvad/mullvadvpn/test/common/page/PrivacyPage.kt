@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.test.common.page
 import android.os.Build
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
+import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
@@ -32,9 +33,7 @@ class PrivacyPage internal constructor() : Page() {
         try {
             uiDevice.findObjectWithTimeout(allowSelector).click()
         } catch (e: IllegalArgumentException) {
-            throw IllegalArgumentException(
-                "Failed to allow notification permission within timeout ($timeout)"
-            )
+            Logger.e("Failed to allow notification permission within timeout ($timeout)", e)
         }
     }
 }
