@@ -3,43 +3,33 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
 import { colorTokens } from '../../../../src/renderer/lib/foundations';
-import {
-  IRelayListWithEndpointData,
-  ISettings,
-  IWireguardEndpointData,
-  ObfuscationType,
-  Ownership,
-} from '../../../../src/shared/daemon-rpc-types';
+import { ISettings, ObfuscationType, Ownership } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
+import { mockData } from '../../mock-data';
 import { RoutesObjectModel } from '../../route-object-models';
 import { MockedTestUtils, startMockedApp } from '../mocked-utils';
 import { createHelpers, SelectLocationHelpers } from './helpers';
-import { mockData } from './mock-data';
 
-const wireguardEndpointData: IWireguardEndpointData = {
-  portRanges: [],
-  udp2tcpPorts: [],
-};
+const { relayList } = mockData;
 
 let page: Page;
 let util: MockedTestUtils;
 let routes: RoutesObjectModel;
 let helpers: SelectLocationHelpers;
-const { relayList } = mockData;
 
 test.describe('Select location', () => {
   test.beforeAll(async () => {
     ({ page, util } = await startMockedApp());
     routes = new RoutesObjectModel(page, util);
     helpers = createHelpers(page, routes, util);
-    await util.waitForRoute(RoutePath.main);
-    await page.getByLabel('Select location').click();
-    await util.waitForRoute(RoutePath.selectLocation);
 
-    await util.sendMockIpcResponse<IRelayListWithEndpointData>({
-      channel: 'relays-',
-      response: { relayList, wireguardEndpointData },
-    });
+    await util.waitForRoute(RoutePath.main);
+  });
+
+  test.beforeEach(async () => {
+    if ((await util.currentRoute()) === RoutePath.main) {
+      await routes.main.gotoSelectLocation();
+    }
   });
 
   test.afterAll(async () => {
@@ -48,14 +38,8 @@ test.describe('Select location', () => {
 
   test.describe('Multihop enabled', () => {
     test.beforeAll(async () => {
-      const settings = getDefaultSettings();
-      if ('normal' in settings.relaySettings) {
-        settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
-      }
-
-      await util.sendMockIpcResponse<ISettings>({
-        channel: 'settings-',
-        response: settings,
+      await helpers.updateMockSettings({
+        multihop: true,
       });
     });
 
@@ -81,16 +65,10 @@ test.describe('Select location', () => {
     });
 
     test("App shouldn't show entry selection when daita is enabled without direct only", async () => {
-      const settings = getDefaultSettings();
-      if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
-        settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
-        settings.tunnelOptions.wireguard.daita.enabled = true;
-        settings.tunnelOptions.wireguard.daita.directOnly = false;
-      }
-
-      await util.sendMockIpcResponse<ISettings>({
-        channel: 'settings-',
-        response: settings,
+      await helpers.updateMockSettings({
+        multihop: true,
+        daita: true,
+        directOnly: false,
       });
 
       const entryButton = routes.selectLocation.getEntryButton();
@@ -101,16 +79,10 @@ test.describe('Select location', () => {
     });
 
     test('App should show entry selection when daita is enabled with direct only', async () => {
-      const settings = getDefaultSettings();
-      if ('normal' in settings.relaySettings && settings.tunnelOptions.wireguard.daita) {
-        settings.relaySettings.normal.wireguardConstraints.useMultihop = true;
-        settings.tunnelOptions.wireguard.daita.enabled = true;
-        settings.tunnelOptions.wireguard.daita.directOnly = true;
-      }
-
-      await util.sendMockIpcResponse<ISettings>({
-        channel: 'settings-',
-        response: settings,
+      await helpers.updateMockSettings({
+        multihop: true,
+        daita: true,
+        directOnly: true,
       });
 
       const entryButton = routes.selectLocation.getEntryButton();
@@ -118,6 +90,78 @@ test.describe('Select location', () => {
 
       const sweden = page.getByText('Sweden');
       await expect(sweden).toBeVisible();
+    });
+
+    test('Should show only wireguard servers in entry list', async () => {
+      const entryButton = routes.selectLocation.getEntryButton();
+      await entryButton.click();
+
+      const wireguardRelays = relayList.countries[0].cities[0].relays.filter(
+        (relay) => relay.endpointType === 'wireguard',
+      );
+      const hostnames = wireguardRelays.map((relay) => relay.hostname);
+      const locatedRelays = helpers.locateRelaysByHostnames(relayList, hostnames);
+
+      await helpers.expandLocatedRelays(locatedRelays);
+
+      const buttons = routes.selectLocation.getRelaysMatching(hostnames);
+      await expect(buttons).toHaveCount(wireguardRelays.length);
+    });
+
+    test('Should show only wireguard servers in exit list', async () => {
+      const exitButton = routes.selectLocation.getExitButton();
+      await exitButton.click();
+
+      const wireguardRelays = relayList.countries[0].cities[0].relays.filter(
+        (relay) => relay.endpointType === 'wireguard',
+      );
+      const hostnames = wireguardRelays.map((relay) => relay.hostname);
+      const locatedRelays = helpers.locateRelaysByHostnames(relayList, hostnames);
+
+      await helpers.expandLocatedRelays(locatedRelays);
+
+      const buttons = routes.selectLocation.getRelaysMatching(hostnames);
+      await expect(buttons).toHaveCount(wireguardRelays.length);
+    });
+
+    test('Should disable entry server in exit list', async () => {
+      const settings = await helpers.updateMockSettings({
+        multihop: true,
+        daita: true,
+        directOnly: true,
+      });
+
+      const entryButton = routes.selectLocation.getEntryButton();
+      await entryButton.click();
+
+      // Get first wireguard relay
+      const [entryRelay, exitRelay] = relayList.countries[0].cities[0].relays.filter(
+        (relay) => relay.endpointType === 'wireguard',
+      );
+
+      if (!entryRelay) {
+        throw new Error('No wireguard relay found in mocked data');
+      }
+
+      const locatedEntryRelay = helpers.locateRelaysByHostnames(relayList, [entryRelay.hostname]);
+
+      await helpers.expandLocatedRelays(locatedEntryRelay);
+
+      await routes.selectLocation.getRelaysMatching([entryRelay.hostname]).first().click();
+
+      await helpers.updateEntryLocation(locatedEntryRelay[0], settings);
+
+      await helpers.expandLocatedRelays(locatedEntryRelay);
+      const entryRelayButton = routes.selectLocation.getRelaysMatching([entryRelay.hostname]);
+      await expect(entryRelayButton).toBeDisabled();
+
+      const locatedExitRelay = helpers.locateRelaysByHostnames(relayList, [exitRelay.hostname]);
+      await helpers.expandLocatedRelays(locatedExitRelay);
+
+      // Clicking exit relay should navigate to main route
+      const exitRelayButton = routes.selectLocation.getRelaysMatching([exitRelay.hostname]);
+      await exitRelayButton.click();
+      await util.waitForRoute(RoutePath.main);
     });
   });
 
@@ -143,9 +187,18 @@ test.describe('Select location', () => {
           await routes.filter.expandProviders();
           await routes.filter.checkAllProvidersCheckbox();
           expect(await helpers.areAllCheckboxesChecked()).toBe(false);
+          const wireguardRelays = {
+            countries: relayList.countries.map(({ cities, ...country }) => ({
+              ...country,
+              cities: cities.map(({ relays, ...city }) => ({
+                ...city,
+                relays: relays.filter((relay) => relay.endpointType === 'wireguard'),
+              })),
+            })),
+          };
 
           // Select one provider
-          const provider = relayList.countries[0].cities[0].relays[0].provider;
+          const provider = wireguardRelays.countries[0].cities[0].relays[0].provider;
           await routes.filter.checkProviderCheckbox(provider);
 
           await helpers.updateMockRelayFilter({
@@ -157,7 +210,7 @@ test.describe('Select location', () => {
           const providerFilterChip = routes.selectLocation.getFilterChip('Providers: 1');
           await expect(providerFilterChip).toBeVisible();
 
-          const locatedRelays = helpers.locateRelaysByProvider(relayList, provider);
+          const locatedRelays = helpers.locateRelaysByProvider(wireguardRelays, provider);
           const relays = locatedRelays.map((locatedRelay) => locatedRelay.relay);
           const relayNames = relays.map((relay) => relay.hostname);
 

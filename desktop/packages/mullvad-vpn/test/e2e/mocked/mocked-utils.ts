@@ -21,6 +21,8 @@ export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
     console.log('Running tests without chromium sandbox');
     args.unshift('--no-sandbox');
   }
+  // NOTE: Keep in sync with index.ts
+  args.push('--gtk-version=3');
 
   const startAppResult = await startApp({ args });
   const mockIpcHandle = generateMockIpcHandle(startAppResult.app);
