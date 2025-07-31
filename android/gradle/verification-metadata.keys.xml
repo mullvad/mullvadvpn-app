@@ -21,6 +21,12 @@
          <trust file=".*[.]pom" regex="true"/>
          <trust file="gradle-[0-9.]+-src.zip" regex="true"/>
       </trusted-artifacts>
+      <ignored-keys>
+         <ignored-key id="586654072EAD6677" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="6CCC36CC6C69FC17" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="873A8E86B4372146" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="BFFC9B54721244AD" reason="Key couldn't be downloaded from any key server"/>
+      </ignored-keys>
       <trusted-keys>
          <trusted-key id="04543577D6A9CC626239C50C7ECBD740FF06AEB5">
             <trusting group="org.glassfish.jaxb"/>
