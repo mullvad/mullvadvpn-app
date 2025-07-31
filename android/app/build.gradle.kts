@@ -434,8 +434,6 @@ dependencies {
     // Leak canary
     leakCanaryImplementation(libs.leakCanary)
 
-    // Needed for createComposeExtension() and createAndroidComposeExtension()
-    debugImplementation(libs.compose.ui.test.manifest)
     testImplementation(projects.lib.commonTest)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -445,7 +443,15 @@ dependencies {
     testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.junit.jupiter.params)
 
+    // HACK:
+    // Not used by app module, but otherwise an older version pre 1.8.0 will be used at runtime for
+    // the e2e tests. This causes the deserialization to fail because of a missing function that was
+    // introduced in 1.8.0.
+    implementation(libs.kotlinx.serialization.json)
+
     // UI test dependencies
+
+    // Needed for createComposeExtension() and createAndroidComposeExtension()
     debugImplementation(libs.compose.ui.test.manifest)
     androidTestImplementation(libs.koin.test)
     androidTestImplementation(libs.kotlin.test)
