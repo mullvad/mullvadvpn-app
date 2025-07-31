@@ -19,5 +19,8 @@ thiserror = { workspace = true }
 zeroize = "1.5.7"
 log = { workspace = true }
 
+[dev-dependencies]
+insta = { workspace = true }
+
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.1", features = ["derive"] }
