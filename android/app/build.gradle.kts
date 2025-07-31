@@ -434,8 +434,6 @@ dependencies {
     // Leak canary
     leakCanaryImplementation(libs.leakCanary)
 
-    // Needed for createComposeExtension() and createAndroidComposeExtension()
-    debugImplementation(libs.compose.ui.test.manifest)
     testImplementation(projects.lib.commonTest)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -445,7 +443,11 @@ dependencies {
     testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.junit.jupiter.params)
 
+    implementation(libs.kotlinx.serialization.json)
+
     // UI test dependencies
+
+    // Needed for createComposeExtension() and createAndroidComposeExtension()
     debugImplementation(libs.compose.ui.test.manifest)
     androidTestImplementation(libs.koin.test)
     androidTestImplementation(libs.kotlin.test)
