@@ -513,8 +513,8 @@ fun VpnSettingsContent(
                 VpnSettingItem.AutoConnectAndLockdownMode ->
                     item(key = it::class.simpleName) {
                         NavigationComposeCell(
-                            modifier = Modifier.animateItem(),
                             title = stringResource(id = R.string.auto_connect_and_lockdown_mode),
+                            modifier = Modifier.animateItem(),
                             onClick = { navigateToAutoConnectScreen() },
                         )
                     }
@@ -629,7 +629,6 @@ fun VpnSettingsContent(
                 is VpnSettingItem.DeviceIpVersionItem ->
                     item(key = it::class.simpleName + it.constraint.getOrNull().toString()) {
                         SelectableCell(
-                            modifier = Modifier.animateItem(),
                             title =
                                 when (it.constraint) {
                                     Constraint.Any -> stringResource(id = R.string.automatic)
@@ -642,6 +641,7 @@ fun VpnSettingsContent(
                                         }
                                 },
                             isSelected = it.selected,
+                            modifier = Modifier.animateItem(),
                             onCellClicked = { onSelectDeviceIpVersion(it.constraint) },
                         )
                     }
@@ -814,8 +814,8 @@ fun VpnSettingsContent(
                         SelectableCell(
                             title = stringResource(id = R.string.automatic),
                             isSelected = it.selected,
-                            onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Auto) },
                             modifier = Modifier.animateItem(),
+                            onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Auto) },
                         )
                     }
 
@@ -824,9 +824,9 @@ fun VpnSettingsContent(
                         SelectableCell(
                             title = stringResource(id = R.string.off),
                             isSelected = it.selected,
+                            modifier = Modifier.animateItem(),
                             onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Off) },
                             testTag = WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG,
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
@@ -924,6 +924,10 @@ fun VpnSettingsContent(
 
                                     is Constraint.Any -> stringResource(id = R.string.automatic)
                                 },
+                            isSelected = it.selected,
+                            modifier = Modifier.animateItem(),
+                            isEnabled = it.enabled,
+                            onCellClicked = { onWireguardPortSelected(it.constraint) },
                             testTag =
                                 when (it.constraint) {
                                     is Constraint.Only ->
@@ -935,10 +939,6 @@ fun VpnSettingsContent(
 
                                     is Constraint.Any -> ""
                                 },
-                            isSelected = it.selected,
-                            onCellClicked = { onWireguardPortSelected(it.constraint) },
-                            isEnabled = it.enabled,
-                            modifier = Modifier.animateItem(),
                         )
                     }
 
@@ -986,8 +986,8 @@ fun VpnSettingsContent(
 @Composable
 private fun ServerIpOverrides(onServerIpOverridesClick: () -> Unit, modifier: Modifier = Modifier) {
     NavigationComposeCell(
-        modifier = modifier,
         title = stringResource(id = R.string.server_ip_override),
+        modifier = modifier,
         onClick = onServerIpOverridesClick,
     )
 }

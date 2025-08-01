@@ -176,8 +176,8 @@ private fun LazyListScope.content(
     ) { customList ->
         NavigationComposeCell(
             title = customList.name.value,
-            onClick = { openCustomList(customList) },
             textStyle = MaterialTheme.typography.bodyLarge,
+            onClick = { openCustomList(customList) },
         )
     }
 }

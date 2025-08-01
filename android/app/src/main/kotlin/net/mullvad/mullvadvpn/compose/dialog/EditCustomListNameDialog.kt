@@ -82,8 +82,10 @@ fun EditCustomListNameDialog(
 ) {
     InputDialog(
         title = stringResource(id = R.string.update_list_name),
-        confirmButtonText = stringResource(id = R.string.save),
         confirmButtonEnabled = state.isValidName,
+        confirmButtonText = stringResource(id = R.string.save),
+        onBack = onDismiss,
+        onConfirm = { updateName(state.name) },
         input = {
             CustomListNameTextField(
                 name = state.name,
@@ -94,8 +96,6 @@ fun EditCustomListNameDialog(
                 modifier = Modifier.testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG),
             )
         },
-        onBack = onDismiss,
-        onConfirm = { updateName(state.name) },
     )
 }
 

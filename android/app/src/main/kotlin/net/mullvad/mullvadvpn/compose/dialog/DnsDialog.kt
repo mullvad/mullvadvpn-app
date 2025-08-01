@@ -114,6 +114,12 @@ fun DnsDialog(
             } else {
                 stringResource(R.string.update_dns_server_dialog_title)
             },
+        confirmButtonEnabled = state.isValid(),
+        onResetButtonText = stringResource(id = R.string.remove_button),
+        messageTextColor = MaterialTheme.colorScheme.error,
+        onBack = onDismiss,
+        onConfirm = onSaveDnsClick,
+        onReset = state.index?.let { { onRemoveDnsClick(state.index) } },
         input = {
             DnsTextField(
                 value = state.input,
@@ -137,11 +143,5 @@ fun DnsDialog(
                 modifier = Modifier.fillMaxWidth(),
             )
         },
-        onResetButtonText = stringResource(id = R.string.remove_button),
-        confirmButtonEnabled = state.isValid(),
-        messageTextColor = MaterialTheme.colorScheme.error,
-        onReset = state.index?.let { { onRemoveDnsClick(state.index) } },
-        onBack = onDismiss,
-        onConfirm = onSaveDnsClick,
     )
 }

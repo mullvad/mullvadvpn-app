@@ -36,6 +36,7 @@ private fun PreviewSelectableCell() {
     }
 }
 
+@Suppress("ComposableLambdaParameterNaming")
 @Composable
 fun SelectableCell(
     title: String,
@@ -43,13 +44,6 @@ fun SelectableCell(
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     iconContentDescription: String? = null,
-    selectedIcon: @Composable RowScope.() -> Unit = {
-        SelectableIcon(
-            iconContentDescription = iconContentDescription,
-            isSelected = isSelected,
-            isEnabled = isEnabled,
-        )
-    },
     titleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     startPadding: Dp = Dimens.cellStartPadding,
     selectedColor: Color = MaterialTheme.colorScheme.selected,
@@ -58,6 +52,13 @@ fun SelectableCell(
     onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
     onCellClicked: () -> Unit = {},
     testTag: String = "",
+    selectedIcon: @Composable RowScope.() -> Unit = {
+        SelectableIcon(
+            iconContentDescription = iconContentDescription,
+            isSelected = isSelected,
+            isEnabled = isEnabled,
+        )
+    },
 ) {
     BaseCell(
         modifier = modifier.semantics { selected = isSelected },

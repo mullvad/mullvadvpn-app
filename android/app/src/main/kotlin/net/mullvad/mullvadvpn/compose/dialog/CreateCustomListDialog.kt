@@ -111,8 +111,10 @@ fun CreateCustomListDialog(
 
     InputDialog(
         title = stringResource(id = R.string.create_new_list),
-        confirmButtonText = stringResource(id = R.string.create),
         confirmButtonEnabled = isValidName,
+        confirmButtonText = stringResource(id = R.string.create),
+        onBack = onDismiss,
+        onConfirm = { createCustomList(name.value) },
         input = {
             CustomListNameTextField(
                 name = name.value,
@@ -126,8 +128,6 @@ fun CreateCustomListDialog(
                 modifier = Modifier.testTag(CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG),
             )
         },
-        onBack = onDismiss,
-        onConfirm = { createCustomList(name.value) },
     )
 }
 

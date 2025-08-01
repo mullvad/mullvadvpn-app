@@ -454,11 +454,11 @@ private fun Products(
         IconCell(
             imageVector = Icons.Outlined.Sell,
             title = stringResource(id = R.string.buy_credit),
-            onClick = { onSitePaymentClick() },
             titleColor =
                 onBackgroundColor.copy(
                     alpha = if (internetBlocked) AlphaDisabled else AlphaVisible
                 ),
+            onClick = { onSitePaymentClick() },
             enabled = !internetBlocked,
             endIcon = {
                 Icon(

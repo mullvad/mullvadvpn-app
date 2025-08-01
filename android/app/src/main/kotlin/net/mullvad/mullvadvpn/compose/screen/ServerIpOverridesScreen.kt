@@ -280,20 +280,20 @@ private fun ImportOverridesByBottomSheet(
         IconCell(
             imageVector = Icons.Default.UploadFile,
             title = stringResource(id = R.string.server_ip_overrides_import_by_file),
+            modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG),
             onClick = {
                 onImportByFile()
                 onCloseSheet()
             },
-            modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG),
         )
         IconCell(
             imageVector = Icons.Default.TextFields,
             title = stringResource(id = R.string.server_ip_overrides_import_by_text),
+            modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG),
             onClick = {
                 onImportByText()
                 onCloseSheet()
             },
-            modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG),
         )
         if (overridesActive) {
             HorizontalDivider(color = onBackgroundColor)

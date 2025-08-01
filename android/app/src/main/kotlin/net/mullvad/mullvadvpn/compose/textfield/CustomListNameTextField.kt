@@ -27,17 +27,25 @@ fun CustomListNameTextField(
     val keyboardController = LocalSoftwareKeyboardController.current
     CustomTextField(
         value = name,
+        keyboardType = KeyboardType.Text,
+        modifier =
+            modifier.focusRequester(focusRequester).onFocusChanged { focusState ->
+                if (focusState.hasFocus) {
+                    keyboardController?.show()
+                }
+            },
         onValueChanged = onValueChanged,
         onSubmit = {
             if (isValidName) {
                 onSubmit(it)
             }
         },
-        keyboardType = KeyboardType.Text,
         placeholderText = null,
+        maxCharLength = CustomListName.MAX_LENGTH,
         isValidValue = error == null,
         isDigitsOnlyAllowed = false,
-        maxCharLength = CustomListName.MAX_LENGTH,
+        textStyle = MaterialTheme.typography.titleMedium,
+        capitalization = KeyboardCapitalization.Words,
         supportingText =
             error?.let {
                 {
@@ -46,14 +54,6 @@ fun CustomListNameTextField(
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                     )
-                }
-            },
-        capitalization = KeyboardCapitalization.Words,
-        textStyle = MaterialTheme.typography.titleMedium,
-        modifier =
-            modifier.focusRequester(focusRequester).onFocusChanged { focusState ->
-                if (focusState.hasFocus) {
-                    keyboardController?.show()
                 }
             },
     )

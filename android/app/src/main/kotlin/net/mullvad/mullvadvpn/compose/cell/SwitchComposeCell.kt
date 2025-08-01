@@ -63,14 +63,6 @@ fun NormalSwitchComposeCell(
     onInfoClicked: (() -> Unit)? = null,
 ) {
     SwitchComposeCell(
-        titleView = {
-            BaseCellTitle(
-                title = title,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f, true),
-                textColor = if (isEnabled) onBackground else onBackground.copy(AlphaDisabled),
-            )
-        },
         isToggled = isToggled,
         startPadding = startPadding,
         isEnabled = isEnabled,
@@ -79,6 +71,14 @@ fun NormalSwitchComposeCell(
         onCellClicked = onCellClicked,
         onInfoClicked = onInfoClicked,
         modifier = modifier,
+        content = {
+            BaseCellTitle(
+                title = title,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f, true),
+                textColor = if (isEnabled) onBackground else onBackground.copy(AlphaDisabled),
+            )
+        },
     )
 }
 
@@ -95,14 +95,6 @@ fun HeaderSwitchComposeCell(
     onInfoClicked: (() -> Unit)? = null,
 ) {
     SwitchComposeCell(
-        titleView = {
-            BaseCellTitle(
-                title = title,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f, fill = true),
-                textColor = onBackground,
-            )
-        },
         isToggled = isToggled,
         startPadding = startPadding,
         isEnabled = isEnabled,
@@ -111,12 +103,20 @@ fun HeaderSwitchComposeCell(
         onCellClicked = onCellClicked,
         onInfoClicked = onInfoClicked,
         modifier,
+        content = {
+            BaseCellTitle(
+                title = title,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f, fill = true),
+                textColor = onBackground,
+            )
+        },
     )
 }
 
+@Suppress("ComposableLambdaParameterNaming")
 @Composable
 private fun SwitchComposeCell(
-    titleView: @Composable RowScope.() -> Unit,
     isToggled: Boolean,
     startPadding: Dp,
     isEnabled: Boolean,
@@ -125,10 +125,11 @@ private fun SwitchComposeCell(
     onCellClicked: (Boolean) -> Unit,
     onInfoClicked: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    content: @Composable RowScope.() -> Unit,
 ) {
     BaseCell(
         modifier = modifier.focusProperties { canFocus = false },
-        headlineContent = titleView,
+        headlineContent = content,
         isRowEnabled = isEnabled,
         bodyView = {
             SwitchCellView(

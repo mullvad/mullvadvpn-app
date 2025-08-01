@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.textfield
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -25,10 +24,10 @@ fun DnsTextField(
         onSubmit = { onSubmit() },
         isEnabled = isEnabled,
         placeholderText = placeholderText,
-        supportingText = errorText?.let { { ErrorSupportingText(errorText) } },
         maxCharLength = Int.MAX_VALUE,
-        isDigitsOnlyAllowed = false,
         isValidValue = isValidValue,
+        isDigitsOnlyAllowed = false,
         textStyle = MaterialTheme.typography.titleMedium,
+        supportingText = errorText?.let { { ErrorSupportingText(errorText) } },
     )
 }

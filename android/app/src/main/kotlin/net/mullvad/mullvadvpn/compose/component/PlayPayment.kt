@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material3.HorizontalDivider
@@ -162,12 +161,6 @@ private fun PaymentAvailable(
         Column {
             billingPaymentState.products.forEach { product ->
                 IconCell(
-                    titleColor =
-                        if (enabled) {
-                            MaterialTheme.colorScheme.onSurface
-                        } else {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaDisabled)
-                        },
                     imageVector = Icons.Outlined.Sell,
                     title =
                         when (product.productId.value) {
@@ -185,6 +178,12 @@ private fun PaymentAvailable(
                                 // We have somehow requested a product that is not supported
                                 error("ProductId ${product.productId.value} is not supported")
                             }
+                        },
+                    titleColor =
+                        if (enabled) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaDisabled)
                         },
                     onClick = { onPurchaseBillingProductClick(product.productId) },
                     enabled = enabled,

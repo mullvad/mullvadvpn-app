@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 private fun PreviewMullvadModalBottomSheet() {
     AppTheme {
         MullvadModalBottomSheet(
-            sheetContent = {
+            content = {
                 HeaderCell(text = "Title")
                 HorizontalDivider()
                 IconCell(imageVector = null, title = "Select")
@@ -40,6 +40,7 @@ private fun PreviewMullvadModalBottomSheet() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("ComposableLambdaParameterNaming")
 @Composable
 fun MullvadModalBottomSheet(
     modifier: Modifier = Modifier,
@@ -47,7 +48,7 @@ fun MullvadModalBottomSheet(
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
     onDismissRequest: () -> Unit,
-    sheetContent: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     // This is to avoid weird colors in the status bar and the navigation bar
     val paddingValues = BottomSheetDefaults.windowInsets.asPaddingValues()
@@ -59,7 +60,7 @@ fun MullvadModalBottomSheet(
         contentWindowInsets = { WindowInsets(0, 0, 0, 0) }, // No insets
         dragHandle = { BottomSheetDefaults.DragHandle(color = onBackgroundColor) },
     ) {
-        sheetContent()
+        content()
         Spacer(modifier = Modifier.height(Dimens.smallPadding))
         Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
     }
