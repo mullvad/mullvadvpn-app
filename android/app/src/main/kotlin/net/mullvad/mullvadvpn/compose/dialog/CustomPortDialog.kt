@@ -52,6 +52,17 @@ fun CustomPortDialog(
 ) {
     InputDialog(
         title = title,
+        message =
+            stringResource(
+                id = R.string.custom_port_dialog_valid_ranges,
+                allowedPortRanges.asString(),
+            ),
+        confirmButtonEnabled = isValidInput,
+        confirmButtonText = stringResource(id = R.string.custom_port_dialog_submit),
+        onResetButtonText = stringResource(R.string.custom_port_dialog_remove),
+        onBack = onDismiss,
+        onConfirm = { onSavePort(portInput) },
+        onReset = if (showResetToDefault) onResetPort else null,
         input = {
             CustomPortTextField(
                 value = portInput,
@@ -62,16 +73,5 @@ fun CustomPortDialog(
                 modifier = Modifier.testTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).fillMaxWidth(),
             )
         },
-        message =
-            stringResource(
-                id = R.string.custom_port_dialog_valid_ranges,
-                allowedPortRanges.asString(),
-            ),
-        confirmButtonEnabled = isValidInput,
-        confirmButtonText = stringResource(id = R.string.custom_port_dialog_submit),
-        onResetButtonText = stringResource(R.string.custom_port_dialog_remove),
-        onBack = onDismiss,
-        onReset = if (showResetToDefault) onResetPort else null,
-        onConfirm = { onSavePort(portInput) },
     )
 }

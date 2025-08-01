@@ -29,6 +29,8 @@ private fun PreviewNavigationCell() {
     AppTheme {
         NavigationComposeCell(
             title = "Navigation sample",
+            showWarning = true,
+            onClick = {},
             bodyView = {
                 NavigationCellBody(
                     contentBodyDescription = "",
@@ -36,8 +38,6 @@ private fun PreviewNavigationCell() {
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
             },
-            onClick = {},
-            showWarning = true,
         )
     }
 }
@@ -48,6 +48,7 @@ private fun PreviewExternalLinkComposeCell() {
     AppTheme {
         NavigationComposeCell(
             title = "External link sample",
+            onClick = {},
             bodyView = {
                 NavigationCellBody(
                     contentBodyDescription = "content body",
@@ -56,12 +57,11 @@ private fun PreviewExternalLinkComposeCell() {
                     isExternalLink = true,
                 )
             },
-            onClick = {},
-            showWarning = false,
         )
     }
 }
 
+@Suppress("ComposableLambdaParameterNaming")
 @Composable
 fun NavigationComposeCell(
     title: String,
@@ -69,12 +69,12 @@ fun NavigationComposeCell(
     showWarning: Boolean = false,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     textStyle: TextStyle = MaterialTheme.typography.titleMedium,
-    bodyView: @Composable () -> Unit = {
-        Icon(Icons.Default.ChevronRight, contentDescription = title, tint = textColor)
-    },
     isRowEnabled: Boolean = true,
     onClick: () -> Unit,
     testTag: String = "",
+    bodyView: @Composable () -> Unit = {
+        Icon(Icons.Default.ChevronRight, contentDescription = title, tint = textColor)
+    },
 ) {
     BaseCell(
         modifier = modifier,

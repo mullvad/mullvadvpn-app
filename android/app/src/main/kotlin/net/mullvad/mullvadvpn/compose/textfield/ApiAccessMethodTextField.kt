@@ -29,23 +29,22 @@ fun ApiAccessMethodTextField(
     CustomTextField(
         value = value,
         keyboardType = keyboardType,
+        modifier =
+            modifier
+                .defaultMinSize(minHeight = Dimens.formTextFieldMinHeight)
+                .padding(vertical = Dimens.miniPadding),
         onValueChanged = onValueChanged,
         onSubmit = {
             if (imeAction == ImeAction.Done) {
                 focusManager.clearFocus()
             }
         },
-        labelText = labelText,
         placeholderText = null,
+        labelText = labelText,
+        maxCharLength = maxCharLength,
         isValidValue = isValidValue,
         isDigitsOnlyAllowed = isDigitsOnlyAllowed,
-        maxCharLength = maxCharLength,
-        supportingText = errorText?.let { { ErrorSupportingText(errorText) } },
         colors = apiAccessTextFieldColors(),
-        modifier =
-            modifier
-                .defaultMinSize(minHeight = Dimens.formTextFieldMinHeight)
-                .padding(vertical = Dimens.miniPadding),
         keyboardOptions =
             KeyboardOptions(
                 capitalization = capitalization,
@@ -53,5 +52,6 @@ fun ApiAccessMethodTextField(
                 keyboardType = keyboardType,
                 imeAction = imeAction,
             ),
+        supportingText = errorText?.let { { ErrorSupportingText(errorText) } },
     )
 }

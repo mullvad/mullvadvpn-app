@@ -109,6 +109,7 @@ fun NegativeButton(
     )
 }
 
+@Suppress("ComposableLambdaParameterNaming")
 @Composable
 fun VariantButton(
     onClick: () -> Unit,
@@ -251,6 +252,7 @@ fun NegativeOutlinedButton(
     }
 }
 
+@Suppress("ComposableLambdaParameterNaming")
 @Composable
 private fun BaseButton(
     onClick: () -> Unit,

@@ -236,20 +236,20 @@ private fun EnterVoucherBody(
 ) {
     CustomTextField(
         value = state.voucherInput,
+        keyboardType = KeyboardType.Password,
+        modifier = Modifier.testTag(VOUCHER_INPUT_TEST_TAG),
+        onValueChanged = { input -> onVoucherInputChange(input) },
         onSubmit = { input ->
             if (state.voucherInput.length == VOUCHER_LENGTH) {
                 onRedeem(input)
             }
         },
-        onValueChanged = { input -> onVoucherInputChange(input) },
+        placeholderText = stringResource(id = R.string.voucher_hint),
         isValidValue =
             state.voucherInput.isEmpty() || state.voucherInput.length == MAX_VOUCHER_LENGTH,
-        keyboardType = KeyboardType.Password,
-        placeholderText = stringResource(id = R.string.voucher_hint),
+        isDigitsOnlyAllowed = false,
         visualTransformation = vouchersVisualTransformation(),
         textStyle = MaterialTheme.typography.titleMedium,
-        isDigitsOnlyAllowed = false,
-        modifier = Modifier.testTag(VOUCHER_INPUT_TEST_TAG),
     )
     Spacer(modifier = Modifier.height(Dimens.smallPadding))
     Row(
