@@ -107,12 +107,7 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
                     handler: { onSave() }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "SETTINGS_DAITA_ENABLE_CANCEL_ACTION",
-                        tableName: "DAITA",
-                        value: "Cancel",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("CANCEL_TITLE_BUTTON", tableName: "Common", comment: ""),
                     style: .default,
                     handler: { onDiscard() }
                 ),

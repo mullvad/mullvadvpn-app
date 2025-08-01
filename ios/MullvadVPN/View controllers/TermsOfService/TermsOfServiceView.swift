@@ -13,27 +13,36 @@ struct TermsOfServiceView: View {
     let padding = EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16)
     @ScaledMetric(relativeTo: .footnote)
     var imageHeight = 20
-
-    let termsOfService = LocalizedStringKey("""
-    You have a right to privacy. That’s why we never store activity logs, don’t ask for personal \
-    information, and encourage anonymous payments.
-
-    In some situations, as outlined in our privacy policy, we might process personal data that you \
-    choose to send, for example if you email us.
-
-    We strongly believe in retaining as little data as possible because we want you to remain anonymous.
-    """)
-
-    let privacyPolicyLink =
-        LocalizedStringKey(stringLiteral: "[Privacy Policy](\(ApplicationConfiguration.privacyPolicyLink))")
+    let privacyPolicyLink = String(
+        format: NSLocalizedString(
+            "PRIVACY_POLICY_LINK",
+            tableName: "TermsOfService",
+            value: "[Privacy Policy](%@)",
+            comment: ""
+        ),
+        ApplicationConfiguration.privacyPolicyLink
+    )
     var scrollableContent: some View {
         ScrollView {
-            Text(LocalizedStringKey("Do you agree to remaining anonymous?"))
-                .font(.mullvadLarge)
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.bottom, 16)
-            Text(termsOfService)
+            Text(NSLocalizedString(
+                "ANONYMITY_CONSENT_QUESTION",
+                tableName: "TermsOfService",
+                value: "Do you agree to remaining anonymous?",
+                comment: ""
+            ))
+            .font(.mullvadLarge)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 16)
+            Text(NSLocalizedString("TERMS_AND_CONDITIONS_BODY", tableName: "TermsOfService", value: """
+            You have a right to privacy. That’s why we never store activity logs, don’t ask for personal \
+            information, and encourage anonymous payments.
+
+            In some situations, as outlined in our privacy policy, we might process personal data that you \
+            choose to send, for example if you email us.
+
+            We strongly believe in retaining as little data as possible because we want you to remain anonymous.
+            """, comment: ""))
                 .font(.mullvadSmall)
                 .foregroundStyle(Color.secondaryTextColor)
         }
@@ -49,7 +58,7 @@ struct TermsOfServiceView: View {
                 scrollableContent
             }
             HStack {
-                Text(privacyPolicyLink)
+                Text((try? AttributedString(markdown: privacyPolicyLink)) ?? AttributedString(privacyPolicyLink))
                     .font(.mullvadSmall)
                     .underline(true, color: .white)
                     .foregroundStyle(.white)
@@ -62,7 +71,12 @@ struct TermsOfServiceView: View {
             }
             .padding(padding)
             MainButton(
-                text: LocalizedStringKey("Agree and continue"),
+                text: NSLocalizedString(
+                    "AGREE_AND_CONTINUE_BUTTON_TITLE",
+                    tableName: "TermsOfService",
+                    value: "Agree and continue",
+                    comment: ""
+                ),
                 style: .default,
                 action: agreeToTermsAndServices ?? {}
             )

@@ -1,0 +1,303 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ACCOUNT_ACCESSIBILITY_COPY_TO_PASTEBOARD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Copy to pasteboard"
+          }
+        }
+      }
+    },
+    "ACCOUNT_ACCESSIBILITY_HIDE_ACCOUNT_NUMBER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hide account number"
+          }
+        }
+      }
+    },
+    "ACCOUNT_ACCESSIBILITY_OBSCURED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Obscured"
+          }
+        }
+      }
+    },
+    "ACCOUNT_ACCESSIBILITY_SHOW_ACCOUNT_NUMBER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show account number"
+          }
+        }
+      }
+    },
+    "ACCOUNT_DELETION_PAGE_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Account deletion"
+          }
+        }
+      }
+    },
+    "ACCOUNT_EXPIRY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Paid until"
+          }
+        }
+      }
+    },
+    "ACCOUNT_OUT_OF_TIME_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "OUT OF TIME"
+          }
+        }
+      }
+    },
+    "ACCOUNT_TOKEN_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Account number"
+          }
+        }
+      }
+    },
+    "ADD_TIME_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add time"
+          }
+        }
+      }
+    },
+    "BODY_LABEL_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Are you sure you want to delete account **(value)**?"
+          }
+        }
+      }
+    },
+    "BUY_SUBSCRIPTION_STOREKIT_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Make a purchase with StoreKit2"
+          }
+        }
+      }
+    },
+    "CANCEL_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "DELETE_ACCOUNT_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete Account"
+          }
+        }
+      }
+    },
+    "DELETE_ACCOUNT_STATUS_WAITING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Deleting account..."
+          }
+        }
+      }
+    },
+    "DELETE_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete account"
+          }
+        }
+      }
+    },
+    "DEVICE_MANAGEMENT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Manage devices"
+          }
+        }
+      }
+    },
+    "DEVICE_NAME" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Device name"
+          }
+        }
+      }
+    },
+    "DEVICE_NAME_HEADER_VIEW" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Device name: %@"
+          }
+        }
+      }
+    },
+    "INVALID_ACCOUNT_NUMBER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Last four digits of the account number are incorrect"
+          }
+        }
+      }
+    },
+    "LOGOUT_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Log out"
+          }
+        }
+      }
+    },
+    "NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Account"
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Redeem voucher"
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Restore purchases"
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_DIALOG_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You can use the \"restore purchases\" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account."
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_DIALOG_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If you haven’t received additional VPN time after purchasing"
+          }
+        }
+      }
+    },
+    "TIME_LEFT_HEADER_VIEW" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Time left: %@"
+          }
+        }
+      }
+    },
+    "TIP_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit \"Delete account\" if you really want to delete the account:"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

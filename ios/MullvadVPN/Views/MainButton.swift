@@ -13,7 +13,7 @@ enum MainButtonImagePosition {
 }
 
 struct MainButton: View {
-    var text: LocalizedStringKey
+    var text: String
     var style: MainButtonStyle.Style
 
     var image: Image?

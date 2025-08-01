@@ -1,0 +1,105 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cannot complete the purchase"
+          }
+        }
+      }
+    },
+    "CLIENT_INVALID" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Client is not allowed to issue the request."
+          }
+        }
+      }
+    },
+    "PAYMENT_CANCELLED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The payment request was cancelled."
+          }
+        }
+      }
+    },
+    "PAYMENT_INVALID" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Invalid purchase identifier."
+          }
+        }
+      }
+    },
+    "PAYMENT_NOT_ALLOWED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This device is not allowed to make the payment."
+          }
+        }
+      }
+    },
+    "PAYMENT_REFUND_ALERT_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your purchase was successfully refunded."
+          }
+        }
+      }
+    },
+    "PAYMENT_REFUND_ALERT_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Refund successful"
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_FAILURE_ALERT_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cannot restore purchases"
+          }
+        }
+      }
+    },
+    "UNKNOWN_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unknown error."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

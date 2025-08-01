@@ -1,0 +1,124 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "COLLAPSES_THIS_LOCATION" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collapses this location."
+          }
+        }
+      }
+    },
+    "CUSTOM_LIST_FOOTER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "To create a custom list, tap on \"...\" "
+          }
+        }
+      }
+    },
+    "EXPANDS_THIS_LOCATION" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expands this location."
+          }
+        }
+      }
+    },
+    "MULTIHOP_ENTRY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Entry"
+          }
+        }
+      }
+    },
+    "MULTIHOP_EXIT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Exit"
+          }
+        }
+      }
+    },
+    "NAVIGATION_FILTER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Filter"
+          }
+        }
+      }
+    },
+    "NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Select location"
+          }
+        }
+      }
+    },
+    "SEARCHBAR_PLACEHOLDER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Search for..."
+          }
+        }
+      }
+    },
+    "SELECT_LOCATION_DAITA_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Open DAITA settings"
+          }
+        }
+      }
+    },
+    "SELECT_LOCATION_DAITA_INFO" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The entry server for multihop is currently overridden by DAITA. To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings."
+          }
+        }
+      }
+    },
+    "SELECTED" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selected"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

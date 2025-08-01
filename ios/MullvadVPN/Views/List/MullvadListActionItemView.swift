@@ -2,9 +2,9 @@ import SwiftUI
 
 struct MullvadListActionItem: Hashable, Identifiable {
     var id: String
-    let title: LocalizedStringKey
-    let state: LocalizedStringKey?
-    let detail: LocalizedStringKey?
+    let title: String
+    let state: String?
+    let detail: String?
     let accessibilityIdentifier: AccessibilityIdentifier?
     let pressed: (() -> Void)?
 
@@ -18,9 +18,9 @@ struct MullvadListActionItem: Hashable, Identifiable {
 }
 
 struct MullvadListActionItemView<Icon: View>: View {
-    private let title: LocalizedStringKey
-    private let state: LocalizedStringKey?
-    private let detail: LocalizedStringKey?
+    private let title: String
+    private let state: String?
+    private let detail: String?
     private let icon: Icon?
     private let accessibilityIdentifier: AccessibilityIdentifier?
     private let pressed: (() -> Void)?

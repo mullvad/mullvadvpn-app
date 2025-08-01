@@ -1,0 +1,50 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "SHADOWSOCKS_PORT_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_PORT_VALUE_CUSTOM" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_PORT_VALUE_PORT_LEGEND" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Valid range: 1 - 65535"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_PORT_VALUE_PORT_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

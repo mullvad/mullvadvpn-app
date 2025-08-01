@@ -76,7 +76,7 @@ enum MethodSettingsItemIdentifier: Hashable {
         case .proxyConfiguration, .validationError:
             nil
         case .cancelTest:
-            NSLocalizedString("CANCEL_TEST", tableName: "APIAccess", value: "Cancel", comment: "")
+            NSLocalizedString("CANCEL_TITLE_BUTTON", tableName: "Common", comment: "")
         case .testingStatus:
             nil
         }

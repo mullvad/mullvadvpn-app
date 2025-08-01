@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "DAITA_INFORMATION_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA (Defence against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting.\nIt does this by carefully adding network noise and making all network packets the same size.\nNot all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.\nAttention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
+          }
+        }
+      }
+    },
+    "DIRECT_ONLY_INFORMATION_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "By enabling \"Direct only\" you will have to manually select a server that is DAITA-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the \"Select location\" view."
+          }
+        }
+      }
+    },
+    "SETTINGS_DAITA_ENABLE_OK_ACTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enable \"%@\""
+          }
+        }
+      }
+    },
+    "SETTINGS_DAITA_ENABLE_TEXT" : {
+
+    }
+  },
+  "version" : "1.0"
+}

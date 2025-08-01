@@ -75,8 +75,8 @@ extension ProfileVoucherCoordinator: @preconcurrency AddCreditSucceededViewContr
 
     func titleForAction(in controller: AddCreditSucceededViewController) -> String {
         NSLocalizedString(
-            "REDEEM_VOUCHER_DISMISS_BUTTON",
-            tableName: "ProfileRedeemVoucher",
+            "GOT_IT_TITLE_BUTTON",
+            tableName: "Common",
             value: "Got it!",
             comment: ""
         )

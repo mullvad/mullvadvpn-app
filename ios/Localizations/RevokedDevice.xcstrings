@@ -1,0 +1,50 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "DESCRIPTION_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You have removed this device. To connect again, you will need to log back in."
+          }
+        }
+      }
+    },
+    "GOTO_LOGIN_BUTTON_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Go to login"
+          }
+        }
+      }
+    },
+    "TITLE_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Device is inactive"
+          }
+        }
+      }
+    },
+    "UNBLOCK_INTERNET_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Going to login will unblock the Internet on this device."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

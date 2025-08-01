@@ -93,8 +93,8 @@ class CustomDNSViewController: UITableViewController {
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "VPN_SETTINGS_DNS_SETTINGS_OK_ACTION",
-                        tableName: "ContentBlockers",
+                        "GOT_IT_TITLE_BUTTON",
+                        tableName: "Common",
                         value: "Got it!",
                         comment: ""
                     ),

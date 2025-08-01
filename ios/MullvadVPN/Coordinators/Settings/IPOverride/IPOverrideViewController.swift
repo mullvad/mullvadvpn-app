@@ -196,12 +196,7 @@ class IPOverrideViewController: UIViewController {
                     }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "IP_OVERRIDE_CLEAR_DIALOG_CANCEL_BUTTON",
-                        tableName: "IPOverride",
-                        value: "Cancel",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("CANCEL_TITLE_BUTTON", tableName: "Common", comment: ""),
                     style: .default
                 ),
             ]

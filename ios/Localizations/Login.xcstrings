@@ -1,0 +1,138 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CREATE_ACCOUNT_BUTTON_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Create account"
+          }
+        }
+      }
+    },
+    "CREATE_BUTTON_HEADER_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Don’t have an account number?"
+          }
+        }
+      }
+    },
+    "HEADING_TITLE_AUTHENTICATING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Logging in..."
+          }
+        }
+      }
+    },
+    "HEADING_TITLE_DEFAULT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Login"
+          }
+        }
+      }
+    },
+    "HEADING_TITLE_FAILURE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Login failed"
+          }
+        }
+      }
+    },
+    "HEADING_TITLE_SUCCESS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Logged in"
+          }
+        }
+      }
+    },
+    "LOGIN_ACCESSORY_TOOLBAR_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Log in"
+          }
+        }
+      }
+    },
+    "SUBHEAD_TITLE_AUTHENTICATING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Checking account number"
+          }
+        }
+      }
+    },
+    "SUBHEAD_TITLE_CREATED_ACCOUNT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Account created"
+          }
+        }
+      }
+    },
+    "SUBHEAD_TITLE_CREATING_ACCOUNT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Creating new account"
+          }
+        }
+      }
+    },
+    "SUBHEAD_TITLE_DEFAULT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enter your account number"
+          }
+        }
+      }
+    },
+    "SUBHEAD_TITLE_SUCCESS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Correct account number"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

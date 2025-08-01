@@ -20,7 +20,7 @@ public enum CustomRelayListError: LocalizedError, Hashable {
         case .duplicateName:
             NSLocalizedString(
                 "DUPLICATE_CUSTOM_LISTS_ERROR",
-                tableName: "CustomLists",
+                tableName: "CustomList",
                 value: "A custom list with this name exists, please choose a unique name.",
                 comment: ""
             )
@@ -28,7 +28,7 @@ public enum CustomRelayListError: LocalizedError, Hashable {
             String(
                 format: NSLocalizedString(
                     "CUSTOM_LIST_NAME_TOO_LONG_ERROR",
-                    tableName: "CustomLists",
+                    tableName: "CustomList",
                     value: "Name should be no longer than %i characters.",
                     comment: ""
                 ),

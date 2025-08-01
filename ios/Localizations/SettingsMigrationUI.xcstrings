@@ -1,0 +1,39 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ALERT_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Settings migration error"
+          }
+        }
+      }
+    },
+    "INTERNAL_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Internal error occurred. Settings will be reset to defaults and device logged out."
+          }
+        }
+      }
+    },
+    "NEWER_STORED_SETTINGS_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

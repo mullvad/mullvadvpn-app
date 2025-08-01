@@ -217,7 +217,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             message: Self.migrationErrorReason(error),
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString("Got it!", tableName: "SettingsMigrationUI", comment: ""),
+                    title: NSLocalizedString(
+                        "GOT_IT_TITLE_BUTTON",
+                        tableName: "Common",
+                        value: "Got it!",
+                        comment: ""
+                    ),
                     style: .default,
                     handler: {
                         completionHandler()
