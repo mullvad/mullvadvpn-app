@@ -1,0 +1,160 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CURRENT_DEVICE_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Current device"
+          }
+        }
+      }
+    },
+    "DEVICE_DELETED_SUCCESSFULLY_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Super!"
+          }
+        }
+      }
+    },
+    "DEVICE_LIMIT_LOGOUT_CONFIRMATION_BUTTON_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes, log out device"
+          }
+        }
+      }
+    },
+    "DEVICE_MANAGEMENT_BODY_TEXT" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+          }
+        }
+      }
+    },
+    "DEVICE_MANAGEMENT_REMOVE_CONFIRMATION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Remove **%@**?\nThe device will be removed from the list and logged out."
+          }
+        }
+      }
+    },
+    "FAILED_TO_FETCH_DEVICES_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to fetch devices"
+          }
+        }
+      }
+    },
+    "FAILED_TO_LOG_OUT_DEVICE_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to log out device"
+          }
+        }
+      }
+    },
+    "FETCHING_DEVICES_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Fetching devices..."
+          }
+        }
+      }
+    },
+    "MANAGE_DEVICES_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Manage devices"
+          }
+        }
+      }
+    },
+    "REMOVE_BUTTON_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove"
+          }
+        }
+      }
+    },
+    "TOO_MANY_DEVICES_CAN_LOGIN_BODY_TEXT" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can now continue logging in on this device."
+          }
+        }
+      }
+    },
+    "TOO_MANY_DEVICES_LOGOUT_CONFIRMATION" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to log **%@** out?"
+          }
+        }
+      }
+    },
+    "TOO_MANY_DEVICES_LOGOUT_REQUIRED_BODY_TEXT" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
+          }
+        }
+      }
+    },
+    "TOO_MANY_DEVICES_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Too many devices"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

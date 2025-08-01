@@ -29,7 +29,7 @@ extension ConnectionView {
             switch viewModel.tunnelStatus.state {
             case .connecting, .connected, .reconnecting, .waitingForConnectivity, .negotiatingEphemeralPeer, .error:
                 SplitMainButton(
-                    text: viewModel.localizedTitleForSelectLocationButton,
+                    text: viewModel.titleForSelectLocationButton,
                     image: .iconReload,
                     style: .default,
                     accessibilityId: .selectLocationButton,
@@ -38,7 +38,7 @@ extension ConnectionView {
                 )
             case .disconnecting, .pendingReconnect, .disconnected:
                 MainButton(
-                    text: viewModel.localizedTitleForSelectLocationButton,
+                    text: viewModel.titleForSelectLocationButton,
                     style: .default,
                     action: { action?(.selectLocation) }
                 )
@@ -51,25 +51,33 @@ extension ConnectionView {
             switch viewModel.actionButton {
             case .connect:
                 MainButton(
-                    text: LocalizedStringKey("Connect"),
+                    text: NSLocalizedString("CONNECT_TITLE_BUTTON", tableName: "Main", comment: ""),
                     style: .success,
                     action: { action?(.connect) }
                 )
                 .accessibilityIdentifier(AccessibilityIdentifier.connectButton.asString)
             case .disconnect:
                 MainButton(
-                    text: LocalizedStringKey("Disconnect"),
+                    text: NSLocalizedString("DISCONNECT_TITLE_BUTTON", tableName: "Main", comment: ""),
                     style: .danger,
                     action: { action?(.disconnect) }
                 )
                 .accessibilityIdentifier(AccessibilityIdentifier.disconnectButton.asString)
             case .cancel:
                 MainButton(
-                    text: LocalizedStringKey(
-                        viewModel.tunnelStatus.state == .waitingForConnectivity(.noConnection)
-                            ? "Disconnect"
-                            : "Cancel"
-                    ),
+                    text: viewModel.tunnelStatus.state == .waitingForConnectivity(.noConnection)
+                        ? NSLocalizedString(
+                            "DISCONNECT_TITLE_BUTTON",
+                            tableName: "Main",
+                            value: "Disconnect",
+                            comment: "Action to disconnect when tunnel has no connectivity"
+                        )
+                        : NSLocalizedString(
+                            "CANCEL_TITLE_BUTTON",
+                            tableName: "Common",
+                            value: "Cancel",
+                            comment: "Generic cancel button title"
+                        ),
                     style: .danger,
                     action: { action?(.cancel) }
                 )

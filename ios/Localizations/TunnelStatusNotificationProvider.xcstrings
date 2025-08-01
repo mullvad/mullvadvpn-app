@@ -1,0 +1,193 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ERROR_DEFAULT" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to start tunnel connection. Please send a problem report."
+          }
+        }
+      }
+    },
+    "ERROR_DEVICE_LOGGED_OUT" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to authenticate account. Please log out and log back in."
+          }
+        }
+      }
+    },
+    "ERROR_INVALID_ACCOUNT" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You are logged in with an invalid account number. Please log out and try another one."
+          }
+        }
+      }
+    },
+    "ERROR_MULTIHOP_ENTRY_EQUALS_EXIT" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The entry and exit servers cannot be the same. Try changing one to a new server or location."
+          }
+        }
+      }
+    },
+    "ERROR_NO_RELAYS_SATISFYING_CONSTRAINTS" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " No servers match your settings, try changing server or other settings."
+          }
+        }
+      }
+    },
+    "ERROR_NO_RELAYS_SATISFYING_DAITA_CONSTRAINTS" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No DAITA compatible servers match your location settings. Try changing location."
+          }
+        }
+      }
+    },
+    "ERROR_NO_RELAYS_SATISFYING_FILTER_CONSTRAINTS" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No servers match your location filter. Try changing filter settings."
+          }
+        }
+      }
+    },
+    "ERROR_NO_RELAYS_SATISFYING_PORT_CONSTRAINTS" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The selected WireGuard port is not supported, please change it under **VPN settings**."
+          }
+        }
+      }
+    },
+    "ERROR_OUTDATED_SCHEMA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to start tunnel connection after update. Please disconnect and reconnect."
+          }
+        }
+      }
+    },
+    "START_TUNNEL_ERROR_INAPP_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to start the tunnel: %@."
+          }
+        }
+      }
+    },
+    "STOP_TUNNEL_ERROR_INAPP_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to stop the tunnel: %@."
+          }
+        }
+      }
+    },
+    "TUNNEL_BLOCKED_INAPP_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "BLOCKING INTERNET"
+          }
+        }
+      }
+    },
+    "TUNNEL_MANAGER_ERROR_INAPP_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "TUNNEL ERROR"
+          }
+        }
+      }
+    },
+    "TUNNEL_NO_CONNECTIVITY_INAPP_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your device is offline. The tunnel will automatically connect once your device is back online."
+          }
+        }
+      }
+    },
+    "TUNNEL_NO_CONNECTIVITY_INAPP_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "NETWORK ISSUES"
+          }
+        }
+      }
+    },
+    "TUNNEL_NO_NETWORK_INAPP_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your device is offline. Try connecting again when the device has access to Internet."
+          }
+        }
+      }
+    },
+    "TUNNEL_NO_NETWORK_INAPP_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "NETWORK ISSUES"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

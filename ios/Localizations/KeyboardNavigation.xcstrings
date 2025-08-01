@@ -1,0 +1,30 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NEXT_BUTTON_TITLE" : {
+      "comment" : "Next button",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Next"
+          }
+        }
+      }
+    },
+    "PREVIOUS_BUTTON_TITLE" : {
+      "comment" : "Previous button",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Previous"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

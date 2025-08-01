@@ -1,0 +1,94 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ACCOUNT_NUMBER_AS_VOUCHER_INPUT_ERROR_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "It looks like you have entered a Mullvad account number instead of a voucher code. Do you want to log in to an existing account?\nIf so, click log out below to log in with the other account number."
+          }
+        }
+      }
+    },
+    "LOGOUT_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Log out"
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_CANCEL_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_INSTRUCTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enter voucher code"
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_REDEEM_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Redeem"
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_STATUS_FAILURE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This voucher code has already been used."
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_STATUS_WAITING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Logging out..."
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Redeem voucher"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -89,7 +89,7 @@ extension EditAccessMethodCoordinator: @preconcurrency EditAccessMethodViewContr
         )
 
         controller.saveBarButton.title = NSLocalizedString(
-            "METHOD_SETTINGS_NAVIGATION_ADD_BUTTON",
+            "METHOD_SETTINGS_NAVIGATION_SAVE_BUTTON",
             tableName: "APIAccess",
             value: "Save",
             comment: ""

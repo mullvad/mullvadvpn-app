@@ -1,0 +1,94 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "FEATURE_INDICATORS_CHIP_CONTENT_BLOCKERS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DNS content blockers"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_CUSTOM_DNS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom DNS"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_DAITA" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_DAITA_MULTIHOP" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA: Multihop"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_IP_OVERRIDE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Server IP Override"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_MULTIHOP" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multihop"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_OBFUSCATION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Obfuscation"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_QUANTUM_RESISTANCE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Quantum resistance"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

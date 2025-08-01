@@ -1,0 +1,50 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "VPN_SETTINGS_CONTENT_BLOCKERS_GENERAL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. \nThis might cause issues on certain websites, services, and apps.\nAttention: this setting cannot be used in combination with **Use custom DNS server**."
+          }
+        }
+      }
+    },
+    "VPN_SETTINGS_CONTENT_BLOCKERS_MALWARE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+          }
+        }
+      }
+    },
+    "VPN_SETTINGS_LOCAL_NETWORK_SHARING_CANCEL_ACTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "VPN_SETTINGS_LOCAL_NETWORK_SHARING_OK_ACTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Yes, continue"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

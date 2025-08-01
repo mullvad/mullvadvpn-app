@@ -150,8 +150,8 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
                         buttons: [
                             AlertAction(
                                 title: NSLocalizedString(
-                                    "ERROR_ALERT_OK_ACTION",
-                                    tableName: "DeviceManagement",
+                                    "GOT_IT_TITLE_BUTTON",
+                                    tableName: "Common",
                                     value: "Got it!",
                                     comment: ""
                                 ),
@@ -167,7 +167,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         )
         controller.title = NSLocalizedString(
             "MANAGE_DEVICES_TITLE",
-            tableName: "Manage devices",
+            tableName: "DeviceManagement",
             value: "Manage devices",
             comment: ""
         )
@@ -274,8 +274,8 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             message: message,
             buttons: [AlertAction(
                 title: NSLocalizedString(
-                    "RESTORE_PURCHASES_DIALOG_OK_ACTION",
-                    tableName: "Account",
+                    "GOT_IT_TITLE_BUTTON",
+                    tableName: "Common",
                     value: "Got it!",
                     comment: ""
                 ),
@@ -305,8 +305,8 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
-                        tableName: "Welcome",
+                        "GOT_IT_TITLE_BUTTON",
+                        tableName: "Common",
                         value: "Got it!",
                         comment: ""
                     ),

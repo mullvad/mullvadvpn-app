@@ -95,8 +95,8 @@ extension SettingsViewController: @preconcurrency SettingsDataSourceDelegate {
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "SETTINGS_INFO_ALERT_OK_ACTION",
-                        tableName: "Settings",
+                        "GOT_IT_TITLE_BUTTON",
+                        tableName: "Common",
                         value: "Got it!",
                         comment: ""
                     ),

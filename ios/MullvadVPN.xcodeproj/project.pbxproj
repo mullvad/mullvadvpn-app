@@ -961,6 +961,44 @@
 		F041BE532C9878B60083EC28 /* ConnectionConfigurationBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F041BE522C9878B60083EC28 /* ConnectionConfigurationBuilder.swift */; };
 		F04413612BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
+		F047899C2E3A49230011E3A5 /* Account.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F047899B2E3A49230011E3A5 /* Account.xcstrings */; };
+		F047899E2E3A494E0011E3A5 /* AccountExpiry.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F047899D2E3A494E0011E3A5 /* AccountExpiry.xcstrings */; };
+		F04789A02E3A49670011E3A5 /* AccountInput.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F047899F2E3A49670011E3A5 /* AccountInput.xcstrings */; };
+		F04789A42E3A499C0011E3A5 /* AddedTime.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789A32E3A499C0011E3A5 /* AddedTime.xcstrings */; };
+		F04789A62E3A49E20011E3A5 /* AddLocations.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789A52E3A49E20011E3A5 /* AddLocations.xcstrings */; };
+		F04789A82E3A49FD0011E3A5 /* APIAccess.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789A72E3A49FD0011E3A5 /* APIAccess.xcstrings */; };
+		F04789AA2E3A4A110011E3A5 /* Changelog.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789A92E3A4A110011E3A5 /* Changelog.xcstrings */; };
+		F04789AE2E3A4A420011E3A5 /* ContentBlockers.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789AD2E3A4A420011E3A5 /* ContentBlockers.xcstrings */; };
+		F04789B22E3A4A740011E3A5 /* CreatedAccountConfirmation.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789B12E3A4A740011E3A5 /* CreatedAccountConfirmation.xcstrings */; };
+		F04789B42E3A4A8F0011E3A5 /* CustomList.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789B32E3A4A8F0011E3A5 /* CustomList.xcstrings */; };
+		F04789B62E3A4AE50011E3A5 /* DAITA.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789B52E3A4AE50011E3A5 /* DAITA.xcstrings */; };
+		F04789B82E3A4AFC0011E3A5 /* DeviceManagement.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789B72E3A4AFC0011E3A5 /* DeviceManagement.xcstrings */; };
+		F04789BA2E3A4B150011E3A5 /* EditLocations.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789B92E3A4B150011E3A5 /* EditLocations.xcstrings */; };
+		F04789BC2E3A4B310011E3A5 /* FeatureIndicatorsChip.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789BB2E3A4B310011E3A5 /* FeatureIndicatorsChip.xcstrings */; };
+		F04789BE2E3A4B4E0011E3A5 /* HeaderBar.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789BD2E3A4B4E0011E3A5 /* HeaderBar.xcstrings */; };
+		F04789C02E3A4B720011E3A5 /* IPOverride.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789BF2E3A4B720011E3A5 /* IPOverride.xcstrings */; };
+		F04789C22E3A4B970011E3A5 /* KeyboardNavigation.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789C12E3A4B970011E3A5 /* KeyboardNavigation.xcstrings */; };
+		F04789C42E3A4BB10011E3A5 /* LocalNetworkSharing.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789C32E3A4BB10011E3A5 /* LocalNetworkSharing.xcstrings */; };
+		F04789C62E3A4BD40011E3A5 /* Login.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789C52E3A4BD40011E3A5 /* Login.xcstrings */; };
+		F04789C82E3A4BEC0011E3A5 /* Main.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789C72E3A4BEC0011E3A5 /* Main.xcstrings */; };
+		F04789CA2E3A4C440011E3A5 /* Multihop.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789C92E3A4C440011E3A5 /* Multihop.xcstrings */; };
+		F04789CC2E3A4C590011E3A5 /* OutOfTime.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789CB2E3A4C590011E3A5 /* OutOfTime.xcstrings */; };
+		F04789CE2E3A4C9D0011E3A5 /* Payment.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789CD2E3A4C9D0011E3A5 /* Payment.xcstrings */; };
+		F04789D02E3A4CED0011E3A5 /* ProblemReport.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789CF2E3A4CED0011E3A5 /* ProblemReport.xcstrings */; };
+		F04789D42E3A4D990011E3A5 /* RedeemVoucher.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789D32E3A4D990011E3A5 /* RedeemVoucher.xcstrings */; };
+		F04789D62E3A4DC80011E3A5 /* RelayFilter.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789D52E3A4DC80011E3A5 /* RelayFilter.xcstrings */; };
+		F04789D82E3A4E6B0011E3A5 /* REST.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789D72E3A4E6B0011E3A5 /* REST.xcstrings */; };
+		F04789DA2E3A4E960011E3A5 /* RevokedDevice.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789D92E3A4E960011E3A5 /* RevokedDevice.xcstrings */; };
+		F04789DD2E3A4EAD0011E3A5 /* SelectLocation.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789DC2E3A4EAD0011E3A5 /* SelectLocation.xcstrings */; };
+		F04789E02E3A4EE30011E3A5 /* Settings.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789DF2E3A4EE30011E3A5 /* Settings.xcstrings */; };
+		F04789E32E3A4F220011E3A5 /* SettingsMigrationUI.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789E22E3A4F220011E3A5 /* SettingsMigrationUI.xcstrings */; };
+		F04789E92E3A4F680011E3A5 /* Shadowsocks.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789E82E3A4F680011E3A5 /* Shadowsocks.xcstrings */; };
+		F04789ED2E3A4FEB0011E3A5 /* ApplicationLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */; };
+		F04789EF2E3A512B0011E3A5 /* StorePaymentManager.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789EE2E3A512B0011E3A5 /* StorePaymentManager.xcstrings */; };
+		F04789F12E3A51620011E3A5 /* StoreSubscriptions.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789F02E3A51620011E3A5 /* StoreSubscriptions.xcstrings */; };
+		F04789F32E3A518E0011E3A5 /* TunnelManager.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789F22E3A518E0011E3A5 /* TunnelManager.xcstrings */; };
+		F04789F72E3A51EC0011E3A5 /* VPNSettings.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789F62E3A51EC0011E3A5 /* VPNSettings.xcstrings */; };
+		F04789F92E3A55550011E3A5 /* Welcome.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789F82E3A55550011E3A5 /* Welcome.xcstrings */; };
 		F048BFA22D31843000251CB9 /* ChangeLogModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F048BFA12D31842B00251CB9 /* ChangeLogModel.swift */; };
 		F04AF92D2C466013004A8314 /* EphemeralPeerNegotiationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */; };
 		F04FBE612A8379EE009278D7 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04FBE602A8379EE009278D7 /* AppPreferences.swift */; };
@@ -980,16 +1018,6 @@
 		F05769BB2C6661EE00D9778B /* TunnelSettingsStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05769BA2C6661EE00D9778B /* TunnelSettingsStrategy.swift */; };
 		F05919752C45194B00C301F3 /* EphemeralPeerKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05919742C45194B00C301F3 /* EphemeralPeerKey.swift */; };
 		F05919802C45515200C301F3 /* EphemeralPeerExchangeActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */; };
-		F05DCE9E2E38C563009A9B85 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05DCE872E38C563009A9B85 /* AppLanguage.swift */; };
-		F05DCE9F2E38C563009A9B85 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F05DCE9C2E38C563009A9B85 /* Localizable.strings */; };
-		F05DCEA02E38C5F1009A9B85 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F05DCE9C2E38C563009A9B85 /* Localizable.strings */; };
-		F05DCEA12E38C5F1009A9B85 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F05DCE9C2E38C563009A9B85 /* Localizable.strings */; };
-		F05DCEA22E38C5F1009A9B85 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F05DCE9C2E38C563009A9B85 /* Localizable.strings */; };
-		F05DCEA32E38C5F1009A9B85 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F05DCE9C2E38C563009A9B85 /* Localizable.strings */; };
-		F05DCEA42E38C5F1009A9B85 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F05DCE9C2E38C563009A9B85 /* Localizable.strings */; };
-		F05DCEA52E38C5F1009A9B85 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F05DCE9C2E38C563009A9B85 /* Localizable.strings */; };
-		F05DCEA62E38C5F1009A9B85 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F05DCE9C2E38C563009A9B85 /* Localizable.strings */; };
-		F05DCEA72E38C5F1009A9B85 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F05DCE9C2E38C563009A9B85 /* Localizable.strings */; };
 		F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675A26E6576800655B05 /* RelayCache.swift */; };
 		F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
 		F06045E62B231EB700B2D37A /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E52B231EB700B2D37A /* URLSessionTransport.swift */; };
@@ -1017,6 +1045,11 @@
 		F08B6B7C2C528C6300D0A121 /* SingleHopEphemeralPeerExchanger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05919782C45402E00C301F3 /* SingleHopEphemeralPeerExchanger.swift */; };
 		F08B6B7D2C528C6300D0A121 /* EphemeralPeerExchangingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05919762C453FAF00C301F3 /* EphemeralPeerExchangingPipeline.swift */; };
 		F08B6B7E2C528C6300D0A121 /* MultiHopEphemeralPeerExchanger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F059197C2C454C9200C301F3 /* MultiHopEphemeralPeerExchanger.swift */; };
+		F08F50992E3A5C0E005E2254 /* VPNSettings.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789F62E3A51EC0011E3A5 /* VPNSettings.xcstrings */; };
+		F08F509A2E3A5C0E005E2254 /* VPNSettings.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F04789F62E3A51EC0011E3A5 /* VPNSettings.xcstrings */; };
+		F08F509C2E3B5C4C005E2254 /* TunnelStatusNotificationProvider.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F08F509B2E3B5C4C005E2254 /* TunnelStatusNotificationProvider.xcstrings */; };
+		F08F509E2E3B6AFB005E2254 /* Common.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F08F509D2E3B6AFB005E2254 /* Common.xcstrings */; };
+		F08F50A02E3B7652005E2254 /* TermsOfService.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F08F509F2E3B7652005E2254 /* TermsOfService.xcstrings */; };
 		F09084682C6E88ED001CD36E /* DaitaPromptAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */; };
 		F09A297B2A9F8A9B00EA3B6F /* LogoutDialogueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A29782A9F8A9B00EA3B6F /* LogoutDialogueView.swift */; };
 		F09A297C2A9F8A9B00EA3B6F /* VoucherTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */; };
@@ -2431,6 +2464,44 @@
 		F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettingsPromptItem.swift; sourceTree = "<group>"; };
 		F041BE522C9878B60083EC28 /* ConnectionConfigurationBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionConfigurationBuilder.swift; sourceTree = "<group>"; };
 		F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListLocationNodeBuilder.swift; sourceTree = "<group>"; };
+		F047899B2E3A49230011E3A5 /* Account.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Account.xcstrings; sourceTree = "<group>"; };
+		F047899D2E3A494E0011E3A5 /* AccountExpiry.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AccountExpiry.xcstrings; sourceTree = "<group>"; };
+		F047899F2E3A49670011E3A5 /* AccountInput.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AccountInput.xcstrings; sourceTree = "<group>"; };
+		F04789A32E3A499C0011E3A5 /* AddedTime.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AddedTime.xcstrings; sourceTree = "<group>"; };
+		F04789A52E3A49E20011E3A5 /* AddLocations.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AddLocations.xcstrings; sourceTree = "<group>"; };
+		F04789A72E3A49FD0011E3A5 /* APIAccess.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = APIAccess.xcstrings; sourceTree = "<group>"; };
+		F04789A92E3A4A110011E3A5 /* Changelog.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Changelog.xcstrings; sourceTree = "<group>"; };
+		F04789AD2E3A4A420011E3A5 /* ContentBlockers.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = ContentBlockers.xcstrings; sourceTree = "<group>"; };
+		F04789B12E3A4A740011E3A5 /* CreatedAccountConfirmation.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = CreatedAccountConfirmation.xcstrings; sourceTree = "<group>"; };
+		F04789B32E3A4A8F0011E3A5 /* CustomList.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = CustomList.xcstrings; sourceTree = "<group>"; };
+		F04789B52E3A4AE50011E3A5 /* DAITA.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = DAITA.xcstrings; sourceTree = "<group>"; };
+		F04789B72E3A4AFC0011E3A5 /* DeviceManagement.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = DeviceManagement.xcstrings; sourceTree = "<group>"; };
+		F04789B92E3A4B150011E3A5 /* EditLocations.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = EditLocations.xcstrings; sourceTree = "<group>"; };
+		F04789BB2E3A4B310011E3A5 /* FeatureIndicatorsChip.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = FeatureIndicatorsChip.xcstrings; sourceTree = "<group>"; };
+		F04789BD2E3A4B4E0011E3A5 /* HeaderBar.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = HeaderBar.xcstrings; sourceTree = "<group>"; };
+		F04789BF2E3A4B720011E3A5 /* IPOverride.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = IPOverride.xcstrings; sourceTree = "<group>"; };
+		F04789C12E3A4B970011E3A5 /* KeyboardNavigation.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = KeyboardNavigation.xcstrings; sourceTree = "<group>"; };
+		F04789C32E3A4BB10011E3A5 /* LocalNetworkSharing.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = LocalNetworkSharing.xcstrings; sourceTree = "<group>"; };
+		F04789C52E3A4BD40011E3A5 /* Login.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Login.xcstrings; sourceTree = "<group>"; };
+		F04789C72E3A4BEC0011E3A5 /* Main.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Main.xcstrings; sourceTree = "<group>"; };
+		F04789C92E3A4C440011E3A5 /* Multihop.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Multihop.xcstrings; sourceTree = "<group>"; };
+		F04789CB2E3A4C590011E3A5 /* OutOfTime.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = OutOfTime.xcstrings; sourceTree = "<group>"; };
+		F04789CD2E3A4C9D0011E3A5 /* Payment.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Payment.xcstrings; sourceTree = "<group>"; };
+		F04789CF2E3A4CED0011E3A5 /* ProblemReport.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = ProblemReport.xcstrings; sourceTree = "<group>"; };
+		F04789D32E3A4D990011E3A5 /* RedeemVoucher.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = RedeemVoucher.xcstrings; sourceTree = "<group>"; };
+		F04789D52E3A4DC80011E3A5 /* RelayFilter.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = RelayFilter.xcstrings; sourceTree = "<group>"; };
+		F04789D72E3A4E6B0011E3A5 /* REST.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = REST.xcstrings; sourceTree = "<group>"; };
+		F04789D92E3A4E960011E3A5 /* RevokedDevice.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = RevokedDevice.xcstrings; sourceTree = "<group>"; };
+		F04789DC2E3A4EAD0011E3A5 /* SelectLocation.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = SelectLocation.xcstrings; sourceTree = "<group>"; };
+		F04789DF2E3A4EE30011E3A5 /* Settings.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Settings.xcstrings; sourceTree = "<group>"; };
+		F04789E22E3A4F220011E3A5 /* SettingsMigrationUI.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = SettingsMigrationUI.xcstrings; sourceTree = "<group>"; };
+		F04789E82E3A4F680011E3A5 /* Shadowsocks.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Shadowsocks.xcstrings; sourceTree = "<group>"; };
+		F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLanguage.swift; sourceTree = "<group>"; };
+		F04789EE2E3A512B0011E3A5 /* StorePaymentManager.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = StorePaymentManager.xcstrings; sourceTree = "<group>"; };
+		F04789F02E3A51620011E3A5 /* StoreSubscriptions.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = StoreSubscriptions.xcstrings; sourceTree = "<group>"; };
+		F04789F22E3A518E0011E3A5 /* TunnelManager.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = TunnelManager.xcstrings; sourceTree = "<group>"; };
+		F04789F62E3A51EC0011E3A5 /* VPNSettings.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = VPNSettings.xcstrings; sourceTree = "<group>"; };
+		F04789F82E3A55550011E3A5 /* Welcome.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Welcome.xcstrings; sourceTree = "<group>"; };
 		F048BFA12D31842B00251CB9 /* ChangeLogModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogModel.swift; sourceTree = "<group>"; };
 		F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerNegotiationState.swift; sourceTree = "<group>"; };
 		F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsManager.swift; sourceTree = "<group>"; };
@@ -2452,27 +2523,6 @@
 		F05919782C45402E00C301F3 /* SingleHopEphemeralPeerExchanger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleHopEphemeralPeerExchanger.swift; sourceTree = "<group>"; };
 		F059197C2C454C9200C301F3 /* MultiHopEphemeralPeerExchanger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiHopEphemeralPeerExchanger.swift; sourceTree = "<group>"; };
 		F059197E2C454CE000C301F3 /* EphemeralPeerExchangingProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangingProtocol.swift; sourceTree = "<group>"; };
-		F05DCE872E38C563009A9B85 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
-		F05DCE882E38C563009A9B85 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE892E38C563009A9B85 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE8A2E38C563009A9B85 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE8B2E38C563009A9B85 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE8C2E38C563009A9B85 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE8D2E38C563009A9B85 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE8E2E38C563009A9B85 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE8F2E38C563009A9B85 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE902E38C563009A9B85 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE912E38C563009A9B85 /* my */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = my; path = my.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE922E38C563009A9B85 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE932E38C563009A9B85 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE942E38C563009A9B85 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE952E38C563009A9B85 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
-		F05DCE962E38C563009A9B85 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE972E38C563009A9B85 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE982E38C563009A9B85 /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE992E38C563009A9B85 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F05DCE9A2E38C563009A9B85 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
-		F05DCE9B2E38C563009A9B85 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		F06045E52B231EB700B2D37A /* URLSessionTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
 		F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksTransport.swift; sourceTree = "<group>"; };
 		F06045EB2B2322A500B2D37A /* Jittered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jittered.swift; sourceTree = "<group>"; };
@@ -2487,6 +2537,9 @@
 		F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputTextFormatterTests.swift; sourceTree = "<group>"; };
 		F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherOperation.swift; sourceTree = "<group>"; };
 		F07CFF1F29F2720E008C0343 /* NewDeviceNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDeviceNotificationProvider.swift; sourceTree = "<group>"; };
+		F08F509B2E3B5C4C005E2254 /* TunnelStatusNotificationProvider.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = TunnelStatusNotificationProvider.xcstrings; sourceTree = "<group>"; };
+		F08F509D2E3B6AFB005E2254 /* Common.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Common.xcstrings; sourceTree = "<group>"; };
+		F08F509F2E3B7652005E2254 /* TermsOfService.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = TermsOfService.xcstrings; sourceTree = "<group>"; };
 		F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaPromptAlert.swift; sourceTree = "<group>"; };
 		F09A29782A9F8A9B00EA3B6F /* LogoutDialogueView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogoutDialogueView.swift; sourceTree = "<group>"; };
 		F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoucherTextField.swift; sourceTree = "<group>"; };
@@ -2788,14 +2841,15 @@
 		06799ABD28F98E1D00ACD94E /* MullvadREST */ = {
 			isa = PBXGroup;
 			children = (
-				7A2C0E872D82E450003D8048 /* MullvadAPI */,
 				F06045F02B2324DA00B2D37A /* ApiHandlers */,
 				062B45A228FD4C0F00746E77 /* Assets */,
 				7AD63A422CDA661B00445268 /* Extensions */,
 				582FFA82290A84E700895745 /* Info.plist */,
+				7A2C0E872D82E450003D8048 /* MullvadAPI */,
 				06799ABE28F98E1D00ACD94E /* MullvadREST.h */,
 				F0DC779F2B2222D20087F09D /* Relay */,
 				06FAE67B28F83CA50033DD93 /* REST.swift */,
+				F04789D72E3A4E6B0011E3A5 /* REST.xcstrings */,
 				F0DC77A12B2313330087F09D /* RetryStrategy */,
 				F0DC77A02B2223290087F09D /* Transport */,
 			);
@@ -3717,6 +3771,7 @@
 		589A454A28DDF59B00565204 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */,
 				58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */,
 				58C76A072A33850E00100D75 /* ApplicationTarget.swift */,
 				F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */,
@@ -4694,8 +4749,45 @@
 		F05DCE9D2E38C563009A9B85 /* Localizations */ = {
 			isa = PBXGroup;
 			children = (
-				F05DCE872E38C563009A9B85 /* AppLanguage.swift */,
-				F05DCE9C2E38C563009A9B85 /* Localizable.strings */,
+				F047899B2E3A49230011E3A5 /* Account.xcstrings */,
+				F047899D2E3A494E0011E3A5 /* AccountExpiry.xcstrings */,
+				F047899F2E3A49670011E3A5 /* AccountInput.xcstrings */,
+				F04789A32E3A499C0011E3A5 /* AddedTime.xcstrings */,
+				F04789A52E3A49E20011E3A5 /* AddLocations.xcstrings */,
+				F04789A72E3A49FD0011E3A5 /* APIAccess.xcstrings */,
+				F04789A92E3A4A110011E3A5 /* Changelog.xcstrings */,
+				F08F509D2E3B6AFB005E2254 /* Common.xcstrings */,
+				F04789AD2E3A4A420011E3A5 /* ContentBlockers.xcstrings */,
+				F04789B12E3A4A740011E3A5 /* CreatedAccountConfirmation.xcstrings */,
+				F04789B32E3A4A8F0011E3A5 /* CustomList.xcstrings */,
+				F04789B52E3A4AE50011E3A5 /* DAITA.xcstrings */,
+				F04789B72E3A4AFC0011E3A5 /* DeviceManagement.xcstrings */,
+				F04789B92E3A4B150011E3A5 /* EditLocations.xcstrings */,
+				F04789BB2E3A4B310011E3A5 /* FeatureIndicatorsChip.xcstrings */,
+				F04789BD2E3A4B4E0011E3A5 /* HeaderBar.xcstrings */,
+				F04789BF2E3A4B720011E3A5 /* IPOverride.xcstrings */,
+				F04789C12E3A4B970011E3A5 /* KeyboardNavigation.xcstrings */,
+				F04789C32E3A4BB10011E3A5 /* LocalNetworkSharing.xcstrings */,
+				F04789C52E3A4BD40011E3A5 /* Login.xcstrings */,
+				F04789C72E3A4BEC0011E3A5 /* Main.xcstrings */,
+				F04789C92E3A4C440011E3A5 /* Multihop.xcstrings */,
+				F04789CB2E3A4C590011E3A5 /* OutOfTime.xcstrings */,
+				F04789CD2E3A4C9D0011E3A5 /* Payment.xcstrings */,
+				F04789CF2E3A4CED0011E3A5 /* ProblemReport.xcstrings */,
+				F04789D32E3A4D990011E3A5 /* RedeemVoucher.xcstrings */,
+				F04789D52E3A4DC80011E3A5 /* RelayFilter.xcstrings */,
+				F04789D92E3A4E960011E3A5 /* RevokedDevice.xcstrings */,
+				F04789DC2E3A4EAD0011E3A5 /* SelectLocation.xcstrings */,
+				F04789DF2E3A4EE30011E3A5 /* Settings.xcstrings */,
+				F04789E22E3A4F220011E3A5 /* SettingsMigrationUI.xcstrings */,
+				F04789E82E3A4F680011E3A5 /* Shadowsocks.xcstrings */,
+				F04789EE2E3A512B0011E3A5 /* StorePaymentManager.xcstrings */,
+				F04789F02E3A51620011E3A5 /* StoreSubscriptions.xcstrings */,
+				F08F509F2E3B7652005E2254 /* TermsOfService.xcstrings */,
+				F04789F22E3A518E0011E3A5 /* TunnelManager.xcstrings */,
+				F08F509B2E3B5C4C005E2254 /* TunnelStatusNotificationProvider.xcstrings */,
+				F04789F62E3A51EC0011E3A5 /* VPNSettings.xcstrings */,
+				F04789F82E3A55550011E3A5 /* Welcome.xcstrings */,
 			);
 			path = Localizations;
 			sourceTree = "<group>";
@@ -5616,9 +5708,9 @@
 				"zh-Hant",
 				ru,
 				pl,
-				tr,
 				fi,
 				my,
+				tr,
 			);
 			mainGroup = 58CE5E57224146200008646E;
 			packageReferences = (
@@ -5658,8 +5750,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */,
-				F05DCEA22E38C5F1009A9B85 /* Localizable.strings in Resources */,
+				F08F509A2E3A5C0E005E2254 /* VPNSettings.xcstrings in Resources */,
 				7A95B67B2D5F758300687524 /* relays.json in Resources */,
+				F04789D82E3A4E6B0011E3A5 /* REST.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5681,7 +5774,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F05DCEA52E38C5F1009A9B85 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5696,13 +5788,51 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F04789BA2E3A4B150011E3A5 /* EditLocations.xcstrings in Resources */,
+				F04789B42E3A4A8F0011E3A5 /* CustomList.xcstrings in Resources */,
+				F08F50A02E3B7652005E2254 /* TermsOfService.xcstrings in Resources */,
+				F04789DA2E3A4E960011E3A5 /* RevokedDevice.xcstrings in Resources */,
+				F04789CE2E3A4C9D0011E3A5 /* Payment.xcstrings in Resources */,
+				F04789F92E3A55550011E3A5 /* Welcome.xcstrings in Resources */,
+				F04789C02E3A4B720011E3A5 /* IPOverride.xcstrings in Resources */,
+				F04789CA2E3A4C440011E3A5 /* Multihop.xcstrings in Resources */,
+				F047899E2E3A494E0011E3A5 /* AccountExpiry.xcstrings in Resources */,
+				F04789E32E3A4F220011E3A5 /* SettingsMigrationUI.xcstrings in Resources */,
+				F04789C42E3A4BB10011E3A5 /* LocalNetworkSharing.xcstrings in Resources */,
+				F047899C2E3A49230011E3A5 /* Account.xcstrings in Resources */,
+				F04789F12E3A51620011E3A5 /* StoreSubscriptions.xcstrings in Resources */,
+				F04789A02E3A49670011E3A5 /* AccountInput.xcstrings in Resources */,
+				F04789D02E3A4CED0011E3A5 /* ProblemReport.xcstrings in Resources */,
+				F04789B62E3A4AE50011E3A5 /* DAITA.xcstrings in Resources */,
+				F08F509E2E3B6AFB005E2254 /* Common.xcstrings in Resources */,
+				F08F509C2E3B5C4C005E2254 /* TunnelStatusNotificationProvider.xcstrings in Resources */,
+				F04789F72E3A51EC0011E3A5 /* VPNSettings.xcstrings in Resources */,
 				A9BA08312BA32FA9005A7A2D /* PrivacyInfo.xcprivacy in Resources */,
+				F04789A42E3A499C0011E3A5 /* AddedTime.xcstrings in Resources */,
+				F04789E92E3A4F680011E3A5 /* Shadowsocks.xcstrings in Resources */,
 				7A83C3FF2A55B72E00DFB83A /* MullvadVPNApp.xctestplan in Resources */,
+				F04789B22E3A4A740011E3A5 /* CreatedAccountConfirmation.xcstrings in Resources */,
+				F04789CC2E3A4C590011E3A5 /* OutOfTime.xcstrings in Resources */,
+				F04789C22E3A4B970011E3A5 /* KeyboardNavigation.xcstrings in Resources */,
+				F04789D42E3A4D990011E3A5 /* RedeemVoucher.xcstrings in Resources */,
+				F04789B82E3A4AFC0011E3A5 /* DeviceManagement.xcstrings in Resources */,
+				F04789E02E3A4EE30011E3A5 /* Settings.xcstrings in Resources */,
+				F04789BC2E3A4B310011E3A5 /* FeatureIndicatorsChip.xcstrings in Resources */,
+				F04789D62E3A4DC80011E3A5 /* RelayFilter.xcstrings in Resources */,
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
-				F05DCE9F2E38C563009A9B85 /* Localizable.strings in Resources */,
 				5859A55529CD9DD900F66591 /* changes.txt in Resources */,
+				F04789AA2E3A4A110011E3A5 /* Changelog.xcstrings in Resources */,
+				F04789A82E3A49FD0011E3A5 /* APIAccess.xcstrings in Resources */,
+				F04789AE2E3A4A420011E3A5 /* ContentBlockers.xcstrings in Resources */,
+				F04789F32E3A518E0011E3A5 /* TunnelManager.xcstrings in Resources */,
+				F04789BE2E3A4B4E0011E3A5 /* HeaderBar.xcstrings in Resources */,
 				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
+				F04789DD2E3A4EAD0011E3A5 /* SelectLocation.xcstrings in Resources */,
+				F04789A62E3A49E20011E3A5 /* AddLocations.xcstrings in Resources */,
+				F04789C82E3A4BEC0011E3A5 /* Main.xcstrings in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
+				F04789C62E3A4BD40011E3A5 /* Login.xcstrings in Resources */,
+				F04789EF2E3A512B0011E3A5 /* StorePaymentManager.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5711,7 +5841,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9BA08322BA32FB6005A7A2D /* PrivacyInfo.xcprivacy in Resources */,
-				F05DCEA02E38C5F1009A9B85 /* Localizable.strings in Resources */,
+				F08F50992E3A5C0E005E2254 /* VPNSettings.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5719,7 +5849,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F05DCEA12E38C5F1009A9B85 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5727,7 +5856,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F05DCEA32E38C5F1009A9B85 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5735,7 +5863,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F05DCEA42E38C5F1009A9B85 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5750,7 +5877,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F05DCEA62E38C5F1009A9B85 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5786,7 +5912,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F05DCEA72E38C5F1009A9B85 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5920,7 +6045,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Run the following steps if the build configuration is NOT Debug\n# OR if the configuration is Staging (used for UITests).\nif [ \"$CONFIGURATION\" != \"Debug\" ] || [ \"$CONFIGURATION\" = \"Staging\" ]; then\n    echo \"Removing non-English localizations for Release or Staging build\"\n    find \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" -type d -name \"*.lproj\" ! -name \"en.lproj\" -exec rm -r {} +\nfi\n";
+			shellScript = "# Run the following steps if the build configuration is NOT Debug\n# OR if the configuration is Staging (used for UITests).\nif [ \"$CONFIGURATION\" != \"Debug\" ] || [ \"$CONFIGURATION\" = \"Staging\" ]; then\n    echo \"Removing non-English localizations and .xcstrings files for Release or Staging build\"\n\n    # Remove non-English .lproj folders (language bundles except English)\n    find \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" -type d -name \"*.lproj\" ! -name \"en.lproj\" -exec rm -r {} +\n\n    # Additionally, remove all .xcstrings files from the bundle (if any)\n    find \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" -type f -name \"*.xcstrings\" -exec rm {} +\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -6409,6 +6534,7 @@
 				7A8A190A2CE5FFE9000BCB5B /* SettingsDAITAView.swift in Sources */,
 				F0E8E4C92A604E7400ED26A3 /* AccountDeletionInteractor.swift in Sources */,
 				449E9A6D2D283A2500F8574A /* ConnectionViewComponentPreview.swift in Sources */,
+				F04789ED2E3A4FEB0011E3A5 /* ApplicationLanguage.swift in Sources */,
 				7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */,
 				F09A297D2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift in Sources */,
 				5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */,
@@ -6523,7 +6649,6 @@
 				F91CCBFA2DFAC8ED007F1925 /* DeviceListView.swift in Sources */,
 				7A9CCCBF2A96302800DD6A34 /* SettingsCoordinator.swift in Sources */,
 				58F70FE52AEA707800E6890E /* StoreTransactionLog.swift in Sources */,
-				F05DCE9E2E38C563009A9B85 /* AppLanguage.swift in Sources */,
 				F9394EF02DC0B58D009595EA /* MullvadListNavigationItemView.swift in Sources */,
 				582AE3102440A6CA00E6733A /* InputTextFormatter.swift in Sources */,
 				7A6F2FAD2AFD3DA7006D0856 /* CustomDNSViewController.swift in Sources */,
@@ -7329,36 +7454,6 @@
 		};
 /* End PBXTargetDependency section */
 
-/* Begin PBXVariantGroup section */
-		F05DCE9C2E38C563009A9B85 /* Localizable.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				F05DCE882E38C563009A9B85 /* da */,
-				F05DCE892E38C563009A9B85 /* de */,
-				F05DCE8A2E38C563009A9B85 /* en */,
-				F05DCE8B2E38C563009A9B85 /* es */,
-				F05DCE8C2E38C563009A9B85 /* fi */,
-				F05DCE8D2E38C563009A9B85 /* fr */,
-				F05DCE8E2E38C563009A9B85 /* it */,
-				F05DCE8F2E38C563009A9B85 /* ja */,
-				F05DCE902E38C563009A9B85 /* ko */,
-				F05DCE912E38C563009A9B85 /* my */,
-				F05DCE922E38C563009A9B85 /* nb */,
-				F05DCE932E38C563009A9B85 /* nl */,
-				F05DCE942E38C563009A9B85 /* pl */,
-				F05DCE952E38C563009A9B85 /* pt-PT */,
-				F05DCE962E38C563009A9B85 /* ru */,
-				F05DCE972E38C563009A9B85 /* sv */,
-				F05DCE982E38C563009A9B85 /* th */,
-				F05DCE992E38C563009A9B85 /* tr */,
-				F05DCE9A2E38C563009A9B85 /* zh-Hans */,
-				F05DCE9B2E38C563009A9B85 /* zh-Hant */,
-			);
-			name = Localizable.strings;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
 /* Begin XCBuildConfiguration section */
 		06799AD428F98E1D00ACD94E /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -7770,6 +7865,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
 				SWIFT_VERSION = 6.0;
@@ -7831,6 +7927,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
 				SWIFT_VERSION = 6.0;
@@ -8482,6 +8579,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
 				SWIFT_VERSION = 6.0;
@@ -9337,6 +9435,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
 				SWIFT_VERSION = 6.0;

@@ -102,8 +102,8 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
 
     func showPurchaseOptions(for products: [SKProduct]) {
         let localizedString = NSLocalizedString(
-            "ADD_TIME_BUTTON",
-            tableName: "Welcome",
+            "ADD_TIME_BUTTON_TITLE",
+            tableName: "Common",
             value: "Add Time",
             comment: ""
         )
@@ -128,8 +128,8 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
         }
 
         let cancelAction = UIAlertAction(title: NSLocalizedString(
-            "SHEET_CANCEL_BUTTON",
-            tableName: "ActionSheet",
+            "CANCEL_TITLE_BUTTON",
+            tableName: "Common",
             value: "Cancel",
             comment: ""
         ), style: .cancel) { _ in

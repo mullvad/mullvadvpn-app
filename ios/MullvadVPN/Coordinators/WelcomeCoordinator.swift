@@ -99,8 +99,8 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
-                        tableName: "Welcome",
+                        "GOT_IT_TITLE_BUTTON",
+                        tableName: "Common",
                         value: "Got it!",
                         comment: ""
                     ),
@@ -136,8 +136,8 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "WELCOME_DEVICE_NAME_DIALOG_OK_ACTION",
-                        tableName: "Welcome",
+                        "GOT_IT_TITLE_BUTTON",
+                        tableName: "Common",
                         value: "Got it!",
                         comment: ""
                     ),

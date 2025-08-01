@@ -1,0 +1,28 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "STORE_SUBSCRIPTION_TITLE_ADD_30_DAYS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add 30 days"
+          }
+        }
+      }
+    },
+    "STORE_SUBSCRIPTION_TITLE_ADD_90_DAYS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add 90 days"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

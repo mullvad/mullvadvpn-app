@@ -1,0 +1,39 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ACCOUNT_INPUT_LOGIN_BUTTON_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Log in"
+          }
+        }
+      }
+    },
+    "LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Last used account"
+          }
+        }
+      }
+    },
+    "REMOVE_LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Remove last used account"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

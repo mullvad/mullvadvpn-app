@@ -1,0 +1,72 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "OUT_OF_TIME_BODY_CONNECTED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You have no more VPN time left on this account. To add more, you will need to disconnect and access the Internet with an unsecure connection."
+          }
+        }
+      }
+    },
+    "OUT_OF_TIME_BODY_DISCONNECTED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the **Add time** button below."
+          }
+        }
+      }
+    },
+    "OUT_OF_TIME_DISCONNECT_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disconnect"
+          }
+        }
+      }
+    },
+    "OUT_OF_TIME_PURCHASE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add time"
+          }
+        }
+      }
+    },
+    "OUT_OF_TIME_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Out of time"
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Restore purchases"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -1,0 +1,151 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "RELAY_FILTER_ALL_PROVIDERS_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "All Providers"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_ANY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Any"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_APPLIED_DAITA" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Setting: DAITA"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_APPLIED_OBFUSCATION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Setting: Obfuscation"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_APPLIED_OWNERSHIP" : {
+
+    },
+    "RELAY_FILTER_APPLIED_PROVIDERS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Providers: %d"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_APPLIED_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Filtered:"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_BUTTON_DESCRIPTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "When using DAITA, one provider with DAITA-enabled servers is required."
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No matching servers"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_HEADER_LABEL" : {
+
+    },
+    "RELAY_FILTER_NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Filter"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_OWENERSHIP_CELL_LABEL" : {
+
+    },
+    "RELAY_FILTER_OWNED_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Owned"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_PROVIDER_CELL_LABEL" : {
+
+    },
+    "RELAY_FILTER_PROVIDER_DESCRIPTION_FORMAT_LABEL" : {
+      "comment" : "Format for DAITA provider description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA-enabled"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_RENTED_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Rented"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

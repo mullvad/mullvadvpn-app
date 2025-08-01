@@ -122,8 +122,8 @@ struct PaymentAlertPresenter {
 
     private func okButtonTextForKey(_ key: String) -> String {
         NSLocalizedString(
-            key,
-            tableName: "Payment",
+            "GOT_IT_TITLE_BUTTON",
+            tableName: "Common",
             value: "Got it!",
             comment: ""
         )

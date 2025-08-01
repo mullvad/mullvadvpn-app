@@ -1,0 +1,254 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "API_ACCESS_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API access"
+          }
+        }
+      }
+    },
+    "APP_VERSION_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "What's new"
+          }
+        }
+      }
+    },
+    "DAITA_CELL_DETAIL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@"
+          }
+        }
+      }
+    },
+    "DAITA_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA"
+          }
+        }
+      }
+    },
+    "DNS_TEXT_CELL_PLACEHOLDER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enter IP"
+          }
+        }
+      }
+    },
+    "FAQ_AND_GUIDES_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "FAQs & Guides"
+          }
+        }
+      }
+    },
+    "LANGUAGE_CELL_DETAIL_LABEL" : {
+
+    },
+    "LANGUAGE_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Language"
+          }
+        }
+      }
+    },
+    "MULTIHOP_CELL_DETAIL_LABEL" : {
+
+    },
+    "MULTIHOP_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multihop"
+          }
+        }
+      }
+    },
+    "NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API access"
+          }
+        }
+      }
+    },
+    "NAVIGATION_TITLE_DAITA" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA"
+          }
+        }
+      }
+    },
+    "NAVIGATION_TITLE_MULTIHOP" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multihop"
+          }
+        }
+      }
+    },
+    "REPORT_PROBLEM_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Report a problem"
+          }
+        }
+      }
+    },
+    "SETTINGS_DAITA_MULTIHOP_ENABLED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multihop is being used to enable DAITA for your selected location."
+          }
+        }
+      }
+    },
+    "SETTINGS_HEADER_COLLAPSE_ACCESSIBILITY_ACTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Collapse (value)"
+          }
+        }
+      }
+    },
+    "SETTINGS_HEADER_EXPAND_ACCESSIBILITY_ACTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Expand (value)"
+          }
+        }
+      }
+    },
+    "SETTINGS_INFO_DAITA_PAGE_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "**Attention: This increases network traffic and will also  negatively affect speed, latency, and battery usage. Use with caution on limited plans.**\n\nDAITA (Defense against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic.\n\nBy using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
+          }
+        }
+      }
+    },
+    "SETTINGS_INFO_DAITA_PAGE_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If an observer monitors these data packets, DAITA makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.\n\nDAITA does this by carefully adding network noise and making all network packets the same size.\n\nNot all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server."
+          }
+        }
+      }
+    },
+    "SETTINGS_INFO_MULTIHOP" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
+          }
+        }
+      }
+    },
+    "SETTINGS_SWITCH_DAITA_DIRECT_ONLY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Direct only"
+          }
+        }
+      }
+    },
+    "SETTINGS_SWITCH_DAITA_ENABLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "By enabling \"Direct only\" you will have to manually select a server that is DAITA-enabled. Multihop won't automatically be used to enable DAITA with any server."
+          }
+        }
+      }
+    },
+    "SETTINGS_SWITCH_MULTIHOP" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enable"
+          }
+        }
+      }
+    },
+    "VPN_SETTINGS_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "VPN settings"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

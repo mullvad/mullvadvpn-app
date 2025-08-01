@@ -99,22 +99,22 @@ extension ConnectionViewViewModel {
         }
     }
 
-    var localizedTitleForSecureLabel: LocalizedStringKey {
+    var titleForSecureLabel: String {
         switch tunnelStatus.state {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer:
-            LocalizedStringKey("Connecting...")
+            NSLocalizedString("TUNNEL_STATE_CONNECTING", tableName: "Main", value: "Connecting...", comment: "")
         case .connected:
-            LocalizedStringKey("Connected")
+            NSLocalizedString("TUNNEL_STATE_CONNECTED", tableName: "Main", value: "Connected", comment: "")
         case .disconnecting(.nothing):
-            LocalizedStringKey("Disconnecting...")
+            NSLocalizedString("TUNNEL_STATE_DISCONNECTING", tableName: "Main", value: "Disconnecting...", comment: "")
         case .disconnecting(.reconnect), .pendingReconnect:
-            LocalizedStringKey("Reconnecting")
+            NSLocalizedString("TUNNEL_STATE_RECONNECTING", tableName: "Main", value: "Reconnecting", comment: "")
         case .disconnected:
-            LocalizedStringKey("Disconnected")
+            NSLocalizedString("TUNNEL_STATE_DISCONNECTED", tableName: "Main", value: "Disconnected", comment: "")
         case .waitingForConnectivity(.noConnection), .error:
-            LocalizedStringKey("Blocked connection")
+            NSLocalizedString("TUNNEL_STATE_BLOCKED", tableName: "Main", value: "Blocked connection", comment: "")
         case .waitingForConnectivity(.noNetwork):
-            LocalizedStringKey("No network")
+            NSLocalizedString("TUNNEL_STATE_NO_NETWORK", tableName: "Main", value: "No network", comment: "")
         }
     }
 
@@ -129,32 +129,67 @@ extension ConnectionViewViewModel {
         }
     }
 
-    var localizedAccessibilityLabelForSecureLabel: LocalizedStringKey {
+    var accessibilityLabelForSecureLabel: String {
         switch tunnelStatus.state {
         case .disconnected, .waitingForConnectivity, .disconnecting, .pendingReconnect, .error:
-            localizedTitleForSecureLabel
+            return titleForSecureLabel
+
         case let .connected(tunnelInfo, _, _):
-            LocalizedStringKey("Connected to \(tunnelInfo.exit.location.city), \(tunnelInfo.exit.location.country)")
+            return String(
+                format: NSLocalizedString(
+                    "SECURE_LABEL_CONNECTED_TO_FORMAT",
+                    tableName: "Main",
+                    comment: ""
+                ),
+                tunnelInfo.exit.location.city,
+                tunnelInfo.exit.location.country
+            )
+
         case let .connecting(tunnelInfo, _, _):
             if let tunnelInfo {
-                LocalizedStringKey(
-                    "Connecting to \(tunnelInfo.exit.location.city), \(tunnelInfo.exit.location.country)"
+                return String(
+                    format: NSLocalizedString(
+                        "SECURE_LABEL_CONNECTING_TO_FORMAT",
+                        tableName: "Main",
+                        comment: ""
+                    ),
+                    tunnelInfo.exit.location.city,
+                    tunnelInfo.exit.location.country
                 )
             } else {
-                localizedTitleForSecureLabel
+                return titleForSecureLabel
             }
-        case let .reconnecting(tunnelInfo, _, _), let .negotiatingEphemeralPeer(tunnelInfo, _, _, _):
-            LocalizedStringKey("Reconnecting to \(tunnelInfo.exit.location.city), \(tunnelInfo.exit.location.country)")
+
+        case let .reconnecting(tunnelInfo, _, _),
+             let .negotiatingEphemeralPeer(tunnelInfo, _, _, _):
+            return String(
+                format: NSLocalizedString(
+                    "SECURE_LABEL_RECONNECTING_TO_FORMAT",
+                    tableName: "Main",
+                    comment: ""
+                ),
+                tunnelInfo.exit.location.city,
+                tunnelInfo.exit.location.country
+            )
         }
     }
 
-    var localizedTitleForSelectLocationButton: LocalizedStringKey {
+    var titleForSelectLocationButton: String {
         switch tunnelStatus.state {
         case .disconnecting, .pendingReconnect, .disconnected, .waitingForConnectivity(.noNetwork):
-            LocalizedStringKey(connectionName ?? "Select location")
+            connectionName ?? NSLocalizedString(
+                "SWITCH_LOCATION_BUTTON_TITLE",
+                tableName: "Main",
+                comment: ""
+            )
         case .connecting, .connected, .reconnecting, .waitingForConnectivity(.noConnection),
              .negotiatingEphemeralPeer, .error:
-            LocalizedStringKey("Switch location")
+            NSLocalizedString(
+                "SWITCH_LOCATION_BUTTON_TITLE",
+                tableName: "Main",
+                value: "Switch location",
+                comment: ""
+            )
         }
     }
 
@@ -170,15 +205,23 @@ extension ConnectionViewViewModel {
         }
     }
 
-    var titleForCountryAndCity: LocalizedStringKey? {
+    var titleForCountryAndCity: String? {
         guard let tunnelRelays = tunnelStatus.state.relays else {
             return nil
         }
-
-        return LocalizedStringKey("\(tunnelRelays.exit.location.country), \(tunnelRelays.exit.location.city)")
+        return String(
+            format: NSLocalizedString(
+                "TUNNEL_LOCATION_FORMAT",
+                tableName: "Main",
+                value: "%@, %@",
+                comment: ""
+            ),
+            tunnelRelays.exit.location.country,
+            tunnelRelays.exit.location.city
+        )
     }
 
-    var titleForServer: LocalizedStringKey? {
+    var titleForServer: String? {
         guard let tunnelRelays = tunnelStatus.state.relays else {
             return nil
         }
@@ -186,10 +229,25 @@ extension ConnectionViewViewModel {
         let exitName = tunnelRelays.exit.hostname
         let entryName = tunnelRelays.entry?.hostname
 
-        return if let entryName {
-            LocalizedStringKey("\(exitName) via \(entryName)")
+        if let entry = entryName {
+            return String(
+                format: NSLocalizedString(
+                    "EXIT_VIA_ENTRY_FORMAT",
+                    tableName: "Main",
+                    value: "%@ via %@",
+                    comment: ""
+                ),
+                exitName,
+                entry
+            )
         } else {
-            LocalizedStringKey("\(exitName)")
+            return String(
+                format: NSLocalizedString(
+                    "EXIT_ONLY_FORMAT",
+                    tableName: "Main", value: "%@", comment: ""
+                ),
+                exitName
+            )
         }
     }
 
