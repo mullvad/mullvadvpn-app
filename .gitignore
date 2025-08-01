@@ -25,6 +25,7 @@
 /dist-assets/x86_64-apple-darwin/
 /dist-assets/aarch64-pc-windows-msvc/
 /windows/version.h
+/windows/winfw/src/winfw/lannetworks.h
 /windows/**/bin/
 /windows/**/*.user
 /android/keystore.properties
