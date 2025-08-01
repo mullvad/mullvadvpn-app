@@ -77,7 +77,7 @@ private typealias Content = Lce.Content<SelectLocationListUiState>
 @Composable
 fun SelectLocationList(
     relayListType: RelayListType,
-    onSelectHop: (Hop) -> Unit,
+    onSelectHop: (Hop, RelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
@@ -103,7 +103,7 @@ fun SelectLocationList(
         state = state,
         lazyListState = lazyListState,
         openDaitaSettings = openDaitaSettings,
-        onSelectHop = onSelectHop,
+        onSelectHop = { onSelectHop(it, relayListType) },
         onUpdateBottomSheetState = onUpdateBottomSheetState,
         onAddCustomList = onAddCustomList,
         onEditCustomLists = onEditCustomLists,
