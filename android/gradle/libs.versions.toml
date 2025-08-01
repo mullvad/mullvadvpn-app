@@ -65,8 +65,7 @@ koin = "4.1.0"
 koin-compose = "4.1.0"
 
 # Ktor
-# Bumping to 3.1.0 causes an AbstractMethodError in the serialization logic (DROID-1820).
-ktor = "3.0.3"
+ktor = "3.2.3"
 
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
@@ -74,7 +73,7 @@ ktor = "3.0.3"
 kotlin = "2.2.0"
 kotlin-ksp = "2.2.0-2.0.2"
 kotlinx = "1.10.2"
-kotlinx-serialization = "1.8.1"
+kotlinx-serialization-json = "1.9.0"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.5"
@@ -121,6 +120,7 @@ androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-
 androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidx-uiautomator" }
 androidx-test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "androidx-testorchestrator" }
 androidx-tv = { module = "androidx.tv:tv-material", version.ref = "androidx-tv" }
+androidx-ui-test = { module = "androidx.compose.ui:ui-test", version.ref = "compose" }
 
 # Arrow
 arrow = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -180,6 +180,7 @@ kotlin-native-prebuilt = { module = "org.jetbrains.kotlin:kotlin-native-prebuilt
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 
 # Ktor
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }

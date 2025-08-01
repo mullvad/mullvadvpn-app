@@ -114,8 +114,11 @@ dependencies {
     implementation(libs.androidx.test.runner)
     implementation(libs.androidx.test.rules)
     implementation(libs.androidx.test.uiautomator)
+    implementation(libs.androidx.ui.test)
     implementation(libs.kermit)
     implementation(libs.junit.jupiter.api)
+    implementation(libs.junit5.android.test.core)
+    implementation(libs.junit5.android.test.compose)
     implementation(libs.junit5.android.test.extensions)
     implementation(libs.junit5.android.test.runner)
     implementation(libs.kotlin.stdlib)
@@ -126,11 +129,9 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.resources)
-
     androidTestUtil(libs.androidx.test.orchestrator)
 
     // Needed or else the app crashes when launched
-    implementation(libs.junit5.android.test.compose)
     implementation(libs.compose.material3)
 
     // Need these for forcing later versions of dependencies
