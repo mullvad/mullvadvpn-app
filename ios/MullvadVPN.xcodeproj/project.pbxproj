@@ -525,7 +525,6 @@
 		7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869942B32E9C700640D27 /* LinkButton.swift */; };
 		7A5869972B32EA4500640D27 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869962B32EA4500640D27 /* AppButton.swift */; };
 		7A58699B2B482FE200640D27 /* UITableViewCell+Disable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */; };
-		7A58699F2B50057100640D27 /* AccessMethodKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A58699D2B50057100640D27 /* AccessMethodKind.swift */; };
 		7A5869A22B502EA800640D27 /* MethodSettingsSectionIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869A12B502EA700640D27 /* MethodSettingsSectionIdentifier.swift */; };
 		7A5869AB2B55527C00640D27 /* IPOverrideCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869AA2B55527C00640D27 /* IPOverrideCoordinator.swift */; };
 		7A5869AD2B5552E200640D27 /* IPOverrideViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869AC2B5552E200640D27 /* IPOverrideViewController.swift */; };
@@ -2105,7 +2104,6 @@
 		7A5869942B32E9C700640D27 /* LinkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkButton.swift; sourceTree = "<group>"; };
 		7A5869962B32EA4500640D27 /* AppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
 		7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell+Disable.swift"; sourceTree = "<group>"; };
-		7A58699D2B50057100640D27 /* AccessMethodKind.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessMethodKind.swift; sourceTree = "<group>"; };
 		7A5869A12B502EA700640D27 /* MethodSettingsSectionIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MethodSettingsSectionIdentifier.swift; sourceTree = "<group>"; };
 		7A5869AA2B55527C00640D27 /* IPOverrideCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideCoordinator.swift; sourceTree = "<group>"; };
 		7A5869AC2B5552E200640D27 /* IPOverrideViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideViewController.swift; sourceTree = "<group>"; };
@@ -3645,7 +3643,6 @@
 		586C0D7D2B03BDE500E7CDD7 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				7A58699D2B50057100640D27 /* AccessMethodKind.swift */,
 				58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */,
 				586C0D7B2B03BDD100E7CDD7 /* AccessMethodViewModel.swift */,
 				581DFAEB2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift */,
@@ -6558,7 +6555,6 @@
 				7A6389E92B7F8FE2008E77E1 /* CustomListValidationError.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
 				E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */,
-				7A58699F2B50057100640D27 /* AccessMethodKind.swift in Sources */,
 				7A33538F2AA9FF1600F0A71C /* SimulatorTunnelProviderManager.swift in Sources */,
 				7A1A26432A2612AE00B978AA /* PaymentAlertPresenter.swift in Sources */,
 				58CCA01822426713004F3011 /* AccountViewController.swift in Sources */,
