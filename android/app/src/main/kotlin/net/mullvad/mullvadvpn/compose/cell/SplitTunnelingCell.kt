@@ -33,7 +33,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
-import net.mullvad.mullvadvpn.compose.util.isBelowMaxSize
+import net.mullvad.mullvadvpn.compose.util.hasValidSize
+import net.mullvad.mullvadvpn.compose.util.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
@@ -81,7 +82,7 @@ fun SplitTunnelingCell(
         launch(Dispatchers.IO) {
             val drawable = onResolveIcon(packageName ?: "")
             icon =
-                if (drawable != null && drawable.isBelowMaxSize()) {
+                if (drawable != null && drawable.isBelowMaxByteSize() && drawable.hasValidSize()) {
                     IconState.Icon(drawable = drawable)
                 } else {
                     IconState.NoIcon
