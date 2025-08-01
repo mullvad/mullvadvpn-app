@@ -76,12 +76,12 @@ class SelectLocationViewModel(
         viewModelScope.launch { _relayListType.emit(relayListType) }
     }
 
-    fun selectHop(hop: Hop) {
+    fun selectHop(hop: Hop, relayListType: RelayListType) {
         viewModelScope.launch {
             if (hop.isActive) {
                 selectRelayHop(
                         hop = hop,
-                        relayListType = _relayListType.value,
+                        relayListType = relayListType,
                         selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
                         selectExitLocation = relayListRepository::updateSelectedRelayLocation,
                         selectMultihopLocation =
@@ -90,7 +90,7 @@ class SelectLocationViewModel(
                     .fold(
                         { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                         {
-                            when (_relayListType.value) {
+                            when (relayListType) {
                                 RelayListType.ENTRY ->
                                     if (hop is Hop.Multi)
                                         _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)

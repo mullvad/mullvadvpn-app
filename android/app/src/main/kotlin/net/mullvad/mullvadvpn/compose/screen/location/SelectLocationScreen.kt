@@ -102,7 +102,7 @@ private fun PreviewSelectLocationScreen(
         SelectLocationScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
-            onSelectHop = {},
+            onSelectHop = { _, _ -> },
             onSearchClick = {},
             onBackClick = {},
             onFilterClick = {},
@@ -256,7 +256,7 @@ fun SelectLocation(
 fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectHop: (item: Hop) -> Unit,
+    onSelectHop: (item: Hop, relayListType: RelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
     onFilterClick: () -> Unit,
@@ -502,7 +502,7 @@ private fun MultihopBar(
 private fun RelayLists(
     pagerState: PagerState,
     state: SelectLocationUiState,
-    onSelectHop: (Hop) -> Unit,
+    onSelectHop: (Hop, RelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
@@ -524,19 +524,19 @@ private fun RelayLists(
     }
 
     val focusManager = LocalFocusManager.current
-    val onSelectHopInner: (Hop) -> Unit = {
-        onSelectHop(it)
+    val onSelectHopInner: (Hop, RelayListType) -> Unit = { hop, relayListType ->
+        onSelectHop(hop, relayListType)
         // If multihop is enabled and the user selects a location or custom list in the entry list
         // the app will switch to the exit list. Normally in this case the focus will stay in the
         // entry list, but in this case we want move the focus to the exit list.
         if (
             state.multihopEnabled &&
-            state.relayListType == RelayListType.ENTRY &&
-            it is Hop.Single<*> &&
-            it.isActive
+                relayListType == RelayListType.ENTRY &&
+                hop is Hop.Single<*> &&
+                hop.isActive
         ) {
             focusManager.moveFocus(FocusDirection.Right)
-            if (it.relay.hasChildren) {
+            if (hop.relay.hasChildren) {
                 focusManager.moveFocus(FocusDirection.Right)
             }
         }
