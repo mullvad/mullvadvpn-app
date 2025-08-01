@@ -28,6 +28,7 @@ struct MullvadAlert: Identifiable {
 struct AlertModifier: ViewModifier {
     @Binding var alert: MullvadAlert?
     @State var loading = false
+    // swiftlint:disable function_body_length
     func body(content: Content) -> some View {
         content
             .fullScreenCover(item: $alert) { alert in
@@ -82,6 +83,7 @@ struct AlertModifier: ViewModifier {
                 $0.disablesAnimations = true
             }
     }
+    // swiftlint:enable function_body_length
 }
 
 extension View {

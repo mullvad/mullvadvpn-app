@@ -14,7 +14,7 @@ protocol SettingsCellEventHandler {
 }
 
 @MainActor
-final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
+final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
     let tableView: UITableView
     var delegate: SettingsCellEventHandler?
     var viewModel: SettingsViewModel

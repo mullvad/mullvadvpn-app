@@ -124,6 +124,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         )
     }
 
+    // swiftlint:disable function_body_length
     private func navigateToDeviceManagement() {
         guard let accountNumber = interactor.deviceState.accountData?.number,
               let currentDeviceId = interactor.deviceState.deviceData?.identifier else {
@@ -189,6 +190,8 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
                 animated: true
             )
     }
+
+    // swiftlint:enable function_body_length
 
     @MainActor
     private func navigateToDeleteAccount() {

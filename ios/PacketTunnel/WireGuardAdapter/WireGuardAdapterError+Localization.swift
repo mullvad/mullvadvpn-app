@@ -9,9 +9,11 @@
 import Foundation
 import WireGuardKit
 
-extension WireGuardAdapterError: LocalizedError {
+struct WireGuardAdapterErrorWrapper: LocalizedError {
+    let error: WireGuardAdapterError
+
     public var errorDescription: String? {
-        switch self {
+        switch error {
         case .cannotLocateTunnelFileDescriptor:
             return "Failure to locate tunnel file descriptor."
 

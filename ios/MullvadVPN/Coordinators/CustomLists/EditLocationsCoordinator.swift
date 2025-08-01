@@ -13,7 +13,7 @@ import Routing
 import UIKit
 
 @MainActor
-class EditLocationsCoordinator: Coordinator, Presentable, Presenting, Sendable {
+class EditLocationsCoordinator: Coordinator, Presentable, Presenting {
     private let navigationController: UINavigationController
     private let nodes: [LocationNode]
     private var subject: CurrentValueSubject<CustomListViewModel, Never>

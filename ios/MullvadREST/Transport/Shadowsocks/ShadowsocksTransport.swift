@@ -60,6 +60,6 @@ public final class ShadowsocksTransport: RESTTransport {
 
         let dataTask = urlSession.dataTask(with: urlRequestCopy, completionHandler: completion)
         dataTask.resume()
-        return dataTask
+        return URLSessionTaskWrapper(task: dataTask)
     }
 }

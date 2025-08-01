@@ -23,6 +23,7 @@ excluded:  # case-sensitive paths to ignore during linting. Takes precedence ove
   - Build
   - Configurations
   - MullvadVPNScreenshots
+  - wireguard-apple
 
 allow_zero_lintable_files: false
 
