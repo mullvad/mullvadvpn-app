@@ -525,21 +525,21 @@ private fun RelayLists(
 
     val focusManager = LocalFocusManager.current
     val onSelectHopInner: (Hop) -> Unit = {
+        onSelectHop(it)
         // If multihop is enabled and the user selects a location or custom list in the entry list
         // the app will switch to the exit list. Normally in this case the focus will stay in the
         // entry list, but in this case we want move the focus to the exit list.
         if (
             state.multihopEnabled &&
-                state.relayListType == RelayListType.ENTRY &&
-                it is Hop.Single<*> &&
-                it.isActive
+            state.relayListType == RelayListType.ENTRY &&
+            it is Hop.Single<*> &&
+            it.isActive
         ) {
             focusManager.moveFocus(FocusDirection.Right)
             if (it.relay.hasChildren) {
                 focusManager.moveFocus(FocusDirection.Right)
             }
         }
-        onSelectHop(it)
     }
 
     HorizontalPager(
