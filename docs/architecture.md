@@ -246,9 +246,8 @@ on Linux.
 
 #### macOS
 
-On macOS, the offline monitor uses `route -n monitor -` to listen for changes in the routing table,
-reasserting that a default route exists any time a change is detected. It's only assumed that the
-host is offline if a default route doesn't exist.
+On macOS, the offline monitor detects whether the host is offline by using `SCDynamicStore` to check
+if there's any active network service.
 
 ##### Issues
 
