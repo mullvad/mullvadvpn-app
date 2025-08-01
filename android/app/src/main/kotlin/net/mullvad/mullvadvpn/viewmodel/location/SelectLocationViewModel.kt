@@ -79,7 +79,6 @@ class SelectLocationViewModel(
     fun selectHop(hop: Hop) {
         viewModelScope.launch {
             if (hop.isActive) {
-
                 selectRelayHop(
                         hop = hop,
                         relayListType = _relayListType.value,

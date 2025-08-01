@@ -509,9 +509,13 @@ private fun RelayLists(
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     onSelectRelayList: (RelayListType) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-    LaunchedEffect(pagerState.currentPage) {
-        onSelectRelayList(RelayListType.entries[pagerState.currentPage])
+    // This is so that when the pager is scrolled by the user the relay list type is updated
+    // correctly.
+    // If multihop is not enabled, the pager will only have one page, so this will not be called.
+    if (state.multihopEnabled) {
+        LaunchedEffect(pagerState.currentPage) {
+            onSelectRelayList(RelayListType.entries[pagerState.currentPage])
+        }
     }
 
     LaunchedEffect(state.relayListType) {
@@ -519,6 +523,7 @@ private fun RelayLists(
         pagerState.animateScrollToPage(index)
     }
 
+    val focusManager = LocalFocusManager.current
     val onSelectHopInner: (Hop) -> Unit = {
         // If multihop is enabled and the user selects a location or custom list in the entry list
         // the app will switch to the exit list. Normally in this case the focus will stay in the
