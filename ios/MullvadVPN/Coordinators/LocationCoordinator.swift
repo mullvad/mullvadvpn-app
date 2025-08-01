@@ -182,7 +182,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
     func navigateToCustomLists(nodes: [LocationNode]) {
         let actionSheet = UIAlertController(
             title: NSLocalizedString(
-                "ACTION_SHEET_TITLE", tableName: "CustomLists", value: "Custom lists", comment: ""
+                "ACTION_SHEET_TITLE", tableName: "CustomList", value: "Custom lists", comment: ""
             ),
             message: nil,
             preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
@@ -192,7 +192,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
 
         let addCustomListAction = UIAlertAction(
             title: NSLocalizedString(
-                "ACTION_SHEET_ADD_LIST_BUTTON", tableName: "CustomLists", value: "Add new list", comment: ""
+                "ACTION_SHEET_ADD_LIST_BUTTON", tableName: "CustomList", value: "Add new list", comment: ""
             ),
             style: .default,
             handler: { [weak self] _ in
@@ -204,7 +204,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
 
         let editAction = UIAlertAction(
             title: NSLocalizedString(
-                "ACTION_SHEET_EDIT_LISTS_BUTTON", tableName: "CustomLists", value: "Edit lists", comment: ""
+                "ACTION_SHEET_EDIT_LISTS_BUTTON", tableName: "CustomList", value: "Edit lists", comment: ""
             ),
             style: .default,
             handler: { [weak self] _ in
@@ -216,12 +216,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
         actionSheet.addAction(editAction)
 
         actionSheet.addAction(UIAlertAction(
-            title: NSLocalizedString(
-                "CUSTOM_LIST_ACTION_SHEET_CANCEL_BUTTON",
-                tableName: "CustomLists",
-                value: "Cancel",
-                comment: ""
-            ),
+            title: NSLocalizedString("CANCEL_TITLE_BUTTON", tableName: "Common", value: "Cancel", comment: ""),
             style: .cancel
         ))
 

@@ -101,7 +101,7 @@ class TunnelCoordinator: Coordinator, Presenting {
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "CANCEL_TUNNEL_ALERT_DISCONNECT_ACTION",
+                        "DISCONNECT_TITLE_BUTTON",
                         tableName: "Main",
                         value: "Disconnect",
                         comment: ""
@@ -112,12 +112,7 @@ class TunnelCoordinator: Coordinator, Presenting {
                     }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "CANCEL_TUNNEL_ALERT_CANCEL_ACTION",
-                        tableName: "Main",
-                        value: "Cancel",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("CANCEL_TITLE_BUTTON", tableName: "Common", value: "Cancel", comment: ""),
                     style: .default
                 ),
             ]

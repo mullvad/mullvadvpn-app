@@ -45,8 +45,8 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
         case .changelog:
             let barButtonItem = UIBarButtonItem(
                 title: NSLocalizedString(
-                    "CHANGELOG_NAVIGATION_DONE_BUTTON",
-                    tableName: "Changelog",
+                    "DONE_TITLE_BUTTON",
+                    tableName: "Common",
                     value: "Done",
                     comment: ""
                 ),

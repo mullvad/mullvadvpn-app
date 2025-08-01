@@ -13,16 +13,16 @@ struct MullvadAlert: Identifiable {
 
     struct Action {
         let type: MainButtonStyle.Style
-        let title: LocalizedStringKey
+        let title: String
         let identifier: AccessibilityIdentifier?
         let handler: () async -> Void
     }
 
     let id = UUID()
     let type: AlertType
-    let message: LocalizedStringKey
+    let message: String
     let action: Action?
-    let dismissButtonTitle: LocalizedStringKey
+    let dismissButtonTitle: String
 }
 
 struct AlertModifier: ViewModifier {
@@ -41,9 +41,21 @@ struct AlertModifier: ViewModifier {
                                 .frame(width: 48, height: 48)
                         }
                         HStack {
-                            Text(alert.message)
-                                .font(.mullvadSmall)
-                                .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+                            if let attributed = try? AttributedString(
+                                markdown: alert.message,
+                                options: .init(
+                                    interpretedSyntax: .inlineOnlyPreservingWhitespace,
+                                    languageCode: ApplicationLanguage.currentLanguage.id
+                                )
+                            ) {
+                                Text(attributed)
+                                    .font(.mullvadSmall)
+                                    .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+                            } else {
+                                Text(alert.message)
+                                    .font(.mullvadSmall)
+                                    .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+                            }
                             Spacer()
                         }
                         VStack(spacing: 16) {
@@ -104,7 +116,12 @@ extension View {
                         identifier: nil,
                         handler: {}
                     ),
-                    dismissButtonTitle: "Cancel"
+                    dismissButtonTitle: NSLocalizedString(
+                        "CANCEL_TITLE_BUTTON",
+                        tableName: "Common",
+                        value: "Cancel",
+                        comment: ""
+                    )
                 )
             )
         )

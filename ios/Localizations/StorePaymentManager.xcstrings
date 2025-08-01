@@ -1,0 +1,83 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "INTERNAL_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Internal error."
+          }
+        }
+      }
+    },
+    "READ_RECEIPT_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cannot read the AppStore receipt from disk"
+          }
+        }
+      }
+    },
+    "RECEIPT_NOT_FOUND_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "AppStore receipt is not found on disk."
+          }
+        }
+      }
+    },
+    "REFRESH_RECEIPT_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cannot refresh the AppStore receipt: %@"
+          }
+        }
+      }
+    },
+    "SEND_RECEIPT_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to send the receipt to server: %@"
+          }
+        }
+      }
+    },
+    "SEND_RECEIPT_RECOVERY_SUGGESTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Please retry by using the \"Restore purchases\" button."
+          }
+        }
+      }
+    },
+    "VALIDATE_ACCOUNT_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to validate account number: %@"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

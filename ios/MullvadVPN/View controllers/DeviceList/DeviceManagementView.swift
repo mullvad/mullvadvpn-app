@@ -6,12 +6,16 @@ struct DeviceManagementView: View {
         case tooManyDevices((Bool) -> Void)
         case deviceManagement
 
-        var actionButtonTitle: LocalizedStringKey {
+        var actionButtonTitle: String {
             switch self {
             case .deviceManagement:
-                return "Remove"
+                NSLocalizedString("REMOVE_BUTTON_TITLE", tableName: "DeviceManagement", comment: "")
             case .tooManyDevices:
-                return "Yes, log out device"
+                NSLocalizedString(
+                    "DEVICE_LIMIT_LOGOUT_CONFIRMATION_BUTTON_TITLE",
+                    tableName: "DeviceManagement",
+                    comment: ""
+                )
             }
         }
 
@@ -24,22 +28,28 @@ struct DeviceManagementView: View {
             }
         }
 
-        func warningMessage(deviceName: String) -> LocalizedStringKey {
-            var attributedDeviceName: AttributedString {
-                var fullText = AttributedString(deviceName.capitalized)
-                fullText.foregroundColor = Color.mullvadTextPrimary
-                return fullText
-            }
-            return switch self {
+        func warningMessage(deviceName: String) -> String {
+            switch self {
             case .tooManyDevices:
-                LocalizedStringKey(
-                    "Are you sure you want to log \(attributedDeviceName) out?"
+                return String(
+                    format: NSLocalizedString(
+                        "TOO_MANY_DEVICES_LOGOUT_CONFIRMATION",
+                        tableName: "DeviceManagement",
+                        value: "Are you sure you want to log **%@** out?",
+                        comment: ""
+                    ),
+                    deviceName.capitalized
                 )
+
             case .deviceManagement:
-                LocalizedStringKey("""
-                    Remove \(attributedDeviceName)?
-                    The device will be removed from the list and logged out.
-                    """
+                return String(
+                    format: NSLocalizedString(
+                        "DEVICE_MANAGEMENT_REMOVE_CONFIRMATION",
+                        tableName: "DeviceManagement",
+                        value: "Remove **%@**?\nThe device will be removed from the list and logged out.",
+                        comment: ""
+                    ),
+                    deviceName.capitalized
                 )
             }
         }
@@ -59,25 +69,29 @@ struct DeviceManagementView: View {
         return loggedInDevices.count < ApplicationConfiguration.maxAllowedDevices
     }
 
-    var bodyText: LocalizedStringKey {
-        switch style {
+    var bodyText: String {
+        return switch style {
         case .deviceManagement:
-            """
+            NSLocalizedString("DEVICE_MANAGEMENT_BODY_TEXT", tableName: "DeviceManagement", value: """
             View and manage all your logged in devices. \
             You can have up to 5 devices on one account at a time. \
             Each device gets a name when logged in to help you tell them apart easily.
-            """
+            """, comment: "")
         case .tooManyDevices:
             if canLoginNewDevice {
-                """
+                NSLocalizedString("TOO_MANY_DEVICES_CAN_LOGIN_BODY_TEXT", tableName: "DeviceManagement", value: """
                 You can now continue logging in on this device.
-                """
-
+                """, comment: "")
             } else {
-                """
-                Please log out of at least one by removing it from the list below. \
-                You can find the corresponding device name under the device’s Account settings.
-                """
+                NSLocalizedString(
+                    "TOO_MANY_DEVICES_LOGOUT_REQUIRED_BODY_TEXT",
+                    tableName: "DeviceManagement",
+                    value: """
+                    Please log out of at least one by removing it from the list below. \
+                    You can find the corresponding device name under the device’s Account settings.
+                    """,
+                    comment: ""
+                )
             }
         }
     }
@@ -99,7 +113,15 @@ struct DeviceManagementView: View {
                         )
                     }
                 case let .failure(error):
-                    onError("Failed to fetch devices", error)
+                    onError(
+                        NSLocalizedString(
+                            "FAILED_TO_FETCH_DEVICES_TITLE",
+                            tableName: "DeviceManagement",
+                            value: "Failed to fetch devices",
+                            comment: ""
+                        ),
+                        error
+                    )
                 }
             }
         }
@@ -140,7 +162,15 @@ struct DeviceManagementView: View {
                                                         $0.id == device
                                                             .id ? $0.setIsBeingRemoved(false) : $0
                                                     }
-                                                    onError("Failed to log out device", error)
+                                                    onError(
+                                                        NSLocalizedString(
+                                                            "FAILED_TO_LOG_OUT_DEVICE_TITLE",
+                                                            tableName: "DeviceManagement",
+                                                            value: "Failed to log out device",
+                                                            comment: ""
+                                                        ),
+                                                        error
+                                                    )
                                                 }
                                                 continuation.resume()
                                             }
@@ -149,7 +179,12 @@ struct DeviceManagementView: View {
                                 }
                             }
                         ),
-                        dismissButtonTitle: "Cancel"
+                        dismissButtonTitle: NSLocalizedString(
+                            "CANCEL_TITLE_BUTTON",
+                            tableName: "Common",
+                            value: "Cancel",
+                            comment: ""
+                        )
                     )
                 }, header: {
                     AnyView(VStack(alignment: .leading, spacing: 8) {
@@ -160,18 +195,28 @@ struct DeviceManagementView: View {
                                     Image.mullvadIconSuccess
                                     Spacer()
                                 }
-                                Text("Super!")
-                                    .font(.mullvadBig)
-                                    .foregroundStyle(Color.mullvadTextPrimary)
+                                Text(NSLocalizedString(
+                                    "DEVICE_DELETED_SUCCESSFULLY_MESSAGE",
+                                    tableName: "DeviceManagement",
+                                    value: "Super!",
+                                    comment: ""
+                                ))
+                                .font(.mullvadBig)
+                                .foregroundStyle(Color.mullvadTextPrimary)
                             } else {
                                 HStack {
                                     Spacer()
                                     Image.mullvadIconFail
                                     Spacer()
                                 }
-                                Text("Too many devices")
-                                    .font(.mullvadBig)
-                                    .foregroundStyle(Color.mullvadTextPrimary)
+                                Text(NSLocalizedString(
+                                    "TOO_MANY_DEVICES_TITLE",
+                                    tableName: "DeviceManagement",
+                                    value: "Too many devices",
+                                    comment: ""
+                                ))
+                                .font(.mullvadBig)
+                                .foregroundStyle(Color.mullvadTextPrimary)
                             }
                         }
                         Text(bodyText)

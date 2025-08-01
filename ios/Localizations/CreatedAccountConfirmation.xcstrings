@@ -1,0 +1,50 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CREATED_ACCOUNT_CONFIRMATION_PAGE_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Go ahead and start using the app to begin reclaiming your online privacy.\nTo continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
+          }
+        }
+      }
+    },
+    "CREATED_ACCOUNT_CONFIRMATION_PAGE_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You’re all set!!"
+          }
+        }
+      }
+    },
+    "LEARN_ABOUT_PRIVACY_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Learn about privacy"
+          }
+        }
+      }
+    },
+    "START_USING_THE_APP_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Start using the app"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

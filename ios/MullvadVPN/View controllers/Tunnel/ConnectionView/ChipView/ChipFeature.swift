@@ -9,10 +9,6 @@ import MullvadSettings
 import PacketTunnelCore
 import SwiftUI
 
-// Opting to use NSLocalizedString instead of LocalizedStringKey here in order
-// to be able to fetch the string value at a later point (eg. in ChipViewModelProtocol,
-// when calculating the text widths of the chips).
-
 protocol ChipFeature: Identifiable {
     var id: FeatureType { get }
     var isEnabled: Bool { get }

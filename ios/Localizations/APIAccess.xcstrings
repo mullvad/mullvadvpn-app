@@ -1,0 +1,765 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ABOUT_API_ACCESS_BODY_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
+          }
+        }
+      }
+    },
+    "ABOUT_API_ACCESS_BODY_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
+          }
+        }
+      }
+    },
+    "ABOUT_API_ACCESS_BODY_3" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods."
+          }
+        }
+      }
+    },
+    "ABOUT_API_ACCESS_HEADER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API access"
+          }
+        }
+      }
+    },
+    "ABOUT_API_ACCESS_PREAMBLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Manage default and setup custom methods to access the Mullvad API."
+          }
+        }
+      }
+    },
+    "ACCESS_METHOD_HEADER_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "About API access…"
+          }
+        }
+      }
+    },
+    "API_REACHABLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API reachable"
+          }
+        }
+      }
+    },
+    "API_TESTING_INPROGRESS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Testing..."
+          }
+        }
+      }
+    },
+    "API_UNREACHABLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API unreachable"
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_HEADER_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server via a Mullvad bridge server."
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_HEADER_LINK" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "About Mullvad bridges method..."
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_MODAL_BODY_PART_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "With the \"Mullvad bridges\" method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_MODAL_BODY_PART_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This can be useful if the API is censored but Mullvad’s bridge servers are not."
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_MODAL_HEADER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Mullvad bridges"
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_MODAL_PREAMBLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server via a Mullvad bridge server."
+          }
+        }
+      }
+    },
+    "DELETE_METHOD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete method"
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_HEADER_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server directly."
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_HEADER_LINK" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "About Direct method..."
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_MODAL_BODY_PART_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "With the \"Direct\" method, the app communicates with a Mullvad API server directly without any intermediate proxies."
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_MODAL_BODY_PART_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This can be useful when you are not affected by censorship."
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_MODAL_HEADER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Direct"
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_MODAL_PREAMBLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server directly."
+          }
+        }
+      }
+    },
+    "ENABLE_METHOD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enable method"
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_HEADER_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server via a proxy address."
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_HEADER_LINK" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "About Encrypted DNS proxy method..."
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_MODAL_BODY_PART_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "With the \"Encrypted DNS proxy\" method, the app will communicate with our Mullvad API through a proxy address.\nIt does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_MODAL_BODY_PART_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting.\nThe DoH servers are hosted by one of the following providers: Quad9 or Cloudflare."
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_MODAL_HEADER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Encrypted DNS proxy"
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_MODAL_PREAMBLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server via a proxy address."
+          }
+        }
+      }
+    },
+    "HOST_CONFIG_SECTION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Server details"
+          }
+        }
+      }
+    },
+    "LIST_ACCESS_METHODS_DISABLED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disabled"
+          }
+        }
+      }
+    },
+    "LIST_ACCESS_METHODS_IN_USE_ITEM" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "In use"
+          }
+        }
+      }
+    },
+    "METHOD_FOOTER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "At least one method needs to be enabled."
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Method settings"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_BACK_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Back to editing"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_DELETE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_DELETE_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete (value)?"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_NAVIGATION_ADD_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_NAVIGATION_ADD_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app will test the method before saving."
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_NAVIGATION_ADD_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add access method"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_NAVIGATION_SAVE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_SAVE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save anyway"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_SAVE_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API could not be reached, save anyway?"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_SAVING_CHANGES" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Saving changes..."
+          }
+        }
+      }
+    },
+    "NAME" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Name"
+          }
+        }
+      }
+    },
+    "OPTIONAL_PLACEHOLDER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Optional"
+          }
+        }
+      }
+    },
+    "REQUIRED_PLACEHOLDER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Required"
+          }
+        }
+      }
+    },
+    "SAVE_NAVIGATION_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "SELECT_PROTOCOL_NAV_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Type"
+          }
+        }
+      }
+    },
+    "SELECT_SHADOWSOCKS_CIPHER_NAV_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cipher"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Shadowsocks"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_CIPHER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cipher"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_PASSWORD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Password"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_PORT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_SERVER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Server"
+          }
+        }
+      }
+    },
+    "SOCKS_AUTHENTICATION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Authentication"
+          }
+        }
+      }
+    },
+    "SOCKS_PASSWORD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Password"
+          }
+        }
+      }
+    },
+    "SOCKS_PORT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port"
+          }
+        }
+      }
+    },
+    "SOCKS_SERVER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Server"
+          }
+        }
+      }
+    },
+    "SOCKS_USERNAME" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Username"
+          }
+        }
+      }
+    },
+    "SOCKS_V5" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Socks5"
+          }
+        }
+      }
+    },
+    "TEST_METHOD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Test method"
+          }
+        }
+      }
+    },
+    "TEST_METHOD_FOOTER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Performs a connection test to a Mullvad API server via this access method."
+          }
+        }
+      }
+    },
+    "TYPE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Type"
+          }
+        }
+      }
+    },
+    "VALIDATION_ERRORS_EMPTY_FIELD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "(value) cannot be empty."
+          }
+        }
+      }
+    },
+    "VALIDATION_ERRORS_INVALD ADDRESS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Please enter a valid IPv4 or IPv6 address."
+          }
+        }
+      }
+    },
+    "VALIDATION_ERRORS_INVALID_PORT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Please enter a valid port."
+          }
+        }
+      }
+    },
+    "VALIDATION_ERRORS_MULTIPLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multiple validation errors occurred."
+          }
+        }
+      }
+    },
+    "VALIDATION_ERRORS_NAME_TOO_LONG" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Name should be no longer than %i characters."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

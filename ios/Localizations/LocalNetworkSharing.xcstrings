@@ -1,0 +1,28 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "VPN_SETTINGS_LOCAL_NETWORK_SHARING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.\nAttention: toggling “Local network sharing” requires restarting the VPN connection."
+          }
+        }
+      }
+    },
+    "VPN_SETTINGS_LOCAL_NETWORK_SHARING_WARNING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "(value) “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.\nTo prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.\nWould you like to continue to enable “Local network sharing”?"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

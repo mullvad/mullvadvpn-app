@@ -1,0 +1,83 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ADD_TIME_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add time"
+          }
+        }
+      }
+    },
+    "DEVICE_NAME_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Device name: %@"
+          }
+        }
+      }
+    },
+    "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.\nYou can have up to 5 devices logged in on one Mullvad account.\nIf you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+          }
+        }
+      }
+    },
+    "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to connect to App store, please try again later."
+          }
+        }
+      }
+    },
+    "WELCOME_PAGE_DESCRIPTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "To start using the app, you first need to add time to your account. Either buy credit on our website or redeem a voucher."
+          }
+        }
+      }
+    },
+    "WELCOME_PAGE_SUBTITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Here’s your account number. Save it!"
+          }
+        }
+      }
+    },
+    "WELCOME_PAGE_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Congrats!"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

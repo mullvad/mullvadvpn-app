@@ -270,7 +270,7 @@ extension RelayFilterDataSource: UITableViewDelegate {
         view.setAccessibilityIdentifier(accessibilityIdentifier)
         view.titleLabel.text = NSLocalizedString(
             "RELAY_FILTER_HEADER_LABEL",
-            tableName: "Relay filter header",
+            tableName: "RelayFilter",
             value: title,
             comment: ""
         )

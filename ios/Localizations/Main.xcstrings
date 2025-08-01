@@ -1,0 +1,421 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ACTIVE_FEATURES_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Active features"
+          }
+        }
+      }
+    },
+    "CANCEL_TUNNEL_ALERT_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If you disconnect now, you won’t be able to secure your connection until the device is online."
+          }
+        }
+      }
+    },
+    "CONNECT_PANEL_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%%@ via %%@(value)"
+          }
+        }
+      }
+    },
+    "CONNECT_TITLE_BUTTON" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect"
+          }
+        }
+      }
+    },
+    "CONNECTION_DETAILS_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connection details"
+          }
+        }
+      }
+    },
+    "DISCONNECT_TITLE_BUTTON" : {
+      "comment" : "Action to disconnect when tunnel has no connectivity",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect"
+          }
+        }
+      }
+    },
+    "EXIT_ONLY_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@"
+          }
+        }
+      }
+    },
+    "EXIT_VIA_ENTRY_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ via %2$@"
+          }
+        }
+      }
+    },
+    "IN_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "In"
+          }
+        }
+      }
+    },
+    "MORE_ITEMS_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%d more..."
+          }
+        }
+      }
+    },
+    "OUT_IPV4_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Out IPv4"
+          }
+        }
+      }
+    },
+    "OUT_IPV6_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Out IPv6"
+          }
+        }
+      }
+    },
+    "SECURE_LABEL_CONNECTED_TO_FORMAT" : {
+
+    },
+    "SECURE_LABEL_CONNECTING_TO_FORMAT" : {
+
+    },
+    "SECURE_LABEL_RECONNECTING_TO_FORMAT" : {
+
+    },
+    "SELECT_LOCATION_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Select location"
+          }
+        }
+      }
+    },
+    "SWITCH_LOCATION_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Select location"
+          }
+        }
+      }
+    },
+    "TUNNEL_LOCATION_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_BLOCKED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Blocked connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_CONNECTED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connected"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Secure connection. Connected to %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_CONNECTING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connecting..."
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Creating secure connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_DISCONNECTED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disconnected"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_DISCONNECTED_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unsecured connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_DISCONNECTING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disconnecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_DISCONNECTING_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disconnecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_NEGOTIATING_KEY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Creating quantum secure connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_NO_NETWORK" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No network"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_NO_NETWORK_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No network"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PENDING_RECONNECT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reconnecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PENDING_RECONNECT_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reconnecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PQ_CONNECTED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Quantum secure connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PQ_CONNECTED_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Quantum secure connection. Connected to %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PQ_CONNECTING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Creating quantum secure connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PQ_CONNECTING_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Creating quantum secure connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_RECONNECTING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reconnecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_RECONNECTING_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reconnecting to %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Blocked connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Blocked connection"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

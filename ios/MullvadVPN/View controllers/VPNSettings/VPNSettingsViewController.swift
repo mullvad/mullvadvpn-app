@@ -109,8 +109,8 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "VPN_SETTINGS_VPN_SETTINGS_OK_ACTION",
-                        tableName: "ContentBlockers",
+                        "GOT_IT_TITLE_BUTTON",
+                        tableName: "Common",
                         value: "Got it!",
                         comment: ""
                     ),

@@ -1,0 +1,463 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ADD_CUSTOM_DNS_SERVER_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add a server"
+          }
+        }
+      }
+    },
+    "BLOCK_ADS_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Ads"
+          }
+        }
+      }
+    },
+    "BLOCK_ADULT_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Adult content"
+          }
+        }
+      }
+    },
+    "BLOCK_ALL_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "All"
+          }
+        }
+      }
+    },
+    "BLOCK_GAMBLING_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Gambling"
+          }
+        }
+      }
+    },
+    "BLOCK_MALWARE_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Malware"
+          }
+        }
+      }
+    },
+    "BLOCK_SOCIAL_MEDIA_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Social media"
+          }
+        }
+      }
+    },
+    "BLOCK_TRACKERS_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Trackers"
+          }
+        }
+      }
+    },
+    "CONTENT_BLOCKERS_HEADER_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DNS content blockers"
+          }
+        }
+      }
+    },
+    "CUSTOM_DNS_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Use custom DNS server"
+          }
+        }
+      }
+    },
+    "CUSTOM_DNS_DISABLE_CONTENT_BLOCKERS_FOOTNOTE" : {
+      "comment" : "Foot note displayed when custom DNS cannot be enabled, because content blockers should be disabled first.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disable all content blockers to activate this setting."
+          }
+        }
+      }
+    },
+    "CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_OFF_FOOTNOTE" : {
+      "comment" : "Foot note displayed if there are no DNS entries, but table view is not in editing mode.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Tap **Edit** to add at least one DNS server."
+          }
+        }
+      }
+    },
+    "CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_ON_FOOTNOTE" : {
+      "comment" : "Foot note displayed if there are no DNS entries and table view is in editing mode.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "To enable this setting, add at least one server."
+          }
+        }
+      }
+    },
+    "DNS_SETTINGS_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DNS settings"
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Server IP override"
+          }
+        }
+      }
+    },
+    "LOCAL_NETWORK_SHARING_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Include all networks"
+          }
+        }
+      }
+    },
+    "NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DNS settings"
+          }
+        }
+      }
+    },
+    "OBFUSCATION_HEADER_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "WireGuard Obfuscation"
+          }
+        }
+      }
+    },
+    "QUANTUM_RESISTANCE_AUTOMATIC_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Automatic"
+          }
+        }
+      }
+    },
+    "QUANTUM_RESISTANCE_HEADER_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Quantum-resistant tunnel"
+          }
+        }
+      }
+    },
+    "QUANTUM_RESISTANCE_OFF_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Off"
+          }
+        }
+      }
+    },
+    "QUANTUM_RESISTANCE_ON_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "On"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Shadowsocks"
+          }
+        }
+      }
+    },
+    "UDP_OVER_TCP_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "UDP-over-TCP"
+          }
+        }
+      }
+    },
+    "UDP_TCP_PORT_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port"
+          }
+        }
+      }
+    },
+    "UDP_TCP_PORT_VALUE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@"
+          }
+        }
+      }
+    },
+    "VPN_SETTINGS_QUANTUM_RESISTANCE_GENERAL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.\nIt does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption.\nThis extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+          }
+        }
+      }
+    },
+    "VPN_SETTINGS_WIREGUARD_OBFUSCATION_GENERAL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
+          }
+        }
+      }
+    },
+    "VPN_SETTINGS_WIREGUARD_OBFUSCATION_PORT_GENERAL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
+          }
+        }
+      }
+    },
+    "VPN_SETTINGS_WIREGUARD_PORTS_GENERAL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The automatic setting will randomly choose from the valid port ranges shown below.\nThe custom port can be any value inside the valid ranges:\n%@"
+          }
+        }
+      }
+    },
+    "WIREGUARD_CUSTOM_PORT_CELL_INPUT_PLACEHOLDER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port"
+          }
+        }
+      }
+    },
+    "WIREGUARD_CUSTOM_PORT_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom"
+          }
+        }
+      }
+    },
+    "WIREGUARD_OBFUSCATION_AUTOMATIC_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Automatic"
+          }
+        }
+      }
+    },
+    "WIREGUARD_OBFUSCATION_OFF_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Off"
+          }
+        }
+      }
+    },
+    "WIREGUARD_OBFUSCATION_PORT_LABEL" : {
+
+    },
+    "WIREGUARD_OBFUSCATION_QUIC_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "QUIC"
+          }
+        }
+      }
+    },
+    "WIREGUARD_OBFUSCATION_SHADOWSOCKS_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Shadowsocks"
+          }
+        }
+      }
+    },
+    "WIREGUARD_OBFUSCATION_SHADOWSOCKS_PORT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port: %@"
+          }
+        }
+      }
+    },
+    "WIREGUARD_OBFUSCATION_UDP_TCP_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "UDP-over-TCP"
+          }
+        }
+      }
+    },
+    "WIREGUARD_OBFUSCATION_UDP_TCP_PORT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port: %@"
+          }
+        }
+      }
+    },
+    "WIREGUARD_PORT_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Automatic"
+          }
+        }
+      }
+    },
+    "WIREGUARD_PORTS_HEADER_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "WireGuard ports"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
