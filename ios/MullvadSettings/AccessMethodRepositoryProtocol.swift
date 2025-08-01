@@ -33,7 +33,7 @@ public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource
 
     /// Add new access method.
     /// - Parameter method: persistent access method model.
-    func save(_ method: PersistentAccessMethod)
+    func save(_ method: PersistentAccessMethod, notifyingAPI: Bool)
 
     /// Delete access method by id.
     /// - Parameter id: an access method id.

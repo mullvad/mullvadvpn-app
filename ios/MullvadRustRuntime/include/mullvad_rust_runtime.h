@@ -169,7 +169,10 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
                                                          const char *domain,
                                                          struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                                          struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                                         struct SwiftAddressCacheWrapper address_cache);
+                                                         struct SwiftAddressCacheWrapper address_cache,
+                                                         void (*access_method_change_callback)(const void*,
+                                                                                               const uint8_t*),
+                                                         const void *access_method_change_context);
 
 /**
  * # Safety
@@ -190,7 +193,10 @@ struct SwiftApiContext mullvad_api_init_new(const char *host,
                                             const char *domain,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                             struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                            struct SwiftAddressCacheWrapper address_cache);
+                                            struct SwiftAddressCacheWrapper address_cache,
+                                            void (*access_method_change_callback)(const void*,
+                                                                                  const uint8_t*),
+                                            const void *access_method_change_context);
 
 /**
  * # Safety
@@ -212,7 +218,10 @@ struct SwiftApiContext mullvad_api_init_inner(const char *host,
                                               bool disable_tls,
                                               struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                               struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                              struct SwiftAddressCacheWrapper address_cache);
+                                              struct SwiftAddressCacheWrapper address_cache,
+                                              void (*access_method_change_callback)(const void*,
+                                                                                    const uint8_t*),
+                                              const void *access_method_change_context);
 
 /**
  * Converts parameters into a `Box<AccessMethodSetting>` raw representation that

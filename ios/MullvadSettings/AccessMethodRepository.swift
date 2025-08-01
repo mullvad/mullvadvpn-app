@@ -65,7 +65,7 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
         lastReachableAccessMethodSubject.send(fetchLastReachable())
     }
 
-    public func save(_ method: PersistentAccessMethod) {
+    public func save(_ method: PersistentAccessMethod, notifyingAPI: Bool = false) {
         var methodStore = readApiAccessMethodStore()
 
         var method = method
@@ -79,7 +79,9 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
 
         do {
             try writeApiAccessMethodStore(methodStore)
-            accessMethodsSubject.send(methodStore.accessMethods)
+            if notifyingAPI {
+                accessMethodsSubject.send(methodStore.accessMethods)
+            }
         } catch {
             logger.error("Could not save access method: \(method) \nError: \(error)")
         }
@@ -173,5 +175,15 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
 
     private func makeParser() -> SettingsParser {
         SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
+    }
+}
+
+extension AccessMethodRepository: MullvadAccessMethodChangeListening {
+    public func accessMethodChangedTo(_ uuid: UUID) {
+        guard let method = accessMethodsSubject.value.first(where: { $0.id == uuid }) else {
+            logger.warning("Change reported to method with unknown ID: \(uuid)")
+            return
+        }
+        save(method)
     }
 }
