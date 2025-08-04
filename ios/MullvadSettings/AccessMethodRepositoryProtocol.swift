@@ -21,7 +21,7 @@ public protocol AccessMethodRepositoryDataSource: Sendable {
     func fetchAll() -> [PersistentAccessMethod]
 
     /// Save last reachable access method to the persistent store.
-    func saveLastReachable(_ method: PersistentAccessMethod)
+    func requestAccessMethod(_ method: PersistentAccessMethod)
 
     /// Fetch last reachable access method from the persistent store.
     func fetchLastReachable() -> PersistentAccessMethod
@@ -29,7 +29,7 @@ public protocol AccessMethodRepositoryDataSource: Sendable {
 
 public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource {
     /// Publisher that propagates a snapshot of last reachable access method upon modifications.
-    var lastReachableAccessMethodPublisher: AnyPublisher<PersistentAccessMethod, Never> { get }
+    var currentAccessMethodPublisher: AnyPublisher<PersistentAccessMethod, Never> { get }
 
     /// Add new access method.
     /// - Parameter method: persistent access method model.
