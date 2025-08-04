@@ -84,6 +84,7 @@ class LoginContentView: UIView {
             value: "Don’t have an account number?",
             comment: ""
         )
+        textLabel.numberOfLines = 0
         return textLabel
     }()
 

@@ -2,7 +2,8 @@
   "images" : [
     {
       "filename" : "icon-chevron-right.svg",
-      "idiom" : "universal"
+      "idiom" : "universal",
+      "language-direction" : "left-to-right"
     }
   ],
   "info" : {

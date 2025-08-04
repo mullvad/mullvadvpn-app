@@ -82,6 +82,7 @@ final class WelcomeContentView: UIView, Sendable {
         label.textColor = .white
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        label.numberOfLines = 0
         return label
     }()
 
