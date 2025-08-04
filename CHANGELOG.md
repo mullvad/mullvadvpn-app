@@ -24,6 +24,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2025.8-beta2] - 2025-08-04
+No changes since 2025.8-beta1.
+
+
 ## [2025.8-beta1] - 2025-07-15
 ### Added
 - Add in-app updates to Windows and macOS. This new feature lets you download, verify, and install
