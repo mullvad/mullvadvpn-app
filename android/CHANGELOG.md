@@ -27,6 +27,12 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for devices with 16KB page size.
 
 
+## [android/2025.6-beta3] - 2025-08-04
+### Fixed
+- Fix several crashes related to notifications.
+- Fix a crash in Split Tunneling that happened when another app had a missing icon.
+
+
 ## [android/2025.6-beta2] - 2025-07-18
 ### Fixed
 - Fix a crash related to the selected relay location.
