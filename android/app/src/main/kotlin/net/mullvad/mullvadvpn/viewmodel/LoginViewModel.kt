@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -168,8 +169,12 @@ class LoginViewModel(
             LoginAccountError.InvalidAccount -> Idle(LoginError.InvalidCredentials)
             is LoginAccountError.MaxDevicesReached ->
                 Idle().also { _uiSideEffect.send(LoginUiSideEffect.TooManyDevices(accountNumber)) }
-            LoginAccountError.RpcError,
-            is LoginAccountError.Unknown -> Idle(LoginError.Unknown(this.toString()))
+            LoginAccountError.RpcError ->
+                Idle(LoginError.Unknown(this.toString())).also { Logger.w("RPC Error") }
+            is LoginAccountError.Unknown ->
+                Idle(LoginError.Unknown(this.toString())).also {
+                    Logger.w("Login failed with error: $this", error)
+                }
         }
 
     private fun isInternetAvailable(): Boolean {

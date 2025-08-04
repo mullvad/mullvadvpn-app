@@ -205,7 +205,7 @@ class LoginViewModelTest {
         loginViewModel.uiState.test {
             // Arrange
             coEvery { mockedAccountRepository.login(any()) } returns
-                LoginAccountError.Unknown(mockk()).left()
+                LoginAccountError.Unknown(Throwable()).left()
 
             // Act, Assert
             skipDefaultItem()
