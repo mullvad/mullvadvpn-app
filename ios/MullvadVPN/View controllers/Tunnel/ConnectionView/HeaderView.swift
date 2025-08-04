@@ -42,6 +42,7 @@ extension ConnectionView {
                                 .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
                                 .padding(.top, 2)
                                 .accessibilityIdentifier(AccessibilityIdentifier.connectionPanelServerLabel.asString)
+                                .multilineTextAlignment(.leading)
                         }
                     }
 

@@ -142,6 +142,7 @@ class IPOverrideViewController: UIViewController {
             value: "Import via text",
             comment: ""
         ), for: .normal)
+        importTextButton.titleLabel?.textAlignment = .center
 
         let importFileButton = AppButton(style: .default)
         importFileButton.addTarget(self, action: #selector(didTapImportFileButton), for: .touchUpInside)
@@ -151,7 +152,7 @@ class IPOverrideViewController: UIViewController {
             value: "Import file",
             comment: ""
         ), for: .normal)
-
+        importFileButton.titleLabel?.textAlignment = .center
         let stackView = UIStackView(arrangedSubviews: [importTextButton, importFileButton])
         stackView.distribution = .fillEqually
         stackView.spacing = 12

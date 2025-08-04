@@ -63,6 +63,7 @@ class ProblemReportReviewViewController: UIViewController {
         textView.font = .mullvadSmall
         textView.adjustsFontForContentSizeCategory = true
         textView.backgroundColor = .systemBackground
+        textView.textAlignment = .left
 
         view.addConstrainedSubviews([textView]) {
             textView.pinEdgesToSuperview(.all().excluding(.top))

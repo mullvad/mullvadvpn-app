@@ -93,15 +93,6 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         }
     }
 
-    static var allSorted: [AppLanguage] {
-        AppLanguage.allCases
-            .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
-    }
-
-    static func from(_ code: String) -> AppLanguage {
-        AppLanguage(rawValue: code) ?? .english
-    }
-
     var flagEmoji: String {
         let base: UInt32 = 127397
         var flagString = ""
@@ -140,6 +131,6 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         let locale = Locale(identifier: fullCode)
         let langCode = locale.languageCode ?? defaultCode
 
-        return AppLanguage.from(langCode)
+        return AppLanguage(rawValue: langCode) ?? .english
     }
 }

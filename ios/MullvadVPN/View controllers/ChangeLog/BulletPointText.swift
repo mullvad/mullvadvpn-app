@@ -12,7 +12,7 @@ struct BulletPointText: View {
     let bullet = "•"
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
+        HStack {
             Text(bullet)
                 .font(.body)
                 .foregroundColor(UIColor.secondaryTextColor.color)
@@ -20,8 +20,6 @@ struct BulletPointText: View {
                 .font(.body)
                 .foregroundColor(UIColor.secondaryTextColor.color)
                 .lineLimit(nil)
-                .multilineTextAlignment(.leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
