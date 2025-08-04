@@ -353,7 +353,10 @@ impl ProcessStates {
 
 impl InnerProcessStates {
     fn handle_message(&mut self, msg: ESMessage) {
-        let pid = msg.process.audit_token.pid;
+        let Some(pid) = msg.process.audit_token.checked_pid() else {
+            log::trace!("eslogger returned bad pid: {msg:?}");
+            return;
+        };
 
         match msg.event {
             ESEvent::Fork(evt) => self.handle_fork(pid, msg.process.executable.path, evt),
@@ -365,7 +368,10 @@ impl InnerProcessStates {
     // For new processes, inherit all exclusion state from the parent, if there is one.
     // Otherwise, look up excluded paths
     fn handle_fork(&mut self, parent_pid: pid_t, exec_path: PathBuf, msg: ESForkEvent) {
-        let pid = msg.child.audit_token.pid;
+        let Some(pid) = msg.child.audit_token.checked_pid() else {
+            log::trace!("eslogger returned bad pid: {msg:?}");
+            return;
+        };
 
         if self.processes.contains_key(&pid) {
             log::error!("Conflicting pid! State already contains {pid}");
@@ -522,6 +528,13 @@ struct ESProcess {
 struct ESMessage {
     event: ESEvent,
     process: ESProcess,
+}
+
+impl ESAuditToken {
+    /// Check that `pid` is positive and return it.
+    pub fn checked_pid(&self) -> Option<pid_t> {
+        (self.pid > 0).then_some(self.pid)
+    }
 }
 
 fn parse_eslogger_error(stderr_str: &str) -> Option<Error> {
