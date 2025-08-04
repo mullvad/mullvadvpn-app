@@ -41,6 +41,29 @@ public extension AccessMethodKind {
     static var allUserDefinedKinds: [AccessMethodKind] {
         allCases.filter { !$0.isPermanent }
     }
+
+    /// Returns localized description describing the access method.
+    var localizedDescription: String {
+        switch self {
+        case .direct, .bridges, .encryptedDNS:
+            ""
+        case .shadowsocks:
+            NSLocalizedString("SHADOWSOCKS", tableName: "APIAccess", value: "Shadowsocks", comment: "")
+        case .socks5:
+            NSLocalizedString("SOCKS_V5", tableName: "APIAccess", value: "Socks5", comment: "").uppercased()
+        }
+    }
+
+    /// Returns `true` if access method is configurable.
+    /// Methods that aren't configurable do not offer any additional configuration.
+    var hasProxyConfiguration: Bool {
+        switch self {
+        case .direct, .bridges, .encryptedDNS:
+            false
+        case .shadowsocks, .socks5:
+            true
+        }
+    }
 }
 
 extension PersistentAccessMethod {
