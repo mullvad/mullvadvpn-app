@@ -24,11 +24,12 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.usecase.SelectHopError
+import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
@@ -39,11 +40,11 @@ import net.mullvad.mullvadvpn.util.combine
 @Suppress("LongParameterList")
 class SearchLocationViewModel(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
-    private val relayListRepository: RelayListRepository,
     private val customListActionUseCase: CustomListActionUseCase,
     private val customListsRepository: CustomListsRepository,
     private val relayListFilterRepository: RelayListFilterRepository,
     private val filterChipUseCase: FilterChipUseCase,
+    private val selectHopUseCase: SelectHopUseCase,
     filteredRelayListUseCase: FilteredRelayListUseCase,
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -75,7 +76,7 @@ class SearchLocationViewModel(
                 filterChips,
                 expandOverrides ->
                 if (relayCountries.isEmpty()) {
-                    return@combine Lce.Error<Unit>(Unit)
+                    return@combine Lce.Error(Unit)
                 }
                 val (expandSet, relayListLocations) =
                     searchRelayListLocations(
@@ -120,26 +121,26 @@ class SearchLocationViewModel(
 
     fun selectHop(hop: Hop) {
         viewModelScope.launch {
-            if (hop.isActive) {
-                selectRelayHop(
-                        hop = hop,
-                        relayListType = relayListType,
-                        selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
-                        selectExitLocation = relayListRepository::updateSelectedRelayLocation,
-                        selectMultihopLocation =
-                            relayListRepository::updateSelectedRelayLocationMultihop,
-                    )
-                    .fold(
-                        { _uiSideEffect.send(SearchLocationSideEffect.GenericError) },
-                        {
-                            _uiSideEffect.send(
-                                SearchLocationSideEffect.LocationSelected(relayListType)
-                            )
-                        },
-                    )
-            } else {
-                _uiSideEffect.send(SearchLocationSideEffect.HopInactive(hop))
-            }
+            selectHopUseCase(hop = hop, relayListType)
+                .fold(
+                    {
+                        when (it) {
+                            SelectHopError.EntryBlocked,
+                            SelectHopError.ExitBlocked ->
+                                _uiSideEffect.send(
+                                    SearchLocationSideEffect.RelayItemAlreadySelected(
+                                        hop = hop,
+                                        relayListType = relayListType,
+                                    )
+                                )
+                            SelectHopError.GenericError ->
+                                _uiSideEffect.send(SearchLocationSideEffect.GenericError)
+                            is SelectHopError.HopNotActive ->
+                                _uiSideEffect.send(SearchLocationSideEffect.HopInactive(it.hop))
+                        }
+                    },
+                    { _uiSideEffect.send(SearchLocationSideEffect.LocationSelected(relayListType)) },
+                )
         }
     }
 
@@ -229,6 +230,9 @@ sealed interface SearchLocationSideEffect {
         SearchLocationSideEffect
 
     data class HopInactive(val hop: Hop) : SearchLocationSideEffect
+
+    data class RelayItemAlreadySelected(val hop: Hop, val relayListType: RelayListType) :
+        SearchLocationSideEffect
 
     data object GenericError : SearchLocationSideEffect
 }

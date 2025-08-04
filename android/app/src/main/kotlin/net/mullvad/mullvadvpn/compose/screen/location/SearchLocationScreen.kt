@@ -150,7 +150,23 @@ fun SearchLocation(
                         message = context.getString(R.string.error_occurred)
                     )
                 }
-
+            is SearchLocationSideEffect.RelayItemAlreadySelected ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            if (it.relayListType == RelayListType.ENTRY) {
+                                context.getString(
+                                    R.string.relay_item_already_selected_as_exit,
+                                    it.hop.displayName(context),
+                                )
+                            } else {
+                                context.getString(
+                                    R.string.relay_item_already_selected_as_entry,
+                                    it.hop.displayName(context),
+                                )
+                            }
+                    )
+                }
             is SearchLocationSideEffect.HopInactive -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
