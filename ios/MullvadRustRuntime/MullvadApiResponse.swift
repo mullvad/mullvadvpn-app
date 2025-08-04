@@ -26,19 +26,11 @@ public class MullvadApiResponse {
     }
 
     public var etag: String? {
-        return if response.etag == nil {
-            nil
-        } else {
-            String(cString: response.etag)
-        }
+        response.etag.map { String(cString: $0) }
     }
 
     public var errorDescription: String? {
-        return if response.error_description == nil {
-            nil
-        } else {
-            String(cString: response.error_description)
-        }
+        response.error_description.map { String(cString: $0) }
     }
 
     public var statusCode: UInt16 {
@@ -46,11 +38,7 @@ public class MullvadApiResponse {
     }
 
     public var serverResponseCode: String? {
-        return if response.server_response_code == nil {
-            nil
-        } else {
-            String(cString: response.server_response_code)
-        }
+        response.server_response_code.map { String(cString: $0) }
     }
 
     public var success: Bool {
