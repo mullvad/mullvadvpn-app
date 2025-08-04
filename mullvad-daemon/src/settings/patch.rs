@@ -452,7 +452,7 @@ fn test_valid_patch_files() {
     const OVERRIDE_PATCH: &str =
         include_str!("../../../docs/patch-examples/override-relay-ips.json");
 
-    let prev_settings = Settings::default();
+    let prev_settings = crate::settings::default_settings();
     let _ = merge_validate_patch_inner(&prev_settings, OVERRIDE_PATCH)
         .expect("failed to apply relay overrides");
 }
@@ -461,7 +461,7 @@ fn test_valid_patch_files() {
 fn test_patch_export() {
     use mullvad_types::relay_constraints::RelayOverride;
 
-    let mut settings = Settings::default();
+    let mut settings = crate::settings::default_settings();
 
     let mut relay_override = RelayOverride::empty("test".to_owned());
     relay_override.ipv4_addr_in = Some("1.2.3.4".parse().unwrap());

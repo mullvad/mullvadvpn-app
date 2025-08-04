@@ -68,6 +68,59 @@ impl From<Error> for mullvad_management_interface::Status {
     }
 }
 
+/// Modifies `Settings::default()` somewhat, e.g. depending on whether a beta version
+/// is being run or not.
+pub(crate) fn default_settings() -> Settings {
+    use mullvad_types::{
+        access_method,
+        constraints::Constraint,
+        custom_list::CustomListsSettings,
+        relay_constraints::{
+            BridgeSettings, BridgeState, GeographicLocationConstraint, LocationConstraint,
+            ObfuscationSettings, SelectedObfuscation,
+        },
+        settings::{CURRENT_SETTINGS_VERSION, TunnelOptions},
+    };
+    let mut settings = Settings {
+        relay_settings: RelaySettings::Normal(RelayConstraints {
+            location: Constraint::Only(LocationConstraint::Location(
+                GeographicLocationConstraint::Country("se".to_owned()),
+            )),
+            wireguard_constraints: WireguardConstraints {
+                entry_location: Constraint::Only(LocationConstraint::Location(
+                    GeographicLocationConstraint::Country("se".to_owned()),
+                )),
+                ..Default::default()
+            },
+            ..Default::default()
+        }),
+        bridge_settings: BridgeSettings::default(),
+        obfuscation_settings: ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Auto,
+            ..Default::default()
+        },
+        bridge_state: BridgeState::Auto,
+        custom_lists: CustomListsSettings::default(),
+        api_access_methods: access_method::Settings::default(),
+        allow_lan: false,
+        #[cfg(not(target_os = "android"))]
+        block_when_disconnected: false,
+        auto_connect: false,
+        tunnel_options: TunnelOptions::default(),
+        relay_overrides: vec![],
+        show_beta_releases: false,
+        #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+        split_tunnel: SplitTunnelSettings::default(),
+        settings_version: CURRENT_SETTINGS_VERSION,
+        recents: Some(vec![]),
+    };
+
+    if crate::version::is_beta_version() {
+        settings.show_beta_releases = true;
+    }
+    settings
+}
+
 fn handle_custom_list_error(
     custom_list_err: CustomListError,
 ) -> mullvad_management_interface::Status {
@@ -158,7 +211,7 @@ impl SettingsPersister {
             Err(Error::ReadError(_, err)) if err.kind() == io::ErrorKind::NotFound => {
                 log::info!("No settings were found. Using defaults.");
                 LoadSettingsResult {
-                    settings: Self::default_settings(),
+                    settings: default_settings(),
                     should_save: true,
                 }
             }
@@ -175,7 +228,7 @@ impl SettingsPersister {
                     // has no effect.
                     #[cfg(not(target_os = "android"))]
                     block_when_disconnected: true,
-                    ..Self::default_settings()
+                    ..default_settings()
                 };
 
                 LoadSettingsResult {
@@ -238,7 +291,7 @@ impl SettingsPersister {
 
     /// Resets default settings
     pub async fn reset(&mut self) -> Result<(), Error> {
-        self.settings = Self::default_settings();
+        self.settings = default_settings();
         let path = self.path.clone();
         self.save()
             .or_else(|e| async move {
@@ -264,17 +317,6 @@ impl SettingsPersister {
 
     pub fn to_settings(&self) -> Settings {
         self.settings.clone()
-    }
-
-    /// Modifies `Settings::default()` somewhat, e.g. depending on whether a beta version
-    /// is being run or not.
-    fn default_settings() -> Settings {
-        let mut settings = Settings::default();
-
-        if crate::version::is_beta_version() {
-            settings.show_beta_releases = true;
-        }
-        settings
     }
 
     /// Edit the settings in a closure and write the changes to disk.

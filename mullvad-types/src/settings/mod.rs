@@ -1,11 +1,9 @@
 use crate::{
     access_method,
-    constraints::Constraint,
     custom_list::CustomListsSettings,
     relay_constraints::{
-        BridgeSettings, BridgeState, GeographicLocationConstraint, LocationConstraint,
-        ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings,
-        RelaySettingsFormatter, SelectedObfuscation, WireguardConstraints,
+        BridgeSettings, BridgeState, LocationConstraint, ObfuscationSettings, RelayOverride,
+        RelaySettings, RelaySettingsFormatter,
     },
     wireguard,
 };
@@ -71,7 +69,6 @@ impl Serialize for SettingsVersion {
 
 /// Mullvad daemon settings.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
-#[serde(default)]
 pub struct Settings {
     pub relay_settings: RelaySettings,
     pub bridge_settings: BridgeSettings,
@@ -226,44 +223,6 @@ impl From<std::path::PathBuf> for SplitApp {
 impl From<String> for SplitApp {
     fn from(value: String) -> Self {
         SplitApp(value)
-    }
-}
-
-impl Default for Settings {
-    fn default() -> Self {
-        Settings {
-            relay_settings: RelaySettings::Normal(RelayConstraints {
-                location: Constraint::Only(LocationConstraint::Location(
-                    GeographicLocationConstraint::Country("se".to_owned()),
-                )),
-                wireguard_constraints: WireguardConstraints {
-                    entry_location: Constraint::Only(LocationConstraint::Location(
-                        GeographicLocationConstraint::Country("se".to_owned()),
-                    )),
-                    ..Default::default()
-                },
-                ..Default::default()
-            }),
-            bridge_settings: BridgeSettings::default(),
-            obfuscation_settings: ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Auto,
-                ..Default::default()
-            },
-            bridge_state: BridgeState::Auto,
-            custom_lists: CustomListsSettings::default(),
-            api_access_methods: access_method::Settings::default(),
-            allow_lan: false,
-            #[cfg(not(target_os = "android"))]
-            block_when_disconnected: false,
-            auto_connect: false,
-            tunnel_options: TunnelOptions::default(),
-            relay_overrides: vec![],
-            show_beta_releases: false,
-            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
-            split_tunnel: SplitTunnelSettings::default(),
-            settings_version: CURRENT_SETTINGS_VERSION,
-            recents: Some(vec![]),
-        }
     }
 }
 
