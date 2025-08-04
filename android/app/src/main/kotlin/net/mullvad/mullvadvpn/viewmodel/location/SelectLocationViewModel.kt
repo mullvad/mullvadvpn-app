@@ -26,6 +26,8 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
+import net.mullvad.mullvadvpn.usecase.SelectHopError
+import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.Lc
 
@@ -35,10 +37,11 @@ class SelectLocationViewModel(
     private val relayListFilterRepository: RelayListFilterRepository,
     private val customListsRepository: CustomListsRepository,
     private val customListActionUseCase: CustomListActionUseCase,
-    private val relayListRepository: RelayListRepository,
-    private val wireguardConstraintsRepository: WireguardConstraintsRepository,
+    relayListRepository: RelayListRepository,
+    wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val filterChipUseCase: FilterChipUseCase,
     private val settingsRepository: SettingsRepository,
+    private val selectHopUseCase: SelectHopUseCase,
 ) : ViewModel() {
     private val _relayListType: MutableStateFlow<RelayListType> =
         MutableStateFlow(RelayListType.EXIT)
@@ -78,31 +81,37 @@ class SelectLocationViewModel(
 
     fun selectHop(hop: Hop, relayListType: RelayListType) {
         viewModelScope.launch {
-            if (hop.isActive) {
-                selectRelayHop(
-                        hop = hop,
-                        relayListType = relayListType,
-                        selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
-                        selectExitLocation = relayListRepository::updateSelectedRelayLocation,
-                        selectMultihopLocation =
-                            relayListRepository::updateSelectedRelayLocationMultihop,
-                    )
-                    .fold(
-                        { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
-                        {
-                            when (relayListType) {
-                                RelayListType.ENTRY ->
-                                    if (hop is Hop.Multi)
-                                        _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
-                                    else _relayListType.emit(RelayListType.EXIT)
-                                RelayListType.EXIT ->
+            selectHopUseCase(hop, relayListType)
+                .fold(
+                    {
+                        when (it) {
+                            SelectHopError.GenericError ->
+                                _uiSideEffect.trySend(SelectLocationSideEffect.GenericError)
+                            is SelectHopError.HopNotActive ->
+                                _uiSideEffect.trySend(
+                                    SelectLocationSideEffect.RelayItemInactive(it.hop)
+                                )
+                            SelectHopError.EntryBlocked,
+                            SelectHopError.ExitBlocked ->
+                                _uiSideEffect.send(
+                                    SelectLocationSideEffect.RelayItemAlreadySelected(
+                                        hop = hop,
+                                        relayListType = relayListType,
+                                    )
+                                )
+                        }
+                    },
+                    {
+                        when (relayListType) {
+                            RelayListType.ENTRY ->
+                                if (hop is Hop.Multi)
                                     _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
-                            }
-                        },
-                    )
-            } else {
-                _uiSideEffect.send(SelectLocationSideEffect.RelayItemInactive(hop))
-            }
+                                else _relayListType.emit(RelayListType.EXIT)
+                            RelayListType.EXIT ->
+                                _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
+                        }
+                    },
+                )
         }
     }
 
@@ -160,4 +169,7 @@ sealed interface SelectLocationSideEffect {
     data object GenericError : SelectLocationSideEffect
 
     data class RelayItemInactive(val hop: Hop) : SelectLocationSideEffect
+
+    data class RelayItemAlreadySelected(val hop: Hop, val relayListType: RelayListType) :
+        SelectLocationSideEffect
 }
