@@ -553,7 +553,12 @@ private fun RelayLists(
             },
     ) { pageIndex ->
         SelectLocationList(
-            relayListType = RelayListType.entries[pageIndex],
+            relayListType =
+                if (state.multihopEnabled) {
+                    RelayListType.entries[pageIndex]
+                } else {
+                    RelayListType.EXIT
+                },
             onSelectHop = onSelectHopInner,
             openDaitaSettings = openDaitaSettings,
             onAddCustomList = onAddCustomList,
