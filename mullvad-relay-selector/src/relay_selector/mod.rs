@@ -271,21 +271,6 @@ pub struct SelectedObfuscator {
     pub relay: Relay,
 }
 
-impl Default for SelectorConfig {
-    fn default() -> Self {
-        let default_settings = Settings::default();
-        SelectorConfig {
-            relay_settings: default_settings.relay_settings,
-            additional_constraints: AdditionalRelayConstraints::default(),
-            bridge_settings: default_settings.bridge_settings,
-            obfuscation_settings: default_settings.obfuscation_settings,
-            bridge_state: default_settings.bridge_state,
-            custom_lists: default_settings.custom_lists,
-            relay_overrides: default_settings.relay_overrides,
-        }
-    }
-}
-
 impl TryFrom<Settings> for RelayQuery {
     type Error = crate::Error;
 
