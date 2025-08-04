@@ -68,8 +68,8 @@ impl From<Error> for mullvad_management_interface::Status {
     }
 }
 
-/// Modifies `Settings::default()` somewhat, e.g. depending on whether a beta version
-/// is being run or not.
+/// Returns the default settings for the application. The value is constant except for the
+/// `show_beta_releases` field, which is set to true if the current version is a beta version.
 pub(crate) fn default_settings() -> Settings {
     use mullvad_types::{
         access_method,
