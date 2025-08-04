@@ -131,7 +131,6 @@ private fun createRecentsSection(
                     is Hop.Single<*> -> selectionIsSingle
                 }
             }
-            .take(RECENTS_MAX_VISIBLE)
             .map { recent ->
                 val isSelected = recent.matches(itemSelection, isEntryBlocked)
                 if (isEntryBlocked) {
@@ -145,6 +144,11 @@ private fun createRecentsSection(
                     RelayListItem.RecentListItem(hop = recent, isSelected = isSelected)
                 }
             }
+            // Convert to a set to remove possible duplicates. We can get duplicate entries if
+            // multihop is enabled and isEntryBlocked is true, because multiple multihop recents
+            // can have the same exit.
+            .toSet()
+            .take(RECENTS_MAX_VISIBLE)
 
     addAll(shown)
     if (shown.isEmpty()) {
