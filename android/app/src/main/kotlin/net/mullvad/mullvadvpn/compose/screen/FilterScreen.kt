@@ -176,9 +176,8 @@ private fun LazyItemScope.AnyOwnership(state: RelayFilterUiState, onSelectedOwne
     SelectableCell(
         title = stringResource(id = R.string.any),
         isSelected = state.selectedOwnership is Constraint.Any,
-        onCellClicked = { onSelectedOwnership() },
         modifier = Modifier.animateItem(),
-        backgroundColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        onCellClicked = { onSelectedOwnership() },
     )
 }
 
@@ -191,9 +190,8 @@ private fun LazyItemScope.Ownership(
     SelectableCell(
         title = stringResource(id = ownership.stringResource()),
         isSelected = ownership == state.selectedOwnership.getOrNull(),
-        onCellClicked = { onSelectedOwnership(ownership) },
         modifier = Modifier.animateItem(),
-        backgroundColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        onCellClicked = { onSelectedOwnership(ownership) },
     )
 }
 

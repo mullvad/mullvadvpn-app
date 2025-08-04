@@ -20,13 +20,12 @@ fun CustomPortTextField(
         value = value,
         keyboardType = KeyboardType.Number,
         modifier = modifier,
-        placeholderText = stringResource(id = R.string.custom_port_dialog_placeholder),
         onValueChanged = onValueChanged,
         onSubmit = onSubmit,
-        isDigitsOnlyAllowed = true,
-        isEnabled = true,
-        isValidValue = isValidValue,
+        placeholderText = stringResource(id = R.string.custom_port_dialog_placeholder),
         maxCharLength = maxCharLength,
+        isValidValue = isValidValue,
+        isDigitsOnlyAllowed = true,
         textStyle = MaterialTheme.typography.titleMedium,
     )
 }

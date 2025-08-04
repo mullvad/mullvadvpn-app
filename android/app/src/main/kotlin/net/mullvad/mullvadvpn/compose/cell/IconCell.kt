@@ -42,10 +42,10 @@ private fun PreviewIconCell() {
     }
 }
 
+@Suppress("ComposableLambdaParameterNaming")
 @Composable
 fun IconCell(
     imageVector: ImageVector?,
-    endIcon: @Composable ColumnScope.() -> Unit = {},
     title: String,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
@@ -53,6 +53,7 @@ fun IconCell(
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
+    endIcon: @Composable ColumnScope.() -> Unit = {},
 ) {
     // Using a transparent background to avoid using the default background from BaseCell
     val background: Color = Color.Transparent

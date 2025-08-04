@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.constant.EMPTY_STRING
 import net.mullvad.mullvadvpn.constant.NEWLINE_STRING
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
+@Suppress("ComposableLambdaParameterNaming")
 @Composable
 fun CustomTextField(
     value: String,
@@ -44,11 +45,10 @@ fun CustomTextField(
     isEnabled: Boolean = true,
     placeholderText: String?,
     labelText: String? = null,
-    maxCharLength: Int = Int.MAX_VALUE,
+    maxCharLength: Int = Int.Companion.MAX_VALUE,
     isValidValue: Boolean,
     isDigitsOnlyAllowed: Boolean,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    supportingText: @Composable (() -> Unit)? = null,
     colors: TextFieldColors = mullvadDarkTextFieldColors(),
     textStyle: TextStyle = LocalTextStyle.current,
     capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
@@ -59,6 +59,7 @@ fun CustomTextField(
             keyboardType = keyboardType,
             imeAction = ImeAction.Done,
         ),
+    supportingText: @Composable (() -> Unit)? = null,
 ) {
     // This is the same implementation as in BasicTextField.kt but with initial selection set at the
     // end of the text rather than in the beginning.
