@@ -273,7 +273,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         accessMethodReceiver = MullvadAccessMethodReceiver(
             apiContext: apiContext,
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
-            lastReachableDataSource: accessMethodRepository.lastReachableAccessMethodPublisher
+            requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
 
         encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSession)
