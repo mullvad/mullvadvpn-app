@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_TITLE" : {
+      "comment" : "Message for in-app notification, displayed within the last X days until account expiry.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ left on this account"
+          }
+        }
+      }
+    },
+    "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY" : {
+      "comment" : "Message for in-app notification, displayed on account expiry while connected to VPN.\nMessage for in-app notification, displayed within the last 1 day until account expiry.\nMessage for in-app notification, displayed within the last X days until account expiry.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN."
+          }
+        }
+      }
+    },
+    "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE" : {
+      "comment" : "Title for system account expiry notification, fired X days prior to account expiry.\nTitle for system account expiry notification, fired on account expiry.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Account credit expires soon"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

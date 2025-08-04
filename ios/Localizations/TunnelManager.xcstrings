@@ -1,0 +1,50 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "INVALID_DEVICE_STATE_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Invalid device state."
+          }
+        }
+      }
+    },
+    "START_TUNNEL_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to start the tunnel."
+          }
+        }
+      }
+    },
+    "STOP_TUNNEL_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to stop the tunnel."
+          }
+        }
+      }
+    },
+    "UNSET_TUNNEL_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Tunnel is unset."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

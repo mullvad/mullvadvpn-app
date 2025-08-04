@@ -120,12 +120,12 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
                 comment: ""
             )
 
-            cell.detailTitleLabel.text = NSLocalizedString(
+            cell.detailTitleLabel.text = String(format: NSLocalizedString(
                 "DAITA_CELL_DETAIL_LABEL",
                 tableName: "Settings",
-                value: viewModel.daitaSettings.daitaState.isEnabled ? "On" : "Off",
+                value: "%@",
                 comment: ""
-            )
+            ), String(format: "%@", viewModel.daitaSettings.daitaState.isEnabled ? "On" : "Off"))
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron

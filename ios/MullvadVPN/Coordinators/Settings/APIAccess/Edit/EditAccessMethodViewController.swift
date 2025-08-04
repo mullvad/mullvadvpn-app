@@ -413,12 +413,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
                     }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "METHOD_SETTINGS_CANCEL_BUTTON",
-                        tableName: "APIAccess",
-                        value: "Cancel",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("CANCEL_TITLE_BUTTON", tableName: "Common", value: "Cancel", comment: ""),
                     style: .default
                 ),
             ]

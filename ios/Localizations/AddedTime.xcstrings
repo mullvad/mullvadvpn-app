@@ -1,0 +1,17 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ADDED_TIME_SUCCESS_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ were added to your account."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

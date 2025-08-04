@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SplitMainButton: View {
-    var text: LocalizedStringKey
+    var text: String
     var image: ImageResource
     var style: MainButtonStyle.Style
     var accessibilityId: AccessibilityIdentifier?

@@ -1,0 +1,185 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ACTION_SHEET_ADD_LIST_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add new list"
+          }
+        }
+      }
+    },
+    "ACTION_SHEET_EDIT_LISTS_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Edit lists"
+          }
+        }
+      }
+    },
+    "ACTION_SHEET_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom lists"
+          }
+        }
+      }
+    },
+    "ADD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add locations"
+          }
+        }
+      }
+    },
+    "CUSTOM_LIST_NAVIGATION_SAVE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "CUSTOM_LIST_NAVIGATION_TITLE" : {
+
+    },
+    "CUSTOM_LISTS_BACK_TO_EDITING_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Back to editing"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_DELETE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete list"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_DELETE_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Do you want to delete the list **(value)**?"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_DISCARD_CHANGES_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Discard changes"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_NAVIGATION_CREATE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Create"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_NAVIGATION_EDIT_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "New custom list"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_UNSAVED_CHANGES_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You have unsaved changes."
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete list"
+          }
+        }
+      }
+    },
+    "EDIT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Edit locations"
+          }
+        }
+      }
+    },
+    "LIST_CUSTOM_LIST_NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Edit custom list"
+          }
+        }
+      }
+    },
+    "NAME" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Name"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

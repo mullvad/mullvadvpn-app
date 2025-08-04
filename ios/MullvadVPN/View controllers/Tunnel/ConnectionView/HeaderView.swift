@@ -13,8 +13,8 @@ extension ConnectionView {
         @ObservedObject var viewModel: ConnectionViewViewModel
         @Binding var isExpanded: Bool
 
-        @State var titleForCountryAndCity: LocalizedStringKey?
-        @State var titleForServer: LocalizedStringKey?
+        @State var titleForCountryAndCity: String?
+        @State var titleForServer: String?
 
         var body: some View {
             Button {
@@ -24,12 +24,12 @@ extension ConnectionView {
             } label: {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 0) {
-                        Text(viewModel.localizedTitleForSecureLabel)
+                        Text(viewModel.titleForSecureLabel)
                             .textCase(.uppercase)
                             .font(.title3.weight(.semibold))
                             .foregroundStyle(viewModel.textColorForSecureLabel.color)
                             .accessibilityIdentifier(viewModel.accessibilityIdForSecureLabel.asString)
-                            .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
+                            .accessibilityLabel(viewModel.accessibilityLabelForSecureLabel)
                         if let titleForCountryAndCity {
                             Text(titleForCountryAndCity)
                                 .font(.title3.weight(.semibold))

@@ -1,0 +1,17 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "MULTIHOP_INFORMATION_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace.\nThis results in increased latency but increases anonymity online."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

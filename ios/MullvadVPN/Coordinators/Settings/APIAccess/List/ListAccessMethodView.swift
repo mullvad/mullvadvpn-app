@@ -50,7 +50,12 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                 .padding(.bottom, 16)
             }, footer: {
                 MainButton(
-                    text: LocalizedStringKey("Add"),
+                    text: NSLocalizedString(
+                        "METHOD_SETTINGS_NAVIGATION_ADD_BUTTON",
+                        tableName: "APIAccess",
+                        value: "Add",
+                        comment: ""
+                    ),
                     style: .default
                 ) {
                     viewModel.addNewMethod()

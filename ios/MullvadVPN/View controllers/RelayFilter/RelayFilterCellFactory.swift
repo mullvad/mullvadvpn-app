@@ -39,8 +39,8 @@ struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
         guard let cell = cell else { return }
 
         cell.titleLabel.text = NSLocalizedString(
-            "RELAY_FILTER_CELL_LABEL",
-            tableName: "Relay filter ownership cell",
+            "RELAY_FILTER_OWENERSHIP_CELL_LABEL",
+            tableName: "RelayFilter",
             value: item.name,
             comment: ""
         )
@@ -67,8 +67,8 @@ struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
         let alpha = item.isEnabled ? 1.0 : 0.2
 
         cell.titleLabel.text = NSLocalizedString(
-            "RELAY_FILTER_CELL_LABEL",
-            tableName: "Relay filter provider cell",
+            "RELAY_FILTER_PROVIDER_CELL_LABEL",
+            tableName: "RelayFilter",
             value: item.name,
             comment: ""
         )
