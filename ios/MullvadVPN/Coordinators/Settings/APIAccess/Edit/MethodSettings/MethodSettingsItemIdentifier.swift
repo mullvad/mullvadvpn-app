@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 enum MethodSettingsItemIdentifier: Hashable {
     case name

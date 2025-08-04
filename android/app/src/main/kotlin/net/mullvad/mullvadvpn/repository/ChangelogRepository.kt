@@ -21,7 +21,8 @@ class ChangelogRepository(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val hasUnreadChangelog: StateFlow<Boolean> =
-        userPreferencesRepository.preferencesFlow
+        userPreferencesRepository
+            .preferencesFlow()
             .map {
                 getLastVersionChanges().isNotEmpty() &&
                     buildVersion.code > it.lastShownChangelogVersionCode

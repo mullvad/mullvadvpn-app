@@ -7,6 +7,7 @@
 //
 
 import MullvadSettings
+import MullvadTypes
 import UIKit
 
 /// Type implementing the access method protocol picker.

@@ -9,7 +9,7 @@
 import MullvadTypes
 
 public struct MullvadApiContext: @unchecked Sendable {
-    enum MullvadApiContextError: Error {
+    enum Error: Swift.Error {
         case failedToConstructApiClient
     }
 
@@ -58,7 +58,7 @@ public struct MullvadApiContext: @unchecked Sendable {
         }
 
         if context._0 == nil {
-            throw MullvadApiContextError.failedToConstructApiClient
+            throw Error.failedToConstructApiClient
         }
     }
 }

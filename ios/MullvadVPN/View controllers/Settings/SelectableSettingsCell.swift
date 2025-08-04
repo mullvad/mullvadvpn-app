@@ -14,6 +14,11 @@ class SelectableSettingsCell: SettingsCell {
         imageView.contentMode = .center
         imageView.tintColor = .white
         imageView.alpha = 0
+        imageView
+            .setContentCompressionResistancePriority(
+                .required,
+                for: .horizontal
+            )
         return imageView
     }()
 
