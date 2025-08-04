@@ -240,9 +240,56 @@ mod tests {
 
     use super::*;
 
+    pub fn get_settings() -> Settings {
+        use crate::{
+            access_method,
+            constraints::Constraint,
+            custom_list::CustomListsSettings,
+            relay_constraints::{
+                BridgeSettings, BridgeState, GeographicLocationConstraint, LocationConstraint,
+                ObfuscationSettings, RelayConstraints, SelectedObfuscation, WireguardConstraints,
+            },
+            settings::{CURRENT_SETTINGS_VERSION, Settings, TunnelOptions},
+        };
+        Settings {
+            relay_settings: RelaySettings::Normal(RelayConstraints {
+                location: Constraint::Only(LocationConstraint::Location(
+                    GeographicLocationConstraint::Country("se".to_owned()),
+                )),
+                wireguard_constraints: WireguardConstraints {
+                    entry_location: Constraint::Only(LocationConstraint::Location(
+                        GeographicLocationConstraint::Country("se".to_owned()),
+                    )),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }),
+            bridge_settings: BridgeSettings::default(),
+            obfuscation_settings: ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Auto,
+                ..Default::default()
+            },
+            bridge_state: BridgeState::Auto,
+            custom_lists: CustomListsSettings::default(),
+            api_access_methods: access_method::Settings::default(),
+            allow_lan: false,
+            #[cfg(not(target_os = "android"))]
+            block_when_disconnected: false,
+            auto_connect: false,
+            tunnel_options: TunnelOptions::default(),
+            relay_overrides: vec![],
+            show_beta_releases: false,
+            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+            split_tunnel: SplitTunnelSettings::default(),
+            settings_version: CURRENT_SETTINGS_VERSION,
+            recents: Some(vec![]),
+            update_default_location: false,
+        }
+    }
+
     #[test]
     fn test_one_indicator_at_a_time() {
-        let mut settings = Settings::default();
+        let mut settings = get_settings();
         let mut endpoint = TunnelEndpoint {
             endpoint: Endpoint {
                 address: SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080),
