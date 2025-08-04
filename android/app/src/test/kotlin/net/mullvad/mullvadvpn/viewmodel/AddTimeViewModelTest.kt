@@ -11,7 +11,9 @@ import io.mockk.just
 import io.mockk.mockk
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
@@ -43,6 +45,7 @@ class AddTimeViewModelTest {
 
     private lateinit var viewModel: AddTimeViewModel
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @BeforeEach
     fun setUp() {
         every { mockPaymentUseCase.paymentAvailability } returns paymentAvailability
@@ -61,6 +64,7 @@ class AddTimeViewModelTest {
                 accountRepository = mockAccountRepository,
                 connectionProxy = mockConnectionProxy,
                 isPlayBuild = true,
+                context = UnconfinedTestDispatcher(),
             )
     }
 
