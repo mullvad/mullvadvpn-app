@@ -6,9 +6,9 @@ import android.content.Intent
 import co.touchlab.kermit.Logger
 import java.time.Duration
 import java.time.ZonedDateTime
-import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
+import net.mullvad.mullvadvpn.util.goAsync
 import net.mullvad.mullvadvpn.util.serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -28,8 +28,9 @@ class NotificationAlarmReceiver : BroadcastReceiver(), KoinComponent {
         Logger.d("Account expiry alarm triggered")
         val untilExpiry = Duration.between(ZonedDateTime.now(), expiry)
 
-        runBlocking {
-            notificationProvider.showNotification(untilExpiry)
+        notificationProvider.showNotification(untilExpiry)
+
+        goAsync {
             // Only schedule the next alarm if we still have time left on the account.
             if (context != null && expiry > ZonedDateTime.now()) {
                 scheduleNotificationAlarmUseCase(context = context, accountExpiry = expiry)

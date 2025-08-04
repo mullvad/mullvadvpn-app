@@ -20,7 +20,7 @@ class AccountExpiryNotificationProvider(private val channelId: NotificationChann
     override val notifications: Flow<NotificationUpdate<Notification.AccountExpiry>>
         get() = notificationChannel.receiveAsFlow()
 
-    suspend fun showNotification(durationUntilExpiry: Duration) {
+    fun showNotification(durationUntilExpiry: Duration) {
         val notification =
             Notification.AccountExpiry(
                 channelId = channelId,
@@ -29,7 +29,8 @@ class AccountExpiryNotificationProvider(private val channelId: NotificationChann
             )
 
         val notificationUpdate = NotificationUpdate.Notify(NOTIFICATION_ID, notification)
-        notificationChannel.send(notificationUpdate)
+        // Always succeeds because the channel is conflated.
+        notificationChannel.trySend(notificationUpdate)
     }
 
     suspend fun cancelNotification() {
