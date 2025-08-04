@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -172,7 +173,7 @@ fun CustomListLocationsScreen(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                         )
                         .padding(horizontal = Dimens.mediumPadding)
-                        .fillMaxWidth(),
+                        .fillMaxSize(),
                 state = lazyListState,
             ) {
                 when (state.content) {

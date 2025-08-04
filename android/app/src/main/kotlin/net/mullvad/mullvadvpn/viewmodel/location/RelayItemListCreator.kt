@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel.location
 
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -486,10 +487,11 @@ internal fun RelayItemId.expandKey(parent: CustomListId? = null) =
 internal fun RelayItemSelection.selectedByThisEntryExitList(relayListType: RelayListType) =
     when (this) {
         is RelayItemSelection.Multiple ->
-            when (relayListType) {
-                RelayListType.ENTRY -> entryLocation
-                RelayListType.EXIT -> exitLocation
-            }.getOrNull()
+            when ((relayListType as? RelayListType.Multihop)?.multihopRelayListType) {
+                MultihopRelayListType.ENTRY -> entryLocation.getOrNull()
+                MultihopRelayListType.EXIT -> exitLocation.getOrNull()
+                else -> null
+            }
         is RelayItemSelection.Single -> exitLocation.getOrNull()
     }
 
@@ -500,10 +502,11 @@ internal fun RelayItemSelection.selectedByOtherEntryExitList(
     when (this) {
         is RelayItemSelection.Multiple -> {
             val location =
-                when (relayListType) {
-                    RelayListType.ENTRY -> exitLocation
-                    RelayListType.EXIT -> entryLocation
-                }.getOrNull()
+                when ((relayListType as? RelayListType.Multihop)?.multihopRelayListType) {
+                    MultihopRelayListType.ENTRY -> exitLocation
+                    MultihopRelayListType.EXIT -> entryLocation
+                    else -> null
+                }?.getOrNull()
             location.singleRelayId(customLists)
         }
         is RelayItemSelection.Single -> null
@@ -543,9 +546,10 @@ private fun RelayItem.createState(
             is RelayItem.Location.Relay -> selectedByOtherId == id
         }
     return if (isSelectedByOther) {
-        when (relayListType) {
-            RelayListType.ENTRY -> RelayListItemState.USED_AS_EXIT
-            RelayListType.EXIT -> RelayListItemState.USED_AS_ENTRY
+        when ((relayListType as? RelayListType.Multihop)?.multihopRelayListType) {
+            MultihopRelayListType.ENTRY -> RelayListItemState.USED_AS_EXIT
+            MultihopRelayListType.EXIT -> RelayListItemState.USED_AS_ENTRY
+            else -> null
         }
     } else {
         null

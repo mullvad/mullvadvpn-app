@@ -38,7 +38,6 @@ import net.mullvad.mullvadvpn.lib.resource.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.lib.theme.color.selected
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListItemDefaults
@@ -118,10 +117,7 @@ fun SelectableRelayListItem(
                 )
             }
         },
-        onClick =
-            if (relayListItem.state == null) onClick
-            /* Workaround for not allowing to select relay that is currently used as entry or exit */
-            else ({}),
+        onClick = onClick,
         onLongClick = onLongClick,
         trailingContent =
             if (relayListItem.canExpand) {

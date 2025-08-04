@@ -67,13 +67,11 @@ import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.displayName
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
@@ -90,7 +88,7 @@ private fun PreviewSearchLocationScreen(
         SearchLocationScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
-            onSelectHop = {},
+            onSelectRelayItem = { _, _ -> },
             onToggleExpand = { _, _, _ -> },
             onSearchInputChanged = {},
             onCreateCustomList = {},
@@ -150,15 +148,31 @@ fun SearchLocation(
                         message = context.getString(R.string.error_occurred)
                     )
                 }
-
-            is SearchLocationSideEffect.HopInactive -> {
+            is SearchLocationSideEffect.EntryAlreadySelected ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
                             context.getString(
-                                R.string.relayitem_is_inactive,
-                                it.hop.displayName(context),
+                                R.string.relay_item_already_selected_as_entry,
+                                it.relayItem.name,
                             )
+                    )
+                }
+            is SearchLocationSideEffect.ExitAlreadySelected ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                R.string.relay_item_already_selected_as_exit,
+                                it.relayItem.name,
+                            )
+                    )
+                }
+            is SearchLocationSideEffect.RelayItemInactive -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
                     )
                 }
             }
@@ -188,7 +202,7 @@ fun SearchLocation(
     SearchLocationScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onSelectHop = viewModel::selectHop,
+        onSelectRelayItem = viewModel::selectRelayItem,
         onToggleExpand = viewModel::onToggleExpand,
         onSearchInputChanged = viewModel::onSearchInputUpdated,
         onCreateCustomList =
@@ -233,7 +247,7 @@ fun SearchLocation(
 fun SearchLocationScreen(
     state: Lce<Unit, SearchLocationUiState, Unit>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectHop: (Hop) -> Unit,
+    onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onSearchInputChanged: (String) -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
@@ -313,7 +327,10 @@ fun SearchLocationScreen(
                         relayListContent(
                             relayListItems = state.value.relayListItems,
                             customLists = state.value.customLists,
-                            onSelectHop = onSelectHop,
+                            onSelectHop = { error("Can not select hop in search screen") },
+                            onSelectRelayItem = {
+                                onSelectRelayItem(it, state.value.relayListType)
+                            },
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->
                                 locationBottomSheetState = newSheetState

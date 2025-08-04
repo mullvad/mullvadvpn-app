@@ -8,6 +8,7 @@ import kotlin.test.assertNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -118,13 +119,18 @@ class RecentsUseCaseTest {
                         Recents.Enabled(listOf(singleHopRecent, multiHopRecent, filteredOutRecent))
                 }
 
-            every { customListsRelayItemUseCase(RelayListType.ENTRY) } returns
-                flowOf(listOf(entryCustomList))
-            every { customListsRelayItemUseCase(RelayListType.EXIT) } returns flowOf(emptyList())
-            every { filteredRelayListUseCase(RelayListType.ENTRY) } returns
-                flowOf(listOf(sweden, norway))
-            every { filteredRelayListUseCase(RelayListType.EXIT) } returns
-                flowOf(listOf(sweden, norway))
+            every {
+                customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY))
+            } returns flowOf(listOf(entryCustomList))
+            every {
+                customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT))
+            } returns flowOf(emptyList())
+            every {
+                filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY))
+            } returns flowOf(listOf(sweden, norway))
+            every {
+                filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT))
+            } returns flowOf(listOf(sweden, norway))
 
             useCase().test {
                 val hops = awaitItem()

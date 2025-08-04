@@ -6,6 +6,7 @@ import net.mullvad.mullvadvpn.usecase.FilterChip
 
 data class SearchLocationUiState(
     val searchTerm: String,
+    val relayListType: RelayListType,
     val filterChips: List<FilterChip>,
     val relayListItems: List<RelayListItem>,
     val customLists: List<RelayItem.CustomList>,

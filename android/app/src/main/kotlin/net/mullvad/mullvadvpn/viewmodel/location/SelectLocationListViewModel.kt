@@ -7,11 +7,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
@@ -42,11 +44,12 @@ class SelectLocationListViewModel(
                 customListsRelayItemUseCase(),
                 settingsRepository.settingsUpdates,
             ) { relayListItems, customLists, settings ->
-                if (relayListType == RelayListType.ENTRY && settings?.entryBlocked() == true) {
+                if (settings.isBlocked()) {
                     Lce.Error(Unit)
                 } else {
                     Lce.Content(
                         SelectLocationListUiState(
+                            relayListType = relayListType,
                             relayListItems = relayListItems,
                             customLists = customLists,
                         )
@@ -58,6 +61,14 @@ class SelectLocationListViewModel(
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
         _expandedItems.onToggleExpandSet(item, parent, expand)
     }
+
+    private fun Settings?.isBlocked(): Boolean =
+        when (relayListType) {
+            RelayListType.Single -> false
+            is RelayListType.Multihop ->
+                relayListType.multihopRelayListType == MultihopRelayListType.ENTRY &&
+                    this?.entryBlocked() == true
+        }
 
     private fun relayListItems() =
         combine(
@@ -116,8 +127,12 @@ class SelectLocationListViewModel(
 
     private fun initialSelection() =
         when (relayListType) {
-            RelayListType.ENTRY ->
-                wireguardConstraintsRepository.wireguardConstraints.value?.entryLocation
-            RelayListType.EXIT -> relayListRepository.selectedLocation.value
+            RelayListType.Single -> relayListRepository.selectedLocation.value
+            is RelayListType.Multihop ->
+                when (relayListType.multihopRelayListType) {
+                    MultihopRelayListType.ENTRY ->
+                        wireguardConstraintsRepository.wireguardConstraints.value?.entryLocation
+                    MultihopRelayListType.EXIT -> relayListRepository.selectedLocation.value
+                }
         }?.getOrNull()
 }

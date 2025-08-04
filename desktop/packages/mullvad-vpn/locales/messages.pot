@@ -2794,6 +2794,12 @@ msgstr ""
 msgid "%s custom port"
 msgstr ""
 
+msgid "%s is already selected as entry relay"
+msgstr ""
+
+msgid "%s is already selected as exit relay"
+msgstr ""
+
 msgid "%s is unavailable"
 msgstr ""
 
@@ -3011,6 +3017,9 @@ msgid "Enable recents"
 msgstr ""
 
 msgid "Enter MTU"
+msgstr ""
+
+msgid "Entry relay is the same as exit relay"
 msgstr ""
 
 msgid "Excluded applications"

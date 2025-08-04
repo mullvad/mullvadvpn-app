@@ -130,3 +130,25 @@ fun List<RelayItem.Location.Country>.findRelay(
         ?.find { city -> city.id == geoLocationId.city }
         ?.relays
         ?.find { relay -> relay.id == geoLocationId }
+
+/**
+ * Checks if two RelayItems are the same for the purpose of blocking selection. Only relays are
+ * considered the same, cities and countries are not. For the purpose of blocking selection, custom
+ * lists are considered to be a relay if and only if they contain a single relay.
+ */
+fun RelayItem.isTheSameAs(other: RelayItem): Boolean {
+    return when (this) {
+        is RelayItem.Location.Relay -> {
+            (other is RelayItem.Location.Relay && this.id == other.id) ||
+                (other is RelayItem.CustomList && other.onlyContains(this))
+        }
+        is RelayItem.CustomList -> {
+            (other is RelayItem.Location.Relay && this.onlyContains(other)) ||
+                (other is RelayItem.CustomList &&
+                    this.locations.size == 1 &&
+                    this.locations.first() is RelayItem.Location.Relay &&
+                    other.onlyContains(this.locations.first()))
+        }
+        else -> false
+    }
+}
