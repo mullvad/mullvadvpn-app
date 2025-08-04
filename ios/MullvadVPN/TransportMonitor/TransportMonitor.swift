@@ -44,9 +44,9 @@ final class TransportMonitor: RESTTransportProvider {
         }
     }
 
-    /// Determines whether the tunnel tunnel should be used to pipe requests,
+    /// Determines whether the tunnel should be used to pipe requests,
     ///
-    /// - Parameter tunnel: The tunnel tunnel to evaluate
+    /// - Parameter tunnel: The tunnel to evaluate
     /// - Returns: `true` if the tunnel should be used; otherwise, `false`
     private func shouldRouteThroughTunnel(tunnel: any TunnelProtocol) -> Bool {
         switch tunnel.status {
