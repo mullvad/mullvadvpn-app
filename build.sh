@@ -393,8 +393,10 @@ cargo run -p mullvad-api --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 
 log_header "Installing JavaScript dependencies"
 
-pushd desktop/packages/mullvad-vpn
+pushd desktop
 npm ci --no-audit --no-fund
+
+pushd packages/mullvad-vpn
 
 log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
 
@@ -403,6 +405,7 @@ case "$(uname -s)" in
     Darwin*)    npm run pack:mac -- "${NPM_PACK_ARGS[@]}";;
     MINGW*)     npm run pack:win -- "${NPM_PACK_ARGS[@]}";;
 esac
+popd
 popd
 
 # sign installer on Windows
