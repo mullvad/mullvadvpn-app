@@ -1,1 +1,2 @@
-- Fixed a crash related to the selected server location.
+- Fixed several crashes related to notifications.
+- Fixed a crash related to Split Tunneling.
