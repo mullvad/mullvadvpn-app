@@ -2794,6 +2794,12 @@ msgstr ""
 msgid "%s custom port"
 msgstr ""
 
+msgid "%s is already selected as entry relay"
+msgstr ""
+
+msgid "%s is already selected as exit relay"
+msgstr ""
+
 msgid "%s is unavailable"
 msgstr ""
 
