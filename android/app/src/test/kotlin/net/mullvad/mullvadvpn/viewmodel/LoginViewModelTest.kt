@@ -13,12 +13,10 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import java.time.ZonedDateTime
 import kotlin.test.assertIs
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
@@ -48,7 +46,6 @@ class LoginViewModelTest {
 
     @BeforeEach
     fun setup() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
         MockKAnnotations.init(this, relaxUnitFun = true)
         accountHistoryFlow = MutableStateFlow(null)
         every { connectivityUseCase() } returns true

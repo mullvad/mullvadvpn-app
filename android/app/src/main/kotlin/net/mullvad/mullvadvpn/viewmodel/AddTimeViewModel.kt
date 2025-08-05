@@ -3,8 +3,6 @@ package net.mullvad.mullvadvpn.viewmodel
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -32,8 +30,6 @@ class AddTimeViewModel(
     private val accountRepository: AccountRepository,
     connectionProxy: ConnectionProxy,
     private val isPlayBuild: Boolean,
-    // Replace with UnconfinedTestDispatcher in tests
-    private val context: CoroutineContext = EmptyCoroutineContext,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<AddMoreTimeSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -66,28 +62,26 @@ class AddTimeViewModel(
     }
 
     fun onManageAccountClick() {
-        viewModelScope.launch(context) {
+        viewModelScope.launch {
             val wwwAuthToken = accountRepository.getWebsiteAuthToken()
             _uiSideEffect.send(OpenAccountManagementPageInBrowser(wwwAuthToken))
         }
     }
 
     fun fetchPaymentAvailability() {
-        viewModelScope.launch(context) { paymentUseCase.queryPaymentAvailability() }
+        viewModelScope.launch { paymentUseCase.queryPaymentAvailability() }
     }
 
     fun startBillingPayment(productId: ProductId, activityProvider: () -> Activity) {
-        viewModelScope.launch(context) {
-            paymentUseCase.purchaseProduct(productId, activityProvider)
-        }
+        viewModelScope.launch { paymentUseCase.purchaseProduct(productId, activityProvider) }
     }
 
     fun resetPurchaseResult() {
-        viewModelScope.launch(context) { paymentUseCase.resetPurchaseResult() }
+        viewModelScope.launch { paymentUseCase.resetPurchaseResult() }
     }
 
     private fun verifyPurchases() {
-        viewModelScope.launch(context) {
+        viewModelScope.launch {
             if (paymentUseCase.verifyPurchases().isSuccess()) {
                 updateAccountExpiry()
             }
@@ -95,7 +89,7 @@ class AddTimeViewModel(
     }
 
     private fun handlePurchaseResultTerminatingState() {
-        viewModelScope.launch(context) {
+        viewModelScope.launch {
             paymentUseCase.purchaseResult
                 .filter { it?.isTerminatingState() == true }
                 .collect {
@@ -111,7 +105,7 @@ class AddTimeViewModel(
     }
 
     private fun updateAccountExpiry() {
-        viewModelScope.launch(context) { accountRepository.getAccountData() }
+        viewModelScope.launch { accountRepository.getAccountData() }
     }
 
     private fun PurchaseResult.toPurchaseState() =
