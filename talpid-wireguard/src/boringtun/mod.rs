@@ -56,6 +56,31 @@ pub struct BoringTun {
     interface_name: String,
 }
 
+impl BoringTun {
+    async fn new(
+        tun: Arc<AsyncDevice>,
+        #[cfg(target_os = "android")] android_tun: Arc<Tun>,
+        config: Config,
+        interface_name: String,
+    ) -> Self {
+        let devices = create_devices(
+            &config,
+            tun.clone(),
+            #[cfg(target_os = "android")]
+            android_tun.clone(),
+        )
+        .await;
+        Self {
+            config,
+            interface_name,
+            tun,
+            #[cfg(target_os = "android")]
+            android_tun,
+            devices: Some(devices),
+        }
+    }
+}
+
 enum Devices {
     Singlehop {
         device: SinglehopDevice,
@@ -153,25 +178,14 @@ pub async fn open_boringtun_tunnel(
     log::info!("passing tunnel dev to boringtun");
     let async_tun = Arc::new(async_tun);
 
-    let mut boringtun = BoringTun {
-        config: config.clone(),
-        interface_name,
-        tun: async_tun.clone(),
+    let boringtun = BoringTun::new(
+        async_tun,
         #[cfg(target_os = "android")]
-        android_tun: tun.clone(),
-        devices: Some(
-            create_devices(
-                config,
-                async_tun,
-                #[cfg(target_os = "android")]
-                tun,
-            )
-            .await,
-        ),
-    };
-
-    // FIXME: double clone
-    boringtun.set_config(config.clone()).await?;
+        tun.clone(),
+        config.clone(),
+        interface_name,
+    )
+    .await;
 
     log::info!(
         "This tunnel was brought to you by...
@@ -237,6 +251,34 @@ async fn create_devices(
         let entry_device =
             EntryDevice::new(factory, channel.clone(), channel, boringtun_entry_config).await;
 
+        let private_key = &config.tunnel.private_key;
+        let fwmark = config.fwmark;
+
+        let peer = &config.entry_peer;
+        let set_cmd = create_set_command(fwmark, private_key, peer);
+        entry_api
+            .send(set_cmd)
+            .await
+            .map_err(|err| {
+                log::error!("Failed to set boringtun config: {err:#}");
+                TunnelError::SetConfigError
+            })
+            .expect("Failed to set boringtun config");
+
+        let peer = config
+            .exit_peer
+            .as_ref()
+            .expect("Exit peer must be set for multihop");
+        let set_cmd = create_set_command(fwmark, private_key, peer);
+        exit_api
+            .send(set_cmd)
+            .await
+            .map_err(|err| {
+                log::error!("Failed to set boringtun config: {err:#}");
+                TunnelError::SetConfigError
+            })
+            .expect("Failed to set boringtun config");
+
         Devices::Multihop {
             entry_device,
             entry_api,
@@ -257,6 +299,22 @@ async fn create_devices(
             boringtun_entry_config,
         )
         .await;
+
+        log::info!("configuring boringtun device");
+        let private_key = &config.tunnel.private_key;
+        let peer = &config.entry_peer;
+        let fwmark = config.fwmark;
+
+        let set_cmd = create_set_command(fwmark, private_key, peer);
+
+        entry_api
+            .send(set_cmd)
+            .await
+            .map_err(|err| {
+                log::error!("Failed to set boringtun config: {err:#}");
+                TunnelError::SetConfigError
+            })
+            .expect("Failed to set boringtun config");
 
         Devices::Singlehop {
             device,
@@ -358,19 +416,6 @@ impl Tunnel for BoringTun {
                     .await,
                 );
             }
-            match self.devices.as_mut().unwrap() {
-                Devices::Singlehop { api, .. } => {
-                    set_boringtun_config(api, &self.config).await?;
-                }
-                Devices::Multihop {
-                    entry_api,
-                    exit_api,
-                    ..
-                } => {
-                    set_boringtun_entry_config(entry_api, &self.config).await?;
-                    set_boringtun_exit_config(exit_api, &self.config).await?;
-                }
-            }
             Ok(())
         })
     }
@@ -381,117 +426,21 @@ impl Tunnel for BoringTun {
     }
 }
 
-async fn set_boringtun_config(
-    tx: &mut ApiClient,
-    config: &Config,
-) -> Result<(), crate::TunnelError> {
-    log::info!("configuring boringtun device");
+fn create_set_command(
+    fwmark: Option<u32>,
+    private_key: &talpid_types::net::wireguard::PrivateKey,
+    peer: &talpid_types::net::wireguard::PeerConfig,
+) -> Set {
     let mut set_cmd = Set::builder()
-        .private_key(config.tunnel.private_key.to_bytes())
+        .private_key(private_key.to_bytes())
         .listen_port(0u16)
         .replace_peers()
         .build();
 
     #[cfg(target_os = "linux")]
     {
-        set_cmd.fwmark = config.fwmark;
+        set_cmd.fwmark = fwmark;
     }
-
-    for peer in config.peers() {
-        let mut boring_peer = Peer::builder()
-            .public_key(*peer.public_key.as_bytes())
-            .endpoint(peer.endpoint)
-            .allowed_ip(
-                peer.allowed_ips
-                    .iter()
-                    .map(|net| AllowedIP {
-                        addr: net.ip(),
-                        cidr: net.prefix(),
-                    })
-                    .collect(),
-            )
-            .build();
-
-        if let Some(psk) = &peer.psk {
-            boring_peer.preshared_key = Some(SetUnset::Set((*psk.as_bytes()).into()));
-        }
-
-        let boring_peer = SetPeer::builder().peer(boring_peer).build();
-
-        set_cmd.peers.push(boring_peer);
-    }
-
-    tx.send(set_cmd).await.map_err(|err| {
-        log::error!("Failed to set boringtun config: {err:#}");
-        TunnelError::SetConfigError
-    })?;
-    Ok(())
-}
-
-async fn set_boringtun_entry_config(
-    tx: &mut ApiClient,
-    config: &Config,
-) -> Result<(), crate::TunnelError> {
-    log::info!("configuring boringtun device");
-    let mut set_cmd = Set::builder()
-        .private_key(config.tunnel.private_key.to_bytes())
-        .listen_port(0u16)
-        .replace_peers()
-        .build();
-
-    #[cfg(target_os = "linux")]
-    {
-        set_cmd.fwmark = config.fwmark;
-    }
-
-    let peer = &config.entry_peer;
-    let mut boring_peer = Peer::builder()
-        .public_key(*peer.public_key.as_bytes())
-        .endpoint(peer.endpoint)
-        .allowed_ip(
-            peer.allowed_ips
-                .iter()
-                .map(|net| AllowedIP {
-                    addr: net.ip(),
-                    cidr: net.prefix(),
-                })
-                .collect(),
-        )
-        .build();
-
-    if let Some(psk) = &peer.psk {
-        boring_peer.preshared_key = Some(SetUnset::Set((*psk.as_bytes()).into()));
-    }
-
-    let boring_peer = SetPeer::builder().peer(boring_peer).build();
-
-    set_cmd.peers.push(boring_peer);
-
-    tx.send(set_cmd).await.map_err(|err| {
-        log::error!("Failed to set boringtun config: {err:#}");
-        TunnelError::SetConfigError
-    })?;
-    Ok(())
-}
-
-async fn set_boringtun_exit_config(
-    tx: &mut ApiClient,
-    config: &Config,
-) -> Result<(), crate::TunnelError> {
-    log::info!("configuring boringtun device");
-    let mut set_cmd = Set::builder()
-        .private_key(config.tunnel.private_key.to_bytes())
-        .listen_port(0u16)
-        .replace_peers()
-        .build();
-
-    #[cfg(target_os = "linux")]
-    {
-        set_cmd.fwmark = config.fwmark;
-    }
-
-    // TODO: don't unwrap
-    let peer = config.exit_peer.as_ref().unwrap();
 
     let mut boring_peer = Peer::builder()
         .public_key(*peer.public_key.as_bytes())
@@ -511,15 +460,11 @@ async fn set_boringtun_exit_config(
         boring_peer.preshared_key = Some(SetUnset::Set((*psk.as_bytes()).into()));
     }
 
-    let boring_peer = SetPeer::builder().peer(boring_peer).build();
+    set_cmd
+        .peers
+        .push(SetPeer::builder().peer(boring_peer).build());
 
-    set_cmd.peers.push(boring_peer);
-
-    tx.send(set_cmd).await.map_err(|err| {
-        log::error!("Failed to set boringtun config: {err:#}");
-        TunnelError::SetConfigError
-    })?;
-    Ok(())
+    set_cmd
 }
 
 #[cfg(target_os = "windows")]
