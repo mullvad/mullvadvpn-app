@@ -11,7 +11,6 @@ import io.mockk.just
 import io.mockk.mockk
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.AddTimeUiState
@@ -47,7 +46,6 @@ class AddTimeViewModelTest {
 
     private lateinit var viewModel: AddTimeViewModel
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @BeforeEach
     fun setUp() {
         every { mockPaymentUseCase.paymentAvailability } returns paymentAvailability
