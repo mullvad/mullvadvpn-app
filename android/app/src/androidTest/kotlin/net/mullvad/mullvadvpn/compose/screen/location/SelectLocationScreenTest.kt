@@ -57,7 +57,7 @@ class SelectLocationScreenTest {
 
     private fun ComposeContext.initScreen(
         state: Lc<Unit, SelectLocationUiState> = Lc.Loading(Unit),
-        onSelectHop: (hop: Hop) -> Unit = {},
+        onSelectHop: (hop: Hop, relayListType: RelayListType) -> Unit = { _, _ -> },
         onSearchClick: (RelayListType) -> Unit = {},
         onBackClick: () -> Unit = {},
         onFilterClick: () -> Unit = {},
@@ -191,7 +191,7 @@ class SelectLocationScreenTest {
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (Hop, RelayListType) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
@@ -211,7 +211,7 @@ class SelectLocationScreenTest {
             onNodeWithText(customList.relay.name).performClick()
 
             // Assert
-            verify { mockedOnSelectHop(customList) }
+            verify { mockedOnSelectHop(customList, RelayListType.EXIT) }
         }
 
     @Test
@@ -228,7 +228,7 @@ class SelectLocationScreenTest {
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (Hop, RelayListType) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
@@ -248,7 +248,7 @@ class SelectLocationScreenTest {
             onNodeWithText(recent.relay.name).performClick()
 
             // Assert
-            verify { mockedOnSelectHop(recent) }
+            verify { mockedOnSelectHop(recent, RelayListType.EXIT) }
         }
 
     @Test
@@ -265,7 +265,7 @@ class SelectLocationScreenTest {
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (Hop, RelayListType) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
@@ -308,7 +308,7 @@ class SelectLocationScreenTest {
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (Hop, RelayListType) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
