@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"6879d7a7-31b42\"",
+  "etag": "W/\"68904f73-31e47\"",
   "countries": [
     {
       "name": "Albania",
@@ -1556,6 +1556,108 @@
                   "public_key": "jWURoz8SLBUlRTQnAFTA/LDZUTpvlO0ghiVWH7MgaHQ=",
                   "daita": false,
                   "shadowsocks_extra_addr_in": []
+                }
+              },
+              "location": {
+                "country": "Brazil",
+                "country_code": "br",
+                "city": "Sao Paulo",
+                "city_code": "sao",
+                "latitude": -23.533773,
+                "longitude": -46.62529
+              },
+              "features": {
+                "daita": null,
+                "quic": null
+              }
+            },
+            {
+              "hostname": "br-sao-wg-302",
+              "ipv4_addr_in": "103.139.178.63",
+              "ipv6_addr_in": "2a06:3040:10:610::f101",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "HostRoyale",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "Xv1QvURPbgywITL6MNVhbYtfZXTm0lR98SPaf3AXeCc=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "103.139.178.74",
+                    "103.139.178.75"
+                  ]
+                }
+              },
+              "location": {
+                "country": "Brazil",
+                "country_code": "br",
+                "city": "Sao Paulo",
+                "city_code": "sao",
+                "latitude": -23.533773,
+                "longitude": -46.62529
+              },
+              "features": {
+                "daita": null,
+                "quic": null
+              }
+            },
+            {
+              "hostname": "br-sao-wg-303",
+              "ipv4_addr_in": "103.139.178.123",
+              "ipv6_addr_in": "2a06:3040:10:610::f201",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "HostRoyale",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "oYrzNmnieX0iZS2nLxdM3mNcDjQZEWn5yaFCtX76qDk=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "103.139.178.134",
+                    "103.139.178.135"
+                  ]
+                }
+              },
+              "location": {
+                "country": "Brazil",
+                "country_code": "br",
+                "city": "Sao Paulo",
+                "city_code": "sao",
+                "latitude": -23.533773,
+                "longitude": -46.62529
+              },
+              "features": {
+                "daita": null,
+                "quic": null
+              }
+            },
+            {
+              "hostname": "br-sao-wg-304",
+              "ipv4_addr_in": "103.139.178.183",
+              "ipv6_addr_in": "2a06:3040:10:610::f301",
+              "overridden_ipv4": false,
+              "overridden_ipv6": false,
+              "include_in_country": true,
+              "active": true,
+              "owned": false,
+              "provider": "HostRoyale",
+              "weight": 100,
+              "endpoint_data": {
+                "wireguard": {
+                  "public_key": "hmO6+lN2CrWMFdpiPtSZ3oPRmcsJlpIi00P+c5p6rQQ=",
+                  "daita": false,
+                  "shadowsocks_extra_addr_in": [
+                    "103.139.178.194",
+                    "103.139.178.195"
+                  ]
                 }
               },
               "location": {
@@ -4523,7 +4625,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": true,
               "provider": "31173",
               "weight": 100,
@@ -5150,7 +5252,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "xtom",
               "weight": 100,
@@ -5747,7 +5849,7 @@
             {
               "hostname": "es-bcn-wg-101",
               "ipv4_addr_in": "185.253.99.30",
-              "ipv6_addr_in": "2001:ac8:35:1::f001",
+              "ipv6_addr_in": "2001:ac8:17:20::f001",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
@@ -5778,7 +5880,7 @@
             {
               "hostname": "es-bcn-wg-102",
               "ipv4_addr_in": "185.253.99.98",
-              "ipv6_addr_in": "2001:ac8:35:1::f101",
+              "ipv6_addr_in": "2001:ac8:17:20::f101",
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
@@ -6003,7 +6105,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "HostRoyale",
               "weight": 100,
@@ -6079,7 +6181,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "Creanova",
               "weight": 1,
@@ -6104,7 +6206,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "Creanova",
               "weight": 1,
@@ -6129,7 +6231,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "Creanova",
               "weight": 1,
@@ -6154,7 +6256,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "Creanova",
               "weight": 1,
@@ -6179,7 +6281,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "Creanova",
               "weight": 1,
@@ -6204,7 +6306,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "Creanova",
               "weight": 1,
@@ -6229,7 +6331,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": false,
+              "active": true,
               "owned": true,
               "provider": "Creanova",
               "weight": 1,
@@ -8556,7 +8658,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "xtom",
               "weight": 100,
@@ -13575,7 +13677,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": true,
               "provider": "31173",
               "weight": 100,
@@ -15023,7 +15125,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "100TB",
               "weight": 100,
@@ -15056,7 +15158,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "100TB",
               "weight": 100,
@@ -15089,7 +15191,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "100TB",
               "weight": 100,
@@ -15122,7 +15224,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "100TB",
               "weight": 100,
@@ -15155,7 +15257,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "100TB",
               "weight": 100,
@@ -15188,7 +15290,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "100TB",
               "weight": 100,
@@ -21123,11 +21225,11 @@
               "ipv6_addr_in": null,
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 100,
+              "weight": 0,
               "endpoint_data": "openvpn",
               "location": {
                 "country": "USA",
@@ -21148,11 +21250,11 @@
               "ipv6_addr_in": null,
               "overridden_ipv4": false,
               "overridden_ipv6": false,
-              "include_in_country": true,
+              "include_in_country": false,
               "active": true,
               "owned": false,
               "provider": "Tzulo",
-              "weight": 100,
+              "weight": 0,
               "endpoint_data": "openvpn",
               "location": {
                 "country": "USA",
@@ -21589,7 +21691,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "Tzulo",
               "weight": 0,
@@ -21620,7 +21722,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "Tzulo",
               "weight": 0,
@@ -21651,44 +21753,13 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "Tzulo",
               "weight": 0,
               "endpoint_data": {
                 "wireguard": {
                   "public_key": "Vim/OUBT3Bogv+FF623pAHXc/vmRwur2JKcNsLHQH1o=",
-                  "daita": false,
-                  "shadowsocks_extra_addr_in": []
-                }
-              },
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "San Jose, CA",
-                "city_code": "sjc",
-                "latitude": 37.338208,
-                "longitude": -121.886329
-              },
-              "features": {
-                "daita": null,
-                "quic": null
-              }
-            },
-            {
-              "hostname": "us-sjc-wg-301",
-              "ipv4_addr_in": "142.147.89.195",
-              "ipv6_addr_in": "2604:e8c0:7::b66f",
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": true,
-              "active": true,
-              "owned": false,
-              "provider": "xtom",
-              "weight": 40,
-              "endpoint_data": {
-                "wireguard": {
-                  "public_key": "f3bMFNG3xcXRN/i0jHxo68CXFcNNlennuf1jdkPMEVM=",
                   "daita": false,
                   "shadowsocks_extra_addr_in": []
                 }
