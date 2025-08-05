@@ -371,6 +371,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "349f9b6a179ed607305526ca489b34ad0a41aed5f7980fa90eb03160b69598fb"
 
 [[package]]
+name = "bitfield-struct"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3ca019570363e800b05ad4fd890734f28ac7b72f563ad8a35079efb793616f8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.100",
+]
+
+[[package]]
 name = "bitflags"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -444,11 +455,12 @@ dependencies = [
 [[package]]
 name = "boringtun"
 version = "0.6.0"
-source = "git+https://github.com/mullvad/boringtun?rev=ad10b7b1aecc8bbd73925bf6c332f97f27923c77#ad10b7b1aecc8bbd73925bf6c332f97f27923c77"
+source = "git+https://github.com/mullvad/boringtun?rev=7d002e3f33195ba446784162e64648d871f1d3b0#7d002e3f33195ba446784162e64648d871f1d3b0"
 dependencies = [
  "aead",
  "async-trait",
  "base64 0.13.1",
+ "bitfield-struct",
  "blake2",
  "bytes",
  "chacha20poly1305",
@@ -460,7 +472,7 @@ dependencies = [
  "ip_network_table",
  "libc",
  "log",
- "nix 0.30.1",
+ "nix 0.30.1 (git+https://github.com/dlon/nix?rev=d5304b8e58bcc0cab6c7eeab07194c7d733498f4)",
  "parking_lot",
  "pnet_packet 0.35.0",
  "rand_core 0.6.4",
@@ -2903,7 +2915,7 @@ dependencies = [
  "mullvad-types",
  "mullvad-version",
  "natord",
- "nix 0.30.1",
+ "nix 0.30.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "serde_json",
  "talpid-types",
@@ -2942,7 +2954,7 @@ dependencies = [
  "mullvad-types",
  "mullvad-update",
  "mullvad-version",
- "nix 0.30.1",
+ "nix 0.30.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify 8.0.0",
  "objc2",
  "rand 0.8.5",
@@ -2986,7 +2998,7 @@ dependencies = [
 name = "mullvad-exclude"
 version = "0.0.0"
 dependencies = [
- "nix 0.30.1",
+ "nix 0.30.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-types",
  "thiserror 2.0.9",
 ]
@@ -3058,7 +3070,7 @@ dependencies = [
  "env_logger 0.11.7",
  "futures",
  "log",
- "nix 0.30.1",
+ "nix 0.30.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pnet_packet 0.35.0",
  "reqwest",
  "serde",
@@ -3078,7 +3090,7 @@ dependencies = [
  "log",
  "mullvad-paths",
  "mullvad-types",
- "nix 0.30.1",
+ "nix 0.30.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "parity-tokio-ipc",
  "prost 0.13.3",
  "prost-types 0.13.3",
@@ -3457,6 +3469,18 @@ name = "nix"
 version = "0.30.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "74523f3a35e05aba87a1d978330aef40f67b0304ac79c1c00b294c9830543db6"
+dependencies = [
+ "bitflags 2.9.0",
+ "cfg-if",
+ "cfg_aliases 0.2.1",
+ "libc",
+ "memoffset 0.9.1",
+]
+
+[[package]]
+name = "nix"
+version = "0.30.1"
+source = "git+https://github.com/dlon/nix?rev=d5304b8e58bcc0cab6c7eeab07194c7d733498f4#d5304b8e58bcc0cab6c7eeab07194c7d733498f4"
 dependencies = [
  "bitflags 2.9.0",
  "cfg-if",
@@ -5331,7 +5355,7 @@ dependencies = [
  "memoffset 0.6.5",
  "mnl",
  "nftnl",
- "nix 0.30.1",
+ "nix 0.30.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell",
  "parking_lot",
  "pcap",
@@ -5408,7 +5432,7 @@ version = "0.0.0"
 dependencies = [
  "libc",
  "log",
- "nix 0.30.1",
+ "nix 0.30.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "socket2 0.5.8",
  "talpid-types",
  "thiserror 2.0.9",
@@ -5486,7 +5510,7 @@ dependencies = [
  "log",
  "netlink-packet-route",
  "netlink-sys",
- "nix 0.30.1",
+ "nix 0.30.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rtnetlink",
  "system-configuration",
  "talpid-types",
@@ -5501,7 +5525,7 @@ dependencies = [
 name = "talpid-time"
 version = "0.0.0"
 dependencies = [
- "nix 0.30.1",
+ "nix 0.30.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio",
 ]
 
@@ -5592,7 +5616,7 @@ dependencies = [
  "netlink-packet-route",
  "netlink-packet-utils",
  "netlink-proto",
- "nix 0.30.1",
+ "nix 0.30.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell",
  "parking_lot",
  "proptest",
@@ -6127,7 +6151,7 @@ dependencies = [
  "async-trait",
  "log",
  "mullvad-masque-proxy",
- "nix 0.30.1",
+ "nix 0.30.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "shadowsocks",
  "thiserror 2.0.9",
  "tokio",
