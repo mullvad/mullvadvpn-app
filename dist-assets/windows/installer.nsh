@@ -765,6 +765,10 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	push $R0
 	push $R1
 
+	StrCpy $CmdPath "$SYSDIR\cmd.exe"
+	StrCpy $FindPath "$SYSDIR\find.exe"
+	StrCpy $PowerShellPath "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe"
+
 	# This must be done here for compatibility with <= 2021.2,
 	# since those versions do not kill the GUI in the uninstaller.
 	Var /GLOBAL OldVersion

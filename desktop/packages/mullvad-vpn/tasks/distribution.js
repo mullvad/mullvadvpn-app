@@ -56,6 +56,7 @@ function newConfig() {
       'node_modules/',
       '!node_modules/grpc-tools',
       '!node_modules/@types',
+      '!node_modules/@rollup',
       '!node_modules/nseventforwarder/debug',
       '!node_modules/windows-utils/debug',
     ],
@@ -84,7 +85,7 @@ function newConfig() {
         target: 'pkg',
         arch: getMacArch(),
       },
-      singleArchFiles: 'node_modules/nseventforwarder/dist/**',
+      x64ArchFiles: 'Contents/Resources/app.asar.unpacked/node_modules/nseventforwarder/dist/*/index.node',
       artifactName: 'MullvadVPN-${version}.${ext}',
       category: 'public.app-category.tools',
       icon: distAssets('icon-macos.icns'),
@@ -129,7 +130,6 @@ function newConfig() {
     win: {
       target: [],
       artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
-      publisherName: 'Mullvad VPN AB',
       extraResources: [
         { from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad.exe')), to: '.' },
         {
@@ -376,10 +376,6 @@ function packMac() {
 
         return true;
       },
-      beforePack: async (context) => {
-        await removeNseventforwarderNativeModules();
-        config.beforePack?.(context);
-      },
       afterPack: (context) => {
         config.afterPack?.(context);
 
@@ -395,7 +391,7 @@ function packMac() {
         // these directories and it's changed between versions without a mention in the changelog.
         for (const dir of appOutDirs) {
           try {
-            await fs.promises.rm(dir, { recursive: true });
+            //await fs.promises.rm(dir, { recursive: true });
           } catch {
             // noop
           }
@@ -442,11 +438,11 @@ function packLinux() {
       afterPack: async (context) => {
         config.afterPack?.(context);
 
-        const sourceExecutable = path.join(context.appOutDir, 'mullvad-vpn');
+        const sourceExecutable = path.join(context.appOutDir, 'Mullvad VPN');
         const targetExecutable = path.join(context.appOutDir, 'mullvad-gui');
         const launcherScript = path.join(context.appOutDir, 'mullvad-gui-launcher.sh');
 
-        // rename mullvad-vpn to mullvad-gui
+        // rename "Mullvad VPN" to mullvad-gui
         await fs.promises.rename(sourceExecutable, targetExecutable);
         // rename launcher script to mullvad-vpn
         await fs.promises.rename(launcherScript, sourceExecutable);
@@ -520,21 +516,6 @@ function getLinuxVersion() {
 function productVersion(extraArgs) {
   const args = ['run', '-q', '--bin', 'mullvad-version', ...extraArgs];
   return execFileSync('cargo', args, { encoding: 'utf-8' }).trim();
-}
-
-// `@electron/universal` tries to lipo together libraries built for the same architecture
-// if they're present for both targets. So make sure we remove libraries for other archs.
-// Remove the workaround once the issue has been fixed:
-// https://github.com/electron/universal/issues/41#issuecomment-1496288834
-//
-// dist/darwin-x64/index.node
-// dist/darwin-arm64/index.node
-async function removeNseventforwarderNativeModules() {
-  try {
-    await fs.promises.rm('../../node_modules/nseventforwarder/dist/', { recursive: true });
-  } catch {
-    // noop
-  }
 }
 
 exports.packWin = packWin;
