@@ -9,7 +9,6 @@ import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,10 +16,9 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import net.mullvad.mullvadvpn.data.mock
+import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.ErrorState
@@ -31,8 +29,10 @@ import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @ExperimentalCoroutinesApi
+@ExtendWith(TestCoroutineRule::class)
 class OutOfTimeUseCaseTest {
     private val mockAccountRepository: AccountRepository = mockk()
     private val mockConnectionProxy: ConnectionProxy = mockk()
@@ -52,15 +52,12 @@ class OutOfTimeUseCaseTest {
         every { mockAccountRepository.accountData } returns expiry
         every { mockConnectionProxy.tunnelState } returns events.consumeAsFlow()
 
-        Dispatchers.setMain(dispatcher)
-
         outOfTimeUseCase =
             OutOfTimeUseCase(mockConnectionProxy, mockAccountRepository, scope.backgroundScope)
     }
 
     @AfterEach
     fun teardown() {
-        Dispatchers.resetMain()
         unmockkAll()
     }
 
