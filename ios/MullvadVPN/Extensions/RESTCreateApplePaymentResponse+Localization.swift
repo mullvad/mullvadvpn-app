@@ -17,19 +17,10 @@ extension REST.CreateApplePaymentResponse {
     func alertTitle(context: Context) -> String {
         switch context {
         case .purchase:
-            return NSLocalizedString(
-                "TIME_ADDED_ALERT_SUCCESS_TITLE",
-                tableName: "REST",
-                value: "Thanks for your purchase",
-                comment: ""
-            )
+            return NSLocalizedString("Thanks for your purchase", comment: "")
+
         case .restoration:
-            return NSLocalizedString(
-                "RESTORE_PURCHASES_ALERT_TITLE",
-                tableName: "REST",
-                value: "Restore purchases",
-                comment: ""
-            )
+            return NSLocalizedString("Restore purchases", comment: "")
         }
     }
 
@@ -37,31 +28,20 @@ extension REST.CreateApplePaymentResponse {
         switch context {
         case .purchase:
             return String(
-                format: NSLocalizedString(
-                    "TIME_ADDED_ALERT_SUCCESS_MESSAGE",
-                    tableName: "REST",
-                    value: "%@ have been added to your account",
-                    comment: ""
-                ),
+                format: NSLocalizedString("%@ have been added to your account", comment: ""),
                 formattedTimeAdded ?? ""
             )
         case .restoration:
             switch self {
             case .noTimeAdded:
                 return NSLocalizedString(
-                    "RESTORE_PURCHASES_ALERT_NO_TIME_ADDED_MESSAGE",
-                    tableName: "REST",
-                    value: "Your previous purchases have already been added to this account.",
+                    "Your previous purchases have already been added to this account.",
                     comment: ""
                 )
+
             case .timeAdded:
                 return String(
-                    format: NSLocalizedString(
-                        "RESTORE_PURCHASES_ALERT_TIME_ADDED_MESSAGE",
-                        tableName: "REST",
-                        value: "%@ have been added to your account",
-                        comment: ""
-                    ),
+                    format: NSLocalizedString("%@ have been added to your account", comment: ""),
                     formattedTimeAdded ?? ""
                 )
             }
@@ -73,19 +53,10 @@ extension REST.CreateApplePaymentResponse.Context {
     var errorTitle: String {
         switch self {
         case .purchase:
-            return NSLocalizedString(
-                "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
-                tableName: "Payment",
-                value: "Cannot complete the purchase",
-                comment: ""
-            )
+            return NSLocalizedString("Cannot complete the purchase", comment: "")
+
         case .restoration:
-            return NSLocalizedString(
-                "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
-                tableName: "Payment",
-                value: "Cannot restore purchases",
-                comment: ""
-            )
+            return NSLocalizedString("Cannot restore purchases", comment: "")
         }
     }
 }

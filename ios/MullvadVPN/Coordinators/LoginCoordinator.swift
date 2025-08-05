@@ -126,12 +126,7 @@ final class LoginCoordinator: Coordinator, Presenting {
                         message: errorDescription,
                         buttons: [
                             AlertAction(
-                                title: NSLocalizedString(
-                                    "ERROR_ALERT_OK_ACTION",
-                                    tableName: "DeviceManagement",
-                                    value: "Got it!",
-                                    comment: ""
-                                ),
+                                title: NSLocalizedString("Got it!", comment: ""),
                                 style: .default
                             ),
                         ]

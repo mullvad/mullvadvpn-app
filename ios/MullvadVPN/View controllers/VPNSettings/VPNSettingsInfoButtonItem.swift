@@ -22,9 +22,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
         switch self {
         case .localNetworkSharing:
             NSLocalizedString(
-                "VPN_SETTINGS_LOCAL_NETWORK_SHARING",
-                tableName: "LocalNetworkSharing",
-                value: """
+                """
                 This feature allows access to other devices on the local network, such as for sharing, printing, \
                 streaming, etc.
                 Attention: toggling “Local network sharing” requires restarting the VPN connection.
@@ -33,9 +31,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
             )
         case .contentBlockers:
             NSLocalizedString(
-                "VPN_SETTINGS_CONTENT_BLOCKERS_GENERAL",
-                tableName: "ContentBlockers",
-                value: """
+                """
                 When this feature is enabled it stops the device from contacting certain \
                 domains or websites known for distributing ads, malware, trackers and more. \
 
@@ -46,9 +42,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
             )
         case .blockMalware:
             NSLocalizedString(
-                "VPN_SETTINGS_CONTENT_BLOCKERS_MALWARE",
-                tableName: "ContentBlockers",
-                value: """
+                """
                 Warning: The malware blocker is not an anti-virus and should not \
                 be treated as such, this is just an extra layer of protection.
                 """,
@@ -57,9 +51,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
         case let .wireGuardPorts(portsString):
             String(
                 format: NSLocalizedString(
-                    "VPN_SETTINGS_WIREGUARD_PORTS_GENERAL",
-                    tableName: "WireGuardPorts",
-                    value: """
+                    """
                     The automatic setting will randomly choose from the valid port ranges shown below.
                     The custom port can be any value inside the valid ranges:
                     %@
@@ -70,9 +62,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
             )
         case .wireGuardObfuscation:
             NSLocalizedString(
-                "VPN_SETTINGS_WIREGUARD_OBFUSCATION_GENERAL",
-                tableName: "WireGuardObfuscation",
-                value: """
+                """
                 Obfuscation hides the WireGuard traffic inside another protocol. \
                 It can be used to help circumvent censorship and other types of filtering, \
                 where a plain WireGuard connection would be blocked.
@@ -81,16 +71,13 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
             )
         case .wireGuardObfuscationPort:
             NSLocalizedString(
-                "VPN_SETTINGS_WIREGUARD_OBFUSCATION_PORT_GENERAL",
-                tableName: "WireGuardObfuscation",
-                value: "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.",
+                "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.",
                 comment: ""
             )
+
         case .quantumResistance:
             NSLocalizedString(
-                "VPN_SETTINGS_QUANTUM_RESISTANCE_GENERAL",
-                tableName: "QuantumResistance",
-                value: """
+                """
                 This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.
                 It does this by performing an extra key exchange using a quantum safe algorithm and mixing \
                 the result into WireGuard’s regular encryption.
@@ -100,9 +87,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
             )
         case .multihop:
             NSLocalizedString(
-                "MULTIHOP_INFORMATION_TEXT",
-                tableName: "Multihop",
-                value: """
+                """
                 Multihop routes your traffic into one WireGuard server and out another, making it harder to trace.
                 This results in increased latency but increases anonymity online.
                 """,

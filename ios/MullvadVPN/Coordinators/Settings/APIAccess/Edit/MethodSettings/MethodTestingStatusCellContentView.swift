@@ -90,10 +90,8 @@ class MethodTestingStatusCellContentView: UIView, UIContentView {
         NSLayoutConstraint.activate([
             progressView.widthAnchor.constraint(equalToConstant: 30),
             progressView.heightAnchor.constraint(equalToConstant: 30),
-
             progressContainer.widthAnchor.constraint(equalToConstant: 30),
             progressContainer.heightAnchor.constraint(equalToConstant: 20),
-
             statusIndicator.widthAnchor.constraint(equalToConstant: 20),
             statusIndicator.heightAnchor.constraint(equalToConstant: 20).withPriority(.defaultHigh),
         ])

@@ -137,18 +137,9 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
 
     private func updateAccessibilityCustomActions() {
         let actionName = isExpanded
-            ? NSLocalizedString(
-                "SETTINGS_HEADER_COLLAPSE_ACCESSIBILITY_ACTION",
-                tableName: "Settings",
-                value: "Collapse \(accessibilityCustomActionName)",
-                comment: ""
-            )
-            : NSLocalizedString(
-                "SETTINGS_HEADER_EXPAND_ACCESSIBILITY_ACTION",
-                tableName: "Settings",
-                value: "Expand \(accessibilityCustomActionName)",
-                comment: ""
-            )
+            ? NSLocalizedString("Collapse \(accessibilityCustomActionName)", comment: "")
+
+            : NSLocalizedString("Expand \(accessibilityCustomActionName)", comment: "")
 
         accessibilityCustomActions = [
             UIAccessibilityCustomAction(

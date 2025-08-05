@@ -78,13 +78,7 @@ class LoginContentView: UIView {
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.adjustsFontForContentSizeCategory = true
         textLabel.numberOfLines = 0
-        textLabel.text = NSLocalizedString(
-            "CREATE_BUTTON_HEADER_LABEL",
-            tableName: "Login",
-            value: "Don’t have an account number?",
-            comment: ""
-        )
-        textLabel.numberOfLines = 0
+        textLabel.text = NSLocalizedString("Don’t have an account number?", comment: "")
         return textLabel
     }()
 
@@ -92,12 +86,10 @@ class LoginContentView: UIView {
         let button = AppButton(style: .default)
         button.setAccessibilityIdentifier(.createAccountButton)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString(
-            "CREATE_ACCOUNT_BUTTON_LABEL",
-            tableName: "Login",
-            value: "Create account",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(
+            NSLocalizedString("Create account", comment: ""),
+            for: .normal
+        )
         return button
     }()
 

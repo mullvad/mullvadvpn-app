@@ -22,12 +22,8 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
         titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.numberOfLines = 0
         titleLabel.textColor = .white
-        titleLabel.text = NSLocalizedString(
-            "TITLE_LABEL",
-            tableName: "RevokedDevice",
-            value: "Device is inactive",
-            comment: ""
-        )
+        titleLabel.text = NSLocalizedString("Device is inactive", comment: "")
+
         return titleLabel
     }()
 
@@ -39,11 +35,10 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
         bodyLabel.numberOfLines = 0
         bodyLabel.textColor = .white
         bodyLabel.text = NSLocalizedString(
-            "DESCRIPTION_LABEL",
-            tableName: "RevokedDevice",
-            value: "You have removed this device. To connect again, you will need to log back in.",
+            "You have removed this device. To connect again, you will need to log back in.",
             comment: ""
         )
+
         return bodyLabel
     }()
 
@@ -54,12 +49,8 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
         bodyLabel.adjustsFontForContentSizeCategory = true
         bodyLabel.numberOfLines = 0
         bodyLabel.textColor = .white
-        bodyLabel.text = NSLocalizedString(
-            "UNBLOCK_INTERNET_LABEL",
-            tableName: "RevokedDevice",
-            value: "Going to login will unblock the Internet on this device.",
-            comment: ""
-        )
+        bodyLabel.text = NSLocalizedString("Going to login will unblock the Internet on this device.", comment: "")
+
         return bodyLabel
     }()
 
@@ -68,12 +59,7 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
         button.setAccessibilityIdentifier(.revokedDeviceLoginButton)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(
-            NSLocalizedString(
-                "GOTO_LOGIN_BUTTON_LABEL",
-                tableName: "RevokedDevice",
-                value: "Go to login",
-                comment: ""
-            ),
+            NSLocalizedString("Go to login", comment: ""),
             for: .normal
         )
         return button
@@ -132,28 +118,24 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
                 constant: 30
             ),
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-
             titleLabel.topAnchor.constraint(
                 equalTo: imageView.bottomAnchor,
                 constant: 30
             ),
             titleLabel.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-
             bodyLabel.topAnchor.constraint(
                 equalTo: titleLabel.bottomAnchor,
                 constant: 16
             ),
             bodyLabel.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             bodyLabel.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-
             footerLabel.topAnchor.constraint(
                 equalTo: bodyLabel.bottomAnchor,
                 constant: 16
             ),
             footerLabel.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             footerLabel.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-
             logoutButton.topAnchor.constraint(greaterThanOrEqualTo: footerLabel.bottomAnchor),
             logoutButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             logoutButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),

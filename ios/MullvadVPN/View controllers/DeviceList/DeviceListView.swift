@@ -34,8 +34,9 @@ struct DeviceListView: View {
                         ProgressView()
                             .progressViewStyle(MullvadProgressViewStyle())
 
-                        Text("Fetching devices...")
-                            .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+                        Text(NSLocalizedString("Fetching devices...", comment: "")
+                        )
+                        .foregroundColor(.mullvadTextPrimary.opacity(0.6))
                     }
 
                     Spacer()
@@ -52,8 +53,11 @@ struct DeviceListView: View {
                 MullvadListActionItemView(
                     item: .init(
                         id: device.id,
-                        title: LocalizedStringKey(device.name),
-                        state: device.isCurrentDevice ? "Current device" : nil,
+                        title: device.name,
+                        state: device.isCurrentDevice
+                            ? NSLocalizedString("Current device", comment: "")
+
+                            : nil,
                         detail: "Created: \(device.created.formatted(date: .long, time: .omitted))",
                         accessibilityIdentifier: AccessibilityIdentifier.deviceCellRemoveButton,
                         pressed: {

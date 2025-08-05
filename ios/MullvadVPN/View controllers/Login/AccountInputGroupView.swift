@@ -25,12 +25,8 @@ final class AccountInputGroupView: UIView {
         button.setImage(UIImage.Buttons.rightArrow, for: .normal)
         button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         button.setAccessibilityIdentifier(.loginTextFieldButton)
-        button.accessibilityLabel = NSLocalizedString(
-            "ACCOUNT_INPUT_LOGIN_BUTTON_ACCESSIBILITY_LABEL",
-            tableName: "AccountInput",
-            value: "Log in",
-            comment: ""
-        )
+        button.accessibilityLabel = NSLocalizedString("Log in", comment: "")
+
         return button
     }()
 
@@ -97,12 +93,8 @@ final class AccountInputGroupView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.contentHorizontalAlignment = .leading
         button.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        button.accessibilityLabel = NSLocalizedString(
-            "LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL",
-            tableName: "AccountInput",
-            value: "Last used account",
-            comment: ""
-        )
+        button.accessibilityLabel = NSLocalizedString("Last used account", comment: "")
+
         button.configuration?.contentInsets = UIMetrics.textFieldMargins.toDirectionalInsets
         button.configuration?.title = " "
         button.configuration?
@@ -120,12 +112,8 @@ final class AccountInputGroupView: UIView {
         let button = CustomButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-        button.accessibilityLabel = NSLocalizedString(
-            "REMOVE_LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL",
-            tableName: "AccountInput",
-            value: "Remove last used account",
-            comment: ""
-        )
+        button.accessibilityLabel = NSLocalizedString("Remove last used account", comment: "")
+
         button.configuration?.image = UIImage.Buttons.closeSmall.withTintColor(.primaryColor)
         button.configuration?.title = " "
         return button

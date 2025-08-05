@@ -99,7 +99,7 @@ extension ConnectionViewViewModel {
         }
     }
 
-    var localizedTitleForSecureLabel: LocalizedStringKey {
+    var titleForSecureLabel: LocalizedStringKey {
         switch tunnelStatus.state {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer:
             LocalizedStringKey("Connecting...")
@@ -129,10 +129,10 @@ extension ConnectionViewViewModel {
         }
     }
 
-    var localizedAccessibilityLabelForSecureLabel: LocalizedStringKey {
+    var accessibilityLabelForSecureLabel: LocalizedStringKey {
         switch tunnelStatus.state {
         case .disconnected, .waitingForConnectivity, .disconnecting, .pendingReconnect, .error:
-            localizedTitleForSecureLabel
+            titleForSecureLabel
         case let .connected(tunnelInfo, _, _):
             LocalizedStringKey("Connected to \(tunnelInfo.exit.location.city), \(tunnelInfo.exit.location.country)")
         case let .connecting(tunnelInfo, _, _):
@@ -141,14 +141,14 @@ extension ConnectionViewViewModel {
                     "Connecting to \(tunnelInfo.exit.location.city), \(tunnelInfo.exit.location.country)"
                 )
             } else {
-                localizedTitleForSecureLabel
+                titleForSecureLabel
             }
         case let .reconnecting(tunnelInfo, _, _), let .negotiatingEphemeralPeer(tunnelInfo, _, _, _):
             LocalizedStringKey("Reconnecting to \(tunnelInfo.exit.location.city), \(tunnelInfo.exit.location.country)")
         }
     }
 
-    var localizedTitleForSelectLocationButton: LocalizedStringKey {
+    var titleForSelectLocationButton: LocalizedStringKey {
         switch tunnelStatus.state {
         case .disconnecting, .pendingReconnect, .disconnected, .waitingForConnectivity(.noNetwork):
             LocalizedStringKey(connectionName ?? "Select location")
@@ -174,7 +174,6 @@ extension ConnectionViewViewModel {
         guard let tunnelRelays = tunnelStatus.state.relays else {
             return nil
         }
-
         return LocalizedStringKey("\(tunnelRelays.exit.location.country), \(tunnelRelays.exit.location.city)")
     }
 

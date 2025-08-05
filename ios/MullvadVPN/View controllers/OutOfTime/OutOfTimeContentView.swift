@@ -18,12 +18,8 @@ class OutOfTimeContentView: UIView {
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = NSLocalizedString(
-            "OUT_OF_TIME_TITLE",
-            tableName: "OutOfTime",
-            value: "Out of time",
-            comment: ""
-        )
+        label.text = NSLocalizedString("Out of time", comment: "")
+
         label.font = .mullvadLarge
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
@@ -42,12 +38,8 @@ class OutOfTimeContentView: UIView {
         let button = AppButton(style: .danger)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.alpha = 0
-        let localizedString = NSLocalizedString(
-            "OUT_OF_TIME_DISCONNECT_BUTTON",
-            tableName: "OutOfTime",
-            value: "Disconnect",
-            comment: ""
-        )
+        let localizedString = NSLocalizedString("Disconnect", comment: "")
+
         button.setTitle(localizedString, for: .normal)
         return button
     }()
@@ -55,12 +47,8 @@ class OutOfTimeContentView: UIView {
     lazy var purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        let localizedString = NSLocalizedString(
-            "OUT_OF_TIME_PURCHASE_BUTTON",
-            tableName: "OutOfTime",
-            value: "Add time",
-            comment: ""
-        )
+        let localizedString = NSLocalizedString("Add time", comment: "")
+
         button.setTitle(localizedString, for: .normal)
         return button
     }()
@@ -68,12 +56,10 @@ class OutOfTimeContentView: UIView {
     lazy var restoreButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString(
-            "RESTORE_PURCHASES_BUTTON_TITLE",
-            tableName: "OutOfTime",
-            value: "Restore purchases",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(
+            NSLocalizedString("Restore purchases", comment: ""),
+            for: .normal
+        )
         return button
     }()
 
@@ -130,14 +116,12 @@ class OutOfTimeContentView: UIView {
     func configureConstraints() {
         NSLayoutConstraint.activate([
             topStackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -20),
-
             topStackView.leadingAnchor.constraint(
                 equalTo: layoutMarginsGuide.leadingAnchor
             ),
             topStackView.trailingAnchor.constraint(
                 equalTo: layoutMarginsGuide.trailingAnchor
             ),
-
             bottomStackView.leadingAnchor.constraint(
                 equalTo: layoutMarginsGuide.leadingAnchor
             ),

@@ -18,36 +18,32 @@ struct RelayFilterDataSourceItem: Hashable, Comparable {
         case ownershipAny, ownershipOwned, ownershipRented, allProviders, provider
     }
 
-    static let anyOwnershipItem = RelayFilterDataSourceItem(name: NSLocalizedString(
-        "RELAY_FILTER_ANY_LABEL",
-        tableName: "RelayFilter",
-        value: "Any",
-        comment: ""
-    ), type: .ownershipAny, isEnabled: true)
+    static let anyOwnershipItem = RelayFilterDataSourceItem(
+        name: NSLocalizedString("Any", comment: ""),
+        type: .ownershipAny,
+        isEnabled: true
+    )
 
-    static let ownedOwnershipItem = RelayFilterDataSourceItem(name: NSLocalizedString(
-        "RELAY_FILTER_OWNED_LABEL",
-        tableName: "RelayFilter",
-        value: "Owned",
-        comment: ""
-    ), type: .ownershipOwned, isEnabled: true)
+    static let ownedOwnershipItem = RelayFilterDataSourceItem(
+        name: NSLocalizedString("Owned", comment: ""),
+        type: .ownershipOwned,
+        isEnabled: true
+    )
 
-    static let rentedOwnershipItem = RelayFilterDataSourceItem(name: NSLocalizedString(
-        "RELAY_FILTER_RENTED_LABEL",
-        tableName: "RelayFilter",
-        value: "Rented",
-        comment: ""
-    ), type: .ownershipRented, isEnabled: true)
+    static let rentedOwnershipItem = RelayFilterDataSourceItem(
+        name: NSLocalizedString("Rented", comment: ""),
+        type: .ownershipRented,
+        isEnabled: true
+    )
 
     static let ownerships: [RelayFilterDataSourceItem] = [anyOwnershipItem, ownedOwnershipItem, rentedOwnershipItem]
 
     static var allProviders: RelayFilterDataSourceItem {
-        RelayFilterDataSourceItem(name: NSLocalizedString(
-            "RELAY_FILTER_ALL_PROVIDERS_LABEL",
-            tableName: "RelayFilter",
-            value: "All Providers",
-            comment: ""
-        ), type: .allProviders, isEnabled: true)
+        RelayFilterDataSourceItem(
+            name: NSLocalizedString("All Providers", comment: ""),
+            type: .allProviders,
+            isEnabled: true
+        )
     }
 
     static func < (lhs: RelayFilterDataSourceItem, rhs: RelayFilterDataSourceItem) -> Bool {

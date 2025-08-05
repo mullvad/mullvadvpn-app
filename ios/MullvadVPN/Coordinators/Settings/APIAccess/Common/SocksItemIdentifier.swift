@@ -49,15 +49,19 @@ enum SocksItemIdentifier: Hashable, CaseIterable {
     var text: String {
         switch self {
         case .server:
-            NSLocalizedString("SOCKS_SERVER", tableName: "APIAccess", value: "Server", comment: "")
+            NSLocalizedString("Server", comment: "")
+
         case .port:
-            NSLocalizedString("SOCKS_PORT", tableName: "APIAccess", value: "Port", comment: "")
+            NSLocalizedString("Port", comment: "")
+
         case .authentication:
-            NSLocalizedString("SOCKS_AUTHENTICATION", tableName: "APIAccess", value: "Authentication", comment: "")
+            NSLocalizedString("Authentication", comment: "")
+
         case .username:
-            NSLocalizedString("SOCKS_USERNAME", tableName: "APIAccess", value: "Username", comment: "")
+            NSLocalizedString("Username", comment: "")
+
         case .password:
-            NSLocalizedString("SOCKS_PASSWORD", tableName: "APIAccess", value: "Password", comment: "")
+            NSLocalizedString("Password", comment: "")
         }
     }
 }

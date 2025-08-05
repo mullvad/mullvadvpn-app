@@ -145,7 +145,6 @@ final class NotificationBannerView: UIView {
                 .constraint(equalToConstant: UIMetrics.InAppBannerNotification.indicatorSize.width),
             indicatorView.heightAnchor
                 .constraint(equalToConstant: UIMetrics.InAppBannerNotification.indicatorSize.height),
-
             contentStackView.topAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.topAnchor),
             contentStackView.leadingAnchor.constraint(
                 equalToSystemSpacingAfter: indicatorView.trailingAnchor,

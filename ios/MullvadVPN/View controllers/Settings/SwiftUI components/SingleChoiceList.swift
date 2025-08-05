@@ -9,45 +9,44 @@
 import SwiftUI
 
 /**
-  A component presenting a vertical list in the Mullvad style for selecting a single item from a list.
-  This is parametrised over a value type known as `Value`, which can be any Equatable type. One would typically use an `enum` for this. As the name suggests, this allows one value to be chosen, which it sets a provided binding to.
+   A component presenting a vertical list in the Mullvad style for selecting a single item from a list.
+   This is parametrised over a value type known as `Value`, which can be any Equatable type. One would typically use an `enum` for this. As the name suggests, this allows one value to be chosen, which it sets a provided binding to.
 
-  The simplest use case for `SingleChoiceList` is to present a list of options, each of which being a simple value without additional data; i.e.,
+   The simplest use case for `SingleChoiceList` is to present a list of options, each of which being a simple value without additional data; i.e.,
+ ```swift
+   SingleChoiceList(
+      title: "Colour",
+      options: [.red, .green, .blue],
+      value: $colour,
+      itemDescription: { NSLocalizedString("colour_\($0)") }
+   )
+   ```
 
-  ```swift
-  SingleChoiceList(
-     title: "Colour",
-     options: [.red, .green, .blue],
-     value: $colour,
-     itemDescription: { NSLocalizedString("colour_\($0)") }
-  )
-  ```
+   `SingleChoiceList` also provides support for having a value that takes a user-defined value, and presents a UI for filling this. In this case, the caller needs to provide not only the UI elements but functions for parsing the entered text to a value and unparsing the value to the text field, like so:
 
-  `SingleChoiceList` also provides support for having a value that takes a user-defined value, and presents a UI for filling this. In this case, the caller needs to provide not only the UI elements but functions for parsing the entered text to a value and unparsing the value to the text field, like so:
+   ```swift
+  enum TipAmount {
+      case none
+      case fivePercent
+      case tenPercent
+      case custom(Int)
+   }
 
-  ```swift
- enum TipAmount {
-     case none
-     case fivePercent
-     case tenPercent
-     case custom(Int)
-  }
+   SingleChoiceList(
+      title: "Tip",
+      options: [.none, .fivePercent, .tenPercent],
+      value: $tipAmount,
+      parseCustomValue: { Int($0).map { TipAmount.custom($0) },
+      formatCustomValue: {
+          if case let .custom(t) = $0 { "\(t)" } else { nil }
+      },
+      customLabel: "Custom",
+      customPrompt: "%  ",
+      customFieldMode: .numericText
+   )
 
-  SingleChoiceList(
-     title: "Tip",
-     options: [.none, .fivePercent, .tenPercent],
-     value: $tipAmount,
-     parseCustomValue: { Int($0).map { TipAmount.custom($0) },
-     formatCustomValue: {
-         if case let .custom(t) = $0 { "\(t)" } else { nil }
-     },
-     customLabel: "Custom",
-     customPrompt: "%  ",
-     customFieldMode: .numericText
-  )
-
-  ```
-  */
+   ```
+   */
 
 // swiftlint:disable function_parameter_count
 

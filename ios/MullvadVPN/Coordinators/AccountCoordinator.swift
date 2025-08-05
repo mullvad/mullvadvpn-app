@@ -149,12 +149,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
                         message: errorDescription,
                         buttons: [
                             AlertAction(
-                                title: NSLocalizedString(
-                                    "ERROR_ALERT_OK_ACTION",
-                                    tableName: "DeviceManagement",
-                                    value: "Got it!",
-                                    comment: ""
-                                ),
+                                title: NSLocalizedString("Got it!", comment: ""),
                                 style: .default
                             ),
                         ]
@@ -165,12 +160,8 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
                 }
             )
         )
-        controller.title = NSLocalizedString(
-            "MANAGE_DEVICES_TITLE",
-            tableName: "Manage devices",
-            value: "Manage devices",
-            comment: ""
-        )
+        controller.title = NSLocalizedString("Manage devices", comment: "")
+
         let doneButton = UIBarButtonItem(
             systemItem: .done,
             primaryAction: UIAction(handler: { _ in
@@ -252,9 +243,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
 
     private func showRestorePurchasesInfo() {
         let message = NSLocalizedString(
-            "RESTORE_PURCHASES_DIALOG_MESSAGE",
-            tableName: "Account",
-            value: """
+            """
             You can use the "restore purchases" function to check for any in-app payments \
             made via Apple services. If there is a payment that has not been credited, it will \
             add the time to the currently logged in Mullvad account.
@@ -265,20 +254,10 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         let presentation = AlertPresentation(
             id: "account-device-info-alert",
             icon: .info,
-            title: NSLocalizedString(
-                "RESTORE_PURCHASES_DIALOG_TITLE",
-                tableName: "Account",
-                value: "If you haven’t received additional VPN time after purchasing",
-                comment: ""
-            ),
+            title: NSLocalizedString("If you haven’t received additional VPN time after purchasing", comment: ""),
             message: message,
             buttons: [AlertAction(
-                title: NSLocalizedString(
-                    "RESTORE_PURCHASES_DIALOG_OK_ACTION",
-                    tableName: "Account",
-                    value: "Got it!",
-                    comment: ""
-                ),
+                title: NSLocalizedString("Got it!", comment: ""),
                 style: .default
             )]
         )
@@ -289,9 +268,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
 
     func showFailToFetchProducts() {
         let message = NSLocalizedString(
-            "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",
-            tableName: "Welcome",
-            value:
             """
             Failed to connect to App store, please try again later.
             """,
@@ -304,12 +280,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             message: message,
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
-                        tableName: "Welcome",
-                        value: "Got it!",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
                 ),
             ]

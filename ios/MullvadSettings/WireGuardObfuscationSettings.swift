@@ -80,12 +80,8 @@ public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomString
     public var description: String {
         switch self {
         case .automatic:
-            NSLocalizedString(
-                "WIREGUARD_OBFUSCATION_UDP_TCP_PORT_AUTOMATIC",
-                tableName: "VPNSettings",
-                value: "Automatic",
-                comment: ""
-            )
+            NSLocalizedString("Automatic", comment: "")
+
         case .port80:
             "80"
         case .port5001:
@@ -110,12 +106,8 @@ public enum WireGuardObfuscationShadowsocksPort: Codable, Equatable, CustomStrin
     public var description: String {
         switch self {
         case .automatic:
-            NSLocalizedString(
-                "WIREGUARD_OBFUSCATION_SHADOWSOCKS_PORT_AUTOMATIC",
-                tableName: "VPNSettings",
-                value: "Automatic",
-                comment: ""
-            )
+            NSLocalizedString("Automatic", comment: "")
+
         case let .custom(port):
             String(port)
         }

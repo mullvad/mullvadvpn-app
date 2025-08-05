@@ -268,12 +268,7 @@ extension RelayFilterDataSource: UITableViewDelegate {
 
         view.isExpanded = true
         view.setAccessibilityIdentifier(accessibilityIdentifier)
-        view.titleLabel.text = NSLocalizedString(
-            "RELAY_FILTER_HEADER_LABEL",
-            tableName: "Relay filter header",
-            value: title,
-            comment: ""
-        )
+        view.titleLabel.text = title
 
         view.didCollapseHandler = { [weak self] headerView in
             guard let self else { return }

@@ -1,0 +1,2049 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
+  <file original="Assets/Localizable.xcstrings" source-language="en" target-language="en" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="%@" xml:space="preserve">
+        <source>%@</source>
+        <target state="new">%@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@ have been added to your account" xml:space="preserve">
+        <source>%@ have been added to your account</source>
+        <target state="new">%@ have been added to your account</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@ left on this account" xml:space="preserve">
+        <source>%@ left on this account</source>
+        <target state="new">%@ left on this account</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@ via %@" xml:space="preserve">
+        <source>%1$@ via %2$@</source>
+        <target state="new">%1$@ via %2$@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@ were added to your account." xml:space="preserve">
+        <source>%@ were added to your account.</source>
+        <target state="new">%@ were added to your account.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@ ”Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve">
+        <source>%@ ”Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
+To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
+Would you like to continue to enable “Local network sharing”?</source>
+        <target state="new">%@ ”Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
+To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
+Would you like to continue to enable “Local network sharing”?</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@, %@" xml:space="preserve">
+        <source>%1$@, %2$@</source>
+        <target state="new">%1$@, %2$@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%d more..." xml:space="preserve">
+        <source>%d more...</source>
+        <target state="new">%d more...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**&#10;&#10;DAITA (Defense against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic.&#10;&#10;By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve">
+        <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**
+
+DAITA (Defense against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic.
+
+By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</source>
+        <target state="new">**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**
+
+DAITA (Defense against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic.
+
+By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="**Tap here** to see what’s new." xml:space="preserve">
+        <source>**Tap here** to see what’s new.</source>
+        <target state="new">**Tap here** to see what’s new.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="API access" xml:space="preserve">
+        <source>API access</source>
+        <target state="new">API access</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="API could not be reached, save anyway?" xml:space="preserve">
+        <source>API could not be reached, save anyway?</source>
+        <target state="new">API could not be reached, save anyway?</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="API reachable" xml:space="preserve">
+        <source>API reachable</source>
+        <target state="new">API reachable</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="API unreachable" xml:space="preserve">
+        <source>API unreachable</source>
+        <target state="new">API unreachable</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="About API access…" xml:space="preserve">
+        <source>About API access…</source>
+        <target state="new">About API access…</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="About Direct method..." xml:space="preserve">
+        <source>About Direct method...</source>
+        <target state="new">About Direct method...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="About Encrypted DNS proxy method..." xml:space="preserve">
+        <source>About Encrypted DNS proxy method...</source>
+        <target state="new">About Encrypted DNS proxy method...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="About Mullvad bridges method..." xml:space="preserve">
+        <source>About Mullvad bridges method...</source>
+        <target state="new">About Mullvad bridges method...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="About Server IP override..." xml:space="preserve">
+        <source>About Server IP override...</source>
+        <target state="new">About Server IP override...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Account" xml:space="preserve">
+        <source>Account</source>
+        <target state="new">Account</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Account created" xml:space="preserve">
+        <source>Account created</source>
+        <target state="new">Account created</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Account credit expires soon" xml:space="preserve">
+        <source>Account credit expires soon</source>
+        <target state="new">Account credit expires soon</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Account credit has expired" xml:space="preserve">
+        <source>Account credit has expired</source>
+        <target state="new">Account credit has expired</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Account deletion" xml:space="preserve">
+        <source>Account deletion</source>
+        <target state="new">Account deletion</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Account number" xml:space="preserve">
+        <source>Account number</source>
+        <target state="new">Account number</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Active features" xml:space="preserve">
+        <source>Active features</source>
+        <target state="new">Active features</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add" xml:space="preserve">
+        <source>Add</source>
+        <target state="new">Add</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add 30 days" xml:space="preserve">
+        <source>Add 30 days</source>
+        <target state="new">Add 30 days</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add 90 days" xml:space="preserve">
+        <source>Add 90 days</source>
+        <target state="new">Add 90 days</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add Time" xml:space="preserve">
+        <source>Add Time</source>
+        <target state="new">Add Time</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add a server" xml:space="preserve">
+        <source>Add a server</source>
+        <target state="new">Add a server</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add access method" xml:space="preserve">
+        <source>Add access method</source>
+        <target state="new">Add access method</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add locations" xml:space="preserve">
+        <source>Add locations</source>
+        <target state="new">Add locations</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add new list" xml:space="preserve">
+        <source>Add new list</source>
+        <target state="new">Add new list</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Add time" xml:space="preserve">
+        <source>Add time</source>
+        <target state="new">Add time</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Ads" xml:space="preserve">
+        <source>Ads</source>
+        <target state="new">Ads</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Adult content" xml:space="preserve">
+        <source>Adult content</source>
+        <target state="new">Adult content</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Agree and continue" xml:space="preserve">
+        <source>Agree and continue</source>
+        <target state="new">Agree and continue</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="All" xml:space="preserve">
+        <source>All</source>
+        <target state="new">All</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="All Providers" xml:space="preserve">
+        <source>All Providers</source>
+        <target state="new">All Providers</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="All locations" xml:space="preserve">
+        <source>All locations</source>
+        <target state="new">All locations</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Any" xml:space="preserve">
+        <source>Any</source>
+        <target state="new">Any</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="App logs" xml:space="preserve">
+        <source>App logs</source>
+        <target state="new">App logs</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="AppStore receipt is not found on disk." xml:space="preserve">
+        <source>AppStore receipt is not found on disk.</source>
+        <target state="new">AppStore receipt is not found on disk.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Are you sure you want to log %@ out?" xml:space="preserve">
+        <source>Are you sure you want to log %@ out?</source>
+        <target state="new">Are you sure you want to log %@ out?</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="At least one method needs to be enabled." xml:space="preserve">
+        <source>At least one method needs to be enabled.</source>
+        <target state="new">At least one method needs to be enabled.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Authentication" xml:space="preserve">
+        <source>Authentication</source>
+        <target state="new">Authentication</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Automatic" xml:space="preserve">
+        <source>Automatic</source>
+        <target state="new">Automatic</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="BLOCKING INTERNET" xml:space="preserve">
+        <source>BLOCKING INTERNET</source>
+        <target state="new">BLOCKING INTERNET</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Back to editing" xml:space="preserve">
+        <source>Back to editing</source>
+        <target state="new">Back to editing</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Blocked connection" xml:space="preserve">
+        <source>Blocked connection</source>
+        <target state="new">Blocked connection</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN." xml:space="preserve">
+        <source>Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</source>
+        <target state="new">Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="By enabling &quot;Direct only&quot; you will have to manually select a server that is DAITA-enabled. Multihop won't automatically be used to enable DAITA with any server." xml:space="preserve">
+        <source>By enabling "Direct only" you will have to manually select a server that is DAITA-enabled. Multihop won't automatically be used to enable DAITA with any server.</source>
+        <target state="new">By enabling "Direct only" you will have to manually select a server that is DAITA-enabled. Multihop won't automatically be used to enable DAITA with any server.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="By enabling &quot;Direct only&quot; you will have to manually select a server that is DAITA-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the &quot;Select location&quot; view." xml:space="preserve">
+        <source>By enabling "Direct only" you will have to manually select a server that is DAITA-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the "Select location" view.</source>
+        <target state="new">By enabling "Direct only" you will have to manually select a server that is DAITA-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the "Select location" view.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cancel" xml:space="preserve">
+        <source>Cancel</source>
+        <target state="new">Cancel</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
+        <source>Cannot complete the purchase</source>
+        <target state="new">Cannot complete the purchase</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cannot read the AppStore receipt from disk" xml:space="preserve">
+        <source>Cannot read the AppStore receipt from disk</source>
+        <target state="new">Cannot read the AppStore receipt from disk</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cannot refresh the AppStore receipt: %@" xml:space="preserve">
+        <source>Cannot refresh the AppStore receipt: %@</source>
+        <target state="new">Cannot refresh the AppStore receipt: %@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cannot restore purchases" xml:space="preserve">
+        <source>Cannot restore purchases</source>
+        <target state="new">Cannot restore purchases</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Checking account number" xml:space="preserve">
+        <source>Checking account number</source>
+        <target state="new">Checking account number</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Cipher" xml:space="preserve">
+        <source>Cipher</source>
+        <target state="new">Cipher</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Clear" xml:space="preserve">
+        <source>Clear</source>
+        <target state="new">Clear</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Clear all overrides" xml:space="preserve">
+        <source>Clear all overrides</source>
+        <target state="new">Clear all overrides</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Clear all overrides?" xml:space="preserve">
+        <source>Clear all overrides?</source>
+        <target state="new">Clear all overrides?</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve">
+        <source>Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</source>
+        <target state="new">Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve">
+        <source>Client is not allowed to issue the request.</source>
+        <target state="new">Client is not allowed to issue the request.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Collapses this location." xml:space="preserve">
+        <source>Collapses this location.</source>
+        <target state="new">Collapses this location.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Congrats!" xml:space="preserve">
+        <source>Congrats!</source>
+        <target state="new">Congrats!</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Connect" xml:space="preserve">
+        <source>Connect</source>
+        <target state="new">Connect</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Connected" xml:space="preserve">
+        <source>Connected</source>
+        <target state="new">Connected</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Connected to %@, %@" xml:space="preserve">
+        <source>Connected to %1$@, %2$@</source>
+        <target state="new">Connected to %1$@, %2$@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Connecting to %@, %@" xml:space="preserve">
+        <source>Connecting to %1$@, %2$@</source>
+        <target state="new">Connecting to %1$@, %2$@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Connecting..." xml:space="preserve">
+        <source>Connecting...</source>
+        <target state="new">Connecting...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Connection details" xml:space="preserve">
+        <source>Connection details</source>
+        <target state="new">Connection details</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Continue with login" xml:space="preserve">
+        <source>Continue with login</source>
+        <target state="new">Continue with login</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Copy to pasteboard" xml:space="preserve">
+        <source>Copy to pasteboard</source>
+        <target state="new">Copy to pasteboard</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Correct account number" xml:space="preserve">
+        <source>Correct account number</source>
+        <target state="new">Correct account number</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Create" xml:space="preserve">
+        <source>Create</source>
+        <target state="new">Create</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Create account" xml:space="preserve">
+        <source>Create account</source>
+        <target state="new">Create account</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Creating new account" xml:space="preserve">
+        <source>Creating new account</source>
+        <target state="new">Creating new account</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Creating quantum secure connection" xml:space="preserve">
+        <source>Creating quantum secure connection</source>
+        <target state="new">Creating quantum secure connection</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Creating secure connection" xml:space="preserve">
+        <source>Creating secure connection</source>
+        <target state="new">Creating secure connection</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Current device" xml:space="preserve">
+        <source>Current device</source>
+        <target state="new">Current device</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Custom" xml:space="preserve">
+        <source>Custom</source>
+        <target state="new">Custom</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Custom DNS" xml:space="preserve">
+        <source>Custom DNS</source>
+        <target state="new">Custom DNS</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Custom lists" xml:space="preserve">
+        <source>Custom lists</source>
+        <target state="new">Custom lists</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="DAITA" xml:space="preserve">
+        <source>DAITA</source>
+        <target state="new">DAITA</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="DAITA (Defence against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting.&#10;It does this by carefully adding network noise and making all network packets the same size.&#10;Not all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.&#10;Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic." xml:space="preserve">
+        <source>DAITA (Defence against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting.
+It does this by carefully adding network noise and making all network packets the same size.
+Not all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.
+Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic.</source>
+        <target state="new">DAITA (Defence against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting.
+It does this by carefully adding network noise and making all network packets the same size.
+Not all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.
+Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve">
+        <source>DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</source>
+        <target state="new">DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve">
+        <source>DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</source>
+        <target state="new">DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="DAITA-enabled" xml:space="preserve">
+        <source>DAITA-enabled</source>
+        <target state="new">DAITA-enabled</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="DAITA: Multihop" xml:space="preserve">
+        <source>DAITA: Multihop</source>
+        <target state="new">DAITA: Multihop</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="DNS content blockers" xml:space="preserve">
+        <source>DNS content blockers</source>
+        <target state="new">DNS content blockers</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="DNS settings" xml:space="preserve">
+        <source>DNS settings</source>
+        <target state="new">DNS settings</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Delete" xml:space="preserve">
+        <source>Delete</source>
+        <target state="new">Delete</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Delete Account" xml:space="preserve">
+        <source>Delete Account</source>
+        <target state="new">Delete Account</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Delete account" xml:space="preserve">
+        <source>Delete account</source>
+        <target state="new">Delete account</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Delete list" xml:space="preserve">
+        <source>Delete list</source>
+        <target state="new">Delete list</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Delete method" xml:space="preserve">
+        <source>Delete method</source>
+        <target state="new">Delete method</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Deleting account..." xml:space="preserve">
+        <source>Deleting account...</source>
+        <target state="new">Deleting account...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Device is inactive" xml:space="preserve">
+        <source>Device is inactive</source>
+        <target state="new">Device is inactive</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Device name" xml:space="preserve">
+        <source>Device name</source>
+        <target state="new">Device name</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Device name: %@" xml:space="preserve">
+        <source>Device name: %@</source>
+        <target state="new">Device name: %@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Direct" xml:space="preserve">
+        <source>Direct</source>
+        <target state="new">Direct</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Direct only" xml:space="preserve">
+        <source>Direct only</source>
+        <target state="new">Direct only</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disable all content blockers to activate this setting." xml:space="preserve">
+        <source>Disable all content blockers to activate this setting.</source>
+        <target state="new">Disable all content blockers to activate this setting.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disabled" xml:space="preserve">
+        <source>Disabled</source>
+        <target state="new">Disabled</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disabling" xml:space="preserve">
+        <source>Disabling</source>
+        <target state="new">Disabling</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Discard changes" xml:space="preserve">
+        <source>Discard changes</source>
+        <target state="new">Discard changes</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disconnect" xml:space="preserve">
+        <source>Disconnect</source>
+        <target state="new">Disconnect</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disconnected" xml:space="preserve">
+        <source>Disconnected</source>
+        <target state="new">Disconnected</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disconnecting" xml:space="preserve">
+        <source>Disconnecting</source>
+        <target state="new">Disconnecting</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disconnecting..." xml:space="preserve">
+        <source>Disconnecting...</source>
+        <target state="new">Disconnecting...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Do you agree to remaining anonymous?" xml:space="preserve">
+        <source>Do you agree to remaining anonymous?</source>
+        <target state="new">Do you agree to remaining anonymous?</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Done" xml:space="preserve">
+        <source>Done</source>
+        <target state="new">Done</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Don’t have an account number?" xml:space="preserve">
+        <source>Don’t have an account number?</source>
+        <target state="new">Don’t have an account number?</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Edit custom list" xml:space="preserve">
+        <source>Edit custom list</source>
+        <target state="new">Edit custom list</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Edit lists" xml:space="preserve">
+        <source>Edit lists</source>
+        <target state="new">Edit lists</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Edit locations" xml:space="preserve">
+        <source>Edit locations</source>
+        <target state="new">Edit locations</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Edit message" xml:space="preserve">
+        <source>Edit message</source>
+        <target state="new">Edit message</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enable" xml:space="preserve">
+        <source>Enable</source>
+        <target state="new">Enable</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enable &quot;%@&quot;" xml:space="preserve">
+        <source>Enable "%@"</source>
+        <target state="new">Enable "%@"</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enable method" xml:space="preserve">
+        <source>Enable method</source>
+        <target state="new">Enable method</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enabling" xml:space="preserve">
+        <source>Enabling</source>
+        <target state="new">Enabling</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Encrypted DNS proxy" xml:space="preserve">
+        <source>Encrypted DNS proxy</source>
+        <target state="new">Encrypted DNS proxy</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enter IP" xml:space="preserve">
+        <source>Enter IP</source>
+        <target state="new">Enter IP</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enter voucher code" xml:space="preserve">
+        <source>Enter voucher code</source>
+        <target state="new">Enter voucher code</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enter your account number" xml:space="preserve">
+        <source>Enter your account number</source>
+        <target state="new">Enter your account number</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Entry" xml:space="preserve">
+        <source>Entry</source>
+        <target state="new">Entry</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Exit" xml:space="preserve">
+        <source>Exit</source>
+        <target state="new">Exit</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Expands this location." xml:space="preserve">
+        <source>Expands this location.</source>
+        <target state="new">Expands this location.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="FAQs &amp; Guides" xml:space="preserve">
+        <source>FAQs &amp; Guides</source>
+        <target state="new">FAQs &amp; Guides</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to connect to App store, please try again later." xml:space="preserve">
+        <source>Failed to connect to App store, please try again later.</source>
+        <target state="new">Failed to connect to App store, please try again later.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to send" xml:space="preserve">
+        <source>Failed to send</source>
+        <target state="new">Failed to send</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve">
+        <source>Failed to send the receipt to server: %@</source>
+        <target state="new">Failed to send the receipt to server: %@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to start the tunnel." xml:space="preserve">
+        <source>Failed to start the tunnel.</source>
+        <target state="new">Failed to start the tunnel.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to start the tunnel: %@." xml:space="preserve">
+        <source>Failed to start the tunnel: %@.</source>
+        <target state="new">Failed to start the tunnel: %@.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to stop the tunnel." xml:space="preserve">
+        <source>Failed to stop the tunnel.</source>
+        <target state="new">Failed to stop the tunnel.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to stop the tunnel: %@." xml:space="preserve">
+        <source>Failed to stop the tunnel: %@.</source>
+        <target state="new">Failed to stop the tunnel: %@.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Failed to validate account number: %@" xml:space="preserve">
+        <source>Failed to validate account number: %@</source>
+        <target state="new">Failed to validate account number: %@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Fetching devices..." xml:space="preserve">
+        <source>Fetching devices...</source>
+        <target state="new">Fetching devices...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Filter" xml:space="preserve">
+        <source>Filter</source>
+        <target state="new">Filter</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Filtered:" xml:space="preserve">
+        <source>Filtered:</source>
+        <target state="new">Filtered:</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Gambling" xml:space="preserve">
+        <source>Gambling</source>
+        <target state="new">Gambling</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Go ahead and start using the app to begin reclaiming your online privacy.&#10;To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools." xml:space="preserve">
+        <source>Go ahead and start using the app to begin reclaiming your online privacy.
+To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools.</source>
+        <target state="new">Go ahead and start using the app to begin reclaiming your online privacy.
+To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Go to login" xml:space="preserve">
+        <source>Go to login</source>
+        <target state="new">Go to login</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Going to login will unblock the Internet on this device." xml:space="preserve">
+        <source>Going to login will unblock the Internet on this device.</source>
+        <target state="new">Going to login will unblock the Internet on this device.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Got it!" xml:space="preserve">
+        <source>Got it!</source>
+        <target state="new">Got it!</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Here’s your account number. Save it!" xml:space="preserve">
+        <source>Here’s your account number. Save it!</source>
+        <target state="new">Here’s your account number. Save it!</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Hide account number" xml:space="preserve">
+        <source>Hide account number</source>
+        <target state="new">Hide account number</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="If an observer monitors these data packets, DAITA makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.&#10;&#10;DAITA does this by carefully adding network noise and making all network packets the same size.&#10;&#10;Not all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.&#10;" xml:space="preserve">
+        <source>If an observer monitors these data packets, DAITA makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.
+
+DAITA does this by carefully adding network noise and making all network packets the same size.
+
+Not all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.
+</source>
+        <target state="new">If an observer monitors these data packets, DAITA makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.
+
+DAITA does this by carefully adding network noise and making all network packets the same size.
+
+Not all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.
+</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="If needed we will contact you at %@" xml:space="preserve">
+        <source>If needed we will contact you at %@</source>
+        <target state="new">If needed we will contact you at %@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="If you are having issues connecting to VPN servers, please contact support." xml:space="preserve">
+        <source>If you are having issues connecting to VPN servers, please contact support.</source>
+        <target state="new">If you are having issues connecting to VPN servers, please contact support.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting.&#10;The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve">
+        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting.
+The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</source>
+        <target state="new">If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting.
+The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve">
+        <source>If you disconnect now, you won’t be able to secure your connection until the device is online.</source>
+        <target state="new">If you disconnect now, you won’t be able to secure your connection until the device is online.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve">
+        <source>If you exit the form and try again later, the information you already entered will still be here.</source>
+        <target state="new">If you exit the form and try again later, the information you already entered will still be here.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="If you haven’t received additional VPN time after purchasing" xml:space="preserve">
+        <source>If you haven’t received additional VPN time after purchasing</source>
+        <target state="new">If you haven’t received additional VPN time after purchasing</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve">
+        <source>If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</source>
+        <target state="new">If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Import" xml:space="preserve">
+        <source>Import</source>
+        <target state="new">Import</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Import %@ was successful, overrides are now active." xml:space="preserve">
+        <source>Import %@ was successful, overrides are now active.</source>
+        <target state="new">Import %@ was successful, overrides are now active.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Import %@ was unsuccessful, please try again." xml:space="preserve">
+        <source>Import %@ was unsuccessful, please try again.</source>
+        <target state="new">Import %@ was unsuccessful, please try again.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Import file" xml:space="preserve">
+        <source>Import file</source>
+        <target state="new">Import file</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Import files or text with the new IP addresses for the servers in the Select location view." xml:space="preserve">
+        <source>Import files or text with the new IP addresses for the servers in the Select location view.</source>
+        <target state="new">Import files or text with the new IP addresses for the servers in the Select location view.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Import successful" xml:space="preserve">
+        <source>Import successful</source>
+        <target state="new">Import successful</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Import via text" xml:space="preserve">
+        <source>Import via text</source>
+        <target state="new">Import via text</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="In" xml:space="preserve">
+        <source>In</source>
+        <target state="new">In</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="In use" xml:space="preserve">
+        <source>In use</source>
+        <target state="new">In use</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Include all networks" xml:space="preserve">
+        <source>Include all networks</source>
+        <target state="new">Include all networks</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve">
+        <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
+        <target state="new">Internal error occurred. Settings will be reset to defaults and device logged out.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Internal error." xml:space="preserve">
+        <source>Internal error.</source>
+        <target state="new">Internal error.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Invalid account" xml:space="preserve">
+        <source>Invalid account</source>
+        <target state="new">Invalid account</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Invalid device state." xml:space="preserve">
+        <source>Invalid device state.</source>
+        <target state="new">Invalid device state.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Invalid purchase identifier." xml:space="preserve">
+        <source>Invalid purchase identifier.</source>
+        <target state="new">Invalid purchase identifier.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="It looks like you have entered a Mullvad account number instead of a voucher code. Do you want to log in to an existing account?&#10;If so, click log out below to log in with the other account number." xml:space="preserve">
+        <source>It looks like you have entered a Mullvad account number instead of a voucher code. Do you want to log in to an existing account?
+If so, click log out below to log in with the other account number.</source>
+        <target state="new">It looks like you have entered a Mullvad account number instead of a voucher code. Do you want to log in to an existing account?
+If so, click log out below to log in with the other account number.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Language" xml:space="preserve">
+        <source>Language</source>
+        <target state="new">Language</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Last four digits of the account number are incorrect" xml:space="preserve">
+        <source>Last four digits of the account number are incorrect</source>
+        <target state="new">Last four digits of the account number are incorrect</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Last used account" xml:space="preserve">
+        <source>Last used account</source>
+        <target state="new">Last used account</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Learn about privacy" xml:space="preserve">
+        <source>Learn about privacy</source>
+        <target state="new">Learn about privacy</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Less than a day" xml:space="preserve">
+        <source>Less than a day</source>
+        <target state="new">Less than a day</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Local network sharing" xml:space="preserve">
+        <source>Local network sharing</source>
+        <target state="new">Local network sharing</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Log in" xml:space="preserve">
+        <source>Log in</source>
+        <target state="new">Log in</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Log out" xml:space="preserve">
+        <source>Log out</source>
+        <target state="new">Log out</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Logged in" xml:space="preserve">
+        <source>Logged in</source>
+        <target state="new">Logged in</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Logging in..." xml:space="preserve">
+        <source>Logging in...</source>
+        <target state="new">Logging in...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Logging out..." xml:space="preserve">
+        <source>Logging out...</source>
+        <target state="new">Logging out...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Login" xml:space="preserve">
+        <source>Login</source>
+        <target state="new">Login</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Login failed" xml:space="preserve">
+        <source>Login failed</source>
+        <target state="new">Login failed</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Make a purchase with StoreKit2" xml:space="preserve">
+        <source>Make a purchase with StoreKit2</source>
+        <target state="new">Make a purchase with StoreKit2</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Malware" xml:space="preserve">
+        <source>Malware</source>
+        <target state="new">Malware</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Manage default and setup custom methods to access the Mullvad API." xml:space="preserve">
+        <source>Manage default and setup custom methods to access the Mullvad API.</source>
+        <target state="new">Manage default and setup custom methods to access the Mullvad API.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Manage default and setup custom methods to access the Mullvad API. " xml:space="preserve">
+        <source>Manage default and setup custom methods to access the Mullvad API. </source>
+        <target state="new">Manage default and setup custom methods to access the Mullvad API. </target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Manage devices" xml:space="preserve">
+        <source>Manage devices</source>
+        <target state="new">Manage devices</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Method settings" xml:space="preserve">
+        <source>Method settings</source>
+        <target state="new">Method settings</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Mullvad bridges" xml:space="preserve">
+        <source>Mullvad bridges</source>
+        <target state="new">Mullvad bridges</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Multihop" xml:space="preserve">
+        <source>Multihop</source>
+        <target state="new">Multihop</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Multihop is being used to enable DAITA for your selected location." xml:space="preserve">
+        <source>Multihop is being used to enable DAITA for your selected location.</source>
+        <target state="new">Multihop is being used to enable DAITA for your selected location.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace.&#10;This results in increased latency but increases anonymity online." xml:space="preserve">
+        <source>Multihop routes your traffic into one WireGuard server and out another, making it harder to trace.
+This results in increased latency but increases anonymity online.</source>
+        <target state="new">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace.
+This results in increased latency but increases anonymity online.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online." xml:space="preserve">
+        <source>Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</source>
+        <target state="new">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Multiple validation errors occurred." xml:space="preserve">
+        <source>Multiple validation errors occurred.</source>
+        <target state="new">Multiple validation errors occurred.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="NETWORK ISSUES" xml:space="preserve">
+        <source>NETWORK ISSUES</source>
+        <target state="new">NETWORK ISSUES</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="NEW DEVICE CREATED" xml:space="preserve">
+        <source>NEW DEVICE CREATED</source>
+        <target state="new">NEW DEVICE CREATED</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="NEW VERSION INSTALLED" xml:space="preserve">
+        <source>NEW VERSION INSTALLED</source>
+        <target state="new">NEW VERSION INSTALLED</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Name" xml:space="preserve">
+        <source>Name</source>
+        <target state="new">Name</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve">
+        <source>Name should be no longer than %i characters.</source>
+        <target state="new">Name should be no longer than %i characters.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Network error: %@" xml:space="preserve">
+        <source>Network error: %@</source>
+        <target state="new">Network error: %@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="New custom list" xml:space="preserve">
+        <source>New custom list</source>
+        <target state="new">New custom list</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Next" xml:space="preserve">
+        <source>Next</source>
+        <target state="new">Next</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve">
+        <source>No DAITA compatible servers match your location settings. Try changing location.</source>
+        <target state="new">No DAITA compatible servers match your location settings. Try changing location.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="No matching relays found, check your filter settings." xml:space="preserve">
+        <source>No matching relays found, check your filter settings.</source>
+        <target state="new">No matching relays found, check your filter settings.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="No matching servers" xml:space="preserve">
+        <source>No matching servers</source>
+        <target state="new">No matching servers</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="No network" xml:space="preserve">
+        <source>No network</source>
+        <target state="new">No network</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="No overrides imported" xml:space="preserve">
+        <source>No overrides imported</source>
+        <target state="new">No overrides imported</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve">
+        <source>No servers match your location filter. Try changing filter settings.</source>
+        <target state="new">No servers match your location filter. Try changing filter settings.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="No servers match your settings, try changing server or other settings." xml:space="preserve">
+        <source>No servers match your settings, try changing server or other settings.</source>
+        <target state="new">No servers match your settings, try changing server or other settings.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="OUT OF TIME" xml:space="preserve">
+        <source>OUT OF TIME</source>
+        <target state="new">OUT OF TIME</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Obfuscation" xml:space="preserve">
+        <source>Obfuscation</source>
+        <target state="new">Obfuscation</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked." xml:space="preserve">
+        <source>Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.</source>
+        <target state="new">Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Obscured" xml:space="preserve">
+        <source>Obscured</source>
+        <target state="new">Obscured</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Off" xml:space="preserve">
+        <source>Off</source>
+        <target state="new">Off</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="On" xml:space="preserve">
+        <source>On</source>
+        <target state="new">On</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked." xml:space="preserve">
+        <source>On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.</source>
+        <target state="new">On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="On some networks, where various types of censorship are being used, the API servers might not be directly reachable." xml:space="preserve">
+        <source>On some networks, where various types of censorship are being used, the API servers might not be directly reachable.</source>
+        <target state="new">On some networks, where various types of censorship are being used, the API servers might not be directly reachable.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Open DAITA settings" xml:space="preserve">
+        <source>Open DAITA settings</source>
+        <target state="new">Open DAITA settings</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Optional" xml:space="preserve">
+        <source>Optional</source>
+        <target state="new">Optional</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Out IPv4" xml:space="preserve">
+        <source>Out IPv4</source>
+        <target state="new">Out IPv4</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Out IPv6" xml:space="preserve">
+        <source>Out IPv6</source>
+        <target state="new">Out IPv6</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Out of time" xml:space="preserve">
+        <source>Out of time</source>
+        <target state="new">Out of time</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Overrides active" xml:space="preserve">
+        <source>Overrides active</source>
+        <target state="new">Overrides active</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Owned" xml:space="preserve">
+        <source>Owned</source>
+        <target state="new">Owned</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Paid until" xml:space="preserve">
+        <source>Paid until</source>
+        <target state="new">Paid until</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Password" xml:space="preserve">
+        <source>Password</source>
+        <target state="new">Password</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Performs a connection test to a Mullvad API server via this access method." xml:space="preserve">
+        <source>Performs a connection test to a Mullvad API server via this access method.</source>
+        <target state="new">Performs a connection test to a Mullvad API server via this access method.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Please enter a valid IPv4 or IPv6 address." xml:space="preserve">
+        <source>Please enter a valid IPv4 or IPv6 address.</source>
+        <target state="new">Please enter a valid IPv4 or IPv6 address.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Please enter a valid port." xml:space="preserve">
+        <source>Please enter a valid port.</source>
+        <target state="new">Please enter a valid port.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings." xml:space="preserve">
+        <source>Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.</source>
+        <target state="new">Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve">
+        <source>Please retry by using the "Restore purchases" button.</source>
+        <target state="new">Please retry by using the "Restore purchases" button.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Port" xml:space="preserve">
+        <source>Port</source>
+        <target state="new">Port</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Port: %@" xml:space="preserve">
+        <source>Port: %@</source>
+        <target state="new">Port: %@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Previous" xml:space="preserve">
+        <source>Previous</source>
+        <target state="new">Previous</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Providers: %d" xml:space="preserve">
+        <source>Providers: %d</source>
+        <target state="new">Providers: %d</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="QUIC" xml:space="preserve">
+        <source>QUIC</source>
+        <target state="new">QUIC</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Quantum resistance" xml:space="preserve">
+        <source>Quantum resistance</source>
+        <target state="new">Quantum resistance</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Quantum secure connection" xml:space="preserve">
+        <source>Quantum secure connection</source>
+        <target state="new">Quantum secure connection</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Quantum secure connection. Connected to %@, %@" xml:space="preserve">
+        <source>Quantum secure connection. Connected to %1$@, %2$@</source>
+        <target state="new">Quantum secure connection. Connected to %1$@, %2$@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Quantum-resistant tunnel" xml:space="preserve">
+        <source>Quantum-resistant tunnel</source>
+        <target state="new">Quantum-resistant tunnel</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Reconnecting" xml:space="preserve">
+        <source>Reconnecting</source>
+        <target state="new">Reconnecting</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Reconnecting to %@, %@" xml:space="preserve">
+        <source>Reconnecting to %1$@, %2$@</source>
+        <target state="new">Reconnecting to %1$@, %2$@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Redeem" xml:space="preserve">
+        <source>Redeem</source>
+        <target state="new">Redeem</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Redeem voucher" xml:space="preserve">
+        <source>Redeem voucher</source>
+        <target state="new">Redeem voucher</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Refund last purchase with StoreKit2" xml:space="preserve">
+        <source>Refund last purchase with StoreKit2</source>
+        <target state="new">Refund last purchase with StoreKit2</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Refund successful" xml:space="preserve">
+        <source>Refund successful</source>
+        <target state="new">Refund successful</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Remove" xml:space="preserve">
+        <source>Remove</source>
+        <target state="new">Remove</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Remove %@?&#10;The device will be removed from the list and logged out." xml:space="preserve">
+        <source>Remove %@?
+The device will be removed from the list and logged out.</source>
+        <target state="new">Remove %@?
+The device will be removed from the list and logged out.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Remove last used account" xml:space="preserve">
+        <source>Remove last used account</source>
+        <target state="new">Remove last used account</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Rented" xml:space="preserve">
+        <source>Rented</source>
+        <target state="new">Rented</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Report a problem" xml:space="preserve">
+        <source>Report a problem</source>
+        <target state="new">Report a problem</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Required" xml:space="preserve">
+        <source>Required</source>
+        <target state="new">Required</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Restore purchases" xml:space="preserve">
+        <source>Restore purchases</source>
+        <target state="new">Restore purchases</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Save" xml:space="preserve">
+        <source>Save</source>
+        <target state="new">Save</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Save anyway" xml:space="preserve">
+        <source>Save anyway</source>
+        <target state="new">Save anyway</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Saving changes..." xml:space="preserve">
+        <source>Saving changes...</source>
+        <target state="new">Saving changes...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Search for..." xml:space="preserve">
+        <source>Search for...</source>
+        <target state="new">Search for...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Secure connection. Connected to %@, %@" xml:space="preserve">
+        <source>Secure connection. Connected to %1$@, %2$@</source>
+        <target state="new">Secure connection. Connected to %1$@, %2$@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Select location" xml:space="preserve">
+        <source>Select location</source>
+        <target state="new">Select location</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Selected" xml:space="preserve">
+        <source>Selected</source>
+        <target state="new">Selected</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Send" xml:space="preserve">
+        <source>Send</source>
+        <target state="new">Send</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Send anyway" xml:space="preserve">
+        <source>Send anyway</source>
+        <target state="new">Send anyway</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Sending..." xml:space="preserve">
+        <source>Sending...</source>
+        <target state="new">Sending...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Sent" xml:space="preserve">
+        <source>Sent</source>
+        <target state="new">Sent</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Server" xml:space="preserve">
+        <source>Server</source>
+        <target state="new">Server</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Server IP Override" xml:space="preserve">
+        <source>Server IP Override</source>
+        <target state="new">Server IP Override</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Server IP override" xml:space="preserve">
+        <source>Server IP override</source>
+        <target state="new">Server IP override</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Server details" xml:space="preserve">
+        <source>Server details</source>
+        <target state="new">Server details</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Setting: DAITA" xml:space="preserve">
+        <source>Setting: DAITA</source>
+        <target state="new">Setting: DAITA</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Setting: Obfuscation" xml:space="preserve">
+        <source>Setting: Obfuscation</source>
+        <target state="new">Setting: Obfuscation</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Settings" xml:space="preserve">
+        <source>Settings</source>
+        <target state="new">Settings</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Settings migration error" xml:space="preserve">
+        <source>Settings migration error</source>
+        <target state="new">Settings migration error</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Shadowsocks" xml:space="preserve">
+        <source>Shadowsocks</source>
+        <target state="new">Shadowsocks</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Show account number" xml:space="preserve">
+        <source>Show account number</source>
+        <target state="new">Show account number</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Social media" xml:space="preserve">
+        <source>Social media</source>
+        <target state="new">Social media</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Socks5" xml:space="preserve">
+        <source>Socks5</source>
+        <target state="new">Socks5</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Start using the app" xml:space="preserve">
+        <source>Start using the app</source>
+        <target state="new">Start using the app</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Super!" xml:space="preserve">
+        <source>Super!</source>
+        <target state="new">Super!</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Switch location" xml:space="preserve">
+        <source>Switch location</source>
+        <target state="new">Switch location</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="TUNNEL ERROR" xml:space="preserve">
+        <source>TUNNEL ERROR</source>
+        <target state="new">TUNNEL ERROR</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Tap **Edit** to add at least one DNS server." xml:space="preserve">
+        <source>Tap **Edit** to add at least one DNS server.</source>
+        <target state="new">Tap **Edit** to add at least one DNS server.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Test method" xml:space="preserve">
+        <source>Test method</source>
+        <target state="new">Test method</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Testing..." xml:space="preserve">
+        <source>Testing...</source>
+        <target state="new">Testing...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Thanks for your purchase" xml:space="preserve">
+        <source>Thanks for your purchase</source>
+        <target state="new">Thanks for your purchase</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Thanks!" xml:space="preserve">
+        <source>Thanks!</source>
+        <target state="new">Thanks!</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve">
+        <source>The app communicates with a Mullvad API server directly.</source>
+        <target state="new">The app communicates with a Mullvad API server directly.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve">
+        <source>The app communicates with a Mullvad API server via a Mullvad bridge server.</source>
+        <target state="new">The app communicates with a Mullvad API server via a Mullvad bridge server.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The app communicates with a Mullvad API server via a proxy address." xml:space="preserve">
+        <source>The app communicates with a Mullvad API server via a proxy address.</source>
+        <target state="new">The app communicates with a Mullvad API server via a proxy address.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations." xml:space="preserve">
+        <source>The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.</source>
+        <target state="new">The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The app will test the method before saving." xml:space="preserve">
+        <source>The app will test the method before saving.</source>
+        <target state="new">The app will test the method before saving.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The automatic setting will randomly choose from the valid port ranges shown below.&#10;The custom port can be any value inside the valid ranges:&#10;%@" xml:space="preserve">
+        <source>The automatic setting will randomly choose from the valid port ranges shown below.
+The custom port can be any value inside the valid ranges:
+%@</source>
+        <target state="new">The automatic setting will randomly choose from the valid port ranges shown below.
+The custom port can be any value inside the valid ranges:
+%@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve">
+        <source>The entry and exit servers cannot be the same. Try changing one to a new server or location.</source>
+        <target state="new">The entry and exit servers cannot be the same. Try changing one to a new server or location.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The entry server for multihop is currently overridden by DAITA. To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings." xml:space="preserve">
+        <source>The entry server for multihop is currently overridden by DAITA. To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings.</source>
+        <target state="new">The entry server for multihop is currently overridden by DAITA. To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The payment request was cancelled." xml:space="preserve">
+        <source>The payment request was cancelled.</source>
+        <target state="new">The payment request was cancelled.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve">
+        <source>The selected WireGuard port is not supported, please change it under **VPN settings**.</source>
+        <target state="new">The selected WireGuard port is not supported, please change it under **VPN settings**.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve">
+        <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
+        <target state="new">The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve">
+        <source>This can be useful if the API is censored but Mullvad’s bridge servers are not.</source>
+        <target state="new">This can be useful if the API is censored but Mullvad’s bridge servers are not.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="This can be useful when you are not affected by censorship." xml:space="preserve">
+        <source>This can be useful when you are not affected by censorship.</source>
+        <target state="new">This can be useful when you are not affected by censorship.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve">
+        <source>This device is not allowed to make the payment.</source>
+        <target state="new">This device is not allowed to make the payment.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.&#10;Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve">
+        <source>This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.
+Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
+        <target state="new">This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.
+Attention: toggling “Local network sharing” requires restarting the VPN connection.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods." xml:space="preserve">
+        <source>This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.</source>
+        <target state="new">This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.&#10;It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption.&#10;This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." xml:space="preserve">
+        <source>This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.
+It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption.
+This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</source>
+        <target state="new">This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.
+It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption.
+This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.&#10;You can have up to 5 devices logged in on one Mullvad account.&#10;If you log out, the device and the device name is removed. When you log back in again, the device will get a new name." xml:space="preserve">
+        <source>This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.
+You can have up to 5 devices logged in on one Mullvad account.
+If you log out, the device and the device name is removed. When you log back in again, the device will get a new name.</source>
+        <target state="new">This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.
+You can have up to 5 devices logged in on one Mullvad account.
+If you log out, the device and the device name is removed. When you log back in again, the device will get a new name.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve">
+        <source>This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</source>
+        <target state="new">This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="This voucher code has already been used." xml:space="preserve">
+        <source>This voucher code has already been used.</source>
+        <target state="new">This voucher code has already been used.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Time left: %@" xml:space="preserve">
+        <source>Time left: %@</source>
+        <target state="new">Time left: %@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="To assist you better, please write in English or Swedish and include which country you are connecting from." xml:space="preserve">
+        <source>To assist you better, please write in English or Swedish and include which country you are connecting from.</source>
+        <target state="new">To assist you better, please write in English or Swedish and include which country you are connecting from.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view." xml:space="preserve">
+        <source>To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.</source>
+        <target state="new">To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="To create a custom list, tap on &quot;...&quot; " xml:space="preserve">
+        <source>To create a custom list, tap on "..." </source>
+        <target state="new">To create a custom list, tap on "..." </target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="To enable this setting, add at least one server." xml:space="preserve">
+        <source>To enable this setting, add at least one server.</source>
+        <target state="new">To enable this setting, add at least one server.</target>
+        <note>Foot note displayed if there are no DNS entries and table view is in editing mode.</note>
+      </trans-unit>
+      <trans-unit id="To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel." xml:space="preserve">
+        <source>To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.</source>
+        <target state="new">To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="To start using the app, you first need to add time to your account. Either buy credit on our website or redeem a voucher." xml:space="preserve">
+        <source>To start using the app, you first need to add time to your account. Either buy credit on our website or redeem a voucher.</source>
+        <target state="new">To start using the app, you first need to add time to your account. Either buy credit on our website or redeem a voucher.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Too many devices" xml:space="preserve">
+        <source>Too many devices</source>
+        <target state="new">Too many devices</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Too many devices registered with account" xml:space="preserve">
+        <source>Too many devices registered with account</source>
+        <target state="new">Too many devices registered with account</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Trackers" xml:space="preserve">
+        <source>Trackers</source>
+        <target state="new">Trackers</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Try again" xml:space="preserve">
+        <source>Try again</source>
+        <target state="new">Try again</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Tunnel is unset." xml:space="preserve">
+        <source>Tunnel is unset.</source>
+        <target state="new">Tunnel is unset.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Type" xml:space="preserve">
+        <source>Type</source>
+        <target state="new">Type</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="UDP-over-TCP" xml:space="preserve">
+        <source>UDP-over-TCP</source>
+        <target state="new">UDP-over-TCP</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Unable to authenticate account. Please log out and log back in." xml:space="preserve">
+        <source>Unable to authenticate account. Please log out and log back in.</source>
+        <target state="new">Unable to authenticate account. Please log out and log back in.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Unable to start tunnel connection after update. Please disconnect and reconnect." xml:space="preserve">
+        <source>Unable to start tunnel connection after update. Please disconnect and reconnect.</source>
+        <target state="new">Unable to start tunnel connection after update. Please disconnect and reconnect.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Unable to start tunnel connection. Please send a problem report." xml:space="preserve">
+        <source>Unable to start tunnel connection. Please send a problem report.</source>
+        <target state="new">Unable to start tunnel connection. Please send a problem report.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve">
+        <source>Unexpected server response: %1$@ (HTTP status: %2$d)</source>
+        <target state="new">Unexpected server response: %1$@ (HTTP status: %2$d)</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Unexpected server response: %d" xml:space="preserve">
+        <source>Unexpected server response: %d</source>
+        <target state="new">Unexpected server response: %d</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Unknown error." xml:space="preserve">
+        <source>Unknown error.</source>
+        <target state="new">Unknown error.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Unsecured connection" xml:space="preserve">
+        <source>Unsecured connection</source>
+        <target state="new">Unsecured connection</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Use custom DNS server" xml:space="preserve">
+        <source>Use custom DNS server</source>
+        <target state="new">Use custom DNS server</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Username" xml:space="preserve">
+        <source>Username</source>
+        <target state="new">Username</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="VPN settings" xml:space="preserve">
+        <source>VPN settings</source>
+        <target state="new">VPN settings</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Valid range: 1 - 65535" xml:space="preserve">
+        <source>Valid range: 1 - 65535</source>
+        <target state="new">Valid range: 1 - 65535</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Verifying voucher..." xml:space="preserve">
+        <source>Verifying voucher...</source>
+        <target state="new">Verifying voucher...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily." xml:space="preserve">
+        <source>View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily.</source>
+        <target state="new">View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="View app logs" xml:space="preserve">
+        <source>View app logs</source>
+        <target state="new">View app logs</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Voucher code is invalid." xml:space="preserve">
+        <source>Voucher code is invalid.</source>
+        <target state="new">Voucher code is invalid.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Voucher was successfully redeemed." xml:space="preserve">
+        <source>Voucher was successfully redeemed.</source>
+        <target state="new">Voucher was successfully redeemed.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection." xml:space="preserve">
+        <source>Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.</source>
+        <target state="new">Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="We are having some issues, please try again later" xml:space="preserve">
+        <source>We are having some issues, please try again later</source>
+        <target state="new">We are having some issues, please try again later</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="We will look into this." xml:space="preserve">
+        <source>We will look into this.</source>
+        <target state="new">We will look into this.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Welcome, this device is now called **%@**. For more details see the info button in Account." xml:space="preserve">
+        <source>Welcome, this device is now called **%@**. For more details see the info button in Account.</source>
+        <target state="new">Welcome, this device is now called **%@**. For more details see the info button in Account.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="What's new" xml:space="preserve">
+        <source>What's new</source>
+        <target state="new">What's new</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. &#10;This might cause issues on certain websites, services, and apps.&#10;Attention: this setting cannot be used in combination with **Use custom DNS server**." xml:space="preserve">
+        <source>When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. 
+This might cause issues on certain websites, services, and apps.
+Attention: this setting cannot be used in combination with **Use custom DNS server**.</source>
+        <target state="new">When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. 
+This might cause issues on certain websites, services, and apps.
+Attention: this setting cannot be used in combination with **Use custom DNS server**.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve">
+        <source>When using DAITA, one provider with DAITA-enabled servers is required.</source>
+        <target state="new">When using DAITA, one provider with DAITA-enabled servers is required.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve">
+        <source>Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</source>
+        <target state="new">Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="WireGuard Obfuscation" xml:space="preserve">
+        <source>WireGuard Obfuscation</source>
+        <target state="new">WireGuard Obfuscation</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="WireGuard ports" xml:space="preserve">
+        <source>WireGuard ports</source>
+        <target state="new">WireGuard ports</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="With the &quot;Direct&quot; method, the app communicates with a Mullvad API server directly without any intermediate proxies." xml:space="preserve">
+        <source>With the "Direct" method, the app communicates with a Mullvad API server directly without any intermediate proxies.</source>
+        <target state="new">With the "Direct" method, the app communicates with a Mullvad API server directly without any intermediate proxies.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="With the &quot;Encrypted DNS proxy&quot; method, the app will communicate with our Mullvad API through a proxy address.&#10;It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers." xml:space="preserve">
+        <source>With the "Encrypted DNS proxy" method, the app will communicate with our Mullvad API through a proxy address.
+It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</source>
+        <target state="new">With the "Encrypted DNS proxy" method, the app will communicate with our Mullvad API through a proxy address.
+It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="With the &quot;Mullvad bridges&quot; method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks." xml:space="preserve">
+        <source>With the "Mullvad bridges" method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.</source>
+        <target state="new">With the "Mullvad bridges" method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Yes, continue" xml:space="preserve">
+        <source>Yes, continue</source>
+        <target state="new">Yes, continue</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Yes, log out device" xml:space="preserve">
+        <source>Yes, log out device</source>
+        <target state="new">Yes, log out device</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." xml:space="preserve">
+        <source>You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.</source>
+        <target state="new">You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You are logged in with an invalid account number. Please log out and try another one." xml:space="preserve">
+        <source>You are logged in with an invalid account number. Please log out and try another one.</source>
+        <target state="new">You are logged in with an invalid account number. Please log out and try another one.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You can add more time via the account view or website to continue using the VPN." xml:space="preserve">
+        <source>You can add more time via the account view or website to continue using the VPN.</source>
+        <target state="new">You can add more time via the account view or website to continue using the VPN.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You can now continue logging in on this device." xml:space="preserve">
+        <source>You can now continue logging in on this device.</source>
+        <target state="new">You can now continue logging in on this device.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve">
+        <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
+        <target state="new">You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You have %@ left on this account." xml:space="preserve">
+        <source>You have %@ left on this account.</source>
+        <target state="new">You have %@ left on this account.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.&#10;&#10;In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.&#10;&#10;We strongly believe in retaining as little data as possible because we want you to remain anonymous." xml:space="preserve">
+        <source>You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
+
+In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
+
+We strongly believe in retaining as little data as possible because we want you to remain anonymous.</source>
+        <target state="new">You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
+
+In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
+
+We strongly believe in retaining as little data as possible because we want you to remain anonymous.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the **Add time** button below." xml:space="preserve">
+        <source>You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the **Add time** button below.</source>
+        <target state="new">You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the **Add time** button below.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You have no more VPN time left on this account. To add more, you will need to disconnect and access the Internet with an unsecure connection." xml:space="preserve">
+        <source>You have no more VPN time left on this account. To add more, you will need to disconnect and access the Internet with an unsecure connection.</source>
+        <target state="new">You have no more VPN time left on this account. To add more, you will need to disconnect and access the Internet with an unsecure connection.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You have one day left on this account. Please add more time to continue using the VPN." xml:space="preserve">
+        <source>You have one day left on this account. Please add more time to continue using the VPN.</source>
+        <target state="new">You have one day left on this account. Please add more time to continue using the VPN.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You have removed this device. To connect again, you will need to log back in." xml:space="preserve">
+        <source>You have removed this device. To connect again, you will need to log back in.</source>
+        <target state="new">You have removed this device. To connect again, you will need to log back in.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You have unsaved changes." xml:space="preserve">
+        <source>You have unsaved changes.</source>
+        <target state="new">You have unsaved changes.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your device is offline. The tunnel will automatically connect once your device is back online." xml:space="preserve">
+        <source>Your device is offline. The tunnel will automatically connect once your device is back online.</source>
+        <target state="new">Your device is offline. The tunnel will automatically connect once your device is back online.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your device is offline. Try connecting again when the device has access to Internet." xml:space="preserve">
+        <source>Your device is offline. Try connecting again when the device has access to Internet.</source>
+        <target state="new">Your device is offline. Try connecting again when the device has access to Internet.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your email (optional)" xml:space="preserve">
+        <source>Your email (optional)</source>
+        <target state="new">Your email (optional)</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
+        <source>Your previous purchases have already been added to this account.</source>
+        <target state="new">Your previous purchases have already been added to this account.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Your purchase was successfully refunded." xml:space="preserve">
+        <source>Your purchase was successfully refunded.</source>
+        <target state="new">Your purchase was successfully refunded.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="You’re all set!!" xml:space="preserve">
+        <source>You’re all set!!</source>
+        <target state="new">You’re all set!!</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="method?" xml:space="preserve">
+        <source>method?</source>
+        <target state="new">method?</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="value" xml:space="preserve">
+        <source>value</source>
+        <target state="new">value</target>
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="en.lproj/Localizable.strings" source-language="en" target-language="en" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="A custom list with this name exists, please choose a unique name." xml:space="preserve">
+        <source>A custom list with this name exists, please choose a unique name.</source>
+        <target>A custom list with this name exists, please choose a unique name.</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Automatic" xml:space="preserve">
+        <source>Automatic</source>
+        <target>Automatic</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Name should be no longer than %i characters." xml:space="preserve">
+        <source>Name should be no longer than %i characters.</source>
+        <target>Name should be no longer than %i characters.</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPN/Supporting Files/en.lproj/InfoPlist.strings" source-language="en" target-language="en" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CFBundleDisplayName" xml:space="preserve">
+        <source>Mullvad VPN</source>
+        <target>Mullvad VPN</target>
+        <note>Bundle display name</note>
+      </trans-unit>
+      <trans-unit id="CFBundleName" xml:space="preserve">
+        <source>MullvadVPN</source>
+        <target>MullvadVPN</target>
+        <note>Bundle name</note>
+      </trans-unit>
+      <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve">
+        <source>The app needs this to connect and test a new method.</source>
+        <target>The app needs this to connect and test a new method.</target>
+        <note>Privacy - Local Network Usage Description</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="PacketTunnel/en.lproj/InfoPlist.strings" source-language="en" target-language="en" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="CFBundleDisplayName" xml:space="preserve">
+        <source>PacketTunnel</source>
+        <target>PacketTunnel</target>
+        <note>Bundle display name</note>
+      </trans-unit>
+      <trans-unit id="CFBundleName" xml:space="preserve">
+        <source>PacketTunnel</source>
+        <target>PacketTunnel</target>
+        <note>Bundle name</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="PacketTunnel/en.lproj/Localizable.strings" source-language="en" target-language="en" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.1" build-num="16B40"/>
+    </header>
+    <body>
+      <trans-unit id="%@ have been added to your account" xml:space="preserve">
+        <source>%@ have been added to your account</source>
+        <target>%@ have been added to your account</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Cannot complete the purchase" xml:space="preserve">
+        <source>Cannot complete the purchase</source>
+        <target>Cannot complete the purchase</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Cannot restore purchases" xml:space="preserve">
+        <source>Cannot restore purchases</source>
+        <target>Cannot restore purchases</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Restore purchases" xml:space="preserve">
+        <source>Restore purchases</source>
+        <target>Restore purchases</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Thanks for your purchase" xml:space="preserve">
+        <source>Thanks for your purchase</source>
+        <target>Thanks for your purchase</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve">
+        <source>Your previous purchases have already been added to this account.</source>
+        <target>Your previous purchases have already been added to this account.</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

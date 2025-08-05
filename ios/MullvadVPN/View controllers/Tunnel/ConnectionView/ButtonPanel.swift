@@ -29,7 +29,7 @@ extension ConnectionView {
             switch viewModel.tunnelStatus.state {
             case .connecting, .connected, .reconnecting, .waitingForConnectivity, .negotiatingEphemeralPeer, .error:
                 SplitMainButton(
-                    text: viewModel.localizedTitleForSelectLocationButton,
+                    text: viewModel.titleForSelectLocationButton,
                     image: .iconReload,
                     style: .default,
                     accessibilityId: .selectLocationButton,
@@ -38,7 +38,7 @@ extension ConnectionView {
                 )
             case .disconnecting, .pendingReconnect, .disconnected:
                 MainButton(
-                    text: viewModel.localizedTitleForSelectLocationButton,
+                    text: viewModel.titleForSelectLocationButton,
                     style: .default,
                     action: { action?(.selectLocation) }
                 )

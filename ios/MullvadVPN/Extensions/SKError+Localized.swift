@@ -12,40 +12,20 @@ extension SKError: Foundation.LocalizedError {
     public var errorDescription: String? {
         switch code {
         case .unknown:
-            return NSLocalizedString(
-                "UNKNOWN_ERROR",
-                tableName: "StoreKitErrors",
-                value: "Unknown error.",
-                comment: ""
-            )
+            return NSLocalizedString("Unknown error.", comment: "")
+
         case .clientInvalid:
-            return NSLocalizedString(
-                "CLIENT_INVALID",
-                tableName: "StoreKitErrors",
-                value: "Client is not allowed to issue the request.",
-                comment: ""
-            )
+            return NSLocalizedString("Client is not allowed to issue the request.", comment: "")
+
         case .paymentCancelled:
-            return NSLocalizedString(
-                "PAYMENT_CANCELLED",
-                tableName: "StoreKitErrors",
-                value: "The payment request was cancelled.",
-                comment: ""
-            )
+            return NSLocalizedString("The payment request was cancelled.", comment: "")
+
         case .paymentInvalid:
-            return NSLocalizedString(
-                "PAYMENT_INVALID",
-                tableName: "StoreKitErrors",
-                value: "Invalid purchase identifier.",
-                comment: ""
-            )
+            return NSLocalizedString("Invalid purchase identifier.", comment: "")
+
         case .paymentNotAllowed:
-            return NSLocalizedString(
-                "PAYMENT_NOT_ALLOWED",
-                tableName: "StoreKitErrors",
-                value: "This device is not allowed to make the payment.",
-                comment: ""
-            )
+            return NSLocalizedString("This device is not allowed to make the payment.", comment: "")
+
         default:
             return localizedDescription
         }

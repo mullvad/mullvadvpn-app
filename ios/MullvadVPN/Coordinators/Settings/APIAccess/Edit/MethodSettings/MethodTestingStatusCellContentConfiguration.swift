@@ -45,11 +45,13 @@ extension MethodTestingStatusCellContentConfiguration.Status {
     var text: String {
         switch self {
         case .unreachable:
-            NSLocalizedString("API_UNREACHABLE", tableName: "APIAccess", value: "API unreachable", comment: "")
+            NSLocalizedString("API unreachable", comment: "")
+
         case .reachable:
-            NSLocalizedString("API_REACHABLE", tableName: "APIAccess", value: "API reachable", comment: "")
+            NSLocalizedString("API reachable", comment: "")
+
         case .testing:
-            NSLocalizedString("API_TESTING_INPROGRESS", tableName: "APIAccess", value: "Testing...", comment: "")
+            NSLocalizedString("Testing...", comment: "")
         }
     }
 

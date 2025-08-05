@@ -26,26 +26,13 @@ enum IPOverrideStatus: Equatable, CustomStringConvertible {
     var title: String {
         switch self {
         case .active:
-            NSLocalizedString(
-                "IP_OVERRIDE_STATUS_TITLE_ACTIVE",
-                tableName: "IPOverride",
-                value: "Overrides active",
-                comment: ""
-            )
+            NSLocalizedString("Overrides active", comment: "")
+
         case .noImports, .importFailed:
-            NSLocalizedString(
-                "IP_OVERRIDE_STATUS_TITLE_NO_IMPORTS",
-                tableName: "IPOverride",
-                value: "No overrides imported",
-                comment: ""
-            )
+            NSLocalizedString("No overrides imported", comment: "")
+
         case .importSuccessful:
-            NSLocalizedString(
-                "IP_OVERRIDE_STATUS_TITLE_IMPORT_SUCCESSFUL",
-                tableName: "IPOverride",
-                value: "Import successful",
-                comment: ""
-            )
+            NSLocalizedString("Import successful", comment: "")
         }
     }
 
@@ -73,19 +60,15 @@ enum IPOverrideStatus: Equatable, CustomStringConvertible {
         case .active, .noImports:
             ""
         case let .importFailed(context):
-            String(format: NSLocalizedString(
-                "IP_OVERRIDE_STATUS_DESCRIPTION_INACTIVE",
-                tableName: "IPOverride",
-                value: "Import %@ was unsuccessful, please try again.",
-                comment: ""
-            ), context.description)
+            String(
+                format: NSLocalizedString("Import %@ was unsuccessful, please try again.", comment: ""),
+                context.description
+            )
         case let .importSuccessful(context):
-            String(format: NSLocalizedString(
-                "IP_OVERRIDE_STATUS_DESCRIPTION_INACTIVE",
-                tableName: "IPOverride",
-                value: "Import %@ was successful, overrides are now active.",
-                comment: ""
-            ), context.description)
+            String(
+                format: NSLocalizedString("Import %@ was successful, overrides are now active.", comment: ""),
+                context.description
+            )
         }
     }
 }

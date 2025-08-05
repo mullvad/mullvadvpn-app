@@ -29,12 +29,8 @@ final class WelcomeContentView: UIView, Sendable {
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = .zero
-        label.text = NSLocalizedString(
-            "WELCOME_PAGE_TITLE",
-            tableName: "Welcome",
-            value: "Congrats!",
-            comment: ""
-        )
+        label.text = NSLocalizedString("Congrats!", comment: "")
+
         return label
     }()
 
@@ -45,12 +41,8 @@ final class WelcomeContentView: UIView, Sendable {
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = .zero
-        label.text = NSLocalizedString(
-            "WELCOME_PAGE_SUBTITLE",
-            tableName: "Welcome",
-            value: "Here’s your account number. Save it!",
-            comment: ""
-        )
+        label.text = NSLocalizedString("Here’s your account number. Save it!", comment: "")
+
         return label
     }()
 
@@ -107,9 +99,7 @@ final class WelcomeContentView: UIView, Sendable {
         label.lineBreakMode = .byWordWrapping
         label.lineBreakStrategy = []
         label.text = NSLocalizedString(
-            "WELCOME_PAGE_DESCRIPTION",
-            tableName: "Welcome",
-            value: """
+            """
             To start using the app, you first need to \
             add time to your account. Either buy credit \
             on our website or redeem a voucher.
@@ -122,12 +112,8 @@ final class WelcomeContentView: UIView, Sendable {
     private let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.setAccessibilityIdentifier(.purchaseButton)
-        let localizedString = NSLocalizedString(
-            "ADD_TIME_BUTTON",
-            tableName: "Welcome",
-            value: "Add time",
-            comment: ""
-        )
+        let localizedString = NSLocalizedString("Add time", comment: "")
+
         button.setTitle(localizedString, for: .normal)
         return button
     }()
@@ -171,12 +157,10 @@ final class WelcomeContentView: UIView, Sendable {
     var viewModel: WelcomeViewModel? {
         didSet {
             accountNumberLabel.text = viewModel?.accountNumber
-            deviceNameLabel.text = String(format: NSLocalizedString(
-                "DEVICE_NAME_TEXT",
-                tableName: "Welcome",
-                value: "Device name: %@",
-                comment: ""
-            ), viewModel?.deviceName ?? "")
+            deviceNameLabel.text = String(
+                format: NSLocalizedString("Device name: %@", comment: ""),
+                viewModel?.deviceName ?? ""
+            )
         }
     }
 

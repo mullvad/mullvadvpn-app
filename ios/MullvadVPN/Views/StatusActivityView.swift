@@ -46,7 +46,6 @@ class StatusActivityView: UIView {
             activityIndicator.heightAnchor.constraint(equalTo: statusImageView.heightAnchor),
             statusImageView.topAnchor.constraint(equalTo: topAnchor),
             statusImageView.bottomAnchor.constraint(equalTo: bottomAnchor),
-
             statusImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
             statusImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),

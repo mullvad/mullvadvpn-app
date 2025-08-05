@@ -50,24 +50,16 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
         case .vpnSettings:
             guard let cell = cell as? SettingsCell else { return }
 
-            cell.titleLabel.text = NSLocalizedString(
-                "VPN_SETTINGS_CELL_LABEL",
-                tableName: "Settings",
-                value: "VPN settings",
-                comment: ""
-            )
+            cell.titleLabel.text = NSLocalizedString("VPN settings", comment: "")
+
             cell.detailTitleLabel.text = nil
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
 
         case .changelog:
             guard let cell = cell as? SettingsCell else { return }
-            cell.titleLabel.text = NSLocalizedString(
-                "APP_VERSION_CELL_LABEL",
-                tableName: "Settings",
-                value: "What's new",
-                comment: ""
-            )
+            cell.titleLabel.text = NSLocalizedString("What's new", comment: "")
+
             cell.detailTitleLabel.text = Bundle.main.productVersion
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
@@ -75,12 +67,8 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
         case .problemReport:
             guard let cell = cell as? SettingsCell else { return }
 
-            cell.titleLabel.text = NSLocalizedString(
-                "REPORT_PROBLEM_CELL_LABEL",
-                tableName: "Settings",
-                value: "Report a problem",
-                comment: ""
-            )
+            cell.titleLabel.text = NSLocalizedString("Report a problem", comment: "")
+
             cell.detailTitleLabel.text = nil
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
@@ -88,24 +76,16 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
         case .faq:
             guard let cell = cell as? SettingsCell else { return }
 
-            cell.titleLabel.text = NSLocalizedString(
-                "FAQ_AND_GUIDES_CELL_LABEL",
-                tableName: "Settings",
-                value: "FAQs & Guides",
-                comment: ""
-            )
+            cell.titleLabel.text = NSLocalizedString("FAQs & Guides", comment: "")
+
             cell.detailTitleLabel.text = nil
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .externalLink
 
         case .apiAccess:
             guard let cell = cell as? SettingsCell else { return }
-            cell.titleLabel.text = NSLocalizedString(
-                "API_ACCESS_CELL_LABEL",
-                tableName: "Settings",
-                value: "API access",
-                comment: ""
-            )
+            cell.titleLabel.text = NSLocalizedString("API access", comment: "")
+
             cell.detailTitleLabel.text = nil
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
@@ -113,18 +93,14 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
         case .daita:
             guard let cell = cell as? SettingsCell else { return }
 
-            cell.titleLabel.text = NSLocalizedString(
-                "DAITA_CELL_LABEL",
-                tableName: "Settings",
-                value: "DAITA",
-                comment: ""
-            )
+            cell.titleLabel.text = NSLocalizedString("DAITA", comment: "")
 
-            cell.detailTitleLabel.text = NSLocalizedString(
-                "DAITA_CELL_DETAIL_LABEL",
-                tableName: "Settings",
-                value: viewModel.daitaSettings.daitaState.isEnabled ? "On" : "Off",
-                comment: ""
+            cell.detailTitleLabel.text = String(
+                format: NSLocalizedString("%@", comment: ""),
+                String(
+                    format: "%@",
+                    viewModel.daitaSettings.daitaState.isEnabled ? "On" : "Off"
+                )
             )
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
@@ -133,39 +109,19 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
         case .multihop:
             guard let cell = cell as? SettingsCell else { return }
 
-            cell.titleLabel.text = NSLocalizedString(
-                "MULTIHOP_CELL_LABEL",
-                tableName: "Settings",
-                value: "Multihop",
-                comment: ""
-            )
+            cell.titleLabel.text = NSLocalizedString("Multihop", comment: "")
 
-            cell.detailTitleLabel.text = NSLocalizedString(
-                "MULTIHOP_CELL_DETAIL_LABEL",
-                tableName: "Settings",
-                value: viewModel.multihopState.isEnabled ? "On" : "Off",
-                comment: ""
-            )
+            cell.detailTitleLabel.text = viewModel.multihopState.isEnabled
+                ? NSLocalizedString("On", comment: "")
+                : NSLocalizedString("Off", comment: "")
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
         case .language:
             guard let cell = cell as? SettingsCell else { return }
 
-            cell.titleLabel.text = NSLocalizedString(
-                "LANGUAGE_CELL_LABEL",
-                tableName: "Settings",
-                value: "Language",
-                comment: ""
-            )
-
-            cell.detailTitleLabel.text = NSLocalizedString(
-                "LANGUAGE_CELL_DETAIL_LABEL",
-                tableName: "Settings",
-                value: viewModel.currentLanguage,
-                comment: ""
-            )
-
+            cell.titleLabel.text = NSLocalizedString("Language", comment: "")
+            cell.detailTitleLabel.text = viewModel.currentLanguage
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
         }

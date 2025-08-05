@@ -21,12 +21,8 @@ class SetupAccountCompletedContentView: UIView {
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = .zero
-        label.text = NSLocalizedString(
-            "CREATED_ACCOUNT_CONFIRMATION_PAGE_TITLE",
-            tableName: "CreatedAccountConfirmation",
-            value: "You’re all set!!",
-            comment: ""
-        )
+        label.text = NSLocalizedString("You’re all set!!", comment: "")
+
         return label
     }()
 
@@ -34,9 +30,7 @@ class SetupAccountCompletedContentView: UIView {
         let label = UILabel()
 
         let message = NSMutableAttributedString(string: NSLocalizedString(
-            "CREATED_ACCOUNT_CONFIRMATION_PAGE_BODY",
-            tableName: "CreatedAccountConfirmation",
-            value: """
+            """
             Go ahead and start using the app to begin reclaiming your online privacy.
             To continue your journey as a privacy ninja, \
             visit our website to pick up other privacy-friendly habits and tools.
@@ -57,12 +51,8 @@ class SetupAccountCompletedContentView: UIView {
     private let privacyButton: AppButton = {
         let button = AppButton(style: .success)
         button.setAccessibilityIdentifier(.learnAboutPrivacyButton)
-        let localizedString = NSLocalizedString(
-            "LEARN_ABOUT_PRIVACY_BUTTON",
-            tableName: "CreatedAccountConfirmation",
-            value: "Learn about privacy",
-            comment: ""
-        )
+        let localizedString = NSLocalizedString("Learn about privacy", comment: "")
+
         button.setTitle(localizedString, for: .normal)
         button.setImage(UIImage(named: "IconExtlink")?.imageFlippedForRightToLeftLayoutDirection(), for: .normal)
         return button
@@ -71,12 +61,10 @@ class SetupAccountCompletedContentView: UIView {
     private let startButton: AppButton = {
         let button = AppButton(style: .success)
         button.setAccessibilityIdentifier(.startUsingTheAppButton)
-        button.setTitle(NSLocalizedString(
-            "START_USING_THE_APP_BUTTON",
-            tableName: "CreatedAccountConfirmation",
-            value: "Start using the app",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(
+            NSLocalizedString("Start using the app", comment: ""),
+            for: .normal
+        )
         return button
     }()
 

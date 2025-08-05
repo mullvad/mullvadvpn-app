@@ -41,12 +41,8 @@ class EditLocationsCoordinator: Coordinator, Presentable, Presenting, Sendable {
         )
         controller.delegate = self
 
-        controller.navigationItem.title = NSLocalizedString(
-            "EDIT_LOCATIONS_NAVIGATION_TITLE",
-            tableName: "EditLocations",
-            value: "Edit locations",
-            comment: ""
-        )
+        controller.navigationItem.title = NSLocalizedString("Edit locations", comment: "")
+
         navigationController.pushViewController(controller, animated: true)
     }
 }

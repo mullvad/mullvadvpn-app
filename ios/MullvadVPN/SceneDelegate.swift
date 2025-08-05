@@ -208,16 +208,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
         let presentation = AlertPresentation(
             id: "settings-migration-error-alert",
-            title: NSLocalizedString(
-                "ALERT_TITLE",
-                tableName: "SettingsMigrationUI",
-                value: "Settings migration error",
-                comment: ""
-            ),
+            title: NSLocalizedString("Settings migration error", comment: ""),
             message: Self.migrationErrorReason(error),
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString("Got it!", tableName: "SettingsMigrationUI", comment: ""),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default,
                     handler: {
                         completionHandler()
@@ -233,9 +228,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     private static func migrationErrorReason(_ error: Error) -> String {
         if error is UnsupportedSettingsVersionError {
             return NSLocalizedString(
-                "NEWER_STORED_SETTINGS_ERROR",
-                tableName: "SettingsMigrationUI",
-                value: """
+                """
                 The version of settings stored on device is unrecognized.\
                 Settings will be reset to defaults and the device will be logged out.
                 """,
@@ -243,9 +236,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             )
         } else {
             return NSLocalizedString(
-                "INTERNAL_ERROR",
-                tableName: "SettingsMigrationUI",
-                value: """
+                """
                 Internal error occurred. Settings will be reset to defaults and device logged out.
                 """,
                 comment: ""

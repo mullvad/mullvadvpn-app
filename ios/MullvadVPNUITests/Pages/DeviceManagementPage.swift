@@ -79,7 +79,6 @@ class DeviceManagementPage: Page {
                 identifier: AccessibilityIdentifier.deviceCellRemoveButton.asString
             )
             .count,
-
             expectedCount
         )
         return self

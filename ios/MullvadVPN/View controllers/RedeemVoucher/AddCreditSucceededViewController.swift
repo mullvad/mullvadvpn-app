@@ -77,12 +77,7 @@ class AddCreditSucceededViewController: UIViewController, RootContainment {
         view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
 
         messageLabel.text = String(
-            format: NSLocalizedString(
-                "ADDED_TIME_SUCCESS_MESSAGE",
-                tableName: "AddedTime",
-                value: "%@ were added to your account.",
-                comment: ""
-            ),
+            format: NSLocalizedString("%@ were added to your account.", comment: ""),
             timeAddedComponents.formattedAddedDay
         )
     }

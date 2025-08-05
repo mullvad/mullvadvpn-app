@@ -28,19 +28,10 @@ extension TextCellContentConfiguration {
         var localizedDescription: String {
             switch self {
             case .required:
-                NSLocalizedString(
-                    "REQUIRED_PLACEHOLDER",
-                    tableName: "APIAccess",
-                    value: "Required",
-                    comment: ""
-                )
+                NSLocalizedString("Required", comment: "")
+
             case .optional:
-                NSLocalizedString(
-                    "OPTIONAL_PLACEHOLDER",
-                    tableName: "APIAccess",
-                    value: "Optional",
-                    comment: ""
-                )
+                NSLocalizedString("Optional", comment: "")
             }
         }
     }

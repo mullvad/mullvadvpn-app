@@ -565,12 +565,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     }
 
     private func configureWireguardPortsHeader(_ header: SettingsHeaderView) {
-        let title = NSLocalizedString(
-            "WIREGUARD_PORTS_HEADER_LABEL",
-            tableName: "VPNSettings",
-            value: "WireGuard ports",
-            comment: ""
-        )
+        let title = NSLocalizedString("WireGuard ports", comment: "")
 
         header.setAccessibilityIdentifier(.wireGuardPortsCell)
         header.titleLabel.text = title
@@ -609,12 +604,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     }
 
     private func configureObfuscationHeader(_ header: SettingsHeaderView) {
-        let title = NSLocalizedString(
-            "OBFUSCATION_HEADER_LABEL",
-            tableName: "VPNSettings",
-            value: "WireGuard Obfuscation",
-            comment: ""
-        )
+        let title = NSLocalizedString("WireGuard Obfuscation", comment: "")
 
         header.setAccessibilityIdentifier(.wireGuardObfuscationCell)
         header.titleLabel.text = title
@@ -641,12 +631,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     }
 
     private func configureQuantumResistanceHeader(_ header: SettingsHeaderView) {
-        let title = NSLocalizedString(
-            "QUANTUM_RESISTANCE_HEADER_LABEL",
-            tableName: "VPNSettings",
-            value: "Quantum-resistant tunnel",
-            comment: ""
-        )
+        let title = NSLocalizedString("Quantum-resistant tunnel", comment: "")
 
         header.setAccessibilityIdentifier(.quantumResistantTunnelCell)
         header.titleLabel.text = title

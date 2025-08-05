@@ -181,9 +181,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
 
     func navigateToCustomLists(nodes: [LocationNode]) {
         let actionSheet = UIAlertController(
-            title: NSLocalizedString(
-                "ACTION_SHEET_TITLE", tableName: "CustomLists", value: "Custom lists", comment: ""
-            ),
+            title: NSLocalizedString("Custom lists", comment: ""),
             message: nil,
             preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
         )
@@ -191,9 +189,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
         actionSheet.view.tintColor = .AlertController.tintColor
 
         let addCustomListAction = UIAlertAction(
-            title: NSLocalizedString(
-                "ACTION_SHEET_ADD_LIST_BUTTON", tableName: "CustomLists", value: "Add new list", comment: ""
-            ),
+            title: NSLocalizedString("Add new list", comment: ""),
             style: .default,
             handler: { [weak self] _ in
                 self?.showAddCustomList(nodes: nodes)
@@ -203,9 +199,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
         actionSheet.addAction(addCustomListAction)
 
         let editAction = UIAlertAction(
-            title: NSLocalizedString(
-                "ACTION_SHEET_EDIT_LISTS_BUTTON", tableName: "CustomLists", value: "Edit lists", comment: ""
-            ),
+            title: NSLocalizedString("Edit lists", comment: ""),
             style: .default,
             handler: { [weak self] _ in
                 self?.showEditCustomLists(nodes: nodes)
@@ -216,12 +210,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
         actionSheet.addAction(editAction)
 
         actionSheet.addAction(UIAlertAction(
-            title: NSLocalizedString(
-                "CUSTOM_LIST_ACTION_SHEET_CANCEL_BUTTON",
-                tableName: "CustomLists",
-                value: "Cancel",
-                comment: ""
-            ),
+            title: NSLocalizedString("Cancel", comment: ""),
             style: .cancel
         ))
 

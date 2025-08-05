@@ -43,12 +43,7 @@ class SettingsViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.title = NSLocalizedString(
-            "NAVIGATION_TITLE",
-            tableName: "Settings",
-            value: "Settings",
-            comment: ""
-        )
+        navigationItem.title = NSLocalizedString("Settings", comment: "")
 
         let doneButton = UIBarButtonItem(
             systemItem: .done,
@@ -94,12 +89,7 @@ extension SettingsViewController: @preconcurrency SettingsDataSourceDelegate {
             message: item.description,
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "SETTINGS_INFO_ALERT_OK_ACTION",
-                        tableName: "Settings",
-                        value: "Got it!",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
                 ),
             ]

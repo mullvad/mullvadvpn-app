@@ -13,24 +13,15 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
     @StateObject var viewModel: VM
 
     var body: some View {
-        let portString = NSLocalizedString(
-            "SHADOWSOCKS_PORT_LABEL",
-            tableName: "Shadowsocks",
-            value: "Port",
-            comment: ""
-        )
+        let portString = NSLocalizedString("Port", comment: "")
 
         SingleChoiceList(
             title: portString,
             options: [WireGuardObfuscationShadowsocksPort.automatic],
             value: $viewModel.value,
             tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationShadowsocksTable.asString,
-            itemDescription: { item in NSLocalizedString(
-                "SHADOWSOCKS_PORT_VALUE_\(item)",
-                tableName: "Shadowsocks",
-                value: "\(item)",
-                comment: ""
-            ) },
+            itemDescription: { item in NSLocalizedString("\(item)", comment: "")
+            },
             parseCustomValue: { UInt16($0).flatMap { $0 > 0 ? WireGuardObfuscationShadowsocksPort.custom($0) : nil }
             },
             formatCustomValue: {
@@ -40,24 +31,9 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
                     nil
                 }
             },
-            customLabel: NSLocalizedString(
-                "SHADOWSOCKS_PORT_VALUE_CUSTOM",
-                tableName: "Shadowsocks",
-                value: "Custom",
-                comment: ""
-            ),
-            customPrompt: NSLocalizedString(
-                "SHADOWSOCKS_PORT_VALUE_PORT_PROMPT",
-                tableName: "Shadowsocks",
-                value: "Port",
-                comment: ""
-            ),
-            customLegend: NSLocalizedString(
-                "SHADOWSOCKS_PORT_VALUE_PORT_LEGEND",
-                tableName: "Shadowsocks",
-                value: "Valid range: 1 - 65535",
-                comment: ""
-            ),
+            customLabel: NSLocalizedString("Custom", comment: ""),
+            customPrompt: NSLocalizedString("Port", comment: ""),
+            customLegend: NSLocalizedString("Valid range: 1 - 65535", comment: ""),
             customInputMinWidth: 100,
             customInputMaxLength: 5,
             customFieldMode: .numericText

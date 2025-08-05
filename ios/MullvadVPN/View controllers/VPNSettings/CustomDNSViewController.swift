@@ -42,12 +42,8 @@ class CustomDNSViewController: UITableViewController {
         dataSource = CustomDNSDataSource(tableView: tableView)
         dataSource?.delegate = self
 
-        navigationItem.title = NSLocalizedString(
-            "NAVIGATION_TITLE",
-            tableName: "VPNSettings",
-            value: "DNS settings",
-            comment: ""
-        )
+        navigationItem.title = NSLocalizedString("DNS settings", comment: "")
+
         if navigationItem.rightBarButtonItem != nil {
             navigationItem.leftBarButtonItem = editButtonItem
             navigationItem.leftBarButtonItem?.setAccessibilityIdentifier(.dnsSettingsEditButton)
@@ -92,12 +88,7 @@ class CustomDNSViewController: UITableViewController {
             attributedMessage: message,
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "VPN_SETTINGS_DNS_SETTINGS_OK_ACTION",
-                        tableName: "ContentBlockers",
-                        value: "Got it!",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
                 ),
             ]

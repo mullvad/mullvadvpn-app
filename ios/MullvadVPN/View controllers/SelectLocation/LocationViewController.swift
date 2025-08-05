@@ -206,12 +206,8 @@ final class LocationViewController: UIViewController {
         searchBar.searchBarStyle = .minimal
         searchBar.layer.cornerRadius = 8
         searchBar.clipsToBounds = true
-        searchBar.placeholder = NSLocalizedString(
-            "SEARCHBAR_PLACEHOLDER",
-            tableName: "SelectLocation",
-            value: "Search for...",
-            comment: ""
-        )
+        searchBar.placeholder = NSLocalizedString("Search for...", comment: "")
+
         searchBar.searchTextField.setAccessibilityIdentifier(.selectLocationSearchTextField)
 
         UITextField.SearchTextFieldAppearance.inactive.apply(to: searchBar)

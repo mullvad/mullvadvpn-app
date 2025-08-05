@@ -21,12 +21,7 @@ enum MethodSettingsSectionIdentifier: Hashable {
         case .name, .protocol, .validationError, .testingStatus, .cancelTest:
             nil
         case .proxyConfiguration:
-            NSLocalizedString(
-                "HOST_CONFIG_SECTION_TITLE",
-                tableName: "APIAccess",
-                value: "Server details",
-                comment: ""
-            )
+            NSLocalizedString("Server details", comment: "")
         }
     }
 }

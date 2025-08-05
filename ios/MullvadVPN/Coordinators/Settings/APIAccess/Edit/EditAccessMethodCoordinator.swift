@@ -74,26 +74,11 @@ extension EditAccessMethodCoordinator: @preconcurrency EditAccessMethodViewContr
             alertPresenter: AlertPresenter(context: self)
         )
 
-        controller.navigationItem.prompt = NSLocalizedString(
-            "METHOD_SETTINGS_NAVIGATION_ADD_PROMPT",
-            tableName: "APIAccess",
-            value: "The app will test the method before saving.",
-            comment: ""
-        )
+        controller.navigationItem.prompt = NSLocalizedString("The app will test the method before saving.", comment: "")
 
-        controller.navigationItem.title = NSLocalizedString(
-            "METHOD_SETTINGS_NAVIGATION_ADD_TITLE",
-            tableName: "APIAccess",
-            value: "Method settings",
-            comment: ""
-        )
+        controller.navigationItem.title = NSLocalizedString("Method settings", comment: "")
 
-        controller.saveBarButton.title = NSLocalizedString(
-            "METHOD_SETTINGS_NAVIGATION_ADD_BUTTON",
-            tableName: "APIAccess",
-            value: "Save",
-            comment: ""
-        )
+        controller.saveBarButton.title = NSLocalizedString("Save", comment: "")
 
         controller.delegate = self
 

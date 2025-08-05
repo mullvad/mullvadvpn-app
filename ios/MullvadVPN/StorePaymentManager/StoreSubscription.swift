@@ -17,19 +17,10 @@ enum StoreSubscription: String, CaseIterable {
     var localizedTitle: String {
         switch self {
         case .thirtyDays:
-            return NSLocalizedString(
-                "STORE_SUBSCRIPTION_TITLE_ADD_30_DAYS",
-                tableName: "StoreSubscriptions",
-                value: "Add 30 days",
-                comment: ""
-            )
+            return NSLocalizedString("Add 30 days", comment: "")
+
         case .ninetyDays:
-            return NSLocalizedString(
-                "STORE_SUBSCRIPTION_TITLE_ADD_90_DAYS",
-                tableName: "StoreSubscriptions",
-                value: "Add 90 days",
-                comment: ""
-            )
+            return NSLocalizedString("Add 90 days", comment: "")
         }
     }
 }

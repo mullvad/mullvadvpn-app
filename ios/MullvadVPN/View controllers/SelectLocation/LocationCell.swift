@@ -129,6 +129,7 @@ class LocationCell: UITableViewCell {
         // Set the accessibility value to indicate selection status
         accessibilityValue = selected
             ? NSLocalizedString("Selected", comment: "")
+
             : nil
     }
 
@@ -197,7 +198,9 @@ class LocationCell: UITableViewCell {
         if !locationCellViewModel.node.children.isEmpty {
             accessibilityHint = locationCellViewModel.node.showsChildren
                 ? NSLocalizedString("Collapses this location.", comment: "")
+
                 : NSLocalizedString("Expands this location.", comment: "")
+
         } else {
             accessibilityHint = nil
         }

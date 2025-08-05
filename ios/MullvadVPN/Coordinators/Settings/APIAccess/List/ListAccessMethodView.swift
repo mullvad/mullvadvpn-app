@@ -29,17 +29,11 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             let text = NSLocalizedString(
-                "ACCESS_METHOD_HEADER_BODY",
-                tableName: "APIAccess",
-                value: "Manage default and setup custom methods to access the Mullvad API. ",
+                "Manage default and setup custom methods to access the Mullvad API. ",
                 comment: ""
             )
-            let about = NSLocalizedString(
-                "ACCESS_METHOD_HEADER_BODY",
-                tableName: "APIAccess",
-                value: "About API access…",
-                comment: ""
-            )
+
+            let about = NSLocalizedString("About API access…", comment: "")
 
             MullvadList(viewModel.items, header: {
                 MullvadInfoHeaderView(
@@ -68,20 +62,12 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                     nil
                 }
                 let state = viewModel.itemInUse?.id == item.id
-                    ? NSLocalizedString(
-                        "LIST_ACCESS_METHODS_IN_USE_ITEM",
-                        tableName: "APIAccess",
-                        value: "In use",
-                        comment: ""
-                    )
+                    ? NSLocalizedString("In use", comment: "")
+
                     : (
                         !item.isEnabled
-                            ? NSLocalizedString(
-                                "LIST_ACCESS_METHODS_DISABLED",
-                                tableName: "APIAccess",
-                                value: "Disabled",
-                                comment: ""
-                            )
+                            ? NSLocalizedString("Disabled", comment: "")
+
                             : nil
                     )
                 MullvadListNavigationItemView(

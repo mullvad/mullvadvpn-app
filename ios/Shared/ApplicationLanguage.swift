@@ -1,5 +1,5 @@
 //
-//  AppLanguage.swift
+//  ApplicationLanguage.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2025-07-16.
@@ -19,7 +19,7 @@ import Foundation
  *    • Remove bilingual content only for Staging.
  *    • Eliminate the Debug configuration check.
  */
-enum AppLanguage: String, CaseIterable, Identifiable {
+enum ApplicationLanguage: String, CaseIterable, Identifiable {
     case english = "en"
     case danish = "da"
     case german = "de"
@@ -103,8 +103,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         return flagString
     }
 
-    static var currentLanguage: AppLanguage {
-        let defaultCode = AppLanguage.english.rawValue
+    static var currentLanguage: ApplicationLanguage {
+        let defaultCode = ApplicationLanguage.english.rawValue
         let fullCode = Locale.preferredLanguages.first ?? defaultCode
 
         if #available(iOS 16, *) {
@@ -130,7 +130,6 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         // Otherwise, try to get languageCode (e.g., "en", "fr")
         let locale = Locale(identifier: fullCode)
         let langCode = locale.languageCode ?? defaultCode
-
-        return AppLanguage(rawValue: langCode) ?? .english
+        return ApplicationLanguage(rawValue: langCode) ?? .english
     }
 }
