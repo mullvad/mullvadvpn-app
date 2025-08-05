@@ -16,7 +16,7 @@ import UIKit
  more manageable and reusable.
  */
 @MainActor
-open class Coordinator: NSObject, Sendable {
+open class Coordinator: NSObject {
     /// Private trace log.
     private lazy var logger = Logger(label: "\(Self.self)")
 

@@ -14,7 +14,7 @@ import UIKit
  Main application router.
  */
 @MainActor
-public final class ApplicationRouter<RouteType: AppRouteProtocol>: Sendable {
+public final class ApplicationRouter<RouteType: AppRouteProtocol> {
     nonisolated(unsafe) private let logger = Logger(label: "ApplicationRouter")
 
     private(set) var modalStack: [RouteType.RouteGroupType] = []

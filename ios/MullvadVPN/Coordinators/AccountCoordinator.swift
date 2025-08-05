@@ -137,37 +137,18 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
                     devicesProxy: interactor.deviceProxy
                 ),
                 style: .deviceManagement,
-                onError: { title, error in
-                    let errorDescription = if case let .network(urlError) = error as? REST.Error {
-                        urlError.localizedDescription
-                    } else {
-                        error.localizedDescription
-                    }
-                    let presentation = AlertPresentation(
-                        id: "device-management-error-alert",
+                onError: { [weak self] title, error in
+                    self?.presentError(
+                        "device-management-error-alert",
                         title: title,
-                        message: errorDescription,
-                        buttons: [
-                            AlertAction(
-                                title: NSLocalizedString(
-                                    "ERROR_ALERT_OK_ACTION",
-                                    tableName: "DeviceManagement",
-                                    value: "Got it!",
-                                    comment: ""
-                                ),
-                                style: .default
-                            ),
-                        ]
+                        message: error.localizedDescription
                     )
-
-                    let presenter = AlertPresenter(context: self)
-                    presenter.showAlert(presentation: presentation, animated: true)
                 }
             )
         )
         controller.title = NSLocalizedString(
             "MANAGE_DEVICES_TITLE",
-            tableName: "Manage devices",
+            tableName: "DeviceManagement",
             value: "Manage devices",
             comment: ""
         )
@@ -178,16 +159,32 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             })
         )
         controller.navigationItem.rightBarButtonItem = doneButton
-        let subNavigationController = CustomNavigationController(
-            rootViewController: controller
-        )
+        let subNavigationController = CustomNavigationController(rootViewController: controller)
         subNavigationController.navigationItem.largeTitleDisplayMode = .always
         subNavigationController.navigationBar.prefersLargeTitles = true
-        navigationController
-            .present(
-                subNavigationController,
-                animated: true
-            )
+        navigationController.present(subNavigationController, animated: true)
+    }
+
+    private func presentError(_ id: String, title: String, message: String) {
+        let presentation = AlertPresentation(
+            id: id,
+            title: title,
+            message: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "ERROR_ALERT_OK_ACTION",
+                        tableName: "Common",
+                        value: "Got it!",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
+        )
+
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 
     @MainActor

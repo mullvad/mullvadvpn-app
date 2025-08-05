@@ -31,56 +31,84 @@ struct AlertModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .fullScreenCover(item: $alert) { alert in
-                VStack {
-                    Spacer()
-                    VStack(spacing: 16) {
-                        switch alert.type {
-                        case .error, .warning:
-                            Image.mullvadIconAlert
-                                .resizable()
-                                .frame(width: 48, height: 48)
-                        }
-                        HStack {
-                            Text(alert.message)
-                                .font(.mullvadSmall)
-                                .foregroundColor(.mullvadTextPrimary.opacity(0.6))
-                            Spacer()
-                        }
-                        VStack(spacing: 16) {
-                            if let action = alert.action {
-                                MainButton(
-                                    text: action.title,
-                                    style: action.type,
-                                    action: {
-                                        Task {
-                                            loading = true
-                                            await action.handler()
-                                            loading = false
-                                        }
-                                    }
-                                )
-                                .accessibilityIdentifier(action.identifier)
-                            }
-                            MainButton(
-                                text: alert.dismissButtonTitle,
-                                style: .default,
-                                action: { self.alert = nil }
-                            )
-                        }
-                    }
-                    .padding()
-                    .background(Color.mullvadBackground)
-                    .cornerRadius(8)
-                    Spacer()
-                }
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier(.alertContainerView)
-                .padding()
-                .background(ClearBackgroundView())
+                alertView(for: alert)
             }
             .transaction {
                 $0.disablesAnimations = true
             }
+    }
+
+    @ViewBuilder
+    private func alertView(for alert: MullvadAlert) -> some View {
+        VStack {
+            Spacer()
+            alertContent(for: alert)
+            Spacer()
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(.alertContainerView)
+        .padding()
+        .background(ClearBackgroundView())
+    }
+
+    @ViewBuilder
+    private func alertContent(for alert: MullvadAlert) -> some View {
+        VStack(spacing: 16) {
+            alertIcon(for: alert.type)
+            alertMessage(alert.message)
+            VStack(spacing: 16) {
+                alertAction(for: alert.action)
+                alertAction(for: MullvadAlert.Action(
+                    type: .default,
+                    title: alert.dismissButtonTitle,
+                    identifier: nil,
+                    handler: { self.alert = nil }
+                ))
+            }
+        }
+        .padding()
+        .background(Color.mullvadBackground)
+        .cornerRadius(8)
+    }
+
+    @ViewBuilder
+    private func alertIcon(for type: MullvadAlert.AlertType) -> some View {
+        switch type {
+        case .error, .warning:
+            Image.mullvadIconAlert
+                .resizable()
+                .frame(width: 48, height: 48)
+        }
+    }
+
+    @ViewBuilder
+    private func alertMessage(_ message: LocalizedStringKey) -> some View {
+        HStack {
+            Text(message)
+                .font(.mullvadSmall)
+                .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+            Spacer()
+        }
+    }
+
+    @ViewBuilder
+    private func alertAction(for action: MullvadAlert.Action?) -> some View {
+        if let action = action {
+            MainButton(
+                text: action.title,
+                style: action.type,
+                action: {
+                    Task {
+                        loading = true
+                        await action.handler()
+                        loading = false
+                    }
+                }
+            )
+            .accessibilityIdentifier(action.identifier)
+        } else {
+            EmptyView()
+        }
     }
 }
 
