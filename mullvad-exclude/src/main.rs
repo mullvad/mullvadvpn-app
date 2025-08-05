@@ -40,10 +40,13 @@ enum Error {
     #[error("An argument contains interior nul bytes")]
     ArgumentNul(#[source] NulError),
 
-    #[error("Failed to find net_cls controller")]
+    #[error("Error finding net_cls controller")]
     FindNetClsController(#[source] io::Error),
 
-    #[error("No net_cls controller")]
+    #[error(
+        "No net_cls controller found.\n\nThis is likely because cgroups v1 was disabled using the \
+         boot parameter 'cgroup_no_v1' or when your Linux kernel was built"
+    )]
     NoNetClsController,
 }
 
@@ -59,7 +62,7 @@ fn main() {
                 std::process::exit(1);
             }
             e => {
-                let mut s = format!("{e}");
+                let mut s = format!("Error: {e}");
                 let mut source = e.source();
                 while let Some(error) = source {
                     write!(&mut s, "\nCaused by: {error}").expect("formatting failed");
