@@ -31,6 +31,8 @@ NOTARIZE="false"
 # If a macOS or Windows build should create an installer artifact working on both
 # x86 and arm64
 UNIVERSAL="false"
+# Use boringtun instead of wireguard-go
+BORINGTUN="false"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -44,6 +46,7 @@ while [[ "$#" -gt 0 ]]; do
             fi
             UNIVERSAL="true"
             ;;
+        --boringtun) BORINGTUN="true";;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -73,6 +76,7 @@ if [[ -n ${TARGETS:-""} ]]; then
 fi
 
 NPM_PACK_ARGS+=(--host-target-triple "$HOST")
+
 
 if [[ "$UNIVERSAL" == "true" ]]; then
     if [[ -n ${TARGETS:-""} ]]; then
@@ -232,6 +236,12 @@ function build {
     if [[ -n $specified_target ]]; then
         cargo_target_arg+=(--target="$specified_target")
     fi
+
+    local cargo_features=()
+    if [[ "$BORINGTUN" == "true" ]]; then
+        cargo_features+=(--features boringtun)
+    fi
+
     local cargo_crates_to_build=(
         -p mullvad-daemon --bin mullvad-daemon
         -p mullvad-cli --bin mullvad
@@ -242,7 +252,8 @@ function build {
     if [[ ("$(uname -s)" == "Linux") ]]; then
         cargo_crates_to_build+=(-p mullvad-exclude --bin mullvad-exclude)
     fi
-    cargo build "${cargo_target_arg[@]}" "${CARGO_ARGS[@]}" "${cargo_crates_to_build[@]}"
+
+    cargo build "${cargo_target_arg[@]}" "${cargo_features[@]}" "${CARGO_ARGS[@]}" "${cargo_crates_to_build[@]}"
 
     ################################################################################
     # Move binaries to correct locations in dist-assets
