@@ -78,18 +78,19 @@ struct AndroidUdpSocketFactory {
 
 #[cfg(target_os = "android")]
 impl UdpTransportFactory for AndroidUdpSocketFactory {
-    type Transport = <UdpSocketFactory as UdpTransportFactory>::Transport;
+    type Send = <UdpSocketFactory as UdpTransportFactory>::Send;
+    type Recv = <UdpSocketFactory as UdpTransportFactory>::Recv;
 
     async fn bind(
         &mut self,
         params: &boringtun::udp::UdpTransportFactoryParams,
-    ) -> std::io::Result<(Arc<Self::Transport>, Arc<Self::Transport>)> {
-        let (udp_v4, udp_v6) = UdpSocketFactory.bind(params).await?;
+    ) -> std::io::Result<((Self::Send, Self::Recv), (Self::Send, Self::Recv))> {
+        let ((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)) = UdpSocketFactory.bind(params).await?;
 
-        self.tun.bypass(&udp_v4).unwrap();
-        self.tun.bypass(&udp_v6).unwrap();
+        self.tun.bypass(&udp_v4_tx).unwrap();
+        self.tun.bypass(&udp_v6_tx).unwrap();
 
-        Ok((udp_v4, udp_v6))
+        Ok(((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)))
     }
 }
 
