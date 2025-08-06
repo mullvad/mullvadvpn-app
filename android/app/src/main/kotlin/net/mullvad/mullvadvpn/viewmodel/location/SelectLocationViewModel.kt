@@ -26,6 +26,8 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
+import net.mullvad.mullvadvpn.usecase.MultihopChange
 import net.mullvad.mullvadvpn.usecase.SelectHopError
 import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.Selection
@@ -43,6 +45,7 @@ class SelectLocationViewModel(
     private val filterChipUseCase: FilterChipUseCase,
     private val settingsRepository: SettingsRepository,
     private val selectHopUseCase: SelectHopUseCase,
+    private val modifyMultihopUseCase: ModifyMultihopUseCase
 ) : ViewModel() {
     private val _relayListType: MutableStateFlow<RelayListType> =
         MutableStateFlow(RelayListType.EXIT)
@@ -80,9 +83,9 @@ class SelectLocationViewModel(
         viewModelScope.launch { _relayListType.emit(relayListType) }
     }
 
-    fun selectHop(hop: Hop.Multi) {
+    fun selectHop(hop: Hop) {
         viewModelScope.launch {
-            selectHopUseCase(Selection.MultiHop(hop))
+            selectHopUseCase(hop)
                 .fold(
                     {
                         when (it) {
@@ -101,13 +104,15 @@ class SelectLocationViewModel(
         }
     }
 
-    fun modifyMultihop(hop: Hop.Single<*>, relayListType: RelayListType) {
+    fun modifyMultihop(relayItem: RelayItem, relayListType: RelayListType) {
+        val change = when(relayListType) {
+            RelayListType.ENTRY -> MultihopChange.Entry(relayItem)
+            RelayListType.EXIT -> MultihopChange.Exit(relayItem)
+        }
+
         viewModelScope.launch {
-            selectHopUseCase(
-                    when (relayListType) {
-                        RelayListType.ENTRY -> Selection.Entry(hop)
-                        RelayListType.EXIT -> Selection.Exit(hop)
-                    }
+            modifyMultihopUseCase(
+                 change
                 )
                 .fold(
                     {

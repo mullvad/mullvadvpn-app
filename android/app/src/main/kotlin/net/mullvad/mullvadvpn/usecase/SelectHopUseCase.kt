@@ -3,30 +3,67 @@ package net.mullvad.mullvadvpn.usecase
 import arrow.core.Either
 import arrow.core.left
 import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 
+class ModifyMultihopUseCase(
+    private val wireguardConstraintsRepository: WireguardConstraintsRepository,
+    private val relayListRepository: RelayListRepository,
+) {
+//    suspend operator fun invoke(relayItem: RelayItem, isExit: Boolean): Either<Any, Unit> =
+    suspend operator fun invoke(change: MultihopChange): Either<Any, Unit> {
+        // fetch current constraints -> (entry, exit)
+
+        val newMultihop = when(change) {
+            is MultihopChange.Entry -> {
+//                val entryConstraint = change.item.id
+                TODO()
+            }
+            is MultihopChange.Exit -> {
+//                val exitConstraint = change.item.id
+
+                TODO()
+            }
+        }
+
+    TODO()
+//        selectHopUseCase(newMultihop).mapLeft { error ->
+//            when (error) {
+//                is SelectHopError.HopInactive -> error
+//                is SelectHopError.EntryAndExitSame -> error
+//                SelectHopError.GenericError -> Any()
+//            }
+//        }
+    }
+}
+
+sealed class MultihopChange {
+    data class Entry(val item: RelayItem) : MultihopChange()
+    data class Exit(val item: RelayItem) : MultihopChange()
+}
+
 class SelectHopUseCase(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val relayListRepository: RelayListRepository,
     private val settingsRepository: SettingsRepository,
 ) {
-    suspend operator fun invoke(selection: Selection): Either<SelectHopError, Unit> =
-        if (selection.hop.isActive) {
-            selectHop(selection = selection)
+    suspend operator fun invoke(hop: Hop): Either<SelectHopError, Unit> =
+        if (hop.isActive) {
+            selectHop(hop = hop)
         } else {
-            SelectHopError.HopInactive(hop = selection.hop).left()
+            SelectHopError.HopInactive(hop = hop).left()
         }
 
-    private suspend fun selectHop(selection: Selection): Either<SelectHopError, Unit> =
-        when (selection) {
-            is Selection.MultiHop -> {
-                val entryConstraint = selection.hop.entry.id
-                val exitConstraint = selection.hop.exit.id
-                if (entryConstraint == exitConstraint) {
+    private suspend fun selectHop(hop: Hop): Either<SelectHopError, Unit> =
+        when (hop) {
+            is Hop.Multi -> {
+                val entryConstraint = hop.entry.id
+                val exitConstraint = hop.exit.id
+                if (hop.entry is RelayItem.Location.Relay && entryConstraint == exitConstraint) {
                     SelectHopError.EntryAndExitSame.left()
                 } else {
                     relayListRepository
@@ -37,18 +74,8 @@ class SelectHopUseCase(
                         .mapLeft { SelectHopError.GenericError }
                 }
             }
-            is Selection.Entry -> {
-                val locationConstraint = selection.hop.relay.id
-                if (settingsRepository.settingsUpdates.value.isExit(locationConstraint)) {
-                    SelectHopError.EntryAndExitSame.left()
-                } else {
-                    wireguardConstraintsRepository.setEntryLocation(locationConstraint).mapLeft {
-                        SelectHopError.GenericError
-                    }
-                }
-            }
-            is Selection.Exit -> {
-                val locationConstraint = selection.hop.relay.id
+            is Hop.Single<*> -> {
+                val locationConstraint = hop.relay.id
                 if (
                     settingsRepository.settingsUpdates.value.multihopEnabled() &&
                         settingsRepository.settingsUpdates.value.isEntry(locationConstraint)
