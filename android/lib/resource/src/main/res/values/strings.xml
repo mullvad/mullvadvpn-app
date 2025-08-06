@@ -435,4 +435,5 @@
     <string name="more_actions">More actions</string>
     <string name="relay_item_already_selected_as_exit">%s is already selected as exit relay</string>
     <string name="relay_item_already_selected_as_entry">%s is already selected as entry relay</string>
+    <string name="entry_and_exit_are_same">Entry relay is the same as exit relay</string>
 </resources>

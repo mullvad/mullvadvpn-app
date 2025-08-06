@@ -47,6 +47,7 @@ class SelectLocationListViewModel(
                 } else {
                     Lce.Content(
                         SelectLocationListUiState(
+                            relayListType = relayListType,
                             relayListItems = relayListItems,
                             customLists = customLists,
                         )

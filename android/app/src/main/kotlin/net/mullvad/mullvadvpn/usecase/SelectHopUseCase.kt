@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.usecase
 
 import arrow.core.Either
 import arrow.core.left
-import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.Settings
@@ -15,47 +14,53 @@ class SelectHopUseCase(
     private val relayListRepository: RelayListRepository,
     private val settingsRepository: SettingsRepository,
 ) {
-    suspend operator fun invoke(
-        hop: Hop,
-        selectedRelayListType: RelayListType,
-    ): Either<SelectHopError, Unit> =
-        if (hop.isActive) {
-            selectHop(hop = hop, selectedRelayListType = selectedRelayListType)
+    suspend operator fun invoke(selection: Selection): Either<SelectHopError, Unit> =
+        if (selection.hop.isActive) {
+            selectHop(selection = selection)
         } else {
-            SelectHopError.HopInactive(hop = hop).left()
+            SelectHopError.HopInactive(hop = selection.hop).left()
         }
 
-    private suspend fun selectHop(
-        hop: Hop,
-        selectedRelayListType: RelayListType,
-    ): Either<SelectHopError, Unit> =
-        when (hop) {
-            is Hop.Multi -> {
-                val entryConstraint = hop.entry.id
-                val exitConstraint = hop.exit.id
-                relayListRepository.updateSelectedRelayLocationMultihop(
-                    entry = entryConstraint,
-                    exit = exitConstraint,
-                )
-            }
-            is Hop.Single<*> -> {
-                val locationConstraint = hop.relay.id
-                when (selectedRelayListType) {
-                    RelayListType.ENTRY ->
-                        if (settingsRepository.settingsUpdates.value.isExit(locationConstraint)) {
-                            SelectHopError.ExitBlocked.left()
-                        } else {
-                            wireguardConstraintsRepository.setEntryLocation(locationConstraint)
-                        }
-                    RelayListType.EXIT ->
-                        if (settingsRepository.settingsUpdates.value.isEntry(locationConstraint)) {
-                            SelectHopError.EntryBlocked.left()
-                        } else {
-                            relayListRepository.updateSelectedRelayLocation(locationConstraint)
-                        }
+    private suspend fun selectHop(selection: Selection): Either<SelectHopError, Unit> =
+        when (selection) {
+            is Selection.MultiHop -> {
+                val entryConstraint = selection.hop.entry.id
+                val exitConstraint = selection.hop.exit.id
+                if (entryConstraint == exitConstraint) {
+                    SelectHopError.EntryAndExitSame.left()
+                } else {
+                    relayListRepository
+                        .updateSelectedRelayLocationMultihop(
+                            entry = entryConstraint,
+                            exit = exitConstraint,
+                        )
+                        .mapLeft { SelectHopError.GenericError }
                 }
             }
-        }.mapLeft { it as? SelectHopError ?: SelectHopError.GenericError }
+            is Selection.Entry -> {
+                val locationConstraint = selection.hop.relay.id
+                if (settingsRepository.settingsUpdates.value.isExit(locationConstraint)) {
+                    SelectHopError.EntryAndExitSame.left()
+                } else {
+                    wireguardConstraintsRepository.setEntryLocation(locationConstraint).mapLeft {
+                        SelectHopError.GenericError
+                    }
+                }
+            }
+            is Selection.Exit -> {
+                val locationConstraint = selection.hop.relay.id
+                if (
+                    settingsRepository.settingsUpdates.value.multihopEnabled() &&
+                        settingsRepository.settingsUpdates.value.isEntry(locationConstraint)
+                ) {
+                    SelectHopError.EntryAndExitSame.left()
+                } else {
+                    relayListRepository.updateSelectedRelayLocation(locationConstraint).mapLeft {
+                        SelectHopError.GenericError
+                    }
+                }
+            }
+        }
 
     private fun Settings?.isExit(locationConstraint: RelayItemId): Boolean {
         return this?.relaySettings?.relayConstraints?.location?.getOrNull() == locationConstraint
@@ -68,14 +73,27 @@ class SelectHopUseCase(
             ?.entryLocation
             ?.getOrNull() == locationConstraint
     }
+
+    private fun Settings?.multihopEnabled(): Boolean {
+        return this?.relaySettings?.relayConstraints?.wireguardConstraints?.isMultihopEnabled ==
+            true
+    }
 }
 
 sealed interface SelectHopError {
     data class HopInactive(val hop: Hop) : SelectHopError
 
-    data object ExitBlocked : SelectHopError
-
-    data object EntryBlocked : SelectHopError
+    data object EntryAndExitSame : SelectHopError
 
     data object GenericError : SelectHopError
+}
+
+sealed class Selection {
+    abstract val hop: Hop
+
+    data class Entry(override val hop: Hop.Single<*>) : Selection()
+
+    data class Exit(override val hop: Hop.Single<*>) : Selection()
+
+    data class MultiHop(override val hop: Hop.Multi) : Selection()
 }

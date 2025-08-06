@@ -90,7 +90,7 @@ private fun PreviewSearchLocationScreen(
         SearchLocationScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
-            onSelectHop = {},
+            onModifyMultihop = {},
             onToggleExpand = { _, _, _ -> },
             onSearchInputChanged = {},
             onCreateCustomList = {},
@@ -204,7 +204,7 @@ fun SearchLocation(
     SearchLocationScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onSelectHop = viewModel::selectHop,
+        onModifyMultihop = viewModel::modifyMultihop,
         onToggleExpand = viewModel::onToggleExpand,
         onSearchInputChanged = viewModel::onSearchInputUpdated,
         onCreateCustomList =
@@ -249,7 +249,7 @@ fun SearchLocation(
 fun SearchLocationScreen(
     state: Lce<Unit, SearchLocationUiState, Unit>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectHop: (Hop) -> Unit,
+    onModifyMultihop: (Hop.Single<*>) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onSearchInputChanged: (String) -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
@@ -329,7 +329,8 @@ fun SearchLocationScreen(
                         relayListContent(
                             relayListItems = state.value.relayListItems,
                             customLists = state.value.customLists,
-                            onSelectHop = onSelectHop,
+                            onSelectHop = { error("Can not select") },
+                            onModifyMultihop = onModifyMultihop,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->
                                 locationBottomSheetState = newSheetState

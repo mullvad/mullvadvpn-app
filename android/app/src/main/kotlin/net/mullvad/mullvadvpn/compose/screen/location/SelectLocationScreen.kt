@@ -102,7 +102,8 @@ private fun PreviewSelectLocationScreen(
         SelectLocationScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
-            onSelectHop = { _, _ -> },
+            onSelectHop = {},
+            onModifyMultihop = { _, _ -> },
             onSearchClick = {},
             onBackClick = {},
             onFilterClick = {},
@@ -191,6 +192,12 @@ fun SelectLocation(
                             )
                     )
                 }
+            SelectLocationSideEffect.EntryAndExitAreSame ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = context.getString(R.string.entry_and_exit_are_same)
+                    )
+                }
         }
     }
 
@@ -224,6 +231,7 @@ fun SelectLocation(
         state = state.value,
         snackbarHostState = snackbarHostState,
         onSelectHop = vm::selectHop,
+        onModifyMultihop = vm::modifyMultihop,
         onSearchClick = { navigator.navigate(SearchLocationDestination(it)) },
         onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
         onFilterClick = dropUnlessResumed { navigator.navigate(FilterDestination) },
@@ -272,7 +280,8 @@ fun SelectLocation(
 fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectHop: (item: Hop, relayListType: RelayListType) -> Unit,
+    onSelectHop: (item: Hop.Multi) -> Unit,
+    onModifyMultihop: (hop: Hop.Single<*>, relayListType: RelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
     onFilterClick: () -> Unit,
@@ -401,6 +410,7 @@ fun SelectLocationScreen(
                         pagerState,
                         state = state.value,
                         onSelectHop = onSelectHop,
+                        onModifyMultihop = onModifyMultihop,
                         openDaitaSettings = openDaitaSettings,
                         onAddCustomList = { onCreateCustomList(null) },
                         onEditCustomLists = onEditCustomLists,
@@ -518,7 +528,8 @@ private fun MultihopBar(
 private fun RelayLists(
     pagerState: PagerState,
     state: SelectLocationUiState,
-    onSelectHop: (Hop, RelayListType) -> Unit,
+    onSelectHop: (hop: Hop.Multi) -> Unit,
+    onModifyMultihop: (Hop.Single<*>, RelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
@@ -540,17 +551,12 @@ private fun RelayLists(
     }
 
     val focusManager = LocalFocusManager.current
-    val onSelectHopInner: (Hop, RelayListType) -> Unit = { hop, relayListType ->
-        onSelectHop(hop, relayListType)
+    val onModifyMultihopInner: (Hop.Single<*>, RelayListType) -> Unit = { hop, relayListType ->
+        onModifyMultihop(hop, relayListType)
         // If multihop is enabled and the user selects a location or custom list in the entry list
         // the app will switch to the exit list. Normally in this case the focus will stay in the
         // entry list, but in this case we want move the focus to the exit list.
-        if (
-            state.multihopEnabled &&
-                relayListType == RelayListType.ENTRY &&
-                hop is Hop.Single<*> &&
-                hop.isActive
-        ) {
+        if (state.multihopEnabled && relayListType == RelayListType.ENTRY && hop.isActive) {
             focusManager.moveFocus(FocusDirection.Right)
             if (hop.relay.hasChildren) {
                 focusManager.moveFocus(FocusDirection.Right)
@@ -575,7 +581,8 @@ private fun RelayLists(
                 } else {
                     RelayListType.EXIT
                 },
-            onSelectHop = onSelectHopInner,
+            onSelectHop = onSelectHop,
+            onModifyMultihop = onModifyMultihopInner,
             openDaitaSettings = openDaitaSettings,
             onAddCustomList = onAddCustomList,
             onEditCustomLists = onEditCustomLists,

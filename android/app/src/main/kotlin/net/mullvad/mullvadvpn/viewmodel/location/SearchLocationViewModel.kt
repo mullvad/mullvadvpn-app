@@ -31,6 +31,7 @@ import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SelectHopError
 import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
+import net.mullvad.mullvadvpn.usecase.Selection
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
@@ -119,14 +120,19 @@ class SearchLocationViewModel(
         }
     }
 
-    fun selectHop(hop: Hop) {
+    fun modifyMultihop(hop: Hop.Single<*>) {
         viewModelScope.launch {
-            selectHopUseCase(hop = hop, relayListType)
+            selectHopUseCase(
+                    selection =
+                        when (relayListType) {
+                            RelayListType.ENTRY -> Selection.Entry(hop)
+                            RelayListType.EXIT -> Selection.Exit(hop)
+                        }
+                )
                 .fold(
                     {
                         when (it) {
-                            SelectHopError.EntryBlocked,
-                            SelectHopError.ExitBlocked ->
+                            SelectHopError.EntryAndExitSame ->
                                 _uiSideEffect.send(
                                     SearchLocationSideEffect.RelayItemAlreadySelected(
                                         hop = hop,
