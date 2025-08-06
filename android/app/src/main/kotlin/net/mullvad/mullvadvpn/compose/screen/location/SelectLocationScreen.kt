@@ -172,12 +172,12 @@ fun SelectLocation(
                             if (it.relayListType == RelayListType.ENTRY) {
                                 context.getString(
                                     R.string.relay_item_already_selected_as_exit,
-                                    it.hop.displayName(context),
+                                    it.relayItem.name,
                                 )
                             } else {
                                 context.getString(
                                     R.string.relay_item_already_selected_as_entry,
-                                    it.hop.displayName(context),
+                                    it.relayItem.name,
                                 )
                             }
                     )
@@ -280,7 +280,7 @@ fun SelectLocation(
 fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectHop: (item: Hop.Multi) -> Unit,
+    onSelectHop: (item: Hop) -> Unit,
     onModifyMultihop: (relayItem: RelayItem, relayListType: RelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
@@ -528,7 +528,7 @@ private fun MultihopBar(
 private fun RelayLists(
     pagerState: PagerState,
     state: SelectLocationUiState,
-    onSelectHop: (hop: Hop.Multi) -> Unit,
+    onSelectHop: (hop: Hop) -> Unit,
     onModifyMultihop: (RelayItem, RelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
@@ -551,8 +551,12 @@ private fun RelayLists(
     }
 
     val focusManager = LocalFocusManager.current
-    val onModifyMultihopInner: (RelayItem) -> Unit = { relayItem ->
-        onModifyMultihop(relayItem, relayListType)
+    val onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { relayItem, relayListType ->
+        if (state.multihopEnabled) {
+            onModifyMultihop(relayItem, relayListType)
+        } else {
+            onSelectHop(Hop.Single(relayItem))
+        }
         // If multihop is enabled and the user selects a location or custom list in the entry list
         // the app will switch to the exit list. Normally in this case the focus will stay in the
         // entry list, but in this case we want move the focus to the exit list.
@@ -582,7 +586,7 @@ private fun RelayLists(
                     RelayListType.EXIT
                 },
             onSelectHop = onSelectHop,
-            onSelectRelayItem = onModifyMultihopInner,
+            onSelectRelayItem = onSelectRelayItem,
             openDaitaSettings = openDaitaSettings,
             onAddCustomList = onAddCustomList,
             onEditCustomLists = onEditCustomLists,

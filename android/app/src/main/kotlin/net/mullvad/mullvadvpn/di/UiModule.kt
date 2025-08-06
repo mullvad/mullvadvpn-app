@@ -38,6 +38,7 @@ import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.NewChangelogNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
@@ -164,11 +165,13 @@ val uiModule = module {
     single { FilterChipUseCase(get(), get(), get(), get()) }
     single { DeleteCustomDnsUseCase(get()) }
     single { RecentsUseCase(get(), get(), get()) }
+    single { SelectHopUseCase(relayListRepository = get()) }
     single {
-        SelectHopUseCase(
-            wireguardConstraintsRepository = get(),
+        ModifyMultihopUseCase(
             relayListRepository = get(),
+            customListsRelayItemUseCase = get(),
             settingsRepository = get(),
+            selectHopUseCase = get(),
         )
     }
 
@@ -231,7 +234,9 @@ val uiModule = module {
     viewModel { WireguardCustomPortDialogViewModel(get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
-    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel {
+        SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get())
+    }
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
@@ -260,6 +265,8 @@ val uiModule = module {
     viewModel { MultihopViewModel(get(), get()) }
     viewModel {
         SearchLocationViewModel(
+            get(),
+            get(),
             get(),
             get(),
             get(),

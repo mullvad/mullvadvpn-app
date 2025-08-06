@@ -26,11 +26,11 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.usecase.MultihopChange
 import net.mullvad.mullvadvpn.usecase.SelectHopError
 import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
-import net.mullvad.mullvadvpn.usecase.Selection
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.Lc
 
@@ -45,7 +45,7 @@ class SelectLocationViewModel(
     private val filterChipUseCase: FilterChipUseCase,
     private val settingsRepository: SettingsRepository,
     private val selectHopUseCase: SelectHopUseCase,
-    private val modifyMultihopUseCase: ModifyMultihopUseCase
+    private val modifyMultihopUseCase: ModifyMultihopUseCase,
 ) : ViewModel() {
     private val _relayListType: MutableStateFlow<RelayListType> =
         MutableStateFlow(RelayListType.EXIT)
@@ -105,32 +105,33 @@ class SelectLocationViewModel(
     }
 
     fun modifyMultihop(relayItem: RelayItem, relayListType: RelayListType) {
-        val change = when(relayListType) {
-            RelayListType.ENTRY -> MultihopChange.Entry(relayItem)
-            RelayListType.EXIT -> MultihopChange.Exit(relayItem)
-        }
+        val change =
+            when (relayListType) {
+                RelayListType.ENTRY -> MultihopChange.Entry(relayItem)
+                RelayListType.EXIT -> MultihopChange.Exit(relayItem)
+            }
 
         viewModelScope.launch {
-            modifyMultihopUseCase(
-                 change
-                )
+            modifyMultihopUseCase(change)
                 .fold(
                     {
                         when (it) {
-                            SelectHopError.GenericError ->
-                                _uiSideEffect.trySend(SelectLocationSideEffect.GenericError)
-                            is SelectHopError.HopInactive ->
-                                _uiSideEffect.trySend(
-                                    SelectLocationSideEffect.RelayItemInactive(it.hop)
-                                )
-                            is SelectHopError.EntryAndExitSame -> {
+                            is ModifyMultihopError.EntrySame,
+                            is ModifyMultihopError.ExitSame ->
                                 _uiSideEffect.send(
                                     SelectLocationSideEffect.RelayItemAlreadySelected(
-                                        hop = hop,
-                                        relayListType = RelayListType.EXIT,
+                                        relayItem = relayItem,
+                                        relayListType = relayListType,
                                     )
                                 )
-                            }
+                            ModifyMultihopError.GenericError ->
+                                _uiSideEffect.trySend(SelectLocationSideEffect.GenericError)
+                            is ModifyMultihopError.RelayItemInactive ->
+                                _uiSideEffect.trySend(
+                                    SelectLocationSideEffect.RelayItemInactive(
+                                        hop = Hop.Single(it.relayItem)
+                                    )
+                                )
                         }
                     },
                     {
@@ -199,8 +200,10 @@ sealed interface SelectLocationSideEffect {
 
     data class RelayItemInactive(val hop: Hop) : SelectLocationSideEffect
 
-    data class RelayItemAlreadySelected(val hop: Hop, val relayListType: RelayListType) :
-        SelectLocationSideEffect
+    data class RelayItemAlreadySelected(
+        val relayItem: RelayItem,
+        val relayListType: RelayListType,
+    ) : SelectLocationSideEffect
 
     data object EntryAndExitAreSame : SelectLocationSideEffect
 }
