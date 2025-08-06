@@ -7,6 +7,9 @@
 #include <functional>
 #include <vector>
 
+// NOTE: Linker refuses to find the library unless specified here
+#pragma comment(lib, "version.lib")
+
 void __declspec(dllexport) NSISCALL RemoveLogsAndCache
 (
 	HWND hwndParent,
