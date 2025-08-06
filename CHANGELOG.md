@@ -26,6 +26,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add QUIC obfuscation (WireGuard only). It will be used automatically when connecting fails with
   other methods.
 
+### Fixed
+#### Windows
+- Fix issue with installer running in compatibility mode during update.
+
 
 ## [2025.8-beta2] - 2025-08-04
 No changes since 2025.8-beta1. This update is done in preparation for upcoming features.
