@@ -63,9 +63,11 @@ class CustomListsRepository(
      * updateCustomList just before this you might get an out of date value.
      */
     fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> = either {
-        val customLists =
-            customLists.value
-                ?: raise(GetCustomListError(id)).also { Logger.e("Custom lists never loaded") }
+        val customLists = customLists.value
+        if (customLists == null) {
+            Logger.e("Custom lists never loaded")
+            raise(GetCustomListError(id))
+        }
         customLists.firstOrNull { customList -> customList.id == id }
             ?: raise(GetCustomListError(id))
     }

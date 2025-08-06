@@ -41,8 +41,8 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST
 fun LazyListScope.relayListContent(
     relayListItems: List<RelayListItem>,
     customLists: List<RelayItem.CustomList>,
-    onSelectHop: (Hop.Multi) -> Unit,
-    onModifyMultihop: (Hop.Single<*>) -> Unit,
+    onSelectHop: (Hop) -> Unit,
+    onSelectRelayItem: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customListHeader: @Composable (LazyItemScope.() -> Unit) = {},
@@ -59,14 +59,14 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.CustomListItem ->
                         CustomListItem(
                             listItem,
-                            onSelectHop = onModifyMultihop,
+                            onSelectHop = { onSelectRelayItem(it.exit()) },
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
                     is RelayListItem.CustomListEntryItem ->
                         CustomListEntryItem(
                             listItem,
-                            onSelectHop = onModifyMultihop,
+                            onSelectHop = { onSelectRelayItem(it.exit()) },
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
@@ -75,7 +75,7 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.GeoLocationItem ->
                         GeoLocationItem(
                             listItem,
-                            onSelectHop = onModifyMultihop,
+                            onSelectHop = { onSelectRelayItem(it.exit()) },
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                             customLists = customLists,

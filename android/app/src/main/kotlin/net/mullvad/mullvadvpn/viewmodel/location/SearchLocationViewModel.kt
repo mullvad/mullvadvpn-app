@@ -24,14 +24,17 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopError
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
+import net.mullvad.mullvadvpn.usecase.MultihopChange
 import net.mullvad.mullvadvpn.usecase.SelectHopError
 import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
-import net.mullvad.mullvadvpn.usecase.Selection
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
@@ -46,6 +49,8 @@ class SearchLocationViewModel(
     private val relayListFilterRepository: RelayListFilterRepository,
     private val filterChipUseCase: FilterChipUseCase,
     private val selectHopUseCase: SelectHopUseCase,
+    private val modifyMultihopUseCase: ModifyMultihopUseCase,
+    private val settingsRepository: SettingsRepository,
     filteredRelayListUseCase: FilteredRelayListUseCase,
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -120,35 +125,73 @@ class SearchLocationViewModel(
         }
     }
 
-    fun modifyMultihop(hop: Hop.Single<*>) {
+    fun selectRelayItem(relayItem: RelayItem) {
         viewModelScope.launch {
-            selectHopUseCase(
-                    selection =
-                        when (relayListType) {
-                            RelayListType.ENTRY -> Selection.Entry(hop)
-                            RelayListType.EXIT -> Selection.Exit(hop)
-                        }
-                )
-                .fold(
-                    {
-                        when (it) {
-                            SelectHopError.EntryAndExitSame ->
-                                _uiSideEffect.send(
-                                    SearchLocationSideEffect.RelayItemAlreadySelected(
-                                        hop = hop,
-                                        relayListType = relayListType,
-                                    )
-                                )
-                            SelectHopError.GenericError ->
-                                _uiSideEffect.send(SearchLocationSideEffect.GenericError)
-                            is SelectHopError.HopInactive ->
-                                _uiSideEffect.send(SearchLocationSideEffect.HopInactive(it.hop))
-                        }
-                    },
-                    { _uiSideEffect.send(SearchLocationSideEffect.LocationSelected(relayListType)) },
-                )
+            if (
+                settingsRepository.settingsUpdates.value
+                    ?.relaySettings
+                    ?.relayConstraints
+                    ?.wireguardConstraints
+                    ?.isMultihopEnabled == true
+            ) {
+                when (relayListType) {
+                    RelayListType.ENTRY -> {
+                        modifyMultihop(change = MultihopChange.Entry(relayItem))
+                    }
+                    RelayListType.EXIT -> {
+                        modifyMultihop(change = MultihopChange.Exit(relayItem))
+                    }
+                }
+            } else {
+                selectHop(hop = Hop.Single(relayItem))
+            }
         }
     }
+
+    private suspend fun selectHop(hop: Hop.Single<*>) =
+        selectHopUseCase(hop)
+            .fold(
+                {
+                    _uiSideEffect.send(
+                        when (it) {
+                            SelectHopError.EntryAndExitSame ->
+                                SearchLocationSideEffect.RelayItemAlreadySelected(
+                                    relayItem = hop.relay,
+                                    relayListType = relayListType,
+                                )
+                            SelectHopError.GenericError -> SearchLocationSideEffect.GenericError
+                            is SelectHopError.HopInactive ->
+                                SearchLocationSideEffect.RelayItemInactive(hop.relay)
+                        }
+                    )
+                },
+                { _uiSideEffect.send(SearchLocationSideEffect.LocationSelected(relayListType)) },
+            )
+
+    private suspend fun modifyMultihop(change: MultihopChange) =
+        modifyMultihopUseCase(change = change)
+            .fold(
+                {
+                    _uiSideEffect.send(
+                        when (it) {
+                            is ModifyMultihopError.EntrySame,
+                            is ModifyMultihopError.ExitSame ->
+                                SearchLocationSideEffect.RelayItemAlreadySelected(
+                                    relayItem = change.item,
+                                    relayListType = relayListType,
+                                )
+                            ModifyMultihopError.GenericError ->
+                                SearchLocationSideEffect.GenericError
+                            is ModifyMultihopError.RelayItemInactive ->
+                                SearchLocationSideEffect.RelayItemAlreadySelected(
+                                    relayItem = it.relayItem,
+                                    relayListType = relayListType,
+                                )
+                        }
+                    )
+                },
+                { _uiSideEffect.send(SearchLocationSideEffect.LocationSelected(relayListType)) },
+            )
 
     private fun searchRelayListLocations(
         searchTerm: String,
@@ -235,10 +278,12 @@ sealed interface SearchLocationSideEffect {
     data class CustomListActionToast(val resultData: CustomListActionResultData) :
         SearchLocationSideEffect
 
-    data class HopInactive(val hop: Hop) : SearchLocationSideEffect
+    data class RelayItemInactive(val relayItem: RelayItem) : SearchLocationSideEffect
 
-    data class RelayItemAlreadySelected(val hop: Hop, val relayListType: RelayListType) :
-        SearchLocationSideEffect
+    data class RelayItemAlreadySelected(
+        val relayItem: RelayItem,
+        val relayListType: RelayListType,
+    ) : SearchLocationSideEffect
 
     data object GenericError : SearchLocationSideEffect
 }

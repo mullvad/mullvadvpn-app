@@ -67,13 +67,11 @@ import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.relaylist.displayName
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.util.Lce
 import net.mullvad.mullvadvpn.viewmodel.location.SearchLocationSideEffect
@@ -90,7 +88,7 @@ private fun PreviewSearchLocationScreen(
         SearchLocationScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
-            onModifyMultihop = {},
+            onSelectRelayItem = {},
             onToggleExpand = { _, _, _ -> },
             onSearchInputChanged = {},
             onCreateCustomList = {},
@@ -157,24 +155,21 @@ fun SearchLocation(
                             if (it.relayListType == RelayListType.ENTRY) {
                                 context.getString(
                                     R.string.relay_item_already_selected_as_exit,
-                                    it.hop.displayName(context),
+                                    it.relayItem.name,
                                 )
                             } else {
                                 context.getString(
                                     R.string.relay_item_already_selected_as_entry,
-                                    it.hop.displayName(context),
+                                    it.relayItem.name,
                                 )
                             }
                     )
                 }
-            is SearchLocationSideEffect.HopInactive -> {
+            is SearchLocationSideEffect.RelayItemInactive -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            context.getString(
-                                R.string.relayitem_is_inactive,
-                                it.hop.displayName(context),
-                            )
+                            context.getString(R.string.relayitem_is_inactive, it.relayItem.name)
                     )
                 }
             }
@@ -204,7 +199,7 @@ fun SearchLocation(
     SearchLocationScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onModifyMultihop = viewModel::modifyMultihop,
+        onSelectRelayItem = viewModel::selectRelayItem,
         onToggleExpand = viewModel::onToggleExpand,
         onSearchInputChanged = viewModel::onSearchInputUpdated,
         onCreateCustomList =
@@ -249,7 +244,7 @@ fun SearchLocation(
 fun SearchLocationScreen(
     state: Lce<Unit, SearchLocationUiState, Unit>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onModifyMultihop: (Hop.Single<*>) -> Unit,
+    onSelectRelayItem: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onSearchInputChanged: (String) -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
@@ -329,8 +324,8 @@ fun SearchLocationScreen(
                         relayListContent(
                             relayListItems = state.value.relayListItems,
                             customLists = state.value.customLists,
-                            onSelectHop = { error("Can not select") },
-                            onModifyMultihop = onModifyMultihop,
+                            onSelectHop = { error("Can not select hop in search screen") },
+                            onSelectRelayItem = onSelectRelayItem,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->
                                 locationBottomSheetState = newSheetState
