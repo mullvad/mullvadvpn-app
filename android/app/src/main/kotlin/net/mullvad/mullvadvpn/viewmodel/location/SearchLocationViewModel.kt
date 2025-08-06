@@ -135,7 +135,7 @@ class SearchLocationViewModel(
                                 )
                             SelectHopError.GenericError ->
                                 _uiSideEffect.send(SearchLocationSideEffect.GenericError)
-                            is SelectHopError.HopNotActive ->
+                            is SelectHopError.HopInactive ->
                                 _uiSideEffect.send(SearchLocationSideEffect.HopInactive(it.hop))
                         }
                     },
