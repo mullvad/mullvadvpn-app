@@ -29,7 +29,6 @@ struct AccessMethodProtocolPicker {
 
         controller.navigationItem.title = NSLocalizedString(
             "SELECT_PROTOCOL_NAV_TITLE",
-            tableName: "APIAccess",
             value: "Type",
             comment: ""
         )

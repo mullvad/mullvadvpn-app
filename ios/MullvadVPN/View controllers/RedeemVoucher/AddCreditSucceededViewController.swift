@@ -79,7 +79,6 @@ class AddCreditSucceededViewController: UIViewController, RootContainment {
         messageLabel.text = String(
             format: NSLocalizedString(
                 "ADDED_TIME_SUCCESS_MESSAGE",
-                tableName: "AddedTime",
                 value: "%@ were added to your account.",
                 comment: ""
             ),

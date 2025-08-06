@@ -39,7 +39,6 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
         let host = UIHostingController(rootView: view)
         host.title = NSLocalizedString(
             "NAVIGATION_TITLE",
-            tableName: "Settings",
             value: "API access",
             comment: ""
         )
@@ -89,20 +88,17 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
     private func about() {
         let header = NSLocalizedString(
             "ABOUT_API_ACCESS_HEADER",
-            tableName: "APIAccess",
             value: "API access",
             comment: ""
         )
         let preamble = NSLocalizedString(
             "ABOUT_API_ACCESS_PREAMBLE",
-            tableName: "APIAccess",
             value: "Manage default and setup custom methods to access the Mullvad API.",
             comment: ""
         )
         let body = [
             NSLocalizedString(
                 "ABOUT_API_ACCESS_BODY_1",
-                tableName: "APIAccess",
                 value: """
                 The app needs to communicate with a Mullvad API server to log you in, fetch server lists, \
                 and other critical operations.
@@ -111,7 +107,6 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
             ),
             NSLocalizedString(
                 "ABOUT_API_ACCESS_BODY_2",
-                tableName: "APIAccess",
                 value: """
                 On some networks, where various types of censorship are being used, the API servers might \
                 not be directly reachable.
@@ -120,7 +115,6 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
             ),
             NSLocalizedString(
                 "ABOUT_API_ACCESS_BODY_3",
-                tableName: "APIAccess",
                 value: """
                 This feature allows you to circumvent that censorship by adding custom ways to access the \
                 API via proxies and similar methods.

@@ -28,7 +28,6 @@ class AccountNumberRow: UIView {
         let textLabel = UILabel()
         textLabel.text = NSLocalizedString(
             "ACCOUNT_TOKEN_LABEL",
-            tableName: "Account",
             value: "Account number",
             comment: ""
         )
@@ -170,7 +169,6 @@ class AccountNumberRow: UIView {
             return NSAttributedString(
                 string: NSLocalizedString(
                     "ACCOUNT_ACCESSIBILITY_OBSCURED",
-                    tableName: "Account",
                     value: "Obscured",
                     comment: ""
                 )
@@ -195,7 +193,6 @@ class AccountNumberRow: UIView {
             UIAccessibilityCustomAction(
                 name: NSLocalizedString(
                     "ACCOUNT_ACCESSIBILITY_COPY_TO_PASTEBOARD",
-                    tableName: "Account",
                     value: "Copy to pasteboard",
                     comment: ""
                 ),
@@ -209,14 +206,12 @@ class AccountNumberRow: UIView {
         if isObscured {
             return NSLocalizedString(
                 "ACCOUNT_ACCESSIBILITY_SHOW_ACCOUNT_NUMBER",
-                tableName: "Account",
                 value: "Show account number",
                 comment: ""
             )
         } else {
             return NSLocalizedString(
                 "ACCOUNT_ACCESSIBILITY_HIDE_ACCOUNT_NUMBER",
-                tableName: "Account",
                 value: "Hide account number",
                 comment: ""
             )

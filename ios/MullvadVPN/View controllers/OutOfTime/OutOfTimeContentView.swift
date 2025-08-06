@@ -20,7 +20,6 @@ class OutOfTimeContentView: UIView {
         let label = UILabel()
         label.text = NSLocalizedString(
             "OUT_OF_TIME_TITLE",
-            tableName: "OutOfTime",
             value: "Out of time",
             comment: ""
         )
@@ -44,7 +43,6 @@ class OutOfTimeContentView: UIView {
         button.alpha = 0
         let localizedString = NSLocalizedString(
             "OUT_OF_TIME_DISCONNECT_BUTTON",
-            tableName: "OutOfTime",
             value: "Disconnect",
             comment: ""
         )
@@ -57,7 +55,6 @@ class OutOfTimeContentView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         let localizedString = NSLocalizedString(
             "OUT_OF_TIME_PURCHASE_BUTTON",
-            tableName: "OutOfTime",
             value: "Add time",
             comment: ""
         )
@@ -70,7 +67,6 @@ class OutOfTimeContentView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
             "RESTORE_PURCHASES_BUTTON_TITLE",
-            tableName: "OutOfTime",
             value: "Restore purchases",
             comment: ""
         ), for: .normal)

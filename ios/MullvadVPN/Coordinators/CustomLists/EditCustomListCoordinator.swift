@@ -58,12 +58,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
         )
         controller.delegate = self
 
-        controller.navigationItem.title = NSLocalizedString(
-            "CUSTOM_LIST_NAVIGATION_TITLE",
-            tableName: "CustomLists",
-            value: subject.value.name,
-            comment: ""
-        )
+        controller.navigationItem.title = subject.value.name
 
         navigationController.interactivePopGestureRecognizer?.delegate = self
         navigationController.pushViewController(controller, animated: true)
@@ -99,7 +94,6 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
         let message = NSMutableAttributedString(
             markdownString: NSLocalizedString(
                 "CUSTOM_LISTS_UNSAVED_CHANGES_PROMPT",
-                tableName: "CustomLists",
                 value: "You have unsaved changes.",
                 comment: ""
             ),
@@ -114,7 +108,6 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
                 AlertAction(
                     title: NSLocalizedString(
                         "CUSTOM_LISTS_DISCARD_CHANGES_BUTTON",
-                        tableName: "CustomLists",
                         value: "Discard changes",
                         comment: ""
                     ),
@@ -126,7 +119,6 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
                 AlertAction(
                     title: NSLocalizedString(
                         "CUSTOM_LISTS_BACK_TO_EDITING_BUTTON",
-                        tableName: "CustomLists",
                         value: "Back to editing",
                         comment: ""
                     ),

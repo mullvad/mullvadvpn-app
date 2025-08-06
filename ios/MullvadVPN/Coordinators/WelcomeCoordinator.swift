@@ -84,7 +84,6 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
     func didRequestToShowFailToFetchProducts(controller: WelcomeViewController) {
         let message = NSLocalizedString(
             "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",
-            tableName: "Welcome",
             value:
             """
             Failed to connect to App store, please try again later.
@@ -99,8 +98,7 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
-                        tableName: "Welcome",
+                        "GOT_IT_TITLE_BUTTON",
                         value: "Got it!",
                         comment: ""
                     ),
@@ -116,7 +114,6 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
     func didRequestToShowInfo(controller: WelcomeViewController) {
         let message = NSLocalizedString(
             "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG",
-            tableName: "Welcome",
             value:
             """
             This is the name assigned to the device. Each device logged in on a \
@@ -136,8 +133,7 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "WELCOME_DEVICE_NAME_DIALOG_OK_ACTION",
-                        tableName: "Welcome",
+                        "GOT_IT_TITLE_BUTTON",
                         value: "Got it!",
                         comment: ""
                     ),

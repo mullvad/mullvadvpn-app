@@ -1,0 +1,4200 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "ABOUT_API_ACCESS_BODY_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
+          }
+        }
+      }
+    },
+    "ABOUT_API_ACCESS_BODY_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
+          }
+        }
+      }
+    },
+    "ABOUT_API_ACCESS_BODY_3" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods."
+          }
+        }
+      }
+    },
+    "ABOUT_API_ACCESS_HEADER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API access"
+          }
+        }
+      }
+    },
+    "ABOUT_API_ACCESS_PREAMBLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Manage default and setup custom methods to access the Mullvad API."
+          }
+        }
+      }
+    },
+    "ACCESS_METHOD_HEADER_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "About API access…"
+          }
+        }
+      }
+    },
+    "ACCOUNT_ACCESSIBILITY_COPY_TO_PASTEBOARD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Copy to pasteboard"
+          }
+        }
+      }
+    },
+    "ACCOUNT_ACCESSIBILITY_HIDE_ACCOUNT_NUMBER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hide account number"
+          }
+        }
+      }
+    },
+    "ACCOUNT_ACCESSIBILITY_OBSCURED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Obscured"
+          }
+        }
+      }
+    },
+    "ACCOUNT_ACCESSIBILITY_SHOW_ACCOUNT_NUMBER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show account number"
+          }
+        }
+      }
+    },
+    "ACCOUNT_CREATION_INAPP_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Welcome, this device is now called **%@**. For more details see the info button in Account."
+          }
+        }
+      }
+    },
+    "ACCOUNT_CREATION_INAPP_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "NEW DEVICE CREATED"
+          }
+        }
+      }
+    },
+    "ACCOUNT_DELETION_PAGE_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Account deletion"
+          }
+        }
+      }
+    },
+    "ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You can add more time via the account view or website to continue using the VPN."
+          }
+        }
+      }
+    },
+    "ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ left on this account"
+          }
+        }
+      }
+    },
+    "ACCOUNT_EXPIRY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Paid until"
+          }
+        }
+      }
+    },
+    "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Blocking internet: Your time on this account has expired. To continue using the internet, please add more time or disconnect the VPN."
+          }
+        }
+      }
+    },
+    "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Account credit expires soon"
+          }
+        }
+      }
+    },
+    "ACCOUNT_INPUT_LOGIN_BUTTON_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Log in"
+          }
+        }
+      }
+    },
+    "ACCOUNT_NUMBER_AS_VOUCHER_INPUT_ERROR_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "It looks like you have entered a Mullvad account number instead of a voucher code. Do you want to log in to an existing account?\nIf so, click log out below to log in with the other account number."
+          }
+        }
+      }
+    },
+    "ACCOUNT_OUT_OF_TIME_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "OUT OF TIME"
+          }
+        }
+      }
+    },
+    "ACCOUNT_TOKEN_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Account number"
+          }
+        }
+      }
+    },
+    "ACTION_SHEET_ADD_LIST_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add new list"
+          }
+        }
+      }
+    },
+    "ACTION_SHEET_EDIT_LISTS_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Edit lists"
+          }
+        }
+      }
+    },
+    "ACTION_SHEET_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom lists"
+          }
+        }
+      }
+    },
+    "ACTIVE_FEATURES_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Active features"
+          }
+        }
+      }
+    },
+    "ADD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add locations"
+          }
+        }
+      }
+    },
+    "ADD_LOCATIONS_NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add locations"
+          }
+        }
+      }
+    },
+    "ADD_TIME_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add time"
+          }
+        }
+      }
+    },
+    "ADD_TIME_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add Time"
+          }
+        }
+      }
+    },
+    "ADDED_TIME_SUCCESS_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ were added to your account."
+          }
+        }
+      }
+    },
+    "AGREE_AND_CONTINUE_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Agree and continue"
+          }
+        }
+      }
+    },
+    "ALERT_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Settings migration error"
+          }
+        }
+      }
+    },
+    "ANONYMITY_CONSENT_QUESTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Do you agree to remaining anonymous?"
+          }
+        }
+      }
+    },
+    "API_ACCESS_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API access"
+          }
+        }
+      }
+    },
+    "API_REACHABLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API reachable"
+          }
+        }
+      }
+    },
+    "API_TESTING_INPROGRESS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Testing..."
+          }
+        }
+      }
+    },
+    "API_UNREACHABLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API unreachable"
+          }
+        }
+      }
+    },
+    "APP_VERSION_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "What's new"
+          }
+        }
+      }
+    },
+    "BODY_LABEL_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Are you sure you want to delete account **(value)**?"
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_HEADER_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server via a Mullvad bridge server."
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_HEADER_LINK" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "About Mullvad bridges method..."
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_MODAL_BODY_PART_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "With the \"Mullvad bridges\" method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_MODAL_BODY_PART_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This can be useful if the API is censored but Mullvad’s bridge servers are not."
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_MODAL_HEADER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Mullvad bridges"
+          }
+        }
+      }
+    },
+    "BRIDGES_ACCESS_METHOD_MODAL_PREAMBLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server via a Mullvad bridge server."
+          }
+        }
+      }
+    },
+    "BUY_SUBSCRIPTION_STOREKIT_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Make a purchase with StoreKit2"
+          }
+        }
+      }
+    },
+    "CANCEL_TITLE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "CANCEL_TUNNEL_ALERT_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If you disconnect now, you won’t be able to secure your connection until the device is online."
+          }
+        }
+      }
+    },
+    "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cannot complete the purchase"
+          }
+        }
+      }
+    },
+    "CLIENT_INVALID" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Client is not allowed to issue the request."
+          }
+        }
+      }
+    },
+    "COLLAPSES_THIS_LOCATION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Collapses this location."
+          }
+        }
+      }
+    },
+    "CONNECT_PANEL_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%%@ via %%@(value)"
+          }
+        }
+      }
+    },
+    "CONNECT_TITLE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connect"
+          }
+        }
+      }
+    },
+    "CONNECTION_DETAILS_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connection details"
+          }
+        }
+      }
+    },
+    "CONTACT_BACK_EMAIL_MESSAGE_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If needed we will contact you at %@"
+          }
+        }
+      }
+    },
+    "CONTINUE_WITH_LOGIN" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Continue with login"
+          }
+        }
+      }
+    },
+    "CREATE_ACCOUNT_BUTTON_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Create account"
+          }
+        }
+      }
+    },
+    "CREATE_BUTTON_HEADER_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Don’t have an account number?"
+          }
+        }
+      }
+    },
+    "CREATED_ACCOUNT_CONFIRMATION_PAGE_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Go ahead and start using the app to begin reclaiming your online privacy.\nTo continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
+          }
+        }
+      }
+    },
+    "CREATED_ACCOUNT_CONFIRMATION_PAGE_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You’re all set!!"
+          }
+        }
+      }
+    },
+    "CURRENT_DEVICE_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Current device"
+          }
+        }
+      }
+    },
+    "CUSTOM_DATE_COMPONENTS_FORMATTING_LESS_THAN_ONE_DAY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Less than a day"
+          }
+        }
+      }
+    },
+    "CUSTOM_LIST_FOOTER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "To create a custom list, tap on \"...\" "
+          }
+        }
+      }
+    },
+    "CUSTOM_LIST_NAVIGATION_SAVE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_BACK_TO_EDITING_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Back to editing"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_DELETE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete list"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_DELETE_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Do you want to delete the list **(value)**?"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_DISCARD_CHANGES_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Discard changes"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_NAVIGATION_CREATE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Create"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_NAVIGATION_EDIT_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "New custom list"
+          }
+        }
+      }
+    },
+    "CUSTOM_LISTS_UNSAVED_CHANGES_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You have unsaved changes."
+          }
+        }
+      }
+    },
+    "DAITA_CELL_DETAIL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@"
+          }
+        }
+      }
+    },
+    "DAITA_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA"
+          }
+        }
+      }
+    },
+    "DAITA_INFORMATION_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA (Defence against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting.\nIt does this by carefully adding network noise and making all network packets the same size.\nNot all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server.\nAttention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete list"
+          }
+        }
+      }
+    },
+    "DELETE_ACCOUNT_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete Account"
+          }
+        }
+      }
+    },
+    "DELETE_ACCOUNT_STATUS_WAITING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Deleting account..."
+          }
+        }
+      }
+    },
+    "DELETE_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete account"
+          }
+        }
+      }
+    },
+    "DELETE_METHOD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete method"
+          }
+        }
+      }
+    },
+    "DESCRIPTION_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You have removed this device. To connect again, you will need to log back in."
+          }
+        }
+      }
+    },
+    "DESCRIPTION_TEXTVIEW_PLACEHOLDER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "To assist you better, please write in English or Swedish and include which country you are connecting from."
+          }
+        }
+      }
+    },
+    "DEVICE_DELETED_SUCCESSFULLY_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Super!"
+          }
+        }
+      }
+    },
+    "DEVICE_LIMIT_LOGOUT_CONFIRMATION_BUTTON_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes, log out device"
+          }
+        }
+      }
+    },
+    "DEVICE_MANAGEMENT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Manage devices"
+          }
+        }
+      }
+    },
+    "DEVICE_MANAGEMENT_BODY_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+          }
+        }
+      }
+    },
+    "DEVICE_MANAGEMENT_REMOVE_CONFIRMATION" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove **%@**?\nThe device will be removed from the list and logged out."
+          }
+        }
+      }
+    },
+    "DEVICE_NAME" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Device name"
+          }
+        }
+      }
+    },
+    "DEVICE_NAME_HEADER_VIEW" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Device name: %@"
+          }
+        }
+      }
+    },
+    "DEVICE_NAME_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Device name: %@"
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_HEADER_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server directly."
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_HEADER_LINK" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "About Direct method..."
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_MODAL_BODY_PART_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "With the \"Direct\" method, the app communicates with a Mullvad API server directly without any intermediate proxies."
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_MODAL_BODY_PART_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This can be useful when you are not affected by censorship."
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_MODAL_HEADER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Direct"
+          }
+        }
+      }
+    },
+    "DIRECT_ACCESS_METHOD_MODAL_PREAMBLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server directly."
+          }
+        }
+      }
+    },
+    "DIRECT_ONLY_INFORMATION_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "By enabling \"Direct only\" you will have to manually select a server that is DAITA-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the \"Select location\" view."
+          }
+        }
+      }
+    },
+    "DISCONNECT_TITLE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disconnect"
+          }
+        }
+      }
+    },
+    "DNS_TEXT_CELL_PLACEHOLDER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enter IP"
+          }
+        }
+      }
+    },
+    "DONE_TITLE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "EDIT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Edit locations"
+          }
+        }
+      }
+    },
+    "EDIT_LOCATIONS_NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Edit locations"
+          }
+        }
+      }
+    },
+    "EDIT_MESSAGE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Edit message"
+          }
+        }
+      }
+    },
+    "EMAIL_TEXTFIELD_PLACEHOLDER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your email (optional)"
+          }
+        }
+      }
+    },
+    "EMPTY_EMAIL_ALERT_CANCEL_ACTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "EMPTY_EMAIL_ALERT_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
+          }
+        }
+      }
+    },
+    "EMPTY_EMAIL_ALERT_SEND_ANYWAY_ACTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Send anyway"
+          }
+        }
+      }
+    },
+    "ENABLE_METHOD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enable method"
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_HEADER_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server via a proxy address."
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_HEADER_LINK" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "About Encrypted DNS proxy method..."
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_MODAL_BODY_PART_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "With the \"Encrypted DNS proxy\" method, the app will communicate with our Mullvad API through a proxy address.\nIt does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_MODAL_BODY_PART_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting.\nThe DoH servers are hosted by one of the following providers: Quad9 or Cloudflare."
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_MODAL_HEADER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Encrypted DNS proxy"
+          }
+        }
+      }
+    },
+    "ENCRYPTED_DNS_ACCESS_METHOD_MODAL_PREAMBLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app communicates with a Mullvad API server via a proxy address."
+          }
+        }
+      }
+    },
+    "EXIT_ONLY_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@"
+          }
+        }
+      }
+    },
+    "EXIT_VIA_ENTRY_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ via %2$@"
+          }
+        }
+      }
+    },
+    "EXPANDS_THIS_LOCATION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Expands this location."
+          }
+        }
+      }
+    },
+    "FAILED_TO_FETCH_DEVICES_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to fetch devices"
+          }
+        }
+      }
+    },
+    "FAILED_TO_LOG_OUT_DEVICE_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to log out device"
+          }
+        }
+      }
+    },
+    "FAQ_AND_GUIDES_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "FAQs & Guides"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_CONTENT_BLOCKERS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DNS content blockers"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_CUSTOM_DNS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom DNS"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_DAITA" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_DAITA_MULTIHOP" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA: Multihop"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_IP_OVERRIDE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Server IP Override"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_MULTIHOP" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multihop"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_OBFUSCATION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Obfuscation"
+          }
+        }
+      }
+    },
+    "FEATURE_INDICATORS_CHIP_QUANTUM_RESISTANCE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Quantum resistance"
+          }
+        }
+      }
+    },
+    "FETCHING_DEVICES_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Fetching devices..."
+          }
+        }
+      }
+    },
+    "FOOTER_SELECT_LOCATION_ALL_LOCATIONS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No matching relays found, check your filter settings."
+          }
+        }
+      }
+    },
+    "GOT_IT_TITLE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Got it!"
+          }
+        }
+      }
+    },
+    "GOTO_LOGIN_BUTTON_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Go to login"
+          }
+        }
+      }
+    },
+    "HEADER_BAR_ACCOUNT_BUTTON_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Account"
+          }
+        }
+      }
+    },
+    "HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "HEADER_SELECT_LOCATION_ADD_CUSTOM_LISTS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom lists"
+          }
+        }
+      }
+    },
+    "HEADER_SELECT_LOCATION_ALL_LOCATIONS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "All locations"
+          }
+        }
+      }
+    },
+    "HEADING_TITLE_AUTHENTICATING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Logging in..."
+          }
+        }
+      }
+    },
+    "HEADING_TITLE_DEFAULT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Login"
+          }
+        }
+      }
+    },
+    "HEADING_TITLE_FAILURE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Login failed"
+          }
+        }
+      }
+    },
+    "HEADING_TITLE_SUCCESS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Logged in"
+          }
+        }
+      }
+    },
+    "HOST_CONFIG_SECTION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Server details"
+          }
+        }
+      }
+    },
+    "IMPORT_TEXT_IMPORT_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Import"
+          }
+        }
+      }
+    },
+    "IMPORT_TEXT_NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Import via text"
+          }
+        }
+      }
+    },
+    "IN_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "In"
+          }
+        }
+      }
+    },
+    "INTERNAL_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Internal error occurred. Settings will be reset to defaults and device logged out."
+          }
+        }
+      }
+    },
+    "INVALID_ACCOUNT_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Invalid account"
+          }
+        }
+      }
+    },
+    "INVALID_ACCOUNT_NUMBER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Last four digits of the account number are incorrect"
+          }
+        }
+      }
+    },
+    "INVALID_DEVICE_STATE_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Invalid device state."
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_BODY_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked."
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_BODY_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_BODY_3" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If you are having issues connecting to VPN servers, please contact support."
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_CLEAR_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Clear all overrides"
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_CLEAR_DIALOG_CLEAR_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Clear"
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_CLEAR_DIALOG_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Clearing the imported overrides changes the server IPs, in the Select location view, back to default."
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_CLEAR_DIALOG_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Clear all overrides?"
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_HEADER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Server IP override"
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_HEADER_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Import files or text with the new IP addresses for the servers in the Select location view."
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_HEADER_LINK" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "About Server IP override..."
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_IMPORT_FILE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Import file"
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_IMPORT_TEXT_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Import via text"
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_STATUS_DESCRIPTION_INACTIVE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Import %@ was successful, overrides are now active."
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_STATUS_TITLE_ACTIVE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Overrides active"
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_STATUS_TITLE_IMPORT_SUCCESSFUL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Import successful"
+          }
+        }
+      }
+    },
+    "IP_OVERRIDE_STATUS_TITLE_NO_IMPORTS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No overrides imported"
+          }
+        }
+      }
+    },
+    "LANGUAGE_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Language"
+          }
+        }
+      }
+    },
+    "LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Last used account"
+          }
+        }
+      }
+    },
+    "LATEST_CHANGES_IN_APP_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "**Tap here** to see what’s new."
+          }
+        }
+      }
+    },
+    "LATEST_CHANGES_IN_APP_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "NEW VERSION INSTALLED"
+          }
+        }
+      }
+    },
+    "LEARN_ABOUT_PRIVACY_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Learn about privacy"
+          }
+        }
+      }
+    },
+    "LIST_ACCESS_METHODS_DISABLED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disabled"
+          }
+        }
+      }
+    },
+    "LIST_ACCESS_METHODS_IN_USE_ITEM" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "In use"
+          }
+        }
+      }
+    },
+    "LIST_CUSTOM_LIST_NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Edit custom list"
+          }
+        }
+      }
+    },
+    "LOGIN_ACCESSORY_TOOLBAR_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Log in"
+          }
+        }
+      }
+    },
+    "LOGOUT_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Log out"
+          }
+        }
+      }
+    },
+    "MANAGE_DEVICES_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Manage devices"
+          }
+        }
+      }
+    },
+    "MAX_DEVICES_REACHED_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Too many devices registered with account"
+          }
+        }
+      }
+    },
+    "MESSAGE_FAILED_PART_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If you exit the form and try again later, the information you already entered will still be here."
+          }
+        }
+      }
+    },
+    "MESSAGE_FAILED_PART_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If you still experience issues you can email our support directly at **(value)**. Please attach your app log to your email."
+          }
+        }
+      }
+    },
+    "METHOD_FOOTER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "At least one method needs to be enabled."
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Method settings"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_BACK_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Back to editing"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_DELETE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_DELETE_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete (value)?"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_NAVIGATION_ADD_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_NAVIGATION_ADD_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The app will test the method before saving."
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_NAVIGATION_ADD_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add access method"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_NAVIGATION_SAVE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_SAVE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save anyway"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_SAVE_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API could not be reached, save anyway?"
+          }
+        }
+      }
+    },
+    "METHOD_SETTINGS_SAVING_CHANGES" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Saving changes..."
+          }
+        }
+      }
+    },
+    "MORE_ITEMS_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%d more..."
+          }
+        }
+      }
+    },
+    "MULTIHOP_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multihop"
+          }
+        }
+      }
+    },
+    "MULTIHOP_ENTRY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Entry"
+          }
+        }
+      }
+    },
+    "MULTIHOP_EXIT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Exit"
+          }
+        }
+      }
+    },
+    "NAME" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Name"
+          }
+        }
+      }
+    },
+    "NAVIGATION_FILTER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Filter"
+          }
+        }
+      }
+    },
+    "NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "API access"
+          }
+        }
+      }
+    },
+    "NAVIGATION_TITLE_DAITA" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA"
+          }
+        }
+      }
+    },
+    "NAVIGATION_TITLE_MULTIHOP" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multihop"
+          }
+        }
+      }
+    },
+    "NETWORK_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Network error: %@"
+          }
+        }
+      }
+    },
+    "NEWER_STORED_SETTINGS_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out."
+          }
+        }
+      }
+    },
+    "NEXT_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Next"
+          }
+        }
+      }
+    },
+    "OPTIONAL_PLACEHOLDER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Optional"
+          }
+        }
+      }
+    },
+    "OUT_IPV4_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Out IPv4"
+          }
+        }
+      }
+    },
+    "OUT_IPV6_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Out IPv6"
+          }
+        }
+      }
+    },
+    "OUT_OF_TIME_BODY_CONNECTED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You have no more VPN time left on this account. To add more, you will need to disconnect and access the Internet with an unsecure connection."
+          }
+        }
+      }
+    },
+    "OUT_OF_TIME_BODY_DISCONNECTED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the **Add time** button below."
+          }
+        }
+      }
+    },
+    "OUT_OF_TIME_DISCONNECT_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disconnect"
+          }
+        }
+      }
+    },
+    "OUT_OF_TIME_PURCHASE_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add time"
+          }
+        }
+      }
+    },
+    "OUT_OF_TIME_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Out of time"
+          }
+        }
+      }
+    },
+    "PAYMENT_CANCELLED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The payment request was cancelled."
+          }
+        }
+      }
+    },
+    "PAYMENT_INVALID" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Invalid purchase identifier."
+          }
+        }
+      }
+    },
+    "PAYMENT_NOT_ALLOWED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This device is not allowed to make the payment."
+          }
+        }
+      }
+    },
+    "PAYMENT_REFUND_ALERT_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your purchase was successfully refunded."
+          }
+        }
+      }
+    },
+    "PAYMENT_REFUND_ALERT_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Refund successful"
+          }
+        }
+      }
+    },
+    "PREVIOUS_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Previous"
+          }
+        }
+      }
+    },
+    "PRIVACY_POLICY_LINK" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "[Privacy Policy](%@)"
+          }
+        }
+      }
+    },
+    "READ_RECEIPT_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cannot read the AppStore receipt from disk"
+          }
+        }
+      }
+    },
+    "RECEIPT_NOT_FOUND_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "AppStore receipt is not found on disk."
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Redeem voucher"
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_CANCEL_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_INSTRUCTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enter voucher code"
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_REDEEM_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Redeem"
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_STATUS_FAILURE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This voucher code has already been used."
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_STATUS_WAITING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Logging out..."
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_SUCCESS_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Voucher was successfully redeemed."
+          }
+        }
+      }
+    },
+    "REDEEM_VOUCHER_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Redeem voucher"
+          }
+        }
+      }
+    },
+    "REFRESH_RECEIPT_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cannot refresh the AppStore receipt: %@"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_ALL_PROVIDERS_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "All Providers"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_ANY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Any"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_APPLIED_DAITA" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Setting: DAITA"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_APPLIED_OBFUSCATION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Setting: Obfuscation"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_APPLIED_PROVIDERS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Providers: %d"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_APPLIED_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Filtered:"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_BUTTON_DESCRIPTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "When using DAITA, one provider with DAITA-enabled servers is required."
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No matching servers"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_NAVIGATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Filter"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_OWNED_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Owned"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_OWNERSHIP_HEADER_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Ownership"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_PROVIDER_DESCRIPTION_FORMAT_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA-enabled"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_PROVIDERS_HEADER_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Providers"
+          }
+        }
+      }
+    },
+    "RELAY_FILTER_RENTED_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Rented"
+          }
+        }
+      }
+    },
+    "REMOVE_BUTTON_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove"
+          }
+        }
+      }
+    },
+    "REMOVE_LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Remove last used account"
+          }
+        }
+      }
+    },
+    "REPORT_PROBLEM_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Report a problem"
+          }
+        }
+      }
+    },
+    "REQUIRED_PLACEHOLDER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Required"
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_ALERT_NO_TIME_ADDED_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your previous purchases have already been added to this account."
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_ALERT_TIME_ADDED_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ have been added to your account"
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_ALERT_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Restore purchases"
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Restore purchases"
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_DIALOG_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You can use the \"restore purchases\" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account."
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_DIALOG_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If you haven’t received additional VPN time after purchasing"
+          }
+        }
+      }
+    },
+    "RESTORE_PURCHASES_FAILURE_ALERT_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cannot restore purchases"
+          }
+        }
+      }
+    },
+    "SAVE_NAVIGATION_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "SEARCHBAR_PLACEHOLDER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Search for..."
+          }
+        }
+      }
+    },
+    "SECURE_LABEL_CONNECTED_TO_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connected to %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "SECURE_LABEL_CONNECTING_TO_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connected to %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "SECURE_LABEL_RECONNECTING_TO_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connected to %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "SELECT_LOCATION_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Select location"
+          }
+        }
+      }
+    },
+    "SELECT_LOCATION_DAITA_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Open DAITA settings"
+          }
+        }
+      }
+    },
+    "SELECT_LOCATION_DAITA_INFO" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The entry server for multihop is currently overridden by DAITA. To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings."
+          }
+        }
+      }
+    },
+    "SELECT_PROTOCOL_NAV_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Type"
+          }
+        }
+      }
+    },
+    "SELECT_SHADOWSOCKS_CIPHER_NAV_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cipher"
+          }
+        }
+      }
+    },
+    "SELECTED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Selected"
+          }
+        }
+      }
+    },
+    "SEND_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Send"
+          }
+        }
+      }
+    },
+    "SEND_RECEIPT_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to send the receipt to server: %@"
+          }
+        }
+      }
+    },
+    "SEND_RECEIPT_RECOVERY_SUGGESTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Please retry by using the \"Restore purchases\" button."
+          }
+        }
+      }
+    },
+    "SERVER_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unexpected server response: %1$@ (HTTP status: %2$d)"
+          }
+        }
+      }
+    },
+    "SERVICE_UNAVAILABLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "We are having some issues, please try again later"
+          }
+        }
+      }
+    },
+    "SETTINGS_DAITA_DIRECT_ONLY_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Direct only"
+          }
+        }
+      }
+    },
+    "SETTINGS_DAITA_ENABLE_MULTIHOP_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA isn't available on the current entry server. After enabling, please go to the \"Select location\" view and select an entry location that supports DAITA."
+          }
+        }
+      }
+    },
+    "SETTINGS_DAITA_ENABLE_OK_ACTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enable \"%@\""
+          }
+        }
+      }
+    },
+    "SETTINGS_DAITA_ENABLE_SINGLEHOP_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA isn't available at the currently selected location. After enabling, please go to the \"Select location\" view and select a location that supports DAITA."
+          }
+        }
+      }
+    },
+    "SETTINGS_DAITA_MULTIHOP_ENABLED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multihop is being used to enable DAITA for your selected location."
+          }
+        }
+      }
+    },
+    "SETTINGS_DAITA_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "DAITA"
+          }
+        }
+      }
+    },
+    "SETTINGS_HEADER_COLLAPSE_ACCESSIBILITY_ACTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Collapse (value)"
+          }
+        }
+      }
+    },
+    "SETTINGS_HEADER_EXPAND_ACCESSIBILITY_ACTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Expand (value)"
+          }
+        }
+      }
+    },
+    "SETTINGS_INFO_DAITA_PAGE_1" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "**Attention: This increases network traffic and will also  negatively affect speed, latency, and battery usage. Use with caution on limited plans.**\n\nDAITA (Defense against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic.\n\nBy using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
+          }
+        }
+      }
+    },
+    "SETTINGS_INFO_DAITA_PAGE_2" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "If an observer monitors these data packets, DAITA makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.\n\nDAITA does this by carefully adding network noise and making all network packets the same size.\n\nNot all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server."
+          }
+        }
+      }
+    },
+    "SETTINGS_INFO_MULTIHOP" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
+          }
+        }
+      }
+    },
+    "SETTINGS_SWITCH_DAITA_DIRECT_ONLY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Direct only"
+          }
+        }
+      }
+    },
+    "SETTINGS_SWITCH_DAITA_ENABLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "By enabling \"Direct only\" you will have to manually select a server that is DAITA-enabled. Multihop won't automatically be used to enable DAITA with any server."
+          }
+        }
+      }
+    },
+    "SETTINGS_SWITCH_MULTIHOP" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enable"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_CIPHER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cipher"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_PASSWORD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Password"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_PORT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_PORT_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_PORT_VALUE_CUSTOM" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_PORT_VALUE_PORT_LEGEND" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Valid range: 1 - 65535"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_PORT_VALUE_PORT_PROMPT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port"
+          }
+        }
+      }
+    },
+    "SHADOWSOCKS_SERVER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Server"
+          }
+        }
+      }
+    },
+    "SOCKS_AUTHENTICATION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Authentication"
+          }
+        }
+      }
+    },
+    "SOCKS_PASSWORD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Password"
+          }
+        }
+      }
+    },
+    "SOCKS_PORT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port"
+          }
+        }
+      }
+    },
+    "SOCKS_SERVER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Server"
+          }
+        }
+      }
+    },
+    "SOCKS_USERNAME" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Username"
+          }
+        }
+      }
+    },
+    "START_TUNNEL_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to start the tunnel."
+          }
+        }
+      }
+    },
+    "START_TUNNEL_ERROR_INAPP_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to start the tunnel: %@."
+          }
+        }
+      }
+    },
+    "START_USING_THE_APP_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Start using the app"
+          }
+        }
+      }
+    },
+    "STOP_TUNNEL_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to stop the tunnel."
+          }
+        }
+      }
+    },
+    "STOP_TUNNEL_ERROR_INAPP_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to stop the tunnel: %@."
+          }
+        }
+      }
+    },
+    "STORE_SUBSCRIPTION_TITLE_ADD_30_DAYS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add 30 days"
+          }
+        }
+      }
+    },
+    "STORE_SUBSCRIPTION_TITLE_ADD_90_DAYS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Add 90 days"
+          }
+        }
+      }
+    },
+    "SUBHEAD_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+          }
+        }
+      }
+    },
+    "SUBHEAD_TITLE_AUTHENTICATING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Checking account number"
+          }
+        }
+      }
+    },
+    "SUBHEAD_TITLE_CREATED_ACCOUNT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Account created"
+          }
+        }
+      }
+    },
+    "SUBHEAD_TITLE_CREATING_ACCOUNT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Creating new account"
+          }
+        }
+      }
+    },
+    "SUBHEAD_TITLE_DEFAULT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enter your account number"
+          }
+        }
+      }
+    },
+    "SUBHEAD_TITLE_SUCCESS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Correct account number"
+          }
+        }
+      }
+    },
+    "SUBMISSION_STATUS_FAILURE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to send"
+          }
+        }
+      }
+    },
+    "SUBMISSION_STATUS_SENDING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Sending..."
+          }
+        }
+      }
+    },
+    "SUBMISSION_STATUS_SENT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Sent"
+          }
+        }
+      }
+    },
+    "SWITCH_LOCATION_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Select location"
+          }
+        }
+      }
+    },
+    "TERMS_AND_CONDITIONS_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.\n\nIn some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.\n\nWe strongly believe in retaining as little data as possible because we want you to remain anonymous."
+          }
+        }
+      }
+    },
+    "TEST_METHOD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Test method"
+          }
+        }
+      }
+    },
+    "TEST_METHOD_FOOTER" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Performs a connection test to a Mullvad API server via this access method."
+          }
+        }
+      }
+    },
+    "THANKS_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Thanks!"
+          }
+        }
+      }
+    },
+    "TIME_ADDED_ALERT_SUCCESS_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ have been added to your account"
+          }
+        }
+      }
+    },
+    "TIME_ADDED_ALERT_SUCCESS_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Thanks for your purchase"
+          }
+        }
+      }
+    },
+    "TIME_LEFT_HEADER_VIEW" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Time left: %@"
+          }
+        }
+      }
+    },
+    "TIP_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit \"Delete account\" if you really want to delete the account:"
+          }
+        }
+      }
+    },
+    "TITLE_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Device is inactive"
+          }
+        }
+      }
+    },
+    "TOGGLE_OFF_STATE_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Off"
+          }
+        }
+      }
+    },
+    "TOGGLE_ON_STATE_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "On"
+          }
+        }
+      }
+    },
+    "TOO_MANY_DEVICES_CAN_LOGIN_BODY_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You can now continue logging in on this device."
+          }
+        }
+      }
+    },
+    "TOO_MANY_DEVICES_LOGOUT_CONFIRMATION" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"Are you sure you want to log  **%@** out?\""
+          }
+        }
+      }
+    },
+    "TOO_MANY_DEVICES_LOGOUT_REQUIRED_BODY_TEXT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
+          }
+        }
+      }
+    },
+    "TOO_MANY_DEVICES_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Too many devices"
+          }
+        }
+      }
+    },
+    "TOO_MANY_REQUESTS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "We are having some issues, please try again later"
+          }
+        }
+      }
+    },
+    "TRY_AGAIN_BUTTON" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Try again"
+          }
+        }
+      }
+    },
+    "TUNNEL_BLOCKED_INAPP_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "BLOCKING INTERNET"
+          }
+        }
+      }
+    },
+    "TUNNEL_LOCATION_FORMAT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@"
+          }
+        }
+      }
+    },
+    "TUNNEL_MANAGER_ERROR_INAPP_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "TUNNEL ERROR"
+          }
+        }
+      }
+    },
+    "TUNNEL_NO_CONNECTIVITY_INAPP_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your device is offline. The tunnel will automatically connect once your device is back online."
+          }
+        }
+      }
+    },
+    "TUNNEL_NO_CONNECTIVITY_INAPP_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "NETWORK ISSUES"
+          }
+        }
+      }
+    },
+    "TUNNEL_NO_NETWORK_INAPP_NOTIFICATION_BODY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your device is offline. Try connecting again when the device has access to Internet."
+          }
+        }
+      }
+    },
+    "TUNNEL_NO_NETWORK_INAPP_NOTIFICATION_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "NETWORK ISSUES"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_BLOCKED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Blocked connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_CONNECTED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connected"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Secure connection. Connected to %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_CONNECTING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connecting..."
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Creating secure connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_DISCONNECTED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disconnected"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_DISCONNECTED_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unsecured connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_DISCONNECTING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disconnecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_DISCONNECTING_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Disconnecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_NEGOTIATING_KEY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Creating quantum secure connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_NO_NETWORK" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No network"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_NO_NETWORK_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "No network"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PENDING_RECONNECT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reconnecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PENDING_RECONNECT_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reconnecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PQ_CONNECTED" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Quantum secure connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PQ_CONNECTED_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Quantum secure connection. Connected to %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PQ_CONNECTING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Creating quantum secure connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_PQ_CONNECTING_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Creating quantum secure connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_RECONNECTING" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reconnecting"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_RECONNECTING_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reconnecting to %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Blocked connection"
+          }
+        }
+      }
+    },
+    "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY_ACCESSIBILITY_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Blocked connection"
+          }
+        }
+      }
+    },
+    "TYPE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Type"
+          }
+        }
+      }
+    },
+    "UDP_TCP_PORT_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Port"
+          }
+        }
+      }
+    },
+    "UDP_TCP_PORT_VALUE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@"
+          }
+        }
+      }
+    },
+    "UNBLOCK_INTERNET_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Going to login will unblock the Internet on this device."
+          }
+        }
+      }
+    },
+    "UNEXPECTED_RESPONSE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unexpected server response: %d"
+          }
+        }
+      }
+    },
+    "UNKNOWN_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unknown error."
+          }
+        }
+      }
+    },
+    "UNSET_TUNNEL_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Tunnel is unset."
+          }
+        }
+      }
+    },
+    "VALIDATE_ACCOUNT_ERROR" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to validate account number: %@"
+          }
+        }
+      }
+    },
+    "VALIDATION_ERRORS_EMPTY_FIELD" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "(value) cannot be empty."
+          }
+        }
+      }
+    },
+    "VALIDATION_ERRORS_INVALD ADDRESS" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Please enter a valid IPv4 or IPv6 address."
+          }
+        }
+      }
+    },
+    "VALIDATION_ERRORS_INVALID_PORT" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Please enter a valid port."
+          }
+        }
+      }
+    },
+    "VALIDATION_ERRORS_MULTIPLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Multiple validation errors occurred."
+          }
+        }
+      }
+    },
+    "VALIDATION_ERRORS_NAME_TOO_LONG" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Name should be no longer than %i characters."
+          }
+        }
+      }
+    },
+    "value" : {
+
+    },
+    "VIEW_APP_LOGS_BUTTON_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "View app logs"
+          }
+        }
+      }
+    },
+    "VPN_SETTINGS_CELL_LABEL" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "VPN settings"
+          }
+        }
+      }
+    },
+    "WE_WILL_LOOK_INTO_THIS_MESSAGE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "We will look into this."
+          }
+        }
+      }
+    },
+    "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.\nYou can have up to 5 devices logged in on one Mullvad account.\nIf you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+          }
+        }
+      }
+    },
+    "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to connect to App store, please try again later."
+          }
+        }
+      }
+    },
+    "WELCOME_PAGE_DESCRIPTION" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "To start using the app, you first need to add time to your account. Either buy credit on our website or redeem a voucher."
+          }
+        }
+      }
+    },
+    "WELCOME_PAGE_SUBTITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Here’s your account number. Save it!"
+          }
+        }
+      }
+    },
+    "WELCOME_PAGE_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Congrats!"
+          }
+        }
+      }
+    },
+    "WHATS_NEW_TITLE" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "What's new"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

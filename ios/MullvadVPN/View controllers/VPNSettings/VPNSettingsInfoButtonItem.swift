@@ -58,7 +58,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
             String(
                 format: NSLocalizedString(
                     "VPN_SETTINGS_WIREGUARD_PORTS_GENERAL",
-                    tableName: "WireGuardPorts",
+                    tableName: "VPNSettings",
                     value: """
                     The automatic setting will randomly choose from the valid port ranges shown below.
                     The custom port can be any value inside the valid ranges:
@@ -71,7 +71,7 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
         case .wireGuardObfuscation:
             NSLocalizedString(
                 "VPN_SETTINGS_WIREGUARD_OBFUSCATION_GENERAL",
-                tableName: "WireGuardObfuscation",
+                tableName: "VPNSettings",
                 value: """
                 Obfuscation hides the WireGuard traffic inside another protocol. \
                 It can be used to help circumvent censorship and other types of filtering, \
@@ -82,14 +82,14 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
         case .wireGuardObfuscationPort:
             NSLocalizedString(
                 "VPN_SETTINGS_WIREGUARD_OBFUSCATION_PORT_GENERAL",
-                tableName: "WireGuardObfuscation",
+                tableName: "VPNSettings",
                 value: "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.",
                 comment: ""
             )
         case .quantumResistance:
             NSLocalizedString(
                 "VPN_SETTINGS_QUANTUM_RESISTANCE_GENERAL",
-                tableName: "QuantumResistance",
+                tableName: "VPNSettings",
                 value: """
                 This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.
                 It does this by performing an extra key exchange using a quantum safe algorithm and mixing \

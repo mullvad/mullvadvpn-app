@@ -19,7 +19,6 @@ class RelayFilterView: UIView {
         let label = UILabel()
         label.text = NSLocalizedString(
             "RELAY_FILTER_APPLIED_TITLE",
-            tableName: "RelayFilter",
             value: "Filtered:",
             comment: ""
         )
@@ -61,7 +60,6 @@ class RelayFilterView: UIView {
             group: .settings,
             title: NSLocalizedString(
                 "RELAY_FILTER_APPLIED_DAITA",
-                tableName: "RelayFilter",
                 value: "Setting: DAITA",
                 comment: ""
             ),
@@ -77,7 +75,6 @@ class RelayFilterView: UIView {
             group: .settings,
             title: NSLocalizedString(
                 "RELAY_FILTER_APPLIED_OBFUSCATION",
-                tableName: "RelayFilter",
                 value: "Setting: Obfuscation",
                 comment: ""
             ),
@@ -150,12 +147,9 @@ class RelayFilterView: UIView {
         case .any:
             return nil
         case .owned, .rented:
-            let title = NSLocalizedString(
-                "RELAY_FILTER_APPLIED_OWNERSHIP",
-                tableName: "RelayFilter",
-                value: ownership == .owned ? "Owned" : "Rented",
-                comment: ""
-            )
+            let title = ownership == .owned
+                ? RelayFilterDataSourceItem.ownedOwnershipItem.name
+                : RelayFilterDataSourceItem.rentedOwnershipItem.name
             return ChipConfiguration(group: .filter, title: title, didTapButton: { [weak self] in
                 guard var filter = self?.filter else { return }
                 filter.ownership = .any
@@ -172,7 +166,6 @@ class RelayFilterView: UIView {
             let title = String(
                 format: NSLocalizedString(
                     "RELAY_FILTER_APPLIED_PROVIDERS",
-                    tableName: "RelayFilter",
                     value: "Providers: %d",
                     comment: ""
                 ),

@@ -23,7 +23,6 @@ enum MethodSettingsSectionIdentifier: Hashable {
         case .proxyConfiguration:
             NSLocalizedString(
                 "HOST_CONFIG_SECTION_TITLE",
-                tableName: "APIAccess",
                 value: "Server details",
                 comment: ""
             )

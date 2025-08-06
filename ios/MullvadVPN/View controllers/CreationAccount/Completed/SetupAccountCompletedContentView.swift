@@ -23,7 +23,6 @@ class SetupAccountCompletedContentView: UIView {
         label.numberOfLines = .zero
         label.text = NSLocalizedString(
             "CREATED_ACCOUNT_CONFIRMATION_PAGE_TITLE",
-            tableName: "CreatedAccountConfirmation",
             value: "You’re all set!!",
             comment: ""
         )
@@ -35,7 +34,6 @@ class SetupAccountCompletedContentView: UIView {
 
         let message = NSMutableAttributedString(string: NSLocalizedString(
             "CREATED_ACCOUNT_CONFIRMATION_PAGE_BODY",
-            tableName: "CreatedAccountConfirmation",
             value: """
             Go ahead and start using the app to begin reclaiming your online privacy.
             To continue your journey as a privacy ninja, \
@@ -59,7 +57,6 @@ class SetupAccountCompletedContentView: UIView {
         button.setAccessibilityIdentifier(.learnAboutPrivacyButton)
         let localizedString = NSLocalizedString(
             "LEARN_ABOUT_PRIVACY_BUTTON",
-            tableName: "CreatedAccountConfirmation",
             value: "Learn about privacy",
             comment: ""
         )
@@ -73,7 +70,6 @@ class SetupAccountCompletedContentView: UIView {
         button.setAccessibilityIdentifier(.startUsingTheAppButton)
         button.setTitle(NSLocalizedString(
             "START_USING_THE_APP_BUTTON",
-            tableName: "CreatedAccountConfirmation",
             value: "Start using the app",
             comment: ""
         ), for: .normal)

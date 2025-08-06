@@ -210,14 +210,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             id: "settings-migration-error-alert",
             title: NSLocalizedString(
                 "ALERT_TITLE",
-                tableName: "SettingsMigrationUI",
                 value: "Settings migration error",
                 comment: ""
             ),
             message: Self.migrationErrorReason(error),
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString("Got it!", tableName: "SettingsMigrationUI", comment: ""),
+                    title: NSLocalizedString(
+                        "GOT_IT_TITLE_BUTTON",
+                        value: "Got it!",
+                        comment: ""
+                    ),
                     style: .default,
                     handler: {
                         completionHandler()
@@ -234,7 +237,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         if error is UnsupportedSettingsVersionError {
             return NSLocalizedString(
                 "NEWER_STORED_SETTINGS_ERROR",
-                tableName: "SettingsMigrationUI",
                 value: """
                 The version of settings stored on device is unrecognized.\
                 Settings will be reset to defaults and the device will be logged out.
@@ -244,7 +246,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         } else {
             return NSLocalizedString(
                 "INTERNAL_ERROR",
-                tableName: "SettingsMigrationUI",
                 value: """
                 Internal error occurred. Settings will be reset to defaults and device logged out.
                 """,

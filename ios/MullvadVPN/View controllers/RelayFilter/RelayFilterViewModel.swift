@@ -111,9 +111,8 @@ final class RelayFilterViewModel {
             description: isDaitaEnabled && isProviderEnabled
                 ? NSLocalizedString(
                     "RELAY_FILTER_PROVIDER_DESCRIPTION_FORMAT_LABEL",
-                    tableName: "RelayFilter",
                     value: "DAITA-enabled",
-                    comment: "Format for DAITA provider description"
+                    comment: ""
                 )
                 : "",
             type: .provider,

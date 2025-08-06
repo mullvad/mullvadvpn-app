@@ -30,14 +30,12 @@ extension TextCellContentConfiguration {
             case .required:
                 NSLocalizedString(
                     "REQUIRED_PLACEHOLDER",
-                    tableName: "APIAccess",
                     value: "Required",
                     comment: ""
                 )
             case .optional:
                 NSLocalizedString(
                     "OPTIONAL_PLACEHOLDER",
-                    tableName: "APIAccess",
                     value: "Optional",
                     comment: ""
                 )

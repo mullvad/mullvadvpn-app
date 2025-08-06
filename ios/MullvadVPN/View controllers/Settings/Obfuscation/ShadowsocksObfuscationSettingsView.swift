@@ -15,7 +15,6 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
     var body: some View {
         let portString = NSLocalizedString(
             "SHADOWSOCKS_PORT_LABEL",
-            tableName: "Shadowsocks",
             value: "Port",
             comment: ""
         )
@@ -27,7 +26,6 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
             tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationShadowsocksTable.asString,
             itemDescription: { item in NSLocalizedString(
                 "SHADOWSOCKS_PORT_VALUE_\(item)",
-                tableName: "Shadowsocks",
                 value: "\(item)",
                 comment: ""
             ) },
@@ -42,19 +40,16 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
             },
             customLabel: NSLocalizedString(
                 "SHADOWSOCKS_PORT_VALUE_CUSTOM",
-                tableName: "Shadowsocks",
                 value: "Custom",
                 comment: ""
             ),
             customPrompt: NSLocalizedString(
                 "SHADOWSOCKS_PORT_VALUE_PORT_PROMPT",
-                tableName: "Shadowsocks",
                 value: "Port",
                 comment: ""
             ),
             customLegend: NSLocalizedString(
                 "SHADOWSOCKS_PORT_VALUE_PORT_LEGEND",
-                tableName: "Shadowsocks",
                 value: "Valid range: 1 - 65535",
                 comment: ""
             ),

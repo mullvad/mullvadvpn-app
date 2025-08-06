@@ -40,14 +40,12 @@ extension TunnelState {
             if isPostQuantum {
                 NSLocalizedString(
                     "TUNNEL_STATE_PQ_CONNECTING",
-                    tableName: "Main",
                     value: "Creating quantum secure connection",
                     comment: ""
                 )
             } else {
                 NSLocalizedString(
                     "TUNNEL_STATE_CONNECTING",
-                    tableName: "Main",
                     value: "Creating secure connection",
                     comment: ""
                 )
@@ -57,14 +55,12 @@ extension TunnelState {
             if isPostQuantum {
                 NSLocalizedString(
                     "TUNNEL_STATE_NEGOTIATING_KEY",
-                    tableName: "Main",
                     value: "Creating quantum secure connection",
                     comment: ""
                 )
             } else {
                 NSLocalizedString(
                     "TUNNEL_STATE_CONNECTING",
-                    tableName: "Main",
                     value: "Creating secure connection",
                     comment: ""
                 )
@@ -74,14 +70,12 @@ extension TunnelState {
             if isPostQuantum {
                 NSLocalizedString(
                     "TUNNEL_STATE_PQ_CONNECTED",
-                    tableName: "Main",
                     value: "Quantum secure connection",
                     comment: ""
                 )
             } else {
                 NSLocalizedString(
                     "TUNNEL_STATE_CONNECTED",
-                    tableName: "Main",
                     value: "Connected",
                     comment: ""
                 )
@@ -90,7 +84,6 @@ extension TunnelState {
         case .disconnecting(.nothing):
             NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTING",
-                tableName: "Main",
                 value: "Disconnecting",
                 comment: ""
             )
@@ -98,7 +91,6 @@ extension TunnelState {
         case .disconnecting(.reconnect), .pendingReconnect:
             NSLocalizedString(
                 "TUNNEL_STATE_PENDING_RECONNECT",
-                tableName: "Main",
                 value: "Reconnecting",
                 comment: ""
             )
@@ -106,7 +98,6 @@ extension TunnelState {
         case .disconnected:
             NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTED",
-                tableName: "Main",
                 value: "Unsecured connection",
                 comment: ""
             )
@@ -114,7 +105,6 @@ extension TunnelState {
         case .waitingForConnectivity(.noConnection), .error:
             NSLocalizedString(
                 "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY",
-                tableName: "Main",
                 value: "Blocked connection",
                 comment: ""
             )
@@ -122,7 +112,6 @@ extension TunnelState {
         case .waitingForConnectivity(.noNetwork):
             NSLocalizedString(
                 "TUNNEL_STATE_NO_NETWORK",
-                tableName: "Main",
                 value: "No network",
                 comment: ""
             )
@@ -134,7 +123,6 @@ extension TunnelState {
         case .disconnecting(.reconnect), .pendingReconnect:
             NSLocalizedString(
                 "SWITCH_LOCATION_BUTTON_TITLE",
-                tableName: "Main",
                 value: "Select location",
                 comment: ""
             )
@@ -142,7 +130,6 @@ extension TunnelState {
         case .disconnected, .disconnecting(.nothing):
             NSLocalizedString(
                 "SELECT_LOCATION_BUTTON_TITLE",
-                tableName: "Main",
                 value: "Select location",
                 comment: ""
             )
@@ -150,7 +137,6 @@ extension TunnelState {
         case .connecting, .connected, .reconnecting, .waitingForConnectivity, .error:
             NSLocalizedString(
                 "SWITCH_LOCATION_BUTTON_TITLE",
-                tableName: "Main",
                 value: "Switch location",
                 comment: ""
             )
@@ -158,7 +144,6 @@ extension TunnelState {
         case .negotiatingEphemeralPeer:
             NSLocalizedString(
                 "SWITCH_LOCATION_BUTTON_TITLE",
-                tableName: "Main",
                 value: "Switch location",
                 comment: ""
             )
@@ -178,7 +163,6 @@ extension TunnelState {
                 String(
                     format: NSLocalizedString(
                         "TUNNEL_STATE_PQ_CONNECTED_ACCESSIBILITY_LABEL",
-                        tableName: "Main",
                         value: "Quantum secure connection. Connected to %@, %@",
                         comment: ""
                     ),
@@ -189,7 +173,6 @@ extension TunnelState {
                 String(
                     format: NSLocalizedString(
                         "TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL",
-                        tableName: "Main",
                         value: "Secure connection. Connected to %@, %@",
                         comment: ""
                     ),
@@ -201,7 +184,6 @@ extension TunnelState {
         case .disconnected:
             NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTED_ACCESSIBILITY_LABEL",
-                tableName: "Main",
                 value: "Unsecured connection",
                 comment: ""
             )
@@ -210,7 +192,6 @@ extension TunnelState {
             String(
                 format: NSLocalizedString(
                     "TUNNEL_STATE_RECONNECTING_ACCESSIBILITY_LABEL",
-                    tableName: "Main",
                     value: "Reconnecting to %@, %@",
                     comment: ""
                 ),
@@ -221,7 +202,6 @@ extension TunnelState {
         case .waitingForConnectivity(.noConnection), .error:
             NSLocalizedString(
                 "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY_ACCESSIBILITY_LABEL",
-                tableName: "Main",
                 value: "Blocked connection",
                 comment: ""
             )
@@ -229,7 +209,6 @@ extension TunnelState {
         case .waitingForConnectivity(.noNetwork):
             NSLocalizedString(
                 "TUNNEL_STATE_NO_NETWORK_ACCESSIBILITY_LABEL",
-                tableName: "Main",
                 value: "No network",
                 comment: ""
             )
@@ -237,7 +216,6 @@ extension TunnelState {
         case .disconnecting(.nothing):
             NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTING_ACCESSIBILITY_LABEL",
-                tableName: "Main",
                 value: "Disconnecting",
                 comment: ""
             )
@@ -245,7 +223,6 @@ extension TunnelState {
         case .disconnecting(.reconnect), .pendingReconnect:
             NSLocalizedString(
                 "TUNNEL_STATE_PENDING_RECONNECT_ACCESSIBILITY_LABEL",
-                tableName: "Main",
                 value: "Reconnecting",
                 comment: ""
             )
@@ -285,14 +262,12 @@ extension TunnelState {
         return if let entryName {
             String(format: NSLocalizedString(
                 "CONNECT_PANEL_TITLE",
-                tableName: "Main",
                 value: "%@ via %@\(usingDaita ? " using DAITA" : "")",
                 comment: ""
             ), exitName, entryName)
         } else {
             String(format: NSLocalizedString(
                 "CONNECT_PANEL_TITLE",
-                tableName: "Main",
                 value: "%@\(usingDaita ? " using DAITA" : "")",
                 comment: ""
             ), exitName)
@@ -303,14 +278,12 @@ extension TunnelState {
         if isPostQuantum {
             NSLocalizedString(
                 "TUNNEL_STATE_PQ_CONNECTING_ACCESSIBILITY_LABEL",
-                tableName: "Main",
                 value: "Creating quantum secure connection",
                 comment: ""
             )
         } else {
             NSLocalizedString(
                 "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
-                tableName: "Main",
                 value: "Creating secure connection",
                 comment: ""
             )

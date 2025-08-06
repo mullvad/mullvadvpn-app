@@ -22,14 +22,12 @@ enum EditAccessMethodSectionIdentifier: Hashable {
         case .testMethod:
             NSLocalizedString(
                 "TEST_METHOD_FOOTER",
-                tableName: "APIAccess",
                 value: "Performs a connection test to a Mullvad API server via this access method.",
                 comment: ""
             )
         case .enableMethod:
             NSLocalizedString(
                 "METHOD_FOOTER",
-                tableName: "APIAccess",
                 value: "At least one method needs to be enabled.",
                 comment: ""
             )

@@ -17,7 +17,6 @@ extension REST.Error: MullvadTypes.DisplayError {
             return String(
                 format: NSLocalizedString(
                     "NETWORK_ERROR",
-                    tableName: "REST",
                     value: "Network error: %@",
                     comment: ""
                 ),
@@ -28,7 +27,6 @@ extension REST.Error: MullvadTypes.DisplayError {
             guard let serverResponse else {
                 return String(format: NSLocalizedString(
                     "UNEXPECTED_RESPONSE",
-                    tableName: "REST",
                     value: "Unexpected server response: %d",
                     comment: ""
                 ), statusCode)
@@ -38,7 +36,6 @@ extension REST.Error: MullvadTypes.DisplayError {
             case .invalidAccount:
                 return NSLocalizedString(
                     "INVALID_ACCOUNT_ERROR",
-                    tableName: "REST",
                     value: "Invalid account",
                     comment: ""
                 )
@@ -46,7 +43,6 @@ extension REST.Error: MullvadTypes.DisplayError {
             case .maxDevicesReached:
                 return NSLocalizedString(
                     "MAX_DEVICES_REACHED_ERROR",
-                    tableName: "REST",
                     value: "Too many devices registered with account",
                     comment: ""
                 )
@@ -54,7 +50,6 @@ extension REST.Error: MullvadTypes.DisplayError {
             case .serviceUnavailable:
                 return NSLocalizedString(
                     "SERVICE_UNAVAILABLE",
-                    tableName: "REST",
                     value: "We are having some issues, please try again later",
                     comment: ""
                 )
@@ -62,7 +57,6 @@ extension REST.Error: MullvadTypes.DisplayError {
             case .tooManyRequests:
                 return NSLocalizedString(
                     "TOO_MANY_REQUESTS",
-                    tableName: "REST",
                     value: "We are having some issues, please try again later",
                     comment: ""
                 )
@@ -71,7 +65,6 @@ extension REST.Error: MullvadTypes.DisplayError {
                 return String(
                     format: NSLocalizedString(
                         "SERVER_ERROR",
-                        tableName: "REST",
                         value: "Unexpected server response: %1$@ (HTTP status: %2$d)",
                         comment: ""
                     ),
@@ -83,7 +76,6 @@ extension REST.Error: MullvadTypes.DisplayError {
         default:
             return NSLocalizedString(
                 "INTERNAL_ERROR",
-                tableName: "REST",
                 value: "Internal error.",
                 comment: ""
             )

@@ -94,15 +94,13 @@ class TunnelCoordinator: Coordinator, Presenting {
             icon: .alert,
             message: NSLocalizedString(
                 "CANCEL_TUNNEL_ALERT_MESSAGE",
-                tableName: "Main",
                 value: "If you disconnect now, you won’t be able to secure your connection until the device is online.",
                 comment: ""
             ),
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "CANCEL_TUNNEL_ALERT_DISCONNECT_ACTION",
-                        tableName: "Main",
+                        "DISCONNECT_TITLE_BUTTON",
                         value: "Disconnect",
                         comment: ""
                     ),
@@ -112,12 +110,7 @@ class TunnelCoordinator: Coordinator, Presenting {
                     }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "CANCEL_TUNNEL_ALERT_CANCEL_ACTION",
-                        tableName: "Main",
-                        value: "Cancel",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("CANCEL_TITLE_BUTTON", value: "Cancel", comment: ""),
                     style: .default
                 ),
             ]

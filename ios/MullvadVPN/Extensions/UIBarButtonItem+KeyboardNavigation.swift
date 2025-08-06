@@ -17,16 +17,14 @@ extension UIBarButtonItem {
             case .previous:
                 return NSLocalizedString(
                     "PREVIOUS_BUTTON_TITLE",
-                    tableName: "KeyboardNavigation",
                     value: "Previous",
-                    comment: "Previous button"
+                    comment: ""
                 )
             case .next:
                 return NSLocalizedString(
                     "NEXT_BUTTON_TITLE",
-                    tableName: "KeyboardNavigation",
                     value: "Next",
-                    comment: "Next button"
+                    comment: ""
                 )
             }
         }

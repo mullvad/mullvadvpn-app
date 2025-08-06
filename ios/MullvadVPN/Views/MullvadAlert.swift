@@ -13,16 +13,16 @@ struct MullvadAlert: Identifiable {
 
     struct Action {
         let type: MainButtonStyle.Style
-        let title: LocalizedStringKey
+        let title: String
         let identifier: AccessibilityIdentifier?
         let handler: () async -> Void
     }
 
     let id = UUID()
     let type: AlertType
-    let message: LocalizedStringKey
+    let message: String
     let action: Action?
-    let dismissButtonTitle: LocalizedStringKey
+    let dismissButtonTitle: String
 }
 
 struct AlertModifier: ViewModifier {
@@ -82,11 +82,24 @@ struct AlertModifier: ViewModifier {
     }
 
     @ViewBuilder
-    private func alertMessage(_ message: LocalizedStringKey) -> some View {
+    private func alertMessage(_ message: String) -> some View {
         HStack {
-            Text(message)
-                .font(.mullvadSmall)
-                .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+            if let attributed = try? AttributedString(
+                markdown: message,
+                options: AttributedString.MarkdownParsingOptions(
+                    allowsExtendedAttributes: true,
+                    interpretedSyntax: .inlineOnlyPreservingWhitespace
+                )
+            ) {
+                Text(attributed)
+                    .font(.mullvadSmall)
+                    .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+            } else {
+                Text(message)
+                    .font(.mullvadSmall)
+                    .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+            }
+
             Spacer()
         }
     }
@@ -119,21 +132,25 @@ extension View {
 }
 
 #Preview {
-    Text("Hello, World!")
-        .mullvadAlert(
-            item:
-            .constant(
-                .init(
-                    type: .warning,
-                    message: "Something needs to be done",
-                    action: .init(
-                        type: .danger,
-                        title: "Do it!",
-                        identifier: nil,
-                        handler: {}
-                    ),
-                    dismissButtonTitle: "Cancel"
-                )
-            )
-        )
+    Text("ALERT_TITLE")
+//        .mullvadAlert(
+//            item:
+//            .constant(
+//                .init(
+//                    type: .warning,
+//                    message: "Something needs to be done",
+//                    action: .init(
+//                        type: .danger,
+//                        title: "Do it!",
+//                        identifier: nil,
+//                        handler: {}
+//                    ),
+//                    dismissButtonTitle: NSLocalizedString(
+//                        "CANCEL_TITLE_BUTTON",
+//                        value: "Cancel",
+//                        comment: ""
+//                    )
+//                )
+//            )
+//        )
 }

@@ -18,7 +18,6 @@ enum AccountDeletionError: LocalizedError {
         case .invalidInput:
             return NSLocalizedString(
                 "INVALID_ACCOUNT_NUMBER",
-                tableName: "Account",
                 value: "Last four digits of the account number are incorrect",
                 comment: ""
             )

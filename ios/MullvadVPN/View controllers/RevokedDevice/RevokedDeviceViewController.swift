@@ -24,7 +24,6 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
         titleLabel.textColor = .white
         titleLabel.text = NSLocalizedString(
             "TITLE_LABEL",
-            tableName: "RevokedDevice",
             value: "Device is inactive",
             comment: ""
         )
@@ -40,7 +39,6 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
         bodyLabel.textColor = .white
         bodyLabel.text = NSLocalizedString(
             "DESCRIPTION_LABEL",
-            tableName: "RevokedDevice",
             value: "You have removed this device. To connect again, you will need to log back in.",
             comment: ""
         )
@@ -56,7 +54,6 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
         bodyLabel.textColor = .white
         bodyLabel.text = NSLocalizedString(
             "UNBLOCK_INTERNET_LABEL",
-            tableName: "RevokedDevice",
             value: "Going to login will unblock the Internet on this device.",
             comment: ""
         )
@@ -70,7 +67,6 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
         button.setTitle(
             NSLocalizedString(
                 "GOTO_LOGIN_BUTTON_LABEL",
-                tableName: "RevokedDevice",
                 value: "Go to login",
                 comment: ""
             ),

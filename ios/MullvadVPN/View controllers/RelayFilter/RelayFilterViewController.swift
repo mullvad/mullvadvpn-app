@@ -66,7 +66,6 @@ class RelayFilterViewController: UIViewController {
 
         navigationItem.title = NSLocalizedString(
             "RELAY_FILTER_NAVIGATION_TITLE",
-            tableName: "RelayFilter",
             value: "Filter",
             comment: ""
         )

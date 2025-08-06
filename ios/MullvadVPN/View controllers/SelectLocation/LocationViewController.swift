@@ -208,7 +208,6 @@ final class LocationViewController: UIViewController {
         searchBar.clipsToBounds = true
         searchBar.placeholder = NSLocalizedString(
             "SEARCHBAR_PLACEHOLDER",
-            tableName: "SelectLocation",
             value: "Search for...",
             comment: ""
         )

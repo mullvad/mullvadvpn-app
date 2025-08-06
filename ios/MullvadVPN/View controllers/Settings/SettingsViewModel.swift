@@ -13,7 +13,7 @@ struct SettingsViewModel {
     private(set) var multihopState: MultihopState
 
     var currentLanguage: String {
-        let currentLanguage = AppLanguage.currentLanguage
+        let currentLanguage = ApplicationLanguage.currentLanguage
         return "\(currentLanguage.flagEmoji) \(currentLanguage.displayName)"
     }
 

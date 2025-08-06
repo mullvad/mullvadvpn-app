@@ -66,7 +66,6 @@ class RestorePurchasesView: UIView {
     private func makeAttributedString() -> NSAttributedString {
         let text = NSLocalizedString(
             "RESTORE_PURCHASES_BUTTON_TITLE",
-            tableName: "Account",
             value: "Restore purchases",
             comment: ""
         )

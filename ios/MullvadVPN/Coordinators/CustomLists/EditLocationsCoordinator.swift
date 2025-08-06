@@ -43,7 +43,6 @@ class EditLocationsCoordinator: Coordinator, Presentable, Presenting {
 
         controller.navigationItem.title = NSLocalizedString(
             "EDIT_LOCATIONS_NAVIGATION_TITLE",
-            tableName: "EditLocations",
             value: "Edit locations",
             comment: ""
         )

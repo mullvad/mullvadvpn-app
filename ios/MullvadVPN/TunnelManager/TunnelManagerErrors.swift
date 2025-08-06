@@ -13,7 +13,6 @@ struct UnsetTunnelError: LocalizedError {
     var errorDescription: String? {
         NSLocalizedString(
             "UNSET_TUNNEL_ERROR",
-            tableName: "TunnelManager",
             value: "Tunnel is unset.",
             comment: ""
         )
@@ -24,7 +23,6 @@ struct InvalidDeviceStateError: LocalizedError {
     var errorDescription: String? {
         NSLocalizedString(
             "INVALID_DEVICE_STATE_ERROR",
-            tableName: "TunnelManager",
             value: "Invalid device state.",
             comment: ""
         )
@@ -37,7 +35,6 @@ struct StartTunnelError: LocalizedError, WrappingError {
     var errorDescription: String? {
         NSLocalizedString(
             "START_TUNNEL_ERROR",
-            tableName: "TunnelManager",
             value: "Failed to start the tunnel.",
             comment: ""
         )
@@ -58,7 +55,6 @@ struct StopTunnelError: LocalizedError, WrappingError {
     var errorDescription: String? {
         NSLocalizedString(
             "STOP_TUNNEL_ERROR",
-            tableName: "TunnelManager",
             value: "Failed to stop the tunnel.",
             comment: ""
         )

@@ -49,7 +49,6 @@ class CustomListViewController: UIViewController {
         let barButtonItem = UIBarButtonItem(
             title: NSLocalizedString(
                 "CUSTOM_LIST_NAVIGATION_SAVE_BUTTON",
-                tableName: "CustomLists",
                 value: "Save",
                 comment: ""
             ),
@@ -165,7 +164,6 @@ class CustomListViewController: UIViewController {
         let message = NSMutableAttributedString(
             markdownString: NSLocalizedString(
                 "CUSTOM_LISTS_DELETE_PROMPT",
-                tableName: "CustomLists",
                 value: "Do you want to delete the list **\(subject.value.name)**?",
                 comment: ""
             ),
@@ -180,7 +178,6 @@ class CustomListViewController: UIViewController {
                 AlertAction(
                     title: NSLocalizedString(
                         "CUSTOM_LISTS_DELETE_BUTTON",
-                        tableName: "CustomLists",
                         value: "Delete list",
                         comment: ""
                     ),
@@ -193,8 +190,7 @@ class CustomListViewController: UIViewController {
                 ),
                 AlertAction(
                     title: NSLocalizedString(
-                        "CUSTOM_LISTS_CANCEL_BUTTON",
-                        tableName: "CustomLists",
+                        "CANCEL_TITLE_BUTTON",
                         value: "Cancel",
                         comment: ""
                     ),

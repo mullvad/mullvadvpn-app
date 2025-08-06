@@ -21,7 +21,6 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
                     isOn: $tunnelViewModel.value.isEnabled,
                     text: NSLocalizedString(
                         "SETTINGS_SWITCH_MULTIHOP",
-                        tableName: "Settings",
                         value: "Enable",
                         comment: ""
                     ),
@@ -45,7 +44,6 @@ extension SettingsMultihopView {
                 SettingsInfoViewModelPage(
                     body: NSLocalizedString(
                         "SETTINGS_INFO_MULTIHOP",
-                        tableName: "Settings",
                         value: """
                         Multihop routes your traffic into one WireGuard server and out another, making it \
                         harder to trace. This results in increased latency but increases anonymity online.

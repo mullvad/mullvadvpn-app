@@ -80,7 +80,6 @@ class LoginContentView: UIView {
         textLabel.numberOfLines = 0
         textLabel.text = NSLocalizedString(
             "CREATE_BUTTON_HEADER_LABEL",
-            tableName: "Login",
             value: "Don’t have an account number?",
             comment: ""
         )
@@ -94,7 +93,6 @@ class LoginContentView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
             "CREATE_ACCOUNT_BUTTON_LABEL",
-            tableName: "Login",
             value: "Create account",
             comment: ""
         ), for: .normal)

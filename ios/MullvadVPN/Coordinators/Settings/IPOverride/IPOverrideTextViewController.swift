@@ -16,7 +16,6 @@ class IPOverrideTextViewController: UIViewController {
         return UIBarButtonItem(
             title: NSLocalizedString(
                 "IMPORT_TEXT_IMPORT_BUTTON",
-                tableName: "IPOverride",
                 value: "Import",
                 comment: ""
             ),
@@ -44,7 +43,6 @@ class IPOverrideTextViewController: UIViewController {
 
         navigationItem.title = NSLocalizedString(
             "IMPORT_TEXT_NAVIGATION_TITLE",
-            tableName: "IPOverride",
             value: "Import via text",
             comment: ""
         )

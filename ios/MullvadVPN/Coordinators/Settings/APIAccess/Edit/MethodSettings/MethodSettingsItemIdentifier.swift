@@ -71,13 +71,13 @@ enum MethodSettingsItemIdentifier: Hashable {
     var text: String? {
         switch self {
         case .name:
-            NSLocalizedString("NAME", tableName: "APIAccess", value: "Name", comment: "")
+            NSLocalizedString("NAME", value: "Name", comment: "")
         case .protocol:
-            NSLocalizedString("TYPE", tableName: "APIAccess", value: "Type", comment: "")
+            NSLocalizedString("TYPE", value: "Type", comment: "")
         case .proxyConfiguration, .validationError:
             nil
         case .cancelTest:
-            NSLocalizedString("CANCEL_TEST", tableName: "APIAccess", value: "Cancel", comment: "")
+            NSLocalizedString("CANCEL_TITLE_BUTTON", comment: "")
         case .testingStatus:
             nil
         }

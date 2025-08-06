@@ -42,7 +42,6 @@ class AddLocationsCoordinator: Coordinator, Presentable, Presenting {
 
         controller.navigationItem.title = NSLocalizedString(
             "ADD_LOCATIONS_NAVIGATION_TITLE",
-            tableName: "AddLocations",
             value: "Add locations",
             comment: ""
         )

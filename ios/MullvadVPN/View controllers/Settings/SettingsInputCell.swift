@@ -28,8 +28,7 @@ class SettingsInputCell: SelectableSettingsCell {
 
         toolbarDoneButton = UIBarButtonItem(
             title: NSLocalizedString(
-                "INPUT_CELL_TOOLBAR_BUTTON_DONE",
-                tableName: "VPNSettings",
+                "DONE_TITLE_BUTTON",
                 value: "Done",
                 comment: ""
             ),

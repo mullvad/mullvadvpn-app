@@ -20,21 +20,18 @@ struct RelayFilterDataSourceItem: Hashable, Comparable {
 
     static let anyOwnershipItem = RelayFilterDataSourceItem(name: NSLocalizedString(
         "RELAY_FILTER_ANY_LABEL",
-        tableName: "RelayFilter",
         value: "Any",
         comment: ""
     ), type: .ownershipAny, isEnabled: true)
 
     static let ownedOwnershipItem = RelayFilterDataSourceItem(name: NSLocalizedString(
         "RELAY_FILTER_OWNED_LABEL",
-        tableName: "RelayFilter",
         value: "Owned",
         comment: ""
     ), type: .ownershipOwned, isEnabled: true)
 
     static let rentedOwnershipItem = RelayFilterDataSourceItem(name: NSLocalizedString(
         "RELAY_FILTER_RENTED_LABEL",
-        tableName: "RelayFilter",
         value: "Rented",
         comment: ""
     ), type: .ownershipRented, isEnabled: true)
@@ -44,7 +41,6 @@ struct RelayFilterDataSourceItem: Hashable, Comparable {
     static var allProviders: RelayFilterDataSourceItem {
         RelayFilterDataSourceItem(name: NSLocalizedString(
             "RELAY_FILTER_ALL_PROVIDERS_LABEL",
-            tableName: "RelayFilter",
             value: "All Providers",
             comment: ""
         ), type: .allProviders, isEnabled: true)

@@ -34,7 +34,6 @@ class ProblemReportReviewViewController: UIViewController {
 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
-            tableName: "ProblemReportReview",
             value: "App logs",
             comment: ""
         )

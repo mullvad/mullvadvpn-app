@@ -94,7 +94,6 @@ class ListCustomListViewController: UIViewController {
     private func configureNavigationItem() {
         navigationItem.title = NSLocalizedString(
             "LIST_CUSTOM_LIST_NAVIGATION_TITLE",
-            tableName: "CustomList",
             value: "Edit custom list",
             comment: ""
         )

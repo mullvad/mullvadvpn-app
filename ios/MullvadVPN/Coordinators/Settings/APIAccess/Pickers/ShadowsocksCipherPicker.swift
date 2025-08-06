@@ -28,7 +28,6 @@ struct ShadowsocksCipherPicker {
 
         controller.navigationItem.title = NSLocalizedString(
             "SELECT_SHADOWSOCKS_CIPHER_NAV_TITLE",
-            tableName: "APIAccess",
             value: "Cipher",
             comment: ""
         )

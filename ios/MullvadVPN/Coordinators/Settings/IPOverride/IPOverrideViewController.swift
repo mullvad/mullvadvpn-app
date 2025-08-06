@@ -29,7 +29,6 @@ class IPOverrideViewController: UIViewController {
         button.addTarget(self, action: #selector(didTapClearButton), for: .touchUpInside)
         button.setTitle(NSLocalizedString(
             "IP_OVERRIDE_CLEAR_BUTTON",
-            tableName: "IPOverride",
             value: "Clear all overrides",
             comment: ""
         ), for: .normal)
@@ -67,7 +66,6 @@ class IPOverrideViewController: UIViewController {
     private func configureNavigation() {
         title = NSLocalizedString(
             "IP_OVERRIDE_HEADER",
-            tableName: "IPOverride",
             value: "Server IP override",
             comment: ""
         )
@@ -113,13 +111,11 @@ class IPOverrideViewController: UIViewController {
     private func addHeaderView() {
         let body = NSLocalizedString(
             "IP_OVERRIDE_HEADER_BODY",
-            tableName: "IPOverride",
             value: "Import files or text with the new IP addresses for the servers in the Select location view.",
             comment: ""
         )
         let link = NSLocalizedString(
             "IP_OVERRIDE_HEADER_LINK",
-            tableName: "IPOverride",
             value: "About Server IP override...",
             comment: ""
         )
@@ -138,7 +134,6 @@ class IPOverrideViewController: UIViewController {
         importTextButton.addTarget(self, action: #selector(didTapImportTextButton), for: .touchUpInside)
         importTextButton.setTitle(NSLocalizedString(
             "IP_OVERRIDE_IMPORT_TEXT_BUTTON",
-            tableName: "IPOverride",
             value: "Import via text",
             comment: ""
         ), for: .normal)
@@ -148,7 +143,6 @@ class IPOverrideViewController: UIViewController {
         importFileButton.addTarget(self, action: #selector(didTapImportFileButton), for: .touchUpInside)
         importFileButton.setTitle(NSLocalizedString(
             "IP_OVERRIDE_IMPORT_FILE_BUTTON",
-            tableName: "IPOverride",
             value: "Import file",
             comment: ""
         ), for: .normal)
@@ -170,13 +164,11 @@ class IPOverrideViewController: UIViewController {
             icon: .alert,
             title: NSLocalizedString(
                 "IP_OVERRIDE_CLEAR_DIALOG_TITLE",
-                tableName: "IPOverride",
                 value: "Clear all overrides?",
                 comment: ""
             ),
             message: NSLocalizedString(
                 "IP_OVERRIDE_CLEAR_DIALOG_MESSAGE",
-                tableName: "IPOverride",
                 value: """
                 Clearing the imported overrides changes the server IPs, in the Select location view, \
                 back to default.
@@ -187,7 +179,6 @@ class IPOverrideViewController: UIViewController {
                 AlertAction(
                     title: NSLocalizedString(
                         "IP_OVERRIDE_CLEAR_DIALOG_CLEAR_BUTTON",
-                        tableName: "IPOverride",
                         value: "Clear",
                         comment: ""
                     ),
@@ -197,12 +188,7 @@ class IPOverrideViewController: UIViewController {
                     }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "IP_OVERRIDE_CLEAR_DIALOG_CANCEL_BUTTON",
-                        tableName: "IPOverride",
-                        value: "Cancel",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("CANCEL_TITLE_BUTTON", comment: ""),
                     style: .default
                 ),
             ]

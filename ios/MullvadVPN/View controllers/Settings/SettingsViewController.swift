@@ -45,7 +45,6 @@ class SettingsViewController: UITableViewController {
 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
-            tableName: "Settings",
             value: "Settings",
             comment: ""
         )
@@ -95,8 +94,7 @@ extension SettingsViewController: @preconcurrency SettingsDataSourceDelegate {
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "SETTINGS_INFO_ALERT_OK_ACTION",
-                        tableName: "Settings",
+                        "GOT_IT_TITLE_BUTTON",
                         value: "Got it!",
                         comment: ""
                     ),

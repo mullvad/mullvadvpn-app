@@ -52,7 +52,6 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "VPN_SETTINGS_CELL_LABEL",
-                tableName: "Settings",
                 value: "VPN settings",
                 comment: ""
             )
@@ -64,7 +63,6 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             guard let cell = cell as? SettingsCell else { return }
             cell.titleLabel.text = NSLocalizedString(
                 "APP_VERSION_CELL_LABEL",
-                tableName: "Settings",
                 value: "What's new",
                 comment: ""
             )
@@ -77,7 +75,6 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "REPORT_PROBLEM_CELL_LABEL",
-                tableName: "Settings",
                 value: "Report a problem",
                 comment: ""
             )
@@ -90,7 +87,6 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "FAQ_AND_GUIDES_CELL_LABEL",
-                tableName: "Settings",
                 value: "FAQs & Guides",
                 comment: ""
             )
@@ -102,7 +98,6 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             guard let cell = cell as? SettingsCell else { return }
             cell.titleLabel.text = NSLocalizedString(
                 "API_ACCESS_CELL_LABEL",
-                tableName: "Settings",
                 value: "API access",
                 comment: ""
             )
@@ -115,17 +110,15 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "DAITA_CELL_LABEL",
-                tableName: "Settings",
                 value: "DAITA",
                 comment: ""
             )
 
-            cell.detailTitleLabel.text = NSLocalizedString(
+            cell.detailTitleLabel.text = String(format: NSLocalizedString(
                 "DAITA_CELL_DETAIL_LABEL",
-                tableName: "Settings",
-                value: viewModel.daitaSettings.daitaState.isEnabled ? "On" : "Off",
+                value: "%@",
                 comment: ""
-            )
+            ), String(format: "%@", viewModel.daitaSettings.daitaState.isEnabled ? "On" : "Off"))
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
@@ -135,17 +128,21 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "MULTIHOP_CELL_LABEL",
-                tableName: "Settings",
                 value: "Multihop",
                 comment: ""
             )
 
-            cell.detailTitleLabel.text = NSLocalizedString(
-                "MULTIHOP_CELL_DETAIL_LABEL",
-                tableName: "Settings",
-                value: viewModel.multihopState.isEnabled ? "On" : "Off",
-                comment: ""
-            )
+            cell.detailTitleLabel.text = viewModel.multihopState.isEnabled
+                ? NSLocalizedString(
+                    "TOGGLE_ON_STATE_LABEL",
+                    value: "On",
+                    comment: ""
+                )
+                : NSLocalizedString(
+                    "TOGGLE_OFF_STATE_LABEL",
+                    value: "Off",
+                    comment: ""
+                )
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
@@ -154,17 +151,11 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "LANGUAGE_CELL_LABEL",
-                tableName: "Settings",
                 value: "Language",
                 comment: ""
             )
 
-            cell.detailTitleLabel.text = NSLocalizedString(
-                "LANGUAGE_CELL_DETAIL_LABEL",
-                tableName: "Settings",
-                value: viewModel.currentLanguage,
-                comment: ""
-            )
+            cell.detailTitleLabel.text = viewModel.currentLanguage
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron

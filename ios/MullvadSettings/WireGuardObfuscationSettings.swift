@@ -82,7 +82,6 @@ public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomString
         case .automatic:
             NSLocalizedString(
                 "WIREGUARD_OBFUSCATION_UDP_TCP_PORT_AUTOMATIC",
-                tableName: "VPNSettings",
                 value: "Automatic",
                 comment: ""
             )
@@ -112,7 +111,6 @@ public enum WireGuardObfuscationShadowsocksPort: Codable, Equatable, CustomStrin
         case .automatic:
             NSLocalizedString(
                 "WIREGUARD_OBFUSCATION_SHADOWSOCKS_PORT_AUTOMATIC",
-                tableName: "VPNSettings",
                 value: "Automatic",
                 comment: ""
             )

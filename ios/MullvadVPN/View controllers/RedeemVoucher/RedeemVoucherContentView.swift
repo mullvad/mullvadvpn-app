@@ -37,7 +37,6 @@ final class RedeemVoucherContentView: UIView {
         label.font = .mullvadLarge
         label.text = NSLocalizedString(
             "REDEEM_VOUCHER_TITLE",
-            tableName: "RedeemVoucher",
             value: "Redeem voucher",
             comment: ""
         )
@@ -53,7 +52,6 @@ final class RedeemVoucherContentView: UIView {
 
         label.text = NSLocalizedString(
             "REDEEM_VOUCHER_INSTRUCTION",
-            tableName: "RedeemVoucher",
             value: "Enter voucher code",
             comment: ""
         )
@@ -111,7 +109,6 @@ final class RedeemVoucherContentView: UIView {
         let button = AppButton(style: .success)
         button.setTitle(NSLocalizedString(
             "REDEEM_VOUCHER_REDEEM_BUTTON",
-            tableName: "RedeemVoucher",
             value: "Redeem",
             comment: ""
         ), for: .normal)
@@ -122,7 +119,6 @@ final class RedeemVoucherContentView: UIView {
         let button = AppButton(style: .default)
         button.setTitle(NSLocalizedString(
             "REDEEM_VOUCHER_CANCEL_BUTTON",
-            tableName: "RedeemVoucher",
             value: "Cancel",
             comment: ""
         ), for: .normal)
@@ -177,14 +173,12 @@ final class RedeemVoucherContentView: UIView {
         case .verifying:
             return NSLocalizedString(
                 "REDEEM_VOUCHER_STATUS_WAITING",
-                tableName: "RedeemVoucher",
                 value: "Verifying voucher...",
                 comment: ""
             )
         case .logout:
             return NSLocalizedString(
                 "REDEEM_VOUCHER_STATUS_WAITING",
-                tableName: "RedeemVoucher",
                 value: "Logging out...",
                 comment: ""
             )
@@ -374,14 +368,12 @@ private extension REST.Error {
         if compareErrorCode(.invalidVoucher) {
             return NSLocalizedString(
                 "REDEEM_VOUCHER_STATUS_FAILURE",
-                tableName: "RedeemVoucher",
                 value: "Voucher code is invalid.",
                 comment: ""
             )
         } else if compareErrorCode(.usedVoucher) {
             return NSLocalizedString(
                 "REDEEM_VOUCHER_STATUS_FAILURE",
-                tableName: "RedeemVoucher",
                 value: "This voucher code has already been used.",
                 comment: ""
             )

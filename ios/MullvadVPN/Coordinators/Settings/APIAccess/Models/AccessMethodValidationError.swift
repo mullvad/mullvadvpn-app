@@ -18,7 +18,6 @@ struct AccessMethodValidationError: LocalizedError, Equatable {
         if fieldErrors.count > 1 {
             NSLocalizedString(
                 "VALIDATION_ERRORS_MULTIPLE",
-                tableName: "APIAccess",
                 value: "Multiple validation errors occurred.",
                 comment: ""
             )
@@ -77,21 +76,18 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
         case .emptyValue:
             NSLocalizedString(
                 "VALIDATION_ERRORS_EMPTY_FIELD",
-                tableName: "APIAccess",
                 value: "\(field) cannot be empty.",
                 comment: ""
             )
         case .invalidIPAddress:
             NSLocalizedString(
                 "VALIDATION_ERRORS_INVALD ADDRESS",
-                tableName: "APIAccess",
                 value: "Please enter a valid IPv4 or IPv6 address.",
                 comment: ""
             )
         case .invalidPort:
             NSLocalizedString(
                 "VALIDATION_ERRORS_INVALID_PORT",
-                tableName: "APIAccess",
                 value: "Please enter a valid port.",
                 comment: ""
             )
@@ -99,7 +95,6 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
             String(
                 format: NSLocalizedString(
                     "VALIDATION_ERRORS_NAME_TOO_LONG",
-                    tableName: "APIAccess",
                     value: "Name should be no longer than %i characters.",
                     comment: ""
                 ),

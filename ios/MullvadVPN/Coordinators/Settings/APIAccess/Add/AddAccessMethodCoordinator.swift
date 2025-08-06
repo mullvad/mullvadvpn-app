@@ -54,21 +54,18 @@ class AddAccessMethodCoordinator: Coordinator, Presentable, Presenting {
     private func setUpControllerNavigationItem(_ controller: MethodSettingsViewController) {
         controller.navigationItem.prompt = NSLocalizedString(
             "METHOD_SETTINGS_NAVIGATION_ADD_PROMPT",
-            tableName: "APIAccess",
             value: "The app will test the method before saving.",
             comment: ""
         )
 
         controller.navigationItem.title = NSLocalizedString(
             "METHOD_SETTINGS_NAVIGATION_ADD_TITLE",
-            tableName: "APIAccess",
             value: "Add access method",
             comment: ""
         )
 
         controller.saveBarButton.title = NSLocalizedString(
             "METHOD_SETTINGS_NAVIGATION_ADD_BUTTON",
-            tableName: "APIAccess",
             value: "Add",
             comment: ""
         )

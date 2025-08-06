@@ -33,7 +33,6 @@ enum LocationSection: String, Hashable, CaseIterable, CellIdentifierProtocol, Se
         case .customLists:
             return NSLocalizedString(
                 "CUSTOM_LIST_FOOTER",
-                tableName: "SelectLocation",
                 value: "To create a custom list, tap on \"...\" ",
                 comment: ""
             )

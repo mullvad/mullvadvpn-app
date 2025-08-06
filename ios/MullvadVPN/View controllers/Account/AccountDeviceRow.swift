@@ -23,7 +23,6 @@ class AccountDeviceRow: UIView {
         let label = UILabel()
         label.text = NSLocalizedString(
             "DEVICE_NAME",
-            tableName: "Account",
             value: "Device name",
             comment: ""
         )
@@ -56,7 +55,6 @@ class AccountDeviceRow: UIView {
         ]
         let title = NSLocalizedString(
             "DEVICE_MANAGEMENT",
-            tableName: "Account",
             value: "Manage devices",
             comment: ""
         )

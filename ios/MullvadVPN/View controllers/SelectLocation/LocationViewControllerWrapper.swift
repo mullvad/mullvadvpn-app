@@ -29,14 +29,12 @@ final class LocationViewControllerWrapper: UIViewController {
             case .entry:
                 NSLocalizedString(
                     "MULTIHOP_ENTRY",
-                    tableName: "SelectLocation",
                     value: "Entry",
                     comment: ""
                 )
             case .exit:
                 NSLocalizedString(
                     "MULTIHOP_EXIT",
-                    tableName: "SelectLocation",
                     value: "Exit",
                     comment: ""
                 )
@@ -173,7 +171,6 @@ final class LocationViewControllerWrapper: UIViewController {
 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
-            tableName: "SelectLocation",
             value: "Select location",
             comment: ""
         )
@@ -181,7 +178,6 @@ final class LocationViewControllerWrapper: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             title: NSLocalizedString(
                 "NAVIGATION_FILTER",
-                tableName: "SelectLocation",
                 value: "Filter",
                 comment: ""
             ),

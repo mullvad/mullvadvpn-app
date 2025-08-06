@@ -66,7 +66,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
-            tableName: "Account",
             value: "Account",
             comment: ""
         )

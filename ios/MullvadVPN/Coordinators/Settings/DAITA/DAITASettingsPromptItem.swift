@@ -21,9 +21,9 @@ enum DAITASettingsPromptItem: CustomStringConvertible {
         case let .daitaSettingIncompatibleWithSinglehop(setting), let .daitaSettingIncompatibleWithMultihop(setting):
             switch setting {
             case .daita:
-                "DAITA"
+                NSLocalizedString("SETTINGS_DAITA_TITLE", value: "DAITA", comment: "")
             case .directOnly:
-                "Direct only"
+                NSLocalizedString("SETTINGS_DAITA_DIRECT_ONLY_TITLE", value: "Direct only", comment: "")
             }
         }
     }
@@ -31,15 +31,21 @@ enum DAITASettingsPromptItem: CustomStringConvertible {
     var description: String {
         switch self {
         case .daitaSettingIncompatibleWithSinglehop:
-            """
+            NSLocalizedString("SETTINGS_DAITA_ENABLE_SINGLEHOP_TEXT", value: """
             DAITA isn't available at the currently selected location. After enabling, please go to \
             the "Select location" view and select a location that supports DAITA.
-            """
+            """, comment: "")
+
         case .daitaSettingIncompatibleWithMultihop:
-            """
-            DAITA isn't available on the current entry server. After enabling, please go to the \
-            "Select location" view and select an entry location that supports DAITA.
-            """
+            NSLocalizedString(
+                "SETTINGS_DAITA_ENABLE_MULTIHOP_TEXT",
+                value:
+                """
+                DAITA isn't available on the current entry server. After enabling, please go to the \
+                "Select location" view and select an entry location that supports DAITA.
+                """,
+                comment: ""
+            )
         }
     }
 }

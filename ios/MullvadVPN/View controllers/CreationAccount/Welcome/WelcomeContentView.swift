@@ -31,7 +31,6 @@ final class WelcomeContentView: UIView, Sendable {
         label.numberOfLines = .zero
         label.text = NSLocalizedString(
             "WELCOME_PAGE_TITLE",
-            tableName: "Welcome",
             value: "Congrats!",
             comment: ""
         )
@@ -47,7 +46,6 @@ final class WelcomeContentView: UIView, Sendable {
         label.numberOfLines = .zero
         label.text = NSLocalizedString(
             "WELCOME_PAGE_SUBTITLE",
-            tableName: "Welcome",
             value: "Here’s your account number. Save it!",
             comment: ""
         )
@@ -108,7 +106,6 @@ final class WelcomeContentView: UIView, Sendable {
         label.lineBreakStrategy = []
         label.text = NSLocalizedString(
             "WELCOME_PAGE_DESCRIPTION",
-            tableName: "Welcome",
             value: """
             To start using the app, you first need to \
             add time to your account. Either buy credit \
@@ -124,7 +121,6 @@ final class WelcomeContentView: UIView, Sendable {
         button.setAccessibilityIdentifier(.purchaseButton)
         let localizedString = NSLocalizedString(
             "ADD_TIME_BUTTON",
-            tableName: "Welcome",
             value: "Add time",
             comment: ""
         )
@@ -173,7 +169,6 @@ final class WelcomeContentView: UIView, Sendable {
             accountNumberLabel.text = viewModel?.accountNumber
             deviceNameLabel.text = String(format: NSLocalizedString(
                 "DEVICE_NAME_TEXT",
-                tableName: "Welcome",
                 value: "Device name: %@",
                 comment: ""
             ), viewModel?.deviceName ?? "")

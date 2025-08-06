@@ -57,7 +57,7 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
             body: NSAttributedString(string: NSLocalizedString(
                 "ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_BODY",
                 value: "You can add more time via the account view or website to continue using the VPN.",
-                comment: "Title for in-app notification, displayed within the last X days until account expiry."
+                comment: ""
             ))
         )
     }
@@ -118,9 +118,8 @@ extension AccountExpiryInAppNotificationProvider {
 
         return String(format: NSLocalizedString(
             "ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_TITLE",
-            tableName: "AccountExpiry",
             value: "%@ left on this account",
-            comment: "Message for in-app notification, displayed within the last X days until account expiry."
+            comment: ""
         ), duration).uppercased()
     }
 }

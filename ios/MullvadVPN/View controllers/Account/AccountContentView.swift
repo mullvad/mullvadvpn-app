@@ -14,7 +14,6 @@ class AccountContentView: UIView {
         button.setAccessibilityIdentifier(.purchaseButton)
         button.setTitle(NSLocalizedString(
             "ADD_TIME_BUTTON_TITLE",
-            tableName: "Account",
             value: "Add time",
             comment: ""
         ), for: .normal)
@@ -25,7 +24,6 @@ class AccountContentView: UIView {
         let button = AppButton(style: .success)
         button.setTitle(NSLocalizedString(
             "BUY_SUBSCRIPTION_STOREKIT_2",
-            tableName: "Account",
             value: "Make a purchase with StoreKit2",
             comment: ""
         ), for: .normal)
@@ -36,7 +34,6 @@ class AccountContentView: UIView {
         let button = AppButton(style: .success)
         button.setTitle(NSLocalizedString(
             "BUY_SUBSCRIPTION_STOREKIT_2",
-            tableName: "Account",
             value: "Refund last purchase with StoreKit2",
             comment: ""
         ), for: .normal)
@@ -48,7 +45,6 @@ class AccountContentView: UIView {
         button.setAccessibilityIdentifier(.redeemVoucherButton)
         button.setTitle(NSLocalizedString(
             "REDEEM_VOUCHER_BUTTON_TITLE",
-            tableName: "Account",
             value: "Redeem voucher",
             comment: ""
         ), for: .normal)
@@ -60,7 +56,6 @@ class AccountContentView: UIView {
         button.setAccessibilityIdentifier(.logoutButton)
         button.setTitle(NSLocalizedString(
             "LOGOUT_BUTTON_TITLE",
-            tableName: "Account",
             value: "Log out",
             comment: ""
         ), for: .normal)
@@ -72,7 +67,6 @@ class AccountContentView: UIView {
         button.setAccessibilityIdentifier(.deleteButton)
         button.setTitle(NSLocalizedString(
             "DELETE_BUTTON_TITLE",
-            tableName: "Account",
             value: "Delete account",
             comment: ""
         ), for: .normal)

@@ -15,7 +15,6 @@ struct UDPOverTCPObfuscationSettingsView<VM>: View where VM: UDPOverTCPObfuscati
     var body: some View {
         let portString = NSLocalizedString(
             "UDP_TCP_PORT_LABEL",
-            tableName: "UdpToTcp",
             value: "Port",
             comment: ""
         )
@@ -24,12 +23,16 @@ struct UDPOverTCPObfuscationSettingsView<VM>: View where VM: UDPOverTCPObfuscati
             options: [WireGuardObfuscationUdpOverTcpPort.automatic, .port80, .port5001],
             value: $viewModel.value,
             tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationUdpOverTcpTable.asString,
-            itemDescription: { item in NSLocalizedString(
-                "UDP_TCP_PORT_VALUE_\(item)",
-                tableName: "UdpToTcp",
-                value: "\(item)",
-                comment: ""
-            ) }
+            itemDescription: { item in
+                String(
+                    format: NSLocalizedString(
+                        "UDP_TCP_PORT_VALUE",
+                        value: "%@",
+                        comment: ""
+                    ),
+                    "\(item)"
+                )
+            }
         ).onDisappear {
             viewModel.commit()
         }

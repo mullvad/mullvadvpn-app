@@ -148,7 +148,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         )
         controller.title = NSLocalizedString(
             "MANAGE_DEVICES_TITLE",
-            tableName: "DeviceManagement",
             value: "Manage devices",
             comment: ""
         )
@@ -173,8 +172,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "ERROR_ALERT_OK_ACTION",
-                        tableName: "Common",
+                        "GOT_IT_TITLE_BUTTON",
                         value: "Got it!",
                         comment: ""
                     ),
@@ -250,7 +248,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
     private func showRestorePurchasesInfo() {
         let message = NSLocalizedString(
             "RESTORE_PURCHASES_DIALOG_MESSAGE",
-            tableName: "Account",
             value: """
             You can use the "restore purchases" function to check for any in-app payments \
             made via Apple services. If there is a payment that has not been credited, it will \
@@ -264,15 +261,13 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             icon: .info,
             title: NSLocalizedString(
                 "RESTORE_PURCHASES_DIALOG_TITLE",
-                tableName: "Account",
                 value: "If you haven’t received additional VPN time after purchasing",
                 comment: ""
             ),
             message: message,
             buttons: [AlertAction(
                 title: NSLocalizedString(
-                    "RESTORE_PURCHASES_DIALOG_OK_ACTION",
-                    tableName: "Account",
+                    "GOT_IT_TITLE_BUTTON",
                     value: "Got it!",
                     comment: ""
                 ),
@@ -287,7 +282,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
     func showFailToFetchProducts() {
         let message = NSLocalizedString(
             "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",
-            tableName: "Welcome",
             value:
             """
             Failed to connect to App store, please try again later.
@@ -302,8 +296,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
-                        tableName: "Welcome",
+                        "GOT_IT_TITLE_BUTTON",
                         value: "Got it!",
                         comment: ""
                     ),

@@ -16,7 +16,6 @@ extension StorePaymentManagerError: DisplayError {
         case .noAccountSet:
             return NSLocalizedString(
                 "INTERNAL_ERROR",
-                tableName: "StorePaymentManager",
                 value: "Internal error.",
                 comment: ""
             )
@@ -27,7 +26,6 @@ extension StorePaymentManagerError: DisplayError {
             return String(
                 format: NSLocalizedString(
                     "VALIDATE_ACCOUNT_ERROR",
-                    tableName: "StorePaymentManager",
                     value: "Failed to validate account number: %@",
                     comment: ""
                 ), reason
@@ -37,7 +35,6 @@ extension StorePaymentManagerError: DisplayError {
             if readReceiptError is StoreReceiptNotFound {
                 return NSLocalizedString(
                     "RECEIPT_NOT_FOUND_ERROR",
-                    tableName: "StorePaymentManager",
                     value: "AppStore receipt is not found on disk.",
                     comment: ""
                 )
@@ -45,7 +42,6 @@ extension StorePaymentManagerError: DisplayError {
                 return String(
                     format: NSLocalizedString(
                         "REFRESH_RECEIPT_ERROR",
-                        tableName: "StorePaymentManager",
                         value: "Cannot refresh the AppStore receipt: %@",
                         comment: ""
                     ),
@@ -54,7 +50,6 @@ extension StorePaymentManagerError: DisplayError {
             } else {
                 return NSLocalizedString(
                     "READ_RECEIPT_ERROR",
-                    tableName: "StorePaymentManager",
                     value: "Cannot read the AppStore receipt from disk",
                     comment: ""
                 )
@@ -64,13 +59,11 @@ extension StorePaymentManagerError: DisplayError {
             let reason = (error as? DisplayError)?.displayErrorDescription ?? ""
             let errorFormat = NSLocalizedString(
                 "SEND_RECEIPT_ERROR",
-                tableName: "StorePaymentManager",
                 value: "Failed to send the receipt to server: %@",
                 comment: ""
             )
             let recoverySuggestion = NSLocalizedString(
                 "SEND_RECEIPT_RECOVERY_SUGGESTION",
-                tableName: "StorePaymentManager",
                 value: "Please retry by using the \"Restore purchases\" button.",
                 comment: ""
             )

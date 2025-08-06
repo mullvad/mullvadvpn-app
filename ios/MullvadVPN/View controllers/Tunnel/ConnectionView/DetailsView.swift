@@ -16,16 +16,20 @@ extension ConnectionView {
         var body: some View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text(LocalizedStringKey("Connection details"))
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                    Text(NSLocalizedString(
+                        "CONNECTION_DETAILS_TITLE",
+                        value: "Connection details",
+                        comment: ""
+                    ))
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
                     Spacer()
                 }
 
                 VStack(alignment: .leading, spacing: 0) {
                     if let inAddress = viewModel.inAddress {
                         connectionDetailRow(
-                            title: LocalizedStringKey("In"),
+                            title: NSLocalizedString("IN_LABEL", value: "In", comment: ""),
                             value: inAddress,
                             accessibilityId: .connectionPanelInAddressRow
                         )
@@ -33,14 +37,22 @@ extension ConnectionView {
                     if viewModel.tunnelIsConnected {
                         if let outAddressIpv4 = viewModel.outAddressIpv4 {
                             connectionDetailRow(
-                                title: LocalizedStringKey("Out IPv4"),
+                                title: NSLocalizedString(
+                                    "OUT_IPV4_LABEL",
+                                    value: "Out IPv4",
+                                    comment: ""
+                                ),
                                 value: outAddressIpv4,
                                 accessibilityId: .connectionPanelOutAddressRow
                             )
                         }
                         if let outAddressIpv6 = viewModel.outAddressIpv6 {
                             connectionDetailRow(
-                                title: LocalizedStringKey("Out IPv6"),
+                                title: NSLocalizedString(
+                                    "OUT_IPV6_LABEL",
+                                    value: "Out IPv6",
+                                    comment: ""
+                                ),
                                 value: outAddressIpv6,
                                 accessibilityId: .connectionPanelOutIpv6AddressRow
                             )
@@ -54,7 +66,7 @@ extension ConnectionView {
 
         @ViewBuilder
         private func connectionDetailRow(
-            title: LocalizedStringKey,
+            title: String,
             value: String,
             accessibilityId: AccessibilityIdentifier
         ) -> some View {

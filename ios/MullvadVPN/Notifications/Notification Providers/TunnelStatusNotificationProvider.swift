@@ -167,11 +167,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
 
     private func createNotificationBody(_ string: String) -> NSAttributedString {
         NSAttributedString(
-            markdownString: NSLocalizedString(
-                "LATEST_CHANGES_IN_APP_NOTIFICATION_BODY",
-                value: string,
-                comment: ""
-            ),
+            markdownString: string,
             options: MarkdownStylingOptions(font: UIFont.preferredFont(forTextStyle: .body)),
             applyEffect: { markdownType, _ in
                 guard case .bold = markdownType else { return [:] }
@@ -262,34 +258,33 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     private func localizedReasonForBlockedStateError(_ error: BlockedStateReason) -> String {
-        let errorString: String
-
+        let errorStringKey: String
         switch error {
         case .outdatedSchema:
-            errorString = "Unable to start tunnel connection after update. Please disconnect and reconnect."
+            errorStringKey = "ERROR_OUTDATED_SCHEMA"
         case .noRelaysSatisfyingFilterConstraints:
-            errorString = "No servers match your location filter. Try changing filter settings."
+            errorStringKey = "ERROR_NO_RELAYS_SATISFYING_FILTER_CONSTRAINTS"
         case .multihopEntryEqualsExit:
-            errorString = "The entry and exit servers cannot be the same. Try changing one to a new server or location."
+            errorStringKey = "ERROR_MULTIHOP_ENTRY_EQUALS_EXIT"
         case .noRelaysSatisfyingDaitaConstraints:
-            errorString = "No DAITA compatible servers match your location settings. Try changing location."
+            errorStringKey = "ERROR_NO_RELAYS_SATISFYING_DAITA_CONSTRAINTS"
         case .noRelaysSatisfyingConstraints:
-            errorString = "No servers match your settings, try changing server or other settings."
+            errorStringKey = "ERROR_NO_RELAYS_SATISFYING_CONSTRAINTS"
         case .noRelaysSatisfyingPortConstraints:
-            errorString = "The selected WireGuard port is not supported, please change it under **VPN settings**."
+            errorStringKey = "ERROR_NO_RELAYS_SATISFYING_PORT_CONSTRAINTS"
         case .invalidAccount:
-            errorString = "You are logged in with an invalid account number. Please log out and try another one."
+            errorStringKey = "ERROR_INVALID_ACCOUNT"
         case .deviceLoggedOut:
-            errorString = "Unable to authenticate account. Please log out and log back in."
+            errorStringKey = "ERROR_DEVICE_LOGGED_OUT"
         default:
-            errorString = "Unable to start tunnel connection. Please send a problem report."
+            errorStringKey = "ERROR_DEFAULT"
         }
 
-        return NSLocalizedString(
-            "BLOCKED_STATE_ERROR_TITLE",
-            tableName: "Main",
-            value: errorString,
+        let errorString = NSLocalizedString(
+            errorStringKey,
             comment: ""
         )
+
+        return errorString
     }
 }

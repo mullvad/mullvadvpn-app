@@ -28,21 +28,18 @@ enum IPOverrideStatus: Equatable, CustomStringConvertible {
         case .active:
             NSLocalizedString(
                 "IP_OVERRIDE_STATUS_TITLE_ACTIVE",
-                tableName: "IPOverride",
                 value: "Overrides active",
                 comment: ""
             )
         case .noImports, .importFailed:
             NSLocalizedString(
                 "IP_OVERRIDE_STATUS_TITLE_NO_IMPORTS",
-                tableName: "IPOverride",
                 value: "No overrides imported",
                 comment: ""
             )
         case .importSuccessful:
             NSLocalizedString(
                 "IP_OVERRIDE_STATUS_TITLE_IMPORT_SUCCESSFUL",
-                tableName: "IPOverride",
                 value: "Import successful",
                 comment: ""
             )
@@ -75,14 +72,12 @@ enum IPOverrideStatus: Equatable, CustomStringConvertible {
         case let .importFailed(context):
             String(format: NSLocalizedString(
                 "IP_OVERRIDE_STATUS_DESCRIPTION_INACTIVE",
-                tableName: "IPOverride",
                 value: "Import %@ was unsuccessful, please try again.",
                 comment: ""
             ), context.description)
         case let .importSuccessful(context):
             String(format: NSLocalizedString(
                 "IP_OVERRIDE_STATUS_DESCRIPTION_INACTIVE",
-                tableName: "IPOverride",
                 value: "Import %@ was successful, overrides are now active.",
                 comment: ""
             ), context.description)

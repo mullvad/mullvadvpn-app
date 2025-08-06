@@ -66,7 +66,6 @@ class HeaderBarView: UIView {
         button.setAccessibilityIdentifier(.accountButton)
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_ACCOUNT_BUTTON_ACCESSIBILITY_LABEL",
-            tableName: "HeaderBar",
             value: "Account",
             comment: ""
         )
@@ -80,7 +79,6 @@ class HeaderBarView: UIView {
         button.setAccessibilityIdentifier(.settingsButton)
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL",
-            tableName: "HeaderBar",
             value: "Settings",
             comment: ""
         )
@@ -125,7 +123,6 @@ class HeaderBarView: UIView {
             if let timeLeft {
                 let formattedTimeLeft = NSLocalizedString(
                     "TIME_LEFT_HEADER_VIEW",
-                    tableName: "Account",
                     value: "Time left: %@",
                     comment: ""
                 )
@@ -148,7 +145,6 @@ class HeaderBarView: UIView {
             if let deviceName {
                 let formattedDeviceName = NSLocalizedString(
                     "DEVICE_NAME_HEADER_VIEW",
-                    tableName: "Account",
                     value: "Device name: %@",
                     comment: ""
                 )

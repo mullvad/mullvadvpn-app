@@ -41,7 +41,6 @@ class AccountDeletionContentView: UIView {
         label.textColor = .white
         label.text = NSLocalizedString(
             "ACCOUNT_DELETION_PAGE_TITLE",
-            tableName: "Account",
             value: "Account deletion",
             comment: ""
         )
@@ -69,7 +68,6 @@ class AccountDeletionContentView: UIView {
         label.textColor = .white
         label.text = NSLocalizedString(
             "TIP_TEXT",
-            tableName: "Account",
             value: """
             This logs out all devices using this account and all \
             VPN access will be denied even if there is time left on the account. \
@@ -108,7 +106,6 @@ class AccountDeletionContentView: UIView {
         button.setAccessibilityIdentifier(.deleteButton)
         button.setTitle(NSLocalizedString(
             "DELETE_ACCOUNT_BUTTON_TITLE",
-            tableName: "Account",
             value: "Delete Account",
             comment: ""
         ), for: .normal)
@@ -119,8 +116,7 @@ class AccountDeletionContentView: UIView {
         let button = AppButton(style: .default)
         button.setAccessibilityIdentifier(.cancelButton)
         button.setTitle(NSLocalizedString(
-            "CANCEL_BUTTON_TITLE",
-            tableName: "Account",
+            "CANCEL_TITLE_BUTTON",
             value: "Cancel",
             comment: ""
         ), for: .normal)
@@ -221,7 +217,6 @@ class AccountDeletionContentView: UIView {
         case .loading:
             return NSLocalizedString(
                 "DELETE_ACCOUNT_STATUS_WAITING",
-                tableName: "Account",
                 value: "Deleting account...",
                 comment: ""
             )
@@ -325,7 +320,6 @@ class AccountDeletionContentView: UIView {
         viewModel.flatMap { viewModel in
             let text = NSLocalizedString(
                 "BODY_LABEL_TEXT",
-                tableName: "Account",
                 value: """
                 Are you sure you want to delete account **\(viewModel.accountNumber)**?
                 """,

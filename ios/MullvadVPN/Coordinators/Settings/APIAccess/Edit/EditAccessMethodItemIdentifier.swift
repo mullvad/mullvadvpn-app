@@ -54,17 +54,17 @@ enum EditAccessMethodItemIdentifier: Hashable {
     var text: String? {
         switch self {
         case .enableMethod:
-            NSLocalizedString("ENABLE_METHOD", tableName: "APIAccess", value: "Enable method", comment: "")
+            NSLocalizedString("ENABLE_METHOD", value: "Enable method", comment: "")
         case .methodSettings:
-            NSLocalizedString("METHOD_SETTINGS", tableName: "APIAccess", value: "Method settings", comment: "")
+            NSLocalizedString("METHOD_SETTINGS", value: "Method settings", comment: "")
         case .testMethod:
-            NSLocalizedString("TEST_METHOD", tableName: "APIAccess", value: "Test method", comment: "")
+            NSLocalizedString("TEST_METHOD", value: "Test method", comment: "")
         case .cancelTest:
-            NSLocalizedString("CANCEL_TEST", tableName: "APIAccess", value: "Cancel", comment: "")
+            NSLocalizedString("CANCEL_TITLE_BUTTON", comment: "")
         case .testingStatus:
             nil
         case .deleteMethod:
-            NSLocalizedString("DELETE_METHOD", tableName: "APIAccess", value: "Delete method", comment: "")
+            NSLocalizedString("DELETE_METHOD", value: "Delete method", comment: "")
         }
     }
 }

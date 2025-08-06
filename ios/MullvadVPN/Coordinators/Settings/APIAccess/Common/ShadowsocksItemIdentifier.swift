@@ -34,13 +34,13 @@ enum ShadowsocksItemIdentifier: Hashable, CaseIterable {
     var text: String {
         switch self {
         case .server:
-            NSLocalizedString("SHADOWSOCKS_SERVER", tableName: "APIAccess", value: "Server", comment: "")
+            NSLocalizedString("SHADOWSOCKS_SERVER", value: "Server", comment: "")
         case .port:
-            NSLocalizedString("SHADOWSOCKS_PORT", tableName: "APIAccess", value: "Port", comment: "")
+            NSLocalizedString("SHADOWSOCKS_PORT", value: "Port", comment: "")
         case .password:
-            NSLocalizedString("SHADOWSOCKS_PASSWORD", tableName: "APIAccess", value: "Password", comment: "")
+            NSLocalizedString("SHADOWSOCKS_PASSWORD", value: "Password", comment: "")
         case .cipher:
-            NSLocalizedString("SHADOWSOCKS_CIPHER", tableName: "APIAccess", value: "Cipher", comment: "")
+            NSLocalizedString("SHADOWSOCKS_CIPHER", value: "Cipher", comment: "")
         }
     }
 }

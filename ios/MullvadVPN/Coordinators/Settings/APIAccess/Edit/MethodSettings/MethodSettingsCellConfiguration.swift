@@ -180,7 +180,6 @@ class MethodSettingsCellConfiguration {
         contentConfiguration.detailText = viewStatus == .reachable
             ? NSLocalizedString(
                 "METHOD_SETTINGS_SAVING_CHANGES",
-                tableName: "APIAccess",
                 value: "Saving changes...",
                 comment: ""
             )

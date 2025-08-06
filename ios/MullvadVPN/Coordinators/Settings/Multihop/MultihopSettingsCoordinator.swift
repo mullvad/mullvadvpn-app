@@ -41,7 +41,6 @@ class MultihopSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presen
         let host = UIHostingController(rootView: view)
         host.title = NSLocalizedString(
             "NAVIGATION_TITLE_MULTIHOP",
-            tableName: "Settings",
             value: "Multihop",
             comment: ""
         )

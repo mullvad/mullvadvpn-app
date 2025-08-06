@@ -30,21 +30,18 @@ class ProblemReportSubmissionOverlayView: UIView {
             case .sending:
                 NSLocalizedString(
                     "SUBMISSION_STATUS_SENDING",
-                    tableName: "ProblemReport",
                     value: "Sending...",
                     comment: ""
                 )
             case .sent:
                 NSLocalizedString(
                     "SUBMISSION_STATUS_SENT",
-                    tableName: "ProblemReport",
                     value: "Sent",
                     comment: ""
                 )
             case .failure:
                 NSLocalizedString(
                     "SUBMISSION_STATUS_FAILURE",
-                    tableName: "ProblemReport",
                     value: "Failed to send",
                     comment: ""
                 )
@@ -59,7 +56,6 @@ class ProblemReportSubmissionOverlayView: UIView {
                 let combinedAttributedString = NSMutableAttributedString(
                     string: NSLocalizedString(
                         "THANKS_MESSAGE",
-                        tableName: "ProblemReport",
                         value: "Thanks!",
                         comment: ""
                     )
@@ -71,7 +67,6 @@ class ProblemReportSubmissionOverlayView: UIView {
                         NSAttributedString(
                             string: NSLocalizedString(
                                 "WE_WILL_LOOK_INTO_THIS_MESSAGE",
-                                tableName: "ProblemReport",
                                 value: "We will look into this.",
                                 comment: ""
                             )
@@ -81,7 +76,6 @@ class ProblemReportSubmissionOverlayView: UIView {
                     let emailText = String(
                         format: NSLocalizedString(
                             "CONTACT_BACK_EMAIL_MESSAGE_FORMAT",
-                            tableName: "ProblemReport",
                             value: "If needed we will contact you at %@",
                             comment: ""
                         ), email
@@ -105,7 +99,6 @@ class ProblemReportSubmissionOverlayView: UIView {
                     NSAttributedString(
                         string: NSLocalizedString(
                             "MESSAGE_FAILED_PART_1",
-                            tableName: "ProblemReport",
                             value:
                             """
                             If you exit the form and try again later, the information you already entered will still \
@@ -117,7 +110,6 @@ class ProblemReportSubmissionOverlayView: UIView {
                     NSAttributedString(
                         markdownString: NSLocalizedString(
                             "MESSAGE_FAILED_PART_2",
-                            tableName: "ProblemReport",
                             value:
                             """
                             If you still experience issues you can email our support directly at \
@@ -202,8 +194,7 @@ class ProblemReportSubmissionOverlayView: UIView {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
-            "CANCEL_BUTTON",
-            tableName: "ProblemReport",
+            "CANCEL_TITLE_BUTTON",
             value: "Cancel",
             comment: ""
         ), for: .normal)
@@ -216,7 +207,6 @@ class ProblemReportSubmissionOverlayView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
             "EDIT_MESSAGE_BUTTON",
-            tableName: "ProblemReport",
             value: "Edit message",
             comment: ""
         ), for: .normal)
@@ -229,7 +219,6 @@ class ProblemReportSubmissionOverlayView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
             "TRY_AGAIN_BUTTON",
-            tableName: "ProblemReport",
             value: "Try again",
             comment: ""
         ), for: .normal)

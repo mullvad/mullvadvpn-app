@@ -132,15 +132,13 @@ extension AccountExpirySystemNotificationProvider {
         accountHasExpired
             ? NSLocalizedString(
                 "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE",
-                tableName: "AccountExpiry",
                 value: "Account credit has expired",
-                comment: "Title for system account expiry notification, fired on account expiry."
+                comment: ""
             )
             : NSLocalizedString(
                 "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE",
-                tableName: "AccountExpiry",
                 value: "Account credit expires soon",
-                comment: "Title for system account expiry notification, fired X days prior to account expiry."
+                comment: ""
             )
     }
 
@@ -160,21 +158,19 @@ extension AccountExpirySystemNotificationProvider {
     private var expiredText: String {
         NSLocalizedString(
             "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY",
-            tableName: "AccountExpiry",
             value: """
             Blocking internet: Your time on this account has expired. To continue using the internet, \
             please add more time or disconnect the VPN.
             """,
-            comment: "Message for in-app notification, displayed on account expiry while connected to VPN."
+            comment: ""
         )
     }
 
     private var singleDayText: String {
         NSLocalizedString(
             "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY",
-            tableName: "AccountExpiry",
             value: "You have one day left on this account. Please add more time to continue using the VPN.",
-            comment: "Message for in-app notification, displayed within the last 1 day until account expiry."
+            comment: ""
         )
     }
 
@@ -191,9 +187,8 @@ extension AccountExpirySystemNotificationProvider {
 
         return String(format: NSLocalizedString(
             "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY",
-            tableName: "AccountExpiry",
             value: "You have %@ left on this account.",
-            comment: "Message for in-app notification, displayed within the last X days until account expiry."
+            comment: ""
         ), duration.lowercased())
     }
 }

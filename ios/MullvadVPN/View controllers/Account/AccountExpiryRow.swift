@@ -17,7 +17,6 @@ class AccountExpiryRow: UIView {
             if let expiry, expiry <= Date() {
                 let localizedString = NSLocalizedString(
                     "ACCOUNT_OUT_OF_TIME_LABEL",
-                    tableName: "Account",
                     value: "OUT OF TIME",
                     comment: ""
                 )
@@ -48,7 +47,6 @@ class AccountExpiryRow: UIView {
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.text = NSLocalizedString(
             "ACCOUNT_EXPIRY_LABEL",
-            tableName: "Account",
             value: "Paid until",
             comment: ""
         )

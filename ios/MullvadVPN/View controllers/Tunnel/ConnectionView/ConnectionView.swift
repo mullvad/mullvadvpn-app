@@ -34,10 +34,14 @@ struct ConnectionView: View {
                     ScrollView {
                         HStack {
                             VStack(alignment: .leading, spacing: 0) {
-                                Text(LocalizedStringKey("Active features"))
-                                    .font(.footnote.weight(.semibold))
-                                    .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
-                                    .showIf(isExpanded && hasFeatureIndicators)
+                                Text(NSLocalizedString(
+                                    "ACTIVE_FEATURES_TITLE",
+                                    value: "Active features",
+                                    comment: ""
+                                ))
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                                .showIf(isExpanded && hasFeatureIndicators)
 
                                 ChipContainerView(
                                     viewModel: indicatorsViewModel,

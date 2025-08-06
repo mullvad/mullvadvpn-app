@@ -53,7 +53,6 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
         let host = UIHostingController(rootView: view)
         host.title = NSLocalizedString(
             "NAVIGATION_TITLE_DAITA",
-            tableName: "Settings",
             value: "DAITA",
             comment: ""
         )
@@ -88,17 +87,11 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
             id: "settings-daita-prompt",
             accessibilityIdentifier: .daitaPromptAlert,
             icon: .warning,
-            message: NSLocalizedString(
-                "SETTINGS_DAITA_ENABLE_TEXT",
-                tableName: "DAITA",
-                value: item.description,
-                comment: ""
-            ),
+            message: item.description,
             buttons: [
                 AlertAction(
                     title: String(format: NSLocalizedString(
                         "SETTINGS_DAITA_ENABLE_OK_ACTION",
-                        tableName: "DAITA",
                         value: "Enable \"%@\"",
                         comment: ""
                     ), item.title),
@@ -107,12 +100,7 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
                     handler: { onSave() }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "SETTINGS_DAITA_ENABLE_CANCEL_ACTION",
-                        tableName: "DAITA",
-                        value: "Cancel",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("CANCEL_TITLE_BUTTON", comment: ""),
                     style: .default,
                     handler: { onDiscard() }
                 ),

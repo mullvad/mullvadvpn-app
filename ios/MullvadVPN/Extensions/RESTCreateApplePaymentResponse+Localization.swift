@@ -19,14 +19,12 @@ extension REST.CreateApplePaymentResponse {
         case .purchase:
             return NSLocalizedString(
                 "TIME_ADDED_ALERT_SUCCESS_TITLE",
-                tableName: "REST",
                 value: "Thanks for your purchase",
                 comment: ""
             )
         case .restoration:
             return NSLocalizedString(
                 "RESTORE_PURCHASES_ALERT_TITLE",
-                tableName: "REST",
                 value: "Restore purchases",
                 comment: ""
             )
@@ -39,7 +37,6 @@ extension REST.CreateApplePaymentResponse {
             return String(
                 format: NSLocalizedString(
                     "TIME_ADDED_ALERT_SUCCESS_MESSAGE",
-                    tableName: "REST",
                     value: "%@ have been added to your account",
                     comment: ""
                 ),
@@ -50,7 +47,6 @@ extension REST.CreateApplePaymentResponse {
             case .noTimeAdded:
                 return NSLocalizedString(
                     "RESTORE_PURCHASES_ALERT_NO_TIME_ADDED_MESSAGE",
-                    tableName: "REST",
                     value: "Your previous purchases have already been added to this account.",
                     comment: ""
                 )
@@ -58,7 +54,6 @@ extension REST.CreateApplePaymentResponse {
                 return String(
                     format: NSLocalizedString(
                         "RESTORE_PURCHASES_ALERT_TIME_ADDED_MESSAGE",
-                        tableName: "REST",
                         value: "%@ have been added to your account",
                         comment: ""
                     ),
@@ -75,14 +70,12 @@ extension REST.CreateApplePaymentResponse.Context {
         case .purchase:
             return NSLocalizedString(
                 "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
-                tableName: "Payment",
                 value: "Cannot complete the purchase",
                 comment: ""
             )
         case .restoration:
             return NSLocalizedString(
                 "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
-                tableName: "Payment",
                 value: "Cannot restore purchases",
                 comment: ""
             )

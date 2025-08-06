@@ -30,13 +30,11 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
         VStack(alignment: .leading, spacing: 0) {
             let text = NSLocalizedString(
                 "ACCESS_METHOD_HEADER_BODY",
-                tableName: "APIAccess",
                 value: "Manage default and setup custom methods to access the Mullvad API. ",
                 comment: ""
             )
             let about = NSLocalizedString(
                 "ACCESS_METHOD_HEADER_BODY",
-                tableName: "APIAccess",
                 value: "About API access…",
                 comment: ""
             )
@@ -50,7 +48,7 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                 .padding(.bottom, 16)
             }, footer: {
                 MainButton(
-                    text: LocalizedStringKey("Add"),
+                    text: NSLocalizedString("METHOD_SETTINGS_NAVIGATION_ADD_BUTTON", value: "Add", comment: ""),
                     style: .default
                 ) {
                     viewModel.addNewMethod()
@@ -70,7 +68,6 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                 let state = viewModel.itemInUse?.id == item.id
                     ? NSLocalizedString(
                         "LIST_ACCESS_METHODS_IN_USE_ITEM",
-                        tableName: "APIAccess",
                         value: "In use",
                         comment: ""
                     )
@@ -78,7 +75,6 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                         !item.isEnabled
                             ? NSLocalizedString(
                                 "LIST_ACCESS_METHODS_DISABLED",
-                                tableName: "APIAccess",
                                 value: "Disabled",
                                 comment: ""
                             )

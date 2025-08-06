@@ -9,10 +9,6 @@ import MullvadSettings
 import PacketTunnelCore
 import SwiftUI
 
-// Opting to use NSLocalizedString instead of LocalizedStringKey here in order
-// to be able to fetch the string value at a later point (eg. in ChipViewModelProtocol,
-// when calculating the text widths of the chips).
-
 protocol ChipFeature: Identifiable {
     var id: FeatureType { get }
     var isEnabled: Bool { get }
@@ -43,13 +39,11 @@ struct DaitaFeature: ChipFeature {
         state.isMultihop && !settings.tunnelMultihopState.isEnabled
             ? NSLocalizedString(
                 "FEATURE_INDICATORS_CHIP_DAITA_MULTIHOP",
-                tableName: "FeatureIndicatorsChip",
                 value: "DAITA: Multihop",
                 comment: ""
             )
             : NSLocalizedString(
                 "FEATURE_INDICATORS_CHIP_DAITA",
-                tableName: "FeatureIndicatorsChip",
                 value: "DAITA",
                 comment: ""
             )
@@ -67,7 +61,6 @@ struct QuantumResistanceFeature: ChipFeature {
     var name: String {
         NSLocalizedString(
             "FEATURE_INDICATORS_CHIP_QUANTUM_RESISTANCE",
-            tableName: "FeatureIndicatorsChip",
             value: "Quantum resistance",
             comment: ""
         )
@@ -88,7 +81,6 @@ struct MultihopFeature: ChipFeature {
     var name: String {
         NSLocalizedString(
             "FEATURE_INDICATORS_CHIP_MULTIHOP",
-            tableName: "FeatureIndicatorsChip",
             value: "Multihop",
             comment: ""
         )
@@ -120,7 +112,6 @@ struct ObfuscationFeature: ChipFeature {
         // we can look at `actualObfuscationMethod`
         NSLocalizedString(
             "FEATURE_INDICATORS_CHIP_OBFUSCATION",
-            tableName: "FeatureIndicatorsChip",
             value: "Obfuscation",
             comment: ""
         )
@@ -139,14 +130,12 @@ struct DNSFeature: ChipFeature {
         if !settings.dnsSettings.blockingOptions.isEmpty {
             NSLocalizedString(
                 "FEATURE_INDICATORS_CHIP_CONTENT_BLOCKERS",
-                tableName: "FeatureIndicatorsChip",
                 value: "DNS content blockers",
                 comment: ""
             )
         } else {
             NSLocalizedString(
                 "FEATURE_INDICATORS_CHIP_CUSTOM_DNS",
-                tableName: "FeatureIndicatorsChip",
                 value: "Custom DNS",
                 comment: ""
             )
@@ -172,7 +161,6 @@ struct IPOverrideFeature: ChipFeature {
     var name: String {
         NSLocalizedString(
             "FEATURE_INDICATORS_CHIP_IP_OVERRIDE",
-            tableName: "FeatureIndicatorsChip",
             value: "Server IP Override",
             comment: ""
         )

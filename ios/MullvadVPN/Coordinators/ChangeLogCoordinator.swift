@@ -35,8 +35,7 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
         let changeLogViewController = UIHostingController(rootView: ChangeLogView(viewModel: viewModel))
         changeLogViewController.view.setAccessibilityIdentifier(.changeLogAlert)
         changeLogViewController.navigationItem.title = NSLocalizedString(
-            "whats_new_title",
-            tableName: "Changelog",
+            "WHATS_NEW_TITLE",
             value: "What's new",
             comment: ""
         )
@@ -45,8 +44,7 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
         case .changelog:
             let barButtonItem = UIBarButtonItem(
                 title: NSLocalizedString(
-                    "CHANGELOG_NAVIGATION_DONE_BUTTON",
-                    tableName: "Changelog",
+                    "DONE_TITLE_BUTTON",
                     value: "Done",
                     comment: ""
                 ),

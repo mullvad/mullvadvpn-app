@@ -139,13 +139,11 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         let actionName = isExpanded
             ? NSLocalizedString(
                 "SETTINGS_HEADER_COLLAPSE_ACCESSIBILITY_ACTION",
-                tableName: "Settings",
                 value: "Collapse \(accessibilityCustomActionName)",
                 comment: ""
             )
             : NSLocalizedString(
                 "SETTINGS_HEADER_EXPAND_ACCESSIBILITY_ACTION",
-                tableName: "Settings",
                 value: "Expand \(accessibilityCustomActionName)",
                 comment: ""
             )

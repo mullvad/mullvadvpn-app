@@ -42,7 +42,6 @@ struct FilterDescriptor {
         guard isEnabled else {
             return NSLocalizedString(
                 "RELAY_FILTER_BUTTON_TITLE",
-                tableName: "RelayFilter",
                 value: "No matching servers",
                 comment: ""
             )
@@ -56,7 +55,6 @@ struct FilterDescriptor {
         }
         return NSLocalizedString(
             "RELAY_FILTER_BUTTON_DESCRIPTION",
-            tableName: "RelayFilter",
             value: "When using DAITA, one provider with DAITA-enabled servers is required.",
             comment: ""
         )

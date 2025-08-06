@@ -46,7 +46,7 @@ class MethodSettingsViewController: UITableViewController {
 
     lazy var saveBarButton: UIBarButtonItem = {
         let barButtonItem = UIBarButtonItem(
-            title: NSLocalizedString("SAVE_NAVIGATION_BUTTON", tableName: "APIAccess", value: "Save", comment: ""),
+            title: NSLocalizedString("SAVE_NAVIGATION_BUTTON", value: "Save", comment: ""),
             primaryAction: UIAction { [weak self] _ in
                 self?.onTest()
             }
@@ -316,7 +316,6 @@ class MethodSettingsViewController: UITableViewController {
                 icon: .warning,
                 message: NSLocalizedString(
                     "METHOD_SETTINGS_SAVE_PROMPT",
-                    tableName: "APIAccess",
                     value: "API could not be reached, save anyway?",
                     comment: ""
                 ),
@@ -324,7 +323,6 @@ class MethodSettingsViewController: UITableViewController {
                     AlertAction(
                         title: NSLocalizedString(
                             "METHOD_SETTINGS_SAVE_BUTTON",
-                            tableName: "APIAccess",
                             value: "Save anyway",
                             comment: ""
                         ),
@@ -337,7 +335,6 @@ class MethodSettingsViewController: UITableViewController {
                     AlertAction(
                         title: NSLocalizedString(
                             "METHOD_SETTINGS_BACK_BUTTON",
-                            tableName: "APIAccess",
                             value: "Back to editing",
                             comment: ""
                         ),

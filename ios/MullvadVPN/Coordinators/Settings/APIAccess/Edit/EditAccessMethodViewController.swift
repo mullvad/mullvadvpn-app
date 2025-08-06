@@ -381,7 +381,6 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         let methodName = subject.value.name.isEmpty
             ? NSLocalizedString(
                 "METHOD_SETTINGS_SAVE_PROMPT",
-                tableName: "APIAccess",
                 value: "method?",
                 comment: ""
             )
@@ -392,7 +391,6 @@ extension EditAccessMethodViewController: UITableViewDelegate {
             icon: .alert,
             message: NSLocalizedString(
                 "METHOD_SETTINGS_DELETE_PROMPT",
-                tableName: "APIAccess",
                 value: "Delete \(methodName)?",
                 comment: ""
             ),
@@ -400,7 +398,6 @@ extension EditAccessMethodViewController: UITableViewDelegate {
                 AlertAction(
                     title: NSLocalizedString(
                         "METHOD_SETTINGS_DELETE_BUTTON",
-                        tableName: "APIAccess",
                         value: "Delete",
                         comment: ""
                     ),
@@ -413,12 +410,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
                     }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "METHOD_SETTINGS_CANCEL_BUTTON",
-                        tableName: "APIAccess",
-                        value: "Cancel",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("CANCEL_TITLE_BUTTON", value: "Cancel", comment: ""),
                     style: .default
                 ),
             ]

@@ -18,13 +18,11 @@ struct PaymentAlertPresenter {
             id: "payment-refund-alert",
             title: NSLocalizedString(
                 "PAYMENT_REFUND_ALERT_TITLE",
-                tableName: "Payment",
                 value: "Refund successful",
                 comment: ""
             ),
             message: NSLocalizedString(
                 "PAYMENT_REFUND_ALERT_MESSAGE",
-                tableName: "Payment",
                 value: "Your purchase was successfully refunded.",
                 comment: ""
             ),
@@ -122,8 +120,7 @@ struct PaymentAlertPresenter {
 
     private func okButtonTextForKey(_ key: String) -> String {
         NSLocalizedString(
-            key,
-            tableName: "Payment",
+            "GOT_IT_TITLE_BUTTON",
             value: "Got it!",
             comment: ""
         )

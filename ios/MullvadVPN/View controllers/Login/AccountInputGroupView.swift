@@ -27,7 +27,6 @@ final class AccountInputGroupView: UIView {
         button.setAccessibilityIdentifier(.loginTextFieldButton)
         button.accessibilityLabel = NSLocalizedString(
             "ACCOUNT_INPUT_LOGIN_BUTTON_ACCESSIBILITY_LABEL",
-            tableName: "AccountInput",
             value: "Log in",
             comment: ""
         )
@@ -99,7 +98,6 @@ final class AccountInputGroupView: UIView {
         button.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         button.accessibilityLabel = NSLocalizedString(
             "LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL",
-            tableName: "AccountInput",
             value: "Last used account",
             comment: ""
         )
@@ -122,7 +120,6 @@ final class AccountInputGroupView: UIView {
         button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         button.accessibilityLabel = NSLocalizedString(
             "REMOVE_LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL",
-            tableName: "AccountInput",
             value: "Remove last used account",
             comment: ""
         )
