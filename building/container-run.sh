@@ -19,7 +19,7 @@ CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 # Temporarily do not use mold for linking by default due to it causing build errors.
 # There's a separate issue (DES-1177) to address this problem.
 # Build servers also opt out of this and instead use GNU ld.
-USE_MOLD=${USE_MOLD:-"false"}
+USE_MOLD=${USE_MOLD:-"true"}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
