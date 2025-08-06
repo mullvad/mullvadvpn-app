@@ -140,6 +140,7 @@
     <string name="device_name_info_third_paragraph">로그아웃하면 해당 장치와 장치 이름이 제거됩니다. 다시 로그인하면 장치에 새 이름이 부여됩니다.</string>
     <string name="direct_only">직접 전용</string>
     <string name="direct_only_description">일부 서버에는 %1$s가 활성화되어 있지 않습니다. 인터넷 사용을 위해 활성화 후 새 위치를 선택해야 할 수 있습니다.</string>
+    <string name="disable_recents">최근 항목 비활성화</string>
     <string name="discard">취소</string>
     <string name="discard_changes">변경 사항을 취소하시겠습니까?</string>
     <string name="disconnect">연결 끊기</string>
@@ -167,6 +168,7 @@
     <string name="enable_direct_only">%1$s 활성화</string>
     <string name="enable_ipv6">터널 내 IPv6</string>
     <string name="enable_method">방법 활성화</string>
+    <string name="enable_recents">최근 항목 활성화</string>
     <string name="encrypted_dns_proxy_info_message_part1">앱은 \"암호화된 DNS 프록시\" 방식을 사용하여 프록시 주소를 통해 Mullvad API와 통신합니다. 이는 DoH(DNS over HTTPS) 서버에서 주소를 검색한 다음, 그 주소를 사용해 당사 API 서버에 도달하는 방식으로 이루어집니다.</string>
     <string name="encrypted_dns_proxy_info_message_part2">당사 VPN에 연결되지 않은 경우, 연결 시 암호화된 DNS 프록시는 사용자의 비 VPN IP를 사용합니다. DoH 서버는 Quad 9, CloudFlare 등의 제공업체에서 호스팅합니다.</string>
     <string name="enter_value_placeholder">MTU 입력</string>
@@ -251,6 +253,7 @@
     <string name="max_devices_resolved_title">좋습니다!</string>
     <string name="max_devices_warning_description">하나 이상의 항목을 아래 목록에서 제거하여 로그아웃하세요. 장치의 계정 설정에서 해당 장치 이름을 찾을 수 있습니다.</string>
     <string name="max_devices_warning_title">장치가 너무 많음</string>
+    <string name="more_actions">추가 작업</string>
     <string name="more_information">추가 정보</string>
     <string name="mullvad_owned_only">Mullvad 소유만</string>
     <string name="multihop">멀티홉</string>
@@ -260,12 +263,14 @@
     <string name="name_was_changed_to">이름이 %1$s(으)로 변경되었습니다</string>
     <string name="new_changelog_notification_message">업데이트 내역을 확인하려면 여기를 클릭하세요.</string>
     <string name="new_changelog_notification_title">새 버전 설치 완료</string>
+    <string name="new_device_notification_message">환영합니다. 이 장치의 호칭은 이제 &lt;b&gt;%1$s&lt;/b&gt;입니다.</string>
     <string name="new_device_notification_title">새 장치가 생성됨</string>
     <string name="new_list">새 목록</string>
     <string name="no_custom_lists_available">이용 가능한 사용자 지정 목록 없음</string>
     <string name="no_internet_connection">인터넷에 연결되지 않음</string>
     <string name="no_locations_found">위치를 찾을 수 없음</string>
     <string name="no_matching_relay">설정과 일치하는 서버가 없습니다. 서버 또는 기타 설정을 변경해 보세요.</string>
+    <string name="no_recent_selection">최근 선택 내역이 없습니다</string>
     <string name="no_wireguard_key">유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요.</string>
     <string name="not_found">찾을 수 없음</string>
     <string name="number_of_providers">제공업체: %1$d</string>
@@ -305,9 +310,12 @@
     <string name="quantum_resistant_info_first_paragaph">이 기능은 WireGuard 터널이 양자 컴퓨터의 잠재적인 공격에 맞서도록 합니다.</string>
     <string name="quantum_resistant_info_second_paragaph">이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다.</string>
     <string name="quantum_resistant_title">양자 저항 터널</string>
+    <string name="recents">최근 항목</string>
+    <string name="recents_disabled">최근 항목이 비활성화되고 내역이 삭제되었습니다</string>
     <string name="reconnect">다시 연결</string>
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
+    <string name="relayitem_is_inactive">%1$s 사용 불가</string>
     <string name="remove_button">제거</string>
     <string name="remove_location_from_list">%1$s에서 %2$s 제거</string>
     <string name="removed_provider">%1$s(제거됨)</string>
@@ -370,6 +378,8 @@
     <string name="this_field_is_required">이 필드는 필수입니다</string>
     <string name="this_is_already_set_as_current">이미 현재로 설정되어 있습니다</string>
     <string name="time_added">시간 추가됨</string>
+    <string name="to_add_locations_to_a_list">목록에 위치를 추가하려면 펜을 누르거나 국가, 도시 또는 서버를 길게 누릅니다.</string>
+    <string name="to_create_a_custom_list">사용자 지정 목록을 생성하려면 \"+\"를 누릅니다</string>
     <string name="toggle_vpn">VPN 전환</string>
     <string name="top_bar_device_name">장치 이름: %1$s</string>
     <string name="top_bar_time_left">남은 시간: %1$s</string>

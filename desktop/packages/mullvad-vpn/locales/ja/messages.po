@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2025-06-27 06:04\n"
+"PO-Revision-Date: 2025-08-08 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -753,6 +753,10 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "インストーラーが予期せず終了しました。再試行するか、問題の報告を送信してください。"
 
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr "インストーラーは <b>%(cacheDir)s</b> にダウンロードされます。"
+
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1389,42 +1393,80 @@ msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr "ようこそ。このデバイスの名前は<b>%(deviceName)s</b>です。詳細はアカウントの情報ボタンで確認してください。"
 
+#. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad システムサービスに接続中..."
 
+#. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
-msgid "Disable third party antivirus software."
-msgstr "サードパーティのウイルス対策ソフトウェアを無効にしてください。"
+msgid "Details"
+msgstr "詳細"
 
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
+msgstr "サードパーティのウイルス対策ソフトウェアを無効にする"
+
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr "アプリを起動できませんでした。再試行するか、[詳細] をクリックして詳細情報を確認してください"
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr "これらの手順で解決できない場合は、問題の報告を送信してください。"
 
+#. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Mullvad VPNサービスの許可が無効化されました。システム設定に移動して、「バックグラウンドでの実行を許可」設定でMullvad VPNを許可してください。"
 
+#. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
-msgid "Reinstalling the app."
-msgstr "アプリを再インストールする。"
+msgid "Reinstalling the app"
+msgstr "アプリを再インストールする"
 
+#. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
-msgid "Restarting your computer."
-msgstr "コンピューターを再起動する。"
+msgid "Restarting the Mullvad background process"
+msgstr "Mullvadのバックグラウンドプロセスを再起動する"
 
-#. Button label for problem report view.
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr "[戻る] と [再試行] を続けてクリックし、Mullvadのバックグラウンドプロセスを再起動する"
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr "コンピューターを再起動する"
+
+#. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "問題の報告を送信"
 
+#. Status text shown when app is starting.
 msgctxt "launch-view"
-msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
-msgstr "アプリのシステムサービスコンポーネントが起動していないか、通信不可能です。システムサービスはセキュリティ、キルスイッチ、およびVPNトンネルを管理しています。次の方法でトラブルシューティングしてください。"
+msgid "Starting up...."
+msgstr "起動中...."
 
+#. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
-msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
-msgstr "Mullvadシステムサービスと通信できません。接続が安全でない可能性があります。トラブルシューティングするか、「詳細」ボタンをクリックして問題の報告を送信してください。"
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr "Mullvadのバックグラウンドプロセスを起動できませんでした。バックグラウンドプロセスはセキュリティ、キルスイッチ、およびVPNトンネルを管理しています。以下をお試しください。"
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr "再試行"
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
+msgstr "Mullvadシステムサービスと通信できません。接続が安全でない可能性があります。トラブルシューティングするか、[詳細] ボタンをクリックして問題の報告を送信してください。"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1905,6 +1947,13 @@ msgstr "リスト名は一意である必要があります。"
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "名前はすでに使用されています。"
+
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr "難読化: %(obfuscation)s"
 
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
@@ -2749,6 +2798,9 @@ msgstr "%s (削除済み)"
 msgid "%s custom port"
 msgstr "%sカスタムポート"
 
+msgid "%s is unavailable"
+msgstr "%sは使用できません"
+
 msgid "%s was added to your account."
 msgstr "ご利用のアカウントに %s が追加されました。"
 
@@ -2917,6 +2969,9 @@ msgstr "これらの設定を有効にするには、下の [%s] を無効にし
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "この設定を有効にするには、上の [%s] をすべて無効にしてください。"
 
+msgid "Disable recents"
+msgstr "最近の項目を無効化"
+
 msgid "Discard"
 msgstr "破棄"
 
@@ -2955,6 +3010,9 @@ msgstr "%1$sを有効にする"
 
 msgid "Enable method"
 msgstr "方法を有効化する"
+
+msgid "Enable recents"
+msgstr "最近の項目を有効化"
 
 msgid "Enter MTU"
 msgstr "MTU を入力"
@@ -3055,6 +3113,9 @@ msgstr "デバイスが必ずVPNトンネルを使用するようにします。
 msgid "Manage devices"
 msgstr "デバイスを管理する"
 
+msgid "More actions"
+msgstr "その他の操作"
+
 msgid "Mullvad services unavailable"
 msgstr "Mullvadサービスを使用できません"
 
@@ -3081,6 +3142,9 @@ msgstr "インターネット接続がありません"
 
 msgid "No locations found"
 msgstr "場所が見つかりませんでした"
+
+msgid "No recent selection history"
+msgstr "最近の選択履歴はありません"
 
 msgid "No result for \"%s\", please try a different search"
 msgstr "「%s」の結果はありません。別の検索をお試しください。"
@@ -3120,6 +3184,12 @@ msgstr "プライバシー"
 
 msgid "Privacy policy"
 msgstr "プライバシーポリシー"
+
+msgid "Recents"
+msgstr "最近の項目"
+
+msgid "Recents disabled and history cleared"
+msgstr "最近の項目を無効化し、履歴を消去しました"
 
 msgid "Recursion limit"
 msgstr "繰り返しの制限"
@@ -3223,11 +3293,11 @@ msgstr "これはすでに現在の設定として設定されています"
 msgid "Time added"
 msgstr "時間が追加されました"
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
-msgstr "リストに場所を追加するには、\"︙\" を押すか、または、国、都市、サーバーを長押ししてください。"
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr "リストに場所を追加するには鉛筆アイコンをタップするか、国、都市、サーバーを長押ししてください。"
 
-msgid "To create a custom list press the \"︙\""
-msgstr "カスタムリストを作成するには、\"︙\" を押してください"
+msgid "To create a custom list press the \"+\""
+msgstr "カスタムリストを作成するには [+] を押してください"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "このアプリは最も安全なバージョンを使用していることを確認し、実行中の現在のバージョンに関する問題を通知できるよう、バージョンチェックを自動的に実行します。このチェックによってアプリのバージョンとAndroidシステムのバージョンがMullvadサーバーに送信されます。Mullvadは使用されているアプリのバージョンとAndroidのバージョンの数字を記憶しています。このデータがユーザーを特定できる方法で保存されたり、使用されたりすることはありません。"
@@ -3306,6 +3376,9 @@ msgstr "決済処理を開始できませんでした。最新バージョンの
 
 msgid "We were unable to start the payment process, please try again later."
 msgstr "決済処理を開始できませんでした。後でもう一度お試しください。"
+
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr "ようこそ。このデバイス名は<b>%s</b>です。"
 
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"

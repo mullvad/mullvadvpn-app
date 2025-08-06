@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2025-06-27 06:04\n"
+"PO-Revision-Date: 2025-08-08 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d til …"
@@ -759,6 +759,10 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "Installasjonsprogrammet avsluttet uventet. Prøv på nytt eller send en problemrapport."
 
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr "Installasjonsrogrammet lastes ned til <b>%(cacheDir)s</b>."
+
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1395,41 +1399,79 @@ msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr "Velkommen. Denne enheten har fått navnet <b>%(deviceName)s</b>. For å finne ut mer kan du bruke informasjonsknappen under Konto."
 
+#. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Kobler til Mullvads systemtjeneste ..."
 
+#. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
-msgid "Disable third party antivirus software."
-msgstr "Deaktiver antivirus fra tredjepart."
+msgid "Details"
+msgstr "Detaljer"
 
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
+msgstr "Deaktiverer antivirusprogramvare fra tredjepart"
+
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr "Kunne ikke starte appen. Prøv igjen eller klikk på «Detaljer» for mer informasjon"
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr "Hvis disse trinnene ikke løser noe, kan du sende inn en problemrapport."
 
+#. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Tillatelsen til Mullvad VPN-tjenesten er trukket tilbake. Gå til Systeminnstillinger og gi tillatelse til Mullvad VPN under innstillingen «Tillat i bakgrunnen»."
 
+#. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
-msgid "Reinstalling the app."
-msgstr "å starte appen på nytt"
+msgid "Reinstalling the app"
+msgstr "Installere appen på nytt"
 
+#. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
-msgid "Restarting your computer."
-msgstr "å starte datamaskinen på nytt."
+msgid "Restarting the Mullvad background process"
+msgstr "Starte Mullvad-bakgrunnsprosessen på nytt"
 
-#. Button label for problem report view.
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr "Starte Mullvad-bakgrunnsprosessen på nytt ved å klikke på «Tilbake» og deretter «Prøv igjen»"
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr "Starte datamaskinen på nytt"
+
+#. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "Send problemrapport"
 
+#. Status text shown when app is starting.
 msgctxt "launch-view"
-msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
-msgstr "Tjenestekomponenten i systemet til appen har ikke startet eller kan ikke kontaktes. Systemtjenesten har ansvaret for sikkerheten, «kill switch» og VPN-tunnelen. Prøv følgende for å feilsøke:"
+msgid "Starting up...."
+msgstr "Starter …"
 
+#. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
-msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr "Mullvad-bakgrunnsprosessen kunne ikke starte. Bakgrunnsprosessen er ansvarlig for sikkerheten, avbruddsbryteren og VPN-tunnelen. Prøv:"
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr "Prøv igjen"
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
 msgstr "Kunne ikke kontakte Mullvad-systemtjenesten. Tilkoblingen din er kan være usikker. Feilsøk eller send en problemrapport ved å trykke på «Finn ut mer»."
 
 #. This is a warning message shown when the app is blocking the users
@@ -1911,6 +1953,13 @@ msgstr "Listenavnene må være unike."
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "Navn allerede i bruk."
+
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr "Forvirring: %(obfuscation)s"
 
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
@@ -2755,6 +2804,9 @@ msgstr "%s (fjernet)"
 msgid "%s custom port"
 msgstr "tilpasset %s-port"
 
+msgid "%s is unavailable"
+msgstr "%s er utilgjengelig"
+
 msgid "%s was added to your account."
 msgstr "%s ble lagt til kontoen din."
 
@@ -2923,6 +2975,9 @@ msgstr "Deaktiver «%s» nedenfor for å aktivere innstillingene."
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Deaktiver alle «%s» ovenfor for å aktivere denne innstillingen."
 
+msgid "Disable recents"
+msgstr "Deaktiver nylige"
+
 msgid "Discard"
 msgstr "Forkast"
 
@@ -2961,6 +3016,9 @@ msgstr "Aktiver %1$s"
 
 msgid "Enable method"
 msgstr "Aktiver metoden"
+
+msgid "Enable recents"
+msgstr "Aktiver nylige"
 
 msgid "Enter MTU"
 msgstr "Angi MTU"
@@ -3061,6 +3119,9 @@ msgstr "Sørger for at enheten alltid er på VPN-tunnelen."
 msgid "Manage devices"
 msgstr "Behandle enheter"
 
+msgid "More actions"
+msgstr "Flere handlinger"
+
 msgid "Mullvad services unavailable"
 msgstr "Mullvad-tjenester utilgjengelig"
 
@@ -3087,6 +3148,9 @@ msgstr "Ingen internettforbindelse"
 
 msgid "No locations found"
 msgstr "Ingen plasseringer funnet"
+
+msgid "No recent selection history"
+msgstr "Ingen nylig valghistorikk"
 
 msgid "No result for \"%s\", please try a different search"
 msgstr "Ingen resultater for «%s». Prøv et annet søk"
@@ -3126,6 +3190,12 @@ msgstr "Personvern"
 
 msgid "Privacy policy"
 msgstr "Retningslinjer for personvern"
+
+msgid "Recents"
+msgstr "Nylige"
+
+msgid "Recents disabled and history cleared"
+msgstr "Nylige er deaktivert og historikken er slettet"
 
 msgid "Recursion limit"
 msgstr "Rekursjonsgrense"
@@ -3229,11 +3299,11 @@ msgstr "Denne er allerede angitt som gjeldende"
 msgid "Time added"
 msgstr "Tid lagt til"
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
-msgstr "Hvis du vil legge til plasseringer i en liste, trykker du på ︙ eller trykker på og holder inne et land, en by eller en server."
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr "Hvis du vil legge til plasseringer i en liste, kan du trykke på pennen eller hold inne på et land, en by eller en server."
 
-msgid "To create a custom list press the \"︙\""
-msgstr "For å opprette en egendefinert liste trykker du på ︙"
+msgid "To create a custom list press the \"+\""
+msgstr "For å opprette en egendefinert liste, kan du trykke på «+»"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "For å sørge for at du har den sikreste appversjonen, og informere deg om eventuelle problemer med den versjonen som kjøres, vil appen automatisk sjekke appversjonen. Appversjonen og Android-systemversjonen blir da sendt til Mullvad-servere. Mullvad registrerer antallet brukte appversjoner og Android-versjoner. Dataen blir aldri lagret eller brukt på noen som helst måte som kan identifisere deg."
@@ -3312,6 +3382,9 @@ msgstr "Vi kunne ikke starte betalingsprosessen. Kontroller om du har siste vers
 
 msgid "We were unable to start the payment process, please try again later."
 msgstr "Vi kunne ikke starte betalingsprosessen. Prøv igjen senere."
+
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr "Velkommen. Denne enheten har fått navnet <b>%s</b>."
 
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"

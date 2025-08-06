@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2025-06-27 06:04\n"
+"PO-Revision-Date: 2025-08-06 07:47\n"
 
 msgid "%(amount)d more..."
 msgstr "Nog %(amount)d..."
@@ -759,6 +759,10 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "Het installatieprogramma is onverwacht gestopt. Probeer het opnieuw of verstuur een melding van het probleem."
 
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr "Het installatieprogramma wordt gedownload naar <b>%(cacheDir)s</b>."
+
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1395,42 +1399,80 @@ msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr "Welkom, dit apparaat heet nu <b>%(deviceName)s</b>. Zie voor meer informatie de infoknop in Account."
 
+#. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Verbinden met Mullvad-systeemdienst..."
 
+#. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
-msgid "Disable third party antivirus software."
-msgstr "Schakel antivirussoftware van derden uit."
+msgid "Details"
+msgstr "Details"
 
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
+msgstr "Antivirussoftware van derden uitschakelen"
+
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr "Starten van app is mislukt. Probeer het opnieuw of klik op \"Details\" voor meer informatie"
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr "Als deze stappen niet werken, stuur dan een probleemrapport."
 
+#. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "De toestemming voor de Mullvad VPN-service is ingetrokken. Ga naar Systeeminstellingen en sta Mullvad VPN toe onder de instelling \"Sta toe op de achtergrond\"."
 
+#. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
-msgid "Reinstalling the app."
-msgstr "App opnieuw installeren."
+msgid "Reinstalling the app"
+msgstr "App opnieuw installeren"
 
+#. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
-msgid "Restarting your computer."
-msgstr "Computer opnieuw opstarten."
+msgid "Restarting the Mullvad background process"
+msgstr "Achtergrondproces van Mullvad opnieuw starten"
 
-#. Button label for problem report view.
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr "Achtergrondproces van Mullvad opnieuw starten door te klikken op \"Terug\" en vervolgens op \"Opnieuw proberen\""
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr "Computer opnieuw opstarten"
+
+#. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "Probleemrapport sturen"
 
+#. Status text shown when app is starting.
 msgctxt "launch-view"
-msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
-msgstr "De systeemservicecomponent van de app is niet gestart of is niet bereikbaar. De systeemservice is verantwoordelijk voor de beveiliging, de killswitch en de VPN-tunnel. Probeer het volgende om het probleem op te lossen:"
+msgid "Starting up...."
+msgstr "Bezig met opstarten...."
 
+#. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
-msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
-msgstr "Kan geen contact maken met de Mullvad-systeemservice, je verbinding is mogelijk niet beveiligd. Los problemen op of stuur een probleemrapport door op de knop Meer informatie te klikken."
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr "Kan het achtergrondproces van Mullvad niet starten. Het achtergrondproces is verantwoordelijk voor de beveiliging, de killswitch en de VPN-tunnel. Probeer het volgende:"
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr "Opnieuw proberen"
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
+msgstr "Kan geen contact maken met de systeemservice van Mullvad, mogelijk is uw verbinding niet beveiligd. Los het probleem op of meld het door te klikken op de knop Meer informatie."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1911,6 +1953,13 @@ msgstr "Lijstnamen moeten uniek zijn."
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "Naam wordt al gebruikt."
+
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr "Obfuscatie: %(obfuscation)s"
 
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
@@ -2755,6 +2804,9 @@ msgstr "%s (verwijderd)"
 msgid "%s custom port"
 msgstr "Aangepaste %s-poort"
 
+msgid "%s is unavailable"
+msgstr "%s is niet beschikbaar"
+
 msgid "%s was added to your account."
 msgstr "%s is toegevoegd aan uw account."
 
@@ -2923,6 +2975,9 @@ msgstr "Schakel \"%s\" hieronder uit om deze instellingen te activeren."
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Schakel alle \"%s\" hierboven uit om deze instelling te activeren."
 
+msgid "Disable recents"
+msgstr "Recente uitschakelen"
+
 msgid "Discard"
 msgstr "Verwerpen"
 
@@ -2961,6 +3016,9 @@ msgstr "%1$s inschakelen"
 
 msgid "Enable method"
 msgstr "Methode inschakelen"
+
+msgid "Enable recents"
+msgstr "Recente inschakelen"
 
 msgid "Enter MTU"
 msgstr "Voer MTU in"
@@ -3061,6 +3119,9 @@ msgstr "Zorg dat het apparaat altijd de VPN-tunnel gebruikt."
 msgid "Manage devices"
 msgstr "Apparaten beheren"
 
+msgid "More actions"
+msgstr "Andere acties"
+
 msgid "Mullvad services unavailable"
 msgstr "Mullvad-diensten niet beschikbaar"
 
@@ -3087,6 +3148,9 @@ msgstr "Geen internetverbinding"
 
 msgid "No locations found"
 msgstr "Geen locaties gevonden"
+
+msgid "No recent selection history"
+msgstr "Geen recente selectiegeschiedenis"
 
 msgid "No result for \"%s\", please try a different search"
 msgstr "Geen resultaat voor \"%s\", probeer een andere zoekopdracht"
@@ -3126,6 +3190,12 @@ msgstr "Privacy"
 
 msgid "Privacy policy"
 msgstr "Privacybeleid"
+
+msgid "Recents"
+msgstr "Recente"
+
+msgid "Recents disabled and history cleared"
+msgstr "Recente uitgeschakeld en geschiedenis gewist"
 
 msgid "Recursion limit"
 msgstr "Recursielimiet"
@@ -3229,11 +3299,11 @@ msgstr "Deze is al ingesteld als huidige"
 msgid "Time added"
 msgstr "Tijd van toevoegen"
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
-msgstr "Druk op de \"︙\" of druk lang op een land, plaats of server om locaties toe te voegen."
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr "Druk op het potlood of houd een land, plaats of server ingedrukt om locaties toe te voegen aan de lijst."
 
-msgid "To create a custom list press the \"︙\""
-msgstr "Druk op de \"︙\" om een aangepaste lijst te maken"
+msgid "To create a custom list press the \"+\""
+msgstr "Druk op \"+\" om een aangepaste lijst te maken"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Om zeker te zijn dat u de meest veilige versie hebt en om u te informeren over eventuele problemen met de huidige geactiveerde versie, voert de app automatisch versiecontroles uit. Hierbij worden de appversie en de Android-systeemversie naar de servers van Mullvad gestuurd. Mullvad houdt tellers bij voor gebruikte appversies en Android-versies. De gegevens worden nooit opgeslagen of gebruikt op een manier die u kan identificeren."
@@ -3312,6 +3382,9 @@ msgstr "We kunnen het betalingsproces niet starten. Controleer of u de nieuwste 
 
 msgid "We were unable to start the payment process, please try again later."
 msgstr "We kunnen het betalingsproces niet starten, probeer het later opnieuw."
+
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr "Welkom. De naam van dit apparaat is nu <b>%s</b>."
 
 msgid "WireGuard MTU"
 msgstr "WireGuard-MTU"

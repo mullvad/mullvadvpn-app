@@ -140,6 +140,7 @@
     <string name="device_name_info_third_paragraph">Jos kirjaudut ulos, laite ja laitteen nimi poistetaan. Kun kirjaudut sisään uudelleen, laitteelle annetaan uusi nimi.</string>
     <string name="direct_only">Vain suora</string>
     <string name="direct_only_description">Kaikissa palvelimissamme ei ole %1$s-tukea. Käyttääksesi internetiä sinun on ehkä valittava uusi sijainti käyttöönoton jälkeen.</string>
+    <string name="disable_recents">Poista viimeisimmät käytöstä</string>
     <string name="discard">Hylkää</string>
     <string name="discard_changes">Hylätäänkö muokkaukset?</string>
     <string name="disconnect">Katkaise yhteys</string>
@@ -167,6 +168,7 @@
     <string name="enable_direct_only">Ota %1$s käyttöön</string>
     <string name="enable_ipv6">Tunnelin IPv6</string>
     <string name="enable_method">Ota menetelmä käyttöön</string>
+    <string name="enable_recents">Ota viimeisimmät käyttöön</string>
     <string name="encrypted_dns_proxy_info_message_part1">Sovellus kommunikoi Mullvad API:n kanssa välityspalvelinosoitteen kautta \"Salattu DNS-välityspalvelin\" -menetelmällä, joka toimii niin, että sovellus hakee osoitteen DNS over HTTPS (DoH) -palvelimelta ja käyttää sitä API-palvelimillemme pääsemiseen.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa, ei-VPN-pohjaista IP-osoitettasi. DoH-palvelimia isännöi joko Quad9 tai CloudFlare.</string>
     <string name="enter_value_placeholder">Syötä MTU</string>
@@ -251,6 +253,7 @@
     <string name="max_devices_resolved_title">Mahtavaa!</string>
     <string name="max_devices_warning_description">Kirjaudu ulos vähintään yhdestä luettelon laitteesta poistamalla se. Löydät vastaavan laitteen nimen laitteen tiliasetuksista.</string>
     <string name="max_devices_warning_title">Liikaa laitteita</string>
+    <string name="more_actions">Lisää toimintoja</string>
     <string name="more_information">Lisätietoja</string>
     <string name="mullvad_owned_only">Vain Mullvadin omistamat</string>
     <string name="multihop">Multihop</string>
@@ -260,12 +263,14 @@
     <string name="name_was_changed_to">Nimeksi vaihdettiin \"%1$s\"</string>
     <string name="new_changelog_notification_message">Katso uudet ominaisuudet napsauttamalla tästä.</string>
     <string name="new_changelog_notification_title">UUSI VERSIO ASENNETTIIN</string>
+    <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="new_device_notification_title">UUSI LAITE LUOTIIN</string>
     <string name="new_list">Uusi luettelo</string>
     <string name="no_custom_lists_available">Mukautettuja luetteloita ei löytynyt</string>
     <string name="no_internet_connection">Ei verkkoyhteyttä</string>
     <string name="no_locations_found">Sijainteja ei löytynyt</string>
     <string name="no_matching_relay">Mikään palvelin ei vastaa asetuksiasi. Kokeile vaihtaa palvelinta tai muuttaa muita asetuksia.</string>
+    <string name="no_recent_selection">Ei viimeisimpien valintojen historiaa</string>
     <string name="no_wireguard_key">Käypä WireGuard-avain puuttuu. Voit hallinnoida avaimia lisäasetuksissa.</string>
     <string name="not_found">Ei löydy</string>
     <string name="number_of_providers">Palveluntarjoajat: %1$d</string>
@@ -305,9 +310,12 @@
     <string name="quantum_resistant_info_first_paragaph">Tämä ominaisuus tekee WireGuard-tunnelista kestävän kvanttitietokoneiden mahdollisia hyökkäyksiä vastaan.</string>
     <string name="quantum_resistant_info_second_paragaph">Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan.</string>
     <string name="quantum_resistant_title">Kvanttihyökkäyksiä kestävä tunneli</string>
+    <string name="recents">Viimeisimmät</string>
+    <string name="recents_disabled">Viimeisimmät on poistettu käytöstä ja historia on tyhjennetty</string>
     <string name="reconnect">Yhdistä uudelleen</string>
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
+    <string name="relayitem_is_inactive">%1$s ei ole käytettävissä</string>
     <string name="remove_button">Poista</string>
     <string name="remove_location_from_list">Poista %1$s luettelosta %2$s</string>
     <string name="removed_provider">%1$s (poistettu)</string>
@@ -370,6 +378,8 @@
     <string name="this_field_is_required">Tämä kenttä on pakollinen</string>
     <string name="this_is_already_set_as_current">Tämä on jo asetettu nykyiseksi</string>
     <string name="time_added">Käyttöaikaa lisätty</string>
+    <string name="to_add_locations_to_a_list">Jos haluat lisätä luetteloon sijainteja, paina kynää tai paina pitkään maata, kaupunkia tai palvelinta.</string>
+    <string name="to_create_a_custom_list">Voit luoda mukautetun luettelon painamalla \"+\"</string>
     <string name="toggle_vpn">Vaihda VPN:ää</string>
     <string name="top_bar_device_name">Laitteen nimi: %1$s</string>
     <string name="top_bar_time_left">Aikaa jäljellä: %1$s</string>
