@@ -140,6 +140,7 @@
     <string name="device_name_info_third_paragraph">ထွက်လိုက်ပါက စက်နှင့် စက်အမည်ကို ဖယ်ရှားပါသည်။ နောက်တစ်ကြိမ် ပြန်ဝင်ရောက်သည့်အခါ စက်သည် အမည်သစ်တစ်ခု ရရှိပါမည်။</string>
     <string name="direct_only">တိုက်ရိုက်သာ</string>
     <string name="direct_only_description">ကျွန်ုပ်တို့၏ဆာဗာအားလုံးတွင် %1$s ကိုဖွင့်ထားခြင်းမရှိပါ။ အင်တာနက်အသုံးပြုရန်အတွက် သင်သည် ၎င်းကို ဖွင့်ပြီးနောက် တည်နေရာအသစ်တစ်ခုကို ရွေးချယ်ရပေမည်။</string>
+    <string name="disable_recents">လတ်တလောအရာများကို ပိတ်ပါ</string>
     <string name="discard">ပယ်ဖျက်မည်</string>
     <string name="discard_changes">အပြောင်းအလဲများကို ပယ်ဖျက်မည်လား။</string>
     <string name="disconnect">ချိတ်ဆက်မှုဖြုတ်ရန်</string>
@@ -167,6 +168,7 @@
     <string name="enable_direct_only">%1$s ကို ဖွင့်ရန်</string>
     <string name="enable_ipv6">Tunnel-အဝင် IPv6</string>
     <string name="enable_method">နည်းလမ်းကို ဖွင့်ရန်</string>
+    <string name="enable_recents">လတ်တလောအရာများကို ဖွင့်ရန်</string>
     <string name="encrypted_dns_proxy_info_message_part1">ထိုအက်ပ်သည် “ကုဒ်ဝှက်ထားသော DNS ပရောက်စီ” နည်းလမ်းအားဖြင့် ကျွန်ုပ်တို့၏ Mullvad API ထံသို့ ပရောက်စီလိပ်စာမှတစ်ဆင့် ဆက်သွယ်ပေးမည်ဖြစ်သည်။ HTTPS (DoH) ဆာဗာရှိ DNS မှ လိပ်စာတစ်ခုကို ပြန်လည်ရယူခြင်းအားဖြင့် ထိုသို့လုပ်ဆောင်ပြီးနောက် ကျွန်ုပ်တို့၏ API ဆာဗာများသို့ရောက်ရှိရန် ၎င်းကို အသုံးပြုသည်။</string>
     <string name="encrypted_dns_proxy_info_message_part2">အကယ်၍ သင်သည် ကျွန်ုပ်တို့၏ VPN သို့ ချိတ်ဆက်ထားခြင်းမရှိပါက ကုဒ်ဝှက်ထားသော DNS ပရောက်စီသည် ချိတ်ဆက်ရာတွင် သင်၏ကိုယ်ပိုင် VPN မဟုတ်သော IP ကို ​​အသုံးပြုပါမည်။ DoH ဆာဗာများကို အောက်ပါဝန်ဆောင်မှုပေးသူများထဲမှ တစ်ခုမှ လက်ခံဆောင်ရွက်ပေးသည်- Quad 9 သို့မဟုတ် CloudFlare ။</string>
     <string name="enter_value_placeholder">MTU ကို ရိုက်ထည့်ရန်</string>
@@ -251,6 +253,7 @@
     <string name="max_devices_resolved_title">အလွန်ကောင်း။</string>
     <string name="max_devices_warning_description">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</string>
     <string name="max_devices_warning_title">စက်များလွန်းနေသည်</string>
+    <string name="more_actions">နောက်ထပ်လုပ်ဆောင်ချက်များ</string>
     <string name="more_information">နောက်ထပ်အချက်အလက်</string>
     <string name="mullvad_owned_only">Mullvad ပိုင်ဆိုင်သည်များသာ</string>
     <string name="multihop">မာလ်တီဟော့ပ်</string>
@@ -260,12 +263,14 @@
     <string name="name_was_changed_to">အမည်ကို %1$s သို့ ပြောင်းလိုက်ပါသည်</string>
     <string name="new_changelog_notification_message">အသစ်ထူးသော အကြောင်းအရာကို ကြည့်ရန် ဤနေရာကို နှိပ်ပါ</string>
     <string name="new_changelog_notification_title">ဗားရှင်းအသစ်ကို ထည့်သွင်းထားသည်</string>
+    <string name="new_device_notification_message">ကြိုဆိုပါတယ်၊ ဤစက်ကို ယခု &lt;b&gt;%1$s&lt;/b&gt; ဟု ခေါ်ပါသည်။</string>
     <string name="new_device_notification_title">စက်အသစ် ဖန်တီးထားသည်</string>
     <string name="new_list">စာရင်းသစ်</string>
     <string name="no_custom_lists_available">စိတ်ကြိုက် စာရင်းများကို မရရှိနိုင်ပါ</string>
     <string name="no_internet_connection">အင်တာနက် ချိတ်ဆက်မှု မရှိပါ</string>
     <string name="no_locations_found">တည်နေရာများကို ရှာမတွေ့ပါ</string>
     <string name="no_matching_relay">သင့်ဆက်တင်နှင့် ကိုက်ညီသော ဆာဗာများ မရှိပါ၊ ဆာဗာ သို့မဟုတ် အခြားဆက်တင်တို့ကို ပြောင်းလဲရန် ကြိုးစားကြည့်ပါ။</string>
+    <string name="no_recent_selection">လတ်တလောရွေးချယ်မှု မှတ်တမ်း မရှိပါ</string>
     <string name="no_wireguard_key">အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင် အောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။</string>
     <string name="not_found">ရှာမတွေ့ပါ</string>
     <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
@@ -305,9 +310,12 @@
     <string name="quantum_resistant_info_first_paragaph">ဤလုပ်ဆောင်ချက်သည် Quantum ကွန်ပျူတာများမှ ဖြစ်လာနိုင်ခြေရှိသော တိုက်ခိုက်မှုများကို ခုခံနိုင်သည့် WireGuard Tunnel ကို ပြုလုပ်သည်။</string>
     <string name="quantum_resistant_info_second_paragaph">Quantum Safe အယ်လဂိုရီသမ်တစ်ခုကို သုံး၍ ထပ်ဆောင်း ကီးဖလှယ်မှုတစ်ခုကို ဆောင်ရွက်ပြီး WireGuard ၏ ပုံမှန် ကုဒ်ပြောင်းဝှက်မှုအတွင်း ရလဒ်ကို ရောနှောခြင်းအားဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။ ဤထပ်ဆောင်းအဆင့်သည် Tunnel အသစ်တစ်ခု တည်ဆောက်တိုင်း ဒေတာ 500 kiB ခန့်ကို သုံးပါသည်။</string>
     <string name="quantum_resistant_title">Quantum-resistant Tunnel</string>
+    <string name="recents">လတ်တလောအရာများ</string>
+    <string name="recents_disabled">လတ်တလောအရာများကို ပိတ်ထားပြီး မှတ်တမ်းကို ရှင်းထားသည်</string>
     <string name="reconnect">ပြန်ချိတ်ဆက်ရန်</string>
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
+    <string name="relayitem_is_inactive">%1$s ကို မရရှိနိုင်ပါ</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
     <string name="remove_location_from_list">%1$s မှ %2$s ကို ဖယ်ရှားရန်</string>
     <string name="removed_provider">%1$s (ဖယ်ရှားထား)</string>
@@ -370,6 +378,8 @@
     <string name="this_field_is_required">ဤအကွက်ကို မဖြစ်မနေဖြည့်ရမည်</string>
     <string name="this_is_already_set_as_current">၎င်းကို လက်ရှိအဖြစ် သတ်မှတ်ထားပြီးပါပြီ</string>
     <string name="time_added">အချိန်တိုးထားသည်</string>
+    <string name="to_add_locations_to_a_list">တည်နေရာများကို စာရင်းတစ်ခုတွင် ထည့်ရန် ဘောပင်ပုံကို နှိပ်ပါ သို့မဟုတ် နိုင်ငံ၊ မြို့ သို့မဟုတ် ဆာဗာပေါ်တွင် ကြာကြာနှိပ်ပါ။</string>
+    <string name="to_create_a_custom_list">စိတ်ကြိုက်စာရင်းတစ်ခု ဖန်တီးရန် \"+\" ကိုနှိပ်ပါ</string>
     <string name="toggle_vpn">VPN ရွေးသုံးရန်</string>
     <string name="top_bar_device_name">စက်အမည်- %1$s</string>
     <string name="top_bar_time_left">ကျန်သည့် အချိန်- %1$s</string>

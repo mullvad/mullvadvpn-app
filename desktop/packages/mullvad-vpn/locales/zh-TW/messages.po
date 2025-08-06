@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-06-27 06:04\n"
+"PO-Revision-Date: 2025-08-08 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 個…"
@@ -753,6 +753,10 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "安裝程式意外退出，請再試一次或傳送問題回報。"
 
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr "安裝程式將下載至 <b>%(cacheDir)s</b>。"
+
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1389,42 +1393,80 @@ msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr "歡迎，此裝置現在稱為 <b>%(deviceName)s</b>。如需詳細資訊，請點按「帳戶」中的資訊按鈕。"
 
+#. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "連線 Mullvad 系統服務中…"
 
+#. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
-msgid "Disable third party antivirus software."
-msgstr "停用第三方防毒軟體。"
+msgid "Details"
+msgstr "詳細資訊"
 
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
+msgstr "停用第三方防毒軟體"
+
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr "無法啟動應用程式，請再試一次或按一下「詳細資訊」進一步瞭解"
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr "如果以上步驟仍無法解決問題，請傳送問題回報。"
 
+#. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Mullvad VPN 服務的權限已遭到撤銷。請前往「系統設定」，並在「允許在背景中執行」設定下允許 Mullvad VPN。"
 
+#. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
-msgid "Reinstalling the app."
-msgstr "重新安裝應用程式。"
+msgid "Reinstalling the app"
+msgstr "重新安裝應用程式"
 
+#. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
-msgid "Restarting your computer."
-msgstr "重新啟動您的電腦。"
+msgid "Restarting the Mullvad background process"
+msgstr "重新啟動 Mullvad 背景程序"
 
-#. Button label for problem report view.
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr "按一下「返回」，再按「再試一次」，即可重新啟動 Mullvad 背景程序"
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr "重新啟動您的電腦"
+
+#. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "傳送問題回報"
 
+#. Status text shown when app is starting.
 msgctxt "launch-view"
-msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
-msgstr "應用程式的系統服務組件尚未啟動或無法通訊。系統服務負責安全、終止開關和 VPN 通道等項目。如果要排除故障，請嘗試："
+msgid "Starting up...."
+msgstr "正在啟動……"
 
+#. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
-msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
-msgstr "無法與 Mulvad 系統服務通訊，您的連線可能不安全。請按一下「瞭解更多」按鈕進行故障排除，或是傳送問題回報。"
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr "啟動 Mullvad 背景程序失敗。此背景程序負責安全、終止開關和 VPN 通道。請嘗試："
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr "再試一次"
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
+msgstr "無法連線至 Mullvad 系統服務，您的連線可能不安全。請按一下「瞭解更多」按鈕進行故障排除或傳送問題報告。"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1905,6 +1947,13 @@ msgstr "清單名稱不可重複。"
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "名稱已在別處使用。"
+
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr "混淆：%(obfuscation)s"
 
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
@@ -2749,6 +2798,9 @@ msgstr "%s (已移除)"
 msgid "%s custom port"
 msgstr "%s 自訂連接埠"
 
+msgid "%s is unavailable"
+msgstr "%s 無法使用"
+
 msgid "%s was added to your account."
 msgstr "%s 已新增至您的帳戶。"
 
@@ -2917,6 +2969,9 @@ msgstr "停用下方的「%s」以啟動這些設定。"
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "停用上方所有「%s」以啟動此設定。"
 
+msgid "Disable recents"
+msgstr "停用最近使用"
+
 msgid "Discard"
 msgstr "捨棄"
 
@@ -2955,6 +3010,9 @@ msgstr "啟用 %1$s"
 
 msgid "Enable method"
 msgstr "啟用方式"
+
+msgid "Enable recents"
+msgstr "啟用最近使用"
 
 msgid "Enter MTU"
 msgstr "輸入 MTU"
@@ -3055,6 +3113,9 @@ msgstr "請確認裝置始終位於 VPN 通道上。"
 msgid "Manage devices"
 msgstr "管理裝置"
 
+msgid "More actions"
+msgstr "更多操作"
+
 msgid "Mullvad services unavailable"
 msgstr "Mullvad 服務無法使用"
 
@@ -3081,6 +3142,9 @@ msgstr "沒有網際網路連線"
 
 msgid "No locations found"
 msgstr "找不到位置"
+
+msgid "No recent selection history"
+msgstr "無最近選擇歷史"
 
 msgid "No result for \"%s\", please try a different search"
 msgstr "找不到「%s」的結果，請使改用其他搜尋條件。"
@@ -3120,6 +3184,12 @@ msgstr "隱私權"
 
 msgid "Privacy policy"
 msgstr "隱私權政策"
+
+msgid "Recents"
+msgstr "最近使用"
+
+msgid "Recents disabled and history cleared"
+msgstr "已停用最近使用，並已清除歷史"
 
 msgid "Recursion limit"
 msgstr "遞迴限制"
@@ -3223,11 +3293,11 @@ msgstr "已將其設定為目前方式"
 msgid "Time added"
 msgstr "已增加時間"
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
-msgstr "若要在清單中新增位置，請按下「︙」，或是長按下國家/地區、城市或伺服器。"
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr "若要在清單中新增位置，請按筆的圖示，或是長按國家/地區、城市或伺服器。"
 
-msgid "To create a custom list press the \"︙\""
-msgstr "若要建立自訂清單，請按下「︙」"
+msgid "To create a custom list press the \"+\""
+msgstr "若要建立自訂清單，請按「+」"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "為確保您擁有最安全的版本，並告知您目前執行的版本有無任何問題，該應用程式會自動進行版本檢查。為此，應用程式會將其版本和 Android 系統版本傳送至 Mullvad 伺服器，以便讓 Mullvad 統計已使用的應用程式版本和 Android 版本的數量。這些資料永遠不會以任何方式儲存或用來辨識您的身分。"
@@ -3306,6 +3376,9 @@ msgstr "我們無法啟動付款流程，請確認您是否擁有最新版本的
 
 msgid "We were unable to start the payment process, please try again later."
 msgstr "我們無法啟動付款流程，請稍後再試一次。"
+
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr "歡迎，此裝置現在名為 <b>%s</b>。"
 
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"

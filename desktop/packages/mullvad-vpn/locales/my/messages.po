@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2025-06-27 06:04\n"
+"PO-Revision-Date: 2025-08-08 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "နောက်ထပ် %(amount)d လုံး..."
@@ -753,6 +753,10 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲမှ မမျှော်လင့်ဘဲ ရုတ်တရက် ထွက်သွားသည်၊ ထပ်ကြိုးစားကြည့်ပါ သို့မဟုတ် ပြဿနာ ရီပို့တ်တစ်ခုကို ပေးပို့ပေးပါ။"
 
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲကို <b>%(cacheDir)s</b> သို့ ဒေါင်းလုဒ်လုပ်မည်။"
+
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1389,42 +1393,80 @@ msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr "ကြိုဆိုပါသည်၊ ယခုမှစ၍ ဤစက်ကို <b>%(deviceName)s</b> ဟု ခေါ်ဆိုပါမည်။ နောက်ထပ်အသေးစိတ်တို့အတွက် အကောင့်တွင် အချက်အလက် ခလုတ်ကို နှိပ်၍ ကြည့်နိုင်သည်။"
 
+#. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ..."
 
+#. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
-msgid "Disable third party antivirus software."
-msgstr "ပြင်ပအဖွဲ့အစည်း ဗိုင်းရပ်စ် ကာကွယ်ရေး ဆော့ဖ်ဝဲကို ပိတ်ပါ။"
+msgid "Details"
+msgstr "အသေးစိတ်"
 
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
+msgstr " ပြင်ပအဖွဲ့အစည်း ဗိုင်းရပ်စ် ကာကွယ်ရေး ဆော့ဖ်ဝဲကို ပိတ်ခြင်း"
+
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr "အက်ပ်ကို စတင်၍ မရပါ၊ ထပ်ကြိုးစားကြည့်ပါ သို့မဟုတ် နောက်ထပ်အချက်အလက်များအတွက် “အသေးစိတ်များ” ကိုနှိပ်ပါ"
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr "ဤအဆင့်များ အလုပ်မဖြစ်ပါက ပြဿနာ ရီပို့တ်ကို ပေးပို့ကြည့်ပါ။"
 
+#. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Mullvad VPN ဝန်ဆောင်မှုအတွက် ခွင့်ပြုချက်ကို ရုပ်သိမ်းထားပါသည်။ System Settings သို့ သွားပြီး “Allow in the Background” ဆက်တင်အောက်တွင် Mullvad VPN ကို ခွင့်ပြုပါ။"
 
+#. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
-msgid "Reinstalling the app."
-msgstr "အက်ပ်ကို ပြန်လည် ထည့်သွင်းနေပါသည်။"
+msgid "Reinstalling the app"
+msgstr "အက်ပ်ကို ပြန်လည် ထည့်သွင်းနေပါသည်"
 
+#. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
-msgid "Restarting your computer."
-msgstr "သင်ကွန်ပျူတာကို ပြန်လည်စတင်နေပါသည်။"
+msgid "Restarting the Mullvad background process"
+msgstr "Mullvad နောက်ခံလုပ်ငန်းစဉ်ကို ပြန်လည်စတင်ခြင်း"
 
-#. Button label for problem report view.
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr "\"နောက်သို့\"၊ ထို့နောက်\"ထပ်ကြိုးစားရန်\"ကို နှိပ်ခြင်းဖြင့် Mullvad နောက်ခံလုပ်ငန်းစဉ်ကို ပြန်လည်စတင်ခြင်း"
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr "သင်ကွန်ပျူတာကို ပြန်လည်စတင်နေခြင်း"
+
+#. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "ပြဿနာ ရီပို့တ် ပေးပို့ရန်"
 
+#. Status text shown when app is starting.
 msgctxt "launch-view"
-msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
-msgstr "အက်ပ်၏ စနစ်ဝန်ဆောင်မှု အစိတ်အပိုင်းကို စတင် မလုပ်ဆောင်ထားပါ သို့မဟုတ် မဆက်သွယ်နိုင်ပါ။ စနစ်ဝန်ဆောင်မှုသည် လုံခြုံရေး၊ Kill Switch နှင့် VPN Tunnel တို့ အတွက် တာဝန်ရှိပါသည်။ ပြစ်ချက်ရှာဖွေ ဖယ်ရှားရန် ဤအရာများကို ကြိုးစားကြည့်ပါ-"
+msgid "Starting up...."
+msgstr "စက် စတင်နေသည်...."
 
+#. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
-msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
-msgstr "Mullvad စနစ် ဝန်ဆောင်မှုကို ဆက်သွယ်၍ မရနိုင်ပါ၊ သင့်ချိတ်ဆက်မှုသည် မလုံခြုံနိုင်ပါ။ နောက်ထပ် လေ့လာရန် ခလုတ်ကို နှိပ်ခြင်းဖြင့် ပြဿနာ ရီပို့တ်ကို ပေးပို့ပါ သို့မဟုတ် ပြစ်ချက် ရှာဖွေ ဖယ်ရှားပါ။"
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr "Mullvad နောက်ခံလုပ်ငန်းစဉ်ကို စတင်၍ မရပါ။ နောက်ခံလုပ်ငန်းစဉ်က လုံခြုံရေး၊ kill switch နှင့် VPN tunnel ကို စီမံထိန်းချုပ်ပါသည်။ ဤသည်ကို လုပ်ကြည့်ပါ-"
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr "ထပ်ကြိုးစားရန်"
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
+msgstr "Mullvad စနစ် ဝန်ဆောင်မှုကို ဆက်သွယ်၍ မရနိုင်သဖြင့် သင့်ချိတ်ဆက်မှုသည် လုံခြုံမှု မရှိနိုင်ပါ။ ပြစ်ချက် ရှာဖွေ ဖယ်ရှားကြည့်ပါ သို့မဟုတ် \"နောက်ထပ် လေ့လာရန်\" ခလုတ်ကို နှိပ်ခြင်း၍ ပြဿနာ ရီပို့တ်ကို ပေးပို့ပါ။"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1905,6 +1947,13 @@ msgstr "စာရင်းအမည်များသည် တမူထူး�
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "အမည်သည် ရှိနှင့်ပြီး ဖြစ်သည်။"
+
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr "Obfuscation - %(obfuscation)s"
 
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
@@ -2749,6 +2798,9 @@ msgstr "%s (ဖယ်ရှားထား)"
 msgid "%s custom port"
 msgstr "%s စိတ်ကြိုက်ပေါ့တ်"
 
+msgid "%s is unavailable"
+msgstr "%s ကို မရရှိနိုင်ပါ"
+
 msgid "%s was added to your account."
 msgstr "%s ကို သင့်အကောင့်တွင် ထည့်လိုက်ပြီ။"
 
@@ -2917,6 +2969,9 @@ msgstr "ဤဆက်တင်များကို ဖွင့်ရန် အ�
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "ဤဆက်တင်ကိုဖွင့်ရန် အထက်ရှိ \"%s\" အားလုံးကို ပိတ်ပါ။"
 
+msgid "Disable recents"
+msgstr "လတ်တလောအရာများကို ပိတ်ပါ"
+
 msgid "Discard"
 msgstr "ပယ်ဖျက်မည်"
 
@@ -2955,6 +3010,9 @@ msgstr "%1$s ကို ဖွင့်ရန်"
 
 msgid "Enable method"
 msgstr "နည်းလမ်းကို ဖွင့်ရန်"
+
+msgid "Enable recents"
+msgstr "လတ်တလောအရာများကို ဖွင့်ရန်"
 
 msgid "Enter MTU"
 msgstr "MTU ကို ရိုက်ထည့်ရန်"
@@ -3055,6 +3113,9 @@ msgstr "စက်သည် VPN Tunnel ကို အမြဲဖွင့်ထ�
 msgid "Manage devices"
 msgstr "စက်များကို စီမံရန်"
 
+msgid "More actions"
+msgstr "နောက်ထပ်လုပ်ဆောင်ချက်များ"
+
 msgid "Mullvad services unavailable"
 msgstr "Mullvad ဝန်ဆောင်မှုများကို မရရှိနိုင်ပါ"
 
@@ -3081,6 +3142,9 @@ msgstr "အင်တာနက် ချိတ်ဆက်မှု မရှိ�
 
 msgid "No locations found"
 msgstr "တည်နေရာများကို ရှာမတွေ့ပါ"
+
+msgid "No recent selection history"
+msgstr "လတ်တလောရွေးချယ်မှု မှတ်တမ်း မရှိပါ"
 
 msgid "No result for \"%s\", please try a different search"
 msgstr "\"%s\" အတွက် ရလဒ်မရှိပါ၊ အခြားရှာဖွေမှုတစ်ခုကို စမ်းလုပ်ကြည့်ပါ"
@@ -3120,6 +3184,12 @@ msgstr "ကိုယ်ရေးအချက်အလက် လုံခြု�
 
 msgid "Privacy policy"
 msgstr "ကိုယ်ပိုင်အချက်အလက် မူဝါဒ"
+
+msgid "Recents"
+msgstr "လတ်တလောအရာများ"
+
+msgid "Recents disabled and history cleared"
+msgstr "လတ်တလောအရာများကို ပိတ်ထားပြီး မှတ်တမ်းကို ရှင်းထားသည်"
 
 msgid "Recursion limit"
 msgstr "ထပ်တလဲလဲ လုပ်ဆောင်မှု ကန့်သတ်ချက်"
@@ -3223,11 +3293,11 @@ msgstr "၎င်းကို လက်ရှိအဖြစ် သတ်မှ�
 msgid "Time added"
 msgstr "အချိန်တိုးထားသည်"
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
-msgstr "စာရင်းထဲသို့ တည်နေရာများကို ပေါင်းထည့်ရန် \"︙\" ကို နှိပ်ပါ သို့မဟုတ် နိုင်ငံ၊ မြို့၊ ဆာဗာကို နှိပ်ပါ။"
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr "တည်နေရာများကို စာရင်းတစ်ခုတွင် ထည့်ရန် ဘောပင်ပုံကို နှိပ်ပါ သို့မဟုတ် နိုင်ငံ၊ မြို့ သို့မဟုတ် ဆာဗာပေါ်တွင် ကြာကြာနှိပ်ပါ။"
 
-msgid "To create a custom list press the \"︙\""
-msgstr "စိတ်ကြိုက် စာရင်းများကို ဖန်တီးရန် \"︙\" ကို နှိပ်ပါ"
+msgid "To create a custom list press the \"+\""
+msgstr "စိတ်ကြိုက်စာရင်းတစ်ခု ဖန်တီးရန် \"+\" ကိုနှိပ်ပါ"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "အလုံခြုံဆုံး ဗားရှင်းကို ရရှိကြောင်း သေချာစေရန်နှင့် လုပ်ဆောင်နေသည့် လက်ရှိဗားရှင်းနှင့်ပတ်သက်သော ပြဿနာများအကြောင်း သင့်အား အသိပေးရန် အက်ပ်သည် ဗားရှင်း စစ်ဆေးမှုများကို အော်တိုလုပ်ဆောင်ပါသည်။ ၎င်းသည် Mullvad ဆာဗာများသို့ အက်ပ် ဗားရှင်းနှင့် Android စနစ်ဗားရှင်းတို့ကို ပေးပို့ပါသည်။ အသုံးပြုထားသည့် အက်ပ် ဗားရှင်းများနှင့် Android ဗားရှင်းများ၏ အရေအတွက်ကို Mullvad က ရေတွက်ထားပါသည်။ ဒေတာကို မည်သည့်အခါမျှ မသိမ်းဆည်းထားပါ သို့မဟုတ် သင့်အား ခွဲခြားဖော်ထုတ်နိုင်သော မည်သည့်နည်းလမ်းတွင်မျှ အသုံးမပြုထားပါ။"
@@ -3306,6 +3376,9 @@ msgstr "လက်ရှိတွင် ပေးချေမှု လုပ်�
 
 msgid "We were unable to start the payment process, please try again later."
 msgstr "လက်ရှိတွင် ပေးချေမှု လုပ်ငန်းစဉ်ကို စတင်၍ မရနိုင်ပါ၊ နောက်မှ ထပ်ကြိုးစားကြည့်ပါ။"
+
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr "ကြိုဆိုပါတယ်၊ ဤစက်ကို ယခု <b>%s</b> ဟု ခေါ်ပါသည်။"
 
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
