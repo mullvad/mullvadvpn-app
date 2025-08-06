@@ -12,6 +12,13 @@ enum class Status {
   Panic,
 };
 
+/// Windows version details
+struct WindowsVer {
+  uint32_t major_version;
+  uint32_t minor_version;
+  uint32_t build_number;
+};
+
 extern "C" {
 
 /// Creates a privileged directory at the specified Windows path.
@@ -42,5 +49,11 @@ Status get_system_local_appdata(uint16_t *buffer, uintptr_t *buffer_size);
 /// If `buffer` is not null, it must point to a valid memory location that can hold
 /// at least `*buffer_size` number of `u16` values. `buffer_size` must be a valid pointer.
 Status get_system_version(uint16_t *buffer, uintptr_t *buffer_size);
+
+/// Write OS version into `version_out` when `Status::Ok` is returned.
+///
+/// # Safety
+/// `version_out` should point to a valid `WindowsVer`
+Status get_system_version_struct(WindowsVer *version_out);
 
 }  // extern "C"
