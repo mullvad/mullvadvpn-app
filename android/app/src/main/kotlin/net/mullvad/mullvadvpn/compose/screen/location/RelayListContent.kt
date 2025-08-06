@@ -41,7 +41,8 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST
 fun LazyListScope.relayListContent(
     relayListItems: List<RelayListItem>,
     customLists: List<RelayItem.CustomList>,
-    onSelectHop: (Hop) -> Unit,
+    onSelectHop: (Hop.Multi) -> Unit,
+    onModifyMultihop: (Hop.Single<*>) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customListHeader: @Composable (LazyItemScope.() -> Unit) = {},
@@ -58,14 +59,14 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.CustomListItem ->
                         CustomListItem(
                             listItem,
-                            onSelectHop = onSelectHop,
+                            onSelectHop = onModifyMultihop,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
                     is RelayListItem.CustomListEntryItem ->
                         CustomListEntryItem(
                             listItem,
-                            onSelectHop = onSelectHop,
+                            onSelectHop = onModifyMultihop,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
@@ -74,7 +75,7 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.GeoLocationItem ->
                         GeoLocationItem(
                             listItem,
-                            onSelectHop = onSelectHop,
+                            onSelectHop = onModifyMultihop,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                             customLists = customLists,
@@ -110,7 +111,7 @@ fun Modifier.positionalPadding(itemPosition: ItemPosition): Modifier =
 @Composable
 private fun GeoLocationItem(
     listItem: RelayListItem.GeoLocationItem,
-    onSelectHop: (Hop) -> Unit,
+    onSelectHop: (Hop.Single<*>) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customLists: List<RelayItem.CustomList>,
@@ -129,13 +130,13 @@ private fun GeoLocationItem(
 @Composable
 private fun RecentListItem(
     listItem: RelayListItem.RecentListItem,
-    onSelectHop: (Hop) -> Unit,
+    onSelectHop: (Hop.Multi) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customLists: List<RelayItem.CustomList>,
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
-        onClick = { onSelectHop(listItem.hop) },
+        onClick = { onSelectHop(listItem.hop as Hop.Multi) },
         onLongClick = {
             val entry = listItem.hop.entry()
             if (listItem.hop is Hop.Single<*> && entry is RelayItem.Location) {
@@ -150,7 +151,7 @@ private fun RecentListItem(
 @Composable
 private fun CustomListItem(
     listItem: RelayListItem.CustomListItem,
-    onSelectHop: (Hop) -> Unit,
+    onSelectHop: (Hop.Single<*>) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
@@ -166,7 +167,7 @@ private fun CustomListItem(
 @Composable
 private fun CustomListEntryItem(
     listItem: RelayListItem.CustomListEntryItem,
-    onSelectHop: (Hop) -> Unit,
+    onSelectHop: (Hop.Single<*>) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
