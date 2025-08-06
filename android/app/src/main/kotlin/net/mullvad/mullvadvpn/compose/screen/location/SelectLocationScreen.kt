@@ -281,7 +281,7 @@ fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectHop: (item: Hop.Multi) -> Unit,
-    onModifyMultihop: (hop: Hop.Single<*>, relayListType: RelayListType) -> Unit,
+    onModifyMultihop: (relayItem: RelayItem, relayListType: RelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
     onFilterClick: () -> Unit,
@@ -529,7 +529,7 @@ private fun RelayLists(
     pagerState: PagerState,
     state: SelectLocationUiState,
     onSelectHop: (hop: Hop.Multi) -> Unit,
-    onModifyMultihop: (Hop.Single<*>, RelayListType) -> Unit,
+    onModifyMultihop: (RelayItem, RelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
@@ -551,14 +551,14 @@ private fun RelayLists(
     }
 
     val focusManager = LocalFocusManager.current
-    val onModifyMultihopInner: (Hop.Single<*>, RelayListType) -> Unit = { hop, relayListType ->
-        onModifyMultihop(hop, relayListType)
+    val onModifyMultihopInner: (RelayItem) -> Unit = { relayItem ->
+        onModifyMultihop(relayItem, relayListType)
         // If multihop is enabled and the user selects a location or custom list in the entry list
         // the app will switch to the exit list. Normally in this case the focus will stay in the
         // entry list, but in this case we want move the focus to the exit list.
-        if (state.multihopEnabled && relayListType == RelayListType.ENTRY && hop.isActive) {
+        if (state.multihopEnabled && relayListType == RelayListType.ENTRY && relayItem.active) {
             focusManager.moveFocus(FocusDirection.Right)
-            if (hop.relay.hasChildren) {
+            if (relayItem.hasChildren) {
                 focusManager.moveFocus(FocusDirection.Right)
             }
         }
@@ -582,7 +582,7 @@ private fun RelayLists(
                     RelayListType.EXIT
                 },
             onSelectHop = onSelectHop,
-            onModifyMultihop = onModifyMultihopInner,
+            onSelectRelayItem = onModifyMultihopInner,
             openDaitaSettings = openDaitaSettings,
             onAddCustomList = onAddCustomList,
             onEditCustomLists = onEditCustomLists,

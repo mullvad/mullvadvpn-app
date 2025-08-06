@@ -38,6 +38,7 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -79,7 +80,7 @@ private typealias Content = Lce.Content<SelectLocationListUiState>
 fun SelectLocationList(
     relayListType: RelayListType,
     onSelectHop: (Hop.Multi) -> Unit,
-    onModifyMultihop: (Hop.Single<*>, RelayListType) -> Unit,
+    onSelectRelayItem: (RelayItem) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
@@ -106,7 +107,7 @@ fun SelectLocationList(
         lazyListState = lazyListState,
         openDaitaSettings = openDaitaSettings,
         onSelectHop = onSelectHop,
-        onModifyMultihop = onModifyMultihop,
+        onModifyMultihop = onSelectRelayItem,
         onUpdateBottomSheetState = onUpdateBottomSheetState,
         onAddCustomList = onAddCustomList,
         onEditCustomLists = onEditCustomLists,
