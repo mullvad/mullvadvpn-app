@@ -562,24 +562,6 @@ dependencies = [
 
 [[package]]
 name = "cbindgen"
-version = "0.24.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b922faaf31122819ec80c4047cc684c6979a087366c069611e33649bf98e18d"
-dependencies = [
- "heck 0.4.1",
- "indexmap 1.9.3",
- "log",
- "proc-macro2",
- "quote",
- "serde",
- "serde_json",
- "syn 1.0.109",
- "tempfile",
- "toml 0.5.11",
-]
-
-[[package]]
-name = "cbindgen"
 version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eadd868a2ce9ca38de7eeafdcec9c7065ef89b42b32f0839278d55f35c54d1ff"
@@ -2867,7 +2849,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "cbindgen 0.28.0",
+ "cbindgen",
  "chrono",
  "futures",
  "http 1.1.0",
@@ -3018,7 +3000,7 @@ name = "mullvad-ios"
 version = "0.0.0"
 dependencies = [
  "async-trait",
- "cbindgen 0.28.0",
+ "cbindgen",
  "futures",
  "hyper",
  "hyper-util",
@@ -3129,7 +3111,7 @@ dependencies = [
 name = "mullvad-nsis"
 version = "0.0.0"
 dependencies = [
- "cbindgen 0.24.5",
+ "cbindgen",
  "mullvad-paths",
  "talpid-platform-metadata",
 ]
