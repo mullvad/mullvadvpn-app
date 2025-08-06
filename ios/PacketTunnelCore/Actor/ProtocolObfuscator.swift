@@ -86,7 +86,11 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
             obfuscationProtocol: obfuscationProtocol
         )
         #else
-        // At this point, the only possible obfuscation methods should be either `.udpOverTcp` or `.shadowsocks`
+        guard obfuscationMethod != .off else {
+            tunnelObfuscator = nil
+            return .init(endpoint: endpoint, method: .off)
+        }
+
         let obfuscator = Obfuscator(
             remoteAddress: endpoint.ipv4Relay.ip,
             tcpPort: remotePort,
