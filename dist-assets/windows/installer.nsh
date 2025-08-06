@@ -3,6 +3,10 @@
 
 !addplugindir "${BUILD_RESOURCES_DIR}\..\windows\nsis-plugins\bin\Win32-Release"
 
+# Set supported OSes to Windows 10 and 11 in manifest explicitly.
+# The default also includes Windows 7, 8.1, and 8.
+ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
+
 #
 # NOTES
 #
