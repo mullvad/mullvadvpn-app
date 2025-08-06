@@ -180,7 +180,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     }
 
     override func stopTunnel(with reason: NEProviderStopReason) async {
-        providerLogger.debug("stopTunnel: \(reason)")
+        providerLogger.debug("stopTunnel: \(ProviderStopReasonWrapper(reason: reason))")
 
         stopObservingActorState()
 

@@ -32,8 +32,8 @@ extension REST {
             case .createURLRequest:
                 return "Failure to create URL request."
 
-            case .network:
-                return "Network error."
+            case let .network(error):
+                return "Network error due to \(error.localizedDescription)."
 
             case let .unhandledResponse(statusCode, serverResponse):
                 var str = "Failure to handle server response: HTTP/\(statusCode)."

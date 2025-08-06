@@ -108,6 +108,6 @@ public final class URLSessionSocks5Transport: RESTTransport, Sendable {
 
         let dataTask = urlSession.dataTask(with: newRequest, completionHandler: completion)
         dataTask.resume()
-        return dataTask
+        return URLSessionTaskWrapper(task: dataTask)
     }
 }

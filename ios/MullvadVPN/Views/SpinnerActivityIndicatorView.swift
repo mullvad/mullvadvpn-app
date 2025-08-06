@@ -14,7 +14,7 @@ class SpinnerActivityIndicatorView: UIView {
     private static let animationDuration = 0.6
 
     @MainActor
-    enum Style: Sendable {
+    enum Style {
         case small, medium, large, custom
 
         var intrinsicSize: CGSize {

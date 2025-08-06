@@ -9,7 +9,12 @@
 import Foundation
 import MullvadTypes
 
-extension URLSessionTask: Cancellable {}
+struct URLSessionTaskWrapper: Cancellable {
+    let task: URLSessionTask
+    func cancel() {
+        task.cancel()
+    }
+}
 
 public final class URLSessionTransport: RESTTransport {
     public var name: String {
@@ -28,6 +33,6 @@ public final class URLSessionTransport: RESTTransport {
     ) -> Cancellable {
         let dataTask = urlSession.dataTask(with: request, completionHandler: completion)
         dataTask.resume()
-        return dataTask
+        return URLSessionTaskWrapper(task: dataTask)
     }
 }

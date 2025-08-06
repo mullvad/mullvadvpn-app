@@ -5917,10 +5917,11 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"${DERIVED_FILE_DIR}/localization-cleanup-done.flag",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Run the following steps if the build configuration is NOT Debug\n# OR if the configuration is Staging (used for UITests).\nif [ \"$CONFIGURATION\" != \"Debug\" ] || [ \"$CONFIGURATION\" = \"Staging\" ]; then\n    echo \"Removing non-English localizations for Release or Staging build\"\n    find \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" -type d -name \"*.lproj\" ! -name \"en.lproj\" -exec rm -r {} +\nfi\n";
+			shellScript = "# Run the following steps if the build configuration is NOT Debug\n# OR if the configuration is Staging (used for UITests).\nif [ \"$CONFIGURATION\" != \"Debug\" ] || [ \"$CONFIGURATION\" = \"Staging\" ]; then\n    echo \"Removing non-English localizations for Release or Staging build\"\n    find \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" -type d -name \"*.lproj\" ! -name \"en.lproj\" -exec rm -r {} +\nfi\n\n# Ensure the output directory exists\nmkdir -p \"${DERIVED_FILE_DIR}\"\n\n# Final output\necho \">> Creating output flag file at: ${DERIVED_FILE_DIR}/localization-cleanup-done.flag\"\ntouch \"${DERIVED_FILE_DIR}/localization-cleanup-done.flag\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

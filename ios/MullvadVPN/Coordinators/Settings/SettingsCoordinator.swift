@@ -44,7 +44,6 @@ enum SettingsNavigationRoute: Equatable {
 }
 
 /// Top-level settings coordinator.
-@MainActor
 final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsViewControllerDelegate,
     UINavigationControllerDelegate, Sendable {
     private let logger = Logger(label: "SettingsNavigationCoordinator")
