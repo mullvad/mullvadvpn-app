@@ -10,7 +10,7 @@ use std::{
     ptr,
 };
 use windows_sys::Win32::{
-    Foundation::{BOOL, MAX_PATH, NTSTATUS, STATUS_SUCCESS},
+    Foundation::{MAX_PATH, NTSTATUS, STATUS_SUCCESS},
     Storage::FileSystem::{
         GetFileVersionInfoSizeW, GetFileVersionInfoW, VS_FFI_SIGNATURE, VS_FIXEDFILEINFO,
         VerQueryValueW,
@@ -225,6 +225,7 @@ fn ntoskrnl_version() -> io::Result<(u32, u32, u32)> {
 
 fn get_system_dir() -> io::Result<PathBuf> {
     let mut sysdir = [0u16; MAX_PATH as usize + 1];
+    // SAFETY: `sysdir` points to a valid buffer
     let len = unsafe { GetSystemDirectoryW(sysdir.as_mut_ptr(), (sysdir.len() - 1) as u32) };
     if len == 0 {
         return Err(io::Error::last_os_error());
