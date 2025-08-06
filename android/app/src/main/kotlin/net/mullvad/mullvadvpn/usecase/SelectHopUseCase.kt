@@ -22,7 +22,7 @@ class SelectHopUseCase(
         if (hop.isActive) {
             selectHop(hop = hop, selectedRelayListType = selectedRelayListType)
         } else {
-            SelectHopError.HopNotActive(hop = hop).left()
+            SelectHopError.HopInactive(hop = hop).left()
         }
 
     private suspend fun selectHop(
@@ -71,7 +71,7 @@ class SelectHopUseCase(
 }
 
 sealed interface SelectHopError {
-    data class HopNotActive(val hop: Hop) : SelectHopError
+    data class HopInactive(val hop: Hop) : SelectHopError
 
     data object ExitBlocked : SelectHopError
 

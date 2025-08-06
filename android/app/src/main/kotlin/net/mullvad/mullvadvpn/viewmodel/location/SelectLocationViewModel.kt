@@ -87,7 +87,7 @@ class SelectLocationViewModel(
                         when (it) {
                             SelectHopError.GenericError ->
                                 _uiSideEffect.trySend(SelectLocationSideEffect.GenericError)
-                            is SelectHopError.HopNotActive ->
+                            is SelectHopError.HopInactive ->
                                 _uiSideEffect.trySend(
                                     SelectLocationSideEffect.RelayItemInactive(it.hop)
                                 )
