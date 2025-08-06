@@ -150,7 +150,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
-    access_method_change_context: *const c_void, 
+    access_method_change_context: *const c_void,
 ) -> SwiftApiContext {
     mullvad_api_init_inner(
         host,
@@ -186,7 +186,7 @@ pub extern "C" fn mullvad_api_init_new(
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
-    access_method_change_context: *const c_void, 
+    access_method_change_context: *const c_void,
 ) -> SwiftApiContext {
     #[cfg(feature = "api-override")]
     return mullvad_api_init_inner(
@@ -235,7 +235,7 @@ pub extern "C" fn mullvad_api_init_inner(
     settings_provider: SwiftAccessMethodSettingsWrapper,
     address_cache: SwiftAddressCacheWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
-    access_method_change_context: *const c_void, 
+    access_method_change_context: *const c_void,
 ) -> SwiftApiContext {
     // Safety: See notes for `get_string`
     let (host, address, domain) =
@@ -269,7 +269,7 @@ pub extern "C" fn mullvad_api_init_inner(
     );
 
     let access_method_change_ctx: ForeignPtr = ForeignPtr {
-        ptr: access_method_change_context
+        ptr: access_method_change_context,
     };
     let api_context = tokio_handle.clone().block_on(async move {
         let (tx, mut rx) = mpsc::unbounded::<(AccessMethodEvent, oneshot::Sender<()>)>();
@@ -291,9 +291,10 @@ pub extern "C" fn mullvad_api_init_inner(
                     let AccessMethodEvent::New {
                         setting,
                         connection_mode: _,
-                        endpoint: _ 
-                    } = event else {
-                        continue
+                        endpoint: _,
+                    } = event
+                    else {
+                        continue;
                     };
                     let uuid = setting.get_id();
                     let uuid_bytes = uuid.as_bytes();
