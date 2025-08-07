@@ -116,6 +116,37 @@ pub unsafe extern "C" fn get_system_version(buffer: *mut u16, buffer_size: *mut 
     })
 }
 
+/// Windows version details
+#[repr(C)]
+pub struct WindowsVer {
+    major_version: u32,
+    minor_version: u32,
+    build_number: u32,
+}
+
+/// Write OS version into `version_out` when `Status::Ok` is returned.
+///
+/// # Safety
+/// `version_out` should point to a valid `WindowsVer`
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn get_system_version_struct(version_out: *mut WindowsVer) -> Status {
+    use talpid_platform_metadata::WindowsVersion;
+    catch_and_log_unwind(|| {
+        // Try to retrieve the version based on the kernel image. Use normal method as fallback.
+        let winver = WindowsVersion::from_ntoskrnl()
+            .or_else(|_| WindowsVersion::new())
+            .unwrap();
+        let c_ver = WindowsVer {
+            major_version: winver.major_version(),
+            minor_version: winver.minor_version(),
+            build_number: winver.build_number(),
+        };
+        // SAFETY: `version_out` is a valid `WindowsVer` if the caller upholds the contract.
+        unsafe { ptr::write(version_out, c_ver) };
+        Status::Ok
+    })
+}
+
 fn catch_and_log_unwind(func: impl FnOnce() -> Status + UnwindSafe) -> Status {
     match std::panic::catch_unwind(func) {
         Ok(status) => status,
