@@ -139,6 +139,25 @@ impl TryFrom<&RelaySettings> for Recent {
                         .ok_or("Location must be Constraint::Only")?
                         .clone();
 
+                    if let LocationConstraint::Location(GeographicLocationConstraint::Hostname(
+                        entry_country,
+                        entry_city,
+                        entry_host,
+                    )) = &entry
+                        && let LocationConstraint::Location(GeographicLocationConstraint::Hostname(
+                            exit_country,
+                            exit_city,
+                            exit_host,
+                        )) = &location
+                        && entry_country == exit_country
+                        && entry_city == exit_city
+                        && entry_host == exit_host
+                    {
+                        return Err(
+                            "Multihop recent cannot have identical (country, city, host) triple.",
+                        );
+                    }
+
                     Recent::Multihop {
                         entry,
                         exit: location,
