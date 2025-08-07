@@ -46,6 +46,7 @@ use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::relay_constraints::GeographicLocationConstraint;
+use mullvad_types::settings::DefaultLocationCountryState;
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
 #[cfg(daita)]
@@ -413,6 +414,9 @@ pub enum DaemonCommand {
     ExportJsonSettings(ResponseTx<String, settings::patch::Error>),
     /// Request the current feature indicators.
     GetFeatureIndicators(oneshot::Sender<FeatureIndicators>),
+    // Updates the default (initial) country selection that the user will see when starting the
+    // app for the first time based on their current geolocation.
+    UpdateDefaultLocationCountry,
 
     // Debug features
     DisableRelay {
@@ -915,8 +919,12 @@ impl Daemon {
         api::forward_offline_state(api_availability.clone(), offline_state_rx);
 
         let relay_list_listener = management_interface.notifier().clone();
+        let internal_event_tx_clone = internal_event_tx.clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
             relay_list_listener.notify_relay_list(relay_list.clone());
+            let _ = internal_event_tx_clone.send(InternalDaemonEvent::Command(
+                DaemonCommand::UpdateDefaultLocationCountry,
+            ));
         };
 
         let mut relay_list_updater = RelayListUpdater::spawn(
@@ -1118,7 +1126,7 @@ impl Daemon {
                 endpoint_active_tx,
             } => self.handle_access_method_event(event, endpoint_active_tx),
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
-            LocationEvent(location_data) => self.handle_location_event(location_data),
+            LocationEvent(location_data) => self.handle_location_event(location_data).await,
             SettingsChanged => {
                 self.update_feature_indicators_on_settings_changed();
             }
@@ -1274,7 +1282,7 @@ impl Daemon {
 
     /// Receives and handles the geographical exit location received from am.i.mullvad.net, i.e. the
     /// [`InternalDaemonEvent::LocationEvent`] event.
-    fn handle_location_event(&mut self, location_data: LocationEventData) {
+    async fn handle_location_event(&mut self, location_data: LocationEventData) {
         let LocationEventData {
             request_id,
             location: fetched_location,
@@ -1283,6 +1291,24 @@ impl Daemon {
         if self.location_handler.request_id != request_id {
             log::debug!("Location from am.i.mullvad.net belongs to an outdated tunnel state");
             return;
+        }
+
+        if self.settings.default_country == DefaultLocationCountryState::NotUpdated {
+            if let Err(e) = self
+                .settings
+                .update(|settings| {
+                    settings.default_country =
+                        DefaultLocationCountryState::WillUpdate(fetched_location.country.clone())
+                })
+                .await
+                .map_err(Error::SettingsError)
+            {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+            }
+
+            let _ = self.tx.send(InternalDaemonEvent::Command(
+                DaemonCommand::UpdateDefaultLocationCountry,
+            ));
         }
 
         match self.tunnel_state {
@@ -1400,6 +1426,7 @@ impl Daemon {
             SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher),
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
+            UpdateDefaultLocationCountry => self.on_update_default_location(),
             LoginAccount(tx, account_number) => self.on_login_account(tx, account_number),
             LogoutAccount(tx) => self.on_logout_account(tx),
             GetDevice(tx) => self.on_get_device(tx),
@@ -1863,6 +1890,38 @@ impl Daemon {
         self.relay_list_updater.update().await;
     }
 
+    fn on_update_default_location(&mut self) {
+        log::info!(
+            "on_update_default_location: {:?}",
+            &self.settings.default_country
+        );
+
+        let DefaultLocationCountryState::WillUpdate(country) = &self.settings.default_country
+        else {
+            return;
+        };
+
+        let country_code = self.relay_selector.lookup_country_code_by_name(country);
+        log::info!("country_code: {country_code:?}");
+
+        if let Some(country_code) = country_code {
+            let relay_settings = RelaySettings::wireguard_with_country_code(country_code);
+
+            let (tx, rx) = oneshot::channel();
+            if self
+                .tx
+                .send(InternalDaemonEvent::Command(
+                    DaemonCommand::SetRelaySettings(tx, relay_settings),
+                ))
+                .is_ok()
+            {
+                tokio::spawn(async move {
+                    let _ = rx.await;
+                });
+            }
+        }
+    }
+
     fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_number: String) {
         let account_manager = self.account_manager.clone();
         let availability = self.api_runtime.availability_handle();
@@ -2322,6 +2381,18 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_relay_settings response");
+            }
+        }
+        if self.settings.default_country != DefaultLocationCountryState::Updated {
+            if let Err(e) = self
+                .settings
+                .update(move |settings| {
+                    settings.default_country = DefaultLocationCountryState::Updated
+                })
+                .await
+                .map_err(Error::SettingsError)
+            {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
             }
         }
     }

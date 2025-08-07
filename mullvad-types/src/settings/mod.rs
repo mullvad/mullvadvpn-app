@@ -69,11 +69,20 @@ impl Serialize for SettingsVersion {
     }
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Default)]
+pub enum DefaultLocationCountryState {
+    #[default]
+    NotUpdated,
+    WillUpdate(String),
+    Updated,
+}
+
 /// Mullvad daemon settings.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 pub struct Settings {
     pub relay_settings: RelaySettings,
+    pub default_country: DefaultLocationCountryState,
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
     pub bridge_state: BridgeState,
@@ -244,6 +253,7 @@ impl Default for Settings {
                 },
                 ..Default::default()
             }),
+            default_country: Default::default(),
             bridge_settings: BridgeSettings::default(),
             obfuscation_settings: ObfuscationSettings {
                 selected_obfuscation: SelectedObfuscation::Auto,

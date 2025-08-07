@@ -1,5 +1,5 @@
 use crate::types::{FromProtobufTypeError, proto};
-use mullvad_types::settings::CURRENT_SETTINGS_VERSION;
+use mullvad_types::settings::{CURRENT_SETTINGS_VERSION, DefaultLocationCountryState};
 use talpid_types::ErrorExt;
 impl From<&mullvad_types::settings::Settings> for proto::Settings {
     fn from(settings: &mullvad_types::settings::Settings) -> Self {
@@ -173,6 +173,8 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             relay_settings: mullvad_types::relay_constraints::RelaySettings::try_from(
                 relay_settings,
             )?,
+            // FIXME: get value from proto::Settings
+            default_country: DefaultLocationCountryState::NotUpdated,
             bridge_settings: mullvad_types::relay_constraints::BridgeSettings::try_from(
                 bridge_settings,
             )?,

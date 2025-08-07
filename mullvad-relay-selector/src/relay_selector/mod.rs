@@ -23,6 +23,7 @@ use crate::{
 
 use chrono::{DateTime, Local};
 use itertools::Itertools;
+use mullvad_types::location::CountryCode;
 use mullvad_types::{
     CustomTunnelEndpoint, Intersection,
     constraints::Constraint,
@@ -525,6 +526,17 @@ impl RelaySelector {
                 Self::get_relay_inner(&query, relay_list, normal_config.custom_lists)
             }
         }
+    }
+
+    pub fn lookup_country_code_by_name(&self, country_name: &str) -> Option<CountryCode> {
+        self.parsed_relays
+            .lock()
+            .unwrap()
+            .original_list()
+            .countries
+            .iter()
+            .find(|country| country.name == country_name)
+            .map(|country| country.code.clone())
     }
 
     /// Returns a random relay and relay endpoint matching the current constraints corresponding to
