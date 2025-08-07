@@ -28,6 +28,7 @@ talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
 talpid-wireguard = { path = "../talpid-wireguard" }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
+either = { version = "1.15.0", features = ["serde"] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 talpid-openvpn = { path = "../talpid-openvpn" }
