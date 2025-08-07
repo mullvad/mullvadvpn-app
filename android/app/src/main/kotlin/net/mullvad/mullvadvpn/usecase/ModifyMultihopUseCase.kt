@@ -1,102 +1,95 @@
 package net.mullvad.mullvadvpn.usecase
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.raise.either
-import kotlinx.coroutines.flow.firstOrNull
+import arrow.core.raise.ensure
+import arrow.core.right
+import co.touchlab.kermit.Logger
+import kotlin.collections.first
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.Settings
-import net.mullvad.mullvadvpn.relaylist.getById
+import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 
 class ModifyMultihopUseCase(
     private val relayListRepository: RelayListRepository,
-    private val customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     private val settingsRepository: SettingsRepository,
-    private val selectHopUseCase: SelectHopUseCase,
+    private val customListsRepository: CustomListsRepository,
+    private val wireguardConstraintsRepository: WireguardConstraintsRepository,
 ) {
     suspend operator fun invoke(change: MultihopChange): Either<ModifyMultihopError, Unit> =
         either {
-            val newMultihop =
+            ensure(change.item.active) { ModifyMultihopError.RelayItemInactive(change.item) }
+            val changeId: RelayItemId =
+                change.item.id.convertCustomListWithOnlyHostNameToHostName().bind()
+            val other =
                 when (change) {
-                    is MultihopChange.Entry -> {
-                        Hop.Multi(
-                            entry = change.item,
-                            exit =
-                                settingsRepository.settingsUpdates.value.exitLocation(
-                                    relayListRepository = relayListRepository,
-                                    customListsRelayItemUseCase = customListsRelayItemUseCase,
-                                ) ?: raise(ModifyMultihopError.GenericError),
-                        )
+                        is MultihopChange.Entry ->
+                            settingsRepository.settingsUpdates.value.exit().bind()
+                        is MultihopChange.Exit ->
+                            settingsRepository.settingsUpdates.value.entry().bind()
                     }
-                    is MultihopChange.Exit -> {
-                        Hop.Multi(
-                            entry =
-                                settingsRepository.settingsUpdates.value.entryLocation(
-                                    relayListRepository = relayListRepository,
-                                    customListsRelayItemUseCase = customListsRelayItemUseCase,
-                                ) ?: raise(ModifyMultihopError.GenericError),
-                            exit = change.item,
-                        )
-                    }
+                    .convertCustomListWithOnlyHostNameToHostName()
+                    .bind()
+            ensure(!changeId.isSameHost(other)) {
+                when (change) {
+                    is MultihopChange.Entry -> ModifyMultihopError.ExitSame(change.item)
+                    is MultihopChange.Exit -> ModifyMultihopError.EntrySame(change.item)
                 }
-
-            selectHopUseCase(newMultihop)
-                .mapLeft { error ->
-                    when (error) {
-                        is SelectHopError.HopInactive ->
-                            ModifyMultihopError.RelayItemInactive(change.item)
-                        is SelectHopError.EntryAndExitSame ->
-                            when (change) {
-                                is MultihopChange.Entry -> ModifyMultihopError.ExitSame(change.item)
-                                is MultihopChange.Exit -> ModifyMultihopError.EntrySame(change.item)
-                            }
-                        SelectHopError.GenericError -> ModifyMultihopError.GenericError
-                    }
+            }
+            when (change) {
+                    is MultihopChange.Entry ->
+                        wireguardConstraintsRepository.setEntryLocation(change.item.id)
+                    is MultihopChange.Exit ->
+                        relayListRepository.updateSelectedRelayLocation(change.item.id)
+                }
+                .mapLeft {
+                    Logger.e("Failed to update multihop: $it")
+                    ModifyMultihopError.GenericError
                 }
                 .bind()
         }
 
-    private suspend fun Settings?.exitLocation(
-        relayListRepository: RelayListRepository,
-        customListsRelayItemUseCase: CustomListsRelayItemUseCase,
-    ): RelayItem? =
-        findLocation(
-            relayItemId = exit(),
-            relayListRepository = relayListRepository,
-            customListsRelayItemUseCase = customListsRelayItemUseCase,
-        )
+    private fun Settings?.exit(): Either<ModifyMultihopError.GenericError, RelayItemId> =
+        this?.relaySettings?.relayConstraints?.location?.getOrNull()?.right()
+            ?: ModifyMultihopError.GenericError.left()
 
-    private suspend fun Settings?.entryLocation(
-        relayListRepository: RelayListRepository,
-        customListsRelayItemUseCase: CustomListsRelayItemUseCase,
-    ): RelayItem? =
-        findLocation(
-            relayItemId = entry(),
-            relayListRepository = relayListRepository,
-            customListsRelayItemUseCase = customListsRelayItemUseCase,
-        )
+    private fun Settings?.entry(): Either<ModifyMultihopError.GenericError, RelayItemId> =
+        this?.relaySettings
+            ?.relayConstraints
+            ?.wireguardConstraints
+            ?.entryLocation
+            ?.getOrNull()
+            ?.right() ?: ModifyMultihopError.GenericError.left()
 
-    private suspend fun findLocation(
-        relayItemId: RelayItemId?,
-        relayListRepository: RelayListRepository,
-        customListsRelayItemUseCase: CustomListsRelayItemUseCase,
-    ): RelayItem? =
-        when (relayItemId) {
-            is CustomListId -> customListsRelayItemUseCase().firstOrNull()?.getById(relayItemId)
-            is GeoLocationId -> relayListRepository.find(relayItemId)
-            else -> null
+    private fun RelayItemId.convertCustomListWithOnlyHostNameToHostName():
+        Either<ModifyMultihopError.GenericError, RelayItemId> =
+        when (this) {
+            is CustomListId ->
+                customListsRepository
+                    .getCustomListById(this)
+                    .mapLeft {
+                        Logger.e("Failed to get custom list by id: $it")
+                        ModifyMultihopError.GenericError
+                    }
+                    .map {
+                        if (it.locations.size == 1) {
+                            it.locations.first() as? GeoLocationId.Hostname ?: this
+                        } else {
+                            this
+                        }
+                    }
+            else -> this.right()
         }
 
-    private fun Settings?.exit() = this?.relaySettings?.relayConstraints?.location?.getOrNull()
-
-    private fun Settings?.entry() =
-        this?.relaySettings?.relayConstraints?.wireguardConstraints?.entryLocation?.getOrNull()
+    private fun RelayItemId.isSameHost(other: RelayItemId): Boolean =
+        this is GeoLocationId.Hostname && other == this
 }
 
 sealed class MultihopChange {
