@@ -399,7 +399,7 @@ function OutdatedVersionWarningDialog() {
               messages.pgettext('support-view', 'Update app')
             }
           </Button.Text>
-          <Button.Icon icon="external" />
+          {isLinux && <Button.Icon icon="external" />}
         </Button>,
         <Button variant="destructive" key="proceed" onClick={acknowledgeOutdatedVersion}>
           <Button.Text>
