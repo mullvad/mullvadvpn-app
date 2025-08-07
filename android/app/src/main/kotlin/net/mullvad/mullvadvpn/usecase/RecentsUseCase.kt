@@ -20,7 +20,6 @@ class RecentsUseCase(
     private val filteredRelayListUseCase: FilteredRelayListUseCase,
     private val settingsRepository: SettingsRepository,
 ) {
-
     operator fun invoke(): Flow<List<Hop>?> =
         combine(
             recents(),
@@ -35,7 +34,9 @@ class RecentsUseCase(
                         val entry = recent.entry.findItem(entryCustomLists, entryRelayList)
                         val exit = recent.exit.findItem(exitCustomLists, exitRelayList)
 
-                        if (entry != null && exit != null) {
+                        val isValid = entry != null && exit != null && entry != exit
+
+                        if (isValid) {
                             Hop.Multi(entry, exit)
                         } else {
                             null
