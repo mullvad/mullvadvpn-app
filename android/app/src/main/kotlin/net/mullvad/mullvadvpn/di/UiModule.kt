@@ -169,9 +169,9 @@ val uiModule = module {
     single {
         ModifyMultihopUseCase(
             relayListRepository = get(),
-            customListsRelayItemUseCase = get(),
             settingsRepository = get(),
-            selectHopUseCase = get(),
+            customListsRepository = get(),
+            wireguardConstraintsRepository = get(),
         )
     }
 
