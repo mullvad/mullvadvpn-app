@@ -1,5 +1,5 @@
 ---
-source: talpid-types/src/main.rs
+source: talpid-types/src/bin/generate-cpp-lannetworks.rs
 expression: out
 snapshot_kind: text
 ---
