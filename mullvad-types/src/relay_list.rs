@@ -30,6 +30,13 @@ impl RelayList {
             .find(|country| country.code == country_code)
     }
 
+    pub fn lookup_country_code_by_name(&self, country_name: &str) -> Option<CountryCode> {
+        self.countries
+            .iter()
+            .find(|country| country.name == country_name)
+            .map(|country| country.code.clone())
+    }
+
     /// Return a flat iterator of all [`Relay`]s
     pub fn relays(&self) -> impl Iterator<Item = &Relay> + Clone + '_ {
         self.countries
