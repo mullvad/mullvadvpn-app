@@ -10,7 +10,6 @@ import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.util.shouldFilterByDaita
 
 typealias ModelOwnership = Ownership
@@ -19,7 +18,6 @@ class FilterChipUseCase(
     private val relayListFilterRepository: RelayListFilterRepository,
     private val providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val settingsRepository: SettingsRepository,
-    private val wireguardConstraintsRepository: WireguardConstraintsRepository,
 ) {
     operator fun invoke(relayListType: RelayListType): Flow<List<FilterChip>> =
         combine(
@@ -27,19 +25,12 @@ class FilterChipUseCase(
             relayListFilterRepository.selectedProviders,
             providerToOwnershipsUseCase(),
             settingsRepository.settingsUpdates,
-            wireguardConstraintsRepository.wireguardConstraints,
-        ) {
-            selectedOwnership,
-            selectedConstraintProviders,
-            providerOwnership,
-            settings,
-            wireguardConstraints ->
+        ) { selectedOwnership, selectedConstraintProviders, providerOwnership, settings ->
             filterChips(
                 selectedOwnership = selectedOwnership,
                 selectedConstraintProviders = selectedConstraintProviders,
                 providerToOwnerships = providerOwnership,
                 daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
-                isMultihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                 relayListType = relayListType,
             )
         }
@@ -49,7 +40,6 @@ class FilterChipUseCase(
         selectedConstraintProviders: Constraint<Providers>,
         providerToOwnerships: Map<ProviderId, Set<Ownership>>,
         daitaDirectOnly: Boolean,
-        isMultihopEnabled: Boolean,
         relayListType: RelayListType,
     ): List<FilterChip> {
         val ownershipFilter = selectedOwnership.getOrNull()
@@ -66,11 +56,7 @@ class FilterChipUseCase(
                                 // If the provider has been removed from the relay list we add it
                                 // so it is visible for the user, because we won't know what
                                 // ownerships it had.
-                                if (providerOwnerships == null) {
-                                    true
-                                } else {
-                                    providerOwnerships.contains(ownershipFilter)
-                                }
+                                providerOwnerships?.contains(ownershipFilter) ?: true
                             }
                         }
                         .size
@@ -86,7 +72,6 @@ class FilterChipUseCase(
                 shouldFilterByDaita(
                     daitaDirectOnly = daitaDirectOnly,
                     relayListType = relayListType,
-                    isMultihopEnabled = isMultihopEnabled,
                 )
             ) {
                 add(FilterChip.Daita)

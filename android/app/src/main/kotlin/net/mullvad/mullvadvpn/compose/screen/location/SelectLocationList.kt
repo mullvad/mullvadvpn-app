@@ -88,7 +88,7 @@ fun SelectLocationList(
 ) {
     val viewModel =
         koinViewModel<SelectLocationListViewModel>(
-            key = relayListType.name,
+            key = relayListType.toString(),
             parameters = { parametersOf(relayListType) },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()

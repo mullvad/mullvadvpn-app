@@ -88,7 +88,7 @@ private fun PreviewSearchLocationScreen(
         SearchLocationScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
-            onSelectRelayItem = {},
+            onSelectRelayItem = { _, _ -> },
             onToggleExpand = { _, _, _ -> },
             onSearchInputChanged = {},
             onCreateCustomList = {},
@@ -148,21 +148,24 @@ fun SearchLocation(
                         message = context.getString(R.string.error_occurred)
                     )
                 }
-            is SearchLocationSideEffect.RelayItemAlreadySelected ->
+            is SearchLocationSideEffect.EntryAlreadySelected ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            if (it.relayListType == RelayListType.ENTRY) {
-                                context.getString(
-                                    R.string.relay_item_already_selected_as_exit,
-                                    it.relayItem.name,
-                                )
-                            } else {
-                                context.getString(
-                                    R.string.relay_item_already_selected_as_entry,
-                                    it.relayItem.name,
-                                )
-                            }
+                            context.getString(
+                                R.string.relay_item_already_selected_as_entry,
+                                it.relayItem.name,
+                            )
+                    )
+                }
+            is SearchLocationSideEffect.ExitAlreadySelected ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                R.string.relay_item_already_selected_as_exit,
+                                it.relayItem.name,
+                            )
                     )
                 }
             is SearchLocationSideEffect.RelayItemInactive -> {
@@ -244,7 +247,7 @@ fun SearchLocation(
 fun SearchLocationScreen(
     state: Lce<Unit, SearchLocationUiState, Unit>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectRelayItem: (RelayItem) -> Unit,
+    onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onSearchInputChanged: (String) -> Unit,
     onCreateCustomList: (location: RelayItem.Location?) -> Unit,
@@ -325,7 +328,9 @@ fun SearchLocationScreen(
                             relayListItems = state.value.relayListItems,
                             customLists = state.value.customLists,
                             onSelectHop = { error("Can not select hop in search screen") },
-                            onSelectRelayItem = onSelectRelayItem,
+                            onSelectRelayItem = {
+                                onSelectRelayItem(it, state.value.relayListType)
+                            },
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->
                                 locationBottomSheetState = newSheetState

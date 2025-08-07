@@ -1,12 +1,10 @@
 package net.mullvad.mullvadvpn.util
 
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 
-fun shouldFilterByDaita(
-    daitaDirectOnly: Boolean,
-    isMultihopEnabled: Boolean,
-    relayListType: RelayListType,
-) =
+fun shouldFilterByDaita(daitaDirectOnly: Boolean, relayListType: RelayListType) =
     daitaDirectOnly &&
-        (relayListType == RelayListType.ENTRY ||
-            !isMultihopEnabled && relayListType == RelayListType.EXIT)
+        ((relayListType is RelayListType.Multihop &&
+            relayListType.multihopRelayListType == MultihopRelayListType.ENTRY) ||
+            relayListType is RelayListType.Single)

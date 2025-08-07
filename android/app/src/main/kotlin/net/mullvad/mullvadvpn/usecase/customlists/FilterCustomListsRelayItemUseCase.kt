@@ -35,7 +35,6 @@ class FilterCustomListsRelayItemUseCase(
                 daita =
                     shouldFilterByDaita(
                         daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
-                        isMultihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                         relayListType = relayListType,
                     ),
             )

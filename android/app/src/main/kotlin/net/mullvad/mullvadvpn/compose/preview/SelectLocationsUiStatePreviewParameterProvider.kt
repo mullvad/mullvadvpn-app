@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.usecase.FilterChip
@@ -16,7 +17,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
             SelectLocationUiState(
                     filterChips = emptyList(),
                     multihopEnabled = false,
-                    relayListType = RelayListType.EXIT,
+                    relayListType = RelayListType.Single,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
@@ -29,7 +30,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                             FilterChip.Provider(PROVIDER_COUNT),
                         ),
                     multihopEnabled = false,
-                    relayListType = RelayListType.EXIT,
+                    relayListType = RelayListType.Single,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
@@ -38,7 +39,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
             SelectLocationUiState(
                     filterChips = emptyList(),
                     multihopEnabled = true,
-                    relayListType = RelayListType.ENTRY,
+                    relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
@@ -51,7 +52,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                             FilterChip.Provider(PROVIDER_COUNT),
                         ),
                     multihopEnabled = true,
-                    relayListType = RelayListType.ENTRY,
+                    relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,

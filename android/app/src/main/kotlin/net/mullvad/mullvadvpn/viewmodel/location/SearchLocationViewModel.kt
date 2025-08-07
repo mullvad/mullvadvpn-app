@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -24,7 +25,6 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
@@ -50,7 +50,6 @@ class SearchLocationViewModel(
     private val filterChipUseCase: FilterChipUseCase,
     private val selectHopUseCase: SelectHopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
-    private val settingsRepository: SettingsRepository,
     filteredRelayListUseCase: FilteredRelayListUseCase,
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -93,6 +92,7 @@ class SearchLocationViewModel(
                 Lce.Content(
                     SearchLocationUiState(
                         searchTerm = searchTerm,
+                        relayListType = relayListType,
                         relayListItems =
                             relayListItemsSearching(
                                 searchTerm = searchTerm,
@@ -125,25 +125,17 @@ class SearchLocationViewModel(
         }
     }
 
-    fun selectRelayItem(relayItem: RelayItem) {
+    fun selectRelayItem(relayItem: RelayItem, relayListType: RelayListType) {
         viewModelScope.launch {
-            if (
-                settingsRepository.settingsUpdates.value
-                    ?.relaySettings
-                    ?.relayConstraints
-                    ?.wireguardConstraints
-                    ?.isMultihopEnabled == true
-            ) {
-                when (relayListType) {
-                    RelayListType.ENTRY -> {
-                        modifyMultihop(change = MultihopChange.Entry(relayItem))
-                    }
-                    RelayListType.EXIT -> {
-                        modifyMultihop(change = MultihopChange.Exit(relayItem))
-                    }
-                }
-            } else {
-                selectHop(hop = Hop.Single(relayItem))
+            when (relayListType) {
+                is RelayListType.Multihop ->
+                    modifyMultihop(
+                        when (relayListType.multihopRelayListType) {
+                            MultihopRelayListType.ENTRY -> MultihopChange.Entry(relayItem)
+                            MultihopRelayListType.EXIT -> MultihopChange.Exit(relayItem)
+                        }
+                    )
+                RelayListType.Single -> selectHop(hop = Hop.Single(relayItem))
             }
         }
     }
@@ -155,10 +147,7 @@ class SearchLocationViewModel(
                     _uiSideEffect.send(
                         when (it) {
                             SelectHopError.EntryAndExitSame ->
-                                SearchLocationSideEffect.RelayItemAlreadySelected(
-                                    relayItem = hop.relay,
-                                    relayListType = relayListType,
-                                )
+                                error("Entry and exit should not be the same when using Single hop")
                             SelectHopError.GenericError -> SearchLocationSideEffect.GenericError
                             is SelectHopError.HopInactive ->
                                 SearchLocationSideEffect.RelayItemInactive(hop.relay)
@@ -174,19 +163,18 @@ class SearchLocationViewModel(
                 {
                     _uiSideEffect.send(
                         when (it) {
-                            is ModifyMultihopError.EntrySame,
+                            is ModifyMultihopError.EntrySame ->
+                                SearchLocationSideEffect.EntryAlreadySelected(
+                                    relayItem = it.relayItem
+                                )
                             is ModifyMultihopError.ExitSame ->
-                                SearchLocationSideEffect.RelayItemAlreadySelected(
-                                    relayItem = change.item,
-                                    relayListType = relayListType,
+                                SearchLocationSideEffect.ExitAlreadySelected(
+                                    relayItem = it.relayItem
                                 )
                             ModifyMultihopError.GenericError ->
                                 SearchLocationSideEffect.GenericError
                             is ModifyMultihopError.RelayItemInactive ->
-                                SearchLocationSideEffect.RelayItemAlreadySelected(
-                                    relayItem = it.relayItem,
-                                    relayListType = relayListType,
-                                )
+                                SearchLocationSideEffect.RelayItemInactive(relayItem = it.relayItem)
                         }
                     )
                 },
@@ -210,14 +198,12 @@ class SearchLocationViewModel(
             wireguardConstraintsRepository.wireguardConstraints,
         ) { filterChips, constraints ->
             filterChips.toMutableList().apply {
-                // Do not show entry and exit filter chips if multihop is disabled
-                if (constraints?.isMultihopEnabled == true) {
-                    add(
-                        when (relayListType) {
-                            RelayListType.ENTRY -> FilterChip.Entry
-                            RelayListType.EXIT -> FilterChip.Exit
-                        }
-                    )
+                // Only show entry and exit filter chips if relayListType is Multihop
+                if (relayListType is RelayListType.Multihop) {
+                    when (relayListType.multihopRelayListType) {
+                        MultihopRelayListType.ENTRY -> add(FilterChip.Entry)
+                        MultihopRelayListType.EXIT -> add(FilterChip.Exit)
+                    }
                 }
             }
         }
@@ -280,10 +266,9 @@ sealed interface SearchLocationSideEffect {
 
     data class RelayItemInactive(val relayItem: RelayItem) : SearchLocationSideEffect
 
-    data class RelayItemAlreadySelected(
-        val relayItem: RelayItem,
-        val relayListType: RelayListType,
-    ) : SearchLocationSideEffect
+    data class EntryAlreadySelected(val relayItem: RelayItem) : SearchLocationSideEffect
+
+    data class ExitAlreadySelected(val relayItem: RelayItem) : SearchLocationSideEffect
 
     data object GenericError : SearchLocationSideEffect
 }

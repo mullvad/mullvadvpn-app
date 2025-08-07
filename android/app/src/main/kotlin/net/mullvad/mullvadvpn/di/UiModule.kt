@@ -162,7 +162,7 @@ val uiModule = module {
     single { FilteredRelayListUseCase(get(), get(), get(), get()) }
     single { LastKnownLocationUseCase(get()) }
     single { SelectedLocationUseCase(get(), get()) }
-    single { FilterChipUseCase(get(), get(), get(), get()) }
+    single { FilterChipUseCase(get(), get(), get()) }
     single { DeleteCustomDnsUseCase(get()) }
     single { RecentsUseCase(get(), get(), get()) }
     single { SelectHopUseCase(relayListRepository = get()) }
@@ -265,7 +265,6 @@ val uiModule = module {
     viewModel { MultihopViewModel(get(), get()) }
     viewModel {
         SearchLocationViewModel(
-            get(),
             get(),
             get(),
             get(),
