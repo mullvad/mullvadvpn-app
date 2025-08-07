@@ -528,6 +528,7 @@ message Settings {
   ApiAccessMethodSettings api_access_methods = 12;
   repeated RelayOverride relay_overrides = 13;
   optional Recents recents = 14;
+  bool update_default_location = 15;
 }
 
 message RelayOverride {

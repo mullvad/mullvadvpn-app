@@ -45,7 +45,9 @@ use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
-use mullvad_types::relay_constraints::GeographicLocationConstraint;
+use mullvad_types::relay_constraints::{
+    GeographicLocationConstraint, LocationConstraint, RelayConstraints, WireguardConstraints,
+};
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
 #[cfg(daita)]
@@ -413,6 +415,9 @@ pub enum DaemonCommand {
     ExportJsonSettings(ResponseTx<String, settings::patch::Error>),
     /// Request the current feature indicators.
     GetFeatureIndicators(oneshot::Sender<FeatureIndicators>),
+    // Updates the default (initial) country selection that the user will see when starting the
+    // app for the first time based on their current geolocation.
+    UpdateDefaultLocationCountry(ResponseTx<(), settings::Error>),
 
     // Debug features
     DisableRelay {
@@ -915,8 +920,13 @@ impl Daemon {
         api::forward_offline_state(api_availability.clone(), offline_state_rx);
 
         let relay_list_listener = management_interface.notifier().clone();
+        let internal_event_tx_clone = internal_event_tx.clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
             relay_list_listener.notify_relay_list(relay_list.clone());
+            let (tx, _) = oneshot::channel();
+            let _ = internal_event_tx_clone.send(InternalDaemonEvent::Command(
+                DaemonCommand::UpdateDefaultLocationCountry(tx),
+            ));
         };
 
         let mut relay_list_updater = RelayListUpdater::spawn(
@@ -1303,6 +1313,13 @@ impl Daemon {
             _ => return,
         };
 
+        if self.settings.update_default_location {
+            let (tx, _) = oneshot::channel();
+            let _ = self.tx.send(InternalDaemonEvent::Command(
+                DaemonCommand::UpdateDefaultLocationCountry(tx),
+            ));
+        }
+
         self.management_interface
             .notifier()
             .notify_new_state(self.tunnel_state.clone());
@@ -1400,6 +1417,7 @@ impl Daemon {
             SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher),
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
+            UpdateDefaultLocationCountry(tx) => self.on_update_default_location(tx).await,
             LoginAccount(tx, account_number) => self.on_login_account(tx, account_number),
             LogoutAccount(tx) => self.on_logout_account(tx),
             GetDevice(tx) => self.on_get_device(tx),
@@ -1863,9 +1881,51 @@ impl Daemon {
         self.relay_list_updater.update().await;
     }
 
+    async fn on_update_default_location(&mut self, tx: ResponseTx<(), settings::Error>) {
+        log::info!(
+            "should_update_default_country: {}",
+            &self.settings.update_default_location
+        );
+
+        if !self.settings.update_default_location {
+            return;
+        }
+        let Some(location) = self.tunnel_state.get_location() else {
+            return;
+        };
+
+        let country_code = self.relay_selector.access_relays(|relays| {
+            relays
+                .lookup_country_code_by_name(&location.country)
+                .or_else(|| relays.get_nearest_country_with_relay(location))
+        });
+
+        log::info!("country_code: {country_code:?}");
+
+        if let Some(country_code) = country_code {
+            let relay_settings = RelaySettings::Normal(RelayConstraints {
+                location: Constraint::Only(LocationConstraint::Location(
+                    GeographicLocationConstraint::Country(country_code.clone()),
+                )),
+                wireguard_constraints: WireguardConstraints {
+                    entry_location: Constraint::Only(LocationConstraint::Location(
+                        GeographicLocationConstraint::Country(country_code),
+                    )),
+                    ..Default::default()
+                },
+                ..Default::default()
+            });
+
+            self.on_set_relay_settings(tx, relay_settings).await;
+        } else {
+            let _ = tx.send(Ok(()));
+        }
+    }
+
     fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_number: String) {
         let account_manager = self.account_manager.clone();
         let availability = self.api_runtime.availability_handle();
+
         tokio::spawn(async move {
             let result = async {
                 account_manager
@@ -2322,6 +2382,19 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_relay_settings response");
+            }
+        }
+        if self.settings.update_default_location {
+            if let Err(e) = self
+                .settings
+                .update(move |settings| settings.update_default_location = false)
+                .await
+                .map_err(Error::SettingsError)
+            {
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Unable to save has_updated_default_country")
+                );
             }
         }
     }

@@ -55,6 +55,21 @@ impl From<Location> for Coordinates {
     }
 }
 
+impl From<&GeoIpLocation> for Coordinates {
+    fn from(location: &GeoIpLocation) -> Self {
+        Self {
+            latitude: location.latitude,
+            longitude: location.longitude,
+        }
+    }
+}
+
+impl From<GeoIpLocation> for Coordinates {
+    fn from(location: GeoIpLocation) -> Self {
+        Coordinates::from(&location)
+    }
+}
+
 impl Coordinates {
     /// Computes the approximate midpoint of a set of locations.
     ///
