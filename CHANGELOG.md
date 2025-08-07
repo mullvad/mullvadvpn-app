@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+
+## [2025.8-beta3] - 2025-08-07
 ### Fixed
 #### Windows
 - Fix issue with installer running in compatibility mode during update.
