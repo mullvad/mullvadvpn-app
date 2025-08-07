@@ -5318,6 +5318,7 @@ dependencies = [
  "hickory-proto",
  "hickory-server",
  "inotify 0.10.2",
+ "insta",
  "ipnetwork",
  "jnix",
  "libc",
