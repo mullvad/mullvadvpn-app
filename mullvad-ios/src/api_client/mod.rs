@@ -173,6 +173,14 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
 /// `address` must be a pointer to a null terminated string representing a socket address through which
 /// the Mullvad API can be reached directly.
 ///
+/// address_method_change_callback is a function with the C calling convention which will be called
+/// whenever the access method changes with a user-specified opaque pointer and a pointer to the bytes
+/// of the access method's UUID. Note that this callback must remain valid for the lifetime of the
+/// program.
+///
+/// access_method_change_context is the pointer passed verbatim to the callback. It is not dereferenced
+/// by the Rust code, but remains opaque.
+///
 /// If a context cannot be constructed this function will panic since the call site would not be able
 /// to proceed in a meaningful way anyway.
 ///
@@ -283,10 +291,10 @@ pub extern "C" fn mullvad_api_init_inner(
         .await
         .expect("Could now spawn AccessModeSelector");
 
-        tokio::spawn(async move {
-            let access_method_change_ctx = access_method_change_ctx;
-            // SAFETY: The callback is expected to be called from the Swift side
-            if let Some(callback) = access_method_change_callback {
+        // SAFETY: The callback is expected to be called from the Swift side
+        if let Some(callback) = access_method_change_callback {
+            tokio::spawn(async move {
+                let access_method_change_ctx = access_method_change_ctx;
                 while let Some((event, _sender)) = rx.next().await {
                     let AccessMethodEvent::New {
                         setting,
@@ -301,11 +309,8 @@ pub extern "C" fn mullvad_api_init_inner(
                     // SAFETY: The callback is expected to be safe to call
                     unsafe { callback(access_method_change_ctx.ptr, uuid_bytes.as_ptr()) };
                 }
-            }
-        });
-
-        // TODO: do something with rx, and somehow let the `AccessMethodEvent`s it
-        // receives be sent back to the Swift side
+            });
+        }
 
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.

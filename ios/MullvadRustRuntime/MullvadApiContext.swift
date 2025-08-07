@@ -47,7 +47,6 @@ public class MullvadApiContext: @unchecked Sendable {
         self.addressCacheWrapper = iniSwiftAddressCacheWrapper(provider: defaultAddressCache)
 
         let selfPtr = Unmanaged.passUnretained(self).toOpaque()
-        context = nil
         context = switch disableTls {
         case true:
             mullvad_api_init_new_tls_disabled(

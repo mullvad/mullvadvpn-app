@@ -26,7 +26,6 @@ pub enum Message {
     ),
 }
 
-#[derive(Debug)]
 pub enum AccessMethodEvent {
     /// A [`AccessMethodEvent::New`] event is emitted when the active access
     /// method changes.
@@ -403,7 +402,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
             setting: resolved.setting,
             connection_mode: resolved.connection_mode.clone(),
             #[cfg(not(target_os = "android"))]
-            endpoint: resolved.endpoint.clone(),
+            endpoint: resolved.endpoint,
         };
         let sender = self.access_method_event_sender.clone();
         tokio::spawn(async move {
