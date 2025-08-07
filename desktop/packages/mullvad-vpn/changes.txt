@@ -1,0 +1,1 @@
+[Windows] Fix issue with installer running in compatibility mode during update
