@@ -81,6 +81,8 @@ pub struct Settings {
     pub custom_lists: CustomListsSettings,
     /// API access methods
     pub api_access_methods: access_method::Settings,
+    // If the default location in `relay_settings` should be updated based on the user's geolocation.
+    pub update_default_location: bool,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
@@ -257,6 +259,7 @@ impl Default for Settings {
                 },
                 ..Default::default()
             }),
+            update_default_location: false,
             bridge_settings: BridgeSettings::default(),
             obfuscation_settings: ObfuscationSettings {
                 selected_obfuscation: SelectedObfuscation::Auto,
