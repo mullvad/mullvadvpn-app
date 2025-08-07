@@ -1,19 +1,10 @@
 use std::io::{self, Write};
-use std::{env, process::exit};
 
 use ipnetwork::IpNetwork;
 use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
 
 pub fn main() {
-    let command = env::args().nth(1);
-    match command.as_deref() {
-        Some("lannetworks.h") => generate_allowed_nets_cpp_header(&mut std::io::stdout()).unwrap(),
-        None => (),
-        Some(command) => {
-            eprintln!("Unknown command: {command}");
-            exit(1);
-        }
-    }
+    generate_allowed_nets_cpp_header(&mut std::io::stdout()).unwrap()
 }
 
 /// Generate a C++ header for allowed local network ranges

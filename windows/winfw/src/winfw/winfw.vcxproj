@@ -224,7 +224,7 @@
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
-cargo run -q -p talpid-types lannetworks.h &gt; $(ProjectDir)lannetworks.h</Command>
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -248,7 +248,7 @@ cargo run -q -p talpid-types lannetworks.h &gt; $(ProjectDir)lannetworks.h</Comm
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
-cargo run -q -p talpid-types lannetworks.h &gt; $(ProjectDir)lannetworks.h</Command>
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
@@ -272,7 +272,7 @@ cargo run -q -p talpid-types lannetworks.h &gt; $(ProjectDir)lannetworks.h</Comm
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
-cargo run -q -p talpid-types lannetworks.h &gt; $(ProjectDir)lannetworks.h</Command>
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -301,7 +301,7 @@ cargo run -q -p talpid-types lannetworks.h &gt; $(ProjectDir)lannetworks.h</Comm
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
-cargo run -q -p talpid-types lannetworks.h &gt; $(ProjectDir)lannetworks.h</Command>
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -330,7 +330,7 @@ cargo run -q -p talpid-types lannetworks.h &gt; $(ProjectDir)lannetworks.h</Comm
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
-cargo run -q -p talpid-types lannetworks.h &gt; $(ProjectDir)lannetworks.h</Command>
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -359,7 +359,7 @@ cargo run -q -p talpid-types lannetworks.h &gt; $(ProjectDir)lannetworks.h</Comm
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
-cargo run -q -p talpid-types lannetworks.h &gt; $(ProjectDir)lannetworks.h</Command>
+cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)lannetworks.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
