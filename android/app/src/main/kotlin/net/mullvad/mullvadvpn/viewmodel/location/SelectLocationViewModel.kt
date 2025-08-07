@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -48,7 +49,15 @@ class SelectLocationViewModel(
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
 ) : ViewModel() {
     private val _relayListType: MutableStateFlow<RelayListType> =
-        MutableStateFlow(RelayListType.EXIT)
+        MutableStateFlow(
+            if (
+                wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled == true
+            ) {
+                RelayListType.Multihop(MultihopRelayListType.EXIT)
+            } else {
+                RelayListType.Single
+            }
+        )
 
     val uiState =
         combine(
@@ -64,9 +73,10 @@ class SelectLocationViewModel(
                         multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                         relayListType = relayListSelection,
                         isSearchButtonEnabled =
-                            relayList.isNotEmpty() &&
-                                (relayListSelection == RelayListType.EXIT ||
-                                    settings?.entryBlocked() != true),
+                            searchButtonEnabled(
+                                relayList = relayList,
+                                relayListSelection = relayListSelection,
+                            ),
                         isFilterButtonEnabled = relayList.isNotEmpty(),
                         isRecentsEnabled = settings?.recents is Recents.Enabled,
                     )
@@ -79,65 +89,54 @@ class SelectLocationViewModel(
 
     private fun filterChips() = _relayListType.flatMapLatest { filterChipUseCase(it) }
 
-    fun selectRelayList(relayListType: RelayListType) {
-        viewModelScope.launch { _relayListType.emit(relayListType) }
+    private fun searchButtonEnabled(
+        relayList: List<RelayItem.Location.Country>,
+        relayListSelection: RelayListType,
+    ): Boolean {
+        val hasRelayListItems = relayList.isNotEmpty()
+        val isMultihopEntry =
+            relayListSelection is RelayListType.Multihop &&
+                relayListSelection.multihopRelayListType == MultihopRelayListType.ENTRY
+        val isEntryBlocked = settingsRepository.settingsUpdates.value?.entryBlocked() == true
+        return hasRelayListItems && (!isMultihopEntry || !isEntryBlocked)
+    }
+
+    fun selectRelayList(multihopRelayListType: MultihopRelayListType) {
+        viewModelScope.launch { _relayListType.emit(RelayListType.Multihop(multihopRelayListType)) }
     }
 
     fun selectHop(hop: Hop) {
         viewModelScope.launch {
             selectHopUseCase(hop)
                 .fold(
-                    {
-                        when (it) {
-                            SelectHopError.GenericError ->
-                                _uiSideEffect.trySend(SelectLocationSideEffect.GenericError)
-                            is SelectHopError.HopInactive ->
-                                _uiSideEffect.trySend(
-                                    SelectLocationSideEffect.RelayItemInactive(it.hop)
-                                )
-                            SelectHopError.EntryAndExitSame ->
-                                _uiSideEffect.send(SelectLocationSideEffect.EntryAndExitAreSame)
-                        }
-                    },
+                    { _uiSideEffect.send(it.toSideEffect()) },
                     { _uiSideEffect.send(SelectLocationSideEffect.CloseScreen) },
                 )
         }
     }
 
-    fun modifyMultihop(relayItem: RelayItem, relayListType: RelayListType) {
+    fun modifyMultihop(relayItem: RelayItem, multihopRelayListType: MultihopRelayListType) {
         val change =
-            when (relayListType) {
-                RelayListType.ENTRY -> MultihopChange.Entry(relayItem)
-                RelayListType.EXIT -> MultihopChange.Exit(relayItem)
+            when (multihopRelayListType) {
+                MultihopRelayListType.ENTRY -> MultihopChange.Entry(relayItem)
+                MultihopRelayListType.EXIT -> MultihopChange.Exit(relayItem)
             }
 
         viewModelScope.launch {
             modifyMultihopUseCase(change)
                 .fold(
+                    { _uiSideEffect.send(it.toSideEffect()) },
                     {
-                        when (it) {
-                            is ModifyMultihopError.EntrySame,
-                            is ModifyMultihopError.ExitSame ->
+                        when (multihopRelayListType) {
+                            MultihopRelayListType.ENTRY -> {
+                                _relayListType.emit(
+                                    RelayListType.Multihop(MultihopRelayListType.EXIT)
+                                )
                                 _uiSideEffect.send(
-                                    SelectLocationSideEffect.RelayItemAlreadySelected(
-                                        relayItem = relayItem,
-                                        relayListType = relayListType,
-                                    )
+                                    SelectLocationSideEffect.FocusExitList(relayItem)
                                 )
-                            ModifyMultihopError.GenericError ->
-                                _uiSideEffect.trySend(SelectLocationSideEffect.GenericError)
-                            is ModifyMultihopError.RelayItemInactive ->
-                                _uiSideEffect.trySend(
-                                    SelectLocationSideEffect.RelayItemInactive(
-                                        hop = Hop.Single(it.relayItem)
-                                    )
-                                )
-                        }
-                    },
-                    {
-                        when (relayListType) {
-                            RelayListType.ENTRY -> _relayListType.emit(RelayListType.EXIT)
-                            RelayListType.EXIT ->
+                            }
+                            MultihopRelayListType.EXIT ->
                                 _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                         }
                     },
@@ -188,6 +187,25 @@ class SelectLocationViewModel(
             settingsRepository.setRecentsEnabled(!enabled)
         }
     }
+
+    private fun ModifyMultihopError.toSideEffect(): SelectLocationSideEffect =
+        when (this) {
+            is ModifyMultihopError.EntrySame ->
+                SelectLocationSideEffect.EntryAlreadySelected(relayItem = relayItem)
+            is ModifyMultihopError.ExitSame ->
+                SelectLocationSideEffect.ExitAlreadySelected(relayItem = relayItem)
+            ModifyMultihopError.GenericError -> SelectLocationSideEffect.GenericError
+            is ModifyMultihopError.RelayItemInactive ->
+                SelectLocationSideEffect.RelayItemInactive(hop = Hop.Single(this.relayItem))
+        }
+
+    private fun SelectHopError.toSideEffect(): SelectLocationSideEffect =
+        when (this) {
+            SelectHopError.GenericError -> SelectLocationSideEffect.GenericError
+            is SelectHopError.HopInactive ->
+                SelectLocationSideEffect.RelayItemInactive(hop = this.hop)
+            SelectHopError.EntryAndExitSame -> SelectLocationSideEffect.EntryAndExitAreSame
+        }
 }
 
 sealed interface SelectLocationSideEffect {
@@ -200,10 +218,11 @@ sealed interface SelectLocationSideEffect {
 
     data class RelayItemInactive(val hop: Hop) : SelectLocationSideEffect
 
-    data class RelayItemAlreadySelected(
-        val relayItem: RelayItem,
-        val relayListType: RelayListType,
-    ) : SelectLocationSideEffect
+    data class EntryAlreadySelected(val relayItem: RelayItem) : SelectLocationSideEffect
+
+    data class ExitAlreadySelected(val relayItem: RelayItem) : SelectLocationSideEffect
 
     data object EntryAndExitAreSame : SelectLocationSideEffect
+
+    data class FocusExitList(val relayItem: RelayItem) : SelectLocationSideEffect
 }

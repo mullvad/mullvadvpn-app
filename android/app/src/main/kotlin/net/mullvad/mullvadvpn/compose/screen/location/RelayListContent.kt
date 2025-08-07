@@ -130,13 +130,13 @@ private fun GeoLocationItem(
 @Composable
 private fun RecentListItem(
     listItem: RelayListItem.RecentListItem,
-    onSelectHop: (Hop.Multi) -> Unit,
+    onSelectHop: (Hop) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customLists: List<RelayItem.CustomList>,
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
-        onClick = { onSelectHop(listItem.hop as Hop.Multi) },
+        onClick = { onSelectHop(listItem.hop) },
         onLongClick = {
             val entry = listItem.hop.entry()
             if (listItem.hop is Hop.Single<*> && entry is RelayItem.Location) {

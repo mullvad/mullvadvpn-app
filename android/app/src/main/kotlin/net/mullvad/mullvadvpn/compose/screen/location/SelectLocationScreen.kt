@@ -73,6 +73,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
@@ -148,6 +149,7 @@ fun SelectLocation(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
@@ -165,21 +167,24 @@ fun SelectLocation(
                         message = context.getString(R.string.error_occurred)
                     )
                 }
-            is SelectLocationSideEffect.RelayItemAlreadySelected ->
+            is SelectLocationSideEffect.EntryAlreadySelected ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            if (it.relayListType == RelayListType.ENTRY) {
-                                context.getString(
-                                    R.string.relay_item_already_selected_as_exit,
-                                    it.relayItem.name,
-                                )
-                            } else {
-                                context.getString(
-                                    R.string.relay_item_already_selected_as_entry,
-                                    it.relayItem.name,
-                                )
-                            }
+                            context.getString(
+                                R.string.relay_item_already_selected_as_entry,
+                                it.relayItem.name,
+                            )
+                    )
+                }
+            is SelectLocationSideEffect.ExitAlreadySelected ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                R.string.relay_item_already_selected_as_exit,
+                                it.relayItem.name,
+                            )
                     )
                 }
             is SelectLocationSideEffect.RelayItemInactive ->
@@ -197,6 +202,18 @@ fun SelectLocation(
                     snackbarHostState.showSnackbarImmediately(
                         message = context.getString(R.string.entry_and_exit_are_same)
                     )
+                }
+            is SelectLocationSideEffect.FocusExitList ->
+                launch {
+                    // If multihop is enabled and the user selects a location or custom list in the
+                    // entry list
+                    // the app will switch to the exit list. Normally in this case the focus will
+                    // stay in the
+                    // entry list, but in this case we want move the focus to the exit list.
+                    focusManager.moveFocus(FocusDirection.Right)
+                    if (it.relayItem.hasChildren) {
+                        focusManager.moveFocus(FocusDirection.Right)
+                    }
                 }
         }
     }
@@ -220,10 +237,12 @@ fun SelectLocation(
 
     searchSelectedLocationResultRecipient.onResult { result ->
         when (result) {
-            RelayListType.ENTRY -> {
-                vm.selectRelayList(RelayListType.EXIT)
-            }
-            RelayListType.EXIT -> backNavigator.navigateBack(result = true)
+            RelayListType.Single -> backNavigator.navigateBack(result = true)
+            is RelayListType.Multihop ->
+                when (result.multihopRelayListType) {
+                    MultihopRelayListType.ENTRY -> vm.selectRelayList(MultihopRelayListType.EXIT)
+                    MultihopRelayListType.EXIT -> backNavigator.navigateBack(result = true)
+                }
         }
     }
 
@@ -281,7 +300,7 @@ fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectHop: (item: Hop) -> Unit,
-    onModifyMultihop: (relayItem: RelayItem, relayListType: RelayListType) -> Unit,
+    onModifyMultihop: (relayItem: RelayItem, relayListType: MultihopRelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
     onFilterClick: () -> Unit,
@@ -295,7 +314,7 @@ fun SelectLocationScreen(
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
-    onSelectRelayList: (RelayListType) -> Unit,
+    onSelectRelayList: (MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -374,18 +393,26 @@ fun SelectLocationScreen(
                 is Lc.Content -> {
                     val pagerState =
                         rememberPagerState(
-                            initialPage = state.value.relayListType.ordinal,
+                            initialPage =
+                                when (state.value.relayListType) {
+                                    is RelayListType.Multihop ->
+                                        state.value.relayListType.multihopRelayListType.ordinal
+                                    RelayListType.Single -> 0
+                                },
                             pageCount = {
-                                if (state.value.multihopEnabled) {
-                                    RelayListType.entries.size
-                                } else {
-                                    1
+                                when (state.value.relayListType) {
+                                    is RelayListType.Multihop -> MultihopRelayListType.entries.size
+                                    RelayListType.Single -> 1
                                 }
                             },
                         )
 
-                    if (state.value.multihopEnabled) {
-                        MultihopBar(pagerState, state.value.relayListType, onSelectRelayList)
+                    if (state.value.relayListType is RelayListType.Multihop) {
+                        MultihopBar(
+                            pagerState,
+                            state.value.relayListType.multihopRelayListType,
+                            onSelectRelayList,
+                        )
                     }
 
                     AnimatedContent(
@@ -490,8 +517,8 @@ private fun SelectLocationDropdownMenu(
 @Composable
 private fun MultihopBar(
     pagerState: PagerState,
-    relayListType: RelayListType,
-    onSelectHopList: (RelayListType) -> Unit,
+    relayListType: MultihopRelayListType,
+    onSelectHopList: (MultihopRelayListType) -> Unit,
 ) {
     SingleChoiceSegmentedButtonRow(
         modifier =
@@ -503,21 +530,21 @@ private fun MultihopBar(
                 )
     ) {
         MullvadSegmentedStartButton(
-            selected = relayListType == RelayListType.ENTRY,
+            selected = relayListType == MultihopRelayListType.ENTRY,
             selectedProgress =
                 1f -
-                    abs(pagerState.getOffsetDistanceInPages(RelayListType.ENTRY.ordinal))
+                    abs(pagerState.getOffsetDistanceInPages(MultihopRelayListType.ENTRY.ordinal))
                         .coerceIn(0f..1f),
-            onClick = { onSelectHopList(RelayListType.ENTRY) },
+            onClick = { onSelectHopList(MultihopRelayListType.ENTRY) },
             text = stringResource(id = R.string.entry),
         )
         MullvadSegmentedEndButton(
-            selected = relayListType == RelayListType.EXIT,
+            selected = relayListType == MultihopRelayListType.EXIT,
             selectedProgress =
                 1f -
-                    abs(pagerState.getOffsetDistanceInPages(RelayListType.EXIT.ordinal))
+                    abs(pagerState.getOffsetDistanceInPages(MultihopRelayListType.EXIT.ordinal))
                         .coerceIn(0f..1f),
-            onClick = { onSelectHopList(RelayListType.EXIT) },
+            onClick = { onSelectHopList(MultihopRelayListType.EXIT) },
             text = stringResource(id = R.string.exit),
         )
     }
@@ -529,42 +556,35 @@ private fun RelayLists(
     pagerState: PagerState,
     state: SelectLocationUiState,
     onSelectHop: (hop: Hop) -> Unit,
-    onModifyMultihop: (RelayItem, RelayListType) -> Unit,
+    onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
-    onSelectRelayList: (RelayListType) -> Unit,
+    onSelectRelayList: (MultihopRelayListType) -> Unit,
 ) {
-    // This is so that when the pager is scrolled by the user the relay list type is updated
-    // correctly.
-    // If multihop is not enabled, the pager will only have one page, so this will not be called.
-    if (state.multihopEnabled) {
+    if (state.relayListType is RelayListType.Multihop) {
+        // This is so that when the pager is scrolled by the user the relay list type is updated
+        // correctly.
+        // If multihop is not enabled, the pager will only have one page, so this will not be
+        // called.
         LaunchedEffect(pagerState.currentPage) {
-            onSelectRelayList(RelayListType.entries[pagerState.currentPage])
+            onSelectRelayList(MultihopRelayListType.entries[pagerState.currentPage])
         }
-    }
-
-    LaunchedEffect(state.relayListType) {
-        val index = state.relayListType.ordinal
-        pagerState.animateScrollToPage(index)
+        // This is so that when the relay list entry or exit button is clicked, the pager will
+        // scroll to the correct page.
+        LaunchedEffect(state.relayListType.multihopRelayListType) {
+            val index = state.relayListType.multihopRelayListType.ordinal
+            pagerState.animateScrollToPage(index)
+        }
     }
 
     val focusManager = LocalFocusManager.current
     val onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { relayItem, relayListType ->
-        if (state.multihopEnabled) {
-            onModifyMultihop(relayItem, relayListType)
+        if (relayListType is RelayListType.Multihop) {
+            onModifyMultihop(relayItem, relayListType.multihopRelayListType)
         } else {
             onSelectHop(Hop.Single(relayItem))
-        }
-        // If multihop is enabled and the user selects a location or custom list in the entry list
-        // the app will switch to the exit list. Normally in this case the focus will stay in the
-        // entry list, but in this case we want move the focus to the exit list.
-        if (state.multihopEnabled && relayListType == RelayListType.ENTRY && relayItem.active) {
-            focusManager.moveFocus(FocusDirection.Right)
-            if (relayItem.hasChildren) {
-                focusManager.moveFocus(FocusDirection.Right)
-            }
         }
     }
 
@@ -581,9 +601,9 @@ private fun RelayLists(
         SelectLocationList(
             relayListType =
                 if (state.multihopEnabled) {
-                    RelayListType.entries[pageIndex]
+                    RelayListType.Multihop(MultihopRelayListType.entries[pageIndex])
                 } else {
-                    RelayListType.EXIT
+                    RelayListType.Single
                 },
             onSelectHop = onSelectHop,
             onSelectRelayItem = onSelectRelayItem,

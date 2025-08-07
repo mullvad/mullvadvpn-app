@@ -46,18 +46,20 @@ class ModifyMultihopUseCase(
                     }
                 }
 
-            selectHopUseCase(newMultihop).mapLeft { error ->
-                when (error) {
-                    is SelectHopError.HopInactive ->
-                        ModifyMultihopError.RelayItemInactive(change.item)
-                    is SelectHopError.EntryAndExitSame ->
-                        when (change) {
-                            is MultihopChange.Entry -> ModifyMultihopError.ExitSame(change.item)
-                            is MultihopChange.Exit -> ModifyMultihopError.EntrySame(change.item)
-                        }
-                    SelectHopError.GenericError -> ModifyMultihopError.GenericError
+            selectHopUseCase(newMultihop)
+                .mapLeft { error ->
+                    when (error) {
+                        is SelectHopError.HopInactive ->
+                            ModifyMultihopError.RelayItemInactive(change.item)
+                        is SelectHopError.EntryAndExitSame ->
+                            when (change) {
+                                is MultihopChange.Entry -> ModifyMultihopError.ExitSame(change.item)
+                                is MultihopChange.Exit -> ModifyMultihopError.EntrySame(change.item)
+                            }
+                        SelectHopError.GenericError -> ModifyMultihopError.GenericError
+                    }
                 }
-            }
+                .bind()
         }
 
     private suspend fun Settings?.exitLocation(

@@ -1,42 +1,29 @@
 package net.mullvad.mullvadvpn.usecase
 
 import arrow.core.Either
-import arrow.core.left
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import net.mullvad.mullvadvpn.lib.model.Hop
-import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.relaylist.isTheSameAs
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 
 class SelectHopUseCase(private val relayListRepository: RelayListRepository) {
-    suspend operator fun invoke(hop: Hop): Either<SelectHopError, Unit> =
-        if (hop.isActive) {
-            selectHop(hop = hop)
-        } else {
-            SelectHopError.HopInactive(hop = hop).left()
-        }
-
-    private suspend fun selectHop(hop: Hop): Either<SelectHopError, Unit> =
+    suspend operator fun invoke(hop: Hop): Either<SelectHopError, Unit> = either {
+        ensure(hop.isActive) { SelectHopError.HopInactive(hop = hop) }
         when (hop) {
             is Hop.Multi -> {
-                val entryConstraint = hop.entry.id
-                val exitConstraint = hop.exit.id
-                if (hop.entry is RelayItem.Location.Relay && entryConstraint == exitConstraint) {
-                    SelectHopError.EntryAndExitSame.left()
-                } else {
-                    relayListRepository
-                        .updateSelectedRelayLocationMultihop(
-                            entry = entryConstraint,
-                            exit = exitConstraint,
-                        )
-                        .mapLeft { SelectHopError.GenericError }
-                }
+                ensure(!hop.entry.isTheSameAs(hop.exit)) { SelectHopError.EntryAndExitSame }
+                relayListRepository
+                    .updateSelectedRelayLocationMultihop(entry = hop.entry.id, exit = hop.exit.id)
+                    .mapLeft { SelectHopError.GenericError }
             }
             is Hop.Single<*> -> {
-                val locationConstraint = hop.relay.id
-                relayListRepository.updateSelectedRelayLocation(locationConstraint).mapLeft {
+                relayListRepository.updateSelectedRelayLocation(hop.relay.id).mapLeft {
                     SelectHopError.GenericError
                 }
             }
         }
+    }
 }
 
 sealed interface SelectHopError {
