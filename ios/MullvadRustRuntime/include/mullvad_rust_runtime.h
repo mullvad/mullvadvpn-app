@@ -183,6 +183,14 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
  * `address` must be a pointer to a null terminated string representing a socket address through which
  * the Mullvad API can be reached directly.
  *
+ * address_method_change_callback is a function with the C calling convention which will be called
+ * whenever the access method changes with a user-specified opaque pointer and a pointer to the bytes
+ * of the access method's UUID. Note that this callback must remain valid for the lifetime of the
+ * program.
+ *
+ * access_method_change_context is the pointer passed verbatim to the callback. It is not dereferenced
+ * by the Rust code, but remains opaque.
+ *
  * If a context cannot be constructed this function will panic since the call site would not be able
  * to proceed in a meaningful way anyway.
  *
