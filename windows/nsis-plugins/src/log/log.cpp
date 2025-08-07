@@ -90,7 +90,7 @@ std::vector<std::wstring> BlockToRows(const std::wstring &textBlock)
 	return common::string::Tokenize(textBlock, L"\r\n");
 }
 
-std::wstring GetWindowsVersion()
+std::wstring GetWindowsVersionString()
 {
 	std::vector<uint16_t> version(256);
 	size_t bufferSize = version.size();
@@ -287,7 +287,7 @@ void __declspec(dllexport) NSISCALL LogWindowsVersion
 	try
 	{
 		std::wstringstream version;
-		version << L"Windows version: " << GetWindowsVersion();
+		version << L"Windows version: " << GetWindowsVersionString();
 		g_logger->log(version.str());
 	}
 	catch (std::exception &err)
@@ -303,6 +303,40 @@ void __declspec(dllexport) NSISCALL LogWindowsVersion
 	{
 		g_logger->log(L"Windows version: Failed to determine version");
 	}
+}
+
+//
+// GetWindowsMajorVersion
+//
+// Returns the current Windows major version on the stack. -1 on error.
+//
+void __declspec(dllexport) NSISCALL GetWindowsMajorVersion
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	WindowsVer ver = { 0 };
+
+	if (get_system_version_struct(&ver) == Status::Ok)
+	{
+		pushint(ver.major_version);
+		return;
+	}
+
+
+	if (nullptr != g_logger)
+	{
+		g_logger->log(L"Windows version: Failed to determine version");
+	}
+
+	pushint(-1);
 }
 
 //

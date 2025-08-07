@@ -17,5 +17,5 @@ crate-type = ["staticlib"]
 mullvad-paths = { path = "../mullvad-paths" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 
-[target.i686-pc-windows-msvc.build-dependencies]
-cbindgen = { version = "0.24.3", default-features = false }
+[target.'cfg(target_os = "windows")'.build-dependencies]
+cbindgen = { version = "0.28.0", default-features = false }
