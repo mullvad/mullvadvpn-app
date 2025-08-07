@@ -283,10 +283,10 @@ pub extern "C" fn mullvad_api_init_inner(
         .await
         .expect("Could now spawn AccessModeSelector");
 
-        tokio::spawn(async move {
-            let access_method_change_ctx = access_method_change_ctx;
-            // SAFETY: The callback is expected to be called from the Swift side
-            if let Some(callback) = access_method_change_callback {
+        // SAFETY: The callback is expected to be called from the Swift side
+        if let Some(callback) = access_method_change_callback {
+            tokio::spawn(async move {
+                let access_method_change_ctx = access_method_change_ctx;
                 while let Some((event, _sender)) = rx.next().await {
                     let AccessMethodEvent::New {
                         setting,
@@ -301,11 +301,8 @@ pub extern "C" fn mullvad_api_init_inner(
                     // SAFETY: The callback is expected to be safe to call
                     unsafe { callback(access_method_change_ctx.ptr, uuid_bytes.as_ptr()) };
                 }
-            }
-        });
-
-        // TODO: do something with rx, and somehow let the `AccessMethodEvent`s it
-        // receives be sent back to the Swift side
+            });
+        }
 
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.
