@@ -55,7 +55,7 @@ struct DeviceListView: View {
                         title: LocalizedStringKey(device.name),
                         state: device.isCurrentDevice ? "Current device" : nil,
                         detail: "Created: \(device.created.formatted(date: .long, time: .omitted))",
-                        accessibilityIdentifier: AccessibilityIdentifier.deviceCellRemoveButton,
+                        accessibilityIdentifier: .deviceCellRemoveButton,
                         pressed: {
                             onRemoveDevice?(device)
                         }
@@ -75,7 +75,7 @@ struct DeviceListView: View {
                 )
             }
         )
-        .accessibilityIdentifier(.deviceListView)
+        .accessibilityIdentifier(.deviceManagementView)
     }
 }
 
