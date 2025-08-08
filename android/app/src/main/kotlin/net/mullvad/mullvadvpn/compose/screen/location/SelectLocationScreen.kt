@@ -78,6 +78,7 @@ import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
@@ -558,7 +559,7 @@ private fun RelayLists(
         // correctly.
         // If multihop is not enabled, the pager will only have one page, so this will not be
         // called.
-        LaunchedEffect(pagerState.currentPage) {
+        RunOnKeyChange(pagerState.currentPage) {
             onSelectRelayList(MultihopRelayListType.entries[pagerState.currentPage])
         }
         // This is so that when the relay list entry or exit button is clicked, the pager will
