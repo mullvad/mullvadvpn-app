@@ -29,7 +29,7 @@ function upload {
 }
 
 function run_in_linux_container {
-    USE_MOLD=false ./building/container-run.sh linux "$@"
+    ./building/container-run.sh linux "$@"
 }
 
 # Builds the app artifacts and move them to the passed in `artifact_dir`.
@@ -38,7 +38,6 @@ function build {
     ANDROID_CREDENTIALS_DIR=$ANDROID_CREDENTIALS_DIR \
         CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
         CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
-        USE_MOLD=false \
         ./building/containerized-build.sh android --app-bundle --enable-play-publishing || return 1
 
     mv dist/*.{aab,apk} "$artifact_dir" || return 1

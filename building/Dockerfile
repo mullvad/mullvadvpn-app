@@ -31,9 +31,6 @@ ENV CARGO_TARGET_DIR=/cargo-target/target
 ARG GOLANG_VERSION=1.21.3 \
     GOLANG_HASH=1241381b2843fae5a9707eec1f8fb2ef94d827990582c7c7c32f5bdfbfd420c8
 
-# The pinned commit has this solved: https://github.com/rui314/mold/issues/1003.
-ARG MOLD_COMMIT_REF=c4722fe5aed96295837d9150b20ef8698c7a28db
-
 # Pinned to commit hash for tag v4.24.3
 ARG PROTOBUF_COMMIT_REF=ee1355459c9ce7ffe264bc40cfdc7b7623d37e99
 
@@ -83,21 +80,6 @@ RUN apt-get update -y && \
     cmake --build . -j $(nproc) && \
     cmake --install . && \
     cd .. && rm -rf protobuf && \
-    apt-get autoremove -y
-
-# === mold (fast linker) ===
-# Allows linking Rust binaries significantly faster.
-
-RUN apt-get update -y && \
-    apt-get install -y --mark-auto cmake libssl-dev zlib1g-dev gcc g++ && \
-    rm -rf /var/lib/apt/lists/* && \
-    git clone https://github.com/rui314/mold.git && \
-    mkdir mold/build && cd mold/build && \
-    git reset --hard "$MOLD_COMMIT_REF" && \
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ .. && \
-    cmake --build . -j $(nproc) && \
-    cmake --install . && \
-    cd ../.. && rm -rf mold && \
     apt-get autoremove -y
 
 # === Volta for npm + node ===
