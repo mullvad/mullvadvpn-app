@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2025-06-27 06:04\n"
+"PO-Revision-Date: 2025-08-08 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "Mais %(amount)d..."
@@ -759,6 +759,10 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "O instalador fechou inesperadamente. Tente novamente ou envie um relatório do problema."
 
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr "O instalador será transferido para <b>%(cacheDir)s</b>."
+
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1395,42 +1399,80 @@ msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr "Bem-vindo, este dispositivo é agora chamado <b>%(deviceName)s</b>. Para mais detalhes consulte o botão de informação na Conta."
 
+#. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "A ligar-se ao serviço de sistema Mulvad..."
 
+#. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
-msgid "Disable third party antivirus software."
-msgstr "Desativar software antivírus de terceiros."
+msgid "Details"
+msgstr "Detalhes"
 
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
+msgstr "Desativar software antivírus de terceiros"
+
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr "Erro ao iniciar a aplicação. Tente novamente ou clique em \"Detalhes\" para mais informações"
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr "Se estes passos não funcionarem, envie um relatório do problema."
 
+#. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "A permissão para o serviço Mullvad VPN foi revogada. Aceda às definições do sistema e permita a Mullvad VPN, abaixo da definição \"Permitir em segundo plano\"."
 
+#. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
-msgid "Reinstalling the app."
-msgstr "Reinstalar a app."
+msgid "Reinstalling the app"
+msgstr "Reinstalar a aplicação"
 
+#. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
-msgid "Restarting your computer."
-msgstr "Reiniciar o seu computador."
+msgid "Restarting the Mullvad background process"
+msgstr "Reiniciar o processo em segundo plano do Mullvad"
 
-#. Button label for problem report view.
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr "Reiniciar o processo em segundo plano do Mullvad clicando em \"Voltar\", e depois em \"Tentar novamente\""
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr "Reiniciar o seu computador"
+
+#. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "Enviar relatório do problema"
 
+#. Status text shown when app is starting.
 msgctxt "launch-view"
-msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
-msgstr "O componente de serviço do sistema da app não foi iniciado ou não pode ser contactado. O serviço do sistema é responsável pela segurança, pelo kill switch e pelo túnel VPN. Para resolver o problema, experimente:"
+msgid "Starting up...."
+msgstr "A iniciar..."
 
+#. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
-msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
-msgstr "Não foi possível contactar o serviço do sistema Mullvad, a sua ligação pode ser insegura. Tente resolver o problema ou envie um relatório do problema clicando no botão Mais informações."
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr "Erro ao iniciar o processo em segundo plano do Mullvad. O processo em segundo plano é responsável pela segurança, pelo kill switch e pelo túnel VPN. Tente o seguinte:"
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr "Tentar novamente"
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
+msgstr "Não foi possível contactar o serviço do sistema Mullvad, a sua ligação pode ser insegura. Tente resolver o problema ou envie um relatório do problema clicando no botão \"Mais informações\"."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1911,6 +1953,13 @@ msgstr "Os nomes de listas devem ser únicos."
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "O nome já está a ser utilizado."
+
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr "Ofuscação: %(obfuscation)s"
 
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
@@ -2755,6 +2804,9 @@ msgstr "%s (removido)"
 msgid "%s custom port"
 msgstr "Porta personalizada %s"
 
+msgid "%s is unavailable"
+msgstr "%s não está disponível"
+
 msgid "%s was added to your account."
 msgstr "%s adicionado(s) à sua conta."
 
@@ -2923,6 +2975,9 @@ msgstr "Desative \"%s\" abaixo para ativar estas definições."
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Desative todos os \"%s\" acima para ativar esta definição."
 
+msgid "Disable recents"
+msgstr "Desativar recentes"
+
 msgid "Discard"
 msgstr "Descartar"
 
@@ -2961,6 +3016,9 @@ msgstr "Ativar %1$s"
 
 msgid "Enable method"
 msgstr "Ativar método"
+
+msgid "Enable recents"
+msgstr "Ativar recentes"
 
 msgid "Enter MTU"
 msgstr "Introduzir MTU"
@@ -3061,6 +3119,9 @@ msgstr "Assegura que o dispositivo está sempre no túnel VPN."
 msgid "Manage devices"
 msgstr "Gerir dispositivos"
 
+msgid "More actions"
+msgstr "Mais ações"
+
 msgid "Mullvad services unavailable"
 msgstr "Serviços Mullvad indisponíveis"
 
@@ -3087,6 +3148,9 @@ msgstr "Sem ligação à internet"
 
 msgid "No locations found"
 msgstr "Nenhuma localização encontrada"
+
+msgid "No recent selection history"
+msgstr "Sem histórico de seleção recente"
 
 msgid "No result for \"%s\", please try a different search"
 msgstr "Nenhum resultado para \"%s\", tente uma pesquisa diferente"
@@ -3126,6 +3190,12 @@ msgstr "Privacidade"
 
 msgid "Privacy policy"
 msgstr "Política de privacidade"
+
+msgid "Recents"
+msgstr "Recentes"
+
+msgid "Recents disabled and history cleared"
+msgstr "Recentes desativados e histórico eliminado"
 
 msgid "Recursion limit"
 msgstr "Limite de recursão"
@@ -3229,11 +3299,11 @@ msgstr "Este já está definido como o atual"
 msgid "Time added"
 msgstr "Tempo adicionado"
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
-msgstr "Para adicionar localizações a uma lista, prima o botão \"︙\" ou mantenha premido um país, uma cidade ou um servidor."
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr "Para adicionar localizações a uma lista, prima a caneta ou mantenha premido um país, uma cidade ou um servidor."
 
-msgid "To create a custom list press the \"︙\""
-msgstr "Para criar uma lista personalizada prima o botão \"︙\""
+msgid "To create a custom list press the \"+\""
+msgstr "Para criar uma lista personalizada prima o botão \"+\""
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Para se certificar de que tem a versão mais segura e para o informar de quaisquer problemas com a versão atual em execução, a app efetua verificações de versão automaticamente. Esta envia a versão da app e a versão do sistema Android para os servidores da Mullvad. A Mullvad mantém um registo do número de versões da app e de versões do Android utilizadas. Os dados nunca são armazenados ou utilizados de forma a identificar o utilizador."
@@ -3312,6 +3382,9 @@ msgstr "Não foi possível iniciar o processo de pagamento. Verifique se tem a v
 
 msgid "We were unable to start the payment process, please try again later."
 msgstr "Não foi possível iniciar o processo de pagamento, tente novamente mais tarde."
+
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr "As boas-vindas, este dispositivo tem agora o nome <b>%s</b>."
 
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"

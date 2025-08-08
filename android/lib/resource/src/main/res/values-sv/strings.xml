@@ -140,6 +140,7 @@
     <string name="device_name_info_third_paragraph">Om du loggar ut tas enheten och enhetsnamnet bort. När du loggar in igen får enheten ett nytt namn.</string>
     <string name="direct_only">Endast direkt</string>
     <string name="direct_only_description">Det är inte alla våra servrar som är %1$s-aktiverade. Om du vill använda internet kanske du måste välja en ny plats efter aktivering.</string>
+    <string name="disable_recents">Inaktivera senaste</string>
     <string name="discard">Ignorera</string>
     <string name="discard_changes">Ignorera ändringarna?</string>
     <string name="disconnect">Koppla från</string>
@@ -167,6 +168,7 @@
     <string name="enable_direct_only">Aktivera %1$s</string>
     <string name="enable_ipv6">IPv6 i tunnel</string>
     <string name="enable_method">Aktivera metod</string>
+    <string name="enable_recents">Aktivera senaste</string>
     <string name="encrypted_dns_proxy_info_message_part1">Med metoden \"Krypterad DNS-proxy\" kommunicerar appen med vår Mullvad API via en proxyadress. Den gör det genom att hämta en adress från en DNS over HTTPS-server (DoH) och sedan använda den för att nå våra API-servrar.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Om du inte är ansluten till vår VPN använder den krypterade DNS-proxyn din egen IP-adress utan VPN när du ansluter. En av följande leverantörer är värd för DoH-servrarna: Quad 9 eller CloudFlare.</string>
     <string name="enter_value_placeholder">Ange MTU</string>
@@ -251,6 +253,7 @@
     <string name="max_devices_resolved_title">Super!</string>
     <string name="max_devices_warning_description">Logga ut på minst en enhet genom att ta bort den från listan nedan. Du hittar motsvarande enhetsnamn i enhetens kontoinställningar.</string>
     <string name="max_devices_warning_title">För många enheter</string>
+    <string name="more_actions">Fler åtgärder</string>
     <string name="more_information">Mer information</string>
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="multihop">Multihopp</string>
@@ -260,12 +263,14 @@
     <string name="name_was_changed_to">Namnet har ändrats till %1$s</string>
     <string name="new_changelog_notification_message">Klicka här för att se nyheterna.</string>
     <string name="new_changelog_notification_title">NY VERSION INSTALLERAD</string>
+    <string name="new_device_notification_message">Välkommen. Den här enheten har fått namnet &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="new_device_notification_title">NY ENHET HAR SKAPATS</string>
     <string name="new_list">Ny lista</string>
     <string name="no_custom_lists_available">Inga anpassade listor är tillgängliga</string>
     <string name="no_internet_connection">Ingen internetanslutning</string>
     <string name="no_locations_found">Inga platser hittades</string>
     <string name="no_matching_relay">Inga servrar matchar dina inställningar. Försök att byta server eller ändra inställningarna.</string>
+    <string name="no_recent_selection">Ingen historik av senaste val</string>
     <string name="no_wireguard_key">Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar.</string>
     <string name="not_found">Hittades inte</string>
     <string name="number_of_providers">Leverantörer: %1$d</string>
@@ -305,9 +310,12 @@
     <string name="quantum_resistant_info_first_paragaph">Den här funktionen gör WireGuard-tunneln resistent mot potentiella attacker från kvantdatorer.</string>
     <string name="quantum_resistant_info_second_paragaph">Den gör det genom att göra ett extra nyckelutbyte med en kvantsäker algoritm och kombinera resultatet med WireGuards vanliga kryptering. Det här extra steget använder ungefär 500 KiB i trafik varje gång en ny tunnel upprättas.</string>
     <string name="quantum_resistant_title">Kvantresistent tunnel</string>
+    <string name="recents">Senaste</string>
+    <string name="recents_disabled">Senaste har inaktiverats och historiken har rensats</string>
     <string name="reconnect">Återanslut</string>
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>
+    <string name="relayitem_is_inactive">%1$s är inte tillgänglig</string>
     <string name="remove_button">Ta bort</string>
     <string name="remove_location_from_list">Ta bort %1$s från %2$s</string>
     <string name="removed_provider">%1$s (har tagits bort)</string>
@@ -370,6 +378,8 @@
     <string name="this_field_is_required">Fältet är obligatoriskt</string>
     <string name="this_is_already_set_as_current">Den har redan ställts in som aktuell</string>
     <string name="time_added">Tid har lagts till</string>
+    <string name="to_add_locations_to_a_list">Om du vill lägga till platser i en lista kan du trycka på pennan eller trycka länge på ett land, en stad eller en server.</string>
+    <string name="to_create_a_custom_list">Om du vill skapa en anpassad lista trycker du på \"+\"</string>
     <string name="toggle_vpn">Växla VPN</string>
     <string name="top_bar_device_name">Enhetsnamn: %1$s</string>
     <string name="top_bar_time_left">Tid kvar: %1$s</string>

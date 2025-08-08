@@ -140,6 +140,7 @@
     <string name="device_name_info_third_paragraph">หากคุณออกจากระบบ อุปกรณ์และชื่ออุปกรณ์จะถูกลบออก และเมื่อคุณลงชื่อเข้าใช้อีกครั้ง อุปกรณ์จะได้รับชื่อใหม่</string>
     <string name="direct_only">โดยตรงเท่านั้น</string>
     <string name="direct_only_description">ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %1$s คุณอาจต้องเลือกตำแหน่งที่ตั้งใหม่หลังจากเปิดใช้งาน เพื่อใช้งานอินเทอร์เน็ต</string>
+    <string name="disable_recents">ปิดใช้งานล่าสุด</string>
     <string name="discard">ละทิ้ง</string>
     <string name="discard_changes">ละทิ้งการเปลี่ยนแปลงหรือไม่</string>
     <string name="disconnect">ตัดการเชื่อมต่อ</string>
@@ -167,6 +168,7 @@
     <string name="enable_direct_only">เปิดใช้งาน %1$s</string>
     <string name="enable_ipv6">IPv6 แบบภายในอุโมงค์</string>
     <string name="enable_method">เปิดใช้งานวิธีการ</string>
+    <string name="enable_recents">เปิดใช้งานล่าสุด</string>
     <string name="encrypted_dns_proxy_info_message_part1">การใช้วิธี \"พร็อกซี DNS ที่เข้ารหัส\" จะช่วยให้แอปสื่อสารกับ Mullvad API ของเราผ่านที่อยู่พร็อกซี ซึ่งทำได้โดยดึงที่อยู่จากเซิร์ฟเวอร์ DNS ผ่าน HTTPS (DoH) แล้วจึงใช้ที่อยู่ดังกล่าวเพื่อเข้าถึงเซิร์ฟเวอร์ API ของเรา</string>
     <string name="encrypted_dns_proxy_info_message_part2">หากคุณไม่ได้เชื่อมต่อกับ VPN ของเรา พร็อกซี DNS ที่เข้ารหัสจะใช้ IP ที่ไม่ใช่ VPN ของคุณในขณะที่เชื่อมต่อ เซิร์ฟเวอร์ DoH ได้รับการโฮสต์โดยผู้ให้บริการรายใดรายหนึ่งต่อไปนี้: Quad9 หรือ CloudFlare</string>
     <string name="enter_value_placeholder">ป้อน MTU</string>
@@ -251,6 +253,7 @@
     <string name="max_devices_resolved_title">เยี่ยมยอด!</string>
     <string name="max_devices_warning_description">โปรดลงชื่อออกจากระบบบนอุปกรณ์อย่างน้อยหนึ่งเครื่อง เพื่อนำอุปกรณ์ออกจากรายการด้านล่าง คุณสามารถดูชื่ออุปกรณ์ที่เกี่ยวข้องได้ ภายใต้การตั้งค่าบัญชีของอุปกรณ์</string>
     <string name="max_devices_warning_title">มีอุปกรณ์มากเกินไป</string>
+    <string name="more_actions">การดำเนินการเพิ่มเติม</string>
     <string name="more_information">ข้อมูลเพิ่มเติม</string>
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
     <string name="multihop">มัลติฮอป</string>
@@ -260,12 +263,14 @@
     <string name="name_was_changed_to">ชื่อถูกเปลี่ยนเป็น %1$s</string>
     <string name="new_changelog_notification_message">คลิกที่นี่ เพื่อดูว่ามีอะไรใหม่</string>
     <string name="new_changelog_notification_title">ติดตั้งเวอร์ชันใหม่แล้ว</string>
+    <string name="new_device_notification_message">ยินดีต้อนรับ อุปกรณ์นี้มีชื่อว่า &lt;b&gt;%1$s&lt;/b&gt; แล้ว</string>
     <string name="new_device_notification_title">สร้างอุปกรณ์ใหม่แล้ว</string>
     <string name="new_list">รายการใหม่</string>
     <string name="no_custom_lists_available">ไม่มีรายการแบบกำหนดเองที่พร้อมใช้งาน</string>
     <string name="no_internet_connection">ไม่มีการเชื่อมต่ออินเทอร์เน็ต</string>
     <string name="no_locations_found">ไม่พบตำแหน่งที่ตั้ง</string>
     <string name="no_matching_relay">ไม่มีเซิร์ฟเวอร์ที่ตรงกับการตั้งค่าของคุณ โปรดลองเปลี่ยนเซิร์ฟเวอร์ หรือการตั้งค่าอื่นๆ</string>
+    <string name="no_recent_selection">ไม่มีประวัติการเลือกล่าสุด</string>
     <string name="no_wireguard_key">คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง</string>
     <string name="not_found">ไม่พบ</string>
     <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
@@ -305,9 +310,12 @@
     <string name="quantum_resistant_info_first_paragaph">คุณลักษณะนี้จะช่วยให้ช่องทาง WireGuard สามารถสกัดกั้นการโจมตีที่อาจมาจากคอมพิวเตอร์ควอนตัมได้</string>
     <string name="quantum_resistant_info_second_paragaph">ระบบจะดำเนินการสิ่งนี้ผ่านการแลกเปลี่ยนคีย์เพิ่มเติม โดยการใช้อัลกอริทึมแบบควอนตัมที่ปลอดภัย และผสมผลลัพธ์เข้ากับการเข้ารหัสตามปกติของ WireGuard และขั้นตอนพิเศษนี้ใช้การรับส่งข้อมูลประมาณ 500 kiB ในทุกครั้งที่สร้างช่องทางใหม่</string>
     <string name="quantum_resistant_title">ช่องทางการสกัดกั้นควอนตัม</string>
+    <string name="recents">ล่าสุด</string>
+    <string name="recents_disabled">ปิดใช้งานล่าสุดและล้างประวัติแล้ว</string>
     <string name="reconnect">เชื่อมต่อใหม่</string>
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
+    <string name="relayitem_is_inactive">%1$s ไม่พร้อมใช้งาน</string>
     <string name="remove_button">ลบ</string>
     <string name="remove_location_from_list">ลบ %1$s จาก %2$s</string>
     <string name="removed_provider">%1$s (ลบแล้ว)</string>
@@ -370,6 +378,8 @@
     <string name="this_field_is_required">จำเป็นต้องกรอกช่องนี้</string>
     <string name="this_is_already_set_as_current">นี่ได้รับการตั้งค่าเป็นปัจจุบันแล้ว</string>
     <string name="time_added">เพิ่มเวลาแล้ว</string>
+    <string name="to_add_locations_to_a_list">หากต้องการเพิ่มตำแหน่งลงในรายการ ให้กดปากกาหรือกดค้างที่ประเทศ เมือง หรือเซิร์ฟเวอร์</string>
+    <string name="to_create_a_custom_list">หากต้องการสร้างรายการที่กำหนดเอง ให้กด \"+\"</string>
     <string name="toggle_vpn">เปิด/ปิด VPN</string>
     <string name="top_bar_device_name">ชื่ออุปกรณ์: %1$s</string>
     <string name="top_bar_time_left">เหลือเวลา: %1$s</string>

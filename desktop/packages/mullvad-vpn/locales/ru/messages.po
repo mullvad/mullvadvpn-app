@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2025-06-27 06:04\n"
+"PO-Revision-Date: 2025-08-08 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "Еще %(amount)d..."
@@ -771,6 +771,10 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "Установщик неожиданно завершил работу. Повторите попытку или отправьте сообщение о проблеме."
 
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr "Установщик будет скачан в папку <b>%(cacheDir)s</b>."
+
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1407,41 +1411,79 @@ msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr "Добро пожаловать, теперь это устройство называется <b>%(deviceName)s</b>. Для получения более подробной нажмите на кнопку «Информация» в учетной записи."
 
+#. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Подключение к системному сервису Mullvad..."
 
+#. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
-msgid "Disable third party antivirus software."
-msgstr "Отключите сторонние антивирусы."
+msgid "Details"
+msgstr "Подробности"
 
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
+msgstr "Отключение сторонних антивирусных программ"
+
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr "Не удалось запустить приложение. Попробуйте еще раз или нажмите «Подробности», чтобы узнать больше"
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr "Если эти действия не помогли, отправьте сообщение о проблеме."
 
+#. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Разрешение для службы Mullvad VPN было отозвано. Зайдите в системные настройки и включите для Mullvad VPN параметр «Разрешить в фоновом режиме»."
 
+#. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
-msgid "Reinstalling the app."
-msgstr "Переустановите приложение."
+msgid "Reinstalling the app"
+msgstr "Переустановить приложение"
 
+#. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
-msgid "Restarting your computer."
-msgstr "Перезагрузите компьютер."
+msgid "Restarting the Mullvad background process"
+msgstr "Перезапустить фоновый процесс Mullvad"
 
-#. Button label for problem report view.
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr "Перезапустить фоновый процесс Mullvad: для этого нажмите «Назад», затем — «Повторить попытку»"
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr "Перезагрузить компьютер"
+
+#. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "Отправить сообщение о проблеме"
 
+#. Status text shown when app is starting.
 msgctxt "launch-view"
-msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
-msgstr "Компонент системной службы приложения не запущен или с ним невозможно связаться. Системная служба отвечает за безопасность, аварийное отключение и туннель VPN. Чтобы устранить неполадки, попробуйте следующее:"
+msgid "Starting up...."
+msgstr "Запуск..."
 
+#. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
-msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr "Не удалось запустить фоновый процесс Mullvad. Он отвечает за безопасность, аварийное отключение и VPN-туннель. Попробуйте следующее:"
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr "Повторить попытку"
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
 msgstr "Не удается связаться с системной службой Mullvad. Возможно, ваше подключение не защищено. Устраните неполадки или отправьте сообщение о проблеме, нажав кнопку «Подробнее»."
 
 #. This is a warning message shown when the app is blocking the users
@@ -1923,6 +1965,13 @@ msgstr "Названия списков должны быть уникальны
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "Такое название уже используется."
+
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr "Обфускация: %(obfuscation)s"
 
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
@@ -2767,6 +2816,9 @@ msgstr "%s (удалено)"
 msgid "%s custom port"
 msgstr "Пользовательский порт %s"
 
+msgid "%s is unavailable"
+msgstr "%s недоступно"
+
 msgid "%s was added to your account."
 msgstr "На учетную запись добавлено время: %s."
 
@@ -2935,6 +2987,9 @@ msgstr "Чтобы активировать эти параметры, откл�
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Чтобы активировать этот параметр, отключите все %s выше."
 
+msgid "Disable recents"
+msgstr "Отключить недавние"
+
 msgid "Discard"
 msgstr "Сбросить"
 
@@ -2973,6 +3028,9 @@ msgstr "Включить режим %1$s"
 
 msgid "Enable method"
 msgstr "Включить метод"
+
+msgid "Enable recents"
+msgstr "Включить недавние"
 
 msgid "Enter MTU"
 msgstr "Введите MTU"
@@ -3073,6 +3131,9 @@ msgstr "Обеспечивает постоянное подключение у�
 msgid "Manage devices"
 msgstr "Управление устройствами"
 
+msgid "More actions"
+msgstr "Дополнительные действия"
+
 msgid "Mullvad services unavailable"
 msgstr "Службы Mullvad недоступны"
 
@@ -3099,6 +3160,9 @@ msgstr "Нет подключения к Интернету"
 
 msgid "No locations found"
 msgstr "Местоположения не найдены"
+
+msgid "No recent selection history"
+msgstr "Нет истории недавнего выбора"
 
 msgid "No result for \"%s\", please try a different search"
 msgstr "По запросу «%s» ничего не найдено — попробуйте другой запрос"
@@ -3138,6 +3202,12 @@ msgstr "Конфиденциальность"
 
 msgid "Privacy policy"
 msgstr "Политика конфиденциальности"
+
+msgid "Recents"
+msgstr "Недавние"
+
+msgid "Recents disabled and history cleared"
+msgstr "Недавние отключены, история очищена"
 
 msgid "Recursion limit"
 msgstr "Предел рекурсии"
@@ -3241,11 +3311,11 @@ msgstr "Этот метод уже установлен как текущий"
 msgid "Time added"
 msgstr "Время добавлено"
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
-msgstr "Чтобы добавить местоположения в список, нажмите «︙» или нажмите и удерживайте страну, город или сервер."
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr "Чтобы добавить местоположения в список, нажмите значок карандаша или нажмите и удерживайте страну, город или сервер."
 
-msgid "To create a custom list press the \"︙\""
-msgstr "Чтобы создать свой список, нажмите «︙»"
+msgid "To create a custom list press the \"+\""
+msgstr "Чтобы создать свой список, нажмите «+»"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Чтобы удостовериться, что вы используете наиболее безопасную версию приложения, и сообщить вам о возможных проблемах в ней, приложение автоматически проверяет свою версию. При этом на серверы Mullvad передаются данные о версии приложения и системы Android. Mullvad ведет учет количества пользователей с определенными версиями приложения и ОС Android. Эти данные не хранятся и не используются каким бы то ни было образом, позволяющим вас идентифицировать."
@@ -3324,6 +3394,9 @@ msgstr "Не удалось начать процесс оплаты — убе
 
 msgid "We were unable to start the payment process, please try again later."
 msgstr "Не удалось начать процесс оплаты. Повторите попытку позже."
+
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr "Добро пожаловать! Это устройство теперь называется <b>%s</b>."
 
 msgid "WireGuard MTU"
 msgstr "MTU для WireGuard"
