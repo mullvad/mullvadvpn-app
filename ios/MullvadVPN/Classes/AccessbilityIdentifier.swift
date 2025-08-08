@@ -186,7 +186,6 @@ public enum AccessibilityIdentifier: Equatable {
     case deleteAccountTextField
     case socks5AuthenticationSwitch
     case statusImageView
-    case deviceListView
     case deviceRemovalProgressView
 
     // DNS settings
