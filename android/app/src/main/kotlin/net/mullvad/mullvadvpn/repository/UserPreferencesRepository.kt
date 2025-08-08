@@ -34,7 +34,14 @@ class UserPreferencesRepository(
         }
     }
 
-    // Returns the account expiry time or null if the account expiry has not been set yet.
+    suspend fun clearAccountExpiry() {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setAccountExpiryUnixTimeSeconds(0).build()
+        }
+    }
+
+    // Returns the account expiry time or null if there is no account expiry (e.g. the user
+    // is not logged in on an account).
     suspend fun accountExpiry(): ZonedDateTime? =
         preferences().let { prefs ->
             val expiryTime = prefs.accountExpiryUnixTimeSeconds

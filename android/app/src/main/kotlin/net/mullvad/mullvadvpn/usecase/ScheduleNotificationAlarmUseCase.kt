@@ -17,9 +17,13 @@ class ScheduleNotificationAlarmUseCase(
     suspend operator fun invoke(context: Context, accountExpiry: ZonedDateTime?) {
         val appContext = context.applicationContext
         val alarmManager = appContext.getSystemService(AlarmManager::class.java) ?: return
+
         cancelExisting(appContext, alarmManager)
 
-        if (accountExpiry == null) return
+        if (accountExpiry == null) {
+            userPreferencesRepository.clearAccountExpiry()
+            return
+        }
 
         val triggerAt =
             accountExpiryNotificationTriggerAt(now = ZonedDateTime.now(), expiry = accountExpiry)
