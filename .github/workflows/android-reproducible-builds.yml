@@ -24,7 +24,7 @@ on:
   push:
     tags:
       - 'android/**'
-  worflow_call:
+  workflow_call:
 
 permissions: {}
 
