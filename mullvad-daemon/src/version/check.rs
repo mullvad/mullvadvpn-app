@@ -390,8 +390,9 @@ fn version_check_inner(
         );
         Either::Left(async { Ok(v1_endpoint.await?.supported) })
     } else {
-        // NOTE: All dev builds are treated as supported, since API returns 404 otherwise
-        Either::Right(async { Ok(true) })
+        // NOTE: Treat all dev versions as unsupported. The old endpoint returns 404 for dev
+        // versions.
+        Either::Right(async { Ok(false) })
     };
 
     let architecture = match talpid_platform_metadata::get_native_arch()
