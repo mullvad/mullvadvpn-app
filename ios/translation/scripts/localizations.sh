@@ -16,6 +16,7 @@ SCHEME_NAME="$PROJECT_NAME"
 XCODE_PROJECT_PATH="$SCRIPT_DIR/../../$PROJECT_NAME.xcodeproj"
 
 EXPORT_LOCALIZATION_DIR="$SCRIPT_DIR/../locales"
+IMPORT_LOCALIZATION_DIR="$SCRIPT_DIR/../locales"
 TMP_EXPORT_DIR="${EXPORT_LOCALIZATION_DIR}/all_tmp_languages"
 
 EXPORT_LANGUAGES=${EXPORT_LANGUAGES:-"en"}
@@ -95,7 +96,36 @@ export_localizations() {
   done
 }
 
-main() {
+import_localizations() {
+  # Directory where the .xliff files are stored
+  XLIFF_DIR="$IMPORT_LOCALIZATION_DIR"
+  # Loop through each .xliff file in the directory
+  for xliff_file in "$XLIFF_DIR"/*.xliff; do
+    # Skip if no files found
+    [ -e "$xliff_file" ] || continue
+
+    # Extract language code from filename, e.g., fr.xliff → fr
+    language_code=$(basename "$xliff_file" .xliff)
+
+    echo "📥 Importing localization: $language_code from $xliff_file"
+
+    xcodebuild -importLocalizations \
+      -project "$XCODE_PROJECT_PATH" \
+      -scheme "$SCHEME_NAME" \
+      -derivedDataPath "$DERIVED_DATA_DIR" \
+      -localizationPath "$xliff_file" \
+      -exportLanguage "$language_code" \
+      -disableAutomaticPackageResolution\
+
+    if [ $? -ne 0 ]; then
+      echo "❌ Failed to import $xliff_file"
+      exit 1
+    fi
+  done
+  echo "✅ All localizations imported successfully."
+}
+
+localization_to_export() {
   echo "📝 Export script started at: $(date)"
   build_project
   export_localizations
@@ -106,4 +136,34 @@ main() {
   rm -f "$TMP_LOG"
 }
 
-main
+localization_to_import() {
+  echo "📝 Import script started at: $(date)"
+  build_project
+  import_localizations
+  cleanup_build_folder
+  cleanup_temp_folder
+  echo "🎉 Import complete. Localized .xliff files have been imported to code"
+  echo "✅ Script finished at: $(date)"
+  rm -f "$TMP_LOG"
+}
+
+# Main entrypoint
+main() {
+  case "${1:-}" in
+    export)
+      localization_to_export
+      ;;
+    import)
+      localization_to_import
+      ;;
+    "")
+      echo "Available subcommands: export, import"
+      ;;
+    *)
+      echo "❌ Unknown parameter: $1"
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

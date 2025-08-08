@@ -13,39 +13,19 @@
     "%@" : {
 
     },
+    "%@ cannot be empty." : {
+
+    },
     "%@ have been added to your account" : {
 
     },
     "%@ left on this account" : {
 
     },
-    "%@ via %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ via %2$@"
-          }
-        }
-      }
-    },
     "%@ were added to your account." : {
 
     },
-    "%@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@, %2$@"
-          }
-        }
-      }
-    },
     "%d more..." : {
-
-    },
-    "%lld more..." : {
 
     },
     "About API access…" : {
@@ -81,9 +61,6 @@
     "Account number" : {
 
     },
-    "Active features" : {
-
-    },
     "Add" : {
 
     },
@@ -117,9 +94,6 @@
     "Adult content" : {
 
     },
-    "Agree and continue" : {
-
-    },
     "All" : {
 
     },
@@ -148,9 +122,6 @@
 
     },
     "AppStore receipt is not found on disk." : {
-
-    },
-    "Are you sure you want to log %@ out?" : {
 
     },
     "At least one method needs to be enabled." : {
@@ -222,39 +193,7 @@
     "Congrats!" : {
 
     },
-    "Connect" : {
-
-    },
     "Connected" : {
-
-    },
-    "Connected to %@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Connected to %1$@, %2$@"
-          }
-        }
-      }
-    },
-    "Connecting to %@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Connecting to %1$@, %2$@"
-          }
-        }
-      }
-    },
-    "Connecting..." : {
-
-    },
-    "Connection details" : {
-
-    },
-    "Continue with login" : {
 
     },
     "Copy to pasteboard" : {
@@ -269,9 +208,6 @@
     "Create account" : {
 
     },
-    "Created: %@" : {
-
-    },
     "Creating new account" : {
 
     },
@@ -279,9 +215,6 @@
 
     },
     "Creating secure connection" : {
-
-    },
-    "Current device" : {
 
     },
     "Custom" : {
@@ -359,22 +292,13 @@
     "Disconnect" : {
 
     },
-    "Disconnected" : {
-
-    },
     "Disconnecting" : {
-
-    },
-    "Disconnecting..." : {
 
     },
     "DNS content blockers" : {
 
     },
     "DNS settings" : {
-
-    },
-    "Do you agree to remaining anonymous?" : {
 
     },
     "Don’t have an account number?" : {
@@ -528,9 +452,6 @@
 
     },
     "Import via text" : {
-
-    },
-    "In" : {
 
     },
     "In use" : {
@@ -698,12 +619,6 @@
     "Optional" : {
 
     },
-    "Out IPv4" : {
-
-    },
-    "Out IPv6" : {
-
-    },
     "Out of time" : {
 
     },
@@ -732,9 +647,6 @@
 
     },
     "Please enter a valid port." : {
-
-    },
-    "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings." : {
 
     },
     "Please retry by using the \"Restore purchases\" button." : {
@@ -800,12 +712,6 @@
 
     },
     "Refund successful" : {
-
-    },
-    "Remove" : {
-
-    },
-    "Remove %@?\nThe device will be removed from the list and logged out." : {
 
     },
     "Remove last used account" : {
@@ -1040,13 +946,7 @@
     "Valid range: 1 - 65535" : {
 
     },
-    "value" : {
-
-    },
     "Verifying voucher..." : {
-
-    },
-    "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily." : {
 
     },
     "View app logs" : {
@@ -1103,25 +1003,16 @@
     "Yes, continue" : {
 
     },
-    "Yes, log out device" : {
-
-    },
     "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." : {
 
     },
     "You can add more time via the account view or website to continue using the VPN." : {
 
     },
-    "You can now continue logging in on this device." : {
-
-    },
     "You can use the \"restore purchases\" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." : {
 
     },
     "You have %@ left on this account." : {
-
-    },
-    "You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.\n\nIn some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.\n\nWe strongly believe in retaining as little data as possible because we want you to remain anonymous." : {
 
     },
     "You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the **Add time** button below." : {
