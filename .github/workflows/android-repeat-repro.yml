@@ -1,0 +1,16 @@
+name: Android - Repeat reproducable builds
+on:
+  workflow_dispatch:
+    inputs:
+      commit_hash:
+        type: string
+        required: false
+
+jobs:
+ ReusableMatrixJobForDeployment:
+    strategy:
+      matrix:
+        step: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    uses: mullvad/mullvadvpn-app/.github/workflows/android-reproducible-builds.yml@v1
+    with:
+      step: ${{ matrix.step }}

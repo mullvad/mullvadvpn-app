@@ -24,6 +24,7 @@ on:
   push:
     tags:
       - 'android/**'
+  worflow_call:
 
 permissions: {}
 
