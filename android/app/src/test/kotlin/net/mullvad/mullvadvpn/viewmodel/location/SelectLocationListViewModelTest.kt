@@ -73,7 +73,7 @@ class SelectLocationListViewModelTest {
     @Test
     fun `initial state should be loading`() = runTest {
         // Arrange
-        viewModel = createSelectLocationListViewModel(relayListType = RelayListType.ENTRY)
+        viewModel = createSelectLocationListViewModel(relayListType = RelayListType.Single)
 
         // Assert
         assertEquals(Lce.Loading(Unit), viewModel.uiState.value)
@@ -82,7 +82,7 @@ class SelectLocationListViewModelTest {
     @Test
     fun `given filteredRelayList emits update uiState should contain new update`() = runTest {
         // Arrange
-        viewModel = createSelectLocationListViewModel(RelayListType.EXIT)
+        viewModel = createSelectLocationListViewModel(RelayListType.Single)
         filteredRelayList.value = testCountries
         val selectedId = testCountries.first().id
         selectedLocationFlow.value = RelayItemSelection.Single(Constraint.Only(selectedId))
@@ -107,7 +107,7 @@ class SelectLocationListViewModelTest {
     @Test
     fun `given relay is not selected all relay items should not be selected`() = runTest {
         // Arrange
-        viewModel = createSelectLocationListViewModel(RelayListType.EXIT)
+        viewModel = createSelectLocationListViewModel(RelayListType.Single)
         filteredRelayList.value = testCountries
         selectedLocationFlow.value = RelayItemSelection.Single(Constraint.Any)
 
