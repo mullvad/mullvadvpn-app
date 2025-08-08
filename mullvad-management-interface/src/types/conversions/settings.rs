@@ -173,6 +173,8 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             relay_settings: mullvad_types::relay_constraints::RelaySettings::try_from(
                 relay_settings,
             )?,
+            // FIXME: get value from proto::Settings
+            has_updated_default_country: false,
             bridge_settings: mullvad_types::relay_constraints::BridgeSettings::try_from(
                 bridge_settings,
             )?,

@@ -124,4 +124,14 @@ impl TunnelState {
             None => None,
         }
     }
+
+    /// Returns the geolocation of the tunnel if it exists.
+    pub fn get_location(&self) -> Option<&GeoIpLocation> {
+        match self {
+            TunnelState::Connected { location, .. }
+            | TunnelState::Connecting { location, .. }
+            | TunnelState::Disconnected { location, .. } => location.as_ref(),
+            _ => None,
+        }
+    }
 }
