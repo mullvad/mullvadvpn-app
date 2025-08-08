@@ -58,12 +58,7 @@ class VPNSettingsViewController: UITableViewController {
 
         dataSource?.delegate = self
 
-        navigationItem.title = NSLocalizedString(
-            "NAVIGATION_TITLE",
-            tableName: "VPNSettings",
-            value: "VPN settings",
-            comment: ""
-        )
+        navigationItem.title = NSLocalizedString("VPN settings", comment: "")
 
         interactor.tunnelSettingsDidChange = { [weak self] newSettings in
             self?.dataSource?.reload(from: newSettings)
@@ -108,12 +103,7 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
             message: item.description,
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "VPN_SETTINGS_VPN_SETTINGS_OK_ACTION",
-                        tableName: "ContentBlockers",
-                        value: "Got it!",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default
                 ),
             ]
@@ -144,12 +134,7 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
         let viewModel = TunnelUDPOverTCPObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
         let view = UDPOverTCPObfuscationSettingsView(viewModel: viewModel)
         let vc = UIHostingController(rootView: view)
-        vc.title = NSLocalizedString(
-            "UDP_OVER_TCP_TITLE",
-            tableName: "VPNSettings",
-            value: "UDP-over-TCP",
-            comment: ""
-        )
+        vc.title = NSLocalizedString("UDP-over-TCP", comment: "")
         navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -157,12 +142,7 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
         let viewModel = TunnelShadowsocksObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
         let view = ShadowsocksObfuscationSettingsView(viewModel: viewModel)
         let vc = UIHostingController(rootView: view)
-        vc.title = NSLocalizedString(
-            "SHADOWSOCKS_TITLE",
-            tableName: "VPNSettings",
-            value: "Shadowsocks",
-            comment: ""
-        )
+        vc.title = NSLocalizedString("Shadowsocks", comment: "")
         navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -172,15 +152,12 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
 
     func showLocalNetworkSharingWarning(_ enable: Bool, completion: @escaping (Bool) -> Void) {
         if interactor.tunnelManager.tunnelStatus.state.isSecured {
+            let status = enable
+                ? NSLocalizedString("Enabling", comment: "")
+                : NSLocalizedString("Disabling", comment: "")
             let description = NSLocalizedString(
-                "VPN_SETTINGS_LOCAL_NETWORK_SHARING_WARNING",
-                tableName: "LocalNetworkSharing",
-                value: """
-                \(
-                    enable
-                        ? "Enabling"
-                        : "Disabling"
-                ) “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
+                """
+                “%@ Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
                 To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
                 Would you like to continue to enable “Local network sharing”?
                 """,
@@ -190,15 +167,10 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
             let presentation = AlertPresentation(
                 id: "vpn-settings-local-network-sharing-warning",
                 icon: .info,
-                message: description,
+                message: String(format: description, status),
                 buttons: [
                     AlertAction(
-                        title: NSLocalizedString(
-                            "VPN_SETTINGS_LOCAL_NETWORK_SHARING_OK_ACTION",
-                            tableName: "ContentBlockers",
-                            value: "Yes, continue",
-                            comment: ""
-                        ),
+                        title: NSLocalizedString("Yes, continue", comment: ""),
                         style: .destructive,
                         accessibilityId: .acceptLocalNetworkSharingButton,
                         handler: {
@@ -206,12 +178,7 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
                         }
                     ),
                     AlertAction(
-                        title: NSLocalizedString(
-                            "VPN_SETTINGS_LOCAL_NETWORK_SHARING_CANCEL_ACTION",
-                            tableName: "ContentBlockers",
-                            value: "Cancel",
-                            comment: ""
-                        ),
+                        title: NSLocalizedString("Cancel", comment: ""),
                         style: .default,
                         handler: { completion(false) }
                     ),

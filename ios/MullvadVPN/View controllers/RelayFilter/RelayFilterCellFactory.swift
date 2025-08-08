@@ -38,12 +38,7 @@ struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
     private func configureOwnershipCell(_ cell: SelectableSettingsCell?, item: RelayFilterDataSourceItem) {
         guard let cell = cell else { return }
 
-        cell.titleLabel.text = NSLocalizedString(
-            "RELAY_FILTER_CELL_LABEL",
-            tableName: "Relay filter ownership cell",
-            value: item.name,
-            comment: ""
-        )
+        cell.titleLabel.text = item.name
 
         let accessibilityIdentifier: AccessibilityIdentifier
         switch item.type {
@@ -66,12 +61,7 @@ struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
         guard let cell = cell else { return }
         let alpha = item.isEnabled ? 1.0 : 0.2
 
-        cell.titleLabel.text = NSLocalizedString(
-            "RELAY_FILTER_CELL_LABEL",
-            tableName: "Relay filter provider cell",
-            value: item.name,
-            comment: ""
-        )
+        cell.titleLabel.text = item.name
         cell.detailTitleLabel.text = item.description
 
         if item.type == .allProviders {

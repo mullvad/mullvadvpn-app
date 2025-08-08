@@ -19,9 +19,7 @@ class DAITAInfoView: UIView {
 
         label.attributedText = NSAttributedString(
             string: NSLocalizedString(
-                "SELECT_LOCATION_DAITA_INFO",
-                tableName: "SelectLocation",
-                value: """
+                """
                 The entry server for multihop is currently overridden by DAITA. \
                 To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings.
                 """,
@@ -40,12 +38,7 @@ class DAITAInfoView: UIView {
 
     let settingsButton: UIButton = {
         let settingsButton = AppButton(style: .default)
-        settingsButton.setTitle(NSLocalizedString(
-            "SELECT_LOCATION_DAITA_BUTTON",
-            tableName: "SelectLocation",
-            value: "Open DAITA settings",
-            comment: ""
-        ), for: .normal)
+        settingsButton.setTitle(NSLocalizedString("Open DAITA settings", comment: ""), for: .normal)
 
         return settingsButton
     }()

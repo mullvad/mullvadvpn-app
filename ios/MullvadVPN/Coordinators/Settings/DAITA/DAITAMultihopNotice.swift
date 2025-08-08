@@ -15,14 +15,9 @@ struct DAITAMultihopNotice: View {
                 .resizable()
                 .frame(width: 18, height: 18)
                 .foregroundStyle(Color(.primaryTextColor).opacity(0.6))
-            Text(NSLocalizedString(
-                "SETTINGS_DAITA_MULTIHOP_ENABLED",
-                tableName: "Settings",
-                value: "Multihop is being used to enable DAITA for your selected location.",
-                comment: ""
-            ))
-            .font(.mullvadTinySemiBold)
-            .foregroundColor(Color(.primaryTextColor).opacity(0.6))
+            Text(NSLocalizedString("Multihop is being used to enable DAITA for your selected location.", comment: ""))
+                .font(.mullvadTinySemiBold)
+                .foregroundColor(Color(.primaryTextColor).opacity(0.6))
         }
     }
 }

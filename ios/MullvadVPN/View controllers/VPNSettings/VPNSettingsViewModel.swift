@@ -41,21 +41,16 @@ enum CustomDNSPrecondition {
             if isEditing {
                 return NSAttributedString(
                     string: NSLocalizedString(
-                        "CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_ON_FOOTNOTE",
-                        tableName: "VPNSettings",
-                        value: "To enable this setting, add at least one server.",
-                        comment: "Foot note displayed if there are no DNS entries and table view is in editing mode."
+                        "To enable this setting, add at least one server.",
+                        comment: ""
                     ),
                     attributes: [.font: preferredFont]
                 )
             } else {
                 return NSAttributedString(
                     markdownString: NSLocalizedString(
-                        "CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_OFF_FOOTNOTE",
-                        tableName: "VPNSettings",
-                        value: "Tap **Edit** to add at least one DNS server.",
-                        comment:
-                        "Foot note displayed if there are no DNS entries, but table view is not in editing mode."
+                        "Tap **Edit** to add at least one DNS server.",
+                        comment: ""
                     ),
                     options: MarkdownStylingOptions(font: preferredFont)
                 )
@@ -64,13 +59,8 @@ enum CustomDNSPrecondition {
         case .conflictsWithOtherSettings:
             return NSAttributedString(
                 string: NSLocalizedString(
-                    "CUSTOM_DNS_DISABLE_CONTENT_BLOCKERS_FOOTNOTE",
-                    tableName: "VPNSettings",
-                    value: "Disable all content blockers to activate this setting.",
-                    comment: """
-                    Foot note displayed when custom DNS cannot be enabled, because content blockers should be \
-                    disabled first.
-                    """
+                    "Disable all content blockers to activate this setting.",
+                    comment: ""
                 ),
                 attributes: [.font: preferredFont]
             )

@@ -60,12 +60,7 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
     func configureCell(_ cell: UITableViewCell, item: CustomDNSDataSource.Item, indexPath: IndexPath) {
         switch item {
         case .blockAll:
-            let localizedString = NSLocalizedString(
-                "BLOCK_ALL_CELL_LABEL",
-                tableName: "VPNSettings",
-                value: "All",
-                comment: ""
-            )
+            let localizedString = NSLocalizedString("All", comment: "")
 
             configure(
                 cell,
@@ -75,12 +70,7 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
             )
 
         case .blockAdvertising:
-            let localizedString = NSLocalizedString(
-                "BLOCK_ADS_CELL_LABEL",
-                tableName: "VPNSettings",
-                value: "Ads",
-                comment: ""
-            )
+            let localizedString = NSLocalizedString("Ads", comment: "")
 
             configure(
                 cell,
@@ -90,12 +80,7 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
             )
 
         case .blockTracking:
-            let localizedString = NSLocalizedString(
-                "BLOCK_TRACKERS_CELL_LABEL",
-                tableName: "VPNSettings",
-                value: "Trackers",
-                comment: ""
-            )
+            let localizedString = NSLocalizedString("Trackers", comment: "")
             configure(
                 cell,
                 toggleSetting: viewModel.blockTracking,
@@ -106,12 +91,7 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
         case .blockMalware:
             guard let cell = cell as? SettingsSwitchCell else { return }
 
-            let localizedString = NSLocalizedString(
-                "BLOCK_MALWARE_CELL_LABEL",
-                tableName: "VPNSettings",
-                value: "Malware",
-                comment: ""
-            )
+            let localizedString = NSLocalizedString("Malware", comment: "")
             configure(
                 cell,
                 toggleSetting: viewModel.blockMalware,
@@ -123,12 +103,7 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
             }
 
         case .blockAdultContent:
-            let localizedString = NSLocalizedString(
-                "BLOCK_ADULT_CELL_LABEL",
-                tableName: "VPNSettings",
-                value: "Adult content",
-                comment: ""
-            )
+            let localizedString = NSLocalizedString("Adult content", comment: "")
             configure(
                 cell,
                 toggleSetting: viewModel.blockAdultContent,
@@ -137,12 +112,7 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
             )
 
         case .blockGambling:
-            let localizedString = NSLocalizedString(
-                "BLOCK_GAMBLING_CELL_LABEL",
-                tableName: "VPNSettings",
-                value: "Gambling",
-                comment: ""
-            )
+            let localizedString = NSLocalizedString("Gambling", comment: "")
             configure(
                 cell,
                 toggleSetting: viewModel.blockGambling,
@@ -151,12 +121,7 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
             )
 
         case .blockSocialMedia:
-            let localizedString = NSLocalizedString(
-                "BLOCK_SOCIAL_MEDIA_CELL_LABEL",
-                tableName: "VPNSettings",
-                value: "Social media",
-                comment: ""
-            )
+            let localizedString = NSLocalizedString("Social media", comment: "")
             configure(
                 cell,
                 toggleSetting: viewModel.blockSocialMedia,
@@ -167,12 +132,7 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
         case .useCustomDNS:
             guard let cell = cell as? SettingsSwitchCell else { return }
 
-            cell.titleLabel.text = NSLocalizedString(
-                "CUSTOM_DNS_CELL_LABEL",
-                tableName: "VPNSettings",
-                value: "Use custom DNS server",
-                comment: ""
-            )
+            cell.titleLabel.text = NSLocalizedString("Use custom DNS server", comment: "")
             cell.setSwitchEnabled(viewModel.customDNSPrecondition == .satisfied)
             cell.setOn(viewModel.effectiveEnableCustomDNS, animated: false)
             cell.accessibilityHint = viewModel.customDNSPrecondition
@@ -185,12 +145,7 @@ final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
         case .addDNSServer:
             guard let cell = cell as? SettingsAddDNSEntryCell else { return }
 
-            cell.titleLabel.text = NSLocalizedString(
-                "ADD_CUSTOM_DNS_SERVER_CELL_LABEL",
-                tableName: "VPNSettings",
-                value: "Add a server",
-                comment: ""
-            )
+            cell.titleLabel.text = NSLocalizedString("Add a server", comment: "")
             cell.setAccessibilityIdentifier(.dnsSettingsAddServerCell)
             cell.tapAction = { [weak self] in
                 self?.delegate?.addDNSEntry()

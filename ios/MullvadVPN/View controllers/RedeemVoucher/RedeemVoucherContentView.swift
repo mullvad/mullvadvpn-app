@@ -35,12 +35,7 @@ final class RedeemVoucherContentView: UIView {
     private let title: UILabel = {
         let label = UILabel()
         label.font = .mullvadLarge
-        label.text = NSLocalizedString(
-            "REDEEM_VOUCHER_TITLE",
-            tableName: "RedeemVoucher",
-            value: "Redeem voucher",
-            comment: ""
-        )
+        label.text = NSLocalizedString("Redeem voucher", comment: "")
         label.textColor = .white
         label.numberOfLines = 0
         label.adjustsFontForContentSizeCategory = true
@@ -51,12 +46,7 @@ final class RedeemVoucherContentView: UIView {
         let label = UILabel()
         label.font = .mullvadTinySemiBold
 
-        label.text = NSLocalizedString(
-            "REDEEM_VOUCHER_INSTRUCTION",
-            tableName: "RedeemVoucher",
-            value: "Enter voucher code",
-            comment: ""
-        )
+        label.text = NSLocalizedString("Enter voucher code", comment: "")
         label.textColor = .white
         label.numberOfLines = 0
         label.adjustsFontForContentSizeCategory = true
@@ -109,23 +99,13 @@ final class RedeemVoucherContentView: UIView {
 
     private let redeemButton: AppButton = {
         let button = AppButton(style: .success)
-        button.setTitle(NSLocalizedString(
-            "REDEEM_VOUCHER_REDEEM_BUTTON",
-            tableName: "RedeemVoucher",
-            value: "Redeem",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Redeem", comment: ""), for: .normal)
         return button
     }()
 
     private let cancelButton: AppButton = {
         let button = AppButton(style: .default)
-        button.setTitle(NSLocalizedString(
-            "REDEEM_VOUCHER_CANCEL_BUTTON",
-            tableName: "RedeemVoucher",
-            value: "Cancel",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Cancel", comment: ""), for: .normal)
         return button
     }()
 
@@ -175,19 +155,9 @@ final class RedeemVoucherContentView: UIView {
             }
             return restError.description
         case .verifying:
-            return NSLocalizedString(
-                "REDEEM_VOUCHER_STATUS_WAITING",
-                tableName: "RedeemVoucher",
-                value: "Verifying voucher...",
-                comment: ""
-            )
+            return NSLocalizedString("Verifying voucher...", comment: "")
         case .logout:
-            return NSLocalizedString(
-                "REDEEM_VOUCHER_STATUS_WAITING",
-                tableName: "RedeemVoucher",
-                value: "Logging out...",
-                comment: ""
-            )
+            return NSLocalizedString("Logging out...", comment: "")
         default: return ""
         }
     }
@@ -372,19 +342,9 @@ final class RedeemVoucherContentView: UIView {
 private extension REST.Error {
     var description: String {
         if compareErrorCode(.invalidVoucher) {
-            return NSLocalizedString(
-                "REDEEM_VOUCHER_STATUS_FAILURE",
-                tableName: "RedeemVoucher",
-                value: "Voucher code is invalid.",
-                comment: ""
-            )
+            return NSLocalizedString("Voucher code is invalid.", comment: "")
         } else if compareErrorCode(.usedVoucher) {
-            return NSLocalizedString(
-                "REDEEM_VOUCHER_STATUS_FAILURE",
-                tableName: "RedeemVoucher",
-                value: "This voucher code has already been used.",
-                comment: ""
-            )
+            return NSLocalizedString("This voucher code has already been used.", comment: "")
         }
         return displayErrorDescription ?? ""
     }

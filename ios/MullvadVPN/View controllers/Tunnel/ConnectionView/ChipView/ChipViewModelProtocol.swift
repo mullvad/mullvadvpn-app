@@ -18,15 +18,8 @@ extension ChipViewModelProtocol {
         var chipsToAdd = [ChipModel]()
         var isOverflowing = false
 
-        let moreTextWidth = String(
-            format: NSLocalizedString(
-                "CONNECTION_VIEW_CHIPS_MORE",
-                tableName: "ConnectionView",
-                value: "@d more...",
-                comment: ""
-            ), arguments: [chips.count]
-        )
-        .width(using: .preferredFont(forTextStyle: .subheadline)) + 4 // Some extra to be safe.
+        let moreTextWidth = String(format: NSLocalizedString("%d more...", comment: ""), chips.count)
+            .width(using: .preferredFont(forTextStyle: .subheadline)) + 4 // Some extra to be safe.
         var totalChipsWidth: CGFloat = 0
 
         for (index, chip) in chips.enumerated() {

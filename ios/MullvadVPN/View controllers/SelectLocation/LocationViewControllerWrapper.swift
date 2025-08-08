@@ -27,19 +27,9 @@ final class LocationViewControllerWrapper: UIViewController {
         var description: String {
             switch self {
             case .entry:
-                NSLocalizedString(
-                    "MULTIHOP_ENTRY",
-                    tableName: "SelectLocation",
-                    value: "Entry",
-                    comment: ""
-                )
+                NSLocalizedString("Entry", comment: "")
             case .exit:
-                NSLocalizedString(
-                    "MULTIHOP_EXIT",
-                    tableName: "SelectLocation",
-                    value: "Exit",
-                    comment: ""
-                )
+                NSLocalizedString("Exit", comment: "")
             }
         }
     }
@@ -171,20 +161,10 @@ final class LocationViewControllerWrapper: UIViewController {
     private func setUpNavigation() {
         navigationItem.largeTitleDisplayMode = .never
 
-        navigationItem.title = NSLocalizedString(
-            "NAVIGATION_TITLE",
-            tableName: "SelectLocation",
-            value: "Select location",
-            comment: ""
-        )
+        navigationItem.title = NSLocalizedString("Select location", comment: "")
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-            title: NSLocalizedString(
-                "NAVIGATION_FILTER",
-                tableName: "SelectLocation",
-                value: "Filter",
-                comment: ""
-            ),
+            title: NSLocalizedString("Filter", comment: ""),
             primaryAction: UIAction(handler: { [weak self] _ in
                 guard let self = self else { return }
                 delegate?.navigateToFilter()

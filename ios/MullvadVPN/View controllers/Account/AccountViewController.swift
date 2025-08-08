@@ -64,12 +64,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         super.viewDidLoad()
         view.backgroundColor = .secondaryColor
 
-        navigationItem.title = NSLocalizedString(
-            "NAVIGATION_TITLE",
-            tableName: "Account",
-            value: "Account",
-            comment: ""
-        )
+        navigationItem.title = NSLocalizedString("Account", comment: "")
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .done,

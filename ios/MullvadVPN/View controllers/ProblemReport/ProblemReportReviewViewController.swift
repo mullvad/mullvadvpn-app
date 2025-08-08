@@ -32,12 +32,7 @@ class ProblemReportReviewViewController: UIViewController {
         view.backgroundColor = .secondaryColor
         view.setAccessibilityIdentifier(.appLogsView)
 
-        navigationItem.title = NSLocalizedString(
-            "NAVIGATION_TITLE",
-            tableName: "ProblemReportReview",
-            value: "App logs",
-            comment: ""
-        )
+        navigationItem.title = NSLocalizedString("App logs", comment: "")
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             systemItem: .done,
