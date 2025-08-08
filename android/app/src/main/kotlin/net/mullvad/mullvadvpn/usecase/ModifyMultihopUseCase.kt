@@ -37,12 +37,7 @@ class ModifyMultihopUseCase(
                     }
                     .convertCustomListWithOnlyHostNameToHostName()
                     .bind()
-            ensure(!changeId.isSameHost(other)) {
-                when (change) {
-                    is MultihopChange.Entry -> ModifyMultihopError.ExitSame(change.item)
-                    is MultihopChange.Exit -> ModifyMultihopError.EntrySame(change.item)
-                }
-            }
+            ensure(!changeId.isSameHost(other)) { ModifyMultihopError.EntrySameAsExit(change.item) }
             when (change) {
                     is MultihopChange.Entry ->
                         wireguardConstraintsRepository.setEntryLocation(change.item.id)
@@ -103,9 +98,7 @@ sealed class MultihopChange {
 sealed interface ModifyMultihopError {
     data class RelayItemInactive(val relayItem: RelayItem) : ModifyMultihopError
 
-    data class EntrySame(val relayItem: RelayItem) : ModifyMultihopError
-
-    data class ExitSame(val relayItem: RelayItem) : ModifyMultihopError
+    data class EntrySameAsExit(val relayItem: RelayItem) : ModifyMultihopError
 
     data object GenericError : ModifyMultihopError
 }
