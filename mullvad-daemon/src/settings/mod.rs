@@ -269,7 +269,7 @@ impl SettingsPersister {
     /// Modifies `Settings::default()` somewhat, e.g. depending on whether a beta version
     /// is being run or not.
     fn default_settings() -> Settings {
-        let mut settings = Settings::default();
+        let mut settings = Settings::default_settings();
 
         if crate::version::is_beta_version() {
             settings.show_beta_releases = true;
