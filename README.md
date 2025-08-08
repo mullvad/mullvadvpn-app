@@ -196,6 +196,8 @@ See [this](Release.md) for instructions on how to make a new release.
 
 * `MULLVAD_CONNCHECK_HOST` - Set the hostname to use in connection check requests. E.g. `am.i.mullvad.net`.
 
+* `MULLVAD_ENABLE_DEV_UPDATES` - Enable version checks in development builds.
+
 ### Setting environment variables
 
 #### Windows
