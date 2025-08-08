@@ -83,18 +83,19 @@ fun CheckableRelayLocationCell(
         },
         onClick = { onRelayCheckedChange(!item.checked) },
         onLongClick = null,
-        trailingContent = {
-            if (item.item.hasChildren) {
-                ExpandChevron(
-                    isExpanded = item.expanded,
-                    modifier =
-                        Modifier.clickable { onExpand(!item.expanded) }
-                            .fillMaxSize()
-                            .padding(Dimens.mediumPadding)
-                            .testTag(EXPAND_BUTTON_TEST_TAG),
-                )
-            }
-        },
+        trailingContent =
+            if (item.item.hasChildren)
+                ({
+                    ExpandChevron(
+                        isExpanded = item.expanded,
+                        modifier =
+                            Modifier.clickable { onExpand(!item.expanded) }
+                                .fillMaxSize()
+                                .padding(Dimens.mediumPadding)
+                                .testTag(EXPAND_BUTTON_TEST_TAG),
+                    )
+                })
+            else null,
         colors = RelayListItemDefaults.colors(containerColor = item.depth.toBackgroundColor()),
     )
 }
