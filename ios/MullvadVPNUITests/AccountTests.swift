@@ -77,7 +77,7 @@ class AccountTests: LoggedOutUITestCase {
 
         DeviceManagementPage(app)
             .verifyCurrentDeviceExists()
-            .verifyNoDeviceCanBeRemoved()
+            .verifyCurrentDeviceCannotBeRemoved()
     }
 
     func testRemoveOtherDevice() throws {
@@ -172,7 +172,7 @@ class AccountTests: LoggedOutUITestCase {
 
         DeviceManagementPage(app)
             .waitForDeviceList()
-            .tapRemoveDeviceButton(cellIndex: 0)
+            .tapRemoveDeviceButton(cellIndex: 1)
 
         DeviceManagementLogOutDeviceConfirmationAlert(app)
             .tapYesLogOutDeviceButton()

@@ -514,7 +514,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicCountryName)
+            .tapLocationCell(withName: BaseUITestCase.testsDefaultDAITACountryName)
 
         TunnelControlPage(app)
             .verifyConnectingUsingDAITA()

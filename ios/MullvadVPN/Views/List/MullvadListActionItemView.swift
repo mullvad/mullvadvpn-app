@@ -62,8 +62,8 @@ struct MullvadListActionItemView<Icon: View>: View {
                 } label: {
                     icon
                 }
-                .padding(.leading, 8)
                 .accessibilityIdentifier(accessibilityIdentifier)
+                .padding(.leading, 8)
             }
         }
         .padding(EdgeInsets(

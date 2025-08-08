@@ -21,6 +21,7 @@ class LocationSectionHeaderFooterView: UITableViewHeaderFooterView {
         // Configure button
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         button.tintColor = UIColor(white: 1, alpha: 0.6)
+        button.accessibilityIdentifier = AccessibilityIdentifier.openCustomListsMenuButton.asString
 
         contentView.addConstrainedSubviews([label, button]) {
             label.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
