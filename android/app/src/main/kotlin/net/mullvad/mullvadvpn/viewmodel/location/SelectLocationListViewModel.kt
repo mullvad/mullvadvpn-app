@@ -63,9 +63,12 @@ class SelectLocationListViewModel(
     }
 
     private fun Settings?.isBlocked(): Boolean =
-        relayListType is RelayListType.Multihop &&
-            relayListType.multihopRelayListType == MultihopRelayListType.ENTRY &&
-            this?.entryBlocked() == true
+        when (relayListType) {
+            RelayListType.Single -> false
+            is RelayListType.Multihop ->
+                relayListType.multihopRelayListType == MultihopRelayListType.ENTRY &&
+                    this?.entryBlocked() == true
+        }
 
     private fun relayListItems() =
         combine(

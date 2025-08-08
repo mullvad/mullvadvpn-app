@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.repository
 
 import arrow.core.Either
 import arrow.core.raise.either
+import arrow.core.raise.ensureNotNull
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -64,11 +65,15 @@ class CustomListsRepository(
      */
     fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> = either {
         val customLists = customLists.value
-        if (customLists == null) {
+        ensureNotNull(customLists) {
             Logger.e("Custom lists never loaded")
-            raise(GetCustomListError(id))
+            GetCustomListError(id)
         }
-        customLists.firstOrNull { customList -> customList.id == id }
-            ?: raise(GetCustomListError(id))
+        val foundList = customLists.firstOrNull { customList -> customList.id == id }
+        ensureNotNull(foundList) {
+            Logger.e("Custom list with id $id not found in custom lists")
+            GetCustomListError(id)
+        }
+        foundList
     }
 }

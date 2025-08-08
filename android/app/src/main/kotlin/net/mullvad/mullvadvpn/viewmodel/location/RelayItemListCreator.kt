@@ -488,10 +488,10 @@ internal fun RelayItemSelection.selectedByThisEntryExitList(relayListType: Relay
     when (this) {
         is RelayItemSelection.Multiple ->
             when ((relayListType as? RelayListType.Multihop)?.multihopRelayListType) {
-                MultihopRelayListType.ENTRY -> entryLocation
-                MultihopRelayListType.EXIT -> exitLocation
+                MultihopRelayListType.ENTRY -> entryLocation.getOrNull()
+                MultihopRelayListType.EXIT -> exitLocation.getOrNull()
                 else -> null
-            }?.getOrNull()
+            }
         is RelayItemSelection.Single -> exitLocation.getOrNull()
     }
 

@@ -98,7 +98,7 @@ class SelectLocationViewModel(
             relayListSelection is RelayListType.Multihop &&
                 relayListSelection.multihopRelayListType == MultihopRelayListType.ENTRY
         val isEntryBlocked = settingsRepository.settingsUpdates.value?.entryBlocked() == true
-        return hasRelayListItems && (!isMultihopEntry || !isEntryBlocked)
+        return hasRelayListItems && !(isMultihopEntry && isEntryBlocked)
     }
 
     fun selectRelayList(multihopRelayListType: MultihopRelayListType) {
@@ -125,7 +125,7 @@ class SelectLocationViewModel(
         viewModelScope.launch {
             modifyMultihopUseCase(change)
                 .fold(
-                    { _uiSideEffect.send(it.toSideEffect()) },
+                    { _uiSideEffect.send(it.toSideEffect(multihopRelayListType)) },
                     {
                         when (multihopRelayListType) {
                             MultihopRelayListType.ENTRY -> {
@@ -188,12 +188,17 @@ class SelectLocationViewModel(
         }
     }
 
-    private fun ModifyMultihopError.toSideEffect(): SelectLocationSideEffect =
+    private fun ModifyMultihopError.toSideEffect(
+        multihopRelayListType: MultihopRelayListType
+    ): SelectLocationSideEffect =
         when (this) {
-            is ModifyMultihopError.EntrySame ->
-                SelectLocationSideEffect.EntryAlreadySelected(relayItem = relayItem)
-            is ModifyMultihopError.ExitSame ->
-                SelectLocationSideEffect.ExitAlreadySelected(relayItem = relayItem)
+            is ModifyMultihopError.EntrySameAsExit ->
+                when (multihopRelayListType) {
+                    MultihopRelayListType.ENTRY ->
+                        SelectLocationSideEffect.ExitAlreadySelected(relayItem = relayItem)
+                    MultihopRelayListType.EXIT ->
+                        SelectLocationSideEffect.EntryAlreadySelected(relayItem = relayItem)
+                }
             ModifyMultihopError.GenericError -> SelectLocationSideEffect.GenericError
             is ModifyMultihopError.RelayItemInactive ->
                 SelectLocationSideEffect.RelayItemInactive(hop = Hop.Single(this.relayItem))
