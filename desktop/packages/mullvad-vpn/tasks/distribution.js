@@ -360,10 +360,22 @@ function packMac() {
           case 'x64':
             process.env.TARGET_TRIPLE = 'x86_64-apple-darwin';
             execFileSync('npm', ['-w', 'nseventforwarder', 'run', 'build-x86']);
+            // Move so path is the same for both x64 and arm64 builds. Needed for lipo/universal to
+            // work.
+            fs.renameSync(
+              '../../node_modules/nseventforwarder/dist/darwin-x64/index.node',
+              '../../node_modules/nseventforwarder/dist/index.node',
+            );
             break;
           case 'arm64':
             process.env.TARGET_TRIPLE = 'aarch64-apple-darwin';
             execFileSync('npm', ['-w', 'nseventforwarder', 'run', 'build-arm']);
+            // Move so path is the same for both x64 and arm64 builds. Needed for lipo/universal to
+            // work.
+            fs.renameSync(
+              '../../node_modules/nseventforwarder/dist/darwin-arm64/index.node',
+              '../../node_modules/nseventforwarder/dist/index.node',
+            );
             break;
           default:
             delete process.env.TARGET_TRIPLE;
@@ -531,6 +543,8 @@ function productVersion(extraArgs) {
 async function removeNseventforwarderNativeModules() {
   try {
     await fs.promises.rm('../../node_modules/nseventforwarder/dist/', { recursive: true });
+    await fs.promises.rm('../../node_modules/@rollup/rollup-darwin-arm64', { recursive: true });
+    await fs.promises.rm('../../node_modules/@rollup/rollup-darwin-x64', { recursive: true });
   } catch {
     // noop
   }
