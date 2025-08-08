@@ -1,19 +1,40 @@
-name: Android - Repeat reproducable builds
-on:
-  workflow_dispatch:
-    inputs:
-      commit_hash:
-        type: string
-        required: false
+name: Android repeat repro
 
-permissions: {}
+on:
+  workflow_dispatch: # Manually trigger the workflow
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
- reusable:
-    name: Repeat reproducable
-    #strategy:
-    #  matrix:
-    #    step: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-    uses: mullvad/mullvadvpn-app/.github/workflows/android-reproducible-builds.yml@main
-    #with:
-    #  step: ${{ matrix.step }}
+  job-1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Hello World
+        run: echo "Hello World"
+      - name: Create a file
+        run: echo "Hello World" > input.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: input_file
+          path: input.txt
+
+  job-2:
+    needs: job-1
+    uses: ./.github/workflows/android-reproducible-builds.yml # We do not need to check out the repository to use the reusable workflow
+    with:
+      reusable_input: "job-2-input"
+      filename: "input.txt"
+
+  job-3:
+    needs: job-2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print output
+        run: echo "reusable_output=${{ needs.job-2.outputs.reusable_output }}"
+      - uses: actions/download-artifact@v4
+        with:
+          name: output_file
+      - name: Print file content
+        run: cat input.txt
