@@ -29,9 +29,9 @@ const VERSION_INFO_FILENAME: &str = "version-info.json";
 
 static APP_VERSION: LazyLock<Version> =
     LazyLock::new(|| Version::from_str(mullvad_version::VERSION).unwrap());
-static CHECK_DISABLED: LazyLock<bool> = LazyLock::new(|| {
+static CHECK_ENABLED: LazyLock<bool> = LazyLock::new(|| {
     !APP_VERSION.is_dev()
-        || !std::env::var("MULLVAD_ENABLE_DEV_UPDATES")
+        || std::env::var("MULLVAD_ENABLE_DEV_UPDATES")
             .map(|v| v != "0")
             .unwrap_or(false)
 });
@@ -203,7 +203,7 @@ impl VersionUpdaterInner {
         api: ApiContext,
     ) {
         // If this is a dev build, there's no need to pester the API for version checks.
-        if *CHECK_DISABLED {
+        if !*CHECK_ENABLED {
             log::warn!(
                 "Not checking for updates because this is a development build and MULLVAD_ENABLE_DEV_UPDATES is not set"
             );
@@ -494,7 +494,7 @@ async fn load_cache(cache_dir: &Path) -> Option<(VersionCache, SystemTime)> {
 }
 
 async fn try_load_cache(cache_dir: &Path) -> Result<(VersionCache, SystemTime), Error> {
-    if *CHECK_DISABLED {
+    if !*CHECK_ENABLED {
         return Ok((dev_version_cache(), SystemTime::now()));
     }
 
