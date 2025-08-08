@@ -48,6 +48,7 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                 ) {
                     viewModel.addNewMethod()
                 }
+                .accessibilityIdentifier(AccessibilityIdentifier.addAccessMethodButton.asString)
                 .padding(.top, 24)
             }, content: { item in
                 let accessibilityId: AccessibilityIdentifier? = switch item.id {
@@ -89,7 +90,6 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                     $0
                 }
             }
-            .accessibilityIdentifier(AccessibilityIdentifier.addAccessMethodButton.asString)
             Spacer()
         }
         .background(Color.mullvadBackground)

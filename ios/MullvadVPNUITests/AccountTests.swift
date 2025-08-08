@@ -54,17 +54,17 @@ class AccountTests: LoggedOutUITestCase {
     }
 
     func testCanNotRemoveCurrentDevice() throws {
-        // Setup
-        let temporaryAccountNumber = createTemporaryAccountWithoutTime()
-
-        // Teardown
-        addTeardownBlock {
-            self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
-        }
-
+//        // Setup
+//        let temporaryAccountNumber = createTemporaryAccountWithoutTime()
+//
+//        // Teardown
+//        addTeardownBlock {
+//            self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+//        }
+        let hasTimeAccountNumber = getAccountWithTime()
         LoginPage(app)
             .tapAccountNumberTextField()
-            .enterText(temporaryAccountNumber)
+            .enterText(hasTimeAccountNumber)
             .tapAccountNumberSubmitButton()
 
         OutOfTimePage(app)
