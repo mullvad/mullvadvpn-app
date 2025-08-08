@@ -9,6 +9,10 @@ use regex_lite::Regex;
 #[cfg(has_version)]
 pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
+pub fn is_beta_version() -> bool {
+    crate::VERSION.contains("beta")
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Version {
     pub year: u32,
