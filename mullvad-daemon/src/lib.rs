@@ -1128,7 +1128,7 @@ impl Daemon {
                 endpoint_active_tx,
             } => self.handle_access_method_event(event, endpoint_active_tx),
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
-            LocationEvent(location_data) => self.handle_location_event(location_data).await,
+            LocationEvent(location_data) => self.handle_location_event(location_data),
             SettingsChanged => {
                 self.update_feature_indicators_on_settings_changed();
             }
@@ -1284,7 +1284,7 @@ impl Daemon {
 
     /// Receives and handles the geographical exit location received from am.i.mullvad.net, i.e. the
     /// [`InternalDaemonEvent::LocationEvent`] event.
-    async fn handle_location_event(&mut self, location_data: LocationEventData) {
+    fn handle_location_event(&mut self, location_data: LocationEventData) {
         let LocationEventData {
             request_id,
             location: fetched_location,
