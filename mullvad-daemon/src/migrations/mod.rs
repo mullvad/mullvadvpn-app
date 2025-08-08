@@ -449,7 +449,7 @@ mod test {
     /// has changed after running the migration code
     #[tokio::test]
     async fn test_settings_format_version() {
-        let default_settings = serde_json::to_value(Settings::default()).unwrap();
+        let default_settings = serde_json::to_value(Settings::default_settings()).unwrap();
         let mut migrated_settings = default_settings.clone();
 
         migrate_settings(None, &mut migrated_settings)

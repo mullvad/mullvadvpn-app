@@ -71,7 +71,7 @@ impl Serialize for SettingsVersion {
 
 /// Mullvad daemon settings.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
-#[serde(default)]
+#[serde(default = "Settings::default_settings")]
 pub struct Settings {
     pub relay_settings: RelaySettings,
     pub bridge_settings: BridgeSettings,
@@ -242,8 +242,12 @@ impl From<String> for SplitApp {
     }
 }
 
-impl Default for Settings {
-    fn default() -> Self {
+impl Settings {
+    /// The max number of recent entries that should be saved. When this number is exceeded the
+    /// oldest recent is deleted.
+    const RECENTS_MAX_COUNT: usize = 50;
+
+    pub fn default_settings() -> Self {
         Settings {
             relay_settings: RelaySettings::Normal(RelayConstraints {
                 location: Constraint::Only(LocationConstraint::Location(
@@ -271,19 +275,13 @@ impl Default for Settings {
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
             relay_overrides: vec![],
-            show_beta_releases: false,
+            show_beta_releases: mullvad_version::is_beta_version(),
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
             recents: Some(vec![]),
         }
     }
-}
-
-impl Settings {
-    /// The max number of recent entries that should be saved. When this number is exceeded the
-    /// oldest recent is deleted.
-    const RECENTS_MAX_COUNT: usize = 50;
 
     pub fn get_relay_settings(&self) -> RelaySettings {
         self.relay_settings.clone()
