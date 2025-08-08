@@ -45,8 +45,9 @@ use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
-use mullvad_types::relay_constraints::GeographicLocationConstraint;
-use mullvad_types::settings::DefaultLocationCountryState;
+use mullvad_types::relay_constraints::{
+    GeographicLocationConstraint, LocationConstraint, RelayConstraints, WireguardConstraints,
+};
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
 #[cfg(daita)]
@@ -1294,25 +1295,6 @@ impl Daemon {
             return;
         }
 
-        if self.settings.default_country == DefaultLocationCountryState::NotUpdated {
-            if let Err(e) = self
-                .settings
-                .update(|settings| {
-                    settings.default_country =
-                        DefaultLocationCountryState::WillUpdate(fetched_location.country.clone())
-                })
-                .await
-                .map_err(Error::SettingsError)
-            {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-            }
-
-            let (tx, _) = oneshot::channel();
-            let _ = self.tx.send(InternalDaemonEvent::Command(
-                DaemonCommand::UpdateDefaultLocationCountry(tx),
-            ));
-        }
-
         match self.tunnel_state {
             TunnelState::Disconnected {
                 ref mut location,
@@ -1330,6 +1312,13 @@ impl Daemon {
             }
             _ => return,
         };
+
+        if !self.settings.has_updated_default_country {
+            let (tx, _) = oneshot::channel();
+            let _ = self.tx.send(InternalDaemonEvent::Command(
+                DaemonCommand::UpdateDefaultLocationCountry(tx),
+            ));
+        }
 
         self.management_interface
             .notifier()
@@ -1894,23 +1883,38 @@ impl Daemon {
 
     fn on_update_default_location(&mut self, tx: ResponseTx<(), settings::Error>) {
         log::info!(
-            "on_update_default_location: {:?}",
-            &self.settings.default_country
+            "has_updated_default_country: {}",
+            &self.settings.has_updated_default_country
         );
 
-        let DefaultLocationCountryState::WillUpdate(country) = &self.settings.default_country
-        else {
+        if self.settings.has_updated_default_country {
+            return;
+        }
+        let Some(location) = self.tunnel_state.get_location() else {
             return;
         };
 
-        let country_code = self
-            .relay_selector
-            .access_relays(|relays| relays.lookup_country_code_by_name(country));
+        let country_code = self.relay_selector.access_relays(|relays| {
+            relays
+                .lookup_country_code_by_name(&location.country)
+                .or_else(|| relays.get_nearest_country_with_relay(location))
+        });
 
         log::info!("country_code: {country_code:?}");
 
         if let Some(country_code) = country_code {
-            let relay_settings = RelaySettings::wireguard_with_country_code(country_code);
+            let relay_settings = RelaySettings::Normal(RelayConstraints {
+                location: Constraint::Only(LocationConstraint::Location(
+                    GeographicLocationConstraint::Country(country_code.clone()),
+                )),
+                wireguard_constraints: WireguardConstraints {
+                    entry_location: Constraint::Only(LocationConstraint::Location(
+                        GeographicLocationConstraint::Country(country_code),
+                    )),
+                    ..Default::default()
+                },
+                ..Default::default()
+            });
 
             let _ = self.tx.send(InternalDaemonEvent::Command(
                 DaemonCommand::SetRelaySettings(tx, relay_settings),
@@ -2379,16 +2383,17 @@ impl Daemon {
                 Self::oneshot_send(tx, Err(e), "set_relay_settings response");
             }
         }
-        if self.settings.default_country != DefaultLocationCountryState::Updated {
+        if !self.settings.has_updated_default_country {
             if let Err(e) = self
                 .settings
-                .update(move |settings| {
-                    settings.default_country = DefaultLocationCountryState::Updated
-                })
+                .update(move |settings| settings.has_updated_default_country = true)
                 .await
                 .map_err(Error::SettingsError)
             {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Unable to save has_updated_default_country")
+                );
             }
         }
     }

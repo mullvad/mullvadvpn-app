@@ -45,21 +45,6 @@ impl RelaySettings {
             ),
         }
     }
-
-    pub fn wireguard_with_country_code(country_code: CountryCode) -> Self {
-        RelaySettings::Normal(RelayConstraints {
-            location: Constraint::Only(LocationConstraint::Location(
-                GeographicLocationConstraint::Country(country_code.clone()),
-            )),
-            wireguard_constraints: WireguardConstraints {
-                entry_location: Constraint::Only(LocationConstraint::Location(
-                    GeographicLocationConstraint::Country(country_code),
-                )),
-                ..Default::default()
-            },
-            ..Default::default()
-        })
-    }
 }
 
 impl From<CustomTunnelEndpoint> for RelaySettings {

@@ -1,4 +1,4 @@
-use crate::location::{CityCode, CountryCode, Location};
+use crate::location::{CityCode, Coordinates, CountryCode, Location};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
@@ -35,6 +35,34 @@ impl RelayList {
             .iter()
             .find(|country| country.name == country_name)
             .map(|country| country.code.clone())
+    }
+
+    /// Returns the closest (geographical distance) country that has a relay for a given location.
+    pub fn get_nearest_country_with_relay(
+        &self,
+        location: impl Into<Coordinates>,
+    ) -> Option<CountryCode> {
+        if self.countries.is_empty() {
+            return None;
+        }
+
+        let location = location.into();
+
+        let mut min_dist = f64::MAX;
+        let mut min_dist_country = &self.countries[0];
+
+        for country in &self.countries {
+            for city in &country.cities {
+                for relay in &city.relays {
+                    let distance = relay.location.distance_from(location);
+                    if distance < min_dist {
+                        min_dist = distance;
+                        min_dist_country = country;
+                    }
+                }
+            }
+        }
+        Some(min_dist_country.code.clone())
     }
 
     /// Return a flat iterator of all [`Relay`]s
