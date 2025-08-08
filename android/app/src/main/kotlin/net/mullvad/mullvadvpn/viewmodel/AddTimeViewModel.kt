@@ -105,7 +105,7 @@ class AddTimeViewModel(
     }
 
     private fun updateAccountExpiry() {
-        viewModelScope.launch { accountRepository.getAccountData() }
+        viewModelScope.launch { accountRepository.getAccountData(force = true) }
     }
 
     private fun PurchaseResult.toPurchaseState() =
