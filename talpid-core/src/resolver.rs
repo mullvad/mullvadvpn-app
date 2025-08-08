@@ -40,7 +40,7 @@ use hickory_server::{
     },
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
 };
-use rand::random;
+use rand::random_range;
 use socket2::{Domain, Protocol, Socket, Type};
 use std::sync::LazyLock;
 use talpid_types::drop_guard::{OnDrop, on_drop};
@@ -379,9 +379,9 @@ impl LocalResolver {
     /// Create a new [net::UdpSocket] bound to port 53 on loopback.
     ///
     /// This socket will try to bind to the following IPs in sequential order:
-    /// - random ip in the range 127.1-255.0-255.0-255 : 53
-    /// - random ip in the range 127.1-255.0-255.0-255 : 53
-    /// - random ip in the range 127.1-255.0-255.0-255 : 53
+    /// - random ip in the range 127.1-255.0-255.1-254 : 53
+    /// - random ip in the range 127.1-255.0-255.1-254 : 53
+    /// - random ip in the range 127.1-255.0-255.1-254 : 53
     /// - 127.0.0.1 : 53
     ///
     /// We do this to try and avoid collisions with other DNS servers running on the same system.
@@ -397,7 +397,12 @@ impl LocalResolver {
         use std::net::Ipv4Addr;
 
         let random_loopback = || async move {
-            let addr = Ipv4Addr::new(127, 1u8.max(random()), random(), random());
+            let addr = Ipv4Addr::new(
+                127,
+                random_range(1..=255),
+                random_range(0..=255),
+                random_range(1..=254),
+            );
 
             // TODO: this command requires root privileges and will thus not work in `cargo test`.
             // This means that the tests will fall back to 127.0.0.1, and will not assert that the
