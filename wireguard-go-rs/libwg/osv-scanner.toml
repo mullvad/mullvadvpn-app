@@ -88,3 +88,9 @@ reason = "wireguard-go does not use Proxy-Authorization or Proxy-Authenticate he
 id = "CVE-2025-22874" # GO-2025-3749
 ignoreUntil = 2025-09-12
 reason = "wireguard-go does not use crypto/x509"
+
+# Incorrect results returned from Rows.Scan in database/sql
+[[IgnoredVulns]]
+id = "CVE-2025-47907" # GO-2025-3849
+ignoreUntil = 2025-09-12
+reason = "wireguard-go does not use database/sql"
