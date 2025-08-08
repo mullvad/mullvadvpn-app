@@ -1,0 +1,32 @@
+---
+source: talpid-core/src/split_tunnel/macos/process.rs
+expression: "(s, result)"
+---
+(
+    "{\"action\":{\"result\":{\"result\":{\"auth\":0},\"result_type\":0}},\"event_type\":9,\"global_seq_num\":75,\"action_type\":1,\"mach_time\":289350913517,\"process\":{\"is_platform_binary\":false,\"team_id\":null,\"signing_id\":\"nu-b9fb5b9dbba2e494\",\"cdhash\":\"28CD2C759132B07D63C3A2B377AD440A6C66098E\",\"executable\":{\"stat\":{\"st_size\":38146864,\"st_gid\":80,\"st_ino\":13982224,\"st_uid\":501,\"st_ctimespec\":\"2025-05-09T11:57:32.842789602Z\",\"st_gen\":0,\"st_mtimespec\":\"2025-04-29T23:31:45.000000000Z\",\"st_blocks\":74512,\"st_rdev\":0,\"st_dev\":16777234,\"st_atimespec\":\"2025-08-07T12:32:35.400606076Z\",\"st_nlink\":1,\"st_mode\":33133,\"st_blksize\":4096,\"st_birthtimespec\":\"2025-04-29T23:31:45.000000000Z\",\"st_flags\":0},\"path_truncated\":false,\"path\":\"\\/bin\\/nu\"},\"group_id\":97391,\"parent_audit_token\":{\"asid\":100019,\"ruid\":501,\"pidversion\":87724,\"egid\":20,\"rgid\":20,\"pid\":58916,\"euid\":501,\"auid\":501},\"session_id\":58916,\"audit_token\":{\"auid\":501,\"asid\":100019,\"egid\":20,\"pid\":97391,\"pidversion\":149091,\"rgid\":20,\"euid\":501,\"ruid\":501},\"ppid\":58916,\"responsible_audit_token\":{\"asid\":100019,\"ruid\":501,\"pidversion\":2424,\"egid\":20,\"rgid\":20,\"pid\":938,\"euid\":501,\"auid\":501},\"original_ppid\":58916,\"codesigning_flags\":570556931,\"start_time\":\"2025-08-07T13:21:35.877422Z\",\"tty\":{\"stat\":{\"st_size\":0,\"st_gid\":4,\"st_uid\":501,\"st_ino\":1223,\"st_ctimespec\":\"2025-08-07T13:21:35.878404000Z\",\"st_gen\":0,\"st_mtimespec\":\"2025-08-07T13:21:35.878404000Z\",\"st_blocks\":0,\"st_rdev\":268435459,\"st_dev\":1333267060,\"st_atimespec\":\"2025-08-07T13:21:35.874434000Z\",\"st_mode\":8592,\"st_nlink\":1,\"st_blksize\":65536,\"st_birthtimespec\":\"1970-01-01T00:00:00.000000000Z\",\"st_flags\":0},\"path_truncated\":false,\"path\":\"\\/dev\\/ttys003\"},\"is_es_client\":false},\"time\":\"2025-08-07T13:21:35.880814738Z\",\"seq_num\":27,\"version\":9,\"event\":{\"exec\":{\"cwd\":{\"stat\":{\"st_size\":2624,\"st_gid\":20,\"st_uid\":501,\"st_ino\":539935,\"st_ctimespec\":\"2025-08-07T12:36:24.368103159Z\",\"st_gen\":0,\"st_mtimespec\":\"2025-08-07T12:36:24.368103159Z\",\"st_blocks\":0,\"st_rdev\":0,\"st_dev\":16777234,\"st_atimespec\":\"2025-08-07T12:36:24.414321469Z\",\"st_mode\":16877,\"st_nlink\":82,\"st_blksize\":4096,\"st_birthtimespec\":\"2024-09-25T14:04:33.178667447Z\",\"st_flags\":0},\"path_truncated\":false,\"path\":\"\\/bin\\/mullvadvpn-app\"},\"env\":[\"FOO=bar\"],\"target\":{\"team_id\":null,\"is_platform_binary\":false,\"signing_id\":\"connection_checker-04fde7bdb8bceee3\",\"cdhash\":\"33F0A3D85BEA260FED5CAD0529AB0E84EC9A0DF1\",\"executable\":{\"stat\":{\"st_size\":5087360,\"st_gid\":20,\"st_ino\":14784254,\"st_uid\":501,\"st_ctimespec\":\"2025-05-12T14:47:04.129389008Z\",\"st_gen\":0,\"st_mtimespec\":\"2025-05-12T14:47:04.107254919Z\",\"st_blocks\":9944,\"st_rdev\":0,\"st_dev\":16777234,\"st_atimespec\":\"2025-08-07T13:21:35.888621297Z\",\"st_nlink\":1,\"st_mode\":33261,\"st_blksize\":4096,\"st_birthtimespec\":\"2025-05-12T14:47:04.106815000Z\",\"st_flags\":0},\"path_truncated\":false,\"path\":\"\\/bin\\/connection-checker\"},\"group_id\":97391,\"parent_audit_token\":{\"pidversion\":87724,\"rgid\":20,\"pid\":58916,\"egid\":20,\"ruid\":501,\"euid\":501,\"asid\":100019,\"auid\":501},\"session_id\":58916,\"audit_token\":{\"pid\":97391,\"rgid\":20,\"euid\":501,\"auid\":501,\"egid\":20,\"asid\":100019,\"pidversion\":149092,\"ruid\":501},\"ppid\":58916,\"responsible_audit_token\":{\"pidversion\":2424,\"rgid\":20,\"pid\":938,\"egid\":20,\"ruid\":501,\"euid\":501,\"asid\":100019,\"auid\":501},\"original_ppid\":58916,\"codesigning_flags\":570556931,\"start_time\":\"2025-08-07T13:21:35.877422Z\",\"tty\":{\"stat\":{\"st_size\":0,\"st_gid\":4,\"st_ino\":1223,\"st_uid\":501,\"st_ctimespec\":\"2025-08-07T13:21:35.878404000Z\",\"st_gen\":0,\"st_mtimespec\":\"2025-08-07T13:21:35.878404000Z\",\"st_blocks\":0,\"st_rdev\":268435459,\"st_dev\":1333267060,\"st_mode\":8592,\"st_nlink\":1,\"st_atimespec\":\"2025-08-07T13:21:35.874434000Z\",\"st_blksize\":65536,\"st_birthtimespec\":\"1970-01-01T00:00:00.000000000Z\",\"st_flags\":0},\"path_truncated\":false,\"path\":\"\\/dev\\/ttys003\"},\"is_es_client\":false},\"last_fd\":9,\"image_cpusubtype\":0,\"fds\":[{\"fdtype\":1,\"fd\":0},{\"fdtype\":1,\"fd\":1},{\"fdtype\":1,\"fd\":2},{\"fdtype\":1,\"fd\":5},{\"fdtype\":1,\"fd\":6},{\"fdtype\":1,\"fd\":8},{\"fdtype\":1,\"fd\":9}],\"image_cputype\":16777228,\"args\":[\"\\/bin\\/connection-checker\"],\"dyld_exec_path\":\"\\/bin\\/connection-checker\",\"script\":null}},\"thread\":{\"thread_id\":505819},\"schema_version\":1}",
+    Ok(
+        ESMessage {
+            version: SupportedVersion(
+                9,
+            ),
+            event: Exec(
+                ESExecEvent {
+                    target: EsExecTarget {
+                        executable: EsExecTargetExecutable {
+                            path: "/bin/connection-checker",
+                            path_truncated: false,
+                        },
+                    },
+                },
+            ),
+            process: ESProcess {
+                audit_token: ESAuditToken {
+                    pid: 97391,
+                },
+                executable: ESExecutable {
+                    path: "/bin/nu",
+                },
+            },
+        },
+    ),
+)

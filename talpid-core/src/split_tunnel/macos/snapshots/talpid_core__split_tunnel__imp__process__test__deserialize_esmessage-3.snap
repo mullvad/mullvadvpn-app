@@ -1,0 +1,31 @@
+---
+source: talpid-core/src/split_tunnel/macos/process.rs
+expression: "(s, result)"
+---
+(
+    "{\"version\":10,\"event\":{\"fork\":{\"child\":{\"signing_id\":\"net.mullvad.vpn\",\"audit_token\":[501,501,20,501,20,21497,100013,38282],\"ppid\":19745,\"team_id\":\"CKG9MXH72F\",\"parent_audit_token\":[501,501,20,501,20,19745,100013,35165],\"session_id\":1,\"group_id\":19745,\"cs_validation_category\":6,\"responsible_audit_token\":[501,501,20,501,20,19745,100013,35165],\"is_platform_binary\":false,\"tty\":null,\"is_es_client\":false,\"original_ppid\":19745,\"executable\":{\"path\":\"\\/Applications\\/Mullvad VPN.app\\/Contents\\/MacOS\\/Mullvad VPN\",\"stat\":{\"st_ctimespec\":\"2025-07-22T15:04:55.459801307Z\",\"st_dev\":16777234,\"st_gid\":0,\"st_atimespec\":\"2025-07-22T15:05:14.889095406Z\",\"st_blocks\":272,\"st_blksize\":4096,\"st_rdev\":0,\"st_mode\":33261,\"st_birthtimespec\":\"2025-06-23T14:48:03.000000000Z\",\"st_size\":135216,\"st_flags\":0,\"st_uid\":0,\"st_mtimespec\":\"2025-06-23T14:48:03.000000000Z\",\"st_ino\":78460340,\"st_nlink\":1,\"st_gen\":0},\"path_truncated\":false},\"codesigning_flags\":570491649,\"start_time\":\"2025-07-22T15:09:01.083979Z\",\"cdhash\":\"C26BC5CF81E08B87DF707685A8EA3652446977F1\"}}},\"thread\":{\"thread_id\":227846},\"time\":\"2025-07-22T15:09:01.084030274Z\",\"seq_num\":0,\"schema_version\":1,\"event_type\":11,\"action\":{\"result\":{\"result\":{\"auth\":0},\"result_type\":0}},\"global_seq_num\":1,\"process\":{\"team_id\":\"CKG9MXH72F\",\"original_ppid\":1,\"audit_token\":[501,501,20,501,20,19745,100013,35165],\"signing_id\":\"net.mullvad.vpn\",\"start_time\":\"2025-07-22T15:05:14.076236Z\",\"responsible_audit_token\":[501,501,20,501,20,19745,100013,35165],\"parent_audit_token\":[4294967295,0,0,0,0,1,100012,1029],\"ppid\":1,\"codesigning_flags\":570491649,\"tty\":null,\"is_es_client\":false,\"group_id\":19745,\"session_id\":1,\"cs_validation_category\":6,\"executable\":{\"path_truncated\":false,\"path\":\"\\/Applications\\/Mullvad VPN.app\\/Contents\\/MacOS\\/Mullvad VPN\",\"stat\":{\"st_size\":135216,\"st_atimespec\":\"2025-07-22T15:05:14.889095406Z\",\"st_mode\":33261,\"st_blocks\":272,\"st_ctimespec\":\"2025-07-22T15:04:55.459801307Z\",\"st_uid\":0,\"st_gen\":0,\"st_blksize\":4096,\"st_gid\":0,\"st_rdev\":0,\"st_birthtimespec\":\"2025-06-23T14:48:03.000000000Z\",\"st_nlink\":1,\"st_dev\":16777234,\"st_flags\":0,\"st_ino\":78460340,\"st_mtimespec\":\"2025-06-23T14:48:03.000000000Z\"}},\"is_platform_binary\":false,\"cdhash\":\"C26BC5CF81E08B87DF707685A8EA3652446977F1\"},\"action_type\":1,\"mach_time\":241051246374}",
+    Ok(
+        ESMessage {
+            version: SupportedVersion(
+                10,
+            ),
+            event: Fork(
+                ESForkEvent {
+                    child: ESForkChild {
+                        audit_token: ESAuditToken {
+                            pid: 21497,
+                        },
+                    },
+                },
+            ),
+            process: ESProcess {
+                audit_token: ESAuditToken {
+                    pid: 19745,
+                },
+                executable: ESExecutable {
+                    path: "/Applications/Mullvad VPN.app/Contents/MacOS/Mullvad VPN",
+                },
+            },
+        },
+    ),
+)

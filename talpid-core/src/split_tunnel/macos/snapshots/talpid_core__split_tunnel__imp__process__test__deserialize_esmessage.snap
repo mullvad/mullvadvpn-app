@@ -1,0 +1,23 @@
+---
+source: talpid-core/src/split_tunnel/macos/process.rs
+expression: "(s, result)"
+---
+(
+    "{\"process\":{\"codesigning_flags\":637623057,\"cdhash\":\"F988105881118CD77EF87293D97DECE8E193FA98\",\"session_id\":532,\"ppid\":532,\"group_id\":532,\"is_platform_binary\":true,\"team_id\":null,\"audit_token\":{\"euid\":0,\"rgid\":0,\"egid\":0,\"pid\":11221,\"asid\":100017,\"ruid\":0,\"auid\":4294967295,\"pidversion\":170692},\"responsible_audit_token\":{\"pid\":532,\"asid\":100017,\"rgid\":0,\"auid\":4294967295,\"euid\":0,\"ruid\":0,\"pidversion\":1294,\"egid\":0},\"is_es_client\":false,\"signing_id\":\"com.apple.ipconfig\",\"start_time\":\"2025-08-07T15:13:09.798115Z\",\"original_ppid\":532,\"parent_audit_token\":{\"pid\":532,\"asid\":100017,\"rgid\":0,\"auid\":4294967295,\"euid\":0,\"ruid\":0,\"pidversion\":1294,\"egid\":0},\"executable\":{\"path_truncated\":false,\"stat\":{\"st_gid\":0,\"st_ino\":1152921500312525701,\"st_ctimespec\":\"2025-07-09T06:27:14.000000000Z\",\"st_mtimespec\":\"2025-07-09T06:27:14.000000000Z\",\"st_gen\":0,\"st_atimespec\":\"2025-07-09T06:27:14.000000000Z\",\"st_dev\":16777234,\"st_uid\":0,\"st_rdev\":0,\"st_birthtimespec\":\"2025-07-09T06:27:14.000000000Z\",\"st_mode\":33261,\"st_nlink\":1,\"st_size\":259504,\"st_blocks\":152,\"st_flags\":524320,\"st_blksize\":4096},\"path\":\"\\/usr\\/sbin\\/ipconfig\"},\"tty\":null},\"time\":\"2025-08-07T15:13:09.811587464Z\",\"seq_num\":362,\"action\":{\"result\":{\"result_type\":0,\"result\":{\"auth\":0}}},\"event_type\":15,\"event\":{\"exit\":{\"stat\":0}},\"mach_time\":401374797834,\"version\":9,\"thread\":{\"thread_id\":622243},\"global_seq_num\":1103,\"schema_version\":1,\"action_type\":1}",
+    Ok(
+        ESMessage {
+            version: SupportedVersion(
+                9,
+            ),
+            event: Exit,
+            process: ESProcess {
+                audit_token: ESAuditToken {
+                    pid: 11221,
+                },
+                executable: ESExecutable {
+                    path: "/usr/sbin/ipconfig",
+                },
+            },
+        },
+    ),
+)
