@@ -393,18 +393,8 @@ fun SelectLocationScreen(
                 is Lc.Content -> {
                     val pagerState =
                         rememberPagerState(
-                            initialPage =
-                                when (state.value.relayListType) {
-                                    is RelayListType.Multihop ->
-                                        state.value.relayListType.multihopRelayListType.ordinal
-                                    RelayListType.Single -> 0
-                                },
-                            pageCount = {
-                                when (state.value.relayListType) {
-                                    is RelayListType.Multihop -> MultihopRelayListType.entries.size
-                                    RelayListType.Single -> 1
-                                }
-                            },
+                            initialPage = state.value.relayListType.initialPage(),
+                            pageCount = { state.value.relayListType.pageCount() },
                         )
 
                     if (state.value.relayListType is RelayListType.Multihop) {
@@ -579,7 +569,6 @@ private fun RelayLists(
         }
     }
 
-    val focusManager = LocalFocusManager.current
     val onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { relayItem, relayListType ->
         if (relayListType is RelayListType.Multihop) {
             onModifyMultihop(relayItem, relayListType.multihopRelayListType)
@@ -619,3 +608,15 @@ private fun RelayLists(
 private fun ColumnScope.Loading() {
     MullvadCircularProgressIndicatorLarge(modifier = Modifier.align(Alignment.CenterHorizontally))
 }
+
+private fun RelayListType.initialPage(): Int =
+    when (this) {
+        is RelayListType.Multihop -> multihopRelayListType.ordinal
+        RelayListType.Single -> 0
+    }
+
+private fun RelayListType.pageCount(): Int =
+    when (this) {
+        is RelayListType.Multihop -> MultihopRelayListType.entries.size
+        RelayListType.Single -> 1
+    }
