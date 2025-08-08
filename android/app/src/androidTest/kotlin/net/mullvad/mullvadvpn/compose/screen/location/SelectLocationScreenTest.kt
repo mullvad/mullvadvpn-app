@@ -15,6 +15,7 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
@@ -57,7 +58,8 @@ class SelectLocationScreenTest {
 
     private fun ComposeContext.initScreen(
         state: Lc<Unit, SelectLocationUiState> = Lc.Loading(Unit),
-        onSelectHop: (hop: Hop, relayListType: RelayListType) -> Unit = { _, _ -> },
+        onSelectHop: (hop: Hop) -> Unit = {},
+        onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit = { _, _ -> },
         onSearchClick: (RelayListType) -> Unit = {},
         onBackClick: () -> Unit = {},
         onFilterClick: () -> Unit = {},
@@ -76,7 +78,7 @@ class SelectLocationScreenTest {
         onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
         onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
         onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
-        onSelectRelayList: (RelayListType) -> Unit = {},
+        onSelectRelayList: (MultihopRelayListType) -> Unit = {},
         openDaitaSettings: () -> Unit = {},
         onRecentsToggleEnableClick: () -> Unit = {},
     ) {
@@ -85,6 +87,7 @@ class SelectLocationScreenTest {
             SelectLocationScreen(
                 state = state,
                 onSelectHop = onSelectHop,
+                onModifyMultihop = onModifyMultihop,
                 onSearchClick = onSearchClick,
                 onBackClick = onBackClick,
                 onFilterClick = onFilterClick,
@@ -112,6 +115,7 @@ class SelectLocationScreenTest {
                 MutableStateFlow(
                     Lce.Content(
                         SelectLocationListUiState(
+                            relayListType = RelayListType.Single,
                             relayListItems =
                                 DUMMY_RELAY_COUNTRIES.map {
                                     RelayListItem.GeoLocationItem(
@@ -129,7 +133,7 @@ class SelectLocationScreenTest {
                         SelectLocationUiState(
                             filterChips = emptyList(),
                             multihopEnabled = false,
-                            relayListType = RelayListType.EXIT,
+                            relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
@@ -156,6 +160,7 @@ class SelectLocationScreenTest {
                         SelectLocationListUiState(
                             relayListItems = listOf(RelayListItem.CustomListFooter(false)),
                             customLists = emptyList(),
+                            relayListType = RelayListType.Single,
                         )
                     )
                 )
@@ -165,7 +170,7 @@ class SelectLocationScreenTest {
                         SelectLocationUiState(
                             filterChips = emptyList(),
                             multihopEnabled = false,
-                            relayListType = RelayListType.EXIT,
+                            relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
@@ -188,17 +193,18 @@ class SelectLocationScreenTest {
                         SelectLocationListUiState(
                             relayListItems = listOf(RelayListItem.CustomListItem(customList)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            relayListType = RelayListType.Single,
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop, RelayListType) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
                             multihopEnabled = false,
-                            relayListType = RelayListType.EXIT,
+                            relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
@@ -211,7 +217,7 @@ class SelectLocationScreenTest {
             onNodeWithText(customList.relay.name).performClick()
 
             // Assert
-            verify { mockedOnSelectHop(customList, RelayListType.EXIT) }
+            verify { mockedOnSelectHop(customList) }
         }
 
     @Test
@@ -225,17 +231,18 @@ class SelectLocationScreenTest {
                         SelectLocationListUiState(
                             relayListItems = listOf(RelayListItem.RecentListItem(recent)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            relayListType = RelayListType.Single,
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop, RelayListType) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
                             multihopEnabled = false,
-                            relayListType = RelayListType.EXIT,
+                            relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
@@ -248,7 +255,7 @@ class SelectLocationScreenTest {
             onNodeWithText(recent.relay.name).performClick()
 
             // Assert
-            verify { mockedOnSelectHop(recent, RelayListType.EXIT) }
+            verify { mockedOnSelectHop(recent) }
         }
 
     @Test
@@ -262,17 +269,18 @@ class SelectLocationScreenTest {
                         SelectLocationListUiState(
                             relayListItems = listOf(RelayListItem.CustomListItem(hop = customList)),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            relayListType = RelayListType.Single,
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop, RelayListType) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
                             multihopEnabled = false,
-                            relayListType = RelayListType.EXIT,
+                            relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
@@ -305,17 +313,18 @@ class SelectLocationScreenTest {
                                     )
                                 ),
                             customLists = emptyList(),
+                            relayListType = RelayListType.Single,
                         )
                     )
                 )
-            val mockedOnSelectHop: (Hop, RelayListType) -> Unit = mockk(relaxed = true)
+            val mockedOnSelectHop: (Hop) -> Unit = mockk(relaxed = true)
             initScreen(
                 state =
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
                             multihopEnabled = false,
-                            relayListType = RelayListType.EXIT,
+                            relayListType = RelayListType.Single,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,

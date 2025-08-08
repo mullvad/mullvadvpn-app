@@ -12,9 +12,9 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.Hop
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
@@ -41,7 +41,7 @@ class SearchLocationScreenTest {
 
     private fun ComposeContext.initScreen(
         state: Lce<Unit, SearchLocationUiState, Unit>,
-        onSelectHop: (Hop) -> Unit = {},
+        onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { _, _ -> },
         onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
         onSearchInputChanged: (String) -> Unit = {},
         onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
@@ -63,7 +63,7 @@ class SearchLocationScreenTest {
         setContentWithTheme {
             SearchLocationScreen(
                 state = state,
-                onSelectHop = onSelectHop,
+                onSelectRelayItem = onSelectRelayItem,
                 onToggleExpand = onToggleExpand,
                 onSearchInputChanged = onSearchInputChanged,
                 onCreateCustomList = onCreateCustomList,
@@ -89,9 +89,10 @@ class SearchLocationScreenTest {
                     Lce.Content(
                         SearchLocationUiState(
                             searchTerm = "",
+                            relayListType = RelayListType.Single,
                             filterChips = emptyList(),
                             relayListItems = emptyList(),
-                            emptyList(),
+                            customLists = emptyList(),
                         )
                     ),
                 onSearchInputChanged = mockedSearchTermInput,
@@ -115,6 +116,7 @@ class SearchLocationScreenTest {
                     Lce.Content(
                         SearchLocationUiState(
                             searchTerm = mockSearchString,
+                            relayListType = RelayListType.Single,
                             filterChips = emptyList(),
                             relayListItems =
                                 listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
@@ -138,6 +140,7 @@ class SearchLocationScreenTest {
                     Lce.Content(
                         SearchLocationUiState(
                             searchTerm = mockSearchString,
+                            relayListType = RelayListType.Single,
                             filterChips = emptyList(),
                             relayListItems = emptyList(),
                             customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
