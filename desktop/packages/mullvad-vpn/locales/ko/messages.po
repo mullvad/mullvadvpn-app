@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2025-06-27 06:04\n"
+"PO-Revision-Date: 2025-08-06 07:47\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -753,6 +753,10 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "설치 프로그램이 예기치 않게 종료되었습니다. 다시 시도하거나 문제 보고서를 전송하세요."
 
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr "설치 프로그램은 <b>%(cacheDir)s</b>에 다운로드됩니다."
+
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1389,42 +1393,80 @@ msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr "환영합니다! 이제 이 장치의 이름은 <b>%(deviceName)s</b>입니다. 자세한 내용을 보려면 계정의 정보 버튼을 누르세요."
 
+#. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad 시스템 서비스에 연결하는 중..."
 
+#. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
-msgid "Disable third party antivirus software."
-msgstr "타사 안티바이러스 소프트웨어를 비활성화합니다."
+msgid "Details"
+msgstr "세부 정보"
 
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
+msgstr "타사 안티바이러스 소프트웨어를 비활성화합니다"
+
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr "앱을 시작하지 못했습니다. 다시 시도하거나 \"세부 정보\"를 클릭해 자세한 정보를 확인하세요"
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr "이러한 단계로 문제가 해결되지 않으면 문제 보고서를 보내주세요."
 
+#. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Mullvad VPN 서비스에 대한 권한이 취소되었습니다. 시스템 설정으로 이동한 다음, \"백그라운드에서 허용\" 설정에서 Mullvad VPN을 허용하세요."
 
+#. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
-msgid "Reinstalling the app."
-msgstr "앱을 다시 설치합니다."
+msgid "Reinstalling the app"
+msgstr "앱을 다시 설치합니다"
 
+#. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
-msgid "Restarting your computer."
-msgstr "컴퓨터를 다시 시작합니다."
+msgid "Restarting the Mullvad background process"
+msgstr "Mullvad 백그라운드 프로세스를 다시 시작합니다"
 
-#. Button label for problem report view.
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr "\"뒤로\", \"다시 시도\"를 차례로 클릭하여 Mullvad 백그라운드 프로세스를 다시 시작합니다"
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr "컴퓨터를 다시 시작합니다"
+
+#. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "문제 보고서 보내기"
 
+#. Status text shown when app is starting.
 msgctxt "launch-view"
-msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
-msgstr "앱의 시스템 서비스 구성요소가 시작되지 않았거나 연결할 수 없습니다. 시스템 서비스는 보안, 킬 스위치 및 VPN 터널을 담당합니다. 문제를 해결하려면 다음과 같이 해보세요."
+msgid "Starting up...."
+msgstr "시작하는 중...."
 
+#. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
-msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
-msgstr "Mullvad 시스템 서비스에 연결할 수 없습니다. 연결이 안전하지 않을 수 있습니다. '자세히 알아보기' 버튼을 클릭하여 문제를 해결하거나 문제 보고서를 보내주세요."
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr "Mullvad 백그라운드 프로세스를 시작하지 못했습니다. 해당 백그라운드 프로세스는 보안, 킬 스위치, VPN 터널을 담당합니다. 다음을 시도해 보세요:"
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr "다시 시도"
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
+msgstr "Mullvad 시스템 서비스에 연결할 수 없습니다. 연결이 안전하지 않을 수 있습니다. \"자세히 알아보기\" 버튼을 클릭하여 문제를 해결하거나 문제 보고서를 보내주세요."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1905,6 +1947,13 @@ msgstr "목록 이름은 고유해야 합니다."
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "이미 사용 중인 이름입니다."
+
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr "난독 처리: %(obfuscation)s"
 
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
@@ -2749,6 +2798,9 @@ msgstr "%s(제거됨)"
 msgid "%s custom port"
 msgstr "%s 사용자 지정 포트"
 
+msgid "%s is unavailable"
+msgstr "%s 사용 불가"
+
 msgid "%s was added to your account."
 msgstr "%s이(가) 계정에 추가되었습니다."
 
@@ -2917,6 +2969,9 @@ msgstr "이 설정을 활성화하려면 아래의 \"%s\"를 비활성화하세�
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "이 설정을 활성화하려면 위의 모든 \"%s\"를 비활성화하세요."
 
+msgid "Disable recents"
+msgstr "최근 항목 비활성화"
+
 msgid "Discard"
 msgstr "취소"
 
@@ -2955,6 +3010,9 @@ msgstr "%1$s 활성화"
 
 msgid "Enable method"
 msgstr "방법 활성화"
+
+msgid "Enable recents"
+msgstr "최근 항목 활성화"
 
 msgid "Enter MTU"
 msgstr "MTU 입력"
@@ -3055,6 +3113,9 @@ msgstr "장치가 항상 VPN 터널에 있어야 합니다."
 msgid "Manage devices"
 msgstr "장치 관리"
 
+msgid "More actions"
+msgstr "추가 작업"
+
 msgid "Mullvad services unavailable"
 msgstr "Mullvad 서비스 사용 불가"
 
@@ -3081,6 +3142,9 @@ msgstr "인터넷에 연결되지 않음"
 
 msgid "No locations found"
 msgstr "위치를 찾을 수 없음"
+
+msgid "No recent selection history"
+msgstr "최근 선택 내역이 없습니다"
 
 msgid "No result for \"%s\", please try a different search"
 msgstr "\"%s\" 검색 결과가 없습니다. 다른 검색어를 시도하세요"
@@ -3120,6 +3184,12 @@ msgstr "개인 정보 보호"
 
 msgid "Privacy policy"
 msgstr "개인정보 보호정책"
+
+msgid "Recents"
+msgstr "최근 항목"
+
+msgid "Recents disabled and history cleared"
+msgstr "최근 항목이 비활성화되고 내역이 삭제되었습니다"
 
 msgid "Recursion limit"
 msgstr "반복 제한"
@@ -3223,11 +3293,11 @@ msgstr "이미 현재로 설정되어 있습니다"
 msgid "Time added"
 msgstr "시간 추가됨"
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
-msgstr "목록에 위치를 추가하려면 \"︙\"를 누르거나 국가, 도시 또는 서버를 길게 누릅니다."
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr "목록에 위치를 추가하려면 펜을 누르거나 국가, 도시 또는 서버를 길게 누릅니다."
 
-msgid "To create a custom list press the \"︙\""
-msgstr "사용자 지정 목록을 생성하려면 \"︙\"를 누릅니다"
+msgid "To create a custom list press the \"+\""
+msgstr "사용자 지정 목록을 생성하려면 \"+\"를 누릅니다"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "가장 안전한 버전인지 확인하고 현재 실행 중인 버전에 문제가 있으면 알려드리기 위해 앱에서 자동으로 버전 확인을 수행합니다. 그러면 앱 버전과 Android 시스템 버전이 Mullvad 서버로 전송됩니다. Mullvad는 사용된 앱 버전 및 Android 버전 수에 대한 카운터를 유지합니다. 이 데이터는 귀하를 식별할 수 있는 어떤 방식으로도 저장되거나 사용되지 않습니다."
@@ -3306,6 +3376,9 @@ msgstr "결제 프로세스를 시작할 수 없습니다. Google Play가 최신
 
 msgid "We were unable to start the payment process, please try again later."
 msgstr "결제 프로세스를 시작할 수 없습니다. 나중에 다시 시도해 주세요."
+
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr "환영합니다. 이 장치의 호칭은 이제 <b>%s</b>입니다."
 
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
