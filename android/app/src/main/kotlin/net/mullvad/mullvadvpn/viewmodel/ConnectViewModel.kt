@@ -114,8 +114,11 @@ class ConnectViewModel(
 
     init {
         viewModelScope.launch {
+            accountRepository.getAccountData(force = false)
+        }
+        viewModelScope.launch {
             if (paymentUseCase.verifyPurchases().isSuccess()) {
-                accountRepository.getAccountData()
+                accountRepository.getAccountData(force = true)
             }
         }
         viewModelScope.launch { deviceRepository.updateDevice() }

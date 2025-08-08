@@ -391,6 +391,7 @@ class ManagementService(
         accountNumber: AccountNumber
     ): Either<GetAccountDataError, AccountData> =
         Either.catch {
+                Logger.d("LOLZ Polling for account data", Throwable())
                 grpc.getAccountData(StringValue.of(accountNumber.value)).toDomain(accountNumber)
             }
             .onLeft { Logger.e("Get account data error") }
