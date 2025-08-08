@@ -8,10 +8,13 @@
 
 import Combine
 import Foundation
+import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 
 final class AccessMethodIterator: @unchecked Sendable, SwiftConnectionModeProviding {
+    private let logger = Logger(label: "AccessMethodIterator")
+
     private let dataSource: AccessMethodRepositoryDataSource
 
     private var index = 0
@@ -47,13 +50,14 @@ final class AccessMethodIterator: @unchecked Sendable, SwiftConnectionModeProvid
             index = firstIndex
         }
 
-        dataSource.saveLastReachable(pick())
+        let newAccessMethod = pick()
+        dataSource.requestAccessMethod(newAccessMethod)
     }
 
     func rotate() {
         let (partial, isOverflow) = index.addingReportingOverflow(1)
         index = isOverflow ? 0 : partial
-        dataSource.saveLastReachable(pick())
+        dataSource.requestAccessMethod(pick())
     }
 
     func pick() -> PersistentAccessMethod {

@@ -116,8 +116,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         accessMethodReceiver = MullvadAccessMethodReceiver(
             apiContext: apiContext,
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
-            lastReachableDataSource: accessMethodRepository.lastReachableAccessMethodPublisher
+            requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
+        apiContext.accessMethodChangeListener = accessMethodRepository
 
         setUpProxies(containerURL: containerURL)
         let backgroundTaskProvider = BackgroundTaskProvider(

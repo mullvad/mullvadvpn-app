@@ -17,12 +17,12 @@ public class MullvadAccessMethodReceiver {
     public init(
         apiContext: MullvadApiContext,
         accessMethodsDataSource: AnyPublisher<[PersistentAccessMethod], Never>,
-        lastReachableDataSource: AnyPublisher<PersistentAccessMethod, Never>
+        requestDataSource: AnyPublisher<PersistentAccessMethod, Never>
     ) {
         self.apiContext = apiContext
 
-        lastReachableDataSource.sink { [weak self] in
-            self?.saveLastReachable($0)
+        requestDataSource.sink { [weak self] latestReachable in
+            self?.saveLastReachable(latestReachable)
         }
         .store(in: &cancellables)
 

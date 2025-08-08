@@ -28,7 +28,7 @@ public struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource, @unc
         passthroughSubject.value
     }
 
-    public func saveLastReachable(_ method: PersistentAccessMethod) {}
+    public func requestAccessMethod(_ method: PersistentAccessMethod) {}
 
     public func fetchLastReachable() -> PersistentAccessMethod {
         directAccess

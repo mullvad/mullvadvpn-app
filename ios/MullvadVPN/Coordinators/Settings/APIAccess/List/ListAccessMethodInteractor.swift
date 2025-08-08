@@ -28,7 +28,7 @@ struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
     }
 
     var itemInUsePublisher: AnyPublisher<ListAccessMethodItem?, Never> {
-        repository.lastReachableAccessMethodPublisher
+        repository.currentAccessMethodPublisher
             .receive(on: RunLoop.main)
             .map { $0.toListItem() }
             .eraseToAnyPublisher()
