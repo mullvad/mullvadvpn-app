@@ -74,6 +74,5 @@ class CustomListsRepository(
             Logger.e("Custom list with id $id not found in custom lists")
             GetCustomListError(id)
         }
-        foundList
     }
 }

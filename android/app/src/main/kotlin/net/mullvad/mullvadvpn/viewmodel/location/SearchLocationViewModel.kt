@@ -163,14 +163,17 @@ class SearchLocationViewModel(
                 {
                     _uiSideEffect.send(
                         when (it) {
-                            is ModifyMultihopError.EntrySame ->
-                                SearchLocationSideEffect.EntryAlreadySelected(
-                                    relayItem = it.relayItem
-                                )
-                            is ModifyMultihopError.ExitSame ->
-                                SearchLocationSideEffect.ExitAlreadySelected(
-                                    relayItem = it.relayItem
-                                )
+                            is ModifyMultihopError.EntrySameAsExit ->
+                                when (change) {
+                                    is MultihopChange.Entry ->
+                                        SearchLocationSideEffect.ExitAlreadySelected(
+                                            relayItem = change.item
+                                        )
+                                    is MultihopChange.Exit ->
+                                        SearchLocationSideEffect.EntryAlreadySelected(
+                                            relayItem = change.item
+                                        )
+                                }
                             ModifyMultihopError.GenericError ->
                                 SearchLocationSideEffect.GenericError
                             is ModifyMultihopError.RelayItemInactive ->
