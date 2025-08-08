@@ -38,6 +38,7 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.Hop
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -61,6 +62,7 @@ private fun PreviewSelectLocationList(
                 lazyListState = rememberLazyListState(),
                 openDaitaSettings = {},
                 onSelectHop = {},
+                onSelectRelayItem = { _, _ -> },
                 onUpdateBottomSheetState = {},
                 onAddCustomList = {},
                 onEditCustomLists = {},
@@ -77,7 +79,8 @@ private typealias Content = Lce.Content<SelectLocationListUiState>
 @Composable
 fun SelectLocationList(
     relayListType: RelayListType,
-    onSelectHop: (Hop, RelayListType) -> Unit,
+    onSelectHop: (Hop) -> Unit,
+    onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
@@ -85,7 +88,7 @@ fun SelectLocationList(
 ) {
     val viewModel =
         koinViewModel<SelectLocationListViewModel>(
-            key = relayListType.name,
+            key = relayListType.toString(),
             parameters = { parametersOf(relayListType) },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -103,7 +106,8 @@ fun SelectLocationList(
         state = state,
         lazyListState = lazyListState,
         openDaitaSettings = openDaitaSettings,
-        onSelectHop = { onSelectHop(it, relayListType) },
+        onSelectHop = onSelectHop,
+        onSelectRelayItem = onSelectRelayItem,
         onUpdateBottomSheetState = onUpdateBottomSheetState,
         onAddCustomList = onAddCustomList,
         onEditCustomLists = onEditCustomLists,
@@ -117,6 +121,7 @@ private fun SelectLocationListContent(
     lazyListState: LazyListState,
     openDaitaSettings: () -> Unit,
     onSelectHop: (Hop) -> Unit,
+    onSelectRelayItem: (relayItem: RelayItem, relayListType: RelayListType) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
@@ -159,6 +164,7 @@ private fun SelectLocationListContent(
                     relayListItems = state.value.relayListItems,
                     customLists = state.value.customLists,
                     onSelectHop = onSelectHop,
+                    onSelectRelayItem = { onSelectRelayItem(it, state.value.relayListType) },
                     onToggleExpand = onToggleExpand,
                     onUpdateBottomSheetState = onUpdateBottomSheetState,
                     customListHeader = {

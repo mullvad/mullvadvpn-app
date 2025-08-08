@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.usecase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import net.mullvad.mullvadvpn.compose.state.MultihopRelayListType
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -24,10 +25,10 @@ class RecentsUseCase(
     operator fun invoke(): Flow<List<Hop>?> =
         combine(
             recents(),
-            filteredRelayListUseCase(RelayListType.ENTRY),
-            customListsRelayItemUseCase(RelayListType.ENTRY),
-            filteredRelayListUseCase(RelayListType.EXIT),
-            customListsRelayItemUseCase(RelayListType.EXIT),
+            filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
+            customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
+            filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)),
+            customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)),
         ) { recents, entryRelayList, entryCustomLists, exitRelayList, exitCustomLists ->
             recents?.mapNotNull { recent ->
                 when (recent) {

@@ -20,11 +20,12 @@ import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.usecase.ModifyMultihopUseCase
+import net.mullvad.mullvadvpn.usecase.SelectHopUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
@@ -39,7 +40,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SearchLocationViewModelTest {
 
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
-    private val mockRelayListRepository: RelayListRepository = mockk()
     private val mockFilteredRelayListUseCase: FilteredRelayListUseCase = mockk()
     private val mockCustomListActionUseCase: CustomListActionUseCase = mockk()
     private val mockCustomListsRepository: CustomListsRepository = mockk()
@@ -48,6 +48,8 @@ class SearchLocationViewModelTest {
     private val mockFilteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase = mockk()
     private val mockSelectedLocationUseCase: SelectedLocationUseCase = mockk()
     private val mockCustomListsRelayItemUseCase: CustomListsRelayItemUseCase = mockk()
+    private val mockSelectHopUseCase: SelectHopUseCase = mockk()
+    private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
 
     private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val selectedLocation =
@@ -74,7 +76,6 @@ class SearchLocationViewModelTest {
         viewModel =
             SearchLocationViewModel(
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
-                relayListRepository = mockRelayListRepository,
                 filteredRelayListUseCase = mockFilteredRelayListUseCase,
                 customListActionUseCase = mockCustomListActionUseCase,
                 customListsRepository = mockCustomListsRepository,
@@ -83,8 +84,10 @@ class SearchLocationViewModelTest {
                 filteredCustomListRelayItemsUseCase = mockFilteredCustomListRelayItemsUseCase,
                 selectedLocationUseCase = mockSelectedLocationUseCase,
                 customListsRelayItemUseCase = mockCustomListsRelayItemUseCase,
+                selectHopUseCase = mockSelectHopUseCase,
+                modifyMultihopUseCase = mockModifyMultihopUseCase,
                 savedStateHandle =
-                    SearchLocationNavArgs(relayListType = RelayListType.ENTRY).toSavedStateHandle(),
+                    SearchLocationNavArgs(relayListType = RelayListType.Single).toSavedStateHandle(),
             )
     }
 
