@@ -2,9 +2,11 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
 import arrow.core.right
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import java.time.ZonedDateTime
@@ -61,7 +63,7 @@ class AccountViewModelTest {
         every { mockAccountRepository.accountData } returns accountExpiryState
         every { mockDeviceRepository.deviceState } returns deviceState
         coEvery { mockPaymentUseCase.paymentAvailability } returns paymentAvailability
-        coEvery { mockAccountRepository.getAccountData() } returns null
+        coEvery { mockAccountRepository.refreshAccountData(any()) } just Runs
 
         viewModel =
             AccountViewModel(

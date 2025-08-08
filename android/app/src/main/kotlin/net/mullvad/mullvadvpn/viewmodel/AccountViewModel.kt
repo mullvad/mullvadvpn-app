@@ -54,10 +54,10 @@ class AccountViewModel(
                     )
                     .toLc<Unit, AccountUiState>()
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Lc.Loading(Unit))
+            .onStart { viewModelScope.launch { updateAccountExpiry() } }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), Lc.Loading(Unit))
 
     init {
-        updateAccountExpiry()
         verifyPurchases()
     }
 
@@ -88,7 +88,7 @@ class AccountViewModel(
     }
 
     private fun updateAccountExpiry() {
-        viewModelScope.launch { accountRepository.getAccountData() }
+        viewModelScope.launch { accountRepository.refreshAccountData() }
     }
 
     private fun verifyPurchases() {
