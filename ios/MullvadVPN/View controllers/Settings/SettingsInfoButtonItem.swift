@@ -16,9 +16,7 @@ enum SettingsInfoButtonItem: CustomStringConvertible {
         switch self {
         case .daita:
             NSLocalizedString(
-                "DAITA_INFORMATION_TEXT",
-                tableName: "DAITA",
-                value: """
+                """
                 DAITA (Defence against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. \
                 If anyone is monitoring your connection, this makes it significantly harder for them to identify \
                 what websites you are visiting.
@@ -32,9 +30,7 @@ enum SettingsInfoButtonItem: CustomStringConvertible {
             )
         case .daitaDirectOnly:
             NSLocalizedString(
-                "DIRECT_ONLY_INFORMATION_TEXT",
-                tableName: "DAITA",
-                value: """
+                """
                 By enabling "Direct only" you will have to manually select a server that is DAITA-enabled. \
                 This can cause you to end up in a blocked state until you have selected a compatible server \
                 in the "Select location" view.

@@ -260,20 +260,15 @@ extension RelayFilterDataSource: UITableViewDelegate {
         switch sectionId {
         case .ownership:
             accessibilityIdentifier = .locationFilterOwnershipHeaderCell
-            title = "Ownership"
+            title = NSLocalizedString("Ownership", comment: "")
         case .providers:
             accessibilityIdentifier = .locationFilterProvidersHeaderCell
-            title = "Providers"
+            title = NSLocalizedString("Providers", comment: "")
         }
 
         view.isExpanded = true
         view.setAccessibilityIdentifier(accessibilityIdentifier)
-        view.titleLabel.text = NSLocalizedString(
-            "RELAY_FILTER_HEADER_LABEL",
-            tableName: "Relay filter header",
-            value: title,
-            comment: ""
-        )
+        view.titleLabel.text = title
 
         view.didCollapseHandler = { [weak self] headerView in
             guard let self else { return }

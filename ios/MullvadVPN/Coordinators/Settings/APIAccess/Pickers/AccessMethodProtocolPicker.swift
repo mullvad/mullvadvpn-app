@@ -27,12 +27,7 @@ struct AccessMethodProtocolPicker {
         let controller = ListItemPickerViewController(dataSource: dataSource, selectedItemID: currentValue)
         controller.view.setAccessibilityIdentifier(.accessMethodProtocolPickerView)
 
-        controller.navigationItem.title = NSLocalizedString(
-            "SELECT_PROTOCOL_NAV_TITLE",
-            tableName: "APIAccess",
-            value: "Type",
-            comment: ""
-        )
+        controller.navigationItem.title = NSLocalizedString("Type", comment: "")
 
         controller.onSelect = { selectedItem in
             navigationController.popViewController(animated: true)

@@ -12,70 +12,40 @@ class AccountContentView: UIView {
     let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.setAccessibilityIdentifier(.purchaseButton)
-        button.setTitle(NSLocalizedString(
-            "ADD_TIME_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Add time",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Add time", comment: ""), for: .normal)
         return button
     }()
 
     let storeKit2PurchaseButton: AppButton = {
         let button = AppButton(style: .success)
-        button.setTitle(NSLocalizedString(
-            "BUY_SUBSCRIPTION_STOREKIT_2",
-            tableName: "Account",
-            value: "Make a purchase with StoreKit2",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Make a purchase with StoreKit2", comment: ""), for: .normal)
         return button
     }()
 
     let storeKit2RefundButton: AppButton = {
         let button = AppButton(style: .success)
-        button.setTitle(NSLocalizedString(
-            "BUY_SUBSCRIPTION_STOREKIT_2",
-            tableName: "Account",
-            value: "Refund last purchase with StoreKit2",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Refund last purchase with StoreKit2", comment: ""), for: .normal)
         return button
     }()
 
     let redeemVoucherButton: AppButton = {
         let button = AppButton(style: .success)
         button.setAccessibilityIdentifier(.redeemVoucherButton)
-        button.setTitle(NSLocalizedString(
-            "REDEEM_VOUCHER_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Redeem voucher",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Redeem voucher", comment: ""), for: .normal)
         return button
     }()
 
     let logoutButton: AppButton = {
         let button = AppButton(style: .danger)
         button.setAccessibilityIdentifier(.logoutButton)
-        button.setTitle(NSLocalizedString(
-            "LOGOUT_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Log out",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Log out", comment: ""), for: .normal)
         return button
     }()
 
     let deleteButton: AppButton = {
         let button = AppButton(style: .danger)
         button.setAccessibilityIdentifier(.deleteButton)
-        button.setTitle(NSLocalizedString(
-            "DELETE_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Delete account",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Delete account", comment: ""), for: .normal)
         return button
     }()
 

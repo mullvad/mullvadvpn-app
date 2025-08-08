@@ -114,12 +114,7 @@ struct SettingsViewControllerFactory {
         let view = SettingsMultihopView(tunnelViewModel: viewModel)
 
         let host = UIHostingController(rootView: view)
-        host.title = NSLocalizedString(
-            "NAVIGATION_TITLE_MULTIHOP",
-            tableName: "Settings",
-            value: "Multihop",
-            comment: ""
-        )
+        host.title = NSLocalizedString("Multihop", comment: "")
         host.view.setAccessibilityIdentifier(.multihopView)
 
         return .viewController(host)

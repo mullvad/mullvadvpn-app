@@ -16,18 +16,8 @@ struct PaymentAlertPresenter {
     func showAlertForRefund(completion: (@MainActor @Sendable () -> Void)? = nil) {
         let presentation = AlertPresentation(
             id: "payment-refund-alert",
-            title: NSLocalizedString(
-                "PAYMENT_REFUND_ALERT_TITLE",
-                tableName: "Payment",
-                value: "Refund successful",
-                comment: ""
-            ),
-            message: NSLocalizedString(
-                "PAYMENT_REFUND_ALERT_MESSAGE",
-                tableName: "Payment",
-                value: "Your purchase was successfully refunded.",
-                comment: ""
-            ),
+            title: NSLocalizedString("Refund successful", comment: ""),
+            message: NSLocalizedString("Your purchase was successfully refunded.", comment: ""),
             buttons: [
                 AlertAction(
                     title: okButtonTextForKey("PAYMENT_REFUND_ALERT_OK_ACTION"),
@@ -121,11 +111,6 @@ struct PaymentAlertPresenter {
     }
 
     private func okButtonTextForKey(_ key: String) -> String {
-        NSLocalizedString(
-            key,
-            tableName: "Payment",
-            value: "Got it!",
-            comment: ""
-        )
+        NSLocalizedString("Got it!", comment: "")
     }
 }

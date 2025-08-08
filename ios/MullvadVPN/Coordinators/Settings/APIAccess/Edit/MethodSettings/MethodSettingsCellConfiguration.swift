@@ -178,12 +178,7 @@ class MethodSettingsCellConfiguration {
         var contentConfiguration = MethodTestingStatusCellContentConfiguration()
         contentConfiguration.status = viewStatus
         contentConfiguration.detailText = viewStatus == .reachable
-            ? NSLocalizedString(
-                "METHOD_SETTINGS_SAVING_CHANGES",
-                tableName: "APIAccess",
-                value: "Saving changes...",
-                comment: ""
-            )
+            ? NSLocalizedString("Saving changes...", comment: "")
             : nil
 
         cell.contentConfiguration = contentConfiguration
