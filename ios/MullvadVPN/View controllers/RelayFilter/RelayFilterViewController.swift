@@ -64,12 +64,7 @@ class RelayFilterViewController: UIViewController {
         view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         view.backgroundColor = .secondaryColor
 
-        navigationItem.title = NSLocalizedString(
-            "RELAY_FILTER_NAVIGATION_TITLE",
-            tableName: "RelayFilter",
-            value: "Filter",
-            comment: ""
-        )
+        navigationItem.title = NSLocalizedString("Filter", comment: "")
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             systemItem: .cancel,

@@ -64,12 +64,7 @@ class HeaderBarView: UIView {
     let accountButton: UIButton = {
         let button = makeHeaderBarButton(with: UIImage.Buttons.account)
         button.setAccessibilityIdentifier(.accountButton)
-        button.accessibilityLabel = NSLocalizedString(
-            "HEADER_BAR_ACCOUNT_BUTTON_ACCESSIBILITY_LABEL",
-            tableName: "HeaderBar",
-            value: "Account",
-            comment: ""
-        )
+        button.accessibilityLabel = NSLocalizedString("Account", comment: "")
         button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.barButtonSize).isActive = true
         button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
         return button
@@ -78,12 +73,7 @@ class HeaderBarView: UIView {
     let settingsButton: UIButton = {
         let button = makeHeaderBarButton(with: UIImage.Buttons.settings)
         button.setAccessibilityIdentifier(.settingsButton)
-        button.accessibilityLabel = NSLocalizedString(
-            "HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL",
-            tableName: "HeaderBar",
-            value: "Settings",
-            comment: ""
-        )
+        button.accessibilityLabel = NSLocalizedString("Settings", comment: "")
         button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.barButtonSize).isActive = true
         button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
         return button
@@ -123,12 +113,7 @@ class HeaderBarView: UIView {
     private var timeLeft: Date? {
         didSet {
             if let timeLeft {
-                let formattedTimeLeft = NSLocalizedString(
-                    "TIME_LEFT_HEADER_VIEW",
-                    tableName: "Account",
-                    value: "Time left: %@",
-                    comment: ""
-                )
+                let formattedTimeLeft = NSLocalizedString("Time left: %@", comment: "")
                 timeLeftLabel.text = String(
                     format: formattedTimeLeft,
                     CustomDateComponentsFormatting.localizedString(
@@ -146,12 +131,7 @@ class HeaderBarView: UIView {
     private var deviceName: String? {
         didSet {
             if let deviceName {
-                let formattedDeviceName = NSLocalizedString(
-                    "DEVICE_NAME_HEADER_VIEW",
-                    tableName: "Account",
-                    value: "Device name: %@",
-                    comment: ""
-                )
+                let formattedDeviceName = NSLocalizedString("Device name: %@", comment: "")
                 deviceNameLabel.text = String(format: formattedDeviceName, deviceName)
             } else {
                 deviceNameLabel.text = ""

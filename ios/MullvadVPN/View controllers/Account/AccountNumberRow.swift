@@ -26,12 +26,7 @@ class AccountNumberRow: UIView {
 
     private let titleLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.text = NSLocalizedString(
-            "ACCOUNT_TOKEN_LABEL",
-            tableName: "Account",
-            value: "Account number",
-            comment: ""
-        )
+        textLabel.text = NSLocalizedString("Account number", comment: "")
         textLabel.font = .mullvadTiny
         textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = UIColor(white: 1.0, alpha: 0.6)
@@ -168,12 +163,7 @@ class AccountNumberRow: UIView {
 
         if isObscured {
             return NSAttributedString(
-                string: NSLocalizedString(
-                    "ACCOUNT_ACCESSIBILITY_OBSCURED",
-                    tableName: "Account",
-                    value: "Obscured",
-                    comment: ""
-                )
+                string: NSLocalizedString("Obscured", comment: "")
             )
         } else {
             return NSAttributedString(
@@ -193,12 +183,7 @@ class AccountNumberRow: UIView {
                 selector: #selector(didTapShowHideAccount)
             ),
             UIAccessibilityCustomAction(
-                name: NSLocalizedString(
-                    "ACCOUNT_ACCESSIBILITY_COPY_TO_PASTEBOARD",
-                    tableName: "Account",
-                    value: "Copy to pasteboard",
-                    comment: ""
-                ),
+                name: NSLocalizedString("Copy to pasteboard", comment: ""),
                 target: self,
                 selector: #selector(didTapCopyAccountNumber)
             ),
@@ -207,19 +192,9 @@ class AccountNumberRow: UIView {
 
     private var showHideAccessibilityActionName: String {
         if isObscured {
-            return NSLocalizedString(
-                "ACCOUNT_ACCESSIBILITY_SHOW_ACCOUNT_NUMBER",
-                tableName: "Account",
-                value: "Show account number",
-                comment: ""
-            )
+            return NSLocalizedString("Show account number", comment: "")
         } else {
-            return NSLocalizedString(
-                "ACCOUNT_ACCESSIBILITY_HIDE_ACCOUNT_NUMBER",
-                tableName: "Account",
-                value: "Hide account number",
-                comment: ""
-            )
+            return NSLocalizedString("Hide account number", comment: "")
         }
     }
 

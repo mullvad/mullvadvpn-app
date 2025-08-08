@@ -46,7 +46,7 @@ class Page {
     }
 
     @discardableResult func tapKeyboardDoneButton() -> Self {
-        app.toolbars.buttons["Done"].tap()
+        app.toolbars.buttons[NSLocalizedString("Done", comment: "")].tap()
         return self
     }
 

@@ -379,31 +379,16 @@ extension EditAccessMethodViewController: UITableViewDelegate {
 
     private func onDelete() {
         let methodName = subject.value.name.isEmpty
-            ? NSLocalizedString(
-                "METHOD_SETTINGS_SAVE_PROMPT",
-                tableName: "APIAccess",
-                value: "method?",
-                comment: ""
-            )
+            ? NSLocalizedString("method?", comment: "")
             : subject.value.name
 
         let presentation = AlertPresentation(
             id: "api-access-methods-delete-method-alert",
             icon: .alert,
-            message: NSLocalizedString(
-                "METHOD_SETTINGS_DELETE_PROMPT",
-                tableName: "APIAccess",
-                value: "Delete \(methodName)?",
-                comment: ""
-            ),
+            message: NSLocalizedString("Delete \(methodName)?", comment: ""),
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        "METHOD_SETTINGS_DELETE_BUTTON",
-                        tableName: "APIAccess",
-                        value: "Delete",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Delete", comment: ""),
                     style: .destructive,
                     accessibilityId: .accessMethodConfirmDeleteButton,
                     handler: { [weak self] in
@@ -413,12 +398,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
                     }
                 ),
                 AlertAction(
-                    title: NSLocalizedString(
-                        "METHOD_SETTINGS_CANCEL_BUTTON",
-                        tableName: "APIAccess",
-                        value: "Cancel",
-                        comment: ""
-                    ),
+                    title: NSLocalizedString("Cancel", comment: ""),
                     style: .default
                 ),
             ]

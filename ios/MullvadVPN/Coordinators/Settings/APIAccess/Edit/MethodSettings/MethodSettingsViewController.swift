@@ -46,7 +46,7 @@ class MethodSettingsViewController: UITableViewController {
 
     lazy var saveBarButton: UIBarButtonItem = {
         let barButtonItem = UIBarButtonItem(
-            title: NSLocalizedString("SAVE_NAVIGATION_BUTTON", tableName: "APIAccess", value: "Save", comment: ""),
+            title: NSLocalizedString("Save", comment: ""),
             primaryAction: UIAction { [weak self] _ in
                 self?.onTest()
             }
@@ -314,20 +314,10 @@ class MethodSettingsViewController: UITableViewController {
                 id: "api-access-methods-testing-status-failed-alert",
                 accessibilityIdentifier: .accessMethodUnreachableAlert,
                 icon: .warning,
-                message: NSLocalizedString(
-                    "METHOD_SETTINGS_SAVE_PROMPT",
-                    tableName: "APIAccess",
-                    value: "API could not be reached, save anyway?",
-                    comment: ""
-                ),
+                message: NSLocalizedString("API could not be reached, save anyway?", comment: ""),
                 buttons: [
                     AlertAction(
-                        title: NSLocalizedString(
-                            "METHOD_SETTINGS_SAVE_BUTTON",
-                            tableName: "APIAccess",
-                            value: "Save anyway",
-                            comment: ""
-                        ),
+                        title: NSLocalizedString("Save anyway", comment: ""),
                         style: .default,
                         accessibilityId: .accessMethodUnreachableSaveButton,
                         handler: { [weak self] in
@@ -335,12 +325,7 @@ class MethodSettingsViewController: UITableViewController {
                         }
                     ),
                     AlertAction(
-                        title: NSLocalizedString(
-                            "METHOD_SETTINGS_BACK_BUTTON",
-                            tableName: "APIAccess",
-                            value: "Back to editing",
-                            comment: ""
-                        ),
+                        title: NSLocalizedString("Back to editing", comment: ""),
                         style: .default,
                         accessibilityId: .accessMethodUnreachableBackButton
                     ),

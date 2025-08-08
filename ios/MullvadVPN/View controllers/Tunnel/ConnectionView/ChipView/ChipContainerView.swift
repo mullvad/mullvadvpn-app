@@ -31,7 +31,9 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
                     createChipViews(chips: chipsToAdd, containerWidth: containerWidth)
                 }
 
-                Button(LocalizedStringKey("\(viewModel.chips.count - chipsToAdd.count) more...")) {
+                let remaining = viewModel.chips.count - chipsToAdd.count
+
+                Button(String(format: NSLocalizedString("%d more...", comment: ""), remaining)) {
                     withAnimation {
                         isExpanded.toggle()
                     }

@@ -48,9 +48,9 @@ public extension AccessMethodKind {
         case .direct, .bridges, .encryptedDNS:
             ""
         case .shadowsocks:
-            NSLocalizedString("SHADOWSOCKS", tableName: "APIAccess", value: "Shadowsocks", comment: "")
+            NSLocalizedString("Shadowsocks", comment: "")
         case .socks5:
-            NSLocalizedString("SOCKS_V5", tableName: "APIAccess", value: "Socks5", comment: "").uppercased()
+            NSLocalizedString("Socks5", comment: "").uppercased()
         }
     }
 

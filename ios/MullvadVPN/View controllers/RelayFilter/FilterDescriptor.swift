@@ -40,12 +40,7 @@ struct FilterDescriptor {
 
     var title: String {
         guard isEnabled else {
-            return NSLocalizedString(
-                "RELAY_FILTER_BUTTON_TITLE",
-                tableName: "RelayFilter",
-                value: "No matching servers",
-                comment: ""
-            )
+            return NSLocalizedString("No matching servers", comment: "")
         }
         return createTitleForAvailableServers()
     }
@@ -54,12 +49,7 @@ struct FilterDescriptor {
         guard settings.daita.daitaState.isEnabled else {
             return ""
         }
-        return NSLocalizedString(
-            "RELAY_FILTER_BUTTON_DESCRIPTION",
-            tableName: "RelayFilter",
-            value: "When using DAITA, one provider with DAITA-enabled servers is required.",
-            comment: ""
-        )
+        return NSLocalizedString("When using DAITA, one provider with DAITA-enabled servers is required.", comment: "")
     }
 
     init(relayFilterResult: RelayCandidates, settings: LatestTunnelSettings) {

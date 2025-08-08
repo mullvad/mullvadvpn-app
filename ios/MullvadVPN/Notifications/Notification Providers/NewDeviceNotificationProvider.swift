@@ -26,8 +26,7 @@ final class NewDeviceNotificationProvider: NotificationProvider,
 
     private var attributedBody: NSAttributedString {
         let formattedString = NSLocalizedString(
-            "ACCOUNT_CREATION_INAPP_NOTIFICATION_BODY",
-            value: "Welcome, this device is now called **%@**. For more details see the info button in Account.",
+            "Welcome, this device is now called **%@**. For more details see the info button in Account.",
             comment: ""
         )
         let deviceName = storedDeviceData?.capitalizedName ?? ""
@@ -50,11 +49,7 @@ final class NewDeviceNotificationProvider: NotificationProvider,
         return InAppNotificationDescriptor(
             identifier: identifier,
             style: .success,
-            title: NSLocalizedString(
-                "ACCOUNT_CREATION_INAPP_NOTIFICATION_TITLE",
-                value: "NEW DEVICE CREATED",
-                comment: ""
-            ),
+            title: NSLocalizedString("NEW DEVICE CREATED", comment: ""),
             body: attributedBody,
             button: InAppNotificationAction(
                 image: UIImage.Buttons.closeSmall,

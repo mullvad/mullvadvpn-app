@@ -65,20 +65,10 @@ extension ProfileVoucherCoordinator: @preconcurrency AddCreditSucceededViewContr
     }
 
     func header(in controller: AddCreditSucceededViewController) -> String {
-        NSLocalizedString(
-            "REDEEM_VOUCHER_SUCCESS_TITLE",
-            tableName: "ProfileRedeemVoucher",
-            value: "Voucher was successfully redeemed.",
-            comment: ""
-        )
+        NSLocalizedString("Voucher was successfully redeemed.", comment: "")
     }
 
     func titleForAction(in controller: AddCreditSucceededViewController) -> String {
-        NSLocalizedString(
-            "REDEEM_VOUCHER_DISMISS_BUTTON",
-            tableName: "ProfileRedeemVoucher",
-            value: "Got it!",
-            comment: ""
-        )
+        NSLocalizedString("Got it!", comment: "")
     }
 }

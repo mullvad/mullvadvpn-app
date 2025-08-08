@@ -28,11 +28,7 @@ extension CustomDateComponentsFormatting {
         let dateComponents = calendar.dateComponents([.year, .day], from: start, to: max(start, end))
 
         guard !isLessThanOneDay(dateComponents: dateComponents) else {
-            return NSLocalizedString(
-                "CUSTOM_DATE_COMPONENTS_FORMATTING_LESS_THAN_ONE_DAY",
-                value: "Less than a day",
-                comment: ""
-            )
+            return NSLocalizedString("Less than a day", comment: "")
         }
 
         let formatter = DateComponentsFormatter()

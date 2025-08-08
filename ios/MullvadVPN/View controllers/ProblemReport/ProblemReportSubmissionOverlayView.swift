@@ -28,26 +28,11 @@ class ProblemReportSubmissionOverlayView: UIView {
         var title: String? {
             switch self {
             case .sending:
-                NSLocalizedString(
-                    "SUBMISSION_STATUS_SENDING",
-                    tableName: "ProblemReport",
-                    value: "Sending...",
-                    comment: ""
-                )
+                NSLocalizedString("Sending...", comment: "")
             case .sent:
-                NSLocalizedString(
-                    "SUBMISSION_STATUS_SENT",
-                    tableName: "ProblemReport",
-                    value: "Sent",
-                    comment: ""
-                )
+                NSLocalizedString("Sent", comment: "")
             case .failure:
-                NSLocalizedString(
-                    "SUBMISSION_STATUS_FAILURE",
-                    tableName: "ProblemReport",
-                    value: "Failed to send",
-                    comment: ""
-                )
+                NSLocalizedString("Failed to send", comment: "")
             }
         }
 
@@ -57,34 +42,19 @@ class ProblemReportSubmissionOverlayView: UIView {
                 return nil
             case let .sent(email):
                 let combinedAttributedString = NSMutableAttributedString(
-                    string: NSLocalizedString(
-                        "THANKS_MESSAGE",
-                        tableName: "ProblemReport",
-                        value: "Thanks!",
-                        comment: ""
-                    )
+                    string: NSLocalizedString("Thanks!", comment: "")
                 )
 
                 if email.isEmpty {
                     combinedAttributedString.append(NSAttributedString(string: " "))
                     combinedAttributedString.append(
                         NSAttributedString(
-                            string: NSLocalizedString(
-                                "WE_WILL_LOOK_INTO_THIS_MESSAGE",
-                                tableName: "ProblemReport",
-                                value: "We will look into this.",
-                                comment: ""
-                            )
+                            string: NSLocalizedString("We will look into this.", comment: "")
                         )
                     )
                 } else {
                     let emailText = String(
-                        format: NSLocalizedString(
-                            "CONTACT_BACK_EMAIL_MESSAGE_FORMAT",
-                            tableName: "ProblemReport",
-                            value: "If needed we will contact you at %@",
-                            comment: ""
-                        ), email
+                        format: NSLocalizedString("If needed we will contact you at %@", comment: ""), email
                     )
                     let emailAttributedString = NSMutableAttributedString(string: emailText)
                     if let emailRange = emailText.range(of: email) {
@@ -104,9 +74,6 @@ class ProblemReportSubmissionOverlayView: UIView {
                 return [
                     NSAttributedString(
                         string: NSLocalizedString(
-                            "MESSAGE_FAILED_PART_1",
-                            tableName: "ProblemReport",
-                            value:
                             """
                             If you exit the form and try again later, the information you already entered will still \
                             be here.
@@ -115,16 +82,13 @@ class ProblemReportSubmissionOverlayView: UIView {
                         )
                     ),
                     NSAttributedString(
-                        markdownString: NSLocalizedString(
-                            "MESSAGE_FAILED_PART_2",
-                            tableName: "ProblemReport",
-                            value:
+                        markdownString: String(format: NSLocalizedString(
                             """
                             If you still experience issues you can email our support directly at \
-                            **\(supportEmail)**. Please attach your app log to your email.
+                            **%@**. Please attach your app log to your email.
                             """,
                             comment: ""
-                        ),
+                        ), supportEmail),
                         options: MarkdownStylingOptions(
                             font: .preferredFont(forTextStyle: .body)
                         ), applyEffect: { _, _ in
@@ -201,12 +165,7 @@ class ProblemReportSubmissionOverlayView: UIView {
     private lazy var cancelButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString(
-            "CANCEL_BUTTON",
-            tableName: "ProblemReport",
-            value: "Cancel",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Cancel", comment: ""), for: .normal)
         button.addTarget(self, action: #selector(handleCancelButton), for: .touchUpInside)
         return button
     }()
@@ -214,12 +173,7 @@ class ProblemReportSubmissionOverlayView: UIView {
     private lazy var editMessageButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString(
-            "EDIT_MESSAGE_BUTTON",
-            tableName: "ProblemReport",
-            value: "Edit message",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Edit message", comment: ""), for: .normal)
         button.addTarget(self, action: #selector(handleEditButton), for: .touchUpInside)
         return button
     }()
@@ -227,12 +181,7 @@ class ProblemReportSubmissionOverlayView: UIView {
     private lazy var tryAgainButton: AppButton = {
         let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString(
-            "TRY_AGAIN_BUTTON",
-            tableName: "ProblemReport",
-            value: "Try again",
-            comment: ""
-        ), for: .normal)
+        button.setTitle(NSLocalizedString("Try again", comment: ""), for: .normal)
         button.addTarget(self, action: #selector(handleRetryButton), for: .touchUpInside)
         return button
     }()

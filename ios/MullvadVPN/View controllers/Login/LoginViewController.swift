@@ -49,12 +49,7 @@ class LoginViewController: UIViewController, RootContainment {
 
     private lazy var accountInputAccessoryLoginButton: UIBarButtonItem = {
         let barButtonItem = UIBarButtonItem(
-            title: NSLocalizedString(
-                "LOGIN_ACCESSORY_TOOLBAR_BUTTON_TITLE",
-                tableName: "Login",
-                value: "Log in",
-                comment: ""
-            ),
+            title: NSLocalizedString("Log in", comment: ""),
             style: .done,
             target: self,
             action: #selector(doLogin)
@@ -320,65 +315,30 @@ private extension LoginState {
     var localizedTitle: String {
         switch self {
         case .default:
-            return NSLocalizedString(
-                "HEADING_TITLE_DEFAULT",
-                tableName: "Login",
-                value: "Login",
-                comment: ""
-            )
+            return NSLocalizedString("Login", comment: "")
 
         case .authenticating:
-            return NSLocalizedString(
-                "HEADING_TITLE_AUTHENTICATING",
-                tableName: "Login",
-                value: "Logging in...",
-                comment: ""
-            )
+            return NSLocalizedString("Logging in...", comment: "")
 
         case .failure:
-            return NSLocalizedString(
-                "HEADING_TITLE_FAILURE",
-                tableName: "Login",
-                value: "Login failed",
-                comment: ""
-            )
+            return NSLocalizedString("Login failed", comment: "")
 
         case .success:
-            return NSLocalizedString(
-                "HEADING_TITLE_SUCCESS",
-                tableName: "Login",
-                value: "Logged in",
-                comment: ""
-            )
+            return NSLocalizedString("Logged in", comment: "")
         }
     }
 
     var localizedMessage: String {
         switch self {
         case .default:
-            return NSLocalizedString(
-                "SUBHEAD_TITLE_DEFAULT",
-                tableName: "Login",
-                value: "Enter your account number",
-                comment: ""
-            )
+            return NSLocalizedString("Enter your account number", comment: "")
 
         case let .authenticating(method):
             switch method {
             case .useExistingAccount:
-                return NSLocalizedString(
-                    "SUBHEAD_TITLE_AUTHENTICATING",
-                    tableName: "Login",
-                    value: "Checking account number",
-                    comment: ""
-                )
+                return NSLocalizedString("Checking account number", comment: "")
             case .createAccount:
-                return NSLocalizedString(
-                    "SUBHEAD_TITLE_CREATING_ACCOUNT",
-                    tableName: "Login",
-                    value: "Creating new account",
-                    comment: ""
-                )
+                return NSLocalizedString("Creating new account", comment: "")
             }
 
         case let .failure(_, error):
@@ -387,19 +347,9 @@ private extension LoginState {
         case let .success(method):
             switch method {
             case .useExistingAccount:
-                return NSLocalizedString(
-                    "SUBHEAD_TITLE_SUCCESS",
-                    tableName: "Login",
-                    value: "Correct account number",
-                    comment: ""
-                )
+                return NSLocalizedString("Correct account number", comment: "")
             case .createAccount:
-                return NSLocalizedString(
-                    "SUBHEAD_TITLE_CREATED_ACCOUNT",
-                    tableName: "Login",
-                    value: "Account created",
-                    comment: ""
-                )
+                return NSLocalizedString("Account created", comment: "")
             }
         }
     }

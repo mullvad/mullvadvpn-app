@@ -21,12 +21,7 @@ class AccountDeviceRow: UIView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = NSLocalizedString(
-            "DEVICE_NAME",
-            tableName: "Account",
-            value: "Device name",
-            comment: ""
-        )
+        label.text = NSLocalizedString("Device name", comment: "")
         label.font = .mullvadTiny
         label.adjustsFontForContentSizeCategory = true
         label.textColor = UIColor(white: 1.0, alpha: 0.6)
@@ -54,12 +49,7 @@ class AccountDeviceRow: UIView {
             .foregroundColor: UIColor.primaryTextColor,
             .underlineStyle: NSUnderlineStyle.single.rawValue,
         ]
-        let title = NSLocalizedString(
-            "DEVICE_MANAGEMENT",
-            tableName: "Account",
-            value: "Manage devices",
-            comment: ""
-        )
+        let title = NSLocalizedString("Manage devices", comment: "")
         button.attributedText = NSMutableAttributedString(
             string: title,
             attributes: attributes

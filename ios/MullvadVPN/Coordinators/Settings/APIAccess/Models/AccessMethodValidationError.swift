@@ -16,12 +16,7 @@ struct AccessMethodValidationError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         if fieldErrors.count > 1 {
-            NSLocalizedString(
-                "VALIDATION_ERRORS_MULTIPLE",
-                tableName: "APIAccess",
-                value: "Multiple validation errors occurred.",
-                comment: ""
-            )
+            NSLocalizedString("Multiple validation errors occurred.", comment: "")
         } else {
             fieldErrors.first?.localizedDescription
         }
@@ -75,34 +70,14 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch kind {
         case .emptyValue:
-            NSLocalizedString(
-                "VALIDATION_ERRORS_EMPTY_FIELD",
-                tableName: "APIAccess",
-                value: "\(field) cannot be empty.",
-                comment: ""
-            )
+            NSLocalizedString("\(field) cannot be empty.", comment: "")
         case .invalidIPAddress:
-            NSLocalizedString(
-                "VALIDATION_ERRORS_INVALD ADDRESS",
-                tableName: "APIAccess",
-                value: "Please enter a valid IPv4 or IPv6 address.",
-                comment: ""
-            )
+            NSLocalizedString("Please enter a valid IPv4 or IPv6 address.", comment: "")
         case .invalidPort:
-            NSLocalizedString(
-                "VALIDATION_ERRORS_INVALID_PORT",
-                tableName: "APIAccess",
-                value: "Please enter a valid port.",
-                comment: ""
-            )
+            NSLocalizedString("Please enter a valid port.", comment: "")
         case .nameTooLong:
             String(
-                format: NSLocalizedString(
-                    "VALIDATION_ERRORS_NAME_TOO_LONG",
-                    tableName: "APIAccess",
-                    value: "Name should be no longer than %i characters.",
-                    comment: ""
-                ),
+                format: NSLocalizedString("Name should be no longer than %i characters.", comment: ""),
                 NameInputFormatter.maxLength
             )
         }
