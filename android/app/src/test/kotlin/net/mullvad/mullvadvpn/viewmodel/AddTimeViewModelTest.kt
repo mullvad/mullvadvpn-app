@@ -198,4 +198,60 @@ class AddTimeViewModelTest {
             assertEquals(result, item.value.purchaseState)
         }
     }
+
+    @Test
+    fun `purchaseResult error billing error should result in purchase state null`() = runTest {
+        // Arrange
+        val productId = ProductId("one_month")
+        val paymentProduct =
+            PaymentProduct(productId = productId, price = ProductPrice("€5.00"), status = null)
+        val purchaseResultLoading = PurchaseResult.FetchingProducts
+        val purchaseResultData = PurchaseResult.Error.BillingError(null)
+
+        // Act, Assert
+        viewModel.uiState.test {
+            awaitItem() // Default state
+            // Payment availability can not be null, otherwise the test will timeout
+            paymentAvailability.emit(PaymentAvailability.ProductsAvailable(listOf(paymentProduct)))
+            awaitItem()
+            purchaseResult.emit(
+                purchaseResultLoading
+            ) // Set up loading state so we get a new state when we emit the error
+            val loadingItem = awaitItem()
+            assertIs<Lc.Content<AddTimeUiState>>(loadingItem)
+            assertEquals(PurchaseState.Connecting, loadingItem.value.purchaseState)
+            purchaseResult.emit(purchaseResultData)
+            val item = awaitItem()
+            assertIs<Lc.Content<AddTimeUiState>>(item)
+            assertEquals(null, item.value.purchaseState)
+        }
+    }
+
+    @Test
+    fun `purchaseResult cancelled should result in purchase state null`() = runTest {
+        // Arrange
+        val productId = ProductId("one_month")
+        val paymentProduct =
+            PaymentProduct(productId = productId, price = ProductPrice("€5.00"), status = null)
+        val purchaseResultLoading = PurchaseResult.FetchingProducts
+        val purchaseResultData = PurchaseResult.Completed.Cancelled
+
+        // Act, Assert
+        viewModel.uiState.test {
+            awaitItem() // Default state
+            // Payment availability can not be null, otherwise the test will timeout
+            paymentAvailability.emit(PaymentAvailability.ProductsAvailable(listOf(paymentProduct)))
+            awaitItem()
+            purchaseResult.emit(
+                purchaseResultLoading
+            ) // Set up loading state so we get a new state when we emit cancelled
+            val loadingItem = awaitItem()
+            assertIs<Lc.Content<AddTimeUiState>>(loadingItem)
+            assertEquals(PurchaseState.Connecting, loadingItem.value.purchaseState)
+            purchaseResult.emit(purchaseResultData)
+            val item = awaitItem()
+            assertIs<Lc.Content<AddTimeUiState>>(item)
+            assertEquals(null, item.value.purchaseState)
+        }
+    }
 }
