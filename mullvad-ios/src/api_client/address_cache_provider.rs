@@ -8,7 +8,7 @@ unsafe extern "C" {
     ///
     /// # SAFETY
     /// `rawAddressCacheProvider` **must** be provided by a call to `init_swift_address_cache_wrapper`
-    /// It is okay to persist it, and use it accross multiple threads.
+    /// It is okay to persist it, and use it across multiple threads.
     pub fn swift_get_cached_endpoint(
         rawAddressCacheProvider: *const c_void,
     ) -> LateStringDeallocator;
