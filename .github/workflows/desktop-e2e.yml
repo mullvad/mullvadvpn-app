@@ -115,7 +115,8 @@ jobs:
     if: |
       !cancelled() &&
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
-      needs.prepare-matrices.outputs.linux_matrix != ''
+      needs.prepare-matrices.outputs.linux_matrix != '' &&
+      !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
     continue-on-error: true
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
