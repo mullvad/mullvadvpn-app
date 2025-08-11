@@ -525,7 +525,7 @@ async fn wait_for_update(state: &mut State) -> Option<AppVersionInfo> {
                 Some(app_update_info)
             }
             Err(err) => {
-                log::warn!("Downloader task ended: {err}");
+                log::warn!("{}", err.display_chain_with_msg("Downloader task ended"));
                 *state = State::HasVersion {
                     version_cache: version_cache.clone(),
                 };
