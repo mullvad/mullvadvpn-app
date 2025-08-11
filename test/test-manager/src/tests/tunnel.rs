@@ -5,10 +5,10 @@ use super::{
 };
 use crate::{
     network_monitor::{MonitorOptions, start_packet_monitor},
-    tests::helpers::{login_with_retries, update_relay_constraints},
+    tests::helpers::{geoip_lookup_with_retries, login_with_retries, update_relay_constraints},
 };
 
-use anyhow::Context;
+use anyhow::{Context, ensure};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
@@ -194,6 +194,36 @@ pub async fn test_wireguard_over_shadowsocks(
     assert!(
         helpers::using_mullvad_exit(&rpc).await,
         "expected Mullvad exit IP"
+    );
+
+    Ok(())
+}
+
+/// Use QUIC obfuscation. This tests whether the daemon can establish a QUIC connection.
+/// Note that this doesn't verify that the outgoing traffic looks like http traffic (even though it
+/// doesn't sound too difficult to do?).
+#[test_function]
+pub async fn test_wireguard_over_quic(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    log::info!("Enable QUIC as obfuscation method");
+    let query = RelayQueryBuilder::wireguard().quic().build();
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
+
+    log::info!("Connect to WireGuard via QUIC endpoint");
+    connect_and_wait(&mut mullvad_client).await?;
+
+    // Verify that the device has a Mullvad exit IP
+    let conncheck = geoip_lookup_with_retries(&rpc).await;
+    let mullvad_exit_ip = conncheck
+        .as_ref()
+        .is_ok_and(|am_i_mullvad| am_i_mullvad.mullvad_exit_ip);
+    ensure!(
+        mullvad_exit_ip,
+        "Device is either blocked ❌ or leaking 💦 - {:?}",
+        conncheck,
     );
 
     Ok(())
@@ -537,6 +567,42 @@ pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
     let query = RelayQueryBuilder::wireguard()
         .multihop()
         .shadowsocks()
+        .build();
+
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
+
+    connect_and_wait(&mut mullvad_client).await?;
+
+    assert!(
+        helpers::using_mullvad_exit(&rpc).await,
+        "Expected Mullvad exit IP"
+    );
+
+    Ok(())
+}
+
+/// Test QUIC, PQ, and WireGuard combined.
+///
+/// # Limitations
+///
+/// This is not testing any of the individual components, just whether the daemon can connect when
+/// all of these features are combined.
+#[test_function]
+pub async fn test_quantum_resistant_multihop_quic_tunnel(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    mullvad_client
+        // TODO: Why is this needed, exactly?
+        .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
+        .await
+        .context("Failed to enable PQ tunnels")?;
+
+    let query = RelayQueryBuilder::wireguard()
+        .quantum_resistant()
+        .multihop()
+        .quic()
         .build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
