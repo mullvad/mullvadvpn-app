@@ -16,7 +16,7 @@ impl SecretKey {
     /// Generate a new secret ed25519 key
     #[cfg(feature = "sign")]
     pub fn generate() -> Self {
-        let key = ed25519_dalek::SigningKey::generate(&mut rand::thread_rng());
+        let key = ed25519_dalek::SigningKey::generate(&mut rand::rng());
         SecretKey(key)
     }
 
@@ -175,7 +175,7 @@ mod test {
     #[test]
     fn test_serialization_and_deserialization() {
         let mut secret = [0u8; 32];
-        rand::thread_rng().fill_bytes(&mut secret);
+        rand::rng().fill_bytes(&mut secret);
 
         let secret_hex = hex::encode(secret);
         let secret = SecretKey::from_str(&hex::encode(secret)).unwrap();

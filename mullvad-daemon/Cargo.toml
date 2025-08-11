@@ -32,6 +32,9 @@ tokio = { workspace = true, features =  ["fs", "io-util", "rt-multi-thread", "sy
 tokio-stream = { version = "0.1", features = ["sync"]}
 socket2 = { workspace = true }
 ipnetwork = { workspace = true }
+rand = { workspace = true }
+clap = { workspace = true }
+log-panics = "2.0.0"
 
 mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
@@ -48,10 +51,6 @@ talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-time = { path = "../talpid-time" }
 talpid-types = { path = "../talpid-types" }
 talpid-routing = { path = "../talpid-routing" }
-rand = "0.8.5"
-
-clap = { workspace = true }
-log-panics = "2.0.0"
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 
 [dev-dependencies]

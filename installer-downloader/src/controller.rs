@@ -15,7 +15,7 @@ use mullvad_update::{
     version::{Version, VersionInfo, VersionParameters},
     version_provider::VersionInfoProvider,
 };
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 use std::{cmp::Ordering, path::PathBuf};
 use tokio::{
     sync::{mpsc, oneshot},
@@ -581,7 +581,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
 /// Select a mirror to download from
 /// Currently, the selection is random
 fn select_cdn_url(urls: &[String]) -> Option<&str> {
-    urls.choose(&mut rand::thread_rng()).map(String::as_str)
+    urls.choose(&mut rand::rng()).map(String::as_str)
 }
 
 fn format_latest_version(version: &Version) -> String {
