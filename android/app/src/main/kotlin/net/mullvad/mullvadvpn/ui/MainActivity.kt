@@ -36,12 +36,8 @@ import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
-import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationActionUseCase
-import net.mullvad.mullvadvpn.usecase.NotificationAction
-import net.mullvad.mullvadvpn.usecase.ScheduleNotificationAlarmUseCase
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
@@ -65,10 +61,6 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
     private val managementService by inject<ManagementService>()
-    private val scheduleNotificationAlarmUseCase by inject<ScheduleNotificationAlarmUseCase>()
-    private val accountExpiryNotificationActionUseCase by
-        inject<AccountExpiryNotificationActionUseCase>()
-    private val accountExpiryNotificationProvider by inject<AccountExpiryNotificationProvider>()
 
     private var isReadyNextDraw: Boolean = false
 
@@ -105,28 +97,6 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 if (userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
                     bindService()
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                accountExpiryNotificationActionUseCase().collect { action ->
-                    when (action) {
-                        NotificationAction.CancelExisting -> {
-                            accountExpiryNotificationProvider.cancelNotification()
-                            scheduleNotificationAlarmUseCase(
-                                context = this@MainActivity,
-                                accountExpiry = null,
-                            )
-                        }
-
-                        is NotificationAction.ScheduleAlarm ->
-                            scheduleNotificationAlarmUseCase(
-                                context = this@MainActivity,
-                                accountExpiry = action.alarmTime,
-                            )
-                    }
                 }
             }
         }

@@ -5,6 +5,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
@@ -48,6 +49,7 @@ val appModule = module {
             scope = MainScope(),
         )
     }
+    single { ApplicationScope.createDoNotCallUseDiInstead() }
 
     single { PrepareVpnUseCase(androidContext()) }
 
@@ -91,3 +93,9 @@ private val Context.userPreferencesStore: DataStore<UserPreferences> by
         serializer = UserPreferencesSerializer,
         produceMigrations = UserPreferencesMigration::migrations,
     )
+
+class ApplicationScope private constructor(private val cs: CoroutineScope) : CoroutineScope by cs {
+    companion object {
+        fun createDoNotCallUseDiInstead(): ApplicationScope = ApplicationScope(MainScope())
+    }
+}
