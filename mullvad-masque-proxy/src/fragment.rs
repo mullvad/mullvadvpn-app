@@ -184,7 +184,7 @@ mod test {
 
     #[test]
     fn test_fragment_reconstruction() {
-        use rand::{seq::SliceRandom, thread_rng};
+        use rand::seq::SliceRandom;
         let mut fragments = Fragments::default();
 
         'outer: for packet_id in 1..255u16 {
@@ -196,7 +196,7 @@ mod test {
                 .unwrap()
                 .collect::<Vec<_>>();
 
-            fragment_buf.shuffle(&mut thread_rng());
+            fragment_buf.shuffle(&mut rand::rng());
 
             for fragment in fragment_buf {
                 if let Some(reconstructed_packet) =
@@ -213,7 +213,7 @@ mod test {
 
     #[test]
     fn test_fragment_cap() {
-        use rand::{seq::SliceRandom, thread_rng};
+        use rand::seq::SliceRandom;
 
         // test whether we can reassemble a fragmented packet when we receive a flood of bad fragments
         // interspersed with our good fragments. returns true if reassembly was successful.
@@ -231,7 +231,7 @@ mod test {
                 .unwrap()
                 .collect::<Vec<_>>();
 
-            fragment_buf.shuffle(&mut thread_rng());
+            fragment_buf.shuffle(&mut rand::rng());
 
             // send one fragment
             let packet = fragments

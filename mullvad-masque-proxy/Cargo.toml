@@ -28,7 +28,7 @@ typed-builder = "0.21.0"
 env_logger = { workspace = true }
 tokio = { workspace = true, features = ["fs", "macros", "io-util", "rt-multi-thread"] }
 clap = { workspace = true }
-rand = "0.8.5"
+rand = { workspace = true }
 
 [lints]
 workspace = true

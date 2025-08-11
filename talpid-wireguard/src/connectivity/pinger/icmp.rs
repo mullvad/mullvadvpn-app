@@ -170,7 +170,7 @@ impl PayloadWriter for Pinger {
     }
 
     fn write_payload(&mut self, buffer: &mut [u8]) {
-        rand::thread_rng().fill(buffer);
+        rand::rng().fill(buffer);
     }
 }
 

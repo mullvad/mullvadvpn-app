@@ -239,7 +239,7 @@ mod tests {
     /// see <https://docs.rs/tokio/latest/tokio/time/fn.pause.html#auto-advance> for details.
     mod timeout {
         use super::*;
-        use rand::{distributions::Uniform, thread_rng};
+        use rand::distributions::Uniform;
         use std::pin::Pin;
         use tokio::test;
 
@@ -280,7 +280,7 @@ mod tests {
         /// order.
         #[test(start_paused = true)]
         async fn all_pings_ok() {
-            let mut rng = thread_rng();
+            let mut rng = rand::rng();
             // Random delay for each ping, but within PING_OFFSET_TIMEOUT of the first
             let uniform = Uniform::new(Duration::ZERO, PING_OFFSET_TIMEOUT);
             let pings = (0..=100)
@@ -310,7 +310,7 @@ mod tests {
         /// each other in time, the largest return value is chosen as normal.
         #[test(start_paused = true)]
         async fn delay_first_ping() {
-            let mut rng = thread_rng();
+            let mut rng = rand::rng();
             // Random delay for each ping, but within PING_OFFSET_TIMEOUT of the first and no sooner
             // than 5s
             let uniform = Uniform::new(

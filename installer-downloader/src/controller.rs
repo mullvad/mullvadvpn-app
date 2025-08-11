@@ -581,7 +581,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
 /// Select a mirror to download from
 /// Currently, the selection is random
 fn select_cdn_url(urls: &[String]) -> Option<&str> {
-    urls.choose(&mut rand::thread_rng()).map(String::as_str)
+    urls.choose(&mut rand::rng()).map(String::as_str)
 }
 
 fn format_latest_version(version: &Version) -> String {

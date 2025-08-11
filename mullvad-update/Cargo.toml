@@ -37,7 +37,7 @@ mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 
 # features required by binaries
 clap = { workspace = true, optional = true }
-rand = { version = "0.8.5", optional = true }
+rand = { workspace = true, optional = true }
 
 thiserror = { workspace = true, optional = true }
 
@@ -45,7 +45,7 @@ thiserror = { workspace = true, optional = true }
 async-tempfile = "0.6"
 insta = { workspace = true }
 mockito = "1.6.1"
-rand = "0.8.5"
+rand = { workspace = true }
 tokio = { workspace = true, features = ["fs", "test-util", "time", "macros"] }
 
 [[bin]]
