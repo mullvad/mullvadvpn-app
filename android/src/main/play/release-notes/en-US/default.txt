@@ -1,2 +1,3 @@
-- Fixed several crashes related to notifications.
+- Improved the expiry notification behavior to achieve fewer and more accurate notifications.
+- Updated the design of the location selection screen.
 - Fixed a crash related to Split Tunneling.
