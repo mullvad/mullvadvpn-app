@@ -74,7 +74,6 @@ impl Serialize for SettingsVersion {
 #[serde(default)]
 pub struct Settings {
     pub relay_settings: RelaySettings,
-    pub has_updated_default_country: bool,
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
     pub bridge_state: BridgeState,
@@ -82,6 +81,8 @@ pub struct Settings {
     pub custom_lists: CustomListsSettings,
     /// API access methods
     pub api_access_methods: access_method::Settings,
+    // If the default location in `relay_settings` should be updated based on the user's geolocation.
+    pub should_update_default_country: bool,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
@@ -245,7 +246,7 @@ impl Default for Settings {
                 },
                 ..Default::default()
             }),
-            has_updated_default_country: false,
+            should_update_default_country: false,
             bridge_settings: BridgeSettings::default(),
             obfuscation_settings: ObfuscationSettings {
                 selected_obfuscation: SelectedObfuscation::Auto,

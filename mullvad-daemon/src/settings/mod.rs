@@ -158,7 +158,12 @@ impl SettingsPersister {
             Err(Error::ReadError(_, err)) if err.kind() == io::ErrorKind::NotFound => {
                 log::info!("No settings were found. Using defaults.");
                 LoadSettingsResult {
-                    settings: Self::default_settings(),
+                    settings: Settings {
+                        // We only want to set this flag to true if the settings file hasn't been
+                        // created yet so that we don't affect existing users' relay settings.
+                        should_update_default_country: true,
+                        ..Default::default()
+                    },
                     should_save: true,
                 }
             }
