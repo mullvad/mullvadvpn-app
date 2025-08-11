@@ -162,7 +162,7 @@ impl SettingsPersister {
                         // We only want to set this flag to true if the settings file hasn't been
                         // created yet so that we don't affect existing users' relay settings.
                         should_update_default_country: true,
-                        ..Default::default()
+                        ..Self::default_settings()
                     },
                     should_save: true,
                 }
