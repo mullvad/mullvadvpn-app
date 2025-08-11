@@ -76,7 +76,7 @@ async fn admin_temp_dir() -> anyhow::Result<PathBuf> {
 /// See [module-level](self) docs for more information.
 #[cfg(target_os = "macos")]
 async fn temp_dir() -> anyhow::Result<PathBuf> {
-    use rand::{Rng, distributions::Alphanumeric};
+    use rand::{Rng, distr::Alphanumeric};
     use std::{fs::Permissions, os::unix::fs::PermissionsExt};
     use tokio::fs;
 

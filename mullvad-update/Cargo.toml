@@ -37,7 +37,7 @@ mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 
 # features required by binaries
 clap = { workspace = true, optional = true }
-rand = { workspace = true, optional = true }
+rand = { version = "0.8.5", optional = true }
 
 thiserror = { workspace = true, optional = true }
 
