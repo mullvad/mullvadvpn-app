@@ -29,7 +29,12 @@ const VERSION_INFO_FILENAME: &str = "version-info.json";
 
 static APP_VERSION: LazyLock<Version> =
     LazyLock::new(|| Version::from_str(mullvad_version::VERSION).unwrap());
-static IS_DEV_BUILD: LazyLock<bool> = LazyLock::new(|| APP_VERSION.is_dev());
+static CHECK_ENABLED: LazyLock<bool> = LazyLock::new(|| {
+    !APP_VERSION.is_dev()
+        || std::env::var("MULLVAD_ENABLE_DEV_UPDATES")
+            .map(|v| v != "0")
+            .unwrap_or(false)
+});
 
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 
@@ -198,11 +203,11 @@ impl VersionUpdaterInner {
         api: ApiContext,
     ) {
         // If this is a dev build, there's no need to pester the API for version checks.
-        if *IS_DEV_BUILD {
-            log::warn!("Not checking for updates because this is a development build");
-            while let Some(()) = refresh_rx.next().await {
-                log::info!("Version check is disabled in dev builds");
-            }
+        if !*CHECK_ENABLED {
+            log::warn!(
+                "Not checking for updates because this is a development build and MULLVAD_ENABLE_DEV_UPDATES is not set"
+            );
+            while let Some(()) = refresh_rx.next().await {}
             return;
         }
 
@@ -374,13 +379,21 @@ fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
 ) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
-    use mullvad_api::version::{AppVersionResponse, AppVersionResponse2};
+    use futures::future::Either;
+    use mullvad_api::version::AppVersionResponse2;
 
-    let v1_endpoint = api.version_proxy.version_check(
-        mullvad_version::VERSION.to_owned(),
-        PLATFORM,
-        api.platform_version.clone(),
-    );
+    let supported_fut = if !APP_VERSION.is_dev() {
+        let v1_endpoint = api.version_proxy.version_check(
+            mullvad_version::VERSION.to_owned(),
+            PLATFORM,
+            api.platform_version.clone(),
+        );
+        Either::Left(async { Ok(v1_endpoint.await?.supported) })
+    } else {
+        // NOTE: Treat all dev versions as unsupported. The old endpoint returns 404 for dev
+        // versions.
+        Either::Right(async { Ok(false) })
+    };
 
     let architecture = match talpid_platform_metadata::get_native_arch()
         .expect("IO error while getting native architecture")
@@ -399,15 +412,12 @@ fn version_check_inner(
     );
     async move {
         let (
-            AppVersionResponse {
-                supported: current_version_supported,
-                ..
-            },
+            current_version_supported,
             AppVersionResponse2 {
                 version_info,
                 metadata_version,
             },
-        ) = tokio::try_join!(v1_endpoint, v2_endpoint).map_err(Error::Download)?;
+        ) = tokio::try_join!(supported_fut, v2_endpoint).map_err(Error::Download)?;
 
         Ok(VersionCache {
             current_version_supported,
@@ -485,7 +495,7 @@ async fn load_cache(cache_dir: &Path) -> Option<(VersionCache, SystemTime)> {
 }
 
 async fn try_load_cache(cache_dir: &Path) -> Result<(VersionCache, SystemTime), Error> {
-    if *IS_DEV_BUILD {
+    if !*CHECK_ENABLED {
         return Ok((dev_version_cache(), SystemTime::now()));
     }
 
@@ -530,8 +540,6 @@ fn cache_is_old(cached_version: &VersionInfo, current_version: &mullvad_version:
 }
 
 fn dev_version_cache() -> VersionCache {
-    assert!(*IS_DEV_BUILD);
-
     VersionCache {
         current_version_supported: false,
         version_info: VersionInfo {
