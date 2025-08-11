@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import java.io.File
 import kotlinx.coroutines.MainScope
+import net.mullvad.mullvadvpn.ApplicationScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
@@ -48,6 +49,7 @@ val appModule = module {
             scope = MainScope(),
         )
     }
+    single { ApplicationScope(MainScope()) }
 
     single { PrepareVpnUseCase(androidContext()) }
 
