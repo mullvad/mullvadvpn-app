@@ -26,7 +26,7 @@ export function assignToRef<T>(element: T | null, ref?: React.Ref<T>) {
   if (typeof ref === 'function') {
     ref(element);
   } else if (ref && element) {
-    (ref as React.MutableRefObject<T>).current = element;
+    (ref as React.RefObject<T>).current = element;
   }
 }
 
