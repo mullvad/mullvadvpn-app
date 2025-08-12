@@ -1,5 +1,5 @@
 import { StrictMode } from 'react';
-import { batch, Provider } from 'react-redux';
+import { Provider } from 'react-redux';
 import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { StyleSheetManager } from 'styled-components';
@@ -920,32 +920,30 @@ export default class AppRenderer {
 
     this.tunnelState = tunnelState;
 
-    batch(() => {
-      switch (tunnelState.state) {
-        case 'connecting':
-          actions.connection.connecting(tunnelState.details, tunnelState.featureIndicators);
-          break;
+    switch (tunnelState.state) {
+      case 'connecting':
+        actions.connection.connecting(tunnelState.details, tunnelState.featureIndicators);
+        break;
 
-        case 'connected':
-          actions.connection.connected(tunnelState.details, tunnelState.featureIndicators);
-          break;
+      case 'connected':
+        actions.connection.connected(tunnelState.details, tunnelState.featureIndicators);
+        break;
 
-        case 'disconnecting':
-          actions.connection.disconnecting(tunnelState.details);
-          break;
+      case 'disconnecting':
+        actions.connection.disconnecting(tunnelState.details);
+        break;
 
-        case 'disconnected':
-          actions.connection.disconnected(tunnelState.lockedDown);
-          break;
+      case 'disconnected':
+        actions.connection.disconnected(tunnelState.lockedDown);
+        break;
 
-        case 'error':
-          actions.connection.blocked(tunnelState.details);
-          break;
-      }
+      case 'error':
+        actions.connection.blocked(tunnelState.details);
+        break;
+    }
 
-      // Update the location when entering a new tunnel state since it's likely changed.
-      this.updateLocation();
-    });
+    // Update the location when entering a new tunnel state since it's likely changed.
+    this.updateLocation();
   }
 
   private setSettings(newSettings: ISettings) {
