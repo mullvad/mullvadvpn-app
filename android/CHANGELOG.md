@@ -21,6 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2025.6] - 2025-08-12
+### Fixed
+- Remove redundant square for relays in custom list location list.
+
+
 ## [android/2025.6-beta3] - 2025-08-04
 ### Fixed
 - Fix several crashes related to notifications.
