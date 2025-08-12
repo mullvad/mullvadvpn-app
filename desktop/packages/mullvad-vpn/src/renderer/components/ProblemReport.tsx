@@ -231,7 +231,7 @@ function Sent() {
     messages
       .pgettext('support-view', 'If needed we will contact you at %(email)s')
       .split('%(email)s', 2);
-  reachBackMessage.splice(1, 0, <StyledEmail key="email">{email}</StyledEmail>);
+  void reachBackMessage.splice(1, 0, <StyledEmail key="email">{email}</StyledEmail>);
 
   return (
     <StyledContent>
