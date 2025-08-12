@@ -97,7 +97,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             return [.wireGuardPort(nil)] + defaultPorts + [.wireGuardCustomPort]
         }
 
-        #if DEBUG
         static var wireGuardObfuscation: [Item] {
             [
                 .wireGuardObfuscationAutomatic,
@@ -107,16 +106,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .wireGuardObfuscationOff,
             ]
         }
-        #else
-        static var wireGuardObfuscation: [Item] {
-            [
-                .wireGuardObfuscationAutomatic,
-                .wireGuardObfuscationShadowsocks,
-                .wireGuardObfuscationUdpOverTcp,
-                .wireGuardObfuscationOff,
-            ]
-        }
-        #endif
+
         static var wireGuardObfuscationPort: [Item] {
             [
                 .wireGuardObfuscationPort(.automatic),
@@ -366,11 +356,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .wireGuardObfuscationShadowsocks:
             selectObfuscationState(.shadowsocks)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
-        #if DEBUG
         case .wireGuardObfuscationQuic:
             selectObfuscationState(.quic)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
-        #endif
         case .wireGuardObfuscationOff:
             selectObfuscationState(.off)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
