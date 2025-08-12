@@ -1313,7 +1313,7 @@ impl Daemon {
             _ => return,
         };
 
-        if self.settings.should_update_default_country {
+        if self.settings.update_default_location {
             let (tx, _) = oneshot::channel();
             let _ = self.tx.send(InternalDaemonEvent::Command(
                 DaemonCommand::UpdateDefaultLocationCountry(tx),
@@ -1884,10 +1884,10 @@ impl Daemon {
     fn on_update_default_location(&mut self, tx: ResponseTx<(), settings::Error>) {
         log::info!(
             "should_update_default_country: {}",
-            &self.settings.should_update_default_country
+            &self.settings.update_default_location
         );
 
-        if !self.settings.should_update_default_country {
+        if !self.settings.update_default_location {
             return;
         }
         let Some(location) = self.tunnel_state.get_location() else {
@@ -2383,10 +2383,10 @@ impl Daemon {
                 Self::oneshot_send(tx, Err(e), "set_relay_settings response");
             }
         }
-        if self.settings.should_update_default_country {
+        if self.settings.update_default_location {
             if let Err(e) = self
                 .settings
-                .update(move |settings| settings.should_update_default_country = false)
+                .update(move |settings| settings.update_default_location = false)
                 .await
                 .map_err(Error::SettingsError)
             {

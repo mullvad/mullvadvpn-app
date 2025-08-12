@@ -57,6 +57,7 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 .map(proto::RelayOverride::from)
                 .collect(),
             recents: settings.recents.clone().map(proto::Recents::from),
+            update_default_location: settings.update_default_location,
         }
     }
 }
@@ -173,8 +174,6 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             relay_settings: mullvad_types::relay_constraints::RelaySettings::try_from(
                 relay_settings,
             )?,
-            // FIXME: get value from proto::Settings
-            should_update_default_country: false,
             bridge_settings: mullvad_types::relay_constraints::BridgeSettings::try_from(
                 bridge_settings,
             )?,
@@ -205,6 +204,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 api_access_methods_settings,
             )?,
             recents: Some(vec![]),
+            update_default_location: settings.update_default_location,
         })
     }
 }

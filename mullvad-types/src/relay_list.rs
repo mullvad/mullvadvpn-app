@@ -419,3 +419,136 @@ impl ShadowsocksEndpointData {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use talpid_types::net::wireguard::PublicKey;
+
+    #[test]
+    fn test_get_nearest_country_with_relay() {
+        let location_sweden = Location {
+            country: "Sweden".to_string(),
+            country_code: "se".to_string(),
+            city: "Gothenburg".to_string(),
+            city_code: "got".to_string(),
+            latitude: 57.71,
+            longitude: 11.97,
+        };
+
+        let location_japan = Location {
+            country: "Japan".to_string(),
+            country_code: "jp".to_string(),
+            city: "Osaka".to_string(),
+            city_code: "osa".to_string(),
+            latitude: 34.67231,
+            longitude: 135.484802,
+        };
+
+        let location_south_korea = Location {
+            country: "South Korea".to_string(),
+            country_code: "sk".to_string(),
+            city: "Seoul".to_string(),
+            city_code: "seo".to_string(),
+            latitude: 37.532600,
+            longitude: 127.024612,
+        };
+
+        let location_germany = Location {
+            country: "Germany".to_string(),
+            country_code: "ger".to_string(),
+            city: "Berlin".to_string(),
+            city_code: "ber".to_string(),
+            latitude: 52.5200080,
+            longitude: 13.404954,
+        };
+
+        let countries = vec![
+            RelayListCountry {
+                name: "Sweden".to_string(),
+                code: "se".to_string(),
+                cities: vec![RelayListCity {
+                    name: "Gothenburg".to_string(),
+                    code: "got".to_string(),
+                    latitude: 57.70887,
+                    longitude: 11.97456,
+                    relays: vec![Relay {
+                        hostname: "se9-wireguard".to_string(),
+                        ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+                        ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                        overridden_ipv4: false,
+                        overridden_ipv6: false,
+                        include_in_country: true,
+                        active: true,
+                        owned: true,
+                        provider: "provider0".to_string(),
+                        weight: 1,
+                        endpoint_data: RelayEndpointData::Wireguard(
+                            WireguardRelayEndpointData::new(
+                                PublicKey::from_base64(
+                                    "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                                )
+                                .unwrap(),
+                            ),
+                        ),
+                        location: location_sweden.clone(),
+                    }],
+                }],
+            },
+            //  34.672314, 135.484802.
+            RelayListCountry {
+                name: "Japan".to_string(),
+                code: "jp".to_string(),
+                cities: vec![RelayListCity {
+                    name: "Osaka".to_string(),
+                    code: "osa".to_string(),
+                    latitude: 34.672314,
+                    longitude: 135.484802,
+                    relays: vec![Relay {
+                        hostname: "jp9-wireguard".to_string(),
+                        ipv4_addr_in: "194.114.136.3".parse().unwrap(),
+                        ipv6_addr_in: Some("2404:1b20:5:f011::a09f".parse().unwrap()),
+                        overridden_ipv4: false,
+                        overridden_ipv6: false,
+                        include_in_country: true,
+                        active: true,
+                        owned: true,
+                        provider: "provider0".to_string(),
+                        weight: 1,
+                        endpoint_data: RelayEndpointData::Wireguard(
+                            WireguardRelayEndpointData::new(
+                                PublicKey::from_base64(
+                                    "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                                )
+                                .unwrap(),
+                            ),
+                        ),
+                        location: location_japan.clone(),
+                    }],
+                }],
+            },
+        ];
+
+        let relay_list = RelayList {
+            countries,
+            ..Default::default()
+        };
+
+        assert_eq!(
+            relay_list.get_nearest_country_with_relay(location_sweden),
+            Some("se".to_string())
+        );
+        assert_eq!(
+            relay_list.get_nearest_country_with_relay(location_japan),
+            Some("jp".to_string())
+        );
+        assert_eq!(
+            relay_list.get_nearest_country_with_relay(location_germany),
+            Some("se".to_string())
+        );
+        assert_eq!(
+            relay_list.get_nearest_country_with_relay(location_south_korea),
+            Some("jp".to_string())
+        );
+    }
+}
