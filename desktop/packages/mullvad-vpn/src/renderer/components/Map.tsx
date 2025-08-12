@@ -34,9 +34,12 @@ export default function Map() {
 
   const hasLocationValue = hasLocation(connection);
   const location = useMemo<Coordinate | undefined>(() => {
-    return hasLocationValue ? connection : defaultLocation;
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return hasLocationValue
+      ? {
+          latitude: connection.latitude,
+          longitude: connection.longitude,
+        }
+      : defaultLocation;
   }, [hasLocationValue, connection.longitude, connection.latitude]);
 
   if (window.env.e2e) {
@@ -92,11 +95,9 @@ function MapInner(props: MapInnerProps) {
   const mapRef = useRef<GlMap>(undefined);
   const canvasRef = useRef<HTMLCanvasElement>(undefined);
 
-  // eslint-disable-next-line react-compiler/react-compiler
   const width = applyPixelRatio(canvasRef.current?.clientWidth ?? window.innerWidth);
 
   // This constant is used for the height the first frame that is rendered only.
-  // eslint-disable-next-line react-compiler/react-compiler
   const height = applyPixelRatio(canvasRef.current?.clientHeight ?? 493);
 
   // Hack to rerender when window size changes or when ref is set.
