@@ -62,14 +62,12 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
             .udpOverTcp
         case .shadowsocks:
             .shadowsocks
-        #if DEBUG
         case .quic:
             if let relayFeatures = relayFeatures?.quic {
                 .quic(hostname: relayFeatures.domain, token: relayFeatures.token)
             } else {
                 nil
             }
-        #endif
         default:
             // This is fine, since ObfuscationMethodSelector.obfuscationMethodBy` above should never
             // return .automatic.
