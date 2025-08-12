@@ -62,12 +62,7 @@ class DeviceManagementContentView: UIView {
         let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(
-            NSLocalizedString(
-                "CONTINUE_BUTTON",
-                tableName: "DeviceManagement",
-                value: "Continue with login",
-                comment: ""
-            ),
+            NSLocalizedString("Continue with login", comment: ""),
             for: .normal
         )
         button.isEnabled = false
@@ -79,12 +74,7 @@ class DeviceManagementContentView: UIView {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(
-            NSLocalizedString(
-                "CANCEL_BUTTON",
-                tableName: "DeviceManagement",
-                value: "Cancel",
-                comment: ""
-            ),
+            NSLocalizedString("Cancel", comment: ""),
             for: .normal
         )
         return button
@@ -282,40 +272,20 @@ class DeviceManagementContentView: UIView {
 
     private var titleText: String {
         if canContinue {
-            return NSLocalizedString(
-                "CONTINUE_LOGIN_TITLE",
-                tableName: "DeviceManagement",
-                value: "Super!",
-                comment: ""
-            )
+            return NSLocalizedString("Super!", comment: "")
         } else {
-            return NSLocalizedString(
-                "LOGOUT_DEVICES_TITLE",
-                tableName: "DeviceManagement",
-                value: "Too many devices",
-                comment: ""
-            )
+            return NSLocalizedString("Too many devices", comment: "")
         }
     }
 
     private var messageText: String {
         if canContinue {
-            return NSLocalizedString(
-                "CONTINUE_LOGIN_MESSAGE",
-                tableName: "DeviceManagement",
-                value: "You can now continue logging in on this device.",
-                comment: ""
-            )
+            return NSLocalizedString("You can now continue logging in on this device.", comment: "")
         } else {
-            return NSLocalizedString(
-                "LOGOUT_DEVICES_MESSAGE",
-                tableName: "DeviceManagement",
-                value: """
-                Please log out of at least one by removing it from the list below. You can find \
-                the corresponding device name under the device’s Account settings.
-                """,
-                comment: ""
-            )
+            return NSLocalizedString("""
+            Please log out of at least one by removing it from the list below. You can find \
+            the corresponding device name under the device’s Account settings.
+            """, comment: "")
         }
     }
 }

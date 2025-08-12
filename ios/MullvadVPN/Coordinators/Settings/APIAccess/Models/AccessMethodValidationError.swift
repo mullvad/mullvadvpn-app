@@ -70,7 +70,7 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch kind {
         case .emptyValue:
-            NSLocalizedString("\(field) cannot be empty.", comment: "")
+            String(format: NSLocalizedString("%@ cannot be empty.", comment: ""), field.rawValue)
         case .invalidIPAddress:
             NSLocalizedString("Please enter a valid IPv4 or IPv6 address.", comment: "")
         case .invalidPort:

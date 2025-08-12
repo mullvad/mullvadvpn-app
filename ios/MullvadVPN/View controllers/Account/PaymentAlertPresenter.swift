@@ -20,7 +20,7 @@ struct PaymentAlertPresenter {
             message: NSLocalizedString("Your purchase was successfully refunded.", comment: ""),
             buttons: [
                 AlertAction(
-                    title: okButtonTextForKey("PAYMENT_REFUND_ALERT_OK_ACTION"),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default,
                     handler: {
                         completion?()
@@ -44,7 +44,7 @@ struct PaymentAlertPresenter {
             message: error.displayErrorDescription,
             buttons: [
                 AlertAction(
-                    title: okButtonTextForKey("PAYMENT_ERROR_ALERT_OK_ACTION"),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default,
                     handler: {
                         completion?()
@@ -68,7 +68,7 @@ struct PaymentAlertPresenter {
             message: "\(error)",
             buttons: [
                 AlertAction(
-                    title: okButtonTextForKey("PAYMENT_ERROR_ALERT_OK_ACTION"),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default,
                     handler: {
                         completion?()
@@ -97,7 +97,7 @@ struct PaymentAlertPresenter {
             message: response.alertMessage(context: context),
             buttons: [
                 AlertAction(
-                    title: okButtonTextForKey("PAYMENT_RESPONSE_ALERT_OK_ACTION"),
+                    title: NSLocalizedString("Got it!", comment: ""),
                     style: .default,
                     handler: {
                         completion?()
@@ -108,9 +108,5 @@ struct PaymentAlertPresenter {
 
         let presenter = AlertPresenter(context: alertContext)
         presenter.showAlert(presentation: presentation, animated: true)
-    }
-
-    private func okButtonTextForKey(_ key: String) -> String {
-        NSLocalizedString("Got it!", comment: "")
     }
 }
