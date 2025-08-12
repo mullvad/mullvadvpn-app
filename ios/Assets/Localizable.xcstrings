@@ -1541,6 +1541,9 @@
         }
       }
     },
+    "Create new account" : {
+
+    },
     "Creating new account" : {
       "localizations" : {
         "de" : {
@@ -5185,6 +5188,9 @@
         }
       }
     },
+    "Remove" : {
+
+    },
     "Remove last used account" : {
       "localizations" : {
         "de" : {
@@ -5206,6 +5212,9 @@
           }
         }
       }
+    },
+    "Removing the saved account number from this device cannot be undone.\nDo you want to remove the saved account number?" : {
+
     },
     "Rented" : {
       "localizations" : {
@@ -7372,6 +7381,9 @@
           }
         }
       }
+    },
+    "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.\nDo you want to create a new account?" : {
+
     },
     "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." : {
       "localizations" : {

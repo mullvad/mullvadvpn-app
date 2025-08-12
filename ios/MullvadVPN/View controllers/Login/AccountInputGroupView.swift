@@ -356,7 +356,6 @@ final class AccountInputGroupView: UIView {
 
     @objc private func didTapRemoveLastUsedAccount() {
         didRemoveLastUsedAccount?()
-        setLastUsedAccount(nil, animated: true)
     }
 
     // MARK: - Private
