@@ -102,8 +102,11 @@ class LoginViewController: UIViewController, RootContainment {
         false
     }
 
-    init(interactor: LoginInteractor) {
+    private let alertPresenter: AlertPresenter
+
+    init(interactor: LoginInteractor, alertPresenter: AlertPresenter) {
         self.interactor = interactor
+        self.alertPresenter = alertPresenter
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -124,7 +127,7 @@ class LoginViewController: UIViewController, RootContainment {
         updateLastUsedAccount()
 
         contentView.accountInputGroup.didRemoveLastUsedAccount = { [weak self] in
-            self?.interactor.removeLastUsedAccount()
+            self?.showLastUsedAccountRemovalWarning()
         }
 
         contentView.accountInputGroup.didEnterAccount = { [weak self] in
@@ -227,10 +230,79 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     @objc private func createNewAccount() {
-        start(action: .createAccount)
+        if interactor.hasLastAccountNumber {
+            let message = NSMutableAttributedString(
+                markdownString: NSLocalizedString("""
+                You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.
+                """, comment: ""),
+                options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
+            )
+
+            let presentation = AlertPresentation(
+                id: "create-account-confirmation-dialog",
+                icon: .alert,
+                attributedMessage: message,
+                buttons: [
+                    AlertAction(
+                        title: NSLocalizedString("Create account", comment: ""),
+                        style: .destructive,
+                        accessibilityId: .createAccountConfirmationButton,
+                        handler: {
+                            self.start(action: .createAccount)
+                        }
+                    ),
+                    AlertAction(
+                        title: NSLocalizedString("Cancel", comment: ""),
+                        style: .default,
+                        accessibilityId: .createAccountCancelButton
+                    ),
+                ]
+            )
+            alertPresenter.showAlert(presentation: presentation, animated: true)
+        } else {
+            start(action: .createAccount)
+        }
     }
 
     // MARK: - Private
+
+    private func showLastUsedAccountRemovalWarning() {
+        let message = NSMutableAttributedString(
+            markdownString: NSLocalizedString(
+                """
+                Removing the saved account number from this device cannot be undone. Make sure you have it saved elsewhere.
+                """,
+                comment: ""
+            ),
+            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
+        )
+
+        let presentation = AlertPresentation(
+            id: "remove-saved-account-number-dialog",
+            icon: .alert,
+            attributedMessage: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString("Remove", comment: ""),
+                    style: .destructive,
+                    accessibilityId: .removeLastUsedAccountButton,
+                    handler: {
+                        self.interactor.removeLastUsedAccount()
+                        self.contentView.accountInputGroup.setLastUsedAccount(
+                            nil,
+                            animated: true
+                        )
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString("Cancel", comment: ""),
+                    style: .default,
+                    accessibilityId: .cancelRemoveLastUsedAccountButton
+                ),
+            ]
+        )
+        self.alertPresenter.showAlert(presentation: presentation, animated: true)
+    }
 
     private func updateLastUsedAccount() {
         contentView.accountInputGroup.setLastUsedAccount(

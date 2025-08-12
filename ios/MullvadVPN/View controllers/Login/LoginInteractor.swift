@@ -16,6 +16,9 @@ final class LoginInteractor: @unchecked Sendable {
     private var tunnelObserver: TunnelObserver?
     var didCreateAccount: (@MainActor @Sendable () -> Void)?
     var suggestPreferredAccountNumber: (@Sendable (String) -> Void)?
+    var hasLastAccountNumber: Bool {
+        getLastUsedAccount() != nil
+    }
 
     init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager

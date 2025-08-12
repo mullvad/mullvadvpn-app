@@ -811,6 +811,9 @@
     "Remove last used account" : {
 
     },
+    "Removing the saved account number from this device cannot be undone. Make sure you have it saved elsewhere." : {
+
+    },
     "Rented" : {
 
     },
@@ -1104,6 +1107,9 @@
 
     },
     "Yes, log out device" : {
+
+    },
+    "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." : {
 
     },
     "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." : {
