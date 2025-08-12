@@ -55,7 +55,7 @@ interface IModalContainerProps {
 interface IModalContext {
   activeModal: boolean;
   setActiveModal: (value: boolean) => void;
-  previousActiveElement: React.MutableRefObject<HTMLElement | undefined>;
+  previousActiveElement: React.RefObject<HTMLElement | undefined>;
 }
 
 const noActiveModalContextError = new Error('ActiveModalContext.Provider missing');
@@ -66,7 +66,7 @@ const ActiveModalContext = React.createContext<IModalContext>({
   setActiveModal(_value) {
     throw noActiveModalContextError;
   },
-  get previousActiveElement(): React.MutableRefObject<HTMLElement | undefined> {
+  get previousActiveElement(): React.RefObject<HTMLElement | undefined> {
     throw noActiveModalContextError;
   },
 });
