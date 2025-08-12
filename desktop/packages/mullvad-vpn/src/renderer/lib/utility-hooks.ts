@@ -14,8 +14,8 @@ export function useMounted() {
   return isMounted;
 }
 
-export function useStyledRef<T>(): React.MutableRefObject<T> {
-  return useRef() as React.MutableRefObject<T>;
+export function useStyledRef<T>(): React.RefObject<T | null> {
+  return useRef<T>(null);
 }
 
 export function useCombinedRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
