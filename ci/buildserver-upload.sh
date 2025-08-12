@@ -12,6 +12,14 @@ source "$SCRIPT_DIR/buildserver-config.sh"
 
 cd "$UPLOAD_DIR"
 
+function invalidate_bunny_cdn_cache {
+    curl --request POST \
+        --url "https://api.bunny.net/pullzone/${BUNNYCDN_PULL_ZONE_ID}/purgeCache" \
+        --header "AccessKey: ${BUNNYCDN_API_KEY}" \
+        --header 'content-type: application/json' \
+        --fail-with-body
+}
+
 function rsync_upload {
     local file=$1
     local upload_dir=$2
@@ -23,6 +31,9 @@ function rsync_upload {
 
 while true; do
     sleep 10
+
+    invalidate_cache="false"
+
     for checksums_path in **/*.sha256; do
         sleep 1
 
@@ -39,10 +50,12 @@ while true; do
 
         if [[ "$platform" == "installer-downloader" ]]; then
             upload_path="desktop/installer-downloader"
+            invalidate_cache="true"
         elif [[ $version == *"-dev-"* ]]; then
             upload_path="$platform/builds"
         else
             upload_path="$platform/releases"
+            invalidate_cache="true"
         fi
 
         # Read all files listed in the checksum file at $checksums_path into an array.
@@ -74,4 +87,9 @@ while true; do
         # shellcheck disable=SC2216
         yes | rm "$checksums_path"
     done
+
+    if [[ "$invalidate_cache" == "true" ]]; then
+        echo "Invalidating Bunny CDN cache"
+        invalidate_bunny_cdn_cache || continue
+    fi
 done
