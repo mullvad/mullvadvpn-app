@@ -39,7 +39,7 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     func saveAccessMethod() {
         guard let persistentMethod = try? subject.value.intoPersistentAccessMethod() else { return }
 
-        repository.save(persistentMethod)
+        repository.save(persistentMethod, notifyingAPI: true)
         checkIfSwitchCanBeToggled()
     }
 
@@ -47,7 +47,7 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
         repository.delete(id: subject.value.id)
         // Enable direct access if all methods are disabled
         if repository.fetchAll().count(where: { $0.isEnabled }) == 0 {
-            repository.save(repository.directAccess)
+            repository.save(repository.directAccess, notifyingAPI: true)
         }
     }
 
