@@ -5,6 +5,7 @@ import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.di.ApplicationScope
 import net.mullvad.mullvadvpn.di.appModule
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
@@ -19,10 +20,7 @@ import org.koin.core.context.startKoin
 
 private const val LOG_TAG = "mullvad"
 
-class ApplicationScope(private val cs: CoroutineScope) : CoroutineScope by cs
-
 class MullvadApplication : Application() {
-
     override fun onCreate() {
         super.onCreate()
         Logger.setTag(LOG_TAG)
