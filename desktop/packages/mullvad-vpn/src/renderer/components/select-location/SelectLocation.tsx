@@ -8,7 +8,11 @@ import { RoutePath } from '../../../shared/routes';
 import { Button, FilterChip, Flex, IconButton, LabelTiny } from '../../lib/components';
 import { FlexColumn } from '../../lib/components/flex-column';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
-import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-locations';
+import {
+  daitaFilterActive,
+  filterSpecialLocations,
+  quicFilterActive,
+} from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { useNormalRelaySettings, useTunnelProtocol } from '../../lib/relay-settings-hooks';
@@ -59,18 +63,20 @@ export default function SelectLocation() {
   const tunnelProtocol = useTunnelProtocol();
   const ownership = relaySettings?.ownership ?? Ownership.any;
   const providers = relaySettings?.providers ?? [];
+  const multihop = relaySettings?.wireguard.useMultihop ?? false;
   const filteredProviders = useFilteredProviders(providers, ownership);
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
-  const showQuicFilter = useSelector(
+  const quic = useSelector(
     (state) => state.settings.obfuscationSettings.selectedObfuscation === ObfuscationType.quic,
   );
+  const showQuicFilter = quicFilterActive(quic, locationType, tunnelProtocol, multihop);
   const showDaitaFilter = daitaFilterActive(
     daita,
     directOnly,
     locationType,
     tunnelProtocol,
-    relaySettings?.wireguard.useMultihop ?? false,
+    multihop,
   );
 
   const [searchValue, setSearchValue] = useState('');
