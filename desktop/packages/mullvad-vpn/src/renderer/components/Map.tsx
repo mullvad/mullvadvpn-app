@@ -84,13 +84,13 @@ function MapInner(props: MapInnerProps) {
   const { getMapData } = useAppContext();
 
   // When location or connection state changes it's stored here until passed to 3dmap
-  const newParams = useRef<MapParams>();
+  const newParams = useRef<MapParams>(undefined);
 
   // This is set to true when rendering should be paused
   const pause = useRef<boolean>(false);
 
-  const mapRef = useRef<GlMap>();
-  const canvasRef = useRef<HTMLCanvasElement>();
+  const mapRef = useRef<GlMap>(undefined);
+  const canvasRef = useRef<HTMLCanvasElement>(undefined);
 
   // eslint-disable-next-line react-compiler/react-compiler
   const width = applyPixelRatio(canvasRef.current?.clientWidth ?? window.innerWidth);

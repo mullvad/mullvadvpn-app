@@ -22,7 +22,7 @@ export function useApiAccessMethodTest(
   const [testResult, setTestResult] = useState<boolean>();
   // We keep the promise for the most recent test to compare it when we receive the results to know
   // if it's canceled or not.
-  const lastTestPromise = useRef<Promise<boolean>>();
+  const lastTestPromise = useRef<Promise<boolean>>(undefined);
 
   // A few seconds after the test has finished the result should not be displayed anymore. This
   // scheduler is used to clear it.

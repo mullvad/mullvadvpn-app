@@ -30,7 +30,7 @@ export function useAfterTransition() {
 export function useViewTransitions(onTransition?: () => void): Location<LocationState> {
   const history = useHistory();
   const [currentLocation, setCurrentLocation] = useState(history.location);
-  const queuedLocationRef = useRef<QueueItem | undefined>();
+  const queuedLocationRef = useRef<QueueItem>(undefined);
   const { setNavigationHistory } = useAppContext();
 
   const reduceMotion = getReduceMotion();

@@ -73,7 +73,7 @@ const ActiveModalContext = React.createContext<IModalContext>({
 
 export function ModalContainer(props: IModalContainerProps) {
   const [activeModal, setActiveModal] = useState(false);
-  const previousActiveElement = useRef<HTMLElement>();
+  const previousActiveElement = useRef<HTMLElement>(undefined);
 
   const contextValue = useMemo(
     () => ({

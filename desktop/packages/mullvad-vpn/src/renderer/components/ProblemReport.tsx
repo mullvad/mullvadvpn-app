@@ -422,7 +422,7 @@ const useCollectLog = () => {
   const { collectProblemReport } = useAppContext();
   const accountHistory = useSelector((state) => state.account.accountHistory);
 
-  const collectLogPromise = useRef<Promise<string>>();
+  const collectLogPromise = useRef<Promise<string>>(undefined);
 
   const collectLog = useCallback(async (): Promise<string> => {
     if (collectLogPromise.current) {

@@ -21,7 +21,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
   const { setNavigationHistory } = useAppContext();
   const { onScroll } = useContext(NavigationScrollContext);
 
-  const ref = useRef<CustomScrollbarsRef>();
+  const ref = useRef<CustomScrollbarsRef>(undefined);
   const combinedRefs = useCombinedRefs(forwardedRef, ref);
 
   const beforeunload = useEffectEvent(() => {
