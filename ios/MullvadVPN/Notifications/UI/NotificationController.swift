@@ -70,10 +70,7 @@ final class NotificationController: UIViewController {
         }
 
         if animated {
-            let timing = UISpringTimingParameters(
-                dampingRatio: 0.7,
-                initialVelocity: CGVector(dx: 0, dy: 1)
-            )
+            let timing = UICubicTimingParameters()
             let animator = UIViewPropertyAnimator(duration: 0.8, timingParameters: timing)
             animator.isInterruptible = false
             animator.addAnimations {
