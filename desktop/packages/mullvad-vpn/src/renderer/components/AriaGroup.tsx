@@ -78,7 +78,7 @@ export function AriaInputGroup(props: IAriaGroupProps) {
 }
 
 interface IAriaElementProps {
-  children: React.ReactElement;
+  children: React.ReactElement<React.LabelHTMLAttributes<HTMLLabelElement>>;
 }
 
 export function AriaInput(props: IAriaElementProps) {
