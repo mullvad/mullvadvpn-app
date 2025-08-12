@@ -23,17 +23,18 @@ struct ChangeLogView<ViewModel>: View where ViewModel: ChangeLogViewModelProtoco
                     .fontWeight(.semibold)
                     .foregroundColor(UIColor.primaryTextColor.color)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 24.0)
                 List {
                     ForEach(viewModel.changeLog?.changes ?? [], id: \.self) { item in
                         BulletPointText(text: item)
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
                     }
+                    .padding(.horizontal, 24.0)
                 }
                 .listStyle(.plain)
                 .frame(maxHeight: .infinity)
             }
-            .padding(.horizontal, 24.0)
         }
         .onAppear {
             viewModel.getLatestChanges()
