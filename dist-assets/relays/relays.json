@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"68904f73-31e47\"",
+  "etag": "W/\"689ad37b-323ce\"",
   "countries": [
     {
       "name": "Albania",
@@ -237,7 +237,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "DataPacket",
               "weight": 100,
@@ -2369,7 +2369,14 @@
               },
               "features": {
                 "daita": null,
-                "quic": null
+                "quic": {
+                  "addr_in": [
+                    "23.234.84.12",
+                    "2607:9000:600:31::f00a"
+                  ],
+                  "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                  "domain": "ca-tor-wg-201.blockerad.eu"
+                }
               }
             },
             {
@@ -3187,7 +3194,7 @@
                 "longitude": 8.55
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -3435,7 +3442,7 @@
                 "longitude": 8.55
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -3974,7 +3981,13 @@
               },
               "features": {
                 "daita": null,
-                "quic": null
+                "quic": {
+                  "addr_in": [
+                    "146.70.129.126"
+                  ],
+                  "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                  "domain": "cz-prg-wg-101.blockerad.eu"
+                }
               }
             },
             {
@@ -4838,7 +4851,7 @@
                 "longitude": 8.682127
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -5024,7 +5037,7 @@
                 "longitude": 8.682127
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -7718,7 +7731,7 @@
                 "longitude": -0.093689
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -7935,7 +7948,7 @@
                 "longitude": -0.093689
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -8710,7 +8723,13 @@
               },
               "features": {
                 "daita": null,
-                "quic": null
+                "quic": {
+                  "addr_in": [
+                    "146.70.224.62"
+                  ],
+                  "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                  "domain": "hk-hkg-wg-301.blockerad.eu"
+                }
               }
             },
             {
@@ -9677,7 +9696,13 @@
               },
               "features": {
                 "daita": null,
-                "quic": null
+                "quic": {
+                  "addr_in": [
+                    "194.114.136.33"
+                  ],
+                  "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                  "domain": "jp-osa-wg-001.blockerad.eu"
+                }
               }
             },
             {
@@ -10506,7 +10531,7 @@
                 "longitude": 4.916667
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -10661,7 +10686,7 @@
                 "longitude": 4.916667
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -10787,7 +10812,7 @@
                 "longitude": 4.916667
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -12491,7 +12516,7 @@
                 "longitude": 11.97456
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -12522,7 +12547,7 @@
                 "longitude": 11.97456
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -13310,7 +13335,7 @@
                 "longitude": 13.002716
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -13343,7 +13368,7 @@
                 "longitude": 13.002716
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -13469,7 +13494,7 @@
                 "longitude": 13.002716
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -13502,7 +13527,7 @@
                 "longitude": 13.002716
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -13914,7 +13939,7 @@
                 "longitude": 18.0649
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -13945,7 +13970,7 @@
                 "longitude": 18.0649
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -14171,7 +14196,14 @@
               },
               "features": {
                 "daita": null,
-                "quic": null
+                "quic": {
+                  "addr_in": [
+                    "89.37.63.195",
+                    "2a02:6ea0:1508:4::c101"
+                  ],
+                  "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                  "domain": "se-sto-wg-204.blockerad.eu"
+                }
               }
             },
             {
@@ -14302,7 +14334,7 @@
                 "longitude": 18.0649
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -14335,7 +14367,7 @@
                 "longitude": 18.0649
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -15778,7 +15810,7 @@
                 "longitude": -87.623177
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -16104,7 +16136,7 @@
                 "longitude": -87.623177
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             }
@@ -16194,7 +16226,13 @@
               },
               "features": {
                 "daita": null,
-                "quic": null
+                "quic": {
+                  "addr_in": [
+                    "146.70.211.126"
+                  ],
+                  "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                  "domain": "us-dal-wg-001.blockerad.eu"
+                }
               }
             },
             {
@@ -16685,7 +16723,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": false,
-              "active": true,
+              "active": false,
               "owned": false,
               "provider": "Tzulo",
               "weight": 1,
@@ -17577,7 +17615,7 @@
                 "longitude": -118.243683
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -17732,8 +17770,14 @@
                 "longitude": -118.243683
               },
               "features": {
-                "daita": null,
-                "quic": null
+                "daita": {},
+                "quic": {
+                  "addr_in": [
+                    "146.70.174.62"
+                  ],
+                  "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                  "domain": "us-lax-wg-406.blockerad.eu"
+                }
               }
             },
             {
@@ -19259,7 +19303,7 @@
                 "longitude": -73.935242
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -19445,8 +19489,14 @@
                 "longitude": -73.935242
               },
               "features": {
-                "daita": null,
-                "quic": null
+                "daita": {},
+                "quic": {
+                  "addr_in": [
+                    "146.70.185.62"
+                  ],
+                  "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                  "domain": "us-nyc-wg-601.blockerad.eu"
+                }
               }
             },
             {
@@ -19633,7 +19683,7 @@
                 "longitude": -73.935242
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -19732,7 +19782,7 @@
                 "longitude": -73.935242
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -19765,7 +19815,7 @@
                 "longitude": -73.935242
               },
               "features": {
-                "daita": null,
+                "daita": {},
                 "quic": null
               }
             },
@@ -20897,56 +20947,6 @@
           "latitude": 35.787743,
           "longitude": -78.644257,
           "relays": [
-            {
-              "hostname": "us-rag-ovpn-101",
-              "ipv4_addr_in": "198.54.130.34",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 1,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Raleigh, NC",
-                "city_code": "rag",
-                "latitude": 35.787743,
-                "longitude": -78.644257
-              },
-              "features": {
-                "daita": null,
-                "quic": null
-              }
-            },
-            {
-              "hostname": "us-rag-ovpn-102",
-              "ipv4_addr_in": "198.54.130.50",
-              "ipv6_addr_in": null,
-              "overridden_ipv4": false,
-              "overridden_ipv6": false,
-              "include_in_country": false,
-              "active": false,
-              "owned": false,
-              "provider": "Tzulo",
-              "weight": 1,
-              "endpoint_data": "openvpn",
-              "location": {
-                "country": "USA",
-                "country_code": "us",
-                "city": "Raleigh, NC",
-                "city_code": "rag",
-                "latitude": 35.787743,
-                "longitude": -78.644257
-              },
-              "features": {
-                "daita": null,
-                "quic": null
-              }
-            },
             {
               "hostname": "us-rag-wg-201",
               "ipv4_addr_in": "23.234.76.2",
