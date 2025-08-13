@@ -62,7 +62,7 @@ jobs:
 
     strategy:
       matrix:
-        rust: [stable, beta, nightly]
+        rust: [stable, beta, nightly-2025-08-11]
     continue-on-error: true
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
