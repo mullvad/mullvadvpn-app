@@ -11,7 +11,10 @@ use boringtun::{
         api::{ApiClient, ApiServer, command::*},
         peer::AllowedIP,
     },
-    udp::{UdpSocketFactory, channel::PacketChannel},
+    udp::{
+        UdpSocketFactory,
+        channel::{PacketChannelUdp, TunChannelRx, TunChannelTx, get_packet_channels},
+    },
 };
 #[cfg(not(target_os = "android"))]
 use ipnetwork::IpNetwork;
@@ -34,8 +37,8 @@ type UdpFactory = AndroidUdpSocketFactory;
 type UdpFactory = UdpSocketFactory;
 
 type SinglehopDevice = DeviceHandle<(UdpFactory, Arc<tun07::AsyncDevice>, Arc<tun07::AsyncDevice>)>;
-type EntryDevice = DeviceHandle<(UdpFactory, PacketChannel, PacketChannel)>;
-type ExitDevice = DeviceHandle<(PacketChannel, Arc<AsyncDevice>, Arc<AsyncDevice>)>;
+type EntryDevice = DeviceHandle<(UdpFactory, TunChannelTx, TunChannelRx)>;
+type ExitDevice = DeviceHandle<(PacketChannelUdp, Arc<AsyncDevice>, Arc<AsyncDevice>)>;
 
 const PACKET_CHANNEL_CAPACITY: usize = 100;
 
@@ -213,25 +216,32 @@ async fn create_devices(
     if config.exit_peer.is_some() {
         // multihop
 
-        let source_v4 = config.tunnel.addresses.iter().find_map(|ip| match ip {
-            &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
-            IpAddr::V6(..) => None,
-        });
+        let source_v4 = config
+            .tunnel
+            .addresses
+            .iter()
+            .find_map(|ip| match ip {
+                &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
+                IpAddr::V6(..) => None,
+            })
+            .unwrap_or(Ipv4Addr::UNSPECIFIED);
 
-        let source_v6 = config.tunnel.addresses.iter().find_map(|ip| match ip {
-            &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
-            IpAddr::V4(..) => None,
-        });
+        let source_v6 = config
+            .tunnel
+            .addresses
+            .iter()
+            .find_map(|ip| match ip {
+                &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
+                IpAddr::V4(..) => None,
+            })
+            .unwrap_or(Ipv6Addr::UNSPECIFIED);
 
-        let channel = PacketChannel::new(
-            PACKET_CHANNEL_CAPACITY,
-            source_v4.unwrap_or(Ipv4Addr::UNSPECIFIED), // HACK: unwrap_or
-            source_v6.unwrap_or(Ipv6Addr::UNSPECIFIED), // HACK: unwrap_or
-        );
+        let (tun_tx, tun_rx, udp_channels) =
+            get_packet_channels(PACKET_CHANNEL_CAPACITY, source_v4, source_v6);
 
         let (exit_api, exit_api_server) = ApiServer::new();
-        let exit_device = DeviceHandle::<(PacketChannel, Arc<AsyncDevice>, Arc<AsyncDevice>)>::new(
-            channel.clone(),
+        let exit_device = ExitDevice::new(
+            udp_channels,
             async_tun.clone(),
             async_tun,
             DeviceConfig {
@@ -246,8 +256,7 @@ async fn create_devices(
         #[cfg(not(target_os = "android"))]
         let factory = UdpSocketFactory;
 
-        let entry_device =
-            EntryDevice::new(factory, channel.clone(), channel, boringtun_entry_config).await;
+        let entry_device = EntryDevice::new(factory, tun_tx, tun_rx, boringtun_entry_config).await;
 
         let private_key = &config.tunnel.private_key;
         let fwmark = config.fwmark;
