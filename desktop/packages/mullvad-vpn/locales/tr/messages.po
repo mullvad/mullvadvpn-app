@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2025-06-27 06:04\n"
+"PO-Revision-Date: 2025-08-08 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d tane daha..."
@@ -759,6 +759,10 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "Yükleyici beklenmedik şekilde sonlandı. Lütfen tekrar deneyin veya bir hata raporu gönderin."
 
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr "Yükleyici <b>%(cacheDir)s</b> konumuna indirilecek."
+
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1395,41 +1399,79 @@ msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr "Hoş geldiniz, bu cihazın adı artık <b>%(deviceName)s</b>. Daha fazla ayrıntı için Hesap içinden bilgi düğmesine bakın."
 
+#. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad sistem hizmetlerine bağlanılıyor..."
 
+#. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
-msgid "Disable third party antivirus software."
-msgstr "Üçüncü taraf antivirüs yazılımı devre dışı bırakın."
+msgid "Details"
+msgstr "Ayrıntılar"
 
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
+msgstr "Üçüncü taraf antivirüs yazılımı devre dışı bırakın"
+
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr "Uygulama başlatılamadı, lütfen tekrar deneyin veya daha fazla bilgi için “Ayrıntılar”a tıklayın"
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr "Bu adımlar işe yaramazsa lütfen bir hata raporu gönderin."
 
+#. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Mullvad VPN hizmetinin izni iptal edildi. Lütfen Sistem Ayarları'na giderek \"Arka Planda İzin Ver\" seçeneğinden Mullvad VPN'e izin verin."
 
+#. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
-msgid "Reinstalling the app."
-msgstr "Uygulamayı yeniden yükleme."
+msgid "Reinstalling the app"
+msgstr "Uygulamayı yeniden yükleyin"
 
+#. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
-msgid "Restarting your computer."
-msgstr "Bilgisayarınızı yeniden başlatma."
+msgid "Restarting the Mullvad background process"
+msgstr "Mullvad arka plan işlemini yeniden başlatın"
 
-#. Button label for problem report view.
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr "“Geri”ye ve ardından “Yeniden dene”ye tıklayarak Mullvad arka plan işlemini yeniden başlatın"
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr "Bilgisayarınızı yeniden başlatın"
+
+#. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "Hata raporu gönder"
 
+#. Status text shown when app is starting.
 msgctxt "launch-view"
-msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
-msgstr "Uygulamanın sistem hizmeti bileşeni başlatılmadı veya bağlantı kurulamıyor. Sistem hizmeti güvenlikten, kill switch'ten ve VPN tünelinden sorumludur. Sorunu gidermek için lütfen şu işlemleri deneyin:"
+msgid "Starting up...."
+msgstr "Başlatılıyor..."
 
+#. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
-msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr "Mullvad arka plan işlemi başlatılamadı. Arka plan işlemi; güvenlik, kill switch ve VPN tüneli gibi işlevlerden sorumludur. Lütfen aşağıdakileri deneyin:"
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr "Tekrar deneyin"
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
 msgstr "Mullvad sistem hizmetiyle bağlantı kurulamıyor, bağlantınız güvenli olmayabilir. Lütfen \"Daha fazla bilgi\" düğmesine tıklayarak sorunu gidermeyi deneyin veya bir hata raporu gönderin."
 
 #. This is a warning message shown when the app is blocking the users
@@ -1911,6 +1953,13 @@ msgstr "Liste adları benzersiz olmalıdır."
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "İsim zaten kullanılıyor."
+
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr "Gizleme: %(obfuscation)s"
 
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
@@ -2755,6 +2804,9 @@ msgstr "%s (kaldırıldı)"
 msgid "%s custom port"
 msgstr "%s özel portu"
 
+msgid "%s is unavailable"
+msgstr "%s kullanılamıyor"
+
 msgid "%s was added to your account."
 msgstr "%s, hesabınıza eklendi."
 
@@ -2923,6 +2975,9 @@ msgstr "Bu ayarları etkinleştirmek için aşağıdaki \"%s\" seçeneğini devr
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Bu ayarı etkinleştirmek için yukarıdaki \"%s\" seçeneklerinin tümünü devre dışı bırakın."
 
+msgid "Disable recents"
+msgstr "Son filtreleri devre dışı bırak"
+
 msgid "Discard"
 msgstr "İptal et"
 
@@ -2961,6 +3016,9 @@ msgstr "%1$s ayarını etkinleştir"
 
 msgid "Enable method"
 msgstr "Yöntemi etkinleştir"
+
+msgid "Enable recents"
+msgstr "Son filtreleri etkinleştir"
 
 msgid "Enter MTU"
 msgstr "MTU'yu girin"
@@ -3061,6 +3119,9 @@ msgstr "Cihazın her zaman VPN tünelinde olduğundan emin olun."
 msgid "Manage devices"
 msgstr "Cihazları yönet"
 
+msgid "More actions"
+msgstr "Diğer işlemler"
+
 msgid "Mullvad services unavailable"
 msgstr "Mullvad hizmetleri kullanılamıyor"
 
@@ -3087,6 +3148,9 @@ msgstr "İnternet bağlantısı yok"
 
 msgid "No locations found"
 msgstr "Konum bulunamadı"
+
+msgid "No recent selection history"
+msgstr "Son seçim geçmişi yok"
 
 msgid "No result for \"%s\", please try a different search"
 msgstr "\"%s\" için sonuç yok, lütfen farklı bir arama yapın"
@@ -3126,6 +3190,12 @@ msgstr "Gizlilik"
 
 msgid "Privacy policy"
 msgstr "Gizlilik politikası"
+
+msgid "Recents"
+msgstr "Son kullanılanlar"
+
+msgid "Recents disabled and history cleared"
+msgstr "Son kullanılanlar devre dışı bırakıldı ve geçmiş temizlendi"
 
 msgid "Recursion limit"
 msgstr "Yineleme sınırı"
@@ -3229,11 +3299,11 @@ msgstr "Bu, zaten geçerli olarak ayarlı yöntemdir"
 msgid "Time added"
 msgstr "Süre eklendi"
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
-msgstr "Listeye konum eklemek için \"︙\" düğmesine basın veya bir ülke, şehir veya sunucunun üzerine uzun basın."
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr "Konumları bir listeye eklemek için kalem simgesine dokunun veya bir ülkeye, şehre ya da sunucuya uzun basın."
 
-msgid "To create a custom list press the \"︙\""
-msgstr "Özel bir liste oluşturmak için \"︙\" düğmesine basın"
+msgid "To create a custom list press the \"+\""
+msgstr "Özel bir liste oluşturmak için “+” simgesine dokunun"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz."
@@ -3312,6 +3382,9 @@ msgstr "Ödeme işlemini başlatamadık. Lütfen Google Play'in en son sürümü
 
 msgid "We were unable to start the payment process, please try again later."
 msgstr "Ödeme işlemini başlatamadık, lütfen daha sonra tekrar deneyin."
+
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr "Hoş geldiniz, bu cihazın yeni adı artık <b>%s</b>."
 
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"

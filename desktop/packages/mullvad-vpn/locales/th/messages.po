@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2025-06-27 06:04\n"
+"PO-Revision-Date: 2025-08-08 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -753,6 +753,10 @@ msgctxt "app-upgrade-view"
 msgid "Installer quit unexpectedly, please try again or send a problem report."
 msgstr "โปรแกรมติดตั้งหยุดทำงานอย่างไม่คาดคิด โปรดลองอีกครั้งหรือส่งรายงานปัญหา"
 
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr "ตัวติดตั้งจะถูกดาวน์โหลดไปที่ <b>%(cacheDir)s</b>"
+
 #. Text displayed when there are no updates for this platform in the next app version
 msgctxt "app-upgrade-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1389,41 +1393,79 @@ msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
 msgstr "ยินดีต้อนรับ ขณะนี้อุปกรณ์นี้จะมีชื่อว่า <b>%(deviceName)s</b> สำหรับข้อมูลเพิ่มเติม โปรดกดปุ่มข้อมูลในบัญชี"
 
+#. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "กำลังเชื่อมต่อบริการของระบบ Mullvad..."
 
+#. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
-msgid "Disable third party antivirus software."
+msgid "Details"
+msgstr "รายละเอียด"
+
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
 msgstr "ปิดใช้งานซอฟต์แวร์ป้องกันไวรัสของบริษัทอื่น"
 
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr "ไม่สามารถเริ่มแอปได้ โปรดลองอีกครั้งหรือคลิก \"รายละเอียด\" เพื่อดูข้อมูลเพิ่มเติม"
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr "หากขั้นตอนเหล่านี้ใช้ไม่ได้ผล โปรดส่งรายงานปัญหา"
 
+#. Message in launch view when the background process permissions have been revoked.
 msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "สิทธิ์การเข้าถึงบริการ Mullvad VPN ได้ถูกเพิกถอนแล้ว โปรดเข้าไปยังการตั้งค่าระบบ แล้วให้สิทธิ์อนุญาต Mullvad VPN ภายใต้การตั้งค่า \"อนุญาตในพื้นหลัง\""
 
+#. List item in troubleshooting modal advising user to reinstall the app.
 msgctxt "launch-view"
-msgid "Reinstalling the app."
-msgstr "ติดตั้งแอปใหม่"
+msgid "Reinstalling the app"
+msgstr "การติดตั้งแอปใหม่อีกครั้ง"
 
+#. List item in troubleshooting modal advising user to restart background process.
 msgctxt "launch-view"
-msgid "Restarting your computer."
-msgstr "รีสตาร์ตคอมพิวเตอร์ของคุณ"
+msgid "Restarting the Mullvad background process"
+msgstr "การเริ่มกระบวนการเบื้องหลัง Mullvad ใหม่"
 
-#. Button label for problem report view.
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr "การเริ่มกระบวนการเบื้องหลัง Mullvad ใหม่โดยคลิก \"ย้อนกลับ\" จากนั้นคลิก \"ลองอีกครั้ง\""
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr "การรีสตาร์ทคอมพิวเตอร์ของคุณ"
+
+#. Button label for sending a problem report.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr "ส่งรายงานปัญหา"
 
+#. Status text shown when app is starting.
 msgctxt "launch-view"
-msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
-msgstr "องค์ประกอบบริการระบบของแอปยังไม่เริ่มต้นขึ้น หรือไม่สามารถติดต่อได้ บริการของระบบมีหน้าที่รับผิดชอบด้านความปลอดภัย คิลสวิตช์ และช่องทาง VPN หากต้องการแก้ไขปัญหา โปรดลอง:"
+msgid "Starting up...."
+msgstr "เริ่มต้นแล้ว...."
 
+#. Message in troubleshooting modal when the background process failed to start.
 msgctxt "launch-view"
-msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr "กระบวนการเบื้องหลังของ Mullvad ไม่สามารถเริ่มต้นได้ กระบวนการเบื้องหลังนี้รับผิดชอบด้านความปลอดภัย สวิตช์ปิดการทำงาน และอุโมงค์ VPN โปรดลอง:"
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr "ลองอีกครั้ง"
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
 msgstr "ไม่สามารถติดต่อบริการระบบ Mullvad ได้ การเชื่อมต่อของคุณอาจไม่ปลอดภัย โปรดแก้ไขปัญหาหรือส่งรายงานปัญหา โดยคลิกปุ่มเรียนรู้เพิ่มเติม"
 
 #. This is a warning message shown when the app is blocking the users
@@ -1905,6 +1947,13 @@ msgstr "ชื่อรายการจะต้องไม่ซ้ำกั
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "ชื่อนี้ถูกใช้ไปแล้ว"
+
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr "การทำให้สับสน: %(obfuscation)s"
 
 msgctxt "select-location-view"
 msgid "Open %(daita)s settings"
@@ -2749,6 +2798,9 @@ msgstr "%s (ลบแล้ว)"
 msgid "%s custom port"
 msgstr "พอร์ต %s แบบกำหนดเอง"
 
+msgid "%s is unavailable"
+msgstr "%s ไม่พร้อมใช้งาน"
+
 msgid "%s was added to your account."
 msgstr "%s ถูกเพิ่มลงในบัญชีของคุณแล้ว"
 
@@ -2917,6 +2969,9 @@ msgstr "ปิดใช้งาน \"%s\" ด้านล่าง เพื่
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "ปิดใช้งาน \"%s\" ด้านบนทั้งหมด เพื่อเปิดใช้งานการตั้งค่านี้"
 
+msgid "Disable recents"
+msgstr "ปิดใช้งานล่าสุด"
+
 msgid "Discard"
 msgstr "ละทิ้ง"
 
@@ -2955,6 +3010,9 @@ msgstr "เปิดใช้งาน %1$s"
 
 msgid "Enable method"
 msgstr "เปิดใช้งานวิธีการ"
+
+msgid "Enable recents"
+msgstr "เปิดใช้งานล่าสุด"
 
 msgid "Enter MTU"
 msgstr "ป้อน MTU"
@@ -3055,6 +3113,9 @@ msgstr "ตรวจสอบให้แน่ใจว่า อุปกร�
 msgid "Manage devices"
 msgstr "จัดการอุปกรณ์"
 
+msgid "More actions"
+msgstr "การดำเนินการเพิ่มเติม"
+
 msgid "Mullvad services unavailable"
 msgstr "บริการ Mullavad ไม่พร้อมใช้งาน"
 
@@ -3081,6 +3142,9 @@ msgstr "ไม่มีการเชื่อมต่ออินเทอร
 
 msgid "No locations found"
 msgstr "ไม่พบตำแหน่งที่ตั้ง"
+
+msgid "No recent selection history"
+msgstr "ไม่มีประวัติการเลือกล่าสุด"
 
 msgid "No result for \"%s\", please try a different search"
 msgstr "ไม่พบผลลัพธ์สำหรับ \"%s\" โปรดลองใช้คำค้นหาอื่น"
@@ -3120,6 +3184,12 @@ msgstr "ความเป็นส่วนตัว"
 
 msgid "Privacy policy"
 msgstr "นโยบายความเป็นส่วนตัว"
+
+msgid "Recents"
+msgstr "ล่าสุด"
+
+msgid "Recents disabled and history cleared"
+msgstr "ปิดใช้งานล่าสุดและล้างประวัติแล้ว"
 
 msgid "Recursion limit"
 msgstr "ขีดจำกัดการเรียกซ้ำ"
@@ -3223,11 +3293,11 @@ msgstr "นี่ได้รับการตั้งค่าเป็นป
 msgid "Time added"
 msgstr "เพิ่มเวลาแล้ว"
 
-msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
-msgstr "กด \"︙\" หรือกดประเทศ เมือง หรือเซิร์ฟเวอร์ค้างไว้ เพื่อเพิ่มตำแหน่งที่ตั้งลงในรายการ"
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr "หากต้องการเพิ่มตำแหน่งลงในรายการ ให้กดปากกาหรือกดค้างที่ประเทศ เมือง หรือเซิร์ฟเวอร์"
 
-msgid "To create a custom list press the \"︙\""
-msgstr "กด \"︙\" เพื่อสร้างรายการแบบกำหนดเอง"
+msgid "To create a custom list press the \"+\""
+msgstr "หากต้องการสร้างรายการที่กำหนดเอง ให้กด \"+\""
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "แอปจะตรวจสอบเวอร์ชันโดยอัตโนมัติ เพื่อให้แน่ใจว่า คุณใช้งานเวอร์ชันที่ปลอดภัยที่สุด และเพื่อแจ้งปัญหาใดๆ ของเวอร์ชันปัจจุบันที่ใช้งานอยู่ให้คุณทราบ โดยระบบจะส่งเวอร์ชันแอปและเวอร์ชันระบบ Android ไปยังเซิร์ฟเวอร์ Mullavid ซึ่ง Mullvad จะติดตามจำนวนเวอร์ชันแอปที่ใช้และเวอร์ชัน Android ทั้งนี้ข้อมูลจะไม่ถูกจัดเก็บ หรือนำไปใช้ในลักษณะใดๆ ที่สามารถระบุตัวตนคุณได้"
@@ -3306,6 +3376,9 @@ msgstr "เราไม่สามารถเริ่มกระบวนก
 
 msgid "We were unable to start the payment process, please try again later."
 msgstr "เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดลองอีกครั้งในภายหลัง"
+
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr "ยินดีต้อนรับ อุปกรณ์นี้มีชื่อว่า <b>%s</b> แล้ว"
 
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"

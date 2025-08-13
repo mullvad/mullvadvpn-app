@@ -140,6 +140,7 @@
     <string name="device_name_info_third_paragraph">Si vous vous déconnectez, l\'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l\'appareil reçoit un nouveau nom.</string>
     <string name="direct_only">Directe uniquement</string>
     <string name="direct_only_description">Tous nos serveurs ne sont pas compatibles %1$s. Pour utiliser l\'internet, vous devrez peut-être sélectionner une nouvelle localisation après activation.</string>
+    <string name="disable_recents">Désactiver les récents</string>
     <string name="discard">Annuler</string>
     <string name="discard_changes">Annuler les modifications ?</string>
     <string name="disconnect">Déconnexion</string>
@@ -167,6 +168,7 @@
     <string name="enable_direct_only">Activer %1$s</string>
     <string name="enable_ipv6">IPv6 en tunnel</string>
     <string name="enable_method">Activer la méthode</string>
+    <string name="enable_recents">Activer les récents</string>
     <string name="encrypted_dns_proxy_info_message_part1">Avec la méthode « proxy DNS chiffré », l\'application communiquera avec notre API Mullvad par le biais d\'une adresse proxy. Pour ce faire, elle récupère une adresse auprès d\'un serveur DNS over HTTPS (DoH) et l\'utilise pour atteindre nos serveurs API.</string>
     <string name="encrypted_dns_proxy_info_message_part2">Si vous n\'êtes pas connecté à notre VPN, le proxy DNS chiffré utilisera votre propre IP non VPN lors de la connexion. Les serveurs DoH sont hébergés par l\'un des fournisseurs suivants : Quad 9 ou CloudFlare.</string>
     <string name="enter_value_placeholder">Saisir le MTU</string>
@@ -251,6 +253,7 @@
     <string name="max_devices_resolved_title">Super !</string>
     <string name="max_devices_warning_description">Merci de vous déconnecter d\'au moins un appareil en le supprimant de la liste ci-dessous. Vous trouverez le nom de l\'appareil correspondant dans les paramètres du compte de l\'appareil.</string>
     <string name="max_devices_warning_title">Trop d\'appareils</string>
+    <string name="more_actions">Plus d\'actions</string>
     <string name="more_information">Plus d\'informations</string>
     <string name="mullvad_owned_only">Propriété de Mullvad uniquement</string>
     <string name="multihop">Multihop</string>
@@ -260,12 +263,14 @@
     <string name="name_was_changed_to">Le nom a été changé en %1$s</string>
     <string name="new_changelog_notification_message">Cliquez ici pour voir les nouveautés.</string>
     <string name="new_changelog_notification_title">NOUVELLE VERSION INSTALLÉE</string>
+    <string name="new_device_notification_message">Bienvenue, cet appareil est maintenant appelé &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="new_device_notification_title">NOUVEL APPAREIL CRÉÉ</string>
     <string name="new_list">Nouvelle liste</string>
     <string name="no_custom_lists_available">Aucune liste personnalisée disponible</string>
     <string name="no_internet_connection">Aucune connexion à Internet</string>
     <string name="no_locations_found">Aucune localisation trouvée</string>
     <string name="no_matching_relay">Aucun serveur ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d\'autres paramètres.</string>
+    <string name="no_recent_selection">Aucun historique des sélections récentes</string>
     <string name="no_wireguard_key">Une clé WireGuard valide manque. Gérez les clés dans les paramètres avancés.</string>
     <string name="not_found">Introuvable</string>
     <string name="number_of_providers">Fournisseurs : %1$d</string>
@@ -305,9 +310,12 @@
     <string name="quantum_resistant_info_first_paragaph">Cette fonctionnalité rend le tunnel WireGuard résistant aux attaques potentielles des ordinateurs quantiques.</string>
     <string name="quantum_resistant_info_second_paragaph">Pour ce faire, il effectue un échange de clés supplémentaire à l\'aide d\'un algorithme à sécurité quantique et mélange le résultat au chiffrement habituel de WireGuard. Cette étape supplémentaire utilise environ 500 kiB de trafic chaque fois qu\'un nouveau tunnel est établi.</string>
     <string name="quantum_resistant_title">Tunnel résistant aux attaques quantiques</string>
+    <string name="recents">Récents</string>
+    <string name="recents_disabled">Récents désactivés et historique effacé</string>
     <string name="reconnect">Reconnexion</string>
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>
+    <string name="relayitem_is_inactive">%1$s est indisponible</string>
     <string name="remove_button">Supprimer</string>
     <string name="remove_location_from_list">Supprimer %1$s de %2$s</string>
     <string name="removed_provider">%1$s (supprimé)</string>
@@ -370,6 +378,8 @@
     <string name="this_field_is_required">Ce champ est requis</string>
     <string name="this_is_already_set_as_current">Déjà définie comme méthode actuelle</string>
     <string name="time_added">Temps ajouté</string>
+    <string name="to_add_locations_to_a_list">Pour ajouter des localisations à une liste, appuyez sur le stylo ou appuyez longuement sur un pays, une ville ou un serveur.</string>
+    <string name="to_create_a_custom_list">Appuyez sur « + » pour créer une liste personnalisée</string>
     <string name="toggle_vpn">Activer/désactiver le VPN</string>
     <string name="top_bar_device_name">Nom de l\'appareil : %1$s</string>
     <string name="top_bar_time_left">Temps restant : %1$s</string>
