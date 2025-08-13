@@ -62,6 +62,8 @@ jobs:
 
     strategy:
       matrix:
+        # TODO: Revert to using the regular 'nightly' channel as soon as https://github.com/rust-lang/rust/issues/145151
+        # has been closed and the fix is in the nightly channel.
         rust: [stable, beta, nightly-2025-08-11]
     continue-on-error: true
     steps:
