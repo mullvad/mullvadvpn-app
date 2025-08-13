@@ -1417,7 +1417,7 @@ impl Daemon {
             SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher),
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
-            UpdateDefaultLocationCountry(tx) => self.on_update_default_location(tx),
+            UpdateDefaultLocationCountry(tx) => self.on_update_default_location(tx).await,
             LoginAccount(tx, account_number) => self.on_login_account(tx, account_number),
             LogoutAccount(tx) => self.on_logout_account(tx),
             GetDevice(tx) => self.on_get_device(tx),
@@ -1881,7 +1881,7 @@ impl Daemon {
         self.relay_list_updater.update().await;
     }
 
-    fn on_update_default_location(&mut self, tx: ResponseTx<(), settings::Error>) {
+    async fn on_update_default_location(&mut self, tx: ResponseTx<(), settings::Error>) {
         log::info!(
             "should_update_default_country: {}",
             &self.settings.update_default_location
@@ -1916,9 +1916,7 @@ impl Daemon {
                 ..Default::default()
             });
 
-            let _ = self.tx.send(InternalDaemonEvent::Command(
-                DaemonCommand::SetRelaySettings(tx, relay_settings),
-            ));
+            self.on_set_relay_settings(tx, relay_settings).await;
         }
     }
 
