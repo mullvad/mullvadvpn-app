@@ -27,6 +27,10 @@ Line wrap the file at 100 chars.                                              Th
   other methods.
 
 
+## [2025.8] - 2025-08-14
+This release is identical to 2025.8-beta3.
+
+
 ## [2025.8-beta3] - 2025-08-11
 ### Fixed
 #### Windows
