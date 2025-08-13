@@ -81,7 +81,7 @@ function wait_for_workflow_result {
 
 verify_repository_versions
 gh workflow run desktop-e2e.yml --ref "$PRODUCT_VERSION" \
-    -f oses="fedora41 ubuntu2404 windows11 macos15" \
+    -f oses="fedora42 ubuntu2504 windows11 macos15" \
     -f tests="test_quantum_resistant_tunnel test_ui_tunnel_settings"
 
 if [[ "$WAIT" == "true" ]]; then
