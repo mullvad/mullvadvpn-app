@@ -455,7 +455,7 @@ dependencies = [
 [[package]]
 name = "boringtun"
 version = "0.6.0"
-source = "git+https://github.com/mullvad/boringtun?rev=82166463940bb76ac9917ded1fdf663ed6ece40e#82166463940bb76ac9917ded1fdf663ed6ece40e"
+source = "git+https://github.com/mullvad/boringtun?rev=fb200ae97d1911f5e777ad81f9121b9b56552bb2#fb200ae97d1911f5e777ad81f9121b9b56552bb2"
 dependencies = [
  "aead",
  "async-trait",
