@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add list of recent server selections in the select location view.
 - Add support for devices with 16KB page size.
+- Set default server based on the current location when the app is started for the first time.
 
 
 ## [android/2025.6] - 2025-08-12

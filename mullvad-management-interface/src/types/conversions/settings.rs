@@ -57,6 +57,7 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 .map(proto::RelayOverride::from)
                 .collect(),
             recents: settings.recents.clone().map(proto::Recents::from),
+            update_default_location: settings.update_default_location,
         }
     }
 }
@@ -203,6 +204,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 api_access_methods_settings,
             )?,
             recents: Some(vec![]),
+            update_default_location: settings.update_default_location,
         })
     }
 }
