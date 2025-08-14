@@ -24,14 +24,18 @@ class MethodTestingStatusCellContentView: UIView, UIContentView {
 
     private let textLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 17)
+        textLabel.font = .mullvadSmall
+        textLabel.adjustsFontForContentSizeCategory = true
+        textLabel.numberOfLines = 0
         textLabel.textColor = .primaryTextColor
         return textLabel
     }()
 
     private let detailLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.font = UIFont.systemFont(ofSize: 14)
+        textLabel.font = .mullvadTiny
+        textLabel.adjustsFontForContentSizeCategory = true
+        textLabel.numberOfLines = 0
         textLabel.textColor = .secondaryTextColor
         textLabel.textAlignment = .center
         return textLabel
