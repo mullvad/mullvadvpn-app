@@ -1562,6 +1562,19 @@ impl Daemon {
                         error.display_chain_with_msg("Failed to update account history")
                     );
                 }
+                if self.settings.update_default_location {
+                    if let Err(e) = self
+                        .settings
+                        .update(move |settings| settings.update_default_location = false)
+                        .await
+                        .map_err(Error::SettingsError)
+                    {
+                        log::error!(
+                            "{}",
+                            e.display_chain_with_msg("Unable to save has_updated_default_country")
+                        );
+                    }
+                }
                 if *self.target_state == TargetState::Secured {
                     log::debug!("Initiating tunnel restart because the account number changed");
                     self.reconnect_tunnel();
