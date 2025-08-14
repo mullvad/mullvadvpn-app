@@ -66,7 +66,7 @@ struct ShadowsocksSectionHandler {
     }
 
     func configureCipher(_ cell: UITableViewCell, itemIdentifier: ShadowsocksItemIdentifier) {
-        var contentConfiguration = UIListContentConfiguration.mullvadValueCell(tableStyle: tableStyle)
+        var contentConfiguration = ListCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
         contentConfiguration.secondaryText = subject.value.shadowsocks.cipher.rawValue.description
         cell.contentConfiguration = contentConfiguration
