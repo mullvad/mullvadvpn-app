@@ -361,7 +361,7 @@
     <string name="feature_indicators_show_more">%1$s more...</string>
     <string name="connect">Connect</string>
     <string name="connect_on_start">Connect on device start-up</string>
-    <string name="connect_on_start_footer">Automatically connect on device start-up. Only works if the app has been granted the VPN permission.</string>
+    <string name="connect_on_start_footer">Automatically connect on device start-up.</string>
     <string name="close">Close</string>
     <string name="more_information">More information</string>
     <string name="open_url">Open URL</string>
@@ -436,4 +436,8 @@
     <string name="relay_item_already_selected_as_exit">%s is already selected as exit relay</string>
     <string name="relay_item_already_selected_as_entry">%s is already selected as entry relay</string>
     <string name="entry_and_exit_are_same">Entry relay is the same as exit relay</string>
+    <string name="connect_on_start_info_first">For this to work properly the app has been granted the VPN permission and the app needs to be install to the internal storage.</string>
+    <string name="connect_on_start_info_second">To ensure that the VPN permission is granted just connect the app.</string>
+    <string name="connect_on_start_info_third">It is possible move the app to and from an external storage by going to the app details screen for the app in the system settings</string>
+    <string name="open_app_details">Open app details</string>
 </resources>

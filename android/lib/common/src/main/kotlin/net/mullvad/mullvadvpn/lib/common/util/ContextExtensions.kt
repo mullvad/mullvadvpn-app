@@ -31,3 +31,15 @@ fun Context.openVpnSettings(): Either<ActivityNotFoundException, Unit> =
         }
         .onLeft { Logger.e("Failed to open VPN settings", it) }
         .mapLeft { it as? ActivityNotFoundException ?: throw it }
+
+fun Context.openAppDetailsSettings(): Either<ActivityNotFoundException, Unit> =
+    Either.catch {
+            val intent =
+                Intent(
+                    "android.settings.APPLICATION_DETAILS_SETTINGS",
+                    "package:$packageName".toUri(),
+                )
+            startActivity(intent)
+        }
+        .onLeft { Logger.e("Failed to open app details settings", it) }
+        .mapLeft { it as? ActivityNotFoundException ?: throw it }

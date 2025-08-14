@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AutoConnectAndLockdownModeDestination
+import com.ramcosta.composedestinations.generated.destinations.ConnectOnStartupInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.ContentBlockersInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomDnsInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceIpInfoDestination
@@ -172,6 +173,7 @@ private fun PreviewVpnSettings(
             onToggleContentBlockersExpanded = {},
             navigateToIpv6Info = {},
             navigateToDeviceIpInfo = {},
+            navigateToConnectOnDeviceOnStartUpInfo = {},
         )
     }
 }
@@ -306,6 +308,8 @@ fun SharedTransitionScope.VpnSettings(
         onToggleIpv6 = vm::setIpv6Enabled,
         navigateToIpv6Info = dropUnlessResumed { navigator.navigate(Ipv6InfoDestination) },
         navigateToDeviceIpInfo = dropUnlessResumed { navigator.navigate(DeviceIpInfoDestination) },
+        navigateToConnectOnDeviceOnStartUpInfo =
+            dropUnlessResumed { navigator.navigate(ConnectOnStartupInfoDestination) },
     )
 }
 
@@ -349,6 +353,7 @@ fun VpnSettingsScreen(
     onToggleIpv6: (Boolean) -> Unit,
     navigateToIpv6Info: () -> Unit,
     navigateToDeviceIpInfo: () -> Unit,
+    navigateToConnectOnDeviceOnStartUpInfo: () -> Unit,
 ) {
     val appBarState = rememberTopAppBarState()
     val canScroll = remember { mutableStateOf(false) }
@@ -419,6 +424,7 @@ fun VpnSettingsScreen(
                             onToggleIpv6,
                             navigateToIpv6Info,
                             navigateToDeviceIpInfo,
+                            navigateToConnectOnDeviceOnStartUpInfo,
                         )
                 }
             }
@@ -464,6 +470,7 @@ fun VpnSettingsContent(
     onToggleIpv6: (Boolean) -> Unit,
     navigateToIpv6Info: () -> Unit,
     navigateToDeviceIpInfo: () -> Unit,
+    navigateToConnectOnDeviceOnStartUpInfo: () -> Unit,
 ) {
     val initialIndexFocus =
         when (initialScrollToFeature) {
@@ -534,6 +541,7 @@ fun VpnSettingsContent(
                             modifier = Modifier.animateItem(),
                             title = stringResource(R.string.connect_on_start),
                             isToggled = it.enabled,
+                            onInfoClicked = navigateToConnectOnDeviceOnStartUpInfo,
                             onCellClicked = { newValue ->
                                 onToggleAutoStartAndConnectOnBoot(newValue)
                             },
