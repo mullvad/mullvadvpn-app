@@ -300,7 +300,42 @@ fn tunnel_type(relay: &Relay) -> TunnelType {
 }
 
 fn default_relay_selector() -> RelaySelector {
-    RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone())
+    RelaySelector::from_list(default_selector_config(), RELAYS.clone())
+}
+
+fn default_selector_config() -> SelectorConfig {
+    use mullvad_relay_selector::AdditionalRelayConstraints;
+    use mullvad_types::{
+        constraints::Constraint,
+        custom_list::CustomListsSettings,
+        relay_constraints::{
+            BridgeSettings, BridgeState, GeographicLocationConstraint, LocationConstraint,
+            ObfuscationSettings, RelayConstraints, SelectedObfuscation, WireguardConstraints,
+        },
+    };
+    SelectorConfig {
+        relay_settings: RelaySettings::Normal(RelayConstraints {
+            location: Constraint::Only(LocationConstraint::Location(
+                GeographicLocationConstraint::Country("se".to_owned()),
+            )),
+            wireguard_constraints: WireguardConstraints {
+                entry_location: Constraint::Only(LocationConstraint::Location(
+                    GeographicLocationConstraint::Country("se".to_owned()),
+                )),
+                ..Default::default()
+            },
+            ..Default::default()
+        }),
+        additional_constraints: AdditionalRelayConstraints::default(),
+        bridge_settings: BridgeSettings::default(),
+        obfuscation_settings: ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Auto,
+            ..Default::default()
+        },
+        bridge_state: BridgeState::Auto,
+        custom_lists: CustomListsSettings::default(),
+        relay_overrides: vec![],
+    }
 }
 
 fn supports_daita(relay: &Relay) -> bool {
@@ -455,7 +490,7 @@ fn test_openvpn_retry_order() {
             tunnel_protocol: TunnelType::OpenVpn,
             ..Default::default()
         }),
-        ..Default::default()
+        ..default_selector_config()
     });
 
     for (retry_attempt, query) in OPENVPN_RETRY_ORDER.iter().enumerate() {
@@ -617,7 +652,7 @@ fn test_wireguard_entry() {
         },
     };
 
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relays);
+    let relay_selector = RelaySelector::from_list(default_selector_config(), relays);
     let specific_hostname = "se10-wireguard";
     let specific_location = GeographicLocationConstraint::hostname("se", "got", specific_hostname);
     let general_location = GeographicLocationConstraint::city("se", "got");
@@ -826,7 +861,7 @@ fn test_selecting_wireguard_location_will_consider_multihop() {
 /// selected.
 #[test]
 fn test_selecting_wireguard_over_shadowsocks() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = RelaySelector::from_list(default_selector_config(), RELAYS.clone());
 
     let query = RelayQueryBuilder::wireguard().shadowsocks().build();
     assert!(!query.wireguard_constraints().multihop());
@@ -852,7 +887,7 @@ fn test_selecting_wireguard_over_shadowsocks() {
 /// Test whether extra Shadowsocks IPs are selected when available
 #[test]
 fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = RelaySelector::from_list(default_selector_config(), RELAYS.clone());
 
     let query = RelayQueryBuilder::wireguard()
         .location(SHADOWSOCKS_RELAY_LOCATION.clone())
@@ -887,7 +922,7 @@ fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
 /// Test whether Quic is always selected as the obfuscation protocol when Quic is selected.
 #[test]
 fn test_selecting_wireguard_over_quic() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = RelaySelector::from_list(default_selector_config(), RELAYS.clone());
 
     let query = RelayQueryBuilder::wireguard().quic().build();
     assert!(!query.wireguard_constraints().multihop());
@@ -915,7 +950,7 @@ fn test_selecting_wireguard_over_quic() {
 fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
     const OVERRIDE_IPV4: Ipv4Addr = Ipv4Addr::new(1, 3, 3, 7);
 
-    let config = mullvad_relay_selector::SelectorConfig {
+    let config = SelectorConfig {
         relay_overrides: vec![RelayOverride {
             hostname: SHADOWSOCKS_RELAY_LOCATION
                 .get_hostname()
@@ -924,7 +959,7 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
             ipv4_addr_in: Some(OVERRIDE_IPV4),
             ipv6_addr_in: None,
         }],
-        ..Default::default()
+        ..default_selector_config()
     };
 
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
@@ -971,7 +1006,7 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
             ipv4_addr_in: None,
             ipv6_addr_in: Some(OVERRIDE_IPV6),
         }],
-        ..Default::default()
+        ..default_selector_config()
     };
 
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
@@ -1192,7 +1227,7 @@ fn test_openvpn_auto_bridge() {
             tunnel_protocol: TunnelType::OpenVpn,
             ..Default::default()
         }),
-        ..Default::default()
+        ..default_selector_config()
     });
     let retry_order = [
         // This attempt should not use bridge
@@ -1309,7 +1344,7 @@ fn test_include_in_country() {
     };
 
     // If include_in_country is false for all relays, a relay must be selected anyway.
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list.clone());
+    let relay_selector = RelaySelector::from_list(default_selector_config(), relay_list.clone());
     assert!(
         relay_selector
             .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
@@ -1319,7 +1354,7 @@ fn test_include_in_country() {
     // If include_in_country is true for some relay, it must always be selected.
     relay_list.countries[0].cities[0].relays[0].include_in_country = true;
     let expected_hostname = relay_list.countries[0].cities[0].relays[0].hostname.clone();
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
+    let relay_selector = RelaySelector::from_list(default_selector_config(), relay_list);
     let relay = unwrap_relay(
         relay_selector
             .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
@@ -1339,7 +1374,7 @@ fn ignore_bridge_state_when_wireguard_is_used() {
     let query = RelayQueryBuilder::wireguard().build();
     let config = SelectorConfig {
         bridge_state: BridgeState::On,
-        ..SelectorConfig::default()
+        ..default_selector_config()
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     for _ in 0..100 {
@@ -1357,7 +1392,7 @@ fn openvpn_handle_bridge_settings() {
 
     let config = SelectorConfig {
         bridge_state: BridgeState::On,
-        ..SelectorConfig::default()
+        ..default_selector_config()
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
@@ -1414,7 +1449,7 @@ fn openvpn_bridge_with_automatic_transport_protocol() {
     // Enable bridge mode.
     let config = SelectorConfig {
         bridge_state: BridgeState::On,
-        ..SelectorConfig::default()
+        ..default_selector_config()
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
 
@@ -1459,7 +1494,7 @@ fn openvpn_bridge_with_automatic_transport_protocol() {
 /// DAITA is a core privacy feature
 #[test]
 fn test_daita_smart_routing_overrides_multihop() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = RelaySelector::from_list(default_selector_config(), RELAYS.clone());
     let query = RelayQueryBuilder::
         wireguard()
         .daita()
@@ -1511,7 +1546,7 @@ fn test_daita_smart_routing_overrides_multihop() {
 /// to be filtered out.
 #[test]
 fn test_daita() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = RelaySelector::from_list(default_selector_config(), RELAYS.clone());
 
     // Only pick relays that support DAITA
     let query = RelayQueryBuilder::wireguard()
@@ -1653,7 +1688,7 @@ fn valid_user_setting_should_yield_relay() {
 
     let config = SelectorConfig {
         relay_settings: user_constraints.into(),
-        ..SelectorConfig::default()
+        ..default_selector_config()
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     let user_result = relay_selector.get_relay_by_query(user_query.clone());
@@ -1682,7 +1717,7 @@ fn test_shadowsocks_runtime_ipv4_unavailable() {
     let config = SelectorConfig {
         relay_settings: relay_constraints.into(),
         obfuscation_settings: obfs_settings,
-        ..SelectorConfig::default()
+        ..default_selector_config()
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     let runtime_parameters = talpid_types::net::IpAvailability::Ipv6;
@@ -1710,7 +1745,7 @@ fn test_runtime_ipv4_unavailable() {
 
     let config = SelectorConfig {
         relay_settings: relay_constraints.into(),
-        ..SelectorConfig::default()
+        ..default_selector_config()
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     let runtime_parameters = talpid_types::net::IpAvailability::Ipv6;
