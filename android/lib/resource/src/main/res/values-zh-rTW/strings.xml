@@ -76,7 +76,6 @@
     <string name="congrats">恭喜！</string>
     <string name="connect">連線</string>
     <string name="connect_on_start">裝置啟動時連線</string>
-    <string name="connect_on_start_footer">裝置啟動時自動連線。僅適用於已為應用程式授予 VPN 權限的情況。</string>
     <string name="connect_panel_active_features">有效功能</string>
     <string name="connect_panel_connection_details">連線詳細資訊</string>
     <string name="connected">已連線</string>

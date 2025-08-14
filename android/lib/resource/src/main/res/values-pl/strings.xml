@@ -76,7 +76,6 @@
     <string name="congrats">Gratulacje!</string>
     <string name="connect">Połącz</string>
     <string name="connect_on_start">Połącz przy uruchomieniu urządzenia</string>
-    <string name="connect_on_start_footer">Automatycznie łącz się przy uruchomieniu urządzenia. Działa tylko wtedy, gdy aplikacji przyznano uprawnienie VPN.</string>
     <string name="connect_panel_active_features">Aktywne funkcje</string>
     <string name="connect_panel_connection_details">Szczegóły połączenia</string>
     <string name="connected">Połączono</string>

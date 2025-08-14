@@ -76,7 +76,6 @@
     <string name="congrats">Parabéns!</string>
     <string name="connect">Ligar</string>
     <string name="connect_on_start">Ligar no arranque do dispositivo</string>
-    <string name="connect_on_start_footer">Ligar automaticamente no arranque do dispositivo. Só funciona se a aplicação tiver recebido a permissão de VPN.</string>
     <string name="connect_panel_active_features">Funcionalidades ativas</string>
     <string name="connect_panel_connection_details">Detalhes da ligação</string>
     <string name="connected">Ligado</string>

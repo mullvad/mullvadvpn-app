@@ -2896,7 +2896,7 @@ msgstr ""
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr ""
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
+msgid "Automatically connect on device start-up."
 msgstr ""
 
 msgid "Blocking internet (device offline)"
@@ -3049,6 +3049,9 @@ msgstr ""
 msgid "Filters:"
 msgstr ""
 
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr ""
+
 msgid "Go to VPN settings"
 msgstr ""
 
@@ -3155,6 +3158,9 @@ msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
 msgid "Not found"
+msgstr ""
+
+msgid "Open app details"
 msgstr ""
 
 msgid "Overrides active"

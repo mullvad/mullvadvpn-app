@@ -76,7 +76,6 @@
     <string name="congrats">おめでとうございます！</string>
     <string name="connect">接続</string>
     <string name="connect_on_start">デバイス起動時に接続</string>
-    <string name="connect_on_start_footer">デバイスの起動時に自動接続します。これはアプリにVPNへのアクセス許可が付与されている場合にのみ機能します。</string>
     <string name="connect_panel_active_features">有効な機能</string>
     <string name="connect_panel_connection_details">接続の詳細</string>
     <string name="connected">接続済み</string>

@@ -76,7 +76,6 @@
     <string name="congrats">Gratulerer!</string>
     <string name="connect">Koble til</string>
     <string name="connect_on_start">Koble til når enheten startes</string>
-    <string name="connect_on_start_footer">Koble til automatisk ved oppstart av enheten. Fungerer bare hvis appen har fått VPN-tillatelse.</string>
     <string name="connect_panel_active_features">Aktive funksjoner</string>
     <string name="connect_panel_connection_details">Tilkoblingsdetaljer</string>
     <string name="connected">Tilkoblet</string>
