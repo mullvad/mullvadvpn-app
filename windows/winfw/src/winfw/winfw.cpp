@@ -240,6 +240,7 @@ WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
+	const wchar_t *exitEndpointIp,
 	const wchar_t **relayClients,
 	size_t relayClientsLen,
 	const wchar_t *tunnelInterfaceAlias,
@@ -269,6 +270,14 @@ WinFw_ApplyPolicyConnecting(
 			THROW_ERROR("Invalid argument: allowedTunnelTraffic");
 		}
 
+		const auto exitIpAddr = (exitEndpointIp != nullptr) ? std::make_optional(wfp::IpAddress(exitEndpointIp)) : std::nullopt;
+		const auto entryIpAddr = wfp::IpAddress(relay->ip);
+
+		if (entryIpAddr == exitIpAddr)
+		{
+			THROW_ERROR("Invalid argument: relay IP must not equal exitEndpointIp");
+		}
+
 		std::vector<std::wstring> relayClientWstrings;
 		relayClientWstrings.reserve(relayClientsLen);
 		for(int i = 0; i < relayClientsLen; i++) {
@@ -278,6 +287,7 @@ WinFw_ApplyPolicyConnecting(
 		return g_fwContext->applyPolicyConnecting(
 			*settings,
 			*relay,
+			exitIpAddr,
 			relayClientWstrings,
 			tunnelInterfaceAlias != nullptr ? std::make_optional(tunnelInterfaceAlias) : std::nullopt,
 			MakeOptional(allowedEndpoint),
@@ -309,6 +319,7 @@ WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
+	const wchar_t *exitEndpointIp,
 	const wchar_t **relayClients,
 	size_t relayClientsLen,
 	const wchar_t *tunnelInterfaceAlias,
@@ -348,6 +359,14 @@ WinFw_ApplyPolicyConnected(
 		if (nullptr == nonTunnelDnsServers)
 		{
 			THROW_ERROR("Invalid argument: nonTunnelDnsServers");
+		}
+
+		const auto exitIpAddr = (exitEndpointIp != nullptr) ? std::make_optional(wfp::IpAddress(exitEndpointIp)) : std::nullopt;
+		const auto entryIpAddr = wfp::IpAddress(relay->ip);
+
+		if (entryIpAddr == exitIpAddr)
+		{
+			THROW_ERROR("Invalid argument: relay IP must not equal exitEndpointIp");
 		}
 
 		std::vector<wfp::IpAddress> convertedTunnelDnsServers;
@@ -398,6 +417,7 @@ WinFw_ApplyPolicyConnected(
 		return g_fwContext->applyPolicyConnected(
 			*settings,
 			*relay,
+			exitIpAddr,
 			relayClientWstrings,
 			tunnelInterfaceAlias,
 			convertedTunnelDnsServers,
