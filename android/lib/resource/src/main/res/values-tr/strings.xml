@@ -76,7 +76,6 @@
     <string name="congrats">Tebrikler!</string>
     <string name="connect">Bağlan</string>
     <string name="connect_on_start">Cihaz başlatılırken bağlan</string>
-    <string name="connect_on_start_footer">Cihaz başlatılırken otomatik olarak bağlanır. Yalnızca uygulamaya VPN izni verilmişse etkinleşir.</string>
     <string name="connect_panel_active_features">Aktif özellikler</string>
     <string name="connect_panel_connection_details">Bağlantı ayrıntıları</string>
     <string name="connected">Bağlandı</string>

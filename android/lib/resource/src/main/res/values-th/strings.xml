@@ -76,7 +76,6 @@
     <string name="congrats">ยินดีด้วย!</string>
     <string name="connect">เชื่อมต่อ</string>
     <string name="connect_on_start">เชื่อมต่อเมื่ออุปกรณ์เริ่มทำงาน</string>
-    <string name="connect_on_start_footer">เชื่อมต่อโดยอัตโนมัติเมื่ออุปกรณ์เริ่มทำงาน ใช้งานได้เมื่อแอปได้รับสิทธิ์ VPN แล้วเท่านั้น</string>
     <string name="connect_panel_active_features">คุณลักษณะที่ใช้งาน</string>
     <string name="connect_panel_connection_details">รายละเอียดการเชื่อมต่อ</string>
     <string name="connected">เชื่อมต่อแล้ว</string>

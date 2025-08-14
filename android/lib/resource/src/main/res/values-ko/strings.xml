@@ -76,7 +76,6 @@
     <string name="congrats">축하합니다!</string>
     <string name="connect">연결</string>
     <string name="connect_on_start">장치 시작 시 연결</string>
-    <string name="connect_on_start_footer">장치 시작 시 자동으로 연결됩니다. 앱에 VPN 권한이 부여된 경우에만 작동됩니다.</string>
     <string name="connect_panel_active_features">활성 기능</string>
     <string name="connect_panel_connection_details">연결 세부 정보</string>
     <string name="connected">연결됨</string>

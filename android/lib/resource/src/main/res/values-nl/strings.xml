@@ -76,7 +76,6 @@
     <string name="congrats">Gefeliciteerd!</string>
     <string name="connect">Verbinden</string>
     <string name="connect_on_start">Verbinden bij opstarten van apparaat</string>
-    <string name="connect_on_start_footer">Maak automatisch verbinding bij het opstarten van het apparaat. Werkt alleen als de app VPN-toestemming heeft gekregen.</string>
     <string name="connect_panel_active_features">Actieve functies</string>
     <string name="connect_panel_connection_details">Verbindingsgegevens</string>
     <string name="connected">Verbonden</string>

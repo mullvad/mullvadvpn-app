@@ -41,7 +41,7 @@ data class VpnSettingsUiState(val settings: List<VpnSettingItem>, val isModal: B
                         add(VpnSettingItem.AutoConnectAndLockdownModeInfo)
                     } else {
                         add(VpnSettingItem.ConnectDeviceOnStartUpSetting(autoStartAndConnectOnBoot))
-                        add(VpnSettingItem.ConnectDeviceOnStartUpInfo)
+                        add(VpnSettingItem.Spacer)
                     }
 
                     // Local network sharing

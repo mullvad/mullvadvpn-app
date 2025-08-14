@@ -122,6 +122,7 @@ class VpnSettingsScreenTest {
         navigateToIpv6Info: () -> Unit = {},
         onToggleDnsContentBlockers: () -> Unit = {},
         navigateToDeviceIpInfo: () -> Unit = {},
+        navigateToConnectOnDeviceOnStartUpInfo: () -> Unit = {},
     ) {
         setContentWithTheme {
             VpnSettingsScreen(
@@ -158,6 +159,7 @@ class VpnSettingsScreenTest {
                 navigateToIpv6Info = navigateToIpv6Info,
                 onToggleContentBlockersExpanded = onToggleDnsContentBlockers,
                 navigateToDeviceIpInfo = navigateToDeviceIpInfo,
+                navigateToConnectOnDeviceOnStartUpInfo = navigateToConnectOnDeviceOnStartUpInfo,
                 initialScrollToFeature = null,
             )
         }
