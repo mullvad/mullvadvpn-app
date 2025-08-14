@@ -126,6 +126,11 @@ function MapInner(props: MapInnerProps) {
     }
   });
 
+  // These lint rules are disabled for now because the react plugin for eslint does
+  // not understand that useEffectEvent should not be added to the dependency array.
+  // Enable these rules again when eslint can lint useEffectEvent properly.
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const render = useCallback(() => requestAnimationFrame(animationFrameCallback), []);
 
   // This is called when the canvas has been rendered the first time and initializes the gl context
@@ -172,11 +177,21 @@ function MapInner(props: MapInnerProps) {
   useEffect(() => {
     addEventListener('resize', onSizeChange);
     return () => removeEventListener('resize', onSizeChange);
+    // These lint rules are disabled for now because the react plugin for eslint does
+    // not understand that useEffectEvent should not be added to the dependency array.
+    // Enable these rules again when eslint can lint useEffectEvent properly.
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     const unsubscribe = window.ipc.window.listenScaleFactorChange(onSizeChange);
     return () => unsubscribe();
+    // These lint rules are disabled for now because the react plugin for eslint does
+    // not understand that useEffectEvent should not be added to the dependency array.
+    // Enable these rules again when eslint can lint useEffectEvent properly.
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const devicePixelRatio = window.devicePixelRatio;

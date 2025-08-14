@@ -83,6 +83,11 @@ export function useViewTransitions(onTransition?: () => void): Location<Location
     return () => {
       unobserveHistory?.();
     };
+    // These lint rules are disabled for now because the react plugin for eslint does
+    // not understand that useEffectEvent should not be added to the dependency array.
+    // Enable these rules again when eslint can lint useEffectEvent properly.
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history]);
 
   return currentLocation;
