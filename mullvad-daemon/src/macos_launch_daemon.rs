@@ -7,38 +7,17 @@
 
 #![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
 
-use libc::c_longlong;
-use objc2::{Encode, Encoding, RefEncode, class, msg_send, runtime::AnyObject};
 use std::ffi::CStr;
+
+use objc2::{class, msg_send, runtime::AnyObject};
+use objc2_foundation::{NSOperatingSystemVersion, NSProcessInfo};
 
 type Id = *mut AnyObject;
 
+// TODO: Replace with obcj2-service-management
 // Framework that contains `SMAppService`.
 #[link(name = "ServiceManagement", kind = "framework")]
 unsafe extern "C" {}
-
-/// Returned by `[NSProcessInfo operatingSystemVersion]`. Contains the current
-#[repr(C)]
-#[derive(Debug)]
-struct NSOperatingSystemVersion {
-    major_version: c_longlong,
-    minor_version: c_longlong,
-    patch_version: c_longlong,
-}
-
-/// Implement Objective-C type encoding for the struct. Allows the `objc2` crate
-/// to perform function signature matching before performing calls into the Objective-C
-/// runtime.
-unsafe impl Encode for NSOperatingSystemVersion {
-    const ENCODING: Encoding = Encoding::Struct(
-        "NSOperatingSystemVersion",
-        &[Encoding::LongLong, Encoding::LongLong, Encoding::LongLong],
-    );
-}
-
-unsafe impl RefEncode for NSOperatingSystemVersion {
-    const ENCODING_REF: Encoding = Encoding::Pointer(&Self::ENCODING);
-}
 
 /// Authorization status of the Mullvad daemon.
 #[repr(i32)]
@@ -53,7 +32,8 @@ pub enum LaunchDaemonStatus {
 /// NOTE: On macos < 13, this function always returns `LaunchDaemonStatus::Ok`.
 pub fn get_status() -> LaunchDaemonStatus {
     // `SMAppService` does not exist if the major version is less than 13.
-    if get_os_version().major_version < 13 {
+    let os_version = get_os_version();
+    if os_version.majorVersion < 13 {
         return LaunchDaemonStatus::Ok;
     }
     get_status_for_url(&daemon_plist_url())
@@ -76,9 +56,8 @@ fn get_status_for_url(url: &Object) -> LaunchDaemonStatus {
 }
 
 fn get_os_version() -> NSOperatingSystemVersion {
-    // the object is lazily instantiated, so we don't release it
-    let proc_info: Id = unsafe { msg_send![class!(NSProcessInfo), processInfo] };
-    unsafe { msg_send![proc_info, operatingSystemVersion] }
+    let process_info = NSProcessInfo::processInfo();
+    process_info.operatingSystemVersion()
 }
 
 /// Returns an `NSURL` instance for `DAEMON_PLIST_PATH`.
