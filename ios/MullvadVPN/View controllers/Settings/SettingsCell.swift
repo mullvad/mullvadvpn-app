@@ -37,8 +37,6 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
     let rightContentContainer = UIView()
     var infoButtonHandler: InfoButtonHandler? { didSet {
         infoButton.isHidden = infoButtonHandler == nil
-
-        let buttonWidth: CGFloat = 24
         let buttonAreaWidth = UIMetrics.contentLayoutMargins.leading + UIMetrics
             .contentLayoutMargins.trailing + 24
 
