@@ -38,7 +38,6 @@ bool PermitVpnTunnelService::AddEndpointFilter(const std::optional<PermitVpnTunn
 	filterBuilder
 		.description(L"This filter is part of a rule that permits hosting services that listen on the tunnel interface")
 		.provider(MullvadGuids::Provider())
-		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)
 		.sublayer(MullvadGuids::SublayerBaseline())
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
@@ -53,7 +52,7 @@ bool PermitVpnTunnelService::AddEndpointFilter(const std::optional<PermitVpnTunn
 			.name(L"Permit inbound connections on tunnel interface (IPv4)")
 			.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
 
-		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
 
 		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
 		if (endpoint.has_value())
@@ -76,7 +75,7 @@ bool PermitVpnTunnelService::AddEndpointFilter(const std::optional<PermitVpnTunn
 			.name(L"Permit inbound connections on tunnel interface (IPv6)")
 			.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
-		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
 		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
 		if (endpoint.has_value())
