@@ -72,3 +72,9 @@ reason = "Only impacting Windows."
 id = "CVE-2025-24970" # GHSA-4g8c-wm8x-jfhw
 ignoreUntil = 2025-09-13
 reason = "Netty is not used in conjunction with SSL."
+
+# netty: MadeYouReset HTTP/2 DDoS vulnerability
+[[IgnoredVulns]]
+id = "CVE-2025-55163" # GHSA-prj3-ccx8-p6x4
+ignoreUntil = 2025-11-14
+reason = "No impact on this app since it uses UDS rather than HTTP2."
