@@ -14,9 +14,9 @@ class AppButton: CustomButton {
     var defaultContentInsets: NSDirectionalEdgeInsets {
         switch traitCollection.userInterfaceIdiom {
         case .phone:
-            return NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+            return NSDirectionalEdgeInsets(top: 12, leading: 8, bottom: 12, trailing: 8)
         case .pad:
-            return NSDirectionalEdgeInsets(top: 15, leading: 15, bottom: 15, trailing: 15)
+            return NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         default:
             return .zero
         }

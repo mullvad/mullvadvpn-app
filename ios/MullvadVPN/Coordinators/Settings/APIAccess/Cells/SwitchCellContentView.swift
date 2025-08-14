@@ -85,7 +85,7 @@ class SwitchCellContentView: UIView, UIContentView, UITextFieldDelegate {
         addConstrainedSubviews([textLabel, switchContainer]) {
             textLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
             switchContainer.centerYAnchor.constraint(equalTo: centerYAnchor)
-            switchContainer.pinEdgeToSuperview(.trailing(UIMetrics.SettingsCell.apiAccessSwitchCellTrailingMargin))
+            switchContainer.pinEdgeToSuperviewMargin(.trailing(-4))
             switchContainer.leadingAnchor.constraint(
                 greaterThanOrEqualToSystemSpacingAfter: textLabel.trailingAnchor,
                 multiplier: 1
