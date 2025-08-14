@@ -220,20 +220,23 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 			objectInstaller
 		);
 	}
-	AddEndpointFilter(
-			std::make_optional<Endpoint>(m_potentialEndpoints.value().endpoint1),
-			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1(),
-			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1(),
-			objectInstaller
-		);
+	if (!AddEndpointFilter(
+		std::make_optional<Endpoint>(m_potentialEndpoints.value().endpoint1),
+		MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1(),
+		MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1(),
+		objectInstaller
+	))
+	{
+		return false;
+	}
 	if (m_potentialEndpoints.value().endpoint2.has_value())
 	{
-		AddEndpointFilter(
-				m_potentialEndpoints.value().endpoint2.value(),
-				MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2(),
-				MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_2(),
-				objectInstaller
-			);
+		return AddEndpointFilter(
+			m_potentialEndpoints.value().endpoint2.value(),
+			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2(),
+			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_2(),
+			objectInstaller
+		);
 	}
 	return true;
 }
