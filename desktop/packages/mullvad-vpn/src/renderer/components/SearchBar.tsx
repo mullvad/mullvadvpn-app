@@ -86,6 +86,11 @@ export default function SearchBar(props: ISearchBarProps) {
     }
   });
 
+  // These lint rules are disabled for now. See the following
+  // issue for potential solutions to enable the rules again:
+  // https://linear.app/mullvad/issue/DES-2381
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => focusInput(), []);
 
   return (

@@ -34,6 +34,11 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
   useEffect(() => {
     window.addEventListener('beforeunload', beforeunload);
     return () => window.removeEventListener('beforeunload', beforeunload);
+    // These lint rules are disabled for now. See the following
+    // issue for potential solutions to enable the rules again:
+    // https://linear.app/mullvad/issue/DES-2381
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onMount = useEffectEvent(() => {
@@ -53,6 +58,11 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
   useLayoutEffect(() => {
     onMount();
     return () => onUnmount();
+    // These lint rules are disabled for now. See the following
+    // issue for potential solutions to enable the rules again:
+    // https://linear.app/mullvad/issue/DES-2381
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleScroll = useCallback(

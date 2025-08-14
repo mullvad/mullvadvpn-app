@@ -147,6 +147,11 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
   // then we want to update the value.
   useEffect(() => {
     handleInitialValueChange(props.initialValue);
+    // These lint rules are disabled for now. See the following
+    // issue for potential solutions to enable the rules again:
+    // https://linear.app/mullvad/issue/DES-2381
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.initialValue]);
 
   const valid = validateValue?.(value);
@@ -373,6 +378,11 @@ export function RowInput(props: IRowInputProps) {
 
   useEffect(() => {
     focusOnMount();
+    // These lint rules are disabled for now. See the following
+    // issue for potential solutions to enable the rules again:
+    // https://linear.app/mullvad/issue/DES-2381
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

@@ -504,6 +504,11 @@ const ProblemReportContextProvider = ({ children }: { children: ReactNode }) => 
   /**
    * Save the form whenever email or message gets updated
    */
+  // These lint rules are disabled for now. See the following
+  // issue for potential solutions to enable the rules again:
+  // https://linear.app/mullvad/issue/DES-2381
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => onMount(email, message), [email, message]);
 
   const value: ProblemReportContextType = useMemo(

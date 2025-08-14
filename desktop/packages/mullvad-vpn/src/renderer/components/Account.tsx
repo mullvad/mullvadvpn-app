@@ -37,6 +37,11 @@ export default function Account() {
   });
 
   const onMount = useEffectEvent(() => updateAccountData());
+  // These lint rules are disabled for now. See the following
+  // issue for potential solutions to enable the rules again:
+  // https://linear.app/mullvad/issue/DES-2381
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => onMount(), []);
 
   // Hack needed because if we just call `logout` directly in `onClick`
