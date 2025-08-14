@@ -1,7 +1,7 @@
 //! Safe bindings for the WinFW library.
 
 use super::{AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString, widestring_ip};
-use std::ptr;
+use std::{net::IpAddr, ptr};
 use talpid_types::{net::TransportProtocol, tunnel::FirewallPolicyError};
 
 mod sys;
@@ -89,6 +89,7 @@ pub(super) fn apply_policy_blocked(
 
 pub(super) fn apply_policy_connecting(
     peer_endpoint: &AllowedEndpoint,
+    exit_endpoint_ip: Option<IpAddr>,
     winfw_settings: &WinFwSettings,
     tunnel_interface: Option<&str>,
     allowed_endpoint: AllowedEndpoint,
@@ -171,11 +172,18 @@ pub(super) fn apply_policy_connecting(
             .unwrap_or(ptr::null()),
     };
 
+    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(|ep| widestring_ip(ep));
+    let exit_endpoint_ip_ptr = exit_endpoint_ip_wstr
+        .as_ref()
+        .map(|ip| ip.as_ptr())
+        .unwrap_or_default();
+
     #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
     let res = unsafe {
         WinFw_ApplyPolicyConnecting(
             winfw_settings,
             &winfw_relay,
+            exit_endpoint_ip_ptr,
             relay_client_wstr_ptrs.as_ptr(),
             relay_client_wstr_ptrs_len,
             interface_wstr_ptr,
@@ -183,6 +191,8 @@ pub(super) fn apply_policy_connecting(
             &allowed_tunnel_traffic,
         )
     };
+    // Must be dropped after pointer deref
+    drop(exit_endpoint_ip_wstr);
     // SAFETY: All of these hold stack allocated memory which is pointed to by
     // `allowed_tunnel_traffic` and must remain allocated until `WinFw_ApplyPolicyConnecting`
     // has returned.
@@ -198,6 +208,7 @@ pub(super) fn apply_policy_connecting(
 
 pub(super) fn apply_policy_connected(
     endpoint: &AllowedEndpoint,
+    exit_endpoint_ip: Option<IpAddr>,
     winfw_settings: &WinFwSettings,
     tunnel_interface: &str,
     dns_config: &crate::dns::ResolvedDnsConfig,
@@ -245,11 +256,18 @@ pub(super) fn apply_policy_connected(
         .map(|ip| ip.as_ptr())
         .collect();
 
+    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(|ep| widestring_ip(ep));
+    let exit_endpoint_ip_ptr = exit_endpoint_ip_wstr
+        .as_ref()
+        .map(|ip| ip.as_ptr())
+        .unwrap_or_default();
+
     #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
     let result = unsafe {
         WinFw_ApplyPolicyConnected(
             winfw_settings,
             &winfw_relay,
+            exit_endpoint_ip_ptr,
             relay_client_wstr_ptrs.as_ptr(),
             relay_client_wstr_ptrs_len,
             tunnel_alias.as_ptr(),
@@ -259,6 +277,11 @@ pub(super) fn apply_policy_connected(
             non_tunnel_dns_servers.len(),
         )
     };
+
+    // Must be dropped after pointer deref
+    drop(exit_endpoint_ip_wstr);
+
+    drop(ip_str);
 
     // SAFETY: `relay_client_wstrs` holds memory pointed to by pointers used in C++ and must
     // not be dropped until after `WinFw_ApplyPolicyConnected` has returned.

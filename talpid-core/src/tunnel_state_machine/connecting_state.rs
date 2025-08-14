@@ -183,6 +183,12 @@ impl ConnectingState {
             AllowedClients::Root
         };
 
+        #[cfg(target_os = "windows")]
+        let exit_endpoint_ip = params.get_exit_hop_endpoint().map(|ep| ep.address.ip());
+
+        #[cfg(target_os = "windows")]
+        debug_assert_ne!(exit_endpoint_ip, Some(endpoint.address.ip()));
+
         let peer_endpoint = AllowedEndpoint { endpoint, clients };
 
         #[cfg(target_os = "macos")]
@@ -192,6 +198,8 @@ impl ConnectingState {
 
         let policy = FirewallPolicy::Connecting {
             peer_endpoint,
+            #[cfg(target_os = "windows")]
+            exit_endpoint_ip,
             tunnel: tunnel_metadata.clone(),
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
