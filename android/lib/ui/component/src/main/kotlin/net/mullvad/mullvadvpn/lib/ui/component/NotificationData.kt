@@ -6,7 +6,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
@@ -101,7 +101,7 @@ fun InAppNotification.toNotificationData(
         is InAppNotification.AccountExpiry ->
             NotificationData(
                 title = stringResource(id = R.string.account_credit_expires_soon),
-                message = LocalContext.current.resources.getExpiryQuantityString(expiry),
+                message = LocalResources.current.getExpiryQuantityString(expiry),
                 statusLevel = statusLevel,
                 action =
                     if (isPlayBuild) null
