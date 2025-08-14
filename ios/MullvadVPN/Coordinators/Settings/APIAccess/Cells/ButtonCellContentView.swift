@@ -51,7 +51,6 @@ class ButtonCellContentView: UIView, UIContentView {
 
     func configureSubviews(previousConfiguration: ButtonCellContentConfiguration? = nil) {
         guard actualConfiguration != previousConfiguration else { return }
-
         configureButton()
         configureActions(previousConfiguration: previousConfiguration)
     }
@@ -62,11 +61,21 @@ class ButtonCellContentView: UIView, UIContentView {
     }
 
     private func configureButton() {
-        button.setTitle(actualConfiguration.text, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17)
-        button.isEnabled = actualConfiguration.isEnabled
         button.style = actualConfiguration.style
-        button.configuration?.contentInsets = actualConfiguration.directionalContentEdgeInsets
+        var config = button.configuration ?? .plain()
+        config.contentInsets = actualConfiguration.directionalLayoutMargins
+        config.title = actualConfiguration.text
+        config.attributedTitle = AttributedString(
+            actualConfiguration.text ?? "",
+            attributes: AttributeContainer([
+                .font: actualConfiguration.textProperties.font,
+                .foregroundColor: actualConfiguration.textProperties.color,
+            ])
+        )
+
+        button.configuration = config
+        button.isEnabled = actualConfiguration.isEnabled
+
         button.setAccessibilityIdentifier(actualConfiguration.accessibilityIdentifier)
     }
 

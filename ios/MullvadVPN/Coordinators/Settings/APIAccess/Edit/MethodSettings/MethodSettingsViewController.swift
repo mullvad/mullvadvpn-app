@@ -125,7 +125,10 @@ class MethodSettingsViewController: UITableViewController {
             .dequeueReusableView(withIdentifier: AccessMethodHeaderFooterReuseIdentifier.primary)
         else { return nil }
 
-        var contentConfiguration = UIListContentConfiguration.mullvadGroupedHeader(tableStyle: tableView.style)
+        var contentConfiguration = ListCellContentConfiguration(
+            textProperties: ListCellContentConfiguration
+                .TextProperties(color: .TableSection.headerTextColor)
+        )
         contentConfiguration.text = sectionIdentifier.sectionName
 
         headerView.contentConfiguration = contentConfiguration
@@ -137,10 +140,10 @@ class MethodSettingsViewController: UITableViewController {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
 
         switch sectionIdentifier {
-        case .name, .protocol, .proxyConfiguration, .testingStatus:
-            return UITableView.automaticDimension
-        case .validationError, .cancelTest:
+        case .name, .protocol, .cancelTest, .testingStatus, .validationError:
             return 0
+        case .proxyConfiguration:
+            return UITableView.automaticDimension
         }
     }
 
@@ -153,7 +156,7 @@ class MethodSettingsViewController: UITableViewController {
 
         switch sectionIdentifier {
         case .name, .protocol, .cancelTest:
-            return UITableView.automaticDimension
+            return 24.0
         case .proxyConfiguration, .validationError, .testingStatus:
             return 0
         }
@@ -246,7 +249,7 @@ class MethodSettingsViewController: UITableViewController {
         tableView.delegate = self
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
-        tableView.separatorInset.left = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins.leading
+        tableView.separatorInset.left = UIMetrics.SettingsCell.defaultLayoutMargins.leading
     }
 
     // MARK: - Misc

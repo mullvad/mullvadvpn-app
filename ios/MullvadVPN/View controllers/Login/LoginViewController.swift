@@ -416,6 +416,4 @@ private extension LoginState {
             return .hidden
         }
     }
-
-    // swiftlint:disable:next file_length
 }
