@@ -81,7 +81,7 @@ void AppendRelayRules
 (
 	FwContext::Ruleset &ruleset,
 	const WinFwEndpoint &relay,
-	const std::vector<std::wstring> &relayClients
+	const std::optional<std::wstring> &relayClient
 )
 {
 	auto sublayer =
@@ -95,7 +95,7 @@ void AppendRelayRules
 		wfp::IpAddress(relay.ip),
 		relay.port,
 		relay.protocol,
-		relayClients,
+		relayClient,
 		sublayer
 	));
 }
@@ -186,7 +186,7 @@ bool FwContext::applyPolicyConnecting
 	const WinFwSettings &settings,
 	const WinFwEndpoint &relay,
 	const std::optional<wfp::IpAddress> &exitEndpointIp,
-	const std::vector<std::wstring> &relayClients,
+	const std::optional<std::wstring> &relayClient,
 	const std::optional<std::wstring> &tunnelInterfaceAlias,
 	const std::optional<WinFwAllowedEndpoint> &allowedEndpoint,
 	const WinFwAllowedTunnelTraffic &allowedTunnelTraffic
@@ -196,7 +196,7 @@ bool FwContext::applyPolicyConnecting
 
 	AppendNetBlockedRules(ruleset);
 	AppendSettingsRules(ruleset, settings);
-	AppendRelayRules(ruleset, relay, relayClients);
+	AppendRelayRules(ruleset, relay, relayClient);
 
 	if (allowedEndpoint.has_value())
 	{
@@ -210,13 +210,13 @@ bool FwContext::applyPolicyConnecting
 			case WinFwAllowedTunnelTrafficType::All:
 			{
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
-					relayClients,
+					relayClient,
 					*tunnelInterfaceAlias,
 					std::nullopt,
 					exitEndpointIp
 				));
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
-					relayClients,
+					relayClient,
 					*tunnelInterfaceAlias,
 					std::nullopt,
 					exitEndpointIp
@@ -234,13 +234,13 @@ bool FwContext::applyPolicyConnecting
 						std::nullopt,
 				});
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
-					relayClients,
+					relayClient,
 					*tunnelInterfaceAlias,
 					onlyEndpoint,
 					exitEndpointIp
 				));
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
-					relayClients,
+					relayClient,
 					*tunnelInterfaceAlias,
 					onlyEndpoint,
 					exitEndpointIp
@@ -262,13 +262,13 @@ bool FwContext::applyPolicyConnecting
 								})
 				});
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
-							relayClients,
+							relayClient,
 							*tunnelInterfaceAlias,
 							endpoints,
 							exitEndpointIp
 							));
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
-							relayClients,
+							relayClient,
 							*tunnelInterfaceAlias,
 							endpoints,
 							exitEndpointIp
@@ -294,7 +294,7 @@ bool FwContext::applyPolicyConnected
 	const WinFwSettings &settings,
 	const WinFwEndpoint &relay,
 	const std::optional<wfp::IpAddress> &exitEndpointIp,
-	const std::vector<std::wstring> &relayClient,
+	const std::optional<std::wstring> &relayClient,
 	const std::wstring &tunnelInterfaceAlias,
 	const std::vector<wfp::IpAddress> &tunnelDnsServers,
 	const std::vector<wfp::IpAddress> &nonTunnelDnsServers
