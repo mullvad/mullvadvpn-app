@@ -311,8 +311,8 @@ async fn proxy_tx_task(udp_socket: impl AsRef<UdpSocket>, mut client_rx: mpsc::R
         let quic_payload = quic_datagram.into_payload();
 
         let packet = match fragments.handle_incoming_packet(quic_payload) {
-            Ok(Some(packet)) => packet,
-            Ok(None) => continue,
+            Ok((Some(packet), _frag)) => packet,
+            Ok((None, _frag)) => continue,
             Err(err) => {
                 log::trace!("Failed to reassemble incoming packet: {err}");
                 continue;

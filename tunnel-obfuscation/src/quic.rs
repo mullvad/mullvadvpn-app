@@ -208,7 +208,9 @@ impl Obfuscator for Quic {
     }
 
     fn packet_overhead(&self) -> u16 {
-        0 // FIXME
+        // TODO: 95 = IPv6 (40) + UDP (8) + QUIC (<= 41) + stream ID (1) + fragment header (5)
+        // The above would prevent mullvad-masque-proxy-level fragmentation
+        0
     }
 
     #[cfg(target_os = "android")]
