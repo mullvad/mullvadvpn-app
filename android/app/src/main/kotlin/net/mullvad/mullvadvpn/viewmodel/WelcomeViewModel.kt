@@ -105,7 +105,7 @@ class WelcomeViewModel(
     }
 
     private suspend fun updateAccountExpiry() {
-        accountRepository.getAccountData()
+        accountRepository.getAccountData(force = true)
     }
 
     sealed interface UiSideEffect {
