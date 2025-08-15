@@ -34,28 +34,52 @@ jobs:
 
       - name: Run build validation for Staging and MockRelease configurations as well as the MullvadVPNUITests target
         run: |
+          # Find iPhone 16 first with available runtime
+          DEVICE_UDID=$(xcrun simctl list devices available | grep "^ *iPhone 16" | grep -v "unavailable" | \
+          grep -oE "[A-F0-9-]{36}" | head -1)
+
+          # Fallback to first available simulator
+          if [ -z "$DEVICE_UDID" ]; then
+              DEVICE_UDID=$(xcrun simctl list devices available | grep -v "unavailable" | \
+              grep -oE "[A-F0-9-]{36}" | head -1)
+          fi
+
+          if [ -z "$DEVICE_UDID" ]; then
+              echo "⚠️ No simulator available"
+              exit 1
+          fi
+
+          # Boot simulator
+          echo "Booting simulator $DEVICE_UDID..."
+          xcrun simctl boot "$DEVICE_UDID" || true
+          xcrun simctl bootstatus "$DEVICE_UDID" -b
+
+          # Set destination using UDID only
+          DESTINATION="platform=iOS Simulator,id=$DEVICE_UDID"
+          echo "✅ Using destination: $DESTINATION"
+
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
-            -project MullvadVPN.xcodeproj \
-            -scheme MullvadVPN \
-            -configuration MockRelease \
-            -destination "platform=iOS Simulator,name=iPhone 16" \
-            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
-            -disableAutomaticPackageResolution \
-            build
+          -project MullvadVPN.xcodeproj \
+          -scheme MullvadVPN \
+          -configuration MockRelease \
+          -destination "platform=iOS Simulator,name=iPhone 16" \
+          -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+          -disableAutomaticPackageResolution \
+          build
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
-            -project MullvadVPN.xcodeproj \
-            -scheme MullvadVPN \
-            -configuration Staging \
-            -destination "platform=iOS Simulator,name=iPhone 16" \
-            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
-            -disableAutomaticPackageResolution \
-            build
+          -project MullvadVPN.xcodeproj \
+          -scheme MullvadVPN \
+          -configuration Staging \
+          -destination "platform=iOS Simulator,name=iPhone 16" \
+          -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+          -disableAutomaticPackageResolution \
+          build
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
-            -project MullvadVPN.xcodeproj \
-            -scheme MullvadVPNUITests \
-            -configuration Debug \
-            -destination "platform=iOS Simulator,name=iPhone 16" \
-            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
-            -disableAutomaticPackageResolution \
-            build
+          -project MullvadVPN.xcodeproj \
+          -scheme MullvadVPNUITests \
+          -configuration Debug \
+          -destination "platform=iOS Simulator,name=iPhone 16" \
+          -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+          -disableAutomaticPackageResolution \
+          build
         working-directory: ios/

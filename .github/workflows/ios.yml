@@ -60,13 +60,37 @@ jobs:
 
       - name: Build for ui tests
         run: |
+          # Find iPhone 16 first with available runtime
+          DEVICE_UDID=$(xcrun simctl list devices available | grep "^ *iPhone 16" | grep -v "unavailable" | \
+          grep -oE "[A-F0-9-]{36}" | head -1)
+
+          # Fallback to first available simulator
+          if [ -z "$DEVICE_UDID" ]; then
+              DEVICE_UDID=$(xcrun simctl list devices available | grep -v "unavailable" | \
+              grep -oE "[A-F0-9-]{36}" | head -1)
+          fi
+
+          if [ -z "$DEVICE_UDID" ]; then
+              echo "⚠️ No simulator available"
+              exit 1
+          fi
+
+          # Boot simulator
+          echo "Booting simulator $DEVICE_UDID..."
+          xcrun simctl boot "$DEVICE_UDID" || true
+          xcrun simctl bootstatus "$DEVICE_UDID" -b -w
+
+          # Set destination using UDID only
+          DESTINATION="platform=iOS Simulator,id=$DEVICE_UDID"
+          echo "✅ Using destination: $DESTINATION"
+
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
           -project MullvadVPN.xcodeproj \
           -scheme MullvadVPNUITests \
           -testPlan MullvadVPNUITestsAll \
           -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
           -disableAutomaticPackageResolution \
-          -destination "platform=iOS Simulator,name=iPhone 16" \
+          -destination "$DESTINATION" \
           clean build-for-testing 2>&1 | xcbeautify
         working-directory: ios/
 
@@ -84,15 +108,39 @@ jobs:
 
       - name: Run unit tests
         run: |
+          # Find iPhone 16 first with available runtime
+          DEVICE_UDID=$(xcrun simctl list devices available | grep "^ *iPhone 16" | grep -v "unavailable" | \
+          grep -oE "[A-F0-9-]{36}" | head -1)
+
+          # Fallback to first available simulator
+          if [ -z "$DEVICE_UDID" ]; then
+              DEVICE_UDID=$(xcrun simctl list devices available | grep -v "unavailable" | \
+              grep -oE "[A-F0-9-]{36}" | head -1)
+          fi
+
+          if [ -z "$DEVICE_UDID" ]; then
+              echo "⚠️ No simulator available"
+              exit 1
+          fi
+
+          # Boot simulator
+          echo "Booting simulator $DEVICE_UDID..."
+          xcrun simctl boot "$DEVICE_UDID" || true
+          xcrun simctl bootstatus "$DEVICE_UDID" -b -w
+
+          # Set destination using UDID only
+          DESTINATION="platform=iOS Simulator,id=$DEVICE_UDID"
+          echo "✅ Using destination: $DESTINATION"
+
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
-            -project MullvadVPN.xcodeproj \
-            -scheme MullvadVPN \
-            -testPlan MullvadVPNCI \
-            -destination "platform=iOS Simulator,name=iPhone 16" \
-            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
-            -disableAutomaticPackageResolution \
-            -resultBundlePath xcode-test-report \
-            test 2>&1 | xcbeautify
+          -project MullvadVPN.xcodeproj \
+          -scheme MullvadVPN \
+          -testPlan MullvadVPNCI \
+          -destination "platform=iOS Simulator,name=iPhone 16" \
+          -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+          -disableAutomaticPackageResolution \
+          -resultBundlePath xcode-test-report \
+          test 2>&1 | xcbeautify
         working-directory: ios/
 
       - name: Archive test report
