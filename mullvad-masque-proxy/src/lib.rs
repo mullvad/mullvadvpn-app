@@ -27,11 +27,22 @@ const UDP_HEADER_SIZE: u16 = 8;
 /// QUIC header size. This is conservative, real overhead varies
 const QUIC_HEADER_SIZE: u16 = 41;
 
+/// The minimum allowed `max_udp_payload_size`-value allowed by [quinn::EndpointConfig].
+const MIN_MAX_UDP_PAYLOAD_SIZE: u16 = 1200;
+
 /// This is the size of the payload that stores QUIC packets
 /// MTU - IP header - UDP header
+///
+/// Note that [quinn::EndpointConfig] accepts a minimum value of 1200.
 const fn compute_udp_payload_size(mtu: u16, target_addr: SocketAddr) -> u16 {
     let ip_overhead = if target_addr.is_ipv4() { 20 } else { 40 };
-    mtu - ip_overhead - UDP_HEADER_SIZE
+    let desired_max = mtu - ip_overhead - UDP_HEADER_SIZE;
+
+    if desired_max < MIN_MAX_UDP_PAYLOAD_SIZE {
+        MIN_MAX_UDP_PAYLOAD_SIZE
+    } else {
+        desired_max
+    }
 }
 
 /// Minimum allowed MTU (IPv6) is the overhead of all headers, plus 1 byte for actual data.
