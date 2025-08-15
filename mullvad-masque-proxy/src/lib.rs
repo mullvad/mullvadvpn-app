@@ -28,7 +28,7 @@ const UDP_HEADER_SIZE: u16 = 8;
 const QUIC_HEADER_SIZE: u16 = 41;
 
 /// The minimum allowed `max_udp_payload_size`-value allowed by [quinn::EndpointConfig].
-const MIN_MAX_UDP_PAYLOAD_SIZE: u16 = 1200;
+const MIN_MAX_UDP_PAYLOAD_SIZE: u16 = 1252;
 
 /// This is the size of the payload that stores QUIC packets
 /// MTU - IP header - UDP header
