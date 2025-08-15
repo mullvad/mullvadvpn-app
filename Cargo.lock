@@ -2961,8 +2961,8 @@ dependencies = [
  "mullvad-version",
  "nix 0.30.1",
  "notify 8.0.0",
- "objc2 0.5.2",
  "objc2-foundation 0.3.1",
+ "objc2-service-management",
  "rand 0.8.5",
  "regex",
  "serde",
@@ -3585,9 +3585,6 @@ name = "objc-sys"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cdb91bdd390c7ce1a8607f35f3ca7151b65afc0ff5ff3b34fa350f7d7c7e4310"
-dependencies = [
- "cc",
-]
 
 [[package]]
 name = "objc2"
@@ -3713,6 +3710,30 @@ dependencies = [
  "objc2 0.5.2",
  "objc2-foundation 0.2.2",
  "objc2-metal",
+]
+
+[[package]]
+name = "objc2-security"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1f8e0ef3ab66b08c42644dcb34dba6ec0a574bbd8adbb8bdbdc7a2779731a44"
+dependencies = [
+ "bitflags 2.9.0",
+ "objc2 0.6.2",
+ "objc2-core-foundation",
+]
+
+[[package]]
+name = "objc2-service-management"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "62ca650c581044d08572b3c21d9ce8c730f2eefdc1683f033849f305ea8212be"
+dependencies = [
+ "block2 0.6.1",
+ "objc2 0.6.2",
+ "objc2-core-foundation",
+ "objc2-foundation 0.3.1",
+ "objc2-security",
 ]
 
 [[package]]
