@@ -49,7 +49,7 @@ jobs:
           DEVICE_UDID=$(echo "$DEVICE_INFO" | awk -F '[()]' '{print $2}' | xargs)
 
           # Extract OS version correctly (the last parentheses field)
-          OS_VERSION=$(echo "$DEVICE_INFO" | awk -F '[()]' '{print $NF}' | xargs)
+          OS_VERSION=$(echo "$DEVICE_INFO" | grep -oE "\(iOS [0-9.]+\)" | grep -oE "[0-9.]+")
 
           # Boot simulator
           xcrun simctl boot "$DEVICE_UDID" || true
