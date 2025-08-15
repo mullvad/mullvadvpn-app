@@ -46,12 +46,7 @@ class DeviceRowView: UIView {
         let button = IncreasedHitButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(image, for: .normal)
-        button.accessibilityLabel = NSLocalizedString(
-            "REMOVE_DEVICE_ACCESSIBILITY_LABEL",
-            tableName: "DeviceManagement",
-            value: "Remove device",
-            comment: ""
-        )
+        button.accessibilityLabel = NSLocalizedString("Remove device", comment: "")
         return button
     }()
 
@@ -83,12 +78,7 @@ class DeviceRowView: UIView {
         textLabel.text = viewModel.name
         creationDateLabel.text = .init(
             format:
-            NSLocalizedString(
-                "CREATED_DEVICE_LABEL",
-                tableName: "DeviceManagement",
-                value: "Created: %@",
-                comment: ""
-            ),
+            NSLocalizedString("Created: %@", comment: ""),
             viewModel.creationDate
         )
 

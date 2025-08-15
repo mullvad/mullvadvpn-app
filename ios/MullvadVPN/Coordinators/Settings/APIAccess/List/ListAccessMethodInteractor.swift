@@ -46,13 +46,7 @@ struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
 extension PersistentAccessMethod {
     func toListItem() -> ListAccessMethodItem {
         let sanitizedName = name.trimmingCharacters(in: .whitespaces)
-        // the keys look like "ACCESS_METHOD_NAME:Mullvad bridges"
-        let localizedName = Bundle.main.localizedString(
-            forKey: "ACCESS_METHOD_NAME:\(sanitizedName)",
-            value: sanitizedName,
-            table: "APIAccess"
-        )
-        let itemName = localizedName.isEmpty ? kind.localizedDescription : localizedName
+        let itemName = sanitizedName.isEmpty ? kind.localizedDescription : sanitizedName
 
         return ListAccessMethodItem(
             id: id,
