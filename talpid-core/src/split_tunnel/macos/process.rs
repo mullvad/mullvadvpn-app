@@ -5,9 +5,10 @@
 //! The module currently relies on the `eslogger` tool to do so, which in turn relies on the
 //! Endpoint Security framework.
 
+use either::Either;
 use futures::channel::oneshot;
 use libc::pid_t;
-use serde::Deserialize;
+use serde::{Deserialize, de::Error as _};
 use std::{
     collections::{HashMap, HashSet},
     io,
@@ -353,7 +354,10 @@ impl ProcessStates {
 
 impl InnerProcessStates {
     fn handle_message(&mut self, msg: ESMessage) {
-        let pid = msg.process.audit_token.pid;
+        let Some(pid) = msg.process.audit_token.checked_pid() else {
+            log::trace!("eslogger returned bad pid: {msg:?}");
+            return;
+        };
 
         match msg.event {
             ESEvent::Fork(evt) => self.handle_fork(pid, msg.process.executable.path, evt),
@@ -365,7 +369,10 @@ impl InnerProcessStates {
     // For new processes, inherit all exclusion state from the parent, if there is one.
     // Otherwise, look up excluded paths
     fn handle_fork(&mut self, parent_pid: pid_t, exec_path: PathBuf, msg: ESForkEvent) {
-        let pid = msg.child.audit_token.pid;
+        let Some(pid) = msg.child.audit_token.checked_pid() else {
+            log::trace!("eslogger returned bad pid: {msg:?}");
+            return;
+        };
 
         if self.processes.contains_key(&pid) {
             log::error!("Conflicting pid! State already contains {pid}");
@@ -501,9 +508,67 @@ struct ESExecutable {
 /// Message containing the process identifier of the process.
 /// This message is analogous to the `audit_token` field of `es_process_t`:
 /// https://developer.apple.com/documentation/endpointsecurity/es_process_t/3228975-audit_token?language=objc
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 struct ESAuditToken {
     pid: pid_t,
+}
+
+/// Custom [Deserialize] impl for [ESAuditToken] because they changed the representation of it in
+/// version 10 of the JSON schema.
+///
+/// # Version 9
+/// JSON object. Self-explanatory.
+/// ```json
+/// "audit_token":{
+///   "egid":0,
+///   "pid":12072,
+///   "ruid":0,
+///   "asid":100017,
+///   "euid":0,
+///   "pidversion":172341,
+///   "auid":4294967295,
+///   "rgid":0
+/// }
+/// ```
+///
+/// # Version 10
+/// A list, where the fields are stored in a certain order.
+/// ```json
+/// "audit_token": [
+///   501,    // probably auid?
+///   501,    // probably euid?
+///   20,     // probably egid?
+///   501,    // probably ruid?
+///   20,     // probably rgid?
+///   21497,  // pid
+///   100013, // probably asid?
+///   38282   // probably pidversion?
+/// ]
+/// ```
+impl<'de> Deserialize<'de> for ESAuditToken {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        // Deserialize as i64s because not all fields fit into a pid_t
+        let value: Either<Vec<i64>, HashMap<&str, i64>> =
+            either::serde_untagged::deserialize(deserializer)?;
+
+        let pid = match value {
+            Either::Left(list) => match list[..] {
+                [_auid, _euid, _egid, _ruid, _rgid, pid, _asid, _] => pid,
+                _ => return Err(D::Error::custom("Expected list with exactly 8 elements")),
+            },
+
+            Either::Right(mut object) => object
+                .remove("pid")
+                .ok_or_else(|| D::Error::custom("Missing field 'pid'"))?,
+        };
+
+        let pid = pid_t::try_from(pid).map_err(|e| D::Error::custom(e.to_string()))?;
+
+        Ok(ESAuditToken { pid })
+    }
 }
 
 /// Process information for the message returned by `eslogger`.
@@ -520,8 +585,40 @@ struct ESProcess {
 /// https://developer.apple.com/documentation/endpointsecurity/es_message_t?language=objc
 #[derive(Debug, Deserialize)]
 struct ESMessage {
+    #[allow(dead_code)]
+    version: SupportedVersion,
     event: ESEvent,
     process: ESProcess,
+}
+
+/// An `i32`-wrapper that verifies that the [ESMessage] version is supported.
+#[derive(Debug)]
+#[allow(dead_code)]
+struct SupportedVersion(i32);
+
+impl<'de> Deserialize<'de> for SupportedVersion {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let version = i32::deserialize(deserializer)?;
+
+        match version {
+            0..=10 => Ok(SupportedVersion(version)),
+
+            // We don't know how to deserialize anything past version 10
+            _ => Err(D::Error::custom(format!(
+                "Unsupported ESMessage version: {version}"
+            ))),
+        }
+    }
+}
+
+impl ESAuditToken {
+    /// Check that `pid` is positive and return it.
+    pub fn checked_pid(&self) -> Option<pid_t> {
+        (self.pid > 0).then_some(self.pid)
+    }
 }
 
 fn parse_eslogger_error(stderr_str: &str) -> Option<Error> {
@@ -574,6 +671,27 @@ mod test {
             stdout_write.write_all(msg.as_bytes()).await.unwrap();
         });
         stdout_read
+    }
+
+    /// Assert that we can deserialize output from different versions of `eslogger` into valid
+    /// [ESMessage]s.
+    #[test]
+    fn test_deserialize_esmessage() {
+        let valid_esmessages = [
+            // version 9, taken from macOS 15
+            r#"{"process":{"codesigning_flags":637623057,"cdhash":"F988105881118CD77EF87293D97DECE8E193FA98","session_id":532,"ppid":532,"group_id":532,"is_platform_binary":true,"team_id":null,"audit_token":{"euid":0,"rgid":0,"egid":0,"pid":11221,"asid":100017,"ruid":0,"auid":4294967295,"pidversion":170692},"responsible_audit_token":{"pid":532,"asid":100017,"rgid":0,"auid":4294967295,"euid":0,"ruid":0,"pidversion":1294,"egid":0},"is_es_client":false,"signing_id":"com.apple.ipconfig","start_time":"2025-08-07T15:13:09.798115Z","original_ppid":532,"parent_audit_token":{"pid":532,"asid":100017,"rgid":0,"auid":4294967295,"euid":0,"ruid":0,"pidversion":1294,"egid":0},"executable":{"path_truncated":false,"stat":{"st_gid":0,"st_ino":1152921500312525701,"st_ctimespec":"2025-07-09T06:27:14.000000000Z","st_mtimespec":"2025-07-09T06:27:14.000000000Z","st_gen":0,"st_atimespec":"2025-07-09T06:27:14.000000000Z","st_dev":16777234,"st_uid":0,"st_rdev":0,"st_birthtimespec":"2025-07-09T06:27:14.000000000Z","st_mode":33261,"st_nlink":1,"st_size":259504,"st_blocks":152,"st_flags":524320,"st_blksize":4096},"path":"\/usr\/sbin\/ipconfig"},"tty":null},"time":"2025-08-07T15:13:09.811587464Z","seq_num":362,"action":{"result":{"result_type":0,"result":{"auth":0}}},"event_type":15,"event":{"exit":{"stat":0}},"mach_time":401374797834,"version":9,"thread":{"thread_id":622243},"global_seq_num":1103,"schema_version":1,"action_type":1}"#,
+            // version 9, taken from macOS 15
+            r#"{"action":{"result":{"result":{"auth":0},"result_type":0}},"event_type":9,"global_seq_num":75,"action_type":1,"mach_time":289350913517,"process":{"is_platform_binary":false,"team_id":null,"signing_id":"nu-b9fb5b9dbba2e494","cdhash":"28CD2C759132B07D63C3A2B377AD440A6C66098E","executable":{"stat":{"st_size":38146864,"st_gid":80,"st_ino":13982224,"st_uid":501,"st_ctimespec":"2025-05-09T11:57:32.842789602Z","st_gen":0,"st_mtimespec":"2025-04-29T23:31:45.000000000Z","st_blocks":74512,"st_rdev":0,"st_dev":16777234,"st_atimespec":"2025-08-07T12:32:35.400606076Z","st_nlink":1,"st_mode":33133,"st_blksize":4096,"st_birthtimespec":"2025-04-29T23:31:45.000000000Z","st_flags":0},"path_truncated":false,"path":"\/bin\/nu"},"group_id":97391,"parent_audit_token":{"asid":100019,"ruid":501,"pidversion":87724,"egid":20,"rgid":20,"pid":58916,"euid":501,"auid":501},"session_id":58916,"audit_token":{"auid":501,"asid":100019,"egid":20,"pid":97391,"pidversion":149091,"rgid":20,"euid":501,"ruid":501},"ppid":58916,"responsible_audit_token":{"asid":100019,"ruid":501,"pidversion":2424,"egid":20,"rgid":20,"pid":938,"euid":501,"auid":501},"original_ppid":58916,"codesigning_flags":570556931,"start_time":"2025-08-07T13:21:35.877422Z","tty":{"stat":{"st_size":0,"st_gid":4,"st_uid":501,"st_ino":1223,"st_ctimespec":"2025-08-07T13:21:35.878404000Z","st_gen":0,"st_mtimespec":"2025-08-07T13:21:35.878404000Z","st_blocks":0,"st_rdev":268435459,"st_dev":1333267060,"st_atimespec":"2025-08-07T13:21:35.874434000Z","st_mode":8592,"st_nlink":1,"st_blksize":65536,"st_birthtimespec":"1970-01-01T00:00:00.000000000Z","st_flags":0},"path_truncated":false,"path":"\/dev\/ttys003"},"is_es_client":false},"time":"2025-08-07T13:21:35.880814738Z","seq_num":27,"version":9,"event":{"exec":{"cwd":{"stat":{"st_size":2624,"st_gid":20,"st_uid":501,"st_ino":539935,"st_ctimespec":"2025-08-07T12:36:24.368103159Z","st_gen":0,"st_mtimespec":"2025-08-07T12:36:24.368103159Z","st_blocks":0,"st_rdev":0,"st_dev":16777234,"st_atimespec":"2025-08-07T12:36:24.414321469Z","st_mode":16877,"st_nlink":82,"st_blksize":4096,"st_birthtimespec":"2024-09-25T14:04:33.178667447Z","st_flags":0},"path_truncated":false,"path":"\/bin\/mullvadvpn-app"},"env":["FOO=bar"],"target":{"team_id":null,"is_platform_binary":false,"signing_id":"connection_checker-04fde7bdb8bceee3","cdhash":"33F0A3D85BEA260FED5CAD0529AB0E84EC9A0DF1","executable":{"stat":{"st_size":5087360,"st_gid":20,"st_ino":14784254,"st_uid":501,"st_ctimespec":"2025-05-12T14:47:04.129389008Z","st_gen":0,"st_mtimespec":"2025-05-12T14:47:04.107254919Z","st_blocks":9944,"st_rdev":0,"st_dev":16777234,"st_atimespec":"2025-08-07T13:21:35.888621297Z","st_nlink":1,"st_mode":33261,"st_blksize":4096,"st_birthtimespec":"2025-05-12T14:47:04.106815000Z","st_flags":0},"path_truncated":false,"path":"\/bin\/connection-checker"},"group_id":97391,"parent_audit_token":{"pidversion":87724,"rgid":20,"pid":58916,"egid":20,"ruid":501,"euid":501,"asid":100019,"auid":501},"session_id":58916,"audit_token":{"pid":97391,"rgid":20,"euid":501,"auid":501,"egid":20,"asid":100019,"pidversion":149092,"ruid":501},"ppid":58916,"responsible_audit_token":{"pidversion":2424,"rgid":20,"pid":938,"egid":20,"ruid":501,"euid":501,"asid":100019,"auid":501},"original_ppid":58916,"codesigning_flags":570556931,"start_time":"2025-08-07T13:21:35.877422Z","tty":{"stat":{"st_size":0,"st_gid":4,"st_ino":1223,"st_uid":501,"st_ctimespec":"2025-08-07T13:21:35.878404000Z","st_gen":0,"st_mtimespec":"2025-08-07T13:21:35.878404000Z","st_blocks":0,"st_rdev":268435459,"st_dev":1333267060,"st_mode":8592,"st_nlink":1,"st_atimespec":"2025-08-07T13:21:35.874434000Z","st_blksize":65536,"st_birthtimespec":"1970-01-01T00:00:00.000000000Z","st_flags":0},"path_truncated":false,"path":"\/dev\/ttys003"},"is_es_client":false},"last_fd":9,"image_cpusubtype":0,"fds":[{"fdtype":1,"fd":0},{"fdtype":1,"fd":1},{"fdtype":1,"fd":2},{"fdtype":1,"fd":5},{"fdtype":1,"fd":6},{"fdtype":1,"fd":8},{"fdtype":1,"fd":9}],"image_cputype":16777228,"args":["\/bin\/connection-checker"],"dyld_exec_path":"\/bin\/connection-checker","script":null}},"thread":{"thread_id":505819},"schema_version":1}"#,
+            // version 10, taken from macOS 26
+            r#"{"version":10,"event":{"fork":{"child":{"signing_id":"net.mullvad.vpn","audit_token":[501,501,20,501,20,21497,100013,38282],"ppid":19745,"team_id":"CKG9MXH72F","parent_audit_token":[501,501,20,501,20,19745,100013,35165],"session_id":1,"group_id":19745,"cs_validation_category":6,"responsible_audit_token":[501,501,20,501,20,19745,100013,35165],"is_platform_binary":false,"tty":null,"is_es_client":false,"original_ppid":19745,"executable":{"path":"\/Applications\/Mullvad VPN.app\/Contents\/MacOS\/Mullvad VPN","stat":{"st_ctimespec":"2025-07-22T15:04:55.459801307Z","st_dev":16777234,"st_gid":0,"st_atimespec":"2025-07-22T15:05:14.889095406Z","st_blocks":272,"st_blksize":4096,"st_rdev":0,"st_mode":33261,"st_birthtimespec":"2025-06-23T14:48:03.000000000Z","st_size":135216,"st_flags":0,"st_uid":0,"st_mtimespec":"2025-06-23T14:48:03.000000000Z","st_ino":78460340,"st_nlink":1,"st_gen":0},"path_truncated":false},"codesigning_flags":570491649,"start_time":"2025-07-22T15:09:01.083979Z","cdhash":"C26BC5CF81E08B87DF707685A8EA3652446977F1"}}},"thread":{"thread_id":227846},"time":"2025-07-22T15:09:01.084030274Z","seq_num":0,"schema_version":1,"event_type":11,"action":{"result":{"result":{"auth":0},"result_type":0}},"global_seq_num":1,"process":{"team_id":"CKG9MXH72F","original_ppid":1,"audit_token":[501,501,20,501,20,19745,100013,35165],"signing_id":"net.mullvad.vpn","start_time":"2025-07-22T15:05:14.076236Z","responsible_audit_token":[501,501,20,501,20,19745,100013,35165],"parent_audit_token":[4294967295,0,0,0,0,1,100012,1029],"ppid":1,"codesigning_flags":570491649,"tty":null,"is_es_client":false,"group_id":19745,"session_id":1,"cs_validation_category":6,"executable":{"path_truncated":false,"path":"\/Applications\/Mullvad VPN.app\/Contents\/MacOS\/Mullvad VPN","stat":{"st_size":135216,"st_atimespec":"2025-07-22T15:05:14.889095406Z","st_mode":33261,"st_blocks":272,"st_ctimespec":"2025-07-22T15:04:55.459801307Z","st_uid":0,"st_gen":0,"st_blksize":4096,"st_gid":0,"st_rdev":0,"st_birthtimespec":"2025-06-23T14:48:03.000000000Z","st_nlink":1,"st_dev":16777234,"st_flags":0,"st_ino":78460340,"st_mtimespec":"2025-06-23T14:48:03.000000000Z"}},"is_platform_binary":false,"cdhash":"C26BC5CF81E08B87DF707685A8EA3652446977F1"},"action_type":1,"mach_time":241051246374}"#,
+            // version 11 doesn't exist at the time of writing
+            r#"{"version":11}"#,
+        ];
+
+        for s in valid_esmessages {
+            let result = serde_json::from_str::<ESMessage>(s);
+            insta::assert_debug_snapshot!((s, result));
+        }
     }
 
     #[test]

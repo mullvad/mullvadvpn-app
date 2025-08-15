@@ -28,6 +28,7 @@ talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
 talpid-wireguard = { path = "../talpid-wireguard" }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
+either = { version = "1.15.0", features = ["serde"] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 talpid-openvpn = { path = "../talpid-openvpn" }
@@ -112,3 +113,4 @@ tonic-build = { workspace = true, default-features = false, features = ["transpo
 [dev-dependencies]
 test-log = "0.2.17"
 tokio = { workspace = true, features = ["io-util", "test-util", "time"] }
+insta = "1.42"
