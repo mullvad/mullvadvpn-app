@@ -30,7 +30,7 @@ zeroize = "1"
 chrono = { workspace = true, features = ["clock"] }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
-rand = "0.8.5"
+rand = { workspace = true }
 surge-ping = "0.8.0"
 rand_chacha = "0.3.1"
 wireguard-go-rs = { path = "../wireguard-go-rs" }

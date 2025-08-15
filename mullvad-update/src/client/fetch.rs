@@ -469,7 +469,7 @@ mod test {
     async fn test_fetch_complete() -> anyhow::Result<()> {
         // Generate random data
         let file_data = Box::leak(Box::new(vec![0u8; 1024 * 1024 + 1]));
-        rand::thread_rng().fill_bytes(file_data);
+        rand::rng().fill_bytes(file_data);
 
         // Start server
         let mut server = mockito::Server::new_async().await;
@@ -502,7 +502,7 @@ mod test {
     async fn test_fetch_interrupted() -> anyhow::Result<()> {
         // Generate random data
         let file_data = Box::leak(Box::new(vec![0u8; 1024 * 1024]));
-        rand::thread_rng().fill_bytes(file_data);
+        rand::rng().fill_bytes(file_data);
 
         // Start server
         let mut server = mockito::Server::new_async().await;

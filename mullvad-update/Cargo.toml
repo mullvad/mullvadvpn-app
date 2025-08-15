@@ -45,7 +45,7 @@ thiserror = { workspace = true, optional = true }
 async-tempfile = "0.6"
 insta = { workspace = true }
 mockito = "1.6.1"
-rand = "0.8.5"
+rand = { workspace = true }
 tokio = { workspace = true, features = ["fs", "test-util", "time", "macros"] }
 
 [[bin]]

@@ -76,13 +76,13 @@ async fn admin_temp_dir() -> anyhow::Result<PathBuf> {
 /// See [module-level](self) docs for more information.
 #[cfg(target_os = "macos")]
 async fn temp_dir() -> anyhow::Result<PathBuf> {
-    use rand::{Rng, distributions::Alphanumeric};
+    use rand::{Rng, distr::Alphanumeric};
     use std::{fs::Permissions, os::unix::fs::PermissionsExt};
     use tokio::fs;
 
     // Randomly generate a directory name
     let dir_name: String = (0..10)
-        .map(|_| rand::thread_rng().sample(Alphanumeric) as char)
+        .map(|_| rand::rng().sample(Alphanumeric) as char)
         .collect();
     let temp_dir = std::env::temp_dir().join(dir_name);
 

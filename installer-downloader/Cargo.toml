@@ -24,7 +24,7 @@ chrono = { workspace = true, features = ["clock"] }
 fern = { workspace = true }
 hex = "0.4"
 log = { workspace = true }
-rand = { version = "0.8.5" }
+rand = { workspace = true }
 reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"] }
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["rt-multi-thread", "fs"] }
