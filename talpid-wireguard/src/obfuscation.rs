@@ -8,7 +8,6 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::mpsc as sync_mpsc,
 };
-use talpid_tunnel::WIREGUARD_HEADER_SIZE;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{ErrorExt, net::obfuscation::ObfuscatorConfig};
@@ -19,8 +18,13 @@ use tunnel_obfuscation::{
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
 /// to point to an endpoint on localhost
+///
+/// # Arguments
+///
+/// * obfuscation_mtu - "MTU" including obfuscation overhead
 pub async fn apply_obfuscation_config(
     config: &mut Config,
+    obfuscation_mtu: u16,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<Option<ObfuscatorHandle>> {
@@ -28,24 +32,12 @@ pub async fn apply_obfuscation_config(
         return Ok(None);
     };
 
-    let settings = {
-        let settings = settings_from_config(
-            obfuscator_config,
-            #[cfg(target_os = "linux")]
-            config.fwmark,
-        );
-
-        // Adjust MTU for QUIC obfuscator.
-        match settings {
-            ObfuscationSettings::Quic(quic) => {
-                // Account for multihop
-                // FIXME: Pass proper mtu as an argument / through config?
-                let quic = quic.mtu(config.mtu - 2 * WIREGUARD_HEADER_SIZE);
-                ObfuscationSettings::Quic(quic)
-            }
-            settings => settings,
-        }
-    };
+    let settings = settings_from_config(
+        obfuscator_config,
+        obfuscation_mtu,
+        #[cfg(target_os = "linux")]
+        config.fwmark,
+    );
 
     log::trace!("Obfuscation settings: {settings:?}");
 
@@ -90,6 +82,7 @@ fn patch_endpoint(config: &mut Config, endpoint: SocketAddr) {
 
 fn settings_from_config(
     config: &ObfuscatorConfig,
+    mtu: u16,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> ObfuscationSettings {
     match config {
@@ -121,7 +114,8 @@ fn settings_from_config(
                 hostname.to_owned(),
                 auth_token.parse().unwrap(),
                 wireguard_endpoint,
-            );
+            )
+            .mtu(mtu);
             #[cfg(target_os = "linux")]
             if let Some(fwmark) = fwmark {
                 return ObfuscationSettings::Quic(settings.fwmark(fwmark));

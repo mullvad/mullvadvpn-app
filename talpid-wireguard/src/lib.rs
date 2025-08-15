@@ -169,10 +169,12 @@ impl WireguardMonitor {
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
+        let obfuscation_mtu = config.mtu;
         let obfuscator = args
             .runtime
             .block_on(obfuscation::apply_obfuscation_config(
                 &mut config,
+                obfuscation_mtu,
                 close_obfs_sender.clone(),
             ))?;
         // Don't adjust MTU if overridden by user
@@ -279,6 +281,7 @@ impl WireguardMonitor {
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
+                    obfuscation_mtu,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
                 )
@@ -414,10 +417,12 @@ impl WireguardMonitor {
             Config::from_parameters(params, desired_mtu).map_err(Error::WireguardConfigError)?;
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
+        let obfuscation_mtu = config.mtu;
         let obfuscator = args
             .runtime
             .block_on(obfuscation::apply_obfuscation_config(
                 &mut config,
+                obfuscation_mtu,
                 close_obfs_sender.clone(),
                 args.tun_provider.clone(),
             ))?;
@@ -520,6 +525,7 @@ impl WireguardMonitor {
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
+                    obfuscation_mtu,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
                     args.tun_provider,
