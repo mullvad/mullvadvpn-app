@@ -83,6 +83,9 @@ pub enum FirewallPolicy {
     Connecting {
         /// The peer endpoint that should be allowed.
         peer_endpoint: AllowedEndpoint,
+        /// IP of the exit endpoint, iff it differs from `peer_endpoint`
+        #[cfg(target_os = "windows")]
+        exit_endpoint_ip: Option<IpAddr>,
         /// Metadata about the tunnel and tunnel interface.
         tunnel: Option<crate::tunnel::TunnelMetadata>,
         /// Flag setting if communication with LAN networks should be possible.
@@ -100,6 +103,9 @@ pub enum FirewallPolicy {
     Connected {
         /// The peer endpoint that should be allowed.
         peer_endpoint: AllowedEndpoint,
+        /// IP of the exit endpoint, iff it differs from `peer_endpoint`
+        #[cfg(target_os = "windows")]
+        exit_endpoint_ip: Option<IpAddr>,
         /// Metadata about the tunnel and tunnel interface.
         tunnel: crate::tunnel::TunnelMetadata,
         /// Flag setting if communication with LAN networks should be possible.

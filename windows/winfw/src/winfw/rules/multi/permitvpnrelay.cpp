@@ -52,13 +52,13 @@ PermitVpnRelay::PermitVpnRelay
 	const wfp::IpAddress &relay,
 	uint16_t relayPort,
 	WinFwProtocol protocol,
-	const std::vector<std::wstring> &relayClients,
+	const std::optional<std::wstring> &relayClient,
 	Sublayer sublayer
 )
 	: m_relay(relay)
 	, m_relayPort(relayPort)
 	, m_protocol(protocol)
-	, m_relayClients(relayClients)
+	, m_relayClient(relayClient)
 	, m_sublayer(sublayer)
 {
 }
@@ -87,8 +87,9 @@ bool PermitVpnRelay::apply(IObjectInstaller &objectInstaller)
 	conditionBuilder.add_condition(ConditionPort::Remote(m_relayPort));
 	conditionBuilder.add_condition(CreateProtocolCondition(m_protocol));
 
-	for(auto relayClient : m_relayClients) {
-		conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient));
+	if (m_relayClient.has_value())
+	{
+		conditionBuilder.add_condition(std::make_unique<ConditionApplication>(m_relayClient.value()));
 	}
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);

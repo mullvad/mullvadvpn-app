@@ -125,15 +125,16 @@ impl Firewall {
         let apply_result = match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
+                exit_endpoint_ip,
                 tunnel,
                 allow_lan,
                 allowed_endpoint,
                 allowed_tunnel_traffic,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-
                 self.set_connecting_state(
                     &peer_endpoint,
+                    exit_endpoint_ip,
                     cfg,
                     tunnel.as_ref(),
                     allowed_endpoint,
@@ -142,12 +143,19 @@ impl Firewall {
             }
             FirewallPolicy::Connected {
                 peer_endpoint,
+                exit_endpoint_ip,
                 tunnel,
                 allow_lan,
                 dns_config,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                self.set_connected_state(&peer_endpoint, cfg, &tunnel, &dns_config)
+                self.set_connected_state(
+                    &peer_endpoint,
+                    exit_endpoint_ip,
+                    cfg,
+                    &tunnel,
+                    &dns_config,
+                )
             }
             FirewallPolicy::Blocked {
                 allow_lan,
@@ -192,6 +200,7 @@ impl Firewall {
     fn set_connecting_state(
         &mut self,
         peer_endpoint: &AllowedEndpoint,
+        exit_endpoint_ip: Option<IpAddr>,
         winfw_settings: &WinFwSettings,
         tunnel_metadata: Option<&TunnelMetadata>,
         allowed_endpoint: AllowedEndpoint,
@@ -201,6 +210,7 @@ impl Firewall {
         let tunnel_interface = tunnel_metadata.map(|metadata| metadata.interface.as_ref());
         winfw::apply_policy_connecting(
             peer_endpoint,
+            exit_endpoint_ip,
             winfw_settings,
             tunnel_interface,
             allowed_endpoint,
@@ -212,14 +222,21 @@ impl Firewall {
     fn set_connected_state(
         &mut self,
         endpoint: &AllowedEndpoint,
+        exit_endpoint_ip: Option<IpAddr>,
         winfw_settings: &WinFwSettings,
         tunnel_metadata: &TunnelMetadata,
         dns_config: &ResolvedDnsConfig,
     ) -> Result<(), Error> {
         log::trace!("Applying 'connected' firewall policy");
         let tunnel_interface = &tunnel_metadata.interface;
-        winfw::apply_policy_connected(endpoint, winfw_settings, tunnel_interface, dns_config)
-            .map_err(Error::ApplyingConnectedPolicy)
+        winfw::apply_policy_connected(
+            endpoint,
+            exit_endpoint_ip,
+            winfw_settings,
+            tunnel_interface,
+            dns_config,
+        )
+        .map_err(Error::ApplyingConnectedPolicy)
     }
 
     fn set_blocked_state(

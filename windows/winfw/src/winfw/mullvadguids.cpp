@@ -134,10 +134,12 @@ MullvadGuids::DetailedIdentityRegistry MullvadGuids::DetailedRegistry(IdentityQu
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_2()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_BlockExitIp()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv4_1()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv6_1()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv4_2()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv6_2()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_BlockExitIp()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Outbound_Router_Solicitation()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Inbound_Router_Advertisement()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Outbound_Neighbor_Solicitation()));
@@ -723,6 +725,20 @@ const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_2()
 }
 
 //static
+const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnel_BlockExitIp()
+{
+	static const GUID g =
+	{
+		0x276bc66f,
+		0xf5ef,
+		0x1128,
+		{ 0xb1, 0x5e, 0xd9, 0xe2, 0x6e, 0xf4, 0xf0, 0x06 }
+	};
+
+	return g;
+}
+
+//static
 const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv4_1()
 {
 	static const GUID g =
@@ -774,6 +790,21 @@ const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnelService_Ipv6_2()
 		0xb25d,
 		0x4e60,
 		{ 0x81, 0x52, 0xef, 0x3b, 0x40, 0xc0, 0x8e, 0xdc }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitVpnTunnelService_BlockExitIp()
+{
+
+	static const GUID g =
+	{
+		0x01deb2b8,
+		0xb25d,
+		0x1e60,
+		{ 0xef, 0x52, 0xef, 0x3b, 0x40, 0xc0, 0x8e, 0xdc }
 	};
 
 	return g;

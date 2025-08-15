@@ -240,8 +240,8 @@ WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
-	const wchar_t **relayClients,
-	size_t relayClientsLen,
+	const wchar_t *exitEndpointIp,
+	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
 	const WinFwAllowedEndpoint *allowedEndpoint,
 	const WinFwAllowedTunnelTraffic *allowedTunnelTraffic
@@ -269,16 +269,19 @@ WinFw_ApplyPolicyConnecting(
 			THROW_ERROR("Invalid argument: allowedTunnelTraffic");
 		}
 
-		std::vector<std::wstring> relayClientWstrings;
-		relayClientWstrings.reserve(relayClientsLen);
-		for(int i = 0; i < relayClientsLen; i++) {
-			relayClientWstrings.push_back(relayClients[i]);
+		const auto exitIpAddr = (exitEndpointIp != nullptr) ? std::make_optional(wfp::IpAddress(exitEndpointIp)) : std::nullopt;
+		const auto entryIpAddr = wfp::IpAddress(relay->ip);
+
+		if (entryIpAddr == exitIpAddr)
+		{
+			THROW_ERROR("Invalid argument: relay IP must not equal exitEndpointIp");
 		}
 
 		return g_fwContext->applyPolicyConnecting(
 			*settings,
 			*relay,
-			relayClientWstrings,
+			exitIpAddr,
+			relayClient != nullptr ? std::make_optional(relayClient) : std::nullopt,
 			tunnelInterfaceAlias != nullptr ? std::make_optional(tunnelInterfaceAlias) : std::nullopt,
 			MakeOptional(allowedEndpoint),
 			*allowedTunnelTraffic
@@ -309,8 +312,8 @@ WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
-	const wchar_t **relayClients,
-	size_t relayClientsLen,
+	const wchar_t *exitEndpointIp,
+	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
 	const wchar_t * const *tunnelDnsServers,
 	size_t numTunnelDnsServers,
@@ -348,6 +351,14 @@ WinFw_ApplyPolicyConnected(
 		if (nullptr == nonTunnelDnsServers)
 		{
 			THROW_ERROR("Invalid argument: nonTunnelDnsServers");
+		}
+
+		const auto exitIpAddr = (exitEndpointIp != nullptr) ? std::make_optional(wfp::IpAddress(exitEndpointIp)) : std::nullopt;
+		const auto entryIpAddr = wfp::IpAddress(relay->ip);
+
+		if (entryIpAddr == exitIpAddr)
+		{
+			THROW_ERROR("Invalid argument: relay IP must not equal exitEndpointIp");
 		}
 
 		std::vector<wfp::IpAddress> convertedTunnelDnsServers;
@@ -389,16 +400,11 @@ WinFw_ApplyPolicyConnected(
 			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, ss.str().c_str(), g_logSinkContext);
 		}
 
-		std::vector<std::wstring> relayClientWstrings;
-		relayClientWstrings.reserve(relayClientsLen);
-		for(int i = 0; i < relayClientsLen; i++) {
-			relayClientWstrings.push_back(relayClients[i]);
-		}
-
 		return g_fwContext->applyPolicyConnected(
 			*settings,
 			*relay,
-			relayClientWstrings,
+			exitIpAddr,
+			relayClient != nullptr ? std::make_optional(relayClient) : std::nullopt,
 			tunnelInterfaceAlias,
 			convertedTunnelDnsServers,
 			convertedNonTunnelDnsServers

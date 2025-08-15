@@ -4,6 +4,8 @@
 #include <winfw/rules/shared.h>
 #include <libwfp/filterbuilder.h>
 #include <libwfp/conditionbuilder.h>
+#include <libwfp/conditions/comparison.h>
+#include <libwfp/conditions/conditionapplication.h>
 #include <libwfp/conditions/conditioninterface.h>
 #include <libwfp/conditions/conditionip.h>
 #include <libwfp/conditions/conditionport.h>
@@ -16,11 +18,15 @@ namespace rules::baseline
 {
 
 PermitVpnTunnel::PermitVpnTunnel(
+	const std::optional<std::wstring> &relayClient,
 	const std::wstring &tunnelInterfaceAlias,
-	const std::optional<Endpoints> &potentialEndpoints
+	const std::optional<Endpoints> &potentialEndpoints,
+	const std::optional<wfp::IpAddress> &exitEndpointIp
 )
-	: m_tunnelInterfaceAlias(tunnelInterfaceAlias)
+	: m_relayClient(relayClient)
+	, m_tunnelInterfaceAlias(tunnelInterfaceAlias)
 	, m_potentialEndpoints(potentialEndpoints)
+	, m_exitEndpointIp(exitEndpointIp)
 {
 }
 
@@ -86,8 +92,65 @@ bool PermitVpnTunnel::AddEndpointFilter(const std::optional<Endpoint> &endpoint,
 }
 
 
+bool PermitVpnTunnel::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, const std::wstring &relayClient, IObjectInstaller &objectInstaller)
+{
+	wfp::FilterBuilder filterBuilder;
+
+	filterBuilder
+		.description(L"This filter is part of a rule that blocks exit IP traffic from unexpected clients")
+		.name(L"Block inbound exit relay connections on tunnel interface")
+		.provider(MullvadGuids::Provider())
+		.sublayer(MullvadGuids::SublayerBaseline())
+		.key(MullvadGuids::Filter_Baseline_PermitVpnTunnel_BlockExitIp())
+		.weight(wfp::FilterBuilder::WeightClass::Max)
+		.block();
+
+	if (exitIp.type() == wfp::IpAddress::Ipv4)
+	{
+		filterBuilder.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+
+		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+
+		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
+		conditionBuilder.add_condition(ConditionIp::Remote(exitIp));
+
+		// Block exit relay IP for all processes but relay client
+		conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient, CompareNeq()));
+
+		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+		{
+			return false;
+		}
+	}
+	else {
+		filterBuilder.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+
+		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+
+		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
+		conditionBuilder.add_condition(ConditionIp::Remote(exitIp));
+
+		// Block exit relay IP for all processes but relay client
+		conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient, CompareNeq()));
+
+		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+
 bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 {
+	if (m_exitEndpointIp.has_value() && m_relayClient.has_value())
+	{
+		if (!BlockNonRelayClientExit(m_exitEndpointIp.value(), m_relayClient.value(), objectInstaller))
+		{
+			return false;
+		}
+	}
 	if (!m_potentialEndpoints.has_value())
 	{
 		return AddEndpointFilter(
@@ -97,20 +160,23 @@ bool PermitVpnTunnel::apply(IObjectInstaller &objectInstaller)
 			objectInstaller
 		);
 	}
-	AddEndpointFilter(
-			std::make_optional<Endpoint>(m_potentialEndpoints.value().entryEndpoint),
-			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1(),
-			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1(),
+	if (!AddEndpointFilter(
+		std::make_optional<Endpoint>(m_potentialEndpoints.value().endpoint1),
+		MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1(),
+		MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1(),
+		objectInstaller
+	))
+	{
+		return false;
+	}
+	if (m_potentialEndpoints.value().endpoint2.has_value())
+	{
+		return AddEndpointFilter(
+			m_potentialEndpoints.value().endpoint2.value(),
+			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2(),
+			MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_2(),
 			objectInstaller
 		);
-	if (m_potentialEndpoints.value().exitEndpoint.has_value())
-	{
-		AddEndpointFilter(
-				m_potentialEndpoints.value().exitEndpoint.value(),
-				MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2(),
-				MullvadGuids::Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_2(),
-				objectInstaller
-			);
 	}
 	return true;
 }

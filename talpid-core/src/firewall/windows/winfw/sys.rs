@@ -134,8 +134,8 @@ unsafe extern "system" {
     pub fn WinFw_ApplyPolicyConnecting(
         settings: &WinFwSettings,
         relay: &WinFwEndpoint,
-        relayClient: *const *const libc::wchar_t,
-        relayClientLen: usize,
+        exitEndpointIp: *const libc::wchar_t,
+        relayClient: *const libc::wchar_t,
         tunnelIfaceAlias: *const libc::wchar_t,
         allowedEndpoint: *const WinFwAllowedEndpoint<'_>,
         allowedTunnelTraffic: &WinFwAllowedTunnelTraffic,
@@ -145,8 +145,8 @@ unsafe extern "system" {
     pub fn WinFw_ApplyPolicyConnected(
         settings: &WinFwSettings,
         relay: &WinFwEndpoint,
-        relayClient: *const *const libc::wchar_t,
-        relayClientLen: usize,
+        exitEndpointIp: *const libc::wchar_t,
+        relayClient: *const libc::wchar_t,
         tunnelIfaceAlias: *const libc::wchar_t,
         tunnelDnsServers: *const *const libc::wchar_t,
         numTunnelDnsServers: usize,
