@@ -60,32 +60,30 @@ jobs:
 
       - name: Build for ui tests
         run: |
-          # Pick iPhone 16 first
-          DEVICE_INFO=$(xcrun simctl list devices available | grep "^ *iPhone 16" | head -1)
+          # Try to find iPhone 16 first
+          DEVICE_UDID=$(xcrun simctl list devices available | grep "^ *iPhone 16" | \
+          grep -oE "[A-F0-9-]{36}" | head -1)
 
           # Fallback to first available simulator
-          if [ -z "$DEVICE_INFO" ]; then
-              DEVICE_INFO=$(xcrun simctl list devices available | grep -v "unavailable" | \
-              grep -E "iPhone|iPad" | head -1)
+          if [ -z "$DEVICE_UDID" ]; then
+              echo "ℹ️ iPhone 16 not found, using first available simulator"
+              DEVICE_UDID=$(xcrun simctl list devices available | grep -v "unavailable" | \
+              grep -oE "[A-F0-9-]{36}" | head -1)
           fi
 
-          # Extract name
-          DEVICE_NAME=$(echo "$DEVICE_INFO" | awk -F '(' '{print $1}' | xargs)
-
-          # Extract UDID
-          DEVICE_UDID=$(echo "$DEVICE_INFO" | awk -F '[()]' '{print $2}' | xargs)
-
-          # Extract OS version correctly (the last parentheses field)
-          OS_VERSION=$(echo "$DEVICE_INFO" | grep -oE "\(iOS [0-9.]+\)" | grep -oE "[0-9.]+")
+          if [ -z "$DEVICE_UDID" ]; then
+              echo "⚠️ No simulator available"
+              exit 1
+          fi
 
           # Boot simulator
+          echo "Booting simulator $DEVICE_UDID..."
           xcrun simctl boot "$DEVICE_UDID" || true
           xcrun simctl bootstatus "$DEVICE_UDID" -b
 
-          # Build destination string using **correct OS version**
-          DESTINATION="platform=iOS Simulator,name=$DEVICE_NAME,OS=$OS_VERSION"
+          # Set destination using UDID only
+          DESTINATION="platform=iOS Simulator,id=$DEVICE_UDID"
           echo "✅ Using destination: $DESTINATION"
-
 
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
           -project MullvadVPN.xcodeproj \
@@ -111,30 +109,29 @@ jobs:
 
       - name: Run unit tests
         run: |
-          # Pick iPhone 16 first
-          DEVICE_INFO=$(xcrun simctl list devices available | grep "^ *iPhone 16" | head -1)
+          # Try to find iPhone 16 first
+          DEVICE_UDID=$(xcrun simctl list devices available | grep "^ *iPhone 16" | \
+          grep -oE "[A-F0-9-]{36}" | head -1)
 
           # Fallback to first available simulator
-          if [ -z "$DEVICE_INFO" ]; then
-            DEVICE_INFO=$(xcrun simctl list devices available | grep -v "unavailable" | \
-            grep -E "iPhone|iPad" | head -1)
+          if [ -z "$DEVICE_UDID" ]; then
+              echo "ℹ️ iPhone 16 not found, using first available simulator"
+              DEVICE_UDID=$(xcrun simctl list devices available | grep -v "unavailable" | \
+              grep -oE "[A-F0-9-]{36}" | head -1)
           fi
 
-          # Extract name
-          DEVICE_NAME=$(echo "$DEVICE_INFO" | awk -F '(' '{print $1}' | xargs)
-
-          # Extract UDID
-          DEVICE_UDID=$(echo "$DEVICE_INFO" | awk -F '[()]' '{print $2}' | xargs)
-
-          # Extract OS version correctly (the last parentheses field)
-          OS_VERSION=$(echo "$DEVICE_INFO" | grep -oE "\(iOS [0-9.]+\)" | grep -oE "[0-9.]+")
+          if [ -z "$DEVICE_UDID" ]; then
+              echo "⚠️ No simulator available"
+              exit 1
+          fi
 
           # Boot simulator
+          echo "Booting simulator $DEVICE_UDID..."
           xcrun simctl boot "$DEVICE_UDID" || true
           xcrun simctl bootstatus "$DEVICE_UDID" -b
 
-          # Build destination string using **correct OS version**
-          DESTINATION="platform=iOS Simulator,name=$DEVICE_NAME,OS=$OS_VERSION"
+          # Set destination using UDID only
+          DESTINATION="platform=iOS Simulator,id=$DEVICE_UDID"
           echo "✅ Using destination: $DESTINATION"
 
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
