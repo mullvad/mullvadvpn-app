@@ -24,4 +24,7 @@
 -dontwarn com.squareup.okhttp.ConnectionSpec
 -dontwarn com.squareup.okhttp.TlsVersion
 
+# To fix reproducible builds
+-keep class kotlinx.coroutines.**
+
 
