@@ -71,7 +71,8 @@ simple-signal = "1.1"
 talpid-dbus = { path = "../talpid-dbus" }
 
 [target.'cfg(target_os="macos")'.dependencies]
-objc2 = { version = "0.5.2", features = ["exception"] }
+objc2-foundation = { version = "0.3.1", features = ["NSProcessInfo", "NSString", "NSURL"] }
+objc2-service-management = { version = "0.3.1", features = [ "SMAppService", "objc2" ] }
 notify = "8.0.0"
 talpid-macos = { path = "../talpid-macos" }
 
