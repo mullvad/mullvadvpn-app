@@ -61,6 +61,8 @@ jobs:
       - name: Build for ui tests
         run: |
           # Try to find iPhone 16 first
+          xcrun simctl list runtimes
+
           DEVICE_UDID=$(xcrun simctl list devices available | grep "^ *iPhone 16" | \
           grep -oE "[A-F0-9-]{36}" | head -1)
 
@@ -110,6 +112,8 @@ jobs:
       - name: Run unit tests
         run: |
           # Try to find iPhone 16 first
+          xcrun simctl list runtimes
+
           DEVICE_UDID=$(xcrun simctl list devices available | grep "^ *iPhone 16" | \
           grep -oE "[A-F0-9-]{36}" | head -1)
 
