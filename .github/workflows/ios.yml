@@ -60,15 +60,12 @@ jobs:
 
       - name: Build for ui tests
         run: |
-          # Try to find iPhone 16 first
-          xcrun simctl list runtimes
-
-          DEVICE_UDID=$(xcrun simctl list devices available | grep "^ *iPhone 16" | \
+          # Find iPhone 16 first with available runtime
+          DEVICE_UDID=$(xcrun simctl list devices available | grep "^ *iPhone 16" | grep -v "unavailable" | \
           grep -oE "[A-F0-9-]{36}" | head -1)
 
           # Fallback to first available simulator
           if [ -z "$DEVICE_UDID" ]; then
-              echo "ℹ️ iPhone 16 not found, using first available simulator"
               DEVICE_UDID=$(xcrun simctl list devices available | grep -v "unavailable" | \
               grep -oE "[A-F0-9-]{36}" | head -1)
           fi
@@ -111,15 +108,12 @@ jobs:
 
       - name: Run unit tests
         run: |
-          # Try to find iPhone 16 first
-          xcrun simctl list runtimes
-
-          DEVICE_UDID=$(xcrun simctl list devices available | grep "^ *iPhone 16" | \
+          # Find iPhone 16 first with available runtime
+          DEVICE_UDID=$(xcrun simctl list devices available | grep "^ *iPhone 16" | grep -v "unavailable" | \
           grep -oE "[A-F0-9-]{36}" | head -1)
 
           # Fallback to first available simulator
           if [ -z "$DEVICE_UDID" ]; then
-              echo "ℹ️ iPhone 16 not found, using first available simulator"
               DEVICE_UDID=$(xcrun simctl list devices available | grep -v "unavailable" | \
               grep -oE "[A-F0-9-]{36}" | head -1)
           fi
