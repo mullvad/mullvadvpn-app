@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn
 
 import android.app.Application
+import androidx.compose.runtime.Composer
+import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +22,7 @@ import org.koin.core.context.startKoin
 
 private const val LOG_TAG = "mullvad"
 
+@OptIn(ExperimentalComposeRuntimeApi::class)
 class MullvadApplication : Application() {
     override fun onCreate() {
         super.onCreate()
@@ -27,6 +30,9 @@ class MullvadApplication : Application() {
         if (!BuildConfig.DEBUG) {
             Logger.setMinSeverity(Severity.Info)
         }
+        // Improve compose stack traces
+        // Comes with a performance penalty, so only enable in debug builds
+        Composer.setDiagnosticStackTraceEnabled(BuildConfig.DEBUG)
         startKoin { androidContext(this@MullvadApplication) }
         loadKoinModules(listOf(appModule))
         with(getKoin()) {
