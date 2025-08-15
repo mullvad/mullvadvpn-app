@@ -34,6 +34,8 @@ const MIN_MAX_UDP_PAYLOAD_SIZE: u16 = 1200;
 /// MTU - IP header - UDP header
 ///
 /// Note that [quinn::EndpointConfig] accepts a minimum value of 1200.
+/// TODO: server proxy accepts a minimum value of 1252
+///       FIGURE OUT WHY
 const fn compute_udp_payload_size(mtu: u16, target_addr: SocketAddr) -> u16 {
     let ip_overhead = if target_addr.is_ipv4() { 20 } else { 40 };
     let desired_max = mtu - ip_overhead - UDP_HEADER_SIZE;
