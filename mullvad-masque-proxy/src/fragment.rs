@@ -50,15 +50,24 @@ impl Default for Fragments {
     }
 }
 
+pub enum DefragReceived {
+    /// Received a whole packet without fragmentation
+    Nonfragmented(Bytes),
+    /// Received a fragment but was unable to reassemble the packet
+    Fragment,
+    /// Received reassembled packet
+    Reassembled(Bytes),
+}
+
 impl Fragments {
     // TODO: Let caller provide output buffer.
     pub fn handle_incoming_packet(
         &mut self,
         mut payload: Bytes,
-    ) -> Result<Option<Bytes>, DefragError> {
+    ) -> Result<DefragReceived, DefragError> {
         match VarInt::decode(&mut payload) {
             Ok(crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID) => {
-                return Ok(Some(payload));
+                return Ok(DefragReceived::Nonfragmented(payload));
             }
             Ok(crate::HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID) => {}
             unexpected_context_id => {
@@ -95,7 +104,11 @@ impl Fragments {
         let fragments = self.fragment_map.entry(id).or_default();
         fragments.push(fragment);
 
-        Ok(self.try_reassemble(id, fragment_count))
+        let reassembled = self.try_reassemble(id, fragment_count)
+            .map(DefragReceived::Reassembled)
+            // TODO: This may also occur if a packet is discarded
+            .unwrap_or(DefragReceived::Fragment);
+        Ok(reassembled)
     }
 
     // TODO: Let caller provide output buffer.
@@ -199,7 +212,7 @@ mod test {
             fragment_buf.shuffle(&mut thread_rng());
 
             for fragment in fragment_buf {
-                if let Some(reconstructed_packet) =
+                if let DefragReceived::Reassembled(reconstructed_packet) =
                     fragments.handle_incoming_packet(fragment).unwrap()
                 {
                     assert_eq!(payload.as_slice(), reconstructed_packet.as_ref());
@@ -237,7 +250,10 @@ mod test {
             let packet = fragments
                 .handle_incoming_packet(fragment_buf.pop().unwrap())
                 .unwrap();
-            assert!(packet.is_none(), "haven't sent all fragments yet");
+            assert!(
+                matches!(packet, DefragReceived::Fragment),
+                "haven't sent all fragments yet"
+            );
 
             // then send a bunch of fragments to fill the queue
             let mut bad_payload = Bytes::from([0u8; 2].to_vec());
@@ -253,11 +269,11 @@ mod test {
                 let packet = fragments
                     .handle_incoming_packet(incomplete_fragment.clone())
                     .unwrap();
-                assert!(packet.is_none());
+                assert!(matches!(packet, DefragReceived::Fragment));
             }
 
             for fragment in fragment_buf {
-                if let Some(reconstructed_packet) =
+                if let DefragReceived::Reassembled(reconstructed_packet) =
                     fragments.handle_incoming_packet(fragment).unwrap()
                 {
                     assert_eq!(payload.as_slice(), reconstructed_packet.as_ref());

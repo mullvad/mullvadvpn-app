@@ -22,7 +22,7 @@ use typed_builder::TypedBuilder;
 use crate::{
     MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
     compute_udp_payload_size,
-    fragment::{self, Fragments},
+    fragment::{self, DefragReceived, Fragments},
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -311,8 +311,10 @@ async fn proxy_tx_task(udp_socket: impl AsRef<UdpSocket>, mut client_rx: mpsc::R
         let quic_payload = quic_datagram.into_payload();
 
         let packet = match fragments.handle_incoming_packet(quic_payload) {
-            Ok(Some(packet)) => packet,
-            Ok(None) => continue,
+            Ok(DefragReceived::Reassembled(packet) | DefragReceived::Nonfragmented(packet)) => {
+                packet
+            }
+            Ok(DefragReceived::Fragment) => continue,
             Err(err) => {
                 log::trace!("Failed to reassemble incoming packet: {err}");
                 continue;
