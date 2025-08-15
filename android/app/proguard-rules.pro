@@ -26,5 +26,7 @@
 
 # To fix reproducible builds
 -keep class kotlinx.coroutines.**
+-keep class kotlin.sequences.**
+-keep class androidx.compose.ui.**
 
 
