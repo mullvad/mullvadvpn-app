@@ -231,7 +231,7 @@ function Sent() {
     messages
       .pgettext('support-view', 'If needed we will contact you at %(email)s')
       .split('%(email)s', 2);
-  reachBackMessage.splice(1, 0, <StyledEmail key="email">{email}</StyledEmail>);
+  void reachBackMessage.splice(1, 0, <StyledEmail key="email">{email}</StyledEmail>);
 
   return (
     <StyledContent>
@@ -422,7 +422,7 @@ const useCollectLog = () => {
   const { collectProblemReport } = useAppContext();
   const accountHistory = useSelector((state) => state.account.accountHistory);
 
-  const collectLogPromise = useRef<Promise<string>>();
+  const collectLogPromise = useRef<Promise<string>>(undefined);
 
   const collectLog = useCallback(async (): Promise<string> => {
     if (collectLogPromise.current) {
@@ -504,6 +504,11 @@ const ProblemReportContextProvider = ({ children }: { children: ReactNode }) => 
   /**
    * Save the form whenever email or message gets updated
    */
+  // These lint rules are disabled for now because the react plugin for eslint does
+  // not understand that useEffectEvent should not be added to the dependency array.
+  // Enable these rules again when eslint can lint useEffectEvent properly.
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => onMount(email, message), [email, message]);
 
   const value: ProblemReportContextType = useMemo(

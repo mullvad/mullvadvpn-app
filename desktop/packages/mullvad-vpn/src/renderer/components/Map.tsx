@@ -34,9 +34,12 @@ export default function Map() {
 
   const hasLocationValue = hasLocation(connection);
   const location = useMemo<Coordinate | undefined>(() => {
-    return hasLocationValue ? connection : defaultLocation;
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return hasLocationValue
+      ? {
+          latitude: connection.latitude,
+          longitude: connection.longitude,
+        }
+      : defaultLocation;
   }, [hasLocationValue, connection.longitude, connection.latitude]);
 
   if (window.env.e2e) {
@@ -84,19 +87,17 @@ function MapInner(props: MapInnerProps) {
   const { getMapData } = useAppContext();
 
   // When location or connection state changes it's stored here until passed to 3dmap
-  const newParams = useRef<MapParams>();
+  const newParams = useRef<MapParams>(undefined);
 
   // This is set to true when rendering should be paused
   const pause = useRef<boolean>(false);
 
-  const mapRef = useRef<GlMap>();
-  const canvasRef = useRef<HTMLCanvasElement>();
+  const mapRef = useRef<GlMap>(undefined);
+  const canvasRef = useRef<HTMLCanvasElement>(undefined);
 
-  // eslint-disable-next-line react-compiler/react-compiler
   const width = applyPixelRatio(canvasRef.current?.clientWidth ?? window.innerWidth);
 
   // This constant is used for the height the first frame that is rendered only.
-  // eslint-disable-next-line react-compiler/react-compiler
   const height = applyPixelRatio(canvasRef.current?.clientHeight ?? 493);
 
   // Hack to rerender when window size changes or when ref is set.
@@ -125,6 +126,11 @@ function MapInner(props: MapInnerProps) {
     }
   });
 
+  // These lint rules are disabled for now because the react plugin for eslint does
+  // not understand that useEffectEvent should not be added to the dependency array.
+  // Enable these rules again when eslint can lint useEffectEvent properly.
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const render = useCallback(() => requestAnimationFrame(animationFrameCallback), []);
 
   // This is called when the canvas has been rendered the first time and initializes the gl context
@@ -171,11 +177,21 @@ function MapInner(props: MapInnerProps) {
   useEffect(() => {
     addEventListener('resize', onSizeChange);
     return () => removeEventListener('resize', onSizeChange);
+    // These lint rules are disabled for now because the react plugin for eslint does
+    // not understand that useEffectEvent should not be added to the dependency array.
+    // Enable these rules again when eslint can lint useEffectEvent properly.
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     const unsubscribe = window.ipc.window.listenScaleFactorChange(onSizeChange);
     return () => unsubscribe();
+    // These lint rules are disabled for now because the react plugin for eslint does
+    // not understand that useEffectEvent should not be added to the dependency array.
+    // Enable these rules again when eslint can lint useEffectEvent properly.
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const devicePixelRatio = window.devicePixelRatio;

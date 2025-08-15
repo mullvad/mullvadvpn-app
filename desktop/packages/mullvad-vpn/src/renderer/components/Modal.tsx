@@ -55,7 +55,7 @@ interface IModalContainerProps {
 interface IModalContext {
   activeModal: boolean;
   setActiveModal: (value: boolean) => void;
-  previousActiveElement: React.MutableRefObject<HTMLElement | undefined>;
+  previousActiveElement: React.RefObject<HTMLElement | undefined>;
 }
 
 const noActiveModalContextError = new Error('ActiveModalContext.Provider missing');
@@ -66,14 +66,14 @@ const ActiveModalContext = React.createContext<IModalContext>({
   setActiveModal(_value) {
     throw noActiveModalContextError;
   },
-  get previousActiveElement(): React.MutableRefObject<HTMLElement | undefined> {
+  get previousActiveElement(): React.RefObject<HTMLElement | undefined> {
     throw noActiveModalContextError;
   },
 });
 
 export function ModalContainer(props: IModalContainerProps) {
   const [activeModal, setActiveModal] = useState(false);
-  const previousActiveElement = useRef<HTMLElement>();
+  const previousActiveElement = useRef<HTMLElement>(undefined);
 
   const contextValue = useMemo(
     () => ({
@@ -193,6 +193,11 @@ export function ModalAlert(props: IModalAlertProps & { isOpen: boolean }) {
     }));
   });
 
+  // These lint rules are disabled for now because the react plugin for eslint does
+  // not understand that useEffectEvent should not be added to the dependency array.
+  // Enable these rules again when eslint can lint useEffectEvent properly.
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => onOpenStateChange(isOpen), [isOpen]);
 
   if (!openState.wasOpen && !isOpen && !openState.isClosing) {

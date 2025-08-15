@@ -13,11 +13,11 @@ import { SpacePreAllocationView } from './SpacePreAllocationView';
 interface ScrollPositionContext {
   scrollPositions: React.RefObject<Partial<Record<LocationType, ScrollPosition>>>;
   // The selected location element is used to scroll to it when opening the view
-  selectedLocationRef: React.RefObject<HTMLDivElement>;
+  selectedLocationRef: React.RefObject<HTMLDivElement | null>;
   // The scroll view container is used to get the current scroll position and to restore an old one
-  scrollViewRef: React.RefObject<CustomScrollbarsRef>;
+  scrollViewRef: React.RefObject<CustomScrollbarsRef | null>;
   // The space pre allocation view is used to enable smooth scrolling when opening locations
-  spacePreAllocationViewRef: React.RefObject<SpacePreAllocationView>;
+  spacePreAllocationViewRef: React.RefObject<SpacePreAllocationView | null>;
   saveScrollPosition: () => void;
   resetScrollPositions: () => void;
   scrollIntoView: (rect: DOMRect) => void;
