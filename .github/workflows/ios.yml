@@ -60,13 +60,40 @@ jobs:
 
       - name: Build for ui tests
         run: |
+          # Pick iPhone 16 first
+          DEVICE_INFO=$(xcrun simctl list devices available | grep "^ *iPhone 16" | head -1)
+
+          # Fallback to first available simulator
+          if [ -z "$DEVICE_INFO" ]; then
+              DEVICE_INFO=$(xcrun simctl list devices available | grep -v "unavailable" | \
+              grep -E "iPhone|iPad" | head -1)
+          fi
+
+          # Extract name
+          DEVICE_NAME=$(echo "$DEVICE_INFO" | awk -F '(' '{print $1}' | xargs)
+
+          # Extract UDID
+          DEVICE_UDID=$(echo "$DEVICE_INFO" | awk -F '[()]' '{print $2}' | xargs)
+
+          # Extract OS version correctly (the last parentheses field)
+          OS_VERSION=$(echo "$DEVICE_INFO" | awk -F '[()]' '{print $NF}' | xargs)
+
+          # Boot simulator
+          xcrun simctl boot "$DEVICE_UDID" || true
+          xcrun simctl bootstatus "$DEVICE_UDID" -b
+
+          # Build destination string using **correct OS version**
+          DESTINATION="platform=iOS Simulator,name=$DEVICE_NAME,OS=$OS_VERSION"
+          echo "✅ Using destination: $DESTINATION"
+
+
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
           -project MullvadVPN.xcodeproj \
           -scheme MullvadVPNUITests \
           -testPlan MullvadVPNUITestsAll \
           -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
           -disableAutomaticPackageResolution \
-          -destination "platform=iOS Simulator,name=iPhone 16" \
+          -destination "$DESTINATION" \
           clean build-for-testing 2>&1 | xcbeautify
         working-directory: ios/
 
@@ -84,15 +111,41 @@ jobs:
 
       - name: Run unit tests
         run: |
+          # Pick iPhone 16 first
+          DEVICE_INFO=$(xcrun simctl list devices available | grep "^ *iPhone 16" | head -1)
+
+          # Fallback to first available simulator
+          if [ -z "$DEVICE_INFO" ]; then
+            DEVICE_INFO=$(xcrun simctl list devices available | grep -v "unavailable" | \
+            grep -E "iPhone|iPad" | head -1)
+          fi
+
+          # Extract name
+          DEVICE_NAME=$(echo "$DEVICE_INFO" | awk -F '(' '{print $1}' | xargs)
+
+          # Extract UDID
+          DEVICE_UDID=$(echo "$DEVICE_INFO" | awk -F '[()]' '{print $2}' | xargs)
+
+          # Extract OS version correctly (the last parentheses field)
+          OS_VERSION=$(echo "$DEVICE_INFO" | awk -F '[()]' '{print $NF}' | xargs)
+
+          # Boot simulator
+          xcrun simctl boot "$DEVICE_UDID" || true
+          xcrun simctl bootstatus "$DEVICE_UDID" -b
+
+          # Build destination string using **correct OS version**
+          DESTINATION="platform=iOS Simulator,name=$DEVICE_NAME,OS=$OS_VERSION"
+          echo "✅ Using destination: $DESTINATION"
+
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
-            -project MullvadVPN.xcodeproj \
-            -scheme MullvadVPN \
-            -testPlan MullvadVPNCI \
-            -destination "platform=iOS Simulator,name=iPhone 16" \
-            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
-            -disableAutomaticPackageResolution \
-            -resultBundlePath xcode-test-report \
-            test 2>&1 | xcbeautify
+          -project MullvadVPN.xcodeproj \
+          -scheme MullvadVPN \
+          -testPlan MullvadVPNCI \
+          -destination "platform=iOS Simulator,name=iPhone 16" \
+          -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+          -disableAutomaticPackageResolution \
+          -resultBundlePath xcode-test-report \
+          test 2>&1 | xcbeautify
         working-directory: ios/
 
       - name: Archive test report
