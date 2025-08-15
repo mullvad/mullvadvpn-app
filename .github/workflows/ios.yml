@@ -78,7 +78,7 @@ jobs:
           # Boot simulator
           echo "Booting simulator $DEVICE_UDID..."
           xcrun simctl boot "$DEVICE_UDID" || true
-          xcrun simctl bootstatus "$DEVICE_UDID" -b
+          xcrun simctl bootstatus "$DEVICE_UDID" -b -w
 
           # Set destination using UDID only
           DESTINATION="platform=iOS Simulator,id=$DEVICE_UDID"
@@ -126,7 +126,7 @@ jobs:
           # Boot simulator
           echo "Booting simulator $DEVICE_UDID..."
           xcrun simctl boot "$DEVICE_UDID" || true
-          xcrun simctl bootstatus "$DEVICE_UDID" -b
+          xcrun simctl bootstatus "$DEVICE_UDID" -b -w
 
           # Set destination using UDID only
           DESTINATION="platform=iOS Simulator,id=$DEVICE_UDID"
