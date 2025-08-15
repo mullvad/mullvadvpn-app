@@ -1,4 +1,6 @@
 import {
+  IpVersion,
+  LiftedConstraint,
   Ownership,
   RelayEndpointType,
   RelayLocation,
@@ -17,6 +19,7 @@ import {
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
 } from '../redux/settings/reducers';
+import { IpAddress, IPv4Address, IPv6Address } from './ip';
 
 export enum EndpointType {
   any,
@@ -38,8 +41,10 @@ export function filterLocationsByQuic(
   tunnelProtocol: TunnelProtocol,
   locationType: LocationType,
   multihop: boolean,
+  ipVersion: LiftedConstraint<IpVersion>,
 ): IRelayLocationCountryRedux[] {
-  const quickOnRelay = (relay: IRelayLocationRelayRedux) => relay.quic !== undefined;
+  const quickOnRelay = (relay: IRelayLocationRelayRedux) =>
+    relay.quic !== undefined && containsIpVersionAddr(relay.quic.addrIn, ipVersion);
   return quicFilterActive(quic, locationType, tunnelProtocol, multihop)
     ? filterLocationsImpl(locations, quickOnRelay)
     : locations;
@@ -93,6 +98,23 @@ export function filterLocations(
   return filters.some((filter) => filter !== undefined)
     ? filterLocationsImpl(locations, (relay) => filters.every((filter) => filter?.(relay) ?? true))
     : locations;
+}
+
+function containsIpVersionAddr(addrs: string[], version: LiftedConstraint<IpVersion>): boolean {
+  if (version === 'any') {
+    return addrs.length > 0;
+  }
+  return addrs.some((strAddr) => {
+    try {
+      const addr = IpAddress.fromString(strAddr);
+      return (
+        (addr instanceof IPv4Address && version === 'ipv4') ||
+        (addr instanceof IPv6Address && version === 'ipv6')
+      );
+    } catch {
+      return false;
+    }
+  });
 }
 
 function getTunnelProtocolFilter(
