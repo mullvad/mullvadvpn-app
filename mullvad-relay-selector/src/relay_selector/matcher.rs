@@ -145,7 +145,18 @@ fn filter_on_obfuscation(
             )
         }
         // QUIC is only enabled on some relays
-        ObfuscationQuery::Quic => relay.wireguard().is_some_and(|wg| wg.quic().is_some()),
+        ObfuscationQuery::Quic => relay.wireguard().is_some_and(|wg| {
+            if let Some(quic) = wg.quic() {
+                match (query.ip_version, quic.in_ipv4(), quic.in_ipv6()) {
+                    (Constraint::Only(IpVersion::V4), Some(_), _) => true,
+                    (Constraint::Only(IpVersion::V6), _, Some(_)) => true,
+                    (Constraint::Any, _, _) => true,
+                    _ => false,
+                }
+            } else {
+                false
+            }
+        }),
         // Other relays are compatible with this query
         ObfuscationQuery::Off | ObfuscationQuery::Auto | ObfuscationQuery::Udp2tcp(_) => true,
     }
