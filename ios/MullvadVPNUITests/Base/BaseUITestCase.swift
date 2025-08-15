@@ -21,9 +21,12 @@ class BaseUITestCase: XCTestCase {
     /// The apps default country - the preselected country location after fresh install
     static let appDefaultCountry = "Sweden"
 
-    /// Default country to use in tests.
+    /// Default country to use in tests
     static let testsDefaultCountryName = "Sweden"
     static let testsDefaultCountryIdentifier = "se"
+
+    /// Default DAITA supported country to use in tests
+    static let testsDefaultDAITACountryName = "Relay Software Country"
 
     /// Default city to use in tests
     static let testsDefaultCityName = "Gothenburg"
@@ -32,6 +35,7 @@ class BaseUITestCase: XCTestCase {
     /// Default relay to use in tests
     static let testsDefaultRelayName = "se-got-wg-001"
 
+    /// Default QUIC supported relay to use in tests
     static let testsDefaultQuicCountryName = "Ireland"
     static let testsDefaultQuicCityName = "Dublin"
     static let testsDefaultQuicRelayName = "ie-dub-wg-001"
@@ -102,7 +106,7 @@ class BaseUITestCase: XCTestCase {
 
     /// Create temporary account without time. Will be created using partner API if token is configured, else falling back to app API
     func createTemporaryAccountWithoutTime() -> String {
-        if partnerApiToken != nil {
+        if let partnerApiToken, !partnerApiToken.isEmpty {
             let partnerAPIClient = PartnerAPIClient()
             return partnerAPIClient.createAccount()
         } else {

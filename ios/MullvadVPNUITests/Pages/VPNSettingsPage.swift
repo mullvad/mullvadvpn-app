@@ -32,6 +32,7 @@ class VPNSettingsPage: Page {
         let expandButton = matchingCells.buttons[.expandButton]
         let lastCell = tableView.cells.allElementsBoundByIndex.last!
         tableView.scrollDownToElement(element: lastCell)
+        _ = expandButton.waitForExistence(timeout: BaseUITestCase.defaultTimeout)
         return expandButton
     }
 

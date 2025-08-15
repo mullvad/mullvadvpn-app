@@ -54,6 +54,7 @@ class AccountDeviceRow: UIView {
             string: title,
             attributes: attributes
         )
+        button.setAccessibilityIdentifier(.deviceManagementButton)
         return button
     }()
 
