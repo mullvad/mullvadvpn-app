@@ -55,10 +55,10 @@ impl Fragments {
     pub fn handle_incoming_packet(
         &mut self,
         mut payload: Bytes,
-    ) -> Result<Option<Bytes>, DefragError> {
+    ) -> Result<(Option<Bytes>, bool), DefragError> {
         match VarInt::decode(&mut payload) {
             Ok(crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID) => {
-                return Ok(Some(payload));
+                return Ok((Some(payload), false));
             }
             Ok(crate::HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID) => {}
             unexpected_context_id => {
@@ -95,7 +95,7 @@ impl Fragments {
         let fragments = self.fragment_map.entry(id).or_default();
         fragments.push(fragment);
 
-        Ok(self.try_reassemble(id, fragment_count))
+        Ok((self.try_reassemble(id, fragment_count), true))
     }
 
     // TODO: Let caller provide output buffer.

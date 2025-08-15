@@ -554,8 +554,8 @@ async fn client_socket_tx_task(
         }
         let payload = response.into_payload();
 
-        if let Ok(Some(payload)) = fragments.handle_incoming_packet(payload) {
-            stats.rx(payload.len(), false /* TODO */);
+        if let Ok((Some(payload), frag)) = fragments.handle_incoming_packet(payload) {
+            stats.rx(payload.len(), frag);
 
             client_socket
                 .send_to(payload.chunk(), return_addr)
