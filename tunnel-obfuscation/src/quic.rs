@@ -143,13 +143,12 @@ impl Quic {
         #[cfg(target_os = "linux")]
         let config_builder = config_builder.fwmark(settings.fwmark);
 
-        let client = Client::connect(config_builder.build())
-            .await
-            .map_err(Error::MasqueProxyError)?;
-
         let token = CancellationToken::new();
 
-        let local_proxy = tokio::spawn(Quic::run_forwarding(client, token.child_token()));
+        let local_proxy = tokio::spawn(Quic::run_forwarding(
+            config_builder.build(),
+            token.child_token(),
+        ));
 
         let quic = Quic {
             local_endpoint: local_udp_client_addr,
@@ -160,12 +159,12 @@ impl Quic {
         Ok(quic)
     }
 
-    async fn run_forwarding(
-        masque_proxy_client: Client,
-        cancel_token: CancellationToken,
-    ) -> Result<()> {
+    async fn run_forwarding(config: ClientConfig, cancel_token: CancellationToken) -> Result<()> {
         log::trace!("Spawning QUIC client ..");
-        let mut client = tokio::spawn(masque_proxy_client.run());
+        let client = Client::connect(config)
+            .await
+            .map_err(Error::MasqueProxyError)?;
+        let mut client = tokio::spawn(client.run());
         log::trace!("QUIC client is running! QUIC Obfuscator is serving traffic 🎉");
         tokio::select! {
             _ = cancel_token.cancelled() => log::trace!("Stopping QUIC obfuscation"),
