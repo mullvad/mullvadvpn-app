@@ -29,7 +29,7 @@ struct MethodTestingStatusCellContentConfiguration: UIContentConfiguration, Equa
     var detailText: String?
 
     /// Layout margins.
-    var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
+    var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.defaultLayoutMargins
 
     func makeContentView() -> UIView & UIContentView {
         return MethodTestingStatusCellContentView(configuration: self)

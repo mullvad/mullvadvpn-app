@@ -83,18 +83,15 @@ enum UIMetrics {
         static let selectableSettingsCellLeftViewSpacing: CGFloat = 12
         static let checkableSettingsCellLeftViewSpacing: CGFloat = 12
 
-        /// Cell layout margins used in table views that use inset style.
-        static let insetLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
+        /// Cell layout margins used in table views.
+        static let defaultLayoutMargins = NSDirectionalEdgeInsets(top: 11, leading: 16, bottom: 11, trailing: 16)
 
-        static let apiAccessLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 24, bottom: 24, trailing: 24)
-        static let apiAccessInsetLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
         static let settingsValidationErrorLayoutMargins = NSDirectionalEdgeInsets(
             top: 8,
             leading: 16,
             bottom: 8,
             trailing: 16
         )
-        static let apiAccessSwitchCellTrailingMargin: CGFloat = apiAccessInsetLayoutMargins.trailing - 4
         static let apiAccessPickerListContentInsetTop: CGFloat = 16
         static let verticalDividerHeight: CGFloat = 22
         static let detailsButtonSize: CGFloat = 60

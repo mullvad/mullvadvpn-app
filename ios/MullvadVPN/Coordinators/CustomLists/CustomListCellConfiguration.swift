@@ -85,7 +85,7 @@ struct CustomListCellConfiguration {
     }
 
     private func configureLocations(_ cell: UITableViewCell, itemIdentifier: CustomListItemIdentifier) {
-        var contentConfiguration = UIListContentConfiguration.mullvadValueCell(tableStyle: tableView.style)
+        var contentConfiguration = ListCellContentConfiguration()
 
         contentConfiguration.text = itemIdentifier.text
         cell.contentConfiguration = contentConfiguration

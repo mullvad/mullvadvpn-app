@@ -30,7 +30,7 @@ struct SwitchCellContentConfiguration: UIContentConfiguration, Equatable {
     var textProperties = TextProperties()
 
     /// Content view layout margins.
-    var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
+    var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.defaultLayoutMargins
 
     /// Whether the toggle is enabled or disabled
     var isEnabled = true

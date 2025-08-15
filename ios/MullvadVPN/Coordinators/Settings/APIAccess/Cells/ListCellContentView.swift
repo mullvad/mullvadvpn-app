@@ -59,28 +59,33 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
         let textProperties = actualConfiguration.textProperties
 
         textLabel.font = textProperties.font
-        textLabel.adjustsFontForContentSizeCategory = textProperties.adjustsFontForContentSizeCategory
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.textColor = textProperties.color
-
+        textLabel.numberOfLines = 0
         textLabel.text = actualConfiguration.text
+        textLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        textLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
     }
 
     private func configureSecondaryTextLabel() {
         let textProperties = actualConfiguration.secondaryTextProperties
 
         secondaryTextLabel.font = textProperties.font
-        secondaryTextLabel.adjustsFontForContentSizeCategory = textProperties.adjustsFontForContentSizeCategory
+        secondaryTextLabel.adjustsFontForContentSizeCategory = true
         secondaryTextLabel.textColor = textProperties.color
-
+        secondaryTextLabel.numberOfLines = 0
         secondaryTextLabel.text = actualConfiguration.secondaryText
+        secondaryTextLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        secondaryTextLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
 
     private func configureTertiaryTextLabel() {
         let textProperties = actualConfiguration.tertiaryTextProperties
 
         tertiaryTextLabel.font = textProperties.font
-        tertiaryTextLabel.adjustsFontForContentSizeCategory = textProperties.adjustsFontForContentSizeCategory
+        tertiaryTextLabel.adjustsFontForContentSizeCategory = true
         tertiaryTextLabel.textColor = textProperties.color
+        tertiaryTextLabel.numberOfLines = 0
 
         tertiaryTextLabel.text = actualConfiguration.tertiaryText
     }

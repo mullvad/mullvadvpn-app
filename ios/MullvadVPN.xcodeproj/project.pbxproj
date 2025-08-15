@@ -336,7 +336,6 @@
 		58CEB2F32AFD0BA100E6E088 /* TextCellContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CEB2F22AFD0BA100E6E088 /* TextCellContentView.swift */; };
 		58CEB2F52AFD0BB500E6E088 /* TextCellContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CEB2F42AFD0BB500E6E088 /* TextCellContentConfiguration.swift */; };
 		58CEB2F92AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CEB2F82AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift */; };
-		58CEB2FB2AFD13E600E6E088 /* UIListContentConfiguration+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CEB2FA2AFD13E600E6E088 /* UIListContentConfiguration+Extensions.swift */; };
 		58CEB2FD2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CEB2FC2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift */; };
 		58CEB3022AFD365600E6E088 /* SwitchCellContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CEB3012AFD365600E6E088 /* SwitchCellContentConfiguration.swift */; };
 		58CEB3042AFD36CE00E6E088 /* SwitchCellContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CEB3032AFD36CE00E6E088 /* SwitchCellContentView.swift */; };
@@ -1965,7 +1964,6 @@
 		58CEB2F22AFD0BA100E6E088 /* TextCellContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCellContentView.swift; sourceTree = "<group>"; };
 		58CEB2F42AFD0BB500E6E088 /* TextCellContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCellContentConfiguration.swift; sourceTree = "<group>"; };
 		58CEB2F82AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBackgroundConfiguration+Extensions.swift"; sourceTree = "<group>"; };
-		58CEB2FA2AFD13E600E6E088 /* UIListContentConfiguration+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIListContentConfiguration+Extensions.swift"; sourceTree = "<group>"; };
 		58CEB2FC2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableView+ReuseIdentifier.swift"; sourceTree = "<group>"; };
 		58CEB3012AFD365600E6E088 /* SwitchCellContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchCellContentConfiguration.swift; sourceTree = "<group>"; };
 		58CEB3032AFD36CE00E6E088 /* SwitchCellContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchCellContentView.swift; sourceTree = "<group>"; };
@@ -3446,7 +3444,6 @@
 				7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */,
 				440870812D7A00B00038972F /* UIImage+Assets.swift */,
 				F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */,
-				58CEB2FA2AFD13E600E6E088 /* UIListContentConfiguration+Extensions.swift */,
 				58CEB2FC2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift */,
 				7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */,
 				7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */,
@@ -6731,7 +6728,6 @@
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				F0ADF1D12D01B55C00299F09 /* ChipModel.swift in Sources */,
 				F09A297B2A9F8A9B00EA3B6F /* LogoutDialogueView.swift in Sources */,
-				58CEB2FB2AFD13E600E6E088 /* UIListContentConfiguration+Extensions.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */,
 				585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */,

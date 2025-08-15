@@ -113,6 +113,17 @@ extension CustomListDataSourceConfiguration: UITableViewDelegate {
         }
     }
 
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        let snapshot = dataSource.snapshot()
+        let sectionIdentifier = snapshot.sectionIdentifiers[section]
+        switch sectionIdentifier {
+        case .name:
+            return UITableView.automaticDimension
+        default:
+            return 24.0
+        }
+    }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
 
