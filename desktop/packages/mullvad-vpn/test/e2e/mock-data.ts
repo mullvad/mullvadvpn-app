@@ -56,7 +56,7 @@ const relayList: IRelayList = {
               endpointType: 'wireguard',
               daita: true,
               quic: {
-                addrIn: [],
+                addrIn: ['10.0.0.4'],
                 domain: '',
                 token: '',
               },
