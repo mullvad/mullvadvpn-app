@@ -16,10 +16,13 @@ use super::query::{ObfuscationQuery, RelayQuery, WireguardRelayQuery};
 
 /// Filter a list of relays and their endpoints based on constraints.
 /// Only relays with (and including) matching endpoints are returned.
+///
+/// - `save_a_dime`: If `include_in_country` should be filtered on or not.
 pub fn filter_matching_relay_list(
     query: &RelayQuery,
     relay_list: &RelayList,
     custom_lists: &CustomListsSettings,
+    save_a_dime: bool,
 ) -> Vec<Relay> {
     let relays = relay_list.relays();
 
@@ -40,27 +43,45 @@ pub fn filter_matching_relay_list(
             // Filter by obfuscation support
             .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay));
 
-    // The last filtering to be done is on the `include_in_country` attribute found on each
-    // relay. When the location constraint is based on country, a relay which has
-    // `include_in_country` set to true should always be prioritized over relays which has this
-    // flag set to false. We should only consider relays with `include_in_country` set to false
-    // if there are no other candidates left.
+    let relays = shortlist.cloned().collect();
+    match save_a_dime {
+        true => filter_on_include_in_country(query, custom_lists, relays),
+        false => relays,
+    }
+}
+
+/// The last filtering to be done is on the `include_in_country` attribute found on each
+/// relay. When the location constraint is based on country, a relay which has
+/// `include_in_country` set to true should always be prioritized over relays which has this
+/// flag set to false. We should only consider relays with `include_in_country` set to false
+/// if there are no other candidates left.
+///
+/// BUT! If the shortlist is short enough, the only sensible option might be to keep relays that
+/// are not marked with the `include_in_country` flag.
+pub fn filter_on_include_in_country(
+    query: &RelayQuery,
+    custom_lists: &CustomListsSettings,
+    relays: Vec<Relay>,
+) -> Vec<Relay> {
+    let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
+
     match &locations {
-        Constraint::Any => shortlist.cloned().collect(),
+        Constraint::Any => relays,
         Constraint::Only(locations) => {
             let mut included = HashSet::new();
             let mut excluded = HashSet::new();
             for location in locations {
-                let (included_in_country, not_included_in_country): (Vec<_>, Vec<_>) = shortlist
+                let (included_in_country, not_included_in_country): (Vec<_>, Vec<_>) = relays
                     .clone()
+                    .into_iter()
                     .partition(|relay| location.is_country() && relay.include_in_country);
                 included.extend(included_in_country);
                 excluded.extend(not_included_in_country);
             }
             if included.is_empty() {
-                excluded.into_iter().cloned().collect()
+                excluded.into_iter().collect()
             } else {
-                included.into_iter().cloned().collect()
+                included.into_iter().collect()
             }
         }
     }
