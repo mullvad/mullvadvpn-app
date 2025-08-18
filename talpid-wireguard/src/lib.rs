@@ -168,19 +168,24 @@ impl WireguardMonitor {
         let endpoint_addrs = [params.get_next_hop_endpoint().address.ip()];
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
+        // Adjust MTU unless overridden by user
+        if params.options.mtu.is_none() {
+            config.mtu = clamp_mtu(params, config.mtu);
+        }
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
+        let obfuscation_mtu = config.mtu;
         let obfuscator = args
             .runtime
             .block_on(obfuscation::apply_obfuscation_config(
                 &mut config,
+                obfuscation_mtu,
                 close_obfs_sender.clone(),
             ))?;
-        // Don't adjust MTU if overridden by user
-        if params.options.mtu.is_none() {
-            if let Some(obfuscator) = obfuscator.as_ref() {
-                config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
-            }
-            config.mtu = clamp_mtu(params, config.mtu);
+        // Adjust MTU again for obfuscation packet overhead
+        if params.options.mtu.is_none()
+            && let Some(obfuscator) = obfuscator.as_ref()
+        {
+            config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
         }
 
         // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test
@@ -279,6 +284,7 @@ impl WireguardMonitor {
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
+                    obfuscation_mtu,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
                 )
@@ -414,10 +420,12 @@ impl WireguardMonitor {
             Config::from_parameters(params, desired_mtu).map_err(Error::WireguardConfigError)?;
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
+        let obfuscation_mtu = config.mtu;
         let obfuscator = args
             .runtime
             .block_on(obfuscation::apply_obfuscation_config(
                 &mut config,
+                obfuscation_mtu,
                 close_obfs_sender.clone(),
                 args.tun_provider.clone(),
             ))?;
@@ -520,6 +528,7 @@ impl WireguardMonitor {
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
+                    obfuscation_mtu,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
                     args.tun_provider,
