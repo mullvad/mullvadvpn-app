@@ -22,8 +22,11 @@ struct ButtonCellContentConfiguration: UIContentConfiguration, Equatable {
     /// Primary action for button.
     var primaryAction: UIAction?
 
+    /// Style for displayed text.
+    var textProperties = TextProperties()
+
     /// The button content edge insets.
-    var directionalContentEdgeInsets: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.insetLayoutMargins
+    var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.defaultLayoutMargins
 
     // Accessibility identifier.
     var accessibilityIdentifier: AccessibilityIdentifier?
@@ -39,7 +42,7 @@ struct ButtonCellContentConfiguration: UIContentConfiguration, Equatable {
 
 extension ButtonCellContentConfiguration {
     struct TextProperties: Equatable {
-        var font = UIFont.systemFont(ofSize: 17)
+        var font = UIFont.mullvadSmallSemiBold
         var color = UIColor.Cell.titleTextColor
     }
 }

@@ -55,9 +55,9 @@ class EditAccessMethodViewController: UIViewController {
 
         let title = createTitle()
         view.addConstrainedSubviews([title, tableView]) {
-            title.pinEdgesToSuperviewMargins(PinnableEdges([.leading(7), .trailing(7), .top(0)]))
+            title.pinEdgesToSuperviewMargins(PinnableEdges([.leading(16), .trailing(16), .top(8)]))
             tableView.pinEdgesToSuperview(.all().excluding(.top))
-            tableView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 4)
+            tableView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 16)
         }
 
         configureDataSource()
@@ -135,8 +135,6 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
 
         switch sectionIdentifier {
-        case .methodSettings, .deleteMethod, .testMethod, .enableMethod:
-            return UITableView.automaticDimension
         case .testingStatus:
             return subject.value.testingStatus == .initial ? 0 : UITableView.automaticDimension
         default:
@@ -155,9 +153,13 @@ extension EditAccessMethodViewController: UITableViewDelegate {
             .dequeueReusableView(withIdentifier: AccessMethodHeaderFooterReuseIdentifier.primary)
         else { return nil }
 
-        var contentConfiguration = UIListContentConfiguration.mullvadGroupedFooter(tableStyle: tableView.style)
+        var contentConfiguration = ListCellContentConfiguration(textProperties: ListCellContentConfiguration
+            .TextProperties(
+                font: .mullvadMini,
+                color: .TableSection.footerTextColor
+            )
+        )
         contentConfiguration.text = sectionFooterText
-
         headerView.contentConfiguration = contentConfiguration
 
         return headerView
@@ -166,20 +168,22 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     // Footer height shenanigans to avoid extra spacing in testing sections when testing is NOT ongoing.
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
-        let marginToDeleteMethodItem: CGFloat = 24
+        let defaultMargin: CGFloat = 24
 
         switch sectionIdentifier {
-        case .enableMethod, .methodSettings, .deleteMethod, .testMethod:
-            return UITableView.automaticDimension
+        case .enableMethod, .methodSettings:
+            return defaultMargin
         case .testingStatus:
             switch subject.value.testingStatus {
             case .initial, .inProgress:
                 return 0
             case .succeeded, .failed:
-                return marginToDeleteMethodItem
+                return defaultMargin
             }
         case .cancelTest:
-            return subject.value.testingStatus == .inProgress ? marginToDeleteMethodItem : 0
+            return subject.value.testingStatus == .inProgress ? defaultMargin : 0
+        case .testMethod, .deleteMethod:
+            return UITableView.automaticDimension
         }
     }
 
@@ -265,7 +269,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     }
 
     private func configureMethodSettings(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
-        var contentConfiguration = UIListContentConfiguration.mullvadCell(tableStyle: tableView.style)
+        var contentConfiguration = ListCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
         cell.contentConfiguration = contentConfiguration
 
