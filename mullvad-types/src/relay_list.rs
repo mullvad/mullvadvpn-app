@@ -6,6 +6,7 @@ use std::{
     ops::RangeInclusive,
 };
 use talpid_types::net::{TransportProtocol, proxy::Shadowsocks, wireguard};
+use vec1::Vec1;
 
 /// Stores a list of relays for each country obtained from the API using
 /// `mullvad_api::RelayListProxy`. This can also be passed to frontends.
@@ -156,21 +157,12 @@ pub struct Quic {
 }
 
 impl Quic {
-    /// Return a new QUIC object, if `addr_in` is non-empty
-    pub fn new(
-        addr_in: impl IntoIterator<Item = IpAddr>,
-        token: String,
-        domain: String,
-    ) -> Option<Self> {
-        let addr_in = HashSet::from_iter(addr_in);
-        if addr_in.is_empty() {
-            return None;
-        }
-        Some(Self {
-            addr_in,
+    pub fn new(addr_in: Vec1<IpAddr>, token: String, domain: String) -> Self {
+        Self {
+            addr_in: addr_in.into_iter().collect(),
             token,
             domain,
-        })
+        }
     }
 
     /// In address as an IPv4 address.

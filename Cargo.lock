@@ -3083,6 +3083,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower 0.5.1",
+ "vec1",
 ]
 
 [[package]]
@@ -3223,6 +3224,7 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.9",
  "uuid",
+ "vec1",
 ]
 
 [[package]]

@@ -401,7 +401,7 @@ struct Quic {
 
 impl From<Quic> for relay_list::Quic {
     fn from(value: Quic) -> Self {
-        Self::new(value.addr_in, value.token, value.domain).expect("addr_in is non-empty")
+        Self::new(value.addr_in, value.token, value.domain)
     }
 }
 

@@ -5,6 +5,8 @@ use std::{
     str::FromStr,
 };
 
+use vec1::Vec1;
+
 use crate::types::{FromProtobufTypeError, conversions::bytes_to_pubkey, proto};
 
 use super::net::try_transport_protocol_from_i32;
@@ -186,9 +188,9 @@ impl TryFrom<proto::relay::relay_data::wireguard::Quic> for mullvad_types::relay
             .into_iter()
             .map(parse_addr)
             .collect::<Result<Vec<IpAddr>, FromProtobufTypeError>>()?;
-        Self::new(addr_in, token, domain).ok_or(FromProtobufTypeError::InvalidArgument(
-            "Invalid QUIC object",
-        ))
+        let addr_in = Vec1::try_from_vec(addr_in)
+            .map_err(|_err| FromProtobufTypeError::InvalidArgument("Invalid QUIC object"))?;
+        Ok(Self::new(addr_in, token, domain))
     }
 }
 
