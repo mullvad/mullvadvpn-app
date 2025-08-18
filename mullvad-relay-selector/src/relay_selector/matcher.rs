@@ -16,15 +16,28 @@ use super::query::{ObfuscationQuery, RelayQuery, WireguardRelayQuery};
 
 /// Filter a list of relays and their endpoints based on constraints.
 /// Only relays with (and including) matching endpoints are returned.
+///
+/// This function filter relays on the `include_in_country` flag, as opposed to [filter_matching_relay_by_query].
 pub fn filter_matching_relay_list(
     query: &RelayQuery,
     relay_list: &RelayList,
     custom_lists: &CustomListsSettings,
 ) -> Vec<Relay> {
-    let relays = relay_list.relays();
-
+    let relays = filter_matching_relay_list_by_query(query, relay_list, custom_lists);
     let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
-    let shortlist = relays
+    filter_on_include_in_country(locations, relays)
+}
+
+/// Filter a list of relays and their endpoints based on constraints.
+/// Only relays with (and including) matching endpoints are returned.
+pub fn filter_matching_relay_list_by_query(
+    query: &RelayQuery,
+    relay_list: &RelayList,
+    custom_lists: &CustomListsSettings,
+) -> Vec<Relay> {
+    let relays = relay_list.relays();
+    let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
+    relays
             // Filter on tunnel type
             .filter(|relay| filter_tunnel_type(&query.tunnel_protocol(), relay))
             // Filter on active relays
@@ -38,32 +51,7 @@ pub fn filter_matching_relay_list(
             // Filter by DAITA support
             .filter(|relay| filter_on_daita(&query.wireguard_constraints().daita, relay))
             // Filter by obfuscation support
-            .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay));
-
-    // The last filtering to be done is on the `include_in_country` attribute found on each
-    // relay. When the location constraint is based on country, a relay which has
-    // `include_in_country` set to true should always be prioritized over relays which has this
-    // flag set to false. We should only consider relays with `include_in_country` set to false
-    // if there are no other candidates left.
-    match &locations {
-        Constraint::Any => shortlist.cloned().collect(),
-        Constraint::Only(locations) => {
-            let mut included = HashSet::new();
-            let mut excluded = HashSet::new();
-            for location in locations {
-                let (included_in_country, not_included_in_country): (Vec<_>, Vec<_>) = shortlist
-                    .clone()
-                    .partition(|relay| location.is_country() && relay.include_in_country);
-                included.extend(included_in_country);
-                excluded.extend(not_included_in_country);
-            }
-            if included.is_empty() {
-                excluded.into_iter().cloned().collect()
-            } else {
-                included.into_iter().cloned().collect()
-            }
-        }
-    }
+            .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay)).cloned().collect()
 }
 
 pub fn filter_matching_bridges<'a, R: Iterator<Item = &'a Relay> + Clone>(
@@ -188,6 +176,36 @@ fn filter_on_shadowsocks(
 
         // Otherwise, any relay works.
         _ => true,
+    }
+}
+
+/// When the location constraint is based on country, a relay which has
+/// `include_in_country` set to true should always be prioritized over relays which has this
+/// flag set to false. We should only consider relays with `include_in_country` set to false
+/// if there are no other candidates left.
+fn filter_on_include_in_country(
+    locations: Constraint<ResolvedLocationConstraint<'_>>,
+    relays: Vec<Relay>,
+) -> Vec<Relay> {
+    match locations {
+        Constraint::Any => relays,
+        Constraint::Only(locations) => {
+            let mut included = HashSet::new();
+            let mut excluded = HashSet::new();
+            for location in &locations {
+                let (included_in_country, not_included_in_country): (Vec<_>, Vec<_>) = relays
+                    .clone()
+                    .into_iter()
+                    .partition(|relay| location.is_country() && relay.include_in_country);
+                included.extend(included_in_country);
+                excluded.extend(not_included_in_country);
+            }
+            if included.is_empty() {
+                excluded.into_iter().collect()
+            } else {
+                included.into_iter().collect()
+            }
+        }
     }
 }
 

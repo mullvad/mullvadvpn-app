@@ -8,7 +8,9 @@ pub mod query;
 pub mod relays;
 
 use detailer::resolve_ip_version;
-use matcher::{filter_matching_bridges, filter_matching_relay_list};
+use matcher::{
+    filter_matching_bridges, filter_matching_relay_list, filter_matching_relay_list_by_query,
+};
 use parsed_relays::ParsedRelays;
 use relays::{Multihop, Singlehop, WireguardConfig};
 
@@ -781,9 +783,10 @@ impl RelaySelector {
     ) -> Result<Multihop, Error> {
         let mut exit_relay_query = query.clone();
 
-        // DAITA should only be enabled for the entry relay
+        // DAITA & obfuscation should only be enabled for the entry relay
         let mut wireguard_constraints = exit_relay_query.wireguard_constraints().clone();
         wireguard_constraints.daita = Constraint::Only(false);
+        wireguard_constraints.obfuscation = ObfuscationQuery::Off;
         exit_relay_query.set_wireguard_constraints(wireguard_constraints)?;
 
         let exit_candidates =
@@ -840,20 +843,56 @@ impl RelaySelector {
         // we can query for all exit & entry candidates! All candidates are needed for the next
         // step.
         let mut exit_relay_query = query.clone();
-        // DAITA should only be enabled for the entry relay
 
+        // DAITA & Obfuscation should only be enabled for the entry relay
         let mut wg_constraints = exit_relay_query.wireguard_constraints().clone();
         wg_constraints.daita = Constraint::Only(false);
+        wg_constraints.obfuscation = ObfuscationQuery::Off;
         exit_relay_query.set_wireguard_constraints(wg_constraints)?;
 
+        // Opportunistically filter on `include_in_country`.
         let exit_candidates =
             filter_matching_relay_list(&exit_relay_query, parsed_relays, custom_lists);
         let entry_candidates =
             filter_matching_relay_list(&entry_relay_query, parsed_relays, custom_lists);
 
-        // We avoid picking the same relay for entry and exit by choosing one and excluding it when
-        // choosing the other.
-        let (exit, entry) = match (exit_candidates.as_slice(), entry_candidates.as_slice()) {
+        match Self::pick_working_entry_exit_combo(
+            exit_candidates.as_slice(),
+            entry_candidates.as_slice(),
+        ) {
+            Some((exit, entry)) => Ok(Multihop::new(entry.clone(), exit.clone())),
+            None => {
+                // Sometimes, the set of relays is too small to consider the `include_in_country`
+                // flag. It might just be that if we disregard the `include_in_country` flag, we
+                // manage to find candidate relays. This is rather unlikely, but it might just
+                // happen.
+                let exit_candidates = filter_matching_relay_list_by_query(
+                    &exit_relay_query,
+                    parsed_relays,
+                    custom_lists,
+                );
+                let entry_candidates = filter_matching_relay_list_by_query(
+                    &entry_relay_query,
+                    parsed_relays,
+                    custom_lists,
+                );
+                let (exit, entry) = Self::pick_working_entry_exit_combo(
+                    exit_candidates.as_slice(),
+                    entry_candidates.as_slice(),
+                )
+                .ok_or(Error::NoRelay)?;
+                Ok(Multihop::new(entry.clone(), exit.clone()))
+            }
+        }
+    }
+
+    /// Avoid picking the same relay for entry and exit by choosing one and excluding it when
+    /// choosing the other.
+    fn pick_working_entry_exit_combo<'a>(
+        exit_candidates: &'a [Relay],
+        entry_candidates: &'a [Relay],
+    ) -> Option<(&'a Relay, &'a Relay)> {
+        match (exit_candidates, entry_candidates) {
             // In the case where there is only one entry to choose from, we have to pick it before
             // the exit
             (exits, [entry]) if exits.contains(entry) => {
@@ -867,9 +906,6 @@ impl RelaySelector {
                 helpers::pick_random_relay_excluding(entries, exit).map(|entry| (exit, entry))
             }),
         }
-        .ok_or(Error::NoRelay)?;
-
-        Ok(Multihop::new(entry.clone(), exit.clone()))
     }
 
     /// Constructs a [`MullvadEndpoint`] with details for how to connect to `relay`.
