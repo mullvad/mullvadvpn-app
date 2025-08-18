@@ -58,6 +58,16 @@ jobs:
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
 
+      - name: Select latest Xcode
+        run: |
+          # List Xcode directories, ignore Beta/RC versions
+          LATEST_XCODE=$(ls -d /Applications/Xcode*.app | grep -Ev "Beta|RC" | sort -V | tail -n 1)
+          echo "Latest stable Xcode: $LATEST_XCODE"
+          sudo xcode-select -s "$LATEST_XCODE/Contents/Developer"
+
+      - name: Verify Xcode version
+        run: xcodebuild -version
+
       - name: Build for ui tests
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
@@ -81,6 +91,16 @@ jobs:
 
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
+
+      - name: Select latest Xcode
+        run: |
+          # List Xcode directories, ignore Beta/RC versions
+          LATEST_XCODE=$(ls -d /Applications/Xcode*.app | grep -Ev "Beta|RC" | sort -V | tail -n 1)
+          echo "Latest stable Xcode: $LATEST_XCODE"
+          sudo xcode-select -s "$LATEST_XCODE/Contents/Developer"
+
+      - name: Verify Xcode version
+        run: xcodebuild -version
 
       - name: Run unit tests
         run: |
