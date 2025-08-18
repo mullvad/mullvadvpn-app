@@ -43,6 +43,10 @@ jobs:
           brew update
           brew install zip
 
+      - name: Select Xcode version. Remove this step after 25/8 2025, since Xcode 16.4 will be the default version anyway.
+        run: |
+          sudo xcode-select -s "/Applications/Xcode_16.4.app/Contents/Developer"
+
       - name: Run screenshot tests
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
