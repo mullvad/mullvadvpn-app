@@ -809,6 +809,7 @@ pub async fn get_all_pickable_relays(
         &helpers::get_query_from_current_settings(mullvad_client).await?,
         &relay_list,
         &settings.custom_lists,
+        true,
     );
     Ok(relays)
 }
