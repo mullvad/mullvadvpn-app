@@ -232,33 +232,40 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     }
 
     private func localizedReasonForBlockedStateError(_ error: BlockedStateReason) -> String {
-        let errorStringKey: String
         switch error {
         case .outdatedSchema:
-            errorStringKey = "ERROR_OUTDATED_SCHEMA"
+            NSLocalizedString(
+                "Unable to start tunnel connection after update. Please disconnect and reconnect.",
+                comment: ""
+            )
         case .noRelaysSatisfyingFilterConstraints:
-            errorStringKey = "ERROR_NO_RELAYS_SATISFYING_FILTER_CONSTRAINTS"
+            NSLocalizedString("No servers match your location filter. Try changing filter settings.", comment: "")
         case .multihopEntryEqualsExit:
-            errorStringKey = "ERROR_MULTIHOP_ENTRY_EQUALS_EXIT"
+            NSLocalizedString(
+                "The entry and exit servers cannot be the same. Try changing one to a new server or location.",
+                comment: ""
+            )
         case .noRelaysSatisfyingDaitaConstraints:
-            errorStringKey = "ERROR_NO_RELAYS_SATISFYING_DAITA_CONSTRAINTS"
+            NSLocalizedString(
+                "No DAITA compatible servers match your location settings. Try changing location.",
+                comment: ""
+            )
         case .noRelaysSatisfyingConstraints:
-            errorStringKey = "ERROR_NO_RELAYS_SATISFYING_CONSTRAINTS"
+            NSLocalizedString("No servers match your settings, try changing server or other settings.", comment: "")
         case .noRelaysSatisfyingPortConstraints:
-            errorStringKey = "ERROR_NO_RELAYS_SATISFYING_PORT_CONSTRAINTS"
+            NSLocalizedString(
+                "The selected WireGuard port is not supported, please change it under **VPN settings**.",
+                comment: ""
+            )
         case .invalidAccount:
-            errorStringKey = "ERROR_INVALID_ACCOUNT"
+            NSLocalizedString(
+                "You are logged in with an invalid account number. Please log out and try another one.",
+                comment: ""
+            )
         case .deviceLoggedOut:
-            errorStringKey = "ERROR_DEVICE_LOGGED_OUT"
+            NSLocalizedString("Unable to authenticate account. Please log out and log back in.", comment: "")
         default:
-            errorStringKey = "ERROR_DEFAULT"
+            NSLocalizedString("Unable to start tunnel connection. Please send a problem report.", comment: "")
         }
-
-        let errorString = NSLocalizedString(
-            errorStringKey,
-            comment: ""
-        )
-
-        return errorString
     }
 }

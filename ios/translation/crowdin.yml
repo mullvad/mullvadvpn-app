@@ -1,20 +1,21 @@
+---
 # Usage:
 #  crowdin upload sources
 #  crowdin download
+# ===============================================
+# 🚨 TODO: Change project_id from sandbox to "production" 🚨
+# Only after all translations are complete!
+# ===============================================
+"project_id": "816306"
+"base_path": "./locales"
+"base_url": "https://api.crowdin.com"
+"preserve_hierarchy": true
 
-'project_id': '350815'
-'api_token_env': 'CROWDIN_API_KEY'
-'base_path': './locales'
-'base_url': 'https://api.crowdin.com'
-'preserve_hierarchy': true
-
-files: [
-  {
-    'source': '/*.xliff',
-    'translation': '/%osx_locale%.xliff',
-    'translation_replace': {
-      'zh-Hans': 'zh-CN',
-      'zh-Hant': 'zh-TW',
+files:
+  [
+    {
+      "source": "/en.xliff",
+      "translation": "/%osx_locale%.xliff",
+      "export_options": {"format": "xliff"},
     },
-  },
-]
+  ]
