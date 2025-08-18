@@ -29,4 +29,6 @@
 -keep class kotlin.sequences.**
 -keep class androidx.compose.ui.**
 
+-dontobfuscate
+
 
