@@ -199,7 +199,7 @@ mod test {
             fragment_buf.shuffle(&mut thread_rng());
 
             for fragment in fragment_buf {
-                if let Some(reconstructed_packet) =
+                if let (Some(reconstructed_packet), _is_frag) =
                     fragments.handle_incoming_packet(fragment).unwrap()
                 {
                     assert_eq!(payload.as_slice(), reconstructed_packet.as_ref());
@@ -234,7 +234,7 @@ mod test {
             fragment_buf.shuffle(&mut thread_rng());
 
             // send one fragment
-            let packet = fragments
+            let (packet, _is_frag) = fragments
                 .handle_incoming_packet(fragment_buf.pop().unwrap())
                 .unwrap();
             assert!(packet.is_none(), "haven't sent all fragments yet");
@@ -250,14 +250,14 @@ mod test {
             .next()
             .unwrap();
             for _ in fragment_buf.len()..number_of_bad_fragments {
-                let packet = fragments
+                let (packet, _is_frag) = fragments
                     .handle_incoming_packet(incomplete_fragment.clone())
                     .unwrap();
                 assert!(packet.is_none());
             }
 
             for fragment in fragment_buf {
-                if let Some(reconstructed_packet) =
+                if let (Some(reconstructed_packet), _is_frag) =
                     fragments.handle_incoming_packet(fragment).unwrap()
                 {
                     assert_eq!(payload.as_slice(), reconstructed_packet.as_ref());
