@@ -32,6 +32,10 @@ jobs:
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
 
+      - name: Select Xcode version. Remove this step after 25/8 2025, when Xcode 16.4 will be the default version.
+        run: |
+          sudo xcode-select -s "/Applications/Xcode_16.4.app/Contents/Developer"
+
       - name: Run build validation for Staging and MockRelease configurations as well as the MullvadVPNUITests target
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \

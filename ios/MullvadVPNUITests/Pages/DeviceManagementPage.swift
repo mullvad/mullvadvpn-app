@@ -33,7 +33,7 @@ class DeviceManagementPage: Page {
     @discardableResult func waitForDeviceList() -> Self {
         XCTAssertTrue(
             app
-                .collectionViews[AccessibilityIdentifier.deviceListView]
+                .collectionViews[AccessibilityIdentifier.deviceManagementView]
                 .waitForExistence(timeout: BaseUITestCase.longTimeout)
         )
 
@@ -63,12 +63,13 @@ class DeviceManagementPage: Page {
         return self
     }
 
-    @discardableResult public func verifyNoDeviceCanBeRemoved() -> Self {
-        XCTAssertTrue(
-            app
-                .buttons[AccessibilityIdentifier.deviceCellRemoveButton]
-                .waitForNonExistence(timeout: BaseUITestCase.defaultTimeout)
-        )
+    @discardableResult public func verifyCurrentDeviceCannotBeRemoved() -> Self {
+        let cells = app.cells
+        let buttons = cells.buttons
+
+        // Button count should equal the amount of cells, except for the cell that cannot
+        // be removed and the information text cell at the top of the page.
+        XCTAssertEqual(buttons.count, cells.count - 2)
 
         return self
     }
