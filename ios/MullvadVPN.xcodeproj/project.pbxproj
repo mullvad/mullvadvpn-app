@@ -1086,6 +1086,7 @@
 		F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DA87482A9CBA9F006044F1 /* AccountDeviceRow.swift */; };
 		F0DA874B2A9CBACB006044F1 /* AccountNumberRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DA874A2A9CBACB006044F1 /* AccountNumberRow.swift */; };
 		F0DAC8AD2C16EFE400F80144 /* TunnelSettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */; };
+		F0DD27E12E537BB8006B802F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F0DD27DF2E537BB8006B802F /* InfoPlist.strings */; };
 		F0DDE4152B220458006B57A7 /* ShadowsocksConfigurationCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */; };
 		F0DDE4162B220458006B57A7 /* TransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4112B220458006B57A7 /* TransportProvider.swift */; };
 		F0DDE42A2B220A15006B57A7 /* Haversine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4272B220A15006B57A7 /* Haversine.swift */; };
@@ -2434,6 +2435,7 @@
 		F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsDataSource.swift; sourceTree = "<group>"; };
 		F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsCoordinator.swift; sourceTree = "<group>"; };
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
+		F0377DC52E537BC40090EB0A /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Timeout.swift"; sourceTree = "<group>"; };
 		F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
 		F03B95342E4A3280005A80C9 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -2482,6 +2484,7 @@
 		F07CFF1F29F2720E008C0343 /* NewDeviceNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDeviceNotificationProvider.swift; sourceTree = "<group>"; };
 		F07F1BD42E4A361E003FB336 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		F08096FA2E4A325600D8B0CF /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F08441A92E537BCA00732498 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaPromptAlert.swift; sourceTree = "<group>"; };
 		F09A29782A9F8A9B00EA3B6F /* LogoutDialogueView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogoutDialogueView.swift; sourceTree = "<group>"; };
 		F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoucherTextField.swift; sourceTree = "<group>"; };
@@ -2539,6 +2542,7 @@
 		F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryRow.swift; sourceTree = "<group>"; };
 		F0DA87482A9CBA9F006044F1 /* AccountDeviceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeviceRow.swift; sourceTree = "<group>"; };
 		F0DA874A2A9CBACB006044F1 /* AccountNumberRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountNumberRow.swift; sourceTree = "<group>"; };
+		F0DD27E02E537BB8006B802F /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowSocksProxy.swift; sourceTree = "<group>"; };
 		F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksConfigurationCache.swift; sourceTree = "<group>"; };
 		F0DDE4112B220458006B57A7 /* TransportProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransportProvider.swift; sourceTree = "<group>"; };
@@ -4046,6 +4050,7 @@
 			children = (
 				58915D662A25F9F20066445B /* DeviceCheck */,
 				58CE5E7D224146470008646E /* Info.plist */,
+				F0DD27DF2E537BB8006B802F /* InfoPlist.strings */,
 				58CE5E7E224146470008646E /* PacketTunnel.entitlements */,
 				58F3F3682AA08E2200D3B0A4 /* PacketTunnelProvider */,
 				F059197A2C45404500C301F3 /* PostQuantum */,
@@ -5713,6 +5718,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9BA08322BA32FB6005A7A2D /* PrivacyInfo.xcprivacy in Resources */,
+				F0DD27E12E537BB8006B802F /* InfoPlist.strings in Resources */,
 				F04A66FA2E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7344,6 +7350,17 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		F0DD27DF2E537BB8006B802F /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F0DD27E02E537BB8006B802F /* de */,
+				F0377DC52E537BC40090EB0A /* fr */,
+				F08441A92E537BCA00732498 /* sv */,
+			);
+			name = InfoPlist.strings;
+			path = PacketTunnel;
+			sourceTree = SOURCE_ROOT;
+		};
 		F0EE6E762E4A321B0089DFF3 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
