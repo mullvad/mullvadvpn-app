@@ -1,0 +1,7 @@
+# =========================
+# Xcode Localization Ignore
+# =========================
+
+# Ignore generated plist and strings files inside all .lproj folders
+*.lproj/InfoPlist.strings
+*.lproj/*.xcstrings
