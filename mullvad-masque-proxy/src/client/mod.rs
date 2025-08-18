@@ -28,7 +28,7 @@ use quinn::{
 use crate::{
     MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
     compute_udp_payload_size,
-    fragment::{self, Fragments},
+    fragment::{self, DefragReceived, Fragments},
     stats::Stats,
 };
 
@@ -553,14 +553,27 @@ async fn client_socket_tx_task(
             continue;
         }
         let payload = response.into_payload();
+        let original_payload_len = payload.len();
 
-        if let Ok((Some(payload), frag)) = fragments.handle_incoming_packet(payload) {
-            stats.rx(payload.len(), frag);
-
+        let send = async |payload: &[u8]| -> Result<()> {
             client_socket
-                .send_to(payload.chunk(), return_addr)
+                .send_to(payload, return_addr)
                 .await
                 .map_err(Error::ClientWrite)?;
+            Ok(())
+        };
+
+        match fragments.handle_incoming_packet(payload) {
+            Ok(DefragReceived::Nonfragmented(payload)) => {
+                stats.rx(payload.len(), false);
+                send(payload.chunk()).await?;
+            }
+            Ok(DefragReceived::Reassembled(reassembled_payload)) => {
+                stats.rx(original_payload_len, true);
+                send(reassembled_payload.chunk()).await?;
+            }
+            Ok(DefragReceived::Fragment) => stats.rx(original_payload_len, true),
+            Err(_) => (),
         }
     }
 
