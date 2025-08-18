@@ -106,9 +106,7 @@ pub(super) fn apply_policy_connecting(
     // must not be dropped until `WinFw_ApplyPolicyConnecting` has returned.
 
     let mut clients_iter = peer_endpoint.clients.iter();
-    let relay_client_wstr = clients_iter
-        .next()
-        .map(|p| WideCString::from_os_str_truncate(p));
+    let relay_client_wstr = clients_iter.next().map(WideCString::from_os_str_truncate);
     let relay_client_wstr_ptr = relay_client_wstr
         .as_ref()
         .map(|path| path.as_ptr())
@@ -179,7 +177,7 @@ pub(super) fn apply_policy_connecting(
             .unwrap_or(ptr::null()),
     };
 
-    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(|ep| widestring_ip(ep));
+    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(widestring_ip);
     let exit_endpoint_ip_ptr = exit_endpoint_ip_wstr
         .as_ref()
         .map(|ip| ip.as_ptr())
@@ -233,9 +231,7 @@ pub(super) fn apply_policy_connected(
     // SAFETY: `relay_client_wstr` must not be dropped until `WinFw_ApplyPolicyConnected` has
     // returned.
     let mut clients_iter = endpoint.clients.iter();
-    let relay_client_wstr = clients_iter
-        .next()
-        .map(|p| WideCString::from_os_str_truncate(p));
+    let relay_client_wstr = clients_iter.next().map(WideCString::from_os_str_truncate);
     let relay_client_wstr_ptr = relay_client_wstr
         .as_ref()
         .map(|path| path.as_ptr())
@@ -269,7 +265,7 @@ pub(super) fn apply_policy_connected(
         .map(|ip| ip.as_ptr())
         .collect();
 
-    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(|ep| widestring_ip(ep));
+    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(widestring_ip);
     let exit_endpoint_ip_ptr = exit_endpoint_ip_wstr
         .as_ref()
         .map(|ip| ip.as_ptr())
