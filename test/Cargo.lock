@@ -2168,6 +2168,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower 0.5.1",
+ "vec1",
 ]
 
 [[package]]
@@ -2195,6 +2196,7 @@ dependencies = [
  "serde_json",
  "talpid-types",
  "thiserror 2.0.3",
+ "vec1",
 ]
 
 [[package]]
@@ -2212,6 +2214,7 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.3",
  "uuid",
+ "vec1",
 ]
 
 [[package]]
