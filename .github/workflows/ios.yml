@@ -60,6 +60,9 @@ jobs:
 
       - name: Build for ui tests
         run: |
+          # TODO: Remove xcode-select after 25/8 2025, since Xcode 16.4 will be the default version anyway.
+          sudo xcode-select -s "/Applications/Xcode_16.4.app/Contents/Developer"
+          
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
           -project MullvadVPN.xcodeproj \
           -scheme MullvadVPNUITests \
@@ -84,6 +87,9 @@ jobs:
 
       - name: Run unit tests
         run: |
+          # TODO: Remove xcode-select after 25/8 2025, since Xcode 16.4 will be the default version anyway.
+          sudo xcode-select -s "/Applications/Xcode_16.4.app/Contents/Developer"
+
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPN \
