@@ -1728,3 +1728,120 @@ fn test_runtime_ipv4_unavailable() {
         ),
     }
 }
+
+/// Check that the relay selector is able to disregard `include_in_country` flag if necessary.
+///
+/// This test case prevents regressions to the `include_in_country` filtering logic.
+#[test]
+fn include_in_country_with_few_relays() -> Result<(), Error> {
+    let query = RelayQueryBuilder::wireguard()
+        .multihop()
+        .location(GeographicLocationConstraint::country("se"))
+        .entry(GeographicLocationConstraint::country("se"))
+        .build();
+
+    // The relay selector ought to resolve the query to any of the following configurations
+    // {entry: se-sto-wg-009, exit: se-sto-wg-204}
+    // {entry: se-sto-wg-204, exit: se-sto-wg-009}
+    let relays = RelayList {
+        countries: vec![RelayListCountry {
+            name: "Sweden".to_string(),
+            code: "se".to_string(),
+            cities: vec![RelayListCity {
+                name: "Stockholm".to_string(),
+                code: "sto".to_string(),
+                latitude: 59.3289,
+                longitude: 18.0649,
+                relays: vec![
+                    Relay {
+                        hostname: "se-sto-wg-009".to_string(),
+                        ipv4_addr_in: "185.195.233.69".parse().unwrap(),
+                        ipv6_addr_in: "2a03:1b20:4:f011::a09f".parse().ok(),
+                        overridden_ipv4: false,
+                        overridden_ipv6: false,
+                        include_in_country: false,
+                        active: true,
+                        owned: true,
+                        provider: "31173".to_string(),
+                        weight: 1,
+                        location: Location {
+                            country: "Sweden".to_string(),
+                            country_code: "se".to_string(),
+                            city: "Stockholm".to_string(),
+                            city_code: "sto".to_string(),
+                            latitude: 59.3289,
+                            longitude: 18.0649,
+                        },
+                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+                            public_key: PublicKey::from_base64(
+                                "t1XlQD7rER0JUPrmh3R5IpxjUP9YOqodJAwfRorNxl4=",
+                            )
+                            .unwrap(),
+                            daita: true,
+                            quic: Some(Quic::new(
+                                vec1!["185.195.233.172".parse().unwrap()],
+                                "d18a23fc-7d5e-4fd2-8372-5e0e73de741a".to_string(),
+                                "se-sto-wg-009.blockerad.eu".to_string(),
+                            )),
+                            shadowsocks_extra_addr_in: Default::default(),
+                        }),
+                    },
+                    Relay {
+                        hostname: "se-sto-wg-204".to_string(),
+                        ipv4_addr_in: "89.37.63.190".parse().unwrap(),
+                        ipv6_addr_in: "2a02:6ea0:1508:4::f001".parse().ok(),
+                        overridden_ipv4: false,
+                        overridden_ipv6: false,
+                        include_in_country: true,
+                        active: true,
+                        owned: false,
+                        provider: "DataPacket".to_string(),
+                        weight: 200,
+                        location: Location {
+                            country: "Sweden".to_string(),
+                            country_code: "se".to_string(),
+                            city: "Stockholm".to_string(),
+                            city_code: "sto".to_string(),
+                            latitude: 59.3289,
+                            longitude: 18.0649,
+                        },
+                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+                            public_key: PublicKey::from_base64(
+                                "cPhM7ShRWQmKiJtD9Wd1vDh0GwIlaMvFb/WPrP58FH8=",
+                            )
+                            .unwrap(),
+                            daita: false,
+                            quic: Some(Quic::new(
+                                vec1![
+                                    "89.37.63.195".parse().unwrap(),
+                                    "2a02:6ea0:1508:4::c101".parse().unwrap()
+                                ],
+                                "d18a23fc-7d5e-4fd2-8372-5e0e73de741a".to_string(),
+                                "se-sto-wg-204.blockerad.eu".to_string(),
+                            )),
+                            shadowsocks_extra_addr_in: Default::default(),
+                        }),
+                    },
+                ],
+            }],
+        }],
+        wireguard: WireguardEndpointData {
+            port_ranges: vec![
+                53..=53,
+                443..=443,
+                4000..=33433,
+                33565..=51820,
+                52000..=60000,
+            ],
+            ipv4_gateway: "10.64.0.1".parse().unwrap(),
+            ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+            udp2tcp_ports: vec![],
+            shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
+        },
+        ..Default::default()
+    };
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relays);
+
+    relay_selector.get_relay_by_query(query)?;
+    Ok(())
+}
