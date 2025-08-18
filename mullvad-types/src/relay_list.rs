@@ -6,6 +6,7 @@ use std::{
     ops::RangeInclusive,
 };
 use talpid_types::net::{TransportProtocol, proxy::Shadowsocks, wireguard};
+use vec1::Vec1;
 
 /// Stores a list of relays for each country obtained from the API using
 /// `mullvad_api::RelayListProxy`. This can also be passed to frontends.
@@ -143,8 +144,11 @@ impl Relay {
 pub struct Quic {
     /// In-addresses for the QUIC obfuscator.
     ///
-    /// There may be 0, 1 or 2 in IPs, depending on how many masque-proxy daemons running on the
-    /// relay. Hopefully the API will tell use the correct amount🤞.
+    /// # Note
+    ///
+    /// This set must be non-empty.
+    ///
+    /// The primary IPs of the relay will be included if and only if they are listed here.
     addr_in: HashSet<IpAddr>,
     /// Authorization token
     token: String,
@@ -153,10 +157,9 @@ pub struct Quic {
 }
 
 impl Quic {
-    pub fn new(addr_in: impl IntoIterator<Item = IpAddr>, token: String, domain: String) -> Self {
-        let addr_in = HashSet::from_iter(addr_in);
+    pub fn new(addr_in: Vec1<IpAddr>, token: String, domain: String) -> Self {
         Self {
-            addr_in,
+            addr_in: addr_in.into_iter().collect(),
             token,
             domain,
         }

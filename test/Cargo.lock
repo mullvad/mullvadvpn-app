@@ -2119,6 +2119,7 @@ dependencies = [
  "tokio-socks",
  "tower 0.5.1",
  "uuid",
+ "vec1",
 ]
 
 [[package]]
@@ -2167,6 +2168,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower 0.5.1",
+ "vec1",
 ]
 
 [[package]]
@@ -2194,6 +2196,7 @@ dependencies = [
  "serde_json",
  "talpid-types",
  "thiserror 2.0.3",
+ "vec1",
 ]
 
 [[package]]
@@ -2211,6 +2214,7 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.3",
  "uuid",
+ "vec1",
 ]
 
 [[package]]
@@ -4385,6 +4389,9 @@ name = "vec1"
 version = "1.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eab68b56840f69efb0fefbe3ab6661499217ffdc58e2eef7c3f6f69835386322"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "version_check"

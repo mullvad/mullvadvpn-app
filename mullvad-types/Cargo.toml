@@ -19,6 +19,7 @@ log = { workspace = true }
 regex = "1"
 serde = { workspace = true, features = ["derive"] }
 uuid = { version = "1.4.1", features = ["v4", "serde" ] }
+vec1 = { workspace = true }
 
 talpid-types = { path = "../talpid-types" }
 intersection-derive = { path = "intersection-derive" }

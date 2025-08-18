@@ -81,6 +81,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const relaySettings = useNormalRelaySettings();
   const tunnelProtocol = useTunnelProtocol();
   const multihop = relaySettings?.wireguard.useMultihop ?? false;
+  const ipVersion = relaySettings?.wireguard.ipVersion ?? 'any';
 
   // Filters the relays to only keep the ones of the desired endpoint type, e.g. "wireguard",
   // "openvpn" or "bridge"
@@ -103,8 +104,15 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
 
   // Only show relays that have QUIC endpoints when QUIC obfuscation is enabled.
   const relayListForQuic = useMemo(() => {
-    return filterLocationsByQuic(relayListForDaita, quic, tunnelProtocol, locationType, multihop);
-  }, [quic, relayListForDaita, locationType, tunnelProtocol, multihop]);
+    return filterLocationsByQuic(
+      relayListForDaita,
+      quic,
+      tunnelProtocol,
+      locationType,
+      multihop,
+      ipVersion,
+    );
+  }, [quic, relayListForDaita, locationType, tunnelProtocol, multihop, ipVersion]);
 
   // Filters the relays to only keep the relays matching the currently selected filters, e.g.
   // ownership and providers

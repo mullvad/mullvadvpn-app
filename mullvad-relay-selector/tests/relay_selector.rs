@@ -32,6 +32,7 @@ use mullvad_types::{
         WireguardRelayEndpointData,
     },
 };
+use vec1::vec1;
 
 static DUMMY_LOCATION: LazyLock<Location> = LazyLock::new(|| Location {
     country: "Sweden".to_string(),
@@ -72,7 +73,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone())
                             .set_daita(true)
                             .set_quic(Quic::new(
-                                vec![
+                                vec1![
                                     "185.213.154.68".parse().unwrap(),
                                     "2a03:1b20:5:f011::a09f".parse().unwrap(),
                                 ],
