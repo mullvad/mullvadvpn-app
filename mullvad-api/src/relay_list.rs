@@ -5,6 +5,7 @@ use crate::rest;
 use hyper::{StatusCode, body::Incoming, header};
 use mullvad_types::{location, relay_list};
 use talpid_types::net::wireguard;
+use vec1::Vec1;
 
 use std::{
     collections::{BTreeMap, HashSet},
@@ -386,9 +387,12 @@ struct Daita {}
 struct Quic {
     /// In-addresses for the QUIC obfuscator.
     ///
-    /// There may be 0, 1 or 2 in IPs, depending on how many masque-proxy daemons running on the
-    /// relay. Hopefully the API will tell use the correct amount🤞.
-    addr_in: Vec<IpAddr>,
+    /// # Note
+    ///
+    /// This set must be non-empty.
+    ///
+    /// The primary IPs of the relay will be included if and only if they are listed here.
+    addr_in: Vec1<IpAddr>,
     /// Authorization token
     token: String,
     /// Hostname where masque proxy is hosted
@@ -397,7 +401,7 @@ struct Quic {
 
 impl From<Quic> for relay_list::Quic {
     fn from(value: Quic) -> Self {
-        Self::new(value.addr_in, value.token, value.domain)
+        Self::new(value.addr_in, value.token, value.domain).expect("addr_in is non-empty")
     }
 }
 

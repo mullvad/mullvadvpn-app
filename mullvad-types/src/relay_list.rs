@@ -143,8 +143,11 @@ impl Relay {
 pub struct Quic {
     /// In-addresses for the QUIC obfuscator.
     ///
-    /// There may be 0, 1 or 2 in IPs, depending on how many masque-proxy daemons running on the
-    /// relay. Hopefully the API will tell use the correct amount🤞.
+    /// # Note
+    ///
+    /// This set must be non-empty.
+    ///
+    /// The primary IPs of the relay will be included if and only if they are listed here.
     addr_in: HashSet<IpAddr>,
     /// Authorization token
     token: String,
@@ -153,13 +156,21 @@ pub struct Quic {
 }
 
 impl Quic {
-    pub fn new(addr_in: impl IntoIterator<Item = IpAddr>, token: String, domain: String) -> Self {
+    /// Return a new QUIC object, if `addr_in` is non-empty
+    pub fn new(
+        addr_in: impl IntoIterator<Item = IpAddr>,
+        token: String,
+        domain: String,
+    ) -> Option<Self> {
         let addr_in = HashSet::from_iter(addr_in);
-        Self {
+        if addr_in.is_empty() {
+            return None;
+        }
+        Some(Self {
             addr_in,
             token,
             domain,
-        }
+        })
     }
 
     /// In address as an IPv4 address.

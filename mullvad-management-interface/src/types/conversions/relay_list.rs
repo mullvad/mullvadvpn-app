@@ -186,7 +186,9 @@ impl TryFrom<proto::relay::relay_data::wireguard::Quic> for mullvad_types::relay
             .into_iter()
             .map(parse_addr)
             .collect::<Result<Vec<IpAddr>, FromProtobufTypeError>>()?;
-        Ok(Self::new(addr_in, token, domain))
+        Self::new(addr_in, token, domain).ok_or(FromProtobufTypeError::InvalidArgument(
+            "Invalid QUIC object",
+        ))
     }
 }
 

@@ -71,14 +71,17 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                     endpoint_data: RelayEndpointData::Wireguard(
                         WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone())
                             .set_daita(true)
-                            .set_quic(Quic::new(
-                                vec![
-                                    "185.213.154.68".parse().unwrap(),
-                                    "2a03:1b20:5:f011::a09f".parse().unwrap(),
-                                ],
-                                "Bearer test".to_owned(),
-                                "se9-wireguard.blockerad.eu".to_owned(),
-                            )),
+                            .set_quic(
+                                Quic::new(
+                                    vec![
+                                        "185.213.154.68".parse().unwrap(),
+                                        "2a03:1b20:5:f011::a09f".parse().unwrap(),
+                                    ],
+                                    "Bearer test".to_owned(),
+                                    "se9-wireguard.blockerad.eu".to_owned(),
+                                )
+                                .unwrap(),
+                            ),
                     ),
                     location: DUMMY_LOCATION.clone(),
                 },
