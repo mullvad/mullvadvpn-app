@@ -23,7 +23,7 @@ pub use test_metadata::TestMetadata;
 
 use anyhow::Context;
 use futures::future::BoxFuture;
-use std::time::Duration;
+use std::{ops::Not, time::Duration};
 
 use crate::{mullvad_daemon::RpcClientProvider, package::get_version_from_path};
 use config::TEST_CONFIG;
@@ -112,7 +112,10 @@ pub fn get_test_descriptions() -> Vec<TestDescription> {
 
 /// Return all tests with names matching the input argument. Filters out tests that are skipped for
 /// the target platform and `test_upgrade_app`, which is run separately.
-pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<TestMetadata>, anyhow::Error> {
+pub fn get_filtered_tests(
+    specified_tests: &[String],
+    skipped_tests: &[String],
+) -> Result<Vec<TestMetadata>, anyhow::Error> {
     let mut tests: Vec<_> = inventory::iter::<TestMetadata>().cloned().collect();
     tests.sort_by_key(|test| test.priority.unwrap_or(0));
 
@@ -131,7 +134,16 @@ pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<TestMetadata
             })
             .collect::<Result<_, anyhow::Error>>()?
     };
+
+    tests.retain(|test| {
+        skipped_tests
+            .iter()
+            .any(|skip| skip.eq_ignore_ascii_case(test.name))
+            .not()
+    });
+
     tests.retain(|test| should_run_on_os(test.targets, TEST_CONFIG.os));
+
     Ok(tests)
 }
 
