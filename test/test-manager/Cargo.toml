@@ -68,6 +68,7 @@ socket2 = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 tun = "0.5.1"
+nix.workspace = true
 
 [dependencies.tokio-util]
 version = "0.7"
