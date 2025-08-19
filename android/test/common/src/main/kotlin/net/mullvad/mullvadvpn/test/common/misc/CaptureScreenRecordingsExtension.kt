@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.test.common.misc
 
 import android.os.Environment
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import co.touchlab.kermit.Logger
 import java.io.File
@@ -40,13 +41,15 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
 
         job =
             coroutineScope.launch {
-                device.executeShellCommand("screenrecord $OUTPUT_DIRECTORY/$fileName")
+                getInstrumentation()
+                    .uiAutomation
+                    .executeShellCommand("screenrecord $OUTPUT_DIRECTORY/$fileName")
             }
     }
 
     private fun stopScreenRecord() {
         try {
-            device.executeShellCommand("pkill -2 screenrecord")
+            getInstrumentation().uiAutomation.executeShellCommand("pkill -2 screenrecord")
             runBlocking { job.join() }
         } catch (e: Exception) {
             Logger.e("Failed to stop recording", e)
