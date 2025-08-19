@@ -28,6 +28,7 @@
 -keep class kotlinx.coroutines.**
 -keep class kotlin.sequences.**
 -keep class androidx.compose.ui.**
+-keep class androidx.datastore.**
 
 -dontobfuscate
 
