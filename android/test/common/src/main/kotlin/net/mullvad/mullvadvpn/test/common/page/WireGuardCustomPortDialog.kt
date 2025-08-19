@@ -13,7 +13,7 @@ class WireGuardCustomPortDialog internal constructor() : Page() {
     }
 
     fun enterCustomPort(port: String) {
-        uiDevice.findObjectWithTimeout(textFieldLabelSelector).parent.text = port
+        uiDevice.findObjectWithTimeout(textFieldLabelSelector).parent.parent.text = port
     }
 
     fun clickSetPort() {
