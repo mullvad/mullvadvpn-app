@@ -194,16 +194,15 @@ fn filter_on_include_in_country(
             let mut excluded = HashSet::new();
             for location in &locations {
                 let (included_in_country, not_included_in_country): (Vec<_>, Vec<_>) = relays
-                    .clone()
-                    .into_iter()
+                    .iter()
                     .partition(|relay| location.is_country() && relay.include_in_country);
                 included.extend(included_in_country);
                 excluded.extend(not_included_in_country);
             }
             if included.is_empty() {
-                excluded.into_iter().collect()
+                excluded.into_iter().cloned().collect()
             } else {
-                included.into_iter().collect()
+                included.into_iter().cloned().collect()
             }
         }
     }
