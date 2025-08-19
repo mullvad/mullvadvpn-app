@@ -95,6 +95,34 @@ export_localizations() {
   done
 }
 
+clean_xliff_translations() {
+  xliff_dir="$LOCALIZATION_DIR"
+  if [[ ! -d "$xliff_dir" ]]; then
+    echo "❌ Directory not found: $xliff_dir"
+    return 1
+  fi
+
+  # Dictionary of keys to ignore for translation
+  declare -A UNNEEDED_KEYS=(
+    ["CFBundleName"]=1
+    ["CFBundleDisplayName"]=1
+    # Add more keys here if needed
+  )
+
+  echo "🧹 Cleaning unneeded keys from XLIFFs in $xliff_dir"
+  for xliff in "$xliff_dir"/*.xliff; do
+    if [[ -f "$xliff" ]]; then
+      for key in "${!UNNEEDED_KEYS[@]}"; do
+        sed -i '' -E "/<trans-unit[^>]*id=\"$key\"[^>]*>/,/<\/trans-unit>/d" "$xliff"
+      done
+      echo "✔️ Cleaned $xliff"
+    else
+      echo "⚠️ File not found: $xliff, skipping"
+    fi
+  done
+
+}
+
 import_localizations() {
   # Directory where the .xliff files are stored
   XLIFF_DIR="$LOCALIZATION_DIR"
@@ -129,6 +157,7 @@ localization_to_export() {
   echo "📝 Export script started at: $(date)"
   build_project
   export_localizations
+  clean_xliff_translations
   cleanup_build_folder
   cleanup_temp_folder
   echo "🎉 Export complete. Crowdin-ready .xliff files are in: $LOCALIZATION_DIR"

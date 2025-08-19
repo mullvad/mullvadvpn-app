@@ -1091,7 +1091,6 @@
 		F0DDE42A2B220A15006B57A7 /* Haversine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4272B220A15006B57A7 /* Haversine.swift */; };
 		F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4282B220A15006B57A7 /* RelaySelector.swift */; };
 		F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4292B220A15006B57A7 /* Midpoint.swift */; };
-		F0DEBB5C2E4E1927001B5624 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F0DEBB5A2E4E1927001B5624 /* InfoPlist.strings */; };
 		F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */; };
 		F0E5B2F82C9C68CF0007F78C /* EncryptedDNSTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E5B2F72C9C68CD0007F78C /* EncryptedDNSTransport.swift */; };
 		F0E61CAA2BF2911D000C4A95 /* TunnelSettingsV5.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */; };
@@ -2427,7 +2426,6 @@
 		F01765962E4A324F00262F54 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F017F8DF2D78ABE90076EC01 /* RelayFilterDataSourceItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterDataSourceItem.swift; sourceTree = "<group>"; };
 		F01DAE322C2B032A00521E46 /* RelaySelection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelection.swift; sourceTree = "<group>"; };
-		F025C63B2E4E1934007B93FF /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F027E0982E4A325C00090D26 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
 		F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCreditSucceededViewController.swift; sourceTree = "<group>"; };
@@ -2537,7 +2535,6 @@
 		F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseInteractor.swift; sourceTree = "<group>"; };
 		F0CB96302E4A324000206149 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0D5591D2D3805050072B63F /* LatestChangesNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatestChangesNotificationProvider.swift; sourceTree = "<group>"; };
-		F0D8061B2E4E193A009E3392 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0D8825A2B04F53600D3EF9A /* OutgoingConnectionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionData.swift; sourceTree = "<group>"; };
 		F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryRow.swift; sourceTree = "<group>"; };
 		F0DA87482A9CBA9F006044F1 /* AccountDeviceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeviceRow.swift; sourceTree = "<group>"; };
@@ -2550,7 +2547,6 @@
 		F0DDE4282B220A15006B57A7 /* RelaySelector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelector.swift; sourceTree = "<group>"; };
 		F0DDE4292B220A15006B57A7 /* Midpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Midpoint.swift; sourceTree = "<group>"; };
 		F0DEA1FB2E4A326F002275F7 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		F0DEBB5B2E4E1927001B5624 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeContentView.swift; sourceTree = "<group>"; };
 		F0E576BB2E4A324A0079FA27 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0E5B2F72C9C68CD0007F78C /* EncryptedDNSTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptedDNSTransport.swift; sourceTree = "<group>"; };
@@ -4050,7 +4046,6 @@
 			children = (
 				58915D662A25F9F20066445B /* DeviceCheck */,
 				58CE5E7D224146470008646E /* Info.plist */,
-				F0DEBB5A2E4E1927001B5624 /* InfoPlist.strings */,
 				58CE5E7E224146470008646E /* PacketTunnel.entitlements */,
 				58F3F3682AA08E2200D3B0A4 /* PacketTunnelProvider */,
 				F059197A2C45404500C301F3 /* PostQuantum */,
@@ -5718,7 +5713,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9BA08322BA32FB6005A7A2D /* PrivacyInfo.xcprivacy in Resources */,
-				F0DEBB5C2E4E1927001B5624 /* InfoPlist.strings in Resources */,
 				F04A66FA2E4B44EC0081C89C /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7350,16 +7344,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		F0DEBB5A2E4E1927001B5624 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				F0DEBB5B2E4E1927001B5624 /* de */,
-				F025C63B2E4E1934007B93FF /* fr */,
-				F0D8061B2E4E193A009E3392 /* sv */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
 		F0EE6E762E4A321B0089DFF3 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
