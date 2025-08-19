@@ -37,7 +37,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 @Preview
 @Composable
 private fun PreviewApiAccessMethodInfoDialog() {
-    AppTheme { ConnectOnStartupInfoDialog({}) }
+    AppTheme { ConnectOnStartupInfoDialog(onDismiss = {}, openAppDetails = {}) }
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
@@ -51,7 +51,7 @@ fun ConnectOnStartupInfo(navigator: DestinationsNavigator) {
 }
 
 @Composable
-fun ConnectOnStartupInfoDialog(onDismiss: () -> Unit, openAppDetails: () -> Unit = {}) {
+fun ConnectOnStartupInfoDialog(onDismiss: () -> Unit, openAppDetails: () -> Unit) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
         icon = {

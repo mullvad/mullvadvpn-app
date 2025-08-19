@@ -440,6 +440,5 @@
     <string name="connect_on_start_info_second">
         <![CDATA[<ul><li>has been granted VPN permissions, tap <b>“Connect”</b> in the main map view and click “OK” if a dialog is shown.</li><li>"is installed on the internal storage, go to the app details in your device’s <b>system settings</b> and check the storage information.</li></ul>]]>
     </string>
-    <string name="connect_on_start_info_third">It is possible move the app to and from an external storage by going to the app details screen for the app in the system settings</string>
     <string name="open_app_details">Open app details</string>
 </resources>

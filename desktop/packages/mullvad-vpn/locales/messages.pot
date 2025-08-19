@@ -3097,9 +3097,6 @@ msgstr ""
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr ""
 
-msgid "It is possible move the app to and from an external storage by going to the app details screen for the app in the system settings"
-msgstr ""
-
 msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr ""
 
