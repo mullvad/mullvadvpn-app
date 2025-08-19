@@ -50,7 +50,8 @@ class EditAccessMethodViewController: UIViewController {
         tableView.setAccessibilityIdentifier(.editAccessMethodView)
         tableView.backgroundColor = .secondaryColor
         tableView.delegate = self
-
+        tableView.sectionFooterHeight = UITableView.automaticDimension
+        tableView.estimatedSectionFooterHeight = 44
         isModalInPresentation = true
 
         let title = createTitle()
@@ -97,10 +98,6 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         if case .methodSettings = itemIdentifier {
             delegate?.controllerShouldShowMethodSettings(self)
         }
-    }
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        UITableView.automaticDimension
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -172,7 +169,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
 
         switch sectionIdentifier {
         case .enableMethod, .methodSettings:
-            return defaultMargin
+            return (sectionIdentifier.sectionFooter != nil) ? UITableView.automaticDimension : defaultMargin
         case .testingStatus:
             switch subject.value.testingStatus {
             case .initial, .inProgress:
