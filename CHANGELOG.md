@@ -26,6 +26,11 @@ Line wrap the file at 100 chars.                                              Th
 - Add QUIC obfuscation (WireGuard only). It will be used automatically when connecting fails with
   other methods.
 
+### Fixed
+#### macOS
+- Add support for parsing eslogger output version 10. This fixes split tunneling on macOS 26.
+- Avoid interpreting negative numbers from eslogger as PIDs.
+
 
 ## [2025.8] - 2025-08-14
 This release is identical to 2025.8-beta3.
