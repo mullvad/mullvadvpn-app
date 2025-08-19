@@ -668,7 +668,7 @@ impl AccountsProxy {
                     &play_purchase,
                 )?
                 .account(account)?
-                .expected_status(&[StatusCode::ACCEPTED]);
+                .expected_status(&[StatusCode::NO_CONTENT]);
             service.request(request).await?;
             Ok(())
         }
