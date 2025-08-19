@@ -76,7 +76,6 @@
     <string name="congrats">Glückwunsch!</string>
     <string name="connect">Verbinden</string>
     <string name="connect_on_start">Verbinden beim Einschalten des Geräts</string>
-    <string name="connect_on_start_footer">Automatische Verbindung beim Start des Geräts. Funktioniert nur, wenn die App die VPN-Berechtigung erhalten hat.</string>
     <string name="connect_panel_active_features">Aktive Funktionen</string>
     <string name="connect_panel_connection_details">Verbindungsdetails</string>
     <string name="connected">Verbunden</string>

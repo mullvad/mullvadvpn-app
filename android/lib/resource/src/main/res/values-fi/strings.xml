@@ -76,7 +76,6 @@
     <string name="congrats">Onnittelut!</string>
     <string name="connect">Yhdistä</string>
     <string name="connect_on_start">Luo yhteys, kun laite käynnistyy</string>
-    <string name="connect_on_start_footer">Muodosta yhteys automaattisesti laitteen käynnistyksen yhteydessä. Tämä toimii ainoastaan kun sovellukselle on myönnetty VPN:n käyttöoikeus.</string>
     <string name="connect_panel_active_features">Käytössä olevat ominaisuudet</string>
     <string name="connect_panel_connection_details">Yhteyden tiedot</string>
     <string name="connected">Yhdistetty</string>

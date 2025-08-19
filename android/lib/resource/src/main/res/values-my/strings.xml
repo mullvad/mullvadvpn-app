@@ -76,7 +76,6 @@
     <string name="congrats">ဝမ်းသာပါတယ်။</string>
     <string name="connect">ချိတ်ဆက်ရန်</string>
     <string name="connect_on_start">စက်စဖွင့်သည့်အခါ ချိတ်ဆက်ရန်</string>
-    <string name="connect_on_start_footer">စက် စဖွင့်သည့်အခါ အလိုအလျောက် ချိတ်ဆက်ပါသည်။ အက်ပ်ကို VPN ခွင့်ပြုချက်ပေးထားမှသာ အလုပ်လုပ်သည်။</string>
     <string name="connect_panel_active_features">သက်ဝင်နေသည့် လုပ်ဆောင်ချက်များ</string>
     <string name="connect_panel_connection_details">ချိတ်ဆက်မှု အသေးစိတ်အချက်များ</string>
     <string name="connected">ချိတ်ဆက်ပြီး</string>

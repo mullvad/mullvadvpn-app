@@ -76,7 +76,6 @@
     <string name="congrats">Поздравляем!</string>
     <string name="connect">Подключить</string>
     <string name="connect_on_start">Подключаться при запуске устройства</string>
-    <string name="connect_on_start_footer">Автоматическое подключение при запуске устройства. Приложению понадобится разрешение для VPN.</string>
     <string name="connect_panel_active_features">Активные функции</string>
     <string name="connect_panel_connection_details">Сведения о подключении</string>
     <string name="connected">Подключено</string>

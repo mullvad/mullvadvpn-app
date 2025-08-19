@@ -2821,6 +2821,9 @@ msgstr ""
 msgid "90 days was added to your account."
 msgstr ""
 
+msgid "<ul><li>has been granted VPN permissions, tap <b>“Connect”</b> in the main map view and click “OK” if a dialog is shown.</li><li>\"is installed on the internal storage, go to the app details in your device’s <b>system settings</b> and check the storage information.</li></ul>"
+msgstr ""
+
 msgid "API reachable, adding method..."
 msgstr ""
 
@@ -2896,7 +2899,7 @@ msgstr ""
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr ""
 
-msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
+msgid "Automatically connect on device start-up."
 msgstr ""
 
 msgid "Blocking internet (device offline)"
@@ -3094,6 +3097,9 @@ msgstr ""
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
 msgstr ""
 
+msgid "It is possible move the app to and from an external storage by going to the app details screen for the app in the system settings"
+msgstr ""
+
 msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr ""
 
@@ -3155,6 +3161,9 @@ msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
 msgid "Not found"
+msgstr ""
+
+msgid "Open app details"
 msgstr ""
 
 msgid "Overrides active"
@@ -3302,6 +3311,9 @@ msgid "To add locations to a list, press the pen or long press on a country, cit
 msgstr ""
 
 msgid "To create a custom list press the \"+\""
+msgstr ""
+
+msgid "To ensure the VPN connects automatically at device start-up, please ensure the app:"
 msgstr ""
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."

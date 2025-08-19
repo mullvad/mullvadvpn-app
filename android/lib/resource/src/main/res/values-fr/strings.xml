@@ -76,7 +76,6 @@
     <string name="congrats">Félicitations !</string>
     <string name="connect">Connexion</string>
     <string name="connect_on_start">Connexion au démarrage de l\'appareil</string>
-    <string name="connect_on_start_footer">Connexion automatique au démarrage de l\'appareil. Ne fonctionne que si l\'application a reçu l\'autorisation VPN.</string>
     <string name="connect_panel_active_features">Fonctionnalités activées</string>
     <string name="connect_panel_connection_details">Détails de la connexion</string>
     <string name="connected">Connecté</string>
