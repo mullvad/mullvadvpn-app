@@ -180,7 +180,9 @@ impl WireguardMonitor {
                 close_obfs_sender.clone(),
             ))?;
         // Adjust tunnel MTU again for obfuscation packet overhead
-        if let Some(obfuscator) = obfuscator.as_ref() {
+        if params.options.mtu.is_none()
+            && let Some(obfuscator) = obfuscator.as_ref()
+        {
             config.mtu = clamp_tunnel_mtu(
                 params,
                 config.mtu.saturating_sub(obfuscator.packet_overhead()),
@@ -437,7 +439,9 @@ impl WireguardMonitor {
                 args.tun_provider.clone(),
             ))?;
         // Adjust MTU again for obfuscation packet overhead
-        if let Some(obfuscator) = obfuscator.as_ref() {
+        if params.options.mtu.is_none()
+            && let Some(obfuscator) = obfuscator.as_ref()
+        {
             config.mtu = clamp_tunnel_mtu(
                 params,
                 config.mtu.saturating_sub(obfuscator.packet_overhead()),
