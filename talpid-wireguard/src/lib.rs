@@ -1162,20 +1162,20 @@ const DEFAULT_MTU: u16 = if cfg!(target_os = "android") {
     1380
 };
 
-/// Get (presumed) MTU based on the physical interface route
+/// Get MTU based on the physical interface route
 #[cfg(any(target_os = "linux", target_os = "windows"))]
 async fn get_route_mtu(
     params: &TunnelParameters,
     route_manager: &talpid_routing::RouteManagerHandle,
 ) -> u16 {
-    // Detect the MTU of the device
+    // Get the MTU of the device/route
     route_manager
         .get_mtu_for_route(params.connection.peer.endpoint.ip())
         .await
         .unwrap_or(DEFAULT_MTU)
 }
 
-/// Get (presumed) MTU based on the physical interface route
+/// Get MTU based on the physical interface route
 #[cfg(any(target_os = "macos", target_os = "android"))]
 #[allow(clippy::unused_async)]
 #[allow(unused_variables)]
