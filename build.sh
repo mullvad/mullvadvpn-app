@@ -32,7 +32,7 @@ NOTARIZE="false"
 # x86 and arm64
 UNIVERSAL="false"
 # Use boringtun instead of wireguard-go
-BORINGTUN="false"
+BORINGTUN="true"
 # If build script should package electron GUI
 GUI="true"
 
