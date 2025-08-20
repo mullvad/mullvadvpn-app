@@ -6,3 +6,6 @@ rustflags = ["-Ctarget-feature=+crt-static"]
 
 [target.aarch64-pc-windows-msvc]
 rustflags = ["-Ctarget-feature=+crt-static"]
+
+[target.x86_64-unknown-linux-musl]
+rustflags = ["-Ctarget-feature=+crt-static", "-Clink-self-contained=yes"]
