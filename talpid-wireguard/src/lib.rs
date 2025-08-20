@@ -160,10 +160,9 @@ impl WireguardMonitor {
             .runtime
             .block_on(infer_route_mtu(params, &args.route_manager));
 
-        let inferred_tunnel_mtu = params
-            .options
-            .mtu
-            .unwrap_or_else(|| tunnel_mtu_from_route_mtu(params, route_mtu));
+        let inferred_tunnel_mtu = params.options.mtu.unwrap_or_else(|| {
+            clamp_tunnel_mtu(params, route_mtu.saturating_sub(wireguard_overhead(params)))
+        });
 
         let mut config = crate::config::Config::from_parameters(params, inferred_tunnel_mtu)
             .map_err(Error::WireguardConfigError)?;
@@ -182,7 +181,10 @@ impl WireguardMonitor {
             ))?;
         // Adjust tunnel MTU again for obfuscation packet overhead
         if let Some(obfuscator) = obfuscator.as_ref() {
-            config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
+            config.mtu = clamp_tunnel_mtu(
+                params,
+                config.mtu.saturating_sub(obfuscator.packet_overhead()),
+            );
         }
 
         // NOTE: We force userspace WireGuard while boringtun is enabled to more easily test
@@ -416,10 +418,9 @@ impl WireguardMonitor {
             .runtime
             .block_on(infer_route_mtu(params, &args.route_manager));
 
-        let inferred_tunnel_mtu = params
-            .options
-            .mtu
-            .unwrap_or_else(|| tunnel_mtu_from_route_mtu(params, route_mtu));
+        let inferred_tunnel_mtu = params.options.mtu.unwrap_or_else(|| {
+            clamp_tunnel_mtu(params, route_mtu.saturating_sub(wireguard_overhead(params)))
+        });
 
         let mut config = crate::config::Config::from_parameters(params, inferred_tunnel_mtu)
             .map_err(Error::WireguardConfigError)?;
@@ -437,7 +438,10 @@ impl WireguardMonitor {
             ))?;
         // Adjust MTU again for obfuscation packet overhead
         if let Some(obfuscator) = obfuscator.as_ref() {
-            config.mtu = config.mtu.saturating_sub(obfuscator.packet_overhead());
+            config.mtu = clamp_tunnel_mtu(
+                params,
+                config.mtu.saturating_sub(obfuscator.packet_overhead()),
+            );
         }
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
@@ -1183,7 +1187,7 @@ async fn infer_route_mtu(
 }
 
 /// Clamp WireGuard tunnel MTU to reasonable values
-fn tunnel_mtu_from_route_mtu(params: &TunnelParameters, mtu: u16) -> u16 {
+fn clamp_tunnel_mtu(params: &TunnelParameters, mtu: u16) -> u16 {
     use talpid_tunnel::{MIN_IPV4_MTU, MIN_IPV6_MTU};
 
     let min_mtu = match params.generic_options.enable_ipv6 {
@@ -1200,9 +1204,6 @@ fn tunnel_mtu_from_route_mtu(params: &TunnelParameters, mtu: u16) -> u16 {
 
     // The largest peer MTU that we allow
     let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - wireguard_overhead(params);
-
-    // Subtract WireGuard overhead
-    let mtu = mtu.saturating_sub(wireguard_overhead(params));
 
     mtu.clamp(min_mtu, max_peer_mtu)
 }
