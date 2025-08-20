@@ -66,6 +66,20 @@ pub static LOCAL_DNS_RESOLVER: LazyLock<bool> = LazyLock::new(|| {
     !disable_local_dns_resolver
 });
 
+/// Override the `filter_out_aaaa` flag, which prevents getaddrinfo from returning IPv6 addresses.
+/// This is only useful on macOS when the primary interface has IPv6 connectivity.
+static NEVER_FILTER_AAAA_QUERIES: LazyLock<bool> = LazyLock::new(|| {
+    let never_filter_aaaa_queries = std::env::var("TALPID_NEVER_FILTER_AAAA_QUERIES")
+        .map(|v| v != "0")
+        // Use the local DNS resolver by default.
+        .unwrap_or(false);
+
+    if never_filter_aaaa_queries {
+        log::debug!("Disabling filtering of AAAA queries");
+    }
+    never_filter_aaaa_queries
+});
+
 // Name of the loopback network device.
 const LOOPBACK: &str = "lo0";
 
@@ -173,6 +187,8 @@ enum Config {
     Forwarding {
         /// Remote DNS server to use
         dns_servers: Vec<IpAddr>,
+        /// Whether to give an empty response to AAAA queries
+        filter_out_aaaa: bool,
     },
 }
 
@@ -181,7 +197,10 @@ enum Resolver {
     Blocking,
 
     /// Forward DNS queries to a configured server
-    Forwarding(TokioAsyncResolver),
+    Forwarding {
+        resolver: TokioAsyncResolver,
+        filter_out_aaaa: bool,
+    },
 }
 
 impl Resolver {
@@ -194,10 +213,14 @@ impl Resolver {
             Resolver::Blocking => {
                 let _ = tx.send(Self::resolve_blocked(query));
             }
-            Resolver::Forwarding(resolver) => {
+            Resolver::Forwarding {
+                resolver,
+                filter_out_aaaa,
+            } => {
                 let resolver = resolver.clone();
+                let filter_out_aaaa = *filter_out_aaaa && !*NEVER_FILTER_AAAA_QUERIES;
                 tokio::spawn(async move {
-                    let lookup = Self::resolve_forward(resolver, query);
+                    let lookup = Self::resolve_forward(resolver, query, filter_out_aaaa);
                     let _ = tx.send(lookup.await);
                 });
             }
@@ -243,8 +266,14 @@ impl Resolver {
     async fn resolve_forward(
         resolver: TokioAsyncResolver,
         query: LowerQuery,
+        filter_out_aaaa: bool,
     ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
         let return_query = query.original().clone();
+
+        if filter_out_aaaa && query.query_type() == RecordType::AAAA {
+            log::trace!("Giving empty response to AAAA query");
+            return Ok(Box::new(EmptyLookup) as Box<_>);
+        }
 
         let lookup = resolver
             .lookup(return_query.name().clone(), return_query.query_type())
@@ -274,10 +303,13 @@ impl ResolverHandle {
     }
 
     /// Set the DNS server to forward queries to `dns_servers`
-    pub async fn enable_forward(&self, dns_servers: Vec<IpAddr>) {
+    pub async fn enable_forward(&self, dns_servers: Vec<IpAddr>, filter_out_aaaa: bool) {
         let (response_tx, response_rx) = oneshot::channel();
         let _ = self.tx.unbounded_send(ResolverMessage::SetConfig {
-            new_config: Config::Forwarding { dns_servers },
+            new_config: Config::Forwarding {
+                dns_servers,
+                filter_out_aaaa,
+            },
             response_tx,
         });
 
@@ -518,10 +550,13 @@ impl LocalResolver {
     fn update_config(&mut self, config: Config) {
         match config {
             Config::Blocking => self.blocking(),
-            Config::Forwarding { mut dns_servers } => {
+            Config::Forwarding {
+                mut dns_servers,
+                filter_out_aaaa,
+            } => {
                 // make sure not to accidentally forward queries to ourselves
                 dns_servers.retain(|addr| *addr != self.bound_to.ip());
-                self.forwarding(dns_servers);
+                self.forwarding(dns_servers, filter_out_aaaa);
             }
         }
     }
@@ -532,7 +567,7 @@ impl LocalResolver {
     }
 
     /// Turn into a forwarding resolver (forward DNS queries to [dns_servers]).
-    fn forwarding(&mut self, dns_servers: Vec<IpAddr>) {
+    fn forwarding(&mut self, dns_servers: Vec<IpAddr>, filter_out_aaaa: bool) {
         let forward_server_config =
             NameServerConfigGroup::from_ips_clear(&dns_servers, DNS_PORT, true);
 
@@ -541,7 +576,10 @@ impl LocalResolver {
 
         let resolver = TokioAsyncResolver::tokio(forward_config, resolver_opts);
 
-        self.inner_resolver = Resolver::Forwarding(resolver);
+        self.inner_resolver = Resolver::Forwarding {
+            resolver,
+            filter_out_aaaa,
+        };
     }
 }
 
