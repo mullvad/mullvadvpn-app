@@ -10,7 +10,7 @@ rust-version.workspace = true
 workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
-dbus = "0.9"
+dbus = { version = "0.9", features = ["vendored"] }
 thiserror = { workspace = true }
 log = { workspace = true }
 libc = "0.2"
