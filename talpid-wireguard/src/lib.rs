@@ -1181,7 +1181,7 @@ async fn get_route_mtu(
 #[allow(unused_variables)]
 async fn get_route_mtu(
     params: &TunnelParameters,
-    _route_manager: &talpid_routing::RouteManagerHandle,
+    route_manager: &talpid_routing::RouteManagerHandle,
 ) -> u16 {
     DEFAULT_MTU
 }
