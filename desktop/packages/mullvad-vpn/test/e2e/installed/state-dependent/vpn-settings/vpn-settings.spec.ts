@@ -38,26 +38,24 @@ test.describe('VPN settings', () => {
     });
     test.afterEach(async () => {
       await routes.vpnSettings.setAutoConnectSwitch(false);
-      const autoConnectSwitchChecked = await routes.vpnSettings.getAutoConnectSwitchState();
-      expect(autoConnectSwitchChecked).toBe('false');
+      const autoConnectSwitch = routes.vpnSettings.getAutoConnectSwitch();
+      await expect(autoConnectSwitch).toHaveAttribute('aria-checked', 'false');
 
       await routes.vpnSettings.setLaunchAppOnStartupSwitch(false);
-      const launchOnStartupSwitchChecked =
-        await routes.vpnSettings.getLaunchAppOnStartupSwitchState();
-      expect(launchOnStartupSwitchChecked).toBe('false');
+      const launchOnStartupSwitch = routes.vpnSettings.getLaunchAppOnStartupSwitch();
+      await expect(launchOnStartupSwitch).toHaveAttribute('aria-checked', 'false');
     });
 
     const enableAutoConnect = async () => {
       await routes.vpnSettings.setAutoConnectSwitch(true);
-      const autoConnectSwitchChecked = await routes.vpnSettings.getAutoConnectSwitchState();
-      expect(autoConnectSwitchChecked).toBe('true');
+      const autoConnectSwitchChecked = routes.vpnSettings.getAutoConnectSwitch();
+      await expect(autoConnectSwitchChecked).toHaveAttribute('aria-checked', 'true');
     };
 
     const enableLaunchAppOnStartup = async () => {
       await routes.vpnSettings.setLaunchAppOnStartupSwitch(true);
-      const launchOnStartupSwitchChecked =
-        await routes.vpnSettings.getLaunchAppOnStartupSwitchState();
-      expect(launchOnStartupSwitchChecked).toBe('true');
+      const launchOnStartupSwitch = routes.vpnSettings.getLaunchAppOnStartupSwitch();
+      await expect(launchOnStartupSwitch).toHaveAttribute('aria-checked', 'true');
 
       if (process.platform === 'linux') {
         expect(autoStartPathExists()).toBeTruthy();
