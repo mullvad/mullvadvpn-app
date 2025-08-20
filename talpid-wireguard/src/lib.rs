@@ -158,13 +158,13 @@ impl WireguardMonitor {
     ) -> Result<WireguardMonitor> {
         let route_mtu = args
             .runtime
-            .block_on(infer_route_mtu(params, &args.route_manager));
+            .block_on(get_route_mtu(params, &args.route_manager));
 
-        let inferred_tunnel_mtu = params.options.mtu.unwrap_or_else(|| {
+        let tunnel_mtu = params.options.mtu.unwrap_or_else(|| {
             clamp_tunnel_mtu(params, route_mtu.saturating_sub(wireguard_overhead(params)))
         });
 
-        let mut config = crate::config::Config::from_parameters(params, inferred_tunnel_mtu)
+        let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
             .map_err(Error::WireguardConfigError)?;
 
         let endpoint_addrs = [params.get_next_hop_endpoint().address.ip()];
@@ -416,13 +416,13 @@ impl WireguardMonitor {
     ) -> Result<WireguardMonitor> {
         let route_mtu = args
             .runtime
-            .block_on(infer_route_mtu(params, &args.route_manager));
+            .block_on(get_route_mtu(params, &args.route_manager));
 
-        let inferred_tunnel_mtu = params.options.mtu.unwrap_or_else(|| {
+        let tunnel_mtu = params.options.mtu.unwrap_or_else(|| {
             clamp_tunnel_mtu(params, route_mtu.saturating_sub(wireguard_overhead(params)))
         });
 
-        let mut config = crate::config::Config::from_parameters(params, inferred_tunnel_mtu)
+        let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
             .map_err(Error::WireguardConfigError)?;
 
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
@@ -1164,7 +1164,7 @@ const DEFAULT_MTU: u16 = if cfg!(target_os = "android") {
 
 /// Get (presumed) MTU based on the physical interface route
 #[cfg(any(target_os = "linux", target_os = "windows"))]
-async fn infer_route_mtu(
+async fn get_route_mtu(
     params: &TunnelParameters,
     route_manager: &talpid_routing::RouteManagerHandle,
 ) -> u16 {
@@ -1179,7 +1179,7 @@ async fn infer_route_mtu(
 #[cfg(any(target_os = "macos", target_os = "android"))]
 #[allow(clippy::unused_async)]
 #[allow(unused_variables)]
-async fn infer_route_mtu(
+async fn get_route_mtu(
     params: &TunnelParameters,
     _route_manager: &talpid_routing::RouteManagerHandle,
 ) -> u16 {
