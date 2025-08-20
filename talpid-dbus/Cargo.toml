@@ -6,7 +6,7 @@ repository.workspace = true
 license.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
-dbus = "0.9"
+dbus = { version = "0.9", features = ["vendored"] }
 libc = "0.2"
 log = { workspace = true }
 thiserror = { workspace = true }
