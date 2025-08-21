@@ -24,9 +24,9 @@ class MullvadApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         Logger.setTag(LOG_TAG)
-        if (!BuildConfig.DEBUG) {
+        /*if (!BuildConfig.DEBUG) {
             Logger.setMinSeverity(Severity.Info)
-        }
+        }*/
         startKoin { androidContext(this@MullvadApplication) }
         loadKoinModules(listOf(appModule))
         with(getKoin()) {

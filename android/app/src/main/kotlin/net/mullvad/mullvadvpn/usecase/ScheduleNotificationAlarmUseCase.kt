@@ -15,7 +15,13 @@ class ScheduleNotificationAlarmUseCase(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
     suspend operator fun invoke(context: Context, accountExpiry: ZonedDateTime?) {
-        val appContext = context.applicationContext
+        if (accountExpiry == null) {
+            userPreferencesRepository.clearAccountExpiry()
+            return
+        }
+        userPreferencesRepository.setAccountExpiry(accountExpiry)
+        Logger.d("Scheduling account expiry notification alarm for $accountExpiry")
+        /*val appContext = context.applicationContext
         val alarmManager = appContext.getSystemService(AlarmManager::class.java) ?: return
 
         cancelExisting(appContext, alarmManager)
@@ -36,7 +42,7 @@ class ScheduleNotificationAlarmUseCase(
         Logger.d(
             "Scheduling next account expiry alarm for ${triggerAt.withZoneSameInstant(ZoneOffset.UTC)}"
         )
-        userPreferencesRepository.setAccountExpiry(accountExpiry)
+        userPreferencesRepository.setAccountExpiry(accountExpiry)*/
     }
 
     private fun alarmIntent(context: Context, accountExpiry: ZonedDateTime): PendingIntent =
