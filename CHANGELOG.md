@@ -26,6 +26,11 @@ Line wrap the file at 100 chars.                                              Th
 - Add QUIC obfuscation (WireGuard only). It will be used automatically when connecting fails with
   other methods.
 
+### Changed
+#### Windows
+- Ignore non-empty install directory if removing it fails during upgrades. This attempts to work
+  around an issue of some processes hogging the install directory.
+
 ### Fixed
 #### macOS
 - Add support for parsing eslogger output version 10. This fixes split tunneling on macOS 26.
