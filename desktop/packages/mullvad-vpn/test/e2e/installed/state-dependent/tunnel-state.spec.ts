@@ -52,36 +52,39 @@ test.describe('Tunnel state and settings', () => {
     // Selecting the first resolves to the IPv4 address regardless of the IP setting
     const outIp = page.locator(':text("Out") + div > span').first();
 
-    await expect(relay).toHaveText(process.env.HOSTNAME!);
+    await expect(relay).toHaveText(HOSTNAME!);
     await expect(inIp).not.toBeVisible();
     await relay.click();
 
     await expect(inIp).toBeVisible();
-    expect(await inIp.textContent()).toMatch(new RegExp(`^${process.env.IN_IP!}`));
+    expect(await inIp.textContent()).toMatch(new RegExp(`^${IN_IP!}`));
 
     await expect(outIp).toBeVisible();
 
-    const ipResponse = await fetch(`${process.env.CONNECTION_CHECK_URL!}/ip`);
+    const ipResponse = await fetch(`${CONNECTION_CHECK_URL!}/ip`);
     const ip = await ipResponse.text();
 
     expect(await outIp.textContent()).toBe(ip.trim());
   });
 
   test('App should show correct WireGuard port', async () => {
-    const inData = page.getByTestId('in-ip');
-
-    await expect(inData).toContainText(new RegExp(':[0-9]+'));
+    const inValue1 = await routes.main.getInValueText();
+    expect(inValue1).toMatch(new RegExp(':[0-9]+'));
 
     await exec('mullvad obfuscation set mode off');
     await exec('mullvad relay set tunnel wireguard --port=53');
     await expectConnected(page);
-    await page.getByTestId('connection-panel-chevron').click();
-    await expect(inData).toContainText(new RegExp(':53'));
+    await routes.main.expandConnectionPanel();
+
+    const inValue2 = await routes.main.getInValueText();
+    expect(inValue2).toMatch(new RegExp(':53'));
 
     await exec('mullvad relay set tunnel wireguard --port=51820');
     await expectConnected(page);
-    await page.getByTestId('connection-panel-chevron').click();
-    await expect(inData).toContainText(new RegExp(':51820'));
+    await routes.main.expandConnectionPanel();
+
+    const inValue3 = await routes.main.getInValueText();
+    expect(inValue3).toMatch(new RegExp(':51820'));
 
     await exec('mullvad relay set tunnel wireguard --port=any');
     await exec('mullvad obfuscation set mode auto');
@@ -164,7 +167,7 @@ test.describe('Tunnel state and settings', () => {
     await exec('mullvad debug block-connection');
     await expectError(page);
 
-    await exec(`mullvad relay set location ${process.env.HOSTNAME}`);
+    await exec(`mullvad relay set location ${HOSTNAME}`);
     await expectConnected(page);
   });
 
@@ -172,9 +175,7 @@ test.describe('Tunnel state and settings', () => {
     await exec('mullvad relay set tunnel wireguard --use-multihop=on');
     await expectConnected(page);
     const relay = page.getByTestId('hostname-line');
-    await expect(relay).toHaveText(
-      new RegExp('^' + escapeRegExp(`${process.env.HOSTNAME} via`), 'i'),
-    );
+    await expect(relay).toHaveText(new RegExp('^' + escapeRegExp(`${HOSTNAME} via`), 'i'));
     await exec('mullvad relay set tunnel wireguard --use-multihop=off');
     await page.getByText('Disconnect').click();
   });
