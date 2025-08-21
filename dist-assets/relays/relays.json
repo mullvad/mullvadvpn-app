@@ -1,5 +1,5 @@
 {
-  "etag": "W/\"68a6c47a-331c6\"",
+  "etag": "W/\"68a6cff6-331c6\"",
   "countries": [
     {
       "name": "Albania",
@@ -1451,8 +1451,8 @@
                   "daita": false,
                   "quic": null,
                   "shadowsocks_extra_addr_in": [
-                    "103.139.178.134",
-                    "103.139.178.135"
+                    "103.139.178.135",
+                    "103.139.178.134"
                   ]
                 }
               },
@@ -2113,8 +2113,8 @@
                   "daita": false,
                   "quic": {
                     "addr_in": [
-                      "2607:9000:600:31::f00a",
-                      "23.234.84.12"
+                      "23.234.84.12",
+                      "2607:9000:600:31::f00a"
                     ],
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-tor-wg-201.blockerad.eu"
@@ -3435,7 +3435,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": false,
+              "active": true,
               "owned": false,
               "provider": "HostRoyale",
               "weight": 100,
@@ -6195,7 +6195,7 @@
               "overridden_ipv4": false,
               "overridden_ipv6": false,
               "include_in_country": true,
-              "active": true,
+              "active": false,
               "owned": true,
               "provider": "31173",
               "weight": 100,
@@ -12713,8 +12713,8 @@
                   "daita": false,
                   "quic": {
                     "addr_in": [
-                      "89.37.63.195",
-                      "2a02:6ea0:1508:4::c101"
+                      "2a02:6ea0:1508:4::c101",
+                      "89.37.63.195"
                     ],
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-204.blockerad.eu"
