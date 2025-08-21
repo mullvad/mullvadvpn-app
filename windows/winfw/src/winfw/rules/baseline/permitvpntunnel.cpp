@@ -125,7 +125,7 @@ bool PermitVpnTunnel::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, IObj
 		conditionBuilder.add_condition(ConditionIp::Remote(exitIp));
 
 		for (auto relayClient : m_relayClients) {
-			conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient, CompareNeq()));
+			conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient));
 		}
 
 		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
@@ -143,7 +143,7 @@ bool PermitVpnTunnel::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, IObj
 		conditionBuilder.add_condition(ConditionIp::Remote(exitIp));
 
 		for (auto relayClient : m_relayClients) {
-			conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient, CompareNeq()));
+			conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient));
 		}
 
 		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
