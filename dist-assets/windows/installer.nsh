@@ -699,8 +699,6 @@ RemoveInstallDirContents_check:
 	${If} $1 != "."
 	${AndIf} $1 != ".."
 		log::Log "Failed to remove non-empty directory"
-		log::Log "thing: $1"
-		MessageBox MB_ICONSTOP|MB_TOPMOST|MB_OK "Thing: $1."
 		SetErrors
 		Goto RemoveInstallDirContents_findClose
 	${EndIf}
