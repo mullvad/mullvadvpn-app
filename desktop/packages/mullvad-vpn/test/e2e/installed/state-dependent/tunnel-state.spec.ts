@@ -3,7 +3,7 @@ import { exec as execAsync } from 'child_process';
 import { Page } from 'playwright';
 import { promisify } from 'util';
 
-import { RoutePath } from '../../../../src/shared/routes';
+import { RoutesObjectModel } from '../../route-object-models';
 import { expectConnected, expectDisconnected, expectError } from '../../shared/tunnel-state';
 import { escapeRegExp, TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
@@ -18,11 +18,18 @@ const exec = promisify(execAsync);
 
 let page: Page;
 let util: TestUtils;
+let routes: RoutesObjectModel;
 
 test.describe('Tunnel state and settings', () => {
-  test.beforeAll(async () => {
+  const startup = async () => {
     ({ page, util } = await startInstalledApp());
-    await util.waitForRoute(RoutePath.main);
+    routes = new RoutesObjectModel(page, util);
+
+    await routes.main.waitForRoute();
+  };
+
+  test.beforeAll(async () => {
+    await startup();
   });
 
   test.afterAll(async () => {
