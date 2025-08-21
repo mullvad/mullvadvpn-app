@@ -32,7 +32,7 @@ class AccountDeletionViewModel: ObservableObject {
         .init(NSAttributedString(
             markdownString: NSLocalizedString(
                 """
-                Are you sure you want to delete account **\(accountNumber)**?
+                Are you sure you want to delete the account **\(accountNumber)**?
                 """,
                 comment: ""
             ),
