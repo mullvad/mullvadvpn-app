@@ -5,7 +5,7 @@ use std::time::Duration;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
-use test_rpc::{ServiceClient, mullvad_daemon::ServiceStatus};
+use test_rpc::{ServiceClient, SpawnOpts, mullvad_daemon::ServiceStatus};
 
 use crate::tests::helpers;
 
@@ -361,5 +361,51 @@ pub async fn test_installation_idempotency(
         "observed unexpected packets from {guest_ip}"
     );
 
+    Ok(())
+}
+
+/// Test that update/reinstall works when some process is hogging the install dir, if it is empty
+#[test_function(target_os = "windows")]
+pub async fn test_reinstall_locked_install_dir(
+    _ctx: TestContext,
+    rpc: ServiceClient,
+    _mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    // Hog the install dir. This should still succeed
+    reinstall_locked_install_dir(rpc.clone(), r"C:\Program Files\Mullvad VPN").await?;
+
+    // Hog the resource dir. This will still fail
+    let result =
+        reinstall_locked_install_dir(rpc.clone(), r"C:\Program Files\Mullvad VPN\resources").await;
+    ensure!(result.is_err(), "hogging resources dir should fail");
+
+    Ok(())
+}
+
+async fn reinstall_locked_install_dir(rpc: ServiceClient, dir: &str) -> anyhow::Result<()> {
+    log::info!("Creating CMD.exe instance that hogs directory: {dir}");
+
+    let Ok(pid) = rpc
+        .spawn(SpawnOpts {
+            path: r"C:\Windows\System32\cmd.exe".into(),
+            args: vec![r"/K".into(), format!(r#"cd "{dir}"#)],
+            env: Default::default(),
+            attach_stdin: false,
+            attach_stdout: false,
+        })
+        .await
+    else {
+        bail!("Failed to spawn cmd");
+    };
+
+    let result = rpc
+        .install_app(helpers::get_package_desc(&TEST_CONFIG.app_package_filename))
+        .await;
+
+    if let Err(err) = rpc.kill_child(pid).await {
+        log::error!("Failed to kill hogging process: {err}");
+    }
+
+    result?;
     Ok(())
 }
