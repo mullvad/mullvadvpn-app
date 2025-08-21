@@ -172,7 +172,7 @@ pub(super) fn apply_policy_connecting(
             .unwrap_or(ptr::null()),
     };
 
-    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(|ep| widestring_ip(ep));
+    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(widestring_ip);
     let exit_endpoint_ip_ptr = exit_endpoint_ip_wstr
         .as_ref()
         .map(|ip| ip.as_ptr())
@@ -256,7 +256,7 @@ pub(super) fn apply_policy_connected(
         .map(|ip| ip.as_ptr())
         .collect();
 
-    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(|ep| widestring_ip(ep));
+    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(widestring_ip);
     let exit_endpoint_ip_ptr = exit_endpoint_ip_wstr
         .as_ref()
         .map(|ip| ip.as_ptr())
