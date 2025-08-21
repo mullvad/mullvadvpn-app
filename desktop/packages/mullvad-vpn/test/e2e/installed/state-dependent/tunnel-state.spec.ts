@@ -16,6 +16,10 @@ const exec = promisify(execAsync);
 // IN_IP: In ip of the relay passed in `HOSTNAME`
 // CONNECTION_CHECK_URL: Url to the connection check
 
+const HOSTNAME = process.env.HOSTNAME;
+const IN_IP = process.env.IN_IP;
+const CONNECTION_CHECK_URL = process.env.CONNECTION_CHECK_URL;
+
 let page: Page;
 let util: TestUtils;
 let routes: RoutesObjectModel;
@@ -85,18 +89,70 @@ test.describe('Tunnel state and settings', () => {
     await exec('mullvad obfuscation set mode auto');
   });
 
-  test('App should show correct WireGuard transport protocol', async () => {
-    const inData = page.getByTestId('in-ip');
+  test.describe('Wireguard UDP-over-TCP', () => {
+    async function gotoWireguardSettings() {
+      await routes.main.gotoSettings();
+      await routes.settings.gotoVpnSettings();
+      await routes.vpnSettings.gotoWireguardSettings();
+    }
 
-    await exec('mullvad obfuscation set mode udp2tcp');
-    await expectConnected(page);
-    await page.getByTestId('connection-panel-chevron').click();
-    await expect(inData).toContainText(new RegExp('TCP'));
+    async function gotoUdpOverTcpSettings() {
+      await gotoWireguardSettings();
+      await routes.wireguardSettings.gotoUdpOverTcpSettings();
+    }
 
-    await exec('mullvad obfuscation set mode off');
-    await expectConnected(page);
-    await page.getByTestId('connection-panel-chevron').click();
-    await expect(inData).toContainText(new RegExp('UDP$'));
+    test.afterAll(async () => {
+      await routes.any.gotoRoot();
+    });
+
+    test('App should show UDP', async () => {
+      await expectConnected(page);
+      await routes.main.expandConnectionPanel();
+      const inValue = await routes.main.getInValueText();
+      expect(inValue).toMatch(new RegExp('UDP$'));
+    });
+
+    test('App should enable UDP-over-TCP', async () => {
+      await gotoWireguardSettings();
+
+      const udpOverTcpOption = routes.wireguardSettings.getUdpOverTcpOption();
+      await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'false');
+
+      await routes.wireguardSettings.selectUdpOverTcp();
+      await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'true');
+
+      await routes.any.gotoRoot();
+
+      await expectConnected(page);
+
+      await routes.main.expandConnectionPanel();
+
+      const inValue = await routes.main.getInValueText();
+      expect(inValue).toMatch(new RegExp(`${escapeRegExp(IN_IP!)}:(80|5001) TCP`));
+    });
+
+    test('App should show correct port', async () => {
+      async function testPort(port: number) {
+        await gotoUdpOverTcpSettings();
+        await routes.udpOverTcpSettings.selectPort(port);
+        await routes.any.gotoRoot();
+        await routes.main.expandConnectionPanel();
+
+        const inValue = await routes.main.getInValueText();
+        expect(inValue).toMatch(`${IN_IP}:${port} TCP`);
+      }
+
+      await testPort(80);
+      await testPort(5001);
+    });
+
+    test('App should set obfuscation to automatic', async () => {
+      await gotoWireguardSettings();
+      await routes.wireguardSettings.selectAutomaticObfuscation();
+
+      const automaticOption = routes.wireguardSettings.getAutomaticObfuscationOption();
+      await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
+    });
   });
 
   test('App should connect with Shadowsocks', async () => {
