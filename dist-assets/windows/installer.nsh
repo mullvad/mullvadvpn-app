@@ -673,6 +673,57 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 !define RemoveCurrentDevice '!insertmacro "RemoveCurrentDevice"'
 
+#
+# RemoveInstallDirContents
+#
+# Deletes $INSTDIR without failing if the directory still exists but is empty.
+# This works around an annoying issue where apps keep open file handles to the directory.
+#
+!macro RemoveInstallDirContents
+
+	log::Log "RemoveInstallDirContents()"
+
+	Push $0
+	Push $1
+
+	RMDir /r "$INSTDIR"
+	IfErrors 0 RemoveInstallDirContents_done
+	ClearErrors
+
+	FindFirst $0 $1 "$INSTDIR\*"
+	ClearErrors
+	StrCmp $1 "" RemoveInstallDirContents_done
+
+RemoveInstallDirContents_check:
+
+	${If} $1 != "."
+	${AndIf} $1 != ".."
+		log::Log "Failed to remove non-empty directory"
+		log::Log "thing: $1"
+		MessageBox MB_ICONSTOP|MB_TOPMOST|MB_OK "Thing: $1."
+		SetErrors
+		Goto RemoveInstallDirContents_findClose
+	${EndIf}
+
+	FindNext $0 $1
+	IfErrors 0 RemoveInstallDirContents_check
+
+	# If error flag is set, we are done
+	ClearErrors
+
+RemoveInstallDirContents_findClose:
+
+	FindClose $0
+
+RemoveInstallDirContents_done:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemoveInstallDirContents '!insertmacro "RemoveInstallDirContents"'
+
 
 #
 # customInit
@@ -863,40 +914,6 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	Pop $R0
 
 !macroend
-
-#
-# RemoveInstallDirContents
-#
-# Deletes $INSTDIR without failing if the directory still exists but is empty.
-# This works around an annoying issue where apps keep open file handles to the directory.
-#
-!macro RemoveInstallDirContents
-
-	Push $0
-	Push $1
-
-	RMDir /r "$INSTDIR"
-	IfErrors 0 RemoveInstallDirContents_done
-	ClearErrors
-
-	FindFirst $0 $1 "$INSTDIR\*"
-	StrCmp $1 "" 0 RemoveInstallDirContents_findClose
-
-	# The directory is empty, so clear errors
-	ClearErrors
-
-RemoveInstallDirContents_findClose:
-
-	FindClose $0
-
-RemoveInstallDirContents_done:
-
-	Pop $1
-	Pop $0
-
-!macroend
-
-!define RemoveInstallDirContents '!insertmacro "RemoveInstallDirContents"'
 
 #
 # customUnInstallCheck
@@ -1172,7 +1189,7 @@ RemoveInstallDirContents_done:
 	# Remove application files
 	log::Log "Deleting $INSTDIR"
 	ClearErrors
-	RemoveInstallDirContents
+	${RemoveInstallDirContents}
 	IfErrors 0 customRemoveFiles_final_cleanup
 
 	log::Log "Failed to remove application files"
