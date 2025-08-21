@@ -29,7 +29,7 @@ public:
 		const WinFwSettings &settings,
 		const WinFwEndpoint &relay,
 		const std::optional<wfp::IpAddress> &exitEndpointIp,
-		const std::optional<std::wstring> &relayClient,
+		const std::vector<std::wstring> &relayClients,
 		const std::optional<std::wstring> &tunnelInterfaceAlias,
 		const std::optional<WinFwAllowedEndpoint> &allowedEndpoint,
 		const WinFwAllowedTunnelTraffic &allowedTunnelTraffic
@@ -40,7 +40,7 @@ public:
 		const WinFwSettings &settings,
 		const WinFwEndpoint &relay,
 		const std::optional<wfp::IpAddress> &exitEndpointIp,
-		const std::optional<std::wstring> &relayClient,
+		const std::vector<std::wstring> &relayClients,
 		const std::wstring &tunnelInterfaceAlias,
 		const std::vector<wfp::IpAddress> &tunnelDnsServers,
 		const std::vector<wfp::IpAddress> &nonTunnelDnsServers
