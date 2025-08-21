@@ -1,6 +1,7 @@
 import { Page } from 'playwright';
 
 import { TestUtils } from '../utils';
+import { AnyRouteObjectModel } from './any';
 import { DaitaSettingsRouteObjectModel } from './daita-settings';
 import { FilterRouteObjectModel } from './filter';
 import { LaunchRouteObjectModel } from './launch';
@@ -13,6 +14,7 @@ import { UserInterfaceSettingsRouteObjectModel } from './user-interface-settings
 import { VpnSettingsRouteObjectModel } from './vpn-settings';
 
 export class RoutesObjectModel {
+  readonly any: AnyRouteObjectModel;
   readonly main: MainRouteObjectModel;
   readonly launch: LaunchRouteObjectModel;
   readonly settings: SettingsRouteObjectModel;
@@ -25,6 +27,7 @@ export class RoutesObjectModel {
   readonly daitaSettings: DaitaSettingsRouteObjectModel;
 
   constructor(page: Page, utils: TestUtils) {
+    this.any = new AnyRouteObjectModel(page, utils);
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
     this.main = new MainRouteObjectModel(page, utils);
     this.launch = new LaunchRouteObjectModel(page, utils);
