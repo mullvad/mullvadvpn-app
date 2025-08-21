@@ -21,7 +21,7 @@ struct AccountDeletionView: View {
             Text(viewModel.messageText)
                 .font(.mullvadSmallSemiBold)
                 .foregroundStyle(Color.white)
-                .padding(.init(top: 0, leading: 0, bottom: 16, trailing: 0))
+                .padding(.bottom, 8)
 
             Text(NSLocalizedString(
                 """
@@ -45,9 +45,9 @@ struct AccountDeletionView: View {
             // Status information
             HStack {
                 if viewModel.isWorking {
-                    ActivityIndicator()
-                        .frame(width: 30, height: 20)
-                        .foregroundStyle(Color.white)
+                    ProgressView()
+                        .progressViewStyle(MullvadProgressViewStyle(size: 20))
+                    Spacer().frame(width: 10)
                 }
 
                 Text(viewModel.statusText)
