@@ -33,11 +33,11 @@ export class MainRouteObjectModel {
     await this.selectors.connectionPanelChevronButton().click();
   }
 
-  getInValue() {
-    return this.selectors.inValueLabel();
+  getInIp() {
+    return this.selectors.inIpLabel();
   }
 
-  async getInValueText() {
-    return this.getInValue().innerText();
+  getInIpText() {
+    return this.getInIp().innerText();
   }
 }
