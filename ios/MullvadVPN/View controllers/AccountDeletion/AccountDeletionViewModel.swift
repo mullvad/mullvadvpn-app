@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUICore
 
 class AccountDeletionViewModel: ObservableObject {
     enum State {
@@ -29,24 +30,20 @@ class AccountDeletionViewModel: ObservableObject {
     }
 
     var messageText: AttributedString {
-        .init(NSAttributedString(
-            markdownString: NSLocalizedString(
-                """
-                Are you sure you want to delete account **\(accountNumber)**?
-                """,
-                comment: ""
-            ),
-            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
-        ))
+        .fromMarkdown(
+            """
+            Are you sure you want to delete the account **\(accountNumber)**?
+            """
+        )
     }
 
-    var statusText: String {
+    var statusText: LocalizedStringKey {
         switch state {
         case let .failure(error):
-            return error.localizedDescription
+            return LocalizedStringKey(error.localizedDescription)
         case .working:
-            return NSLocalizedString("Deleting account...", comment: "")
-        default: return ""
+            return LocalizedStringKey("Deleting account...")
+        default: return LocalizedStringKey("")
         }
     }
 

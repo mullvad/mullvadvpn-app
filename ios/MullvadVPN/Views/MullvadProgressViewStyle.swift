@@ -1,11 +1,17 @@
 import SwiftUI
 
 struct MullvadProgressViewStyle: ProgressViewStyle {
+    let size: CGFloat
+
+    init(size: CGFloat = 48) {
+        self.size = size
+    }
+
     @State var isAnimating = false
     func makeBody(configuration: Configuration) -> some View {
         Image.mullvadIconSpinner
             .resizable()
-            .frame(maxWidth: 48, maxHeight: 48)
+            .frame(maxWidth: size, maxHeight: size)
             .rotationEffect(.degrees(isAnimating ? 360 : 0))
             .onAppear {
                 withAnimation(
