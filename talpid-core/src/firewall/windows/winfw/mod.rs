@@ -102,9 +102,6 @@ pub(super) fn apply_policy_connecting(
         protocol: WinFwProt::from(peer_endpoint.endpoint.protocol),
     };
 
-    // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1`, `endpoint2`, `relay_client_wstrs`
-    // must not be dropped until `WinFw_ApplyPolicyConnecting` has returned.
-
     let relay_client_wstrs: Vec<_> = peer_endpoint
         .clients
         .iter()
@@ -191,11 +188,7 @@ pub(super) fn apply_policy_connecting(
             &allowed_tunnel_traffic,
         )
     };
-    // Must be dropped after pointer deref
-    drop(exit_endpoint_ip_wstr);
-    // SAFETY: All of these hold stack allocated memory which is pointed to by
-    // `allowed_tunnel_traffic` and must remain allocated until `WinFw_ApplyPolicyConnecting`
-    // has returned.
+    // SAFETY: All of these must remain allocated until `WinFw_ApplyPolicyConnecting` has returned.
     drop(endpoint1_ip);
     drop(endpoint2_ip);
     #[allow(clippy::drop_non_drop)]
@@ -203,6 +196,7 @@ pub(super) fn apply_policy_connecting(
     #[allow(clippy::drop_non_drop)]
     drop(endpoint2);
     drop(relay_client_wstrs);
+    drop(exit_endpoint_ip_wstr);
     res.into_result()
 }
 
@@ -278,13 +272,9 @@ pub(super) fn apply_policy_connected(
         )
     };
 
-    // Must be dropped after pointer deref
+    // SAFETY: All of these must remain allocated until `WinFw_ApplyPolicyConnected` has returned.
     drop(exit_endpoint_ip_wstr);
-
     drop(ip_str);
-
-    // SAFETY: `relay_client_wstrs` holds memory pointed to by pointers used in C++ and must
-    // not be dropped until after `WinFw_ApplyPolicyConnected` has returned.
     drop(relay_client_wstrs);
     result.into_result()
 }
