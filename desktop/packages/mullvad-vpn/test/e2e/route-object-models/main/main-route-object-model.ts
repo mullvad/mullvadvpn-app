@@ -28,4 +28,16 @@ export class MainRouteObjectModel {
     await this.selectors.selectLocationButton().click();
     await this.utils.waitForRoute(RoutePath.selectLocation);
   }
+
+  async expandConnectionPanel() {
+    await this.selectors.connectionPanelChevronButton().click();
+  }
+
+  getInValue() {
+    return this.selectors.inValueLabel();
+  }
+
+  async getInValueText() {
+    return this.getInValue().innerText();
+  }
 }
