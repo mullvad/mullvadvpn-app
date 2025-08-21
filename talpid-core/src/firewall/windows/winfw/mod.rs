@@ -78,10 +78,7 @@ pub(super) fn apply_policy_blocked(
     let allowed_endpoint = allowed_endpoint
         .as_ref()
         .map(WinFwAllowedEndpointContainer::as_endpoint);
-    let allowed_endpoint_ptr = allowed_endpoint
-        .as_ref()
-        .map(ptr::from_ref)
-        .unwrap_or(ptr::null());
+    let allowed_endpoint_ptr = allowed_endpoint.as_ref().map_or(ptr::null(), ptr::from_ref);
     // SAFETY: This function is always safe to call
     let application = unsafe { WinFw_ApplyPolicyBlocked(winfw_settings, allowed_endpoint_ptr) };
     application.into_result()
@@ -172,8 +169,7 @@ pub(super) fn apply_policy_connecting(
     let exit_endpoint_ip_wstr = exit_endpoint_ip.map(widestring_ip);
     let exit_endpoint_ip_ptr = exit_endpoint_ip_wstr
         .as_ref()
-        .map(|ip| ip.as_ptr())
-        .unwrap_or_default();
+        .map_or(ptr::null(), |ip| ip.as_ptr());
 
     #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
     let res = unsafe {
@@ -253,8 +249,7 @@ pub(super) fn apply_policy_connected(
     let exit_endpoint_ip_wstr = exit_endpoint_ip.map(widestring_ip);
     let exit_endpoint_ip_ptr = exit_endpoint_ip_wstr
         .as_ref()
-        .map(|ip| ip.as_ptr())
-        .unwrap_or_default();
+        .map_or(ptr::null(), |ip| ip.as_ptr());
 
     #[allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
     let result = unsafe {
