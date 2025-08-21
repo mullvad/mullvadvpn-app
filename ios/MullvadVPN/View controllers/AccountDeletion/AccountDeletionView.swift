@@ -32,13 +32,13 @@ struct AccountDeletionView: View {
                 """,
                 comment: ""
             ))
-            .font(.mullvadMiniSemiBold)
+            .font(.mullvadSmallSemiBold)
             .foregroundStyle(Color.white)
             .padding(.init(top: 0, leading: 0, bottom: 8, trailing: 0))
 
             // accountTextField
             MullvadPrimaryTextField(
-                label: "", placeholder: "", text: $viewModel.enteredAccountNumberSuffix
+                label: "Last 4 digits", placeholder: "XXXX", text: $viewModel.enteredAccountNumberSuffix
             )
             .padding(.init(top: 0, leading: 0, bottom: 4, trailing: 0))
 
