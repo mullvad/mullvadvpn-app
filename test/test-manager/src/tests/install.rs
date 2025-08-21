@@ -389,13 +389,7 @@ async fn reinstall_locked_install_dir(rpc: ServiceClient, dir: &str) -> anyhow::
         .spawn(SpawnOpts {
             path: r"C:\Windows\System32\cmd.exe".into(),
             // open a new console window and cd into `dir`
-            args: vec![
-                "/C".into(),
-                "start".into(),
-                "cmd".into(),
-                "/K".into(),
-                format!(r#"cd "{dir}"#),
-            ],
+            args: vec!["/K".into(), "cd".into(), dir.into()],
             env: Default::default(),
             attach_stdin: false,
             attach_stdout: false,
