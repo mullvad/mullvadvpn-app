@@ -668,9 +668,16 @@ impl AccountsProxy {
                     &play_purchase,
                 )?
                 .account(account)?
-                .expected_status(&[StatusCode::ACCEPTED]);
-            service.request(request).await?;
-            Ok(())
+                .expected_status(&[StatusCode::NO_CONTENT]);
+
+            let response = service.request(request).await;
+            match response {
+                Err(e) => {
+                    log::error!("verify_play_purchase failed: #{:?}", e);
+                    Err(e)
+                }
+                Ok(_) => Ok(()),
+            }
         }
     }
 
