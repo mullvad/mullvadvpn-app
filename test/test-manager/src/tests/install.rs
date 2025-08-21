@@ -388,7 +388,14 @@ async fn reinstall_locked_install_dir(rpc: ServiceClient, dir: &str) -> anyhow::
     let Ok(pid) = rpc
         .spawn(SpawnOpts {
             path: r"C:\Windows\System32\cmd.exe".into(),
-            args: vec![r"/K".into(), format!(r#"cd "{dir}"#)],
+            // open a new console window and cd into `dir`
+            args: vec![
+                "/C".into(),
+                "start".into(),
+                "cmd".into(),
+                "/K".into(),
+                format!(r#"cd "{dir}"#),
+            ],
             env: Default::default(),
             attach_stdin: false,
             attach_stdout: false,
@@ -403,7 +410,7 @@ async fn reinstall_locked_install_dir(rpc: ServiceClient, dir: &str) -> anyhow::
         .await;
 
     if let Err(err) = rpc.kill_child(pid).await {
-        log::error!("Failed to kill hogging process: {err}");
+        bail!("Failed to kill hogging process: {err}");
     }
 
     result?;
