@@ -33,9 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Security
 #### Windows
-- Block traffic to exit hop from non-Mullvad processes. This fixes a leak where traffic could be
-  encrypted once, but leave the entry hop unencrypted, if and only if the destination were the exit
-  hop. E.g., this might occur if a browser tries to open a TCP connection to the exit hop IP.
+- Block traffic to exit node from non-Mullvad processes. This fixes a leak where traffic could be
+  encrypted once, but leave the entry node unencrypted, if and only if the destination were the exit
+  node. E.g., this might occur if a browser tries to open a TCP connection to the exit node IP.
 
 
 ## [2025.8] - 2025-08-14
