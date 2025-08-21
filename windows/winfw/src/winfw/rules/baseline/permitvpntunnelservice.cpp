@@ -19,12 +19,12 @@ namespace rules::baseline
 using Endpoint = PermitVpnTunnel::Endpoint;
 
 PermitVpnTunnelService::PermitVpnTunnelService(
-	const std::optional<std::wstring> &relayClient,
+	const std::vector<std::wstring> &relayClients,
 	const std::wstring &tunnelInterfaceAlias,
 	const std::optional<PermitVpnTunnel::Endpoints> &potentialEndpoints,
 	const std::optional<wfp::IpAddress> &exitEndpointIp
 )
-	: m_relayClient(relayClient)
+	: m_relayClients(relayClients)
 	, m_tunnelInterfaceAlias(tunnelInterfaceAlias)
 	, m_potentialEndpoints(potentialEndpoints)
 	, m_exitEndpointIp(exitEndpointIp)
@@ -93,7 +93,7 @@ bool PermitVpnTunnelService::AddEndpointFilter(const std::optional<PermitVpnTunn
 	return true;
 }
 
-bool PermitVpnTunnelService::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, const std::wstring &relayClient, IObjectInstaller &objectInstaller)
+bool PermitVpnTunnelService::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, IObjectInstaller &objectInstaller)
 {
 	wfp::FilterBuilder filterBuilder;
 
@@ -115,8 +115,10 @@ bool PermitVpnTunnelService::BlockNonRelayClientExit(const wfp::IpAddress &exitI
 		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
 		conditionBuilder.add_condition(ConditionIp::Remote(exitIp));
 
-		// Block exit relay IP for all processes but relay client
-		conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient, CompareNeq()));
+		// Block exit relay IP for all processes but relay clients
+		for (auto relayClient : m_relayClients) {
+			conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient, CompareNeq()));
+		}
 
 		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 		{
@@ -130,8 +132,10 @@ bool PermitVpnTunnelService::BlockNonRelayClientExit(const wfp::IpAddress &exitI
 		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
 		conditionBuilder.add_condition(ConditionIp::Remote(exitIp));
 
-		// Block exit relay IP for all processes but relay client
-		conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient, CompareNeq()));
+		// Block exit relay IP for all processes but relay clients
+		for (auto relayClient : m_relayClients) {
+			conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient, CompareNeq()));
+		}
 
 		if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
 		{
@@ -143,9 +147,9 @@ bool PermitVpnTunnelService::BlockNonRelayClientExit(const wfp::IpAddress &exitI
 
 bool PermitVpnTunnelService::apply(IObjectInstaller &objectInstaller)
 {
-	if (m_exitEndpointIp.has_value() && m_relayClient.has_value())
+	if (m_exitEndpointIp.has_value())
 	{
-		if (!BlockNonRelayClientExit(m_exitEndpointIp.value(), m_relayClient.value(), objectInstaller))
+		if (!BlockNonRelayClientExit(m_exitEndpointIp.value(), objectInstaller))
 		{
 			return false;
 		}
