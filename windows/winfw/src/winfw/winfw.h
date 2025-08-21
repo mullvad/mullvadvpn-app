@@ -71,6 +71,7 @@ typedef struct tag_WinFwAllowedTunnelTraffic
 }
 WinFwAllowedTunnelTraffic;
 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Functions
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,6 +162,12 @@ enum WINFW_POLICY_STATUS
 // - Communication with the relay server
 // - Specified in-tunnel traffic, except DNS.
 //
+// Parameters:
+//
+// exitEndpointIp:
+//   IP address of the exit relay, if it differs from `relay`. Otherwise, this should be set to
+//   `nullptr`.
+//
 extern "C"
 WINFW_LINKAGE
 WINFW_POLICY_STATUS
@@ -168,6 +175,7 @@ WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
+	const wchar_t *exitEndpointIp,
 	const wchar_t **relayClient,
 	size_t relayClientLen,
 	const wchar_t *tunnelInterfaceAlias,
@@ -190,6 +198,10 @@ WinFw_ApplyPolicyConnecting(
 // tunnelInterfaceAlias:
 //	 Friendly name of VPN tunnel interface
 //
+// exitEndpointIp:
+//   IP address of the exit relay, if it differs from `relay`. Otherwise, this should be set to
+//   `nullptr`.
+//
 extern "C"
 WINFW_LINKAGE
 WINFW_POLICY_STATUS
@@ -197,6 +209,7 @@ WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
+	const wchar_t *exitEndpointIp,
 	const wchar_t **relayClient,
 	size_t relayClientLen,
 	const wchar_t *tunnelInterfaceAlias,
