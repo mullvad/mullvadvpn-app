@@ -94,16 +94,26 @@ bool PermitVpnTunnel::AddEndpointFilter(const std::optional<Endpoint> &endpoint,
 
 bool PermitVpnTunnel::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, IObjectInstaller &objectInstaller)
 {
+	if (m_relayClients.empty())
+	{
+		// If "relay clients" is empty, then permit connections to exit from any process
+		return true;
+	}
+
 	wfp::FilterBuilder filterBuilder;
 
+	//
+	// Permit traffic to exit relay from relay clients
+	//
+
 	filterBuilder
-		.description(L"This filter is part of a rule that blocks exit IP traffic from unexpected clients")
-		.name(L"Block inbound exit relay connections on tunnel interface")
+		.description(L"This filter is part of a rule that allows exit IP traffic from select clients")
+		.name(L"Permit inbound exit relay connections on tunnel interface")
 		.provider(MullvadGuids::Provider())
 		.sublayer(MullvadGuids::SublayerBaseline())
-		.key(MullvadGuids::Filter_Baseline_PermitVpnTunnel_BlockExitIp())
+		.key(MullvadGuids::Filter_Baseline_PermitVpnTunnel_ExitIp())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
-		.block();
+		.permit();
 
 	if (exitIp.type() == wfp::IpAddress::Ipv4)
 	{
@@ -114,7 +124,6 @@ bool PermitVpnTunnel::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, IObj
 		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
 		conditionBuilder.add_condition(ConditionIp::Remote(exitIp));
 
-		// Block exit relay IP for all processes but relay clients
 		for (auto relayClient : m_relayClients) {
 			conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient, CompareNeq()));
 		}
@@ -124,7 +133,8 @@ bool PermitVpnTunnel::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, IObj
 			return false;
 		}
 	}
-	else {
+	else
+	{
 		filterBuilder.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
 
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
@@ -132,7 +142,6 @@ bool PermitVpnTunnel::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, IObj
 		conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
 		conditionBuilder.add_condition(ConditionIp::Remote(exitIp));
 
-		// Block exit relay IP for all processes but relay clients
 		for (auto relayClient : m_relayClients) {
 			conditionBuilder.add_condition(std::make_unique<ConditionApplication>(relayClient, CompareNeq()));
 		}
@@ -142,6 +151,53 @@ bool PermitVpnTunnel::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, IObj
 			return false;
 		}
 	}
+
+	//
+	// Block all remaining traffic to the exit
+	//
+
+	{
+		wfp::FilterBuilder filterBuilder;
+
+		filterBuilder
+			.description(L"This filter is part of a rule that blocks exit IP traffic from unexpected clients")
+			.name(L"Block inbound exit relay connections on tunnel interface")
+			.provider(MullvadGuids::Provider())
+			.sublayer(MullvadGuids::SublayerBaseline())
+			.key(MullvadGuids::Filter_Baseline_PermitVpnTunnel_BlockExitIp())
+			.weight(wfp::FilterBuilder::WeightClass::Max)
+			.block();
+
+		if (exitIp.type() == wfp::IpAddress::Ipv4)
+		{
+			filterBuilder.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+
+			wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+
+			conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
+			conditionBuilder.add_condition(ConditionIp::Remote(exitIp));
+
+			if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+			{
+				return false;
+			}
+		}
+		else
+		{
+			filterBuilder.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+
+			wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+
+			conditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
+			conditionBuilder.add_condition(ConditionIp::Remote(exitIp));
+
+			if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
+			{
+				return false;
+			}
+		}
+	}
+
 	return true;
 }
 
