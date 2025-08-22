@@ -10,7 +10,7 @@ class JUnitTest {
 
     @Test
     fun `ensure only junit5 annotations are used for functions`() =
-        Konsist.scopeFromProject()
+        projectScopeExceptBaseline()
             .functions()
             .filter {
                 it.annotations.any { annotation ->
@@ -22,7 +22,7 @@ class JUnitTest {
 
     @Test
     fun `ensure only junit5 annotations are used for classes`() =
-        Konsist.scopeFromProject()
+        projectScopeExceptBaseline()
             .classes()
             .filter {
                 it.annotations.any { annotation ->
@@ -43,6 +43,10 @@ class JUnitTest {
     @Test
     fun `ensure all non android tests have 'ensure' or 'should' in function name`() =
         allNonAndroidTests().assertTrue { it.name.containsEnsureOrShould() }
+
+    // We should exclude baselineprofile since it requires JUnit4
+    private fun projectScopeExceptBaseline() =
+        (Konsist.scopeFromProject() - Konsist.scopeFromDirectory("test/baselineprofile"))
 
     private fun String.containsEnsureOrShould(): Boolean {
         return contains("ensure") || contains("should") || contains("then")
