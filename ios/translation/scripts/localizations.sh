@@ -37,12 +37,10 @@ on_fail() {
 }
 
 cleanup_build_folder() {
-  echo "🧹 Cleaning build folder at: $BUILD_OUTPUT_DIR"
   rm -rf "$BUILD_OUTPUT_DIR"
 }
 
 cleanup_temp_folder() {
-  echo "🧹 Cleaning temp folder at: $TMP_EXPORT_DIR"
   rm -rf "$TMP_EXPORT_DIR"
 }
 
@@ -50,15 +48,19 @@ exec > >(tee "$TMP_LOG") 2>&1
 
 build_project() {
   echo "👉 Building project..."
-  xcodebuild \
+  if ! xcodebuild \
     -project "$XCODE_PROJECT_PATH" \
     -scheme "$SCHEME_NAME" \
     -destination 'generic/platform=iOS' \
     -configuration "$CONFIGURATION" \
     -derivedDataPath "$DERIVED_DATA_DIR" \
+    -quiet \
     CODE_SIGNING_REQUIRED=NO \
     CODE_SIGNING_ALLOWED=NO \
-    clean build
+    clean build >"$TMP_LOG" 2>&1; then
+    echo "❌ Failed to build project"
+    on_fail
+  fi
   echo "✅ Build succeeded"
 }
 
@@ -68,13 +70,20 @@ export_localizations() {
   IFS=',' read -r -a LANG_ARRAY <<<"$EXPORT_LANGUAGES"
 
   for lang in "${LANG_ARRAY[@]}"; do
-    echo "➡️ Exporting $lang"
-    xcodebuild -exportLocalizations \
+    # Run xcodebuild and capture errors
+    if ! xcodebuild -exportLocalizations \
       -project "$XCODE_PROJECT_PATH" \
       -scheme "$SCHEME_NAME" \
       -derivedDataPath "$DERIVED_DATA_DIR" \
       -localizationPath "$TMP_EXPORT_DIR" \
-      -exportLanguage "$lang"
+      -exportLanguage "$lang" \
+      -quiet \
+      CODE_SIGNING_REQUIRED=NO \
+      CODE_SIGNING_ALLOWED=NO \
+      >"$TMP_LOG" 2>&1; then
+      echo "❌ Failed to export localization for $lang"
+      on_fail
+    fi
 
     local xcloc_dir="${TMP_EXPORT_DIR}/${lang}.xcloc"
 
@@ -108,14 +117,11 @@ clean_xliff_translations() {
     ["CFBundleDisplayName"]=1
     # Add more keys here if needed
   )
-
-  echo "🧹 Cleaning unneeded keys from XLIFFs in $xliff_dir"
   for xliff in "$xliff_dir"/*.xliff; do
     if [[ -f "$xliff" ]]; then
       for key in "${!UNNEEDED_KEYS[@]}"; do
         sed -i '' -E "/<trans-unit[^>]*id=\"$key\"[^>]*>/,/<\/trans-unit>/d" "$xliff"
       done
-      echo "✔️ Cleaned $xliff"
     else
       echo "⚠️ File not found: $xliff, skipping"
     fi
@@ -139,15 +145,19 @@ import_localizations() {
 
     echo "📥 Importing localization: $language_code from $xliff_file"
 
+    # Run xcodebuild and check for errors
     if ! xcodebuild -importLocalizations \
       -project "$XCODE_PROJECT_PATH" \
       -scheme "$SCHEME_NAME" \
       -derivedDataPath "$DERIVED_DATA_DIR" \
       -localizationPath "$xliff_file" \
       -exportLanguage "$language_code" \
-      -disableAutomaticPackageResolution; then
+      -quiet \
+      CODE_SIGNING_REQUIRED=NO \
+      CODE_SIGNING_ALLOWED=NO \
+      >"$TMP_LOG" 2>&1; then
       echo "❌ Failed to import $xliff_file"
-      exit 1
+      on_fail
     fi
   done
   echo "✅ All localizations imported successfully."
