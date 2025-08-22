@@ -64,12 +64,8 @@ test.describe('VPN settings', () => {
 
     test.describe('Launch app on start-up', () => {
       test('Should be enabled when switch is clicked', async () => {
-        await enableAutoConnect();
-
-        const cliAutoConnect = execSync('mullvad auto-connect get').toString();
-        expect(cliAutoConnect).toContain('off');
+        await enableLaunchAppOnStartup();
       });
-
       test('Should not enable cli auto-connect when enabled alone', async () => {
         await enableLaunchAppOnStartup();
         const cliAutoConnect = execSync('mullvad auto-connect get').toString();
@@ -79,7 +75,10 @@ test.describe('VPN settings', () => {
 
     test.describe('Auto-connect', () => {
       test('Should be enabled when switch is clicked', async () => {
-        await enableLaunchAppOnStartup();
+        await enableAutoConnect();
+
+        const cliAutoConnect = execSync('mullvad auto-connect get').toString();
+        expect(cliAutoConnect).toContain('off');
       });
 
       test('Should not enable cli auto-connect when enabled alone', async () => {
