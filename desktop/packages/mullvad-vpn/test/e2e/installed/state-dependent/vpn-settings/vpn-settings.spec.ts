@@ -31,11 +31,6 @@ test.describe('VPN settings', () => {
   });
 
   test.describe('Launch on startup and auto-connect', () => {
-    test.beforeAll(() => {
-      if (process.platform === 'linux') {
-        expect(autoStartPathExists()).toBeFalsy();
-      }
-    });
     test.afterEach(async () => {
       await routes.vpnSettings.setAutoConnectSwitch(false);
       const autoConnectSwitch = routes.vpnSettings.getAutoConnectSwitch();
@@ -46,28 +41,24 @@ test.describe('VPN settings', () => {
       await expect(launchOnStartupSwitch).toHaveAttribute('aria-checked', 'false');
     });
 
-    const enableAutoConnect = async () => {
-      await routes.vpnSettings.setAutoConnectSwitch(true);
-      const autoConnectSwitchChecked = routes.vpnSettings.getAutoConnectSwitch();
-      await expect(autoConnectSwitchChecked).toHaveAttribute('aria-checked', 'true');
-    };
-
-    const enableLaunchAppOnStartup = async () => {
-      await routes.vpnSettings.setLaunchAppOnStartupSwitch(true);
-      const launchOnStartupSwitch = routes.vpnSettings.getLaunchAppOnStartupSwitch();
-      await expect(launchOnStartupSwitch).toHaveAttribute('aria-checked', 'true');
-
-      if (process.platform === 'linux') {
-        expect(autoStartPathExists()).toBeTruthy();
-      }
-    };
-
     test.describe('Launch app on start-up', () => {
       test('Should be enabled when switch is clicked', async () => {
-        await enableLaunchAppOnStartup();
+        if (process.platform === 'linux') {
+          expect(autoStartPathExists()).toBeFalsy();
+        }
+
+        await routes.vpnSettings.setLaunchAppOnStartupSwitch(true);
+        const launchOnStartupSwitch = routes.vpnSettings.getLaunchAppOnStartupSwitch();
+        await expect(launchOnStartupSwitch).toHaveAttribute('aria-checked', 'true');
+
+        if (process.platform === 'linux') {
+          expect(autoStartPathExists()).toBeTruthy();
+        }
       });
+
       test('Should not enable cli auto-connect when enabled alone', async () => {
-        await enableLaunchAppOnStartup();
+        await routes.vpnSettings.setLaunchAppOnStartupSwitch(true);
+
         const cliAutoConnect = execSync('mullvad auto-connect get').toString();
         expect(cliAutoConnect).toContain('off');
       });
@@ -75,22 +66,27 @@ test.describe('VPN settings', () => {
 
     test.describe('Auto-connect', () => {
       test('Should be enabled when switch is clicked', async () => {
-        await enableAutoConnect();
-
-        const cliAutoConnect = execSync('mullvad auto-connect get').toString();
-        expect(cliAutoConnect).toContain('off');
+        await routes.vpnSettings.setAutoConnectSwitch(true);
+        const autoConnectSwitchChecked = routes.vpnSettings.getAutoConnectSwitch();
+        await expect(autoConnectSwitchChecked).toHaveAttribute('aria-checked', 'true');
       });
 
       test('Should not enable cli auto-connect when enabled alone', async () => {
-        await enableAutoConnect();
+        await routes.vpnSettings.setAutoConnectSwitch(true);
         const cliAutoConnect = execSync('mullvad auto-connect get').toString();
         expect(cliAutoConnect).toContain('off');
       });
     });
 
     test('Should enable cli auto-connect when both launch app on start-up and auto-connect are enabled', async () => {
-      await enableLaunchAppOnStartup();
-      await enableAutoConnect();
+      await routes.vpnSettings.setLaunchAppOnStartupSwitch(true);
+      await routes.vpnSettings.setAutoConnectSwitch(true);
+
+      const launchOnStartupSwitch = routes.vpnSettings.getLaunchAppOnStartupSwitch();
+      await expect(launchOnStartupSwitch).toHaveAttribute('aria-checked', 'true');
+
+      const autoConnectSwitchChecked = routes.vpnSettings.getAutoConnectSwitch();
+      await expect(autoConnectSwitchChecked).toHaveAttribute('aria-checked', 'true');
 
       const cliAutoConnect = execSync('mullvad auto-connect get').toString();
       expect(cliAutoConnect).toContain('on');
