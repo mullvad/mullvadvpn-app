@@ -25,7 +25,7 @@ fern = { workspace = true }
 hex = "0.4"
 log = { workspace = true }
 rand = { version = "0.8.5" }
-reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"] }
+reqwest = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["rt-multi-thread", "fs"] }
 
