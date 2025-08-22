@@ -11,7 +11,7 @@ use crate::{
 use anyhow::{Context, anyhow, bail, ensure};
 use futures::FutureExt;
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_relay_selector::query::builder::RelayQueryBuilder;
+use mullvad_relay_selector::query::builder::{RelayQueryBuilder, TransportProtocol};
 use mullvad_types::{
     location::CountryCode,
     relay_constraints::{
@@ -34,7 +34,6 @@ use tokio::{
 };
 
 const NFT_TABLE_NAME: &str = "relay_override_test";
-const TUNNEL_PORT: u16 = 443;
 
 /// Test that IP overrides work for wireguard relays by:
 /// - Picking an arbitrary wireguard relay.
@@ -46,6 +45,9 @@ pub async fn test_wireguard_ip_override(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    // Note: This should be a valid port according to the relay list
+    const TUNNEL_PORT: u16 = 51819;
+
     // make sure udp2tcp is turned off for this test
     mullvad_client
         .set_obfuscation_settings(ObfuscationSettings {
@@ -61,7 +63,7 @@ pub async fn test_wireguard_ip_override(
     };
 
     // pick any wireguard_constraints relay to use with the test
-    let query = RelayQueryBuilder::wireguard().build();
+    let query = RelayQueryBuilder::wireguard().port(TUNNEL_PORT).build();
     let relay = helpers::constrain_to_relay(&mut mullvad_client, query)
         .await
         .context("Failed to set WireGuard")?;
@@ -117,13 +119,18 @@ pub async fn test_openvpn_ip_override(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    const TUNNEL_PORT: u16 = 443;
+
     let guest_interface = rpc.get_default_interface().await?;
     let IpAddr::V4(guest_ip) = rpc.get_interface_ip(guest_interface).await? else {
         bail!("Guests with IPv6 addresses are not supported.");
     };
 
     // pick any openvpn relay to use with the test
-    let query = RelayQueryBuilder::openvpn().build();
+    let query = RelayQueryBuilder::openvpn()
+        .transport_protocol(TransportProtocol::Tcp)
+        .port(TUNNEL_PORT)
+        .build();
     let relay = helpers::constrain_to_relay(&mut mullvad_client, query)
         .await
         .context("Failed to set OpenVPN")?;
