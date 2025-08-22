@@ -16,8 +16,6 @@ sealed interface VpnSettingItem {
     // Only used on TV devices
     data class ConnectDeviceOnStartUpSetting(val enabled: Boolean) : VpnSettingItem
 
-    data object ConnectDeviceOnStartUpInfo : VpnSettingItem
-
     data class LocalNetworkSharingSetting(val enabled: Boolean) : VpnSettingItem
 
     data class DnsContentBlockersHeader(val featureEnabled: Boolean, val expanded: Boolean) :

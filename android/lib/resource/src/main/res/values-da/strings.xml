@@ -76,7 +76,6 @@
     <string name="congrats">Tillykke!</string>
     <string name="connect">Tilslut</string>
     <string name="connect_on_start">Opret forbindelse ved opstart af enheden</string>
-    <string name="connect_on_start_footer">Opretter automatisk forbindelse ved opstart af enheden. Virker kun, hvis appen har fået VPN-tilladelse.</string>
     <string name="connect_panel_active_features">Aktive funktioner</string>
     <string name="connect_panel_connection_details">Forbindelsesoplysninger</string>
     <string name="connected">Tilsluttet</string>
