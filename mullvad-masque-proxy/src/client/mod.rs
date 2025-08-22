@@ -176,7 +176,7 @@ impl Client {
 
         Self::validate_mtu(config.mtu, config.target_addr)?;
 
-        let max_udp_payload_size = compute_udp_payload_size(config.mtu, config.target_addr);
+        let max_udp_payload_size = compute_udp_payload_size(config.mtu, config.server_addr);
 
         let endpoint = Self::setup_quic_endpoint(
             config.local_addr,
