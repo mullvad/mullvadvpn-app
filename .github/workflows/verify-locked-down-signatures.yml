@@ -13,6 +13,7 @@ on:
       - test/Cargo.lock
       - deny.toml
       - test/deny.toml
+      - mullvad-ios/deny.toml
       - rust-toolchain.toml
       - desktop/package-lock.json
       - wireguard-go-rs/libwg/go.sum
