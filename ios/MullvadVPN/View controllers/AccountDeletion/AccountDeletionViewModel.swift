@@ -29,15 +29,11 @@ class AccountDeletionViewModel: ObservableObject {
     }
 
     var messageText: AttributedString {
-        .init(NSAttributedString(
-            markdownString: NSLocalizedString(
-                """
-                Are you sure you want to delete the account **\(accountNumber)**?
-                """,
-                comment: ""
-            ),
-            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
-        ))
+        .fromMarkdown(
+            """
+            Are you sure you want to delete the account **\(accountNumber)**?
+            """
+        )
     }
 
     var statusText: String {
