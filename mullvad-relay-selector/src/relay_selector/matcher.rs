@@ -121,6 +121,10 @@ fn filter_on_obfuscation(
     relay_list: &RelayList,
     relay: &Relay,
 ) -> bool {
+    if !relay.is_wireguard() {
+        return true;
+    }
+
     match &query.obfuscation {
         // Shadowsocks has relay-specific constraints
         ObfuscationQuery::Shadowsocks(settings) => {
@@ -133,7 +137,7 @@ fn filter_on_obfuscation(
             )
         }
         // QUIC is only enabled on some relays
-        ObfuscationQuery::Quic => relay.wireguard().is_none_or(|wg| match wg.quic() {
+        ObfuscationQuery::Quic => relay.wireguard().is_some_and(|wg| match wg.quic() {
             Some(quic) => match query.ip_version {
                 Constraint::Any => true,
                 Constraint::Only(IpVersion::V4) => quic.in_ipv4().is_some(),
