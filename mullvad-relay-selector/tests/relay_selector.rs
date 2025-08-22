@@ -911,6 +911,19 @@ fn test_selecting_wireguard_over_quic() {
     }
 }
 
+/// Selecting QUIC should not affect OpenVPN
+#[test]
+fn test_selecting_openvpn_and_quic() {
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+
+    let mut query = RelayQueryBuilder::wireguard().quic().build();
+    query.set_tunnel_protocol(TunnelType::OpenVpn).unwrap();
+
+    let _relay = relay_selector
+        .get_relay_by_query(query)
+        .expect("OpenVPN should not be affected by QUIC");
+}
+
 /// Ignore extra IPv4 addresses when overrides are set
 #[test]
 fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
