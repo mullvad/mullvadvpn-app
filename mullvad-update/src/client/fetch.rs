@@ -208,6 +208,8 @@ pub async fn get_to_writer(
 ) -> Result<(), DownloadError> {
     // Create a new client for each download attempt to prevent stale connections
     let client = reqwest::Client::builder()
+        .tls_built_in_root_certs(false)
+        .add_root_certificate(crate::defaults::PINNED_CERTIFICATE.clone())
         .read_timeout(read_timeout)
         .connect_timeout(CONNECT_TIMEOUT)
         .build()

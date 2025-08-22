@@ -102,6 +102,9 @@ pnet_packet = "0.35.0"
 ipnetwork = "0.20"
 tun = { version = "0.5.5", features = ["async"] }
 socket2 = "0.5.7"
+reqwest = { version = "0.12.23", default-features = false, features = [
+  "rustls-tls-manual-roots",
+] }
 
 # Hickory & DNS
 hickory-proto = "0.24.3"

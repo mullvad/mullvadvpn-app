@@ -51,7 +51,13 @@ fn am_i_mullvad(opt: &Opt) -> eyre::Result<bool> {
 
     let url = &opt.url;
 
-    let client = Client::new();
+    const CERT_BYTES: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
+    let cert = reqwest::Certificate::from_pem(CERT_BYTES).expect("invalid cert");
+
+    let client = Client::builder()
+        .tls_built_in_root_certs(false)
+        .add_root_certificate(cert)
+        .build()?;
     let response: Response = client
         .get(url)
         .timeout(Duration::from_secs(opt.timeout))
