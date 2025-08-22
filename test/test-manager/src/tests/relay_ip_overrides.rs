@@ -11,7 +11,7 @@ use crate::{
 use anyhow::{Context, anyhow, bail, ensure};
 use futures::FutureExt;
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_relay_selector::query::builder::{RelayQueryBuilder, TransportProtocol};
+use mullvad_relay_selector::query::builder::{IpVersion, RelayQueryBuilder, TransportProtocol};
 use mullvad_types::{
     location::CountryCode,
     relay_constraints::{
@@ -63,7 +63,10 @@ pub async fn test_wireguard_ip_override(
     };
 
     // pick any wireguard_constraints relay to use with the test
-    let query = RelayQueryBuilder::wireguard().port(TUNNEL_PORT).build();
+    let query = RelayQueryBuilder::wireguard()
+        .port(TUNNEL_PORT)
+        .ip_version(IpVersion::V4)
+        .build();
     let relay = helpers::constrain_to_relay(&mut mullvad_client, query)
         .await
         .context("Failed to set WireGuard")?;
