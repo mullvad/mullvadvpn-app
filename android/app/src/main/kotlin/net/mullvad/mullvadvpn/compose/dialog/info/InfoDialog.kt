@@ -43,7 +43,19 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 }
 
 @Composable
-fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () -> Unit) {
+fun InfoDialog(
+    message: String,
+    additionalInfo: String? = null,
+    onDismiss: () -> Unit,
+    confirmButton: @Composable () -> Unit = {
+        PrimaryButton(
+            modifier = Modifier.wrapContentHeight().fillMaxWidth(),
+            text = stringResource(R.string.got_it),
+            onClick = onDismiss,
+        )
+    },
+    dismissButton: @Composable (() -> Unit)? = null,
+) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
         icon = {
@@ -86,13 +98,8 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                 }
             }
         },
-        confirmButton = {
-            PrimaryButton(
-                modifier = Modifier.wrapContentHeight().fillMaxWidth(),
-                text = stringResource(R.string.got_it),
-                onClick = onDismiss,
-            )
-        },
+        confirmButton = confirmButton,
+        dismissButton = dismissButton,
         properties = DialogProperties(dismissOnClickOutside = true, dismissOnBackPress = true),
         containerColor = MaterialTheme.colorScheme.surface,
     )

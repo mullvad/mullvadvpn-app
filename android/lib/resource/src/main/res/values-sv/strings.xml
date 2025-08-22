@@ -76,7 +76,6 @@
     <string name="congrats">Grattis!</string>
     <string name="connect">Anslut</string>
     <string name="connect_on_start">Anslut när enheten startas</string>
-    <string name="connect_on_start_footer">Anslut automatiskt när enheten startar. Fungerar bara om appen har beviljats VPN-behörighet.</string>
     <string name="connect_panel_active_features">Aktiva funktioner</string>
     <string name="connect_panel_connection_details">Anslutningsinformation</string>
     <string name="connected">Ansluten</string>
