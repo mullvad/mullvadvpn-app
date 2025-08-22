@@ -15,6 +15,7 @@ plugins {
     alias(libs.plugins.protobuf.core)
     alias(libs.plugins.rust.android.gradle)
     alias(libs.plugins.junit5.android)
+    alias(libs.plugins.baselineprofile)
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -312,15 +313,32 @@ if (getBooleanProperty("mullvad.app.build.cargo.cleanBuild")) {
     tasks["clean"].dependsOn("cargoClean")
 }
 
+baselineProfile { warnings { disabledVariants = false } }
+
 androidComponents {
     beforeVariants { variantBuilder ->
         variantBuilder.enable =
             variantBuilder.let { currentVariant ->
-                val enabledVariants =
-                    enabledAppVariantTriples.map { (billing, infra, buildType) ->
-                        billing + infra.capitalized() + buildType.capitalized()
-                    }
-                enabledVariants.contains(currentVariant.name)
+                val buildType = currentVariant.buildType ?: ""
+
+                val billing =
+                    currentVariant.productFlavors
+                        .find { it.first == FlavorDimensions.BILLING }
+                        ?.second
+
+                val infra =
+                    currentVariant.productFlavors
+                        .find { it.first == FlavorDimensions.INFRASTRUCTURE }
+                        ?.second
+
+                enabledAppVariantTriples.any { (enabledBilling, enabledInfra, enabledBuildType) ->
+                    billing == enabledBilling &&
+                        infra == enabledInfra &&
+                        // For e.g. the baseline profile generation build types with names like
+                        // "benchmarkRelease" and "nonMinifiedRelease" are created and must not be
+                        // filtered out.
+                        buildType.contains(enabledBuildType, ignoreCase = true)
+                }
             }
     }
 }
@@ -375,6 +393,8 @@ dependencies {
     implementation(projects.tile)
     implementation(projects.lib.theme)
     implementation(projects.service)
+    implementation(libs.androidx.profileinstaller)
+    "baselineProfile"(project(":test:baselineprofile"))
 
     // Play implementation
     playImplementation(projects.lib.billing)
