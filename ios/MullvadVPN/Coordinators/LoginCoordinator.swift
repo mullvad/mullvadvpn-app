@@ -44,7 +44,10 @@ final class LoginCoordinator: Coordinator, Presenting {
 
     func start(animated: Bool) {
         let interactor = LoginInteractor(tunnelManager: tunnelManager)
-        let loginController = LoginViewController(interactor: interactor)
+        let loginController = LoginViewController(
+            interactor: interactor,
+            alertPresenter: AlertPresenter(context: self)
+        )
 
         loginController.didFinishLogin = { [weak self] action, error in
             self?.didFinishLogin(action: action, error: error) ?? .nothing

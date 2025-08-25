@@ -25,6 +25,38 @@ class AccountTests: LoggedOutUITestCase {
         mullvadAPIWrapper.deleteAccount(accountNumber)
     }
 
+    func testCreateAccountWithLastUsedAccount() throws {
+        // Setup
+        let temporaryAccountNumber = createTemporaryAccountWithoutTime()
+
+        // Teardown
+        addTeardownBlock {
+            self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+        }
+
+        LoginPage(app)
+            .tapAccountNumberTextField()
+            .enterText(temporaryAccountNumber)
+            .tapAccountNumberSubmitButton()
+
+        OutOfTimePage(app)
+
+        HeaderBar(app)
+            .tapAccountButton()
+
+        AccountPage(app)
+            .tapLogOutButton()
+
+        LoginPage(app)
+            .tapCreateAccountButton()
+            .confirmAccountCreation()
+
+        // Verify welcome page is shown and get account number from it
+        let accountNumber = WelcomePage(app).getAccountNumber()
+
+        self.mullvadAPIWrapper.deleteAccount(accountNumber)
+    }
+
     func testDeleteAccount() throws {
         let accountNumber = createTemporaryAccountWithoutTime()
 

@@ -27,6 +27,10 @@ public enum AccessibilityIdentifier: Equatable {
     case collapseButton
     case expandButton
     case createAccountButton
+    case createAccountConfirmationButton
+    case createAccountCancelButton
+    case removeLastUsedAccountButton
+    case cancelRemoveLastUsedAccountButton
     case deleteButton
     case deviceCellRemoveButton
     case disconnectButton
