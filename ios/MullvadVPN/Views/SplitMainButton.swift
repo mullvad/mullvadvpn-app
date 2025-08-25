@@ -14,7 +14,8 @@ struct SplitMainButton: View {
     var style: MainButtonStyle.Style
     var accessibilityId: AccessibilityIdentifier?
 
-    @State private var secondaryButtonWidth: CGFloat = 0
+    @State private var secondaryButtonSize: CGSize = .zero
+    @State private var primaryButtonSize: CGSize = .zero
 
     var primaryAction: () -> Void
     var secondaryAction: () -> Void
@@ -27,7 +28,8 @@ struct SplitMainButton: View {
                     Text(text)
                     Spacer()
                 }
-                .padding(.trailing, -secondaryButtonWidth)
+                .padding(.leading, secondaryButtonSize.width)
+                .sizeOfView { primaryButtonSize = $0 }
             })
             .ifLet(accessibilityId) { view, value in
                 view.accessibilityIdentifier(value.asString)
@@ -37,11 +39,10 @@ struct SplitMainButton: View {
                 Image(image)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 24, height: 24)
                     .padding(10)
+                    .frame(width: min(max(primaryButtonSize.height, 44), 60), height: max(primaryButtonSize.height, 44))
+                    .sizeOfView { secondaryButtonSize = $0 }
             })
-            .aspectRatio(1, contentMode: .fit)
-            .sizeOfView { secondaryButtonWidth = $0.width }
         }
         .buttonStyle(MainButtonStyle(style))
         .cornerRadius(UIMetrics.MainButton.cornerRadius)
