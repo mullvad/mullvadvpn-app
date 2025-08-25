@@ -184,12 +184,18 @@ impl ConnectedState {
                 .map_err(BoxedError::new)?;
         } else {
             log::debug!("Enabling local DNS resolver");
+
+            #[cfg(target_os = "macos")]
+            let filter_out_aaaa = self.metadata.ips.iter().all(|addr| addr.is_ipv4());
+            #[cfg(not(target_os = "macos"))]
+            let filter_out_aaaa = false;
+
             // Tell local DNS resolver to start forwarding DNS queries to whatever `dns_config`
             // specifies as DNS.
             shared_values.runtime.block_on(
                 shared_values
                     .filtering_resolver
-                    .enable_forward(dns_config.addresses().collect()),
+                    .enable_forward(dns_config.addresses().collect(), filter_out_aaaa),
             );
         }
 
