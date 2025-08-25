@@ -6,6 +6,8 @@ pluginManagement {
     }
 }
 
+includeBuild("rust-android-gradle-plugin")
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "MullvadVPN"
