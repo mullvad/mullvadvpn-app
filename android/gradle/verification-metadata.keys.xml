@@ -65,6 +65,7 @@
          <trusted-key id="1BD97A6A154E7810EE0BC832E2F38302C8075E3D">
             <trusting group="com.gradle.publish"/>
             <trusting group="org.gradle.kotlin" name="gradle-kotlin-dsl-plugins" version="5.2.0"/>
+            <trusting group="org.gradle.kotlin" name="gradle-kotlin-dsl-plugins" version="6.2.0"/>
             <trusting group="org.gradle.toolchains"/>
          </trusted-key>
          <trusted-key id="1D217F8475EEE9F19AB8DD6B793FD5751A0F0780">
