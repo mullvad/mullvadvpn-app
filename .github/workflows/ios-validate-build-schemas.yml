@@ -9,7 +9,7 @@ on:
     paths:
       - .github/workflows/ios.yml
       - .github/workflows/ios-validate-build-schemas.yml
-      - ios/.swiftformat
+      - ios/.swift-format
       - ios/**/*.swift
       - ios/**/*.xctestplan
       - Cargo.toml

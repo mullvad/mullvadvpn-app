@@ -8,7 +8,7 @@ on:
       - main
     paths:
       - .github/workflows/ios.yml
-      - ios/.swiftformat
+      - ios/.swift-format
       - ios/**/*.swift
       - ios/**/*.xctestplan
   workflow_dispatch:

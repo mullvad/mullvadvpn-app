@@ -5,7 +5,7 @@ on:
     paths:
       - .github/workflows/ios.yml
       - ios/build-rust-library.sh
-      - ios/.swiftformat
+      - ios/.swift-format
       - ios/wireguard-apple
       - ios/**/*.swift
       - ios/**/*.xctestplan
@@ -14,36 +14,15 @@ on:
 permissions: {}
 
 jobs:
-  check-formatting:
-    name: Check formatting
-    runs-on: macos-15
-    steps:
-      - name: Install SwiftFormat
-        run: |
-          brew update
-          brew upgrade swiftformat
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check formatting
-        run: |
-          swiftformat --version
-          swiftformat --lint .
-        working-directory: ios
-
-  swiftlint:
-    name: Run swiftlint
+  swift-format:
+    name: Run swift format lint
     runs-on: macos-15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run swiftlint
-        run: |
-          brew install swiftlint
-          swiftlint --version
-          swiftlint --reporter github-actions-logging
+      - name: Run swift format lint
+        run: ./lint.sh -s
         working-directory: ios
 
   ui-test-build:
