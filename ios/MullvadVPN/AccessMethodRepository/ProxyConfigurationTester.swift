@@ -25,27 +25,12 @@ class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {
     }
 
     func start(configuration: PersistentAccessMethod, completion: @escaping @Sendable (Error?) -> Void) {
-        #if DEBUG
         cancellable = apiProxy.checkApiAvailability(retryStrategy: .noRetry, accessMethod: configuration) { success in
             switch success {
             case .success: completion(nil)
             case let .failure(error): completion(error)
             }
         }
-        #else
-        do {
-            let transport = try transportProvider.makeTransport(with: configuration.proxyConfiguration)
-            let request = REST.APIAvailabilityTestRequest(transport: transport)
-            headRequest = request
-            cancellable = request.makeRequest { error in
-                DispatchQueue.main.async {
-                    completion(error)
-                }
-            }
-        } catch {
-            completion(error)
-        }
-        #endif
     }
 
     func cancel() {
