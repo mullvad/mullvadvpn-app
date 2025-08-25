@@ -242,7 +242,7 @@ mod tests {
 
     #[test]
     fn test_one_indicator_at_a_time() {
-        let mut settings = Settings::default();
+        let mut settings = Settings::default_settings();
         let mut endpoint = TunnelEndpoint {
             endpoint: Endpoint {
                 address: SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080),
