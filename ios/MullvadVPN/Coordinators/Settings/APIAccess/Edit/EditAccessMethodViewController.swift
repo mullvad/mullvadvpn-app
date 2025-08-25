@@ -50,14 +50,22 @@ class EditAccessMethodViewController: UIViewController {
         tableView.setAccessibilityIdentifier(.editAccessMethodView)
         tableView.backgroundColor = .secondaryColor
         tableView.delegate = self
-
+        tableView.sectionFooterHeight = UITableView.automaticDimension
+        tableView.estimatedSectionFooterHeight = 44
         isModalInPresentation = true
 
         let title = createTitle()
         view.addConstrainedSubviews([title, tableView]) {
-            title.pinEdgesToSuperviewMargins(PinnableEdges([.leading(16), .trailing(16), .top(8)]))
+            title.pinEdgesToSuperviewMargins(PinnableEdges([.top(0)]))
+            title.pinEdgesToSuperview(PinnableEdges([
+                .leading(UIMetrics.SettingsCell.defaultLayoutMargins.leading),
+                .trailing(UIMetrics.SettingsCell.defaultLayoutMargins.trailing),
+            ]))
             tableView.pinEdgesToSuperview(.all().excluding(.top))
-            tableView.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 16)
+            tableView.topAnchor.constraint(
+                equalTo: title.bottomAnchor,
+                constant: 0
+            )
         }
 
         configureDataSource()
@@ -99,10 +107,6 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        UITableView.automaticDimension
-    }
-
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return nil }
         switch sectionIdentifier {
@@ -134,11 +138,13 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
 
-        switch sectionIdentifier {
+        return switch sectionIdentifier {
         case .testingStatus:
-            return subject.value.testingStatus == .initial ? 0 : UITableView.automaticDimension
+            subject.value.testingStatus == .initial ? 0 : UITableView.automaticDimension
+        case .enableMethod:
+            UITableView.automaticDimension
         default:
-            return 0
+            0
         }
     }
 
@@ -170,20 +176,18 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
         let defaultMargin: CGFloat = 24
 
-        switch sectionIdentifier {
-        case .enableMethod, .methodSettings:
-            return defaultMargin
+        return switch sectionIdentifier {
         case .testingStatus:
             switch subject.value.testingStatus {
             case .initial, .inProgress:
-                return 0
+                0
             case .succeeded, .failed:
-                return defaultMargin
+                defaultMargin
             }
         case .cancelTest:
-            return subject.value.testingStatus == .inProgress ? defaultMargin : 0
-        case .testMethod, .deleteMethod:
-            return UITableView.automaticDimension
+            subject.value.testingStatus == .inProgress ? defaultMargin : 0
+        default:
+            (sectionIdentifier.sectionFooter != nil) ? UITableView.automaticDimension : defaultMargin
         }
     }
 
