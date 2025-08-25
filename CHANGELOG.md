@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2025.9-beta1] - 2025-08-25
 ### Added
 - Add QUIC obfuscation (WireGuard only). It will be used automatically when connecting fails with
   other methods.
