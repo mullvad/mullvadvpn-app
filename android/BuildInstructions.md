@@ -160,8 +160,12 @@ environment variables:
   .scripts/setup-rust install-hook
   ```
 
-#### 6. Download wireguard-go-rs submodule
-Run the following command to download wireguard-go-rs submodule: `git submodule update --init wireguard-go-rs/libwg/wireguard-go`
+#### 6. Download the wireguard-go-rs and rust-android-gradle-plugin submodules
+Run the following command to download the required submodules:
+
+```bash
+git submodule update --init wireguard-go-rs/libwg/wireguard-go android/rust-android-gradle-plugin
+```
 
 ### Debug build
 Run the following command to build a debug build:
