@@ -206,7 +206,6 @@ final class LocationViewControllerWrapper: UIViewController {
             segmentedControl.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .leading(8), .trailing(8)]))
 
             locationViewContainer.pinEdgesToSuperview(.all().excluding(.top))
-            locationViewContainer.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 8)
 
             if settings.tunnelMultihopState.isEnabled {
                 locationViewContainer.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 4)

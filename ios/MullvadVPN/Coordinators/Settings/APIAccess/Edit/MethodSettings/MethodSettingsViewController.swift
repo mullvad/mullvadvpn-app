@@ -138,11 +138,10 @@ class MethodSettingsViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
-
         switch sectionIdentifier {
-        case .name, .protocol, .cancelTest, .testingStatus, .validationError:
+        case .protocol, .cancelTest, .testingStatus, .validationError:
             return 0
-        case .proxyConfiguration:
+        case .proxyConfiguration, .name:
             return UITableView.automaticDimension
         }
     }
