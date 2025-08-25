@@ -22,6 +22,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Security
+#### Windows
+- Block traffic to exit node from non-Mullvad processes. This fixes a leak where traffic could be
+  encrypted once, but leave the entry node unencrypted, if and only if the destination were the exit
+  node. E.g., this might occur if a browser tries to open a TCP connection to the exit node IP.
+
+
+## [2025.9-beta1] - 2025-08-25
 ### Added
 - Add QUIC obfuscation (WireGuard only). It will be used automatically when connecting fails with
   other methods.
@@ -30,12 +38,6 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Add support for parsing eslogger output version 10. This fixes split tunneling on macOS 26.
 - Avoid interpreting negative numbers from eslogger as PIDs.
-
-### Security
-#### Windows
-- Block traffic to exit node from non-Mullvad processes. This fixes a leak where traffic could be
-  encrypted once, but leave the entry node unencrypted, if and only if the destination were the exit
-  node. E.g., this might occur if a browser tries to open a TCP connection to the exit node IP.
 
 
 ## [2025.8] - 2025-08-14
