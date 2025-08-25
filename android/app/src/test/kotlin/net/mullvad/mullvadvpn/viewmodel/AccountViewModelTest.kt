@@ -61,7 +61,7 @@ class AccountViewModelTest {
         every { mockAccountRepository.accountData } returns accountExpiryState
         every { mockDeviceRepository.deviceState } returns deviceState
         coEvery { mockPaymentUseCase.paymentAvailability } returns paymentAvailability
-        coEvery { mockAccountRepository.getAccountData() } returns null
+        coEvery { mockAccountRepository.getAccountData(any()) } returns null
 
         viewModel =
             AccountViewModel(
