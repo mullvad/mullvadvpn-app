@@ -185,15 +185,14 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         )
 
         coordinator.start()
-        coordinator.didCancel = { accountDeletionCoordinator in
+        coordinator.didConclude = { accountDeletionCoordinator, success in
             Task { @MainActor in
-                accountDeletionCoordinator.dismiss(animated: true)
-            }
-        }
-
-        coordinator.didFinish = { @MainActor accountDeletionCoordinator in
-            accountDeletionCoordinator.dismiss(animated: true) {
-                self.didFinish?(self, .userLoggedOut)
+                accountDeletionCoordinator.dismiss(
+                    animated: true,
+                    completion: {
+                        if success { self.didFinish?(self, .userLoggedOut) }
+                    }
+                )
             }
         }
 

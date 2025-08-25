@@ -23,9 +23,12 @@ enum AccountDeletionError: LocalizedError {
 
 final class AccountDeletionInteractor: Sendable {
     private let tunnelManager: TunnelManager
-    var viewModel: AccountDeletionViewModel {
-        AccountDeletionViewModel(
-            accountNumber: tunnelManager.deviceState.accountData?.number.formattedAccountNumber ?? ""
+
+    func makeViewModel(onConclusion: @escaping ((Bool) -> Void)) -> AccountDeletionViewModel {
+        .init(
+            accountNumber: tunnelManager.deviceState.accountData?.number.formattedAccountNumber ?? "",
+            interactor: self,
+            onConclusion: onConclusion
         )
     }
 

@@ -8,14 +8,13 @@
 
 import Foundation
 import Routing
-import UIKit
+import SwiftUI
 
 final class AccountDeletionCoordinator: Coordinator, Presentable {
     private let navigationController: UINavigationController
     private let interactor: AccountDeletionInteractor
 
-    var didCancel: (@MainActor (AccountDeletionCoordinator) -> Void)?
-    var didFinish: (@MainActor (AccountDeletionCoordinator) -> Void)?
+    var didConclude: (@MainActor (AccountDeletionCoordinator, Bool) -> Void)?
 
     var presentedViewController: UIViewController {
         navigationController
@@ -31,18 +30,12 @@ final class AccountDeletionCoordinator: Coordinator, Presentable {
 
     func start() {
         navigationController.navigationBar.isHidden = true
-        let viewController = AccountDeletionViewController(interactor: interactor)
-        viewController.delegate = self
+        let viewModel = interactor.makeViewModel(onConclusion: self.onConclusion)
+        let viewController = UIHostingController(rootView: AccountDeletionView(viewModel: viewModel))
         navigationController.pushViewController(viewController, animated: true)
     }
-}
 
-extension AccountDeletionCoordinator: @preconcurrency AccountDeletionViewControllerDelegate {
-    func deleteAccountDidSucceed(controller: AccountDeletionViewController) {
-        didFinish?(self)
-    }
-
-    func deleteAccountDidCancel(controller: AccountDeletionViewController) {
-        didCancel?(self)
+    private func onConclusion(_ succeeded: Bool) {
+        didConclude?(self, succeeded)
     }
 }
