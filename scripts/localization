@@ -62,6 +62,9 @@ function prepare_localization_strings {
 
     update_relay_locations_pot
     commit_changes "Update relay-locations.pot"
+
+    update_ios_strings export
+    commit_changes "Update en.xliff"
 }
 
 function ensure_crowdin_api_key {
@@ -77,6 +80,12 @@ function upload_to_crowdin {
     crowdin upload sources
     crowdin upload translations
     popd
+
+    log_header "Uploading iOS translations to Crowdin"
+    pushd ../ios/translation
+    crowdin upload sources
+    crowdin upload translations
+    popd
 }
 
 function download_from_crowdin {
@@ -87,9 +96,19 @@ function download_from_crowdin {
     crowdin download
     popd
 
+    log_header "Downloading iOS translations from crowdin"
+    pushd ../ios/translation
+    crowdin download
+    popd
+
     # Add new translations to Android xml-files
     log_header "Updating Android xml-files with new translations"
     sync_localizations
+
+    # Add new translations to iOS source code
+    log_header "Updating localization strings with new translations".
+    update_ios_strings import
+
     commit_changes "Update translations"
 }
 
@@ -109,6 +128,22 @@ function verify {
     if [ "$out_of_sync" -ne 0 ] || [ "$incorrect_format" -ne 0 ]; then
         exit 1
     fi
+}
+function update_ios_strings {
+    # require exactly one arg: export|import
+    if [ $# -ne 1 ] || { [ "$1" != "export" ] && [ "$1" != "import" ]; }; then
+        echo "Usage: update_ios_strings [export|import]" >&2
+        return 2
+    fi
+    if [ "$1" = "export" ]; then
+        log_header "Extracting localization strings from iOS app source code"
+    else # import
+        log_header "Update iOS strings"
+    fi
+
+    pushd ../ios/translation
+    ./scripts/localizations.sh "$1"
+    popd
 }
 
 main "$@"
