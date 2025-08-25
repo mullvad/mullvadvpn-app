@@ -9,8 +9,10 @@ import { MultihopSettingsRouteObjectModel } from './multihop-settings';
 import { SelectLanguageRouteObjectModel } from './select-language';
 import { SelectLocationRouteObjectModel } from './select-location';
 import { SettingsRouteObjectModel } from './settings/settings-route-object-model';
+import { UdpOverTcpSettingsRouteObjectModel } from './udp-over-tcp-settings';
 import { UserInterfaceSettingsRouteObjectModel } from './user-interface-settings';
 import { VpnSettingsRouteObjectModel } from './vpn-settings';
+import { WireguardSettingsRouteObjectModel } from './wireguard-settings';
 
 export class RoutesObjectModel {
   readonly main: MainRouteObjectModel;
@@ -21,6 +23,8 @@ export class RoutesObjectModel {
   readonly filter: FilterRouteObjectModel;
   readonly selectLocation: SelectLocationRouteObjectModel;
   readonly vpnSettings: VpnSettingsRouteObjectModel;
+  readonly wireguardSettings: WireguardSettingsRouteObjectModel;
+  readonly udpOverTcpSettings: UdpOverTcpSettingsRouteObjectModel;
   readonly multihopSettings: MultihopSettingsRouteObjectModel;
   readonly daitaSettings: DaitaSettingsRouteObjectModel;
 
@@ -33,6 +37,8 @@ export class RoutesObjectModel {
     this.filter = new FilterRouteObjectModel(page, utils);
     this.selectLocation = new SelectLocationRouteObjectModel(page, utils);
     this.vpnSettings = new VpnSettingsRouteObjectModel(page, utils);
+    this.wireguardSettings = new WireguardSettingsRouteObjectModel(page, utils);
+    this.udpOverTcpSettings = new UdpOverTcpSettingsRouteObjectModel(page, utils);
     this.multihopSettings = new MultihopSettingsRouteObjectModel(page, utils);
     this.daitaSettings = new DaitaSettingsRouteObjectModel(page, utils);
   }

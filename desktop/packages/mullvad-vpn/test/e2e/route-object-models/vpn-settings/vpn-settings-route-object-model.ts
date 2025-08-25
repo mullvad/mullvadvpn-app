@@ -1,5 +1,6 @@
 import { Page } from 'playwright';
 
+import { RoutePath } from '../../../../src/shared/routes';
 import { TestUtils } from '../../utils';
 import { createSelectors } from './selectors';
 
@@ -12,6 +13,11 @@ export class VpnSettingsRouteObjectModel {
     this.page = page;
     this.utils = utils;
     this.selectors = createSelectors(page);
+  }
+
+  async gotoWireguardSettings() {
+    await this.selectors.wireguardSettingsButton().click();
+    await this.utils.waitForRoute(RoutePath.wireguardSettings);
   }
 
   getAutoConnectSwitch() {
