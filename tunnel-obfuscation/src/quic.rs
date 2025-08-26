@@ -203,6 +203,7 @@ impl Quic {
         socket
             .set_send_buffer_size(SOCKET_BUF_SIZE)
             .map_err(Error::BindError)?;
+        socket.set_nonblocking(true).map_err(Error::BindError)?;
 
         socket
             .bind(&random_bind_addr.into())
