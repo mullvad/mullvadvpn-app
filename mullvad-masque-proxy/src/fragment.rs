@@ -193,11 +193,14 @@ pub fn fragment_packet(
 
 #[cfg(test)]
 mod test {
+    use std::collections::HashSet;
+
+    use rand::{seq::SliceRandom, thread_rng};
+
     use super::*;
 
     #[test]
     fn test_fragment_reconstruction() {
-        use rand::{seq::SliceRandom, thread_rng};
         let mut fragments = Fragments::default();
 
         'outer: for packet_id in 1..255u16 {
@@ -225,9 +228,41 @@ mod test {
     }
 
     #[test]
-    fn test_fragment_cap() {
-        use rand::{seq::SliceRandom, thread_rng};
+    fn test_interleaved_fragment_reconstruction() {
+        let mut fragments = Fragments::default();
 
+        let n_packets = 10;
+        let payload_len = 255;
+        let max_payload_size = 50;
+
+        let mut fragment_buf = Vec::new();
+        let mut payloads = HashSet::new();
+        for i in 0..n_packets {
+            let packet_id = i as u16;
+            let mut payload = Bytes::from(vec![i as u8; payload_len]);
+            payloads.insert(payload.clone());
+
+            fragment_buf
+                .extend(&mut fragment_packet(max_payload_size, &mut payload, packet_id).unwrap());
+        }
+        fragment_buf.shuffle(&mut thread_rng());
+
+        for fragment in fragment_buf {
+            if let DefragReceived::Reassembled(reconstructed_packet) =
+                fragments.handle_incoming_packet(fragment).unwrap()
+            {
+                assert!(
+                    payloads.remove(&reconstructed_packet),
+                    "reconstructed corrupted or duplicate packet"
+                );
+            }
+        }
+
+        assert!(payloads.is_empty(), "Some packets were not reconstructed");
+    }
+
+    #[test]
+    fn test_fragment_cap() {
         // test whether we can reassemble a fragmented packet when we receive a flood of bad fragments
         // interspersed with our good fragments. returns true if reassembly was successful.
         let fragment_survives_flood = |number_of_bad_fragments| {
