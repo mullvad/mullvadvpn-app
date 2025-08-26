@@ -24,6 +24,10 @@ log = { workspace = true }
 socket2 = { workspace = true }
 typed-builder = "0.21.0"
 
+[target.'cfg(windows)'.dependencies.windows-sys]
+workspace = true
+features = ["Win32", "Win32_Foundation", "Win32_Networking", "Win32_Networking_WinSock"]
+
 [dev-dependencies]
 env_logger = { workspace = true }
 tokio = { workspace = true, features = ["fs", "macros", "io-util", "rt-multi-thread"] }
