@@ -1,21 +1,30 @@
 use anyhow::{Context, anyhow};
 use bytes::{Buf, Bytes, BytesMut};
 use rustls::client::danger::ServerCertVerified;
+use std::collections::VecDeque;
+use std::mem;
 use std::{
     fs::{self},
     future, io,
     net::{Ipv4Addr, SocketAddr},
     path::Path,
+    ptr,
     str::FromStr as _,
     sync::{Arc, LazyLock},
     time::Duration,
 };
+use tokio::io::Interest;
 use tokio::{
     net::UdpSocket,
     select,
     sync::{broadcast, mpsc},
 };
 use typed_builder::TypedBuilder;
+
+#[cfg(target_os = "windows")]
+use windows_sys::Win32::Networking::WinSock::{
+    self, CMSGHDR, WSAEWOULDBLOCK, WSAGetLastError, WSAMSG,
+};
 
 use h3::{client, ext::Protocol, proto::varint::VarInt, quic::StreamId};
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
@@ -388,11 +397,17 @@ impl Client {
             return_addr_tx,
         ));
 
-        let mut client_socket_tx_task = tokio::task::spawn(client_socket_tx_task(
+        let (send_tx, send_rx): (_, mpsc::Receiver<(SocketAddr, Bytes)>) =
+            mpsc::channel(MAX_INFLIGHT_PACKETS);
+
+        let mut client_socket_tx_task =
+            tokio::task::spawn(client_socket_tx_task(self.client_socket.clone(), send_rx));
+
+        let mut fragment_reassembly_task = tokio::task::spawn(fragment_reassembly_task(
             stream_id,
             server_rx,
             return_addr_rx,
-            self.client_socket.clone(),
+            send_tx,
             Arc::clone(&self.stats),
         ));
 
@@ -408,11 +423,13 @@ impl Client {
 
         let result = select! {
             result = &mut client_socket_tx_task => result,
+            result = &mut fragment_reassembly_task => result,
             result = &mut client_socket_rx_task => result,
             result = &mut server_socket_task => result,
         };
 
         client_socket_tx_task.abort();
+        fragment_reassembly_task.abort();
         client_socket_rx_task.abort();
         server_socket_task.abort();
 
@@ -520,11 +537,168 @@ async fn client_socket_rx_task(
     Ok(())
 }
 
+#[cfg(target_os = "windows")]
 async fn client_socket_tx_task(
+    client_socket: Arc<UdpSocket>,
+    mut send_rx: mpsc::Receiver<(SocketAddr, Bytes)>,
+) -> Result<()> {
+    use windows::*;
+
+    use std::os::windows::io::AsRawSocket;
+    use windows_sys::Win32::Networking::WinSock::{WSABUF, WSASendMsg};
+
+    /// Maximum number of segments to send using UDP GSO
+    const MAX_SEGMENT_COUNT: usize = 512;
+    const MAX_SEGMENT_SIZE: usize = 1500;
+
+    let mut buffer = Vec::with_capacity(MAX_SEGMENT_COUNT * MAX_SEGMENT_SIZE);
+    let mut cmsg_buf = vec![0u8; cmsg_space(mem::size_of::<u32>())];
+    let mut queued_packets = VecDeque::new();
+
+    loop {
+        // Fill up queue
+        if queued_packets.is_empty() {
+            let Some((dest, packet)) = send_rx.recv().await else {
+                break;
+            };
+            queued_packets.push_back((dest, packet));
+        }
+        while let Ok((dest, packet)) = send_rx.try_recv() {
+            queued_packets.push_back((dest, packet));
+        }
+
+        let (dest, packet) = queued_packets.pop_front().expect("never empty");
+
+        // If the queue is empty now, send a single packet using send_to
+        if queued_packets.is_empty() {
+            client_socket
+                .send_to(packet.chunk(), dest)
+                .await
+                .map_err(Error::ClientWrite)?;
+            continue;
+        }
+
+        let segment_size = packet.len();
+        buffer.clear();
+        buffer.extend_from_slice(packet.chunk());
+
+        loop {
+            let Some((next_dest, next_packet)) = queued_packets.pop_front() else {
+                break;
+            };
+
+            // If the destination differs, stop coalescing packets
+            if next_dest != dest {
+                // Flush the buffer now and queue this packet
+                // This should occur rarely, as we're expecting a single UDP client
+                queued_packets.push_front((next_dest, next_packet));
+                break;
+            }
+
+            // On overflow, also stop coalescing
+            if buffer.len() + next_packet.len() > buffer.capacity() {
+                queued_packets.push_front((next_dest, next_packet));
+                break;
+            }
+
+            // Otherwise, append the next packet to the bunch
+            buffer.extend_from_slice(next_packet.chunk());
+
+            // If this packet was smaller than earlier packets, we are done
+            if next_packet.len() != segment_size {
+                break;
+            }
+        }
+
+        client_socket
+            .async_io(Interest::WRITABLE, || {
+                let daddr: socket2::SockAddr = dest.into();
+
+                // Call `WSASendMsg` with one CMSG containing the segment size.
+                // This will send all packets in `buffer`, except the last packet, which may be smaller.
+
+                let mut data = WSABUF {
+                    buf: buffer.as_ptr() as *mut _,
+                    len: buffer.len() as _,
+                };
+
+                let cmsg_hdr = unsafe { &mut *(cmsg_buf.as_mut_ptr() as *mut CMSGHDR) };
+                *cmsg_hdr = CMSGHDR {
+                    cmsg_len: cmsg_len(mem::size_of::<u32>()),
+                    cmsg_level: WinSock::IPPROTO_UDP,
+                    cmsg_type: WinSock::UDP_SEND_MSG_SIZE,
+                };
+
+                let cmsg_data = unsafe { cmsg_data(cmsg_buf.as_mut_ptr() as _) as *mut u32 };
+                unsafe {
+                    *cmsg_data = segment_size as u32;
+                }
+
+                let len = cmsg_space(mem::size_of::<u32>()) as u32;
+
+                let ctrl = WSABUF {
+                    buf: cmsg_buf.as_mut_ptr() as *mut _,
+                    len,
+                };
+
+                let raw_socket = client_socket.as_raw_socket();
+
+                let wsa_msg = WSAMSG {
+                    name: daddr.as_ptr() as *mut _,
+                    namelen: daddr.len(),
+                    lpBuffers: &mut data,
+                    Control: ctrl,
+                    dwBufferCount: 1,
+                    dwFlags: 0,
+                };
+
+                let mut bytes_sent = 0;
+
+                // SAFETY: The socket, data buffer, and CMSG buffer are all valid
+                let status = unsafe {
+                    WSASendMsg(
+                        raw_socket as usize,
+                        &wsa_msg,
+                        0,
+                        &mut bytes_sent,
+                        ptr::null_mut(),
+                        None,
+                    )
+                };
+                if status != 0 {
+                    let last_err = unsafe { WSAGetLastError() };
+                    if last_err == WSAEWOULDBLOCK {
+                        // Poll more for WRITABLE
+                        return Err(io::ErrorKind::WouldBlock.into());
+                    }
+                    // TODO: Not sure if WSA error is fully equivalent to `GetLastError()`
+                    return Err(io::Error::from_raw_os_error(last_err));
+                }
+                Ok(())
+            })
+            .await
+            .map_err(Error::ClientWrite)?;
+    }
+    Ok(())
+}
+
+#[cfg(not(target_os = "windows"))]
+async fn client_socket_tx_task(
+    client_socket: Arc<UdpSocket>,
+    mut send_rx: mpsc::Receiver<(SocketAddr, Bytes)>,
+) -> Result<()> {
+    client_socket
+        .send_to(payload, return_addr)
+        .await
+        .map_err(Error::ClientWrite)?;
+    Ok(())
+}
+
+async fn fragment_reassembly_task(
     stream_id: StreamId,
     mut server_rx: mpsc::Receiver<Datagram>,
     mut return_addr_rx: broadcast::Receiver<SocketAddr>,
-    client_socket: Arc<UdpSocket>,
+    send_tx: mpsc::Sender<(SocketAddr, Bytes)>,
     stats: Arc<Stats>,
 ) -> Result<()> {
     let mut fragments = Fragments::default();
@@ -555,22 +729,22 @@ async fn client_socket_tx_task(
         let payload = response.into_payload();
         let original_payload_len = payload.len();
 
-        let send = async |payload: &[u8]| -> Result<()> {
-            client_socket
-                .send_to(payload, return_addr)
-                .await
-                .map_err(Error::ClientWrite)?;
-            Ok(())
-        };
-
         match fragments.handle_incoming_packet(payload) {
             Ok(DefragReceived::Nonfragmented(payload)) => {
                 stats.rx(payload.len(), false);
-                send(payload.chunk()).await?;
+                if send_tx.send((return_addr, payload)).await.is_err() {
+                    break;
+                }
             }
             Ok(DefragReceived::Reassembled(reassembled_payload)) => {
                 stats.rx(original_payload_len, true);
-                send(reassembled_payload.chunk()).await?;
+                if send_tx
+                    .send((return_addr, reassembled_payload))
+                    .await
+                    .is_err()
+                {
+                    break;
+                }
             }
             Ok(DefragReceived::Fragment) => stats.rx(original_payload_len, true),
             Err(_) => (),
@@ -729,5 +903,32 @@ impl rustls::client::danger::ServerCertVerifier for Approver {
             rustls::SignatureScheme::ED25519,
             rustls::SignatureScheme::ED448,
         ]
+    }
+}
+
+#[cfg(target_os = "windows")]
+mod windows {
+    use std::{ffi::c_uchar, mem};
+    use windows_sys::Win32::Networking::WinSock::{self, CMSGHDR};
+
+    pub fn cmsghdr_align(length: usize) -> usize {
+        (length + mem::align_of::<WinSock::CMSGHDR>() - 1)
+            & !(mem::align_of::<WinSock::CMSGHDR>() - 1)
+    }
+
+    pub fn cmsgdata_align(length: usize) -> usize {
+        (length + mem::align_of::<usize>() - 1) & !(mem::align_of::<usize>() - 1)
+    }
+
+    pub fn cmsg_space(length: usize) -> usize {
+        cmsgdata_align(mem::size_of::<CMSGHDR>() + cmsghdr_align(length))
+    }
+
+    pub fn cmsg_len(length: usize) -> usize {
+        cmsgdata_align(mem::size_of::<CMSGHDR>()) + length
+    }
+
+    pub unsafe fn cmsg_data(cmsg: *mut CMSGHDR) -> *mut c_uchar {
+        (cmsg as usize + cmsgdata_align(mem::size_of::<CMSGHDR>())) as *mut c_uchar
     }
 }
