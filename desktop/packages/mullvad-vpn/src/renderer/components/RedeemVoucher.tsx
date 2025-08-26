@@ -5,12 +5,14 @@ import { formatDate } from '../../shared/account-expiry';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
+import { isAccountNumber } from '../../shared/utils';
 import { useAppContext } from '../context';
 import { Button, ButtonProps, Flex, Spinner } from '../lib/components';
 import { IconBadge } from '../lib/icon-badge';
 import { useSelector } from '../redux/store';
 import { ModalAlert } from './Modal';
 import {
+  StyledAccountNumberInfo,
   StyledEmptyResponse,
   StyledErrorResponse,
   StyledInput,
@@ -26,6 +28,7 @@ interface IRedeemVoucherContextValue {
   value: string;
   setValue: (value: string) => void;
   valueValid: boolean;
+  submittedValue: string;
   submitting: boolean;
   response?: VoucherResponse;
 }
@@ -43,6 +46,9 @@ const RedeemVoucherContext = React.createContext<IRedeemVoucherContextValue>({
     throw contextProviderMissingError;
   },
   get valueValid(): boolean {
+    throw contextProviderMissingError;
+  },
+  get submittedValue(): string {
     throw contextProviderMissingError;
   },
   get submitting(): boolean {
@@ -66,6 +72,7 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
   const { submitVoucher } = useAppContext();
 
   const [value, setValue] = useState('');
+  const [submittedValue, setSubmittedValue] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [response, setResponse] = useState<VoucherResponse>();
 
@@ -78,6 +85,7 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
 
     const submitTimestamp = Date.now();
     setSubmitting(true);
+    setSubmittedValue(value);
     onSubmit?.();
     const response = await submitVoucher(value);
 
@@ -98,7 +106,15 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
 
   return (
     <RedeemVoucherContext.Provider
-      value={{ onSubmit: onSubmitWrapper, value, setValue, valueValid, submitting, response }}>
+      value={{
+        onSubmit: onSubmitWrapper,
+        value,
+        setValue,
+        valueValid,
+        submittedValue,
+        submitting,
+        response,
+      }}>
       {props.children}
     </RedeemVoucherContext.Provider>
   );
@@ -147,7 +163,7 @@ export function RedeemVoucherInput(props: IRedeemVoucherInputProps) {
 }
 
 export function RedeemVoucherResponse() {
-  const { response, submitting } = useContext(RedeemVoucherContext);
+  const { response, submitting, submittedValue } = useContext(RedeemVoucherContext);
 
   if (submitting) {
     return (
@@ -166,9 +182,19 @@ export function RedeemVoucherResponse() {
         return <StyledEmptyResponse />;
       case 'invalid':
         return (
-          <StyledErrorResponse>
-            {messages.pgettext('redeem-voucher-view', 'Voucher code is invalid.')}
-          </StyledErrorResponse>
+          <>
+            <StyledErrorResponse>
+              {messages.pgettext('redeem-voucher-view', 'Voucher code is invalid.')}
+            </StyledErrorResponse>
+            {isAccountNumber(submittedValue) ? (
+              <StyledAccountNumberInfo>
+                {messages.pgettext(
+                  'redeem-voucher-view',
+                  'It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first.',
+                )}
+              </StyledAccountNumberInfo>
+            ) : null}
+          </>
         );
       case 'already_used':
         return (
