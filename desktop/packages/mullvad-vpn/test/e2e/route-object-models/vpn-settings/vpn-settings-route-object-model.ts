@@ -27,11 +27,6 @@ export class VpnSettingsRouteObjectModel {
     }
   }
 
-  async getAutoConnectSwitchState() {
-    const autoConnectSwitch = this.getAutoConnectSwitch();
-    return autoConnectSwitch.getAttribute('aria-checked');
-  }
-
   getLaunchAppOnStartupSwitch() {
     return this.selectors.launchAppOnStartupSwitch();
   }
@@ -42,11 +37,6 @@ export class VpnSettingsRouteObjectModel {
     if ((enabled && ariaChecked === 'false') || (!enabled && ariaChecked === 'true')) {
       await launchAppOnStartupSwitch.click();
     }
-  }
-
-  async getLaunchAppOnStartupSwitchState() {
-    const launchAppOnStartupSwitch = this.getLaunchAppOnStartupSwitch();
-    return launchAppOnStartupSwitch.getAttribute('aria-checked');
   }
 
   getLanSwitch() {
