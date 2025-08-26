@@ -4925,8 +4925,8 @@
 		F0E8E4BF2A602C7D00ED26A3 /* AccountDeletion */ = {
 			isa = PBXGroup;
 			children = (
-				44EE8E052E4CB8B30025196E /* AccountDeletionView.swift */,
 				F0E8E4C82A604E7400ED26A3 /* AccountDeletionInteractor.swift */,
+				44EE8E052E4CB8B30025196E /* AccountDeletionView.swift */,
 				F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */,
 			);
 			path = AccountDeletion;
