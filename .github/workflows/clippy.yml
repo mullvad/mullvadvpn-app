@@ -65,6 +65,8 @@ jobs:
       - name: Install latest zig
         if: matrix.os == 'windows-latest'
         uses: mlugg/setup-zig@v2
+        with:
+          version: 0.14.1
 
       - name: Install Go
         uses: actions/setup-go@v5
