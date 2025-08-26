@@ -10,7 +10,7 @@ const FRAGMENT_INDEX_START: u8 = 1;
 
 /// The maximum number of unassembled fragments that we buffer.
 // 255 is the theoretical maximum number of fragments for a single packet.
-const FRAGMENT_BUFFER_CAP: usize = 255;
+pub const FRAGMENT_BUFFER_CAP: usize = 255;
 
 pub struct Fragments {
     /// FIFO queue of fragment indices. Used to mitigate floods of unordered packet fragments.
