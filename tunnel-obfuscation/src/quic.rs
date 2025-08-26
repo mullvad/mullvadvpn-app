@@ -13,6 +13,9 @@ use crate::Obfuscator;
 
 type Result<T> = std::result::Result<T, Error>;
 
+/// Socket buffer size to use on the forwarding UDP socket
+const SOCKET_BUF_SIZE: usize = 8 * 1024 * 1024;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to bind UDP socket")]
@@ -185,10 +188,29 @@ impl Quic {
         } else {
             SocketAddr::from((Ipv6Addr::LOCALHOST, 0))
         };
-        let local_udp_socket = UdpSocket::bind(random_bind_addr)
-            .await
+        let domain = if ipv4 {
+            socket2::Domain::IPV4
+        } else {
+            socket2::Domain::IPV6
+        };
+        let ty = socket2::Type::DGRAM;
+        let protocol = Some(socket2::Protocol::UDP);
+        let socket = socket2::Socket::new(domain, ty, protocol).map_err(Error::BindError)?;
+
+        socket
+            .set_recv_buffer_size(SOCKET_BUF_SIZE)
             .map_err(Error::BindError)?;
-        let udp_client_addr = local_udp_socket.local_addr().unwrap();
+        socket
+            .set_send_buffer_size(SOCKET_BUF_SIZE)
+            .map_err(Error::BindError)?;
+
+        socket
+            .bind(&random_bind_addr.into())
+            .map_err(Error::BindError)?;
+        let std_socket = std::net::UdpSocket::from(socket);
+
+        let local_udp_socket = UdpSocket::from_std(std_socket).map_err(Error::BindError)?;
+        let udp_client_addr = local_udp_socket.local_addr().map_err(Error::BindError)?;
 
         Ok((local_udp_socket, udp_client_addr))
     }

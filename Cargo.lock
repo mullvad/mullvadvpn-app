@@ -6133,6 +6133,7 @@ dependencies = [
  "mullvad-masque-proxy",
  "nix 0.30.1",
  "shadowsocks",
+ "socket2 0.5.8",
  "thiserror 2.0.9",
  "tokio",
  "tokio-util 0.7.10",
