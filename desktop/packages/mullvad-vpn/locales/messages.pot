@@ -1841,6 +1841,10 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr ""
 
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr ""
+
 #. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
@@ -3095,9 +3099,6 @@ msgid "Invalid or missing value \"%1$s\""
 msgstr ""
 
 msgid "It can be useful when you are aware of problems caused by a certain IP version."
-msgstr ""
-
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr ""
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
