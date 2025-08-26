@@ -50,7 +50,7 @@ struct AccountDeletionView: View {
                     }
 
                     Text(viewModel.statusText)
-                        .font(Font(UIFont.preferredFont(forTextStyle: .body)))
+                        .font(.mullvadSmall)
                         .foregroundStyle(Color.white)
                 }
 
