@@ -4,7 +4,6 @@ use super::{
         self, connect_and_wait, send_guest_probes, unreachable_wireguard_tunnel,
         wait_for_tunnel_state,
     },
-    ui,
 };
 use crate::{
     assert_tunnel_state,
@@ -145,13 +144,6 @@ pub async fn test_disconnected_state(
         detected_probes.all(),
         "did not see (all) outgoing packets to destination: {detected_probes:?}",
     );
-
-    // Test UI view
-    //
-
-    log::info!("UI: Test disconnected state");
-    let ui_result = ui::run_test(&rpc, &["disconnected.spec"]).await.unwrap();
-    assert!(ui_result.success());
 
     Ok(())
 }
