@@ -29,6 +29,14 @@ env_logger = { workspace = true }
 tokio = { workspace = true, features = ["fs", "macros", "io-util", "rt-multi-thread"] }
 clap = { workspace = true }
 rand = "0.8.5"
+criterion = { version = "0.7.0", features = ["html_reports"] }
+talpid-tunnel = { path = "../talpid-tunnel" }
+
 
 [lints]
 workspace = true
+
+[[bench]]
+name = "fragmentation"
+harness = false
+

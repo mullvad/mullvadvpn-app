@@ -2,7 +2,7 @@ use h3::proto::varint::VarInt;
 use std::net::SocketAddr;
 
 pub mod client;
-mod fragment;
+pub mod fragment;
 pub mod server;
 mod stats;
 
@@ -19,7 +19,7 @@ const PACKET_BUFFER_SIZE: usize = (u16::MAX - UDP_HEADER_SIZE + 1) as usize;
 const MAX_INFLIGHT_PACKETS: usize = 100;
 
 /// Fragment headers size for fragmented packets
-const FRAGMENT_HEADER_SIZE_FRAGMENTED: u16 = 5;
+pub const FRAGMENT_HEADER_SIZE_FRAGMENTED: u16 = 5;
 
 /// UDP header overhead
 const UDP_HEADER_SIZE: u16 = 8;
