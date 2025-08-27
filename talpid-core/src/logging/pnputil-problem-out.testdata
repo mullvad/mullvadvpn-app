@@ -1,0 +1,2 @@
+InstanceId,DeviceDescription,ClassName,ClassGuid,ManufacturerName,Status,ProblemCode,ProblemStatus,DriverName,ExtensionDriverNames
+"UEFI\RES_{redacted}\0","Camera Firmware","Firmware","{f2e7dd72-6468-4e36-b6f1-6488f42c1b52}","Realtek Semiconductor Corp.","Problem","10","0xC0210000","oem84.inf",""
