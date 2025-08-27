@@ -3,6 +3,9 @@
 #![deny(missing_docs)]
 #![cfg(windows)]
 
+/// Environment
+pub mod env;
+
 /// File system
 pub mod fs;
 
