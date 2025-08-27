@@ -2,6 +2,7 @@ export * from './box';
 export * from './button';
 export * from './filter-chip';
 export * from './container';
+export * from './feature-indicator';
 export * from './flex';
 export * from './image';
 export * from './icon';
