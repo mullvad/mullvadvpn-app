@@ -1,18 +1,18 @@
 import styled from 'styled-components';
 
-import { TunnelState } from '../../../../shared/daemon-rpc-types';
-import { colors } from '../../../lib/foundations';
-import { useSelector } from '../../../redux/store';
-import { largeText } from '../../common-styles';
-import Marquee from '../../Marquee';
-import { ConnectionPanelAccordion } from './styles';
+import { TunnelState } from '../../../../../../../../shared/daemon-rpc-types';
+import { colors } from '../../../../../../../lib/foundations';
+import { useSelector } from '../../../../../../../redux/store';
+import { largeText } from '../../../../../../common-styles';
+import Marquee from '../../../../../../Marquee';
+import { ConnectionPanelAccordion } from '../../../../styles';
 
 const StyledLocation = styled.span(largeText, {
   color: colors.white,
   flexShrink: 0,
 });
 
-export default function Location() {
+export function Location() {
   const connection = useSelector((state) => state.connection);
   const text = getLocationText(connection.status, connection.country, connection.city);
 
