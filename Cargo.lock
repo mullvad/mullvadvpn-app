@@ -5415,6 +5415,7 @@ dependencies = [
 name = "talpid-core"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "async-trait",
  "bitflags 2.9.0",
  "chrono",
