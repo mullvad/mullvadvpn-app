@@ -2,16 +2,16 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { ICustomList } from '../../../shared/daemon-rpc-types';
-import { messages, relayLocations } from '../../../shared/gettext';
-import log from '../../../shared/logging';
-import { RoutePath } from '../../../shared/routes';
-import { useAppContext } from '../../context';
-import { Button, ButtonProps, Icon } from '../../lib/components';
-import { TransitionType, useHistory } from '../../lib/history';
-import { IRelayLocationCountryRedux, RelaySettingsRedux } from '../../redux/settings/reducers';
-import { useSelector } from '../../redux/store';
-import { MultiButton } from '../MultiButton';
+import { ICustomList } from '../../../../shared/daemon-rpc-types';
+import { messages, relayLocations } from '../../../../shared/gettext';
+import log from '../../../../shared/logging';
+import { RoutePath } from '../../../../shared/routes';
+import { useAppContext } from '../../../context';
+import { Button, ButtonProps, Icon } from '../../../lib/components';
+import { TransitionType, useHistory } from '../../../lib/history';
+import { IRelayLocationCountryRedux, RelaySettingsRedux } from '../../../redux/settings/reducers';
+import { useSelector } from '../../../redux/store';
+import { MultiButton } from '../../MultiButton';
 
 export default function SelectLocationButtons() {
   const tunnelState = useSelector((state) => state.connection.status.state);

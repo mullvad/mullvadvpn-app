@@ -1,12 +1,12 @@
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { messages } from '../../../shared/gettext';
-import { colors } from '../../lib/foundations';
-import { IConnectionReduxState } from '../../redux/connection/reducers';
-import { useSelector } from '../../redux/store';
-import { smallText } from '../common-styles';
-import Marquee from '../Marquee';
+import { messages } from '../../../../shared/gettext';
+import { colors } from '../../../lib/foundations';
+import { IConnectionReduxState } from '../../../redux/connection/reducers';
+import { useSelector } from '../../../redux/store';
+import { smallText } from '../../common-styles';
+import Marquee from '../../Marquee';
 import { ConnectionPanelAccordion } from './styles';
 
 const StyledAccordion = styled(ConnectionPanelAccordion)({

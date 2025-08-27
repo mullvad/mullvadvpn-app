@@ -2,13 +2,13 @@ import { useEffect, useRef } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../../shared/constants';
-import { FeatureIndicator } from '../../../shared/daemon-rpc-types';
-import { messages } from '../../../shared/gettext';
-import { colors } from '../../lib/foundations';
-import { useStyledRef } from '../../lib/utility-hooks';
-import { useSelector } from '../../redux/store';
-import { tinyText } from '../common-styles';
+import { strings } from '../../../../shared/constants';
+import { FeatureIndicator } from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import { colors } from '../../../lib/foundations';
+import { useStyledRef } from '../../../lib/utility-hooks';
+import { useSelector } from '../../../redux/store';
+import { tinyText } from '../../common-styles';
 import { ConnectionPanelAccordion } from './styles';
 
 const LINE_HEIGHT = 22;
