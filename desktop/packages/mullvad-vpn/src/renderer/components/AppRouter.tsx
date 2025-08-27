@@ -21,7 +21,6 @@ import {
 import ExpiredAccountErrorView from './ExpiredAccountErrorView';
 import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
-import MainView from './main-view/MainView';
 import MultihopSettings from './MultihopSettings';
 import OpenVpnSettings from './OpenVpnSettings';
 import ProblemReport from './ProblemReport';
@@ -39,6 +38,7 @@ import {
   AppUpgradeView,
   ChangelogView,
   LaunchView,
+  MainView,
   SettingsView,
   VpnSettingsView,
 } from './views';
