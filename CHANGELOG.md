@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Fixed
+#### macOS
+- Fix apps connecting over IPv6 with in-tunnel IPv6 disabled.
+
 ### Security
 #### Windows
 - Block traffic to exit node from non-Mullvad processes. This fixes a leak where traffic could be
