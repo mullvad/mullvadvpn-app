@@ -17,3 +17,6 @@ pub mod sync;
 
 /// Processes
 pub mod process;
+
+/// String functions
+pub mod string;
