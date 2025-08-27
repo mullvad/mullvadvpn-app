@@ -123,12 +123,16 @@ class ServerRelayTests: XCTestCase {
         )
     }
 
-    func testOverrideDaita() throws {
+    func testOverrideFeatures() throws {
         let overrideRelay: REST.ServerRelay = self.mockServerRelay.override(
-            daita: true
+            features: REST.ServerRelay.Features(
+                daita: REST.ServerRelay.Features.DAITA(),
+                quic: REST.ServerRelay.Features.QUIC(addrIn: [""], domain: "", token: "")
+            )
         )
 
-        XCTAssertEqual(overrideRelay.daita, true)
+        XCTAssertNotNil(overrideRelay.features?.daita)
+        XCTAssertNotNil(overrideRelay.features?.quic)
     }
 
     var shadowSocksExtraAddrIn: [String] {
