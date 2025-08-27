@@ -10,11 +10,11 @@ import {
   TunnelState,
   TunnelType,
   tunnelTypeToString,
-} from '../../../shared/daemon-rpc-types';
-import { messages } from '../../../shared/gettext';
-import { colors } from '../../lib/foundations';
-import { useSelector } from '../../redux/store';
-import { tinyText } from '../common-styles';
+} from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import { colors } from '../../../lib/foundations';
+import { useSelector } from '../../../redux/store';
+import { tinyText } from '../../common-styles';
 
 interface Endpoint {
   ip: string;
