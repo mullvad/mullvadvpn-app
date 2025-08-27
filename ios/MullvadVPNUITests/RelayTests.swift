@@ -177,13 +177,13 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .waitForConnectedLabel()
 
-        let connectedToIPAddress = TunnelControlPage(app)
+        let (connectedToIPAddress, _) = TunnelControlPage(app)
             .tapRelayStatusExpandCollapseButton()
-            .getInIPAddressFromConnectionStatus()
+            .getInIPAddressAndPortFromConnectionStatus()
 
         try Networking.verifyCanAccessInternet()
 
-        try generateTraffic(to: connectedToIPAddress, on: 80, assertProtocol: .TCP)
+        try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 80, assertProtocol: .TCP)
     }
 
     func testWireGuardOverShadowsocksCustomPort() throws {
@@ -233,13 +233,13 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .waitForConnectedLabel()
 
-        let connectedToIPAddress = TunnelControlPage(app)
+        let (connectedToIPAddress, _) = TunnelControlPage(app)
             .tapRelayStatusExpandCollapseButton()
-            .getInIPAddressFromConnectionStatus()
+            .getInIPAddressAndPortFromConnectionStatus()
 
         try Networking.verifyCanAccessInternet()
 
-        try generateTraffic(to: connectedToIPAddress, on: 51900, assertProtocol: .UDP)
+        try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 51900, assertProtocol: .UDP)
     }
 
     func testWireGuardOverTCPManually() throws {
@@ -368,12 +368,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .waitForConnectedLabel()
 
-        let connectedToIPAddress = TunnelControlPage(app)
+        let (connectedToIPAddress, _) = TunnelControlPage(app)
             .tapRelayStatusExpandCollapseButton()
-            .getInIPAddressFromConnectionStatus()
+            .getInIPAddressAndPortFromConnectionStatus()
 
-        let relayIPAddress = TunnelControlPage(app)
-            .getInIPAddressFromConnectionStatus()
+        let (relayIPAddress, _) = TunnelControlPage(app)
+            .getInIPAddressAndPortFromConnectionStatus()
 
         // Disconnect in order to create firewall rules, otherwise the test router cannot be reached
         TunnelControlPage(app)
@@ -393,7 +393,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         try Networking.verifyCanAccessInternet()
 
-        try generateTraffic(to: connectedToIPAddress, on: 443, assertProtocol: .UDP)
+        try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 443, assertProtocol: .UDP)
     }
 
     /// Test automatic switching to TCP is functioning when UDP traffic to relay is blocked. This test first connects to a realy to get the IP address of it, in order to block UDP traffic to this relay.
@@ -472,17 +472,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testDAITASettings() throws {
-        // Undo enabling DAITA in teardown
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapDAITACell()
-
-            DAITAPage(self.app)
-                .tapEnableSwitchIfOn()
-        }
+        try disableDaitaInTeardown()
 
         HeaderBar(app)
             .tapSettingsButton()
@@ -519,6 +509,81 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .verifyConnectingUsingDAITA()
             .tapDisconnectButton()
+    }
+
+    func testDaitaIncreasesAverageDataConsumption() throws {
+        // Verify daita is off
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .verifyDAITAOff()
+            .tapDoneButton()
+
+        // Get packet capture #1
+        let (firstIPAddress, firstPort, streamWithoutDaita) = try generateTrafficSample()
+
+        // Turn on daita
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .verifyDAITAOff()
+            .tapDAITACell()
+
+        DAITAPage(app)
+            .verifyTwoPages()
+            .verifyDirectOnlySwitchIsDisabled()
+            .tapEnableSwitch()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .verifyDAITAOn()
+            .tapDoneButton()
+
+        try disableDaitaInTeardown()
+
+        // Get packet capture #2
+        let (secondIpAddress, secondPort, streamWithDaita) = try generateTrafficSample()
+
+        // Compare packet capture #1 and #2 mean packet size
+        let packetStreamWithoutDaita = try XCTUnwrap(streamWithoutDaita
+            .filter { $0.destinationAddress == firstIPAddress && $0.destinationPort == firstPort }
+            .first
+        )
+
+        let packetStreamWithDaita = try XCTUnwrap(streamWithDaita
+            .filter { $0.destinationAddress == secondIpAddress && $0.destinationPort == secondPort }
+            .first
+        )
+
+        let computeMeanPacketSize: (Stream, Int) -> Int32 = { stream, sampleSize in
+            stream.packets[..<sampleSize]
+                .map { $0.size }
+                .reduce(0, +) / Int32(sampleSize)
+        }
+
+        // Sample size might vary a lot, but DAITA is consistently padding enough that 100 samples or so should be good
+        // In this case, limit the total sample size to the smallest packet capture
+        let maximumSampleSize = min(packetStreamWithoutDaita.packets.count, packetStreamWithDaita.packets.count)
+        let meanPacketSizeWithoutDaita = computeMeanPacketSize(packetStreamWithoutDaita, maximumSampleSize)
+        let meanPacketSizeWithDaita = computeMeanPacketSize(packetStreamWithDaita, maximumSampleSize)
+
+        XCTAssertTrue(meanPacketSizeWithDaita > meanPacketSizeWithoutDaita)
+    }
+
+    private func disableDaitaInTeardown() throws {
+        // Undo enabling DAITA in teardown
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapDAITACell()
+
+            DAITAPage(self.app)
+                .tapEnableSwitchIfOn()
+        }
     }
 
     func testMultihopSettings() throws {
@@ -615,10 +680,10 @@ extension RelayTests {
 
         allowAddVPNConfigurationsIfAsked()
 
-        let relayIPAddress = TunnelControlPage(app)
+        let (relayIPAddress, _) = TunnelControlPage(app)
             .waitForConnectedLabel()
             .tapRelayStatusExpandCollapseButton()
-            .getInIPAddressFromConnectionStatus()
+            .getInIPAddressAndPortFromConnectionStatus()
 
         let relayName = TunnelControlPage(app).getCurrentRelayName()
 
@@ -628,16 +693,18 @@ extension RelayTests {
         return RelayInfo(name: relayName, ipAddress: relayIPAddress)
     }
 
-    private func generateTraffic(
-        to connectedToIPAddress: String,
-        on port: Int,
+    @discardableResult
+    private func generateTrafficAndDisconnect(
+        from connectedToIPAddress: String,
+        searchForPort port: Int,
+        duration: TimeInterval = 1,
         assertProtocol transportProtocol: NetworkTransportProtocol
-    ) throws {
+    ) throws -> [Stream] {
         let targetIPAddress = Networking.getAlwaysReachableIPAddress()
         let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
         trafficGenerator.startGeneratingUDPTraffic(interval: 0.1)
 
-        RunLoop.current.run(until: .now + 1)
+        RunLoop.current.run(until: .now + duration)
         trafficGenerator.stopGeneratingUDPTraffic()
 
         TunnelControlPage(app)
@@ -651,5 +718,36 @@ extension RelayTests {
         )
 
         XCTAssertTrue(streamFromPeerToRelay.transportProtocol == transportProtocol)
+        return capturedStreams
+    }
+
+    /// Starts a packet capture, connects to a relay, generates synthetic traffic,
+    /// disconnects from the relay, and gets a representation of the captured traffic
+    private func generateTrafficSample() throws -> (String, Int, [Stream]) {
+        startPacketCapture()
+
+        // Connect
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        SelectLocationPage(app)
+            .tapLocationCell(withName: BaseUITestCase.testsDefaultDAITACountryName)
+
+        allowAddVPNConfigurationsIfAsked()
+
+        // Generate traffic sample
+        let (IPAddress, port) = TunnelControlPage(app)
+            .waitForConnectedLabel()
+            .tapRelayStatusExpandCollapseButton()
+            .getInIPAddressAndPortFromConnectionStatus()
+
+        let stream = try generateTrafficAndDisconnect(
+            from: IPAddress,
+            searchForPort: port,
+            duration: 30,
+            assertProtocol: .UDP
+        )
+
+        return (IPAddress, port, stream)
     }
 } // swiftlint:disable:this file_length
