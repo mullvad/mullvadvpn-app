@@ -58,6 +58,7 @@ pub struct ConnectionId {
 pub struct PacketTransmission {
     from_peer: bool,
     timestamp: u64,
+    size: u32,
 }
 
 #[derive(Default, Debug)]
@@ -108,8 +109,8 @@ impl ParsedConnections {
         }
 
         let transport_protocol = packet.transport_protocol();
-        let Some((source_port, destination_port)) =
-            packet_ports(packet.payload(), transport_protocol)
+        let payload = packet.payload();
+        let Some((source_port, destination_port)) = packet_ports(payload, transport_protocol)
         else {
             log::debug!("Failed to parse an IP packet from {source} to {destination}");
             return;
@@ -137,6 +138,7 @@ impl ParsedConnections {
         let packet_transmission = PacketTransmission {
             from_peer: self.ip_matches_peer(source),
             timestamp,
+            size: u32::try_from(payload.len()).unwrap(),
         };
 
         self.connections

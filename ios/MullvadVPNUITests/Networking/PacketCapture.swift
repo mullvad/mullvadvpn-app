@@ -114,11 +114,15 @@ class Packet: Codable, Equatable {
     /// Timestamp in microseconds
     private var timestamp: Int64
 
+    // The size of the packet
+    public let size: Int32
+
     public var date: Date
 
     enum CodingKeys: String, CodingKey {
         case fromPeer = "from_peer"
         case timestamp
+        case size
     }
 
     required init(from decoder: Decoder) throws {
@@ -126,12 +130,14 @@ class Packet: Codable, Equatable {
         fromPeer = try container.decode(Bool.self, forKey: .fromPeer)
         timestamp = try container.decode(Int64.self, forKey: .timestamp) / 1000000
         date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        size = try container.decode(Int32.self, forKey: .size)
     }
 
     static func == (lhs: Packet, rhs: Packet) -> Bool {
         return lhs.fromPeer == rhs.fromPeer &&
             lhs.timestamp == rhs.timestamp &&
-            lhs.date == rhs.date
+            lhs.date == rhs.date &&
+            lhs.size == rhs.size
     }
 }
 

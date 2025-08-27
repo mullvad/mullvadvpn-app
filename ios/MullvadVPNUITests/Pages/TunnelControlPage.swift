@@ -216,9 +216,13 @@ class TunnelControlPage: Page {
         return self
     }
 
-    func getInIPAddressFromConnectionStatus() -> String {
+    func getInIPAddressAndPortFromConnectionStatus() -> (String, Int) {
         let inAddressRow = app.staticTexts[.connectionPanelInAddressRow]
-        return inAddressRow.label.components(separatedBy: ":")[0]
+        // The row looks like this "85.203.53.145:43030 UDP"
+        let components = inAddressRow.label.components(separatedBy: ":")
+        let inIpAddress = components[0] // 85.203.53.145
+        let inPort = components[1].components(separatedBy: " ")[0] // 43030 UDP, take only the port part
+        return (inIpAddress, Int(inPort)!)
     }
 
     func getCurrentRelayName() -> String {
