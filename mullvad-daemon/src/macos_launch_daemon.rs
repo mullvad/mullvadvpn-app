@@ -31,18 +31,10 @@ pub fn get_status() -> LaunchDaemonStatus {
     if os_version.majorVersion < 13 {
         return LaunchDaemonStatus::Ok;
     }
-
-    // SAFETY: daemon_plist_path has is a well-formed url according to RFC 3986 & is not null.
-    let daemon_plist_url = unsafe {
-        NSURL::URLWithString_encodingInvalidCharacters(ns_string!(DAEMON_PLIST_PATH), false)
-    };
-
-    match daemon_plist_url {
-        Some(url) => get_status_for_url(&url),
-        // TODO: Technically, this is an error in allocating an URL, not checking the
-        // launch daemon status ..
-        None => LaunchDaemonStatus::Unknown,
-    }
+    // SAFETY: daemon_plist_path is not an empty path & it is a valid system path.
+    // https://developer.apple.com/documentation/foundation/nsurl/fileurl(withpath:)#parameters
+    let daemon_plist_url = unsafe { NSURL::fileURLWithPath(ns_string!(DAEMON_PLIST_PATH)) };
+    get_status_for_url(&daemon_plist_url)
 }
 
 fn get_status_for_url(url: &NSURL) -> LaunchDaemonStatus {
