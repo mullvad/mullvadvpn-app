@@ -36,6 +36,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix version being labeled unsupported unexpectedly. So far, this only an issue when using
   development builds.
 
+#### macOS
+- Fix apps attempting to use IPv6 with in-tunnel IPv6 disabled.
+
 
 ## [2025.9-beta1] - 2025-08-25
 ### Added
