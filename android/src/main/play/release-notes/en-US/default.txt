@@ -1,0 +1,1 @@
+- Added a list of recent server selections in the select location view.
