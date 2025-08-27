@@ -1,0 +1,5 @@
+"Module Name","Display Name","Description","Driver Type","Start Mode","State","Status","Accept Stop","Accept Pause","Paged Pool(bytes)","Code(bytes)","BSS(bytes)","Link Date","Path","Init(bytes)"
+"ACPI","Microsoft ACPI Driver","Microsoft ACPI Driver","Kernel ","Boot","Running","OK","TRUE","FALSE","184 320","466 944","0","","C:\WINDOWS\system32\drivers\ACPI.sys","24 576"
+"mullvad-split-tunnel","Mullvad Split Tunnel Service","Mullvad Split Tunnel Service","Kernel ","Manual","Stopped","OK","FALSE","FALSE","4 096","53 248","0","2022-09-22 11:41:33","\??\C:\Program Files\Mullvad VPN\resources\mullvad-split-tunnel.sys","8 192"
+"MullvadWireGuard","MullvadWireGuard","MullvadWireGuard","Kernel ","Manual","Stopped","OK","FALSE","FALSE","0","131 072","0","2024-06-04 14:21:55","C:\WINDOWS\system32\drivers\mullvad-wireguard.sys","12 288"
+"NDIS","NDIS System Driver","NDIS System Driver","Kernel ","Boot","Running","OK","TRUE","FALSE","331 776","1 028 096","0","","C:\WINDOWS\system32\drivers\ndis.sys","16 384"
