@@ -6,7 +6,7 @@ import { AppMainHeader } from '../../app-main-header';
 import { Container, Layout } from '../../Layout';
 import Map from '../../Map';
 import NotificationArea from '../../NotificationArea';
-import ConnectionPanel from './ConnectionPanel';
+import { ConnectionPanel } from './components';
 
 const StyledContainer = styled(Container)({
   position: 'relative',
