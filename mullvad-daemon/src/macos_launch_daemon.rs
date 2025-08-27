@@ -26,7 +26,6 @@ pub enum LaunchDaemonStatus {
 /// NOTE: On macos < 13, this function always returns `LaunchDaemonStatus::Ok`.
 pub fn get_status() -> LaunchDaemonStatus {
     // `SMAppService` does not exist if the major version is less than 13.
-    // TODO: Could as well use processInfo.isOperatingSystemAtLeast
     let os_version = get_os_version();
     if os_version.majorVersion < 13 {
         return LaunchDaemonStatus::Ok;
