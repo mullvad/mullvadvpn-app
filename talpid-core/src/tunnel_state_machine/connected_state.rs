@@ -185,6 +185,8 @@ impl ConnectedState {
         } else {
             log::debug!("Enabling local DNS resolver");
 
+            // HACK: Ignore AAAA queries when in-tunnel IPv6 is disabled. See documentation in
+            // `resolver.rs`.
             #[cfg(target_os = "macos")]
             let filter_out_aaaa = self.metadata.ips.iter().all(|addr| addr.is_ipv4());
             #[cfg(not(target_os = "macos"))]
