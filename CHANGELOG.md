@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add helpful warnings when clearing account history. This helps users not lose their account
   numbers.
 
+#### Windows
+- Add additional logging for tunnel devices and split tunneling to problem reports.
+
 ### Security
 #### Windows
 - Block traffic to exit node from non-Mullvad processes. This fixes a leak where traffic could be
