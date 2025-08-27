@@ -21,7 +21,7 @@ export type ListItemProps = {
   disabled?: boolean;
   animation?: ListItemAnimation;
   children: React.ReactNode;
-} & React.HtmlHTMLAttributes<HTMLDivElement>;
+} & React.ComponentPropsWithRef<'div'>;
 
 const ListItem = ({ level = 0, disabled, animation, children, ...props }: ListItemProps) => {
   return (
