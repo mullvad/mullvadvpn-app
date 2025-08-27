@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 
-import { messages } from '../../../shared/gettext';
-import log from '../../../shared/logging';
-import { useAppContext } from '../../context';
-import { Button } from '../../lib/components';
-import { useSelector } from '../../redux/store';
+import { messages } from '../../../../shared/gettext';
+import log from '../../../../shared/logging';
+import { useAppContext } from '../../../context';
+import { Button } from '../../../lib/components';
+import { useSelector } from '../../../redux/store';
 
 export default function ConnectionActionButton() {
   const tunnelState = useSelector((state) => state.connection.status.state);

@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
-import { TunnelState } from '../../../shared/daemon-rpc-types';
-import { messages } from '../../../shared/gettext';
-import { colors } from '../../lib/foundations';
-import { useSelector } from '../../redux/store';
-import { largeText } from '../common-styles';
+import { TunnelState } from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import { colors } from '../../../lib/foundations';
+import { useSelector } from '../../../redux/store';
+import { largeText } from '../../common-styles';
 
 const StyledConnectionStatus = styled.span<{ $color: string }>(largeText, (props) => ({
   minHeight: '24px',
