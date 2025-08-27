@@ -22,10 +22,14 @@ on your platform please submit an issue or a pull request.
 - You need Node.js and npm. You can find the exact versions in the `volta` section of
   `desktop/package.json`. The toolchain is managed by volta.
 
-  - Linux & macOS
+  - Linux
+
+    Follow instructions on [volta.sh](https://volta.sh/)
+
+  - macOS
 
     ```bash
-    cargo install --git https://github.com/volta-cli/volta && volta setup
+    brew install volta && volta setup
     ````
 
   - Windows
