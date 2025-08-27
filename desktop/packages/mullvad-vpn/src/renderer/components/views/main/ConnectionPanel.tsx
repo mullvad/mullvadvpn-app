@@ -1,12 +1,12 @@
 import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { IconButton } from '../../lib/components';
-import { colors } from '../../lib/foundations';
-import { useBoolean } from '../../lib/utility-hooks';
-import { useSelector } from '../../redux/store';
-import CustomScrollbars from '../CustomScrollbars';
-import { BackAction } from '../KeyboardNavigation';
+import { IconButton } from '../../../lib/components';
+import { colors } from '../../../lib/foundations';
+import { useBoolean } from '../../../lib/utility-hooks';
+import { useSelector } from '../../../redux/store';
+import CustomScrollbars from '../../CustomScrollbars';
+import { BackAction } from '../../KeyboardNavigation';
 import ConnectionActionButton from './ConnectionActionButton';
 import ConnectionDetails from './ConnectionDetails';
 import ConnectionStatus from './ConnectionStatus';
