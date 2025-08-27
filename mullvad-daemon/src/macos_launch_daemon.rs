@@ -38,7 +38,17 @@ pub fn get_status() -> LaunchDaemonStatus {
 }
 
 fn get_status_for_url(url: &NSURL) -> LaunchDaemonStatus {
-    // SAFETY: url points to a valid instance of an NSURL.
+    // SAFETY: Apple does not state *anything* regarding safety requirements of this function:
+    // https://developer.apple.com/documentation/servicemanagement/smappservice/statusforlegacyplist(at:)
+    // But using a bit of reasoning & the [guidelines of objc2](https://github.com/madsmtm/objc2/blob/master/crates/header-translator/README.md#what-is-required-for-a-method-to-be-safe):
+    // """
+    // What is required for a method to be safe?
+    // 1. The method must not take a raw pointer; one could trivially pass ptr::invalid() and cause UB with that.
+    // 2. Any extra requirements that the method states in its documentation must be upheld.
+    // """
+    // we can conclude that:
+    // (1.) is upheld by the virtue of url being a reference, since references are always valid.
+    // (2.) is trivially upheld since Apple does not state safety requirements.
     let status = unsafe { SMAppService::statusForLegacyURL(url) };
     match status {
         SMAppServiceStatus::NotRegistered | SMAppServiceStatus::NotFound => {
