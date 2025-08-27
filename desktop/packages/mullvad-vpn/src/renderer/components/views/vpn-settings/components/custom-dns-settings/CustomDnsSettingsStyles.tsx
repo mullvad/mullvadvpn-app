@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { colors } from '../lib/foundations';
-import * as Cell from './cell';
+import { colors } from '../../../../../lib/foundations';
+import * as Cell from '../../../../cell';
 
 export const StyledCustomDnsFooter = styled(Cell.CellFooter)({
   marginBottom: '2px',

@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { messages } from '../../shared/gettext';
-import { useAppContext } from '../context';
-import { Button, IconButton } from '../lib/components';
-import { formatHtml } from '../lib/html-formatter';
-import { IpAddress } from '../lib/ip';
-import { useBoolean, useMounted, useStyledRef } from '../lib/utility-hooks';
-import { useSelector } from '../redux/store';
-import Accordion from './Accordion';
+import { messages } from '../../../../../../shared/gettext';
+import { useAppContext } from '../../../../../context';
+import { Button, IconButton } from '../../../../../lib/components';
+import { formatHtml } from '../../../../../lib/html-formatter';
+import { IpAddress } from '../../../../../lib/ip';
+import { useBoolean, useMounted, useStyledRef } from '../../../../../lib/utility-hooks';
+import { useSelector } from '../../../../../redux/store';
+import Accordion from '../../../../Accordion';
 import {
   AriaDescribed,
   AriaDescription,
@@ -15,8 +15,10 @@ import {
   AriaInput,
   AriaInputGroup,
   AriaLabel,
-} from './AriaGroup';
-import * as Cell from './cell';
+} from '../../../../AriaGroup';
+import * as Cell from '../../../../cell';
+import List, { stringValueAsKey } from '../../../../List';
+import { ModalAlert, ModalAlertType } from '../../../../Modal';
 import {
   AddServerContainer,
   StyledAddCustomDnsLabel,
@@ -25,12 +27,10 @@ import {
   StyledItemContainer,
   StyledLabel,
 } from './CustomDnsSettingsStyles';
-import List, { stringValueAsKey } from './List';
-import { ModalAlert, ModalAlertType } from './Modal';
 
 const manualLocal = window.env.platform === 'win32' || window.env.platform === 'linux';
 
-export default function CustomDnsSettings() {
+export function CustomDnsSettings() {
   const { setDnsOptions } = useAppContext();
   const dns = useSelector((state) => state.settings.dns);
 
