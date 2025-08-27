@@ -1,7 +1,6 @@
 import { messages } from '../../../../shared/gettext';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
-import CustomDnsSettings from '../../CustomDnsSettings';
 import { BackAction } from '../../KeyboardNavigation';
 import {
   Layout,
@@ -17,6 +16,7 @@ import {
   AllowLanSetting,
   AutoConnectSetting,
   AutoStartSetting,
+  CustomDnsSettings,
   DnsBlockerSettings,
   EnableIpv6Setting,
   IpOverrideSettings,
