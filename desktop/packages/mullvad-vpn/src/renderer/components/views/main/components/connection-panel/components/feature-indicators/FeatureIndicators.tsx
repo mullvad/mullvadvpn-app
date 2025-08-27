@@ -2,14 +2,14 @@ import { useEffect, useRef } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../../../shared/constants';
-import { FeatureIndicator } from '../../../../shared/daemon-rpc-types';
-import { messages } from '../../../../shared/gettext';
-import { colors } from '../../../lib/foundations';
-import { useStyledRef } from '../../../lib/utility-hooks';
-import { useSelector } from '../../../redux/store';
-import { tinyText } from '../../common-styles';
-import { ConnectionPanelAccordion } from './styles';
+import { strings } from '../../../../../../../../shared/constants';
+import { FeatureIndicator } from '../../../../../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../../../../../shared/gettext';
+import { colors } from '../../../../../../../lib/foundations';
+import { useStyledRef } from '../../../../../../../lib/utility-hooks';
+import { useSelector } from '../../../../../../../redux/store';
+import { tinyText } from '../../../../../../common-styles';
+import { ConnectionPanelAccordion } from '../../../../styles';
 
 const LINE_HEIGHT = 22;
 const GAP = 8;
@@ -98,7 +98,7 @@ interface FeatureIndicatorsProps {
 // after the second row or overlaps with the invisible ellipsis text will be set to invisible. Then
 // we can count those and add another ellipsis element which is visible and place it after the last
 // visible indicator.
-export default function FeatureIndicators(props: FeatureIndicatorsProps) {
+export function FeatureIndicators(props: FeatureIndicatorsProps) {
   const tunnelState = useSelector((state) => state.connection.status);
   const ellipsisRef = useStyledRef<HTMLSpanElement>();
   const ellipsisSpacerRef = useStyledRef<HTMLSpanElement>();

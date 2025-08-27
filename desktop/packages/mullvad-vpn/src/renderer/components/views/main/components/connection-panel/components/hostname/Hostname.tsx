@@ -1,13 +1,13 @@
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { messages } from '../../../../shared/gettext';
-import { colors } from '../../../lib/foundations';
-import { IConnectionReduxState } from '../../../redux/connection/reducers';
-import { useSelector } from '../../../redux/store';
-import { smallText } from '../../common-styles';
-import Marquee from '../../Marquee';
-import { ConnectionPanelAccordion } from './styles';
+import { messages } from '../../../../../../../../shared/gettext';
+import { colors } from '../../../../../../../lib/foundations';
+import { IConnectionReduxState } from '../../../../../../../redux/connection/reducers';
+import { useSelector } from '../../../../../../../redux/store';
+import { smallText } from '../../../../../../common-styles';
+import Marquee from '../../../../../../Marquee';
+import { ConnectionPanelAccordion } from '../../../../styles';
 
 const StyledAccordion = styled(ConnectionPanelAccordion)({
   flexShrink: 0,
@@ -20,7 +20,7 @@ const StyledHostname = styled.span(smallText, {
   minHeight: '1em',
 });
 
-export default function Hostname() {
+export function Hostname() {
   const tunnelState = useSelector((state) => state.connection.status.state);
   const connection = useSelector((state) => state.connection);
   const text = getHostnameText(connection);
