@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
-import { Spinner } from '../../lib/components';
-import { useSelector } from '../../redux/store';
-import { AppMainHeader } from '../app-main-header';
-import { Container, Layout } from '../Layout';
-import Map from '../Map';
-import NotificationArea from '../NotificationArea';
+import { Spinner } from '../../../lib/components';
+import { useSelector } from '../../../redux/store';
+import { AppMainHeader } from '../../app-main-header';
+import { Container, Layout } from '../../Layout';
+import Map from '../../Map';
+import NotificationArea from '../../NotificationArea';
 import ConnectionPanel from './ConnectionPanel';
 
 const StyledContainer = styled(Container)({
@@ -41,7 +41,7 @@ const StyledMain = styled.main({
   maxHeight: '100%',
 });
 
-export default function MainView() {
+export function MainView() {
   const connection = useSelector((state) => state.connection);
 
   const showSpinner =
