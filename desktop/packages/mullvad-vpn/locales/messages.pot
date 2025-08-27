@@ -2065,7 +2065,6 @@ msgid "Multihop"
 msgstr ""
 
 #. Title label in navigation bar
-#. Main title for settings view
 msgctxt "settings-view"
 msgid "Settings"
 msgstr ""

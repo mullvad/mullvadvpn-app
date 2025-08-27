@@ -47,16 +47,10 @@ export function SettingsView() {
               // TRANSLATORS: Title label in navigation bar
               messages.pgettext('settings-view', 'Settings')
             }
+            titleVisible
           />
 
           <SettingsNavigationScrollbars fillContainer>
-            <Title>
-              {
-                // TRANSLATORS: Main title for settings view
-                messages.pgettext('settings-view', 'Settings')
-              }
-            </Title>
-
             <Flex $flexDirection="column" $gap="medium">
               {showSubSettings ? (
                 <>
