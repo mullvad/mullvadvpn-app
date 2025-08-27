@@ -249,6 +249,9 @@ impl ConnectingState {
         tokio::task::spawn_blocking(move || {
             let start = Instant::now();
 
+            #[cfg(target_os = "windows")]
+            let runtime2 = runtime.clone();
+
             let args = TunnelArgs {
                 runtime,
                 resource_dir: &resource_dir,
@@ -258,6 +261,21 @@ impl ConnectingState {
                 retry_attempt,
                 route_manager,
             };
+
+            #[cfg(target_os = "windows")]
+            async fn maybe_dump_device_logs(log_dir: Option<&Path>, error: &tunnel::Error) {
+                if error.get_tunnel_device_error().is_some()
+                    && let Some(log_dir) = log_dir
+                {
+                    log::debug!("Logging device info");
+                    if crate::logging::diag::windows::log_device_info(log_dir)
+                        .await
+                        .is_err()
+                    {
+                        log::error!("Failed to dump device logs");
+                    }
+                }
+            }
 
             let block_reason = match TunnelMonitor::start(&tunnel_parameters, &log_dir, args) {
                 Ok(monitor) => {
@@ -272,10 +290,18 @@ impl ConnectingState {
                             "Retrying to connect after failing to start tunnel"
                         )
                     );
+                    #[cfg(target_os = "windows")]
+                    runtime2.block_on(async {
+                        maybe_dump_device_logs(log_dir.as_deref(), &error).await;
+                    });
                     None
                 }
                 Err(error) => {
                     log::error!("{}", error.display_chain_with_msg("Failed to start tunnel"));
+                    #[cfg(target_os = "windows")]
+                    runtime2.block_on(async {
+                        maybe_dump_device_logs(log_dir.as_deref(), &error).await;
+                    });
                     Some(error.into())
                 }
             };
