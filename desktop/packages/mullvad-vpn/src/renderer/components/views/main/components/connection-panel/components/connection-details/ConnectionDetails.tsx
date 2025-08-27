@@ -10,11 +10,11 @@ import {
   TunnelState,
   TunnelType,
   tunnelTypeToString,
-} from '../../../../shared/daemon-rpc-types';
-import { messages } from '../../../../shared/gettext';
-import { colors } from '../../../lib/foundations';
-import { useSelector } from '../../../redux/store';
-import { tinyText } from '../../common-styles';
+} from '../../../../../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../../../../../shared/gettext';
+import { colors } from '../../../../../../../lib/foundations';
+import { useSelector } from '../../../../../../../redux/store';
+import { tinyText } from '../../../../../../common-styles';
 
 interface Endpoint {
   ip: string;
@@ -68,7 +68,7 @@ const StyledConnectionDetailsTitle = styled(StyledConnectionDetailsLabel)({
   whiteSpace: 'nowrap',
 });
 
-export default function ConnectionDetails() {
+export function ConnectionDetails() {
   const reduxConnection = useSelector((state) => state.connection);
   const [connection, setConnection] = useState(reduxConnection);
 

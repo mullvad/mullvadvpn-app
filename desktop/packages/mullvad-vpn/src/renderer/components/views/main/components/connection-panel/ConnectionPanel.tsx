@@ -1,20 +1,22 @@
 import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { IconButton } from '../../../lib/components';
-import { colors } from '../../../lib/foundations';
-import { useBoolean } from '../../../lib/utility-hooks';
-import { useSelector } from '../../../redux/store';
-import CustomScrollbars from '../../CustomScrollbars';
-import { BackAction } from '../../KeyboardNavigation';
-import ConnectionActionButton from './ConnectionActionButton';
-import ConnectionDetails from './ConnectionDetails';
-import ConnectionStatus from './ConnectionStatus';
-import FeatureIndicators from './FeatureIndicators';
-import Hostname from './Hostname';
-import Location from './Location';
-import SelectLocationButton from './SelectLocationButton';
-import { ConnectionPanelAccordion } from './styles';
+import { IconButton } from '../../../../../lib/components';
+import { colors } from '../../../../../lib/foundations';
+import { useBoolean } from '../../../../../lib/utility-hooks';
+import { useSelector } from '../../../../../redux/store';
+import CustomScrollbars from '../../../../CustomScrollbars';
+import { BackAction } from '../../../../KeyboardNavigation';
+import { ConnectionPanelAccordion } from '../../styles';
+import {
+  ConnectionActionButton,
+  ConnectionDetails,
+  ConnectionStatus,
+  FeatureIndicators,
+  Hostname,
+  Location,
+} from './components';
+import SelectLocationButton from './components/select-location-button/SelectLocationButton';
 
 const PANEL_MARGIN = '16px';
 
@@ -68,7 +70,7 @@ const StyledConnectionStatusContainer = styled.div<{
   transitionTimingFunction: 'ease-out',
 }));
 
-export default function ConnectionPanel() {
+export function ConnectionPanel() {
   const [expanded, expandImpl, collapse, toggleExpandedImpl] = useBoolean();
   const tunnelState = useSelector((state) => state.connection.status);
 
