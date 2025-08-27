@@ -64,7 +64,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
 
         do {
             cachedRelays = try cache.read().cachedRelays
-            try hotfixRelaysThatDoNotHaveDaita()
+            try hotfixRelaysThatDoNotHaveFeatures()
         } catch {
             logger.error(
                 error: error,
@@ -75,42 +75,41 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
         }
     }
 
-    /// This method updates the cached relay to include daita information
+    /// This method updates the cached relay to include "feature" information
     ///
-    /// This is a hotfix meant to upgrade clients shipped with 2024.5 or before that did not have
-    /// daita information in their representation of `ServerRelay`.
-    /// If a version <= 2024.5 is installed less than an hour before a new upgrade,
-    /// no servers will be shown in locations when filtering for daita relays.
+    /// This is a hotfix meant to upgrade clients shipped with 2025.6 or before that did not have
+    /// feature information in their representation of `ServerRelay`.
+    /// If a version <= 2025.6 is installed less than an hour before a new upgrade,
+    /// no servers will be shown in locations when filtering for relays requiring a certain feature.
     ///
     /// > Info: `relayCacheLock` does not need to be accessed here, this method should be ran from `init` only.
-    private func hotfixRelaysThatDoNotHaveDaita() throws {
+    private func hotfixRelaysThatDoNotHaveFeatures() throws {
         guard let cachedRelays else { return }
-        let daitaPropertyMissing = cachedRelays.relays.wireguard.relays.first { $0.hasDaita } == nil
+        let featurePropertyMissing = cachedRelays.relays.wireguard.relays.first { $0.features != nil } == nil
         // If the cached relays already have daita information, this fix is not necessary
-        guard daitaPropertyMissing else { return }
+        guard featurePropertyMissing else { return }
 
         let preBundledRelays = try cache.readPrebundledRelays().relays
-        let preBundledDaitaRelays = preBundledRelays.wireguard.relays.filter { $0.hasDaita }
-        var cachedRelaysWithFixedDaita = cachedRelays.relays.wireguard.relays
+        let preBundledFeatureRelays = preBundledRelays.wireguard.relays.filter { $0.features != nil }
+        var cachedRelaysWithFixedFeatures = cachedRelays.relays.wireguard.relays
 
-        // For each daita enabled relay in the prebundled relays
-        // Find the corresponding relay in the cache by matching relay hostnames
-        // Then update it to toggle daita
-        for index in 0 ..< cachedRelaysWithFixedDaita.endIndex {
-            let relay = cachedRelaysWithFixedDaita[index]
-            preBundledDaitaRelays.forEach {
+        // For each relay with features in the prebundled relays, find the corresponding relay
+        // in the cache by matching relay hostnames and update it.
+        for index in 0 ..< cachedRelaysWithFixedFeatures.endIndex {
+            let relay = cachedRelaysWithFixedFeatures[index]
+            preBundledFeatureRelays.forEach {
                 if $0.hostname == relay.hostname {
-                    cachedRelaysWithFixedDaita[index] = relay.override(daita: true)
+                    cachedRelaysWithFixedFeatures[index] = relay.override(features: $0.features)
                 }
             }
         }
 
         let wireguard = REST.ServerWireguardTunnels(
             ipv4Gateway:
-            cachedRelays.relays.wireguard.ipv4Gateway,
+                cachedRelays.relays.wireguard.ipv4Gateway,
             ipv6Gateway: cachedRelays.relays.wireguard.ipv6Gateway,
             portRanges: cachedRelays.relays.wireguard.portRanges,
-            relays: cachedRelaysWithFixedDaita,
+            relays: cachedRelaysWithFixedFeatures,
             shadowsocksPortRanges: cachedRelays.relays.wireguard.shadowsocksPortRanges
         )
 
