@@ -1,5 +1,7 @@
 import { ElectronApplication } from 'playwright';
 
+import { createIpcEvents, IpcEvents } from '../../../src/shared/ipc-helpers';
+import { IpcSchema, ipcSchema } from '../../../src/shared/ipc-schema';
 import { startApp, TestUtils } from '../utils';
 
 // This option can be removed in the future when/if we're able to tun the tests with the sandbox
@@ -14,6 +16,7 @@ export interface MockedTestUtils extends TestUtils {
   mockIpcHandle: MockIpcHandle;
   sendMockIpcResponse: SendMockIpcResponse;
   expectIpcCall: ExpectIpcCall;
+  ipcEvents: IpcEvents<IpcSchema>;
 }
 
 export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
@@ -37,6 +40,8 @@ export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
       mockIpcHandle,
       sendMockIpcResponse,
       expectIpcCall,
+
+      ipcEvents: createIpcEvents(ipcSchema),
     },
   };
 };
