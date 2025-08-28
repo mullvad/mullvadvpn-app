@@ -8,3 +8,4 @@ export * from './changelog';
 export * from './settings';
 export * from './split-tunneling-settings';
 export * from './vpn-settings';
+export * from './wireguard-settings';

@@ -2,32 +2,38 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../shared/constants';
+import { strings } from '../../../../shared/constants';
 import {
   Constraint,
   IpVersion,
   ObfuscationType,
   wrapConstraint,
-} from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import log from '../../shared/logging';
-import { RoutePath } from '../../shared/routes';
-import { removeNonNumericCharacters } from '../../shared/string-helpers';
-import { isInRanges } from '../../shared/utils';
-import { useAppContext } from '../context';
-import { useRelaySettingsUpdater } from '../lib/constraint-updater';
-import { useHistory } from '../lib/history';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
-import * as Cell from './cell';
-import Selector, { SelectorItem, SelectorWithCustomItem } from './cell/Selector';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
-import { ModalMessage } from './Modal';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+} from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import log from '../../../../shared/logging';
+import { RoutePath } from '../../../../shared/routes';
+import { removeNonNumericCharacters } from '../../../../shared/string-helpers';
+import { isInRanges } from '../../../../shared/utils';
+import { useAppContext } from '../../../context';
+import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
+import { useHistory } from '../../../lib/history';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from '../../AriaGroup';
+import * as Cell from '../../cell';
+import Selector, { SelectorItem, SelectorWithCustomItem } from '../../cell/Selector';
+import { BackAction } from '../../KeyboardNavigation';
+import {
+  Layout,
+  SettingsContainer,
+  SettingsContent,
+  SettingsGroup,
+  SettingsStack,
+} from '../../Layout';
+import { ModalMessage } from '../../Modal';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 
 const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
@@ -41,7 +47,7 @@ const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export default function WireguardSettings() {
+export function WireguardSettings() {
   const { pop } = useHistory();
 
   return (
