@@ -37,7 +37,7 @@ const StyledInfoButton = styled(InfoButton)({
 
 const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
 
-export function DaitaSettings() {
+export function DaitaSettingsView() {
   const { pop } = useHistory();
 
   return (
