@@ -192,10 +192,20 @@ jobs:
         with:
           go-version: 1.21.3
 
-      - name: Build Windows modules
-        if: steps.cache-windows-modules.outputs.cache-hit != 'true'
+      - name: Build Windows modules (x86_64)
+        if: ${{ (steps.cache-windows-modules.outputs.cache-hit != 'true') && (matrix.config.arch == 'x64') }}
         shell: bash
         run: ./build-windows-modules.sh
+
+      - name: Build Windows modules (ARM64)
+        if: ${{ (steps.cache-windows-modules.outputs.cache-hit != 'true') && (matrix.config.arch == 'arm64') }}
+        shell: bash
+        # By default, ./build-windows-modules.sh will use 4 concurrent processes during compilation
+        # because the Windows 11 ARM runner has 4 cores:
+        # https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
+        #
+        # Cap the number of concurrent processes to something less than 4 to avoid OOM issues.
+        run: ./build-windows-modules.sh --max-concurrent-processes 3
 
       - name: Build and test crates
         shell: bash
