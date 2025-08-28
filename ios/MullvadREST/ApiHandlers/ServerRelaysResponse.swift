@@ -108,26 +108,7 @@ extension REST {
             )
         }
 
-        // this is for the legacy DAITA flag, which will be deprecated in favour of a DAITA structure under Features
-        public func override(daita: Bool) -> Self {
-            ServerRelay(
-                hostname: hostname,
-                active: active,
-                owned: owned,
-                location: location,
-                provider: provider,
-                weight: weight,
-                ipv4AddrIn: ipv4AddrIn,
-                ipv6AddrIn: ipv6AddrIn,
-                publicKey: publicKey,
-                includeInCountry: includeInCountry,
-                daita: daita,
-                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn,
-                features: features
-            )
-        }
-
-        public func override(features: ServerRelay.Features) -> Self {
+        public func override(features: ServerRelay.Features?) -> Self {
             ServerRelay(
                 hostname: hostname,
                 active: active,
