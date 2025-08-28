@@ -1,17 +1,16 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
+import { useScrollToListItem } from '../../../hooks';
 import { Button, Flex } from '../../../lib/components';
-import { spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { useBoolean } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from '../../AriaGroup';
 import * as Cell from '../../cell';
 import InfoButton from '../../InfoButton';
 import { BackAction } from '../../KeyboardNavigation';
@@ -21,6 +20,7 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import PageSlider from '../../PageSlider';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
+import { ToggleListItem } from '../../toggle-list-item';
 
 const StyledHeaderSubTitle = styled(HeaderSubTitle)({
   display: 'inline-block',
@@ -29,10 +29,6 @@ const StyledHeaderSubTitle = styled(HeaderSubTitle)({
 const StyledIllustration = styled.img({
   width: '100%',
   padding: '8px 0 8px',
-});
-
-const StyledInfoButton = styled(InfoButton)({
-  marginRight: spacings.medium,
 });
 
 const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
@@ -157,6 +153,11 @@ function DaitaToggle() {
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const directOnly = useSelector((state) => state.settings.wireguard.daita?.directOnly ?? false);
 
+  const enableId = 'daita-enable-setting';
+  const ref = useRef<HTMLDivElement>(null);
+  const scrollToEnable = useScrollToListItem(ref, enableId);
+  const scrollToDirectOnly = useScrollToListItem();
+
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
 
   const unavailable =
@@ -187,39 +188,35 @@ function DaitaToggle() {
 
   const directOnlyString = messages.gettext('Direct only');
 
-  // Move to views folder
   return (
     <>
-      <AriaInputGroup>
-        <Cell.Container disabled={unavailable}>
-          <AriaLabel>
-            <Cell.InputLabel>{messages.gettext('Enable')}</Cell.InputLabel>
-          </AriaLabel>
-          <AriaInput>
-            <Cell.Switch isOn={daita && !unavailable} onChange={setDaita} />
-          </AriaInput>
-        </Cell.Container>
-      </AriaInputGroup>
-      <AriaInputGroup>
-        <Cell.Container disabled={!daita || unavailable}>
-          <AriaLabel>
-            <Cell.InputLabel>{directOnlyString}</Cell.InputLabel>
-          </AriaLabel>
-          <StyledInfoButton>
+      <ToggleListItem
+        ref={ref}
+        disabled={unavailable}
+        checked={daita && !unavailable}
+        onCheckedChange={setDaita}
+        animation={scrollToEnable?.animation}>
+        <ToggleListItem.Label>{messages.gettext('Enable')}</ToggleListItem.Label>
+        <ToggleListItem.Switch />
+      </ToggleListItem>
+      <ToggleListItem
+        disabled={!daita || unavailable}
+        checked={directOnly && !unavailable}
+        onCheckedChange={setDirectOnly}
+        animation={scrollToDirectOnly?.animation}>
+        <ToggleListItem.Label>{directOnlyString}</ToggleListItem.Label>
+        <ToggleListItem.Group>
+          <InfoButton>
             <DirectOnlyModalMessage />
-          </StyledInfoButton>
-          <AriaInput>
-            <Cell.Switch isOn={directOnly && !unavailable} onChange={setDirectOnly} />
-          </AriaInput>
-        </Cell.Container>
-        {unavailable ? (
-          <Cell.CellFooter>
-            <AriaDescription>
-              <Cell.CellFooterText>{featureUnavailableMessage()}</Cell.CellFooterText>
-            </AriaDescription>
-          </Cell.CellFooter>
-        ) : null}
-      </AriaInputGroup>
+          </InfoButton>
+          <ToggleListItem.Switch />
+        </ToggleListItem.Group>
+      </ToggleListItem>
+      {unavailable ? (
+        <Cell.CellFooter>
+          <Cell.CellFooterText>{featureUnavailableMessage()}</Cell.CellFooterText>
+        </Cell.CellFooter>
+      ) : null}
       <ModalAlert
         isOpen={confirmationDialogVisible}
         type={ModalAlertType.caution}
