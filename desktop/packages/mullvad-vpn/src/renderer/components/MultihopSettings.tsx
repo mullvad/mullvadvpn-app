@@ -16,7 +16,7 @@ import { Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { StyledIllustration } from './views/daita-settings/DaitaSettings';
+import { StyledIllustration } from './views/daita-settings/DaitaSettingsView';
 
 const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
 

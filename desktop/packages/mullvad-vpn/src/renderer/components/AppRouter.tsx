@@ -35,7 +35,7 @@ import {
   AppInfoView,
   AppUpgradeView,
   ChangelogView,
-  DaitaSettings,
+  DaitaSettingsView,
   LaunchView,
   LoginView,
   MainView,
@@ -72,7 +72,7 @@ export default function AppRouter() {
         <Route exact path={RoutePath.multihopSettings} component={MultihopSettings} />
         <Route exact path={RoutePath.vpnSettings} component={VpnSettingsView} />
         <Route exact path={RoutePath.wireguardSettings} component={WireguardSettings} />
-        <Route exact path={RoutePath.daitaSettings} component={DaitaSettings} />
+        <Route exact path={RoutePath.daitaSettings} component={DaitaSettingsView} />
         <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcp} />
         <Route exact path={RoutePath.shadowsocks} component={Shadowsocks} />
         <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettings} />
