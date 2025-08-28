@@ -17,7 +17,12 @@ export type SuppressOutdatedVersionOption = {
   type: 'suppress-outdated-version-warning';
 };
 
-export type LocationStateOptions = SuppressOutdatedVersionOption;
+export type ScrollToAnchorOption = {
+  type: 'scroll-to-anchor';
+  id: string;
+};
+
+export type LocationStateOptions = SuppressOutdatedVersionOption | ScrollToAnchorOption;
 
 export type IChangelog = Array<string>;
 
