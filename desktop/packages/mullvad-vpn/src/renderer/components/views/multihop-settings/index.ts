@@ -1,1 +1,1 @@
-export * from './MultihopSettings';
+export * from './MultihopSettingsView';
