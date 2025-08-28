@@ -300,7 +300,15 @@ if (getBooleanProperty("mullvad.app.build.cargo.cleanBuild")) {
     tasks["clean"].dependsOn("cargoClean")
 }
 
-baselineProfile { warnings { disabledVariants = false } }
+baselineProfile {
+    warnings { disabledVariants = false }
+    mergeIntoMain = false
+
+    filter {
+        exclude("kotlin.collections.builders.MapBuilder")
+        exclude("kotlin.collections.builders.MapBuilder\$EntriesItr")
+    }
+}
 
 androidComponents {
     beforeVariants { variantBuilder ->
