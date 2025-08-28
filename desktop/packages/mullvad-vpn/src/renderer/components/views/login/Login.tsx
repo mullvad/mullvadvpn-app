@@ -2,22 +2,31 @@ import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { Url } from '../../shared/constants';
-import { AccountDataError, AccountNumber } from '../../shared/daemon-rpc-types';
-import { messages } from '../../shared/gettext';
-import { useAppContext } from '../context';
-import { formatAccountNumber } from '../lib/account';
-import useActions from '../lib/actionsHook';
-import { Box, Button, Flex, Icon, Label, LabelTiny, Spinner, TitleMedium } from '../lib/components';
-import { colors } from '../lib/foundations';
-import { formatHtml } from '../lib/html-formatter';
-import { IconBadge } from '../lib/icon-badge';
-import accountActions from '../redux/account/actions';
-import { LoginState } from '../redux/account/reducers';
-import { useSelector } from '../redux/store';
-import Accordion from './Accordion';
-import { AppMainHeader } from './app-main-header';
-import { Container, Layout } from './Layout';
+import { Url } from '../../../../shared/constants';
+import { AccountDataError, AccountNumber } from '../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../shared/gettext';
+import { useAppContext } from '../../../context';
+import { formatAccountNumber } from '../../../lib/account';
+import useActions from '../../../lib/actionsHook';
+import {
+  Box,
+  Button,
+  Flex,
+  Icon,
+  Label,
+  LabelTiny,
+  Spinner,
+  TitleMedium,
+} from '../../../lib/components';
+import { colors } from '../../../lib/foundations';
+import { formatHtml } from '../../../lib/html-formatter';
+import { IconBadge } from '../../../lib/icon-badge';
+import accountActions from '../../../redux/account/actions';
+import { LoginState } from '../../../redux/account/reducers';
+import { useSelector } from '../../../redux/store';
+import Accordion from '../../Accordion';
+import { AppMainHeader } from '../../app-main-header';
+import { Container, Layout } from '../../Layout';
 import {
   StyledAccountDropdownContainer,
   StyledAccountDropdownItem,
