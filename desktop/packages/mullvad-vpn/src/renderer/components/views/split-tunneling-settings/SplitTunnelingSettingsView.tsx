@@ -51,7 +51,7 @@ import {
   StyledSpinnerRow,
 } from './SplitTunnelingSettingsStyles';
 
-export function SplitTunneling() {
+export function SplitTunnelingSettingsView() {
   const { pop } = useHistory();
   const [browsing, setBrowsing] = useState(false);
   const scrollbarsRef = useStyledRef<CustomScrollbarsRef>();
