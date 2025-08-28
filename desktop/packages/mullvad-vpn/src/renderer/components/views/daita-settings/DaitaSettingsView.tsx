@@ -26,7 +26,7 @@ const StyledHeaderSubTitle = styled(HeaderSubTitle)({
   display: 'inline-block',
 });
 
-export const StyledIllustration = styled.img({
+const StyledIllustration = styled.img({
   width: '100%',
   padding: '8px 0 8px',
 });
