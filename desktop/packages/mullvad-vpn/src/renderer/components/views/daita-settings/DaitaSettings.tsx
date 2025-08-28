@@ -2,25 +2,25 @@ import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../shared/constants';
-import { messages } from '../../shared/gettext';
-import { useAppContext } from '../context';
-import { Button, Flex } from '../lib/components';
-import { spacings } from '../lib/foundations';
-import { useHistory } from '../lib/history';
-import { useBoolean } from '../lib/utility-hooks';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
-import * as Cell from './cell';
-import InfoButton from './InfoButton';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
-import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import PageSlider from './PageSlider';
-import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+import { strings } from '../../../../shared/constants';
+import { messages } from '../../../../shared/gettext';
+import { useAppContext } from '../../../context';
+import { Button, Flex } from '../../../lib/components';
+import { spacings } from '../../../lib/foundations';
+import { useHistory } from '../../../lib/history';
+import { useBoolean } from '../../../lib/utility-hooks';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from '../../AriaGroup';
+import * as Cell from '../../cell';
+import InfoButton from '../../InfoButton';
+import { BackAction } from '../../KeyboardNavigation';
+import { Layout, SettingsContainer } from '../../Layout';
+import { ModalAlert, ModalAlertType, ModalMessage } from '../../Modal';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import PageSlider from '../../PageSlider';
+import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
 
 const StyledHeaderSubTitle = styled(HeaderSubTitle)({
   display: 'inline-block',
@@ -37,7 +37,7 @@ const StyledInfoButton = styled(InfoButton)({
 
 const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
 
-export default function DaitaSettings() {
+export function DaitaSettings() {
   const { pop } = useHistory();
 
   return (
@@ -187,6 +187,7 @@ function DaitaToggle() {
 
   const directOnlyString = messages.gettext('Direct only');
 
+  // Move to views folder
   return (
     <>
       <AriaInputGroup>
