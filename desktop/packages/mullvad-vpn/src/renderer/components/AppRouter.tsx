@@ -6,7 +6,6 @@ import SelectLocation from '../components/select-location/SelectLocationContaine
 import { useViewTransitions } from '../lib/transition-hooks';
 import Account from './Account';
 import ApiAccessMethods from './ApiAccessMethods';
-import DaitaSettings from './DaitaSettings';
 import Debug from './Debug';
 import { DeviceRevokedView } from './DeviceRevokedView';
 import { EditApiAccessMethod } from './EditApiAccessMethod';
@@ -36,6 +35,7 @@ import {
   AppInfoView,
   AppUpgradeView,
   ChangelogView,
+  DaitaSettings,
   LaunchView,
   LoginView,
   MainView,
