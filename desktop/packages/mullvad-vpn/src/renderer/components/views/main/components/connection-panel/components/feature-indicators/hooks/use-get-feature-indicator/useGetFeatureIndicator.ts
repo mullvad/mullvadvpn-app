@@ -13,6 +13,12 @@ export const useGetFeatureIndicator = () => {
   const gotoDaitaFeature = React.useCallback(() => {
     history.push(RoutePath.daitaSettings, {
       transition: TransitionType.show,
+      options: [
+        {
+          type: 'scroll-to-anchor',
+          id: 'daita-enable-setting',
+        },
+      ],
     });
   }, [history]);
 
