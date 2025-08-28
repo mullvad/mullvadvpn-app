@@ -41,8 +41,8 @@ import {
   SettingsView,
   SplitTunnelingView,
   VpnSettingsView,
+  WireguardSettings,
 } from './views';
-import WireguardSettings from './WireguardSettings';
 
 export default function AppRouter() {
   const focusRef = useRef<IFocusHandle>(null);
