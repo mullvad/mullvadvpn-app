@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
-import { colors, spacings } from '../lib/foundations';
-import * as Cell from './cell';
-import { measurements, normalText } from './common-styles';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import SearchBar from './SearchBar';
+import { colors, spacings } from '../../../lib/foundations';
+import * as Cell from '../../cell';
+import { measurements, normalText } from '../../common-styles';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import SearchBar from '../../SearchBar';
 
 export const StyledPageCover = styled.div<{ $show: boolean }>((props) => ({
   position: 'absolute',
