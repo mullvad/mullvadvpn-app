@@ -1,1 +1,1 @@
-export * from './SplitTunnelingSettings';
+export * from './SplitTunnelingSettingsView';
