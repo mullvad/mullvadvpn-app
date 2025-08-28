@@ -1,1 +1,1 @@
-export * from './DaitaSettings';
+export * from './DaitaSettingsView';
