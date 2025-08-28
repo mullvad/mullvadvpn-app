@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 
 import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
@@ -16,9 +17,13 @@ import { Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { StyledIllustration } from './views/daita-settings/DaitaSettingsView';
 
 const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
+
+const StyledIllustration = styled.img({
+  width: '100%',
+  padding: '8px 0 8px',
+});
 
 export default function MultihopSettings() {
   const { pop } = useHistory();
