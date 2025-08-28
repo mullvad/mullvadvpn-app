@@ -27,6 +27,7 @@ import { useSelector } from '../../../redux/store';
 import Accordion from '../../Accordion';
 import { AppMainHeader } from '../../app-main-header';
 import { Container, Layout } from '../../Layout';
+import ClearAccountHistoryDialog from './ClearAccountHistoryDialog';
 import {
   StyledAccountDropdownContainer,
   StyledAccountDropdownItem,
@@ -96,6 +97,7 @@ interface IProps {
 
 interface IState {
   isActive: boolean;
+  clearAccountHistoryDialogVisible: boolean;
 }
 
 const MIN_ACCOUNT_NUMBER_LENGTH = 10;
@@ -103,6 +105,7 @@ const MIN_ACCOUNT_NUMBER_LENGTH = 10;
 class Login extends React.Component<IProps, IState> {
   public state: IState = {
     isActive: true,
+    clearAccountHistoryDialogVisible: false,
   };
 
   private accountInput = React.createRef<HTMLInputElement>();
@@ -299,7 +302,16 @@ class Login extends React.Component<IProps, IState> {
   };
 
   private onClearAccountHistory = () => {
+    this.setState({ clearAccountHistoryDialogVisible: true });
+  };
+
+  private onConfirmClearAccountHistory = () => {
+    this.hideClearAccountHistoryDialog();
     void this.clearAccountHistory();
+  };
+
+  private hideClearAccountHistoryDialog = () => {
+    this.setState({ clearAccountHistoryDialogVisible: false });
   };
 
   private async clearAccountHistory() {
@@ -321,59 +333,68 @@ class Login extends React.Component<IProps, IState> {
       this.props.loginState.method === 'existing_account';
 
     return (
-      <Flex $flexDirection="column" $gap="small">
-        <Label htmlFor={inputId} data-testid="subtitle">
-          {this.formSubtitle()}
-        </Label>
-        <StyledAccountInputGroup
-          $active={allowInteraction && this.state.isActive}
-          $editable={allowInteraction}
-          $error={hasError}
-          onSubmit={this.onSubmit}>
-          <StyledAccountInputBackdrop>
-            <StyledInput
-              id={inputId}
-              allowedCharacters="[0-9]"
-              separator=" "
-              groupLength={4}
-              placeholder="0000 0000 0000 0000"
-              value={this.props.accountNumber || ''}
-              disabled={!allowInteraction}
-              onFocus={this.onFocus}
-              onBlur={this.onBlur}
-              handleChange={this.onInputChange}
-              autoFocus={true}
-              ref={this.accountInput}
-              aria-autocomplete="list"
-            />
-            <StyledInputButton
-              type="submit"
-              $visible={allowLogin}
-              disabled={!allowLogin}
-              aria-label={
-                // TRANSLATORS: This is used by screenreaders to communicate the login button.
-                messages.pgettext('accessibility', 'Login')
-              }>
-              <StyledInputSubmitIcon
-                $visible={
-                  this.props.loginState.type !== 'logging in' && !this.props.isPerformingPostUpgrade
-                }
-                icon="chevron-right"
-                size="large"
+      <>
+        <Flex $flexDirection="column" $gap="small">
+          <Label htmlFor={inputId} data-testid="subtitle">
+            {this.formSubtitle()}
+          </Label>
+          <StyledAccountInputGroup
+            $active={allowInteraction && this.state.isActive}
+            $editable={allowInteraction}
+            $error={hasError}
+            onSubmit={this.onSubmit}>
+            <StyledAccountInputBackdrop>
+              <StyledInput
+                id={inputId}
+                allowedCharacters="[0-9]"
+                separator=" "
+                groupLength={4}
+                placeholder="0000 0000 0000 0000"
+                value={this.props.accountNumber || ''}
+                disabled={!allowInteraction}
+                onFocus={this.onFocus}
+                onBlur={this.onBlur}
+                handleChange={this.onInputChange}
+                autoFocus={true}
+                ref={this.accountInput}
+                aria-autocomplete="list"
               />
-            </StyledInputButton>
-          </StyledAccountInputBackdrop>
-          <Accordion expanded={this.shouldShowAccountHistory()}>
-            <StyledAccountDropdownContainer>
-              <AccountDropdown
-                item={this.props.accountHistory}
-                onSelect={this.onSelectAccountFromHistory}
-                onRemove={this.onClearAccountHistory}
-              />
-            </StyledAccountDropdownContainer>
-          </Accordion>
-        </StyledAccountInputGroup>
-      </Flex>
+              <StyledInputButton
+                type="submit"
+                $visible={allowLogin}
+                disabled={!allowLogin}
+                aria-label={
+                  // TRANSLATORS: This is used by screenreaders to communicate the login button.
+                  messages.pgettext('accessibility', 'Login')
+                }>
+                <StyledInputSubmitIcon
+                  $visible={
+                    this.props.loginState.type !== 'logging in' &&
+                    !this.props.isPerformingPostUpgrade
+                  }
+                  icon="chevron-right"
+                  size="large"
+                />
+              </StyledInputButton>
+            </StyledAccountInputBackdrop>
+            <Accordion expanded={this.shouldShowAccountHistory()}>
+              <StyledAccountDropdownContainer>
+                <AccountDropdown
+                  item={this.props.accountHistory}
+                  onSelect={this.onSelectAccountFromHistory}
+                  onRemove={this.onClearAccountHistory}
+                />
+              </StyledAccountDropdownContainer>
+            </Accordion>
+          </StyledAccountInputGroup>
+        </Flex>
+
+        <ClearAccountHistoryDialog
+          visible={this.state.clearAccountHistoryDialogVisible}
+          onConfirm={this.onConfirmClearAccountHistory}
+          onHide={this.hideClearAccountHistoryDialog}
+        />
+      </>
     );
   }
 
