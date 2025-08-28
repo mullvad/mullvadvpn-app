@@ -2,23 +2,18 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
+import { useScrollToListItem } from '../../../../../hooks';
 import { Button, IconButton } from '../../../../../lib/components';
+import { Accordion } from '../../../../../lib/components/accordion';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { IpAddress } from '../../../../../lib/ip';
 import { useBoolean, useMounted, useStyledRef } from '../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../redux/store';
-import Accordion from '../../../../Accordion';
-import {
-  AriaDescribed,
-  AriaDescription,
-  AriaDescriptionGroup,
-  AriaInput,
-  AriaInputGroup,
-  AriaLabel,
-} from '../../../../AriaGroup';
+import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from '../../../../AriaGroup';
 import * as Cell from '../../../../cell';
 import List, { stringValueAsKey } from '../../../../List';
 import { ModalAlert, ModalAlertType } from '../../../../Modal';
+import { ToggleListItem } from '../../../../toggle-list-item';
 import {
   AddServerContainer,
   StyledAddCustomDnsLabel,
@@ -41,6 +36,10 @@ export function CustomDnsSettings() {
   const [savingEdit, setSavingEdit] = useState(false);
   const willShowConfirmationDialog = useRef(false);
 
+  const id = 'custom-dns-settings';
+  const ref = useRef<HTMLDivElement>(null);
+  const scrollToAnchor = useScrollToListItem(ref, id);
+
   const featureAvailable = useMemo(
     () =>
       dns.state === 'custom' ||
@@ -53,7 +52,7 @@ export function CustomDnsSettings() {
     [dns],
   );
 
-  const switchRef = useStyledRef<HTMLDivElement>();
+  const switchRef = useStyledRef<HTMLButtonElement>();
   const addButtonRef = useStyledRef<HTMLButtonElement>();
   const inputContainerRef = useStyledRef<HTMLDivElement>();
 
@@ -192,68 +191,65 @@ export function CustomDnsSettings() {
 
   return (
     <>
-      <Cell.Container disabled={!featureAvailable}>
-        <AriaInputGroup>
-          <AriaLabel>
-            <Cell.InputLabel>
-              {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
-            </Cell.InputLabel>
-          </AriaLabel>
-          <AriaInput>
-            <Cell.Switch
-              innerRef={switchRef}
-              isOn={dns.state === 'custom' || inputVisible}
-              onChange={setCustomDnsEnabled}
-            />
-          </AriaInput>
-        </AriaInputGroup>
-      </Cell.Container>
-      <Accordion expanded={listExpanded}>
-        <Cell.Section role="listbox">
-          <List
-            items={dns.customOptions.addresses}
-            getKey={stringValueAsKey}
-            skipAddTransition={true}
-            skipRemoveTransition={savingEdit}>
-            {(item) => (
-              <CellListItem
-                onRemove={onRemove}
-                onChange={onEdit}
-                willShowConfirmationDialog={willShowConfirmationDialog}>
-                {item}
-              </CellListItem>
-            )}
-          </List>
-        </Cell.Section>
+      <ToggleListItem
+        ref={ref}
+        checked={dns.state === 'custom' || inputVisible}
+        onCheckedChange={setCustomDnsEnabled}
+        animation={scrollToAnchor?.animation}
+        disabled={!featureAvailable}>
+        <ToggleListItem.Label>
+          {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
+        </ToggleListItem.Label>
+        <ToggleListItem.Switch ref={switchRef} />
+      </ToggleListItem>
+      <Accordion expanded={listExpanded} disabled={!featureAvailable}>
+        <Accordion.Content>
+          <Cell.Section role="listbox">
+            <List
+              items={dns.customOptions.addresses}
+              getKey={stringValueAsKey}
+              skipAddTransition={true}
+              skipRemoveTransition={savingEdit}>
+              {(item) => (
+                <CellListItem
+                  onRemove={onRemove}
+                  onChange={onEdit}
+                  willShowConfirmationDialog={willShowConfirmationDialog}>
+                  {item}
+                </CellListItem>
+              )}
+            </List>
+          </Cell.Section>
 
-        {inputVisible && (
-          <div ref={inputContainerRef}>
-            <Cell.RowInput
-              placeholder={messages.pgettext('vpn-settings-view', 'Enter IP')}
-              onSubmit={onAdd}
-              onChange={setValid}
-              invalid={invalid}
-              paddingLeft={32}
-              onBlur={onInputBlur}
-              autofocus
-            />
-          </div>
-        )}
+          {inputVisible && (
+            <div ref={inputContainerRef}>
+              <Cell.RowInput
+                placeholder={messages.pgettext('vpn-settings-view', 'Enter IP')}
+                onSubmit={onAdd}
+                onChange={setValid}
+                invalid={invalid}
+                paddingLeft={32}
+                onBlur={onInputBlur}
+                autofocus
+              />
+            </div>
+          )}
 
-        <AddServerContainer>
-          <StyledButton
-            ref={addButtonRef}
-            onClick={showInput}
-            disabled={inputVisible}
-            tabIndex={-1}>
-            <StyledAddCustomDnsLabel tabIndex={-1}>
-              {messages.pgettext('vpn-settings-view', 'Add a server')}
-            </StyledAddCustomDnsLabel>
-          </StyledButton>
-          <IconButton variant="secondary" onClick={showInput}>
-            <IconButton.Icon icon="add-circle" />
-          </IconButton>
-        </AddServerContainer>
+          <AddServerContainer>
+            <StyledButton
+              ref={addButtonRef}
+              onClick={showInput}
+              disabled={inputVisible}
+              tabIndex={-1}>
+              <StyledAddCustomDnsLabel tabIndex={-1}>
+                {messages.pgettext('vpn-settings-view', 'Add a server')}
+              </StyledAddCustomDnsLabel>
+            </StyledButton>
+            <IconButton variant="secondary" onClick={showInput}>
+              <IconButton.Icon icon="add-circle" />
+            </IconButton>
+          </AddServerContainer>
+        </Accordion.Content>
       </Accordion>
 
       <StyledCustomDnsFooter>
