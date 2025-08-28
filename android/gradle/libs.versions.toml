@@ -16,7 +16,7 @@ ndk = "27.3.13750724"
 # Find the relevant AAPT version here:
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
 
-android-gradle-plugin = "8.12.0"
+android-gradle-plugin = "8.12.1"
 android-gradle-aapt = "13700139"
 android-billingclient = "8.0.0"
 
@@ -28,7 +28,7 @@ androidx-credentials = "1.5.0"
 androidx-coresplashscreen = "1.2.0-rc01"
 androidx-datastore = "1.1.7"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.9.2"
+androidx-lifecycle = "2.9.3"
 androidx-test = "1.7.0"
 androidx-testmonitor = "1.8.0"
 androidx-testorchestrator = "1.6.1"
@@ -48,7 +48,7 @@ compose-material-icons-extended = "1.7.8"
 drawablepainter = "0.37.3"
 
 # Update suppression for 'InvalidPackage' in config/lint.xml
-grpc = "1.74.0"
+grpc = "1.75.0"
 # Skipping 1.4.3, possibly a faulty release with no changelog.
 # https://github.com/grpc/grpc-kotlin/issues/644
 grpc-kotlin = "1.4.1"
@@ -68,20 +68,20 @@ ktor = "3.2.3"
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
-kotlin = "2.2.0"
-kotlin-ksp = "2.2.0-2.0.2"
+kotlin = "2.2.10"
+kotlin-ksp = "2.2.10-2.0.2"
 kotlinx = "1.10.2"
 kotlinx-serialization-json = "1.9.0"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.5"
-protobuf = "4.31.1"
+protobuf = "4.32.0"
 
 # Misc
 commonsvalidator = "1.10.0"
 dependency-versions = "0.52.0"
 detekt = "1.23.8"
-kermit = "2.0.6"
+kermit = "2.0.8"
 konsist = "0.17.3"
 ktfmt = "0.23.0"
 leakcanary = "2.14"
