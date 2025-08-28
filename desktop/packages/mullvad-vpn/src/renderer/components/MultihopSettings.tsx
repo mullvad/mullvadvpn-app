@@ -11,12 +11,12 @@ import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
-import { StyledIllustration } from './DaitaSettings';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+import { StyledIllustration } from './views/daita-settings/DaitaSettings';
 
 const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
 
