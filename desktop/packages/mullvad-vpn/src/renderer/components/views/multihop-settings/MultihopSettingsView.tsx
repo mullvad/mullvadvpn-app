@@ -25,7 +25,7 @@ const StyledIllustration = styled.img({
   padding: '8px 0 8px',
 });
 
-export function MultihopSettings() {
+export function MultihopSettingsView() {
   const { pop } = useHistory();
 
   return (
