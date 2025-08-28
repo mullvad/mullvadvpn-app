@@ -1,5 +1,6 @@
 export * from './app-info';
 export * from './app-upgrade';
+export * from './daita-settings';
 export * from './launch';
 export * from './main';
 export * from './changelog';
