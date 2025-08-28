@@ -1,10 +1,8 @@
-use std::hint::black_box;
-
 use bytes::Bytes;
-use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
+use criterion::{BatchSize, BenchmarkId, Criterion, criterion_group, criterion_main};
 use mullvad_masque_proxy::{
     FRAGMENT_HEADER_SIZE_FRAGMENTED,
-    fragment::{DefragReceived, FRAGMENT_BUFFER_CAP, Fragments, fragment_packet},
+    fragment::{FRAGMENT_BUFFER_CAP, Fragments, fragment_packet},
 };
 use rand::{seq::SliceRandom, thread_rng};
 use talpid_tunnel::IPV4_HEADER_SIZE;
@@ -45,20 +43,16 @@ fn fragmentation_reconstruction(c: &mut Criterion) {
                 format!("{n_packets}pkts_{payload_len}B_{n_fragments}frags"),
             ),
             &fragment_buf,
-            |b, f| {
-                b.iter(|| {
-                    let mut fragments = Fragments::default();
-
-                    assert_eq!(
-                        f.iter()
-                            .map(|f| fragments
-                                .handle_incoming_packet(black_box(f.clone()))
-                                .unwrap())
-                            .filter(|res| matches!(res, DefragReceived::Reassembled(_)))
-                            .count(),
-                        n_packets as usize
-                    );
-                })
+            |b, fragment_buf| {
+                b.iter_batched(
+                    || (fragment_buf.clone(), Fragments::default()),
+                    |(f, mut fragments)| {
+                        for frag in f {
+                            fragments.handle_incoming_packet(frag).unwrap();
+                        }
+                    },
+                    BatchSize::SmallInput,
+                )
             },
         );
     }
