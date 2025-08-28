@@ -28,6 +28,7 @@ import Accordion from '../../Accordion';
 import { AppMainHeader } from '../../app-main-header';
 import { Container, Layout } from '../../Layout';
 import ClearAccountHistoryDialog from './ClearAccountHistoryDialog';
+import CreateAccountDialog from './CreateAccountDialog';
 import {
   StyledAccountDropdownContainer,
   StyledAccountDropdownItem,
@@ -98,6 +99,7 @@ interface IProps {
 interface IState {
   isActive: boolean;
   clearAccountHistoryDialogVisible: boolean;
+  createAccountDialogVisible: boolean;
 }
 
 const MIN_ACCOUNT_NUMBER_LENGTH = 10;
@@ -106,6 +108,7 @@ class Login extends React.Component<IProps, IState> {
   public state: IState = {
     isActive: true,
     clearAccountHistoryDialogVisible: false,
+    createAccountDialogVisible: false,
   };
 
   private accountInput = React.createRef<HTMLInputElement>();
@@ -324,6 +327,23 @@ class Login extends React.Component<IProps, IState> {
     }
   }
 
+  private onCreateNewAccount = () => {
+    if (this.props.accountHistory !== undefined) {
+      this.setState({ createAccountDialogVisible: true });
+    } else {
+      this.onConfirmCreateNewAccount();
+    }
+  };
+
+  private onConfirmCreateNewAccount = () => {
+    this.props.createNewAccount();
+    this.hideCreateAccountDialog();
+  };
+
+  private hideCreateAccountDialog = () => {
+    this.setState({ createAccountDialogVisible: false });
+  };
+
   private createLoginForm() {
     const inputId = 'account-number-input';
     const allowInteraction = this.allowInteraction();
@@ -400,14 +420,21 @@ class Login extends React.Component<IProps, IState> {
 
   private createFooter() {
     return (
-      <Flex $flexDirection="column" $gap="small">
-        <LabelTiny color="whiteAlpha60">
-          {messages.pgettext('login-view', 'Don’t have an account number?')}
-        </LabelTiny>
-        <Button onClick={this.props.createNewAccount} disabled={!this.allowCreateAccount()}>
-          <Button.Text>{messages.pgettext('login-view', 'Create account')}</Button.Text>
-        </Button>
-      </Flex>
+      <>
+        <Flex $flexDirection="column" $gap="small">
+          <LabelTiny color="whiteAlpha60">
+            {messages.pgettext('login-view', 'Don’t have an account number?')}
+          </LabelTiny>
+          <Button onClick={this.onCreateNewAccount} disabled={!this.allowCreateAccount()}>
+            <Button.Text>{messages.pgettext('login-view', 'Create account')}</Button.Text>
+          </Button>
+        </Flex>
+        <CreateAccountDialog
+          visible={this.state.createAccountDialogVisible}
+          onConfirm={this.onConfirmCreateNewAccount}
+          onHide={this.hideCreateAccountDialog}
+        />
+      </>
     );
   }
 }
