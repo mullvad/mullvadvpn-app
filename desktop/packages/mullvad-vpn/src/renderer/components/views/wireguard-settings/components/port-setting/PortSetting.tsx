@@ -23,7 +23,7 @@ const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export function PortSelector() {
+export function PortSetting() {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
