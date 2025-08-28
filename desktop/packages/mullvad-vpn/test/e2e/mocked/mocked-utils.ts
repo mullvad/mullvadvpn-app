@@ -13,6 +13,7 @@ interface StartMockedAppResponse extends Awaited<ReturnType<typeof startApp>> {
 export interface MockedTestUtils extends TestUtils {
   mockIpcHandle: MockIpcHandle;
   sendMockIpcResponse: SendMockIpcResponse;
+  expectIpcCall: ExpectIpcCall;
 }
 
 export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
@@ -27,6 +28,7 @@ export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
   const startAppResult = await startApp({ args });
   const mockIpcHandle = generateMockIpcHandle(startAppResult.app);
   const sendMockIpcResponse = generateSendMockIpcResponse(startAppResult.app);
+  const expectIpcCall = generateExpectIpcCall(startAppResult.app);
 
   return {
     ...startAppResult,
@@ -34,6 +36,7 @@ export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
       ...startAppResult.util,
       mockIpcHandle,
       sendMockIpcResponse,
+      expectIpcCall,
     },
   };
 };
@@ -80,6 +83,23 @@ export const generateSendMockIpcResponse = (electronApp: ElectronApplication) =>
           .send(channel, response);
       },
       { channel, response },
+    );
+  };
+};
+
+export type ExpectIpcCall = ReturnType<typeof generateExpectIpcCall>;
+
+export const generateExpectIpcCall = (electronApp: ElectronApplication) => {
+  return <T>(channel: string): Promise<T> => {
+    return electronApp.evaluate(
+      ({ ipcMain }, { channel }) => {
+        return new Promise<T>((resolve) => {
+          ipcMain.handleOnce(channel, (_event, arg) => {
+            resolve(arg);
+          });
+        });
+      },
+      { channel },
     );
   };
 };
