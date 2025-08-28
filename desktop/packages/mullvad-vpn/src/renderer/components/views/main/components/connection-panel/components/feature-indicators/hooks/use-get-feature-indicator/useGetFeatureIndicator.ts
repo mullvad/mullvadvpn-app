@@ -25,6 +25,12 @@ export const useGetFeatureIndicator = () => {
   const gotoMultihopFeature = React.useCallback(() => {
     history.push(RoutePath.multihopSettings, {
       transition: TransitionType.show,
+      options: [
+        {
+          type: 'scroll-to-anchor',
+          id: 'multihop-setting',
+        },
+      ],
     });
   }, [history]);
 
