@@ -1,22 +1,24 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
 import log from '../../../../shared/logging';
+import { useScrollToListItem } from '../../../hooks';
 import { Flex } from '../../../lib/components';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from '../../AriaGroup';
+import { AriaDescription } from '../../AriaGroup';
 import * as Cell from '../../cell';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
+import { ToggleListItem } from '../../toggle-list-item';
 
 const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
 
@@ -68,6 +70,10 @@ function MultihopSetting() {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
+  const id = 'multihop-setting';
+  const ref = useRef<HTMLDivElement>(null);
+  const scrollTo = useScrollToListItem(ref, id);
+
   const multihop = 'normal' in relaySettings ? relaySettings.normal.wireguard.useMultihop : false;
   const unavailable =
     'normal' in relaySettings ? relaySettings.normal.tunnelProtocol === 'openvpn' : true;
@@ -89,23 +95,22 @@ function MultihopSetting() {
 
   return (
     <>
-      <AriaInputGroup>
-        <Cell.Container disabled={unavailable}>
-          <AriaLabel>
-            <Cell.InputLabel>{messages.gettext('Enable')}</Cell.InputLabel>
-          </AriaLabel>
-          <AriaInput>
-            <Cell.Switch isOn={multihop && !unavailable} onChange={setMultihop} />
-          </AriaInput>
-        </Cell.Container>
-        {unavailable ? (
-          <Cell.CellFooter>
-            <AriaDescription>
-              <Cell.CellFooterText>{featureUnavailableMessage()}</Cell.CellFooterText>
-            </AriaDescription>
-          </Cell.CellFooter>
-        ) : null}
-      </AriaInputGroup>
+      <ToggleListItem
+        ref={ref}
+        animation={scrollTo?.animation}
+        disabled={unavailable}
+        checked={multihop && !unavailable}
+        onCheckedChange={setMultihop}>
+        <ToggleListItem.Label>{messages.gettext('Enable')}</ToggleListItem.Label>
+        <ToggleListItem.Switch />
+      </ToggleListItem>
+      {unavailable ? (
+        <Cell.CellFooter>
+          <AriaDescription>
+            <Cell.CellFooterText>{featureUnavailableMessage()}</Cell.CellFooterText>
+          </AriaDescription>
+        </Cell.CellFooter>
+      ) : null}
     </>
   );
 }
