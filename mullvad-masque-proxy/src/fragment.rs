@@ -34,6 +34,9 @@ pub enum DefragError {
 
     #[error("Payload is too small")]
     PayloadTooSmall,
+
+    #[error("Too few fragments in fragmented packet")]
+    TooFewFragments,
 }
 
 // When a packet is larger than u16::MAX, it can't be fragmented.
@@ -84,6 +87,10 @@ impl Fragments {
         let fragment_count = payload
             .try_get_u8()
             .map_err(|_| DefragError::PayloadTooSmall)?;
+        if fragment_count < 2 {
+            // Packets with only one fragment should be sent as non-fragmented packets.
+            return Err(DefragError::TooFewFragments);
+        }
         let fragment = Fragment { index, payload };
 
         // ensure that the fifo has capacity before pushing the new fragment id
@@ -203,9 +210,9 @@ mod test {
     fn test_fragment_reconstruction() {
         let mut fragments = Fragments::default();
 
-        'outer: for packet_id in 1..255u16 {
+        let max_payload_size = 50;
+        'outer: for packet_id in max_payload_size..255u16 {
             let payload = (0..packet_id as u8).collect::<Vec<u8>>();
-            let max_payload_size = 50;
 
             let mut payload_clone = Bytes::from(payload.clone());
             let mut fragment_buf = fragment_packet(max_payload_size, &mut payload_clone, packet_id)
