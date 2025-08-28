@@ -2,21 +2,21 @@ import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../shared/constants';
-import { messages } from '../../shared/gettext';
-import log from '../../shared/logging';
-import { Flex } from '../lib/components';
-import { useRelaySettingsUpdater } from '../lib/constraint-updater';
-import { useHistory } from '../lib/history';
-import { useSelector } from '../redux/store';
-import { AppNavigationHeader } from './';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
-import * as Cell from './cell';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
-import { NavigationContainer } from './NavigationContainer';
-import { NavigationScrollbars } from './NavigationScrollbars';
-import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+import { strings } from '../../../../shared/constants';
+import { messages } from '../../../../shared/gettext';
+import log from '../../../../shared/logging';
+import { Flex } from '../../../lib/components';
+import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
+import { useHistory } from '../../../lib/history';
+import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from '../../AriaGroup';
+import * as Cell from '../../cell';
+import { BackAction } from '../../KeyboardNavigation';
+import { Layout, SettingsContainer } from '../../Layout';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
+import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
 
 const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
 
@@ -25,7 +25,7 @@ const StyledIllustration = styled.img({
   padding: '8px 0 8px',
 });
 
-export default function MultihopSettings() {
+export function MultihopSettings() {
   const { pop } = useHistory();
 
   return (
