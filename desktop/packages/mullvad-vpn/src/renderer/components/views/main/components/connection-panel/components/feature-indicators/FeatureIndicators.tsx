@@ -2,14 +2,14 @@ import { useEffect, useRef } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../../../../../../../shared/constants';
-import { FeatureIndicator } from '../../../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../../../shared/gettext';
+import { FeatureIndicator, Text } from '../../../../../../../lib/components';
 import { colors } from '../../../../../../../lib/foundations';
 import { useStyledRef } from '../../../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../../../redux/store';
 import { tinyText } from '../../../../../../common-styles';
 import { ConnectionPanelAccordion } from '../../../../styles';
+import { useGetFeatureIndicator } from './hooks';
 
 const LINE_HEIGHT = 22;
 const GAP = 8;
@@ -38,39 +38,18 @@ const StyledFeatureIndicators = styled.div({
 const StyledFeatureIndicatorsWrapper = styled.div<{ $expanded: boolean }>((props) => ({
   display: 'flex',
   flexWrap: 'wrap',
+  alignItems: 'center',
   gap: `${GAP}px`,
-  maxHeight: props.$expanded ? 'fit-content' : '52px',
+  maxHeight: props.$expanded ? 'fit-content' : '56px',
   overflow: 'hidden',
 }));
 
-const StyledFeatureIndicatorLabel = styled.span(tinyText, (props) => ({
-  display: 'flex',
-  gap: '4px',
-  padding: '1px 7px',
-  justifyContent: 'center',
-  alignItems: 'center',
-  borderRadius: '4px',
-  background: colors.darkBlue,
-  color: colors.white,
-  fontWeight: 400,
-  whiteSpace: 'nowrap',
-  visibility: 'hidden',
-
-  // Style clickable feature indicators with a border and on-hover effect
-  boxSizing: 'border-box', // make border act as padding rather than margin
-  border: 'solid 1px',
-  borderColor: props.onClick ? colors.blue : colors.darkBlue,
-  transition: 'background ease-in-out 300ms',
-  '&&:hover': {
-    background: props.onClick ? colors.blue60 : undefined,
-  },
-}));
-
-const StyledBaseEllipsis = styled.span<{ $display: boolean }>(tinyText, (props) => ({
+const StyledBaseEllipsis = styled(Text)<{ $display: boolean }>((props) => ({
   position: 'absolute',
   top: `${LINE_HEIGHT + GAP}px`,
-  color: colors.white,
-  padding: '2px 8px 2px 16px',
+  padding: '4px 8px',
+  marginLeft: '8px',
+  border: '1px solid transparent',
   display: props.$display ? 'inline' : 'none',
 }));
 
@@ -103,6 +82,7 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
   const ellipsisRef = useStyledRef<HTMLSpanElement>();
   const ellipsisSpacerRef = useStyledRef<HTMLSpanElement>();
   const featureIndicatorsContainerRef = useStyledRef<HTMLDivElement>();
+  const featureMap = useGetFeatureIndicator();
 
   const featureIndicatorsVisible =
     tunnelState.state === 'connected' || tunnelState.state === 'connecting';
@@ -128,7 +108,7 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
       ) {
         // Get all feature indicator elements.
         const indicatorElements = Array.from(
-          featureIndicatorsContainerRef.current.getElementsByTagName('span'),
+          featureIndicatorsContainerRef.current.getElementsByTagName('button'),
         );
 
         let lastVisibleIndex = 0;
@@ -188,16 +168,21 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
             ref={featureIndicatorsContainerRef}
             $expanded={props.expanded}>
             {sortedIndicators.map((indicator) => {
+              const feature = featureMap[indicator];
               return (
-                <StyledFeatureIndicatorLabel
+                <FeatureIndicator
                   key={indicator.toString()}
-                  data-testid="feature-indicator">
-                  {getFeatureIndicatorLabel(indicator)}
-                </StyledFeatureIndicatorLabel>
+                  data-testid="feature-indicator"
+                  onClick={feature.onClick}>
+                  <FeatureIndicator.Text>{feature.label}</FeatureIndicator.Text>
+                </FeatureIndicator>
               );
             })}
           </StyledFeatureIndicatorsWrapper>
-          <StyledEllipsisSpacer $display={!props.expanded} ref={ellipsisSpacerRef}>
+          <StyledEllipsisSpacer
+            variant="labelTiny"
+            $display={!props.expanded}
+            ref={ellipsisSpacerRef}>
             {
               // Mock amount for the spacer ellipsis. This needs to be wider than the real
               // ellipsis will ever be.
@@ -205,6 +190,7 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
             }
           </StyledEllipsisSpacer>
           <StyledEllipsis
+            variant="labelTiny"
             onClick={props.expandIsland}
             $display={!props.expanded}
             ref={ellipsisRef}
@@ -235,54 +221,4 @@ function indicatorShouldBeVisible(
   // An indicator should be visible if it's on the first line or if it is on the second line and
   // doesn't overlap with the ellipsis.
   return lineIndex === 0 || (lineIndex === 1 && indicatorRect.right < ellipsisSpacerRect.left);
-}
-
-function getFeatureIndicatorLabel(indicator: FeatureIndicator) {
-  switch (indicator) {
-    case FeatureIndicator.daita:
-      return strings.daita;
-    case FeatureIndicator.daitaMultihop:
-      return sprintf(
-        // TRANSLATORS: This is used as a feature indicator to show that DAITA is enabled through
-        // TRANSLATORS: multihop.
-        // TRANSLATORS: Available placeholders:
-        // TRANSLATORS: %(DAITA)s - Is a non-translatable feature "DAITA"
-        messages.pgettext('connect-view', '%(DAITA)s: Multihop'),
-        {
-          DAITA: strings.daita,
-        },
-      );
-    case FeatureIndicator.udp2tcp:
-    case FeatureIndicator.shadowsocks:
-    case FeatureIndicator.quic:
-      return messages.pgettext('wireguard-settings-view', 'Obfuscation');
-    case FeatureIndicator.multihop:
-      // TRANSLATORS: This refers to the multihop setting in the VPN settings view. This is
-      // TRANSLATORS: displayed when the feature is on.
-      return messages.gettext('Multihop');
-    case FeatureIndicator.customDns:
-      // TRANSLATORS: This refers to the Custom DNS setting in the VPN settings view. This is
-      // TRANSLATORS: displayed when the feature is on.
-      return messages.gettext('Custom DNS');
-    case FeatureIndicator.customMtu:
-      return messages.pgettext('wireguard-settings-view', 'MTU');
-    case FeatureIndicator.bridgeMode:
-      return messages.pgettext('openvpn-settings-view', 'Bridge mode');
-    case FeatureIndicator.lanSharing:
-      return messages.pgettext('vpn-settings-view', 'Local network sharing');
-    case FeatureIndicator.customMssFix:
-      return messages.pgettext('openvpn-settings-view', 'Mssfix');
-    case FeatureIndicator.lockdownMode:
-      return messages.pgettext('vpn-settings-view', 'Lockdown mode');
-    case FeatureIndicator.splitTunneling:
-      return strings.splitTunneling;
-    case FeatureIndicator.serverIpOverride:
-      return messages.pgettext('settings-import', 'Server IP override');
-    case FeatureIndicator.quantumResistance:
-      // TRANSLATORS: This refers to the quantum resistance setting in the WireGuard settings view.
-      // TRANSLATORS: This is displayed when the feature is on.
-      return messages.gettext('Quantum resistance');
-    case FeatureIndicator.dnsContentBlockers:
-      return messages.pgettext('vpn-settings-view', 'DNS content blockers');
-  }
 }
