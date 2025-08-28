@@ -13,8 +13,8 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
     alias(libs.plugins.protobuf.core)
-    alias(libs.plugins.rust.android.gradle)
     alias(libs.plugins.junit5.android)
+    id("me.sigptr.rust-android")
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -264,15 +264,18 @@ cargo {
     prebuiltToolchains = true
     targetDirectory = "$repoRootPath/target"
     features {
-        val enabledFeatures = buildList {
-            if (enableApiOverride) {
-                add("api-override")
-            }
-            if (enableBoringTun) {
-                add("boringtun")
-            }
-        }
-        defaultAnd(enabledFeatures.toTypedArray())
+        val enabledFeatures =
+            buildList {
+                    if (enableApiOverride) {
+                        add("api-override")
+                    }
+                    if (enableBoringTun) {
+                        add("boringtun")
+                    }
+                }
+                .toTypedArray()
+
+        @Suppress("SpreadOperator") defaultAnd(*enabledFeatures)
     }
     targetIncludes = arrayOf("libmullvad_jni.so")
     extraCargoBuildArguments = buildList {
@@ -280,26 +283,10 @@ cargo {
         add("--locked")
     }
     exec = { spec, _ ->
-        // Due to a limitation/bug in rust-android-gradle the profile given to cargo is either
-        // empty (in the default debug case) or specified as `--{profile}` (in the release case).
-        // However, this breaks when custom profiles are used so we need to fix the broken arg here
-        // to use the correct `--profile={CUSTOM_PROFILE}` syntax.
-        spec.commandLine =
-            spec.commandLine.map {
-                if (it == "--release-debuginfo") "--profile=release-debuginfo" else it
-            }
-
         println("Executing Cargo: ${spec.commandLine.joinToString(" ")}")
 
         if (getBooleanProperty("mullvad.app.build.replaceRustPathPrefix"))
             spec.environment("RUSTFLAGS", generateRemapArguments())
-
-        // Support 16KB page sizes
-        // https://developer.android.com/guide/practices/page-sizes#other-build-systems
-        spec.environment(
-            "RUST_ANDROID_GRADLE_CC_LINK_ARG",
-            "-Wl,-z,max-page-size=16384,-soname,lib${libname}.so",
-        )
     }
 }
 

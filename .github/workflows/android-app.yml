@@ -70,6 +70,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
@@ -151,7 +153,7 @@ jobs:
 
       - name: Build native libraries
         if: steps.cache-native-libs.outputs.cache-hit != 'true'
-        uses: burrunan/gradle-cache-action@v1
+        uses: burrunan/gradle-cache-action@v3
         with:
           job-id: jdk17
           arguments: cargoBuild${{ matrix.task-variant }}
@@ -203,7 +205,7 @@ jobs:
           submodules: true
 
       - name: Run gradle task
-        uses: burrunan/gradle-cache-action@v1
+        uses: burrunan/gradle-cache-action@v3
         with:
           job-id: jdk17
           arguments: ${{ matrix.gradle-task }}
@@ -238,7 +240,7 @@ jobs:
           echo "$KEYSTORE" | tr -d '\n\r' | base64 -d > /root/.android/debug.keystore
 
       - name: Compile app
-        uses: burrunan/gradle-cache-action@v1
+        uses: burrunan/gradle-cache-action@v3
         with:
           job-id: jdk17
           arguments: |
@@ -271,7 +273,7 @@ jobs:
           merge-multiple: true
 
       - name: Build app
-        uses: burrunan/gradle-cache-action@v1
+        uses: burrunan/gradle-cache-action@v3
         with:
           job-id: jdk17
           arguments: |
@@ -285,7 +287,7 @@ jobs:
           read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Build stagemole app
-        uses: burrunan/gradle-cache-action@v1
+        uses: burrunan/gradle-cache-action@v3
         if: >
           (needs.prepare.outputs.E2E_TEST_REPEAT != '0' &&
           needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole') ||
@@ -346,7 +348,7 @@ jobs:
           echo "$KEYSTORE" | tr -d '\n\r' | base64 -d > /root/.android/debug.keystore
 
       - name: Assemble instrumented test apk
-        uses: burrunan/gradle-cache-action@v1
+        uses: burrunan/gradle-cache-action@v3
         with:
           job-id: jdk17
           arguments: |
@@ -396,6 +398,8 @@ jobs:
       - name: Checkout repository
         if: ${{ matrix.test-repeat != 0 }}
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - uses: actions/download-artifact@v4
         if: ${{ matrix.test-repeat != 0 }}
@@ -461,6 +465,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - uses: actions/download-artifact@v4
         with:
@@ -533,6 +539,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - uses: actions/download-artifact@v4
         with:

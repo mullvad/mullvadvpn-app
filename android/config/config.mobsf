@@ -23,3 +23,7 @@
 
   # We've currently decided to support Android 8.
   - android_manifest_insecure_minsdk
+
+  # MobSFScan incorrectly reports that the targetSdk is less than 29 when it is not.
+  ignore-paths:
+  - "android/rust-android-gradle-plugin/sample/"

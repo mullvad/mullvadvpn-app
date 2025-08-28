@@ -36,6 +36,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
@@ -62,6 +64,8 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       # Needed to run git diff later
       - name: Fix git dir
@@ -86,6 +90,8 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Verify lockfile keys metadata
         run: android/scripts/lockfile -v

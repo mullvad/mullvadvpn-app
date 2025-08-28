@@ -13,7 +13,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.protobuf.core) apply false
-    alias(libs.plugins.rust.android.gradle) apply false
+    id("me.sigptr.rust-android") apply false
 
     alias(libs.plugins.detekt) apply true
     alias(libs.plugins.dependency.versions) apply true
@@ -66,17 +66,14 @@ buildscript {
         classpath("$prebuilt:linux-x86_64@tar.gz")
         classpath("$prebuilt:macos-aarch64@tar.gz")
         classpath("$prebuilt:macos-x86_64@tar.gz")
-
-        classpath("org.mozilla.rust-android-gradle:plugin:${libs.versions.rust.android.gradle}")
     }
 }
 
-val configFile = files("$rootDir/config/detekt.yml")
-
-val projectSource = file(projectDir)
-val detektExcludedPaths = listOf("**/build/**", "**/mullvad_daemon/management_interface/**")
-
 detekt {
+    val baselineFile = file("$rootDir/config/detekt-baseline.xml")
+    val configFile = files("$rootDir/config/detekt.yml")
+    val projectSource = file(projectDir)
+
     buildUponDefaultConfig = true
     allRules = false
     config.setFrom(configFile)
@@ -84,11 +81,14 @@ detekt {
     parallel = true
     ignoreFailures = false
     autoCorrect = true
+    baseline = baselineFile
 
     dependencies {
         detektPlugins(project(":test:detekt"))
     }
 }
+
+val detektExcludedPaths = listOf("**/build/**", "**/mullvad_daemon/management_interface/**")
 
 tasks.withType<Detekt>().configureEach {
     dependsOn(":test:detekt:assemble")
