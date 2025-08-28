@@ -3,13 +3,14 @@ import { useCallback } from 'react';
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
 import { useAppContext } from '../../../../../context';
+import { useScrollToListItem } from '../../../../../hooks';
 import { useSelector } from '../../../../../redux/store';
-import { AriaInput, AriaInputGroup, AriaLabel } from '../../../../AriaGroup';
-import * as Cell from '../../../../cell';
+import { ToggleListItem } from '../../../../toggle-list-item';
 
 export function AutoStartSetting() {
   const autoStart = useSelector((state) => state.settings.autoStart);
   const { setAutoStart: setAutoStartImpl } = useAppContext();
+  const scrollToAnchor = useScrollToListItem();
 
   const setAutoStart = useCallback(
     async (autoStart: boolean) => {
@@ -24,17 +25,14 @@ export function AutoStartSetting() {
   );
 
   return (
-    <AriaInputGroup>
-      <Cell.Container>
-        <AriaLabel>
-          <Cell.InputLabel>
-            {messages.pgettext('vpn-settings-view', 'Launch app on start-up')}
-          </Cell.InputLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch isOn={autoStart} onChange={setAutoStart} />
-        </AriaInput>
-      </Cell.Container>
-    </AriaInputGroup>
+    <ToggleListItem
+      animation={scrollToAnchor?.animation}
+      checked={autoStart}
+      onCheckedChange={setAutoStart}>
+      <ToggleListItem.Label>
+        {messages.pgettext('vpn-settings-view', 'Launch app on start-up')}
+      </ToggleListItem.Label>
+      <ToggleListItem.Switch />
+    </ToggleListItem>
   );
 }
