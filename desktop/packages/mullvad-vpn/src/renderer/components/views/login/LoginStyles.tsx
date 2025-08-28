@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
-import { Icon } from '../lib/components';
-import { colors, spacings } from '../lib/foundations';
-import { hugeText, largeText, measurements, smallText, tinyText } from './common-styles';
-import FormattableTextInput from './FormattableTextInput';
-import { Footer } from './Layout';
+import { Icon } from '../../../lib/components';
+import { colors, spacings } from '../../../lib/foundations';
+import { hugeText, largeText, measurements, smallText, tinyText } from '../../common-styles';
+import FormattableTextInput from '../../FormattableTextInput';
+import { Footer } from '../../Layout';
 
 export const StyledAccountDropdownContainer = styled.ul({
   display: 'flex',
