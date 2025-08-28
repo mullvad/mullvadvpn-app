@@ -19,7 +19,7 @@ import {
   IpVersionSetting,
   MtuSetting,
   ObfuscationSettings,
-  PortSelector,
+  PortSetting,
   QuantumResistantSetting,
 } from './components';
 
@@ -55,7 +55,7 @@ export function WireguardSettingsView() {
               <SettingsContent>
                 <SettingsStack>
                   <SettingsGroup>
-                    <PortSelector />
+                    <PortSetting />
                   </SettingsGroup>
 
                   <SettingsGroup>
