@@ -456,9 +456,41 @@ impl LocalResolver {
 
             log::debug!("Created loopback address {addr}");
 
+            let detect_removed_alias_task = tokio::spawn(async move {
+                // Periodically check that the alias still exists, and recreate it if it doesn't
+                // This fixes the issue that macOS sometimes removes the alias
+                // TODO: This could be done by listening to events on a PF_ROUTE socket
+                loop {
+                    tokio::time::sleep(Duration::from_secs(10)).await;
+
+                    let found_loopback_addr = match is_valid_address(LOOPBACK, addr.into()) {
+                        Ok(found_loopback_addr) => found_loopback_addr,
+                        Err(err) => {
+                            log::warn!("Failed to check if loopback address {addr} exists: {err}");
+                            continue;
+                        }
+                    };
+
+                    if !found_loopback_addr {
+                        log::debug!("Missing loopback address alias {addr}. Recreating");
+
+                        talpid_macos::net::add_alias(LOOPBACK, IpAddr::from(addr))
+                            .await
+                            .inspect_err(|e| {
+                                log::warn!("Failed to add loopback {LOOPBACK} alias {addr}: {e}");
+                            })
+                            .ok();
+                    } else {
+                        log::trace!("Loopback address {addr} exists");
+                    }
+                }
+            });
+
             // Clean up ip address when stopping the resolver
             let cleanup_ifconfig = on_drop(move || {
                 tokio::task::spawn(async move {
+                    detect_removed_alias_task.abort();
+
                     log::debug!("Cleaning up loopback address {addr}");
                     if let Err(e) =
                         talpid_macos::net::remove_alias(LOOPBACK, IpAddr::from(addr)).await
@@ -614,6 +646,39 @@ fn kill_mdnsresponder() -> io::Result<()> {
         )?;
     }
     Ok(())
+}
+
+/// Return whether the IP address is assigned for the given `interface`
+fn is_valid_address(interface: &'static str, addr_to_find: IpAddr) -> nix::Result<bool> {
+    let mut found_addr = false;
+
+    let interface_addrs = nix::ifaddrs::getifaddrs()?;
+
+    for interface_addr in interface_addrs {
+        let Some(address) = interface_addr.address else {
+            continue;
+        };
+        if interface_addr.interface_name != interface {
+            continue;
+        }
+        let ip: Option<IpAddr> = address
+            .as_sockaddr_in()
+            .map(|addr| IpAddr::from(addr.ip()))
+            .or_else(|| {
+                address
+                    .as_sockaddr_in6()
+                    .map(|addr| IpAddr::from(addr.ip()))
+            });
+        let Some(ip) = ip else {
+            continue;
+        };
+
+        if ip == addr_to_find {
+            found_addr = true;
+            break;
+        }
+    }
+    Ok(found_addr)
 }
 
 type LookupResponse<'a> = MessageResponse<
