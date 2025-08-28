@@ -1457,6 +1457,7 @@ fn map_daemon_error(error: crate::Error) -> Status {
             Status::unauthenticated(error.to_string())
         }
         DaemonError::VersionCheckError(error) => map_version_check_error(error),
+        DaemonError::AccessMethodError(error) => map_access_method_error(error),
         error => Status::unknown(error.to_string()),
     }
 }
@@ -1523,6 +1524,18 @@ fn map_account_history_error(error: account_history::Error) -> Status {
         account_history::Error::Serialize(..) | account_history::Error::WriteCancelled(..) => {
             Status::new(Code::Internal, error.to_string())
         }
+    }
+}
+
+/// Converts an instance of [`crate::access_method::Error`] into a tonic status
+fn map_access_method_error(error: crate::access_method::Error) -> Status {
+    match error {
+        crate::access_method::Error::AccessMethod(error)
+            if error == mullvad_types::access_method::Error::DuplicateName =>
+        {
+            Status::new(Code::AlreadyExists, error.to_string())
+        }
+        _ => Status::unknown(error.to_string()),
     }
 }
 

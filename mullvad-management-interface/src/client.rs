@@ -510,7 +510,10 @@ impl MullvadProxyClient {
             enabled,
             access_method: Some(types::AccessMethod::from(access_method)),
         };
-        self.0.add_api_access_method(request).await?;
+        self.0
+            .add_api_access_method(request)
+            .await
+            .map_err(map_api_access_method_error)?;
         Ok(())
     }
 
@@ -665,6 +668,20 @@ fn map_custom_list_error(status: Status) -> Error {
         Code::AlreadyExists => {
             if status.details() == crate::CUSTOM_LIST_LIST_EXISTS_DETAILS {
                 Error::CustomListExists
+            } else {
+                Error::Rpc(Box::new(status))
+            }
+        }
+        _other => Error::Rpc(Box::new(status)),
+    }
+}
+
+#[cfg(not(target_os = "android"))]
+fn map_api_access_method_error(status: Status) -> Error {
+    match status.code() {
+        Code::AlreadyExists => {
+            if status.details() == crate::API_ACCESS_METHOD_EXISTS_DETAILS {
+                Error::ApiAccessMethodExists
             } else {
                 Error::Rpc(Box::new(status))
             }

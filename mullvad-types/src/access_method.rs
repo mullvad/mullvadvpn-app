@@ -30,8 +30,10 @@ impl Settings {
     }
 
     /// Append an [`AccessMethod`] to the end of `api_access_methods`.
-    pub fn append(&mut self, api_access_method: AccessMethodSetting) {
-        self.custom.push(api_access_method)
+    pub fn append(&mut self, api_access_method: AccessMethodSetting) -> Result<(), Error> {
+        self.check_custom_access_method_name_is_unique(&api_access_method)?;
+        self.custom.push(api_access_method);
+        Ok(())
     }
 
     /// Remove an [`AccessMethod`] from `api_access_methods`.
@@ -92,6 +94,22 @@ impl Settings {
         if self.iter().all(|access_method| access_method.disabled()) {
             self.direct.enable();
         }
+    }
+
+    /// This function will return an error if a custom access method with
+    /// the same name already exists.
+    fn check_custom_access_method_name_is_unique(
+        &self,
+        new_api_access_method: &AccessMethodSetting,
+    ) -> Result<(), Error> {
+        if self
+            .custom
+            .iter()
+            .any(|api_access_method| api_access_method.name == new_api_access_method.name)
+        {
+            return Err(Error::DuplicateName);
+        }
+        Ok(())
     }
 
     /// Iterate over references of built-in & custom access methods.
@@ -162,8 +180,10 @@ impl Default for Settings {
     }
 }
 
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, Debug, PartialEq)]
 pub enum Error {
+    #[error("Access method with name already exists")]
+    DuplicateName,
     /// Built-in access methods can not be removed
     #[error("Cannot remove built-in access method {}", attempted)]
     RemoveBuiltin { attempted: BuiltInAccessMethod },

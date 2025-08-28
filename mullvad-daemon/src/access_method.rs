@@ -39,12 +39,13 @@ impl Daemon {
         name: String,
         enabled: bool,
         access_method: AccessMethod,
-    ) -> Result<access_method::Id, Error> {
+    ) -> Result<access_method::Id, crate::Error> {
         let access_method_setting = AccessMethodSetting::new(name, enabled, access_method);
         let id = access_method_setting.get_id();
         self.settings
-            .update(|settings| settings.api_access_methods.append(access_method_setting))
-            .await?;
+            .try_update(|settings| settings.api_access_methods.append(access_method_setting))
+            .await
+            .map_err(crate::Error::SettingsError)?;
         Ok(id)
     }
 
