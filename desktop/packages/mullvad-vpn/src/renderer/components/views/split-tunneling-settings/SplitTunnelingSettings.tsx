@@ -7,28 +7,36 @@ import {
   IApplication,
   ILinuxSplitTunnelingApplication,
   ISplitTunnelingApplication,
-} from '../../shared/application-types';
-import { strings } from '../../shared/constants';
-import { messages } from '../../shared/gettext';
-import { useAppContext } from '../context';
-import { Button, Container, Flex, FootnoteMini, IconButton, Spinner } from '../lib/components';
-import { FlexColumn } from '../lib/components/flex-column';
-import { Colors, colors } from '../lib/foundations';
-import { useHistory } from '../lib/history';
-import { formatHtml } from '../lib/html-formatter';
-import { useAfterTransition } from '../lib/transition-hooks';
-import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
-import { IReduxState } from '../redux/store';
-import { AppNavigationHeader } from './';
-import Accordion from './Accordion';
-import * as Cell from './cell';
-import { CustomScrollbarsRef } from './CustomScrollbars';
-import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
-import List from './List';
-import { ModalAlert, ModalAlertType } from './Modal';
-import { NavigationContainer } from './NavigationContainer';
-import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+} from '../../../../shared/application-types';
+import { strings } from '../../../../shared/constants';
+import { messages } from '../../../../shared/gettext';
+import { useAppContext } from '../../../context';
+import {
+  Button,
+  Container,
+  Flex,
+  FootnoteMini,
+  IconButton,
+  Spinner,
+} from '../../../lib/components';
+import { FlexColumn } from '../../../lib/components/flex-column';
+import { Colors, colors } from '../../../lib/foundations';
+import { useHistory } from '../../../lib/history';
+import { formatHtml } from '../../../lib/html-formatter';
+import { useAfterTransition } from '../../../lib/transition-hooks';
+import { useEffectEvent, useStyledRef } from '../../../lib/utility-hooks';
+import { IReduxState } from '../../../redux/store';
+import { AppNavigationHeader } from '../..';
+import Accordion from '../../Accordion';
+import * as Cell from '../../cell';
+import { CustomScrollbarsRef } from '../../CustomScrollbars';
+import { BackAction } from '../../KeyboardNavigation';
+import { Layout, SettingsContainer } from '../../Layout';
+import List from '../../List';
+import { ModalAlert, ModalAlertType } from '../../Modal';
+import { NavigationContainer } from '../../NavigationContainer';
+import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
+import Switch from '../../Switch';
 import {
   StyledCellButton,
   StyledCellLabel,
@@ -42,9 +50,8 @@ import {
   StyledSearchBar,
   StyledSpinnerRow,
 } from './SplitTunnelingSettingsStyles';
-import Switch from './Switch';
 
-export default function SplitTunneling() {
+export function SplitTunneling() {
   const { pop } = useHistory();
   const [browsing, setBrowsing] = useState(false);
   const scrollbarsRef = useStyledRef<CustomScrollbarsRef>();

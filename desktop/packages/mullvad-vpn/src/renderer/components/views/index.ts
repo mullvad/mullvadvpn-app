@@ -6,4 +6,5 @@ export * from './main';
 export * from './login';
 export * from './changelog';
 export * from './settings';
+export * from './split-tunneling-settings';
 export * from './vpn-settings';
