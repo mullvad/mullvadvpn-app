@@ -2,6 +2,12 @@
 
 set -eu
 
+function usage {
+    echo "usage: $0 [clean] [--max-concurrent-processes <n>]"
+    echo "  --max-concurrent-processes <n>  Limit concurrent processes that msbuild can spawn to <n>. Defaults to number of processor cores."
+    exit 1
+}
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
@@ -26,6 +32,7 @@ while [[ "$#" -gt 0 ]]; do
             MAX_CPUS="$2"
             shift
             ;;
+        help | --help) usage;;
         *)
             log_error "Unknown parameter: $1"
             exit 1
