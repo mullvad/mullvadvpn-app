@@ -20,7 +20,6 @@ import {
 import ExpiredAccountErrorView from './ExpiredAccountErrorView';
 import Filter from './Filter';
 import Focus, { IFocusHandle } from './Focus';
-import MultihopSettings from './MultihopSettings';
 import OpenVpnSettings from './OpenVpnSettings';
 import ProblemReport from './ProblemReport';
 import SelectLanguage from './SelectLanguage';
@@ -38,6 +37,7 @@ import {
   DaitaSettingsView,
   LaunchView,
   MainView,
+  MultihopSettings,
   SettingsView,
   SplitTunnelingSettingsView,
   VpnSettingsView,
