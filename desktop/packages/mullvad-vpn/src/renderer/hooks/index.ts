@@ -6,3 +6,5 @@ export * from './useHasAppUpgradeInitiated';
 export * from './useHasAppUpgradeVerifiedInstallerPath';
 export * from './useIsPlatformLinux';
 export * from './useMeasure';
+export * from './useScrollToAnchor';
+export * from './useScrollToListItem';
