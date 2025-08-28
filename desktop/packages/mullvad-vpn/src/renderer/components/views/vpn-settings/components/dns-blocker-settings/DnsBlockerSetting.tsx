@@ -1,11 +1,13 @@
+import { useRef } from 'react';
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
-import { spacings } from '../../../../../lib/foundations';
+import { useScrollToListItem } from '../../../../../hooks';
+import { Accordion } from '../../../../../lib/components/accordion';
+import { FlexRow } from '../../../../../lib/components/flex-row';
 import { formatHtml } from '../../../../../lib/html-formatter';
+import { useBoolean } from '../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../redux/store';
-import * as Cell from '../../../../cell';
 import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
 import {
@@ -15,61 +17,70 @@ import {
   BlockMalwareSetting,
   BlockSocialMediaSetting,
   BlockTrackersSetting,
+  CustomDnsEnabledFooter,
 } from './components';
-
-const StyledInfoButton = styled(InfoButton)({
-  marginRight: spacings.medium,
-});
-
-const StyledTitleLabel = styled(Cell.SectionTitle)({
-  flex: 1,
-});
 
 export function DnsBlockerSettings() {
   const dns = useSelector((state) => state.settings.dns);
   const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
-
-  const title = (
-    <>
-      <StyledTitleLabel as="label" disabled={dns.state === 'custom'}>
-        {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
-      </StyledTitleLabel>
-      <StyledInfoButton>
-        <ModalMessage>
-          {messages.pgettext(
-            'vpn-settings-view',
-            'When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.',
-          )}
-        </ModalMessage>
-        <ModalMessage>
-          {messages.pgettext(
-            'vpn-settings-view',
-            'This might cause issues on certain websites, services, and apps.',
-          )}
-        </ModalMessage>
-        <ModalMessage>
-          {formatHtml(
-            sprintf(
-              messages.pgettext(
-                'vpn-settings-view',
-                'Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>',
-              ),
-              { customDnsFeatureName },
-            ),
-          )}
-        </ModalMessage>
-      </StyledInfoButton>
-    </>
-  );
+  const [expanded, , , toggleExpanded] = useBoolean();
+  const id = 'dns-blocker-setting';
+  const ref = useRef<HTMLDivElement>(null);
+  const scrollToAnchor = useScrollToListItem(ref, id);
 
   return (
-    <Cell.ExpandableSection sectionTitle={title} expandableId="dns-blockers">
-      <BlockAdsSetting />
-      <BlockTrackersSetting />
-      <BlockMalwareSetting />
-      <BlockGamblingSetting />
-      <BlockAdultContentSetting />
-      <BlockSocialMediaSetting />
-    </Cell.ExpandableSection>
+    <>
+      <Accordion
+        ref={ref}
+        expanded={expanded}
+        onExpandedChange={toggleExpanded}
+        disabled={dns.state === 'custom'}
+        animation={scrollToAnchor?.animation}>
+        <Accordion.Header>
+          <Accordion.Title>
+            {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
+          </Accordion.Title>
+          <FlexRow $gap="medium">
+            <InfoButton>
+              <ModalMessage>
+                {messages.pgettext(
+                  'vpn-settings-view',
+                  'When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.',
+                )}
+              </ModalMessage>
+              <ModalMessage>
+                {messages.pgettext(
+                  'vpn-settings-view',
+                  'This might cause issues on certain websites, services, and apps.',
+                )}
+              </ModalMessage>
+              <ModalMessage>
+                {formatHtml(
+                  sprintf(
+                    messages.pgettext(
+                      'vpn-settings-view',
+                      'Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>',
+                    ),
+                    { customDnsFeatureName },
+                  ),
+                )}
+              </ModalMessage>
+            </InfoButton>
+            <Accordion.Trigger>
+              <Accordion.Icon />
+            </Accordion.Trigger>
+          </FlexRow>
+        </Accordion.Header>
+        <Accordion.Content>
+          <BlockAdsSetting />
+          <BlockTrackersSetting />
+          <BlockMalwareSetting />
+          <BlockGamblingSetting />
+          <BlockAdultContentSetting />
+          <BlockSocialMediaSetting />
+        </Accordion.Content>
+      </Accordion>
+      {dns.state === 'custom' && <CustomDnsEnabledFooter />}
+    </>
   );
 }
