@@ -1,1 +1,1 @@
-export * from './WireguardSettings';
+export * from './WireguardSettingsView';
