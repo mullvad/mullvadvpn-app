@@ -47,7 +47,7 @@ const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export function WireguardSettings() {
+export function WireguardSettingsView() {
   const { pop } = useHistory();
 
   return (
