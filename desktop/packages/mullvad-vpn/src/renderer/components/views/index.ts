@@ -3,6 +3,7 @@ export * from './app-upgrade';
 export * from './daita-settings';
 export * from './launch';
 export * from './main';
+export * from './multihop-settings';
 export * from './login';
 export * from './changelog';
 export * from './settings';
