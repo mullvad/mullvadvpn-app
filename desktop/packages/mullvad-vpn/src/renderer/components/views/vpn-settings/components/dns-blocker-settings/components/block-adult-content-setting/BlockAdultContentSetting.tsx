@@ -1,40 +1,26 @@
-import styled from 'styled-components';
-
 import { messages } from '../../../../../../../../shared/gettext';
-import { colors, spacings } from '../../../../../../../lib/foundations';
-import { AriaInput, AriaInputGroup, AriaLabel } from '../../../../../../AriaGroup';
-import * as Cell from '../../../../../../cell';
+import { FlexRow } from '../../../../../../../lib/components/flex-row';
+import { ToggleListItem } from '../../../../../../toggle-list-item';
 import { useDns } from '../../hooks';
-
-const StyledSectionItem = styled(Cell.Container)({
-  backgroundColor: colors.blue40,
-});
-
-const IndentedValueLabel = styled(Cell.ValueLabel)({
-  marginLeft: spacings.medium,
-});
 
 export function BlockAdultContentSetting() {
   const [dns, setBlockAdultContent] = useDns('blockAdultContent');
 
   return (
-    <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
-        <AriaLabel>
-          <IndentedValueLabel>
-            {
-              // TRANSLATORS: Label for settings that enables block of adult content.
-              messages.pgettext('vpn-settings-view', 'Adult content')
-            }
-          </IndentedValueLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch
-            isOn={dns.state === 'default' && dns.defaultOptions.blockAdultContent}
-            onChange={setBlockAdultContent}
-          />
-        </AriaInput>
-      </StyledSectionItem>
-    </AriaInputGroup>
+    <ToggleListItem
+      level={1}
+      disabled={dns.state === 'custom'}
+      checked={dns.state === 'default' && dns.defaultOptions.blockAdultContent}
+      onCheckedChange={setBlockAdultContent}>
+      <FlexRow $padding={{ left: 'medium' }}>
+        <ToggleListItem.Label variant="bodySmall">
+          {
+            // TRANSLATORS: Label for settings that enables block of adult content.
+            messages.pgettext('vpn-settings-view', 'Adult content')
+          }
+        </ToggleListItem.Label>
+      </FlexRow>
+      <ToggleListItem.Switch />
+    </ToggleListItem>
   );
 }
