@@ -20,6 +20,7 @@ import {
   Spinner,
 } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
+import { Switch } from '../../../lib/components/switch';
 import { Colors, colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { formatHtml } from '../../../lib/html-formatter';
@@ -36,7 +37,6 @@ import List from '../../List';
 import { ModalAlert, ModalAlertType } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
-import Switch from '../../Switch';
 import {
   StyledCellButton,
   StyledCellLabel,
@@ -493,12 +493,15 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
         <Flex $justifyContent="space-between" $alignItems="center">
           <HeaderTitle>{strings.splitTunneling}</HeaderTitle>
           <Switch
-            isOn={splitTunnelingEnabled}
+            checked={splitTunnelingEnabled}
             disabled={
               !splitTunnelingEnabled && (!splitTunnelingAvailable || loadingDiskPermissions)
             }
-            onChange={setSplitTunnelingState}
-          />
+            onCheckedChange={setSplitTunnelingState}>
+            <Switch.Trigger>
+              <Switch.Thumb />
+            </Switch.Trigger>
+          </Switch>
         </Flex>
         {!loadingDiskPermissions && (
           <>
