@@ -1,16 +1,16 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { strings, urls } from '../../../../../../shared/constants';
 import { TunnelProtocol } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import log from '../../../../../../shared/logging';
+import { useScrollToListItem } from '../../../../../hooks';
+import { Listbox } from '../../../../../lib/components/listbox/Listbox';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useTunnelProtocol } from '../../../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../../../redux/store';
-import { AriaDescription, AriaInputGroup } from '../../../../AriaGroup';
-import * as Cell from '../../../../cell';
-import Selector, { SelectorItem } from '../../../../cell/Selector';
+import { DefaultListboxOption } from '../../../../default-listbox-option';
 import { ExternalLink } from '../../../../ExternalLink';
 
 export function TunnelProtocolSetting() {
@@ -23,6 +23,9 @@ export function TunnelProtocolSetting() {
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const quantumResistant = useSelector((state) => state.settings.wireguard.quantumResistant);
   const openVpnDisabled = daita || multihop || quantumResistant;
+
+  const id = 'tunnel-protocol-setting';
+  const scrollToAnchor = useScrollToListItem(undefined, id);
 
   const featuresToDisableForOpenVpn = [];
   if (daita) {
@@ -52,48 +55,40 @@ export function TunnelProtocolSetting() {
     [relaySettingsUpdater],
   );
 
-  const tunnelProtocolItems: Array<SelectorItem<TunnelProtocol>> = useMemo(
-    () => [
-      {
-        label: strings.wireguard,
-        value: 'wireguard',
-      },
-      {
-        label: strings.openvpn,
-        value: 'openvpn',
-        disabled: openVpnDisabled,
-      },
-    ],
-    [openVpnDisabled],
+  const openVpnDisabledFooter = sprintf(
+    messages.pgettext(
+      'vpn-settings-view',
+      'To select %(openvpn)s, please disable these settings: %(featureList)s.',
+    ),
+    { openvpn: strings.openvpn, featureList: featuresToDisableForOpenVpn.join(', ') },
   );
 
   return (
-    <AriaInputGroup>
-      <Selector
-        title={messages.pgettext('vpn-settings-view', 'Tunnel protocol')}
-        items={tunnelProtocolItems}
-        value={tunnelProtocol}
-        onSelect={setTunnelProtocol}
-      />
+    <Listbox
+      onValueChange={setTunnelProtocol}
+      value={tunnelProtocol}
+      animation={scrollToAnchor?.animation}
+      aria-description={openVpnDisabled ? openVpnDisabledFooter : undefined}>
+      <Listbox.Item>
+        <Listbox.Content>
+          <Listbox.Label>{messages.pgettext('vpn-settings-view', 'Tunnel protocol')}</Listbox.Label>
+        </Listbox.Content>
+      </Listbox.Item>
+      <Listbox.Options>
+        <DefaultListboxOption value={'wireguard'}>{strings.wireguard}</DefaultListboxOption>
+        <DefaultListboxOption value={'openvpn'} disabled={openVpnDisabled}>
+          {strings.openvpn}
+        </DefaultListboxOption>
+      </Listbox.Options>
       {openVpnDisabled && (
-        <Cell.CellFooter>
-          <AriaDescription>
-            <Cell.CellFooterText>
-              {sprintf(
-                messages.pgettext(
-                  'vpn-settings-view',
-                  'To select %(openvpn)s, please disable these settings: %(featureList)s.',
-                ),
-                { openvpn: strings.openvpn, featureList: featuresToDisableForOpenVpn.join(', ') },
-              )}
-            </Cell.CellFooterText>
-          </AriaDescription>
-        </Cell.CellFooter>
+        <Listbox.Footer>
+          <Listbox.Text>{openVpnDisabledFooter}</Listbox.Text>
+        </Listbox.Footer>
       )}
       {tunnelProtocol === 'openvpn' && (
-        <Cell.CellFooter>
-          <AriaDescription>
-            <Cell.CellFooterText>
+        <Listbox.Footer>
+          <div>
+            <Listbox.Text>
               {sprintf(
                 // TRANSLATORS: Footer text for tunnel protocol selector when OpenVPN is selected.
                 // TRANSLATORS: Available placeholders:
@@ -104,20 +99,20 @@ export function TunnelProtocolSetting() {
                 ),
                 { openVpn: strings.openvpn },
               )}{' '}
-            </Cell.CellFooterText>
-          </AriaDescription>
-          <ExternalLink variant="labelTiny" to={urls.removingOpenVpnBlog}>
-            <ExternalLink.Text>
-              {sprintf(
-                // TRANSLATORS: Link in tunnel protocol selector footer to blog post
-                // TRANSLATORS: about OpenVPN support ending.
-                messages.pgettext('vpn-settings-view', 'Read more'),
-              )}
-            </ExternalLink.Text>
-            <ExternalLink.Icon icon="external" size="small" />
-          </ExternalLink>
-        </Cell.CellFooter>
+            </Listbox.Text>
+            <ExternalLink variant="labelTiny" to={urls.removingOpenVpnBlog}>
+              <ExternalLink.Text>
+                {sprintf(
+                  // TRANSLATORS: Link in tunnel protocol selector footer to blog post
+                  // TRANSLATORS: about OpenVPN support ending.
+                  messages.pgettext('vpn-settings-view', 'Read more'),
+                )}
+              </ExternalLink.Text>
+              <ExternalLink.Icon icon="external" size="small" />
+            </ExternalLink>
+          </div>
+        </Listbox.Footer>
       )}
-    </AriaInputGroup>
+    </Listbox>
   );
 }
