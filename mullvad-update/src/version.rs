@@ -22,6 +22,8 @@ pub struct VersionParameters {
     pub architecture: VersionArchitecture,
     /// Rollout threshold. Any version in the response below this threshold will be ignored
     pub rollout: Rollout,
+    /// Allow versions without any installers to be returned
+    pub allow_empty: bool,
     /// Lowest allowed `metadata_version` in the version data
     /// Typically the current version plus 1
     pub lowest_metadata_version: usize,
@@ -85,6 +87,16 @@ impl VersionInfo {
         // Filter out dev versions
         .filter(|release| !release.version.is_dev())
         .flat_map(|format::Release { version, changelog, installers, .. }| {
+            if installers.is_empty() && params.allow_empty {
+                // HACK: If there are no installers (e.g. on Linux), return the version anyway
+                return Some(anyhow::Ok(Version {
+                    version,
+                    size: 0,
+                    urls: vec![],
+                    changelog,
+                    sha256: [0u8; 32],
+                }));
+            }
             installers
                 .into_iter()
                 // Find installer for the requested architecture (assumed to be unique)
@@ -145,6 +157,7 @@ mod test {
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
             rollout: 1.,
+            allow_empty: false,
             lowest_metadata_version: 0,
         };
 
@@ -166,12 +179,35 @@ mod test {
         let params = VersionParameters {
             architecture: VersionArchitecture::Arm64,
             rollout: 0.01,
+            allow_empty: false,
             lowest_metadata_version: 0,
         };
 
         let info = VersionInfo::try_from_response(&params, response.signed)?;
 
         // Expect: The available latest versions for arm64, where the rollout is .01.
+        assert_yaml_snapshot!(info);
+
+        Ok(())
+    }
+
+    /// Versions without installers should be returned if `allow_empty` is set
+    #[test]
+    fn test_version_info_empty() -> anyhow::Result<()> {
+        let response = format::SignedResponse::deserialize_insecure(include_bytes!(
+            "../test-version-response.json"
+        ))?;
+
+        let params = VersionParameters {
+            architecture: VersionArchitecture::X86,
+            rollout: 0.01,
+            allow_empty: true,
+            lowest_metadata_version: 0,
+        };
+
+        let info = VersionInfo::try_from_response(&params, response.signed)?;
+
+        // Expect: The available latest versions for x86, where the rollout is .01.
         assert_yaml_snapshot!(info);
 
         Ok(())
