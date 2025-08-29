@@ -84,7 +84,7 @@ class OutOfTimeViewModel(
     }
 
     private suspend fun updateAccountExpiry() {
-        accountRepository.getAccountData()
+        accountRepository.getAccountData(force = true)
     }
 
     private fun notOutOfTimeEffect() =
