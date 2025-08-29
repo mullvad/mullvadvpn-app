@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script downloads the build artifacts along with the signatures, verifies the signatures and
-# publishes new version metadata to Mullvads API.
+# publishes new version metadata to Mullvads API (including latest.json).
 # * This should be run after `4-make-release`.
 # * You need to put the private ed25519 signing key in the clipboard before running this script.
 
@@ -34,19 +34,26 @@ function publish_metadata {
     local platforms
     platforms=(windows macos linux)
     local signed_dir="signed/"
+    local work_dir="work/"
+    local published_dir="currently_published/"
+    local upload_dir="upload/"
+    local latest_path="latest.json"
 
-    rm -rf currently_published/
+    rm -rf "$signed_dir"
+    rm -rf "$upload_dir"
+    rm -rf "$published_dir"
 
     echo ">>> Fetching current version metadata"
-    mullvad-release pull --assume-yes "${platforms[@]}"
+    mullvad-release pull --assume-yes --latest-file "${platforms[@]}"
     echo ""
 
     echo ">>> Backing up released data"
-    cp -r $signed_dir currently_published/
+    cp -r $signed_dir $published_dir
+    cp "$latest_path" "$published_dir"
     echo ""
 
-    echo ">>> Replacing work/ directory with latest published data"
-    cp -rf signed/ work/
+    echo ">>> Replacing $work_dir directory with latest published data"
+    cp -rf "$signed_dir" "$work_dir"
     echo ""
 
     echo ">>> Adding new release $PRODUCT_VERSION (rollout = 1)"
@@ -61,12 +68,20 @@ function publish_metadata {
     mullvad-release verify "${platforms[@]}"
     echo ""
 
-    echo ">>> New metadata including $PRODUCT_VERSION"
-    git --no-pager diff --no-index -- currently_published/ $signed_dir || true
+    echo ">>> Creating upload dir"
+    cp -rf "$signed_dir" "$upload_dir"
     echo ""
 
-    read -rp "Press enter to upload if the diff looks good "
-    ./publish-metadata-to-api $signed_dir "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+    echo ">>> Generating $latest_path for current version metadata"
+    mullvad-release query-latest "${platforms[@]}" > "$upload_dir/$latest_path"
+    echo ""
+
+    echo ">>> New metadata including $PRODUCT_VERSION"
+    git --no-pager diff --no-index -- $published_dir $upload_dir || true
+    echo ""
+
+    read -rp "Press enter to upload if the diffs look good "
+    ./publish-metadata-to-api $upload_dir "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
 }
 
 function remove_release_artifacts {
