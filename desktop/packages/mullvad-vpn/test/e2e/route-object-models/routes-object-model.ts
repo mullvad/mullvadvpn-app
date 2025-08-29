@@ -4,6 +4,7 @@ import { TestUtils } from '../utils';
 import { DaitaSettingsRouteObjectModel } from './daita-settings';
 import { FilterRouteObjectModel } from './filter';
 import { LaunchRouteObjectModel } from './launch';
+import { LoginRouteObjectModel } from './login';
 import { MainRouteObjectModel } from './main';
 import { MultihopSettingsRouteObjectModel } from './multihop-settings';
 import { SelectLanguageRouteObjectModel } from './select-language';
@@ -17,6 +18,7 @@ import { WireguardSettingsRouteObjectModel } from './wireguard-settings';
 export class RoutesObjectModel {
   readonly main: MainRouteObjectModel;
   readonly launch: LaunchRouteObjectModel;
+  readonly login: LoginRouteObjectModel;
   readonly settings: SettingsRouteObjectModel;
   readonly userInterfaceSettings: UserInterfaceSettingsRouteObjectModel;
   readonly selectLanguage: SelectLanguageRouteObjectModel;
@@ -32,6 +34,7 @@ export class RoutesObjectModel {
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
     this.main = new MainRouteObjectModel(page, utils);
     this.launch = new LaunchRouteObjectModel(page, utils);
+    this.login = new LoginRouteObjectModel(page, utils);
     this.settings = new SettingsRouteObjectModel(page, utils);
     this.userInterfaceSettings = new UserInterfaceSettingsRouteObjectModel(page, utils);
     this.filter = new FilterRouteObjectModel(page, utils);

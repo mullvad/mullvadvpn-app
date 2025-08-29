@@ -82,6 +82,8 @@ export interface IAppStateSnapshot {
   isMacOs13OrNewer: boolean;
 }
 
+export type IpcSchema = typeof ipcSchema;
+
 // The different types of requests are:
 // * send<ArgumentType>(), which is used for one-way communication from the renderer process to the
 //    main process. The main channel will have a property named 'handle<PropertyName>' and the

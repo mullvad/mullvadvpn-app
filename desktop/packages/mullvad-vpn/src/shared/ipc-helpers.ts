@@ -61,6 +61,11 @@ export type IpcRenderer<S extends Schema> = {
   };
 };
 
+// Transforms the provided schema into containing only the event keys.
+export type IpcEvents<S> = {
+  [G in keyof S]: { [C in keyof S[G]]: string };
+};
+
 // Preforms the transformation of the main event channel in accordance with the above types.
 export function createIpcMain<S extends Schema>(
   schema: S,
@@ -99,10 +104,15 @@ export function createIpcRenderer<S extends Schema>(
   });
 }
 
-function createIpc<S extends Schema, T, R extends IpcMain<S> | IpcRenderer<S>>(
-  ipc: S,
-  fn: (event: string, key: string, spec: AnyIpcCall) => [newKey: string, newValue: T],
-): R {
+export function createIpcEvents<S extends Schema>(schema: S): IpcEvents<S> {
+  return createIpc(schema, (event, key) => [key, event]);
+}
+
+export function createIpc<
+  S extends Schema,
+  T,
+  R extends IpcMain<S> | IpcRenderer<S> | IpcEvents<S>,
+>(ipc: S, fn: (event: string, key: string, spec: AnyIpcCall) => [newKey: string, newValue: T]): R {
   return Object.fromEntries(
     Object.entries(ipc).map(([groupKey, group]) => {
       const newGroup = Object.fromEntries(
