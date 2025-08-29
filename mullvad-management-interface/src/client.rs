@@ -652,22 +652,14 @@ impl MullvadProxyClient {
     }
 
     pub async fn set_log_filter(&mut self, level: String) -> Result<()> {
-        self.0
-            .set_log_filter(types::LogFilter::from(level))
-            .await
-            .map_err(Error::Rpc)?;
+        self.0.set_log_filter(types::LogFilter::from(level)).await?;
         Ok(())
     }
 
     pub async fn log_listen(&mut self) -> Result<impl Stream<Item = Result<String>>> {
-        let listener = self
-            .0
-            .log_listen(())
-            .await
-            .map_err(Error::Rpc)?
-            .into_inner();
+        let listener = self.0.log_listen(()).await?.into_inner();
 
-        Ok(listener.map(|item| Ok(item.map_err(Error::Rpc)?.message)))
+        Ok(listener.map(|item| Ok(item?.message)))
     }
 }
 
