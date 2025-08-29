@@ -5,7 +5,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationEndReason
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.exponentialDecay
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +30,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -38,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,7 +54,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -58,10 +69,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
@@ -107,16 +120,23 @@ import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.fallbackLatLong
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
-import net.mullvad.mullvadvpn.lib.map.AnimatedMap
+import net.mullvad.mullvadvpn.lib.map.Map
+import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
+import net.mullvad.mullvadvpn.lib.map.internal.FAR_ANIMATION_MAX_ZOOM_MULTIPLIER
+import net.mullvad.mullvadvpn.lib.map.internal.MAX_MULTIPLIER_PEAK_TIMING
+import net.mullvad.mullvadvpn.lib.map.internal.SHORT_ANIMATION_CUTOFF_MILLIS
+import net.mullvad.mullvadvpn.lib.map.toAnimationDurationMillis
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
 import net.mullvad.mullvadvpn.lib.model.PrepareError
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -126,6 +146,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.warning
 import net.mullvad.mullvadvpn.lib.tv.NavigationDrawerTv
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
@@ -164,6 +185,7 @@ private fun PreviewAccountScreen(
             onDismissNewDeviceClick = {},
             onNavigateToFeature = {},
             onClickShowWireguardPortSettings = {},
+            onSelectRelay = {},
         )
     }
 }
@@ -306,6 +328,7 @@ fun Connect(
                 },
             onClickShowWireguardPortSettings =
                 dropUnlessResumed { navigator.navigate(VpnSettingsDestination()) },
+            onSelectRelay = connectViewModel::onSelectRelay,
         )
     }
 }
@@ -330,6 +353,7 @@ fun ConnectScreen(
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
+    onSelectRelay: (RelayItemId) -> Unit,
 ) {
     val contentFocusRequester = remember { FocusRequester() }
 
@@ -351,6 +375,7 @@ fun ConnectScreen(
                 onDismissNewDeviceClick,
                 onNavigateToFeature,
                 onClickShowWireguardPortSettings,
+                onSelectRelay,
             )
         }
 
@@ -406,6 +431,7 @@ private fun Content(
     onDismissNewDeviceClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
+    onSelectRelay: (RelayItemId) -> Unit,
 ) {
     val screenHeight =
         with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
@@ -422,7 +448,7 @@ private fun Content(
             )
             .fillMaxSize()
     ) {
-        MullvadMap(state, indicatorPercentOffset)
+        MullvadMap(state, indicatorPercentOffset, onSelectRelay = onSelectRelay)
 
         MullvadCircularProgressIndicatorLarge(
             color = MaterialTheme.colorScheme.onSurface,
@@ -474,7 +500,11 @@ private fun Content(
 }
 
 @Composable
-private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
+private fun MullvadMap(
+    state: ConnectUiState,
+    progressIndicatorBias: Float,
+    onSelectRelay: (RelayItemId) -> Unit,
+) {
 
     // Distance to marker when secure/unsecure
     val baseZoom =
@@ -485,19 +515,207 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
             label = "baseZoom",
         )
 
+    val locationLatLng = (state.location?.toLatLong() ?: fallbackLatLong)
+
+    val longitudeAnimation = remember { Animatable(locationLatLng.longitude.value) }
+    val latitudeAnimation = remember { Animatable(locationLatLng.latitude.value) }
+    latitudeAnimation.updateBounds(-40f, upperBound = 80f)
+    val userZoom = remember { Animatable(1f) }
+
+    LaunchedEffect(locationLatLng) {
+        val currentPosition =
+            LatLong(
+                Latitude.fromFloat(latitudeAnimation.value),
+                Longitude.fromFloat(longitudeAnimation.value),
+            )
+        val distance = locationLatLng.seppDistanceTo(currentPosition)
+        val duration = distance.toAnimationDurationMillis()
+        launch {
+            longitudeAnimation.animateTo(
+                state.location?.longitude?.toFloat() ?: fallbackLatLong.longitude.value,
+                animationSpec = tween(duration),
+            )
+        }
+        launch {
+            latitudeAnimation.animateTo(
+                state.location?.latitude?.toFloat() ?: fallbackLatLong.latitude.value,
+                animationSpec = tween(duration),
+            )
+        }
+        launch {
+            userZoom.animateTo(
+                targetValue = 1f,
+                animationSpec =
+                    keyframes {
+                        if (duration < SHORT_ANIMATION_CUTOFF_MILLIS) {
+                            durationMillis = duration
+                            1f at duration using EaseInOut
+                        } else {
+                            durationMillis = duration
+                            FAR_ANIMATION_MAX_ZOOM_MULTIPLIER at
+                                (duration * MAX_MULTIPLIER_PEAK_TIMING).toInt() using
+                                EaseInOut
+                            1f at duration using EaseInOut
+                        }
+                    },
+            )
+        }
+    }
+
+    val locationMarkers =
+        state.relayLocations.map { location ->
+            val isSelected =
+                state.selectedGeoLocationId.any {
+                    when (it) {
+                        is GeoLocationId.City -> it == location.id
+                        is GeoLocationId.Country -> it == location.id.country
+                        is GeoLocationId.Hostname -> it.city == location.id
+                    }
+                }
+            val colors =
+                if (isSelected) {
+                    LocationMarkerColors(
+                        perimeterColors = null,
+                        centerColor = MaterialTheme.colorScheme.warning,
+                        ringBorderColor = MaterialTheme.colorScheme.onPrimary,
+                    )
+                } else {
+                    LocationMarkerColors(
+                        perimeterColors = null,
+                        centerColor = MaterialTheme.colorScheme.primary,
+                        ringBorderColor = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
+            Marker(location.latLong, colors = colors, id = location.id)
+        }
+
+    val tracker = remember { VelocityTracker() }
+    val scope = rememberCoroutineScope()
+
     val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
 
-    AnimatedMap(
-        modifier = Modifier,
-        cameraLocation = state.location?.toLatLong() ?: fallbackLatLong,
-        cameraBaseZoom = baseZoom.value,
-        cameraVerticalBias = progressIndicatorBias,
-        markers = markers,
+    val density = LocalDensity.current
+    val dropdownPosition = remember { mutableStateOf(DpOffset(0.dp, 0.dp)) }
+    val showDropdown = remember { mutableStateOf(false) }
+    val locationName = remember { mutableStateOf<GeoLocationId?>(null) }
+
+    if (showDropdown.value) {
+        DropdownMenu(
+            expanded = true,
+            onDismissRequest = { showDropdown.value = false },
+            offset = dropdownPosition.value,
+        ) {
+            val text =
+                when (val geolocation = locationName.value) {
+                    is GeoLocationId.City -> "${geolocation.country.code}-${geolocation.code}"
+                    is GeoLocationId.Country -> geolocation.toString()
+                    is GeoLocationId.Hostname -> geolocation.toString()
+                    else -> ""
+                }
+
+            Text(
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White.copy(Alpha80),
+                text = text,
+                modifier =
+                    Modifier.padding(
+                        horizontal = Dimens.mediumPadding,
+                        vertical = Dimens.smallPadding,
+                    ),
+            )
+            DropdownMenuItem(
+                text = { Text(text = "Set as Entry") },
+                onClick = {
+                    locationName.value?.let { onSelectRelay(it) }
+                    showDropdown.value = false
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(text = "Set as Exit") },
+                onClick = {
+                    locationName.value?.let { onSelectRelay(it) }
+                    showDropdown.value = false
+                },
+            )
+        }
+    }
+
+
+    Map(
+        modifier =
+            Modifier.pointerInput(Unit) {
+                detectTransformGesturesWithEnd(
+                    true,
+                    onGestureStart = {
+                        Logger.d { "Animation onGestureStart" }
+                        tracker.resetTracking()
+                        scope.launch { longitudeAnimation.stop() }
+                        scope.launch { latitudeAnimation.stop() }
+                    },
+                    onGesture = { centroid: Offset, pan: Offset, newZoom: Float, rotation: Float ->
+                        Logger.d { "Animation onGesture" }
+
+                        val longitude = longitudeAnimation.value - pan.x * userZoom.value / 50f
+                        val tempLatitude = Latitude.fromFloat(latitudeAnimation.value)
+                        val latitude = (tempLatitude.value + pan.y * userZoom.value / 40f)
+                        val newZoom = (userZoom.value + (1 - newZoom) * 0.5f).coerceIn(1f, 2f)
+
+                        scope.launch {
+                            userZoom.snapTo(newZoom)
+                            longitudeAnimation.snapTo(longitude)
+                            latitudeAnimation.snapTo(latitude)
+
+                            tracker.addPosition(
+                                System.currentTimeMillis(),
+                                Offset(longitude, latitude),
+                            )
+                        }
+                    },
+                    onGestureEnd = {
+                        Logger.d { "Animation onGestureEnd" }
+                        // Longitude
+                        val velocity = tracker.calculateVelocity()
+                        scope.launch {
+                            longitudeAnimation.animateDecay(velocity.x, exponentialDecay(0.4f))
+                        }
+                        scope.launch {
+                            var velY = velocity.y
+                            do {
+                                val res =
+                                    latitudeAnimation.animateDecay(velY, exponentialDecay(0.4f))
+
+                                velY = -res.endState.velocityVector.value
+                            } while (res.endReason != AnimationEndReason.Finished)
+                        }
+                    },
+                )
+            },
+        cameraLocation =
+            CameraPosition(
+                latLong =
+                    LatLong(
+                        Latitude.fromFloat(latitudeAnimation.value),
+                        Longitude.fromFloat(longitudeAnimation.value),
+                    ),
+                verticalBias = progressIndicatorBias,
+                zoom = (baseZoom.value * userZoom.value).also { Logger.d("Zoom: $it") },
+            ),
+        markers = markers + locationMarkers,
         globeColors =
             GlobeColors(
                 landColor = MaterialTheme.colorScheme.primary,
                 oceanColor = MaterialTheme.colorScheme.surface,
             ),
+        onClickRelayItemId = onSelectRelay,
+        onLongClickRelayItemId = { offset, geolocationId ->
+            with(density) {
+                DpOffset(x = offset.x.toDp(), y = offset.y.toDp()).also {
+                    dropdownPosition.value = it
+                    locationName.value = geolocationId
+                    showDropdown.value = true
+                }
+            }
+        },
     )
 }
 

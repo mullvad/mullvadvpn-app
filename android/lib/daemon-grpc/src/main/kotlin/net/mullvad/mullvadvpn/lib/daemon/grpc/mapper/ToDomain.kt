@@ -46,6 +46,9 @@ import net.mullvad.mullvadvpn.lib.model.GenericOptions
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.Latitude
+import net.mullvad.mullvadvpn.lib.model.Longitude
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
@@ -580,6 +583,11 @@ internal fun ManagementInterface.RelayListCity.toDomain(
                 .filter { it.endpointData.hasWireguard() }
                 .map { it.toDomain(cityCode) }
                 .sortedWith(RelayNameComparator),
+        latLong =
+            LatLong(
+                Latitude.fromFloat(latitude.toFloat()),
+                Longitude.fromFloat(longitude.toFloat()),
+            ),
     )
 }
 

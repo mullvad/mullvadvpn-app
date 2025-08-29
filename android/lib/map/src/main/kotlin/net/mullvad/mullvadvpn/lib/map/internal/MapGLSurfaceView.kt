@@ -2,8 +2,11 @@ package net.mullvad.mullvadvpn.lib.map.internal
 
 import android.content.Context
 import android.opengl.GLSurfaceView
+import androidx.compose.ui.geometry.Offset
 import net.mullvad.mullvadvpn.lib.map.BuildConfig
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
 internal class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
@@ -27,5 +30,12 @@ internal class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
     fun setData(viewState: MapViewState) {
         renderer.setViewState(viewState)
         requestRender()
+    }
+
+    fun onMapClick(offset: Offset): Pair<GeoLocationId, Offset>? {
+        val (marker, distance) = renderer.closestMarker(offset) ?: return null
+        if (distance < 0.02f) {
+            return marker?.id?.let { it to offset }
+        } else return null
     }
 }

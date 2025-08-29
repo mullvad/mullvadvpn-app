@@ -49,6 +49,7 @@ private val otherStates =
                     if (index == 0) InAppNotification.NewDevice("Test Device") else null,
                 deviceName = "Cool Beans",
                 daysLeftUntilExpiry = 42,
+                selectedGeoLocationId = emptyList(),
                 isPlayBuild = true,
             )
         }

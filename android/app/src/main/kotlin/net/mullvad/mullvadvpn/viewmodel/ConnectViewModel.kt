@@ -17,20 +17,28 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.screen.toLatLong
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.common.util.daysFromNow
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
+import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.PrepareError
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
+import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
+import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -50,13 +58,16 @@ class ConnectViewModel(
     selectedLocationTitleUseCase: SelectedLocationTitleUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val paymentUseCase: PaymentUseCase,
+    private val customListRepository: CustomListsRepository,
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val resources: Resources,
+    private val filteredRelayListUseCase: FilteredRelayListUseCase,
     private val isPlayBuild: Boolean,
     private val isFdroidBuild: Boolean,
     private val packageName: String,
+    private val relayListRepository: RelayListRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -67,18 +78,24 @@ class ConnectViewModel(
     val uiState: StateFlow<ConnectUiState> =
         combine(
                 selectedLocationTitleUseCase(),
+                relayListRepository.selectedLocation,
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState.withPrev(),
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.displayName() },
+                filteredRelayListUseCase(RelayListType.Single).map { countries ->
+                    countries.flatMap { it.cities }
+                },
             ) {
                 selectedRelayItemTitle,
+                selectedLocation,
                 notifications,
                 (tunnelState, prevTunnelState),
                 lastKnownDisconnectedLocation,
                 accountData,
-                deviceName ->
+                deviceName,
+                relayCities ->
                 ConnectUiState(
                     location =
                         when (tunnelState) {
@@ -103,10 +120,20 @@ class ConnectViewModel(
                         } else {
                             null
                         },
+                    selectedGeoLocationId =
+                        when (val id = selectedLocation.getOrNull()) {
+                            is CustomListId ->
+                                customListRepository.getCustomListById(id).getOrNull()?.locations
+                                    ?: emptyList()
+                            is GeoLocationId -> listOf(id)
+                            null -> emptyList()
+                        },
                     tunnelState = tunnelState,
                     inAppNotification = notifications.firstOrNull(),
                     deviceName = deviceName,
                     daysLeftUntilExpiry = accountData?.expiryDate?.daysFromNow(),
+                    relayLocations =
+                        relayCities.filter { it.latLong != tunnelState.location()?.toLatLong() },
                     isPlayBuild = isPlayBuild,
                 )
             }
@@ -178,6 +205,10 @@ class ConnectViewModel(
             val wwwAuthToken = accountRepository.getWebsiteAuthToken()
             _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
         }
+    }
+
+    fun onSelectRelay(id: RelayItemId) {
+        viewModelScope.launch { relayListRepository.updateSelectedRelayLocation(id) }
     }
 
     fun openAppListing() =

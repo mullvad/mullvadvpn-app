@@ -224,6 +224,9 @@ val uiModule = module {
             isPlayBuild = IS_PLAY_BUILD,
             isFdroidBuild = IS_FDROID_BUILD,
             packageName = get(named(SELF_PACKAGE_NAME)),
+            customListRepository = get(),
+            relayListRepository = get(),
+            filteredRelayListUseCase = get(),
         )
     }
     viewModel { DeviceListViewModel(get(), get()) }
