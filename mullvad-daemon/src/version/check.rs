@@ -374,27 +374,11 @@ fn do_version_check_in_background(
 }
 
 /// Combine the old version and new version endpoint
-#[cfg(in_app_upgrade)]
+#[cfg(any(in_app_upgrade, target_os = "linux"))]
 fn version_check_inner(
     api: &ApiContext,
     min_metadata_version: usize,
 ) -> impl Future<Output = Result<VersionCache, Error>> + use<> {
-    use futures::future::Either;
-    use mullvad_api::version::AppVersionResponse2;
-
-    let supported_fut = if !APP_VERSION.is_dev() {
-        let v1_endpoint = api.version_proxy.version_check(
-            mullvad_version::VERSION.to_owned(),
-            PLATFORM,
-            api.platform_version.clone(),
-        );
-        Either::Left(async { Ok(v1_endpoint.await?.supported) })
-    } else {
-        // NOTE: Treat all dev versions as unsupported. The old endpoint returns 404 for dev
-        // versions.
-        Either::Right(async { Ok(false) })
-    };
-
     let architecture = match talpid_platform_metadata::get_native_arch()
         .expect("IO error while getting native architecture")
         .expect("Failed to get native architecture")
@@ -409,25 +393,21 @@ fn version_check_inner(
         architecture,
         mullvad_update::version::IGNORE,
         min_metadata_version,
+        api.platform_version.clone(),
     );
     async move {
-        let (
-            current_version_supported,
-            AppVersionResponse2 {
-                version_info,
-                metadata_version,
-            },
-        ) = tokio::try_join!(supported_fut, v2_endpoint).map_err(Error::Download)?;
+        let v2_result = v2_endpoint.await.map_err(Error::Download)?;
 
         Ok(VersionCache {
-            current_version_supported,
-            version_info,
-            metadata_version,
+            current_version_supported: v2_result.current_version_supported,
+            version_info: v2_result.version_info,
+            #[cfg(in_app_upgrade)]
+            metadata_version: v2_result.metadata_version,
         })
     }
 }
 
-#[cfg(not(in_app_upgrade))]
+#[cfg(target_os = "android")]
 fn version_check_inner(
     api: &ApiContext,
     // NOTE: This is unused when `update` is disabled
