@@ -85,6 +85,8 @@ impl AppVersionProxy {
             let params = VersionParameters {
                 architecture,
                 rollout,
+                // NOTE: On Linux, version metadata contains no installers
+                allow_empty: cfg!(target_os = "linux"),
                 lowest_metadata_version,
             };
 
