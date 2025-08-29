@@ -13,7 +13,7 @@ import { useAppContext } from '../context';
 import { useApiAccessMethodTest } from '../lib/api-access-methods';
 import { Button } from '../lib/components';
 import { useHistory } from '../lib/history';
-import { useLastDefinedValue } from '../lib/utility-hooks';
+import { useBoolean, useLastDefinedValue } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
 import { SettingsForm } from './cell/SettingsForm';
@@ -36,6 +36,7 @@ function AccessMethodForm() {
   const { pop } = useHistory();
   const { addApiAccessMethod, updateApiAccessMethod } = useAppContext();
   const methods = useSelector((state) => state.settings.apiAccessMethods.custom);
+  const [error, setError, unsetError] = useBoolean();
 
   const [testing, testResult, testApiAccessMethod, resetTestResult] = useApiAccessMethodTest(
     false,
@@ -52,15 +53,25 @@ function AccessMethodForm() {
   >(method);
 
   const save = useCallback(
-    (method: NewAccessMethodSetting<CustomProxy>) => {
+    async (method: NewAccessMethodSetting<CustomProxy>): Promise<void | string> => {
       if (method !== undefined) {
-        resetTestResult();
-        if (id === undefined) {
-          void addApiAccessMethod(method);
-        } else {
-          void updateApiAccessMethod({ ...method, id });
+        console.log('saving method', method);
+        try {
+          if (id === undefined) {
+            const result = await addApiAccessMethod(method);
+            if (typeof result !== 'string') {
+              return result.type;
+            }
+          } else {
+            const result = await updateApiAccessMethod({ ...method, id });
+            if (result) {
+              return result.type;
+            }
+          }
+        } catch (e) {
+          console.log('caught error', e);
         }
-        pop();
+        // pop();
       }
     },
     [resetTestResult, id, pop, addApiAccessMethod, updateApiAccessMethod],
@@ -76,15 +87,22 @@ function AccessMethodForm() {
         (await testApiAccessMethod(updatedMethod as CustomProxy))
       ) {
         // Hide the save dialog after 1.5 seconds.
-        saveScheduler.schedule(() => save(updatedMethod), 1500);
+        const error = await save(updatedMethod);
+        console.log('hey', error);
+        saveScheduler.schedule(() => resetTestResult(), 1500);
+        if (error) {
+          return error;
+        }
       }
     },
     [id, method?.enabled, testApiAccessMethod, saveScheduler, save],
   );
 
-  const handleDialogSave = useCallback(() => {
+  const handleDialogSave = useCallback(async () => {
     if (updatedMethod !== undefined) {
-      save(updatedMethod);
+      const error = await save(updatedMethod);
+      return error;
+      console.log(error);
     }
   }, [save, updatedMethod]);
 

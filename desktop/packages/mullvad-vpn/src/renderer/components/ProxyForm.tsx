@@ -13,6 +13,7 @@ import { Button, Flex } from '../lib/components';
 import { FlexRow } from '../lib/components/flex-row';
 import { IpAddress } from '../lib/ip';
 import { useEffectEvent } from '../lib/utility-hooks';
+import { useSelector } from '../redux/store';
 import * as Cell from './cell';
 import { SettingsForm, useSettingsFormSubmittable } from './cell/SettingsForm';
 import { SettingsGroup } from './cell/SettingsGroup';
@@ -36,7 +37,7 @@ const proxyFormContext = React.createContext<ProxyFormContext>({
   setProxy(): void {
     throw new Error('Missing ProxyFromContext provider');
   },
-  onSave(): void {
+  onSave(): Promise<void | string> {
     throw new Error('Missing ProxyFromContext provider');
   },
   onCancel(): void {
@@ -49,7 +50,7 @@ const proxyFormContext = React.createContext<ProxyFormContext>({
 
 interface ProxyFormContextProviderProps {
   proxy?: CustomProxy;
-  onSave: (proxy: CustomProxy) => void;
+  onSave: (proxy: CustomProxy) => Promise<void | string>;
   onCancel: () => void;
   onDelete?: () => void;
 }
@@ -59,9 +60,11 @@ function ProxyFormContextProvider(props: React.PropsWithChildren<ProxyFormContex
 
   const [proxy, setProxy] = useState<CustomProxy | undefined>(props.proxy);
 
-  const onSave = useCallback(() => {
+  const onSave = useCallback(async () => {
     if (proxy !== undefined) {
-      propsOnSave(proxy);
+      const error = await propsOnSave(proxy);
+      console.log('form save error', error);
+      return error;
     }
   }, [proxy, propsOnSave]);
 
@@ -101,7 +104,7 @@ const namedProxyFormContext = React.createContext<NamedProxyFormContext>({
 interface NamedProxyFormContainerProps
   extends Omit<ProxyFormContextProviderProps, 'proxy' | 'onSave'> {
   proxy?: NamedCustomProxy;
-  onSave: (proxy: NamedCustomProxy) => void;
+  onSave: (proxy: NamedCustomProxy) => Promise<void | string>;
 }
 
 export function NamedProxyForm(props: NamedProxyFormContainerProps) {
@@ -110,9 +113,9 @@ export function NamedProxyForm(props: NamedProxyFormContainerProps) {
   const [name, setName] = useState<string>(props.proxy?.name ?? '');
 
   const save = useCallback(
-    (proxy: CustomProxy) => {
+    async (proxy: CustomProxy) => {
       if (name !== '') {
-        onSave({ ...proxy, name });
+        return onSave({ ...proxy, name });
       }
     },
     [name, onSave],
@@ -125,6 +128,7 @@ export function NamedProxyForm(props: NamedProxyFormContainerProps) {
       <ProxyFormContextProvider {...otherProps} onSave={save}>
         <SettingsForm>
           <ProxyFormNameField />
+          <div style={{ marginTop: '8px' }}></div>
           <ProxyFormInner />
           <ProxyFormButtons new={props.proxy === undefined} />
         </SettingsForm>
@@ -135,15 +139,30 @@ export function NamedProxyForm(props: NamedProxyFormContainerProps) {
 
 function ProxyFormNameField() {
   const { name, setName } = useContext(namedProxyFormContext);
+  const customAccessMethods = useSelector((state) => state.settings.apiAccessMethods.custom);
+  const onValidate = useCallback(
+    (value: string) => {
+      return customAccessMethods.every((customAccessMethod) => customAccessMethod.name !== value);
+    },
+    [customAccessMethods],
+  );
 
   return (
-    <SettingsRow label={messages.gettext('Name')}>
-      <SettingsTextInput
-        defaultValue={name}
-        placeholder={messages.pgettext('api-access-methods-view', 'Enter name')}
-        onUpdate={setName}
-      />
-    </SettingsRow>
+    <SettingsGroup>
+      <SettingsRow
+        errorMessage={messages.pgettext(
+          'api-access-methods-view',
+          'Please select a name for the access method not already in use.',
+        )}
+        label={messages.gettext('Name')}>
+        <SettingsTextInput
+          defaultValue={name}
+          placeholder={messages.pgettext('api-access-methods-view', 'Enter name')}
+          onUpdate={setName}
+          validate={onValidate}
+        />
+      </SettingsRow>
+    </SettingsGroup>
   );
 }
 
