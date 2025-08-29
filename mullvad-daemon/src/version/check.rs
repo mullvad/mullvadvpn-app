@@ -410,7 +410,7 @@ fn version_check_inner(
     let v2_endpoint = api.version_proxy.version_check_2(
         PLATFORM,
         architecture,
-        mullvad_update::version::IGNORE,
+        mullvad_update::version::SUPPORTED_VERSION,
         min_metadata_version,
     );
     async move {
