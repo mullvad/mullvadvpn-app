@@ -270,12 +270,21 @@ async fn main() -> anyhow::Result<()> {
         Opt::QueryLatest { platforms, rollout } => {
             #[derive(Default, serde::Serialize)]
             struct SummaryQueryResult {
-                linux: Option<mullvad_version::Version>,
-                linux_beta: Option<mullvad_version::Version>,
-                windows: Option<mullvad_version::Version>,
-                windows_beta: Option<mullvad_version::Version>,
-                macos: Option<mullvad_version::Version>,
-                macos_beta: Option<mullvad_version::Version>,
+                linux: Option<QueryResultEntry>,
+                linux_beta: Option<QueryResultEntry>,
+                windows: Option<QueryResultEntry>,
+                windows_beta: Option<QueryResultEntry>,
+                macos: Option<QueryResultEntry>,
+                macos_beta: Option<QueryResultEntry>,
+            }
+            #[derive(serde::Serialize)]
+            struct QueryResultEntry {
+                version: mullvad_version::Version,
+            }
+            impl From<mullvad_version::Version> for QueryResultEntry {
+                fn from(version: mullvad_version::Version) -> Self {
+                    QueryResultEntry { version }
+                }
             }
 
             let mut summary_result = SummaryQueryResult::default();
@@ -285,16 +294,16 @@ async fn main() -> anyhow::Result<()> {
 
                 match platform {
                     Platform::Linux => {
-                        summary_result.linux = Some(out.stable);
-                        summary_result.linux_beta = out.beta;
+                        summary_result.linux = Some(out.stable.into());
+                        summary_result.linux_beta = out.beta.map(Into::into);
                     }
                     Platform::Windows => {
-                        summary_result.windows = Some(out.stable);
-                        summary_result.windows_beta = out.beta;
+                        summary_result.windows = Some(out.stable.into());
+                        summary_result.windows_beta = out.beta.map(Into::into);
                     }
                     Platform::Macos => {
-                        summary_result.macos = Some(out.stable);
-                        summary_result.macos_beta = out.beta;
+                        summary_result.macos = Some(out.stable.into());
+                        summary_result.macos_beta = out.beta.map(Into::into);
                     }
                 }
             }
