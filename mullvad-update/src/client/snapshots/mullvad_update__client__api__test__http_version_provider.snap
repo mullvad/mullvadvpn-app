@@ -6,10 +6,10 @@ snapshot_kind: text
 signatures:
   - keytype: ed25519
     keyid: bb4ef63ffdcc6bd5a19c30cd23b9de03099407a04463418f17ae338b98aa09d4
-    sig: 253ec37846dcd909bfc5119c0e0d06535767e179eb8b4465015eaa95f4bed362c8c9186311192c987871722bf7d319d44e4f04eaf79c269820bc13ff1a901f0b
+    sig: fb0f0d608f82101ca294c9150ce268c29bdaf99d4a726541e59523ef00b0d534d65cac277f1355e2838f5ac1b1f1e7013411da70049ba19a208515c67a97de06
 signed:
   metadata_version: 0
-  metadata_expiry: "2025-07-02T15:33:00Z"
+  metadata_expiry: "2025-10-02T15:33:00Z"
   releases:
     - version: "2025.2"
       changelog: "[macos] Adding support for quicfuscator\n[windows] Less bugs"
@@ -64,3 +64,6 @@ signed:
             - "https://releases.mullvad.net/desktop/releases/2025.3-beta1/MullvadVPN-2025.3-beta1_arm64.exe"
           size: 111488248
           sha256: 82948D3DB5B869EE5F0D246DB557A81B72B68DFDDD2267872B7B8A5B19A05444
+    - version: "2026.10"
+      changelog: ""
+      installers: []

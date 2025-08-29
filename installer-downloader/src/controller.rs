@@ -215,6 +215,7 @@ where
             architecture,
             // For the downloader, the rollout version is always preferred
             rollout: mullvad_update::version::IGNORE,
+            allow_empty: false,
             // The downloader allows any version
             lowest_metadata_version: mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
         };
