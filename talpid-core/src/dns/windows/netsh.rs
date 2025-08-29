@@ -2,22 +2,20 @@
 
 use crate::dns::{DnsMonitorT, ResolvedDnsConfig};
 use std::{
-    ffi::OsString,
     io::{self, Write},
     net::IpAddr,
-    os::windows::prelude::{AsRawHandle, OsStringExt},
-    path::PathBuf,
+    os::windows::prelude::AsRawHandle,
     process::{Child, Command, ExitStatus, Stdio},
     time::Duration,
 };
 use talpid_types::{ErrorExt, net::IpVersion};
-use talpid_windows::net::{index_from_luid, luid_from_alias};
+use talpid_windows::{
+    env::get_system_dir,
+    net::{index_from_luid, luid_from_alias},
+};
 use windows_sys::Win32::{
-    Foundation::{MAX_PATH, WAIT_OBJECT_0, WAIT_TIMEOUT},
-    System::{
-        SystemInformation::GetSystemDirectoryW,
-        Threading::{INFINITE, WaitForSingleObject},
-    },
+    Foundation::{WAIT_OBJECT_0, WAIT_TIMEOUT},
+    System::Threading::{INFINITE, WaitForSingleObject},
 };
 
 const NETSH_TIMEOUT: Duration = Duration::from_secs(10);
@@ -212,15 +210,4 @@ fn create_netsh_flush_command(interface_index: u32, ip_version: IpVersion) -> St
     format!(
         "interface {interface_type} set dnsservers name={interface_index} source=static address=none validate=no\r\n"
     )
-}
-
-fn get_system_dir() -> io::Result<PathBuf> {
-    let mut sysdir = [0u16; MAX_PATH as usize + 1];
-    let len = unsafe { GetSystemDirectoryW(sysdir.as_mut_ptr(), (sysdir.len() - 1) as u32) };
-    if len == 0 {
-        return Err(io::Error::last_os_error());
-    }
-    Ok(PathBuf::from(OsString::from_wide(
-        &sysdir[0..(len as usize)],
-    )))
 }

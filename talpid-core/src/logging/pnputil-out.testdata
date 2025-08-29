@@ -1,0 +1,12 @@
+InstanceId,DeviceDescription,ClassName,ClassGuid,ManufacturerName,Status,ProblemCode,ProblemStatus,DriverName,ExtensionDriverNames
+"SWD\MSRRAS\MS_PPPOEMINIPORT","WAN Miniport (PPPOE)","Net","{4d36e972-e325-11ce-bfc1-08002be10318}","Microsoft","Started","","","netrasa.inf",""
+"SWD\MSRRAS\MS_PPTPMINIPORT","WAN Miniport (PPTP)","Net","{4d36e972-e325-11ce-bfc1-08002be10318}","Microsoft","Started","","","netrasa.inf",""
+"SWD\MSRRAS\MS_AGILEVPNMINIPORT","WAN Miniport (IKEv2)","Net","{4d36e972-e325-11ce-bfc1-08002be10318}","Microsoft","Started","","","netavpna.inf",""
+"ROOT\KDNIC\0000","Microsoft Kernel Debug Network Adapter","Net","{4d36e972-e325-11ce-bfc1-08002be10318}","Microsoft","Started","","","kdnic.inf",""
+"USB\VID_0BDA&PID_8153\001000001","Realtek USB GbE Family Controller","Net","{4d36e972-e325-11ce-bfc1-08002be10318}","Realtek","Disconnected","","","oem1.inf",""
+"BTH\MS_BTHPAN\8&19b34d4&0&2","Bluetooth Device (Personal Area Network)","Net","{4d36e972-e325-11ce-bfc1-08002be10318}","Microsoft","Started","","","bthpan.inf",""
+"ROOT\VMS_MP\0000","Hyper-V Virtual Ethernet Adapter #3","Net","{4d36e972-e325-11ce-bfc1-08002be10318}","Microsoft","Started","","","wvms_mp_windows.inf",""
+"ROOT\WINTUN\0000","Wintun Userspace Tunnel","Net","{4d36e972-e325-11ce-bfc1-08002be10318}","WireGuard LLC","Started","","","oem2.inf",""
+"SWD\MSRRAS\MS_NDISWANIPV6","WAN Miniport (IPv6)","Net","{4d36e972-e325-11ce-bfc1-08002be10318}","Microsoft","Started","","","netrasa.inf",""
+"SWD\MSRRAS\MS_L2TPMINIPORT","WAN Miniport (L2TP)","Net","{4d36e972-e325-11ce-bfc1-08002be10318}","Microsoft","Started","","","netrasa.inf",""
+"ROOT\VMS_VSMP\0000","Hyper-V Virtual Switch Extension Adapter","Net","{4d36e972-e325-11ce-bfc1-08002be10318}","Microsoft","Started","","","wvms_mp_windows.inf",""

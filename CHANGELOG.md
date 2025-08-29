@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+#### Windows
+- Add additional logging for tunnel devices and split tunneling to problem reports.
+
 ### Security
 #### Windows
 - Block traffic to exit node from non-Mullvad processes. This fixes a leak where traffic could be

@@ -18,6 +18,9 @@ network-manager = ["talpid-dbus"]
 rs-release = "0.1.7"
 talpid-dbus = { path = "../talpid-dbus", optional = true }
 
+[target.'cfg(target_os = "windows")'.dependencies]
+talpid-windows = { path = "../talpid-windows" }
+
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
 features = [

@@ -1,5 +1,7 @@
 use std::{fs, io, path::Path};
 
+pub mod diag;
+
 /// Unable to create new log file
 #[derive(thiserror::Error, Debug)]
 #[error("Unable to create new log file")]
