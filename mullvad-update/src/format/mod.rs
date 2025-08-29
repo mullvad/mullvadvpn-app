@@ -116,6 +116,7 @@ pub struct Installer {
 /// Installer architecture
 #[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
+#[cfg_attr(feature = "strum", derive(strum::EnumIter))]
 pub enum Architecture {
     /// x86-64 architecture
     X86,
